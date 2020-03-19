@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B035D18B5F2
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:23:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C8B18B568
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729170AbgCSNWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:22:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48240 "EHLO mail.kernel.org"
+        id S1728295AbgCSNSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:18:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730263AbgCSNWl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:22:41 -0400
+        id S1729584AbgCSNSM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:18:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC383214D8;
-        Thu, 19 Mar 2020 13:22:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98E5421556;
+        Thu, 19 Mar 2020 13:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624161;
-        bh=apxNGTTawxO88AhaRt5S23Z7rTLns5Lk95jgyvF3/SA=;
+        s=default; t=1584623892;
+        bh=B7+I1mSmsDqDgm4UDj9cbHnSmDsai94jiaEQVKiE0ZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZDHO1qh/tATPTNXbA1JwlRnbM2AXiZKOJw1rjpVVEGgCvIWIMyCsKhiZIhm2iAKo8
-         8mjXTpreQjPQdZfBmkiXdBsenOeyQQpD+ME+/5Fn31YfUAK9qCoF9tti6jhcOEtk5I
-         vcRbxXiwjRlV333mbqUhrfaqNnaniKbal5Usa1CY=
+        b=kZjAWD5bUvXFWI08Y7lz8KxqzbkXfRzJDzAAec79QINQsFdWOhQVhGFJWmx2yzqKa
+         RazdkgQwxYGFPa3hW+xsym4rm2v6lErevibM1hmcwQMt/7RR8L2ixR8GXqgxsUb9KF
+         XUJfQquC4NsW8C4csxcoLpyOp9Mh7MaqaYLtqx64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>,
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/60] net: ll_temac: Fix race condition causing TX hang
+Subject: [PATCH 4.14 88/99] net: usb: qmi_wwan: restore mtu min/max values after raw_ip switch
 Date:   Thu, 19 Mar 2020 14:04:06 +0100
-Message-Id: <20200319123928.418978918@linuxfoundation.org>
+Message-Id: <20200319124006.527255358@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
-References: <20200319123919.441695203@linuxfoundation.org>
+In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
+References: <20200319123941.630731708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Esben Haabendal <esben@geanix.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 84823ff80f7403752b59e00bb198724100dc611c ]
+[ Upstream commit eae7172f8141eb98e64e6e81acc9e9d5b2add127 ]
 
-It is possible that the interrupt handler fires and frees up space in
-the TX ring in between checking for sufficient TX ring space and
-stopping the TX queue in temac_start_xmit. If this happens, the
-queue wake from the interrupt handler will occur before the queue is
-stopped, causing a lost wakeup and the adapter's transmit hanging.
+usbnet creates network interfaces with min_mtu = 0 and
+max_mtu = ETH_MAX_MTU.
 
-To avoid this, after stopping the queue, check again whether there is
-sufficient space in the TX ring. If so, wake up the queue again.
+These values are not modified by qmi_wwan when the network interface
+is created initially, allowing, for example, to set mtu greater than 1500.
 
-This is a port of the similar fix in axienet driver,
-commit 7de44285c1f6 ("net: axienet: Fix race condition causing TX hang").
+When a raw_ip switch is done (raw_ip set to 'Y', then set to 'N') the mtu
+values for the network interface are set through ether_setup, with
+min_mtu = ETH_MIN_MTU and max_mtu = ETH_DATA_LEN, not allowing anymore to
+set mtu greater than 1500 (error: mtu greater than device maximum).
 
-Fixes: 23ecc4bde21f ("net: ll_temac: fix checksum offload logic")
-Signed-off-by: Esben Haabendal <esben@geanix.com>
+The patch restores the original min/max mtu values set by usbnet after a
+raw_ip switch.
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/ll_temac_main.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
-index 21c1b4322ea78..fd578568b3bff 100644
---- a/drivers/net/ethernet/xilinx/ll_temac_main.c
-+++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
-@@ -788,6 +788,9 @@ static void temac_start_xmit_done(struct net_device *ndev)
- 		stat = be32_to_cpu(cur_p->app0);
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 189715438328f..a8d5561afc7d4 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -274,6 +274,9 @@ static void qmi_wwan_netdev_setup(struct net_device *net)
+ 		netdev_dbg(net, "mode: raw IP\n");
+ 	} else if (!net->header_ops) { /* don't bother if already set */
+ 		ether_setup(net);
++		/* Restoring min/max mtu values set originally by usbnet */
++		net->min_mtu = 0;
++		net->max_mtu = ETH_MAX_MTU;
+ 		clear_bit(EVENT_NO_IP_ALIGN, &dev->flags);
+ 		netdev_dbg(net, "mode: Ethernet\n");
  	}
- 
-+	/* Matches barrier in temac_start_xmit */
-+	smp_mb();
-+
- 	netif_wake_queue(ndev);
- }
- 
-@@ -830,9 +833,19 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- 	cur_p = &lp->tx_bd_v[lp->tx_bd_tail];
- 
- 	if (temac_check_tx_bd_space(lp, num_frag + 1)) {
--		if (!netif_queue_stopped(ndev))
--			netif_stop_queue(ndev);
--		return NETDEV_TX_BUSY;
-+		if (netif_queue_stopped(ndev))
-+			return NETDEV_TX_BUSY;
-+
-+		netif_stop_queue(ndev);
-+
-+		/* Matches barrier in temac_start_xmit_done */
-+		smp_mb();
-+
-+		/* Space might have just been freed - check again */
-+		if (temac_check_tx_bd_space(lp, num_frag))
-+			return NETDEV_TX_BUSY;
-+
-+		netif_wake_queue(ndev);
- 	}
- 
- 	cur_p->app0 = 0;
 -- 
 2.20.1
 
