@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C64B18B653
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:25:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EFC318B586
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:19:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730693AbgCSNZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53602 "EHLO mail.kernel.org"
+        id S1729879AbgCSNT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:19:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730694AbgCSNZv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:25:51 -0400
+        id S1729876AbgCSNTZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:19:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8045D208C3;
-        Thu, 19 Mar 2020 13:25:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3654421556;
+        Thu, 19 Mar 2020 13:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624351;
-        bh=kJdYtdkXoUJqBCbsGNBYogiLr8GIFp4ngkilDarlmMY=;
+        s=default; t=1584623964;
+        bh=DS4d0xy1Khr+6R+77xJv4V21rN4lNRAPhTHaX8q9uow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDmgnlBAdY82QQ6cayWDQgfBx8T2WYBPyIabciDR/EpXXhdW5eRGUyf/dBCU70sHQ
-         Yq+nFlDEu7H42l/sG75fjmLUsvXQj2Tk5Fs99e+xSSz0u2/ocJy/IaxPZDjGJTWmAE
-         ro2MdfcbAec7sI6WfswFNrbhft+CdaV2MiiubkAk=
+        b=OabFKhy2e3IqDSCIIXVFHgA5cdu813O1IifXtrjNgOhlFWRYLPXtgxzjYABaAotLm
+         0vWzqN43zdnt6A5u8zndOTIQPuUdVDSc4aDHTFRWseIv09z1Zl0+kRJjose6QIVznq
+         VkRLKe2LtIxgUWnvM31Fk978gXp3ha9HHblSCMM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruce Ashfield <bruce.ashfield@gmail.com>,
-        Victor Kamensky <kamensky@cisco.com>,
-        Paul Burton <paulburton@kernel.org>,
-        linux-mips@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        richard.purdie@linuxfoundation.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 13/65] mips: vdso: fix jalr t9 crash in vdso code
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 13/48] cfg80211: check reg_rule for NULL in handle_channel_custom()
 Date:   Thu, 19 Mar 2020 14:03:55 +0100
-Message-Id: <20200319123930.497716995@linuxfoundation.org>
+Message-Id: <20200319123907.202125149@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
+References: <20200319123902.941451241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,62 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Kamensky <kamensky@cisco.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit d3f703c4359ff06619b2322b91f69710453e6b6d ]
+[ Upstream commit a7ee7d44b57c9ae174088e53a668852b7f4f452d ]
 
-Observed that when kernel is built with Yocto mips64-poky-linux-gcc,
-and mips64-poky-linux-gnun32-gcc toolchain, resulting vdso contains
-'jalr t9' instructions in its code and since in vdso case nobody
-sets GOT table code crashes when instruction reached. On other hand
-observed that when kernel is built mips-poky-linux-gcc toolchain, the
-same 'jalr t9' instruction are replaced with PC relative function
-calls using 'bal' instructions.
+We may end up with a NULL reg_rule after the loop in
+handle_channel_custom() if the bandwidth didn't fit,
+check if this is the case and bail out if so.
 
-The difference boils down to -mrelax-pic-calls and -mexplicit-relocs
-gcc options that gets different default values depending on gcc
-target triplets and corresponding binutils. -mrelax-pic-calls got
-enabled by default only in mips-poky-linux-gcc case. MIPS binutils
-ld relies on R_MIPS_JALR relocation to convert 'jalr t9' into 'bal'
-and such relocation is generated only if -mrelax-pic-calls option
-is on.
-
-Please note 'jalr t9' conversion to 'bal' can happen only to static
-functions. These static PIC calls use mips local GOT entries that
-are supposed to be filled with start of DSO value by run-time linker
-(missing in VDSO case) and they do not have dynamic relocations.
-Global mips GOT entries must have dynamic relocations and they should
-be prevented by cmd_vdso_check Makefile rule.
-
-Solution call out -mrelax-pic-calls and -mexplicit-relocs options
-explicitly while compiling MIPS vdso code. That would get correct
-and consistent between different toolchains behaviour.
-
-Reported-by: Bruce Ashfield <bruce.ashfield@gmail.com>
-Signed-off-by: Victor Kamensky <kamensky@cisco.com>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: richard.purdie@linuxfoundation.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20200221104449.3b558a50201c.I4ad3725c4dacaefd2d18d3cc65ba6d18acd5dbfe@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ net/wireless/reg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
-index e05938997e696..96afd73c94e8a 100644
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -29,6 +29,7 @@ endif
- cflags-vdso := $(ccflags-vdso) \
- 	$(filter -W%,$(filter-out -Wa$(comma)%,$(KBUILD_CFLAGS))) \
- 	-O3 -g -fPIC -fno-strict-aliasing -fno-common -fno-builtin -G 0 \
-+	-mrelax-pic-calls -mexplicit-relocs \
- 	-fno-stack-protector -fno-jump-tables -DDISABLE_BRANCH_PROFILING \
- 	$(call cc-option, -fno-asynchronous-unwind-tables) \
- 	$(call cc-option, -fno-stack-protector)
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index 018c60be153a7..32f575857e415 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -2269,7 +2269,7 @@ static void handle_channel_custom(struct wiphy *wiphy,
+ 			break;
+ 	}
+ 
+-	if (IS_ERR(reg_rule)) {
++	if (IS_ERR_OR_NULL(reg_rule)) {
+ 		pr_debug("Disabling freq %d MHz as custom regd has no rule that fits it\n",
+ 			 chan->center_freq);
+ 		if (wiphy->regulatory_flags & REGULATORY_WIPHY_SELF_MANAGED) {
 -- 
 2.20.1
 
