@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5091818B4B9
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:12:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2493218B44D
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:08:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728842AbgCSNMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:12:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57828 "EHLO mail.kernel.org"
+        id S1728142AbgCSNI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:08:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728854AbgCSNMH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:12:07 -0400
+        id S1727103AbgCSNIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:08:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5070E20789;
-        Thu, 19 Mar 2020 13:12:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FC05208D5;
+        Thu, 19 Mar 2020 13:08:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623526;
-        bh=37IbBqLuNpRaJ63nEje/tplB7sW/wU0F1VpJtr72Vro=;
+        s=default; t=1584623303;
+        bh=CsQT18CPjTjTSx68+Br9l53FvcOFAGgFl8ji2Gx8FMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nncoxFYk4meKexOxw5j6gLNToyb1s3LPcKSWI+4cqXmPHJK+2Hu5hazg5kcdRbGF/
-         fQ5JbzuTbAA039nFtGkfafgli/Eaczu637ynTH0aGKs+SVRCYAVGfkumd074yUmZuk
-         NPc11ZL8+hjzYbfCJJyW1mr9Jq0c+a8uVF8SsuW8=
+        b=TzrI35XuZsmEumHF7docExG3onYQfYwJLOO8Km6DWEGntn8DOk8payA71RKf16Yq3
+         o8XDG0s3On+OQK2JDyVM+Qjrzqdc+Wtr/5OAQh8BYLI7kaDMuUKhAimzgsAm8BSpEO
+         Wi8zzcRQk0+SyV/5mRJAWZjryoSD9MmOJdunTJh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-Subject: [PATCH 4.9 40/90] iommu/vt-d: dmar: replace WARN_TAINT with pr_warn + add_taint
-Date:   Thu, 19 Mar 2020 14:00:02 +0100
-Message-Id: <20200319123941.098226843@linuxfoundation.org>
+        Sven Eckelmann <sven@narfation.org>,
+        Antonio Quartulli <a@unstable.cc>,
+        Marek Lindner <mareklindner@neomailbox.ch>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.4 60/93] batman-adv: Fix speedy join in gateway client mode
+Date:   Thu, 19 Mar 2020 14:00:04 +0100
+Message-Id: <20200319123943.958803953@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
-References: <20200319123928.635114118@linuxfoundation.org>
+In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
+References: <20200319123924.795019515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit 59833696442c674acbbd297772ba89e7ad8c753d upstream.
+commit d1fe176ca51fa3cb35f70c1d876d9a090e9befce upstream.
 
-Quoting from the comment describing the WARN functions in
-include/asm-generic/bug.h:
+Speedy join only works when the received packet is either broadcast or an
+4addr unicast packet. Thus packets converted from broadcast to unicast via
+the gateway handling code have to be converted to 4addr packets to allow
+the receiving gateway server to add the sender address as temporary entry
+to the translation table.
 
- * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
- * significant kernel issues that need prompt attention if they should ever
- * appear at runtime.
- *
- * Do not use these macros when checking for invalid external inputs
+Not doing it will make the batman-adv gateway server drop the DHCP response
+in many situations because it doesn't yet have the TT entry for the
+destination of the DHCP response.
 
-The (buggy) firmware tables which the dmar code was calling WARN_TAINT
-for really are invalid external inputs. They are not under the kernel's
-control and the issues in them cannot be fixed by a kernel update.
-So logging a backtrace, which invites bug reports to be filed about this,
-is not helpful.
-
-Some distros, e.g. Fedora, have tools watching for the kernel backtraces
-logged by the WARN macros and offer the user an option to file a bug for
-this when these are encountered. The WARN_TAINT in warn_invalid_dmar()
-+ another iommu WARN_TAINT, addressed in another patch, have lead to over
-a 100 bugs being filed this way.
-
-This commit replaces the WARN_TAINT("...") calls, with
-pr_warn(FW_BUG "...") + add_taint(TAINT_FIRMWARE_WORKAROUND, ...) calls
-avoiding the backtrace and thus also avoiding bug-reports being filed
-about this against the kernel.
-
-Fixes: fd0c8894893c ("intel-iommu: Set a more specific taint flag for invalid BIOS DMAR tables")
-Fixes: e625b4a95d50 ("iommu/vt-d: Parse ANDD records")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200309140138.3753-2-hdegoede@redhat.com
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1564895
+Fixes: 371351731e9c ("batman-adv: change interface_rx to get orig node")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Acked-by: Antonio Quartulli <a@unstable.cc>
+Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iommu/dmar.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/batman-adv/send.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -450,12 +450,13 @@ static int __init dmar_parse_one_andd(st
+--- a/net/batman-adv/send.c
++++ b/net/batman-adv/send.c
+@@ -381,8 +381,8 @@ int batadv_send_skb_via_gw(struct batadv
+ 	struct batadv_orig_node *orig_node;
  
- 	/* Check for NUL termination within the designated length */
- 	if (strnlen(andd->device_name, header->length - 8) == header->length - 8) {
--		WARN_TAINT(1, TAINT_FIRMWARE_WORKAROUND,
-+		pr_warn(FW_BUG
- 			   "Your BIOS is broken; ANDD object name is not NUL-terminated\n"
- 			   "BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 			   dmi_get_system_info(DMI_BIOS_VENDOR),
- 			   dmi_get_system_info(DMI_BIOS_VERSION),
- 			   dmi_get_system_info(DMI_PRODUCT_VERSION));
-+		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- 		return -EINVAL;
- 	}
- 	pr_info("ANDD device: %x name: %s\n", andd->device_number,
-@@ -481,14 +482,14 @@ static int dmar_parse_one_rhsa(struct ac
- 			return 0;
- 		}
- 	}
--	WARN_TAINT(
--		1, TAINT_FIRMWARE_WORKAROUND,
-+	pr_warn(FW_BUG
- 		"Your BIOS is broken; RHSA refers to non-existent DMAR unit at %llx\n"
- 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 		drhd->reg_base_addr,
- 		dmi_get_system_info(DMI_BIOS_VENDOR),
- 		dmi_get_system_info(DMI_BIOS_VERSION),
- 		dmi_get_system_info(DMI_PRODUCT_VERSION));
-+	add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- 
- 	return 0;
- }
-@@ -834,14 +835,14 @@ int __init dmar_table_init(void)
- 
- static void warn_invalid_dmar(u64 addr, const char *message)
- {
--	WARN_TAINT_ONCE(
--		1, TAINT_FIRMWARE_WORKAROUND,
-+	pr_warn_once(FW_BUG
- 		"Your BIOS is broken; DMAR reported at address %llx%s!\n"
- 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 		addr, message,
- 		dmi_get_system_info(DMI_BIOS_VENDOR),
- 		dmi_get_system_info(DMI_BIOS_VERSION),
- 		dmi_get_system_info(DMI_PRODUCT_VERSION));
-+	add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
+ 	orig_node = batadv_gw_get_selected_orig(bat_priv);
+-	return batadv_send_skb_unicast(bat_priv, skb, BATADV_UNICAST, 0,
+-				       orig_node, vid);
++	return batadv_send_skb_unicast(bat_priv, skb, BATADV_UNICAST_4ADDR,
++				       BATADV_P_DATA, orig_node, vid);
  }
  
- static int __ref
+ void batadv_schedule_bat_ogm(struct batadv_hard_iface *hard_iface)
 
 
