@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB2118B738
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:32:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E217B18B748
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:32:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729649AbgCSNR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:17:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38730 "EHLO mail.kernel.org"
+        id S1729151AbgCSNP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:15:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729625AbgCSNR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:17:28 -0400
+        id S1728849AbgCSNP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:15:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DD3F214D8;
-        Thu, 19 Mar 2020 13:17:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6396320787;
+        Thu, 19 Mar 2020 13:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623847;
-        bh=lNVsuRXpgvXZwEl2RJXqzMTRLX3X5ySeRb2Lk48xa5g=;
+        s=default; t=1584623758;
+        bh=emAQ1ks/GIxq65CC1BJLH5x7t0QwPfOxG9+oR7i5p3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GycHsLyQfQFGg30QQ6ouFLhzEuRYl71RJ9A/K7cAPwFeEULZ4A+sg270nXpiUAyCy
-         FpjOrWVYwDAW8YTOLebILc6sImGWz5xrnO3W/ko4BDXW0jhj4QfsNubKxKdJd7A3q1
-         BDqsZmBvhAwOcCcZnI0IA9/4PrT+P2FBx5R1qbck=
+        b=jDHNb9//AxVPv2HXR4qEMz/qv2DUt02tNDUWZ4U+qIxauNMBE6uAypC2gl0uDftDz
+         s3wYMKqYID/D4JmUzqjS9rvP5jxjoMk2oNR4rIFlj65K4d1L/QQbNGHQvr+Tu6R7js
+         rrHDzqT6CHxrdm8ZnUrPyIr/mHY8QphE/puJKj7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Tejun Heo <tj@kernel.org>,
-        Lai Jiangshan <jiangshanlai@gmail.com>
-Subject: [PATCH 4.14 42/99] workqueue: dont use wq_select_unbound_cpu() for bound works
-Date:   Thu, 19 Mar 2020 14:03:20 +0100
-Message-Id: <20200319123954.599095451@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 44/99] ktest: Add timeout for ssh sync testing
+Date:   Thu, 19 Mar 2020 14:03:22 +0100
+Message-Id: <20200319123955.231263884@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
 References: <20200319123941.630731708@linuxfoundation.org>
@@ -45,61 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hillf Danton <hdanton@sina.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit aa202f1f56960c60e7befaa0f49c72b8fa11b0a8 upstream.
+commit 4d00fc477a2ce8b6d2b09fb34ef9fe9918e7d434 upstream.
 
-wq_select_unbound_cpu() is designed for unbound workqueues only, but
-it's wrongly called when using a bound workqueue too.
+Before rebooting the box, a "ssh sync" is called to the test machine to see
+if it is alive or not. But if the test machine is in a partial state, that
+ssh may never actually finish, and the ktest test hangs.
 
-Fixing this ensures work queued to a bound workqueue with
-cpu=WORK_CPU_UNBOUND always runs on the local CPU.
+Add a 10 second timeout to the sync test, which will fail after 10 seconds
+and then cause the test to reboot the test machine.
 
-Before, that would happen only if wq_unbound_cpumask happened to include
-it (likely almost always the case), or was empty, or we got lucky with
-forced round-robin placement.  So restricting
-/sys/devices/virtual/workqueue/cpumask to a small subset of a machine's
-CPUs would cause some bound work items to run unexpectedly there.
-
-Fixes: ef557180447f ("workqueue: schedule WORK_CPU_UNBOUND work on wq_unbound_cpumask CPUs")
-Cc: stable@vger.kernel.org # v4.5+
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-[dj: massage changelog]
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 6474ace999edd ("ktest.pl: Powercycle the box on reboot if no connection can be made")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/workqueue.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ tools/testing/ktest/ktest.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -1386,14 +1386,16 @@ static void __queue_work(int cpu, struct
- 	    WARN_ON_ONCE(!is_chained_work(wq)))
- 		return;
- retry:
--	if (req_cpu == WORK_CPU_UNBOUND)
--		cpu = wq_select_unbound_cpu(raw_smp_processor_id());
--
- 	/* pwq which will be used unless @work is executing elsewhere */
--	if (!(wq->flags & WQ_UNBOUND))
--		pwq = per_cpu_ptr(wq->cpu_pwqs, cpu);
--	else
-+	if (wq->flags & WQ_UNBOUND) {
-+		if (req_cpu == WORK_CPU_UNBOUND)
-+			cpu = wq_select_unbound_cpu(raw_smp_processor_id());
- 		pwq = unbound_pwq_by_node(wq, cpu_to_node(cpu));
-+	} else {
-+		if (req_cpu == WORK_CPU_UNBOUND)
-+			cpu = raw_smp_processor_id();
-+		pwq = per_cpu_ptr(wq->cpu_pwqs, cpu);
-+	}
+--- a/tools/testing/ktest/ktest.pl
++++ b/tools/testing/ktest/ktest.pl
+@@ -1345,7 +1345,7 @@ sub reboot {
  
- 	/*
- 	 * If @work was previously on a different pool, it might still be
+     } else {
+ 	# Make sure everything has been written to disk
+-	run_ssh("sync");
++	run_ssh("sync", 10);
+ 
+ 	if (defined($time)) {
+ 	    start_monitor;
 
 
