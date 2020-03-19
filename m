@@ -2,94 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 676F518B069
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 10:42:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DE8118B0C6
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 11:02:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726765AbgCSJmT convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 19 Mar 2020 05:42:19 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:59068 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725887AbgCSJmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 05:42:19 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 20613568-1500050 
-        for multiple; Thu, 19 Mar 2020 09:42:12 +0000
-Content-Type: text/plain; charset="utf-8"
+        id S1726979AbgCSKB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 06:01:57 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:60207 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726783AbgCSKB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 06:01:57 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jErzp-0004ya-QK; Thu, 19 Mar 2020 11:01:49 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 552141C229F;
+        Thu, 19 Mar 2020 11:01:49 +0100 (CET)
+Date:   Thu, 19 Mar 2020 10:01:49 -0000
+From:   "tip-bot2 for Borislav Petkov" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/ioremap: Fix CONFIG_EFI=n build
+Cc:     Randy Dunlap <rdunlap@infradead.org>, Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        <stable@vger.kernel.org>, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <7561e981-0d9b-d62c-0ef2-ce6007aff1ab@infradead.org>
+References: <7561e981-0d9b-d62c-0ef2-ce6007aff1ab@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20200317103307.316400146@linuxfoundation.org>
-References: <20200317103259.744774526@linuxfoundation.org> <20200317103307.316400146@linuxfoundation.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bhupesh Sharma <bhsharma@redhat.com>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Wen Yang <wenyang@linux.alibaba.com>,
-        Caspar Zhang <caspar@linux.alibaba.com>
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4.19 64/89] efi: Make efi_rts_work accessible to efi page fault handler
-Message-ID: <158461093093.6873.1396457313254708957@build.alporthouse.com>
-User-Agent: alot/0.8.1
-Date:   Thu, 19 Mar 2020 09:42:10 +0000
+Message-ID: <158461210901.28353.10235841690300952771.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Greg Kroah-Hartman (2020-03-17 10:55:13)
-> From: Sai Praneeth <sai.praneeth.prakhya@intel.com>
-> 
-> commit 9dbbedaa6171247c4c7c40b83f05b200a117c2e0 upstream.
-> 
-> After the kernel has booted, if any accesses by firmware causes a page
-> fault, the efi page fault handler would freeze efi_rts_wq and schedules
-> a new process. To do this, the efi page fault handler needs
-> efi_rts_work. Hence, make it accessible.
-> 
-> There will be no race conditions in accessing this structure, because
-> all the calls to efi runtime services are already serialized.
-> 
-> Tested-by: Bhupesh Sharma <bhsharma@redhat.com>
-> Suggested-by: Matt Fleming <matt@codeblueprint.co.uk>
-> Based-on-code-from: Ricardo Neri <ricardo.neri@intel.com>
-> Signed-off-by: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Fixes: 3eb420e70d87 (“efi: Use a work queue to invoke EFI Runtime Services”)
-> Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-> Cc: Caspar Zhang <caspar@linux.alibaba.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The following commit has been merged into the x86/urgent branch of tip:
 
-This requires the fix from
+Commit-ID:     870b4333a62e45b0b2000d14b301b7b8b8cad9da
+Gitweb:        https://git.kernel.org/tip/870b4333a62e45b0b2000d14b301b7b8b8cad9da
+Author:        Borislav Petkov <bp@suse.de>
+AuthorDate:    Wed, 18 Mar 2020 19:27:48 +01:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Thu, 19 Mar 2020 10:55:56 +01:00
 
-commit ef1491e791308317bb9851a0ad380c4a68b58d54
-Author: Waiman Long <longman@redhat.com>
-Date:   Wed Nov 14 09:55:40 2018 -0800
+x86/ioremap: Fix CONFIG_EFI=n build
 
-    efi: Fix debugobjects warning on 'efi_rts_work'
+In order to use efi_mem_type(), one needs CONFIG_EFI enabled. Otherwise
+that function is undefined. Use IS_ENABLED() to check and avoid the
+ifdeffery as the compiler optimizes away the following unreachable code
+then.
 
-    The following commit:
+Fixes: 985e537a4082 ("x86/ioremap: Map EFI runtime services data as encrypted for SEV")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/7561e981-0d9b-d62c-0ef2-ce6007aff1ab@infradead.org
+---
+ arch/x86/mm/ioremap.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-      9dbbedaa6171 ("efi: Make efi_rts_work accessible to efi page fault handler")
-
-    converted 'efi_rts_work' from an auto variable to a global variable.
-    However, when submitting the work, INIT_WORK_ONSTACK() was still used,
-    causing the following complaint from debugobjects:
-
-      ODEBUG: object 00000000ed27b500 is NOT on stack 00000000c7d38760, but annotated.
-
-    Change the macro to just INIT_WORK() to eliminate the warning.
-
-    Signed-off-by: Waiman Long <longman@redhat.com>
-    Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-    Acked-by: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
-    Cc: Linus Torvalds <torvalds@linux-foundation.org>
-    Cc: Peter Zijlstra <peterz@infradead.org>
-    Cc: Thomas Gleixner <tglx@linutronix.de>
-    Cc: linux-efi@vger.kernel.org
-    Fixes: 9dbbedaa6171 ("efi: Make efi_rts_work accessible to efi page fault handler")
-    Link: http://lkml.kernel.org/r/20181114175544.12860-2-ard.biesheuvel@linaro.org
-    Signed-off-by: Ingo Molnar <mingo@kernel.org>
-
+diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
+index 935a91e..18c637c 100644
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -115,6 +115,9 @@ static void __ioremap_check_other(resource_size_t addr, struct ioremap_desc *des
+ 	if (!sev_active())
+ 		return;
+ 
++	if (!IS_ENABLED(CONFIG_EFI))
++		return;
++
+ 	if (efi_mem_type(addr) == EFI_RUNTIME_SERVICES_DATA)
+ 		desc->flags |= IORES_MAP_ENCRYPTED;
+ }
