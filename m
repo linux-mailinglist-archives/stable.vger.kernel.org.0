@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1A6518B69D
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA4B18B61A
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:24:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730770AbgCSN2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:28:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56266 "EHLO mail.kernel.org"
+        id S1730440AbgCSNYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:24:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730939AbgCSN1s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:27:48 -0400
+        id S1730437AbgCSNYP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:24:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B3CA20B80;
-        Thu, 19 Mar 2020 13:27:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F7F220658;
+        Thu, 19 Mar 2020 13:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624467;
-        bh=GBW4HS3rcU46yI/YSEUk0+2oIxX7o1ouHTysQw84VJE=;
+        s=default; t=1584624254;
+        bh=BQ890SzTEouptVcWzFCmIJWKxJvivRGqcLrFbeFHC+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJE8zY3zFiHu1G9GgaeObnTvoqvho2FamydIMZ/2me2qdommr6cVvo9fza2KFu8mb
-         sk995LTuFBHpQg0E9S3Ve6S0Li8I8g0onqIXgfRU0IIGYPJl7DFVqshrYMipIuRB6M
-         62fZ7mxNC5Bx+/kPDFr7nj5IqRcAtHnBB1EFsH2Q=
+        b=M/jeLhZs2DWo5V+uLsXKArZzx/NN4Nbzri2aiE3rKAW1LbgeetdeLz7/UezKQn7cV
+         n1964o4rEviegRPF+8aH+pjB7L7hhlFIi9km3N1PNg63W8ZZE1F+WiisJ+ShhsJUNU
+         bH9Vb4AbWxbvR0vOiFaZfzHxVd5yBqK3iqCpxH/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Cohen <amitc@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 55/65] mlxsw: pci: Wait longer before accessing the device after reset
+        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 59/60] ARM: 8961/2: Fix Kbuild issue caused by per-task stack protector GCC plugin
 Date:   Thu, 19 Mar 2020 14:04:37 +0100
-Message-Id: <20200319123943.593234706@linuxfoundation.org>
+Message-Id: <20200319123937.957346883@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +47,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Cohen <amitc@mellanox.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit ac004e84164e27d69017731a97b11402a69d854b ]
+commit 89604523a76eb3e13014b2bdab7f8870becee284 upstream.
 
-During initialization the driver issues a reset to the device and waits
-for 100ms before checking if the firmware is ready. The waiting is
-necessary because before that the device is irresponsive and the first
-read can result in a completion timeout.
+When using plugins, GCC requires that the -fplugin= options precedes
+any of its plugin arguments appearing on the command line as well.
+This is usually not a concern, but as it turns out, this requirement
+is causing some issues with ARM's per-task stack protector plugin
+and Kbuild's implementation of $(cc-option).
 
-While 100ms is sufficient for Spectrum-1 and Spectrum-2, it is
-insufficient for Spectrum-3.
+When the per-task stack protector plugin is enabled, and we tweak
+the implementation of cc-option not to pipe the stderr output of
+GCC to /dev/null, the following output is generated when GCC is
+executed in the context of cc-option:
 
-Fix this by increasing the timeout to 200ms.
+  cc1: error: plugin arm_ssp_per_task_plugin should be specified before \
+         -fplugin-arg-arm_ssp_per_task_plugin-tso=1 in the command line
+  cc1: error: plugin arm_ssp_per_task_plugin should be specified before \
+         -fplugin-arg-arm_ssp_per_task_plugin-offset=24 in the command line
 
-Fixes: da382875c616 ("mlxsw: spectrum: Extend to support Spectrum-3 ASIC")
-Signed-off-by: Amit Cohen <amitc@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+These errors will cause any option passed to cc-option to be treated
+as unsupported, which is obviously incorrect.
+
+The cause of this issue is the fact that the -fplugin= argument is
+added to GCC_PLUGINS_CFLAGS, whereas the arguments above are added
+to KBUILD_CFLAGS, and the contents of the former get filtered out of
+the latter before being passed to the GCC running the cc-option test,
+and so the -fplugin= option does not appear at all on the GCC command
+line.
+
+Adding the arguments to GCC_PLUGINS_CFLAGS instead of KBUILD_CFLAGS
+would be the correct approach here, if it weren't for the fact that we
+are using $(eval) to defer the moment that they are added until after
+asm-offsets.h is generated, which is after the point where the contents
+of GCC_PLUGINS_CFLAGS are added to KBUILD_CFLAGS. So instead, we have
+to add our plugin arguments to both.
+
+For similar reasons, we cannot append DISABLE_ARM_SSP_PER_TASK_PLUGIN
+to KBUILD_CFLAGS, as it will be passed to GCC when executing in the
+context of cc-option, whereas the other plugin arguments will have
+been filtered out, resulting in a similar error and false negative
+result as above. So add it to ccflags-y instead.
+
+Fixes: 189af4657186da08 ("ARM: smp: add support for per-task stack canaries")
+Reported-by: Merlijn Wajer <merlijn@wizzup.org>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/mellanox/mlxsw/pci_hw.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/Makefile                 |    4 +++-
+ arch/arm/boot/compressed/Makefile |    4 ++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci_hw.h b/drivers/net/ethernet/mellanox/mlxsw/pci_hw.h
-index e0d7d2d9a0c81..43fa8c85b5d9f 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/pci_hw.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/pci_hw.h
-@@ -28,7 +28,7 @@
- #define MLXSW_PCI_SW_RESET			0xF0010
- #define MLXSW_PCI_SW_RESET_RST_BIT		BIT(0)
- #define MLXSW_PCI_SW_RESET_TIMEOUT_MSECS	900000
--#define MLXSW_PCI_SW_RESET_WAIT_MSECS		100
-+#define MLXSW_PCI_SW_RESET_WAIT_MSECS		200
- #define MLXSW_PCI_FW_READY			0xA1844
- #define MLXSW_PCI_FW_READY_MASK			0xFFFF
- #define MLXSW_PCI_FW_READY_MAGIC		0x5E
--- 
-2.20.1
-
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -307,13 +307,15 @@ endif
+ ifeq ($(CONFIG_STACKPROTECTOR_PER_TASK),y)
+ prepare: stack_protector_prepare
+ stack_protector_prepare: prepare0
+-	$(eval KBUILD_CFLAGS += \
++	$(eval SSP_PLUGIN_CFLAGS := \
+ 		-fplugin-arg-arm_ssp_per_task_plugin-tso=$(shell	\
+ 			awk '{if ($$2 == "THREAD_SZ_ORDER") print $$3;}'\
+ 				include/generated/asm-offsets.h)	\
+ 		-fplugin-arg-arm_ssp_per_task_plugin-offset=$(shell	\
+ 			awk '{if ($$2 == "TI_STACK_CANARY") print $$3;}'\
+ 				include/generated/asm-offsets.h))
++	$(eval KBUILD_CFLAGS += $(SSP_PLUGIN_CFLAGS))
++	$(eval GCC_PLUGINS_CFLAGS += $(SSP_PLUGIN_CFLAGS))
+ endif
+ 
+ all:	$(notdir $(KBUILD_IMAGE))
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -101,7 +101,6 @@ clean-files += piggy_data lib1funcs.S as
+ 		$(libfdt) $(libfdt_hdrs) hyp-stub.S
+ 
+ KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
+-KBUILD_CFLAGS += $(DISABLE_ARM_SSP_PER_TASK_PLUGIN)
+ 
+ ifeq ($(CONFIG_FUNCTION_TRACER),y)
+ ORIG_CFLAGS := $(KBUILD_CFLAGS)
+@@ -117,7 +116,8 @@ CFLAGS_fdt_ro.o := $(nossp_flags)
+ CFLAGS_fdt_rw.o := $(nossp_flags)
+ CFLAGS_fdt_wip.o := $(nossp_flags)
+ 
+-ccflags-y := -fpic $(call cc-option,-mno-single-pic-base,) -fno-builtin -I$(obj)
++ccflags-y := -fpic $(call cc-option,-mno-single-pic-base,) -fno-builtin \
++	     -I$(obj) $(DISABLE_ARM_SSP_PER_TASK_PLUGIN)
+ asflags-y := -DZIMAGE
+ 
+ # Supply kernel BSS size to the decompressor via a linker symbol.
 
 
