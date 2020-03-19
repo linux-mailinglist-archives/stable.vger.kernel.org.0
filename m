@@ -2,320 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BE9B18B6D3
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:30:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE23618B6F4
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:30:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729639AbgCSNWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:22:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48026 "EHLO mail.kernel.org"
+        id S1729973AbgCSNVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:21:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730243AbgCSNWg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:22:36 -0400
+        id S1729885AbgCSNVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:21:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BD5A206D7;
-        Thu, 19 Mar 2020 13:22:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F9E7206D7;
+        Thu, 19 Mar 2020 13:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624154;
-        bh=He8TZSn4gguk9XoBDHfUbJg9MQVz4jeLH65wZiRVTf8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=wOYjHu+THyMkhCpD9XHbrzQcpfJvGOEuQildXf9Gt776l5NN3Tzcn0rQZ2VZN1U2M
-         pgS4qAd+EcWmbwHc1VRXIFSaplvPrqz/fYpSMepjOCA/cMG/IEaDkBRw7kpoHFmSul
-         KDycA/bPzzpnCvQzBIe6NvLsVde2qUNgDLWezhXM=
+        s=default; t=1584624102;
+        bh=cG8xBS3xZCfN0tOEGRJjaUOF0nL+MWt/juF0Qz+0BpE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=2HBFfHYfWbgb3OySKWbXZyunskcTf90iHHtJ4PjtPDo2s0TowygfxJ8kzoE6/KJ2q
+         vpA+vsmu/AQTYRxfVBRdQAY1eDqYh+mln4T83GYxppdIyfpm//caWIbA+BivY2FizE
+         uTDXrF2t8rej1bEatw/DoqNdtuEMsTg5eprGvhU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.4 00/60] 5.4.27-rc1 review
-Date:   Thu, 19 Mar 2020 14:03:38 +0100
-Message-Id: <20200319123919.441695203@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 01/60] netfilter: hashlimit: do not use indirect calls during gc
+Date:   Thu, 19 Mar 2020 14:03:39 +0100
+Message-Id: <20200319123919.801650823@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-MIME-Version: 1.0
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.27-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.27-rc1
-X-KernelTest-Deadline: 2020-03-21T12:39+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.27 release.
-There are 60 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Florian Westphal <fw@strlen.de>
+
+[ Upstream commit 28b3a4270c0fc064557e409111f2a678e64b6fa7 ]
+
+no need, just use a simple boolean to indicate we want to reap all
+entries.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/netfilter/xt_hashlimit.c | 22 ++++------------------
+ 1 file changed, 4 insertions(+), 18 deletions(-)
+
+diff --git a/net/netfilter/xt_hashlimit.c b/net/netfilter/xt_hashlimit.c
+index 1b68a131083c2..7a2c4b8408c49 100644
+--- a/net/netfilter/xt_hashlimit.c
++++ b/net/netfilter/xt_hashlimit.c
+@@ -358,21 +358,7 @@ static int htable_create(struct net *net, struct hashlimit_cfg3 *cfg,
+ 	return 0;
+ }
+ 
+-static bool select_all(const struct xt_hashlimit_htable *ht,
+-		       const struct dsthash_ent *he)
+-{
+-	return true;
+-}
+-
+-static bool select_gc(const struct xt_hashlimit_htable *ht,
+-		      const struct dsthash_ent *he)
+-{
+-	return time_after_eq(jiffies, he->expires);
+-}
+-
+-static void htable_selective_cleanup(struct xt_hashlimit_htable *ht,
+-			bool (*select)(const struct xt_hashlimit_htable *ht,
+-				      const struct dsthash_ent *he))
++static void htable_selective_cleanup(struct xt_hashlimit_htable *ht, bool select_all)
+ {
+ 	unsigned int i;
+ 
+@@ -382,7 +368,7 @@ static void htable_selective_cleanup(struct xt_hashlimit_htable *ht,
+ 
+ 		spin_lock_bh(&ht->lock);
+ 		hlist_for_each_entry_safe(dh, n, &ht->hash[i], node) {
+-			if ((*select)(ht, dh))
++			if (time_after_eq(jiffies, dh->expires) || select_all)
+ 				dsthash_free(ht, dh);
+ 		}
+ 		spin_unlock_bh(&ht->lock);
+@@ -396,7 +382,7 @@ static void htable_gc(struct work_struct *work)
+ 
+ 	ht = container_of(work, struct xt_hashlimit_htable, gc_work.work);
+ 
+-	htable_selective_cleanup(ht, select_gc);
++	htable_selective_cleanup(ht, false);
+ 
+ 	queue_delayed_work(system_power_efficient_wq,
+ 			   &ht->gc_work, msecs_to_jiffies(ht->cfg.gc_interval));
+@@ -420,7 +406,7 @@ static void htable_destroy(struct xt_hashlimit_htable *hinfo)
+ {
+ 	cancel_delayed_work_sync(&hinfo->gc_work);
+ 	htable_remove_proc_entry(hinfo);
+-	htable_selective_cleanup(hinfo, select_all);
++	htable_selective_cleanup(hinfo, true);
+ 	kfree(hinfo->name);
+ 	vfree(hinfo);
+ }
+-- 
+2.20.1
 
-Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.27-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.27-rc1
-
-Matteo Croce <mcroce@redhat.com>
-    ipv4: ensure rcu_read_lock() in cipso_v4_error()
-
-Ard Biesheuvel <ardb@kernel.org>
-    ARM: 8961/2: Fix Kbuild issue caused by per-task stack protector GCC plugin
-
-Tony Fischetti <tony.fischetti@gmail.com>
-    HID: add ALWAYS_POLL quirk to lenovo pixart mouse
-
-Chen-Tsung Hsieh <chentsung@chromium.org>
-    HID: google: add moonball USB id
-
-Jann Horn <jannh@google.com>
-    mm: slub: add missing TID bump in kmem_cache_alloc_bulk()
-
-Kees Cook <keescook@chromium.org>
-    ARM: 8958/1: rename missed uaccess .fixup section
-
-Florian Fainelli <f.fainelli@gmail.com>
-    ARM: 8957/1: VDSO: Match ARMv8 timer in cntvct_functional()
-
-Carl Huang <cjhuang@codeaurora.org>
-    net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
-
-Ming Lei <ming.lei@redhat.com>
-    blk-mq: insert flush request to the front of dispatch queue
-
-Qian Cai <cai@lca.pw>
-    jbd2: fix data races at struct journal_head
-
-Alex Maftei (amaftei) <amaftei@solarflare.com>
-    sfc: fix timestamp reconstruction at 16-bit rollover points
-
-Taehee Yoo <ap420073@gmail.com>
-    net: rmnet: fix packet forwarding in rmnet bridge mode
-
-Taehee Yoo <ap420073@gmail.com>
-    net: rmnet: fix bridge mode bugs
-
-Taehee Yoo <ap420073@gmail.com>
-    net: rmnet: use upper/lower device infrastructure
-
-Taehee Yoo <ap420073@gmail.com>
-    net: rmnet: do not allow to change mux id if mux id is duplicated
-
-Taehee Yoo <ap420073@gmail.com>
-    net: rmnet: remove rcu_read_lock in rmnet_force_unassociate_device()
-
-Taehee Yoo <ap420073@gmail.com>
-    net: rmnet: fix suspicious RCU usage
-
-Taehee Yoo <ap420073@gmail.com>
-    net: rmnet: fix NULL pointer dereference in rmnet_changelink()
-
-Taehee Yoo <ap420073@gmail.com>
-    net: rmnet: fix NULL pointer dereference in rmnet_newlink()
-
-Luo bin <luobin9@huawei.com>
-    hinic: fix a bug of rss configuration
-
-Luo bin <luobin9@huawei.com>
-    hinic: fix a bug of setting hw_ioctxt
-
-Luo bin <luobin9@huawei.com>
-    hinic: fix a irq affinity bug
-
-Antoine Tenart <antoine.tenart@bootlin.com>
-    net: phy: mscc: fix firmware paths
-
-yangerkun <yangerkun@huawei.com>
-    slip: not call free_netdev before rtnl_unlock in slip_open
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    signal: avoid double atomic counter increments for user accounting
-
-Masahiro Yamada <masahiroy@kernel.org>
-    kbuild: add dt_binding_check to PHONY in a correct place
-
-Masahiro Yamada <masahiroy@kernel.org>
-    kbuild: add dtbs_check to PHONY
-
-Monk Liu <Monk.Liu@amd.com>
-    drm/amdgpu: fix memory leak during TDR test(v2)
-
-Ming Lei <ming.lei@redhat.com>
-    blk-mq: insert passthrough request into hctx->dispatch directly
-
-Esben Haabendal <esben@geanix.com>
-    net: ll_temac: Handle DMA halt condition caused by buffer underrun
-
-Esben Haabendal <esben@geanix.com>
-    net: ll_temac: Fix RX buffer descriptor handling on GFP_ATOMIC pressure
-
-Esben Haabendal <esben@geanix.com>
-    net: ll_temac: Add more error handling of dma_map_single() calls
-
-Esben Haabendal <esben@geanix.com>
-    net: ll_temac: Fix race condition causing TX hang
-
-Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-    mac80211: rx: avoid RCU list traversal under mutex
-
-Marek Vasut <marex@denx.de>
-    net: ks8851-ml: Fix IRQ handling and locking
-
-Daniele Palmas <dnlplm@gmail.com>
-    net: usb: qmi_wwan: restore mtu min/max values after raw_ip switch
-
-Igor Druzhinin <igor.druzhinin@citrix.com>
-    scsi: libfc: free response frame from GPN_ID
-
-Johannes Berg <johannes.berg@intel.com>
-    cfg80211: check reg_rule for NULL in handle_channel_custom()
-
-Tom Zanussi <zanussi@kernel.org>
-    tracing: Fix number printing bug in print_synth_event()
-
-Michael Ellerman <mpe@ellerman.id.au>
-    selftests/rseq: Fix out-of-tree compilation
-
-Nathan Chancellor <natechancellor@gmail.com>
-    MIPS: vdso: Wrap -mexplicit-relocs in cc-option
-
-Hanno Zulla <kontakt@hanno.de>
-    HID: hid-bigbenff: fix race condition for scheduled work during removal
-
-Hanno Zulla <kontakt@hanno.de>
-    HID: hid-bigbenff: call hid_hw_stop() in case of error
-
-Hanno Zulla <kontakt@hanno.de>
-    HID: hid-bigbenff: fix general protection fault caused by double kfree
-
-Victor Kamensky <kamensky@cisco.com>
-    mips: vdso: add build time check that no 'jalr t9' calls left
-
-Paul Burton <paulburton@kernel.org>
-    MIPS: Disable VDSO time functionality on microMIPS
-
-Victor Kamensky <kamensky@cisco.com>
-    mips: vdso: fix 'jalr t9' crash in vdso code
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    HID: i2c-hid: add Trekstor Surfbook E11B to descriptor override
-
-Mika Westerberg <mika.westerberg@linux.intel.com>
-    ACPI: watchdog: Set default timeout in probe
-
-Mansour Behabadi <mansour@oxplot.com>
-    HID: apple: Add support for recent firmware on Magic Keyboards
-
-Jean Delvare <jdelvare@suse.de>
-    ACPI: watchdog: Allow disabling WDAT at boot
-
-Ulf Hansson <ulf.hansson@linaro.org>
-    mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for erase/trim/discard
-
-Ulf Hansson <ulf.hansson@linaro.org>
-    mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
-
-Ulf Hansson <ulf.hansson@linaro.org>
-    mmc: sdhci-omap: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
-
-Ulf Hansson <ulf.hansson@linaro.org>
-    mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
-
-Ulf Hansson <ulf.hansson@linaro.org>
-    mmc: core: Allow host controllers to require R1B for CMD6
-
-Ulf Hansson <ulf.hansson@linaro.org>
-    mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
-
-Felix Kuehling <Felix.Kuehling@amd.com>
-    drm/amdgpu: Fix TLB invalidation request when using semaphore
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    netfilter: xt_hashlimit: unregister proc file before releasing mutex
-
-Florian Westphal <fw@strlen.de>
-    netfilter: hashlimit: do not use indirect calls during gc
-
-
--------------
-
-Diffstat:
-
- Documentation/admin-guide/kernel-parameters.txt    |   4 +
- Makefile                                           |   7 +-
- arch/arm/Makefile                                  |   4 +-
- arch/arm/boot/compressed/Makefile                  |   4 +-
- arch/arm/kernel/vdso.c                             |   2 +
- arch/arm/lib/copy_from_user.S                      |   2 +-
- arch/mips/vdso/Makefile                            |  28 ++-
- block/blk-flush.c                                  |   2 +-
- block/blk-mq-sched.c                               |  44 ++++-
- block/blk-mq.c                                     |  18 +-
- block/blk-mq.h                                     |   3 +-
- drivers/acpi/acpi_watchdog.c                       |  12 +-
- drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c             |   5 +-
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c              |   8 +-
- drivers/gpu/drm/amd/powerplay/smu_v11_0.c          |   6 +-
- drivers/hid/hid-apple.c                            |   3 +-
- drivers/hid/hid-bigbenff.c                         |  31 ++-
- drivers/hid/hid-google-hammer.c                    |   2 +
- drivers/hid/hid-ids.h                              |   2 +
- drivers/hid/hid-quirks.c                           |   1 +
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c           |   8 +
- drivers/mmc/core/core.c                            |   5 +-
- drivers/mmc/core/mmc.c                             |   7 +-
- drivers/mmc/core/mmc_ops.c                         |  27 ++-
- drivers/mmc/host/sdhci-omap.c                      |   3 +
- drivers/mmc/host/sdhci-tegra.c                     |   3 +
- drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c   |   1 +
- drivers/net/ethernet/huawei/hinic/hinic_hw_dev.h   |   2 +-
- drivers/net/ethernet/huawei/hinic/hinic_hw_if.h    |   1 +
- drivers/net/ethernet/huawei/hinic/hinic_hw_qp.h    |   1 +
- drivers/net/ethernet/huawei/hinic/hinic_main.c     |   3 +-
- drivers/net/ethernet/huawei/hinic/hinic_rx.c       |   5 +-
- drivers/net/ethernet/micrel/ks8851_mll.c           |  14 +-
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c | 186 +++++++++---------
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.h |   3 +-
- .../net/ethernet/qualcomm/rmnet/rmnet_handlers.c   |   7 +-
- drivers/net/ethernet/qualcomm/rmnet/rmnet_vnd.c    |   8 -
- drivers/net/ethernet/qualcomm/rmnet/rmnet_vnd.h    |   1 -
- drivers/net/ethernet/sfc/ptp.c                     |  38 +++-
- drivers/net/ethernet/xilinx/ll_temac.h             |   4 +
- drivers/net/ethernet/xilinx/ll_temac_main.c        | 209 +++++++++++++++++----
- drivers/net/phy/mscc.c                             |   4 +-
- drivers/net/slip/slip.c                            |   3 +
- drivers/net/usb/qmi_wwan.c                         |   3 +
- drivers/scsi/libfc/fc_disc.c                       |   2 +
- drivers/watchdog/wdat_wdt.c                        |  23 +++
- fs/jbd2/transaction.c                              |   8 +-
- include/linux/mmc/host.h                           |   1 +
- kernel/signal.c                                    |  23 ++-
- kernel/trace/trace_events_hist.c                   |  32 +++-
- mm/slub.c                                          |   9 +
- net/ipv4/cipso_ipv4.c                              |   7 +-
- net/mac80211/rx.c                                  |   2 +-
- net/netfilter/xt_hashlimit.c                       |  36 +---
- net/qrtr/qrtr.c                                    |   2 +-
- net/wireless/reg.c                                 |   2 +-
- tools/testing/selftests/rseq/Makefile              |   2 +-
- 57 files changed, 615 insertions(+), 268 deletions(-)
 
 
