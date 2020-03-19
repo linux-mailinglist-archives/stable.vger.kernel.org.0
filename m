@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 068A718B7DD
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:36:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A314418B762
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:33:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728369AbgCSNJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:09:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54210 "EHLO mail.kernel.org"
+        id S1727923AbgCSNN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:13:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728364AbgCSNJi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:09:38 -0400
+        id S1729176AbgCSNN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:13:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3CFF208D6;
-        Thu, 19 Mar 2020 13:09:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08291215A4;
+        Thu, 19 Mar 2020 13:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623378;
-        bh=8LF/TtF4aX1kJVWTrhTdRdKARRMVWsPJAm5F9NZi6pw=;
+        s=default; t=1584623607;
+        bh=yjNi86oaFDSgqj6/yczUW2ND54b8u6jSPhwePg5HJdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HuR2g2rPKPmmXOvjXt0pnidEc+VqahxI1e438ErRYLwkMr2cDUVQsc//7ldVkGHlQ
-         meGel3fZC0IvCIWir+qlf7NIGWGVnqhTdalIaIXD2BNJ7CukeOoh33723XXjATn+VP
-         cvGgtzQUDZak5U/oDsbLvXyjQvAYyOgtrPRYDMnQ=
+        b=w0YGpeDaejPu/MX1zzH5ky8n9G00WUbiuB+yJHxwJPKN326V37ZWiCXluYS0XjgF4
+         //cok2l8HI6U8l3Mbd+BmeBW4b8qOvgUp/z0Ki8qernaEsU27OEd2rRsc16UMZyVCd
+         Udu/Em2J4qT6Lj9cWX5vz5T40Fv4O7/ARj7YOCzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Matteo Croce <mcroce@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 93/93] ipv4: ensure rcu_read_lock() in cipso_v4_error()
-Date:   Thu, 19 Mar 2020 14:00:37 +0100
-Message-Id: <20200319123953.796484125@linuxfoundation.org>
+        Sven Eckelmann <sven@narfation.org>,
+        Antonio Quartulli <a@unstable.cc>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.9 76/90] batman-adv: Avoid probe ELP information leak
+Date:   Thu, 19 Mar 2020 14:00:38 +0100
+Message-Id: <20200319123951.944994893@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
-References: <20200319123924.795019515@linuxfoundation.org>
+In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
+References: <20200319123928.635114118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@redhat.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit 3e72dfdf8227b052393f71d820ec7599909dddc2 upstream.
+commit 88d0895d0ea9d4431507d576c963f2ff9918144d upstream.
 
-Similarly to commit c543cb4a5f07 ("ipv4: ensure rcu_read_lock() in
-ipv4_link_failure()"), __ip_options_compile() must be called under rcu
-protection.
+The probe ELPs for WiFi interfaces are expanded to contain at least
+BATADV_ELP_MIN_PROBE_SIZE bytes. This is usually a lot more than the
+number of bytes which the template ELP packet requires.
 
-Fixes: 3da1ed7ac398 ("net: avoid use IPCB in cipso_v4_error")
-Suggested-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Matteo Croce <mcroce@redhat.com>
-Acked-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+These extra padding bytes were not initialized and thus could contain data
+which were previously stored at the same location. It is therefore required
+to set it to some predefined or random values to avoid leaking private
+information from the system transmitting these kind of packets.
+
+Fixes: e4623c913508 ("batman-adv: Avoid probe ELP information leak")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Acked-by: Antonio Quartulli <a@unstable.cc>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/ipv4/cipso_ipv4.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/batman-adv/bat_v_elp.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -1809,6 +1809,7 @@ void cipso_v4_error(struct sk_buff *skb,
- {
- 	unsigned char optbuf[sizeof(struct ip_options) + 40];
- 	struct ip_options *opt = (struct ip_options *)optbuf;
-+	int res;
+--- a/net/batman-adv/bat_v_elp.c
++++ b/net/batman-adv/bat_v_elp.c
+@@ -191,6 +191,7 @@ batadv_v_elp_wifi_neigh_probe(struct bat
+ 	struct sk_buff *skb;
+ 	int probe_len, i;
+ 	int elp_skb_len;
++	void *tmp;
  
- 	if (ip_hdr(skb)->protocol == IPPROTO_ICMP || error != -EACCES)
- 		return;
-@@ -1820,7 +1821,11 @@ void cipso_v4_error(struct sk_buff *skb,
+ 	/* this probing routine is for Wifi neighbours only */
+ 	if (!batadv_is_wifi_netdev(hard_iface->net_dev))
+@@ -222,7 +223,8 @@ batadv_v_elp_wifi_neigh_probe(struct bat
+ 		 * the packet to be exactly of that size to make the link
+ 		 * throughput estimation effective.
+ 		 */
+-		skb_put(skb, probe_len - hard_iface->bat_v.elp_skb->len);
++		tmp = skb_put(skb, probe_len - hard_iface->bat_v.elp_skb->len);
++		memset(tmp, 0, probe_len - hard_iface->bat_v.elp_skb->len);
  
- 	memset(opt, 0, sizeof(struct ip_options));
- 	opt->optlen = ip_hdr(skb)->ihl*4 - sizeof(struct iphdr);
--	if (__ip_options_compile(dev_net(skb->dev), opt, skb, NULL))
-+	rcu_read_lock();
-+	res = __ip_options_compile(dev_net(skb->dev), opt, skb, NULL);
-+	rcu_read_unlock();
-+
-+	if (res)
- 		return;
- 
- 	if (gateway)
+ 		batadv_dbg(BATADV_DBG_BATMAN, bat_priv,
+ 			   "Sending unicast (probe) ELP packet on interface %s to %pM\n",
 
 
