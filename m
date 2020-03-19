@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8260218B632
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:25:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3306818B54B
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:17:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730534AbgCSNYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:24:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51968 "EHLO mail.kernel.org"
+        id S1728467AbgCSNRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:17:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727521AbgCSNYv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:24:51 -0400
+        id S1729355AbgCSNRM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:17:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 635E1207FC;
-        Thu, 19 Mar 2020 13:24:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBAE421775;
+        Thu, 19 Mar 2020 13:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624290;
-        bh=CqsKLrQra6cLEAHnT8a8YJqR3AY12jRQOjMQLpab51o=;
+        s=default; t=1584623832;
+        bh=MNISfiGq26FrWPxt9X9i15XovzbjQzDF8bZvT5s9xpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05EhEoGuqyW+kX7oRqFlXPU7wuJYDOtI6/NvIjXM5ZRGzcIGD/jslXNCk14oZMEzO
-         q7yYYVypzsdsSVWg/DGSSuUPCTu+6VdW0ydDhqbtbNv2y43RtQFdlzrYOsvWM/Jqy6
-         A4RPXj+weN9kNiaZrAVthj4ZEUR5jveUblDZJsdA=
+        b=fi0sfW2g1BdTl+i+wgvSXJntoB5ieRbfoagrptiSvt+Q/G4L4+c/RfFz1m5f6AYdh
+         UkaML+xsLqM/EcU4+roh2hJpMWNAAClh0pHcWAWHSwii1DNgL4tkBiMaQwa20f3lRG
+         yEYEG2i1phISIunz3R9yH7Ln/FUtJ5P1CLaJeYO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 03/65] mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
+        Sven Eckelmann <sven.eckelmann@openmesh.com>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.14 67/99] batman-adv: Avoid spurious warnings from bat_v neigh_cmp implementation
 Date:   Thu, 19 Mar 2020 14:03:45 +0100
-Message-Id: <20200319123927.474994583@linuxfoundation.org>
+Message-Id: <20200319124001.631716954@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
+References: <20200319123941.630731708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Sven Eckelmann <sven.eckelmann@openmesh.com>
 
-[ Upstream commit 533a6cfe08f96a7b5c65e06d20916d552c11b256 ]
+commit 6a4bc44b012cbc29c9d824be2c7ab9eac8ee6b6f upstream.
 
-All callers of __mmc_switch() should now be specifying a valid timeout for
-the CMD6 command. However, just to be sure, let's print a warning and
-default to use the generic_cmd6_time in case the provided timeout_ms
-argument is zero.
+The neighbor compare API implementation for B.A.T.M.A.N. V checks whether
+the neigh_ifinfo for this neighbor on a specific interface exists. A
+warning is printed when it isn't found.
 
-In this context, let's also simplify some of the corresponding code and
-clarify some related comments.
+But it is not called inside a lock which would prevent that this
+information is lost right before batadv_neigh_ifinfo_get. It must therefore
+be expected that batadv_v_neigh_(cmp|is_sob) might not be able to get the
+requested neigh_ifinfo.
 
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20200122142747.5690-4-ulf.hansson@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A WARN_ON for such a situation seems not to be appropriate because this
+will only flood the kernel logs. The warnings must therefore be removed.
+
+Signed-off-by: Sven Eckelmann <sven.eckelmann@openmesh.com>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/mmc_ops.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ net/batman-adv/bat_v.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mmc/core/mmc_ops.c b/drivers/mmc/core/mmc_ops.c
-index 09113b9ad6790..cfb2ce979baf1 100644
---- a/drivers/mmc/core/mmc_ops.c
-+++ b/drivers/mmc/core/mmc_ops.c
-@@ -458,10 +458,6 @@ static int mmc_poll_for_busy(struct mmc_card *card, unsigned int timeout_ms,
- 	bool expired = false;
- 	bool busy = false;
+--- a/net/batman-adv/bat_v.c
++++ b/net/batman-adv/bat_v.c
+@@ -19,7 +19,6 @@
+ #include "main.h"
  
--	/* We have an unspecified cmd timeout, use the fallback value. */
--	if (!timeout_ms)
--		timeout_ms = MMC_OPS_TIMEOUT_MS;
--
- 	/*
- 	 * In cases when not allowed to poll by using CMD13 or because we aren't
- 	 * capable of polling by using ->card_busy(), then rely on waiting the
-@@ -534,14 +530,19 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
+ #include <linux/atomic.h>
+-#include <linux/bug.h>
+ #include <linux/cache.h>
+ #include <linux/errno.h>
+ #include <linux/if_ether.h>
+@@ -623,11 +622,11 @@ static int batadv_v_neigh_cmp(struct bat
+ 	int ret = 0;
  
- 	mmc_retune_hold(host);
+ 	ifinfo1 = batadv_neigh_ifinfo_get(neigh1, if_outgoing1);
+-	if (WARN_ON(!ifinfo1))
++	if (!ifinfo1)
+ 		goto err_ifinfo1;
  
-+	if (!timeout_ms) {
-+		pr_warn("%s: unspecified timeout for CMD6 - use generic\n",
-+			mmc_hostname(host));
-+		timeout_ms = card->ext_csd.generic_cmd6_time;
-+	}
-+
- 	/*
--	 * If the cmd timeout and the max_busy_timeout of the host are both
--	 * specified, let's validate them. A failure means we need to prevent
--	 * the host from doing hw busy detection, which is done by converting
--	 * to a R1 response instead of a R1B.
-+	 * If the max_busy_timeout of the host is specified, make sure it's
-+	 * enough to fit the used timeout_ms. In case it's not, let's instruct
-+	 * the host to avoid HW busy detection, by converting to a R1 response
-+	 * instead of a R1B.
- 	 */
--	if (timeout_ms && host->max_busy_timeout &&
--		(timeout_ms > host->max_busy_timeout))
-+	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout))
- 		use_r1b_resp = false;
+ 	ifinfo2 = batadv_neigh_ifinfo_get(neigh2, if_outgoing2);
+-	if (WARN_ON(!ifinfo2))
++	if (!ifinfo2)
+ 		goto err_ifinfo2;
  
- 	cmd.opcode = MMC_SWITCH;
-@@ -552,10 +553,6 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
- 	cmd.flags = MMC_CMD_AC;
- 	if (use_r1b_resp) {
- 		cmd.flags |= MMC_RSP_SPI_R1B | MMC_RSP_R1B;
--		/*
--		 * A busy_timeout of zero means the host can decide to use
--		 * whatever value it finds suitable.
--		 */
- 		cmd.busy_timeout = timeout_ms;
- 	} else {
- 		cmd.flags |= MMC_RSP_SPI_R1 | MMC_RSP_R1;
--- 
-2.20.1
-
+ 	ret = ifinfo1->bat_v.throughput - ifinfo2->bat_v.throughput;
+@@ -649,11 +648,11 @@ static bool batadv_v_neigh_is_sob(struct
+ 	bool ret = false;
+ 
+ 	ifinfo1 = batadv_neigh_ifinfo_get(neigh1, if_outgoing1);
+-	if (WARN_ON(!ifinfo1))
++	if (!ifinfo1)
+ 		goto err_ifinfo1;
+ 
+ 	ifinfo2 = batadv_neigh_ifinfo_get(neigh2, if_outgoing2);
+-	if (WARN_ON(!ifinfo2))
++	if (!ifinfo2)
+ 		goto err_ifinfo2;
+ 
+ 	threshold = ifinfo1->bat_v.throughput / 4;
 
 
