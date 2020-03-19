@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11D8E18B81B
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:38:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A633D18B7D2
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:36:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727744AbgCSNGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:06:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50102 "EHLO mail.kernel.org"
+        id S1728559AbgCSNKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:10:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727731AbgCSNGo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:06:44 -0400
+        id S1727252AbgCSNKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:10:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B9C820722;
-        Thu, 19 Mar 2020 13:06:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A66BC214D8;
+        Thu, 19 Mar 2020 13:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623203;
-        bh=sAfmogAQI1FrxifR9OmJIT0rXstwAqgQN9rJPMvCB6Q=;
+        s=default; t=1584623435;
+        bh=0LqicDmr77Al2eNygVgMYr2Fnd3p52bjdgDexKNOop8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJZ9F9VoGEM0hiBPnEoE1zMnYdNqZabXZPeAPbAsF6Q2NSrnccWTxfzj2agXlaEBm
-         ybFNqkCa4Guk1DWi+zBpeTlqHxsVfcJOsp0elDbkC4KU5emfC2gVZsJ1V71pMiTKAf
-         Ay9PQUyQbJm/AJfS2CbNSCFf0jJYgA7lnc+pQCBI=
+        b=FYs1ZOQKuAEnZqHXu+68+WI3i6rCaI6Ishv8PHkg2KSebNuJXEOdjfxSZIqncNTiy
+         zCZkk8HX0OtTFJGa+7CN5TJ6Lh3Ak81/aU2KldqQ+Rofhiwa5iL4jDkYsGxOAPyHgb
+         RVYhlJF1YnNK5uECtyA1h12E6x10phoXBlU8K8z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sven Eckelmann <sven.eckelmann@open-mesh.com>,
-        Marek Lindner <mareklindner@neomailbox.ch>,
-        Antonio Quartulli <a@unstable.cc>
-Subject: [PATCH 4.4 43/93] batman-adv: Fix integer overflow in batadv_iv_ogm_calc_tq
-Date:   Thu, 19 Mar 2020 13:59:47 +0100
-Message-Id: <20200319123938.718072127@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Fugang Duan <fugang.duan@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 26/90] net: fec: validate the new settings in fec_enet_set_coalesce()
+Date:   Thu, 19 Mar 2020 13:59:48 +0100
+Message-Id: <20200319123936.553181277@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
-References: <20200319123924.795019515@linuxfoundation.org>
+In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
+References: <20200319123928.635114118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven.eckelmann@open-mesh.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit d285f52cc0f23564fd61976d43fd5b991b4828f6 upstream.
+[ Upstream commit ab14961d10d02d20767612c78ce148f6eb85bd58 ]
 
-The undefined behavior sanatizer detected an signed integer overflow in a
-setup with near perfect link quality
+fec_enet_set_coalesce() validates the previously set params
+and if they are within range proceeds to apply the new ones.
+The new ones, however, are not validated. This seems backwards,
+probably a copy-paste error?
 
-    UBSAN: Undefined behaviour in net/batman-adv/bat_iv_ogm.c:1246:25
-    signed integer overflow:
-    8713350 * 255 cannot be represented in type 'int'
+Compile tested only.
 
-The problems happens because the calculation of mixed unsigned and signed
-integers resulted in an integer multiplication.
-
-      batadv_ogm_packet::tq (u8 255)
-    * tq_own (u8 255)
-    * tq_asym_penalty (int 134; max 255)
-    * tq_iface_penalty (int 255; max 255)
-
-The tq_iface_penalty, tq_asym_penalty and inv_asym_penalty can just be
-changed to unsigned int because they are not expected to become negative.
-
-Fixes: c039876892e3 ("batman-adv: add WiFi penalty")
-Signed-off-by: Sven Eckelmann <sven.eckelmann@open-mesh.com>
-Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
-Signed-off-by: Antonio Quartulli <a@unstable.cc>
+Fixes: d851b47b22fc ("net: fec: add interrupt coalescence feature support")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/bat_iv_ogm.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -1140,9 +1140,10 @@ static int batadv_iv_ogm_calc_tq(struct
- 	u8 total_count;
- 	u8 orig_eq_count, neigh_rq_count, neigh_rq_inv, tq_own;
- 	unsigned int neigh_rq_inv_cube, neigh_rq_max_cube;
--	int tq_asym_penalty, inv_asym_penalty, if_num, ret = 0;
-+	int if_num, ret = 0;
-+	unsigned int tq_asym_penalty, inv_asym_penalty;
- 	unsigned int combined_tq;
--	int tq_iface_penalty;
-+	unsigned int tq_iface_penalty;
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -2470,15 +2470,15 @@ fec_enet_set_coalesce(struct net_device
+ 		return -EINVAL;
+ 	}
  
- 	/* find corresponding one hop neighbor */
- 	rcu_read_lock();
+-	cycle = fec_enet_us_to_itr_clock(ndev, fep->rx_time_itr);
++	cycle = fec_enet_us_to_itr_clock(ndev, ec->rx_coalesce_usecs);
+ 	if (cycle > 0xFFFF) {
+ 		pr_err("Rx coalesced usec exceed hardware limitation\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	cycle = fec_enet_us_to_itr_clock(ndev, fep->tx_time_itr);
++	cycle = fec_enet_us_to_itr_clock(ndev, ec->tx_coalesce_usecs);
+ 	if (cycle > 0xFFFF) {
+-		pr_err("Rx coalesced usec exceed hardware limitation\n");
++		pr_err("Tx coalesced usec exceed hardware limitation\n");
+ 		return -EINVAL;
+ 	}
+ 
 
 
