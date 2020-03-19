@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4AE918B48B
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:10:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C186C18B424
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:08:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727440AbgCSNKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:10:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55536 "EHLO mail.kernel.org"
+        id S1727774AbgCSNGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:06:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727252AbgCSNKk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:10:40 -0400
+        id S1727770AbgCSNGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:06:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A94C20722;
-        Thu, 19 Mar 2020 13:10:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DB8C20732;
+        Thu, 19 Mar 2020 13:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623439;
-        bh=xC0mdHOCYtkpDML66PqbVkK4GBA6heR93um/WyEakBk=;
+        s=default; t=1584623210;
+        bh=ybMxabZn+LAHW5r0IG3LlRQP9yHidLzv795RMLLHfhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIT9xdhw+Q8ZY5ft7cDJ8VcdQFjtxRCp1T2QlSY+4ldP/lYm35+IRSlvO71gNXXHe
-         Z5FniRNimkvL8XIzMwMx/mYWcXD6IJ3g23LLstybitQLPG/mPHmvXP2XvhNDg98soV
-         8Ddt8kHXlO7o9PwyhickfTL/tM0J5NFvjBZG71Z8=
+        b=KeEY22qDnh/DdvSoqftFCFkoMbtpdmZwWlRgf3o29WN/TnF25oJF4DbaU7JkzPYjj
+         OnGzRSU5maN7eY41HcfFzAXOjVLAJ+UoDZU2FwwHsbIyLLmyJr1+7b4xX8P0HgobER
+         g2eq7JkctGlxBqWwWhJrXvrJ7X7leodKVCl/6ZgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 27/90] slip: make slhc_compress() more robust against malicious packets
+        Matthias Schiffer <mschiffer@universe-factory.net>,
+        Sven Eckelmann <sven@narfation.org>,
+        Marek Lindner <mareklindner@neomailbox.ch>,
+        Antonio Quartulli <a@unstable.cc>
+Subject: [PATCH 4.4 45/93] batman-adv: Deactivate TO_BE_ACTIVATED hardif on shutdown
 Date:   Thu, 19 Mar 2020 13:59:49 +0100
-Message-Id: <20200319123936.889172637@linuxfoundation.org>
+Message-Id: <20200319123939.275764946@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
-References: <20200319123928.635114118@linuxfoundation.org>
+In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
+References: <20200319123924.795019515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,119 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 110a40dfb708fe940a3f3704d470e431c368d256 ]
+commit f2d23861b818d08bcd15cc1612ae94aa33b3931c upstream.
 
-Before accessing various fields in IPV4 network header
-and TCP header, make sure the packet :
+The shutdown of an batman-adv interface can happen with one of its slave
+interfaces still being in the BATADV_IF_TO_BE_ACTIVATED state. A possible
+reason for it is that the routing algorithm BATMAN_V was selected and
+batadv_schedule_bat_ogm was not yet called for this interface. This slave
+interface still has to be set to BATADV_IF_INACTIVE or the batman-adv
+interface will never reduce its usage counter and thus never gets shutdown.
 
-- Has IP version 4 (ip->version == 4)
-- Has not a silly network length (ip->ihl >= 5)
-- Is big enough to hold network and transport headers
-- Has not a silly TCP header size (th->doff >= sizeof(struct tcphdr) / 4)
+This problem can be simulated via:
 
-syzbot reported :
+    $ modprobe dummy
+    $ modprobe batman-adv routing_algo=BATMAN_V
+    $ ip link add bat0 type batadv
+    $ ip link set dummy0 master bat0
+    $ ip link set dummy0 up
+    $ ip link del bat0
+    unregister_netdevice: waiting for bat0 to become free. Usage count = 3
 
-BUG: KMSAN: uninit-value in slhc_compress+0x5b9/0x2e60 drivers/net/slip/slhc.c:270
-CPU: 0 PID: 11728 Comm: syz-executor231 Not tainted 5.6.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- slhc_compress+0x5b9/0x2e60 drivers/net/slip/slhc.c:270
- ppp_send_frame drivers/net/ppp/ppp_generic.c:1637 [inline]
- __ppp_xmit_process+0x1902/0x2970 drivers/net/ppp/ppp_generic.c:1495
- ppp_xmit_process+0x147/0x2f0 drivers/net/ppp/ppp_generic.c:1516
- ppp_write+0x6bb/0x790 drivers/net/ppp/ppp_generic.c:512
- do_loop_readv_writev fs/read_write.c:717 [inline]
- do_iter_write+0x812/0xdc0 fs/read_write.c:1000
- compat_writev+0x2df/0x5a0 fs/read_write.c:1351
- do_compat_pwritev64 fs/read_write.c:1400 [inline]
- __do_compat_sys_pwritev fs/read_write.c:1420 [inline]
- __se_compat_sys_pwritev fs/read_write.c:1414 [inline]
- __ia32_compat_sys_pwritev+0x349/0x3f0 fs/read_write.c:1414
- do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
- do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
- entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-RIP: 0023:0xf7f7cd99
-Code: 90 e8 0b 00 00 00 f3 90 0f ae e8 eb f9 8d 74 26 00 89 3c 24 c3 90 90 90 90 90 90 90 90 90 90 90 90 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
-RSP: 002b:00000000ffdb84ac EFLAGS: 00000217 ORIG_RAX: 000000000000014e
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00000000200001c0
-RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000000000000003
-RBP: 0000000040047459 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
- kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
- kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
- slab_alloc_node mm/slub.c:2793 [inline]
- __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
- __kmalloc_reserve net/core/skbuff.c:142 [inline]
- __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:210
- alloc_skb include/linux/skbuff.h:1051 [inline]
- ppp_write+0x115/0x790 drivers/net/ppp/ppp_generic.c:500
- do_loop_readv_writev fs/read_write.c:717 [inline]
- do_iter_write+0x812/0xdc0 fs/read_write.c:1000
- compat_writev+0x2df/0x5a0 fs/read_write.c:1351
- do_compat_pwritev64 fs/read_write.c:1400 [inline]
- __do_compat_sys_pwritev fs/read_write.c:1420 [inline]
- __se_compat_sys_pwritev fs/read_write.c:1414 [inline]
- __ia32_compat_sys_pwritev+0x349/0x3f0 fs/read_write.c:1414
- do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
- do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
- entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-
-Fixes: b5451d783ade ("slip: Move the SLIP drivers")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Matthias Schiffer <mschiffer@universe-factory.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Marek Lindner <mareklindner@neomailbox.ch>
+Signed-off-by: Antonio Quartulli <a@unstable.cc>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/slip/slhc.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ net/batman-adv/hard-interface.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/slip/slhc.c
-+++ b/drivers/net/slip/slhc.c
-@@ -232,7 +232,7 @@ slhc_compress(struct slcompress *comp, u
- 	register struct cstate *cs = lcs->next;
- 	register unsigned long deltaS, deltaA;
- 	register short changes = 0;
--	int hlen;
-+	int nlen, hlen;
- 	unsigned char new_seq[16];
- 	register unsigned char *cp = new_seq;
- 	struct iphdr *ip;
-@@ -248,6 +248,8 @@ slhc_compress(struct slcompress *comp, u
- 		return isize;
+--- a/net/batman-adv/hard-interface.c
++++ b/net/batman-adv/hard-interface.c
+@@ -562,8 +562,7 @@ void batadv_hardif_disable_interface(str
+ 	struct batadv_priv *bat_priv = netdev_priv(hard_iface->soft_iface);
+ 	struct batadv_hard_iface *primary_if = NULL;
  
- 	ip = (struct iphdr *) icp;
-+	if (ip->version != 4 || ip->ihl < 5)
-+		return isize;
+-	if (hard_iface->if_status == BATADV_IF_ACTIVE)
+-		batadv_hardif_deactivate_interface(hard_iface);
++	batadv_hardif_deactivate_interface(hard_iface);
  
- 	/* Bail if this packet isn't TCP, or is an IP fragment */
- 	if (ip->protocol != IPPROTO_TCP || (ntohs(ip->frag_off) & 0x3fff)) {
-@@ -258,10 +260,14 @@ slhc_compress(struct slcompress *comp, u
- 			comp->sls_o_tcp++;
- 		return isize;
- 	}
--	/* Extract TCP header */
-+	nlen = ip->ihl * 4;
-+	if (isize < nlen + sizeof(*th))
-+		return isize;
- 
--	th = (struct tcphdr *)(((unsigned char *)ip) + ip->ihl*4);
--	hlen = ip->ihl*4 + th->doff*4;
-+	th = (struct tcphdr *)(icp + nlen);
-+	if (th->doff < sizeof(struct tcphdr) / 4)
-+		return isize;
-+	hlen = nlen + th->doff * 4;
- 
- 	/*  Bail if the TCP packet isn't `compressible' (i.e., ACK isn't set or
- 	 *  some other control bit is set). Also uncompressible if
+ 	if (hard_iface->if_status != BATADV_IF_INACTIVE)
+ 		goto out;
 
 
