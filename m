@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44B3318B531
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C55418B535
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728201AbgCSNQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:16:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36724 "EHLO mail.kernel.org"
+        id S1729533AbgCSNQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:16:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728997AbgCSNQX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:16:23 -0400
+        id S1729537AbgCSNQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:16:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 489BE21556;
-        Thu, 19 Mar 2020 13:16:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0555C21556;
+        Thu, 19 Mar 2020 13:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623782;
-        bh=xuyAcA6tzR0SmqP/OhoXb50UAhud3OrJ0SZd3QwjFXQ=;
+        s=default; t=1584623791;
+        bh=HHwE0TbQhSiAvn+ZMbqACCvTK1kzXfONIL2U8HuOR04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfbJIA1hvG8JdRkGis93BLsgqg9sU196RSlDrhsNa44BqPI463nUeZv7BAPme9aEA
-         Gi+fkGaj3SbDJxnt2Y9Vv4J6/Recd+0lQkU5lFJHhqAjNnND8zfAO5ZlHc7bXbJ1cR
-         dVuZVk2K2iOP0SZLIUuq/+KrCri6kpIns2XcLgTM=
+        b=Nt0XjUEp1965t63dLpKYWwgL5SPtOjCvUfpJCyOdh5kXL06Qgj6JTeK/WnnKL6ugG
+         zwKD+VFCf6tEzGe4FT1GUfbUEE7x7MdCGiwh+UjCn+DUXhBs8/OSdCDGkTWc+DGuOe
+         pHM71jj7sxWw2/xVNB+OREyPwKO0qB/OJ3voz5sE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Lu Baolu <baolu.lu@linux.intel.com>
-Subject: [PATCH 4.14 52/99] iommu/vt-d: dmar: replace WARN_TAINT with pr_warn + add_taint
-Date:   Thu, 19 Mar 2020 14:03:30 +0100
-Message-Id: <20200319123957.678951953@linuxfoundation.org>
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Nicolas Belin <nbelin@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.14 54/99] pinctrl: meson-gxl: fix GPIOX sdio pins
+Date:   Thu, 19 Mar 2020 14:03:32 +0100
+Message-Id: <20200319123958.276963230@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
 References: <20200319123941.630731708@linuxfoundation.org>
@@ -44,100 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Nicolas Belin <nbelin@baylibre.com>
 
-commit 59833696442c674acbbd297772ba89e7ad8c753d upstream.
+commit dc7a06b0dbbafac8623c2b7657e61362f2f479a7 upstream.
 
-Quoting from the comment describing the WARN functions in
-include/asm-generic/bug.h:
+In the gxl driver, the sdio cmd and clk pins are inverted. It has not caused
+any issue so far because devices using these pins always take both pins
+so the resulting configuration is OK.
 
- * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
- * significant kernel issues that need prompt attention if they should ever
- * appear at runtime.
- *
- * Do not use these macros when checking for invalid external inputs
-
-The (buggy) firmware tables which the dmar code was calling WARN_TAINT
-for really are invalid external inputs. They are not under the kernel's
-control and the issues in them cannot be fixed by a kernel update.
-So logging a backtrace, which invites bug reports to be filed about this,
-is not helpful.
-
-Some distros, e.g. Fedora, have tools watching for the kernel backtraces
-logged by the WARN macros and offer the user an option to file a bug for
-this when these are encountered. The WARN_TAINT in warn_invalid_dmar()
-+ another iommu WARN_TAINT, addressed in another patch, have lead to over
-a 100 bugs being filed this way.
-
-This commit replaces the WARN_TAINT("...") calls, with
-pr_warn(FW_BUG "...") + add_taint(TAINT_FIRMWARE_WORKAROUND, ...) calls
-avoiding the backtrace and thus also avoiding bug-reports being filed
-about this against the kernel.
-
-Fixes: fd0c8894893c ("intel-iommu: Set a more specific taint flag for invalid BIOS DMAR tables")
-Fixes: e625b4a95d50 ("iommu/vt-d: Parse ANDD records")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200309140138.3753-2-hdegoede@redhat.com
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1564895
+Fixes: 0f15f500ff2c ("pinctrl: meson: Add GXL pinctrl definitions")
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Nicolas Belin <nbelin@baylibre.com>
+Link: https://lore.kernel.org/r/1582204512-7582-1-git-send-email-nbelin@baylibre.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/dmar.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/pinctrl/meson/pinctrl-meson-gxl.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -451,12 +451,13 @@ static int __init dmar_parse_one_andd(st
+--- a/drivers/pinctrl/meson/pinctrl-meson-gxl.c
++++ b/drivers/pinctrl/meson/pinctrl-meson-gxl.c
+@@ -158,8 +158,8 @@ static const unsigned int sdio_d0_pins[]
+ static const unsigned int sdio_d1_pins[] = { PIN(GPIOX_1, EE_OFF) };
+ static const unsigned int sdio_d2_pins[] = { PIN(GPIOX_2, EE_OFF) };
+ static const unsigned int sdio_d3_pins[] = { PIN(GPIOX_3, EE_OFF) };
+-static const unsigned int sdio_cmd_pins[] = { PIN(GPIOX_4, EE_OFF) };
+-static const unsigned int sdio_clk_pins[] = { PIN(GPIOX_5, EE_OFF) };
++static const unsigned int sdio_clk_pins[] = { PIN(GPIOX_4, EE_OFF) };
++static const unsigned int sdio_cmd_pins[] = { PIN(GPIOX_5, EE_OFF) };
+ static const unsigned int sdio_irq_pins[] = { PIN(GPIOX_7, EE_OFF) };
  
- 	/* Check for NUL termination within the designated length */
- 	if (strnlen(andd->device_name, header->length - 8) == header->length - 8) {
--		WARN_TAINT(1, TAINT_FIRMWARE_WORKAROUND,
-+		pr_warn(FW_BUG
- 			   "Your BIOS is broken; ANDD object name is not NUL-terminated\n"
- 			   "BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 			   dmi_get_system_info(DMI_BIOS_VENDOR),
- 			   dmi_get_system_info(DMI_BIOS_VERSION),
- 			   dmi_get_system_info(DMI_PRODUCT_VERSION));
-+		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- 		return -EINVAL;
- 	}
- 	pr_info("ANDD device: %x name: %s\n", andd->device_number,
-@@ -482,14 +483,14 @@ static int dmar_parse_one_rhsa(struct ac
- 			return 0;
- 		}
- 	}
--	WARN_TAINT(
--		1, TAINT_FIRMWARE_WORKAROUND,
-+	pr_warn(FW_BUG
- 		"Your BIOS is broken; RHSA refers to non-existent DMAR unit at %llx\n"
- 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 		drhd->reg_base_addr,
- 		dmi_get_system_info(DMI_BIOS_VENDOR),
- 		dmi_get_system_info(DMI_BIOS_VERSION),
- 		dmi_get_system_info(DMI_PRODUCT_VERSION));
-+	add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- 
- 	return 0;
- }
-@@ -835,14 +836,14 @@ int __init dmar_table_init(void)
- 
- static void warn_invalid_dmar(u64 addr, const char *message)
- {
--	WARN_TAINT_ONCE(
--		1, TAINT_FIRMWARE_WORKAROUND,
-+	pr_warn_once(FW_BUG
- 		"Your BIOS is broken; DMAR reported at address %llx%s!\n"
- 		"BIOS vendor: %s; Ver: %s; Product Version: %s\n",
- 		addr, message,
- 		dmi_get_system_info(DMI_BIOS_VENDOR),
- 		dmi_get_system_info(DMI_BIOS_VERSION),
- 		dmi_get_system_info(DMI_PRODUCT_VERSION));
-+	add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
- }
- 
- static int __ref
+ static const unsigned int nand_ce0_pins[]	= { PIN(BOOT_8, EE_OFF) };
 
 
