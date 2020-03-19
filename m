@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B7F18B847
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:43:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 557DA18B708
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727707AbgCSNnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:43:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
+        id S1729760AbgCSNU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:20:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727678AbgCSNnB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:43:01 -0400
+        id S1730038AbgCSNU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:20:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 239C3208D6;
-        Thu, 19 Mar 2020 13:42:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 785002098B;
+        Thu, 19 Mar 2020 13:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584625379;
-        bh=C00m90Jdij6F1HqEzf8L4EgeNwUufQvJHwqJ/rsXnFI=;
+        s=default; t=1584624055;
+        bh=0taveyrClKRSFHcmYXfJ0NNt6YlS9nmIS9zwpPLOoYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3A41GcH8RiWtUUJI0DvEY89KTZfK4DNNLkMzqo2JHrhRo7L7rsszcNvUpD0jwJml
-         nvsmhUU2oAQyqn+ZsEDFe1sKkD5HUwCzNa1LNJdbojHWvXi50jmuC/ce+3+9Ip+9aw
-         xouwA7Q+fTV3c6SsaFiMDYw4wne/Tl1s3JUGXo4k=
+        b=kCA2z9DT+R7Zszrn6xWiQUDrDdJ69BbBnK5GNPpdo/Y/umkI+YIXlHA83oGSOh8op
+         9YyXYiArwOYTlyyN4nbtQuYBDf+qK8i9/4Qfbyu+OrMfNYnwZZSMWqIOAPpvY8mi4T
+         hKN4vqZfBQLH/RUpxiKLpJ9k86CVxS9E4WIMZqZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        Philip Li <philip.li@intel.com>,
-        Andi Kleen <andi.kleen@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Feng Tang <feng.tang@intel.com>
-Subject: [PATCH 5.5 39/65] signal: avoid double atomic counter increments for user accounting
-Date:   Thu, 19 Mar 2020 14:04:21 +0100
-Message-Id: <20200319123938.858253357@linuxfoundation.org>
+        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
+        Wen Gong <wgong@codeaurora.org>,
+        Doug Anderson <dianders@chromium.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 42/48] net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
+Date:   Thu, 19 Mar 2020 14:04:24 +0100
+Message-Id: <20200319123916.071662618@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
+References: <20200319123902.941451241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,125 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Carl Huang <cjhuang@codeaurora.org>
 
-[ Upstream commit fda31c50292a5062332fa0343c084bd9f46604d9 ]
+commit ce57785bf91b1ceaef4f4bffed8a47dc0919c8da upstream.
 
-When queueing a signal, we increment both the users count of pending
-signals (for RLIMIT_SIGPENDING tracking) and we increment the refcount
-of the user struct itself (because we keep a reference to the user in
-the signal structure in order to correctly account for it when freeing).
+The len used for skb_put_padto is wrong, it need to add len of hdr.
 
-That turns out to be fairly expensive, because both of them are atomic
-updates, and particularly under extreme signal handling pressure on big
-machines, you can get a lot of cache contention on the user struct.
-That can then cause horrid cacheline ping-pong when you do these
-multiple accesses.
+In qrtr_node_enqueue, local variable size_t len is assign with
+skb->len, then skb_push(skb, sizeof(*hdr)) will add skb->len with
+sizeof(*hdr), so local variable size_t len is not same with skb->len
+after skb_push(skb, sizeof(*hdr)).
 
-So change the reference counting to only pin the user for the _first_
-pending signal, and to unpin it when the last pending signal is
-dequeued.  That means that when a user sees a lot of concurrent signal
-queuing - which is the only situation when this matters - the only
-atomic access needed is generally the 'sigpending' count update.
+Then the purpose of skb_put_padto(skb, ALIGN(len, 4)) is to add add
+pad to the end of the skb's data if skb->len is not aligned to 4, but
+unfortunately it use len instead of skb->len, at this line, skb->len
+is 32 bytes(sizeof(*hdr)) more than len, for example, len is 3 bytes,
+then skb->len is 35 bytes(3 + 32), and ALIGN(len, 4) is 4 bytes, so
+__skb_put_padto will do nothing after check size(35) < len(4), the
+correct value should be 36(sizeof(*hdr) + ALIGN(len, 4) = 32 + 4),
+then __skb_put_padto will pass check size(35) < len(36) and add 1 byte
+to the end of skb's data, then logic is correct.
 
-This was noticed because of a particularly odd timing artifact on a
-dual-socket 96C/192T Cascade Lake platform: when you get into bad
-contention, on that machine for some reason seems to be much worse when
-the contention happens in the upper 32-byte half of the cacheline.
+function of skb_push:
+void *skb_push(struct sk_buff *skb, unsigned int len)
+{
+	skb->data -= len;
+	skb->len  += len;
+	if (unlikely(skb->data < skb->head))
+		skb_under_panic(skb, len, __builtin_return_address(0));
+	return skb->data;
+}
 
-As a result, the kernel test robot will-it-scale 'signal1' benchmark had
-an odd performance regression simply due to random alignment of the
-'struct user_struct' (and pointed to a completely unrelated and
-apparently nonsensical commit for the regression).
+function of skb_put_padto
+static inline int skb_put_padto(struct sk_buff *skb, unsigned int len)
+{
+	return __skb_put_padto(skb, len, true);
+}
 
-Avoiding the double increments (and decrements on the dequeueing side,
-of course) makes for much less contention and hugely improved
-performance on that will-it-scale microbenchmark.
+function of __skb_put_padto
+static inline int __skb_put_padto(struct sk_buff *skb, unsigned int len,
+				  bool free_on_error)
+{
+	unsigned int size = skb->len;
 
-Quoting Feng Tang:
+	if (unlikely(size < len)) {
+		len -= size;
+		if (__skb_pad(skb, len, free_on_error))
+			return -ENOMEM;
+		__skb_put(skb, len);
+	}
+	return 0;
+}
 
- "It makes a big difference, that the performance score is tripled! bump
-  from original 17000 to 54000. Also the gap between 5.0-rc6 and
-  5.0-rc6+Jiri's patch is reduced to around 2%"
+Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Cc: Doug Anderson <dianders@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ The "2% gap" is the odd cacheline placement difference on that
-  platform: under the extreme contention case, the effect of which half
-  of the cacheline was hot was 5%, so with the reduced contention the
-  odd timing artifact is reduced too ]
-
-It does help in the non-contended case too, but is not nearly as
-noticeable.
-
-Reported-and-tested-by: Feng Tang <feng.tang@intel.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Huang, Ying <ying.huang@intel.com>
-Cc: Philip Li <philip.li@intel.com>
-Cc: Andi Kleen <andi.kleen@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/signal.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ net/qrtr/qrtr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index bcd46f547db39..eea748174ade9 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -413,27 +413,32 @@ __sigqueue_alloc(int sig, struct task_struct *t, gfp_t flags, int override_rlimi
- {
- 	struct sigqueue *q = NULL;
- 	struct user_struct *user;
-+	int sigpending;
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -203,7 +203,7 @@ static int qrtr_node_enqueue(struct qrtr
+ 	hdr->size = cpu_to_le32(len);
+ 	hdr->confirm_rx = 0;
  
- 	/*
- 	 * Protect access to @t credentials. This can go away when all
- 	 * callers hold rcu read lock.
-+	 *
-+	 * NOTE! A pending signal will hold on to the user refcount,
-+	 * and we get/put the refcount only when the sigpending count
-+	 * changes from/to zero.
- 	 */
- 	rcu_read_lock();
--	user = get_uid(__task_cred(t)->user);
--	atomic_inc(&user->sigpending);
-+	user = __task_cred(t)->user;
-+	sigpending = atomic_inc_return(&user->sigpending);
-+	if (sigpending == 1)
-+		get_uid(user);
- 	rcu_read_unlock();
+-	skb_put_padto(skb, ALIGN(len, 4));
++	skb_put_padto(skb, ALIGN(len, 4) + sizeof(*hdr));
  
--	if (override_rlimit ||
--	    atomic_read(&user->sigpending) <=
--			task_rlimit(t, RLIMIT_SIGPENDING)) {
-+	if (override_rlimit || likely(sigpending <= task_rlimit(t, RLIMIT_SIGPENDING))) {
- 		q = kmem_cache_alloc(sigqueue_cachep, flags);
- 	} else {
- 		print_dropped_signal(sig);
- 	}
- 
- 	if (unlikely(q == NULL)) {
--		atomic_dec(&user->sigpending);
--		free_uid(user);
-+		if (atomic_dec_and_test(&user->sigpending))
-+			free_uid(user);
- 	} else {
- 		INIT_LIST_HEAD(&q->list);
- 		q->flags = 0;
-@@ -447,8 +452,8 @@ static void __sigqueue_free(struct sigqueue *q)
- {
- 	if (q->flags & SIGQUEUE_PREALLOC)
- 		return;
--	atomic_dec(&q->user->sigpending);
--	free_uid(q->user);
-+	if (atomic_dec_and_test(&q->user->sigpending))
-+		free_uid(q->user);
- 	kmem_cache_free(sigqueue_cachep, q);
- }
- 
--- 
-2.20.1
-
+ 	mutex_lock(&node->ep_lock);
+ 	if (node->ep)
 
 
