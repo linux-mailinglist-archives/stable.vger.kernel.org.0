@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A54E118B743
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:32:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EEE018B72A
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729486AbgCSNQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:16:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36192 "EHLO mail.kernel.org"
+        id S1728094AbgCSNQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:16:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729483AbgCSNQE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:16:04 -0400
+        id S1729291AbgCSNQ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:16:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFD412098B;
-        Thu, 19 Mar 2020 13:16:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3B2020724;
+        Thu, 19 Mar 2020 13:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623764;
-        bh=N1IvcdAKJkHcF6FqQ5d89QbwvvBcmY/Vecti2b3XLfc=;
+        s=default; t=1584623785;
+        bh=bg/H4w9x/Y5OH3AJYyYxL/aEubN2iXPYUHMOqSsRVOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iM6NXWH2lC3RkJB5BtlzTAgR6hkPTp4NheCZROuphDmSk9DxV8jA/DAYkQMbbKBFY
-         7T+eOfMbP4okiNi+kCVVnqN8HsgCzl23iMq2URUU74IJbx/LxUT3eEe1sOQIbA3rQl
-         7eOA83dSPVJXAL4eu9LSgXHPmga8G2dhj+vQgjxg=
+        b=2hVyp2okG7l9QaoZEdzf6TNG4S52qzSsj8XYiBfy8v1zHY6VMQV8Ms9cMiuT84hLW
+         O+Dkq8F2TV02FDIC77evaqb12YOWoPx+tkKbXXk97QnNQNcJf8cb1RFuo96JCQw6Ge
+         SfFCJhnV9G1CyFu7CXmL2OX/LmDPdvXu5Mw5u6uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        stable@kernel.org
-Subject: [PATCH 4.14 46/99] gfs2_atomic_open(): fix O_EXCL|O_CREAT handling on cold dcache
-Date:   Thu, 19 Mar 2020 14:03:24 +0100
-Message-Id: <20200319123955.852659047@linuxfoundation.org>
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Moritz Fischer <mdf@kernel.org>,
+        Yonghyun Hwang <yonghyun@google.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.14 53/99] iommu/vt-d: Fix a bug in intel_iommu_iova_to_phys() for huge page
+Date:   Thu, 19 Mar 2020 14:03:31 +0100
+Message-Id: <20200319123957.987008616@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
 References: <20200319123941.630731708@linuxfoundation.org>
@@ -43,34 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Yonghyun Hwang <yonghyun@google.com>
 
-commit 21039132650281de06a169cbe8a0f7e5c578fd8b upstream.
+commit 77a1bce84bba01f3f143d77127b72e872b573795 upstream.
 
-with the way fs/namei.c:do_last() had been done, ->atomic_open()
-instances needed to recognize the case when existing file got
-found with O_EXCL|O_CREAT, either by falling back to finish_no_open()
-or failing themselves.  gfs2 one didn't.
+intel_iommu_iova_to_phys() has a bug when it translates an IOVA for a huge
+page onto its corresponding physical address. This commit fixes the bug by
+accomodating the level of page entry for the IOVA and adds IOVA's lower
+address to the physical address.
 
-Fixes: 6d4ade986f9c (GFS2: Add atomic_open support)
-Cc: stable@kernel.org # v3.11
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: Yonghyun Hwang <yonghyun@google.com>
+Fixes: 3871794642579 ("VT-d: Changes to support KVM")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/gfs2/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/intel-iommu.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/gfs2/inode.c
-+++ b/fs/gfs2/inode.c
-@@ -1255,7 +1255,7 @@ static int gfs2_atomic_open(struct inode
- 		if (!(*opened & FILE_OPENED))
- 			return finish_no_open(file, d);
- 		dput(d);
--		return 0;
-+		return excl && (flags & O_CREAT) ? -EEXIST : 0;
- 	}
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -5124,8 +5124,10 @@ static phys_addr_t intel_iommu_iova_to_p
+ 	u64 phys = 0;
  
- 	BUG_ON(d != NULL);
+ 	pte = pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT, &level);
+-	if (pte)
+-		phys = dma_pte_addr(pte);
++	if (pte && dma_pte_present(pte))
++		phys = dma_pte_addr(pte) +
++			(iova & (BIT_MASK(level_to_offset_bits(level) +
++						VTD_PAGE_SHIFT) - 1));
+ 
+ 	return phys;
+ }
 
 
