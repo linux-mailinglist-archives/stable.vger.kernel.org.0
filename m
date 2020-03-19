@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3306818B54B
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:17:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC21418B5EB
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:23:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728467AbgCSNRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:17:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38252 "EHLO mail.kernel.org"
+        id S1730216AbgCSNW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:22:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729355AbgCSNRM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:17:12 -0400
+        id S1730209AbgCSNW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:22:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBAE421775;
-        Thu, 19 Mar 2020 13:17:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77749206D7;
+        Thu, 19 Mar 2020 13:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623832;
-        bh=MNISfiGq26FrWPxt9X9i15XovzbjQzDF8bZvT5s9xpc=;
+        s=default; t=1584624145;
+        bh=tofIbnmadnKlW1E9aujzGi22xYXbLQFA4YGG/fxn2lA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fi0sfW2g1BdTl+i+wgvSXJntoB5ieRbfoagrptiSvt+Q/G4L4+c/RfFz1m5f6AYdh
-         UkaML+xsLqM/EcU4+roh2hJpMWNAAClh0pHcWAWHSwii1DNgL4tkBiMaQwa20f3lRG
-         yEYEG2i1phISIunz3R9yH7Ln/FUtJ5P1CLaJeYO8=
+        b=wgUeaboqWoVlwHquUmawDJ1JCCWaecAo8HemlHWfGYyCgErkJq4jElGiTOdGbx5rh
+         DU1eY9EXbG69nUyNDclpl3XdglbS6UW9uffWfQkN3IOS8bEEXM8QVLfhAmOyo2QGro
+         pO4zOAFfRkvEPXYZb85kLMnbs3ORM2SVv5EX05q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sven Eckelmann <sven.eckelmann@openmesh.com>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.14 67/99] batman-adv: Avoid spurious warnings from bat_v neigh_cmp implementation
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 07/60] mmc: sdhci-omap: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
 Date:   Thu, 19 Mar 2020 14:03:45 +0100
-Message-Id: <20200319124001.631716954@linuxfoundation.org>
+Message-Id: <20200319123921.556308239@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
-References: <20200319123941.630731708@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven.eckelmann@openmesh.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 6a4bc44b012cbc29c9d824be2c7ab9eac8ee6b6f upstream.
+[ Upstream commit 055e04830d4544c57f2a5192a26c9e25915c29c0 ]
 
-The neighbor compare API implementation for B.A.T.M.A.N. V checks whether
-the neigh_ifinfo for this neighbor on a specific interface exists. A
-warning is printed when it isn't found.
+It has turned out that the sdhci-omap controller requires the R1B response,
+for commands that has this response associated with them. So, converting
+from an R1B to an R1 response for a CMD6 for example, leads to problems
+with the HW busy detection support.
 
-But it is not called inside a lock which would prevent that this
-information is lost right before batadv_neigh_ifinfo_get. It must therefore
-be expected that batadv_v_neigh_(cmp|is_sob) might not be able to get the
-requested neigh_ifinfo.
+Fix this by informing the mmc core about the requirement, via setting the
+host cap, MMC_CAP_NEED_RSP_BUSY.
 
-A WARN_ON for such a situation seems not to be appropriate because this
-will only flood the kernel logs. The warnings must therefore be removed.
-
-Signed-off-by: Sven Eckelmann <sven.eckelmann@openmesh.com>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Reported-by: Faiz Abbas <faiz_abbas@ti.com>
+Cc: <stable@vger.kernel.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Tested-by: Faiz Abbas <faiz_abbas@ti.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_v.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/mmc/host/sdhci-omap.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/batman-adv/bat_v.c
-+++ b/net/batman-adv/bat_v.c
-@@ -19,7 +19,6 @@
- #include "main.h"
+diff --git a/drivers/mmc/host/sdhci-omap.c b/drivers/mmc/host/sdhci-omap.c
+index 083e7e053c954..d3135249b2e40 100644
+--- a/drivers/mmc/host/sdhci-omap.c
++++ b/drivers/mmc/host/sdhci-omap.c
+@@ -1134,6 +1134,9 @@ static int sdhci_omap_probe(struct platform_device *pdev)
+ 	host->mmc_host_ops.execute_tuning = sdhci_omap_execute_tuning;
+ 	host->mmc_host_ops.enable_sdio_irq = sdhci_omap_enable_sdio_irq;
  
- #include <linux/atomic.h>
--#include <linux/bug.h>
- #include <linux/cache.h>
- #include <linux/errno.h>
- #include <linux/if_ether.h>
-@@ -623,11 +622,11 @@ static int batadv_v_neigh_cmp(struct bat
- 	int ret = 0;
- 
- 	ifinfo1 = batadv_neigh_ifinfo_get(neigh1, if_outgoing1);
--	if (WARN_ON(!ifinfo1))
-+	if (!ifinfo1)
- 		goto err_ifinfo1;
- 
- 	ifinfo2 = batadv_neigh_ifinfo_get(neigh2, if_outgoing2);
--	if (WARN_ON(!ifinfo2))
-+	if (!ifinfo2)
- 		goto err_ifinfo2;
- 
- 	ret = ifinfo1->bat_v.throughput - ifinfo2->bat_v.throughput;
-@@ -649,11 +648,11 @@ static bool batadv_v_neigh_is_sob(struct
- 	bool ret = false;
- 
- 	ifinfo1 = batadv_neigh_ifinfo_get(neigh1, if_outgoing1);
--	if (WARN_ON(!ifinfo1))
-+	if (!ifinfo1)
- 		goto err_ifinfo1;
- 
- 	ifinfo2 = batadv_neigh_ifinfo_get(neigh2, if_outgoing2);
--	if (WARN_ON(!ifinfo2))
-+	if (!ifinfo2)
- 		goto err_ifinfo2;
- 
- 	threshold = ifinfo1->bat_v.throughput / 4;
++	/* R1B responses is required to properly manage HW busy detection. */
++	mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
++
+ 	ret = sdhci_setup_host(host);
+ 	if (ret)
+ 		goto err_put_sync;
+-- 
+2.20.1
+
 
 
