@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A633D18B7D2
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:36:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B03DD18B7D4
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:36:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728559AbgCSNKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:10:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55462 "EHLO mail.kernel.org"
+        id S1728583AbgCSNKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:10:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727252AbgCSNKf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:10:35 -0400
+        id S1727490AbgCSNKr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:10:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A66BC214D8;
-        Thu, 19 Mar 2020 13:10:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 670C320722;
+        Thu, 19 Mar 2020 13:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623435;
-        bh=0LqicDmr77Al2eNygVgMYr2Fnd3p52bjdgDexKNOop8=;
+        s=default; t=1584623445;
+        bh=WRySZW8fLQ0TeUzjBJOrEWL4Rs2ic516l9hMByXwoYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FYs1ZOQKuAEnZqHXu+68+WI3i6rCaI6Ishv8PHkg2KSebNuJXEOdjfxSZIqncNTiy
-         zCZkk8HX0OtTFJGa+7CN5TJ6Lh3Ak81/aU2KldqQ+Rofhiwa5iL4jDkYsGxOAPyHgb
-         RVYhlJF1YnNK5uECtyA1h12E6x10phoXBlU8K8z0=
+        b=C/EbC6GYNYooPdein+pEGSenHrYVg2Du4ywcaEJt2GIGxlj+WzqrZIwlVaKGAagWG
+         v75nIl5uuAGbYMVuiQqeYBLLHCDxSsRGT7SQ43IsaqkJTg+GwiIX+3erFojyltB9JS
+         SIhS3pADz7S/rwQG0b65a2tUgox7ohK1aeFnrhLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Fugang Duan <fugang.duan@nxp.com>,
+        stable@vger.kernel.org, Shakeel Butt <shakeelb@google.com>,
+        Roman Gushchin <guro@fb.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 26/90] net: fec: validate the new settings in fec_enet_set_coalesce()
-Date:   Thu, 19 Mar 2020 13:59:48 +0100
-Message-Id: <20200319123936.553181277@linuxfoundation.org>
+Subject: [PATCH 4.9 29/90] cgroup: memcg: net: do not associate sock with unrelated cgroup
+Date:   Thu, 19 Mar 2020 13:59:51 +0100
+Message-Id: <20200319123937.605932836@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
 References: <20200319123928.635114118@linuxfoundation.org>
@@ -44,46 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Shakeel Butt <shakeelb@google.com>
 
-[ Upstream commit ab14961d10d02d20767612c78ce148f6eb85bd58 ]
+[ Upstream commit e876ecc67db80dfdb8e237f71e5b43bb88ae549c ]
 
-fec_enet_set_coalesce() validates the previously set params
-and if they are within range proceeds to apply the new ones.
-The new ones, however, are not validated. This seems backwards,
-probably a copy-paste error?
+We are testing network memory accounting in our setup and noticed
+inconsistent network memory usage and often unrelated cgroups network
+usage correlates with testing workload. On further inspection, it
+seems like mem_cgroup_sk_alloc() and cgroup_sk_alloc() are broken in
+irq context specially for cgroup v1.
 
-Compile tested only.
+mem_cgroup_sk_alloc() and cgroup_sk_alloc() can be called in irq context
+and kind of assumes that this can only happen from sk_clone_lock()
+and the source sock object has already associated cgroup. However in
+cgroup v1, where network memory accounting is opt-in, the source sock
+can be unassociated with any cgroup and the new cloned sock can get
+associated with unrelated interrupted cgroup.
 
-Fixes: d851b47b22fc ("net: fec: add interrupt coalescence feature support")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Fugang Duan <fugang.duan@nxp.com>
+Cgroup v2 can also suffer if the source sock object was created by
+process in the root cgroup or if sk_alloc() is called in irq context.
+The fix is to just do nothing in interrupt.
+
+WARNING: Please note that about half of the TCP sockets are allocated
+from the IRQ context, so, memory used by such sockets will not be
+accouted by the memcg.
+
+The stack trace of mem_cgroup_sk_alloc() from IRQ-context:
+
+CPU: 70 PID: 12720 Comm: ssh Tainted:  5.6.0-smp-DEV #1
+Hardware name: ...
+Call Trace:
+ <IRQ>
+ dump_stack+0x57/0x75
+ mem_cgroup_sk_alloc+0xe9/0xf0
+ sk_clone_lock+0x2a7/0x420
+ inet_csk_clone_lock+0x1b/0x110
+ tcp_create_openreq_child+0x23/0x3b0
+ tcp_v6_syn_recv_sock+0x88/0x730
+ tcp_check_req+0x429/0x560
+ tcp_v6_rcv+0x72d/0xa40
+ ip6_protocol_deliver_rcu+0xc9/0x400
+ ip6_input+0x44/0xd0
+ ? ip6_protocol_deliver_rcu+0x400/0x400
+ ip6_rcv_finish+0x71/0x80
+ ipv6_rcv+0x5b/0xe0
+ ? ip6_sublist_rcv+0x2e0/0x2e0
+ process_backlog+0x108/0x1e0
+ net_rx_action+0x26b/0x460
+ __do_softirq+0x104/0x2a6
+ do_softirq_own_stack+0x2a/0x40
+ </IRQ>
+ do_softirq.part.19+0x40/0x50
+ __local_bh_enable_ip+0x51/0x60
+ ip6_finish_output2+0x23d/0x520
+ ? ip6table_mangle_hook+0x55/0x160
+ __ip6_finish_output+0xa1/0x100
+ ip6_finish_output+0x30/0xd0
+ ip6_output+0x73/0x120
+ ? __ip6_finish_output+0x100/0x100
+ ip6_xmit+0x2e3/0x600
+ ? ipv6_anycast_cleanup+0x50/0x50
+ ? inet6_csk_route_socket+0x136/0x1e0
+ ? skb_free_head+0x1e/0x30
+ inet6_csk_xmit+0x95/0xf0
+ __tcp_transmit_skb+0x5b4/0xb20
+ __tcp_send_ack.part.60+0xa3/0x110
+ tcp_send_ack+0x1d/0x20
+ tcp_rcv_state_process+0xe64/0xe80
+ ? tcp_v6_connect+0x5d1/0x5f0
+ tcp_v6_do_rcv+0x1b1/0x3f0
+ ? tcp_v6_do_rcv+0x1b1/0x3f0
+ __release_sock+0x7f/0xd0
+ release_sock+0x30/0xa0
+ __inet_stream_connect+0x1c3/0x3b0
+ ? prepare_to_wait+0xb0/0xb0
+ inet_stream_connect+0x3b/0x60
+ __sys_connect+0x101/0x120
+ ? __sys_getsockopt+0x11b/0x140
+ __x64_sys_connect+0x1a/0x20
+ do_syscall_64+0x51/0x200
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The stack trace of mem_cgroup_sk_alloc() from IRQ-context:
+Fixes: 2d7580738345 ("mm: memcontrol: consolidate cgroup socket tracking")
+Fixes: d979a39d7242 ("cgroup: duplicate cgroup reference when cloning sockets")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reviewed-by: Roman Gushchin <guro@fb.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/cgroup.c |    4 ++++
+ mm/memcontrol.c |    4 ++++
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -2470,15 +2470,15 @@ fec_enet_set_coalesce(struct net_device
- 		return -EINVAL;
+--- a/kernel/cgroup.c
++++ b/kernel/cgroup.c
+@@ -6335,6 +6335,10 @@ void cgroup_sk_alloc(struct sock_cgroup_
+ 		return;
  	}
  
--	cycle = fec_enet_us_to_itr_clock(ndev, fep->rx_time_itr);
-+	cycle = fec_enet_us_to_itr_clock(ndev, ec->rx_coalesce_usecs);
- 	if (cycle > 0xFFFF) {
- 		pr_err("Rx coalesced usec exceed hardware limitation\n");
- 		return -EINVAL;
++	/* Don't associate the sock with unrelated interrupted task's cgroup. */
++	if (in_interrupt())
++		return;
++
+ 	rcu_read_lock();
+ 
+ 	while (true) {
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -5726,6 +5726,10 @@ void mem_cgroup_sk_alloc(struct sock *sk
+ 		return;
  	}
  
--	cycle = fec_enet_us_to_itr_clock(ndev, fep->tx_time_itr);
-+	cycle = fec_enet_us_to_itr_clock(ndev, ec->tx_coalesce_usecs);
- 	if (cycle > 0xFFFF) {
--		pr_err("Rx coalesced usec exceed hardware limitation\n");
-+		pr_err("Tx coalesced usec exceed hardware limitation\n");
- 		return -EINVAL;
- 	}
- 
++	/* Do not associate the sock with unrelated interrupted task's memcg. */
++	if (in_interrupt())
++		return;
++
+ 	rcu_read_lock();
+ 	memcg = mem_cgroup_from_task(current);
+ 	if (memcg == root_mem_cgroup)
 
 
