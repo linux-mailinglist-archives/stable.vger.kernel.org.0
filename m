@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C9818B45C
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:09:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28DC218B4CF
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:12:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727471AbgCSNJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:09:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53410 "EHLO mail.kernel.org"
+        id S1729013AbgCSNMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:12:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727585AbgCSNJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:09:05 -0400
+        id S1729010AbgCSNMu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:12:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CE97208D6;
-        Thu, 19 Mar 2020 13:09:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83B4720789;
+        Thu, 19 Mar 2020 13:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623344;
-        bh=C62zeUMbfr938Xn64S3p3R2EoMm1I5CvPHqj4vLMxY8=;
+        s=default; t=1584623570;
+        bh=LIZLT9N62E2AVuvsjufu2VUHeGyEaul/xFbEjVbzRsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pSPCkXXIyb4+ttw0qkAWWsdYA/ngxXrOnC8B8hVwaG/yeq+JRVkedt1+068nWLrO+
-         SJNFpDWXXosSiBVyO0ZBKZxlxJW5+vtFfhvaWg9Snys618B1I3SFhDjS4GBjfRl4Dv
-         sAimvAnLyt210kvNlcB2BjsmJI+ijmBn3Yt35AcA=
+        b=P+pqz93ku2BhDODDgeylXaNhctPHQOZQvS16Igm1QBIvr51+QMBIh2HiUKEg04N71
+         vjQq0b6QG9YB/dqf3+6fLJ7kHTQkj7QLJiK02etiqaQlj7OpywLLZanMZThB1Fhjj/
+         JmWGDbEqrQSwtEx7jYykv+sGk/4H+3giamK/p56I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Qian Cai <cai@lca.pw>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 89/93] jbd2: fix data races at struct journal_head
-Date:   Thu, 19 Mar 2020 14:00:33 +0100
-Message-Id: <20200319123952.641109255@linuxfoundation.org>
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.9 72/90] batman-adv: Avoid free/alloc race when handling OGM2 buffer
+Date:   Thu, 19 Mar 2020 14:00:34 +0100
+Message-Id: <20200319123950.659818262@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
-References: <20200319123924.795019515@linuxfoundation.org>
+In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
+References: <20200319123928.635114118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +43,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 6c5d911249290f41f7b50b43344a7520605b1acb ]
+commit a8d23cbbf6c9f515ed678204ad2962be7c336344 upstream.
 
-journal_head::b_transaction and journal_head::b_next_transaction could
-be accessed concurrently as noticed by KCSAN,
+A B.A.T.M.A.N. V virtual interface has an OGM2 packet buffer which is
+initialized using data from the netdevice notifier and other rtnetlink
+related hooks. It is sent regularly via various slave interfaces of the
+batadv virtual interface and in this process also modified (realloced) to
+integrate additional state information via TVLV containers.
 
- LTP: starting fsync04
- /dev/zero: Can't open blockdev
- EXT4-fs (loop0): mounting ext3 file system using the ext4 subsystem
- EXT4-fs (loop0): mounted filesystem with ordered data mode. Opts: (null)
- ==================================================================
- BUG: KCSAN: data-race in __jbd2_journal_refile_buffer [jbd2] / jbd2_write_access_granted [jbd2]
+It must be avoided that the worker item is executed without a common lock
+with the netdevice notifier/rtnetlink helpers. Otherwise it can either
+happen that half modified data is sent out or the functions modifying the
+OGM2 buffer try to access already freed memory regions.
 
- write to 0xffff99f9b1bd0e30 of 8 bytes by task 25721 on cpu 70:
-  __jbd2_journal_refile_buffer+0xdd/0x210 [jbd2]
-  __jbd2_journal_refile_buffer at fs/jbd2/transaction.c:2569
-  jbd2_journal_commit_transaction+0x2d15/0x3f20 [jbd2]
-  (inlined by) jbd2_journal_commit_transaction at fs/jbd2/commit.c:1034
-  kjournald2+0x13b/0x450 [jbd2]
-  kthread+0x1cd/0x1f0
-  ret_from_fork+0x27/0x50
-
- read to 0xffff99f9b1bd0e30 of 8 bytes by task 25724 on cpu 68:
-  jbd2_write_access_granted+0x1b2/0x250 [jbd2]
-  jbd2_write_access_granted at fs/jbd2/transaction.c:1155
-  jbd2_journal_get_write_access+0x2c/0x60 [jbd2]
-  __ext4_journal_get_write_access+0x50/0x90 [ext4]
-  ext4_mb_mark_diskspace_used+0x158/0x620 [ext4]
-  ext4_mb_new_blocks+0x54f/0xca0 [ext4]
-  ext4_ind_map_blocks+0xc79/0x1b40 [ext4]
-  ext4_map_blocks+0x3b4/0x950 [ext4]
-  _ext4_get_block+0xfc/0x270 [ext4]
-  ext4_get_block+0x3b/0x50 [ext4]
-  __block_write_begin_int+0x22e/0xae0
-  __block_write_begin+0x39/0x50
-  ext4_write_begin+0x388/0xb50 [ext4]
-  generic_perform_write+0x15d/0x290
-  ext4_buffered_write_iter+0x11f/0x210 [ext4]
-  ext4_file_write_iter+0xce/0x9e0 [ext4]
-  new_sync_write+0x29c/0x3b0
-  __vfs_write+0x92/0xa0
-  vfs_write+0x103/0x260
-  ksys_write+0x9d/0x130
-  __x64_sys_write+0x4c/0x60
-  do_syscall_64+0x91/0xb05
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
- 5 locks held by fsync04/25724:
-  #0: ffff99f9911093f8 (sb_writers#13){.+.+}, at: vfs_write+0x21c/0x260
-  #1: ffff99f9db4c0348 (&sb->s_type->i_mutex_key#15){+.+.}, at: ext4_buffered_write_iter+0x65/0x210 [ext4]
-  #2: ffff99f5e7dfcf58 (jbd2_handle){++++}, at: start_this_handle+0x1c1/0x9d0 [jbd2]
-  #3: ffff99f9db4c0168 (&ei->i_data_sem){++++}, at: ext4_map_blocks+0x176/0x950 [ext4]
-  #4: ffffffff99086b40 (rcu_read_lock){....}, at: jbd2_write_access_granted+0x4e/0x250 [jbd2]
- irq event stamp: 1407125
- hardirqs last  enabled at (1407125): [<ffffffff980da9b7>] __find_get_block+0x107/0x790
- hardirqs last disabled at (1407124): [<ffffffff980da8f9>] __find_get_block+0x49/0x790
- softirqs last  enabled at (1405528): [<ffffffff98a0034c>] __do_softirq+0x34c/0x57c
- softirqs last disabled at (1405521): [<ffffffff97cc67a2>] irq_exit+0xa2/0xc0
-
- Reported by Kernel Concurrency Sanitizer on:
- CPU: 68 PID: 25724 Comm: fsync04 Tainted: G L 5.6.0-rc2-next-20200221+ #7
- Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
-
-The plain reads are outside of jh->b_state_lock critical section which result
-in data races. Fix them by adding pairs of READ|WRITE_ONCE().
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/20200222043111.2227-1-cai@lca.pw
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0da0035942d4 ("batman-adv: OGMv2 - add basic infrastructure")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jbd2/transaction.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/batman-adv/bat_v_ogm.c |   42 ++++++++++++++++++++++++++++++++++--------
+ net/batman-adv/types.h     |    3 +++
+ 2 files changed, 37 insertions(+), 8 deletions(-)
 
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index 6457023d8fac1..3233e5ac9774f 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -1041,8 +1041,8 @@ static bool jbd2_write_access_granted(handle_t *handle, struct buffer_head *bh,
- 	/* For undo access buffer must have data copied */
- 	if (undo && !jh->b_committed_data)
+--- a/net/batman-adv/bat_v_ogm.c
++++ b/net/batman-adv/bat_v_ogm.c
+@@ -28,6 +28,8 @@
+ #include <linux/kernel.h>
+ #include <linux/kref.h>
+ #include <linux/list.h>
++#include <linux/lockdep.h>
++#include <linux/mutex.h>
+ #include <linux/netdevice.h>
+ #include <linux/random.h>
+ #include <linux/rculist.h>
+@@ -127,22 +129,19 @@ static void batadv_v_ogm_send_to_if(stru
+ }
+ 
+ /**
+- * batadv_v_ogm_send - periodic worker broadcasting the own OGM
+- * @work: work queue item
++ * batadv_v_ogm_send_softif() - periodic worker broadcasting the own OGM
++ *  @bat_priv: the bat priv with all the soft interface information
+  */
+-static void batadv_v_ogm_send(struct work_struct *work)
++static void batadv_v_ogm_send_softif(struct batadv_priv *bat_priv)
+ {
+ 	struct batadv_hard_iface *hard_iface;
+-	struct batadv_priv_bat_v *bat_v;
+-	struct batadv_priv *bat_priv;
+ 	struct batadv_ogm2_packet *ogm_packet;
+ 	struct sk_buff *skb, *skb_tmp;
+ 	unsigned char *ogm_buff, *pkt_buff;
+ 	int ogm_buff_len;
+ 	u16 tvlv_len = 0;
+ 
+-	bat_v = container_of(work, struct batadv_priv_bat_v, ogm_wq.work);
+-	bat_priv = container_of(bat_v, struct batadv_priv, bat_v);
++	lockdep_assert_held(&bat_priv->bat_v.ogm_buff_mutex);
+ 
+ 	if (atomic_read(&bat_priv->mesh_state) == BATADV_MESH_DEACTIVATING)
  		goto out;
--	if (jh->b_transaction != handle->h_transaction &&
--	    jh->b_next_transaction != handle->h_transaction)
-+	if (READ_ONCE(jh->b_transaction) != handle->h_transaction &&
-+	    READ_ONCE(jh->b_next_transaction) != handle->h_transaction)
- 		goto out;
- 	/*
- 	 * There are two reasons for the barrier here:
-@@ -2458,8 +2458,8 @@ void __jbd2_journal_refile_buffer(struct journal_head *jh)
- 	 * our jh reference and thus __jbd2_journal_file_buffer() must not
- 	 * take a new one.
- 	 */
--	jh->b_transaction = jh->b_next_transaction;
--	jh->b_next_transaction = NULL;
-+	WRITE_ONCE(jh->b_transaction, jh->b_next_transaction);
-+	WRITE_ONCE(jh->b_next_transaction, NULL);
- 	if (buffer_freed(bh))
- 		jlist = BJ_Forget;
- 	else if (jh->b_modified)
--- 
-2.20.1
-
+@@ -210,6 +209,23 @@ out:
+ }
+ 
+ /**
++ * batadv_v_ogm_send() - periodic worker broadcasting the own OGM
++ * @work: work queue item
++ */
++static void batadv_v_ogm_send(struct work_struct *work)
++{
++	struct batadv_priv_bat_v *bat_v;
++	struct batadv_priv *bat_priv;
++
++	bat_v = container_of(work, struct batadv_priv_bat_v, ogm_wq.work);
++	bat_priv = container_of(bat_v, struct batadv_priv, bat_v);
++
++	mutex_lock(&bat_priv->bat_v.ogm_buff_mutex);
++	batadv_v_ogm_send_softif(bat_priv);
++	mutex_unlock(&bat_priv->bat_v.ogm_buff_mutex);
++}
++
++/**
+  * batadv_v_ogm_iface_enable - prepare an interface for B.A.T.M.A.N. V
+  * @hard_iface: the interface to prepare
+  *
+@@ -235,11 +251,15 @@ void batadv_v_ogm_primary_iface_set(stru
+ 	struct batadv_priv *bat_priv = netdev_priv(primary_iface->soft_iface);
+ 	struct batadv_ogm2_packet *ogm_packet;
+ 
++	mutex_lock(&bat_priv->bat_v.ogm_buff_mutex);
+ 	if (!bat_priv->bat_v.ogm_buff)
+-		return;
++		goto unlock;
+ 
+ 	ogm_packet = (struct batadv_ogm2_packet *)bat_priv->bat_v.ogm_buff;
+ 	ether_addr_copy(ogm_packet->orig, primary_iface->net_dev->dev_addr);
++
++unlock:
++	mutex_unlock(&bat_priv->bat_v.ogm_buff_mutex);
+ }
+ 
+ /**
+@@ -827,6 +847,8 @@ int batadv_v_ogm_init(struct batadv_priv
+ 	atomic_set(&bat_priv->bat_v.ogm_seqno, random_seqno);
+ 	INIT_DELAYED_WORK(&bat_priv->bat_v.ogm_wq, batadv_v_ogm_send);
+ 
++	mutex_init(&bat_priv->bat_v.ogm_buff_mutex);
++
+ 	return 0;
+ }
+ 
+@@ -838,7 +860,11 @@ void batadv_v_ogm_free(struct batadv_pri
+ {
+ 	cancel_delayed_work_sync(&bat_priv->bat_v.ogm_wq);
+ 
++	mutex_lock(&bat_priv->bat_v.ogm_buff_mutex);
++
+ 	kfree(bat_priv->bat_v.ogm_buff);
+ 	bat_priv->bat_v.ogm_buff = NULL;
+ 	bat_priv->bat_v.ogm_buff_len = 0;
++
++	mutex_unlock(&bat_priv->bat_v.ogm_buff_mutex);
+ }
+--- a/net/batman-adv/types.h
++++ b/net/batman-adv/types.h
+@@ -27,6 +27,7 @@
+ #include <linux/compiler.h>
+ #include <linux/if_ether.h>
+ #include <linux/kref.h>
++#include <linux/mutex.h>
+ #include <linux/netdevice.h>
+ #include <linux/netlink.h>
+ #include <linux/sched.h> /* for linux/wait.h */
+@@ -966,12 +967,14 @@ struct batadv_softif_vlan {
+  * @ogm_buff: buffer holding the OGM packet
+  * @ogm_buff_len: length of the OGM packet buffer
+  * @ogm_seqno: OGM sequence number - used to identify each OGM
++ * @ogm_buff_mutex: lock protecting ogm_buff and ogm_buff_len
+  * @ogm_wq: workqueue used to schedule OGM transmissions
+  */
+ struct batadv_priv_bat_v {
+ 	unsigned char *ogm_buff;
+ 	int ogm_buff_len;
+ 	atomic_t ogm_seqno;
++	struct mutex ogm_buff_mutex;
+ 	struct delayed_work ogm_wq;
+ };
+ 
 
 
