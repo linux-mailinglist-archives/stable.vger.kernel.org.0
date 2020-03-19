@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3511D18B7C3
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D61C218B7BA
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:35:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728215AbgCSNfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:35:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56160 "EHLO mail.kernel.org"
+        id S1728262AbgCSNLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:11:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728657AbgCSNLG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:11:06 -0400
+        id S1727745AbgCSNLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:11:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 898102145D;
-        Thu, 19 Mar 2020 13:11:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74E8220722;
+        Thu, 19 Mar 2020 13:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623466;
-        bh=pEhlFlqcaznmZ930nWnI5ibxyeHWyH36PFKDMxcKpeA=;
+        s=default; t=1584623491;
+        bh=c1KzFJe5ugMP3VUC9zUPA27C2lYVFTsHoL03CCM2Mlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLY8IOEM5SoJx17yP3XrXo+viOZk/X4Tbn1o5EN7GYvI2wt/MA7y8iOBnmBDLAlzx
-         1x07cCVlypoAdOc39h01SuVBLZJq+p/Ucjk7zjhB3EaQGizk921voYajopWQdFqHLo
-         93TQRRuUyZhXUqhedON3dJLBtZ9e/YPRcUhEvCzI=
+        b=X3cbel7V5xeQMwZMkeShXABzpPdBVahBvTur1Os/MNE9qxKkjeXbwJg0Rw9UBoYUg
+         ly7Scz7nkZlttDW/pbv72VpDdWebPXIvhU6iaBdI9nGvA9ACoSbgQ0nfUXl7PuX5pR
+         J+0arGdgLKOnxZzPCGN/9k8BuIbL1Uo1MHFB74GQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        stable@kernel.org
-Subject: [PATCH 4.9 35/90] cifs_atomic_open(): fix double-put on late allocation failure
-Date:   Thu, 19 Mar 2020 13:59:57 +0100
-Message-Id: <20200319123939.492409418@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>
+Subject: [PATCH 4.9 37/90] KVM: x86: clear stale x86_emulate_ctxt->intercept value
+Date:   Thu, 19 Mar 2020 13:59:59 +0100
+Message-Id: <20200319123940.116286423@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
 References: <20200319123928.635114118@linuxfoundation.org>
@@ -43,66 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit d9a9f4849fe0c9d560851ab22a85a666cddfdd24 upstream.
+commit 342993f96ab24d5864ab1216f46c0b199c2baf8e upstream.
 
-several iterations of ->atomic_open() calling conventions ago, we
-used to need fput() if ->atomic_open() failed at some point after
-successful finish_open().  Now (since 2016) it's not needed -
-struct file carries enough state to make fput() work regardless
-of the point in struct file lifecycle and discarding it on
-failure exits in open() got unified.  Unfortunately, I'd missed
-the fact that we had an instance of ->atomic_open() (cifs one)
-that used to need that fput(), as well as the stale comment in
-finish_open() demanding such late failure handling.  Trivially
-fixed...
+After commit 07721feee46b ("KVM: nVMX: Don't emulate instructions in guest
+mode") Hyper-V guests on KVM stopped booting with:
 
-Fixes: fe9ec8291fca "do_last(): take fput() on error after opening to out:"
-Cc: stable@kernel.org # v4.7+
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+ kvm_nested_vmexit:    rip fffff802987d6169 reason EPT_VIOLATION info1 181
+    info2 0 int_info 0 int_info_err 0
+ kvm_page_fault:       address febd0000 error_code 181
+ kvm_emulate_insn:     0:fffff802987d6169: f3 a5
+ kvm_emulate_insn:     0:fffff802987d6169: f3 a5 FAIL
+ kvm_inj_exception:    #UD (0x0)
+
+"f3 a5" is a "rep movsw" instruction, which should not be intercepted
+at all.  Commit c44b4c6ab80e ("KVM: emulate: clean up initializations in
+init_decode_cache") reduced the number of fields cleared by
+init_decode_cache() claiming that they are being cleared elsewhere,
+'intercept', however, is left uncleared if the instruction does not have
+any of the "slow path" flags (NotImpl, Stack, Op3264, Sse, Mmx, CheckPerm,
+NearBranch, No16 and of course Intercept itself).
+
+Fixes: c44b4c6ab80e ("KVM: emulate: clean up initializations in init_decode_cache")
+Fixes: 07721feee46b ("KVM: nVMX: Don't emulate instructions in guest mode")
+Cc: stable@vger.kernel.org
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/filesystems/porting |    7 +++++++
- fs/cifs/dir.c                     |    1 -
- fs/open.c                         |    3 ---
- 3 files changed, 7 insertions(+), 4 deletions(-)
+ arch/x86/kvm/emulate.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Documentation/filesystems/porting
-+++ b/Documentation/filesystems/porting
-@@ -596,3 +596,10 @@ in your dentry operations instead.
- [mandatory]
- 	->rename() has an added flags argument.  Any flags not handled by the
-         filesystem should result in EINVAL being returned.
-+--
-+[mandatory]
-+
-+	[should've been added in 2016] stale comment in finish_open()
-+	nonwithstanding, failure exits in ->atomic_open() instances should
-+	*NOT* fput() the file, no matter what.  Everything is handled by the
-+	caller.
---- a/fs/cifs/dir.c
-+++ b/fs/cifs/dir.c
-@@ -551,7 +551,6 @@ cifs_atomic_open(struct inode *inode, st
- 		if (server->ops->close)
- 			server->ops->close(xid, tcon, &fid);
- 		cifs_del_pending_open(&open);
--		fput(file);
- 		rc = -ENOMEM;
- 	}
- 
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -824,9 +824,6 @@ cleanup_file:
-  * the return value of d_splice_alias(), then the caller needs to perform dput()
-  * on it after finish_open().
-  *
-- * On successful return @file is a fully instantiated open file.  After this, if
-- * an error occurs in ->atomic_open(), it needs to clean up with fput().
-- *
-  * Returns zero on success or -errno if the open failed.
-  */
- int finish_open(struct file *file, struct dentry *dentry,
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -5022,6 +5022,7 @@ int x86_decode_insn(struct x86_emulate_c
+ 	ctxt->fetch.ptr = ctxt->fetch.data;
+ 	ctxt->fetch.end = ctxt->fetch.data + insn_len;
+ 	ctxt->opcode_len = 1;
++	ctxt->intercept = x86_intercept_none;
+ 	if (insn_len > 0)
+ 		memcpy(ctxt->fetch.data, insn, insn_len);
+ 	else {
 
 
