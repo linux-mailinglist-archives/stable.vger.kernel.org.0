@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F6018B5C5
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:22:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 032C518B6A1
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:28:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730102AbgCSNVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:21:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46040 "EHLO mail.kernel.org"
+        id S1729419AbgCSN2b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:28:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730098AbgCSNVV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:21:21 -0400
+        id S1730459AbgCSN0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:26:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FEDE21556;
-        Thu, 19 Mar 2020 13:21:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41445208C3;
+        Thu, 19 Mar 2020 13:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624080;
-        bh=jh1TC9oeHtTMSqESY7XtFOYe4NwBWqCS0k/SPOGQxaU=;
+        s=default; t=1584624400;
+        bh=umYb5DtZUCOPAN5Tj456WAHGwP23QQZy/ivEOWLpI+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7vGsc/SNeiwwtP8+ANq1HXA+hNoFW+1cCik+0wD1QpB2dbAox7q8mo/y1Haa5n6E
-         7YBfiwtMoxLP6yobCovdBMOTE3WWfbKcF7IJPMIXaCVkHoNtgn/rgWrx1TKoGQopqb
-         l5zQh47I6/n3hRvn1xNYtKIsq2hXm2yPJ0uEw9tg=
+        b=YkJcIFjFvQloZIqPwOm4LOqHC5B62//5soUluymyfHQ6KuqpNB9IwxwcmU8jMPP8A
+         dyxUxPuxkx4WbbYKOKwdHtIptEqXRUYNv4Kc9oIl0RWFQW0X+lE0ET8YAYJZlyVsgY
+         wL+KylMLrW9ip+8QPSQJiyufwChIHw6sPXSUUm9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Qian Cai <cai@lca.pw>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 31/48] jbd2: fix data races at struct journal_head
+Subject: [PATCH 5.5 31/65] net: ll_temac: Fix RX buffer descriptor handling on GFP_ATOMIC pressure
 Date:   Thu, 19 Mar 2020 14:04:13 +0100
-Message-Id: <20200319123912.769422893@linuxfoundation.org>
+Message-Id: <20200319123936.185845808@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
-References: <20200319123902.941451241@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,108 +44,239 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Esben Haabendal <esben@geanix.com>
 
-[ Upstream commit 6c5d911249290f41f7b50b43344a7520605b1acb ]
+[ Upstream commit 770d9c67974c4c71af4beb786dc43162ad2a15ba ]
 
-journal_head::b_transaction and journal_head::b_next_transaction could
-be accessed concurrently as noticed by KCSAN,
+Failures caused by GFP_ATOMIC memory pressure have been observed, and
+due to the missing error handling, results in kernel crash such as
 
- LTP: starting fsync04
- /dev/zero: Can't open blockdev
- EXT4-fs (loop0): mounting ext3 file system using the ext4 subsystem
- EXT4-fs (loop0): mounted filesystem with ordered data mode. Opts: (null)
- ==================================================================
- BUG: KCSAN: data-race in __jbd2_journal_refile_buffer [jbd2] / jbd2_write_access_granted [jbd2]
+[1876998.350133] kernel BUG at mm/slub.c:3952!
+[1876998.350141] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[1876998.350147] CPU: 2 PID: 0 Comm: swapper/2 Not tainted 5.3.0-scnxt #1
+[1876998.350150] Hardware name: N/A N/A/COMe-bIP2, BIOS CCR2R920 03/01/2017
+[1876998.350160] RIP: 0010:kfree+0x1ca/0x220
+[1876998.350164] Code: 85 db 74 49 48 8b 95 68 01 00 00 48 31 c2 48 89 10 e9 d7 fe ff ff 49 8b 04 24 a9 00 00 01 00 75 0b 49 8b 44 24 08 a8 01 75 02 <0f> 0b 49 8b 04 24 31 f6 a9 00 00 01 00 74 06 41 0f b6 74 24
+ 5b
+[1876998.350172] RSP: 0018:ffffc900000f0df0 EFLAGS: 00010246
+[1876998.350177] RAX: ffffea00027f0708 RBX: ffff888008d78000 RCX: 0000000000391372
+[1876998.350181] RDX: 0000000000000000 RSI: ffffe8ffffd01400 RDI: ffff888008d78000
+[1876998.350185] RBP: ffff8881185a5d00 R08: ffffc90000087dd8 R09: 000000000000280a
+[1876998.350189] R10: 0000000000000002 R11: 0000000000000000 R12: ffffea0000235e00
+[1876998.350193] R13: ffff8881185438a0 R14: 0000000000000000 R15: ffff888118543870
+[1876998.350198] FS:  0000000000000000(0000) GS:ffff88811f300000(0000) knlGS:0000000000000000
+[1876998.350203] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+s#1 Part1
+[1876998.350206] CR2: 00007f8dac7b09f0 CR3: 000000011e20a006 CR4: 00000000001606e0
+[1876998.350210] Call Trace:
+[1876998.350215]  <IRQ>
+[1876998.350224]  ? __netif_receive_skb_core+0x70a/0x920
+[1876998.350229]  kfree_skb+0x32/0xb0
+[1876998.350234]  __netif_receive_skb_core+0x70a/0x920
+[1876998.350240]  __netif_receive_skb_one_core+0x36/0x80
+[1876998.350245]  process_backlog+0x8b/0x150
+[1876998.350250]  net_rx_action+0xf7/0x340
+[1876998.350255]  __do_softirq+0x10f/0x353
+[1876998.350262]  irq_exit+0xb2/0xc0
+[1876998.350265]  do_IRQ+0x77/0xd0
+[1876998.350271]  common_interrupt+0xf/0xf
+[1876998.350274]  </IRQ>
 
- write to 0xffff99f9b1bd0e30 of 8 bytes by task 25721 on cpu 70:
-  __jbd2_journal_refile_buffer+0xdd/0x210 [jbd2]
-  __jbd2_journal_refile_buffer at fs/jbd2/transaction.c:2569
-  jbd2_journal_commit_transaction+0x2d15/0x3f20 [jbd2]
-  (inlined by) jbd2_journal_commit_transaction at fs/jbd2/commit.c:1034
-  kjournald2+0x13b/0x450 [jbd2]
-  kthread+0x1cd/0x1f0
-  ret_from_fork+0x27/0x50
+In order to handle such failures more graceful, this change splits the
+receive loop into one for consuming the received buffers, and one for
+allocating new buffers.
 
- read to 0xffff99f9b1bd0e30 of 8 bytes by task 25724 on cpu 68:
-  jbd2_write_access_granted+0x1b2/0x250 [jbd2]
-  jbd2_write_access_granted at fs/jbd2/transaction.c:1155
-  jbd2_journal_get_write_access+0x2c/0x60 [jbd2]
-  __ext4_journal_get_write_access+0x50/0x90 [ext4]
-  ext4_mb_mark_diskspace_used+0x158/0x620 [ext4]
-  ext4_mb_new_blocks+0x54f/0xca0 [ext4]
-  ext4_ind_map_blocks+0xc79/0x1b40 [ext4]
-  ext4_map_blocks+0x3b4/0x950 [ext4]
-  _ext4_get_block+0xfc/0x270 [ext4]
-  ext4_get_block+0x3b/0x50 [ext4]
-  __block_write_begin_int+0x22e/0xae0
-  __block_write_begin+0x39/0x50
-  ext4_write_begin+0x388/0xb50 [ext4]
-  generic_perform_write+0x15d/0x290
-  ext4_buffered_write_iter+0x11f/0x210 [ext4]
-  ext4_file_write_iter+0xce/0x9e0 [ext4]
-  new_sync_write+0x29c/0x3b0
-  __vfs_write+0x92/0xa0
-  vfs_write+0x103/0x260
-  ksys_write+0x9d/0x130
-  __x64_sys_write+0x4c/0x60
-  do_syscall_64+0x91/0xb05
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+When GFP_ATOMIC allocations fail, the receive will continue with the
+buffers that is still there, and with the expectation that the allocations
+will succeed in a later call to receive.
 
- 5 locks held by fsync04/25724:
-  #0: ffff99f9911093f8 (sb_writers#13){.+.+}, at: vfs_write+0x21c/0x260
-  #1: ffff99f9db4c0348 (&sb->s_type->i_mutex_key#15){+.+.}, at: ext4_buffered_write_iter+0x65/0x210 [ext4]
-  #2: ffff99f5e7dfcf58 (jbd2_handle){++++}, at: start_this_handle+0x1c1/0x9d0 [jbd2]
-  #3: ffff99f9db4c0168 (&ei->i_data_sem){++++}, at: ext4_map_blocks+0x176/0x950 [ext4]
-  #4: ffffffff99086b40 (rcu_read_lock){....}, at: jbd2_write_access_granted+0x4e/0x250 [jbd2]
- irq event stamp: 1407125
- hardirqs last  enabled at (1407125): [<ffffffff980da9b7>] __find_get_block+0x107/0x790
- hardirqs last disabled at (1407124): [<ffffffff980da8f9>] __find_get_block+0x49/0x790
- softirqs last  enabled at (1405528): [<ffffffff98a0034c>] __do_softirq+0x34c/0x57c
- softirqs last disabled at (1405521): [<ffffffff97cc67a2>] irq_exit+0xa2/0xc0
-
- Reported by Kernel Concurrency Sanitizer on:
- CPU: 68 PID: 25724 Comm: fsync04 Tainted: G L 5.6.0-rc2-next-20200221+ #7
- Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
-
-The plain reads are outside of jh->b_state_lock critical section which result
-in data races. Fix them by adding pairs of READ|WRITE_ONCE().
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/20200222043111.2227-1-cai@lca.pw
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 92744989533c ("net: add Xilinx ll_temac device driver")
+Signed-off-by: Esben Haabendal <esben@geanix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/transaction.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/xilinx/ll_temac.h      |   1 +
+ drivers/net/ethernet/xilinx/ll_temac_main.c | 112 ++++++++++++++------
+ 2 files changed, 82 insertions(+), 31 deletions(-)
 
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index 04ffef9cea8cc..43693b6797105 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -1045,8 +1045,8 @@ static bool jbd2_write_access_granted(handle_t *handle, struct buffer_head *bh,
- 	/* For undo access buffer must have data copied */
- 	if (undo && !jh->b_committed_data)
- 		goto out;
--	if (jh->b_transaction != handle->h_transaction &&
--	    jh->b_next_transaction != handle->h_transaction)
-+	if (READ_ONCE(jh->b_transaction) != handle->h_transaction &&
-+	    READ_ONCE(jh->b_next_transaction) != handle->h_transaction)
- 		goto out;
- 	/*
- 	 * There are two reasons for the barrier here:
-@@ -2467,8 +2467,8 @@ void __jbd2_journal_refile_buffer(struct journal_head *jh)
- 	 * our jh reference and thus __jbd2_journal_file_buffer() must not
- 	 * take a new one.
- 	 */
--	jh->b_transaction = jh->b_next_transaction;
--	jh->b_next_transaction = NULL;
-+	WRITE_ONCE(jh->b_transaction, jh->b_next_transaction);
-+	WRITE_ONCE(jh->b_next_transaction, NULL);
- 	if (buffer_freed(bh))
- 		jlist = BJ_Forget;
- 	else if (jh->b_modified)
+diff --git a/drivers/net/ethernet/xilinx/ll_temac.h b/drivers/net/ethernet/xilinx/ll_temac.h
+index 276292bca334d..99fe059e5c7f3 100644
+--- a/drivers/net/ethernet/xilinx/ll_temac.h
++++ b/drivers/net/ethernet/xilinx/ll_temac.h
+@@ -375,6 +375,7 @@ struct temac_local {
+ 	int tx_bd_next;
+ 	int tx_bd_tail;
+ 	int rx_bd_ci;
++	int rx_bd_tail;
+ 
+ 	/* DMA channel control setup */
+ 	u32 tx_chnl_ctrl;
+diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
+index fd4231493449b..2e3f59dae586e 100644
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -389,12 +389,13 @@ static int temac_dma_bd_init(struct net_device *ndev)
+ 	lp->tx_bd_next = 0;
+ 	lp->tx_bd_tail = 0;
+ 	lp->rx_bd_ci = 0;
++	lp->rx_bd_tail = RX_BD_NUM - 1;
+ 
+ 	/* Enable RX DMA transfers */
+ 	wmb();
+ 	lp->dma_out(lp, RX_CURDESC_PTR,  lp->rx_bd_p);
+ 	lp->dma_out(lp, RX_TAILDESC_PTR,
+-		       lp->rx_bd_p + (sizeof(*lp->rx_bd_v) * (RX_BD_NUM - 1)));
++		       lp->rx_bd_p + (sizeof(*lp->rx_bd_v) * lp->rx_bd_tail));
+ 
+ 	/* Prepare for TX DMA transfer */
+ 	lp->dma_out(lp, TX_CURDESC_PTR, lp->tx_bd_p);
+@@ -923,27 +924,41 @@ temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ static void ll_temac_recv(struct net_device *ndev)
+ {
+ 	struct temac_local *lp = netdev_priv(ndev);
+-	struct sk_buff *skb, *new_skb;
+-	unsigned int bdstat;
+-	struct cdmac_bd *cur_p;
+-	dma_addr_t tail_p, skb_dma_addr;
+-	int length;
+ 	unsigned long flags;
++	int rx_bd;
++	bool update_tail = false;
+ 
+ 	spin_lock_irqsave(&lp->rx_lock, flags);
+ 
+-	tail_p = lp->rx_bd_p + sizeof(*lp->rx_bd_v) * lp->rx_bd_ci;
+-	cur_p = &lp->rx_bd_v[lp->rx_bd_ci];
+-
+-	bdstat = be32_to_cpu(cur_p->app0);
+-	while ((bdstat & STS_CTRL_APP0_CMPLT)) {
++	/* Process all received buffers, passing them on network
++	 * stack.  After this, the buffer descriptors will be in an
++	 * un-allocated stage, where no skb is allocated for it, and
++	 * they are therefore not available for TEMAC/DMA.
++	 */
++	do {
++		struct cdmac_bd *bd = &lp->rx_bd_v[lp->rx_bd_ci];
++		struct sk_buff *skb = lp->rx_skb[lp->rx_bd_ci];
++		unsigned int bdstat = be32_to_cpu(bd->app0);
++		int length;
++
++		/* While this should not normally happen, we can end
++		 * here when GFP_ATOMIC allocations fail, and we
++		 * therefore have un-allocated buffers.
++		 */
++		if (!skb)
++			break;
+ 
+-		skb = lp->rx_skb[lp->rx_bd_ci];
+-		length = be32_to_cpu(cur_p->app4) & 0x3FFF;
++		/* Loop over all completed buffer descriptors */
++		if (!(bdstat & STS_CTRL_APP0_CMPLT))
++			break;
+ 
+-		dma_unmap_single(ndev->dev.parent, be32_to_cpu(cur_p->phys),
++		dma_unmap_single(ndev->dev.parent, be32_to_cpu(bd->phys),
+ 				 XTE_MAX_JUMBO_FRAME_SIZE, DMA_FROM_DEVICE);
++		/* The buffer is not valid for DMA anymore */
++		bd->phys = 0;
++		bd->len = 0;
+ 
++		length = be32_to_cpu(bd->app4) & 0x3FFF;
+ 		skb_put(skb, length);
+ 		skb->protocol = eth_type_trans(skb, ndev);
+ 		skb_checksum_none_assert(skb);
+@@ -958,39 +973,74 @@ static void ll_temac_recv(struct net_device *ndev)
+ 			 * (back) for proper IP checksum byte order
+ 			 * (be16).
+ 			 */
+-			skb->csum = htons(be32_to_cpu(cur_p->app3) & 0xFFFF);
++			skb->csum = htons(be32_to_cpu(bd->app3) & 0xFFFF);
+ 			skb->ip_summed = CHECKSUM_COMPLETE;
+ 		}
+ 
+ 		if (!skb_defer_rx_timestamp(skb))
+ 			netif_rx(skb);
++		/* The skb buffer is now owned by network stack above */
++		lp->rx_skb[lp->rx_bd_ci] = NULL;
+ 
+ 		ndev->stats.rx_packets++;
+ 		ndev->stats.rx_bytes += length;
+ 
+-		new_skb = netdev_alloc_skb_ip_align(ndev,
+-						XTE_MAX_JUMBO_FRAME_SIZE);
+-		if (!new_skb) {
+-			spin_unlock_irqrestore(&lp->rx_lock, flags);
+-			return;
++		rx_bd = lp->rx_bd_ci;
++		if (++lp->rx_bd_ci >= RX_BD_NUM)
++			lp->rx_bd_ci = 0;
++	} while (rx_bd != lp->rx_bd_tail);
++
++	/* Allocate new buffers for those buffer descriptors that were
++	 * passed to network stack.  Note that GFP_ATOMIC allocations
++	 * can fail (e.g. when a larger burst of GFP_ATOMIC
++	 * allocations occurs), so while we try to allocate all
++	 * buffers in the same interrupt where they were processed, we
++	 * continue with what we could get in case of allocation
++	 * failure.  Allocation of remaining buffers will be retried
++	 * in following calls.
++	 */
++	while (1) {
++		struct sk_buff *skb;
++		struct cdmac_bd *bd;
++		dma_addr_t skb_dma_addr;
++
++		rx_bd = lp->rx_bd_tail + 1;
++		if (rx_bd >= RX_BD_NUM)
++			rx_bd = 0;
++		bd = &lp->rx_bd_v[rx_bd];
++
++		if (bd->phys)
++			break;	/* All skb's allocated */
++
++		skb = netdev_alloc_skb_ip_align(ndev, XTE_MAX_JUMBO_FRAME_SIZE);
++		if (!skb) {
++			dev_warn(&ndev->dev, "skb alloc failed\n");
++			break;
+ 		}
+ 
+-		cur_p->app0 = cpu_to_be32(STS_CTRL_APP0_IRQONEND);
+-		skb_dma_addr = dma_map_single(ndev->dev.parent, new_skb->data,
++		skb_dma_addr = dma_map_single(ndev->dev.parent, skb->data,
+ 					      XTE_MAX_JUMBO_FRAME_SIZE,
+ 					      DMA_FROM_DEVICE);
+-		cur_p->phys = cpu_to_be32(skb_dma_addr);
+-		cur_p->len = cpu_to_be32(XTE_MAX_JUMBO_FRAME_SIZE);
+-		lp->rx_skb[lp->rx_bd_ci] = new_skb;
++		if (WARN_ON_ONCE(dma_mapping_error(ndev->dev.parent,
++						   skb_dma_addr))) {
++			dev_kfree_skb_any(skb);
++			break;
++		}
+ 
+-		lp->rx_bd_ci++;
+-		if (lp->rx_bd_ci >= RX_BD_NUM)
+-			lp->rx_bd_ci = 0;
++		bd->phys = cpu_to_be32(skb_dma_addr);
++		bd->len = cpu_to_be32(XTE_MAX_JUMBO_FRAME_SIZE);
++		bd->app0 = cpu_to_be32(STS_CTRL_APP0_IRQONEND);
++		lp->rx_skb[rx_bd] = skb;
++
++		lp->rx_bd_tail = rx_bd;
++		update_tail = true;
++	}
+ 
+-		cur_p = &lp->rx_bd_v[lp->rx_bd_ci];
+-		bdstat = be32_to_cpu(cur_p->app0);
++	/* Move tail pointer when buffers have been allocated */
++	if (update_tail) {
++		lp->dma_out(lp, RX_TAILDESC_PTR,
++			lp->rx_bd_p + sizeof(*lp->rx_bd_v) * lp->rx_bd_tail);
+ 	}
+-	lp->dma_out(lp, RX_TAILDESC_PTR, tail_p);
+ 
+ 	spin_unlock_irqrestore(&lp->rx_lock, flags);
+ }
 -- 
 2.20.1
 
