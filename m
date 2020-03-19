@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E7A618B763
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A8BA18B765
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:33:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727718AbgCSNNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:13:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60854 "EHLO mail.kernel.org"
+        id S1728611AbgCSNNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:13:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729170AbgCSNNf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:13:35 -0400
+        id S1727549AbgCSNNo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:13:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1234E2166E;
-        Thu, 19 Mar 2020 13:13:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B460120722;
+        Thu, 19 Mar 2020 13:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623614;
-        bh=Wtb3OqvRNjSUv9DlE4NvlYAISghwSwpMTBoU9qN3nZI=;
+        s=default; t=1584623623;
+        bh=h++JHvlq0URUaxWR2YFil30omclmOjygV8exSEpksy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cy4G4zfJLVb/6IjvNmRSGzk08WCxeUyCsYffuMZos0Ql+o2XhwQbN9vUcqkgMbxyL
-         fkp0IJDfJSzWPi9lChwUnwD9b7fthhBRmjjGUTvRrHFzOg4ZFYrUuoG9l16YvBpCPJ
-         HjvLNkEfKwu8JTggrPojiJFjm3aw7yOr3z5qHb2Q=
+        b=jnOTQXdwSSC+cxp/EYKcDGM009C4h7jcsq3rjr8N8RgpjF8Y6YT2U36QT70Nb/ABc
+         ACd8Gs5cLMsb0QxRBATA76VnaQdN/u489V5VNmXE3E6busUroEPoxIhwyNozv00AuF
+         wcc1kJe7D1C9BYL4d84ANopcGGoGZoeXmgT37xC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.9 87/90] ARM: 8957/1: VDSO: Match ARMv8 timer in cntvct_functional()
-Date:   Thu, 19 Mar 2020 14:00:49 +0100
-Message-Id: <20200319123955.174395136@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Matteo Croce <mcroce@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 90/90] ipv4: ensure rcu_read_lock() in cipso_v4_error()
+Date:   Thu, 19 Mar 2020 14:00:52 +0100
+Message-Id: <20200319123955.953025598@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
 References: <20200319123928.635114118@linuxfoundation.org>
@@ -43,35 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-commit 45939ce292b4b11159719faaf60aba7d58d5fe33 upstream.
+commit 3e72dfdf8227b052393f71d820ec7599909dddc2 upstream.
 
-It is possible for a system with an ARMv8 timer to run a 32-bit kernel.
-When this happens we will unconditionally have the vDSO code remove the
-__vdso_gettimeofday and __vdso_clock_gettime symbols because
-cntvct_functional() returns false since it does not match that
-compatibility string.
+Similarly to commit c543cb4a5f07 ("ipv4: ensure rcu_read_lock() in
+ipv4_link_failure()"), __ip_options_compile() must be called under rcu
+protection.
 
-Fixes: ecf99a439105 ("ARM: 8331/1: VDSO initialization, mapping, and synchronization")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: 3da1ed7ac398 ("net: avoid use IPCB in cipso_v4_error")
+Suggested-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/kernel/vdso.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/cipso_ipv4.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/arch/arm/kernel/vdso.c
-+++ b/arch/arm/kernel/vdso.c
-@@ -86,6 +86,8 @@ static bool __init cntvct_functional(voi
- 	 */
- 	np = of_find_compatible_node(NULL, NULL, "arm,armv7-timer");
- 	if (!np)
-+		np = of_find_compatible_node(NULL, NULL, "arm,armv8-timer");
-+	if (!np)
- 		goto out_put;
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -1738,6 +1738,7 @@ void cipso_v4_error(struct sk_buff *skb,
+ {
+ 	unsigned char optbuf[sizeof(struct ip_options) + 40];
+ 	struct ip_options *opt = (struct ip_options *)optbuf;
++	int res;
  
- 	if (of_property_read_bool(np, "arm,cpu-registers-not-fw-configured"))
+ 	if (ip_hdr(skb)->protocol == IPPROTO_ICMP || error != -EACCES)
+ 		return;
+@@ -1749,7 +1750,11 @@ void cipso_v4_error(struct sk_buff *skb,
+ 
+ 	memset(opt, 0, sizeof(struct ip_options));
+ 	opt->optlen = ip_hdr(skb)->ihl*4 - sizeof(struct iphdr);
+-	if (__ip_options_compile(dev_net(skb->dev), opt, skb, NULL))
++	rcu_read_lock();
++	res = __ip_options_compile(dev_net(skb->dev), opt, skb, NULL);
++	rcu_read_unlock();
++
++	if (res)
+ 		return;
+ 
+ 	if (gateway)
 
 
