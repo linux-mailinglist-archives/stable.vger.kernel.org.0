@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C5518B735
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:32:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DB2118B738
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:32:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727720AbgCSNRW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:17:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38470 "EHLO mail.kernel.org"
+        id S1729649AbgCSNR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:17:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729622AbgCSNRT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:17:19 -0400
+        id S1729625AbgCSNR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:17:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DDDB21775;
-        Thu, 19 Mar 2020 13:17:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DD3F214D8;
+        Thu, 19 Mar 2020 13:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623838;
-        bh=+d8ajJzWO100hATUUE+6j7BLWE9UwVheTuluFvGV3IM=;
+        s=default; t=1584623847;
+        bh=lNVsuRXpgvXZwEl2RJXqzMTRLX3X5ySeRb2Lk48xa5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQ/4QnebPSIxX53wNWnAybJUwiC897iCRWc+rWQiA5ytcDfNnHkD0k5cG5lokqP4o
-         BZos7ivQGWyRnNc0J6uQp/zeX02Wh063VuVPFJ6KIRA0k62F4zKzWzlnow+a2FrvUJ
-         OVg54x4TcFBqj7AARfLIOb+/sfaz+Txnusi0WYDw=
+        b=GycHsLyQfQFGg30QQ6ouFLhzEuRYl71RJ9A/K7cAPwFeEULZ4A+sg270nXpiUAyCy
+         FpjOrWVYwDAW8YTOLebILc6sImGWz5xrnO3W/ko4BDXW0jhj4QfsNubKxKdJd7A3q1
+         BDqsZmBvhAwOcCcZnI0IA9/4PrT+P2FBx5R1qbck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Moulding <dmoulding@me.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 39/99] iwlwifi: mvm: Do not require PHY_SKU NVM section for 3168 devices
-Date:   Thu, 19 Mar 2020 14:03:17 +0100
-Message-Id: <20200319123953.604920974@linuxfoundation.org>
+        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Tejun Heo <tj@kernel.org>,
+        Lai Jiangshan <jiangshanlai@gmail.com>
+Subject: [PATCH 4.14 42/99] workqueue: dont use wq_select_unbound_cpu() for bound works
+Date:   Thu, 19 Mar 2020 14:03:20 +0100
+Message-Id: <20200319123954.599095451@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
 References: <20200319123941.630731708@linuxfoundation.org>
@@ -43,41 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Moulding <dmoulding@me.com>
+From: Hillf Danton <hdanton@sina.com>
 
-commit a9149d243f259ad8f02b1e23dfe8ba06128f15e1 upstream.
+commit aa202f1f56960c60e7befaa0f49c72b8fa11b0a8 upstream.
 
-The logic for checking required NVM sections was recently fixed in
-commit b3f20e098293 ("iwlwifi: mvm: fix NVM check for 3168
-devices"). However, with that fixed the else is now taken for 3168
-devices and within the else clause there is a mandatory check for the
-PHY_SKU section. This causes the parsing to fail for 3168 devices.
+wq_select_unbound_cpu() is designed for unbound workqueues only, but
+it's wrongly called when using a bound workqueue too.
 
-The PHY_SKU section is really only mandatory for the IWL_NVM_EXT
-layout (the phy_sku parameter of iwl_parse_nvm_data is only used when
-the NVM type is IWL_NVM_EXT). So this changes the PHY_SKU section
-check so that it's only mandatory for IWL_NVM_EXT.
+Fixing this ensures work queued to a bound workqueue with
+cpu=WORK_CPU_UNBOUND always runs on the local CPU.
 
-Fixes: b3f20e098293 ("iwlwifi: mvm: fix NVM check for 3168 devices")
-Signed-off-by: Dan Moulding <dmoulding@me.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Before, that would happen only if wq_unbound_cpumask happened to include
+it (likely almost always the case), or was empty, or we got lucky with
+forced round-robin placement.  So restricting
+/sys/devices/virtual/workqueue/cpumask to a small subset of a machine's
+CPUs would cause some bound work items to run unexpectedly there.
+
+Fixes: ef557180447f ("workqueue: schedule WORK_CPU_UNBOUND work on wq_unbound_cpumask CPUs")
+Cc: stable@vger.kernel.org # v4.5+
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+[dj: massage changelog]
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Lai Jiangshan <jiangshanlai@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/nvm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/workqueue.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/nvm.c
-@@ -326,7 +326,8 @@ iwl_parse_nvm_sections(struct iwl_mvm *m
- 		}
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -1386,14 +1386,16 @@ static void __queue_work(int cpu, struct
+ 	    WARN_ON_ONCE(!is_chained_work(wq)))
+ 		return;
+ retry:
+-	if (req_cpu == WORK_CPU_UNBOUND)
+-		cpu = wq_select_unbound_cpu(raw_smp_processor_id());
+-
+ 	/* pwq which will be used unless @work is executing elsewhere */
+-	if (!(wq->flags & WQ_UNBOUND))
+-		pwq = per_cpu_ptr(wq->cpu_pwqs, cpu);
+-	else
++	if (wq->flags & WQ_UNBOUND) {
++		if (req_cpu == WORK_CPU_UNBOUND)
++			cpu = wq_select_unbound_cpu(raw_smp_processor_id());
+ 		pwq = unbound_pwq_by_node(wq, cpu_to_node(cpu));
++	} else {
++		if (req_cpu == WORK_CPU_UNBOUND)
++			cpu = raw_smp_processor_id();
++		pwq = per_cpu_ptr(wq->cpu_pwqs, cpu);
++	}
  
- 		/* PHY_SKU section is mandatory in B0 */
--		if (!mvm->nvm_sections[NVM_SECTION_TYPE_PHY_SKU].data) {
-+		if (mvm->trans->cfg->nvm_type == IWL_NVM_EXT &&
-+		    !mvm->nvm_sections[NVM_SECTION_TYPE_PHY_SKU].data) {
- 			IWL_ERR(mvm,
- 				"Can't parse phy_sku in B0, empty sections\n");
- 			return NULL;
+ 	/*
+ 	 * If @work was previously on a different pool, it might still be
 
 
