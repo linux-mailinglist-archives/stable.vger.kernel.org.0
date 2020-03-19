@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9769218B804
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:37:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D9918B7B1
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727265AbgCSNIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:08:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52172 "EHLO mail.kernel.org"
+        id S1728766AbgCSNLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:11:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727347AbgCSNIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:08:04 -0400
+        id S1727842AbgCSNLw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:11:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC61D212CC;
-        Thu, 19 Mar 2020 13:08:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64A8520722;
+        Thu, 19 Mar 2020 13:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623284;
-        bh=Cp+SLVCAg4c/eX0FNwPEPztrEvszoFpfDRqmJlRSRDg=;
+        s=default; t=1584623511;
+        bh=Kb7fu7PYqOmi+PMi6/qbQKNeLIiO/nDBdwRaB6hj8Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pe5YXhMCKrovaav4dsd2UN57kZxfP03I16QWJA3wbekd0LEa0JJ9LtV5/KtjwOdXq
-         lUFJR1rlkJ4i72OO6jz3tql4/Mi46gg+xtsvTNRtrhFgw6VKZLxOUnzc9+KAAssoDb
-         +DWqlPP7ds4cfrZFrbl7ZoLQNRer7odFAxNJicwY=
+        b=FK0abZiH2ZZxgKu6wsSP9ptuOCMD3OKijHqS9uDAWicoa+iix4CgN3ywC5jgMwrER
+         pr9StKjccuG86pyTDo9pMVIUikcrWAY9FSrNynFaOjUABgCK/oTk8hZMpdof/0wCnZ
+         8kkI8swJYnu6oubdiUbAjjF80YyJ67gKO1GxeG9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Schiffer <mschiffer@universe-factory.net>,
+        =?UTF-8?q?Linus=20L=FCssing?= <linus.luessing@c0d3.blue>,
         Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 69/93] batman-adv: Fix skbuff rcsum on packet reroute
-Date:   Thu, 19 Mar 2020 14:00:13 +0100
-Message-Id: <20200319123946.936300142@linuxfoundation.org>
+Subject: [PATCH 4.9 52/90] batman-adv: Fix transmission of final, 16th fragment
+Date:   Thu, 19 Mar 2020 14:00:14 +0100
+Message-Id: <20200319123944.516623028@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
-References: <20200319123924.795019515@linuxfoundation.org>
+In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
+References: <20200319123928.635114118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,89 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-commit fc04fdb2c8a894283259f5621d31d75610701091 upstream.
+commit 51c6b429c0c95e67edd1cb0b548c5cf6a6604763 upstream.
 
-batadv_check_unicast_ttvn may redirect a packet to itself or another
-originator. This involves rewriting the ttvn and the destination address in
-the batadv unicast header. These field were not yet pulled (with skb rcsum
-update) and thus any change to them also requires a change in the receive
-checksum.
+Trying to split and transmit a unicast packet in 16 parts will fail for
+the final fragment: After having sent the 15th one with a frag_packet.no
+index of 14, we will increase the the index to 15 - and return with an
+error code immediately, even though one more fragment is due for
+transmission and allowed.
 
-Reported-by: Matthias Schiffer <mschiffer@universe-factory.net>
-Fixes: a73105b8d4c7 ("batman-adv: improved client announcement mechanism")
+Fixing this issue by moving the check before incrementing the index.
+
+While at it, adding an unlikely(), because the check is actually more of
+an assertion.
+
+Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/routing.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ net/batman-adv/fragmentation.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/net/batman-adv/routing.c
-+++ b/net/batman-adv/routing.c
-@@ -704,6 +704,7 @@ out:
- /**
-  * batadv_reroute_unicast_packet - update the unicast header for re-routing
-  * @bat_priv: the bat priv with all the soft interface information
-+ * @skb: unicast packet to process
-  * @unicast_packet: the unicast header to be updated
-  * @dst_addr: the payload destination
-  * @vid: VLAN identifier
-@@ -715,7 +716,7 @@ out:
-  * Returns true if the packet header has been updated, false otherwise
-  */
- static bool
--batadv_reroute_unicast_packet(struct batadv_priv *bat_priv,
-+batadv_reroute_unicast_packet(struct batadv_priv *bat_priv, struct sk_buff *skb,
- 			      struct batadv_unicast_packet *unicast_packet,
- 			      u8 *dst_addr, unsigned short vid)
- {
-@@ -744,8 +745,10 @@ batadv_reroute_unicast_packet(struct bat
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -490,6 +490,12 @@ int batadv_frag_send_packet(struct sk_bu
+ 
+ 	/* Eat and send fragments from the tail of skb */
+ 	while (skb->len > max_fragment_size) {
++		/* The initial check in this function should cover this case */
++		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1) {
++			ret = -1;
++			goto out;
++		}
++
+ 		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
+ 		if (!skb_fragment)
+ 			goto out;
+@@ -507,12 +513,6 @@ int batadv_frag_send_packet(struct sk_bu
+ 		}
+ 
+ 		frag_header.no++;
+-
+-		/* The initial check in this function should cover this case */
+-		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1) {
+-			ret = -1;
+-			goto out;
+-		}
  	}
  
- 	/* update the packet header */
-+	skb_postpull_rcsum(skb, unicast_packet, sizeof(*unicast_packet));
- 	ether_addr_copy(unicast_packet->dest, orig_addr);
- 	unicast_packet->ttvn = orig_ttvn;
-+	skb_postpush_rcsum(skb, unicast_packet, sizeof(*unicast_packet));
- 
- 	ret = true;
- out:
-@@ -785,7 +788,7 @@ static int batadv_check_unicast_ttvn(str
- 	 * the packet to
- 	 */
- 	if (batadv_tt_local_client_is_roaming(bat_priv, ethhdr->h_dest, vid)) {
--		if (batadv_reroute_unicast_packet(bat_priv, unicast_packet,
-+		if (batadv_reroute_unicast_packet(bat_priv, skb, unicast_packet,
- 						  ethhdr->h_dest, vid))
- 			batadv_dbg_ratelimited(BATADV_DBG_TT,
- 					       bat_priv,
-@@ -831,7 +834,7 @@ static int batadv_check_unicast_ttvn(str
- 	 * destination can possibly be updated and forwarded towards the new
- 	 * target host
- 	 */
--	if (batadv_reroute_unicast_packet(bat_priv, unicast_packet,
-+	if (batadv_reroute_unicast_packet(bat_priv, skb, unicast_packet,
- 					  ethhdr->h_dest, vid)) {
- 		batadv_dbg_ratelimited(BATADV_DBG_TT, bat_priv,
- 				       "Rerouting unicast packet to %pM (dst=%pM): TTVN mismatch old_ttvn=%u new_ttvn=%u\n",
-@@ -854,12 +857,14 @@ static int batadv_check_unicast_ttvn(str
- 	if (!primary_if)
- 		return 0;
- 
-+	/* update the packet header */
-+	skb_postpull_rcsum(skb, unicast_packet, sizeof(*unicast_packet));
- 	ether_addr_copy(unicast_packet->dest, primary_if->net_dev->dev_addr);
-+	unicast_packet->ttvn = curr_ttvn;
-+	skb_postpush_rcsum(skb, unicast_packet, sizeof(*unicast_packet));
- 
- 	batadv_hardif_free_ref(primary_if);
- 
--	unicast_packet->ttvn = curr_ttvn;
--
- 	return 1;
- }
- 
+ 	/* Make room for the fragment header. */
 
 
