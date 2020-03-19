@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B751518B5DA
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:22:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F389018B650
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:25:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730158AbgCSNWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:22:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47062 "EHLO mail.kernel.org"
+        id S1730680AbgCSNZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:25:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730154AbgCSNWE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:22:04 -0400
+        id S1730678AbgCSNZq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:25:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6B332098B;
-        Thu, 19 Mar 2020 13:22:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BA3C2080C;
+        Thu, 19 Mar 2020 13:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624123;
-        bh=57I+7quQKDQmsEDDJITB3L2NMIr5sFzOXq0CxdhIvnc=;
+        s=default; t=1584624344;
+        bh=WCE4+VYZhrwFUZKCCcqJqUTgAjKlW0Go2G+/HwLWmO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwmz3Dvlk2UxSJyEQXtu26x9aKYGqbNNJGhObaAa4ZOinaqJ4+SMFvtq0sREk6EYY
-         qugoG/AhhqhszXKLZSEKNJEl6dZzHQEdqBnQFwWUf+spbpN14wVYeEgfGO2z9vPupc
-         CNv9Yi+PhEKpQ1g1370+EmMcwpV9c3CxG5XLeBw8=
+        b=sEQry4LTZbBpP84r9eMQyQzlA3lZipjQJTzWgysMzVgD7wP7UeV5m0fT9aJm5yMFS
+         Vw4utiKazRwC2WfZbhS3GyuASSEu5MTVIQFRAPKaMDwj/rk5rxNkY2UZ4fNeUKVLCy
+         uRIc+p99Q4EYoiikeZHBFvlW3PslInvo7DqwzArc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
+        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/60] MIPS: Disable VDSO time functionality on microMIPS
+Subject: [PATCH 5.5 11/65] ACPI: watchdog: Set default timeout in probe
 Date:   Thu, 19 Mar 2020 14:03:53 +0100
-Message-Id: <20200319123923.868277570@linuxfoundation.org>
+Message-Id: <20200319123929.806674971@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
-References: <20200319123919.441695203@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@kernel.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 07015d7a103c4420b69a287b8ef4d2535c0f4106 ]
+[ Upstream commit cabe17d0173ab04bd3f87b8199ae75f43f1ea473 ]
 
-A check we're about to add to pick up on function calls that depend on
-bogus use of the GOT in the VDSO picked up on instances of such function
-calls in microMIPS builds. Since the code appears genuinely problematic,
-and given the relatively small amount of use & testing that microMIPS
-sees, go ahead & disable the VDSO for microMIPS builds.
+If the BIOS default timeout for the watchdog is too small userspace may
+not have enough time to configure new timeout after opening the device
+before the system is already reset. For this reason program default
+timeout of 30 seconds in the driver probe and allow userspace to change
+this from command line or through module parameter (wdat_wdt.timeout).
 
-Signed-off-by: Paul Burton <paulburton@kernel.org>
+Reported-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/Makefile | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/watchdog/wdat_wdt.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
-index 3fa4bbe1bae53..b6b1eb638fb14 100644
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -48,6 +48,8 @@ endif
+diff --git a/drivers/watchdog/wdat_wdt.c b/drivers/watchdog/wdat_wdt.c
+index e1b1fcfc02af8..3065dd670a182 100644
+--- a/drivers/watchdog/wdat_wdt.c
++++ b/drivers/watchdog/wdat_wdt.c
+@@ -54,6 +54,13 @@ module_param(nowayout, bool, 0);
+ MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
+ 		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
  
- CFLAGS_REMOVE_vgettimeofday.o = -pg
++#define WDAT_DEFAULT_TIMEOUT	30
++
++static int timeout = WDAT_DEFAULT_TIMEOUT;
++module_param(timeout, int, 0);
++MODULE_PARM_DESC(timeout, "Watchdog timeout in seconds (default="
++		 __MODULE_STRING(WDAT_DEFAULT_TIMEOUT) ")");
++
+ static int wdat_wdt_read(struct wdat_wdt *wdat,
+ 	 const struct wdat_instruction *instr, u32 *value)
+ {
+@@ -438,6 +445,22 @@ static int wdat_wdt_probe(struct platform_device *pdev)
  
-+DISABLE_VDSO := n
-+
- #
- # For the pre-R6 code in arch/mips/vdso/vdso.h for locating
- # the base address of VDSO, the linker will emit a R_MIPS_PC32
-@@ -61,11 +63,24 @@ CFLAGS_REMOVE_vgettimeofday.o = -pg
- ifndef CONFIG_CPU_MIPSR6
-   ifeq ($(call ld-ifversion, -lt, 225000000, y),y)
-     $(warning MIPS VDSO requires binutils >= 2.25)
--    obj-vdso-y := $(filter-out vgettimeofday.o, $(obj-vdso-y))
--    ccflags-vdso += -DDISABLE_MIPS_VDSO
-+    DISABLE_VDSO := y
-   endif
- endif
+ 	platform_set_drvdata(pdev, wdat);
  
-+#
-+# GCC (at least up to version 9.2) appears to emit function calls that make use
-+# of the GOT when targeting microMIPS, which we can't use in the VDSO due to
-+# the lack of relocations. As such, we disable the VDSO for microMIPS builds.
-+#
-+ifdef CONFIG_CPU_MICROMIPS
-+  DISABLE_VDSO := y
-+endif
++	/*
++	 * Set initial timeout so that userspace has time to configure the
++	 * watchdog properly after it has opened the device. In some cases
++	 * the BIOS default is too short and causes immediate reboot.
++	 */
++	if (timeout * 1000 < wdat->wdd.min_hw_heartbeat_ms ||
++	    timeout * 1000 > wdat->wdd.max_hw_heartbeat_ms) {
++		dev_warn(dev, "Invalid timeout %d given, using %d\n",
++			 timeout, WDAT_DEFAULT_TIMEOUT);
++		timeout = WDAT_DEFAULT_TIMEOUT;
++	}
 +
-+ifeq ($(DISABLE_VDSO),y)
-+  obj-vdso-y := $(filter-out vgettimeofday.o, $(obj-vdso-y))
-+  ccflags-vdso += -DDISABLE_MIPS_VDSO
-+endif
++	ret = wdat_wdt_set_timeout(&wdat->wdd, timeout);
++	if (ret)
++		return ret;
 +
- # VDSO linker flags.
- VDSO_LDFLAGS := \
- 	-Wl,-Bsymbolic -Wl,--no-undefined -Wl,-soname=linux-vdso.so.1 \
+ 	watchdog_set_nowayout(&wdat->wdd, nowayout);
+ 	return devm_watchdog_register_device(dev, &wdat->wdd);
+ }
 -- 
 2.20.1
 
