@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEFB218B79D
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:35:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C506118B7F0
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728341AbgCSNMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:12:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58216 "EHLO mail.kernel.org"
+        id S1727357AbgCSNId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:08:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728901AbgCSNMV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:12:21 -0400
+        id S1727103AbgCSNIb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:08:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81010214D8;
-        Thu, 19 Mar 2020 13:12:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0233214D8;
+        Thu, 19 Mar 2020 13:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623541;
-        bh=8mjxTOiY7jUCy5oNZ2Nth+B6EYgs6wniQaBkZLtmxKY=;
+        s=default; t=1584623311;
+        bh=ED8I+F82MzV8WjOsG+NjX3J8mODwxBnxQmNMv+YhSFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJW058Z6rpll035hLAMKmXi45civIvmaLHXdayZF8xk0gXjyT2bVOER2JinXXP7r1
-         cJFQSiUdVOPygGVyNyA+Z5mJhTFO8FUTtVPIgQiCFEdQTDhyouHDAkKKAy0pVTTI14
-         5ZjIjNHeS+MAy7S5AKnUJ5qlO2wrLxIjbF99DCsE=
+        b=QldzL3hUQP0sjF54iZAXhIKAfS9FoFQI8AYvPAh0XwdnmaXEmF1rMw94MK3xZNl8C
+         0Hsk9fIlrzUQKENgB+Nzq6zr1PBGg29IXnUn0TlDIj0uHFq7rznco45sCijouOxfnc
+         tg+nscrotcA+k72sk2ANg/uYZZ/lUnmCMj/aS8nE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 45/90] netfilter: cthelper: add missing attribute validation for cthelper
+        =?UTF-8?q?Linus=20L=FCssing?= <linus.luessing@c0d3.blue>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.4 63/93] batman-adv: Fix transmission of final, 16th fragment
 Date:   Thu, 19 Mar 2020 14:00:07 +0100
-Message-Id: <20200319123942.544615304@linuxfoundation.org>
+Message-Id: <20200319123944.858061121@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
-References: <20200319123928.635114118@linuxfoundation.org>
+In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
+References: <20200319123924.795019515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-commit c049b3450072b8e3998053490e025839fecfef31 upstream.
+commit 51c6b429c0c95e67edd1cb0b548c5cf6a6604763 upstream.
 
-Add missing attribute validation for cthelper
-to the netlink policy.
+Trying to split and transmit a unicast packet in 16 parts will fail for
+the final fragment: After having sent the 15th one with a frag_packet.no
+index of 14, we will increase the the index to 15 - and return with an
+error code immediately, even though one more fragment is due for
+transmission and allowed.
 
-Fixes: 12f7a505331e ("netfilter: add user-space connection tracking helper infrastructure")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixing this issue by moving the check before incrementing the index.
+
+While at it, adding an unlikely(), because the check is actually more of
+an assertion.
+
+Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/netfilter/nfnetlink_cthelper.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/batman-adv/fragmentation.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/netfilter/nfnetlink_cthelper.c
-+++ b/net/netfilter/nfnetlink_cthelper.c
-@@ -711,6 +711,8 @@ static const struct nla_policy nfnl_cthe
- 	[NFCTH_NAME] = { .type = NLA_NUL_STRING,
- 			 .len = NF_CT_HELPER_NAME_LEN-1 },
- 	[NFCTH_QUEUE_NUM] = { .type = NLA_U32, },
-+	[NFCTH_PRIV_DATA_LEN] = { .type = NLA_U32, },
-+	[NFCTH_STATUS] = { .type = NLA_U32, },
- };
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -480,6 +480,10 @@ bool batadv_frag_send_packet(struct sk_b
  
- static const struct nfnl_callback nfnl_cthelper_cb[NFNL_MSG_CTHELPER_MAX] = {
+ 	/* Eat and send fragments from the tail of skb */
+ 	while (skb->len > max_fragment_size) {
++		/* The initial check in this function should cover this case */
++		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1)
++			goto out_err;
++
+ 		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
+ 		if (!skb_fragment)
+ 			goto out_err;
+@@ -490,10 +494,6 @@ bool batadv_frag_send_packet(struct sk_b
+ 		batadv_send_skb_packet(skb_fragment, neigh_node->if_incoming,
+ 				       neigh_node->addr);
+ 		frag_header.no++;
+-
+-		/* The initial check in this function should cover this case */
+-		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1)
+-			goto out_err;
+ 	}
+ 
+ 	/* Make room for the fragment header. */
 
 
