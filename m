@@ -2,85 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67C7118BB31
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 16:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4586A18BB46
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 16:39:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727064AbgCSPd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 11:33:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50070 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727023AbgCSPd5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 11:33:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 452032071C;
-        Thu, 19 Mar 2020 15:33:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584632036;
-        bh=jd+G1ZXXV6Rkt+GeOtGC574lN8RiNuBcxcec4Go/w9Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RYBhvYmU0QMgqTdV3Y5Uze1eZpOjJ4fx0clF9xAlLu2XJH8gT4s9DSb7EJ7RWJ1WB
-         DVjZSmcvVbl/Kpp7n3wR8SDL3OWWZ2gi0QJzj1yalGvvKQjMU4YATVzlHXVSOIe4Tr
-         PASt4nDgbvk4f1tACPVNsn4VnjRLskPnJ2DnsS5Q=
-Date:   Thu, 19 Mar 2020 16:33:54 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>
-Subject: Re: [PATCH 5.5 00/65] 5.5.11-rc1 review
-Message-ID: <20200319153354.GA133412@kroah.com>
-References: <20200319123926.466988514@linuxfoundation.org>
- <fcf6db4c-cebe-9ad3-9f19-00d49a7b1043@roeck-us.net>
- <20200319145900.GC92193@kroah.com>
- <32c627bf-0e6b-8bc4-88d3-032a69484aa6@roeck-us.net>
+        id S1727464AbgCSPjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 11:39:49 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:43564 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727422AbgCSPjt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 11:39:49 -0400
+Received: by mail-pf1-f194.google.com with SMTP id f206so1617340pfa.10
+        for <stable@vger.kernel.org>; Thu, 19 Mar 2020 08:39:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=OJgQNwFa53gC09TOaQbw283OU+sAvTexYYepz9mHTvk=;
+        b=JCHznEO1d/dPI9KmbxT2UsYTSPVWGTO0JQFu8zE9Fku9PNaj9S2RVahq9q4azOe7TY
+         DB3r4LVZshUvFI+JziN5cuQI/p09dpe9ivMspo3Iq1qRGmMi13twglOy9KFGWW26IvGI
+         /SrsvEs0J7F7Iwd7E+0B9+XZvr4/3yL7Y77tgOn2DzNnZi1x5uxpDxHCv57yLv1CgMKR
+         TlT9yP8UwkscK8hacTGD1u7xfMWgMcmX0NFv+5i29qpEHOxTINNISLyU0U+4pivtDMLi
+         eBm6ksRB4i1fRQp4DTWW6Gx9kGvr03dHsByqHng7qkyKoYoQpWoneR7lMELh06kh7VvK
+         Bk/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=OJgQNwFa53gC09TOaQbw283OU+sAvTexYYepz9mHTvk=;
+        b=TsdLHkNOhou54E6N/T4YAKJq5T+S+9k0O27kxkdr7WLmE3YDYksXA0r5+oAflmwuni
+         pku9LEti7czzJrHkSzJ0p5jPRP4p5L/C93zKsBJvSXz61CJPnzmtDKLkMRNly2tYKMns
+         0M/BgWUfBie9rLHyHutE/GcW0ezbr779PkUiUErOgtHm90RhL0kXomL2O6/M034uYQuz
+         CN4FBlqmVpUmaosNpITNBtCaHaR6xNvA2m0Bznws+Qs6clNAP8BZE3PaR8LTh90ekSQm
+         8RPYvxqyKdo4wQ/7VnSuBG1RzPE1YpOuc4PDYYDeKs6wndP0iUG06LRFHREpIDoAUGn5
+         dayQ==
+X-Gm-Message-State: ANhLgQ2SYOGye5eynu9c+FnFImXzk55jE6JkP7CINkyIgr1o+p7xgZDF
+        HxTShjw47RO2QyhBpoS/o0qkUhGmXnmYE2+MfJSZBQ==
+X-Google-Smtp-Source: ADFU+vvmDa2IbJuoRz7OqaXc97kIF7ReJt2HPcxDcSY6tuLJIrsnsTmzlMTMcc9bp5uVkabytdEutxv4gci9jRtn7xk=
+X-Received: by 2002:aa7:8b54:: with SMTP id i20mr4577798pfd.39.1584632387767;
+ Thu, 19 Mar 2020 08:39:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32c627bf-0e6b-8bc4-88d3-032a69484aa6@roeck-us.net>
+References: <20200319141138.19343-1-vincenzo.frascino@arm.com>
+In-Reply-To: <20200319141138.19343-1-vincenzo.frascino@arm.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Thu, 19 Mar 2020 08:39:36 -0700
+Message-ID: <CAKwvOdnnsE2FyqajP4_FrwpgekptfLJsr3J9EgB3Ac37NgZszQ@mail.gmail.com>
+Subject: Re: [PATCH] arm64: compat: Fix syscall number of compat_clock_getres
+To:     Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc:     Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 19, 2020 at 08:15:40AM -0700, Guenter Roeck wrote:
-> On 3/19/20 7:59 AM, Greg Kroah-Hartman wrote:
-> > On Thu, Mar 19, 2020 at 07:44:33AM -0700, Guenter Roeck wrote:
-> >> On 3/19/20 6:03 AM, Greg Kroah-Hartman wrote:
-> >>> This is the start of the stable review cycle for the 5.5.11 release.
-> >>> There are 65 patches in this series, all will be posted as a response
-> >>> to this one.  If anyone has any issues with these being applied, please
-> >>> let me know.
-> >>>
-> >>> Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
-> >>> Anything received after that time might be too late.
-> >>>
-> >>
-> >> arm:davinci_all_defconfig fails to build.
-> >>
-> >> include/linux/gpio/driver.h: In function 'gpiochip_populate_parent_fwspec_twocell':
-> >> include/linux/gpio/driver.h:552:1: error: no return statement in function returning non-void [-Werror=return-type]
-> >>   552 | }
-> >>
-> >> The problem is caused by commit 8db6a5905e98 ("gpiolib: Add support for the
-> >> irqdomain which doesn't use irq_fwspec as arg") which is missing its fix,
-> >> commit 9c6722d85e922 ("gpio: Fix the no return statement warning"). That one
-> >> is missing a Fixes: tag, providing a good example why such tags are desirable.
-> > 
-> > Thanks for letting me know, I've now dropped that patch (others
-> > complained about it for other reasons) and will push out a -rc2 with
-> > that fix.
-> > 
-> 
-> I did wonder why the offending patch was included, but then I figured that
-> I lost the "we apply too many patches to stable releases" battle, and I didn't
-> want to re-litigate it.
+On Thu, Mar 19, 2020 at 7:11 AM Vincenzo Frascino
+<vincenzo.frascino@arm.com> wrote:
+>
+> The syscall number of compat_clock_getres was erroneously set to 247
+> instead of 264. This causes the vDSO fallback of clock_getres to land
+> on the wrong syscall.
+>
+> Address the issue fixing the syscall number of compat_clock_getres.
+>
+> Fixes: 53c489e1dfeb6 ("arm64: compat: Add missing syscall numbers")
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will.deacon@arm.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+> ---
+>  arch/arm64/include/asm/unistd.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
+> index 1dd22da1c3a9..803039d504de 100644
+> --- a/arch/arm64/include/asm/unistd.h
+> +++ b/arch/arm64/include/asm/unistd.h
+> @@ -25,8 +25,8 @@
+>  #define __NR_compat_gettimeofday       78
+>  #define __NR_compat_sigreturn          119
+>  #define __NR_compat_rt_sigreturn       173
+> -#define __NR_compat_clock_getres       247
+>  #define __NR_compat_clock_gettime      263
+> +#define __NR_compat_clock_getres       264
 
-It wasn't that, it was a pre-requisite for patch #2.  patch #2 was
-reworked so we could drop this one.
+This seems to match up with the glibc sources:
+https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/arm/arch-syscall.h;h=c6554a8a6a6e7fe3359f1272f619c3da7c90629b;hb=HEAD#l27
+Here's bionic's headers for good measure:
+https://android.googlesource.com/platform/bionic/+/refs/heads/master/libc/kernel/uapi/asm-arm/asm/unistd-common.h#240
 
-thanks,
+I assume the _compat_ prefixes are the aarch32 syscall numbers?
+Otherwise here's the list for aarch64:
+https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/aarch64/arch-syscall.h;h=c8471947b9c209be6add1e528f892f1a6c54f966;hb=HEAD
 
-greg k-h
+Looks like 247 was __NR_io_cancel; that's a subtle bug I'm glad was noticed!
+
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+
+>  #define __NR_compat_clock_gettime64    403
+>  #define __NR_compat_clock_getres_time64        406
+>
+> --
+> 2.25.1
+>
+> --
+> You received this message because you are subscribed to the Google Groups "Clang Built Linux" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to clang-built-linux+unsubscribe@googlegroups.com.
+> To view this discussion on the web visit https://groups.google.com/d/msgid/clang-built-linux/20200319141138.19343-1-vincenzo.frascino%40arm.com.
+
+
+
+-- 
+Thanks,
+~Nick Desaulniers
