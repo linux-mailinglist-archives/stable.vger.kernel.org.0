@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B681B18B464
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:09:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE3A18B467
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:09:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728304AbgCSNJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:09:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53928 "EHLO mail.kernel.org"
+        id S1727136AbgCSNJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:09:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728331AbgCSNJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:09:27 -0400
+        id S1727557AbgCSNJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:09:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42C1820789;
-        Thu, 19 Mar 2020 13:09:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AE1420789;
+        Thu, 19 Mar 2020 13:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623366;
-        bh=afazES3LJUgiIS1Fm0X0rEFWfns6OqumedveuowKv8Y=;
+        s=default; t=1584623370;
+        bh=eubgEQiBZwVdc6+E2bfCM0l6cQ4Eh9EROaluQ882r7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ys0XafyJ5AFEKHg4YTImEwUdB9IvEzhZ5PD88aGeHVdWwwTAqJO7rgDXjIpDx4upc
-         Fy/x+n0iGOQfbar3lcFgEP3ILbN/CFLzLjKOX51NDS6pVYAJYHoG+oscWIw0pN+L60
-         EFhYBoqT2fg9wk4t4Nj439em34C/Wmlsl8wVBeW0=
+        b=AjJHVBVXw0nlWOrrhT9dze0UCF0MdLwQmdwMpRHaLg2tvceYIJeO4o/hsks8wX2b3
+         Xplh4Gjf9PJA8sP+rh+qKZJUtEQWblcc5PKb1r2vxE80lJ7CxVbsI3BIA9eDExFdwC
+         Mj6o3X5cZu7mdVd76OIbDryckLsqdFw8lfoPJYn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 79/93] batman-adv: Prevent duplicated tvlv handler
-Date:   Thu, 19 Mar 2020 14:00:23 +0100
-Message-Id: <20200319123949.663710173@linuxfoundation.org>
+Subject: [PATCH 4.4 80/93] batman-adv: Reduce claim hash refcnt only for removed entry
+Date:   Thu, 19 Mar 2020 14:00:24 +0100
+Message-Id: <20200319123949.968334750@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
 References: <20200319123924.795019515@linuxfoundation.org>
@@ -45,59 +45,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sven Eckelmann <sven@narfation.org>
 
-commit ae3cdc97dc10c7a3b31f297dab429bfb774c9ccb upstream.
+commit 4ba104f468bbfc27362c393815d03aa18fb7a20f upstream.
 
-The function batadv_tvlv_handler_register is responsible for adding new
-tvlv_handler to the handler_list. It first checks whether the entry
-already is in the list or not. If it is, then the creation of a new entry
-is aborted.
+The batadv_hash_remove is a function which searches the hashtable for an
+entry using a needle, a hashtable bucket selection function and a compare
+function. It will lock the bucket list and delete an entry when the compare
+function matches it with the needle. It returns the pointer to the
+hlist_node which matches or NULL when no entry matches the needle.
 
-But the lock for the list is only held when the list is really modified.
-This could lead to duplicated entries because another context could create
-an entry with the same key between the check and the list manipulation.
+The batadv_bla_del_claim is not itself protected in anyway to avoid that
+any other function is modifying the hashtable between the search for the
+entry and the call to batadv_hash_remove. It can therefore happen that the
+entry either doesn't exist anymore or an entry was deleted which is not the
+same object as the needle. In such an situation, the reference counter (for
+the reference stored in the hashtable) must not be reduced for the needle.
+Instead the reference counter of the actually removed entry has to be
+reduced.
 
-The check and the manipulation of the list must therefore be in the same
-locked code section.
+Otherwise the reference counter will underflow and the object might be
+freed before all its references were dropped. The kref helpers reported
+this problem as:
 
-Fixes: ef26157747d4 ("batman-adv: tvlv - basic infrastructure")
+  refcount_t: underflow; use-after-free.
+
+Fixes: 23721387c409 ("batman-adv: add basic bridge loop avoidance code")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/main.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/batman-adv/bridge_loop_avoidance.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/net/batman-adv/main.c
-+++ b/net/batman-adv/main.c
-@@ -1079,15 +1079,20 @@ void batadv_tvlv_handler_register(struct
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -694,6 +694,8 @@ static void batadv_bla_del_claim(struct
+ 				 const u8 *mac, const unsigned short vid)
  {
- 	struct batadv_tvlv_handler *tvlv_handler;
+ 	struct batadv_bla_claim search_claim, *claim;
++	struct batadv_bla_claim *claim_removed_entry;
++	struct hlist_node *claim_removed_node;
  
-+	spin_lock_bh(&bat_priv->tvlv.handler_list_lock);
+ 	ether_addr_copy(search_claim.addr, mac);
+ 	search_claim.vid = vid;
+@@ -704,10 +706,18 @@ static void batadv_bla_del_claim(struct
+ 	batadv_dbg(BATADV_DBG_BLA, bat_priv, "bla_del_claim(): %pM, vid %d\n",
+ 		   mac, BATADV_PRINT_VID(vid));
+ 
+-	batadv_hash_remove(bat_priv->bla.claim_hash, batadv_compare_claim,
+-			   batadv_choose_claim, claim);
+-	batadv_claim_free_ref(claim); /* reference from the hash is gone */
++	claim_removed_node = batadv_hash_remove(bat_priv->bla.claim_hash,
++						batadv_compare_claim,
++						batadv_choose_claim, claim);
++	if (!claim_removed_node)
++		goto free_claim;
+ 
++	/* reference from the hash is gone */
++	claim_removed_entry = hlist_entry(claim_removed_node,
++					  struct batadv_bla_claim, hash_entry);
++	batadv_claim_free_ref(claim_removed_entry);
 +
- 	tvlv_handler = batadv_tvlv_handler_get(bat_priv, type, version);
- 	if (tvlv_handler) {
-+		spin_unlock_bh(&bat_priv->tvlv.handler_list_lock);
- 		batadv_tvlv_handler_free_ref(tvlv_handler);
- 		return;
- 	}
- 
- 	tvlv_handler = kzalloc(sizeof(*tvlv_handler), GFP_ATOMIC);
--	if (!tvlv_handler)
-+	if (!tvlv_handler) {
-+		spin_unlock_bh(&bat_priv->tvlv.handler_list_lock);
- 		return;
-+	}
- 
- 	tvlv_handler->ogm_handler = optr;
- 	tvlv_handler->unicast_handler = uptr;
-@@ -1097,7 +1102,6 @@ void batadv_tvlv_handler_register(struct
- 	atomic_set(&tvlv_handler->refcount, 1);
- 	INIT_HLIST_NODE(&tvlv_handler->list);
- 
--	spin_lock_bh(&bat_priv->tvlv.handler_list_lock);
- 	hlist_add_head_rcu(&tvlv_handler->list, &bat_priv->tvlv.handler_list);
- 	spin_unlock_bh(&bat_priv->tvlv.handler_list_lock);
++free_claim:
+ 	/* don't need the reference from hash_find() anymore */
+ 	batadv_claim_free_ref(claim);
  }
 
 
