@@ -2,72 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 624EF18AD52
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 08:30:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F3018AD62
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 08:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726982AbgCSHa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 03:30:27 -0400
-Received: from sauhun.de ([88.99.104.3]:54514 "EHLO pokefinder.org"
+        id S1726714AbgCSHja (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 03:39:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725767AbgCSHa1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 03:30:27 -0400
-Received: from localhost (p54B33261.dip0.t-ipconnect.de [84.179.50.97])
-        by pokefinder.org (Postfix) with ESMTPSA id F26B42C08EE;
-        Thu, 19 Mar 2020 08:30:24 +0100 (CET)
-Date:   Thu, 19 Mar 2020 08:30:21 +0100
-From:   Wolfram Sang <wsa@the-dreams.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Martin Volf <martin.volf.42@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.4 49/73] i2c: i801: Do not add ICH_RES_IO_SMI
- for the iTCO_wdt device
-Message-ID: <20200319073021.wh2b7kumxgbj5wkf@katana>
-References: <20200318205337.16279-1-sashal@kernel.org>
- <20200318205337.16279-49-sashal@kernel.org>
+        id S1726589AbgCSHja (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 03:39:30 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2B2420722;
+        Thu, 19 Mar 2020 07:39:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584603569;
+        bh=B+kuIQBeqbL5y1IBvD1kqR+vLTh4kU6kglLn21OfosA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=slBOoSo8jU7XWJNyt9HMs/D7BU5N4d1RWZrIl/AtrtSC/WcoQIO4czzdaSRiPFznN
+         jR87nNzz6pcQWRv5f/53sFP9ybja1lCun4m25ZukioZGVcLoZgl07Ri1GbYQraNWtn
+         Jy6NBOaOFzZYF0WuHE0s2ki/s3IxdldCRotalTZw=
+Date:   Thu, 19 Mar 2020 08:39:27 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Saravana Kannan <saravanak@google.com>
+Cc:     stable <stable@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        Android Kernel Team <kernel-team@android.com>
+Subject: Re: [PATCH v1 0/6] Fix device links functional breakage in 4.19.99
+Message-ID: <20200319073927.GA3442166@kroah.com>
+References: <20200317065452.236670-1-saravanak@google.com>
+ <CAGETcx-uZ3YJHCYqFm3so8-woTvL3SSDY2deNonthTetcE+mXQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="vw6a4yg6vf7n7izb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200318205337.16279-49-sashal@kernel.org>
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <CAGETcx-uZ3YJHCYqFm3so8-woTvL3SSDY2deNonthTetcE+mXQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Mar 18, 2020 at 12:10:43PM -0700, Saravana Kannan wrote:
+> On Mon, Mar 16, 2020 at 11:54 PM Saravana Kannan <saravanak@google.com> wrote:
+> >
+> > As mentioned in an earlier email thread [1], 4.19.99 broke the ability
+> > to create stateful and stateless device links between the same set of
+> > devices when it pulled in a valid bug fix [2]. While the fix was valid,
+> > it removes a functionality that was present before the bug fix.
+> >
+> > This patch series attempts to fix that by pulling in more patches from
+> > upstream. I've just done compilation testing so far. But wanted to send
+> > out a v1 to see if this patch list was acceptable before I fixed up the
+> > commit text format to match what's needed for stable mailing list.
+> >
+> > Some of the patches are new functionality, but for a first pass, it was
+> > easier to pull these in than try and fix the conflicts. If these patches
+> > are okay to pull into stable, then all I need to do is fix the commit
+> > text.
+> 
+> I took a closer look at all the patches. Everyone of them is a bug fix
+> except Patch 4/6. But Patch 4/6 is a fairly minimal change and I think
+> it's easier/cleaner to just pick it up too instead of trying to
+> resolve merge conflicts in the stable branch.
+> 
+> 1/6 - Fixes what appears to be a memory leak bug in upstream.
+> 2/6 - Fixes error in initial state of the device link if it's created
+> under some circumstances.
+> 3/6 - Fixes a ref count bug in upstream. Looks like it can lead to memory leaks?
+> 4/6 - Adds a minor feature to kick off a probe attempt of a consumer
+> 5/6 - Fixes the break in functionality that happened in 4.19.99
+> 6/6 - Fixes bug in 5/6 (upstream bug)
+> 
+> Greg
+> 
+> Do these patches look okay for you to pull into 4.19 stable? If so,
+> please let me know if you need me to send v2 with commit fix up.
+> 
+> The only fix up needed is to these patches at this point is changing
+> "(cherry picked from commit ...)" with "[ Upstream commit ... ]". The
+> SHAs themselves are the correct SHAs from upstream.
 
---vw6a4yg6vf7n7izb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+These all look good to me, now all queued up, thanks.
 
-
-> [wsa: complete fix needs all of http://patchwork.ozlabs.org/project/linux-i2c/list/?series=160959&state=*]
-
-Please take care of the line above if you want to backport. I don't
-think the dependencies are suitable for stable, so they don't have the
-stable tag.
-
-
---vw6a4yg6vf7n7izb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl5zH4gACgkQFA3kzBSg
-KbbTpg/8CMJm8JuY0ArAK03GeTDFjfCQeeiV8hUWfXSoThBU5+R050ajL+ETWgaa
-5ZlAE8Lr18FR7j3ukJTDC/GJwkTUN2uarRioLXuogrh5JRoXns72nFSdEqiyhRdS
-n4ESriIrXYfQPrAoInn23ow+rBWVSnYQkHlQF6dxCKYlT6/BOWq6WPkBuU0qfLbx
-BvQkblFwYI/0dbjbBDTJhUIwpSR2tovO6Ewfa17Sm5zYq1oy02eCXam14W1HnWuz
-wbPJX0wOBtsIi6Ky+LtAiKfG0I/FZfa9Um9RaxkeYraY+6FvYAFKtWDRaPGWHbuO
-fhbRRxlN6XwxZZNjh7KGlCQ1q7VHAIbWUk0EWiaTiNR9B+gskTZZmf+teTOp5nT6
-ZxTAwSsEPCz2Lyzr185MpxDUsN0rUMc1HDg9bJYriTuy8jqeRDpQxPrUln6joTuO
-slyJ/rAeLpkonuvwvcgwRV1b2atb5ShNgSbvJ0nkvriuLbxwWAM5hq4gqKZc2iYH
-mMlyc6lg7AsJ7Gm+jWuQ2F6NGvtCOhutGlqeMrWWu0IvJMTPDYekDYb0VNPwfO3C
-WMxZtBc1exC9B4jKZGyW7vSBCb8KXgf+Wcr7fhGgF1GWnQBwVoKJKIxX71gmlorR
-W/uSd3MlauRLsUmlVMJYPS+N5ZF4xpfCT1nT3I5t03insPmc3vg=
-=I2UB
------END PGP SIGNATURE-----
-
---vw6a4yg6vf7n7izb--
+greg k-h
