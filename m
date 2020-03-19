@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5F3F18B5E9
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:23:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8260218B632
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:25:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729949AbgCSNWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:22:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
+        id S1730534AbgCSNYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:24:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730194AbgCSNWY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:22:24 -0400
+        id S1727521AbgCSNYv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:24:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0092820724;
-        Thu, 19 Mar 2020 13:22:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 635E1207FC;
+        Thu, 19 Mar 2020 13:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624143;
-        bh=OOrvL+hxe4tsrCV6JNg9MTvSFyZDghtmI19y3UsQ144=;
+        s=default; t=1584624290;
+        bh=CqsKLrQra6cLEAHnT8a8YJqR3AY12jRQOjMQLpab51o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FDvimmlTfD+7X1GBJwXtou+KoHnp/nlIhGVJP3C21pTTBIMaK8Pmfd0fEOvDnCBRw
-         1kESXg93iq5lOUnamN3xLyJqZSHouxPKSMOquhFbbazzk/MZTrqzOYll+4n1hmikuh
-         Gin3NWq44UHowOK2hx1ggtE81HTlWMGUxRnACq98=
+        b=05EhEoGuqyW+kX7oRqFlXPU7wuJYDOtI6/NvIjXM5ZRGzcIGD/jslXNCk14oZMEzO
+         q7yYYVypzsdsSVWg/DGSSuUPCTu+6VdW0ydDhqbtbNv2y43RtQFdlzrYOsvWM/Jqy6
+         A4RPXj+weN9kNiaZrAVthj4ZEUR5jveUblDZJsdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bitan Biswas <bbiswas@nvidia.com>,
-        Peter Geis <pgwipeout@gmail.com>,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 06/60] mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
-Date:   Thu, 19 Mar 2020 14:03:44 +0100
-Message-Id: <20200319123921.203229255@linuxfoundation.org>
+Subject: [PATCH 5.5 03/65] mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
+Date:   Thu, 19 Mar 2020 14:03:45 +0100
+Message-Id: <20200319123927.474994583@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
-References: <20200319123919.441695203@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +45,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit d2f8bfa4bff5028bc40ed56b4497c32e05b0178f ]
+[ Upstream commit 533a6cfe08f96a7b5c65e06d20916d552c11b256 ]
 
-It has turned out that the sdhci-tegra controller requires the R1B response,
-for commands that has this response associated with them. So, converting
-from an R1B to an R1 response for a CMD6 for example, leads to problems
-with the HW busy detection support.
+All callers of __mmc_switch() should now be specifying a valid timeout for
+the CMD6 command. However, just to be sure, let's print a warning and
+default to use the generic_cmd6_time in case the provided timeout_ms
+argument is zero.
 
-Fix this by informing the mmc core about the requirement, via setting the
-host cap, MMC_CAP_NEED_RSP_BUSY.
+In this context, let's also simplify some of the corresponding code and
+clarify some related comments.
 
-Reported-by: Bitan Biswas <bbiswas@nvidia.com>
-Reported-by: Peter Geis <pgwipeout@gmail.com>
-Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Tested-By: Peter Geis <pgwipeout@gmail.com>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20200122142747.5690-4-ulf.hansson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-tegra.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mmc/core/mmc_ops.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
-index 403ac44a73782..a25c3a4d3f6cb 100644
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -1552,6 +1552,9 @@ static int sdhci_tegra_probe(struct platform_device *pdev)
- 	if (tegra_host->soc_data->nvquirks & NVQUIRK_ENABLE_DDR50)
- 		host->mmc->caps |= MMC_CAP_1_8V_DDR;
+diff --git a/drivers/mmc/core/mmc_ops.c b/drivers/mmc/core/mmc_ops.c
+index 09113b9ad6790..cfb2ce979baf1 100644
+--- a/drivers/mmc/core/mmc_ops.c
++++ b/drivers/mmc/core/mmc_ops.c
+@@ -458,10 +458,6 @@ static int mmc_poll_for_busy(struct mmc_card *card, unsigned int timeout_ms,
+ 	bool expired = false;
+ 	bool busy = false;
  
-+	/* R1B responses is required to properly manage HW busy detection. */
-+	host->mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
+-	/* We have an unspecified cmd timeout, use the fallback value. */
+-	if (!timeout_ms)
+-		timeout_ms = MMC_OPS_TIMEOUT_MS;
+-
+ 	/*
+ 	 * In cases when not allowed to poll by using CMD13 or because we aren't
+ 	 * capable of polling by using ->card_busy(), then rely on waiting the
+@@ -534,14 +530,19 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
+ 
+ 	mmc_retune_hold(host);
+ 
++	if (!timeout_ms) {
++		pr_warn("%s: unspecified timeout for CMD6 - use generic\n",
++			mmc_hostname(host));
++		timeout_ms = card->ext_csd.generic_cmd6_time;
++	}
 +
- 	tegra_sdhci_parse_dt(host);
+ 	/*
+-	 * If the cmd timeout and the max_busy_timeout of the host are both
+-	 * specified, let's validate them. A failure means we need to prevent
+-	 * the host from doing hw busy detection, which is done by converting
+-	 * to a R1 response instead of a R1B.
++	 * If the max_busy_timeout of the host is specified, make sure it's
++	 * enough to fit the used timeout_ms. In case it's not, let's instruct
++	 * the host to avoid HW busy detection, by converting to a R1 response
++	 * instead of a R1B.
+ 	 */
+-	if (timeout_ms && host->max_busy_timeout &&
+-		(timeout_ms > host->max_busy_timeout))
++	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout))
+ 		use_r1b_resp = false;
  
- 	tegra_host->power_gpio = devm_gpiod_get_optional(&pdev->dev, "power",
+ 	cmd.opcode = MMC_SWITCH;
+@@ -552,10 +553,6 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
+ 	cmd.flags = MMC_CMD_AC;
+ 	if (use_r1b_resp) {
+ 		cmd.flags |= MMC_RSP_SPI_R1B | MMC_RSP_R1B;
+-		/*
+-		 * A busy_timeout of zero means the host can decide to use
+-		 * whatever value it finds suitable.
+-		 */
+ 		cmd.busy_timeout = timeout_ms;
+ 	} else {
+ 		cmd.flags |= MMC_RSP_SPI_R1 | MMC_RSP_R1;
 -- 
 2.20.1
 
