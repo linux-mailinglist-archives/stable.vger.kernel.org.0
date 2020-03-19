@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D1418B617
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E93718B6BC
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:29:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729415AbgCSNYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:24:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50390 "EHLO mail.kernel.org"
+        id S1727108AbgCSNZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:25:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728033AbgCSNYC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:24:02 -0400
+        id S1727684AbgCSNZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:25:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4447E208D6;
-        Thu, 19 Mar 2020 13:24:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21AC52080C;
+        Thu, 19 Mar 2020 13:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624241;
-        bh=LijBeT8ghRz4OhfDqJrmVw3kAoNl4ItiK+qJNyWxjHs=;
+        s=default; t=1584624324;
+        bh=Gkbskkt5Gyu5DT0af7NouvEBc3hpmFpLfbbZiBpS7EM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BaR8Fm2lBa6rZRRtP+XsY/pOY5MCuDtSTO5mvh5Dyz16uoEoIADAI52sgdAT/+pQT
-         jjyuAKXyZ1fikl/ssrFNHOhkr6SDIKL3Ew3f+AAyf0P+OXp19zlrZjTxw+z68RbgMw
-         oV+HAZ1zrCf8N7/6iUHEieQD3aXEzKJ9kvkvGIdk=
+        b=2hUp7Z/c+CCQIfTqV35RAlgXTxyMjMzBNtD7QfaZUCYUfZWtkl1A4o67d73oXH//J
+         D819vAoT458s8aPKvKIob6u6HfHhToBYBCBF6uO3APw30SzKAqxySZT8kCH9FhQDNe
+         qf486G9nODbdmFuQOlkaTle8PM1JJV0M5PPzGkpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Tom Zanussi <zanussi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 27/60] mac80211: rx: avoid RCU list traversal under mutex
+Subject: [PATCH 5.5 23/65] tracing: Fix number printing bug in print_synth_event()
 Date:   Thu, 19 Mar 2020 14:04:05 +0100
-Message-Id: <20200319123928.101586855@linuxfoundation.org>
+Message-Id: <20200319123933.689001532@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
-References: <20200319123919.441695203@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Tom Zanussi <zanussi@kernel.org>
 
-[ Upstream commit 253216ffb2a002a682c6f68bd3adff5b98b71de8 ]
+[ Upstream commit 784bd0847eda032ed2f3522f87250655a18c0190 ]
 
-local->sta_mtx is held in __ieee80211_check_fast_rx_iface().
-No need to use list_for_each_entry_rcu() as it also requires
-a cond argument to avoid false lockdep warnings when not used in
-RCU read-side section (with CONFIG_PROVE_RCU_LIST).
-Therefore use list_for_each_entry();
+Fix a varargs-related bug in print_synth_event() which resulted in
+strange output and oopses on 32-bit x86 systems. The problem is that
+trace_seq_printf() expects the varargs to match the format string, but
+print_synth_event() was always passing u64 values regardless.  This
+results in unspecified behavior when unpacking with va_arg() in
+trace_seq_printf().
 
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lore.kernel.org/r/20200223143302.15390-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Add a function that takes the size into account when calling
+trace_seq_printf().
+
+Before:
+
+  modprobe-1731  [003] ....   919.039758: gen_synth_test: next_pid_field=777(null)next_comm_field=hula hoops ts_ns=1000000 ts_ms=1000 cpu=3(null)my_string_field=thneed my_int_field=598(null)
+
+After:
+
+ insmod-1136  [001] ....    36.634590: gen_synth_test: next_pid_field=777 next_comm_field=hula hoops ts_ns=1000000 ts_ms=1000 cpu=1 my_string_field=thneed my_int_field=598
+
+Link: http://lkml.kernel.org/r/a9b59eb515dbbd7d4abe53b347dccf7a8e285657.1581720155.git.zanussi@kernel.org
+
+Reported-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_events_hist.c | 32 +++++++++++++++++++++++++++++---
+ 1 file changed, 29 insertions(+), 3 deletions(-)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 0e05ff0376726..0ba98ad9bc854 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -4114,7 +4114,7 @@ void __ieee80211_check_fast_rx_iface(struct ieee80211_sub_if_data *sdata)
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index e10585ef00e15..862fb6d16edb8 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -811,6 +811,29 @@ static const char *synth_field_fmt(char *type)
+ 	return fmt;
+ }
  
- 	lockdep_assert_held(&local->sta_mtx);
++static void print_synth_event_num_val(struct trace_seq *s,
++				      char *print_fmt, char *name,
++				      int size, u64 val, char *space)
++{
++	switch (size) {
++	case 1:
++		trace_seq_printf(s, print_fmt, name, (u8)val, space);
++		break;
++
++	case 2:
++		trace_seq_printf(s, print_fmt, name, (u16)val, space);
++		break;
++
++	case 4:
++		trace_seq_printf(s, print_fmt, name, (u32)val, space);
++		break;
++
++	default:
++		trace_seq_printf(s, print_fmt, name, val, space);
++		break;
++	}
++}
++
+ static enum print_line_t print_synth_event(struct trace_iterator *iter,
+ 					   int flags,
+ 					   struct trace_event *event)
+@@ -849,10 +872,13 @@ static enum print_line_t print_synth_event(struct trace_iterator *iter,
+ 		} else {
+ 			struct trace_print_flags __flags[] = {
+ 			    __def_gfpflag_names, {-1, NULL} };
++			char *space = (i == se->n_fields - 1 ? "" : " ");
  
--	list_for_each_entry_rcu(sta, &local->sta_list, list) {
-+	list_for_each_entry(sta, &local->sta_list, list) {
- 		if (sdata != sta->sdata &&
- 		    (!sta->sdata->bss || sta->sdata->bss != sdata->bss))
- 			continue;
+-			trace_seq_printf(s, print_fmt, se->fields[i]->name,
+-					 entry->fields[n_u64],
+-					 i == se->n_fields - 1 ? "" : " ");
++			print_synth_event_num_val(s, print_fmt,
++						  se->fields[i]->name,
++						  se->fields[i]->size,
++						  entry->fields[n_u64],
++						  space);
+ 
+ 			if (strcmp(se->fields[i]->type, "gfp_t") == 0) {
+ 				trace_seq_puts(s, " (");
 -- 
 2.20.1
 
