@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D4318B82B
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:38:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8223A18B81C
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:38:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727467AbgCSNFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:05:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48402 "EHLO mail.kernel.org"
+        id S1727682AbgCSNGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:06:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727411AbgCSNFh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:05:37 -0400
+        id S1727711AbgCSNGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:06:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ECE820732;
-        Thu, 19 Mar 2020 13:05:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CF7F20752;
+        Thu, 19 Mar 2020 13:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623137;
-        bh=jBcCmIgf2q+xSIB1k4q5k3egNWDT3t1/n/FY+t+dslk=;
+        s=default; t=1584623198;
+        bh=rsOWAzkzs6JQ9c5lYp5MDkBJ+aQDIqWSJysq3FgoU/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTXwAQ2HX6ejD6yvM3ngEssfkEYTufT6IqlA+zdRFS0EGFi/PBFt9y5OEB5Qn9Zi7
-         3wDlspG6et0uRCT9DRvU9xMn96dAXmcLmK2PGUFxO1psutza4PBdjGp4ylxG5ZA3aH
-         LnhcZY/pJcghu4Eg81PNu3CJ5By76M9Ol8eYVZi8=
+        b=h54rN88e+6sR4ZUyEwwH0XDfbz7xpdLjZhBsAyoH/R9X3XCpK5EhWmIC/dEYKMeDa
+         BGZ9SwNVOcyy5lMeLXcFRAiIRpToqjvYpvkHrZ4TR53n4JsWQbsYxE8k3sjhiSOdq/
+         MzWEzPbZVOm4yo0Z3wljeLIlgp7/oRtKWyc1/QUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Jiri Pirko <jiri@mellanox.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 08/93] team: add missing attribute validation for port ifindex
-Date:   Thu, 19 Mar 2020 13:59:12 +0100
-Message-Id: <20200319123927.576702532@linuxfoundation.org>
+Subject: [PATCH 4.4 14/93] ipvlan: egress mcast packets are not exceptional
+Date:   Thu, 19 Mar 2020 13:59:18 +0100
+Message-Id: <20200319123929.405636412@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
 References: <20200319123924.795019515@linuxfoundation.org>
@@ -44,31 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit dd25cb272ccce4db67dc8509278229099e4f5e99 ]
+commit cccc200fcaf04cff4342036a72e51d6adf6c98c1 upstream.
 
-Add missing attribute validation for TEAM_ATTR_OPTION_PORT_IFINDEX
-to the netlink policy.
+Currently, if IPv6 is enabled on top of an ipvlan device in l3
+mode, the following warning message:
 
-Fixes: 80f7c6683fe0 ("team: add support for per-port options")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+ Dropped {multi|broad}cast of type= [86dd]
+
+is emitted every time that a RS is generated and dmseg is soon
+filled with irrelevant messages. Replace pr_warn with pr_debug,
+to preserve debuggability, without scaring the sysadmin.
+
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/team/team.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -2169,6 +2169,7 @@ team_nl_option_policy[TEAM_ATTR_OPTION_M
- 	[TEAM_ATTR_OPTION_CHANGED]		= { .type = NLA_FLAG },
- 	[TEAM_ATTR_OPTION_TYPE]			= { .type = NLA_U8 },
- 	[TEAM_ATTR_OPTION_DATA]			= { .type = NLA_BINARY },
-+	[TEAM_ATTR_OPTION_PORT_IFINDEX]		= { .type = NLA_U32 },
- };
+---
+ drivers/net/ipvlan/ipvlan_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/net/ipvlan/ipvlan_core.c
++++ b/drivers/net/ipvlan/ipvlan_core.c
+@@ -432,8 +432,8 @@ static int ipvlan_process_outbound(struc
  
- static int team_nl_cmd_noop(struct sk_buff *skb, struct genl_info *info)
+ 	/* In this mode we dont care about multicast and broadcast traffic */
+ 	if (is_multicast_ether_addr(ethh->h_dest)) {
+-		pr_warn_ratelimited("Dropped {multi|broad}cast of type= [%x]\n",
+-				    ntohs(skb->protocol));
++		pr_debug_ratelimited("Dropped {multi|broad}cast of type=[%x]\n",
++				     ntohs(skb->protocol));
+ 		kfree_skb(skb);
+ 		goto out;
+ 	}
 
 
