@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A314418B762
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:33:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8337018B768
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727923AbgCSNN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:13:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60686 "EHLO mail.kernel.org"
+        id S1729210AbgCSNNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:13:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729176AbgCSNN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:13:28 -0400
+        id S1728732AbgCSNNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:13:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08291215A4;
-        Thu, 19 Mar 2020 13:13:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9788620722;
+        Thu, 19 Mar 2020 13:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623607;
-        bh=yjNi86oaFDSgqj6/yczUW2ND54b8u6jSPhwePg5HJdI=;
+        s=default; t=1584623630;
+        bh=Ibns6yabCqjeqH2at4IQLztiSvf1V4JSW/Y2OeryvaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w0YGpeDaejPu/MX1zzH5ky8n9G00WUbiuB+yJHxwJPKN326V37ZWiCXluYS0XjgF4
-         //cok2l8HI6U8l3Mbd+BmeBW4b8qOvgUp/z0Ki8qernaEsU27OEd2rRsc16UMZyVCd
-         Udu/Em2J4qT6Lj9cWX5vz5T40Fv4O7/ARj7YOCzo=
+        b=tm8z/k78Kc5JsRSTS3/oH91t1KPdUr9hbnpqvX1KCCcK3/O9hM91HR6P9i7A0Bd3k
+         XPEICGpx3O0dQM3DmhriuHFwRvoXNq0P0E3jaDBIsTZE5B5pt2SYub8cNjLmxz6jPC
+         mRnqH9bBq5IxGeCGfItsqg1p/7jcszLehrczRDBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Antonio Quartulli <a@unstable.cc>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 76/90] batman-adv: Avoid probe ELP information leak
-Date:   Thu, 19 Mar 2020 14:00:38 +0100
-Message-Id: <20200319123951.944994893@linuxfoundation.org>
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 78/90] perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT flag
+Date:   Thu, 19 Mar 2020 14:00:40 +0100
+Message-Id: <20200319123952.550140510@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
 References: <20200319123928.635114118@linuxfoundation.org>
@@ -44,47 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 88d0895d0ea9d4431507d576c963f2ff9918144d upstream.
+[ Upstream commit f967140dfb7442e2db0868b03b961f9c59418a1b ]
 
-The probe ELPs for WiFi interfaces are expanded to contain at least
-BATADV_ELP_MIN_PROBE_SIZE bytes. This is usually a lot more than the
-number of bytes which the template ELP packet requires.
+Enable the sampling check in kernel/events/core.c::perf_event_open(),
+which returns the more appropriate -EOPNOTSUPP.
 
-These extra padding bytes were not initialized and thus could contain data
-which were previously stored at the same location. It is therefore required
-to set it to some predefined or random values to avoid leaking private
-information from the system transmitting these kind of packets.
+BEFORE:
 
-Fixes: e4623c913508 ("batman-adv: Avoid probe ELP information leak")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument) for event (l3_request_g1.caching_l3_cache_accesses).
+  /bin/dmesg | grep -i perf may provide additional information.
+
+With nothing relevant in dmesg.
+
+AFTER:
+
+  $ sudo perf record -a -e instructions,l3_request_g1.caching_l3_cache_accesses true
+  Error:
+  l3_request_g1.caching_l3_cache_accesses: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+
+Fixes: c43ca5091a37 ("perf/x86/amd: Add support for AMD NB and L2I "uncore" counters")
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200311191323.13124-1-kim.phillips@amd.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_v_elp.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/events/amd/uncore.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/net/batman-adv/bat_v_elp.c
-+++ b/net/batman-adv/bat_v_elp.c
-@@ -191,6 +191,7 @@ batadv_v_elp_wifi_neigh_probe(struct bat
- 	struct sk_buff *skb;
- 	int probe_len, i;
- 	int elp_skb_len;
-+	void *tmp;
+diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
+index c16c99bc2a109..6bfb9a68134c1 100644
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -185,20 +185,18 @@ static int amd_uncore_event_init(struct perf_event *event)
  
- 	/* this probing routine is for Wifi neighbours only */
- 	if (!batadv_is_wifi_netdev(hard_iface->net_dev))
-@@ -222,7 +223,8 @@ batadv_v_elp_wifi_neigh_probe(struct bat
- 		 * the packet to be exactly of that size to make the link
- 		 * throughput estimation effective.
- 		 */
--		skb_put(skb, probe_len - hard_iface->bat_v.elp_skb->len);
-+		tmp = skb_put(skb, probe_len - hard_iface->bat_v.elp_skb->len);
-+		memset(tmp, 0, probe_len - hard_iface->bat_v.elp_skb->len);
+ 	/*
+ 	 * NB and Last level cache counters (MSRs) are shared across all cores
+-	 * that share the same NB / Last level cache. Interrupts can be directed
+-	 * to a single target core, however, event counts generated by processes
+-	 * running on other cores cannot be masked out. So we do not support
+-	 * sampling and per-thread events.
++	 * that share the same NB / Last level cache.  On family 16h and below,
++	 * Interrupts can be directed to a single target core, however, event
++	 * counts generated by processes running on other cores cannot be masked
++	 * out. So we do not support sampling and per-thread events via
++	 * CAP_NO_INTERRUPT, and we do not enable counter overflow interrupts:
+ 	 */
+-	if (is_sampling_event(event) || event->attach_state & PERF_ATTACH_TASK)
+-		return -EINVAL;
  
- 		batadv_dbg(BATADV_DBG_BATMAN, bat_priv,
- 			   "Sending unicast (probe) ELP packet on interface %s to %pM\n",
+ 	/* NB and Last level cache counters do not have usr/os/guest/host bits */
+ 	if (event->attr.exclude_user || event->attr.exclude_kernel ||
+ 	    event->attr.exclude_host || event->attr.exclude_guest)
+ 		return -EINVAL;
+ 
+-	/* and we do not enable counter overflow interrupts */
+ 	hwc->config = event->attr.config & AMD64_RAW_EVENT_MASK_NB;
+ 	hwc->idx = -1;
+ 
+@@ -275,6 +273,7 @@ static struct pmu amd_nb_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
++	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct pmu amd_llc_pmu = {
+@@ -287,6 +286,7 @@ static struct pmu amd_llc_pmu = {
+ 	.start		= amd_uncore_start,
+ 	.stop		= amd_uncore_stop,
+ 	.read		= amd_uncore_read,
++	.capabilities	= PERF_PMU_CAP_NO_INTERRUPT,
+ };
+ 
+ static struct amd_uncore *amd_uncore_alloc(unsigned int cpu)
+-- 
+2.20.1
+
 
 
