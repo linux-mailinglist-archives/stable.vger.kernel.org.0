@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A997F18B71B
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB6718B705
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:31:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728255AbgCSNSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:18:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41248 "EHLO mail.kernel.org"
+        id S1729861AbgCSNU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:20:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729808AbgCSNSl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:18:41 -0400
+        id S1727572AbgCSNUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:20:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E56B214D8;
-        Thu, 19 Mar 2020 13:18:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB00206D7;
+        Thu, 19 Mar 2020 13:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623920;
-        bh=7zsWKK3s5PinmuGqxNkDtICp7MXcOf/lRH82lmkbb0M=;
+        s=default; t=1584624025;
+        bh=tyQhYD7L0c6Qy7Pp19sm+Wi3FjaWbpivNpHwnNv5eh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHdXtejWWlPaz7BmtYPaWwicAxPGdk+Q0L7BtiJvEwwCG9tD2C89cxs4B52C5rrhC
-         35YaFDOToY9ET/9AdgQyWQ1CHZ6ei62w7sKl6zuCvZ2Fg5cJWw2m5F21LBQqdV22W9
-         f0jokVnXzJG2nnotFADnr5P21CeMnboUC16bRCvM=
+        b=VI2G2q0c+ABjSHGyo0OvUXgV4BWblcVTqG5FvOiqzeAWi85v6IxMxZ0iELImQHHIH
+         CWgCPP3Q81igqWAtJ7Fc5HeXnOalllT9Qof3zopUPXyTvtMOptLURtWXtQG83RkPr1
+         ng0ZGEhyZAe6gezKZJpCZXPdMkKK0g7hUjUb7EM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.14 71/99] batman-adv: Fix internal interface indices types
+        stable@vger.kernel.org,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/48] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
 Date:   Thu, 19 Mar 2020 14:03:49 +0100
-Message-Id: <20200319124002.861741269@linuxfoundation.org>
+Message-Id: <20200319123905.533106814@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
-References: <20200319123941.630731708@linuxfoundation.org>
+In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
+References: <20200319123902.941451241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,234 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit f22e08932c2960f29b5e828e745c9f3fb7c1bb86 upstream.
+[ Upstream commit 18d200460cd73636d4f20674085c39e32b4e0097 ]
 
-batman-adv uses internal indices for each enabled and active interface.
-It is currently used by the B.A.T.M.A.N. IV algorithm to identifify the
-correct position in the ogm_cnt bitmaps.
+The busy timeout for the CMD5 to put the eMMC into sleep state, is specific
+to the card. Potentially the timeout may exceed the host->max_busy_timeout.
+If that becomes the case, mmc_sleep() converts from using an R1B response
+to an R1 response, as to prevent the host from doing HW busy detection.
 
-The type for the number of enabled interfaces (which defines the next
-interface index) was set to char. This type can be (depending on the
-architecture) either signed (limiting batman-adv to 127 active slave
-interfaces) or unsigned (limiting batman-adv to 255 active slave
-interfaces).
+However, it has turned out that some hosts requires an R1B response no
+matter what, so let's respect that via checking MMC_CAP_NEED_RSP_BUSY. Note
+that, if the R1B gets enforced, the host becomes fully responsible of
+managing the needed busy timeout, in one way or the other.
 
-This limit was not correctly checked when an interface was enabled and thus
-an overflow happened. This was only catched on systems with the signed char
-type when the B.A.T.M.A.N. IV code tried to resize its counter arrays with
-a negative size.
-
-The if_num interface index was only a s16 and therefore significantly
-smaller than the ifindex (int) used by the code net code.
-
-Both &batadv_hard_iface->if_num and &batadv_priv->num_ifaces must be
-(unsigned) int to support the same number of slave interfaces as the net
-core code. And the interface activation code must check the number of
-active slave interfaces to avoid integer overflows.
-
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200311092036.16084-1-ulf.hansson@linaro.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_iv_ogm.c     |   24 ++++++++++++++----------
- net/batman-adv/hard-interface.c |    9 +++++++--
- net/batman-adv/originator.c     |    4 ++--
- net/batman-adv/originator.h     |    4 ++--
- net/batman-adv/types.h          |   11 ++++++-----
- 5 files changed, 31 insertions(+), 21 deletions(-)
+ drivers/mmc/core/mmc.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/batman-adv/bat_iv_ogm.c
-+++ b/net/batman-adv/bat_iv_ogm.c
-@@ -149,7 +149,7 @@ static void batadv_iv_ogm_orig_free(stru
-  * Return: 0 on success, a negative error code otherwise.
-  */
- static int batadv_iv_ogm_orig_add_if(struct batadv_orig_node *orig_node,
--				     int max_if_num)
-+				     unsigned int max_if_num)
- {
- 	void *data_ptr;
- 	size_t old_size;
-@@ -193,7 +193,8 @@ unlock:
-  */
- static void
- batadv_iv_ogm_drop_bcast_own_entry(struct batadv_orig_node *orig_node,
--				   int max_if_num, int del_if_num)
-+				   unsigned int max_if_num,
-+				   unsigned int del_if_num)
- {
- 	size_t chunk_size;
- 	size_t if_offset;
-@@ -231,7 +232,8 @@ batadv_iv_ogm_drop_bcast_own_entry(struc
-  */
- static void
- batadv_iv_ogm_drop_bcast_own_sum_entry(struct batadv_orig_node *orig_node,
--				       int max_if_num, int del_if_num)
-+				       unsigned int max_if_num,
-+				       unsigned int del_if_num)
- {
- 	size_t if_offset;
- 	void *data_ptr;
-@@ -268,7 +270,8 @@ batadv_iv_ogm_drop_bcast_own_sum_entry(s
-  * Return: 0 on success, a negative error code otherwise.
-  */
- static int batadv_iv_ogm_orig_del_if(struct batadv_orig_node *orig_node,
--				     int max_if_num, int del_if_num)
-+				     unsigned int max_if_num,
-+				     unsigned int del_if_num)
- {
- 	spin_lock_bh(&orig_node->bat_iv.ogm_cnt_lock);
- 
-@@ -302,7 +305,8 @@ static struct batadv_orig_node *
- batadv_iv_ogm_orig_get(struct batadv_priv *bat_priv, const u8 *addr)
- {
- 	struct batadv_orig_node *orig_node;
--	int size, hash_added;
-+	int hash_added;
-+	size_t size;
- 
- 	orig_node = batadv_orig_hash_find(bat_priv, addr);
- 	if (orig_node)
-@@ -890,7 +894,7 @@ batadv_iv_ogm_slide_own_bcast_window(str
- 	u32 i;
- 	size_t word_index;
- 	u8 *w;
--	int if_num;
-+	unsigned int if_num;
- 
- 	for (i = 0; i < hash->size; i++) {
- 		head = &hash->table[i];
-@@ -1020,7 +1024,7 @@ batadv_iv_ogm_orig_update(struct batadv_
- 	struct batadv_neigh_node *tmp_neigh_node = NULL;
- 	struct batadv_neigh_node *router = NULL;
- 	struct batadv_orig_node *orig_node_tmp;
--	int if_num;
-+	unsigned int if_num;
- 	u8 sum_orig, sum_neigh;
- 	u8 *neigh_addr;
- 	u8 tq_avg;
-@@ -1179,7 +1183,7 @@ static bool batadv_iv_ogm_calc_tq(struct
- 	u8 total_count;
- 	u8 orig_eq_count, neigh_rq_count, neigh_rq_inv, tq_own;
- 	unsigned int neigh_rq_inv_cube, neigh_rq_max_cube;
--	int if_num;
-+	unsigned int if_num;
- 	unsigned int tq_asym_penalty, inv_asym_penalty;
- 	unsigned int combined_tq;
- 	unsigned int tq_iface_penalty;
-@@ -1698,9 +1702,9 @@ static void batadv_iv_ogm_process(const
- 
- 	if (is_my_orig) {
- 		unsigned long *word;
--		int offset;
-+		size_t offset;
- 		s32 bit_pos;
--		s16 if_num;
-+		unsigned int if_num;
- 		u8 *weight;
- 
- 		orig_neigh_node = batadv_iv_ogm_orig_get(bat_priv,
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -738,6 +738,11 @@ int batadv_hardif_enable_interface(struc
- 	hard_iface->soft_iface = soft_iface;
- 	bat_priv = netdev_priv(hard_iface->soft_iface);
- 
-+	if (bat_priv->num_ifaces >= UINT_MAX) {
-+		ret = -ENOSPC;
-+		goto err_dev;
-+	}
-+
- 	ret = netdev_master_upper_dev_link(hard_iface->net_dev,
- 					   soft_iface, NULL, NULL);
- 	if (ret)
-@@ -845,7 +850,7 @@ void batadv_hardif_disable_interface(str
- 	batadv_hardif_recalc_extra_skbroom(hard_iface->soft_iface);
- 
- 	/* nobody uses this interface anymore */
--	if (!bat_priv->num_ifaces) {
-+	if (bat_priv->num_ifaces == 0) {
- 		batadv_gw_check_client_stop(bat_priv);
- 
- 		if (autodel == BATADV_IF_CLEANUP_AUTO)
-@@ -881,7 +886,7 @@ batadv_hardif_add_interface(struct net_d
- 	if (ret)
- 		goto free_if;
- 
--	hard_iface->if_num = -1;
-+	hard_iface->if_num = 0;
- 	hard_iface->net_dev = net_dev;
- 	hard_iface->soft_iface = NULL;
- 	hard_iface->if_status = BATADV_IF_NOT_IN_USE;
---- a/net/batman-adv/originator.c
-+++ b/net/batman-adv/originator.c
-@@ -1500,7 +1500,7 @@ int batadv_orig_dump(struct sk_buff *msg
- }
- 
- int batadv_orig_hash_add_if(struct batadv_hard_iface *hard_iface,
--			    int max_if_num)
-+			    unsigned int max_if_num)
- {
- 	struct batadv_priv *bat_priv = netdev_priv(hard_iface->soft_iface);
- 	struct batadv_algo_ops *bao = bat_priv->algo_ops;
-@@ -1535,7 +1535,7 @@ err:
- }
- 
- int batadv_orig_hash_del_if(struct batadv_hard_iface *hard_iface,
--			    int max_if_num)
-+			    unsigned int max_if_num)
- {
- 	struct batadv_priv *bat_priv = netdev_priv(hard_iface->soft_iface);
- 	struct batadv_hashtable *hash = bat_priv->orig_hash;
---- a/net/batman-adv/originator.h
-+++ b/net/batman-adv/originator.h
-@@ -78,9 +78,9 @@ int batadv_orig_seq_print_text(struct se
- int batadv_orig_dump(struct sk_buff *msg, struct netlink_callback *cb);
- int batadv_orig_hardif_seq_print_text(struct seq_file *seq, void *offset);
- int batadv_orig_hash_add_if(struct batadv_hard_iface *hard_iface,
--			    int max_if_num);
-+			    unsigned int max_if_num);
- int batadv_orig_hash_del_if(struct batadv_hard_iface *hard_iface,
--			    int max_if_num);
-+			    unsigned int max_if_num);
- struct batadv_orig_node_vlan *
- batadv_orig_node_vlan_new(struct batadv_orig_node *orig_node,
- 			  unsigned short vid);
---- a/net/batman-adv/types.h
-+++ b/net/batman-adv/types.h
-@@ -155,7 +155,7 @@ enum batadv_hard_iface_wifi_flags {
-  */
- struct batadv_hard_iface {
- 	struct list_head list;
--	s16 if_num;
-+	unsigned int if_num;
- 	char if_status;
- 	u8 num_bcasts;
- 	u32 wifi_flags;
-@@ -1081,7 +1081,7 @@ struct batadv_priv {
- 	atomic_t bcast_seqno;
- 	atomic_t bcast_queue_left;
- 	atomic_t batman_queue_left;
--	char num_ifaces;
-+	unsigned int num_ifaces;
- 	struct kobject *mesh_obj;
- 	struct dentry *debug_dir;
- 	struct hlist_head forw_bat_list;
-@@ -1479,9 +1479,10 @@ struct batadv_algo_neigh_ops {
-  */
- struct batadv_algo_orig_ops {
- 	void (*free)(struct batadv_orig_node *orig_node);
--	int (*add_if)(struct batadv_orig_node *orig_node, int max_if_num);
--	int (*del_if)(struct batadv_orig_node *orig_node, int max_if_num,
--		      int del_if_num);
-+	int (*add_if)(struct batadv_orig_node *orig_node,
-+		      unsigned int max_if_num);
-+	int (*del_if)(struct batadv_orig_node *orig_node,
-+		      unsigned int max_if_num, unsigned int del_if_num);
- #ifdef CONFIG_BATMAN_ADV_DEBUGFS
- 	void (*print)(struct batadv_priv *priv, struct seq_file *seq,
- 		      struct batadv_hard_iface *hard_iface);
+diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
+index f1fe446eee666..5ca53e225382d 100644
+--- a/drivers/mmc/core/mmc.c
++++ b/drivers/mmc/core/mmc.c
+@@ -1901,9 +1901,12 @@ static int mmc_sleep(struct mmc_host *host)
+ 	 * If the max_busy_timeout of the host is specified, validate it against
+ 	 * the sleep cmd timeout. A failure means we need to prevent the host
+ 	 * from doing hw busy detection, which is done by converting to a R1
+-	 * response instead of a R1B.
++	 * response instead of a R1B. Note, some hosts requires R1B, which also
++	 * means they are on their own when it comes to deal with the busy
++	 * timeout.
+ 	 */
+-	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout)) {
++	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && host->max_busy_timeout &&
++	    (timeout_ms > host->max_busy_timeout)) {
+ 		cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
+ 	} else {
+ 		cmd.flags = MMC_RSP_R1B | MMC_CMD_AC;
+-- 
+2.20.1
+
 
 
