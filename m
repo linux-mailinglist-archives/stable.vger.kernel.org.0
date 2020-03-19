@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E662F18B4F4
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E78C18B4E8
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:13:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729265AbgCSNOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33494 "EHLO mail.kernel.org"
+        id S1729202AbgCSNNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:13:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727641AbgCSNOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:14:12 -0400
+        id S1727710AbgCSNNs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:13:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9741820722;
-        Thu, 19 Mar 2020 13:14:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B28620722;
+        Thu, 19 Mar 2020 13:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623652;
-        bh=vV01+2S7qPyedViSZzQlN5nnOmIOcHvFFGZq5R3HxyQ=;
+        s=default; t=1584623627;
+        bh=fzdg16jit59N7FXifsHK8DKb7NghhFYVaQ6brJqnmTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCdiFTrz4NfWUWCSSQ8mouHfJOxs9o6Y4/3tOj+IqGMNA7GuaZoJMR4iuzU4t+M6F
-         EfmyNTSMzrXuj4E2bu6hAjfUiW2RLtoWmWc7GTTWccmQzscp1QUoSASMo1xUc+8LA0
-         0LfvFF/71/Jj2MQV2QPhdp6d4h24lVnviGOchf/4=
+        b=gGgTz9uv5N4Rzxyh03YL9PUBjxLedWC/oB0TA26cRsuaoz8cFWYHjs2eHn7sX/rTv
+         haEt/ccnsOAvrZQBwplnCblQvL+LmMmVGihCz5DoEygrgcXuUDeaYEYJe2TWyiTzCd
+         h3JqxN3bCKA/BbPkI6ByA6/6ctTE03vJz4kK/JMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Schiffer <mschiffer@universe-factory.net>,
-        Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.9 75/90] batman-adv: update data pointers after skb_cow()
-Date:   Thu, 19 Mar 2020 14:00:37 +0100
-Message-Id: <20200319123951.602545138@linuxfoundation.org>
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.9 77/90] batman-adv: Use explicit tvlv padding for ELP packets
+Date:   Thu, 19 Mar 2020 14:00:39 +0100
+Message-Id: <20200319123952.254552777@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
 References: <20200319123928.635114118@linuxfoundation.org>
@@ -43,45 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <mschiffer@universe-factory.net>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit bc44b78157f621ff2a2618fe287a827bcb094ac4 upstream.
+commit f4156f9656feac21f4de712fac94fae964c5d402 upstream.
 
-batadv_check_unicast_ttvn() calls skb_cow(), so pointers into the SKB data
-must be (re)set after calling it. The ethhdr variable is dropped
-altogether.
+The announcement messages of batman-adv COMPAT_VERSION 15 have the
+possibility to announce additional information via a dynamic TVLV part.
+This part is optional for the ELP packets and currently not parsed by the
+Linux implementation. Still out-of-tree versions are using it to transport
+things like neighbor hashes to optimize the rebroadcast behavior.
 
-Fixes: 78fc6bbe0aca ("batman-adv: add UNICAST_4ADDR packet type")
-Signed-off-by: Matthias Schiffer <mschiffer@universe-factory.net>
+Since the ELP broadcast packets are smaller than the minimal ethernet
+packet, it often has to be padded. This is often done (as specified in
+RFC894) with octets of zero and thus work perfectly fine with the TVLV
+part (making it a zero length and thus empty). But not all ethernet
+compatible hardware seems to follow this advice. To avoid ambiguous
+situations when parsing the TVLV header, just force the 4 bytes (TVLV
+length + padding) after the required ELP header to zero.
+
+Fixes: d6f94d91f766 ("batman-adv: ELP - adding basic infrastructure")
+Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/routing.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/batman-adv/bat_v_elp.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/net/batman-adv/routing.c
-+++ b/net/batman-adv/routing.c
-@@ -930,7 +930,6 @@ int batadv_recv_unicast_packet(struct sk
- 	bool is4addr;
+--- a/net/batman-adv/bat_v_elp.c
++++ b/net/batman-adv/bat_v_elp.c
+@@ -335,21 +335,23 @@ out:
+  */
+ int batadv_v_elp_iface_enable(struct batadv_hard_iface *hard_iface)
+ {
++	static const size_t tvlv_padding = sizeof(__be32);
+ 	struct batadv_elp_packet *elp_packet;
+ 	unsigned char *elp_buff;
+ 	u32 random_seqno;
+ 	size_t size;
+ 	int res = -ENOMEM;
  
- 	unicast_packet = (struct batadv_unicast_packet *)skb->data;
--	unicast_4addr_packet = (struct batadv_unicast_4addr_packet *)skb->data;
+-	size = ETH_HLEN + NET_IP_ALIGN + BATADV_ELP_HLEN;
++	size = ETH_HLEN + NET_IP_ALIGN + BATADV_ELP_HLEN + tvlv_padding;
+ 	hard_iface->bat_v.elp_skb = dev_alloc_skb(size);
+ 	if (!hard_iface->bat_v.elp_skb)
+ 		goto out;
  
- 	is4addr = unicast_packet->packet_type == BATADV_UNICAST_4ADDR;
- 	/* the caller function should have already pulled 2 bytes */
-@@ -951,9 +950,13 @@ int batadv_recv_unicast_packet(struct sk
- 	if (!batadv_check_unicast_ttvn(bat_priv, skb, hdr_size))
- 		return NET_RX_DROP;
+ 	skb_reserve(hard_iface->bat_v.elp_skb, ETH_HLEN + NET_IP_ALIGN);
+-	elp_buff = skb_put(hard_iface->bat_v.elp_skb, BATADV_ELP_HLEN);
++	elp_buff = skb_put(hard_iface->bat_v.elp_skb,
++			   BATADV_ELP_HLEN + tvlv_padding);
+ 	elp_packet = (struct batadv_elp_packet *)elp_buff;
+-	memset(elp_packet, 0, BATADV_ELP_HLEN);
++	memset(elp_packet, 0, BATADV_ELP_HLEN + tvlv_padding);
  
-+	unicast_packet = (struct batadv_unicast_packet *)skb->data;
-+
- 	/* packet for me */
- 	if (batadv_is_my_mac(bat_priv, unicast_packet->dest)) {
- 		if (is4addr) {
-+			unicast_4addr_packet =
-+				(struct batadv_unicast_4addr_packet *)skb->data;
- 			subtype = unicast_4addr_packet->subtype;
- 			batadv_dat_inc_counter(bat_priv, subtype);
- 
+ 	elp_packet->packet_type = BATADV_ELP;
+ 	elp_packet->version = BATADV_COMPAT_VERSION;
 
 
