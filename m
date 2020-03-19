@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5775C18B698
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:28:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2646518B678
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730867AbgCSN1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:27:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55454 "EHLO mail.kernel.org"
+        id S1730871AbgCSN1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:27:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730737AbgCSN1P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:27:15 -0400
+        id S1730746AbgCSN1S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:27:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 738AB207FC;
-        Thu, 19 Mar 2020 13:27:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 006B32080C;
+        Thu, 19 Mar 2020 13:27:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624434;
-        bh=Ga1wbWDQiSyIK3IRl0E8Lde9WoZlLk82AH/T4G6Jpn8=;
+        s=default; t=1584624437;
+        bh=OrkMEH63HQ57aeJwplbioe6HOa1klsRlnvHjGTqwtE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LcBnD+ieuP1H31iRH+xJKBr0FPt6P0tVuUddTUJo1DV0f6MHmsgQyk9J8bKbxJOJ+
-         OZsyy1ub0F8kL+S2AewITPzcUdvm8KFqm/djnnPOBMtH6UTSdlSWulv2ABdyOTzaYe
-         /Qu5hYu5eDI3uDv6JLG7Eu9t2+2FDHFgEMLfVkro=
+        b=JzVdEE0TzxaYAdmreCPfVmPmqJLccbGtmJ8d4Fzw7nRAzvEkJEs5mSOMurdeb1+Br
+         Kk9UapQstvsAJwvzxZ1mBWf62l5Fy77qtluh0O1Zkx3GCAKYhE+D8Pgf7npJLFnL+S
+         32ruzddvnl2uRHT1oD6jIy/0nt8QhYFBEXt1ZXVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.5 59/65] ARM: 8957/1: VDSO: Match ARMv8 timer in cntvct_functional()
-Date:   Thu, 19 Mar 2020 14:04:41 +0100
-Message-Id: <20200319123944.904257080@linuxfoundation.org>
+Subject: [PATCH 5.5 60/65] ARM: 8958/1: rename missed uaccess .fixup section
+Date:   Thu, 19 Mar 2020 14:04:42 +0100
+Message-Id: <20200319123945.150112169@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
 References: <20200319123926.466988514@linuxfoundation.org>
@@ -43,35 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 45939ce292b4b11159719faaf60aba7d58d5fe33 upstream.
+commit f87b1c49bc675da30d8e1e8f4b60b800312c7b90 upstream.
 
-It is possible for a system with an ARMv8 timer to run a 32-bit kernel.
-When this happens we will unconditionally have the vDSO code remove the
-__vdso_gettimeofday and __vdso_clock_gettime symbols because
-cntvct_functional() returns false since it does not match that
-compatibility string.
+When the uaccess .fixup section was renamed to .text.fixup, one case was
+missed. Under ld.bfd, the orphaned section was moved close to .text
+(since they share the "ax" bits), so things would work normally on
+uaccess faults. Under ld.lld, the orphaned section was placed outside
+the .text section, making it unreachable.
 
-Fixes: ecf99a439105 ("ARM: 8331/1: VDSO initialization, mapping, and synchronization")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/282
+Link: https://bugs.chromium.org/p/chromium/issues/detail?id=1020633#c44
+Link: https://lore.kernel.org/r/nycvar.YSQ.7.76.1912032147340.17114@knanqh.ubzr
+Link: https://lore.kernel.org/lkml/202002071754.F5F073F1D@keescook/
+
+Fixes: c4a84ae39b4a5 ("ARM: 8322/1: keep .text and .fixup regions closer together")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/kernel/vdso.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/lib/copy_from_user.S |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/kernel/vdso.c
-+++ b/arch/arm/kernel/vdso.c
-@@ -95,6 +95,8 @@ static bool __init cntvct_functional(voi
- 	 */
- 	np = of_find_compatible_node(NULL, NULL, "arm,armv7-timer");
- 	if (!np)
-+		np = of_find_compatible_node(NULL, NULL, "arm,armv8-timer");
-+	if (!np)
- 		goto out_put;
+--- a/arch/arm/lib/copy_from_user.S
++++ b/arch/arm/lib/copy_from_user.S
+@@ -118,7 +118,7 @@ ENTRY(arm_copy_from_user)
  
- 	if (of_property_read_bool(np, "arm,cpu-registers-not-fw-configured"))
+ ENDPROC(arm_copy_from_user)
+ 
+-	.pushsection .fixup,"ax"
++	.pushsection .text.fixup,"ax"
+ 	.align 0
+ 	copy_abort_preamble
+ 	ldmfd	sp!, {r1, r2, r3}
 
 
