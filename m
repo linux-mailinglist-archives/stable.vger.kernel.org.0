@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6640418B6D1
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:30:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1E8018B6C9
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730228AbgCSNWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:22:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47824 "EHLO mail.kernel.org"
+        id S1730538AbgCSNYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:24:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730194AbgCSNW3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:22:29 -0400
+        id S1727521AbgCSNYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:24:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04CFD20724;
-        Thu, 19 Mar 2020 13:22:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61B4D208C3;
+        Thu, 19 Mar 2020 13:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624148;
-        bh=o6I1deaHSF79AvmALkGyrIcRGVQXhdFIC8H98FU19rc=;
+        s=default; t=1584624293;
+        bh=vopcAl7ELoZ/KGoCV6RwpYp8fny946zl81L8jceB6OQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNFGxbbLMTR8mHAob//AeT8CxlLAEyeS7/QLGbIHkUFV838BiBzEqhpDPco4GWJkd
-         qA0r+osRYBcCeovDm+N4fslJv3iajiXOGd+sh5JqJNVM1qHsagJdfMVhfp8TLcbUMi
-         rje5dMUq0J29XRnvczNpMf/NuLdHtQzlAHt8RXFY=
+        b=CGcf09iw65oBpOARM752zzomfNZw0Y33dQd1IAvQCrTR65egNKwlrHDN7F0xvwZZA
+         wMdzQqIOrKfgP3fH5XT6AHm+f4W/s/RHtqiBNcQYMPXjGPExwuvc5061uxe8AVn7yf
+         UraibOKxQU7OINmhij4Bfp1CKgQBj3wnGwtote20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        Peter Geis <pgwipeout@gmail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/60] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
+Subject: [PATCH 5.5 04/65] mmc: core: Allow host controllers to require R1B for CMD6
 Date:   Thu, 19 Mar 2020 14:03:46 +0100
-Message-Id: <20200319123921.851185831@linuxfoundation.org>
+Message-Id: <20200319123927.741036912@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
-References: <20200319123919.441695203@linuxfoundation.org>
+In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
+References: <20200319123926.466988514@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +50,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 18d200460cd73636d4f20674085c39e32b4e0097 ]
+[ Upstream commit 1292e3efb149ee21d8d33d725eeed4e6b1ade963 ]
 
-The busy timeout for the CMD5 to put the eMMC into sleep state, is specific
-to the card. Potentially the timeout may exceed the host->max_busy_timeout.
-If that becomes the case, mmc_sleep() converts from using an R1B response
-to an R1 response, as to prevent the host from doing HW busy detection.
+It has turned out that some host controllers can't use R1B for CMD6 and
+other commands that have R1B associated with them. Therefore invent a new
+host cap, MMC_CAP_NEED_RSP_BUSY to let them specify this.
 
-However, it has turned out that some hosts requires an R1B response no
-matter what, so let's respect that via checking MMC_CAP_NEED_RSP_BUSY. Note
-that, if the R1B gets enforced, the host becomes fully responsible of
-managing the needed busy timeout, in one way or the other.
+In __mmc_switch(), let's check the flag and use it to prevent R1B responses
+from being converted into R1. Note that, this also means that the host are
+on its own, when it comes to manage the busy timeout.
 
 Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200311092036.16084-1-ulf.hansson@linaro.org
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Tested-by: Faiz Abbas <faiz_abbas@ti.com>
+Tested-By: Peter Geis <pgwipeout@gmail.com>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/mmc.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/mmc/core/mmc_ops.c | 6 ++++--
+ include/linux/mmc/host.h   | 1 +
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index c8804895595f4..b7159e243323b 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -1911,9 +1911,12 @@ static int mmc_sleep(struct mmc_host *host)
- 	 * If the max_busy_timeout of the host is specified, validate it against
- 	 * the sleep cmd timeout. A failure means we need to prevent the host
- 	 * from doing hw busy detection, which is done by converting to a R1
--	 * response instead of a R1B.
-+	 * response instead of a R1B. Note, some hosts requires R1B, which also
-+	 * means they are on their own when it comes to deal with the busy
-+	 * timeout.
+diff --git a/drivers/mmc/core/mmc_ops.c b/drivers/mmc/core/mmc_ops.c
+index cfb2ce979baf1..5a4eddef8067b 100644
+--- a/drivers/mmc/core/mmc_ops.c
++++ b/drivers/mmc/core/mmc_ops.c
+@@ -540,9 +540,11 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
+ 	 * If the max_busy_timeout of the host is specified, make sure it's
+ 	 * enough to fit the used timeout_ms. In case it's not, let's instruct
+ 	 * the host to avoid HW busy detection, by converting to a R1 response
+-	 * instead of a R1B.
++	 * instead of a R1B. Note, some hosts requires R1B, which also means
++	 * they are on their own when it comes to deal with the busy timeout.
  	 */
--	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout)) {
+-	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout))
 +	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && host->max_busy_timeout &&
-+	    (timeout_ms > host->max_busy_timeout)) {
- 		cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
- 	} else {
- 		cmd.flags = MMC_RSP_R1B | MMC_CMD_AC;
++	    (timeout_ms > host->max_busy_timeout))
+ 		use_r1b_resp = false;
+ 
+ 	cmd.opcode = MMC_SWITCH;
+diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
+index ba703384bea0c..4c5eb3aa8e723 100644
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -333,6 +333,7 @@ struct mmc_host {
+ 				 MMC_CAP_UHS_SDR50 | MMC_CAP_UHS_SDR104 | \
+ 				 MMC_CAP_UHS_DDR50)
+ #define MMC_CAP_SYNC_RUNTIME_PM	(1 << 21)	/* Synced runtime PM suspends. */
++#define MMC_CAP_NEED_RSP_BUSY	(1 << 22)	/* Commands with R1B can't use R1. */
+ #define MMC_CAP_DRIVER_TYPE_A	(1 << 23)	/* Host supports Driver Type A */
+ #define MMC_CAP_DRIVER_TYPE_C	(1 << 24)	/* Host supports Driver Type C */
+ #define MMC_CAP_DRIVER_TYPE_D	(1 << 25)	/* Host supports Driver Type D */
 -- 
 2.20.1
 
