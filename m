@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7706618B4AE
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E5918B447
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:08:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728787AbgCSNLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:11:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57284 "EHLO mail.kernel.org"
+        id S1727452AbgCSNII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:08:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728219AbgCSNLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:11:49 -0400
+        id S1727252AbgCSNIH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:08:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7908A20722;
-        Thu, 19 Mar 2020 13:11:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35C1720789;
+        Thu, 19 Mar 2020 13:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623508;
-        bh=If8LOuZuwFEjouDXrY7qAUXtG8O0r9olz6X8s3nhxu8=;
+        s=default; t=1584623286;
+        bh=8QFfqcd4F8m32XNf835SF6u4m+lstoRLAX3VfvFHDNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZI/AXDRcqFSXBGc3HvrNV3w9IlV/vdFmayqAlEcc+8lhgQaEnRa2/NLSBhI1Q7cf
-         9nwvr90K67N5yXI910I/N1jnUEDlHCisd0MaPtWaLfQPDbAEUE4U8eIjQ5OpIOAAsE
-         0HqdwpgCjWHNCZmcmIpzxEBhQgO3IRanE0z8kL+4=
+        b=JMs4vYHpyWYUhovVmxIwuSC9kAmfuUuwbiv/Ge4tj0MYK0l9n3Cy8qnHx8BpW8JnS
+         rN/a1pVGOIHDwUkeR3BYpwUIjcjTvZDkmQdw6Mw97UibNOF4Po31KcUmKN6HZuuWSs
+         K6j0CJfJ7LklXK6YiDtwTBX8SVpG55dnvGkmbVZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sven Eckelmann <sven@narfation.org>,
+        Antonio Quartulli <a@unstable.cc>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 51/90] batman-adv: Fix double free during fragment merge error
-Date:   Thu, 19 Mar 2020 14:00:13 +0100
-Message-Id: <20200319123944.264971850@linuxfoundation.org>
+Subject: [PATCH 4.4 70/93] batman-adv: Avoid race in TT TVLV allocator helper
+Date:   Thu, 19 Mar 2020 14:00:14 +0100
+Message-Id: <20200319123947.221657508@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
-References: <20200319123928.635114118@linuxfoundation.org>
+In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
+References: <20200319123924.795019515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,78 +46,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sven Eckelmann <sven@narfation.org>
 
-commit 248e23b50e2da0753f3b5faa068939cbe9f8a75a upstream.
+commit 8ba0f9bd3bdea1058c2b2676bec7905724418e40 upstream.
 
-The function batadv_frag_skb_buffer was supposed not to consume the skbuff
-on errors. This was followed in the helper function
-batadv_frag_insert_packet when the skb would potentially be inserted in the
-fragment queue. But it could happen that the next helper function
-batadv_frag_merge_packets would try to merge the fragments and fail. This
-results in a kfree_skb of all the enqueued fragments (including the just
-inserted one). batadv_recv_frag_packet would detect the error in
-batadv_frag_skb_buffer and try to free the skb again.
+The functions batadv_tt_prepare_tvlv_local_data and
+batadv_tt_prepare_tvlv_global_data are responsible for preparing a buffer
+which can be used to store the TVLV container for TT and add the VLAN
+information to it.
 
-The behavior of batadv_frag_skb_buffer (and its helper
-batadv_frag_insert_packet) must therefore be changed to always consume the
-skbuff to have a common behavior and avoid the double kfree_skb.
+This will be done in three phases:
 
-Fixes: 610bfc6bc99b ("batman-adv: Receive fragmented packets and merge")
+1. count the number of VLANs and their entries
+2. allocate the buffer using the counters from the previous step and limits
+   from the caller (parameter tt_len)
+3. insert the VLAN information to the buffer
+
+The step 1 and 3 operate on a list which contains the VLANs. The access to
+these lists must be protected with an appropriate lock or otherwise they
+might operate on on different entries. This could for example happen when
+another context is adding VLAN entries to this list.
+
+This could lead to a buffer overflow in these functions when enough entries
+were added between step 1 and 3 to the VLAN lists that the buffer room for
+the entries (*tt_change) is smaller then the now required extra buffer for
+new VLAN entries.
+
+Fixes: 7ea7b4a14275 ("batman-adv: make the TT CRC logic VLAN specific")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Acked-by: Antonio Quartulli <a@unstable.cc>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/fragmentation.c |    8 +++++---
- net/batman-adv/routing.c       |    6 ++++++
- 2 files changed, 11 insertions(+), 3 deletions(-)
+ net/batman-adv/translation-table.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -232,8 +232,10 @@ err_unlock:
- 	spin_unlock_bh(&chain->lock);
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -744,7 +744,7 @@ batadv_tt_prepare_tvlv_global_data(struc
+ 	struct batadv_orig_node_vlan *vlan;
+ 	u8 *tt_change_ptr;
  
- err:
--	if (!ret)
-+	if (!ret) {
- 		kfree(frag_entry_new);
-+		kfree_skb(skb);
-+	}
- 
- 	return ret;
- }
-@@ -305,7 +307,7 @@ free:
-  *
-  * There are three possible outcomes: 1) Packet is merged: Return true and
-  * set *skb to merged packet; 2) Packet is buffered: Return true and set *skb
-- * to NULL; 3) Error: Return false and leave skb as is.
-+ * to NULL; 3) Error: Return false and free skb.
-  *
-  * Return: true when packet is merged or buffered, false when skb is not not
-  * used.
-@@ -330,9 +332,9 @@ bool batadv_frag_skb_buffer(struct sk_bu
- 		goto out_err;
+-	rcu_read_lock();
++	spin_lock_bh(&orig_node->vlan_list_lock);
+ 	hlist_for_each_entry_rcu(vlan, &orig_node->vlan_list, list) {
+ 		num_vlan++;
+ 		num_entries += atomic_read(&vlan->tt.num_entries);
+@@ -782,7 +782,7 @@ batadv_tt_prepare_tvlv_global_data(struc
+ 	*tt_change = (struct batadv_tvlv_tt_change *)tt_change_ptr;
  
  out:
--	*skb = skb_out;
- 	ret = true;
- out_err:
-+	*skb = skb_out;
- 	return ret;
+-	rcu_read_unlock();
++	spin_unlock_bh(&orig_node->vlan_list_lock);
+ 	return tvlv_len;
  }
  
---- a/net/batman-adv/routing.c
-+++ b/net/batman-adv/routing.c
-@@ -1080,6 +1080,12 @@ int batadv_recv_frag_packet(struct sk_bu
- 	batadv_inc_counter(bat_priv, BATADV_CNT_FRAG_RX);
- 	batadv_add_counter(bat_priv, BATADV_CNT_FRAG_RX_BYTES, skb->len);
+@@ -818,7 +818,7 @@ batadv_tt_prepare_tvlv_local_data(struct
+ 	u8 *tt_change_ptr;
+ 	int change_offset;
  
-+	/* batadv_frag_skb_buffer will always consume the skb and
-+	 * the caller should therefore never try to free the
-+	 * skb after this point
-+	 */
-+	ret = NET_RX_SUCCESS;
-+
- 	/* Add fragment to buffer and merge if possible. */
- 	if (!batadv_frag_skb_buffer(&skb, orig_node_src))
- 		goto out;
+-	rcu_read_lock();
++	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
+ 	hlist_for_each_entry_rcu(vlan, &bat_priv->softif_vlan_list, list) {
+ 		num_vlan++;
+ 		num_entries += atomic_read(&vlan->tt.num_entries);
+@@ -856,7 +856,7 @@ batadv_tt_prepare_tvlv_local_data(struct
+ 	*tt_change = (struct batadv_tvlv_tt_change *)tt_change_ptr;
+ 
+ out:
+-	rcu_read_unlock();
++	spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
+ 	return tvlv_len;
+ }
+ 
 
 
