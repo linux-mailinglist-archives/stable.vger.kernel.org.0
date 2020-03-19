@@ -2,124 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E05DB18AD79
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 08:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C41818AD80
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 08:50:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725812AbgCSHqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 03:46:39 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:59709 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725768AbgCSHqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 03:46:39 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id B74C15C01EA;
-        Thu, 19 Mar 2020 03:46:37 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 19 Mar 2020 03:46:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=f5rFjbDiH3kcnIpvJKnrExFwLrT
-        thw0CoS09zAxpBd8=; b=Y9WmBzCwdRvXXIZC03nlFw+7z+iDs5rr8un9cqk1i2Q
-        1Phkpc1ApRbSu4gQew0s4cwQ0ASuIJRqWodxUyqNWvaQTEmepSijmH5i1IjZUga1
-        ICj/YMG4IL7qh4BKBkHY+RRpbzkLS75myixaaTeTuZfrFwuDMDD7u8YaxH+SZvmC
-        TCwhDlaT76HtB7Bkm/xLzmO+euzw37YOGOwr4hvHEvLGGtI+Ag1k7ZAqXq++K9OT
-        WPmluPXLcL5HFFtMmYBjJ2s+h4LtdDtLirguxZouzmCJ5Vz9zQyz+vmgOx/7s6DH
-        +cqzUuj/93zrtSqJoQQja5idr7+Jr+nU1xhGtQinDww==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=f5rFjb
-        DiH3kcnIpvJKnrExFwLrTthw0CoS09zAxpBd8=; b=RBV6nW+f++25Letgc5eNXV
-        xmhajnZQUnMaTeXrDR1WDLsvGjxeVNcmbHwkD2VSHzQXavHFgriWD+7y88TuM/K4
-        +NXKuUpBh4v7G483Cu0LPv3F13CmnDPmiYfLFbh1lXz/aP9VXVFBg+R6/c/u6EZv
-        y6yDd2YNQ53ulFTTpizlcGLcQPmWYCXnfi3MmqPrEkfjkqkNaOwywJAf0SlfxA+V
-        EKuKsntMbNtErydIBuORz3px5NARhnTzYgg2uktzFelugRZcYzl1SSiLHhVFg9J+
-        pkpKDVHHFVjGE8OxWYh+mEvEP5FkgA2oGo5xvBZDv6U1iMKIRp6O8xAswzlToKWA
-        ==
-X-ME-Sender: <xms:XSNzXneTT4lzd-_-iRKmo-USFBdB9L1BA1C0Af2fAzjWUocs_3qA-A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudefkedguddugecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
-    rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:XSNzXskKR9qQy0jCaKOaJ7x-0EdmIzk8ohyQZXwQiRIp0WQoKE60lg>
-    <xmx:XSNzXjGaFcVzSxHgJTYpP1sgM34-T6uRIdhfY03HcB8qOKQ6K8oNPg>
-    <xmx:XSNzXqJxRiJs2Dd_2_eXIrNflwpcL69eU-wopSo_3Kj-61w4VAk1PA>
-    <xmx:XSNzXgqBf8pOo_7Ic_wGYK0s6AkQUzZJKaLYZCdKdvOUg8ZqiZIGiQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B4B76328005E;
-        Thu, 19 Mar 2020 03:46:36 -0400 (EDT)
-Date:   Thu, 19 Mar 2020 08:46:34 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Doug Anderson <dianders@chromium.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Wen Gong <wgong@codeaurora.org>,
-        netdev <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, ath11k@lists.infradead.org,
-        David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2] net: qrtr: fix len of skb_put_padto in
- qrtr_node_enqueue
-Message-ID: <20200319074634.GA3421780@kroah.com>
-References: <20200103045016.12459-1-wgong@codeaurora.org>
- <20200105.144704.221506192255563950.davem@davemloft.net>
- <CAD=FV=WiceRwLUS1sdL_W=ELKYZ9zKE13e8vx9SO0+tRvX74QQ@mail.gmail.com>
- <20200317102604.GD1130294@kroah.com>
- <CAD=FV=XXPACnPt=5=7gH3L6DufZ4tLSPTN-AtTAmvi5KAJuP6A@mail.gmail.com>
+        id S1726735AbgCSHul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 03:50:41 -0400
+Received: from lelv0143.ext.ti.com ([198.47.23.248]:33248 "EHLO
+        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726783AbgCSHuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 03:50:40 -0400
+Received: from lelv0266.itg.ti.com ([10.180.67.225])
+        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 02J7oc2T114021;
+        Thu, 19 Mar 2020 02:50:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1584604238;
+        bh=L5YWy3Rk6IsInxACeN4EjPHJ7UQIXvFkql19PkmlqPM=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References;
+        b=etdFSG2IFoqRU2c76qoioed+5B8ogcsi8UwpxadKEORyxEEr90a+pRLQVfddAK69M
+         yRp3SAN7XbobVc45xYEoJ5yXLHP7Jz/3dJXnAzkIr4tj5KPKTqH6uysBr696Fo3Ddy
+         rM9ofZAzCNXeTAuFWzxieDiZzTqNJsX8Ymlj8LCY=
+Received: from DFLE100.ent.ti.com (dfle100.ent.ti.com [10.64.6.21])
+        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 02J7oc4f118700
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 19 Mar 2020 02:50:38 -0500
+Received: from DFLE104.ent.ti.com (10.64.6.25) by DFLE100.ent.ti.com
+ (10.64.6.21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Thu, 19
+ Mar 2020 02:50:37 -0500
+Received: from lelv0327.itg.ti.com (10.180.67.183) by DFLE104.ent.ti.com
+ (10.64.6.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Thu, 19 Mar 2020 02:50:37 -0500
+Received: from deskari.lan (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 02J7oXqe047151;
+        Thu, 19 Mar 2020 02:50:35 -0500
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+To:     <linux-media@vger.kernel.org>, Benoit Parrot <bparrot@ti.com>
+CC:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2 01/19] media: ti-vpe: cal: fix DMA memory corruption
+Date:   Thu, 19 Mar 2020 09:50:05 +0200
+Message-ID: <20200319075023.22151-2-tomi.valkeinen@ti.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200319075023.22151-1-tomi.valkeinen@ti.com>
+References: <20200319075023.22151-1-tomi.valkeinen@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAD=FV=XXPACnPt=5=7gH3L6DufZ4tLSPTN-AtTAmvi5KAJuP6A@mail.gmail.com>
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 17, 2020 at 08:45:09AM -0700, Doug Anderson wrote:
-> Hi,
-> 
-> On Tue, Mar 17, 2020 at 3:26 AM Greg KH <greg@kroah.com> wrote:
-> >
-> > On Tue, Feb 25, 2020 at 02:52:24PM -0800, Doug Anderson wrote:
-> > > Hi,
-> > >
-> > >
-> > > On Sun, Jan 5, 2020 at 2:47 PM David Miller <davem@davemloft.net> wrote:
-> > > >
-> > > > From: Wen Gong <wgong@codeaurora.org>
-> > > > Date: Fri,  3 Jan 2020 12:50:16 +0800
-> > > >
-> > > > > The len used for skb_put_padto is wrong, it need to add len of hdr.
-> > > >
-> > > > Thanks, applied.
-> > >
-> > > I noticed this patch is in mainline now as:
-> > >
-> > > ce57785bf91b net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
-> > >
-> > > Though I'm not an expert on the code, it feels like a stable candidate
-> > > unless someone objects.
-> >
-> > Stable candidate for what tree(s)?
-> 
-> I noticed that it was lacking and applied cleanly on 5.4.  As of
-> 5.4.25 it's still not stable there.  I only noticed it because I was
-> comparing all the patches in mainline in "net/qrtr" with what we had
-> in our tree and stumbled upon this one.
-> 
-> Looking at it a little more carefully, I guess you could say:
-> 
-> Fixes: e7044482c8ac ("net: qrtr: Pass source and destination to
-> enqueue functions")
-> 
-> ...though it will be trickier to apply past commit 194ccc88297a ("net:
-> qrtr: Support decoding incoming v2 packets") just because the math
-> changed.
+When the CAL driver stops streaming, it will shut everything down
+without waiting for the current frame to finish. This leaves the CAL DMA
+in a slightly undefined state, and when CAL DMA is enabled when the
+stream is started the next time, the old DMA transfer will continue.
 
-Given that both of those commits showed up in 4.15, it doesn't matter
-much :)
+It is not clear if the old DMA transfer continues with the exact
+settings of the original transfer, or is it a mix of old and new
+settings, but in any case the end result is memory corruption as the
+destination memory address is no longer valid.
 
-I've queued this up for 5.4.y and 4.19.y now, thanks.
+I could not find any way to ensure that any old DMA transfer would be
+discarded, except perhaps full CAL reset. But we cannot do a full reset
+when one port is getting enabled, as that would reset both ports.
 
-greg k-h
+This patch tries to make sure that the DMA transfer is finished properly
+when the stream is being stopped. I say "tries", as, as mentioned above,
+I don't see a way to force the DMA transfer to finish. I believe this
+fixes the corruptions for normal cases, but if for some reason the DMA
+of the final frame would stall a lot, resulting in timeout in the code
+waiting for the DMA to finish, we'll again end up with unfinished DMA
+transfer. However, I don't know what could cause such a timeout.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/media/platform/ti-vpe/cal.c | 32 +++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+index 6c8f3702eac0..9dd6de14189b 100644
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -412,6 +412,8 @@ struct cal_ctx {
+ 	struct cal_buffer	*cur_frm;
+ 	/* Pointer pointing to next v4l2_buffer */
+ 	struct cal_buffer	*next_frm;
++
++	bool dma_act;
+ };
+ 
+ static const struct cal_fmt *find_format_by_pix(struct cal_ctx *ctx,
+@@ -942,6 +944,7 @@ static void csi2_lane_config(struct cal_ctx *ctx)
+ 
+ static void csi2_ppi_enable(struct cal_ctx *ctx)
+ {
++	reg_write(ctx->dev, CAL_CSI2_PPI_CTRL(ctx->csi2_port), BIT(3));
+ 	reg_write_field(ctx->dev, CAL_CSI2_PPI_CTRL(ctx->csi2_port),
+ 			CAL_GEN_ENABLE, CAL_CSI2_PPI_CTRL_IF_EN_MASK);
+ }
+@@ -1204,15 +1207,25 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
+ 		if (isportirqset(irqst2, 1)) {
+ 			ctx = dev->ctx[0];
+ 
++			spin_lock(&ctx->slock);
++			ctx->dma_act = false;
++
+ 			if (ctx->cur_frm != ctx->next_frm)
+ 				cal_process_buffer_complete(ctx);
++
++			spin_unlock(&ctx->slock);
+ 		}
+ 
+ 		if (isportirqset(irqst2, 2)) {
+ 			ctx = dev->ctx[1];
+ 
++			spin_lock(&ctx->slock);
++			ctx->dma_act = false;
++
+ 			if (ctx->cur_frm != ctx->next_frm)
+ 				cal_process_buffer_complete(ctx);
++
++			spin_unlock(&ctx->slock);
+ 		}
+ 	}
+ 
+@@ -1228,6 +1241,7 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
+ 			dma_q = &ctx->vidq;
+ 
+ 			spin_lock(&ctx->slock);
++			ctx->dma_act = true;
+ 			if (!list_empty(&dma_q->active) &&
+ 			    ctx->cur_frm == ctx->next_frm)
+ 				cal_schedule_next_buffer(ctx);
+@@ -1239,6 +1253,7 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
+ 			dma_q = &ctx->vidq;
+ 
+ 			spin_lock(&ctx->slock);
++			ctx->dma_act = true;
+ 			if (!list_empty(&dma_q->active) &&
+ 			    ctx->cur_frm == ctx->next_frm)
+ 				cal_schedule_next_buffer(ctx);
+@@ -1711,10 +1726,27 @@ static void cal_stop_streaming(struct vb2_queue *vq)
+ 	struct cal_ctx *ctx = vb2_get_drv_priv(vq);
+ 	struct cal_dmaqueue *dma_q = &ctx->vidq;
+ 	struct cal_buffer *buf, *tmp;
++	unsigned long timeout;
+ 	unsigned long flags;
+ 	int ret;
++	bool dma_act;
+ 
+ 	csi2_ppi_disable(ctx);
++
++	/* wait for stream and dma to finish */
++	dma_act = true;
++	timeout = jiffies + msecs_to_jiffies(500);
++	while (dma_act && time_before(jiffies, timeout)) {
++		msleep(50);
++
++		spin_lock_irqsave(&ctx->slock, flags);
++		dma_act = ctx->dma_act;
++		spin_unlock_irqrestore(&ctx->slock, flags);
++	}
++
++	if (dma_act)
++		ctx_err(ctx, "failed to disable dma cleanly\n");
++
+ 	disable_irqs(ctx);
+ 	csi2_phy_deinit(ctx);
+ 
+-- 
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+
