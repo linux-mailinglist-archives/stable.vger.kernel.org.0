@@ -2,105 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7723618C2A6
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 22:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 876AE18C2AC
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 23:00:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727338AbgCSV7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 17:59:22 -0400
-Received: from lelv0143.ext.ti.com ([198.47.23.248]:59566 "EHLO
-        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727257AbgCSV7W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 17:59:22 -0400
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 02JLxIPT102792;
-        Thu, 19 Mar 2020 16:59:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1584655158;
-        bh=AaDhPtzcI2QtHObcb78aZzBxAWoChbArkw0aB0Abv4w=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=kjCFhLmwgsfNbF/Uspzz8QIpMtsfzWQVIx5jV5vJqLLo8Ge8imOdix+hkGyeCsOX8
-         XqURNC0dR99NoROSSv3kNBw8ZgkkTOH03pYx4z6IYlkyPmLOQilwet3tJwIaGkzuAG
-         5p2glgaeeLk+Z5hViBaxVVA+s4U+9EE3Ayi9CYr8=
-Received: from DLEE104.ent.ti.com (dlee104.ent.ti.com [157.170.170.34])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id 02JLxIwm023878;
-        Thu, 19 Mar 2020 16:59:18 -0500
-Received: from DLEE100.ent.ti.com (157.170.170.30) by DLEE104.ent.ti.com
- (157.170.170.34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Thu, 19
- Mar 2020 16:59:18 -0500
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE100.ent.ti.com
- (157.170.170.30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
- Frontend Transport; Thu, 19 Mar 2020 16:59:17 -0500
-Received: from [10.250.87.129] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 02JLxHiA036297;
-        Thu, 19 Mar 2020 16:59:17 -0500
-Subject: Re: [PATCH v2] media: ov5640: fix use of destroyed mutex
-To:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Steve Longerbeam <slongerbeam@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        <linux-media@vger.kernel.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-CC:     <stable@vger.kernel.org>
-References: <20200313082258.6930-1-tomi.valkeinen@ti.com>
- <20200313131948.13803-1-tomi.valkeinen@ti.com>
-From:   Benoit Parrot <bparrot@ti.com>
-Message-ID: <1148f4ff-27a5-6b4b-125d-3bdabbe7aa6f@ti.com>
-Date:   Thu, 19 Mar 2020 16:59:17 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1727257AbgCSWAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 18:00:03 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:41135 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727364AbgCSWAB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 18:00:01 -0400
+Received: by mail-lj1-f194.google.com with SMTP id o10so4297483ljc.8
+        for <stable@vger.kernel.org>; Thu, 19 Mar 2020 15:00:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=bFyweR87uAdOCEm7xTt713Fc3fncIqKRE+WME6iIOUQ=;
+        b=wNxfuBN+7i3FIFSSR1i3rpA6HWWmv8GltC1J1EWA+g3Mbs1rYEmbYjOh2ytAgr9MvE
+         jBRbMwjZ53gpokr8kRh+j+52ZzA97tBAJGdkzOvUYLOSJ9rXlP9iU3q1VbgbKqjCmQkZ
+         lt3Df891zgxMh58yZRq13rSLtD3p2EIFvuZdmkLwUmvl4cgJ5BjpT4M4fsEcMGQc0NRf
+         Nv+hlYMAsCWQBbz28x54jeMUGktjTkHYBmALTfRyyMolY/UfHZCnGuV2lePrAIgCfUCD
+         xem0d0w8KR5Q/9DRuz4Edu8Q8a4yaBBFtR4hjR2PPnpBcvkeZCieSoQ3PfxnHYxgzn9A
+         V/Ug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=bFyweR87uAdOCEm7xTt713Fc3fncIqKRE+WME6iIOUQ=;
+        b=lF/Qja5hZqLAz37Pq3JsgmjSw8HFYv/hzRK+A5W3hm5Pn+0hQCS38tIQt4oaQEbvC+
+         UvQAta0S9kFK1kHiFrSe7N3KFDZsk7hAGQdGg0PIp95A9AyHGiKAQXI9oz5+RAXQ43zB
+         bVktwDp4pZWVVcBo8u0LOFqmAaolLxsiOL+2T1BaXIkDyWI9q931hTNI+IkVwIuPtTFS
+         bFdqa5wlpAlvWyMSx5VmyJeIwN7gxXRxu3p1s4H+oaK7IjG0eSox3F2uJONm7TCasT42
+         v8gB2kb4yyXULFsRt46fakI3oA4t/tBeuCR1fWvWhzHDDR6bXr4G0Wu8jzLV9L/1rHJ/
+         6s2Q==
+X-Gm-Message-State: ANhLgQ1c87nkt1YJDnLsLjthsOUcaDel0AkAkFOh2ssMUBob/+f+0sDJ
+        To/pYZTyvaCG24rJhwCudgbXQUmL+kwCspy/BVPrNQ==
+X-Google-Smtp-Source: ADFU+vu2sZ8HBWaMW/pSwoQOgl3ony6LuKicMRC7Nv865ID8NDs7KA1Je3JT/K2aJsYsD49MnLSl0pe9P8Y3jyoY/7g=
+X-Received: by 2002:a2e:990b:: with SMTP id v11mr3513597lji.243.1584655199510;
+ Thu, 19 Mar 2020 14:59:59 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200313131948.13803-1-tomi.valkeinen@ti.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+References: <20200319123919.441695203@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 20 Mar 2020 03:29:47 +0530
+Message-ID: <CA+G9fYvLC7xBuULxhG9yRi+EbUqmQjnS0X+0j-vGpX6XPVskOg@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/60] 5.4.27-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reviewed-by: Benoit Parrot <bparrot@ti.com>
+On Thu, 19 Mar 2020 at 18:52, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.27 release.
+> There are 60 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.27-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On 3/13/20 8:19 AM, Tomi Valkeinen wrote:
-> v4l2_ctrl_handler_free() uses hdl->lock, which in ov5640 driver is set
-> to sensor's own sensor->lock. In ov5640_remove(), the driver destroys the
-> sensor->lock first, and then calls v4l2_ctrl_handler_free(), resulting
-> in the use of the destroyed mutex.
-> 
-> Fix this by calling moving the mutex_destroy() to the end of the cleanup
-> sequence, as there's no need to destroy the mutex as early as possible.
-> 
-> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/media/i2c/ov5640.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-> index 854031f0b64a..2fe4a7ac0592 100644
-> --- a/drivers/media/i2c/ov5640.c
-> +++ b/drivers/media/i2c/ov5640.c
-> @@ -3093,8 +3093,8 @@ static int ov5640_probe(struct i2c_client *client)
->  free_ctrls:
->  	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
->  entity_cleanup:
-> -	mutex_destroy(&sensor->lock);
->  	media_entity_cleanup(&sensor->sd.entity);
-> +	mutex_destroy(&sensor->lock);
->  	return ret;
->  }
->  
-> @@ -3104,9 +3104,9 @@ static int ov5640_remove(struct i2c_client *client)
->  	struct ov5640_dev *sensor = to_ov5640_dev(sd);
->  
->  	v4l2_async_unregister_subdev(&sensor->sd);
-> -	mutex_destroy(&sensor->lock);
->  	media_entity_cleanup(&sensor->sd.entity);
->  	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
-> +	mutex_destroy(&sensor->lock);
->  
->  	return 0;
->  }
-> 
+Results from Linaro=E2=80=99s test farm.
+This regression is platform specific.
+
+On arm64 dragonboard 410c-QC410E* the LT hugemmap05 and
+hackbench test cases started failing on this build and easy to reproduce.
+Where as on other arm64 platforms (juno-r2, nxp-ls2088) these test PASS.
+
+These two test case scenario run on independent execution.
+
+Steps to reproduce,
+cd /opt/ltp
+./runltp -s hugemmap05
+
+cd /opt/ltp/testcases/bin
+./hackbench 50 process 1000
+./hackbench 20 thread 1000
+
+Test output log:
+--------------------
+hugemmap05.c:89: BROK: mmap((nil),402653184,3,1,6,0) failed: ENOMEM (12)
+tst_safe_sysv_ipc.c:99: BROK: hugemmap05.c:85: shmget(218431587,
+402653184, b80) failed: ENOMEM (12)
+
+Running with 50*40 (=3D=3D 2000) tasks.
+fork() (error: Resource temporarily unavailable)
+Running with 20*40 (=3D=3D 800) tasks.
+pthread_create failed: Resource temporarily unavailable (11)
+
+
+*
+RAM: 1GB LPDDR3 SDRAM @ 533MHz
+CPU: ARM Cortex-A53 Quad-core up to 1.2 GHz per core
+
+https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/tests/ltp-hugetlb=
+-tests/hugemmap05
+https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/tests/ltp-sched-t=
+ests/hackbench01
+https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/tests/ltp-sched-t=
+ests/hackbench02
+
+
+--
+Linaro LKFT
+https://lkft.linaro.org
