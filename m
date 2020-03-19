@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7360C18B68E
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:28:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D475E18B621
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:24:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730977AbgCSN2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:28:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56528 "EHLO mail.kernel.org"
+        id S1730470AbgCSNY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:24:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730971AbgCSN2A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:28:00 -0400
+        id S1730330AbgCSNY2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:24:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 650AF2080C;
-        Thu, 19 Mar 2020 13:27:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B201F207FC;
+        Thu, 19 Mar 2020 13:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624478;
-        bh=vxseYOJeQCS6fWbwxaaYEYi2MoV+stP5GL0I0dHdpzE=;
+        s=default; t=1584624268;
+        bh=4IvRtb3rTiuw17XBaIXnTOo3FQHO7gh5aQDy2qP9z9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LazX3j+roJopGq7AsF2RhF3vougycIJEHdBolNVH87Ca5wlgJZWP3aQULTc1iEhqO
-         kVvJKTznqznp58NCPaq2qn8yRtIe+R0UAOJlfX+lQJsV6jL3PloqBmcZ9DswrlXqGp
-         TMZXm80nTtzHEVs7HoDNp2tt1q49eHP3PBUqKMS0=
+        b=cWdlLPx86jn/B29bmvTiKk1XKy04wCnrpeYCU/75ad80Se3/DGKqN65OQLKzQFL9X
+         yf23iyIlHW2+4KuzVF1DeNJYx11m7rVioguwpOjE2yLYxD39P39/1HYOs8egIfbeXn
+         a6Maarc3V4ldQGfYEuL0yEwiFN3mK31rylYzOg44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 49/65] net: rmnet: remove rcu_read_lock in rmnet_force_unassociate_device()
+        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
+        Wen Gong <wgong@codeaurora.org>,
+        Doug Anderson <dianders@chromium.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 53/60] net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
 Date:   Thu, 19 Mar 2020 14:04:31 +0100
-Message-Id: <20200319123941.803097321@linuxfoundation.org>
+Message-Id: <20200319123936.120009983@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,95 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Carl Huang <cjhuang@codeaurora.org>
 
-[ Upstream commit c026d970102e9af9958edefb4a015702c6aab636 ]
+commit ce57785bf91b1ceaef4f4bffed8a47dc0919c8da upstream.
 
-The notifier_call() of the slave interface removes rmnet interface with
-unregister_netdevice_queue().
-But, before calling unregister_netdevice_queue(), it acquires
-rcu readlock.
-In the RCU critical section, sleeping isn't be allowed.
-But, unregister_netdevice_queue() internally calls synchronize_net(),
-which would sleep.
-So, suspicious RCU usage warning occurs.
+The len used for skb_put_padto is wrong, it need to add len of hdr.
 
-Test commands:
-    modprobe rmnet
-    ip link add dummy0 type dummy
-    ip link add dummy1 type dummy
-    ip link add rmnet0 link dummy0 type rmnet mux_id 1
-    ip link set dummy1 master rmnet0
-    ip link del dummy0
+In qrtr_node_enqueue, local variable size_t len is assign with
+skb->len, then skb_push(skb, sizeof(*hdr)) will add skb->len with
+sizeof(*hdr), so local variable size_t len is not same with skb->len
+after skb_push(skb, sizeof(*hdr)).
 
-Splat looks like:
-[   79.639245][ T1195] =============================
-[   79.640134][ T1195] WARNING: suspicious RCU usage
-[   79.640852][ T1195] 5.6.0-rc1+ #447 Not tainted
-[   79.641657][ T1195] -----------------------------
-[   79.642472][ T1195] ./include/linux/rcupdate.h:273 Illegal context switch in RCU read-side critical section!
-[   79.644043][ T1195]
-[   79.644043][ T1195] other info that might help us debug this:
-[   79.644043][ T1195]
-[   79.645682][ T1195]
-[   79.645682][ T1195] rcu_scheduler_active = 2, debug_locks = 1
-[   79.646980][ T1195] 2 locks held by ip/1195:
-[   79.647629][ T1195]  #0: ffffffffa3cf64f0 (rtnl_mutex){+.+.}, at: rtnetlink_rcv_msg+0x457/0x890
-[   79.649312][ T1195]  #1: ffffffffa39256c0 (rcu_read_lock){....}, at: rmnet_config_notify_cb+0xf0/0x590 [rmnet]
-[   79.651717][ T1195]
-[   79.651717][ T1195] stack backtrace:
-[   79.652650][ T1195] CPU: 3 PID: 1195 Comm: ip Not tainted 5.6.0-rc1+ #447
-[   79.653702][ T1195] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[   79.655037][ T1195] Call Trace:
-[   79.655560][ T1195]  dump_stack+0x96/0xdb
-[   79.656252][ T1195]  ___might_sleep+0x345/0x440
-[   79.656994][ T1195]  synchronize_net+0x18/0x30
-[   79.661132][ T1195]  netdev_rx_handler_unregister+0x40/0xb0
-[   79.666266][ T1195]  rmnet_unregister_real_device+0x42/0xb0 [rmnet]
-[   79.667211][ T1195]  rmnet_config_notify_cb+0x1f7/0x590 [rmnet]
-[   79.668121][ T1195]  ? rmnet_unregister_bridge.isra.6+0xf0/0xf0 [rmnet]
-[   79.669166][ T1195]  ? rmnet_unregister_bridge.isra.6+0xf0/0xf0 [rmnet]
-[   79.670286][ T1195]  ? __module_text_address+0x13/0x140
-[   79.671139][ T1195]  notifier_call_chain+0x90/0x160
-[   79.671973][ T1195]  rollback_registered_many+0x660/0xcf0
-[   79.672893][ T1195]  ? netif_set_real_num_tx_queues+0x780/0x780
-[   79.675091][ T1195]  ? __lock_acquire+0xdfe/0x3de0
-[   79.675825][ T1195]  ? memset+0x1f/0x40
-[   79.676367][ T1195]  ? __nla_validate_parse+0x98/0x1ab0
-[   79.677290][ T1195]  unregister_netdevice_many.part.133+0x13/0x1b0
-[   79.678163][ T1195]  rtnl_delete_link+0xbc/0x100
-[ ... ]
+Then the purpose of skb_put_padto(skb, ALIGN(len, 4)) is to add add
+pad to the end of the skb's data if skb->len is not aligned to 4, but
+unfortunately it use len instead of skb->len, at this line, skb->len
+is 32 bytes(sizeof(*hdr)) more than len, for example, len is 3 bytes,
+then skb->len is 35 bytes(3 + 32), and ALIGN(len, 4) is 4 bytes, so
+__skb_put_padto will do nothing after check size(35) < len(4), the
+correct value should be 36(sizeof(*hdr) + ALIGN(len, 4) = 32 + 4),
+then __skb_put_padto will pass check size(35) < len(36) and add 1 byte
+to the end of skb's data, then logic is correct.
 
-Fixes: ceed73a2cf4a ("drivers: net: ethernet: qualcomm: rmnet: Initial implementation")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+function of skb_push:
+void *skb_push(struct sk_buff *skb, unsigned int len)
+{
+	skb->data -= len;
+	skb->len  += len;
+	if (unlikely(skb->data < skb->head))
+		skb_under_panic(skb, len, __builtin_return_address(0));
+	return skb->data;
+}
+
+function of skb_put_padto
+static inline int skb_put_padto(struct sk_buff *skb, unsigned int len)
+{
+	return __skb_put_padto(skb, len, true);
+}
+
+function of __skb_put_padto
+static inline int __skb_put_padto(struct sk_buff *skb, unsigned int len,
+				  bool free_on_error)
+{
+	unsigned int size = skb->len;
+
+	if (unlikely(size < len)) {
+		len -= size;
+		if (__skb_pad(skb, len, free_on_error))
+			return -ENOMEM;
+		__skb_put(skb, len);
+	}
+	return 0;
+}
+
+Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Cc: Doug Anderson <dianders@chromium.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/qrtr/qrtr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-index fc68ecdd804bc..0ad64aa665925 100644
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-@@ -230,7 +230,6 @@ static void rmnet_force_unassociate_device(struct net_device *dev)
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -196,7 +196,7 @@ static int qrtr_node_enqueue(struct qrtr
+ 	hdr->size = cpu_to_le32(len);
+ 	hdr->confirm_rx = 0;
  
- 	port = rmnet_get_port_rtnl(dev);
+-	skb_put_padto(skb, ALIGN(len, 4));
++	skb_put_padto(skb, ALIGN(len, 4) + sizeof(*hdr));
  
--	rcu_read_lock();
- 	rmnet_unregister_bridge(dev, port);
- 
- 	hash_for_each_safe(port->muxed_ep, bkt_ep, tmp_ep, ep, hlnode) {
-@@ -241,7 +240,6 @@ static void rmnet_force_unassociate_device(struct net_device *dev)
- 		kfree(ep);
- 	}
- 
--	rcu_read_unlock();
- 	unregister_netdevice_many(&list);
- 
- 	rmnet_unregister_real_device(real_dev, port);
--- 
-2.20.1
-
+ 	mutex_lock(&node->ep_lock);
+ 	if (node->ep)
 
 
