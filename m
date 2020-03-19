@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A952D18B52B
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:16:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87BC118B52D
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:16:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727220AbgCSNQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:16:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36422 "EHLO mail.kernel.org"
+        id S1729525AbgCSNQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:16:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729483AbgCSNQN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:16:13 -0400
+        id S1729514AbgCSNQQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:16:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4A5720724;
-        Thu, 19 Mar 2020 13:16:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CBB62098B;
+        Thu, 19 Mar 2020 13:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623772;
-        bh=Q5wpVU1xu8wGACPp+m7pI66Up6viVKtEFbyPFoD1gG0=;
+        s=default; t=1584623775;
+        bh=OU9xDqI8khvrH0/UAQuDU7o9+9nS5Mv0gt/KO/bBxt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ahvrs+VPgSYQu6KAC63ox+evZh6b0XhRi4hP8cFoIhhivsYlg1z0VrB0tszbkD7IX
-         FFCaYHt53XaLGkALfphY3jn6WK1i3AVQVA2DzeBIs/mKSzO65YpfEt3lKN+dwBf0ER
-         EIYs8h06EpVQg1fFlb/aW5mvoCF34ZEhOGq9yTeU=
+        b=hcJTfyck+omDYOOGOl7kqJS2IGtyqJQf7c8wdUwbOqRRYE+rhR5JkQdVWUKxmoOVH
+         86NMA6kEj+AriWLbxwGtUO1zhnAuSI8r7DXoRguXunT2RCRKb73CUla5UTRl9osQ0x
+         VG0MsaL+kPk1LQ0/FkKcffVEa/yaenmeL0tmmHrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladis Dronov <vdronov@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Bob Sanders <bob.sanders@hpe.com>
-Subject: [PATCH 4.14 49/99] efi: Fix a race and a buffer overflow while reading efivars via sysfs
-Date:   Thu, 19 Mar 2020 14:03:27 +0100
-Message-Id: <20200319123956.785011253@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.14 50/99] x86/mce: Fix logic and comments around MSR_PPIN_CTL
+Date:   Thu, 19 Mar 2020 14:03:28 +0100
+Message-Id: <20200319123957.111746840@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
 References: <20200319123941.630731708@linuxfoundation.org>
@@ -45,138 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladis Dronov <vdronov@redhat.com>
+From: Tony Luck <tony.luck@intel.com>
 
-commit 286d3250c9d6437340203fb64938bea344729a0e upstream.
+commit 59b5809655bdafb0767d3fd00a3e41711aab07e6 upstream.
 
-There is a race and a buffer overflow corrupting a kernel memory while
-reading an EFI variable with a size more than 1024 bytes via the older
-sysfs method. This happens because accessing struct efi_variable in
-efivar_{attr,size,data}_read() and friends is not protected from
-a concurrent access leading to a kernel memory corruption and, at best,
-to a crash. The race scenario is the following:
+There are two implemented bits in the PPIN_CTL MSR:
 
-CPU0:                                CPU1:
-efivar_attr_read()
-  var->DataSize = 1024;
-  efivar_entry_get(... &var->DataSize)
-    down_interruptible(&efivars_lock)
-                                     efivar_attr_read() // same EFI var
-                                       var->DataSize = 1024;
-                                       efivar_entry_get(... &var->DataSize)
-                                         down_interruptible(&efivars_lock)
-    virt_efi_get_variable()
-    // returns EFI_BUFFER_TOO_SMALL but
-    // var->DataSize is set to a real
-    // var size more than 1024 bytes
-    up(&efivars_lock)
-                                         virt_efi_get_variable()
-                                         // called with var->DataSize set
-                                         // to a real var size, returns
-                                         // successfully and overwrites
-                                         // a 1024-bytes kernel buffer
-                                         up(&efivars_lock)
+Bit 0: LockOut (R/WO)
+      Set 1 to prevent further writes to MSR_PPIN_CTL.
 
-This can be reproduced by concurrent reading of an EFI variable which size
-is more than 1024 bytes:
+Bit 1: Enable_PPIN (R/W)
+       If 1, enables MSR_PPIN to be accessible using RDMSR.
+       If 0, an attempt to read MSR_PPIN will cause #GP.
 
-  ts# for cpu in $(seq 0 $(nproc --ignore=1)); do ( taskset -c $cpu \
-  cat /sys/firmware/efi/vars/KEKDefault*/size & ) ; done
+So there are four defined values:
+	0: PPIN is disabled, PPIN_CTL may be updated
+	1: PPIN is disabled. PPIN_CTL is locked against updates
+	2: PPIN is enabled. PPIN_CTL may be updated
+	3: PPIN is enabled. PPIN_CTL is locked against updates
 
-Fix this by using a local variable for a var's data buffer size so it
-does not get overwritten.
+Code would only enable the X86_FEATURE_INTEL_PPIN feature for case "2".
+When it should have done so for both case "2" and case "3".
 
-Fixes: e14ab23dde12b80d ("efivars: efivar_entry API")
-Reported-by: Bob Sanders <bob.sanders@hpe.com> and the LTP testsuite
-Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fix the final test to just check for the enable bit. Also fix some of
+the other comments in this function.
+
+Fixes: 3f5a7896a509 ("x86/mce: Include the PPIN in MCE records when available")
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200305084041.24053-2-vdronov@redhat.com
-Link: https://lore.kernel.org/r/20200308080859.21568-24-ardb@kernel.org
+Link: https://lkml.kernel.org/r/20200226011737.9958-1-tony.luck@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/efi/efivars.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ arch/x86/kernel/cpu/mcheck/mce_intel.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/firmware/efi/efivars.c
-+++ b/drivers/firmware/efi/efivars.c
-@@ -139,13 +139,16 @@ static ssize_t
- efivar_attr_read(struct efivar_entry *entry, char *buf)
- {
- 	struct efi_variable *var = &entry->var;
-+	unsigned long size = sizeof(var->Data);
- 	char *str = buf;
-+	int ret;
+--- a/arch/x86/kernel/cpu/mcheck/mce_intel.c
++++ b/arch/x86/kernel/cpu/mcheck/mce_intel.c
+@@ -489,17 +489,18 @@ static void intel_ppin_init(struct cpuin
+ 			return;
  
- 	if (!entry || !buf)
- 		return -EINVAL;
+ 		if ((val & 3UL) == 1UL) {
+-			/* PPIN available but disabled: */
++			/* PPIN locked in disabled mode */
+ 			return;
+ 		}
  
--	var->DataSize = 1024;
--	if (efivar_entry_get(entry, &var->Attributes, &var->DataSize, var->Data))
-+	ret = efivar_entry_get(entry, &var->Attributes, &size, var->Data);
-+	var->DataSize = size;
-+	if (ret)
- 		return -EIO;
+-		/* If PPIN is disabled, but not locked, try to enable: */
+-		if (!(val & 3UL)) {
++		/* If PPIN is disabled, try to enable */
++		if (!(val & 2UL)) {
+ 			wrmsrl_safe(MSR_PPIN_CTL,  val | 2UL);
+ 			rdmsrl_safe(MSR_PPIN_CTL, &val);
+ 		}
  
- 	if (var->Attributes & EFI_VARIABLE_NON_VOLATILE)
-@@ -172,13 +175,16 @@ static ssize_t
- efivar_size_read(struct efivar_entry *entry, char *buf)
- {
- 	struct efi_variable *var = &entry->var;
-+	unsigned long size = sizeof(var->Data);
- 	char *str = buf;
-+	int ret;
- 
- 	if (!entry || !buf)
- 		return -EINVAL;
- 
--	var->DataSize = 1024;
--	if (efivar_entry_get(entry, &var->Attributes, &var->DataSize, var->Data))
-+	ret = efivar_entry_get(entry, &var->Attributes, &size, var->Data);
-+	var->DataSize = size;
-+	if (ret)
- 		return -EIO;
- 
- 	str += sprintf(str, "0x%lx\n", var->DataSize);
-@@ -189,12 +195,15 @@ static ssize_t
- efivar_data_read(struct efivar_entry *entry, char *buf)
- {
- 	struct efi_variable *var = &entry->var;
-+	unsigned long size = sizeof(var->Data);
-+	int ret;
- 
- 	if (!entry || !buf)
- 		return -EINVAL;
- 
--	var->DataSize = 1024;
--	if (efivar_entry_get(entry, &var->Attributes, &var->DataSize, var->Data))
-+	ret = efivar_entry_get(entry, &var->Attributes, &size, var->Data);
-+	var->DataSize = size;
-+	if (ret)
- 		return -EIO;
- 
- 	memcpy(buf, var->Data, var->DataSize);
-@@ -314,14 +323,16 @@ efivar_show_raw(struct efivar_entry *ent
- {
- 	struct efi_variable *var = &entry->var;
- 	struct compat_efi_variable *compat;
-+	unsigned long datasize = sizeof(var->Data);
- 	size_t size;
-+	int ret;
- 
- 	if (!entry || !buf)
- 		return 0;
- 
--	var->DataSize = 1024;
--	if (efivar_entry_get(entry, &entry->var.Attributes,
--			     &entry->var.DataSize, entry->var.Data))
-+	ret = efivar_entry_get(entry, &var->Attributes, &datasize, var->Data);
-+	var->DataSize = datasize;
-+	if (ret)
- 		return -EIO;
- 
- 	if (is_compat()) {
+-		if ((val & 3UL) == 2UL)
++		/* Is the enable bit set? */
++		if (val & 2UL)
+ 			set_cpu_cap(c, X86_FEATURE_INTEL_PPIN);
+ 	}
+ }
 
 
