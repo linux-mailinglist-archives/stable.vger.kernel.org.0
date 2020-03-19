@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A22E18B68C
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:28:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BAB418B692
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:28:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730959AbgCSN1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:27:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56374 "EHLO mail.kernel.org"
+        id S1730967AbgCSN16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:27:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730785AbgCSN1x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:27:53 -0400
+        id S1730963AbgCSN15 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:27:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A6B120658;
-        Thu, 19 Mar 2020 13:27:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD414208D6;
+        Thu, 19 Mar 2020 13:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624472;
-        bh=TpFKppsHlbmQgTv/fK2iH3Nvlu/Qp5uatdLZ8XR+MIo=;
+        s=default; t=1584624476;
+        bh=bUaOVor2yx1FOOgO8uJd78Y2jDFUGYryKlGVpqN3LX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfJ+fSYzI5OqESXuDK3KZbb4Smj8Lv4ABMZO/AIHUoGYgsg822xGoPvmdqTW0HN0C
-         32g3ebeb9vkzEDoZA/HrBy6TzAR+qgQpx6QEBeC5x+Tz9ssWFA6OzKFSLJEC9eKnBF
-         MajGfzDJ7cj0n4WsZdjvhkklOJ9rUHcaGvKOn3bA=
+        b=Ixnl/9SDfI+udjt2Ulumf7qRzQlvWI1EB1MVIAVi02kj6VHcE3AzjSOVBsVVRQPso
+         YE4r8/Ig4idFWnlLohbDeQQSivV6+yMwF9CHUn/uF//Ow3JkvB3PKYO5dD8MZP7RGv
+         g689/b8UKh3Z//TiVCQFHuZdsJZA2DmHgLrmWC7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Qian Cai <cai@lca.pw>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 57/65] jbd2: fix data races at struct journal_head
-Date:   Thu, 19 Mar 2020 14:04:39 +0100
-Message-Id: <20200319123944.322675087@linuxfoundation.org>
+Subject: [PATCH 5.5 58/65] blk-mq: insert flush request to the front of dispatch queue
+Date:   Thu, 19 Mar 2020 14:04:40 +0100
+Message-Id: <20200319123944.552521031@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
 References: <20200319123926.466988514@linuxfoundation.org>
@@ -44,110 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 6c5d911249290f41f7b50b43344a7520605b1acb ]
+[ Upstream commit cc3200eac4c5eb11c3f34848a014d1f286316310 ]
 
-journal_head::b_transaction and journal_head::b_next_transaction could
-be accessed concurrently as noticed by KCSAN,
+commit 01e99aeca397 ("blk-mq: insert passthrough request into
+hctx->dispatch directly") may change to add flush request to the tail
+of dispatch by applying the 'add_head' parameter of
+blk_mq_sched_insert_request.
 
- LTP: starting fsync04
- /dev/zero: Can't open blockdev
- EXT4-fs (loop0): mounting ext3 file system using the ext4 subsystem
- EXT4-fs (loop0): mounted filesystem with ordered data mode. Opts: (null)
- ==================================================================
- BUG: KCSAN: data-race in __jbd2_journal_refile_buffer [jbd2] / jbd2_write_access_granted [jbd2]
+Turns out this way causes performance regression on NCQ controller because
+flush is non-NCQ command, which can't be queued when there is any in-flight
+NCQ command. When adding flush rq to the front of hctx->dispatch, it is
+easier to introduce extra time to flush rq's latency compared with adding
+to the tail of dispatch queue because of S_SCHED_RESTART, then chance of
+flush merge is increased, and less flush requests may be issued to
+controller.
 
- write to 0xffff99f9b1bd0e30 of 8 bytes by task 25721 on cpu 70:
-  __jbd2_journal_refile_buffer+0xdd/0x210 [jbd2]
-  __jbd2_journal_refile_buffer at fs/jbd2/transaction.c:2569
-  jbd2_journal_commit_transaction+0x2d15/0x3f20 [jbd2]
-  (inlined by) jbd2_journal_commit_transaction at fs/jbd2/commit.c:1034
-  kjournald2+0x13b/0x450 [jbd2]
-  kthread+0x1cd/0x1f0
-  ret_from_fork+0x27/0x50
+So always insert flush request to the front of dispatch queue just like
+before applying commit 01e99aeca397 ("blk-mq: insert passthrough request
+into hctx->dispatch directly").
 
- read to 0xffff99f9b1bd0e30 of 8 bytes by task 25724 on cpu 68:
-  jbd2_write_access_granted+0x1b2/0x250 [jbd2]
-  jbd2_write_access_granted at fs/jbd2/transaction.c:1155
-  jbd2_journal_get_write_access+0x2c/0x60 [jbd2]
-  __ext4_journal_get_write_access+0x50/0x90 [ext4]
-  ext4_mb_mark_diskspace_used+0x158/0x620 [ext4]
-  ext4_mb_new_blocks+0x54f/0xca0 [ext4]
-  ext4_ind_map_blocks+0xc79/0x1b40 [ext4]
-  ext4_map_blocks+0x3b4/0x950 [ext4]
-  _ext4_get_block+0xfc/0x270 [ext4]
-  ext4_get_block+0x3b/0x50 [ext4]
-  __block_write_begin_int+0x22e/0xae0
-  __block_write_begin+0x39/0x50
-  ext4_write_begin+0x388/0xb50 [ext4]
-  generic_perform_write+0x15d/0x290
-  ext4_buffered_write_iter+0x11f/0x210 [ext4]
-  ext4_file_write_iter+0xce/0x9e0 [ext4]
-  new_sync_write+0x29c/0x3b0
-  __vfs_write+0x92/0xa0
-  vfs_write+0x103/0x260
-  ksys_write+0x9d/0x130
-  __x64_sys_write+0x4c/0x60
-  do_syscall_64+0x91/0xb05
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
- 5 locks held by fsync04/25724:
-  #0: ffff99f9911093f8 (sb_writers#13){.+.+}, at: vfs_write+0x21c/0x260
-  #1: ffff99f9db4c0348 (&sb->s_type->i_mutex_key#15){+.+.}, at: ext4_buffered_write_iter+0x65/0x210 [ext4]
-  #2: ffff99f5e7dfcf58 (jbd2_handle){++++}, at: start_this_handle+0x1c1/0x9d0 [jbd2]
-  #3: ffff99f9db4c0168 (&ei->i_data_sem){++++}, at: ext4_map_blocks+0x176/0x950 [ext4]
-  #4: ffffffff99086b40 (rcu_read_lock){....}, at: jbd2_write_access_granted+0x4e/0x250 [jbd2]
- irq event stamp: 1407125
- hardirqs last  enabled at (1407125): [<ffffffff980da9b7>] __find_get_block+0x107/0x790
- hardirqs last disabled at (1407124): [<ffffffff980da8f9>] __find_get_block+0x49/0x790
- softirqs last  enabled at (1405528): [<ffffffff98a0034c>] __do_softirq+0x34c/0x57c
- softirqs last disabled at (1405521): [<ffffffff97cc67a2>] irq_exit+0xa2/0xc0
-
- Reported by Kernel Concurrency Sanitizer on:
- CPU: 68 PID: 25724 Comm: fsync04 Tainted: G L 5.6.0-rc2-next-20200221+ #7
- Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
-
-The plain reads are outside of jh->b_state_lock critical section which result
-in data races. Fix them by adding pairs of READ|WRITE_ONCE().
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/r/20200222043111.2227-1-cai@lca.pw
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>
+Cc: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reported-by: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Fixes: 01e99aeca397 ("blk-mq: insert passthrough request into hctx->dispatch directly")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/transaction.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ block/blk-mq-sched.c |   22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
-index ab1078e85a58e..295e3cdb4461b 100644
---- a/fs/jbd2/transaction.c
-+++ b/fs/jbd2/transaction.c
-@@ -1150,8 +1150,8 @@ static bool jbd2_write_access_granted(handle_t *handle, struct buffer_head *bh,
- 	/* For undo access buffer must have data copied */
- 	if (undo && !jh->b_committed_data)
- 		goto out;
--	if (jh->b_transaction != handle->h_transaction &&
--	    jh->b_next_transaction != handle->h_transaction)
-+	if (READ_ONCE(jh->b_transaction) != handle->h_transaction &&
-+	    READ_ONCE(jh->b_next_transaction) != handle->h_transaction)
- 		goto out;
- 	/*
- 	 * There are two reasons for the barrier here:
-@@ -2569,8 +2569,8 @@ bool __jbd2_journal_refile_buffer(struct journal_head *jh)
- 	 * our jh reference and thus __jbd2_journal_file_buffer() must not
- 	 * take a new one.
- 	 */
--	jh->b_transaction = jh->b_next_transaction;
--	jh->b_next_transaction = NULL;
-+	WRITE_ONCE(jh->b_transaction, jh->b_next_transaction);
-+	WRITE_ONCE(jh->b_next_transaction, NULL);
- 	if (buffer_freed(bh))
- 		jlist = BJ_Forget;
- 	else if (jh->b_modified)
--- 
-2.20.1
-
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -398,6 +398,28 @@ void blk_mq_sched_insert_request(struct
+ 	WARN_ON(e && (rq->tag != -1));
+ 
+ 	if (blk_mq_sched_bypass_insert(hctx, !!e, rq)) {
++		/*
++		 * Firstly normal IO request is inserted to scheduler queue or
++		 * sw queue, meantime we add flush request to dispatch queue(
++		 * hctx->dispatch) directly and there is at most one in-flight
++		 * flush request for each hw queue, so it doesn't matter to add
++		 * flush request to tail or front of the dispatch queue.
++		 *
++		 * Secondly in case of NCQ, flush request belongs to non-NCQ
++		 * command, and queueing it will fail when there is any
++		 * in-flight normal IO request(NCQ command). When adding flush
++		 * rq to the front of hctx->dispatch, it is easier to introduce
++		 * extra time to flush rq's latency because of S_SCHED_RESTART
++		 * compared with adding to the tail of dispatch queue, then
++		 * chance of flush merge is increased, and less flush requests
++		 * will be issued to controller. It is observed that ~10% time
++		 * is saved in blktests block/004 on disk attached to AHCI/NCQ
++		 * drive when adding flush rq to the front of hctx->dispatch.
++		 *
++		 * Simply queue flush rq to the front of hctx->dispatch so that
++		 * intensive flush workloads can benefit in case of NCQ HW.
++		 */
++		at_head = (rq->rq_flags & RQF_FLUSH_SEQ) ? true : at_head;
+ 		blk_mq_request_bypass_insert(rq, at_head, false);
+ 		goto run;
+ 	}
 
 
