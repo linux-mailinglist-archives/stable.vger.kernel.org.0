@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7568A18B7CC
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:36:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F3A918B822
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728429AbgCSNJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:09:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54578 "EHLO mail.kernel.org"
+        id S1727609AbgCSNGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:06:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728424AbgCSNJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:09:58 -0400
+        id S1727601AbgCSNGL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:06:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2340E208D6;
-        Thu, 19 Mar 2020 13:09:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01E2820740;
+        Thu, 19 Mar 2020 13:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623397;
-        bh=tIDuFIuCHpKAC0CNL2sqNH/zangInW0CyT/NEaHTTQY=;
+        s=default; t=1584623171;
+        bh=8mjxTOiY7jUCy5oNZ2Nth+B6EYgs6wniQaBkZLtmxKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkIOsiknAI4Ducfk+xaNgipLArCFaapH2kKvGk29EU+rmh5czJWcqTRQW+JleK21z
-         35Z531HWUqoHJs0hhlH0JuFg2lvpbP5/Fmpf5YdrB66yE7+ZISu1EEVduMthzjpVjv
-         hP2Dwj0tBRlgtOAZCg9OZ+PuK4QNjmgN73JlPWmY=
+        b=Na0sal0KhaTDskgiYkHQF97j71EE+3coc7d+58k91uT60UdhvDr9Cw3bD9dQRO52P
+         IMWUE1MEVXpIf1FjuyKDpw9nqPFDA+Nwg9AdbOLgBUte4JWyx9RYfbmIDOEd+62ue2
+         waZkmvzT+pw19D2pMDVv7nQc2hIQnyvN7d7idkt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 13/90] nl802154: add missing attribute validation for dev_type
-Date:   Thu, 19 Mar 2020 13:59:35 +0100
-Message-Id: <20200319123932.815020180@linuxfoundation.org>
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.4 32/93] netfilter: cthelper: add missing attribute validation for cthelper
+Date:   Thu, 19 Mar 2020 13:59:36 +0100
+Message-Id: <20200319123935.158649931@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
-References: <20200319123928.635114118@linuxfoundation.org>
+In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
+References: <20200319123924.795019515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,29 +45,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit b60673c4c418bef7550d02faf53c34fbfeb366bf ]
+commit c049b3450072b8e3998053490e025839fecfef31 upstream.
 
-Add missing attribute type validation for IEEE802154_ATTR_DEV_TYPE
+Add missing attribute validation for cthelper
 to the netlink policy.
 
-Fixes: 90c049b2c6ae ("ieee802154: interface type to be added")
+Fixes: 12f7a505331e ("netfilter: add user-space connection tracking helper infrastructure")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ieee802154/nl_policy.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/ieee802154/nl_policy.c
-+++ b/net/ieee802154/nl_policy.c
-@@ -36,6 +36,7 @@ const struct nla_policy ieee802154_polic
- 	[IEEE802154_ATTR_BAT_EXT] = { .type = NLA_U8, },
- 	[IEEE802154_ATTR_COORD_REALIGN] = { .type = NLA_U8, },
- 	[IEEE802154_ATTR_PAGE] = { .type = NLA_U8, },
-+	[IEEE802154_ATTR_DEV_TYPE] = { .type = NLA_U8, },
- 	[IEEE802154_ATTR_COORD_SHORT_ADDR] = { .type = NLA_U16, },
- 	[IEEE802154_ATTR_COORD_HW_ADDR] = { .type = NLA_HW_ADDR, },
- 	[IEEE802154_ATTR_COORD_PAN_ID] = { .type = NLA_U16, },
+---
+ net/netfilter/nfnetlink_cthelper.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/net/netfilter/nfnetlink_cthelper.c
++++ b/net/netfilter/nfnetlink_cthelper.c
+@@ -711,6 +711,8 @@ static const struct nla_policy nfnl_cthe
+ 	[NFCTH_NAME] = { .type = NLA_NUL_STRING,
+ 			 .len = NF_CT_HELPER_NAME_LEN-1 },
+ 	[NFCTH_QUEUE_NUM] = { .type = NLA_U32, },
++	[NFCTH_PRIV_DATA_LEN] = { .type = NLA_U32, },
++	[NFCTH_STATUS] = { .type = NLA_U32, },
+ };
+ 
+ static const struct nfnl_callback nfnl_cthelper_cb[NFNL_MSG_CTHELPER_MAX] = {
 
 
