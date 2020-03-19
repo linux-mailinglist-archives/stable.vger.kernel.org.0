@@ -2,67 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B46518A9C9
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 01:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1212218AA51
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 02:33:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbgCSAal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 Mar 2020 20:30:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46816 "EHLO mail.kernel.org"
+        id S1726663AbgCSBdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 Mar 2020 21:33:33 -0400
+Received: from frisell.zx2c4.com ([192.95.5.64]:37707 "EHLO frisell.zx2c4.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726663AbgCSAal (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 18 Mar 2020 20:30:41 -0400
-Received: from sol.localdomain (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4441E2076C;
-        Thu, 19 Mar 2020 00:30:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584577840;
-        bh=lGgOA8i9jqfs6+LhGMKQbt8ZockuHa4KYi8DijDb9RM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=I8XA+ek/ePQChr2azNKS8Pf09LUP95nJo4TgNt/1yTH1WEtvqN+mTNWIsuWIktOWI
-         Fe3Pflwm6UytXRO3JVWX58IuV7L4/vb/AzKT4fhWWgflOyzHcR8obIWbeEThDnHFOl
-         QL2gum5qOCMvBHFEhEC2wfQtuxBo+mkQUy/spfBw=
-Date:   Wed, 18 Mar 2020 17:30:38 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        gregkh@linuxfoundation.org, herbert@gondor.apana.org.au,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
+        id S1726623AbgCSBdd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 18 Mar 2020 21:33:33 -0400
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id ab13c9fe;
+        Thu, 19 Mar 2020 01:27:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
+        :references:in-reply-to:from:date:message-id:subject:to:cc
+        :content-type; s=mail; bh=tbcq0Axwh/JCWoU7MoZFYwgJiLg=; b=YDvQto
+        OSHTMslNq2WZ1KXNACW9+HFA8PUj+L0xzCytT/Yf3Erm0TadPRNyDbo3hlNcQDtP
+        QFSoNA9at8Y0pc05Cv0I7js9EJo5ibqIleXIYbEdOxiNiy4zXC+nJYf+w12ILRLe
+        gMC9tomWTsuamgpbLfzXI7WO2Sg+hfFntfw1akLVVY4+IRIrRAEBMBced92ZRdyg
+        gO6wnXDlpA1/mAZXmYOUGTTZdnrAUojCzgkeKQahd/7QhjwuFlva8lT+pH4IoRgR
+        6y5XXHjwwAxdqKk/MWfrtxFgK3959VJt0t82BCvD3dHrX6GNLmorrFydm93DsoX4
+        Tobk62KxeByIuxbw==
+Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id e9c52afb (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
+        Thu, 19 Mar 2020 01:27:04 +0000 (UTC)
+Received: by mail-il1-f169.google.com with SMTP id p1so737731ils.5;
+        Wed, 18 Mar 2020 18:33:29 -0700 (PDT)
+X-Gm-Message-State: ANhLgQ1l+qhaRz9jed+HRS5mZKCweV6/lp4nFaqvRZpCDXDU4VQUhu2T
+        W5nQY4i2i/rs8Ub/4/hQPOWNwtNYpR1UgJ3T0N4=
+X-Google-Smtp-Source: ADFU+vvrGYpI+OaDphhDjrefdHS6y36hdlyfqznfvb/SncGk9mGJ8cnLFNQbtq7omqAImuJ0wndJxEnWVJhEI6H4xo0=
+X-Received: by 2002:a92:c52b:: with SMTP id m11mr1034387ili.38.1584581609026;
+ Wed, 18 Mar 2020 18:33:29 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200318234518.83906-1-Jason@zx2c4.com> <20200319002359.GF2334@sol.localdomain>
+In-Reply-To: <20200319002359.GF2334@sol.localdomain>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Wed, 18 Mar 2020 19:33:18 -0600
+X-Gmail-Original-Message-ID: <CAHmME9otcAe7H4Anan8Tv1KreTZtwt4XXEPMG--x2Ljr0M+o1Q@mail.gmail.com>
+Message-ID: <CAHmME9otcAe7H4Anan8Tv1KreTZtwt4XXEPMG--x2Ljr0M+o1Q@mail.gmail.com>
 Subject: Re: [PATCH URGENT crypto] crypto: arm64/chacha - correctly walk
  through blocks
-Message-ID: <20200319003038.GG2334@sol.localdomain>
-References: <20200318234518.83906-1-Jason@zx2c4.com>
- <20200319002359.GF2334@sol.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200319002359.GF2334@sol.localdomain>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 18, 2020 at 05:24:01PM -0700, Eric Biggers wrote:
-> Hi Jason,
-> 
-> On Wed, Mar 18, 2020 at 05:45:18PM -0600, Jason A. Donenfeld wrote:
-> > Prior, passing in chunks of 2, 3, or 4, followed by any additional
-> > chunks would result in the chacha state counter getting out of sync,
-> > resulting in incorrect encryption/decryption, which is a pretty nasty
-> > crypto vuln, dating back to 2018. WireGuard users never experienced this
-> > prior, because we have always, out of tree, used a different crypto
-> > library, until the recent Frankenzinc addition. This commit fixes the
-> > issue by advancing the pointers and state counter by the actual size
-> > processed.
-> > 
-> > Fixes: f2ca1cbd0fb5 ("crypto: arm64/chacha - optimize for arbitrary length inputs")
-> > Reported-and-tested-by: Emil Renner Berthing <kernel@esmil.dk>
-> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > Cc: Ard Biesheuvel <ardb@kernel.org>
-> > Cc: stable@vger.kernel.org
-> 
+Hey Eric,
+
+On Wed, Mar 18, 2020 at 6:24 PM Eric Biggers <ebiggers@kernel.org> wrote:
 > Thanks for fixing this!  We definitely should get this fix to Linus for 5.6.
 > But I don't think your description of this bug dating back to 2018 is accurate,
 > because this bug only affects the new library interface to ChaCha20 which was
@@ -71,7 +65,17 @@ On Wed, Mar 18, 2020 at 05:24:01PM -0700, Eric Biggers wrote:
 > multiple of '5 * CHACHA_BLOCK_SIZE' except at the end.  Thus the code worked
 > fine with the regular crypto API.
 
-So I think it's actually:
+Ahhh, that seems correct.
 
-Fixes: b3aad5bad26a ("crypto: arm64/chacha - expose arm64 ChaCha routine as library function")
-Cc: <stable@vger.kernel.org> # v5.5+
+> > +             state[12] += round_up(l, CHACHA_BLOCK_SIZE) / CHACHA_BLOCK_SIZE;
+>
+> Use DIV_ROUND_UP(l, CHACHA_BLOCK_SIZE)?
+
+Duh, oops, thanks. Will send a v2 in a few minutes.
+
+By the way, I took a brief look at the other implementations
+accessible from lib/crypto and I didn't see the same issue over there.
+But I wouldn't mind an extra pair of eyes, if you want to give it a
+quick look too.
+
+Jason
