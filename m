@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 545E918B412
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC98518B477
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:10:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727141AbgCSNGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:06:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49690 "EHLO mail.kernel.org"
+        id S1727817AbgCSNKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:10:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727664AbgCSNG1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:06:27 -0400
+        id S1728448AbgCSNKD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:10:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F54D2076E;
-        Thu, 19 Mar 2020 13:06:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4EC820789;
+        Thu, 19 Mar 2020 13:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623185;
-        bh=8eRD3usszVPw1SKUsgc06bDPF+CjRhaFrVKkpLj32PI=;
+        s=default; t=1584623403;
+        bh=Bd4LuLkIGy2XNy8gstEztAsL+G5OowlZfoXSxGZLlwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/PzRpcQgMaIrWhgD0niTPmGkgplj4ViAqh1+xua3uprgAlJcGzELWbH/eU5Q1BXJ
-         jlwMDRjkYEVDDxmtJupDfaIDatsTwLIRziydJTM0WSGCOKniVaCAGjVfb4lDlLT7NX
-         oQ+0zyKP/9ymdeafwELsARW0QAqXNYOmj47BFTn4=
+        b=sUcrRS2/kIzXBFZugHFZXgg65WLUwvuMzaZa/eh+ob0a/hyaaKH6kzpd5VcHV6cE+
+         B7iAOo4XzUSqKIPjwHvm8H1ub7NKATDiaY1fk3gqcIk9zwOmjKPalgnh4+dui9v1d4
+         4d9x5FEZ7k05GhJl9pzYIhXTmAcxV3KT+g2PA9Ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 20/93] bonding/alb: make sure arp header is pulled before accessing it
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 02/90] phy: Revert toggling reset changes.
 Date:   Thu, 19 Mar 2020 13:59:24 +0100
-Message-Id: <20200319123931.559100689@linuxfoundation.org>
+Message-Id: <20200319123929.291632867@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
-References: <20200319123924.795019515@linuxfoundation.org>
+In-Reply-To: <20200319123928.635114118@linuxfoundation.org>
+References: <20200319123928.635114118@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,157 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David S. Miller <davem@davemloft.net>
 
-commit b7469e83d2add567e4e0b063963db185f3167cea upstream.
+commit 7b566f70e1bf65b189b66eb3de6f431c30f7dff2 upstream.
 
-Similar to commit 38f88c454042 ("bonding/alb: properly access headers
-in bond_alb_xmit()"), we need to make sure arp header was pulled
-in skb->head before blindly accessing it in rlb_arp_xmit().
+This reverts:
 
-Remove arp_pkt() private helper, since it is more readable/obvious
-to have the following construct back to back :
+ef1b5bf506b1 ("net: phy: Fix not to call phy_resume() if PHY is not attached")
+8c85f4b81296 ("net: phy: micrel: add toggling phy reset if PHY is not  attached")
 
-	if (!pskb_network_may_pull(skb, sizeof(*arp)))
-		return NULL;
-	arp = (struct arp_pkt *)skb_network_header(skb);
+Andrew Lunn informs me that there are alternative efforts
+underway to fix this more properly.
 
-syzbot reported :
-
-BUG: KMSAN: uninit-value in bond_slave_has_mac_rx include/net/bonding.h:704 [inline]
-BUG: KMSAN: uninit-value in rlb_arp_xmit drivers/net/bonding/bond_alb.c:662 [inline]
-BUG: KMSAN: uninit-value in bond_alb_xmit+0x575/0x25e0 drivers/net/bonding/bond_alb.c:1477
-CPU: 0 PID: 12743 Comm: syz-executor.4 Not tainted 5.6.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- bond_slave_has_mac_rx include/net/bonding.h:704 [inline]
- rlb_arp_xmit drivers/net/bonding/bond_alb.c:662 [inline]
- bond_alb_xmit+0x575/0x25e0 drivers/net/bonding/bond_alb.c:1477
- __bond_start_xmit drivers/net/bonding/bond_main.c:4257 [inline]
- bond_start_xmit+0x85d/0x2f70 drivers/net/bonding/bond_main.c:4282
- __netdev_start_xmit include/linux/netdevice.h:4524 [inline]
- netdev_start_xmit include/linux/netdevice.h:4538 [inline]
- xmit_one net/core/dev.c:3470 [inline]
- dev_hard_start_xmit+0x531/0xab0 net/core/dev.c:3486
- __dev_queue_xmit+0x37de/0x4220 net/core/dev.c:4063
- dev_queue_xmit+0x4b/0x60 net/core/dev.c:4096
- packet_snd net/packet/af_packet.c:2967 [inline]
- packet_sendmsg+0x8347/0x93b0 net/packet/af_packet.c:2992
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg net/socket.c:672 [inline]
- __sys_sendto+0xc1b/0xc50 net/socket.c:1998
- __do_sys_sendto net/socket.c:2010 [inline]
- __se_sys_sendto+0x107/0x130 net/socket.c:2006
- __x64_sys_sendto+0x6e/0x90 net/socket.c:2006
- do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45c479
-Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fc77ffbbc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-RAX: ffffffffffffffda RBX: 00007fc77ffbc6d4 RCX: 000000000045c479
-RDX: 000000000000000e RSI: 00000000200004c0 RDI: 0000000000000003
-RBP: 000000000076bf20 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 0000000000000a04 R14: 00000000004cc7b0 R15: 000000000076bf2c
-
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
- kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
- kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
- slab_alloc_node mm/slub.c:2793 [inline]
- __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
- __kmalloc_reserve net/core/skbuff.c:142 [inline]
- __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:210
- alloc_skb include/linux/skbuff.h:1051 [inline]
- alloc_skb_with_frags+0x18c/0xa70 net/core/skbuff.c:5766
- sock_alloc_send_pskb+0xada/0xc60 net/core/sock.c:2242
- packet_alloc_skb net/packet/af_packet.c:2815 [inline]
- packet_snd net/packet/af_packet.c:2910 [inline]
- packet_sendmsg+0x66a0/0x93b0 net/packet/af_packet.c:2992
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg net/socket.c:672 [inline]
- __sys_sendto+0xc1b/0xc50 net/socket.c:1998
- __do_sys_sendto net/socket.c:2010 [inline]
- __se_sys_sendto+0x107/0x130 net/socket.c:2006
- __x64_sys_sendto+0x6e/0x90 net/socket.c:2006
- do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Jay Vosburgh <j.vosburgh@gmail.com>
-Cc: Veaceslav Falico <vfalico@gmail.com>
-Cc: Andy Gospodarek <andy@greyhouse.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+[just take the ef1b5bf506b1 revert - gregkh]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/bonding/bond_alb.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
 
---- a/drivers/net/bonding/bond_alb.c
-+++ b/drivers/net/bonding/bond_alb.c
-@@ -74,11 +74,6 @@ struct arp_pkt {
- };
- #pragma pack()
+---
+ drivers/net/phy/phy_device.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -80,7 +80,7 @@ static LIST_HEAD(phy_fixup_list);
+ static DEFINE_MUTEX(phy_fixup_lock);
  
--static inline struct arp_pkt *arp_pkt(const struct sk_buff *skb)
--{
--	return (struct arp_pkt *)skb_network_header(skb);
--}
--
- /* Forward declaration */
- static void alb_send_learning_packets(struct slave *slave, u8 mac_addr[],
- 				      bool strict_match);
-@@ -577,10 +572,11 @@ static void rlb_req_update_subnet_client
- 	spin_unlock(&bond->mode_lock);
- }
- 
--static struct slave *rlb_choose_channel(struct sk_buff *skb, struct bonding *bond)
-+static struct slave *rlb_choose_channel(struct sk_buff *skb,
-+					struct bonding *bond,
-+					const struct arp_pkt *arp)
+ #ifdef CONFIG_PM
+-static bool mdio_bus_phy_may_suspend(struct phy_device *phydev, bool suspend)
++static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
  {
- 	struct alb_bond_info *bond_info = &(BOND_ALB_INFO(bond));
--	struct arp_pkt *arp = arp_pkt(skb);
- 	struct slave *assigned_slave, *curr_active_slave;
- 	struct rlb_client_info *client_info;
- 	u32 hash_index = 0;
-@@ -677,8 +673,12 @@ static struct slave *rlb_choose_channel(
-  */
- static struct slave *rlb_arp_xmit(struct sk_buff *skb, struct bonding *bond)
- {
--	struct arp_pkt *arp = arp_pkt(skb);
- 	struct slave *tx_slave = NULL;
-+	struct arp_pkt *arp;
-+
-+	if (!pskb_network_may_pull(skb, sizeof(*arp)))
-+		return NULL;
-+	arp = (struct arp_pkt *)skb_network_header(skb);
+ 	struct device_driver *drv = phydev->mdio.dev.driver;
+ 	struct phy_driver *phydrv = to_phy_driver(drv);
+@@ -92,11 +92,10 @@ static bool mdio_bus_phy_may_suspend(str
+ 	/* PHY not attached? May suspend if the PHY has not already been
+ 	 * suspended as part of a prior call to phy_disconnect() ->
+ 	 * phy_detach() -> phy_suspend() because the parent netdev might be the
+-	 * MDIO bus driver and clock gated at this point. Also may resume if
+-	 * PHY is not attached.
++	 * MDIO bus driver and clock gated at this point.
+ 	 */
+ 	if (!netdev)
+-		return suspend ? !phydev->suspended : phydev->suspended;
++		return !phydev->suspended;
  
- 	/* Don't modify or load balance ARPs that do not originate locally
- 	 * (e.g.,arrive via a bridge).
-@@ -688,7 +688,7 @@ static struct slave *rlb_arp_xmit(struct
+ 	/* Don't suspend PHY if the attached netdev parent may wakeup.
+ 	 * The parent may point to a PCI device, as in tg3 driver.
+@@ -126,7 +125,7 @@ static int mdio_bus_phy_suspend(struct d
+ 	if (phydev->attached_dev && phydev->adjust_link)
+ 		phy_stop_machine(phydev);
  
- 	if (arp->op_code == htons(ARPOP_REPLY)) {
- 		/* the arp must be sent on the selected rx channel */
--		tx_slave = rlb_choose_channel(skb, bond);
-+		tx_slave = rlb_choose_channel(skb, bond, arp);
- 		if (tx_slave)
- 			ether_addr_copy(arp->mac_src, tx_slave->dev->dev_addr);
- 		netdev_dbg(bond->dev, "Server sent ARP Reply packet\n");
-@@ -698,7 +698,7 @@ static struct slave *rlb_arp_xmit(struct
- 		 * When the arp reply is received the entry will be updated
- 		 * with the correct unicast address of the client.
- 		 */
--		rlb_choose_channel(skb, bond);
-+		rlb_choose_channel(skb, bond, arp);
+-	if (!mdio_bus_phy_may_suspend(phydev, true))
++	if (!mdio_bus_phy_may_suspend(phydev))
+ 		return 0;
  
- 		/* The ARP reply packets must be delayed so that
- 		 * they can cancel out the influence of the ARP request.
+ 	return phy_suspend(phydev);
+@@ -137,7 +136,7 @@ static int mdio_bus_phy_resume(struct de
+ 	struct phy_device *phydev = to_phy_device(dev);
+ 	int ret;
+ 
+-	if (!mdio_bus_phy_may_suspend(phydev, false))
++	if (!mdio_bus_phy_may_suspend(phydev))
+ 		goto no_resume;
+ 
+ 	ret = phy_resume(phydev);
 
 
