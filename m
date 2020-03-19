@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F10718B823
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF7318B81E
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:38:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727112AbgCSNiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:38:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49778 "EHLO mail.kernel.org"
+        id S1727689AbgCSNGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:06:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727137AbgCSNGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:06:30 -0400
+        id S1727682AbgCSNGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:06:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A850C20752;
-        Thu, 19 Mar 2020 13:06:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B64020757;
+        Thu, 19 Mar 2020 13:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623190;
-        bh=CEmXS+Uh92PctpDbQE3BuX1dcUwZkaWTfiyUoV7XZBc=;
+        s=default; t=1584623192;
+        bh=dYx4gyts/JnRN6GOdS5AYewV3n4H20jK8N/MERBcqXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zSvNtDAUjW/RMKmN4WZ/uiXKZaHhVX3O78p3OSIz+7aw68mXimqJO9hHvp9xvjq3/
-         3NJ+Du97IXMxy3hHP0sZuVcQMd1Z+kM72lnq8F4MBqqr9u1NC6EqOJPH7TJcIxsMAp
-         /YlN75iiHIJv35iJNNcmIhOz2d033QDJTuQYlQFM=
+        b=bJUwKCPXxY6qZL5eq5TTH8qTfIxP6MA2PIuidw3uLtQkrGHweZJ54Bk6LWxAqLsG1
+         unHEvtXgxCaSDlXYa0xGISZWPLodQ+vdq/2/Fk19kjsdWSePioInToqJiyk/XJk9Ld
+         nxAUXnMxfhFNvcLpUCKefmTZ1eZFoA/lstEHopRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 21/93] net: fq: add missing attribute validation for orphan mask
-Date:   Thu, 19 Mar 2020 13:59:25 +0100
-Message-Id: <20200319123931.818982356@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.4 22/93] iommu/vt-d: quirk_ioat_snb_local_iommu: replace WARN_TAINT with pr_warn + add_taint
+Date:   Thu, 19 Mar 2020 13:59:26 +0100
+Message-Id: <20200319123932.169383968@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
 References: <20200319123924.795019515@linuxfoundation.org>
@@ -43,30 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 7e6dc03eeb023e18427a373522f1d247b916a641 ]
+commit 81ee85d0462410de8eeeec1b9761941fd6ed8c7b upstream.
 
-Add missing attribute validation for TCA_FQ_ORPHAN_MASK
-to the netlink policy.
+Quoting from the comment describing the WARN functions in
+include/asm-generic/bug.h:
 
-Fixes: 06eb395fa985 ("pkt_sched: fq: better control of DDOS traffic")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ * WARN(), WARN_ON(), WARN_ON_ONCE, and so on can be used to report
+ * significant kernel issues that need prompt attention if they should ever
+ * appear at runtime.
+ *
+ * Do not use these macros when checking for invalid external inputs
+
+The (buggy) firmware tables which the dmar code was calling WARN_TAINT
+for really are invalid external inputs. They are not under the kernel's
+control and the issues in them cannot be fixed by a kernel update.
+So logging a backtrace, which invites bug reports to be filed about this,
+is not helpful.
+
+Fixes: 556ab45f9a77 ("ioat2: catch and recover from broken vtd configurations v6")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20200309182510.373875-1-hdegoede@redhat.com
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=701847
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/sch_fq.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/sched/sch_fq.c
-+++ b/net/sched/sch_fq.c
-@@ -668,6 +668,7 @@ static const struct nla_policy fq_policy
- 	[TCA_FQ_FLOW_MAX_RATE]		= { .type = NLA_U32 },
- 	[TCA_FQ_BUCKETS_LOG]		= { .type = NLA_U32 },
- 	[TCA_FQ_FLOW_REFILL_DELAY]	= { .type = NLA_U32 },
-+	[TCA_FQ_ORPHAN_MASK]		= { .type = NLA_U32 },
- };
+---
+ drivers/iommu/intel-iommu.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -3949,10 +3949,11 @@ static void quirk_ioat_snb_local_iommu(s
  
- static int fq_change(struct Qdisc *sch, struct nlattr *opt)
+ 	/* we know that the this iommu should be at offset 0xa000 from vtbar */
+ 	drhd = dmar_find_matched_drhd_unit(pdev);
+-	if (WARN_TAINT_ONCE(!drhd || drhd->reg_base_addr - vtbar != 0xa000,
+-			    TAINT_FIRMWARE_WORKAROUND,
+-			    "BIOS assigned incorrect VT-d unit for Intel(R) QuickData Technology device\n"))
++	if (!drhd || drhd->reg_base_addr - vtbar != 0xa000) {
++		pr_warn_once(FW_BUG "BIOS assigned incorrect VT-d unit for Intel(R) QuickData Technology device\n");
++		add_taint(TAINT_FIRMWARE_WORKAROUND, LOCKDEP_STILL_OK);
+ 		pdev->dev.archdata.iommu = DUMMY_DEVICE_DOMAIN_INFO;
++	}
+ }
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_IOAT_SNB, quirk_ioat_snb_local_iommu);
+ 
 
 
