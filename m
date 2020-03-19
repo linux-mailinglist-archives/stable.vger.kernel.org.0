@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BE3A18B467
+	by mail.lfdr.de (Postfix) with ESMTP id 759C418B468
 	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:09:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727136AbgCSNJc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:09:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53976 "EHLO mail.kernel.org"
+        id S1727557AbgCSNJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:09:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727557AbgCSNJb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:09:31 -0400
+        id S1727775AbgCSNJd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:09:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AE1420789;
-        Thu, 19 Mar 2020 13:09:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A47DE214D8;
+        Thu, 19 Mar 2020 13:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623370;
-        bh=eubgEQiBZwVdc6+E2bfCM0l6cQ4Eh9EROaluQ882r7s=;
+        s=default; t=1584623373;
+        bh=XdIXxjQE02hUwbTN4cGVTEPpCkxy4dyeETmIeQqK4j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AjJHVBVXw0nlWOrrhT9dze0UCF0MdLwQmdwMpRHaLg2tvceYIJeO4o/hsks8wX2b3
-         Xplh4Gjf9PJA8sP+rh+qKZJUtEQWblcc5PKb1r2vxE80lJ7CxVbsI3BIA9eDExFdwC
-         Mj6o3X5cZu7mdVd76OIbDryckLsqdFw8lfoPJYn4=
+        b=VGR1QXU6fhVzhsH2agQbl6Py/J85L9yTm0LyuMeT5g8F7gmPOnXZ5k2lmlbxYTEkB
+         UBj3Xhb9OYR8hcMpKbCXSOxZboTZgRUaFnu/KhYA9ZRqjMXxK70aOEOUEiZX9Fcu9L
+         GPQik3NTP93IbsOLaTfgY/qW9yl65N9FF/qM/e2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 80/93] batman-adv: Reduce claim hash refcnt only for removed entry
-Date:   Thu, 19 Mar 2020 14:00:24 +0100
-Message-Id: <20200319123949.968334750@linuxfoundation.org>
+Subject: [PATCH 4.4 81/93] batman-adv: Reduce tt_local hash refcnt only for removed entry
+Date:   Thu, 19 Mar 2020 14:00:25 +0100
+Message-Id: <20200319123950.223234871@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
 References: <20200319123924.795019515@linuxfoundation.org>
@@ -45,7 +45,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sven Eckelmann <sven@narfation.org>
 
-commit 4ba104f468bbfc27362c393815d03aa18fb7a20f upstream.
+commit 3d65b9accab4a7ed5038f6df403fbd5e298398c7 upstream.
 
 The batadv_hash_remove is a function which searches the hashtable for an
 entry using a needle, a hashtable bucket selection function and a compare
@@ -53,7 +53,7 @@ function. It will lock the bucket list and delete an entry when the compare
 function matches it with the needle. It returns the pointer to the
 hlist_node which matches or NULL when no entry matches the needle.
 
-The batadv_bla_del_claim is not itself protected in anyway to avoid that
+The batadv_tt_local_remove is not itself protected in anyway to avoid that
 any other function is modifying the hashtable between the search for the
 entry and the call to batadv_hash_remove. It can therefore happen that the
 entry either doesn't exist anymore or an entry was deleted which is not the
@@ -68,46 +68,50 @@ this problem as:
 
   refcount_t: underflow; use-after-free.
 
-Fixes: 23721387c409 ("batman-adv: add basic bridge loop avoidance code")
+Fixes: ef72706a0543 ("batman-adv: protect tt_local_entry from concurrent delete events")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ net/batman-adv/translation-table.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -694,6 +694,8 @@ static void batadv_bla_del_claim(struct
- 				 const u8 *mac, const unsigned short vid)
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -1049,9 +1049,10 @@ u16 batadv_tt_local_remove(struct batadv
+ 			   unsigned short vid, const char *message,
+ 			   bool roaming)
  {
- 	struct batadv_bla_claim search_claim, *claim;
-+	struct batadv_bla_claim *claim_removed_entry;
-+	struct hlist_node *claim_removed_node;
++	struct batadv_tt_local_entry *tt_removed_entry;
+ 	struct batadv_tt_local_entry *tt_local_entry;
+ 	u16 flags, curr_flags = BATADV_NO_FLAGS;
+-	void *tt_entry_exists;
++	struct hlist_node *tt_removed_node;
  
- 	ether_addr_copy(search_claim.addr, mac);
- 	search_claim.vid = vid;
-@@ -704,10 +706,18 @@ static void batadv_bla_del_claim(struct
- 	batadv_dbg(BATADV_DBG_BLA, bat_priv, "bla_del_claim(): %pM, vid %d\n",
- 		   mac, BATADV_PRINT_VID(vid));
+ 	tt_local_entry = batadv_tt_local_hash_find(bat_priv, addr, vid);
+ 	if (!tt_local_entry)
+@@ -1080,15 +1081,18 @@ u16 batadv_tt_local_remove(struct batadv
+ 	 */
+ 	batadv_tt_local_event(bat_priv, tt_local_entry, BATADV_TT_CLIENT_DEL);
  
--	batadv_hash_remove(bat_priv->bla.claim_hash, batadv_compare_claim,
--			   batadv_choose_claim, claim);
--	batadv_claim_free_ref(claim); /* reference from the hash is gone */
-+	claim_removed_node = batadv_hash_remove(bat_priv->bla.claim_hash,
-+						batadv_compare_claim,
-+						batadv_choose_claim, claim);
-+	if (!claim_removed_node)
-+		goto free_claim;
+-	tt_entry_exists = batadv_hash_remove(bat_priv->tt.local_hash,
++	tt_removed_node = batadv_hash_remove(bat_priv->tt.local_hash,
+ 					     batadv_compare_tt,
+ 					     batadv_choose_tt,
+ 					     &tt_local_entry->common);
+-	if (!tt_entry_exists)
++	if (!tt_removed_node)
+ 		goto out;
  
-+	/* reference from the hash is gone */
-+	claim_removed_entry = hlist_entry(claim_removed_node,
-+					  struct batadv_bla_claim, hash_entry);
-+	batadv_claim_free_ref(claim_removed_entry);
-+
-+free_claim:
- 	/* don't need the reference from hash_find() anymore */
- 	batadv_claim_free_ref(claim);
- }
+-	/* extra call to free the local tt entry */
+-	batadv_tt_local_entry_free_ref(tt_local_entry);
++	/* drop reference of remove hash entry */
++	tt_removed_entry = hlist_entry(tt_removed_node,
++				       struct batadv_tt_local_entry,
++				       common.hash_entry);
++	batadv_tt_local_entry_free_ref(tt_removed_entry);
+ 
+ out:
+ 	if (tt_local_entry)
 
 
