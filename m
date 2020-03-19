@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C1718B516
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FEF318B54D
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:17:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728889AbgCSNP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:15:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35220 "EHLO mail.kernel.org"
+        id S1729620AbgCSNRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:17:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729412AbgCSNPZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:15:25 -0400
+        id S1729355AbgCSNRR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:17:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7B7E20724;
-        Thu, 19 Mar 2020 13:15:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF4D92098B;
+        Thu, 19 Mar 2020 13:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584623724;
-        bh=xC0mdHOCYtkpDML66PqbVkK4GBA6heR93um/WyEakBk=;
+        s=default; t=1584623836;
+        bh=0gFlzQXyqjqvTe384NB+HND7LEicV5ORE+ok2fAc4Qo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Guk8ZuJvfZzQ3/gChUKcoqJAtQo3lfTbtCKrRKkQgB4bATYyQHT1m+r3SQixy+U4C
-         ofabuqf1G0Hs3rwm+El3lenK0T657jyG1vKxzL8uI9v9NL+Ebrid9NLEBzf6w6iRVa
-         FBEM0uwYirvlUwW/uXCdZYk3v99cnhWAkPZ2a+xw=
+        b=Z3um633u5YrChHfCDkPTUCHq9NpXpCZAsUCOaYNfXwi7nIsDAb4TKlS/3T+EhD2AM
+         nLVhgX42zzyB+UICfkbejmqNAAmWkIFo6cLke6fxSrkNHZtr5OVrbuA1K2YSkKOlsq
+         hyMT2Acz+rbMuj2QpKcncl6N3p243l9xJgSEos+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 30/99] slip: make slhc_compress() more robust against malicious packets
-Date:   Thu, 19 Mar 2020 14:03:08 +0100
-Message-Id: <20200319123950.885739952@linuxfoundation.org>
+        stable@vger.kernel.org, Suren Baghdasaryan <surenb@google.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 4.14 38/99] cgroup: Iterate tasks that did not finish do_exit()
+Date:   Thu, 19 Mar 2020 14:03:16 +0100
+Message-Id: <20200319123953.345883567@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200319123941.630731708@linuxfoundation.org>
 References: <20200319123941.630731708@linuxfoundation.org>
@@ -44,119 +44,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Michal Koutný <mkoutny@suse.com>
 
-[ Upstream commit 110a40dfb708fe940a3f3704d470e431c368d256 ]
+commit 9c974c77246460fa6a92c18554c3311c8c83c160 upstream.
 
-Before accessing various fields in IPV4 network header
-and TCP header, make sure the packet :
+PF_EXITING is set earlier than actual removal from css_set when a task
+is exitting. This can confuse cgroup.procs readers who see no PF_EXITING
+tasks, however, rmdir is checking against css_set membership so it can
+transitionally fail with EBUSY.
 
-- Has IP version 4 (ip->version == 4)
-- Has not a silly network length (ip->ihl >= 5)
-- Is big enough to hold network and transport headers
-- Has not a silly TCP header size (th->doff >= sizeof(struct tcphdr) / 4)
+Fix this by listing tasks that weren't unlinked from css_set active
+lists.
+It may happen that other users of the task iterator (without
+CSS_TASK_ITER_PROCS) spot a PF_EXITING task before cgroup_exit(). This
+is equal to the state before commit c03cd7738a83 ("cgroup: Include dying
+leaders with live threads in PROCS iterations") but it may be reviewed
+later.
 
-syzbot reported :
-
-BUG: KMSAN: uninit-value in slhc_compress+0x5b9/0x2e60 drivers/net/slip/slhc.c:270
-CPU: 0 PID: 11728 Comm: syz-executor231 Not tainted 5.6.0-rc2-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:118
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- slhc_compress+0x5b9/0x2e60 drivers/net/slip/slhc.c:270
- ppp_send_frame drivers/net/ppp/ppp_generic.c:1637 [inline]
- __ppp_xmit_process+0x1902/0x2970 drivers/net/ppp/ppp_generic.c:1495
- ppp_xmit_process+0x147/0x2f0 drivers/net/ppp/ppp_generic.c:1516
- ppp_write+0x6bb/0x790 drivers/net/ppp/ppp_generic.c:512
- do_loop_readv_writev fs/read_write.c:717 [inline]
- do_iter_write+0x812/0xdc0 fs/read_write.c:1000
- compat_writev+0x2df/0x5a0 fs/read_write.c:1351
- do_compat_pwritev64 fs/read_write.c:1400 [inline]
- __do_compat_sys_pwritev fs/read_write.c:1420 [inline]
- __se_compat_sys_pwritev fs/read_write.c:1414 [inline]
- __ia32_compat_sys_pwritev+0x349/0x3f0 fs/read_write.c:1414
- do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
- do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
- entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-RIP: 0023:0xf7f7cd99
-Code: 90 e8 0b 00 00 00 f3 90 0f ae e8 eb f9 8d 74 26 00 89 3c 24 c3 90 90 90 90 90 90 90 90 90 90 90 90 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
-RSP: 002b:00000000ffdb84ac EFLAGS: 00000217 ORIG_RAX: 000000000000014e
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00000000200001c0
-RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000000000000003
-RBP: 0000000040047459 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-
-Uninit was created at:
- kmsan_save_stack_with_flags mm/kmsan/kmsan.c:144 [inline]
- kmsan_internal_poison_shadow+0x66/0xd0 mm/kmsan/kmsan.c:127
- kmsan_slab_alloc+0x8a/0xe0 mm/kmsan/kmsan_hooks.c:82
- slab_alloc_node mm/slub.c:2793 [inline]
- __kmalloc_node_track_caller+0xb40/0x1200 mm/slub.c:4401
- __kmalloc_reserve net/core/skbuff.c:142 [inline]
- __alloc_skb+0x2fd/0xac0 net/core/skbuff.c:210
- alloc_skb include/linux/skbuff.h:1051 [inline]
- ppp_write+0x115/0x790 drivers/net/ppp/ppp_generic.c:500
- do_loop_readv_writev fs/read_write.c:717 [inline]
- do_iter_write+0x812/0xdc0 fs/read_write.c:1000
- compat_writev+0x2df/0x5a0 fs/read_write.c:1351
- do_compat_pwritev64 fs/read_write.c:1400 [inline]
- __do_compat_sys_pwritev fs/read_write.c:1420 [inline]
- __se_compat_sys_pwritev fs/read_write.c:1414 [inline]
- __ia32_compat_sys_pwritev+0x349/0x3f0 fs/read_write.c:1414
- do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
- do_fast_syscall_32+0x3c7/0x6e0 arch/x86/entry/common.c:410
- entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
-
-Fixes: b5451d783ade ("slip: Move the SLIP drivers")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Suren Baghdasaryan <surenb@google.com>
+Fixes: c03cd7738a83 ("cgroup: Include dying leaders with live threads in PROCS iterations")
+Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/slip/slhc.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/net/slip/slhc.c
-+++ b/drivers/net/slip/slhc.c
-@@ -232,7 +232,7 @@ slhc_compress(struct slcompress *comp, u
- 	register struct cstate *cs = lcs->next;
- 	register unsigned long deltaS, deltaA;
- 	register short changes = 0;
--	int hlen;
-+	int nlen, hlen;
- 	unsigned char new_seq[16];
- 	register unsigned char *cp = new_seq;
- 	struct iphdr *ip;
-@@ -248,6 +248,8 @@ slhc_compress(struct slcompress *comp, u
- 		return isize;
+---
+ include/linux/cgroup.h |    1 +
+ kernel/cgroup/cgroup.c |   23 ++++++++++++++++-------
+ 2 files changed, 17 insertions(+), 7 deletions(-)
+
+--- a/include/linux/cgroup.h
++++ b/include/linux/cgroup.h
+@@ -61,6 +61,7 @@ struct css_task_iter {
+ 	struct list_head		*mg_tasks_head;
+ 	struct list_head		*dying_tasks_head;
  
- 	ip = (struct iphdr *) icp;
-+	if (ip->version != 4 || ip->ihl < 5)
-+		return isize;
++	struct list_head		*cur_tasks_head;
+ 	struct css_set			*cur_cset;
+ 	struct css_set			*cur_dcset;
+ 	struct task_struct		*cur_task;
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -4051,12 +4051,16 @@ static void css_task_iter_advance_css_se
+ 		}
+ 	} while (!css_set_populated(cset) && list_empty(&cset->dying_tasks));
  
- 	/* Bail if this packet isn't TCP, or is an IP fragment */
- 	if (ip->protocol != IPPROTO_TCP || (ntohs(ip->frag_off) & 0x3fff)) {
-@@ -258,10 +260,14 @@ slhc_compress(struct slcompress *comp, u
- 			comp->sls_o_tcp++;
- 		return isize;
+-	if (!list_empty(&cset->tasks))
++	if (!list_empty(&cset->tasks)) {
+ 		it->task_pos = cset->tasks.next;
+-	else if (!list_empty(&cset->mg_tasks))
++		it->cur_tasks_head = &cset->tasks;
++	} else if (!list_empty(&cset->mg_tasks)) {
+ 		it->task_pos = cset->mg_tasks.next;
+-	else
++		it->cur_tasks_head = &cset->mg_tasks;
++	} else {
+ 		it->task_pos = cset->dying_tasks.next;
++		it->cur_tasks_head = &cset->dying_tasks;
++	}
+ 
+ 	it->tasks_head = &cset->tasks;
+ 	it->mg_tasks_head = &cset->mg_tasks;
+@@ -4114,10 +4118,14 @@ repeat:
+ 		else
+ 			it->task_pos = it->task_pos->next;
+ 
+-		if (it->task_pos == it->tasks_head)
++		if (it->task_pos == it->tasks_head) {
+ 			it->task_pos = it->mg_tasks_head->next;
+-		if (it->task_pos == it->mg_tasks_head)
++			it->cur_tasks_head = it->mg_tasks_head;
++		}
++		if (it->task_pos == it->mg_tasks_head) {
+ 			it->task_pos = it->dying_tasks_head->next;
++			it->cur_tasks_head = it->dying_tasks_head;
++		}
+ 		if (it->task_pos == it->dying_tasks_head)
+ 			css_task_iter_advance_css_set(it);
+ 	} else {
+@@ -4136,11 +4144,12 @@ repeat:
+ 			goto repeat;
+ 
+ 		/* and dying leaders w/o live member threads */
+-		if (!atomic_read(&task->signal->live))
++		if (it->cur_tasks_head == it->dying_tasks_head &&
++		    !atomic_read(&task->signal->live))
+ 			goto repeat;
+ 	} else {
+ 		/* skip all dying ones */
+-		if (task->flags & PF_EXITING)
++		if (it->cur_tasks_head == it->dying_tasks_head)
+ 			goto repeat;
  	}
--	/* Extract TCP header */
-+	nlen = ip->ihl * 4;
-+	if (isize < nlen + sizeof(*th))
-+		return isize;
- 
--	th = (struct tcphdr *)(((unsigned char *)ip) + ip->ihl*4);
--	hlen = ip->ihl*4 + th->doff*4;
-+	th = (struct tcphdr *)(icp + nlen);
-+	if (th->doff < sizeof(struct tcphdr) / 4)
-+		return isize;
-+	hlen = nlen + th->doff * 4;
- 
- 	/*  Bail if the TCP packet isn't `compressible' (i.e., ACK isn't set or
- 	 *  some other control bit is set). Also uncompressible if
+ }
 
 
