@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ABF118B656
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:26:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F6618B588
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:19:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730694AbgCSNZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:25:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53688 "EHLO mail.kernel.org"
+        id S1729684AbgCSNT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:19:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730701AbgCSNZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:25:54 -0400
+        id S1729883AbgCSNT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:19:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 095912080C;
-        Thu, 19 Mar 2020 13:25:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C27CA206D7;
+        Thu, 19 Mar 2020 13:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624353;
-        bh=qeSR8s+xjYKgRtoXDhAo+RN2PMmTP5CX+CKt41Yu3xQ=;
+        s=default; t=1584623967;
+        bh=GcU1V1irnlHb0FoLOQTl4tLyKbgG4+amY4C1QXTp9nE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVVEtO/oWhL0+3XAd7G8LjHxZPicOF1Q5smcJGMq1tlf6WFmq4CnBj0tq+W1cTpB+
-         g6vE1egu07fCd8/EFmIDu0bQ6ikc4BURaaQ8Xe1DfRuNR1fJP1eNSd9RbO+4MNiQT9
-         fMiZwnXpfBFJaALTen1H46U98MV84bBtMxA/a2L8=
+        b=CnJD4zlrjN45Ca66CuAnERWU9qKXJy3wSd//zUaHgdwzZiOseanWBfz/h6Xah0O05
+         VI4MEiA8IlN7DvJn86wM5tPCTHuR2KKKbHAyJRClGf/2KW83wMWYbvIjZniP76maPF
+         vjMT277ZG7Xa1QthYW4KgUmWxq3rBU/vEts8lwLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Igor Druzhinin <igor.druzhinin@citrix.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 14/65] MIPS: Disable VDSO time functionality on microMIPS
+Subject: [PATCH 4.19 14/48] scsi: libfc: free response frame from GPN_ID
 Date:   Thu, 19 Mar 2020 14:03:56 +0100
-Message-Id: <20200319123930.951581514@linuxfoundation.org>
+Message-Id: <20200319123907.523172825@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
+References: <20200319123902.941451241@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@kernel.org>
+From: Igor Druzhinin <igor.druzhinin@citrix.com>
 
-[ Upstream commit 07015d7a103c4420b69a287b8ef4d2535c0f4106 ]
+[ Upstream commit ff6993bb79b9f99bdac0b5378169052931b65432 ]
 
-A check we're about to add to pick up on function calls that depend on
-bogus use of the GOT in the VDSO picked up on instances of such function
-calls in microMIPS builds. Since the code appears genuinely problematic,
-and given the relatively small amount of use & testing that microMIPS
-sees, go ahead & disable the VDSO for microMIPS builds.
+fc_disc_gpn_id_resp() should be the last function using it so free it here
+to avoid memory leak.
 
-Signed-off-by: Paul Burton <paulburton@kernel.org>
+Link: https://lore.kernel.org/r/1579013000-14570-2-git-send-email-igor.druzhinin@citrix.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Igor Druzhinin <igor.druzhinin@citrix.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/Makefile | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/scsi/libfc/fc_disc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
-index 96afd73c94e8a..e8585a22b925c 100644
---- a/arch/mips/vdso/Makefile
-+++ b/arch/mips/vdso/Makefile
-@@ -48,6 +48,8 @@ endif
+diff --git a/drivers/scsi/libfc/fc_disc.c b/drivers/scsi/libfc/fc_disc.c
+index f969a71348ef1..8839f509b19ab 100644
+--- a/drivers/scsi/libfc/fc_disc.c
++++ b/drivers/scsi/libfc/fc_disc.c
+@@ -640,6 +640,8 @@ static void fc_disc_gpn_id_resp(struct fc_seq *sp, struct fc_frame *fp,
+ 	}
+ out:
+ 	kref_put(&rdata->kref, fc_rport_destroy);
++	if (!IS_ERR(fp))
++		fc_frame_free(fp);
+ }
  
- CFLAGS_REMOVE_vgettimeofday.o = -pg
- 
-+DISABLE_VDSO := n
-+
- #
- # For the pre-R6 code in arch/mips/vdso/vdso.h for locating
- # the base address of VDSO, the linker will emit a R_MIPS_PC32
-@@ -61,11 +63,24 @@ CFLAGS_REMOVE_vgettimeofday.o = -pg
- ifndef CONFIG_CPU_MIPSR6
-   ifeq ($(call ld-ifversion, -lt, 225000000, y),y)
-     $(warning MIPS VDSO requires binutils >= 2.25)
--    obj-vdso-y := $(filter-out vgettimeofday.o, $(obj-vdso-y))
--    ccflags-vdso += -DDISABLE_MIPS_VDSO
-+    DISABLE_VDSO := y
-   endif
- endif
- 
-+#
-+# GCC (at least up to version 9.2) appears to emit function calls that make use
-+# of the GOT when targeting microMIPS, which we can't use in the VDSO due to
-+# the lack of relocations. As such, we disable the VDSO for microMIPS builds.
-+#
-+ifdef CONFIG_CPU_MICROMIPS
-+  DISABLE_VDSO := y
-+endif
-+
-+ifeq ($(DISABLE_VDSO),y)
-+  obj-vdso-y := $(filter-out vgettimeofday.o, $(obj-vdso-y))
-+  ccflags-vdso += -DDISABLE_MIPS_VDSO
-+endif
-+
- # VDSO linker flags.
- VDSO_LDFLAGS := \
- 	-Wl,-Bsymbolic -Wl,--no-undefined -Wl,-soname=linux-vdso.so.1 \
+ /**
 -- 
 2.20.1
 
