@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93E7318B6A4
-	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:28:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB03518B6E8
+	for <lists+stable@lfdr.de>; Thu, 19 Mar 2020 14:30:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730469AbgCSN0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 09:26:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54636 "EHLO mail.kernel.org"
+        id S1727608AbgCSN3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 09:29:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730795AbgCSN0g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 19 Mar 2020 09:26:36 -0400
+        id S1730442AbgCSNYW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 09:24:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5101E20658;
-        Thu, 19 Mar 2020 13:26:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B88CD207FC;
+        Thu, 19 Mar 2020 13:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584624395;
-        bh=jJkSqg+i9P7iPzHlRnCaYYKLwrXSs46x9cFnO80Ekvk=;
+        s=default; t=1584624262;
+        bh=YfELyYJzd1K5P7efxBdZLYz/DlVgZcx+B6C6B3GHy+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHLc4gijUgZuClmceHp+cWKVgrdM0DwVHX6W7xMFksIOzpeQevCkIsOGzNWa6AcRM
-         O+4s069WcFnHhlCm86dTwCnFe5HfXi9iewGVaPjhM9rJsZy2sayAGo1TUegBWOvvG7
-         yneji/Ltop9DwD91CrLYjJYSNjhCd/uICSmoPSf4=
+        b=tq0Ub354AXfHAx5ngfAADCavxA7A+RT1uHzg7+wnMKfRb3RfS0odgcsAcL0YsMDfN
+         Cz3oeZpNx9sHOKQvIY02k16OCGECYHP1OxvjQzH1WMOgROeaXgLwy7lDsz20blSOQy
+         xF9Y9Cc0tDWpwVUo6yOF7Iv0VCnZOJzVmP46q6mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Qian Cai <cai@lca.pw>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 47/65] net: rmnet: fix NULL pointer dereference in rmnet_changelink()
+Subject: [PATCH 5.4 51/60] jbd2: fix data races at struct journal_head
 Date:   Thu, 19 Mar 2020 14:04:29 +0100
-Message-Id: <20200319123941.236811843@linuxfoundation.org>
+Message-Id: <20200319123935.594896439@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200319123926.466988514@linuxfoundation.org>
-References: <20200319123926.466988514@linuxfoundation.org>
+In-Reply-To: <20200319123919.441695203@linuxfoundation.org>
+References: <20200319123919.441695203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 1eb1f43a6e37282348a41e3d68f5e9a6a4359212 ]
+[ Upstream commit 6c5d911249290f41f7b50b43344a7520605b1acb ]
 
-In the rmnet_changelink(), it uses IFLA_LINK without checking
-NULL pointer.
-tb[IFLA_LINK] could be NULL pointer.
-So, NULL-ptr-deref could occur.
+journal_head::b_transaction and journal_head::b_next_transaction could
+be accessed concurrently as noticed by KCSAN,
 
-rmnet already has a lower interface (real_dev).
-So, after this patch, rmnet_changelink() does not use IFLA_LINK anymore.
+ LTP: starting fsync04
+ /dev/zero: Can't open blockdev
+ EXT4-fs (loop0): mounting ext3 file system using the ext4 subsystem
+ EXT4-fs (loop0): mounted filesystem with ordered data mode. Opts: (null)
+ ==================================================================
+ BUG: KCSAN: data-race in __jbd2_journal_refile_buffer [jbd2] / jbd2_write_access_granted [jbd2]
 
-Test commands:
-    modprobe rmnet
-    ip link add dummy0 type dummy
-    ip link add rmnet0 link dummy0 type rmnet mux_id 1
-    ip link set rmnet0 type rmnet mux_id 2
+ write to 0xffff99f9b1bd0e30 of 8 bytes by task 25721 on cpu 70:
+  __jbd2_journal_refile_buffer+0xdd/0x210 [jbd2]
+  __jbd2_journal_refile_buffer at fs/jbd2/transaction.c:2569
+  jbd2_journal_commit_transaction+0x2d15/0x3f20 [jbd2]
+  (inlined by) jbd2_journal_commit_transaction at fs/jbd2/commit.c:1034
+  kjournald2+0x13b/0x450 [jbd2]
+  kthread+0x1cd/0x1f0
+  ret_from_fork+0x27/0x50
 
-Splat looks like:
-[   90.578726][ T1131] general protection fault, probably for non-canonical address 0xdffffc0000000000I
-[   90.581121][ T1131] KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-[   90.582380][ T1131] CPU: 2 PID: 1131 Comm: ip Not tainted 5.6.0-rc1+ #447
-[   90.584285][ T1131] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[   90.587506][ T1131] RIP: 0010:rmnet_changelink+0x5a/0x8a0 [rmnet]
-[   90.588546][ T1131] Code: 83 ec 20 48 c1 ea 03 80 3c 02 00 0f 85 6f 07 00 00 48 8b 5e 28 48 b8 00 00 00 00 00 0
-[   90.591447][ T1131] RSP: 0018:ffff8880ce78f1b8 EFLAGS: 00010247
-[   90.592329][ T1131] RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffff8880ce78f8b0
-[   90.593253][ T1131] RDX: 0000000000000000 RSI: ffff8880ce78f4a0 RDI: 0000000000000004
-[   90.594058][ T1131] RBP: ffff8880cf543e00 R08: 0000000000000002 R09: 0000000000000002
-[   90.594859][ T1131] R10: ffffffffc0586a40 R11: 0000000000000000 R12: ffff8880ca47c000
-[   90.595690][ T1131] R13: ffff8880ca47c000 R14: ffff8880cf545000 R15: 0000000000000000
-[   90.596553][ T1131] FS:  00007f21f6c7e0c0(0000) GS:ffff8880da400000(0000) knlGS:0000000000000000
-[   90.597504][ T1131] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   90.599418][ T1131] CR2: 0000556e413db458 CR3: 00000000c917a002 CR4: 00000000000606e0
-[   90.600289][ T1131] Call Trace:
-[   90.600631][ T1131]  __rtnl_newlink+0x922/0x1270
-[   90.601194][ T1131]  ? lock_downgrade+0x6e0/0x6e0
-[   90.601724][ T1131]  ? rtnl_link_unregister+0x220/0x220
-[   90.602309][ T1131]  ? lock_acquire+0x164/0x3b0
-[   90.602784][ T1131]  ? is_bpf_image_address+0xff/0x1d0
-[   90.603331][ T1131]  ? rtnl_newlink+0x4c/0x90
-[   90.603810][ T1131]  ? kernel_text_address+0x111/0x140
-[   90.604419][ T1131]  ? __kernel_text_address+0xe/0x30
-[   90.604981][ T1131]  ? unwind_get_return_address+0x5f/0xa0
-[   90.605616][ T1131]  ? create_prof_cpu_mask+0x20/0x20
-[   90.606304][ T1131]  ? arch_stack_walk+0x83/0xb0
-[   90.606985][ T1131]  ? stack_trace_save+0x82/0xb0
-[   90.607656][ T1131]  ? stack_trace_consume_entry+0x160/0x160
-[   90.608503][ T1131]  ? deactivate_slab.isra.78+0x2c5/0x800
-[   90.609336][ T1131]  ? kasan_unpoison_shadow+0x30/0x40
-[   90.610096][ T1131]  ? kmem_cache_alloc_trace+0x135/0x350
-[   90.610889][ T1131]  ? rtnl_newlink+0x4c/0x90
-[   90.611512][ T1131]  rtnl_newlink+0x65/0x90
-[ ... ]
+ read to 0xffff99f9b1bd0e30 of 8 bytes by task 25724 on cpu 68:
+  jbd2_write_access_granted+0x1b2/0x250 [jbd2]
+  jbd2_write_access_granted at fs/jbd2/transaction.c:1155
+  jbd2_journal_get_write_access+0x2c/0x60 [jbd2]
+  __ext4_journal_get_write_access+0x50/0x90 [ext4]
+  ext4_mb_mark_diskspace_used+0x158/0x620 [ext4]
+  ext4_mb_new_blocks+0x54f/0xca0 [ext4]
+  ext4_ind_map_blocks+0xc79/0x1b40 [ext4]
+  ext4_map_blocks+0x3b4/0x950 [ext4]
+  _ext4_get_block+0xfc/0x270 [ext4]
+  ext4_get_block+0x3b/0x50 [ext4]
+  __block_write_begin_int+0x22e/0xae0
+  __block_write_begin+0x39/0x50
+  ext4_write_begin+0x388/0xb50 [ext4]
+  generic_perform_write+0x15d/0x290
+  ext4_buffered_write_iter+0x11f/0x210 [ext4]
+  ext4_file_write_iter+0xce/0x9e0 [ext4]
+  new_sync_write+0x29c/0x3b0
+  __vfs_write+0x92/0xa0
+  vfs_write+0x103/0x260
+  ksys_write+0x9d/0x130
+  __x64_sys_write+0x4c/0x60
+  do_syscall_64+0x91/0xb05
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Fixes: 23790ef12082 ("net: qualcomm: rmnet: Allow to configure flags for existing devices")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ 5 locks held by fsync04/25724:
+  #0: ffff99f9911093f8 (sb_writers#13){.+.+}, at: vfs_write+0x21c/0x260
+  #1: ffff99f9db4c0348 (&sb->s_type->i_mutex_key#15){+.+.}, at: ext4_buffered_write_iter+0x65/0x210 [ext4]
+  #2: ffff99f5e7dfcf58 (jbd2_handle){++++}, at: start_this_handle+0x1c1/0x9d0 [jbd2]
+  #3: ffff99f9db4c0168 (&ei->i_data_sem){++++}, at: ext4_map_blocks+0x176/0x950 [ext4]
+  #4: ffffffff99086b40 (rcu_read_lock){....}, at: jbd2_write_access_granted+0x4e/0x250 [jbd2]
+ irq event stamp: 1407125
+ hardirqs last  enabled at (1407125): [<ffffffff980da9b7>] __find_get_block+0x107/0x790
+ hardirqs last disabled at (1407124): [<ffffffff980da8f9>] __find_get_block+0x49/0x790
+ softirqs last  enabled at (1405528): [<ffffffff98a0034c>] __do_softirq+0x34c/0x57c
+ softirqs last disabled at (1405521): [<ffffffff97cc67a2>] irq_exit+0xa2/0xc0
+
+ Reported by Kernel Concurrency Sanitizer on:
+ CPU: 68 PID: 25724 Comm: fsync04 Tainted: G L 5.6.0-rc2-next-20200221+ #7
+ Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
+
+The plain reads are outside of jh->b_state_lock critical section which result
+in data races. Fix them by adding pairs of READ|WRITE_ONCE().
+
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Link: https://lore.kernel.org/r/20200222043111.2227-1-cai@lca.pw
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/jbd2/transaction.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-index 471e3b2a1403a..ac58f584190bd 100644
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-@@ -300,10 +300,8 @@ static int rmnet_changelink(struct net_device *dev, struct nlattr *tb[],
- 	if (!dev)
- 		return -ENODEV;
- 
--	real_dev = __dev_get_by_index(dev_net(dev),
--				      nla_get_u32(tb[IFLA_LINK]));
--
--	if (!real_dev || !rmnet_is_real_dev_registered(real_dev))
-+	real_dev = priv->real_dev;
-+	if (!rmnet_is_real_dev_registered(real_dev))
- 		return -ENODEV;
- 
- 	port = rmnet_get_port_rtnl(real_dev);
+diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+index b17f05ae6011c..de992a70ddfef 100644
+--- a/fs/jbd2/transaction.c
++++ b/fs/jbd2/transaction.c
+@@ -1079,8 +1079,8 @@ static bool jbd2_write_access_granted(handle_t *handle, struct buffer_head *bh,
+ 	/* For undo access buffer must have data copied */
+ 	if (undo && !jh->b_committed_data)
+ 		goto out;
+-	if (jh->b_transaction != handle->h_transaction &&
+-	    jh->b_next_transaction != handle->h_transaction)
++	if (READ_ONCE(jh->b_transaction) != handle->h_transaction &&
++	    READ_ONCE(jh->b_next_transaction) != handle->h_transaction)
+ 		goto out;
+ 	/*
+ 	 * There are two reasons for the barrier here:
+@@ -2535,8 +2535,8 @@ void __jbd2_journal_refile_buffer(struct journal_head *jh)
+ 	 * our jh reference and thus __jbd2_journal_file_buffer() must not
+ 	 * take a new one.
+ 	 */
+-	jh->b_transaction = jh->b_next_transaction;
+-	jh->b_next_transaction = NULL;
++	WRITE_ONCE(jh->b_transaction, jh->b_next_transaction);
++	WRITE_ONCE(jh->b_next_transaction, NULL);
+ 	if (buffer_freed(bh))
+ 		jlist = BJ_Forget;
+ 	else if (jh->b_modified)
 -- 
 2.20.1
 
