@@ -2,69 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 115DD18CFC4
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 15:12:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3A7C18D0B4
+	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 15:26:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727191AbgCTOMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 10:12:08 -0400
-Received: from mga11.intel.com ([192.55.52.93]:61180 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726738AbgCTOMI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Mar 2020 10:12:08 -0400
-IronPort-SDR: 6U9bv5gsSrAqXbT+aN4AXEij3e7otJOU0lXtg9sbnAstxyaAiIM9s+Gic3ks+Ea++qWikOb0dy
- 4OElFHXd6kpA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Mar 2020 07:12:07 -0700
-IronPort-SDR: hce375dXCIda9G8W4yXD7ilFmrdFvIXS9qsOkqtGySPeCKXm3b2NXt5PVYdsMQ3hLhvA4j3chV
- RKJgh6FgLNYA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,284,1580803200"; 
-   d="scan'208";a="324863758"
-Received: from jsakkine-mobl1.tm.intel.com (HELO localhost) ([10.237.50.161])
-  by orsmga001.jf.intel.com with ESMTP; 20 Mar 2020 07:12:04 -0700
-Date:   Fri, 20 Mar 2020 16:12:02 +0200
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     George Wilson <gcwilson@linux.ibm.com>
-Cc:     linux-integrity@vger.kernel.org,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Nayna Jain <nayna@linux.vnet.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org,
-        Linh Pham <phaml@us.ibm.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v4] tpm: ibmvtpm: retry on H_CLOSED in tpm_ibmvtpm_send()
-Message-ID: <20200320141202.GA3629@linux.intel.com>
-References: <20200320032758.228088-1-gcwilson@linux.ibm.com>
+        id S1727195AbgCTO05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 10:26:57 -0400
+Received: from mail-pj1-f66.google.com ([209.85.216.66]:35685 "EHLO
+        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726896AbgCTO05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Mar 2020 10:26:57 -0400
+Received: by mail-pj1-f66.google.com with SMTP id j20so2531016pjz.0
+        for <stable@vger.kernel.org>; Fri, 20 Mar 2020 07:26:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=95nhAbQZI8l0qy98Vs1MC8QCAWkVi2D1whnLFCuJkE8=;
+        b=L1wAwGYC7cTFLPvgvgchTmA+JOtoSc8/A23uw5dc6WRz4nlkVZTInV6rJEeDTOnk4q
+         bynfWuHGi+Hh0uRpgcjK8jIgEQabFDW1JuhOvY5qarp+RyHgOUvkYxxAQdBb1YOpw8uQ
+         I9SnK+widdvZY7o7kE4ml/pRJyphHB+4Fmv9bz53oR8Tuf37mEm7zTxxmv4BHMMvecfK
+         4sKo48iiiVdfM/0UdAlQRoEutr876FfB5jlq++aZpdwhieKnUpKtfnm9FVRJmNIpqVso
+         Z4yJ3nFYIHgDlx7JuGZUwIGmZTDi83bXFJTc8ZyrRddcESit3ORMI9IzV/bof4/Ptdqu
+         tUSQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=95nhAbQZI8l0qy98Vs1MC8QCAWkVi2D1whnLFCuJkE8=;
+        b=PSHFyzC9iV2j11kPiwW2eex2YnAVETGrqG4K6GGSumP0lmLpN8mJ6nlzlMEWYd1PuR
+         ScLBX/m+eyaixB/lz83bOm2X9a6T9jXZRIZgjHg3uFz3Vzclu9KnA8cUBt8edZD2nFFP
+         Up6OCpRaiq3QxvdApZ3VaWRR6pM7H7CMrw1jk1hF7f3ZmJYHqxTAOm/q/gMCaA+LTSih
+         BUca060fWDVVWtfTBMW+NtzyzJHYIBSDhpRKjvbXnUIGRVIm5cWTYK4tNs80fQXiO+qE
+         wu1ux1BBeM0xiGr55tLA8wtW0M/Euysc06mneF0J0s6tLoUv3UvpnYx+PfZws0pkUm96
+         G/TA==
+X-Gm-Message-State: ANhLgQ0iT+OHU7vRX0Xxb9/yQhEqRIZkfPZp9Rrq9sRifhq7ToKJ/VD2
+        yXwd+HFTUnBSeO4N0JPPBGNBobWmcBg=
+X-Google-Smtp-Source: ADFU+vuRLHfT0Uu+almrNtg07rBLeLeFytANzUO/NGuEVVujYnkhlJmLj4z04v2nYdq4y/Hf6hzQZQ==
+X-Received: by 2002:a17:90b:3851:: with SMTP id nl17mr9644004pjb.59.1584714414403;
+        Fri, 20 Mar 2020 07:26:54 -0700 (PDT)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mq18sm5618530pjb.6.2020.03.20.07.26.52
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Mar 2020 07:26:52 -0700 (PDT)
+Message-ID: <5e74d2ac.1c69fb81.891d7.26d0@mx.google.com>
+Date:   Fri, 20 Mar 2020 07:26:52 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200320032758.228088-1-gcwilson@linux.ibm.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.4.217
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-4.4.y boot: 57 boots: 3 failed,
+ 50 passed with 4 untried/unknown (v4.4.217)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 19, 2020 at 11:27:58PM -0400, George Wilson wrote:
-> tpm_ibmvtpm_send() can fail during PowerVM Live Partition Mobility resume
-> with an H_CLOSED return from ibmvtpm_send_crq().  The PAPR says, 'The
-> "partner partition suspended" transport event disables the associated CRQ
-> such that any H_SEND_CRQ hcall() to the associated CRQ returns H_Closed
-> until the CRQ has been explicitly enabled using the H_ENABLE_CRQ hcall.'
-> This patch adds a check in tpm_ibmvtpm_send() for an H_CLOSED return from
-> ibmvtpm_send_crq() and in that case calls tpm_ibmvtpm_resume() and
-> retries the ibmvtpm_send_crq() once.
-> 
-> Reported-by: Linh Pham <phaml@us.ibm.com>
-> Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-> Signed-off-by: George Wilson <gcwilson@linux.ibm.com>
-> Tested-by: Linh Pham <phaml@us.ibm.com>
-> Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
-> Cc: stable@vger.kernel.org
+stable/linux-4.4.y boot: 57 boots: 3 failed, 50 passed with 4 untried/unkno=
+wn (v4.4.217)
 
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+4.y/kernel/v4.4.217/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
+rnel/v4.4.217/
 
-Thanks. Applied now.
+Tree: stable
+Branch: linux-4.4.y
+Git Describe: v4.4.217
+Git Commit: 3b41c631678a15390920ffc1e72470e83db73ac8
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 29 unique boards, 11 SoC families, 13 builds out of 190
 
-/Jarkko
+Boot Regressions Detected:
+
+arm:
+
+    vexpress_defconfig:
+        gcc-8:
+          vexpress-v2p-ca15-tc1:
+              lab-collabora: new failure (last pass: v4.4.216)
+              lab-baylibre: new failure (last pass: v4.4.216)
+          vexpress-v2p-ca9:
+              lab-collabora: new failure (last pass: v4.4.216)
+              lab-baylibre: new failure (last pass: v4.4.216)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
