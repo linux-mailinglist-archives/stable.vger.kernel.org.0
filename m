@@ -2,120 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A18C518C74A
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 07:03:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB0EF18C7A3
+	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 07:46:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725802AbgCTGDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 02:03:18 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:58928 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725446AbgCTGDS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Mar 2020 02:03:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=162dfHeJQ7GH7/Bx8yP8yxuqC3X76ilbm0hXcj0/j0A=; b=hAosxfS5MftvWL3yTpL2yrnmdM
-        l31SLlxDr4zmqlWWvmttnaN26qrw3IoFmWk9zXBT2pVO6um0yGCN1P7MwCBoPtwBanQmJVy4oE9Rd
-        PnCn+hA5LLzgVqxwYn5tJTxVUuCgxE78HnkLCw/XM5lczxcE48PjMT1Ez1lk+20bWDGEXSbJU3kpV
-        HSNzZ+n//A6k6ZdbV95ndrMAcWerCV01Absjlqjjq2672s6VBEgmfjsWv6A4IM5y1LJyItCVqjjVf
-        cx7Ra9KejiiJk99MX8IqknAUxsZ7JLqfyQv4o+cS15ZVcqaxz6gD8JU6r5SENpYj9QL1p1HPminM8
-        qN8AIoVQ==;
-Received: from [2601:647:4802:9070:f092:4ccc:3e48:6081] (helo=bombadil.infradead.org)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jFAkY-00045q-CC; Fri, 20 Mar 2020 06:03:18 +0000
-From:   Sagi Grimberg <sagi@grimberg.me>
-To:     stable@vger.kernel.org
-Cc:     Potnuri Bharat Teja <bharat@chelsio.com>
-Subject: [PATCH stable 5.4] nvmet: fix dsm failure when payload does not match sgl descriptor
-Date:   Thu, 19 Mar 2020 23:03:14 -0700
-Message-Id: <20200320060314.31192-1-sagi@grimberg.me>
-X-Mailer: git-send-email 2.20.1
+        id S1726603AbgCTGqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 02:46:25 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:46851 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726030AbgCTGqY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Mar 2020 02:46:24 -0400
+Received: by mail-lj1-f196.google.com with SMTP id d23so5179921ljg.13
+        for <stable@vger.kernel.org>; Thu, 19 Mar 2020 23:46:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=mPcdBOc2e7QemTON3231cBaF7A2u4c4EVPB/7RmcEYE=;
+        b=lidyN2vQfWlC9sdLeeICXwLS713yjLv+CvybuJQDAp9Zhw/mkZ+sFywenXbJQ7yze6
+         smb4pU0ioEzy3TaYxg1xIm5HVKCOsRcbUCZnr87BSs1IzfYByb9LFjE5GkGTQTJJaoc0
+         LXu4dlLLopvx/tZRS2vTbgmbGO5VugTopYeejuzMvVWdySNvMPcnX+c7dgzd6pfgev1g
+         Uw1+jfEQH5FRl9XA5cocz+7i2tYhklEZ6EVbwpHY8qMCdED5cJcKiqyAtKdNBv3X0x48
+         JC1e2J+n7SwRJPIbPHxE4vMVUOU5VV0ArrjsIzFtE6KDgwmSqp+6Axs9xgQLxaC+mV9L
+         D4BQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=mPcdBOc2e7QemTON3231cBaF7A2u4c4EVPB/7RmcEYE=;
+        b=my0z4aELQPcPJrjmZPXXz12z0rsIL2O74N+5MuPVYfCNyz/g3SQ0yJVbHms0bqTUEM
+         h5zBqiJ5MjMrsZryCpzIUfdl6M4J2IN9cBBb6/lOXkpXMxVA60K8vAIF5pPx6MlDsV1A
+         U/O3C9RiqNv/lV8kF5LorX/9WQz9AEGdvXj52tg/pAIbY21bvLAp4tFCCB8BxQhy+k4S
+         smIPL6JHbz1cumTwUlde+m6rDjGoaHlJ08RukZKfvZUjuG5RxQnD2CvlYOcVqVnfdyhN
+         KDsNWruiut8RWvDP5etPQgUnhJP6f4axAkjoO+292vByaE67NxvfpJVpH/GusTag1nnF
+         Z8tQ==
+X-Gm-Message-State: ANhLgQ2CLWAcqeGXgDtkV5xsVjq4eY/cQG/Lgg6Ytmqymo5Sbs0Zcg1V
+        6ENFf5m1ouGp65FVOcyob1trl9yBiTZM4mntMXM/Wg==
+X-Google-Smtp-Source: ADFU+vsqpDlcqiWB9q7KKygyItU4Exl6qjK6jMFgelmsKNY/72LeqCgDirfwawAsH2k/PhKwtF75WuehnpoiQ2S9ty0=
+X-Received: by 2002:a2e:9256:: with SMTP id v22mr4339595ljg.38.1584686782411;
+ Thu, 19 Mar 2020 23:46:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200319150225.148464084@linuxfoundation.org>
+In-Reply-To: <20200319150225.148464084@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 20 Mar 2020 12:16:11 +0530
+Message-ID: <CA+G9fYvOQ=oibqFZ=zffqj-c5mcjW2Bew2rVHg=FPs2mHxb_ug@mail.gmail.com>
+Subject: Re: [PATCH 5.5 00/64] 5.5.11-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b716e6889c95f64ba32af492461f6cc9341f3f05 upstream.
+On Thu, 19 Mar 2020 at 20:34, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.5.11 release.
+> There are 64 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 21 Mar 2020 15:02:02 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.5.11-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.5.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-The host is allowed to pass the controller an sgl describing a buffer
-that is larger than the dsm payload itself, allow it when executing
-dsm.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Reported-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>,
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
----
- drivers/nvme/target/core.c        | 11 +++++++++++
- drivers/nvme/target/io-cmd-bdev.c |  2 +-
- drivers/nvme/target/io-cmd-file.c |  2 +-
- drivers/nvme/target/nvmet.h       |  1 +
- 4 files changed, 14 insertions(+), 2 deletions(-)
+NOTE:
+The arm64 dragonboard-410c and arm beagleboard x15 device running
+stable rc 4.19.112-rc1, 5.4.27-rc1 and 5.5.11-rc2 kernel popping up
+the following messages on console log continuously. [Ref]
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index 35810a0a8d21..461987f669c5 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -939,6 +939,17 @@ bool nvmet_check_data_len(struct nvmet_req *req, size_t data_len)
- }
- EXPORT_SYMBOL_GPL(nvmet_check_data_len);
- 
-+bool nvmet_check_data_len_lte(struct nvmet_req *req, size_t data_len)
-+{
-+	if (unlikely(data_len > req->transfer_len)) {
-+		req->error_loc = offsetof(struct nvme_common_command, dptr);
-+		nvmet_req_complete(req, NVME_SC_SGL_INVALID_DATA | NVME_SC_DNR);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
- int nvmet_req_alloc_sgl(struct nvmet_req *req)
- {
- 	struct pci_dev *p2p_dev = NULL;
-diff --git a/drivers/nvme/target/io-cmd-bdev.c b/drivers/nvme/target/io-cmd-bdev.c
-index b6fca0e421ef..ea0e596be15d 100644
---- a/drivers/nvme/target/io-cmd-bdev.c
-+++ b/drivers/nvme/target/io-cmd-bdev.c
-@@ -280,7 +280,7 @@ static void nvmet_bdev_execute_discard(struct nvmet_req *req)
- 
- static void nvmet_bdev_execute_dsm(struct nvmet_req *req)
- {
--	if (!nvmet_check_data_len(req, nvmet_dsm_len(req)))
-+	if (!nvmet_check_data_len_lte(req, nvmet_dsm_len(req)))
- 		return;
- 
- 	switch (le32_to_cpu(req->cmd->dsm.attributes)) {
-diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
-index caebfce06605..cd5670b83118 100644
---- a/drivers/nvme/target/io-cmd-file.c
-+++ b/drivers/nvme/target/io-cmd-file.c
-@@ -336,7 +336,7 @@ static void nvmet_file_dsm_work(struct work_struct *w)
- 
- static void nvmet_file_execute_dsm(struct nvmet_req *req)
- {
--	if (!nvmet_check_data_len(req, nvmet_dsm_len(req)))
-+	if (!nvmet_check_data_len_lte(req, nvmet_dsm_len(req)))
- 		return;
- 	INIT_WORK(&req->f.work, nvmet_file_dsm_work);
- 	schedule_work(&req->f.work);
-diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
-index 46df45e837c9..eda28b22a2c8 100644
---- a/drivers/nvme/target/nvmet.h
-+++ b/drivers/nvme/target/nvmet.h
-@@ -374,6 +374,7 @@ bool nvmet_req_init(struct nvmet_req *req, struct nvmet_cq *cq,
- 		struct nvmet_sq *sq, const struct nvmet_fabrics_ops *ops);
- void nvmet_req_uninit(struct nvmet_req *req);
- bool nvmet_check_data_len(struct nvmet_req *req, size_t data_len);
-+bool nvmet_check_data_len_lte(struct nvmet_req *req, size_t data_len);
- void nvmet_req_complete(struct nvmet_req *req, u16 status);
- int nvmet_req_alloc_sgl(struct nvmet_req *req);
- void nvmet_req_free_sgl(struct nvmet_req *req);
--- 
-2.20.1
+[   15.737765] mmc1: unspecified timeout for CMD6 - use generic
+[   16.754248] mmc1: unspecified timeout for CMD6 - use generic
+[   16.842071] mmc1: unspecified timeout for CMD6 - use generic
+...
+[  977.126652] mmc1: unspecified timeout for CMD6 - use generic
+[  985.449798] mmc1: unspecified timeout for CMD6 - use generic
 
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.5.11-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.5.y
+git commit: 0d188a9d230a850b4267cda97de8a26bda4a1399
+git describe: v5.5.10-65-g0d188a9d230a
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.5-oe/bui=
+ld/v5.5.10-65-g0d188a9d230a
+
+No regressions (compared to build v5.5.9-217-g0d188a9d230a)
+
+No fixes (compared to build v5.5.9-217-g0d188a9d230a)
+
+Ran 24198 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* libgpiod
+* linux-log-parser
+* perf
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-fcntl-locktests-tests
+* ltp-fs-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* kselftest
+* network-basic-tests
+* libhugetlbfs
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+
+ref:
+https://lkft.validation.linaro.org/scheduler/job/1299759#L4052
+https://lkft.validation.linaro.org/scheduler/job/1299760#L4017
+https://lkft.validation.linaro.org/scheduler/job/1299762#L3992
+https://lkft.validation.linaro.org/scheduler/job/1299762#L3993
+https://lkft.validation.linaro.org/scheduler/job/1299763#L4006
+https://lkft.validation.linaro.org/scheduler/job/1299764#L3982
+https://lkft.validation.linaro.org/scheduler/job/1300003#L4398
+
+--
+Linaro LKFT
+https://lkft.linaro.org
