@@ -2,282 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 709AC18C5C1
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 04:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADA1918C611
+	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 04:49:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726869AbgCTD2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 Mar 2020 23:28:11 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46444 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726809AbgCTD2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 Mar 2020 23:28:11 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02K33p4r005852;
-        Thu, 19 Mar 2020 23:28:09 -0400
-Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yu8btj2v3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 Mar 2020 23:28:09 -0400
-Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
-        by ppma01dal.us.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 02K3Q2P1008849;
-        Fri, 20 Mar 2020 03:28:08 GMT
-Received: from b01cxnp23034.gho.pok.ibm.com (b01cxnp23034.gho.pok.ibm.com [9.57.198.29])
-        by ppma01dal.us.ibm.com with ESMTP id 2yrpw7gnu4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 20 Mar 2020 03:28:08 +0000
-Received: from b01ledav004.gho.pok.ibm.com (b01ledav004.gho.pok.ibm.com [9.57.199.109])
-        by b01cxnp23034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 02K3S7R653608798
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 Mar 2020 03:28:07 GMT
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3FBF2112062;
-        Fri, 20 Mar 2020 03:28:07 +0000 (GMT)
-Received: from b01ledav004.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 27CB2112065;
-        Fri, 20 Mar 2020 03:28:07 +0000 (GMT)
-Received: from crimini9.aus.stglabs.ibm.com (unknown [9.40.192.141])
-        by b01ledav004.gho.pok.ibm.com (Postfix) with ESMTPS;
-        Fri, 20 Mar 2020 03:28:07 +0000 (GMT)
-Received: (from gcwilson@localhost)
-        by crimini9.aus.stglabs.ibm.com (8.15.2/8.15.2/Submit) id 02K3S2QX228135;
-        Thu, 19 Mar 2020 23:28:02 -0400
-X-Authentication-Warning: crimini9.aus.stglabs.ibm.com: gcwilson set sender to gcwilson@linux.ibm.com using -f
-From:   George Wilson <gcwilson@linux.ibm.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Nayna Jain <nayna@linux.vnet.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org,
-        George Wilson <gcwilson@linux.ibm.com>,
-        Linh Pham <phaml@us.ibm.com>, stable@vger.kernel.org
-Subject: [PATCH v4] tpm: ibmvtpm: retry on H_CLOSED in tpm_ibmvtpm_send()
-Date:   Thu, 19 Mar 2020 23:27:58 -0400
-Message-Id: <20200320032758.228088-1-gcwilson@linux.ibm.com>
-X-Mailer: git-send-email 2.24.1
+        id S1726673AbgCTDsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 Mar 2020 23:48:55 -0400
+Received: from helcar.hmeau.com ([216.24.177.18]:33854 "EHLO fornost.hmeau.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725884AbgCTDsz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 19 Mar 2020 23:48:55 -0400
+Received: from gwarestrin.me.apana.org.au ([192.168.0.7] helo=gwarestrin.arnor.me.apana.org.au)
+        by fornost.hmeau.com with smtp (Exim 4.89 #2 (Debian))
+        id 1jF8eA-0001To-MJ; Fri, 20 Mar 2020 14:48:35 +1100
+Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Fri, 20 Mar 2020 14:48:34 +1100
+Date:   Fri, 20 Mar 2020 14:48:34 +1100
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        gregkh@linuxfoundation.org, Emil Renner Berthing <kernel@esmil.dk>,
+        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH URGENT crypto v2] crypto: arm64/chacha - correctly walk
+ through blocks
+Message-ID: <20200320034834.GA27372@gondor.apana.org.au>
+References: <CAHmME9otcAe7H4Anan8Tv1KreTZtwt4XXEPMG--x2Ljr0M+o1Q@mail.gmail.com>
+ <20200319022732.166085-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.645
- definitions=2020-03-19_10:2020-03-19,2020-03-19 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 mlxscore=0
- lowpriorityscore=0 adultscore=0 priorityscore=1501 bulkscore=0
- suspectscore=1 malwarescore=0 mlxlogscore=999 spamscore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2003200011
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200319022732.166085-1-Jason@zx2c4.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-tpm_ibmvtpm_send() can fail during PowerVM Live Partition Mobility resume
-with an H_CLOSED return from ibmvtpm_send_crq().  The PAPR says, 'The
-"partner partition suspended" transport event disables the associated CRQ
-such that any H_SEND_CRQ hcall() to the associated CRQ returns H_Closed
-until the CRQ has been explicitly enabled using the H_ENABLE_CRQ hcall.'
-This patch adds a check in tpm_ibmvtpm_send() for an H_CLOSED return from
-ibmvtpm_send_crq() and in that case calls tpm_ibmvtpm_resume() and
-retries the ibmvtpm_send_crq() once.
+On Wed, Mar 18, 2020 at 08:27:32PM -0600, Jason A. Donenfeld wrote:
+> Prior, passing in chunks of 2, 3, or 4, followed by any additional
+> chunks would result in the chacha state counter getting out of sync,
+> resulting in incorrect encryption/decryption, which is a pretty nasty
+> crypto vuln: "why do images look weird on webpages?" WireGuard users
+> never experienced this prior, because we have always, out of tree, used
+> a different crypto library, until the recent Frankenzinc addition. This
+> commit fixes the issue by advancing the pointers and state counter by
+> the actual size processed. It also fixes up a bug in the (optional,
+> costly) stride test that prevented it from running on arm64.
+> 
+> Fixes: b3aad5bad26a ("crypto: arm64/chacha - expose arm64 ChaCha routine as library function")
+> Reported-and-tested-by: Emil Renner Berthing <kernel@esmil.dk>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: stable@vger.kernel.org # v5.5+
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+>  arch/arm64/crypto/chacha-neon-glue.c   |  8 ++++----
+>  lib/crypto/chacha20poly1305-selftest.c | 11 ++++++++---
+>  2 files changed, 12 insertions(+), 7 deletions(-)
 
-Reported-by: Linh Pham <phaml@us.ibm.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Signed-off-by: George Wilson <gcwilson@linux.ibm.com>
-Tested-by: Linh Pham <phaml@us.ibm.com>
-Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
-Cc: stable@vger.kernel.org
----
- drivers/char/tpm/tpm_ibmvtpm.c | 136 ++++++++++++++++++---------------
- 1 file changed, 73 insertions(+), 63 deletions(-)
-
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
-index 78cc52690177..e82013d587b4 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (C) 2012 IBM Corporation
-+ * Copyright (C) 2012-2020 IBM Corporation
-  *
-  * Author: Ashley Lai <ashleydlai@gmail.com>
-  *
-@@ -133,6 +133,64 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
- 	return len;
- }
- 
-+/**
-+ * ibmvtpm_crq_send_init - Send a CRQ initialize message
-+ * @ibmvtpm:	vtpm device struct
-+ *
-+ * Return:
-+ *	0 on success.
-+ *	Non-zero on failure.
-+ */
-+static int ibmvtpm_crq_send_init(struct ibmvtpm_dev *ibmvtpm)
-+{
-+	int rc;
-+
-+	rc = ibmvtpm_send_crq_word(ibmvtpm->vdev, INIT_CRQ_CMD);
-+	if (rc != H_SUCCESS)
-+		dev_err(ibmvtpm->dev,
-+			"%s failed rc=%d\n", __func__, rc);
-+
-+	return rc;
-+}
-+
-+/**
-+ * tpm_ibmvtpm_resume - Resume from suspend
-+ *
-+ * @dev:	device struct
-+ *
-+ * Return: Always 0.
-+ */
-+static int tpm_ibmvtpm_resume(struct device *dev)
-+{
-+	struct tpm_chip *chip = dev_get_drvdata(dev);
-+	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
-+	int rc = 0;
-+
-+	do {
-+		if (rc)
-+			msleep(100);
-+		rc = plpar_hcall_norets(H_ENABLE_CRQ,
-+					ibmvtpm->vdev->unit_address);
-+	} while (rc == H_IN_PROGRESS || rc == H_BUSY || H_IS_LONG_BUSY(rc));
-+
-+	if (rc) {
-+		dev_err(dev, "Error enabling ibmvtpm rc=%d\n", rc);
-+		return rc;
-+	}
-+
-+	rc = vio_enable_interrupts(ibmvtpm->vdev);
-+	if (rc) {
-+		dev_err(dev, "Error vio_enable_interrupts rc=%d\n", rc);
-+		return rc;
-+	}
-+
-+	rc = ibmvtpm_crq_send_init(ibmvtpm);
-+	if (rc)
-+		dev_err(dev, "Error send_init rc=%d\n", rc);
-+
-+	return rc;
-+}
-+
- /**
-  * tpm_ibmvtpm_send() - Send a TPM command
-  * @chip:	tpm chip struct
-@@ -146,6 +204,7 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
- static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
- {
- 	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
-+	bool retry = true;
- 	int rc, sig;
- 
- 	if (!ibmvtpm->rtce_buf) {
-@@ -179,18 +238,27 @@ static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
- 	 */
- 	ibmvtpm->tpm_processing_cmd = true;
- 
-+again:
- 	rc = ibmvtpm_send_crq(ibmvtpm->vdev,
- 			IBMVTPM_VALID_CMD, VTPM_TPM_COMMAND,
- 			count, ibmvtpm->rtce_dma_handle);
- 	if (rc != H_SUCCESS) {
-+		/*
-+		 * H_CLOSED can be returned after LPM resume.  Call
-+		 * tpm_ibmvtpm_resume() to re-enable the CRQ then retry
-+		 * ibmvtpm_send_crq() once before failing.
-+		 */
-+		if (rc == H_CLOSED && retry) {
-+			tpm_ibmvtpm_resume(ibmvtpm->dev);
-+			retry = false;
-+			goto again;
-+		}
- 		dev_err(ibmvtpm->dev, "tpm_ibmvtpm_send failed rc=%d\n", rc);
--		rc = 0;
- 		ibmvtpm->tpm_processing_cmd = false;
--	} else
--		rc = 0;
-+	}
- 
- 	spin_unlock(&ibmvtpm->rtce_lock);
--	return rc;
-+	return 0;
- }
- 
- static void tpm_ibmvtpm_cancel(struct tpm_chip *chip)
-@@ -268,26 +336,6 @@ static int ibmvtpm_crq_send_init_complete(struct ibmvtpm_dev *ibmvtpm)
- 	return rc;
- }
- 
--/**
-- * ibmvtpm_crq_send_init - Send a CRQ initialize message
-- * @ibmvtpm:	vtpm device struct
-- *
-- * Return:
-- *	0 on success.
-- *	Non-zero on failure.
-- */
--static int ibmvtpm_crq_send_init(struct ibmvtpm_dev *ibmvtpm)
--{
--	int rc;
--
--	rc = ibmvtpm_send_crq_word(ibmvtpm->vdev, INIT_CRQ_CMD);
--	if (rc != H_SUCCESS)
--		dev_err(ibmvtpm->dev,
--			"ibmvtpm_crq_send_init failed rc=%d\n", rc);
--
--	return rc;
--}
--
- /**
-  * tpm_ibmvtpm_remove - ibm vtpm remove entry point
-  * @vdev:	vio device struct
-@@ -400,44 +448,6 @@ static int ibmvtpm_reset_crq(struct ibmvtpm_dev *ibmvtpm)
- 				  ibmvtpm->crq_dma_handle, CRQ_RES_BUF_SIZE);
- }
- 
--/**
-- * tpm_ibmvtpm_resume - Resume from suspend
-- *
-- * @dev:	device struct
-- *
-- * Return: Always 0.
-- */
--static int tpm_ibmvtpm_resume(struct device *dev)
--{
--	struct tpm_chip *chip = dev_get_drvdata(dev);
--	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
--	int rc = 0;
--
--	do {
--		if (rc)
--			msleep(100);
--		rc = plpar_hcall_norets(H_ENABLE_CRQ,
--					ibmvtpm->vdev->unit_address);
--	} while (rc == H_IN_PROGRESS || rc == H_BUSY || H_IS_LONG_BUSY(rc));
--
--	if (rc) {
--		dev_err(dev, "Error enabling ibmvtpm rc=%d\n", rc);
--		return rc;
--	}
--
--	rc = vio_enable_interrupts(ibmvtpm->vdev);
--	if (rc) {
--		dev_err(dev, "Error vio_enable_interrupts rc=%d\n", rc);
--		return rc;
--	}
--
--	rc = ibmvtpm_crq_send_init(ibmvtpm);
--	if (rc)
--		dev_err(dev, "Error send_init rc=%d\n", rc);
--
--	return rc;
--}
--
- static bool tpm_ibmvtpm_req_canceled(struct tpm_chip *chip, u8 status)
- {
- 	return (status == 0);
+Patch applied.  Thanks.
 -- 
-2.24.1
-
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
