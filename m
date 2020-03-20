@@ -2,337 +2,235 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2818318D9EA
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 22:01:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02C6618DC31
+	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 00:48:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726783AbgCTVB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 17:01:29 -0400
-Received: from mail-eopbgr1410128.outbound.protection.outlook.com ([40.107.141.128]:16359
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726738AbgCTVB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Mar 2020 17:01:29 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oBVNS8cC5QpMuClB4gL3uyq2bnN7cJ8aWdi14CaDPUtzR9CBqkMvAg1Ag9EzW8MUxqw6ZoUJ4iynyLTnI9hIyIAKjLUi6cSBkEWUECGiXFBcsdP3GE2SL2O/KhIkFEARWbidvTquM3iXh6JzfoQGzSiMbwByr9A3+ofmmDXPHypXiCS+zyyWMBJL0KZj7KC4XuzlCSWBHMzCZeWrUPSc9t4+1G+HiHzDdf89+WnI+bKLtWzwdCAXddgn7Lrq/LF8xKvg95Nx5Ov6zVHEnIImNmYK1cpFDAhSczY1KiBPHd4Gp8hLcAqck5O1RafFta62qXYfZBHU40vzYbNhMQBSKQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=teEXvQgf9bDGDz/Ngt8Py0zu2R0J7PToHEFltfbU7wA=;
- b=ZgV0mvy/jmo7W3bEf1pmZyOG6CljKwCQuZjPNWJ3eldhlN2iGRB+ckrdmV/qmsfmsKF2vQjEnXjDsrWja0vI/DV/jq7z/K1NbYozx7CNGo3pucIztWBQ4t3HhI3AlYOJb9arX0tDQ4ASF/KyvzEynDFoKPYtmk5ZPqYnV5RYdHOgXeuTjQSKSL+EYqQE/4F/dg/l6xt24znl5w0dU9AeDnsucRrFm1ieTxOcRE497NlEDPX7YDfYnG1TQrsxjPg2behGawdEshfr4O4LQM4DfC8keQSi4vB9A8Kgw+6/qE+s34gb6beul/+HxmKLoZwHG7Y5wkDCpWFSTHGtF8QmAg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
- dkim=pass header.d=renesas.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=teEXvQgf9bDGDz/Ngt8Py0zu2R0J7PToHEFltfbU7wA=;
- b=e9BF+GSZj51w8U5ze3/wMrG+YYXwbMdiHQnAtMiXcbvjhVtY3EoUbqhFnsPoQJDHakS+vNj4bfZxkvTje0ClAatMbHDxbZYsdvrHsrpe+J7lPNPonltcjBDIWl/QQu+XFO216lJhr44B9FJ+OuPwiSS8kNSrEju2x6gCRh85wq8=
-Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com (52.133.177.145) by
- TYAPR01MB3470.jpnprd01.prod.outlook.com (20.178.136.215) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2814.23; Fri, 20 Mar 2020 21:01:22 +0000
-Received: from TYAPR01MB2285.jpnprd01.prod.outlook.com
- ([fe80::a882:860e:5745:25e1]) by TYAPR01MB2285.jpnprd01.prod.outlook.com
- ([fe80::a882:860e:5745:25e1%6]) with mapi id 15.20.2814.025; Fri, 20 Mar 2020
- 21:01:22 +0000
-From:   Chris Paterson <Chris.Paterson2@renesas.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH 4.19 00/48] 4.19.112-rc1 review
-Thread-Topic: [PATCH 4.19 00/48] 4.19.112-rc1 review
-Thread-Index: AQHV/fE98ds7jeqOIEC2x2bRRplLk6hR+GbA
-Date:   Fri, 20 Mar 2020 21:01:22 +0000
-Message-ID: <TYAPR01MB22854A4356027767654C9723B7F50@TYAPR01MB2285.jpnprd01.prod.outlook.com>
-References: <20200319123902.941451241@linuxfoundation.org>
-In-Reply-To: <20200319123902.941451241@linuxfoundation.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Chris.Paterson2@renesas.com; 
-x-originating-ip: [193.141.220.21]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: af36bb87-9ee1-4016-cd66-08d7cd11d862
-x-ms-traffictypediagnostic: TYAPR01MB3470:
-x-microsoft-antispam-prvs: <TYAPR01MB3470D9E00EAE9F30DE6C7311B7F50@TYAPR01MB3470.jpnprd01.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-forefront-prvs: 03484C0ABF
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(136003)(39860400002)(396003)(366004)(346002)(376002)(199004)(76116006)(8936002)(478600001)(8676002)(7696005)(55016002)(6506007)(9686003)(81156014)(71200400001)(81166006)(4326008)(52536014)(33656002)(86362001)(5660300002)(7416002)(66446008)(186003)(2906002)(966005)(26005)(64756008)(66556008)(66946007)(66476007)(316002)(110136005)(54906003);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB3470;H:TYAPR01MB2285.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;
-received-spf: None (protection.outlook.com: renesas.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: fEMIlEyTZhEOIVbiM/Zj2h8BBx6P+wiXXE2UV7OXfS4Kcqxi4Q5qbNEEiLwSj4LIlyojhew4tWWh9e6BgixJvx2ZpwB0aYnvB5sLWWaWypP5LYmCWE8/WHoe1DoSe1wEMvs56dGvdfuf/OsuQ9bALopdkhPp4K+C+z60DzuIyuDwg8PM4ZIEGDKrqmtfnFCwrytmcHH1zQ15SDXO8jWZTSTiyMJxpoll9I0h/t5MWaG1890E2kxDXOE4yjMnGIX5dFR97qcPnlW/N3VURf+jhzMA8/f6fHJNnkJFa/ro5ZCGZrnrmeorDJXFJIPxhqI3vRnGh8g69DeN0C4EDz7aW21cpcVRmGqJuvExwRACWtPLbMctp6rRj+jzQkTKo63Umo6pajGINXZSx4ZLg9lryK2qCRZomWgEv9zjxrE/JHWPqMqVjlWdtYVrycWeWhOvWlXzxi0iZTZVxxBjZW5Y8Xu5GB8lLxoZr3/kM8Ga2OJ/+EV+6pyZrdHAGYIAeClUQNL8ENIXsjPXsKPSLEY+CQ==
-x-ms-exchange-antispam-messagedata: wmmD053+Rc77E06tzxVxQMf43q8evQYSedvVsZZtHJoZXbUYogp8/xQZgywrYMP8EyXQEUysQa++6h/kYOdpItL1AM/J2PFHTNGO9lhYKzRDBi+gU60XQxdA105xdKjFkxBACj33DpnIyXIZMky3KA==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: renesas.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: af36bb87-9ee1-4016-cd66-08d7cd11d862
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Mar 2020 21:01:22.3027
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: pZ1u9qJIl9a72PPSjXyz3SMIPfNY+P+0IunJfBDTw5Zm7ng3yLYFDTEQswejUyzXiMYaSO60Kh9RZ9znqdnVy/3P6UoWdB8rYkMBh9V4pfs=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB3470
+        id S1726880AbgCTXs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 19:48:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46932 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726773AbgCTXs1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Mar 2020 19:48:27 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FF5A2072C;
+        Fri, 20 Mar 2020 23:48:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584748106;
+        bh=WTc4amYvfakkzx+/DMp/O0fGsBEJLY5htT9PZWYecak=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=d2JF09diUuqtDWWSSTK3XljF3hKCyG+YICphWfzcb/NOPn5aVWzVnEdbQjxNKVLlq
+         VJ7b/lY0ziBPJzsJU67DccRpLQtLYj/6le/3nRzGYPpUgXmjJoes+iGmkZvdWYwlwy
+         9haDVKrWeLas+qduZx0BwxhDlOAOhZCbHjI4H3ZE=
+Date:   Fri, 20 Mar 2020 16:48:25 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     bharata@linux.ibm.com, cl@linux.com, iamjoonsoo.kim@lge.com,
+        ktkhai@virtuozzo.com, mgorman@techsingularity.net,
+        mhocko@kernel.org, mm-commits@vger.kernel.org, mpe@ellerman.id.au,
+        nathanl@linux.ibm.com, penberg@kernel.org,
+        puvichakravarthy@in.ibm.com, rientjes@google.com,
+        sachinp@linux.vnet.ibm.com, srikar@linux.vnet.ibm.com,
+        stable@vger.kernel.org, vbabka@suse.cz
+Subject:  +
+ mm-slub-prevent-kmalloc_node-crashes-and-memory-leaks.patch added to -mm
+ tree
+Message-ID: <20200320234825.GfL2XD8Hw%akpm@linux-foundation.org>
+In-Reply-To: <20200305222751.6d781a3f2802d79510941e4e@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Greg,
 
-> From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
-> Behalf Of Greg Kroah-Hartman
-> Sent: 19 March 2020 13:04
->=20
-> This is the start of the stable review cycle for the 4.19.112 release.
-> There are 48 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+The patch titled
+     Subject: mm, slub: prevent kmalloc_node crashes and memory leaks
+has been added to the -mm tree.  Its filename is
+     mm-slub-prevent-kmalloc_node-crashes-and-memory-leaks.patch
 
-No build/test issues seen for CIP configs for Linux 4.19.112-rc1 (d078cac7a=
-422).
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-slub-prevent-kmalloc_node-crashes-and-memory-leaks.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-slub-prevent-kmalloc_node-crashes-and-memory-leaks.patch
 
-Build/test pipeline/logs: https://gitlab.com/cip-project/cip-testing/linux-=
-stable-rc-ci/pipelines/128111695
-GitLab CI pipeline: https://gitlab.com/cip-project/cip-testing/linux-cip-pi=
-pelines/-/blob/master/trees/linux-4.19.y.yml
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Kind regards, Chris
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
->=20
-> Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
-> Anything received after that time might be too late.
->=20
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-
-> 4.19.112-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> linux-4.19.y
-> and the diffstat can be found below.
->=20
-> thanks,
->=20
-> greg k-h
->=20
-> -------------
-> Pseudo-Shortlog of commits:
->=20
-> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->     Linux 4.19.112-rc1
->=20
-> Matteo Croce <mcroce@redhat.com>
->     ipv4: ensure rcu_read_lock() in cipso_v4_error()
->=20
-> Waiman Long <longman@redhat.com>
->     efi: Fix debugobjects warning on 'efi_rts_work'
->=20
-> Chen-Tsung Hsieh <chentsung@chromium.org>
->     HID: google: add moonball USB id
->=20
-> Jann Horn <jannh@google.com>
->     mm: slub: add missing TID bump in kmem_cache_alloc_bulk()
->=20
-> Kees Cook <keescook@chromium.org>
->     ARM: 8958/1: rename missed uaccess .fixup section
->=20
-> Florian Fainelli <f.fainelli@gmail.com>
->     ARM: 8957/1: VDSO: Match ARMv8 timer in cntvct_functional()
->=20
-> Carl Huang <cjhuang@codeaurora.org>
->     net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
->=20
-> Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->     driver core: Fix creation of device links with PM-runtime flags
->=20
-> Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->     driver core: Remove device link creation limitation
->=20
-> Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->     driver core: Add device link flag DL_FLAG_AUTOPROBE_CONSUMER
->=20
-> Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->     driver core: Make driver core own stateful device links
->=20
-> Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->     driver core: Fix adding device links to probing suppliers
->=20
-> Yong Wu <yong.wu@mediatek.com>
->     driver core: Remove the link if there is no driver with AUTO flag
->=20
-> Faiz Abbas <faiz_abbas@ti.com>
->     mmc: sdhci-omap: Fix Tuning procedure for temperatures < -20C
->=20
-> Faiz Abbas <faiz_abbas@ti.com>
->     mmc: sdhci-omap: Don't finish_mrq() on a command error during tuning
->=20
-> Navid Emamdoost <navid.emamdoost@gmail.com>
->     wimax: i2400: Fix memory leak in i2400m_op_rfkill_sw_toggle
->=20
-> Navid Emamdoost <navid.emamdoost@gmail.com>
->     wimax: i2400: fix memory leak
->=20
-> Qian Cai <cai@lca.pw>
->     jbd2: fix data races at struct journal_head
->=20
-> Alex Maftei (amaftei) <amaftei@solarflare.com>
->     sfc: fix timestamp reconstruction at 16-bit rollover points
->=20
-> Taehee Yoo <ap420073@gmail.com>
->     net: rmnet: fix packet forwarding in rmnet bridge mode
->=20
-> Taehee Yoo <ap420073@gmail.com>
->     net: rmnet: fix bridge mode bugs
->=20
-> Taehee Yoo <ap420073@gmail.com>
->     net: rmnet: use upper/lower device infrastructure
->=20
-> Taehee Yoo <ap420073@gmail.com>
->     net: rmnet: do not allow to change mux id if mux id is duplicated
->=20
-> Taehee Yoo <ap420073@gmail.com>
->     net: rmnet: remove rcu_read_lock in rmnet_force_unassociate_device()
->=20
-> Taehee Yoo <ap420073@gmail.com>
->     net: rmnet: fix suspicious RCU usage
->=20
-> Taehee Yoo <ap420073@gmail.com>
->     net: rmnet: fix NULL pointer dereference in rmnet_changelink()
->=20
-> Taehee Yoo <ap420073@gmail.com>
->     net: rmnet: fix NULL pointer dereference in rmnet_newlink()
->=20
-> Luo bin <luobin9@huawei.com>
->     hinic: fix a bug of setting hw_ioctxt
->=20
-> Luo bin <luobin9@huawei.com>
->     hinic: fix a irq affinity bug
->=20
-> yangerkun <yangerkun@huawei.com>
->     slip: not call free_netdev before rtnl_unlock in slip_open
->=20
-> Linus Torvalds <torvalds@linux-foundation.org>
->     signal: avoid double atomic counter increments for user accounting
->=20
-> Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
->     mac80211: rx: avoid RCU list traversal under mutex
->=20
-> Marek Vasut <marex@denx.de>
->     net: ks8851-ml: Fix IRQ handling and locking
->=20
-> Daniele Palmas <dnlplm@gmail.com>
->     net: usb: qmi_wwan: restore mtu min/max values after raw_ip switch
->=20
-> Igor Druzhinin <igor.druzhinin@citrix.com>
->     scsi: libfc: free response frame from GPN_ID
->=20
-> Johannes Berg <johannes.berg@intel.com>
->     cfg80211: check reg_rule for NULL in handle_channel_custom()
->=20
-> Kai-Heng Feng <kai.heng.feng@canonical.com>
->     HID: i2c-hid: add Trekstor Surfbook E11B to descriptor override
->=20
-> Mansour Behabadi <mansour@oxplot.com>
->     HID: apple: Add support for recent firmware on Magic Keyboards
->=20
-> Jean Delvare <jdelvare@suse.de>
->     ACPI: watchdog: Allow disabling WDAT at boot
->=20
-> Ulf Hansson <ulf.hansson@linaro.org>
->     mmc: core: Allow host controllers to require R1B for CMD6
->=20
-> Ulf Hansson <ulf.hansson@linaro.org>
->     mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for erase/trim/discard
->=20
-> Ulf Hansson <ulf.hansson@linaro.org>
->     mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
->=20
-> Ulf Hansson <ulf.hansson@linaro.org>
->     mmc: sdhci-omap: Fix busy detection by enabling
-> MMC_CAP_NEED_RSP_BUSY
->=20
-> Faiz Abbas <faiz_abbas@ti.com>
->     mmc: host: Fix Kconfig warnings on keystone_defconfig
->=20
-> Faiz Abbas <faiz_abbas@ti.com>
->     mmc: sdhci-omap: Workaround errata regarding SDR104/HS200 tuning
-> failures (i929)
->=20
-> Faiz Abbas <faiz_abbas@ti.com>
->     mmc: sdhci-omap: Add platform specific reset callback
->=20
-> Ulf Hansson <ulf.hansson@linaro.org>
->     mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
->=20
-> Kim Phillips <kim.phillips@amd.com>
->     perf/amd/uncore: Replace manual sampling check with CAP_NO_INTERRUPT
-> flag
->=20
->=20
-> -------------
->=20
-> Diffstat:
->=20
->  Documentation/admin-guide/kernel-parameters.txt    |   4 +
->  Documentation/driver-api/device_link.rst           |  63 +++--
->  Makefile                                           |   4 +-
->  arch/arm/kernel/vdso.c                             |   2 +
->  arch/arm/lib/copy_from_user.S                      |   2 +-
->  arch/x86/events/amd/uncore.c                       |  14 +-
->  drivers/acpi/acpi_watchdog.c                       |  12 +-
->  drivers/base/core.c                                | 293 +++++++++++++++=
-------
->  drivers/base/dd.c                                  |   2 +-
->  drivers/base/power/runtime.c                       |   4 +-
->  drivers/firmware/efi/runtime-wrappers.c            |   2 +-
->  drivers/hid/hid-apple.c                            |   3 +-
->  drivers/hid/hid-google-hammer.c                    |   2 +
->  drivers/hid/hid-ids.h                              |   1 +
->  drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c           |   8 +
->  drivers/mmc/core/core.c                            |   5 +-
->  drivers/mmc/core/mmc.c                             |   7 +-
->  drivers/mmc/core/mmc_ops.c                         |  27 +-
->  drivers/mmc/host/Kconfig                           |   2 +
->  drivers/mmc/host/sdhci-omap.c                      | 151 ++++++++++-
->  drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c   |   1 +
->  drivers/net/ethernet/huawei/hinic/hinic_hw_dev.h   |   2 +-
->  drivers/net/ethernet/huawei/hinic/hinic_hw_if.h    |   1 +
->  drivers/net/ethernet/huawei/hinic/hinic_hw_qp.h    |   1 +
->  drivers/net/ethernet/huawei/hinic/hinic_rx.c       |   5 +-
->  drivers/net/ethernet/micrel/ks8851_mll.c           |  14 +-
->  drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c | 186 +++++++------
->  drivers/net/ethernet/qualcomm/rmnet/rmnet_config.h |   3 +-
->  .../net/ethernet/qualcomm/rmnet/rmnet_handlers.c   |   7 +-
->  drivers/net/ethernet/qualcomm/rmnet/rmnet_vnd.c    |   8 -
->  drivers/net/ethernet/qualcomm/rmnet/rmnet_vnd.h    |   1 -
->  drivers/net/ethernet/sfc/ptp.c                     |  38 ++-
->  drivers/net/slip/slip.c                            |   3 +
->  drivers/net/usb/qmi_wwan.c                         |   3 +
->  drivers/net/wimax/i2400m/op-rfkill.c               |   1 +
->  drivers/scsi/libfc/fc_disc.c                       |   2 +
->  fs/jbd2/transaction.c                              |   8 +-
->  include/linux/device.h                             |   7 +-
->  include/linux/mmc/host.h                           |   1 +
->  kernel/signal.c                                    |  23 +-
->  mm/slub.c                                          |   9 +
->  net/ipv4/cipso_ipv4.c                              |   7 +-
->  net/mac80211/rx.c                                  |   2 +-
->  net/qrtr/qrtr.c                                    |   2 +-
->  net/wireless/reg.c                                 |   2 +-
->  45 files changed, 672 insertions(+), 273 deletions(-)
->=20
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: mm, slub: prevent kmalloc_node crashes and memory leaks
+
+Sachin reports [1] a crash in SLUB __slab_alloc():
+
+BUG: Kernel NULL pointer dereference on read at 0x000073b0
+Faulting instruction address: 0xc0000000003d55f4
+Oops: Kernel access of bad area, sig: 11 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in:
+CPU: 19 PID: 1 Comm: systemd Not tainted 5.6.0-rc2-next-20200218-autotest #1
+NIP:  c0000000003d55f4 LR: c0000000003d5b94 CTR: 0000000000000000
+REGS: c0000008b37836d0 TRAP: 0300   Not tainted  (5.6.0-rc2-next-20200218-autotest)
+MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 24004844  XER: 00000000
+CFAR: c00000000000dec4 DAR: 00000000000073b0 DSISR: 40000000 IRQMASK: 1
+GPR00: c0000000003d5b94 c0000008b3783960 c00000000155d400 c0000008b301f500
+GPR04: 0000000000000dc0 0000000000000002 c0000000003443d8 c0000008bb398620
+GPR08: 00000008ba2f0000 0000000000000001 0000000000000000 0000000000000000
+GPR12: 0000000024004844 c00000001ec52a00 0000000000000000 0000000000000000
+GPR16: c0000008a1b20048 c000000001595898 c000000001750c18 0000000000000002
+GPR20: c000000001750c28 c000000001624470 0000000fffffffe0 5deadbeef0000122
+GPR24: 0000000000000001 0000000000000dc0 0000000000000002 c0000000003443d8
+GPR28: c0000008b301f500 c0000008bb398620 0000000000000000 c00c000002287180
+NIP [c0000000003d55f4] ___slab_alloc+0x1f4/0x760
+LR [c0000000003d5b94] __slab_alloc+0x34/0x60
+Call Trace:
+[c0000008b3783960] [c0000000003d5734] ___slab_alloc+0x334/0x760 (unreliable)
+[c0000008b3783a40] [c0000000003d5b94] __slab_alloc+0x34/0x60
+[c0000008b3783a70] [c0000000003d6fa0] __kmalloc_node+0x110/0x490
+[c0000008b3783af0] [c0000000003443d8] kvmalloc_node+0x58/0x110
+[c0000008b3783b30] [c0000000003fee38] mem_cgroup_css_online+0x108/0x270
+[c0000008b3783b90] [c000000000235aa8] online_css+0x48/0xd0
+[c0000008b3783bc0] [c00000000023eaec] cgroup_apply_control_enable+0x2ec/0x4d0
+[c0000008b3783ca0] [c000000000242318] cgroup_mkdir+0x228/0x5f0
+[c0000008b3783d10] [c00000000051e170] kernfs_iop_mkdir+0x90/0xf0
+[c0000008b3783d50] [c00000000043dc00] vfs_mkdir+0x110/0x230
+[c0000008b3783da0] [c000000000441c90] do_mkdirat+0xb0/0x1a0
+[c0000008b3783e20] [c00000000000b278] system_call+0x5c/0x68
+
+This is a PowerPC platform with following NUMA topology:
+
+available: 2 nodes (0-1)
+node 0 cpus:
+node 0 size: 0 MB
+node 0 free: 0 MB
+node 1 cpus: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+node 1 size: 35247 MB
+node 1 free: 30907 MB
+node distances:
+node   0   1
+  0:  10  40
+  1:  40  10
+
+possible numa nodes: 0-31
+
+This only happens with a mmotm patch "mm/memcontrol.c: allocate shrinker_map on
+appropriate NUMA node" [2] which effectively calls kmalloc_node for each
+possible node. SLUB however only allocates kmem_cache_node on online
+N_NORMAL_MEMORY nodes, and relies on node_to_mem_node to return such valid node
+for other nodes since commit a561ce00b09e ("slub: fall back to
+node_to_mem_node() node if allocating on memoryless node"). This is however not
+true in this configuration where the _node_numa_mem_ array is not initialized
+for nodes 0 and 2-31, thus it contains zeroes and get_partial() ends up
+accessing non-allocated kmem_cache_node.
+
+A related issue was reported by Bharata (originally by Ramachandran) [3] where
+a similar PowerPC configuration, but with mainline kernel without patch [2]
+ends up allocating large amounts of pages by kmalloc-1k kmalloc-512. This seems
+to have the same underlying issue with node_to_mem_node() not behaving as
+expected, and might probably also lead to an infinite loop with
+CONFIG_SLUB_CPU_PARTIAL [4].
+
+This patch should fix both issues by not relying on node_to_mem_node() anymore
+and instead simply falling back to NUMA_NO_NODE, when kmalloc_node(node) is
+attempted for a node that's not online, or has no usable memory. The "usable
+memory" condition is also changed from node_present_pages() to N_NORMAL_MEMORY
+node state, as that is exactly the condition that SLUB uses to allocate
+kmem_cache_node structures. The check in get_partial() is removed completely,
+as the checks in ___slab_alloc() are now sufficient to prevent get_partial()
+being reached with an invalid node.
+
+[1] https://lore.kernel.org/linux-next/3381CD91-AB3D-4773-BA04-E7A072A63968@linux.vnet.ibm.com/
+[2] https://lore.kernel.org/linux-mm/fff0e636-4c36-ed10-281c-8cdb0687c839@virtuozzo.com/
+[3] https://lore.kernel.org/linux-mm/20200317092624.GB22538@in.ibm.com/
+[4] https://lore.kernel.org/linux-mm/088b5996-faae-8a56-ef9c-5b567125ae54@suse.cz/
+
+Link: http://lkml.kernel.org/r/20200320115533.9604-1-vbabka@suse.cz
+Fixes: a561ce00b09e ("slub: fall back to node_to_mem_node() node if allocating on memoryless node")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Reported-by: PUVICHAKRAVARTHY RAMACHANDRAN <puvichakravarthy@in.ibm.com>
+Tested-by: Bharata B Rao <bharata@linux.ibm.com>
+Debugged-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Christopher Lameter <cl@linux.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/slub.c |   26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
+
+--- a/mm/slub.c~mm-slub-prevent-kmalloc_node-crashes-and-memory-leaks
++++ a/mm/slub.c
+@@ -1973,8 +1973,6 @@ static void *get_partial(struct kmem_cac
+ 
+ 	if (node == NUMA_NO_NODE)
+ 		searchnode = numa_mem_id();
+-	else if (!node_present_pages(node))
+-		searchnode = node_to_mem_node(node);
+ 
+ 	object = get_partial_node(s, get_node(s, searchnode), c, flags);
+ 	if (object || node != NUMA_NO_NODE)
+@@ -2563,17 +2561,27 @@ static void *___slab_alloc(struct kmem_c
+ 	struct page *page;
+ 
+ 	page = c->page;
+-	if (!page)
++	if (!page) {
++		/*
++		 * if the node is not online or has no normal memory, just
++		 * ignore the node constraint
++		 */
++		if (unlikely(node != NUMA_NO_NODE &&
++			     !node_state(node, N_NORMAL_MEMORY)))
++			node = NUMA_NO_NODE;
+ 		goto new_slab;
++	}
+ redo:
+ 
+ 	if (unlikely(!node_match(page, node))) {
+-		int searchnode = node;
+-
+-		if (node != NUMA_NO_NODE && !node_present_pages(node))
+-			searchnode = node_to_mem_node(node);
+-
+-		if (unlikely(!node_match(page, searchnode))) {
++		/*
++		 * same as above but node_match() being false already
++		 * implies node != NUMA_NO_NODE
++		 */
++		if (!node_state(node, N_NORMAL_MEMORY)) {
++			node = NUMA_NO_NODE;
++			goto redo;
++		} else {
+ 			stat(s, ALLOC_NODE_MISMATCH);
+ 			deactivate_slab(s, page, c->freelist, c);
+ 			goto new_slab;
+_
+
+Patches currently in -mm which might be from vbabka@suse.cz are
+
+mm-slub-prevent-kmalloc_node-crashes-and-memory-leaks.patch
+revert-topology-add-support-for-node_to_mem_node-to-determine-the-fallback-node.patch
+mm-compaction-fully-assume-capture-is-not-null-in-compact_zone_order.patch
+mm-hugetlb-remove-unnecessary-memory-fetch-in-pageheadhuge.patch
 
