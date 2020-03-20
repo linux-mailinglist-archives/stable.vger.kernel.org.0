@@ -2,116 +2,287 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D26BA18CCD2
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 12:23:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CFB318CCDF
+	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 12:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbgCTLXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 07:23:30 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:33313 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726814AbgCTLX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Mar 2020 07:23:29 -0400
-Received: by mail-lf1-f68.google.com with SMTP id c20so4235680lfb.0
-        for <stable@vger.kernel.org>; Fri, 20 Mar 2020 04:23:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=RyO6wpDkpqa/Bvf9xBtsqNy8UMTl30kf8fGvN0AJPgw=;
-        b=CGLZ8zoqX0Z1P2EkaPJuaGSc4SikQ2cY1uw004V2rRhKterjx9ZQzlhXr0/n2zz+W/
-         YXYtkpX9oMbC9OyKFZJ8ptEk8zO+JoM2TEM0LDeq+/3bwCAL9ch4SRp2dKbJPvtCaSQp
-         VrCRPUdB6Rf6aWnlTw8xMpADxN/JKHGpkYULKSbpzRCGi0S7TZJsPY7QNdFzhps+LwQr
-         xjDLrs4NjUYvGyj1zriLbnJJakayGNAdeDtGawLwBf5TET+SPawfXPAnZ37u4EYFZTGL
-         lEoKQw9hAiWR4jOj7nFqoZa8UPQiNvZzz2oFX5JUmKSPEBB4xFUBcr5FcoJiWo/FbZQV
-         ULCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=RyO6wpDkpqa/Bvf9xBtsqNy8UMTl30kf8fGvN0AJPgw=;
-        b=ALOfTAGS5m1CFwUg34CsA6MJfjbmkcp7oXXuMUoc65KLWYvsdZESPcQU0UweubE9uu
-         aeGWZ6+8TtwYJGEJDPPOVD60lf+Kjz5168iAe0blvwcsaNFFZDFWLxj6gOPijP8tjnVB
-         1ycM8LlNNJ8okNgXKfjsQhM/f92NAGVvmnebgOaJoAvdWa6/S1thRpqOa2GaFb+Wi7Ig
-         ZWKs8ZyFFIqsaqknTV5NzwT/E60vaHPen4ic0kK2MBgn5BVyFa1QE6dfGrWwr853YI09
-         MspSBNHh6CXq5VRayPgwL9wVGntpjIEyJXxo50C0s4YaCaYWUEjJdN0NAJcXPjM0a2Sx
-         KWSA==
-X-Gm-Message-State: ANhLgQ0cXQ7NXDyVoRJ5lSbefvJabMsAvkd4GphEVSyv9AfAHjlUz7RR
-        8dUbCW9GAVwKjxi2kqo2cktJjvZn4ppZRrxFi6X6Rw==
-X-Google-Smtp-Source: ADFU+vvjULrrifr8Vmppymxm2q6G3j9FXMWUFm6gl5hjIboH5TFPkxW9A9lq4tDC1vHuxKexLNIkRHiq08D+GUpKa00=
-X-Received: by 2002:ac2:43a8:: with SMTP id t8mr5021557lfl.82.1584703406038;
- Fri, 20 Mar 2020 04:23:26 -0700 (PDT)
+        id S1726894AbgCTLYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 07:24:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60030 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726820AbgCTLYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Mar 2020 07:24:42 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A941920784;
+        Fri, 20 Mar 2020 11:24:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584703481;
+        bh=EXBoA87SJmKiYt+GpQ80kFmJuUquWSW0LEEKMk6iR0g=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vYaRXp6xHsItsTLX/MhfLDRWvlmDQG9cJu4eAr3apPPzVcEfrpCbA8SCPkezp3F2U
+         KX4n63BioKtrFeADsB9bGYIxwftAEJrw/HaavumVb7eojjo8XTwDn0G1QM9SdHBEH9
+         t3QgdLdTGrI6jnK8EA7YIZSr4jspwxMiNjfvYWXQ=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.4 00/51] 5.4.27-rc2 review
+Date:   Fri, 20 Mar 2020 12:24:37 +0100
+Message-Id: <20200320112302.129084446@linuxfoundation.org>
+X-Mailer: git-send-email 2.25.2
 MIME-Version: 1.0
-References: <20200319123919.441695203@linuxfoundation.org> <bfdce3ef-5fe9-8dab-1695-be3d33727529@roeck-us.net>
- <20200320105513.GA450546@kroah.com>
-In-Reply-To: <20200320105513.GA450546@kroah.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 20 Mar 2020 16:53:14 +0530
-Message-ID: <CA+G9fYtR4eynoMt6r313FHgEhftDobn2SE9PFiDR=7_wZNfSTQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/60] 5.4.27-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.27-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.27-rc2
+X-KernelTest-Deadline: 2020-03-22T11:23+00:00
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 20 Mar 2020 at 16:25, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Thu, Mar 19, 2020 at 04:55:20PM -0700, Guenter Roeck wrote:
-> > On 3/19/20 6:03 AM, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.4.27 release.
-> > > There are 60 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, plea=
-se
-> > > let me know.
-> > >
-> > > Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
-> > > Anything received after that time might be too late.
-> > >
-> >
-> > Build results:
-> >       total: 158 pass: 158 fail: 0
-> > Qemu test results:
-> >       total: 427 pass: 425 fail: 2
-> > Failed tests:
-> >       mipsel64:64r6el_defconfig:notests:smp:ide:hd
-> >       mipsel64:64r6el_defconfig:notests:smp:ide:cd
-> >
-> > Building mipsel64:64r6el_defconfig:notests:smp:ide:hd ... failed
-> > ------------
-> > Error log:
-> > arch/mips/vdso/vdso.so.dbg.raw: PIC 'jalr t9' calls are not supported
-> >
-> > I was unable to figure out why I only see this problem in v5.4.y.
-> > The build error is easy to reproduce with gcc 9.2.0 and "64r6el_defconf=
-ig".
->
-> I've dropped a bunch of mips vdso patches from 5.5 and 5.4 queues now
-> and will push out new -rcs with those in them to hopefully resolve these
-> issues.
+This is the start of the stable review cycle for the 5.4.27 release.
+There are 51 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-amr64 and arm build failed on stable-rc 5.4 and 5.5
+Responses should be made by Sun, 22 Mar 2020 11:22:06 +0000.
+Anything received after that time might be too late.
 
- # make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j16 ARCH=3Darm64
-CROSS_COMPILE=3Daarch64-linux-gnu- HOSTCC=3Dgcc CC=3D"sccache
-aarch64-linux-gnu-gcc" O=3Dbuild Image
- #
- ../drivers/mmc/host/sdhci-tegra.c: In function =E2=80=98sdhci_tegra_probe=
-=E2=80=99:
- ../drivers/mmc/host/sdhci-tegra.c:1556:21: error:
-=E2=80=98MMC_CAP_NEED_RSP_BUSY=E2=80=99 undeclared (first use in this funct=
-ion); did
-you mean =E2=80=98MMC_CAP_NEEDS_POLL=E2=80=99?
-  1556 | host->mmc->caps |=3D MMC_CAP_NEED_RSP_BUSY;
-  | ^~~~~~~~~~~~~~~~~~~~~
-  | MMC_CAP_NEEDS_POLL
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.27-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.27-rc2
+
+Matteo Croce <mcroce@redhat.com>
+    ipv4: ensure rcu_read_lock() in cipso_v4_error()
+
+Ard Biesheuvel <ardb@kernel.org>
+    ARM: 8961/2: Fix Kbuild issue caused by per-task stack protector GCC plugin
+
+Tony Fischetti <tony.fischetti@gmail.com>
+    HID: add ALWAYS_POLL quirk to lenovo pixart mouse
+
+Chen-Tsung Hsieh <chentsung@chromium.org>
+    HID: google: add moonball USB id
+
+Jann Horn <jannh@google.com>
+    mm: slub: add missing TID bump in kmem_cache_alloc_bulk()
+
+Kees Cook <keescook@chromium.org>
+    ARM: 8958/1: rename missed uaccess .fixup section
+
+Florian Fainelli <f.fainelli@gmail.com>
+    ARM: 8957/1: VDSO: Match ARMv8 timer in cntvct_functional()
+
+Carl Huang <cjhuang@codeaurora.org>
+    net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue
+
+Ming Lei <ming.lei@redhat.com>
+    blk-mq: insert flush request to the front of dispatch queue
+
+Qian Cai <cai@lca.pw>
+    jbd2: fix data races at struct journal_head
+
+Alex Maftei (amaftei) <amaftei@solarflare.com>
+    sfc: fix timestamp reconstruction at 16-bit rollover points
+
+Taehee Yoo <ap420073@gmail.com>
+    net: rmnet: fix packet forwarding in rmnet bridge mode
+
+Taehee Yoo <ap420073@gmail.com>
+    net: rmnet: fix bridge mode bugs
+
+Taehee Yoo <ap420073@gmail.com>
+    net: rmnet: use upper/lower device infrastructure
+
+Taehee Yoo <ap420073@gmail.com>
+    net: rmnet: do not allow to change mux id if mux id is duplicated
+
+Taehee Yoo <ap420073@gmail.com>
+    net: rmnet: remove rcu_read_lock in rmnet_force_unassociate_device()
+
+Taehee Yoo <ap420073@gmail.com>
+    net: rmnet: fix suspicious RCU usage
+
+Taehee Yoo <ap420073@gmail.com>
+    net: rmnet: fix NULL pointer dereference in rmnet_changelink()
+
+Taehee Yoo <ap420073@gmail.com>
+    net: rmnet: fix NULL pointer dereference in rmnet_newlink()
+
+Luo bin <luobin9@huawei.com>
+    hinic: fix a bug of rss configuration
+
+Luo bin <luobin9@huawei.com>
+    hinic: fix a bug of setting hw_ioctxt
+
+Luo bin <luobin9@huawei.com>
+    hinic: fix a irq affinity bug
+
+Antoine Tenart <antoine.tenart@bootlin.com>
+    net: phy: mscc: fix firmware paths
+
+yangerkun <yangerkun@huawei.com>
+    slip: not call free_netdev before rtnl_unlock in slip_open
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    signal: avoid double atomic counter increments for user accounting
+
+Masahiro Yamada <masahiroy@kernel.org>
+    kbuild: add dt_binding_check to PHONY in a correct place
+
+Masahiro Yamada <masahiroy@kernel.org>
+    kbuild: add dtbs_check to PHONY
+
+Monk Liu <Monk.Liu@amd.com>
+    drm/amdgpu: fix memory leak during TDR test(v2)
+
+Ming Lei <ming.lei@redhat.com>
+    blk-mq: insert passthrough request into hctx->dispatch directly
+
+Esben Haabendal <esben@geanix.com>
+    net: ll_temac: Handle DMA halt condition caused by buffer underrun
+
+Esben Haabendal <esben@geanix.com>
+    net: ll_temac: Fix RX buffer descriptor handling on GFP_ATOMIC pressure
+
+Esben Haabendal <esben@geanix.com>
+    net: ll_temac: Add more error handling of dma_map_single() calls
+
+Esben Haabendal <esben@geanix.com>
+    net: ll_temac: Fix race condition causing TX hang
+
+Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+    mac80211: rx: avoid RCU list traversal under mutex
+
+Marek Vasut <marex@denx.de>
+    net: ks8851-ml: Fix IRQ handling and locking
+
+Daniele Palmas <dnlplm@gmail.com>
+    net: usb: qmi_wwan: restore mtu min/max values after raw_ip switch
+
+Igor Druzhinin <igor.druzhinin@citrix.com>
+    scsi: libfc: free response frame from GPN_ID
+
+Johannes Berg <johannes.berg@intel.com>
+    cfg80211: check reg_rule for NULL in handle_channel_custom()
+
+Tom Zanussi <zanussi@kernel.org>
+    tracing: Fix number printing bug in print_synth_event()
+
+Michael Ellerman <mpe@ellerman.id.au>
+    selftests/rseq: Fix out-of-tree compilation
+
+Hanno Zulla <kontakt@hanno.de>
+    HID: hid-bigbenff: fix race condition for scheduled work during removal
+
+Hanno Zulla <kontakt@hanno.de>
+    HID: hid-bigbenff: call hid_hw_stop() in case of error
+
+Hanno Zulla <kontakt@hanno.de>
+    HID: hid-bigbenff: fix general protection fault caused by double kfree
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    HID: i2c-hid: add Trekstor Surfbook E11B to descriptor override
+
+Mika Westerberg <mika.westerberg@linux.intel.com>
+    ACPI: watchdog: Set default timeout in probe
+
+Mansour Behabadi <mansour@oxplot.com>
+    HID: apple: Add support for recent firmware on Magic Keyboards
+
+Jean Delvare <jdelvare@suse.de>
+    ACPI: watchdog: Allow disabling WDAT at boot
+
+Ulf Hansson <ulf.hansson@linaro.org>
+    mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
+
+Felix Kuehling <Felix.Kuehling@amd.com>
+    drm/amdgpu: Fix TLB invalidation request when using semaphore
+
+Cong Wang <xiyou.wangcong@gmail.com>
+    netfilter: xt_hashlimit: unregister proc file before releasing mutex
+
+Florian Westphal <fw@strlen.de>
+    netfilter: hashlimit: do not use indirect calls during gc
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/kernel-parameters.txt    |   4 +
+ Makefile                                           |   7 +-
+ arch/arm/Makefile                                  |   4 +-
+ arch/arm/boot/compressed/Makefile                  |   4 +-
+ arch/arm/kernel/vdso.c                             |   2 +
+ arch/arm/lib/copy_from_user.S                      |   2 +-
+ block/blk-flush.c                                  |   2 +-
+ block/blk-mq-sched.c                               |  44 ++++-
+ block/blk-mq.c                                     |  18 +-
+ block/blk-mq.h                                     |   3 +-
+ drivers/acpi/acpi_watchdog.c                       |  12 +-
+ drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c             |   5 +-
+ drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c              |   8 +-
+ drivers/gpu/drm/amd/powerplay/smu_v11_0.c          |   6 +-
+ drivers/hid/hid-apple.c                            |   3 +-
+ drivers/hid/hid-bigbenff.c                         |  31 ++-
+ drivers/hid/hid-google-hammer.c                    |   2 +
+ drivers/hid/hid-ids.h                              |   2 +
+ drivers/hid/hid-quirks.c                           |   1 +
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c           |   8 +
+ drivers/mmc/host/sdhci-tegra.c                     |   3 +
+ drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c   |   1 +
+ drivers/net/ethernet/huawei/hinic/hinic_hw_dev.h   |   2 +-
+ drivers/net/ethernet/huawei/hinic/hinic_hw_if.h    |   1 +
+ drivers/net/ethernet/huawei/hinic/hinic_hw_qp.h    |   1 +
+ drivers/net/ethernet/huawei/hinic/hinic_main.c     |   3 +-
+ drivers/net/ethernet/huawei/hinic/hinic_rx.c       |   5 +-
+ drivers/net/ethernet/micrel/ks8851_mll.c           |  14 +-
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c | 186 +++++++++---------
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_config.h |   3 +-
+ .../net/ethernet/qualcomm/rmnet/rmnet_handlers.c   |   7 +-
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_vnd.c    |   8 -
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_vnd.h    |   1 -
+ drivers/net/ethernet/sfc/ptp.c                     |  38 +++-
+ drivers/net/ethernet/xilinx/ll_temac.h             |   4 +
+ drivers/net/ethernet/xilinx/ll_temac_main.c        | 209 +++++++++++++++++----
+ drivers/net/phy/mscc.c                             |   4 +-
+ drivers/net/slip/slip.c                            |   3 +
+ drivers/net/usb/qmi_wwan.c                         |   3 +
+ drivers/scsi/libfc/fc_disc.c                       |   2 +
+ drivers/watchdog/wdat_wdt.c                        |  23 +++
+ fs/jbd2/transaction.c                              |   8 +-
+ kernel/signal.c                                    |  23 ++-
+ kernel/trace/trace_events_hist.c                   |  32 +++-
+ mm/slub.c                                          |   9 +
+ net/ipv4/cipso_ipv4.c                              |   7 +-
+ net/mac80211/rx.c                                  |   2 +-
+ net/netfilter/xt_hashlimit.c                       |  36 +---
+ net/qrtr/qrtr.c                                    |   2 +-
+ net/wireless/reg.c                                 |   2 +-
+ tools/testing/selftests/rseq/Makefile              |   2 +-
+ 51 files changed, 564 insertions(+), 248 deletions(-)
+
+
