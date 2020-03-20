@@ -2,87 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFB4618D163
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 15:47:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC2118D2A0
+	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 16:15:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726970AbgCTOrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 10:47:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40046 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726913AbgCTOrA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Mar 2020 10:47:00 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 326BD20714;
-        Fri, 20 Mar 2020 14:46:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584715619;
-        bh=EkWxp6DOsISjV04sDISIAHdyAJaajF7MydZzKwlbcuQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=W7LjqDAg8NykX6zsT1JTH+tARE5M4KboA4UGxmkUj0wIpzzJEBJwfL/9AWnVgJTD1
-         /2hMIzIvD/GmLKIN3xvUnbQ7kuxao9s+6dP0ZcWvT8jQw2wq+/X/YtBFBOXRdoLvuf
-         mlbqM3Kb+yHUAaRpq6K7R0hWTiAlKy87UBvitK6M=
-Date:   Fri, 20 Mar 2020 10:46:58 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>
-Subject: Re: [PATCH 5.5 00/65] 5.5.11-rc1 review
-Message-ID: <20200320144658.GK4189@sasha-vm>
-References: <20200319123926.466988514@linuxfoundation.org>
- <fcf6db4c-cebe-9ad3-9f19-00d49a7b1043@roeck-us.net>
- <20200319145900.GC92193@kroah.com>
- <32c627bf-0e6b-8bc4-88d3-032a69484aa6@roeck-us.net>
+        id S1726840AbgCTPPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 11:15:37 -0400
+Received: from mail-ua1-f65.google.com ([209.85.222.65]:38542 "EHLO
+        mail-ua1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726801AbgCTPPh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Mar 2020 11:15:37 -0400
+Received: by mail-ua1-f65.google.com with SMTP id h35so2325438uae.5
+        for <stable@vger.kernel.org>; Fri, 20 Mar 2020 08:15:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=KrlJ9CiUmfiGemfKKDhLyfmF9KE5HkLpeYEz8ZJ7f14=;
+        b=K90Mig4mRpoiXfMV7yyA4O9W3vxM6EcoXT+7L6PFmCK4DvvLUL6/OPmHgv59UpaQn1
+         pSaUi3VWInuGa13uttDcLH6fvFug6OlIScVNQ7f7xexlDNnFqJAmFh1oZYaC5/UNmkN4
+         uERD/rK8NujueucJ3FFR6LfHRTJpsThPG444VwNhXxea0Sv0qLgIGb/7v4LGK2Q92ABs
+         +JOPuM7FSqe+IClYs73tdWnMOREM6B2Hew98L3yDJMS9nwgmsgeo2D9/JKm/O0EaaZ9K
+         pLsBE2OMzRLugFhQZH3bm1Zi1Gtf8G86Hg6pzStDYXWdxKfxHti/qWJAa7j8fZ4ZFsYz
+         6J2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=KrlJ9CiUmfiGemfKKDhLyfmF9KE5HkLpeYEz8ZJ7f14=;
+        b=LdRsTAYUKbgvuMTcqmTjmsGCONSgW3D/6sKSTLxmFseo1ZlsvaB66sKnkEA+pZ1PQT
+         WNqRN7WesP++ppDMVZwwfA9FDdsQmXHWQJTE4g6kTeLjkhSHNHXEGK0R41tSfIwrercq
+         G2CR0eK8kG5HxvonMbdeGkNsPbkttVCLW1gAIyvaj2r4ErdfhehATPGry08NN45KhBCz
+         5cqylghIcjAUApu70yJreRwF9P65gl6pO17VgEAmQIrYifYZqtx5OvrgMryZc9wiXPDm
+         lrEfvJlfIkbhEMFC8LACZ+cx7OTZGvwus5IOkXoaW20z61bXcElk6TPBicKsXQ+Mp4Ak
+         eLdQ==
+X-Gm-Message-State: ANhLgQ3RSslvDBQCqLMNl6yEkMPcmBUt/jMvpzO9qKYQ7w0rYbsDO7O0
+        mZgifuseQiSinIppyefPdsrHQh2B9ObDR0awSq4=
+X-Google-Smtp-Source: ADFU+vuxIWIMjEJaeL8EhPP/V/jPWl9J2g0sswtUK/eXWOryCrSmZAuC0OrbAFgey2g63SyWBCdx8oOeEQzoVIue+ag=
+X-Received: by 2002:ab0:2150:: with SMTP id t16mr5791494ual.61.1584717336117;
+ Fri, 20 Mar 2020 08:15:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <32c627bf-0e6b-8bc4-88d3-032a69484aa6@roeck-us.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Received: by 2002:a67:f9d0:0:0:0:0:0 with HTTP; Fri, 20 Mar 2020 08:15:33
+ -0700 (PDT)
+Reply-To: ayishagddafio@mail.ru
+From:   AISHA GADDAFI <ayishagadafi1@gmail.com>
+Date:   Fri, 20 Mar 2020 08:15:33 -0700
+Message-ID: <CAKmdXwtOHrNwdygYPiFrhmqyOmY6Jq=GK6QMAP3FWR4DQspRng@mail.gmail.com>
+Subject: Dear Friend (Assalamu Alaikum),
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 19, 2020 at 08:15:40AM -0700, Guenter Roeck wrote:
->On 3/19/20 7:59 AM, Greg Kroah-Hartman wrote:
->> On Thu, Mar 19, 2020 at 07:44:33AM -0700, Guenter Roeck wrote:
->>> On 3/19/20 6:03 AM, Greg Kroah-Hartman wrote:
->>>> This is the start of the stable review cycle for the 5.5.11 release.
->>>> There are 65 patches in this series, all will be posted as a response
->>>> to this one.  If anyone has any issues with these being applied, please
->>>> let me know.
->>>>
->>>> Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
->>>> Anything received after that time might be too late.
->>>>
->>>
->>> arm:davinci_all_defconfig fails to build.
->>>
->>> include/linux/gpio/driver.h: In function 'gpiochip_populate_parent_fwspec_twocell':
->>> include/linux/gpio/driver.h:552:1: error: no return statement in function returning non-void [-Werror=return-type]
->>>   552 | }
->>>
->>> The problem is caused by commit 8db6a5905e98 ("gpiolib: Add support for the
->>> irqdomain which doesn't use irq_fwspec as arg") which is missing its fix,
->>> commit 9c6722d85e922 ("gpio: Fix the no return statement warning"). That one
->>> is missing a Fixes: tag, providing a good example why such tags are desirable.
->>
->> Thanks for letting me know, I've now dropped that patch (others
->> complained about it for other reasons) and will push out a -rc2 with
->> that fix.
->>
->
->I did wonder why the offending patch was included, but then I figured that
->I lost the "we apply too many patches to stable releases" battle, and I didn't
->want to re-litigate it.
+Dear Friend (Assalamu Alaikum),
 
-I usually much rather take prerequisite patches rather than do
-backports, which is why that patch was selected.
+I came across your e-mail contact prior a private search while in need of
+your assistance. My name is Aisha  Al-Qaddafi a single Mother and a Widow
+with three Children. I am the only biological Daughter of late Libyan
+President (Late Colonel Muammar Gaddafi).
 
--- 
-Thanks,
-Sasha
+I have investment funds worth Twenty Seven Million Five Hundred Thousand
+United State Dollar ($27.500.000.00 ) and i need a trusted investment
+Manager/Partner because of my current refugee status, however, I am
+interested in you for investment project assistance in your country, may be
+from there, we can build business relationship in the nearest future.
+
+I am willing to negotiate investment/business profit sharing ratio with you
+base on the future investment earning profits.
+
+If you are willing to handle this project on my behalf kindly reply urgent
+to enable me provide you more information about the investment funds.
+
+Your Urgent Reply Will Be Appreciated. write me at this email address(
+ayishagddafio@mail.ru ) for further discussion.
+
+Best Regards
+Mrs Aisha Al-Qaddafi
