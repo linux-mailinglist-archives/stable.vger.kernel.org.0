@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1FC18D900
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 21:25:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0C7218D90E
+	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 21:25:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727129AbgCTUZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 16:25:02 -0400
-Received: from mail-oln040092075041.outbound.protection.outlook.com ([40.92.75.41]:26197
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        id S1726666AbgCTUZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 16:25:19 -0400
+Received: from mail-oln040092073093.outbound.protection.outlook.com ([40.92.73.93]:13421
+        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726666AbgCTUZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Mar 2020 16:25:02 -0400
+        id S1726955AbgCTUZS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Mar 2020 16:25:18 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JfeQxRmZ9RJWqUeysvOl/6WOUFFcb6jSqhbZsgPp3D99zTDkrjIxWXvYQvsH2pHKrhIgoW5VjsNFAc2yXH3qirOxNEvkih1+lakEL2M50ULtDEtP5BKrOdkLoB1Z0M+jD5robXXI4zSnKp78Tzwr98FlFY/bWi7cs/FONPVmSf9mSIMaE6HzqWytsYuyM0PBc+p3Aup57RFfLdFMP8ivp804AHDviwmklBVmFJRz/NZ3DcEXeQbWNxy6wkHR1aapmVj34oJFeJlwsTEvuDOA8UxdEMIvdT4hFaHUa1DU49hdvndF2LyXZkuxNJqfCrhUqUMRPQETffzMiBICbmsPOg==
+ b=ALoo6FkOdh7UAiZeQOql/CiAcHqxadx+ogui3u34tdhZhFhuqzXIwngVBUl5fBBj9vuXbjiPqPH+rR8DbyqKo1CMy96CxBaLnBmfc901lsnF87ax6FdLQc6TqmmXiJ+OJhaW6tr5yxz+/aL4ELEqn9HzbA6EEhpmsGErimub/QW8qT1hpFCm5qMIOkkf+KzS4xdGpAge/PGFwI/vAF2q6g7p6nPA67bB04oZUU3h27tBGCttNsR2tMstoQ+Pdr1joW3D8ucSyl6JYF7nCXJQZ0F8WZDr4iC3m6gDy35xxEcHr+7manfzD3VxrDvJxSylWHtrTFz1XOYbgP0W/3ZQkQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iEG1G63BQyTj4NIAgyL0sILHWEZk/yOpP/x1R6xqgjk=;
- b=iTwBx6xkJ9vuvcMuECHEEl4w3jrBP1MJCnmzssu/MOsyj2MzpitBi6zNVDrEg/xlgH1ZZvcDr9/3fDZ+ELePUR0Y/WJ5j0eGRm6C7D1NcfKJ6YpfyO9xfB1yrBdLl4xw/kwuqnGQPF4KiqAwQjeO3vd8Mc23hengjs3mpHiQooHc0Kyy7Xdqwamc60S/FQXs1WKPC2iFUVE6ItLUfxbRWQDT4V5riaDwp3g8F4usnlwaTWQXD/9Fp5fyYbLjyWRmRRmaf8QTYtCTNYWWtaPnlRQrGltC4L0GWM3fsu0h3i/q11z4axajpIRjcigS899vPjvX/O8Obs5KstGTw4hvcQ==
+ bh=1iqKQ8iJMPPHs0stqpjWH2idJ1gtMI30mGoa9ajLgyc=;
+ b=JM63A5i2kQuoQ8sy0Bxr8Ju48eZG2Iq+KWw3PkYwSpuYQvs7YbKSP0HyJg68BKlL6j6kWf+M8r6wzfKbJL+VVseoPedVsQFWf1f02y4ydk94QYRUJk6kdbAMOrvCweWGltQnyNiZZueX+6SMYjiLiKQhbNifDTMXaSFXeRF+Ddzhp/EOShU0oHwaBaiO8wBtV/D4EW1kXd1HREGiqDSxSh4Xp2G/JJFKneNpjYHHlBSbAcraDSd57yCq7+DrEqVy3ex4z2RgTBt+wY54GAYiTZFCKfP9MiE7D90Kr4NfAb8qgc+h8wPH8c5TA+4yeQKxiWIZxVFV+BMzwrvRTDsVBA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
  dkim=pass header.d=hotmail.de; arc=none
 Received: from DB3EUR04FT027.eop-eur04.prod.protection.outlook.com
- (2a01:111:e400:7e0c::36) by
- DB3EUR04HT021.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0c::446)
+ (2a01:111:e400:7e0c::39) by
+ DB3EUR04HT151.eop-eur04.prod.protection.outlook.com (2a01:111:e400:7e0c::164)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2814.13; Fri, 20 Mar
- 2020 20:24:54 +0000
+ 2020 20:25:13 +0000
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.24.52) by
  DB3EUR04FT027.mail.protection.outlook.com (10.152.24.122) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2814.13 via Frontend Transport; Fri, 20 Mar 2020 20:24:54 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:869908CF01EFF52FDCDECC38EB77254CAEFC249ED423CE489D332E457C4D9BB9;UpperCasedChecksum:5371DEE21799D84893EF9CDD123E730B7C6AD75BD50B949988FB24A3540839E0;SizeAsReceived:9432;Count:49
+ 15.20.2814.13 via Frontend Transport; Fri, 20 Mar 2020 20:25:13 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:AF11A19A115B8F9989A9D1B21E9851F8A5626EB739F5731DB7A50418DA0D97C2;UpperCasedChecksum:914F8E391114572AC00C8FE23E869BC087B69CD944B12A3027CE4C4C24323DFB;SizeAsReceived:9414;Count:49
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2835.017; Fri, 20 Mar 2020
- 20:24:54 +0000
+ 20:25:12 +0000
 From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-Subject: [PATCH v6 02/16] exec: Factor unshare_sighand out of de_thread and
- call it separately
+Subject: [PATCH v6 03/16] exec: Move cleanup of posix timers on exec out of
+ de_thread
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Kirill Tkhai <ktkhai@virtuozzo.com>,
         "Eric W. Biederman" <ebiederm@xmission.com>,
@@ -74,48 +74,48 @@ To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
 References: <077b63b7-6f5e-aa8e-bf96-a586b481cc46@hotmail.de>
-Message-ID: <AM6PR03MB51708AECEA6E05CAE2FDC166E4F50@AM6PR03MB5170.eurprd03.prod.outlook.com>
-Date:   Fri, 20 Mar 2020 21:24:50 +0100
+Message-ID: <AM6PR03MB5170CCB8D8B36F6002446FBDE4F50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Fri, 20 Mar 2020 21:25:10 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
 In-Reply-To: <077b63b7-6f5e-aa8e-bf96-a586b481cc46@hotmail.de>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ZR0P278CA0015.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:16::25) To AM6PR03MB5170.eurprd03.prod.outlook.com
+X-ClientProxiedBy: FR2P281CA0023.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:14::10) To AM6PR03MB5170.eurprd03.prod.outlook.com
  (2603:10a6:20b:ca::23)
-X-Microsoft-Original-Message-ID: <c53f15dd-b408-68e5-490e-9d5bdb7ec90f@hotmail.de>
+X-Microsoft-Original-Message-ID: <047d07bc-5050-06f6-9494-24f3e7e92616@hotmail.de>
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.101] (92.77.140.102) by ZR0P278CA0015.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:16::25) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2835.15 via Frontend Transport; Fri, 20 Mar 2020 20:24:52 +0000
-X-Microsoft-Original-Message-ID: <c53f15dd-b408-68e5-490e-9d5bdb7ec90f@hotmail.de>
-X-TMN:  [C6UtGPhiEDoOWZeg17+HeAeDyltOzGuO]
+Received: from [192.168.1.101] (92.77.140.102) by FR2P281CA0023.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10:14::10) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2835.18 via Frontend Transport; Fri, 20 Mar 2020 20:25:11 +0000
+X-Microsoft-Original-Message-ID: <047d07bc-5050-06f6-9494-24f3e7e92616@hotmail.de>
+X-TMN:  [nUTIdkd0Q4fkiU0I4gtqb6H5u3ZVz9aW]
 X-MS-PublicTrafficType: Email
 X-IncomingHeaderCount: 49
 X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: 6fcdf3b4-8986-4738-e45d-08d7cd0cbfbf
-X-MS-TrafficTypeDiagnostic: DB3EUR04HT021:
+X-MS-Office365-Filtering-Correlation-Id: bcad9447-4918-4b56-e426-08d7cd0ccb14
+X-MS-TrafficTypeDiagnostic: DB3EUR04HT151:
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: bR+gXeYFhS1KWVb2KormQIajtSUbhoc2qfSfTd1cFf9VrBfAxanqwPUloWPuOo4SDdHfLN5JkDmUULyzoKp0bt4khz+jBH7pKjeKcr1sZqWvKuCCtDjoRaMt+ad/FfBC/gCiF5LdtkvWKrgTn+LQslsIiGllJb2SCg4d8sDY4h4FDCDpOPWv/h+fTRdKZ40v
-X-MS-Exchange-AntiSpam-MessageData: tzuSPZVlTP7pcBstDl0CtCDS+rU8j44jxa3awH3HV/ez2jqm5elMyriH8wzNY66L602KRiLekRHt91T9fOIeCNQsDvvALB/8ff3nDiUA4qmK0ReTJPi0i/EG1wU6Yer0fNW8e/ZJB0NUDP7RIgPnFw==
+X-Microsoft-Antispam-Message-Info: oADBsXnaKHWWY/5rERPrPbjN76PcpYL7dytFGyzMfqCj40gcpIiBKWpveHMzSFa8xrYjUn6gIf1FmKBmGO30/eANDjNmGo3nmkxIXumxLVFKx4ElqGdrrfti9ClllB6ctpqG5wZhbtOOVJ81d6jbqVhcUkUw8qaVsnBe2TwJuCcgmZaCfstdcV8SaBDQpZc1
+X-MS-Exchange-AntiSpam-MessageData: qcV0C42F7VtRIP4+AJo8qTukBTkWVRCT39AIrog8S8tyAxr6q1gW6Rvwo9RkkRjsKRHvxyARgDQH383su+bOqIWmDYkR5BQ+OF9pu+adm0YoRhZt0elckA29zIhFeRbe5dcwD1+ZFKcSlIp4iFUi1Q==
 X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6fcdf3b4-8986-4738-e45d-08d7cd0cbfbf
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Mar 2020 20:24:53.9478
+X-MS-Exchange-CrossTenant-Network-Message-Id: bcad9447-4918-4b56-e426-08d7cd0ccb14
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Mar 2020 20:25:12.9518
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3EUR04HT021
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB3EUR04HT151
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This makes the code clearer and makes it easier to implement a mutex
-that is not taken over any locations that may block indefinitely waiting
-for userspace.
+These functions have very little to do with de_thread move them out
+of de_thread an into flush_old_exec proper so it can be more clearly
+seen what flush_old_exec is doing.
 
 Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Reviewed-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
@@ -123,84 +123,36 @@ Reviewed-by: Kees Cook <keescook@chromium.org>
 Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
 ---
- fs/exec.c | 39 ++++++++++++++++++++++++++-------------
- 1 file changed, 26 insertions(+), 13 deletions(-)
+ fs/exec.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/fs/exec.c b/fs/exec.c
-index c3f3479..ff74b9a 100644
+index ff74b9a..215d86f7 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
-@@ -1194,6 +1194,23 @@ static int de_thread(struct task_struct *tsk)
- 	flush_itimer_signals();
- #endif
+@@ -1189,11 +1189,6 @@ static int de_thread(struct task_struct *tsk)
+ 	/* we have changed execution domain */
+ 	tsk->exit_signal = SIGCHLD;
  
-+	BUG_ON(!thread_group_leader(tsk));
-+	return 0;
-+
-+killed:
-+	/* protects against exit_notify() and __exit_signal() */
-+	read_lock(&tasklist_lock);
-+	sig->group_exit_task = NULL;
-+	sig->notify_count = 0;
-+	read_unlock(&tasklist_lock);
-+	return -EAGAIN;
-+}
-+
-+
-+static int unshare_sighand(struct task_struct *me)
-+{
-+	struct sighand_struct *oldsighand = me->sighand;
-+
- 	if (refcount_read(&oldsighand->count) != 1) {
- 		struct sighand_struct *newsighand;
- 		/*
-@@ -1210,23 +1227,13 @@ static int de_thread(struct task_struct *tsk)
- 
- 		write_lock_irq(&tasklist_lock);
- 		spin_lock(&oldsighand->siglock);
--		rcu_assign_pointer(tsk->sighand, newsighand);
-+		rcu_assign_pointer(me->sighand, newsighand);
- 		spin_unlock(&oldsighand->siglock);
- 		write_unlock_irq(&tasklist_lock);
- 
- 		__cleanup_sighand(oldsighand);
- 	}
+-#ifdef CONFIG_POSIX_TIMERS
+-	exit_itimers(sig);
+-	flush_itimer_signals();
+-#endif
 -
--	BUG_ON(!thread_group_leader(tsk));
+ 	BUG_ON(!thread_group_leader(tsk));
  	return 0;
--
--killed:
--	/* protects against exit_notify() and __exit_signal() */
--	read_lock(&tasklist_lock);
--	sig->group_exit_task = NULL;
--	sig->notify_count = 0;
--	read_unlock(&tasklist_lock);
--	return -EAGAIN;
- }
  
- char *__get_task_comm(char *buf, size_t buf_size, struct task_struct *tsk)
-@@ -1264,14 +1271,20 @@ int flush_old_exec(struct linux_binprm * bprm)
- 	int retval;
- 
- 	/*
--	 * Make sure we have a private signal table and that
--	 * we are unassociated from the previous thread group.
-+	 * Make this the only thread in the thread group.
- 	 */
- 	retval = de_thread(me);
+@@ -1277,6 +1272,11 @@ int flush_old_exec(struct linux_binprm * bprm)
  	if (retval)
  		goto out;
  
- 	/*
-+	 * Make the signal table private.
-+	 */
-+	retval = unshare_sighand(me);
-+	if (retval)
-+		goto out;
++#ifdef CONFIG_POSIX_TIMERS
++	exit_itimers(me->signal);
++	flush_itimer_signals();
++#endif
 +
-+	/*
- 	 * Must be called _before_ exec_mmap() as bprm->mm is
- 	 * not visibile until then. This also enables the update
- 	 * to be lockless.
+ 	/*
+ 	 * Make the signal table private.
+ 	 */
 -- 
 1.9.1
