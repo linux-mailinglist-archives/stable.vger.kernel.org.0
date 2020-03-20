@@ -2,86 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B69B518C639
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 05:02:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 573CC18C705
+	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 06:30:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726816AbgCTECO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 00:02:14 -0400
-Received: from frisell.zx2c4.com ([192.95.5.64]:56749 "EHLO frisell.zx2c4.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725446AbgCTECO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Mar 2020 00:02:14 -0400
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTP id 73fd51e5;
-        Fri, 20 Mar 2020 03:55:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha1; c=relaxed; d=zx2c4.com; h=mime-version
-        :references:in-reply-to:from:date:message-id:subject:to:cc
-        :content-type; s=mail; bh=DrZKHDCv3yVNJ1fZFCAEuj6SPfo=; b=uX7U8I
-        3cN4pBD9fWrWdby/qHhIo8nsgEAjKYehHPQd/Kk5+oHRGab2qYOyNHzu1sZE85c8
-        htQjla/nOP1XM7jHo7zwOSGCyTfeETvs+r2Wl7rTsC4PTh4Nks/LcOJ19VwvhoT5
-        FsHuGLzDoOjIMLzrwlbcuGPj8p/E4pZKO5pDYN2C9DOGRRJ1znA+kDkNeMvo7QOn
-        x4WlbNWrO/PjyG5IcRo/39uB7p7JYhvCtIoWd5kMHuT83+Wd8pru5vMaHmjAYwL6
-        L5YIc7UmNSqEKQFgeVKDa+fbJ+UwpT8FUITbYvuhPuZl6AeenGhD7CMl8MBt7ldE
-        2yX6nQc3pDdPPQmQ==
-Received: by frisell.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 6b52123a (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256:NO);
-        Fri, 20 Mar 2020 03:55:37 +0000 (UTC)
-Received: by mail-il1-f172.google.com with SMTP id h3so4408075ils.3;
-        Thu, 19 Mar 2020 21:02:10 -0700 (PDT)
-X-Gm-Message-State: ANhLgQ1bo2sPlAd+yY/4BBIa5uwvnQRxKtqKy1I1TWuGvUWOsUYkuNtz
-        OMRcFpcXChjsdqCvHDEGXQkqYsrAEz/XoaW1G5M=
-X-Google-Smtp-Source: ADFU+vvnk2NRup2tSSE6Ao36+jOkzoTN5V53qyuvaZ3b1S4VSAqqkaPekitrZcopfvJKgvJcTG6SU87tGVnF/0N1ghw=
-X-Received: by 2002:a92:cd4e:: with SMTP id v14mr6534247ilq.231.1584676929893;
- Thu, 19 Mar 2020 21:02:09 -0700 (PDT)
+        id S1725446AbgCTFaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 01:30:15 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:37503 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726584AbgCTFaN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 Mar 2020 01:30:13 -0400
+Received: by mail-oi1-f193.google.com with SMTP id w13so5338296oih.4
+        for <stable@vger.kernel.org>; Thu, 19 Mar 2020 22:30:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+thAp6yyX7UKE9dtUxDENsQxMtVNf3sefwYHyrkPjH0=;
+        b=EZIUuPizsyWJamEo8OnXltTQLT0zbEnN7i0eoveXQdd8aAXB0sTHgk0h0j2aPv3xdl
+         PvlcmCU9Qqo6UPCU0YGJjPZHZklXi0mnfTFFSMmLJO2+8XQJhgG2+SrUYGqJLbRUs34w
+         MHA/fMaS5ydEyWuSCzaNeVFjEQP3llaZOTs2mjgeihPn7LkbpRz5ycvSOPlzm6gBjn0W
+         OaxQcy9AeArJqrxxJWa3gm8Z8TuZZTaY8qlWeFQ/x5EcXXheQhyOAhxkq6P9XBi6DkuI
+         q84xSlpwp6t9y/DeFQzUxsQx2V8ge6Z5qW1kL9lgqfzvKq4NqI8zeJih0o6Bvzr7ePwC
+         XgPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+thAp6yyX7UKE9dtUxDENsQxMtVNf3sefwYHyrkPjH0=;
+        b=VQwAufLm8mNKPg9D4/VYQaHdC/smqtGyihI7k0ppKLaErzxg2dxaLZaJ/jHEZzQB1D
+         KNIob8+lMiaidAqZFDJlAWdfq0tRteOFUzgzU2YD+zP34j29O32TR7SUJ3PfrjtwwNF6
+         0TbagdLV7MJ5gGHELYBl7DTBvYsU8C31wJy7uANmN+SCY4l79fG6NApB+nJlWmybWXn/
+         EcQV8S3qh5FMIKJ92rW73stlS7Ny4LBiGrZsh1+yyjsXPEu8Ie2OwPJXFfH0G6gL/CFp
+         yh5pbM0O2r3io122fvhi7UwoBPm4vZBe+rp1bG1rOhiKof3RWiIZqeqm8KETb+cFGaX+
+         CRuA==
+X-Gm-Message-State: ANhLgQ3hYfwmuupWq965NHAQUGbGGqaiqxryd4Oq/rbnzFNaG62OzYDq
+        xEW6rgazftZcwhl75tZjKpS/g64r9Cej7cP7RBZjdA==
+X-Google-Smtp-Source: ADFU+vs9ry2XYsgdK4314uO1jxo2AlhedtLaVepDUfyzcjwnRtJPqD/97uig5eK0Wc99bItxHnujbp8fjRWMCAR3xjM=
+X-Received: by 2002:aca:f541:: with SMTP id t62mr5236270oih.172.1584682212108;
+ Thu, 19 Mar 2020 22:30:12 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHmME9otcAe7H4Anan8Tv1KreTZtwt4XXEPMG--x2Ljr0M+o1Q@mail.gmail.com>
- <20200319022732.166085-1-Jason@zx2c4.com> <20200320034834.GA27372@gondor.apana.org.au>
-In-Reply-To: <20200320034834.GA27372@gondor.apana.org.au>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Thu, 19 Mar 2020 22:01:58 -0600
-X-Gmail-Original-Message-ID: <CAHmME9qYnb10J+jnBhv3TAfjgvoPeY_3kb4-K+nvZir1YrqvgQ@mail.gmail.com>
-Message-ID: <CAHmME9qYnb10J+jnBhv3TAfjgvoPeY_3kb4-K+nvZir1YrqvgQ@mail.gmail.com>
-Subject: Re: [PATCH URGENT crypto v2] crypto: arm64/chacha - correctly walk
- through blocks
-To:     Herbert Xu <herbert@gondor.apana.org.au>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        stable <stable@vger.kernel.org>
+References: <20200317065452.236670-1-saravanak@google.com> <CAGETcx-uZ3YJHCYqFm3so8-woTvL3SSDY2deNonthTetcE+mXQ@mail.gmail.com>
+ <20200319073927.GA3442166@kroah.com>
+In-Reply-To: <20200319073927.GA3442166@kroah.com>
+From:   Saravana Kannan <saravanak@google.com>
+Date:   Thu, 19 Mar 2020 22:29:36 -0700
+Message-ID: <CAGETcx-3oeJOvpCYj==RJuBU9HP8F0ZNr0YLvUHGHF52b=F7HA@mail.gmail.com>
+Subject: Re: [PATCH v1 0/6] Fix device links functional breakage in 4.19.99
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        Android Kernel Team <kernel-team@android.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 19, 2020 at 9:48 PM Herbert Xu <herbert@gondor.apana.org.au> wrote:
+On Thu, Mar 19, 2020 at 12:39 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On Wed, Mar 18, 2020 at 08:27:32PM -0600, Jason A. Donenfeld wrote:
-> > Prior, passing in chunks of 2, 3, or 4, followed by any additional
-> > chunks would result in the chacha state counter getting out of sync,
-> > resulting in incorrect encryption/decryption, which is a pretty nasty
-> > crypto vuln: "why do images look weird on webpages?" WireGuard users
-> > never experienced this prior, because we have always, out of tree, used
-> > a different crypto library, until the recent Frankenzinc addition. This
-> > commit fixes the issue by advancing the pointers and state counter by
-> > the actual size processed. It also fixes up a bug in the (optional,
-> > costly) stride test that prevented it from running on arm64.
+> On Wed, Mar 18, 2020 at 12:10:43PM -0700, Saravana Kannan wrote:
+> > On Mon, Mar 16, 2020 at 11:54 PM Saravana Kannan <saravanak@google.com> wrote:
+> > >
+> > > As mentioned in an earlier email thread [1], 4.19.99 broke the ability
+> > > to create stateful and stateless device links between the same set of
+> > > devices when it pulled in a valid bug fix [2]. While the fix was valid,
+> > > it removes a functionality that was present before the bug fix.
+> > >
+> > > This patch series attempts to fix that by pulling in more patches from
+> > > upstream. I've just done compilation testing so far. But wanted to send
+> > > out a v1 to see if this patch list was acceptable before I fixed up the
+> > > commit text format to match what's needed for stable mailing list.
+> > >
+> > > Some of the patches are new functionality, but for a first pass, it was
+> > > easier to pull these in than try and fix the conflicts. If these patches
+> > > are okay to pull into stable, then all I need to do is fix the commit
+> > > text.
 > >
-> > Fixes: b3aad5bad26a ("crypto: arm64/chacha - expose arm64 ChaCha routine as library function")
-> > Reported-and-tested-by: Emil Renner Berthing <kernel@esmil.dk>
-> > Cc: Ard Biesheuvel <ardb@kernel.org>
-> > Cc: stable@vger.kernel.org # v5.5+
-> > Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> > ---
-> >  arch/arm64/crypto/chacha-neon-glue.c   |  8 ++++----
-> >  lib/crypto/chacha20poly1305-selftest.c | 11 ++++++++---
-> >  2 files changed, 12 insertions(+), 7 deletions(-)
+> > I took a closer look at all the patches. Everyone of them is a bug fix
+> > except Patch 4/6. But Patch 4/6 is a fairly minimal change and I think
+> > it's easier/cleaner to just pick it up too instead of trying to
+> > resolve merge conflicts in the stable branch.
+> >
+> > 1/6 - Fixes what appears to be a memory leak bug in upstream.
+> > 2/6 - Fixes error in initial state of the device link if it's created
+> > under some circumstances.
+> > 3/6 - Fixes a ref count bug in upstream. Looks like it can lead to memory leaks?
+> > 4/6 - Adds a minor feature to kick off a probe attempt of a consumer
+> > 5/6 - Fixes the break in functionality that happened in 4.19.99
+> > 6/6 - Fixes bug in 5/6 (upstream bug)
+> >
+> > Greg
+> >
+> > Do these patches look okay for you to pull into 4.19 stable? If so,
+> > please let me know if you need me to send v2 with commit fix up.
+> >
+> > The only fix up needed is to these patches at this point is changing
+> > "(cherry picked from commit ...)" with "[ Upstream commit ... ]". The
+> > SHAs themselves are the correct SHAs from upstream.
 >
-> Patch applied.  Thanks.
+> These all look good to me, now all queued up, thanks.
 
-Thanks! No idea whether Linus will skip a 5.6-rc7 with people not at
-work due to the quarantines, so given the gravity of this bug, it
-might be prudent to send a PR to him _now_, rather then waiting until
-next week.
+Awesome, thanks!
 
-Jason
+-Saravana
