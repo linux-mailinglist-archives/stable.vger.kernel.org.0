@@ -2,131 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16D4518D65F
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 18:59:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F3218D661
+	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 18:59:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726866AbgCTR7p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 13:59:45 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:34264 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726801AbgCTR7o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Mar 2020 13:59:44 -0400
-Received: by mail-pg1-f193.google.com with SMTP id t3so3485106pgn.1;
-        Fri, 20 Mar 2020 10:59:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=tT8WVBAGjROehmH8Lz//A/94zt8FktAEWkgYe0x/CrI=;
-        b=Cel4M515gR/+DHzUc9XUZEIvPuqZ9LL8RTkvOzVhWx/9b4Zupy0l2EV5i5WtTimwW0
-         YATO4P4c6PvKZr1IVhdu7AghiBlW/vFHLhitziRzJTRWVWEHFAZnAjsQd/0OCblShuze
-         V7fmLBNuZ49ZfMULKSPbBr8TSEWdY60PAl+fnNMU8iSSkBfKZT8gB/wfJ2IB+lKNfpLg
-         34smVJev/oDbqb8xgdE10xYg2d3vB4IG/p9FhUhvYBPKpX6wjN3dADpju8q8i5B6W0A/
-         hOPTYVg5yp9SYLvS5170ePy1W9qgAYtP+GJTyNAFVvo3iaWJ3mubqTf8/TSRO0kgvqG2
-         0ltg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=tT8WVBAGjROehmH8Lz//A/94zt8FktAEWkgYe0x/CrI=;
-        b=VOumeeN/hIBJClSLfRlSGqK7PUkDZ1Uetf8qexrIx/c2K+qAuXelZZZNI1YcmbjLrA
-         MeHl/HnvtxIwXhP3zZIoYa6xDQqzJKHFQ09A0vsr3EagZSrOHf6jr5bgMNHKrjUERxSy
-         aa5BIM47u+hwkGtFnitQveyKnHIcVzfStExliJVLilXKs8u3+1QT4791UC2jogN7GeZG
-         kBvYAkdSIdCM2ngdgkp3imvHMXBiOlQC0GUHGLsTFHUd3Q0G3YZvRqt7yKYbyT3vYYM8
-         IQ9BOmeSi9KB2e2arzZ/Ry3iiz11W9QxzejOhwCWQlTF67GNX0wBsiNkOj/8krokcIRP
-         ZRnA==
-X-Gm-Message-State: ANhLgQ2zFFhJCinWd2nind+RxGFsoi2keB3rABYZ/9IAmOIrP3oN3ijg
-        Gzh7tcxhMArW73gTJk70F+5TjnNH
-X-Google-Smtp-Source: ADFU+vu6gsyPpAGfdJt2HyayBZ7UcdIKTsQJm1kPPqXh31MhCKIhCX2h/XjyHgBbgy0Hq/7i7Hogig==
-X-Received: by 2002:aa7:8513:: with SMTP id v19mr8678117pfn.241.1584727183453;
-        Fri, 20 Mar 2020 10:59:43 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j126sm6191366pfg.60.2020.03.20.10.59.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 20 Mar 2020 10:59:43 -0700 (PDT)
-Subject: Re: [PATCH 5.4 00/50] 5.4.27-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200320113334.675365993@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
- RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
- nyFiKxUehbNF3r9qlJgPqONwX5vJy4/GvDHdddSCxV41P/ejsZ8PykxyJs98UWhF54tGRWFl
- 7i1xvaDB9lN5WTLRKSO7wICuLiSz5WZHXMkyF4d+/O5ll7yz/o/JxK5vO/sduYDIlFTvBZDh
- gzaEtNf5tQjsjG4io8E0Yq0ViobLkS2RTNZT8ICq/Jmvl0SpbHRvYwa2DhNsK0YjHFQBB0FX
- IdhdUEzNefcNcYvqigJpdICoP2e4yJSyflHFO4dr0OrdnGLe1Zi/8Xo/2+M1dSSEt196rXaC
- kwu2KgIgmkRBb3cp2vIBBIIowU8W3qC1+w+RdMUrZxKGWJ3juwcgveJlzMpMZNyM1jobSXZ0
- VHGMNJ3MwXlrEFPXaYJgibcg6brM6wGfX/LBvc/haWw4yO24lT5eitm4UBdIy9pKkKmHHh7s
- jfZJkB5fWKVdoCv/omy6UyH6ykLOPFugl+hVL2Prf8xrXuZe1CMS7ID9Lc8FaL1ROIN/W8Vk
- BIsJMaWOhks//7d92Uf3EArDlDShwR2+D+AMon8NULuLBHiEUQARAQABzTJHdWVudGVyIFJv
- ZWNrIChMaW51eCBhY2NvdW50KSA8bGludXhAcm9lY2stdXMubmV0PsLBgQQTAQIAKwIbAwYL
- CQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEFAlVcphcFCRmg06EACgkQyx8mb86fmYFg0RAA
- nzXJzuPkLJaOmSIzPAqqnutACchT/meCOgMEpS5oLf6xn5ySZkl23OxuhpMZTVX+49c9pvBx
- hpvl5bCWFu5qC1jC2eWRYU+aZZE4sxMaAGeWenQJsiG9lP8wkfCJP3ockNu0ZXXAXwIbY1O1
- c+l11zQkZw89zNgWgKobKzrDMBFOYtAh0pAInZ9TSn7oA4Ctejouo5wUugmk8MrDtUVXmEA9
- 7f9fgKYSwl/H7dfKKsS1bDOpyJlqhEAH94BHJdK/b1tzwJCFAXFhMlmlbYEk8kWjcxQgDWMu
- GAthQzSuAyhqyZwFcOlMCNbAcTSQawSo3B9yM9mHJne5RrAbVz4TWLnEaX8gA5xK3uCNCeyI
- sqYuzA4OzcMwnnTASvzsGZoYHTFP3DQwf2nzxD6yBGCfwNGIYfS0i8YN8XcBgEcDFMWpOQhT
- Pu3HeztMnF3HXrc0t7e5rDW9zCh3k2PA6D2NV4fews9KDFhLlTfCVzf0PS1dRVVWM+4jVl6l
- HRIAgWp+2/f8dx5vPc4Ycp4IsZN0l1h9uT7qm1KTwz+sSl1zOqKD/BpfGNZfLRRxrXthvvY8
- BltcuZ4+PGFTcRkMytUbMDFMF9Cjd2W9dXD35PEtvj8wnEyzIos8bbgtLrGTv/SYhmPpahJA
- l8hPhYvmAvpOmusUUyB30StsHIU2LLccUPPOwU0ETofVZwEQALlLbQeBDTDbwQYrj0gbx3bq
- 7kpKABxN2MqeuqGr02DpS9883d/t7ontxasXoEz2GTioevvRmllJlPQERVxM8gQoNg22twF7
- pB/zsrIjxkE9heE4wYfN1AyzT+AxgYN6f8hVQ7Nrc9XgZZe+8IkuW/Nf64KzNJXnSH4u6nJM
- J2+Dt274YoFcXR1nG76Q259mKwzbCukKbd6piL+VsT/qBrLhZe9Ivbjq5WMdkQKnP7gYKCAi
- pNVJC4enWfivZsYupMd9qn7Uv/oCZDYoBTdMSBUblaLMwlcjnPpOYK5rfHvC4opxl+P/Vzyz
- 6WC2TLkPtKvYvXmdsI6rnEI4Uucg0Au/Ulg7aqqKhzGPIbVaL+U0Wk82nz6hz+WP2ggTrY1w
- ZlPlRt8WM9w6WfLf2j+PuGklj37m+KvaOEfLsF1v464dSpy1tQVHhhp8LFTxh/6RWkRIR2uF
- I4v3Xu/k5D0LhaZHpQ4C+xKsQxpTGuYh2tnRaRL14YMW1dlI3HfeB2gj7Yc8XdHh9vkpPyuT
- nY/ZsFbnvBtiw7GchKKri2gDhRb2QNNDyBnQn5mRFw7CyuFclAksOdV/sdpQnYlYcRQWOUGY
- HhQ5eqTRZjm9z+qQe/T0HQpmiPTqQcIaG/edgKVTUjITfA7AJMKLQHgp04Vylb+G6jocnQQX
- JqvvP09whbqrABEBAAHCwWUEGAECAA8CGwwFAlVcpi8FCRmg08MACgkQyx8mb86fmYHNRQ/+
- J0OZsBYP4leJvQF8lx9zif+v4ZY/6C9tTcUv/KNAE5leyrD4IKbnV4PnbrVhjq861it/zRQW
- cFpWQszZyWRwNPWUUz7ejmm9lAwPbr8xWT4qMSA43VKQ7ZCeTQJ4TC8kjqtcbw41SjkjrcTG
- wF52zFO4bOWyovVAPncvV9eGA/vtnd3xEZXQiSt91kBSqK28yjxAqK/c3G6i7IX2rg6pzgqh
- hiH3/1qM2M/LSuqAv0Rwrt/k+pZXE+B4Ud42hwmMr0TfhNxG+X7YKvjKC+SjPjqp0CaztQ0H
- nsDLSLElVROxCd9m8CAUuHplgmR3seYCOrT4jriMFBtKNPtj2EE4DNV4s7k0Zy+6iRQ8G8ng
- QjsSqYJx8iAR8JRB7Gm2rQOMv8lSRdjva++GT0VLXtHULdlzg8VjDnFZ3lfz5PWEOeIMk7Rj
- trjv82EZtrhLuLjHRCaG50OOm0hwPSk1J64R8O3HjSLdertmw7eyAYOo4RuWJguYMg5DRnBk
- WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
- HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <72f4d4c8-dfe6-5556-811d-fa81b309481d@roeck-us.net>
-Date:   Fri, 20 Mar 2020 10:59:41 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
-MIME-Version: 1.0
-In-Reply-To: <20200320113334.675365993@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1727304AbgCTR7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 13:59:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57132 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726801AbgCTR7q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Mar 2020 13:59:46 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B8F920663;
+        Fri, 20 Mar 2020 17:59:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584727185;
+        bh=m85KmfGIa5J6kHFrbVlcvE04dIaNYgTd2clrhmeL70k=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=NTbJ/ctoChWlfVnXNUb+odQWShz8p41aNye1ayNP9Hs89E+UImKUWBytFkjwin8Zy
+         CB75xNcxL9Z/lV0axsrVio0h9IZqqR1gQuwPemq1Jj/QUXS6Y0/lbj6yerLDvNSAix
+         Z5hm3lnyhW4uMI6UGxKqjlMOGyV2AfBNtBglwhTg=
+Date:   Fri, 20 Mar 2020 17:59:44 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     George Wilson <gcwilson@linux.ibm.com>
+To:     linux-integrity@vger.kernel.org
+Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v4] tpm: ibmvtpm: retry on H_CLOSED in tpm_ibmvtpm_send()
+In-Reply-To: <20200320032758.228088-1-gcwilson@linux.ibm.com>
+References: <20200320032758.228088-1-gcwilson@linux.ibm.com>
+Message-Id: <20200320175945.6B8F920663@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/20/20 4:34 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.27 release.
-> There are 50 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 22 Mar 2020 11:32:39 +0000.
-> Anything received after that time might be too late.
-> 
+Hi
 
-For v5.4.26-51-ge72abf1:
+[This is an automated email]
 
-Build results:
-	total: 158 pass: 158 fail: 0
-Qemu test results:
-	total: 427 pass: 427 fail: 0
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM").
 
-Guenter
+The bot has tested the following trees: v5.5.10, v5.4.26, v4.19.111, v4.14.173, v4.9.216, v4.4.216.
+
+v5.5.10: Build OK!
+v5.4.26: Build OK!
+v4.19.111: Build OK!
+v4.14.173: Build OK!
+v4.9.216: Failed to apply! Possible dependencies:
+    02ae1382882f ("tpm: redefine read_log() to handle ACPI/OF at runtime")
+    2528a64664f8 ("tpm: define a generic open() method for ascii & bios measurements")
+    402149c6470d ("tpm: vtpm_proxy: Suppress error logging when in closed state")
+    4d23cc323cdb ("tpm: add securityfs support for TPM 2.0 firmware event log")
+    745b361e989a ("tpm: infrastructure for TPM spaces")
+    748935eeb72c ("tpm: have event log use the tpm_chip")
+    7518a21a9da3 ("tpm: drop tpm1_chip_register(/unregister)")
+    b1a9b7b602c5 ("tpm: replace symbolic permission with octal for securityfs files")
+    cd9b7631a888 ("tpm: replace dynamically allocated bios_dir with a static array")
+    f5595f5baa30 ("tpm: Unify the send callback behaviour")
+
+v4.4.216: Failed to apply! Possible dependencies:
+    02ae1382882f ("tpm: redefine read_log() to handle ACPI/OF at runtime")
+    036bb38ffb3e ("tpm_tis: Ensure interrupts are disabled when the driver starts")
+    23d06ff700f5 ("tpm: drop tpm_atmel specific fields from tpm_vendor_specific")
+    25112048cd59 ("tpm: rework tpm_get_timeouts()")
+    402149c6470d ("tpm: vtpm_proxy: Suppress error logging when in closed state")
+    41a5e1cf1fe1 ("tpm/tpm_tis: Split tpm_tis driver into a core and TCG TIS compliant phy")
+    4d627e672bd0 ("tpm_tis: Do not fall back to a hardcoded address for TPM2")
+    4eea703caaac ("tpm: drop 'iobase' from struct tpm_vendor_specific")
+    51dd43dff74b ("tpm_tis: Use devm_ioremap_resource")
+    55a889c2cb13 ("tpm_crb: Use the common ACPI definition of struct acpi_tpm2")
+    56671c893e0e ("tpm: drop 'locality' from struct tpm_vendor_specific")
+    570a36097f30 ("tpm: drop 'irq' from struct tpm_vendor_specific")
+    57dacc2b4ce5 ("tpm: tpm_tis: Share common data between phys")
+    745b361e989a ("tpm: infrastructure for TPM spaces")
+    7ab4032fa579 ("tpm_tis: Get rid of the duplicate IRQ probing code")
+    d30b8e4f68ef ("tpm: cleanup tpm_tis_remove()")
+    d4956524f1b0 ("tpm: drop manufacturer_id from struct tpm_vendor_specific")
+    e3837e74a06d ("tpm_tis: Refactor the interrupt setup")
+    ee1779840d09 ("tpm: drop 'base' from struct tpm_vendor_specific")
+    ef7b81dc7864 ("tpm_tis: Disable interrupt auto probing on a per-device basis")
+    f5595f5baa30 ("tpm: Unify the send callback behaviour")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+-- 
+Thanks
+Sasha
