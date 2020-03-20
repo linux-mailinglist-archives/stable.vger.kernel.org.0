@@ -2,110 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A7C18D0B4
-	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 15:26:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFB4618D163
+	for <lists+stable@lfdr.de>; Fri, 20 Mar 2020 15:47:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727195AbgCTO05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 10:26:57 -0400
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:35685 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726896AbgCTO05 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 Mar 2020 10:26:57 -0400
-Received: by mail-pj1-f66.google.com with SMTP id j20so2531016pjz.0
-        for <stable@vger.kernel.org>; Fri, 20 Mar 2020 07:26:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=95nhAbQZI8l0qy98Vs1MC8QCAWkVi2D1whnLFCuJkE8=;
-        b=L1wAwGYC7cTFLPvgvgchTmA+JOtoSc8/A23uw5dc6WRz4nlkVZTInV6rJEeDTOnk4q
-         bynfWuHGi+Hh0uRpgcjK8jIgEQabFDW1JuhOvY5qarp+RyHgOUvkYxxAQdBb1YOpw8uQ
-         I9SnK+widdvZY7o7kE4ml/pRJyphHB+4Fmv9bz53oR8Tuf37mEm7zTxxmv4BHMMvecfK
-         4sKo48iiiVdfM/0UdAlQRoEutr876FfB5jlq++aZpdwhieKnUpKtfnm9FVRJmNIpqVso
-         Z4yJ3nFYIHgDlx7JuGZUwIGmZTDi83bXFJTc8ZyrRddcESit3ORMI9IzV/bof4/Ptdqu
-         tUSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=95nhAbQZI8l0qy98Vs1MC8QCAWkVi2D1whnLFCuJkE8=;
-        b=PSHFyzC9iV2j11kPiwW2eex2YnAVETGrqG4K6GGSumP0lmLpN8mJ6nlzlMEWYd1PuR
-         ScLBX/m+eyaixB/lz83bOm2X9a6T9jXZRIZgjHg3uFz3Vzclu9KnA8cUBt8edZD2nFFP
-         Up6OCpRaiq3QxvdApZ3VaWRR6pM7H7CMrw1jk1hF7f3ZmJYHqxTAOm/q/gMCaA+LTSih
-         BUca060fWDVVWtfTBMW+NtzyzJHYIBSDhpRKjvbXnUIGRVIm5cWTYK4tNs80fQXiO+qE
-         wu1ux1BBeM0xiGr55tLA8wtW0M/Euysc06mneF0J0s6tLoUv3UvpnYx+PfZws0pkUm96
-         G/TA==
-X-Gm-Message-State: ANhLgQ0iT+OHU7vRX0Xxb9/yQhEqRIZkfPZp9Rrq9sRifhq7ToKJ/VD2
-        yXwd+HFTUnBSeO4N0JPPBGNBobWmcBg=
-X-Google-Smtp-Source: ADFU+vuRLHfT0Uu+almrNtg07rBLeLeFytANzUO/NGuEVVujYnkhlJmLj4z04v2nYdq4y/Hf6hzQZQ==
-X-Received: by 2002:a17:90b:3851:: with SMTP id nl17mr9644004pjb.59.1584714414403;
-        Fri, 20 Mar 2020 07:26:54 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id mq18sm5618530pjb.6.2020.03.20.07.26.52
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Mar 2020 07:26:52 -0700 (PDT)
-Message-ID: <5e74d2ac.1c69fb81.891d7.26d0@mx.google.com>
-Date:   Fri, 20 Mar 2020 07:26:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726970AbgCTOrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 10:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40046 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726913AbgCTOrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Mar 2020 10:47:00 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 326BD20714;
+        Fri, 20 Mar 2020 14:46:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584715619;
+        bh=EkWxp6DOsISjV04sDISIAHdyAJaajF7MydZzKwlbcuQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=W7LjqDAg8NykX6zsT1JTH+tARE5M4KboA4UGxmkUj0wIpzzJEBJwfL/9AWnVgJTD1
+         /2hMIzIvD/GmLKIN3xvUnbQ7kuxao9s+6dP0ZcWvT8jQw2wq+/X/YtBFBOXRdoLvuf
+         mlbqM3Kb+yHUAaRpq6K7R0hWTiAlKy87UBvitK6M=
+Date:   Fri, 20 Mar 2020 10:46:58 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>
+Subject: Re: [PATCH 5.5 00/65] 5.5.11-rc1 review
+Message-ID: <20200320144658.GK4189@sasha-vm>
+References: <20200319123926.466988514@linuxfoundation.org>
+ <fcf6db4c-cebe-9ad3-9f19-00d49a7b1043@roeck-us.net>
+ <20200319145900.GC92193@kroah.com>
+ <32c627bf-0e6b-8bc4-88d3-032a69484aa6@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.4.217
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.4.y boot: 57 boots: 3 failed,
- 50 passed with 4 untried/unknown (v4.4.217)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <32c627bf-0e6b-8bc4-88d3-032a69484aa6@roeck-us.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y boot: 57 boots: 3 failed, 50 passed with 4 untried/unkno=
-wn (v4.4.217)
+On Thu, Mar 19, 2020 at 08:15:40AM -0700, Guenter Roeck wrote:
+>On 3/19/20 7:59 AM, Greg Kroah-Hartman wrote:
+>> On Thu, Mar 19, 2020 at 07:44:33AM -0700, Guenter Roeck wrote:
+>>> On 3/19/20 6:03 AM, Greg Kroah-Hartman wrote:
+>>>> This is the start of the stable review cycle for the 5.5.11 release.
+>>>> There are 65 patches in this series, all will be posted as a response
+>>>> to this one.  If anyone has any issues with these being applied, please
+>>>> let me know.
+>>>>
+>>>> Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
+>>>> Anything received after that time might be too late.
+>>>>
+>>>
+>>> arm:davinci_all_defconfig fails to build.
+>>>
+>>> include/linux/gpio/driver.h: In function 'gpiochip_populate_parent_fwspec_twocell':
+>>> include/linux/gpio/driver.h:552:1: error: no return statement in function returning non-void [-Werror=return-type]
+>>>   552 | }
+>>>
+>>> The problem is caused by commit 8db6a5905e98 ("gpiolib: Add support for the
+>>> irqdomain which doesn't use irq_fwspec as arg") which is missing its fix,
+>>> commit 9c6722d85e922 ("gpio: Fix the no return statement warning"). That one
+>>> is missing a Fixes: tag, providing a good example why such tags are desirable.
+>>
+>> Thanks for letting me know, I've now dropped that patch (others
+>> complained about it for other reasons) and will push out a -rc2 with
+>> that fix.
+>>
+>
+>I did wonder why the offending patch was included, but then I figured that
+>I lost the "we apply too many patches to stable releases" battle, and I didn't
+>want to re-litigate it.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-4.y/kernel/v4.4.217/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
-rnel/v4.4.217/
+I usually much rather take prerequisite patches rather than do
+backports, which is why that patch was selected.
 
-Tree: stable
-Branch: linux-4.4.y
-Git Describe: v4.4.217
-Git Commit: 3b41c631678a15390920ffc1e72470e83db73ac8
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 29 unique boards, 11 SoC families, 13 builds out of 190
-
-Boot Regressions Detected:
-
-arm:
-
-    vexpress_defconfig:
-        gcc-8:
-          vexpress-v2p-ca15-tc1:
-              lab-collabora: new failure (last pass: v4.4.216)
-              lab-baylibre: new failure (last pass: v4.4.216)
-          vexpress-v2p-ca9:
-              lab-collabora: new failure (last pass: v4.4.216)
-              lab-baylibre: new failure (last pass: v4.4.216)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Thanks,
+Sasha
