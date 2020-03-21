@@ -2,74 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8503F18DF2F
-	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 10:36:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B67D318E0E8
+	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 12:58:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727008AbgCUJgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Mar 2020 05:36:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53740 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726995AbgCUJgy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 21 Mar 2020 05:36:54 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C16F20739;
-        Sat, 21 Mar 2020 09:36:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584783414;
-        bh=oBQIeImAjoieiPxUEttTfq6rn8iyKTxXUC2pUPHKw0o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UM4KwfqZVtsNW8Tr7JdyuIYcobhpNDDPUeaIwewhxryvMKuDnZZOO5G5NTE5oA8EY
-         9xkkMNN0F74qYLsPB6uAIaNyC5ob9PgtxM0uTC4nrBziZKlftvsMvH07n9e5EXWDTc
-         Kb2jmiE2i32PGQwHHpxRfjjOqEQIBVREMVmLVi5Y=
-Date:   Sat, 21 Mar 2020 10:36:51 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Faiz Abbas <faiz_abbas@ti.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH 5.5 00/64] 5.5.11-rc2 review
-Message-ID: <20200321093651.GA951429@kroah.com>
-References: <20200319150225.148464084@linuxfoundation.org>
- <CA+G9fYvOQ=oibqFZ=zffqj-c5mcjW2Bew2rVHg=FPs2mHxb_ug@mail.gmail.com>
- <20200321071046.GC850676@kroah.com>
- <CA+G9fYtVW7n=Zc2sXayYR0a6U-2womo54CW4ebhz8XU=N9uZNA@mail.gmail.com>
+        id S1726961AbgCUL6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Mar 2020 07:58:46 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:32962 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726192AbgCUL6q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Mar 2020 07:58:46 -0400
+Received: by mail-oi1-f193.google.com with SMTP id r7so9568370oij.0
+        for <stable@vger.kernel.org>; Sat, 21 Mar 2020 04:58:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=HXE6tstiCEJgLEvZqX/al+c2Uj3U9XPUohG/1iBPeWI=;
+        b=dhub15dFBgk35HV1hPVK19mskg4Aunz0JYhChlSKrivQqmtFI7xgcpDt7CKqvIgLDw
+         lPzfUUUoVyTFkNDzbIJk/dQgnVEGBvARfSXomvNoyXiMd8MNs9zDxB0DWR66yb1YfA5o
+         YGapuZxdaeEKB0D2VPHzZOdL4dUERZuUJ0bxFVjTIirUeQNPs6CxnM63+JnyPsmxOpYJ
+         zQ4XruWziDfaLpEiTWg2YRQLOqpWJsRXU6pXqmD3Fky1CYYVe38ETqMmMcSu1L5gwiyx
+         wVvemvmSR0EhxZhOgbljcJcjzNOnEXyEXuUpBlDsKHProAeRA29/ls1yaZkTnt8dohtd
+         B+eA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=HXE6tstiCEJgLEvZqX/al+c2Uj3U9XPUohG/1iBPeWI=;
+        b=gNiAzSxbIdFQ11fZzfg5fDUoCa2aD4MD0QsTitWz4/JR7IEg/casLPgIhlA71uTPBZ
+         ZLIYQdaQ2yR+QFTu7blg0kyBf6AHOCpwA+OHnCeX7Wurs0kTIJcC8d7hTEskmyekEKg/
+         cmjvQwJ9AHOftPM2bWmoSaSppWXU+TFdl5LOueWBEjumr1d7ZLaNC3a17Cm2k6+vpKJa
+         XmutZ96k0KU+wu02nqSPZwygfo4E734f2nHSzvFAat5HsYG6tQ6VJlFLQKPoDkvI/Gs2
+         Hw1gSF8oLKpLOKrVKKwJaAyp3Y2Jwv/y3rpTsNhkYd+9Ib1Eg3FCcFTZl4a4gBUIRl/1
+         25vw==
+X-Gm-Message-State: ANhLgQ3N1+Pacn2yse+yCQPReyjQBgmHupT2YmrDLE2EyI+jTnFc5SNX
+        G+PRNckkisM3+f/fdep+7JW18poWvaJmhi4KX1Q=
+X-Google-Smtp-Source: ADFU+vv4+3xTHdSgfnhlrK6/FtkAWfDLWE0j9sQS2M2tJwSZobLknIWg9Me133TZdasmzCbzoLOZvOMCG3RFz4eiScU=
+X-Received: by 2002:aca:4991:: with SMTP id w139mr10489596oia.145.1584791925691;
+ Sat, 21 Mar 2020 04:58:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYtVW7n=Zc2sXayYR0a6U-2womo54CW4ebhz8XU=N9uZNA@mail.gmail.com>
+Received: by 2002:a4a:b646:0:0:0:0:0 with HTTP; Sat, 21 Mar 2020 04:58:45
+ -0700 (PDT)
+Reply-To: begabriel6543@hotmail.com
+From:   Gabriel Bertrand <officeoffice806@gmail.com>
+Date:   Sat, 21 Mar 2020 04:58:45 -0700
+Message-ID: <CAAyL4F-yJjjMUQmCzkW+6GL=n8zQbct=VsKS7VFAVW6ZBe173A@mail.gmail.com>
+Subject: hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 21, 2020 at 03:03:51PM +0530, Naresh Kamboju wrote:
-> On Sat, 21 Mar 2020 at 12:40, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Fri, Mar 20, 2020 at 12:16:11PM +0530, Naresh Kamboju wrote:
-> > >
-> > > Results from Linaro’s test farm.
-> > > No regressions on arm64, arm, x86_64, and i386.
-> > >
-> > > NOTE:
-> > > The arm64 dragonboard-410c and arm beagleboard x15 device running
-> > > stable rc 4.19.112-rc1, 5.4.27-rc1 and 5.5.11-rc2 kernel popping up
-> > > the following messages on console log continuously. [Ref]
-> >
-> > That should have been resolved by now :(
-> 
-> The reported problem resolved now.
-
-Wonderful,t hanks for letting me know.
-
-greg k-h
+LS0gDQoNCuS9oOWlve+8jA0KDQrmiJHluIzmnJvkvaDlgZrnmoTlpb3jgIIg5b6I5oqx5q2J5Lul
+6L+Z56eN5pa55byP5LiO5oKo6IGU57O744CCIOaIkeWPq0dhYnJpZWwgQmVydHJhbmTvvIzmiJHl
+nKjms5Xlm73kuIDlrrbpooblhYjnmoTpk7booYzlt6XkvZzjgIINCuivt+ihqOaYjuaCqOacieWF
+tOi2o+iOt+W+l+mBl+S6p+WfuumHke+8jOivpeasvumhueWxnuS6juWcqOS4jeW5uOS6i+aVheS4
+reS4p+eUn+eahOWkluWbveWuouaIt+OAgg0KDQrkuIDml6bmgqjooajovr7kuobmgqjnmoTmhI/l
+m77vvIzmiJHlsIbkuLrmgqjmj5Dkvpvmm7TlpJror6bnu4bkv6Hmga/jgIIg56Wd5oKo5pyJ5Liq
+576O5aW955qE5LiA5aSp77ya6K+35LiO5oiR6IGU57O777yaPiBiZWdhYnJpZWw2NTQzQGdtYWls
+LmNvbQ0KDQoNCuaIkeWcqOetieS9oOeahOWbnuWkjeOAgg0KDQrmnIDlpb3nmoTnpZ3npo/vvIwN
+CuWKoOW4g+mHjOWfg+WwlMK35Lyv54m55YWwDQo=
