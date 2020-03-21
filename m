@@ -2,217 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAE9C18DDD4
-	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 05:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9429718DE61
+	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 08:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725932AbgCUEBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Mar 2020 00:01:47 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:38493 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725440AbgCUEBr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Mar 2020 00:01:47 -0400
-Received: by mail-lj1-f193.google.com with SMTP id w1so8669026ljh.5
-        for <stable@vger.kernel.org>; Fri, 20 Mar 2020 21:01:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=J1e25ok0Cea0GbmYDetYeX++8jPK1S3QLqovpWb3HI4=;
-        b=H+tIkewn/XgD+BJbRf4UwEw/eMrZSzyA81TwwOKB+dl5o3NDCkLFWOcyFy7q7YPGKM
-         Is9ITF5b80J5JSChudWaRAfsq4jcZwfgY8f/B+8OXanMIJaadNQb997bnu5n/BI9CvB8
-         nsE0BdZHUcPvXKQOMY0Hjoln5xsa4Or+ti6tn7o/W9xVWuTKRELrLosmZuc9urwEVE82
-         AoGC1nxuYYXrv9rbHW1EdfOHBH38AfILwoBS545iekubSUz93MXbPu4rSAICBBUdhFp/
-         82ZQYlxdn6t7Ae9N+ZgeqmNfiKgc1suML9oGi87E3gCXrRdShAtr+414m0TeyTKh7RAm
-         0y4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=J1e25ok0Cea0GbmYDetYeX++8jPK1S3QLqovpWb3HI4=;
-        b=XoA+R229N2nXnzyXcQbl2GbYqWcIhabFCbPjASZSgumVJcSWyVPXheBkoHeYjNvIs+
-         Gzm1w/L6++ZeJ8w+Ih9Icm4hdgOici0ixYRoN4lQAvawbhvC7AE2v8lFYywtI/Dcz86t
-         SZWW93eWnqLKF7r56g2z8OAnRChNcQIM2MQ5XXD0cJCvXSFEEWYsdvwv7d/Tw35Zhqm+
-         6+PG9a00AUw6Xmh3OxV7xdxVOk01T8L8qxd9tXFuOVea1V4uiR+4jiNT7dSDh1fcNeeo
-         S9A3VNHyczi7iBM6GyPo13fAmKQ+3/BEeabxDXqJhsIRns//iXbCn1JafNZog+adzIhP
-         vf0g==
-X-Gm-Message-State: ANhLgQ2BRcthKGfciQV0xtkkm8SRgR8vXubK0ecLL1dm+j76IKt4waCE
-        BZ1Um1adQHvzu2GhxYfZescRy7ExUojOm1zcyCoQAw==
-X-Google-Smtp-Source: ADFU+vuWFzlEGhYuPi6Q3O+WLo3d/JBv9KurrvtbDu4WG1NvtbLYydrx80UO0NaF3VBzAAKiB5Mjn4U2YrkBDC5gEE0=
-X-Received: by 2002:a2e:3309:: with SMTP id d9mr7458543ljc.73.1584763303443;
- Fri, 20 Mar 2020 21:01:43 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200319123924.795019515@linuxfoundation.org>
-In-Reply-To: <20200319123924.795019515@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 21 Mar 2020 09:31:32 +0530
-Message-ID: <CA+G9fYvJEAHcfqr2NrGdxdkW2JJEUHRxmGF0uY1xTevW-jEAww@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/93] 4.4.217-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
+        id S1728005AbgCUHIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Mar 2020 03:08:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39124 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727963AbgCUHIs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 21 Mar 2020 03:08:48 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A036820739;
+        Sat, 21 Mar 2020 07:08:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584774526;
+        bh=BoY9Lkm9Sb7/2s7TfYJxRYALGz4V0nIfs9XpKWkcWa8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bNTouncF91xGQHHVHoQZolS/Oj/FnQdKzKQtZkZZt5Yo9Ee7STK5MkqMH0N1xSmwr
+         sf9wcTacsx9YJ2cOhTVuoswU7Az99e1b7bkpfKQVzAOT2Iya7nv30G41DMgdQ1yJT9
+         L7nnJc7B30iToVQWzzN+UOOIyViN050ca+uvmvmw=
+Date:   Sat, 21 Mar 2020 08:08:43 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
         Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
         lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        linux- stable <stable@vger.kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: Re: [PATCH 4.19 00/48] 4.19.112-rc1 review
+Message-ID: <20200321070843.GA850676@kroah.com>
+References: <20200319123902.941451241@linuxfoundation.org>
+ <CA+G9fYsDw6JEznSHm2X=Wvq1dysGbGa4-VpXJyzKWZQxLMdagw@mail.gmail.com>
+ <7a8c6a752793f0907662c3e9c197c284fc461550.camel@codethink.co.uk>
+ <20200320080317.GA312074@kroah.com>
+ <20200320081122.GA349027@kroah.com>
+ <04164e5e-8cec-54cd-c4bd-f72bba86b5da@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <04164e5e-8cec-54cd-c4bd-f72bba86b5da@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 19 Mar 2020 at 18:35, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.217 release.
-> There are 93 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.217-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Fri, Mar 20, 2020 at 10:58:43AM -0700, Guenter Roeck wrote:
+> On 3/20/20 1:11 AM, Greg Kroah-Hartman wrote:
+> > On Fri, Mar 20, 2020 at 09:03:17AM +0100, Greg Kroah-Hartman wrote:
+> >> On Thu, Mar 19, 2020 at 08:00:32PM +0000, Ben Hutchings wrote:
+> >>> On Fri, 2020-03-20 at 01:12 +0530, Naresh Kamboju wrote:
+> >>>> On Thu, 19 Mar 2020 at 18:50, Greg Kroah-Hartman
+> >>>> <gregkh@linuxfoundation.org> wrote:
+> >>>>> This is the start of the stable review cycle for the 4.19.112 release.
+> >>>>> There are 48 patches in this series, all will be posted as a response
+> >>>>> to this one.  If anyone has any issues with these being applied, please
+> >>>>> let me know.
+> >>>>>
+> >>>>> Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
+> >>>>> Anything received after that time might be too late.
+> >>>>>
+> >>>>> The whole patch series can be found in one patch at:
+> >>>>>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.112-rc1.gz
+> >>>>> or in the git tree and branch at:
+> >>>>>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> >>>>> and the diffstat can be found below.
+> >>>>>
+> >>>>> thanks,
+> >>>>>
+> >>>>> greg k-h
+> >>>>>
+> >>>>> Faiz Abbas <faiz_abbas@ti.com>
+> >>>>>     mmc: sdhci-omap: Fix Tuning procedure for temperatures < -20C
+> >>>>>
+> >>>>> Faiz Abbas <faiz_abbas@ti.com>
+> >>>>>     mmc: sdhci-omap: Don't finish_mrq() on a command error during tuning
+> >>>>
+> >>>> Results from Linaro’s test farm.
+> >>>> No regressions on arm64, arm, x86_64, and i386.
+> >>>>
+> >>>> NOTE:
+> >>>> The arm beagleboard x15 device running stable rc 4.19.112-rc1, 5.4.27-rc1
+> >>>> and 5.5.11-rc2 kernel pops up the following messages on console log,
+> >>>> Is this a problem ?
+> >>>>
+> >>>> [   15.737765] mmc1: unspecified timeout for CMD6 - use generic
+> >>>> [   16.754248] mmc1: unspecified timeout for CMD6 - use generic
+> >>>> [   16.842071] mmc1: unspecified timeout for CMD6 - use generic
+> >>>> ...
+> >>>> [  977.126652] mmc1: unspecified timeout for CMD6 - use generic
+> >>>> [  985.449798] mmc1: unspecified timeout for CMD6 - use generic
+> >>> [...]
+> >>>
+> >>> This warning was introduced by commit 533a6cfe08f9 "mmc: core: Default
+> >>> to generic_cmd6_time as timeout in __mmc_switch()".  That should not be
+> >>> applied to stable branches; it is not valid without (at least) these
+> >>> preparatory changes:
+> >>>
+> >>> 0c204979c691 mmc: core: Cleanup BKOPS support
+> >>> 24ed3bd01d6a mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
+> >>> ad91619aa9d7 mmc: block: Use generic_cmd6_time when modifying INAND_CMD38_ARG_EXT_CSD
+> >>
+> >> Ok, I've now dropped that patch, which also required me to drop
+> >> 1292e3efb149 ("mmc: core: Allow host controllers to require R1B for
+> >> CMD6").  I've done so for 5.5.y, 5.4.y, and 4.19.y.
+> > 
+> > Ugh, I forgot, that broke other things.  I'm going to go rip out a bunch
+> > of mmc patches now...
+> > 
+> For v4.19.111-44-gd078cac:
+> 
+> Build results:
+> 	total: 156 pass: 156 fail: 0
+> Qemu test results:
+> 	total: 418 pass: 418 fail: 0
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Wonderful, thanks for testing.
 
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.217-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 2f57fed8dba0810ba3a6cc7ee0b8018efd4c81ca
-git describe: v4.4.216-94-g2f57fed8dba0
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.216-94-g2f57fed8dba0
-
-No regressions (compared to build v4.4.216)
-
-No fixes (compared to build v4.4.216)
-
-Ran 18231 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* spectre-meltdown-checker-test
-* install-android-platform-tools-r2600
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.217-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.217-rc1-hikey-20200319-669
-git commit: 7673c791bfb045d15ddf3833701a4af7980de307
-git describe: 4.4.217-rc1-hikey-20200319-669
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.217-rc1-hikey-20200319-669
-
-
-No regressions (compared to build 4.4.217-rc1-hikey-20200317-668)
-
-
-No fixes (compared to build 4.4.217-rc1-hikey-20200317-668)
-
-Ran 1637 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
