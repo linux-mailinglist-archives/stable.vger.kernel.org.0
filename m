@@ -2,53 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4397618DF27
-	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 10:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8503F18DF2F
+	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 10:36:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728321AbgCUJeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Mar 2020 05:34:07 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:33270 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726995AbgCUJeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Mar 2020 05:34:06 -0400
-Received: by mail-lf1-f68.google.com with SMTP id c20so6427622lfb.0
-        for <stable@vger.kernel.org>; Sat, 21 Mar 2020 02:34:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=7PQygVDJDvihpL+AHiWZt1rdNY3SE5YtKZGVTmo8xfA=;
-        b=tQpI+bMhMxby/lZdY97K/5ZPx6Qm5PLiooGPuh2ziLzFIT/7rVGl4NUeqYJpbD0uiP
-         8o5iXgvllB5weKkIjz/mwHe+ZCpzNymfRMU2RhV2+NOiMwbpwP3AbpXN08w6Kew6U/cZ
-         q+/CNYt+VTHN3RqukIocOU+QUUtH0tSVoM4XV3cTFHAPAuaz0t553jZty16Eko+RFP1z
-         J/5OI+DBJvWgNDSyIXz7k/axpCFNdc9+hv05hEwuGch3/Z1R2SA2FH77f4Jsj0oSzcHd
-         BZvnJesJ+R6hUvLwUuKg6lt9Y8JDFj0wcRBK7ZzdL02M9NHRrfJ5bbQWMZVAwsPIfHgP
-         ibCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=7PQygVDJDvihpL+AHiWZt1rdNY3SE5YtKZGVTmo8xfA=;
-        b=QhndD5R0/hkr1Upolg5N1ZtHOr2CdWkDcrLLcYpKfB6Saa4HHtkB3LOd2uZKo+0QuH
-         ytCUYb3jHEbhHjVzNrByE/m7nXizULg4ueLPioMQvBTM5ZSper8Kgcm+ToHYayehVMPG
-         qaWkLzgr0/f7rEM9qZ3+3C1heB2b7QmbbJF5fPyi96b6+auDEMpSihwstUkr0dIrZncS
-         jS5NWnkpxSV4JL+O9ogGpnQ1WxLRDy4WjYL7pGZP6oRbRR8a9Ll0A5vCpwIG/upM2sV6
-         RbeuhJgHHFZXCxHoHtshu6rZCycnBg80/OCUimCcTgqSjB03BwXIOocOt/mbTFfTSXtT
-         BH5w==
-X-Gm-Message-State: ANhLgQ2GDX0qsdo9Btr6hi/5JdE9pbCCgrPa0NCZlSARvhUt+SG7bt1f
-        3zyloSBJDa3rnJx7Cxf1P/vi+Bih692eqoprRVs9ow==
-X-Google-Smtp-Source: ADFU+vvJ/Zo7pEohWKBTNFuMMWjR1nmN2fu5OMDlZeJXip5sYLxu47JPUH7i5GR+wkxrtE5ScKJ9SMfmo/biEz+ShN0=
-X-Received: by 2002:a05:6512:3041:: with SMTP id b1mr7761237lfb.167.1584783242699;
- Sat, 21 Mar 2020 02:34:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200319150225.148464084@linuxfoundation.org> <CA+G9fYvOQ=oibqFZ=zffqj-c5mcjW2Bew2rVHg=FPs2mHxb_ug@mail.gmail.com>
- <20200321071046.GC850676@kroah.com>
-In-Reply-To: <20200321071046.GC850676@kroah.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 21 Mar 2020 15:03:51 +0530
-Message-ID: <CA+G9fYtVW7n=Zc2sXayYR0a6U-2womo54CW4ebhz8XU=N9uZNA@mail.gmail.com>
-Subject: Re: [PATCH 5.5 00/64] 5.5.11-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S1727008AbgCUJgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Mar 2020 05:36:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53740 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726995AbgCUJgy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 21 Mar 2020 05:36:54 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C16F20739;
+        Sat, 21 Mar 2020 09:36:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1584783414;
+        bh=oBQIeImAjoieiPxUEttTfq6rn8iyKTxXUC2pUPHKw0o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UM4KwfqZVtsNW8Tr7JdyuIYcobhpNDDPUeaIwewhxryvMKuDnZZOO5G5NTE5oA8EY
+         9xkkMNN0F74qYLsPB6uAIaNyC5ob9PgtxM0uTC4nrBziZKlftvsMvH07n9e5EXWDTc
+         Kb2jmiE2i32PGQwHHpxRfjjOqEQIBVREMVmLVi5Y=
+Date:   Sat, 21 Mar 2020 10:36:51 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -59,29 +36,40 @@ Cc:     open list <linux-kernel@vger.kernel.org>,
         linux- stable <stable@vger.kernel.org>,
         Faiz Abbas <faiz_abbas@ti.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 5.5 00/64] 5.5.11-rc2 review
+Message-ID: <20200321093651.GA951429@kroah.com>
+References: <20200319150225.148464084@linuxfoundation.org>
+ <CA+G9fYvOQ=oibqFZ=zffqj-c5mcjW2Bew2rVHg=FPs2mHxb_ug@mail.gmail.com>
+ <20200321071046.GC850676@kroah.com>
+ <CA+G9fYtVW7n=Zc2sXayYR0a6U-2womo54CW4ebhz8XU=N9uZNA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYtVW7n=Zc2sXayYR0a6U-2womo54CW4ebhz8XU=N9uZNA@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 21 Mar 2020 at 12:40, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Fri, Mar 20, 2020 at 12:16:11PM +0530, Naresh Kamboju wrote:
+On Sat, Mar 21, 2020 at 03:03:51PM +0530, Naresh Kamboju wrote:
+> On Sat, 21 Mar 2020 at 12:40, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
 > >
-> > Results from Linaro=E2=80=99s test farm.
-> > No regressions on arm64, arm, x86_64, and i386.
+> > On Fri, Mar 20, 2020 at 12:16:11PM +0530, Naresh Kamboju wrote:
+> > >
+> > > Results from Linaro’s test farm.
+> > > No regressions on arm64, arm, x86_64, and i386.
+> > >
+> > > NOTE:
+> > > The arm64 dragonboard-410c and arm beagleboard x15 device running
+> > > stable rc 4.19.112-rc1, 5.4.27-rc1 and 5.5.11-rc2 kernel popping up
+> > > the following messages on console log continuously. [Ref]
 > >
-> > NOTE:
-> > The arm64 dragonboard-410c and arm beagleboard x15 device running
-> > stable rc 4.19.112-rc1, 5.4.27-rc1 and 5.5.11-rc2 kernel popping up
-> > the following messages on console log continuously. [Ref]
->
-> That should have been resolved by now :(
+> > That should have been resolved by now :(
+> 
+> The reported problem resolved now.
 
-The reported problem resolved now.
-Thank you.
+Wonderful,t hanks for letting me know.
 
-- Naresh
+greg k-h
