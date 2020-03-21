@@ -2,101 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E69F18E1AD
-	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 15:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8755018E2DA
+	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 17:13:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726592AbgCUOAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Mar 2020 10:00:46 -0400
-Received: from mo4-p01-ob.smtp.rzone.de ([81.169.146.165]:20019 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726192AbgCUOAq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 Mar 2020 10:00:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1584799242;
-        s=strato-dkim-0002; d=hartkopp.net;
-        h=In-Reply-To:Date:Message-ID:From:References:Cc:To:Subject:
-        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=s0czIst+WW+j2/qCI7TgrMDLfOaTf0kM9P2DhBCjtAQ=;
-        b=mpUL6sss6XHmDOR652UKiV/Mx58Z7utOIrDeGk/QfEBipCf3EVRLkGi/G1n9Jc2m70
-        IxZwEIoFbvd8G20FOYquVx1ptrZNAFhmgu7tz3X/vSN4ZLxWsvHfYxPxygn0TfLTrsXB
-        VeCOzErI9rbpvwlOrIoEY0oSmx25VZ5fHqKzzTrsKWT2BcSN4ac+T/A38PGwFZVVFeC9
-        oIaXn9w+VbwtnOeXbCu0klt+D5jgIH/G2NNaFnRO+GOt37J9dFR4vMykwWqO9TEyORaL
-        ZwVmXl7vTIf5AUS9f9b5cYDRFPZm28hC6em5EC4ILgfi4Qge5qG5Pu7UoMkqNt+q0ghz
-        KUZA==
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1o3PMaViOoLMGXsh6kk/L"
-X-RZG-CLASS-ID: mo00
-Received: from [192.168.50.177]
-        by smtp.strato.de (RZmta 46.2.1 DYNA|AUTH)
-        with ESMTPSA id R0105bw2LE0U6ff
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-        Sat, 21 Mar 2020 15:00:30 +0100 (CET)
-Subject: Re: [PATCH] bonding: do not enslave CAN devices
-To:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        David Miller <davem@davemloft.net>,
-        Sabrina Dubroca <sd@queasysnail.net>
-Cc:     linux-can@vger.kernel.org, netdev@vger.kernel.org,
-        syzbot+c3ea30e1e2485573f953@syzkaller.appspotmail.com,
-        dvyukov@google.com, j.vosburgh@gmail.com, vfalico@gmail.com,
-        andy@greyhouse.net, stable@vger.kernel.org
-References: <d6d9368d-b468-3946-ac63-abedf6758154@hartkopp.net>
- <20200302.111249.471862054833131096.davem@davemloft.net>
- <03ff979e-a621-c9a3-9be3-13677c147f91@pengutronix.de>
- <20200306.211320.1410615421373955488.davem@davemloft.net>
- <d69b4a32-5d3e-d100-78d3-d713b97eb2ff@pengutronix.de>
- <20200313095610.x3iorvdotry54vb4@pengutronix.de>
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-Message-ID: <42aee2fd-b6d4-fa28-27fc-f8faab32c73f@hartkopp.net>
-Date:   Sat, 21 Mar 2020 15:00:30 +0100
+        id S1727460AbgCUQNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Mar 2020 12:13:50 -0400
+Received: from mail-pj1-f66.google.com ([209.85.216.66]:54617 "EHLO
+        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727128AbgCUQNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 Mar 2020 12:13:50 -0400
+Received: by mail-pj1-f66.google.com with SMTP id np9so3918530pjb.4
+        for <stable@vger.kernel.org>; Sat, 21 Mar 2020 09:13:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:to:from:subject:autocrypt:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=+CUkyBqHze2lJWR+lVDUM/dLODYNWahDsgeGK4K3ECk=;
+        b=tTvV8T1rGACFbHetx7szP/z585vS0I/fIWSbzWQT/1ZSATqpYNV0mjlZZfwnapUBZ2
+         5N2AXOHrJWKxsrk/zlkVl6qIvS3bHhdPOrHuQj3H72ZR57EjRzF8/otRbvsLsXFdskHR
+         7ttDrAyAbwG7iF8l2JZ74zthhVsMzbZeJ4GDHVp56st56J3X/dfrW6MuicbINPdRk0F0
+         exLy6HLwZApJJhKgueQFcEEPo3+53lADQfN9MhF09ipPzRl46zu+5zfbWQBUz+ACuHgJ
+         HVWZHTfM8ssyyeOBYK7dBXjRBnRkFVj9C7M4BEjPWmI1Mm9SWXljKoQoVx5amzlSl9n0
+         WHcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:to:from:subject:autocrypt:message-id:date
+         :user-agent:mime-version:content-language:content-transfer-encoding;
+        bh=+CUkyBqHze2lJWR+lVDUM/dLODYNWahDsgeGK4K3ECk=;
+        b=KNj0LTjuzkYx0tD4Ge/SfD2LmR+G25kLDP0Hza1l53ylamkBF8MYUUFnDFCFhyNito
+         pdOIRcaqG8ETzjufDSxT0ROB+3uszS+ZLQvif9cfqwhN7u8MNOIQ/oDQLKrvCxeuyFzO
+         mUKcUytH7//VTPwIA9LvjWc1CHKUGr5jxGRWlUNpwlrKk61jBS8JTA4jfRh9adeBqhL0
+         scFLzw5pRFAtNxdrC6iaKb85Ru/iczVnPBfuI8leDkOAzkDO0NCWcA0Ui0oz51+h76Zr
+         E1jm7O1Aqp0eXM1vNd+tniGA1/sbRicaLA1nAkl/YgVjD19cJM0YPH/UiiIx07THaBA/
+         Ob9Q==
+X-Gm-Message-State: ANhLgQ3ketVdKW/XWuG/IOhmB7FIFZKbMuC2rTgWw2V0vF3KIgHEahu2
+        VZT9csyR77ZrMIaov9qHwWrdc8TV
+X-Google-Smtp-Source: ADFU+vvFdPnLUzM7Q9LdufK4YxgwOth/kJcTUuTSss2seC8xY8zBhedzWoFuwfAjZ3rAgUIFduFXxA==
+X-Received: by 2002:a17:902:8f94:: with SMTP id z20mr14322830plo.62.1584807228899;
+        Sat, 21 Mar 2020 09:13:48 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id k1sm8094485pgg.56.2020.03.21.09.13.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 21 Mar 2020 09:13:48 -0700 (PDT)
+To:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Subject: Handling of patches missing in stable releases based on Fixes: tags
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <ea9275e1-728f-9b12-c787-7109985bf7c3@roeck-us.net>
+Date:   Sat, 21 Mar 2020 09:13:47 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200313095610.x3iorvdotry54vb4@pengutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+ Sabrina Dubroca (takes care of team driver which has the same issue)
+Hi,
 
-On 13/03/2020 10.56, Oleksij Rempel wrote:
-> On Mon, Mar 09, 2020 at 11:25:50AM +0100, Marc Kleine-Budde wrote:
->> On 3/7/20 6:13 AM, David Miller wrote:
+we now have a script that identifies patches in stable releases which were
+later fixed upstream, but the fix was not applied to the respective stable
+releases. We identify such patches based on Fixes: tags in the upstream
+kernel.
 
->>> Like this:
->>>
->>> if (netdev->ops != &can_netdev_ops)
->>> 	return;
->>
->> There is no single can_netdev_ops. The netdev_ops are per CAN-network
->> driver. But the ml_priv is used in the generic CAN code.
-> 
-> ping,
-> 
-> are there any other ways or ideas how to solve this issue?
+Example: Upstream commit c54c7374ff4 ("drm/dp_mst: Skip validating ports
+during destruction, just ref") was applied to v4.4.y as commit 05d994f68019.
+It was later reverted upstream with commit 9765635b307, but the revert has
+(at least not yet) found its way into v4.4.y.
 
-Well, IMO the patch from
-https://marc.info/?l=linux-can&m=158039108004683
-is still valid.
+This is an easy example, where the revert should (or at least I think it
+should) be applied to v4.4.y (and possibly to later kernels - I didn't check).
+A more tricky patch is commit 3ef240eaff36 ("futex: Prevent exit livelock")
+in v5.4.y, which was later fixed upstream with commit 51bfb1d11d6 ("futex:
+Fix kernel-doc notation warning"). I am not entirely sure what to do with
+that, given that it only fixes documentation (though that may of course also
+be valuable).
 
-Although the attribution that commit 8df9ffb888c ("can: make use of 
-preallocated can_ml_priv for per device struct can_dev_rcv_lists")
-introduced the problem could be removed.
+How should we handle this ? Would it be ok to send half-automated requests
+to the stable mailing list, for example with basic test results ?
 
-Even before this commit dev->ml_priv of CAN interfaces has been used to 
-store the filter lists. And either the bonding and the team driver do 
-not take care of ml_priv.
-
-They pretend to be CAN interfaces by faking dev->type to be ARPHRD_CAN - 
-but they are not. When we dereference dev->ml_priv in (badly) faked CAN 
-devices we run into the reported issue.
-
-So the approach is to tell bonding and team driver to keep the fingers 
-away from CAN interfaces like we do with some ARPHRD_INFINIBAND setups 
-in bond_enslave() too.
-
-Regards,
-Oliver
+Thanks,
+Guenter
