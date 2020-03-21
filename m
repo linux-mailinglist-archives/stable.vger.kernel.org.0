@@ -2,55 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E8F618DC61
-	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 01:09:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C93E718DC8C
+	for <lists+stable@lfdr.de>; Sat, 21 Mar 2020 01:35:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727647AbgCUAI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 Mar 2020 20:08:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51058 "EHLO mail.kernel.org"
+        id S1726955AbgCUAfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 Mar 2020 20:35:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726773AbgCUAI7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 20 Mar 2020 20:08:59 -0400
-Received: from kernel.org (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726773AbgCUAfQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 20 Mar 2020 20:35:16 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0634320787;
-        Sat, 21 Mar 2020 00:08:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1D282070A;
+        Sat, 21 Mar 2020 00:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584749339;
-        bh=yny377WRpK4XlQfnYzqXIGeWNNtWOQJguIJuybA0pMs=;
-        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
-        b=L59xcugjt3afJmpVpvTC0rRLoLmLc4TEkzDEMY//UNGHsLFsStgfEv+yBI44EDSv7
-         hYbBi7mBuri4x6AnjcdL6S4gO1NEVTD3hpIbAYcub3cHU7Ph8kCGvkBMZZa3gthBOV
-         Oxoiap51KmcCjwbsVkMEXJ2WWAMBzRlT9kdYZrEQ=
-Content-Type: text/plain; charset="utf-8"
+        s=default; t=1584750916;
+        bh=z+TEk+VsE307yZZ0f+TRvYUS5mNXvPUK1zT7UpvRyZk=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=ETHR9sHxWRPldf+O9bAPC4q6r9JDgjDDrcbAS4TV5vTKO7LqijpsvDm+/dI8M+yyU
+         UjNI52s+S4AJdo02n5iQn9xYLEWcJMN98xg7gf5F4FQ/tgcAWPzG6zf+SrN4FTruSF
+         sYMGLXnqyhN6mStEih+w8w9MtmyLzQFC9uok5H1Q=
+Subject: Re: [PATCH 5.5 00/54] 5.5.11-rc3 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200320113335.277810029@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <35b62550-2e03-9595-8518-efba73d17f09@kernel.org>
+Date:   Fri, 20 Mar 2020 18:34:59 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20200213161952.37460-2-paul@crapouillou.net>
-References: <20200213161952.37460-1-paul@crapouillou.net> <20200213161952.37460-2-paul@crapouillou.net>
-Subject: Re: [PATCH v2 2/2] clk: ingenic/TCU: Fix round_rate returning error
-From:   Stephen Boyd <sboyd@kernel.org>
-Cc:     od@zcrc.me, linux-clk@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        stable@vger.kernel.org
-To:     Michael Turquette <mturquette@baylibre.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Stephen Boyd <sboyd@codeaurora.org>
-Date:   Fri, 20 Mar 2020 17:08:58 -0700
-Message-ID: <158474933803.125146.5323486613310408237@swboyd.mtv.corp.google.com>
-User-Agent: alot/0.9
+In-Reply-To: <20200320113335.277810029@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Paul Cercueil (2020-02-13 08:19:52)
-> When requesting a rate superior to the parent's rate, it would return
-> -EINVAL instead of simply returning the parent's rate like it should.
->=20
-> Fixes: 4f89e4b8f121 ("clk: ingenic: Add driver for the TCU clocks")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> ---
+On 3/20/20 5:34 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.5.11 release.
+> There are 54 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 22 Mar 2020 11:32:39 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.11-rc3.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Applied to clk-next
+Compiled and booted on my test system. No dmesg regressions.
+
+thanks,
+-- Shuah
