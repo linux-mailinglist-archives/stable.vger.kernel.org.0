@@ -2,48 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC7B18EAEB
-	for <lists+stable@lfdr.de>; Sun, 22 Mar 2020 18:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8160B18EB5C
+	for <lists+stable@lfdr.de>; Sun, 22 Mar 2020 19:08:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726797AbgCVRh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Mar 2020 13:37:29 -0400
-Received: from static-dsl-170.87-197-152.telecom.sk ([87.197.152.170]:36778
-        "EHLO sldom.sldom" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726781AbgCVRh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Mar 2020 13:37:29 -0400
-Received: from Shop01 (localhost [127.0.0.1])
-        by sldom.sldom (Postfix) with SMTP id 83F0820DB19;
-        Fri, 20 Mar 2020 07:29:33 +0100 (CET)
-Received: from [77.251.125.220]
-        by Shop01 with ESMTP id 424BA4D2CFC
-        for <stabelnandor@freemail.hu>; Fri, 20 Mar 2020 02:28:24 -0500
-Message-ID: <dkb9wu4y7---qg367k1@ixq6tf>
-From:   "Jean Marie" <tbryant6@woh.rr.com>
-Reply-To: "Jean Marie" <tbryant6@woh.rr.com>
-To:     stabelnandor@freemail.hu
-Subject: RESPOND BACK  FOR DISCUSSION
-Date:   Fri, 20 Mar 20 02:28:24 GMT
-X-Mailer: The Bat! (v1.52f) Business
+        id S1725881AbgCVSH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Mar 2020 14:07:59 -0400
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:43486 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725997AbgCVSH7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Mar 2020 14:07:59 -0400
+Received: by mail-qk1-f195.google.com with SMTP id o10so7155544qki.10
+        for <stable@vger.kernel.org>; Sun, 22 Mar 2020 11:07:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=BIAfXmBfRkAANJ920FuukPqihWPTptEo5Ckx0C9lkEg=;
+        b=kJkHg19xC6oGgoypYvB+OCCO1Yc+J3L6pSGDWuiCSx/8Rn+5tUUI7EqAYeDEAcry0e
+         Z95NbBCPyFXasol4E4U0mDnVJw0e/9ToMXBiWFcBgxdkUxoqBYUf0fbAYW90XMHItoiS
+         cE9tmVPiVZJkAq4+n5QM+ucCIu0RQnrjbmzjRiDYHEF0iySi1TU34JBtL0MLDWCIBfxB
+         myiobJDXz4TO7W3few6jZI+iEDYyzAiykhiqkFtZL5SCQVa3fi+Roy7P3Wi7sEz/3RZj
+         powI29z/SqbsBPWHbiwMTnZ5t8kqZIzhuEr+ZONPoHWbGTVeUL1YoTjOdr6ji2W+JEDX
+         wUZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=BIAfXmBfRkAANJ920FuukPqihWPTptEo5Ckx0C9lkEg=;
+        b=rPOWWtkdcpS1pJdo/dqoxKLIczkRbbtqiYjpQ0pxAw6rOQJ1ExIB0dOIkHVV9BHFmG
+         ILJXMLJBkBbx5uRN8CjQQQIUWhzJJ5+ZBcm87brEWGyINitTCFgwsGHGYbRtxevqEn/7
+         kNMyILo1q9wE2nDYwTOo0gIO8uJfLR+Da9B5tE5M4zuioURa99tsclsfoN6AvpAIoocY
+         fK6rNj86uV/8CCnRe9JH4GQTbvSsyQtp0MhZH+gB827e0UYMJvAx3FsjGEFqy2y3Ippn
+         yHpwTu8srJXXmBXGJ/OueSiUEUK1Xyy3Uf5tKLxBlzxjgzdtgSdO9VYQDvopeRj5tWQR
+         kveQ==
+X-Gm-Message-State: ANhLgQ1cUYrPX2B5rkabOTeu6tZtvhE/61s8tX5EHlgatKrAwlQVc2+x
+        ja/+fI08ZWv6UMVh7CsUOdQkQ/0aYniINTBpokE=
+X-Google-Smtp-Source: ADFU+vsPeO+HLsawJkZqowS/qWxK91ppv2BL5Eiuzm7FOqzZWk2/kiCNeMS2V8ozsVXM058KXV0LwEmLFPdCa0yE/ow=
+X-Received: by 2002:a37:4852:: with SMTP id v79mr16773330qka.459.1584900477163;
+ Sun, 22 Mar 2020 11:07:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary=".3C4_.ABFA.7B7_"
-X-Priority: 3
-X-MSMail-Priority: Normal
+Received: by 2002:a05:6214:2cb:0:0:0:0 with HTTP; Sun, 22 Mar 2020 11:07:56
+ -0700 (PDT)
+Reply-To: reverendmichael00@gmail.com
+From:   "Mr.Michael Abraham" <davidbraddy01@gmail.com>
+Date:   Sun, 22 Mar 2020 18:07:56 +0000
+Message-ID: <CAHGOU4NeNNTL37_vznBXCHBzXTesdC8vYjgpfUjokHAJBbcfFA@mail.gmail.com>
+Subject: Thanks
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---.3C4_.ABFA.7B7_
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
-
-I am a private financial consultant,  I have a client who is interested to=
- invest millions dollar in your country. Get back to me privately for disc=
-ussion hence you have investment experience to manage the above funds.
-Regards
-Mr. Jean Marie .B
-
---.3C4_.ABFA.7B7_--
-
+Greeting, I sent you a letter days ago Did you receive it, I wait for
+your response,Best Regard, Mr.Michael Abraham.
