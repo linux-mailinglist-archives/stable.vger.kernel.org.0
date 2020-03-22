@@ -2,240 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B56C18E5C9
-	for <lists+stable@lfdr.de>; Sun, 22 Mar 2020 02:22:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B5218E5CA
+	for <lists+stable@lfdr.de>; Sun, 22 Mar 2020 02:25:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728226AbgCVBWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 Mar 2020 21:22:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41534 "EHLO mail.kernel.org"
+        id S1727296AbgCVBZe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 Mar 2020 21:25:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726859AbgCVBWn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 21 Mar 2020 21:22:43 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        id S1726859AbgCVBZd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 21 Mar 2020 21:25:33 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1353520776;
-        Sun, 22 Mar 2020 01:22:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB3E920658;
+        Sun, 22 Mar 2020 01:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584840162;
-        bh=9fT8MyMAwfLnaCndlC3OQbRwEl4FqN8HcbT6QN8u3Qs=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=WQeCG0852wBnFTWz8KV8wYqXsRIlPoE62NWhjs8R0MEkaH/1BzWvhMpP/amnXi46g
-         QJxA1xgsDbvD0KQlAyHvtsiexutOMU3PgIvWXqUoaRt1nzoEa9peoRgvYDU34SXnuq
-         65W97lpM7ZBpfVyO4aZF615u0iqYJcFBFmsneDes=
-Date:   Sat, 21 Mar 2020 18:22:41 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, bp@suse.de, dave.hansen@linux.intel.com,
-        jroedel@suse.de, linux-mm@kvack.org, luto@kernel.org,
-        mingo@redhat.com, mm-commits@vger.kernel.org,
-        oliver.sang@intel.com, peterz@infradead.org,
-        rafael.j.wysocki@intel.com, shile.zhang@linux.alibaba.com,
-        stable@vger.kernel.org, tglx@linutronix.de,
-        torvalds@linux-foundation.org
-Subject:  [patch 10/10] x86/mm: split vmalloc_sync_all()
-Message-ID: <20200322012241.7AfzulcPB%akpm@linux-foundation.org>
-In-Reply-To: <20200321181954.c0564dfd5514cd742b534884@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        s=default; t=1584840333;
+        bh=KC4zfxD7JHcPoNOjR26SeubEwUf7mlAkJzmUBSH4FT0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=yBmcQoBTZLjht51wsVYVhflo0M4LqZcKiS4o88gbqWB5zT07410lRvrHyJmdmxefp
+         N3pLBx+yYJHZjcvHUeiwVCF3ZpZMX8B/xWDEW2PXE9MVp436+Qivg85aojFjj0g9uP
+         K18iNdWGaKd67/K9FhSSXn0Aj60kiwUKUkf/CMN0=
+Date:   Sat, 21 Mar 2020 21:25:31 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: Re: [PATCH 4.19 00/48] 4.19.112-rc1 review
+Message-ID: <20200322012531.GL4189@sasha-vm>
+References: <20200319123902.941451241@linuxfoundation.org>
+ <CA+G9fYsDw6JEznSHm2X=Wvq1dysGbGa4-VpXJyzKWZQxLMdagw@mail.gmail.com>
+ <7a8c6a752793f0907662c3e9c197c284fc461550.camel@codethink.co.uk>
+ <20200320080317.GA312074@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200320080317.GA312074@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
-Subject: x86/mm: split vmalloc_sync_all()
+On Fri, Mar 20, 2020 at 09:03:17AM +0100, Greg Kroah-Hartman wrote:
+>On Thu, Mar 19, 2020 at 08:00:32PM +0000, Ben Hutchings wrote:
+>> On Fri, 2020-03-20 at 01:12 +0530, Naresh Kamboju wrote:
+>> > On Thu, 19 Mar 2020 at 18:50, Greg Kroah-Hartman
+>> > <gregkh@linuxfoundation.org> wrote:
+>> > > This is the start of the stable review cycle for the 4.19.112 release.
+>> > > There are 48 patches in this series, all will be posted as a response
+>> > > to this one.  If anyone has any issues with these being applied, please
+>> > > let me know.
+>> > >
+>> > > Responses should be made by Sat, 21 Mar 2020 12:37:04 +0000.
+>> > > Anything received after that time might be too late.
+>> > >
+>> > > The whole patch series can be found in one patch at:
+>> > >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.112-rc1.gz
+>> > > or in the git tree and branch at:
+>> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+>> > > and the diffstat can be found below.
+>> > >
+>> > > thanks,
+>> > >
+>> > > greg k-h
+>> > >
+>> > > Faiz Abbas <faiz_abbas@ti.com>
+>> > >     mmc: sdhci-omap: Fix Tuning procedure for temperatures < -20C
+>> > >
+>> > > Faiz Abbas <faiz_abbas@ti.com>
+>> > >     mmc: sdhci-omap: Don't finish_mrq() on a command error during tuning
+>> >
+>> > Results from Linaro’s test farm.
+>> > No regressions on arm64, arm, x86_64, and i386.
+>> >
+>> > NOTE:
+>> > The arm beagleboard x15 device running stable rc 4.19.112-rc1, 5.4.27-rc1
+>> > and 5.5.11-rc2 kernel pops up the following messages on console log,
+>> > Is this a problem ?
+>> >
+>> > [   15.737765] mmc1: unspecified timeout for CMD6 - use generic
+>> > [   16.754248] mmc1: unspecified timeout for CMD6 - use generic
+>> > [   16.842071] mmc1: unspecified timeout for CMD6 - use generic
+>> > ...
+>> > [  977.126652] mmc1: unspecified timeout for CMD6 - use generic
+>> > [  985.449798] mmc1: unspecified timeout for CMD6 - use generic
+>> [...]
+>>
+>> This warning was introduced by commit 533a6cfe08f9 "mmc: core: Default
+>> to generic_cmd6_time as timeout in __mmc_switch()".  That should not be
+>> applied to stable branches; it is not valid without (at least) these
+>> preparatory changes:
+>>
+>> 0c204979c691 mmc: core: Cleanup BKOPS support
+>> 24ed3bd01d6a mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
+>> ad91619aa9d7 mmc: block: Use generic_cmd6_time when modifying INAND_CMD38_ARG_EXT_CSD
+>
+>Ok, I've now dropped that patch, which also required me to drop
+>1292e3efb149 ("mmc: core: Allow host controllers to require R1B for
+>CMD6").  I've done so for 5.5.y, 5.4.y, and 4.19.y.
 
-Commit 3f8fd02b1bf1 ("mm/vmalloc: Sync unmappings in
-__purge_vmap_area_lazy()") introduced a call to vmalloc_sync_all() in the
-vunmap() code-path.  While this change was necessary to maintain
-correctness on x86-32-pae kernels, it also adds additional cycles for
-architectures that don't need it.
+Should we instead take those preparatory changes, and 1292e3efb149?
 
-Specifically on x86-64 with CONFIG_VMAP_STACK=y some people reported
-severe performance regressions in micro-benchmarks because it now also
-calls the x86-64 implementation of vmalloc_sync_all() on vunmap().  But
-the vmalloc_sync_all() implementation on x86-64 is only needed for newly
-created mappings.
-
-To avoid the unnecessary work on x86-64 and to gain the performance back,
-split up vmalloc_sync_all() into two functions:
-
-	* vmalloc_sync_mappings(), and
-	* vmalloc_sync_unmappings()
-
-Most call-sites to vmalloc_sync_all() only care about new mappings being
-synchronized.  The only exception is the new call-site added in the above
-mentioned commit.
-
-Shile Zhang directed us to a report of an 80% regression in reaim
-throughput.
-
-Link: http://lkml.kernel.org/r/20191009124418.8286-1-joro@8bytes.org
-Link: https://lists.01.org/hyperkitty/list/lkp@lists.01.org/thread/4D3JPPHBNOSPFK2KEPC6KGKS6J25AIDB/
-Link: http://lkml.kernel.org/r/20191113095530.228959-1-shile.zhang@linux.alibaba.com
-Fixes: 3f8fd02b1bf1 ("mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy()")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Reported-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>	[GHES]
-Tested-by: Borislav Petkov <bp@suse.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- arch/x86/mm/fault.c      |   26 ++++++++++++++++++++++++--
- drivers/acpi/apei/ghes.c |    2 +-
- include/linux/vmalloc.h  |    5 +++--
- kernel/notifier.c        |    2 +-
- mm/nommu.c               |   10 +++++++---
- mm/vmalloc.c             |   11 +++++++----
- 6 files changed, 43 insertions(+), 13 deletions(-)
-
---- a/arch/x86/mm/fault.c~x86-mm-split-vmalloc_sync_all
-+++ a/arch/x86/mm/fault.c
-@@ -190,7 +190,7 @@ static inline pmd_t *vmalloc_sync_one(pg
- 	return pmd_k;
- }
- 
--void vmalloc_sync_all(void)
-+static void vmalloc_sync(void)
- {
- 	unsigned long address;
- 
-@@ -217,6 +217,16 @@ void vmalloc_sync_all(void)
- 	}
- }
- 
-+void vmalloc_sync_mappings(void)
-+{
-+	vmalloc_sync();
-+}
-+
-+void vmalloc_sync_unmappings(void)
-+{
-+	vmalloc_sync();
-+}
-+
- /*
-  * 32-bit:
-  *
-@@ -319,11 +329,23 @@ out:
- 
- #else /* CONFIG_X86_64: */
- 
--void vmalloc_sync_all(void)
-+void vmalloc_sync_mappings(void)
- {
-+	/*
-+	 * 64-bit mappings might allocate new p4d/pud pages
-+	 * that need to be propagated to all tasks' PGDs.
-+	 */
- 	sync_global_pgds(VMALLOC_START & PGDIR_MASK, VMALLOC_END);
- }
- 
-+void vmalloc_sync_unmappings(void)
-+{
-+	/*
-+	 * Unmappings never allocate or free p4d/pud pages.
-+	 * No work is required here.
-+	 */
-+}
-+
- /*
-  * 64-bit:
-  *
---- a/drivers/acpi/apei/ghes.c~x86-mm-split-vmalloc_sync_all
-+++ a/drivers/acpi/apei/ghes.c
-@@ -171,7 +171,7 @@ int ghes_estatus_pool_init(int num_ghes)
- 	 * New allocation must be visible in all pgd before it can be found by
- 	 * an NMI allocating from the pool.
- 	 */
--	vmalloc_sync_all();
-+	vmalloc_sync_mappings();
- 
- 	rc = gen_pool_add(ghes_estatus_pool, addr, PAGE_ALIGN(len), -1);
- 	if (rc)
---- a/include/linux/vmalloc.h~x86-mm-split-vmalloc_sync_all
-+++ a/include/linux/vmalloc.h
-@@ -141,8 +141,9 @@ extern int remap_vmalloc_range_partial(s
- 
- extern int remap_vmalloc_range(struct vm_area_struct *vma, void *addr,
- 							unsigned long pgoff);
--void vmalloc_sync_all(void);
-- 
-+void vmalloc_sync_mappings(void);
-+void vmalloc_sync_unmappings(void);
-+
- /*
-  *	Lowlevel-APIs (not for driver use!)
-  */
---- a/kernel/notifier.c~x86-mm-split-vmalloc_sync_all
-+++ a/kernel/notifier.c
-@@ -519,7 +519,7 @@ NOKPROBE_SYMBOL(notify_die);
- 
- int register_die_notifier(struct notifier_block *nb)
- {
--	vmalloc_sync_all();
-+	vmalloc_sync_mappings();
- 	return atomic_notifier_chain_register(&die_chain, nb);
- }
- EXPORT_SYMBOL_GPL(register_die_notifier);
---- a/mm/nommu.c~x86-mm-split-vmalloc_sync_all
-+++ a/mm/nommu.c
-@@ -370,10 +370,14 @@ void vm_unmap_aliases(void)
- EXPORT_SYMBOL_GPL(vm_unmap_aliases);
- 
- /*
-- * Implement a stub for vmalloc_sync_all() if the architecture chose not to
-- * have one.
-+ * Implement a stub for vmalloc_sync_[un]mapping() if the architecture
-+ * chose not to have one.
-  */
--void __weak vmalloc_sync_all(void)
-+void __weak vmalloc_sync_mappings(void)
-+{
-+}
-+
-+void __weak vmalloc_sync_unmappings(void)
- {
- }
- 
---- a/mm/vmalloc.c~x86-mm-split-vmalloc_sync_all
-+++ a/mm/vmalloc.c
-@@ -1295,7 +1295,7 @@ static bool __purge_vmap_area_lazy(unsig
- 	 * First make sure the mappings are removed from all page-tables
- 	 * before they are freed.
- 	 */
--	vmalloc_sync_all();
-+	vmalloc_sync_unmappings();
- 
- 	/*
- 	 * TODO: to calculate a flush range without looping.
-@@ -3128,16 +3128,19 @@ int remap_vmalloc_range(struct vm_area_s
- EXPORT_SYMBOL(remap_vmalloc_range);
- 
- /*
-- * Implement a stub for vmalloc_sync_all() if the architecture chose not to
-- * have one.
-+ * Implement stubs for vmalloc_sync_[un]mappings () if the architecture chose
-+ * not to have one.
-  *
-  * The purpose of this function is to make sure the vmalloc area
-  * mappings are identical in all page-tables in the system.
-  */
--void __weak vmalloc_sync_all(void)
-+void __weak vmalloc_sync_mappings(void)
- {
- }
- 
-+void __weak vmalloc_sync_unmappings(void)
-+{
-+}
- 
- static int f(pte_t *pte, unsigned long addr, void *data)
- {
-_
+-- 
+Thanks,
+Sasha
