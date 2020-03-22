@@ -2,63 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 153AC18EBF1
-	for <lists+stable@lfdr.de>; Sun, 22 Mar 2020 20:37:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C96218EBF2
+	for <lists+stable@lfdr.de>; Sun, 22 Mar 2020 20:39:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726741AbgCVThl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Mar 2020 15:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46978 "EHLO mail.kernel.org"
+        id S1726583AbgCVTjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Mar 2020 15:39:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726502AbgCVThl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Mar 2020 15:37:41 -0400
+        id S1726502AbgCVTjX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Mar 2020 15:39:23 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FEBB2070A;
-        Sun, 22 Mar 2020 19:37:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E2772070A;
+        Sun, 22 Mar 2020 19:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584905860;
-        bh=EYj1ZjIKsB8UScswc5qhZWW0Mbv6Cjij0kOFbxjDnfc=;
+        s=default; t=1584905962;
+        bh=aGGx1nH/psZA7otCHWR4bp5UFDdxLz4Yls1e8FeqbP8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1q81UiRrdoT3EWkQSrFE/8Oxf5fsbuOdedj+OpfPoWQfNboDFhUWxv7q5Cmew0r3I
-         lscAWsJuoUPQ+YbVM+cjiOtP9jryH8U4n1X2CSx2Rq587hM0J3ux2/ETMi761OGcF9
-         ik1/p1oamSU1FIdpifNjRfJIxwijWCSJDdA+nlQs=
-Date:   Sun, 22 Mar 2020 15:37:39 -0400
+        b=RpzIB6/NcuUVL2rRNhtd463rKUSmMi1zOKWJ7aOy89Esuu+Q+/QRp6HstMSs9FGn9
+         inmSJqWLSN0wR51pFwU8rnc8CDiAcu6Tf9IE78z9qzzL87ikGPu3sKiEsitLF1ibY+
+         UWYLCHX1KEqkG4cc5p3hFaSV1vRn/OTd7bOX/sVA=
+Date:   Sun, 22 Mar 2020 15:39:21 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Mark Brown <broonie@kernel.org>
+To:     Jerome Brunet <jbrunet@baylibre.com>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-spi@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.5 01/41] spi: spi-omap2-mcspi: Handle DMA size
- restriction on AM65x
-Message-ID: <20200322193739.GO4189@sasha-vm>
-References: <20200316023319.749-1-sashal@kernel.org>
- <20200316115057.GB5010@sirena.org.uk>
+        Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org,
+        Kevin Hilman <khilman@baylibre.com>
+Subject: Re: [PATCH AUTOSEL 5.4 08/35] ASoC: meson: g12a: add tohdmitx reset
+Message-ID: <20200322193921.GP4189@sasha-vm>
+References: <20200316023411.1263-1-sashal@kernel.org>
+ <20200316023411.1263-8-sashal@kernel.org>
+ <1ja74gg0v8.fsf@starbuckisacylon.baylibre.com>
+ <1jsgi0ckcc.fsf@starbuckisacylon.baylibre.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200316115057.GB5010@sirena.org.uk>
+In-Reply-To: <1jsgi0ckcc.fsf@starbuckisacylon.baylibre.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 16, 2020 at 11:50:57AM +0000, Mark Brown wrote:
->On Sun, Mar 15, 2020 at 10:32:39PM -0400, Sasha Levin wrote:
->> From: Vignesh Raghavendra <vigneshr@ti.com>
->>
->> [ Upstream commit e4e8276a4f652be2c7bb783a0155d4adb85f5d7d ]
->>
->> On AM654, McSPI can only support 4K - 1 bytes per transfer when DMA is
->> enabled. Therefore populate master->max_transfer_size callback to
->> inform client drivers of this restriction when DMA channels are
->> available.
+On Sun, Mar 22, 2020 at 07:31:31PM +0100, Jerome Brunet wrote:
 >
->As ever this only provides information to other drivers which may be
->buggy.
+>On Mon 16 Mar 2020 at 09:28, Jerome Brunet <jbrunet@baylibre.com> wrote:
+>
+>> On Mon 16 Mar 2020 at 03:33, Sasha Levin <sashal@kernel.org> wrote:
+>>
+>>> From: Jerome Brunet <jbrunet@baylibre.com>
+>>>
+>>> [ Upstream commit 22946f37557e27697aabc8e4f62642bfe4a17fd8 ]
+>>>
+>>> Reset the g12a hdmi codec glue on probe. This ensure a sane startup state.
+>>>
+>>> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+>>> Link: https://lore.kernel.org/r/20200221121146.1498427-1-jbrunet@baylibre.com
+>>> Signed-off-by: Mark Brown <broonie@kernel.org>
+>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>
+>> Hi Sasha,
+>>
+>> The tohdmitx reset property is not in the amlogic g12a DT in v5.4.
+>> Backporting this patch on v5.4 would break the hdmi sound, and probably
+>> the related sound card since the reset is not optional.
+>>
+>> Could you please drop this from v5.4 stable ?
+>
+>Hi Sasha,
+>
+>I just received a notification that this patch has been applied to 5.4
+>stable.
+>
+>As explained above, it will cause a regression.
+>Could you please drop it from v5.4 stable ?
 
-I'll drop it, thanks!
+Hi Jerome,
+
+Sorry - I've missed your previous mail. Now dropped from all trees.
 
 -- 
 Thanks,
