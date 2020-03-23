@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB8918F48D
-	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 13:28:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4016B18F48E
+	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 13:28:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728176AbgCWM2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Mar 2020 08:28:43 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60101 "EHLO
+        id S1728165AbgCWM2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Mar 2020 08:28:46 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:58507 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727380AbgCWM2n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 08:28:43 -0400
+        by vger.kernel.org with ESMTP id S1727380AbgCWM2q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 08:28:46 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id DFB124C1;
-        Mon, 23 Mar 2020 08:28:41 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 23 Mar 2020 08:28:42 -0400
+        by mailout.west.internal (Postfix) with ESMTP id A713E47B;
+        Mon, 23 Mar 2020 08:28:45 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 23 Mar 2020 08:28:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=CvFlyn
-        PkD4goRXZMpJ49yWTu7RixUb1Qc3n5x04yXFI=; b=gjG28wYW6XuQ5g/hS6fnLt
-        b/io//eIKDRSXLamBXKqQtY0E1wVTBU8RcOrHkm1SZcHjxiFkLnJL3aTQm2sEFwP
-        9B4HNZ7xE9vTmvYg0PONJG1TeglWs9w855perTUWvMjfPN+pA6bXw0XPBevyDhvz
-        lnEFp2M+VDg0FKdLk3/8f8z5H2+PtcWBuBkBeWc2qKiK3tJBMqaRA9lYzpli6WuF
-        0eA788y6ua1Mr03cC41P1QxlfJuLjeBOAgyxEzOKdL0MHqrWSaLnN+Qd7Pa/92/N
-        tww/2QoV9JGzWNPJNkFalJ0xyIghV2pf2ByyWt2ien6bDH3r9VJQMnl32R3/Ro8w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=sUIWwt
+        5+bYJTVnrik0IYT4pw32soVwXxVETbhmzrYws=; b=3UgJIJbGEagktCjTPL2nkQ
+        KLFcN57OslTqtKk8k45ctwc5kDk1IE+oLUfPiU4LD0tmej42kM+O7bJfl1/qlyyf
+        WYjtSG5lSidZbOMvA2b6QdpLF/3CwcE6FcWa9fB5d1EEQylhiwALPVzWwjRvpiHJ
+        QVSh5d0mwZl88g02i7kDF+rX2US+A3a56VH9uko1btzooPazYRAH6yrMUMky5YUA
+        Aqh+j8bCbvGTlFX7xZW8tVfSGEx9COA5g0xFtEXDr3Ku6P9YYdluK5FDS3EX/7ye
+        +y6S1B2P+yMIfLxIecGL35UkN+mLEetMj3Ik0dexE0MUf8iU8SgrANID4VAS2EuA
         ==
-X-ME-Sender: <xms:eat4Xqngovyza1ytMPjLX1jO4bgMlHT-5Pr1kgjWDJ0mgl8oQnbExg>
+X-ME-Sender: <xms:fat4XiwKH_02pArm_GDzFNRCrNmktN0uDqDIyWrOXJsVgjfxbXLfKQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudegkedggedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehgihhthhhusgdrtghomhdpkhgvrhhnvghlrdhorhhgnecukf
-    hppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgr
+    hppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgr
     mhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:eat4XqkUe2-vRAtTS72jw1PSzY8IQc4dDYiYOvzYHBowThEinvo5ew>
-    <xmx:eat4XuGiDhWdfURmVC1XZQ5amAVMcIatdZECDli9h1KzJHS9AZDkGw>
-    <xmx:eat4XiQI5n6P9fLgqNOd_ONCFfUa5LQqSJ946OkYw9a_vDDmp6Df0Q>
-    <xmx:eat4XpXZipr01n0laJphr97wElHtS0bFUICF9KWeglhTj0SJLS4Obg>
+X-ME-Proxy: <xmx:fat4XuaVAnJfmhzPyBdaMxJQEEOLJW9EoBK7vHlHxtZhzX3fdecaKA>
+    <xmx:fat4XkmEcc40JHAUjuHkXJMIpG8bTs9_OUP7VzDT-QzXFD0DTVRcwA>
+    <xmx:fat4XsmA3Kd27oJS71VahGjTwGRDTExGG9lezuG2ctvy0GaKdXwL9w>
+    <xmx:fat4Xu1x93R9-4lGoSD-f70t-gbU0Dqy-lA3yExCZas7Obzjt56bXQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2574D328005A;
-        Mon, 23 Mar 2020 08:28:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] USB: cdc-acm: fix rounding error in TIOCSSERIAL" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id F2C0E30626D3;
+        Mon, 23 Mar 2020 08:28:44 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] USB: cdc-acm: fix rounding error in TIOCSSERIAL" failed to apply to 4.4-stable tree
 To:     anthony.mallet@laas.fr, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Mar 2020 13:28:39 +0100
-Message-ID: <158496651912368@kroah.com>
+Date:   Mon, 23 Mar 2020 13:28:42 +0100
+Message-ID: <1584966522231166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
