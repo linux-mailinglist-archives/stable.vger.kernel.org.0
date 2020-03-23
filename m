@@ -2,112 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3951418F706
-	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 15:36:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 702F418F71C
+	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 15:40:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727050AbgCWOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Mar 2020 10:36:19 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:38785 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725830AbgCWOgT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 10:36:19 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 4229750F;
-        Mon, 23 Mar 2020 10:36:18 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 23 Mar 2020 10:36:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=VStryR
-        +sFsYE8w86tPmnkuJUM+Ictvy5Zz3+DABFIDY=; b=souLEtpCz2JNWPO7mHGZMi
-        JZcxvzk6uNKIsi9h34DbNf/6nlz3aakD0PsDZUr1R5jSI7IrF2PaoIwxvkq9J58R
-        s+cRMqRnzRkX93HJMWAG8QoWHfcJV4SdPLWmrYZ2CTt7C/JT65QIzkVfuQBMzev/
-        iPQh8zqQPBXEnXLfbPpD8rC5h0H+CUOsamZshhf9A0ZP4VID1N4QKSulzTyYhTFL
-        JMWPDCRpIPLwkJ2Tsld+cQ4k0YK4zH4vKQB143gA7Ny3mb8KHuFwSEWAFd58oSSL
-        cecHQgeQ0aThOXe+u8WeLRY1G67Uef+2URA0GnVPR7T+Tgz1EGnCLZdpqEg6DaUQ
-        ==
-X-ME-Sender: <xms:Ycl4XofjEpYnAjx-4I_IqQzR_wSGYhqmD16WPU3EvDl7wqzYsf1_kQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudegkedgieehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Ycl4XhUxh95O7GyC_WXkQMloBdHbiuiOSLefnlGu_YWgcSqNgsKYHg>
-    <xmx:Ycl4Xr2anG7Rmtt0oGoaHh6GTIAQ45bdJnVUIH3Qb3KgxVfzsjZnKg>
-    <xmx:Ycl4XmtTMfFObqXGBCrPDMVqZMV-HKgKeniEVjBkidupNNKIF4Osgg>
-    <xmx:Ycl4XjyF3vRCh2N8o-gg_YUlR9tkxxTvMc2JBlT4Wogep6R6KU0Kzw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 255563062A4E;
-        Mon, 23 Mar 2020 10:36:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: NULL-deref for IOSQE_{ASYNC,DRAIN}" failed to apply to 5.5-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Mar 2020 15:36:15 +0100
-Message-ID: <158497417567105@kroah.com>
+        id S1726203AbgCWOkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Mar 2020 10:40:32 -0400
+Received: from mga11.intel.com ([192.55.52.93]:36173 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725816AbgCWOkc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Mar 2020 10:40:32 -0400
+IronPort-SDR: Qpl0iO+boptv/rFvsCLtEjQES3Wx5TAqXIPorZycf/k0cIsNiCEdpgsToA0JxOFdnrtrQYjqbw
+ +o3jOC4ppSrQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2020 07:40:31 -0700
+IronPort-SDR: a0XCa+e1GQIxpO/K/RToaMSSO1oaOTImJsmySbWz2YU8TW1xDo40/Phqv/W3fNuNgQ8un+lC8s
+ 3W5AZzlHSq2A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,296,1580803200"; 
+   d="scan'208";a="419518847"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.202])
+  by orsmga005.jf.intel.com with ESMTP; 23 Mar 2020 07:40:31 -0700
+Date:   Mon, 23 Mar 2020 07:40:31 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
+        <longpeng2@huawei.com>, akpm@linux-foundation.org,
+        kirill.shutemov@linux.intel.com, linux-kernel@vger.kernel.org,
+        arei.gonglei@huawei.com, weidong.huang@huawei.com,
+        weifuqiang@huawei.com, kvm@vger.kernel.org, linux-mm@kvack.org,
+        Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by
+ huge_pte_offset()
+Message-ID: <20200323144030.GA28711@linux.intel.com>
+References: <1582342427-230392-1-git-send-email-longpeng2@huawei.com>
+ <51a25d55-de49-4c0a-c994-bf1a8cfc8638@oracle.com>
+ <5700f44e-9df9-1b12-bc29-68e0463c2860@huawei.com>
+ <e16fe81b-5c4c-e689-2f48-214f2025df2f@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e16fe81b-5c4c-e689-2f48-214f2025df2f@oracle.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Mar 22, 2020 at 07:54:32PM -0700, Mike Kravetz wrote:
+> On 3/22/20 7:03 PM, Longpeng (Mike, Cloud Infrastructure Service Product Dept.) wrote:
+> > 
+> > On 2020/3/22 7:38, Mike Kravetz wrote:
+> >> On 2/21/20 7:33 PM, Longpeng(Mike) wrote:
+> >>> From: Longpeng <longpeng2@huawei.com>
+> I have not looked closely at the generated code for lookup_address_in_pgd.
+> It appears that it would dereference p4d, pud and pmd multiple times.  Sean
+> seemed to think there was something about the calling context that would
+> make issues like those seen with huge_pte_offset less likely to happen.  I
+> do not know if this is accurate or not.
 
-The patch below does not apply to the 5.5-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Only for KVM's calls to lookup_address_in_mm(), I can't speak to other
+calls that funnel into to lookup_address_in_pgd().
 
-thanks,
+KVM uses a combination of tracking and blocking mmu_notifier calls to ensure
+PTE changes/invalidations between gup() and lookup_address_in_pgd() cause a
+restart of the faulting instruction, and that pending changes/invalidations
+are blocked until installation of the pfn in KVM's secondary MMU completes.
 
-greg k-h
+kvm_mmu_page_fault():
 
------------------- original commit in Linus's tree ------------------
+	mmu_seq = kvm->mmu_notifier_seq;
+	smp_rmb();
 
-From f1d96a8fcbbbb22d4fbc1d69eaaa678bbb0ff6e2 Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Fri, 13 Mar 2020 22:29:14 +0300
-Subject: [PATCH] io_uring: NULL-deref for IOSQE_{ASYNC,DRAIN}
+	pfn = gup(hva);
 
-Processing links, io_submit_sqe() prepares requests, drops sqes, and
-passes them with sqe=NULL to io_queue_sqe(). There IOSQE_DRAIN and/or
-IOSQE_ASYNC requests will go through the same prep, which doesn't expect
-sqe=NULL and fail with NULL pointer deference.
+	spin_lock(&kvm->mmu_lock);
+	smp_rmb();
+	if (kvm->mmu_notifier_seq != mmu_seq)
+		goto out_unlock: // Restart guest, i.e. retry the fault
 
-Always do full prepare including io_alloc_async_ctx() for linked
-requests, and then it can skip the second preparation.
+	lookup_address_in_mm(hva, ...);
 
-Cc: stable@vger.kernel.org # 5.5
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+	...
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 1b2517291b78..b1fbc4424aa6 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4131,6 +4131,9 @@ static int io_req_defer_prep(struct io_kiocb *req,
- {
- 	ssize_t ret = 0;
- 
-+	if (!sqe)
-+		return 0;
-+
- 	if (io_op_defs[req->opcode].file_table) {
- 		ret = io_grab_files(req);
- 		if (unlikely(ret))
-@@ -4907,6 +4910,11 @@ static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 		if (sqe_flags & (IOSQE_IO_LINK|IOSQE_IO_HARDLINK)) {
- 			req->flags |= REQ_F_LINK;
- 			INIT_LIST_HEAD(&req->link_list);
-+
-+			if (io_alloc_async_ctx(req)) {
-+				ret = -EAGAIN;
-+				goto err_req;
-+			}
- 			ret = io_req_defer_prep(req, sqe);
- 			if (ret)
- 				req->flags |= REQ_F_FAIL_LINK;
+  out_unlock:
+	spin_unlock(&kvm->mmu_lock);
 
+
+kvm_mmu_notifier_change_pte() / kvm_mmu_notifier_invalidate_range_end():
+
+	spin_lock(&kvm->mmu_lock);
+	kvm->mmu_notifier_seq++;
+	smp_wmb();
+	spin_unlock(&kvm->mmu_lock);
+
+
+> Let's remove the two READ_ONCE calls and move this patch forward.  We can
+> look closer at lookup_address_in_pgd and generate another patch if that needs
+> to be fixed as well.
+> 
+> Thanks
+> -- 
+> Mike Kravetz
