@@ -2,106 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 702F418F71C
-	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 15:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8175318F723
+	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 15:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726203AbgCWOkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Mar 2020 10:40:32 -0400
-Received: from mga11.intel.com ([192.55.52.93]:36173 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725816AbgCWOkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Mar 2020 10:40:32 -0400
-IronPort-SDR: Qpl0iO+boptv/rFvsCLtEjQES3Wx5TAqXIPorZycf/k0cIsNiCEdpgsToA0JxOFdnrtrQYjqbw
- +o3jOC4ppSrQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Mar 2020 07:40:31 -0700
-IronPort-SDR: a0XCa+e1GQIxpO/K/RToaMSSO1oaOTImJsmySbWz2YU8TW1xDo40/Phqv/W3fNuNgQ8un+lC8s
- 3W5AZzlHSq2A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,296,1580803200"; 
-   d="scan'208";a="419518847"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.202])
-  by orsmga005.jf.intel.com with ESMTP; 23 Mar 2020 07:40:31 -0700
-Date:   Mon, 23 Mar 2020 07:40:31 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
-        <longpeng2@huawei.com>, akpm@linux-foundation.org,
-        kirill.shutemov@linux.intel.com, linux-kernel@vger.kernel.org,
-        arei.gonglei@huawei.com, weidong.huang@huawei.com,
-        weifuqiang@huawei.com, kvm@vger.kernel.org, linux-mm@kvack.org,
-        Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by
- huge_pte_offset()
-Message-ID: <20200323144030.GA28711@linux.intel.com>
-References: <1582342427-230392-1-git-send-email-longpeng2@huawei.com>
- <51a25d55-de49-4c0a-c994-bf1a8cfc8638@oracle.com>
- <5700f44e-9df9-1b12-bc29-68e0463c2860@huawei.com>
- <e16fe81b-5c4c-e689-2f48-214f2025df2f@oracle.com>
+        id S1726141AbgCWOnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Mar 2020 10:43:10 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:55075 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725913AbgCWOnK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 10:43:10 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 78EB0574;
+        Mon, 23 Mar 2020 10:43:09 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 23 Mar 2020 10:43:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=hRLAGn
+        2YCrDwn9RJJwumehHvr4N6XFHG8bl0FpowKSA=; b=dhsgZpSwYm0tcWo/AIDCLm
+        8OKm0syeU2PjkfR4JaUO5iZRs3WfFICHOjfJZtSpiKJMlmD+kBJfIihOjoQETsYw
+        jJBYHOL/Y3VGioAZhXkj9zXsPH5TifRBWBSyhZvQFqMUD8Jv9By0ctyceZKgY8BU
+        xcuGxEs2P1o7q2YT2GADebNexAsFdboTkyqZZLMIAF1WyWQvXxHeUI7IEL3q6n/l
+        t1HXnqA/N8HhgXnTDDD0Tp7xaSsCb4ZpExBYea+yPkywTumnvWgG5T+fUpgPoNsE
+        GHZKMsP29JyO+2GWWqbsId2k5TWAWhEFCy3YzPuXAMc6LE0EiaXBjSFfSgzhdNXA
+        ==
+X-ME-Sender: <xms:_cp4XkZ14r_SqFc0at9CaWwZ3kplg2ldpzYguZCeU7f9u9cWlj-LMg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudegkedgieejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:_cp4XrXlVyrJ2pdXJDjBBty0YyH2jpJc6g0uO1EX1Vr3vzaUrf56Og>
+    <xmx:_cp4XqzbZe_k_p4-8tQDsKUj0uUc5Wx8t5uxawFC1s55MAYk9UgUIQ>
+    <xmx:_cp4Xmlwl_5mKtpSpxpCxCIgnpPe8hIDylXviyUNoZeGfRbkXKsHjA>
+    <xmx:_cp4XkSbicgJjoRVupB-znY938GV8f39LeJ5rKN2ScXZEWmijSWHeA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id B96E83280064;
+        Mon, 23 Mar 2020 10:43:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: fix log context list corruption after rename whiteout" failed to apply to 4.14-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 23 Mar 2020 15:43:02 +0100
+Message-ID: <1584974582132143@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e16fe81b-5c4c-e689-2f48-214f2025df2f@oracle.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 22, 2020 at 07:54:32PM -0700, Mike Kravetz wrote:
-> On 3/22/20 7:03 PM, Longpeng (Mike, Cloud Infrastructure Service Product Dept.) wrote:
-> > 
-> > On 2020/3/22 7:38, Mike Kravetz wrote:
-> >> On 2/21/20 7:33 PM, Longpeng(Mike) wrote:
-> >>> From: Longpeng <longpeng2@huawei.com>
-> I have not looked closely at the generated code for lookup_address_in_pgd.
-> It appears that it would dereference p4d, pud and pmd multiple times.  Sean
-> seemed to think there was something about the calling context that would
-> make issues like those seen with huge_pte_offset less likely to happen.  I
-> do not know if this is accurate or not.
 
-Only for KVM's calls to lookup_address_in_mm(), I can't speak to other
-calls that funnel into to lookup_address_in_pgd().
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-KVM uses a combination of tracking and blocking mmu_notifier calls to ensure
-PTE changes/invalidations between gup() and lookup_address_in_pgd() cause a
-restart of the faulting instruction, and that pending changes/invalidations
-are blocked until installation of the pfn in KVM's secondary MMU completes.
+thanks,
 
-kvm_mmu_page_fault():
+greg k-h
 
-	mmu_seq = kvm->mmu_notifier_seq;
-	smp_rmb();
+------------------ original commit in Linus's tree ------------------
 
-	pfn = gup(hva);
+From 236ebc20d9afc5e9ff52f3cf3f365a91583aac10 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Tue, 10 Mar 2020 12:13:53 +0000
+Subject: [PATCH] btrfs: fix log context list corruption after rename whiteout
+ error
 
-	spin_lock(&kvm->mmu_lock);
-	smp_rmb();
-	if (kvm->mmu_notifier_seq != mmu_seq)
-		goto out_unlock: // Restart guest, i.e. retry the fault
+During a rename whiteout, if btrfs_whiteout_for_rename() returns an error
+we can end up returning from btrfs_rename() with the log context object
+still in the root's log context list - this happens if 'sync_log' was
+set to true before we called btrfs_whiteout_for_rename() and it is
+dangerous because we end up with a corrupt linked list (root->log_ctxs)
+as the log context object was allocated on the stack.
 
-	lookup_address_in_mm(hva, ...);
+After btrfs_rename() returns, any task that is running btrfs_sync_log()
+concurrently can end up crashing because that linked list is traversed by
+btrfs_sync_log() (through btrfs_remove_all_log_ctxs()). That results in
+the same issue that commit e6c617102c7e4 ("Btrfs: fix log context list
+corruption after rename exchange operation") fixed.
 
-	...
+Fixes: d4682ba03ef618 ("Btrfs: sync log after logging new name")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 
-  out_unlock:
-	spin_unlock(&kvm->mmu_lock);
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 27076ebadb36..d267eb5caa7b 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9496,6 +9496,10 @@ static int btrfs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		ret = btrfs_sync_log(trans, BTRFS_I(old_inode)->root, &ctx);
+ 		if (ret)
+ 			commit_transaction = true;
++	} else if (sync_log) {
++		mutex_lock(&root->log_mutex);
++		list_del(&ctx.list);
++		mutex_unlock(&root->log_mutex);
+ 	}
+ 	if (commit_transaction) {
+ 		ret = btrfs_commit_transaction(trans);
 
-
-kvm_mmu_notifier_change_pte() / kvm_mmu_notifier_invalidate_range_end():
-
-	spin_lock(&kvm->mmu_lock);
-	kvm->mmu_notifier_seq++;
-	smp_wmb();
-	spin_unlock(&kvm->mmu_lock);
-
-
-> Let's remove the two READ_ONCE calls and move this patch forward.  We can
-> look closer at lookup_address_in_pgd and generate another patch if that needs
-> to be fixed as well.
-> 
-> Thanks
-> -- 
-> Mike Kravetz
