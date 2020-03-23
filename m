@@ -2,120 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 092451900C6
-	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 23:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5E621900E4
+	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 23:08:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726962AbgCWV7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Mar 2020 17:59:47 -0400
-Received: from us-smtp-delivery-74.mimecast.com ([216.205.24.74]:39038 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725897AbgCWV7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 17:59:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585000785;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=nevpt0xLORfgoRN4dmNd6lQ6W3/5uqm6WozKz2sMmto=;
-        b=B0qz0ebzcWOB7Th9gsI4anemXL10br44f5hMtZoKI05CyFnYB2qeQSQRd4ChObRglFF1ye
-        hvlFzm+TGYDGgXcfweJXZU1AOyLtMOosLyM0Nwa6JQJHxoLoiMCPcQI69zieu2PR/BIbmH
-        ufTufq1k/8b6SDHKJhXSbCDlfpQdTcM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-477-asBjqoy4MDis8bsZ-K2iEQ-1; Mon, 23 Mar 2020 17:59:43 -0400
-X-MC-Unique: asBjqoy4MDis8bsZ-K2iEQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 669F1100550D;
-        Mon, 23 Mar 2020 21:59:42 +0000 (UTC)
-Received: from x1.localdomain.com (ovpn-112-14.ams2.redhat.com [10.36.112.14])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 05E8D19C6A;
-        Mon, 23 Mar 2020 21:59:40 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Chen-Yu Tsai <wens@csie.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH resend] extcon: axp288: Add wakeup support
-Date:   Mon, 23 Mar 2020 22:59:39 +0100
-Message-Id: <20200323215939.79008-1-hdegoede@redhat.com>
+        id S1726203AbgCWWIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Mar 2020 18:08:31 -0400
+Received: from mail-pj1-f68.google.com ([209.85.216.68]:50591 "EHLO
+        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725990AbgCWWIb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 18:08:31 -0400
+Received: by mail-pj1-f68.google.com with SMTP id v13so508607pjb.0
+        for <stable@vger.kernel.org>; Mon, 23 Mar 2020 15:08:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=FA3EALDo+/NkJV7B2YTEwKLmdeKTH43qCVzoVWIlbcM=;
+        b=bTJcOshSIx0u6NSEg4k7s47UztI8aCsRndzQN9ngBfS1GleU1anL9LXJnttttHT3Ws
+         6R/B/igxTSEQMW50gVGIEt0QjHnixHJTn1tsItLeEztj2+LUx+EuNIliZ+Q2xfndx+l5
+         BwisxjEAsb5Vn1WuFjkG+MCKFT4L22EwCIAnHWpEvEZb5McXkgokWAqXa3M+xSC8CoP3
+         3PfsjLisL7bMYtUviLU8xW06+creQ2JU/fUNt13BQNIDsWb4iPEg0uAEsrv4qX0cpmBs
+         kuxLVV79GIX2wFGoLK0PuChNk3HRAkib24sXOAzMBDt82BSSXmEvakpdQV7bIPcxm1i7
+         YmWg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=FA3EALDo+/NkJV7B2YTEwKLmdeKTH43qCVzoVWIlbcM=;
+        b=o3UohwqBL6u8+AjMsY46dQdDkcHFgDJX6Hf7LI1iIrSA4rd3uuTo8GrClpgqbpF4oY
+         2LgoXZ6jyLOixK7lH/UDCPmhStvggRZRLTe7Cf0s+K1e0GJMyVsnQ8lsjsQEjsmUPKqk
+         hoSGW9k7At+kdTURvu5DbHKrVN8aYBZ2Mvq5o2N2/uTa7cvBW6LQrOgJz/cTLoXBg3qh
+         wEKLWXTkhMqHnWviX0wOhqBZ/+yGiSl2JLO0cn3+NCSizONOxW6pGcqWbi4/PlGrevz1
+         lh2GfU3R6N4LRreRwk6hJYoBGVRTT3zS5P+emABEZwHgc1+WC4CLnC+Neo+a/HbHFyC+
+         RbGQ==
+X-Gm-Message-State: ANhLgQ2VHwkiuPPRj87aKH5s0hM0HZ/NEINaqtaP2ddLhLRds9JJ6v5K
+        OrD0HDYwjMDlSoeRb1vV5Of782n9m6c=
+X-Google-Smtp-Source: ADFU+vtSxUb6UnNZ/MlATJc8mkD/3gwfQrKsUBTx3ppBxJZGSi5kQ2Dhz8N+UKpkQVgHxTI4HRXuAg==
+X-Received: by 2002:a17:902:ba8e:: with SMTP id k14mr17740795pls.298.1585001309316;
+        Mon, 23 Mar 2020 15:08:29 -0700 (PDT)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q71sm7950998pfc.92.2020.03.23.15.08.28
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Mar 2020 15:08:28 -0700 (PDT)
+Message-ID: <5e79335c.1c69fb81.7d6c1.e62d@mx.google.com>
+Date:   Mon, 23 Mar 2020 15:08:28 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.216-120-g87aa7a2e6d25
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 93 boots: 3 failed,
+ 81 passed with 4 offline, 5 untried/unknown (v4.4.216-120-g87aa7a2e6d25)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On devices with an AXP288, we need to wakeup from suspend when a charger
-is plugged in, so that we can do charger-type detection and so that the
-axp288-charger driver, which listens for our extcon events, can configure
-the input-current-limit accordingly.
+stable-rc/linux-4.4.y boot: 93 boots: 3 failed, 81 passed with 4 offline, 5=
+ untried/unknown (v4.4.216-120-g87aa7a2e6d25)
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.216-120-g87aa7a2e6d25/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.216-120-g87aa7a2e6d25/
+
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.216-120-g87aa7a2e6d25
+Git Commit: 87aa7a2e6d2511e0714bc451e3c8c193f1616695
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 47 unique boards, 16 SoC families, 17 builds out of 190
+
+Boot Regressions Detected:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          tegra20-iris-512:
+              lab-baylibre-seattle: new failure (last pass: v4.4.216-94-g2f=
+57fed8dba0)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 44 days (last pass: v4.4.=
+212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
+
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v4.4.216-94-g2f57fed8db=
+a0)
+
+    tegra_defconfig:
+        gcc-8:
+          tegra20-iris-512:
+              lab-baylibre-seattle: new failure (last pass: v4.4.216-94-g2f=
+57fed8dba0)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
 ---
- drivers/extcon/extcon-axp288.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
-
-diff --git a/drivers/extcon/extcon-axp288.c b/drivers/extcon/extcon-axp28=
-8.c
-index a7f216191493..710a3bb66e95 100644
---- a/drivers/extcon/extcon-axp288.c
-+++ b/drivers/extcon/extcon-axp288.c
-@@ -443,9 +443,40 @@ static int axp288_extcon_probe(struct platform_devic=
-e *pdev)
- 	/* Start charger cable type detection */
- 	axp288_extcon_enable(info);
-=20
-+	device_init_wakeup(dev, true);
-+	platform_set_drvdata(pdev, info);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused axp288_extcon_suspend(struct device *dev)
-+{
-+	struct axp288_extcon_info *info =3D dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		enable_irq_wake(info->irq[VBUS_RISING_IRQ]);
-+
- 	return 0;
- }
-=20
-+static int __maybe_unused axp288_extcon_resume(struct device *dev)
-+{
-+	struct axp288_extcon_info *info =3D dev_get_drvdata(dev);
-+
-+	/*
-+	 * Wakeup when a charger is connected to do charger-type
-+	 * connection and generate an extcon event which makes the
-+	 * axp288 charger driver set the input current limit.
-+	 */
-+	if (device_may_wakeup(dev))
-+		disable_irq_wake(info->irq[VBUS_RISING_IRQ]);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(axp288_extcon_pm_ops, axp288_extcon_suspend,
-+			 axp288_extcon_resume);
-+
- static const struct platform_device_id axp288_extcon_table[] =3D {
- 	{ .name =3D "axp288_extcon" },
- 	{},
-@@ -457,6 +488,7 @@ static struct platform_driver axp288_extcon_driver =3D=
- {
- 	.id_table =3D axp288_extcon_table,
- 	.driver =3D {
- 		.name =3D "axp288_extcon",
-+		.pm =3D &axp288_extcon_pm_ops,
- 	},
- };
-=20
---=20
-2.26.0.rc2
-
+For more info write to <info@kernelci.org>
