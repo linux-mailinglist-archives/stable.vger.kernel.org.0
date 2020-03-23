@@ -2,189 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6BE18EDD0
-	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 03:03:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4832218EDF7
+	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 03:26:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727023AbgCWCDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Mar 2020 22:03:48 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:37584 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726979AbgCWCDs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 22 Mar 2020 22:03:48 -0400
-Received: from DGGEMS413-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id 968B961BB91CCDCFEC8E;
-        Mon, 23 Mar 2020 10:03:39 +0800 (CST)
-Received: from [10.173.228.124] (10.173.228.124) by smtp.huawei.com
- (10.3.19.213) with Microsoft SMTP Server (TLS) id 14.3.487.0; Mon, 23 Mar
- 2020 10:03:33 +0800
-Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by
- huge_pte_offset()
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-CC:     <akpm@linux-foundation.org>, <kirill.shutemov@linux.intel.com>,
-        <linux-kernel@vger.kernel.org>, <arei.gonglei@huawei.com>,
-        <weidong.huang@huawei.com>, <weifuqiang@huawei.com>,
-        <kvm@vger.kernel.org>, <linux-mm@kvack.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Sean Christopherson" <sean.j.christopherson@intel.com>,
-        <stable@vger.kernel.org>
-References: <1582342427-230392-1-git-send-email-longpeng2@huawei.com>
- <51a25d55-de49-4c0a-c994-bf1a8cfc8638@oracle.com>
-From:   "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
-        <longpeng2@huawei.com>
-Message-ID: <5700f44e-9df9-1b12-bc29-68e0463c2860@huawei.com>
-Date:   Mon, 23 Mar 2020 10:03:33 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1727090AbgCWC0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Mar 2020 22:26:10 -0400
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:23752 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726946AbgCWC0K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Mar 2020 22:26:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1584930368;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=KA8i33OE3crakW63RTYEJl6zGvV0gUsyDfsUtbp2Eu0=;
+        b=hF1E+xS+KODjfP9FQmDWKpVz+JN09VK/RGjBIJzzvBEnAUoXe0L/iMmQpuCsrqAGIarkzo
+        a/w9TdVWtuQS0kq9DMcosk4955XRzrNbULtZ8wko29aDYxHgBggMCmmEjI2c6HXGSJ2SyL
+        CszRzs4t06kiC7S94VG03esCWHahsSc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-66-oQ8E0ntNOKWkdG7SH2caag-1; Sun, 22 Mar 2020 22:26:05 -0400
+X-MC-Unique: oQ8E0ntNOKWkdG7SH2caag-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6EA3213F7;
+        Mon, 23 Mar 2020 02:26:04 +0000 (UTC)
+Received: from localhost (dhcp-12-196.nay.redhat.com [10.66.12.196])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 940299081F;
+        Mon, 23 Mar 2020 02:25:58 +0000 (UTC)
+Date:   Mon, 23 Mar 2020 10:25:57 +0800
+From:   Murphy Zhou <xzhou@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Ondrej Moris <omoris@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Xiong Zhou <xzhou@redhat.com>
+Subject: Re: =?utf-8?B?8J+SpSBQQU5JQ0tFRA==?= =?utf-8?Q?=3A?= Test report for
+ kernel 5.5.11-6df57ed.cki (stable-queue)
+Message-ID: <20200323022557.vm3hlc3ndggp5yws@xzhoux.usersys.redhat.com>
+References: <cki.D9E02DA05E.6L1W61X8RG@redhat.com>
+ <20200323015828.GS4189@sasha-vm>
 MIME-Version: 1.0
-In-Reply-To: <51a25d55-de49-4c0a-c994-bf1a8cfc8638@oracle.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.173.228.124]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200323015828.GS4189@sasha-vm>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Mar 22, 2020 at 09:58:28PM -0400, Sasha Levin wrote:
+> On Sun, Mar 22, 2020 at 11:50:11PM -0000, CKI Project wrote:
+> >=20
+> > Hello,
+> >=20
+> > We ran automated tests on a recent commit from this kernel tree:
+> >=20
+> >       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/st=
+able/linux-stable-rc.git
+> >            Commit: 6df57ed14ddf - Revert "drm/fbdev: Fallback to non =
+tiled mode if all tiles not present"
+> >=20
+> > The results of these automated tests are provided below.
+> >=20
+> >    Overall result: FAILED (see details below)
+> >             Merge: OK
+> >           Compile: OK
+> >             Tests: PANICKED
+> >=20
+> > All kernel binaries, config files, and logs are available for downloa=
+d here:
+> >=20
+> >  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3D=
+datawarehouse/2020/03/22/500600
+> >=20
+> > One or more kernel tests failed:
+> >=20
+> >    ppc64le:
+> >     =E2=9D=8C LTP
+> >=20
+> >    aarch64:
+> >     =E2=9D=8C Boot test
+> >=20
+> >    x86_64:
+> >     =F0=9F=92=A5 xfstests - ext4
+>=20
+> So I go in the xfstests___ext4/ directory to see what paniced, right? I
+> don't see panics in those logs...
 
+It's in the x86_64_3_console.log
 
-On 2020/3/22 7:38, Mike Kravetz wrote:
-> On 2/21/20 7:33 PM, Longpeng(Mike) wrote:
->> From: Longpeng <longpeng2@huawei.com>
->>
->> Our machine encountered a panic(addressing exception) after run
->> for a long time and the calltrace is:
->> RIP: 0010:[<ffffffff9dff0587>]  [<ffffffff9dff0587>] hugetlb_fault+0x307/0xbe0
->> RSP: 0018:ffff9567fc27f808  EFLAGS: 00010286
->> RAX: e800c03ff1258d48 RBX: ffffd3bb003b69c0 RCX: e800c03ff1258d48
->> RDX: 17ff3fc00eda72b7 RSI: 00003ffffffff000 RDI: e800c03ff1258d48
->> RBP: ffff9567fc27f8c8 R08: e800c03ff1258d48 R09: 0000000000000080
->> R10: ffffaba0704c22a8 R11: 0000000000000001 R12: ffff95c87b4b60d8
->> R13: 00005fff00000000 R14: 0000000000000000 R15: ffff9567face8074
->> FS:  00007fe2d9ffb700(0000) GS:ffff956900e40000(0000) knlGS:0000000000000000
->> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->> CR2: ffffd3bb003b69c0 CR3: 000000be67374000 CR4: 00000000003627e0
->> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->> Call Trace:
->>  [<ffffffff9df9b71b>] ? unlock_page+0x2b/0x30
->>  [<ffffffff9dff04a2>] ? hugetlb_fault+0x222/0xbe0
->>  [<ffffffff9dff1405>] follow_hugetlb_page+0x175/0x540
->>  [<ffffffff9e15b825>] ? cpumask_next_and+0x35/0x50
->>  [<ffffffff9dfc7230>] __get_user_pages+0x2a0/0x7e0
->>  [<ffffffff9dfc648d>] __get_user_pages_unlocked+0x15d/0x210
->>  [<ffffffffc068cfc5>] __gfn_to_pfn_memslot+0x3c5/0x460 [kvm]
->>  [<ffffffffc06b28be>] try_async_pf+0x6e/0x2a0 [kvm]
->>  [<ffffffffc06b4b41>] tdp_page_fault+0x151/0x2d0 [kvm]
->>  [<ffffffffc075731c>] ? vmx_vcpu_run+0x2ec/0xc80 [kvm_intel]
->>  [<ffffffffc0757328>] ? vmx_vcpu_run+0x2f8/0xc80 [kvm_intel]
->>  [<ffffffffc06abc11>] kvm_mmu_page_fault+0x31/0x140 [kvm]
->>  [<ffffffffc074d1ae>] handle_ept_violation+0x9e/0x170 [kvm_intel]
->>  [<ffffffffc075579c>] vmx_handle_exit+0x2bc/0xc70 [kvm_intel]
->>  [<ffffffffc074f1a0>] ? __vmx_complete_interrupts.part.73+0x80/0xd0 [kvm_intel]
->>  [<ffffffffc07574c0>] ? vmx_vcpu_run+0x490/0xc80 [kvm_intel]
->>  [<ffffffffc069f3be>] vcpu_enter_guest+0x7be/0x13a0 [kvm]
->>  [<ffffffffc06cf53e>] ? kvm_check_async_pf_completion+0x8e/0xb0 [kvm]
->>  [<ffffffffc06a6f90>] kvm_arch_vcpu_ioctl_run+0x330/0x490 [kvm]
->>  [<ffffffffc068d919>] kvm_vcpu_ioctl+0x309/0x6d0 [kvm]
->>  [<ffffffff9deaa8c2>] ? dequeue_signal+0x32/0x180
->>  [<ffffffff9deae34d>] ? do_sigtimedwait+0xcd/0x230
->>  [<ffffffff9e03aed0>] do_vfs_ioctl+0x3f0/0x540
->>  [<ffffffff9e03b0c1>] SyS_ioctl+0xa1/0xc0
->>  [<ffffffff9e53879b>] system_call_fastpath+0x22/0x27
->>
->> ( The kernel we used is older, but we think the latest kernel also has this
->>   bug after dig into this problem. )
->>
->> For 1G hugepages, huge_pte_offset() wants to return NULL or pudp, but it
->> may return a wrong 'pmdp' if there is a race. Please look at the following
->> code snippet:
->>     ...
->>     pud = pud_offset(p4d, addr);
->>     if (sz != PUD_SIZE && pud_none(*pud))
->>         return NULL;
->>     /* hugepage or swap? */
->>     if (pud_huge(*pud) || !pud_present(*pud))
->>         return (pte_t *)pud;
->>
->>     pmd = pmd_offset(pud, addr);
->>     if (sz != PMD_SIZE && pmd_none(*pmd))
->>         return NULL;
->>     /* hugepage or swap? */
->>     if (pmd_huge(*pmd) || !pmd_present(*pmd))
->>         return (pte_t *)pmd;
->>     ...
->>
->> The following sequence would trigger this bug:
->> 1. CPU0: sz = PUD_SIZE and *pud = 0 , continue
->> 1. CPU0: "pud_huge(*pud)" is false
->> 2. CPU1: calling hugetlb_no_page and set *pud to xxxx8e7(PRESENT)
->> 3. CPU0: "!pud_present(*pud)" is false, continue
->> 4. CPU0: pmd = pmd_offset(pud, addr) and maybe return a wrong pmdp
->> However, we want CPU0 to return NULL or pudp.
->>
->> We can avoid this race by read the pud only once. What's more, we also use
->> READ_ONCE to access the entries for safe(e.g. avoid the compilier mischief)
->>
->> Cc: Matthew Wilcox <willy@infradead.org>
->> Cc: Sean Christopherson <sean.j.christopherson@intel.com>
->> Cc: Mike Kravetz <mike.kravetz@oracle.com>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Longpeng <longpeng2@huawei.com>
-> 
-> Andrew dropped this patch from his tree which caused me to go back and
-> look at the status of this patch/issue.
-> 
-> It is pretty obvious that code in the current huge_pte_offset routine
-> is racy.  I checked out the assembly code produced by my compiler and
-> verified that the line,
-> 
-> 	if (pud_huge(*pud) || !pud_present(*pud))
-> 
-> does actually dereference *pud twice.  So, the value could change between
-> those two dereferences.   Longpeng (Mike) could easlily recreate the issue
-> if he put a delay between the two dereferences.  I believe the only
-> reservations/concerns about the patch below was the use of READ_ONCE().
-> Is that correct?
-> 
-Hi Mike,
+[  247.623251] BUG: kernel NULL pointer dereference, address: 00000000000=
+00000=20
+[  247.631021] #PF: supervisor write access in kernel mode=20
+[  247.636848] #PF: error_code(0x0002) - not-present page=20
+[  247.642579] PGD 0 P4D 0 =20
+[  247.645402] Oops: 0002 [#1] SMP PTI=20
+[  247.649292] CPU: 2 PID: 1897 Comm: kworker/2:40 Tainted: G          I =
+5.5.11-6df57ed.cki #1=20
+[  247.659192] Hardware name: IBM System x3250 M4 -[2583ECU]-/00D3729, BI=
+OS -[JQE168BUS-1.09]- 09/17/2014=20
+[  247.669580] Workqueue: cgroup_destroy css_killed_work_fn=20
+[  247.675506] RIP: 0010:bfq_bfqq_move+0x21/0x160=20
+[  247.680462] Code: c0 c3 0f 1f 80 00 00 00 00 0f 1f 44 00 00 41 55 41
+54 49 89 fc 55 48 89 f5 53 48 89 d3 48 39 b7 a0 00 00 00 0f 84 22 01 00
+00 <83> 45 00 01 48 89 ef e8 a3 87 ff ff 85 c0 0f 85 d7 00 00 00 80 bd=20
+[  247.701415] RSP: 0018:ffffb61340e87db0 EFLAGS: 00010086=20
+[  247.707242] RAX: 0000000000000000 RBX: ffff99d9b1dd8000 RCX: 000000000=
+0000000=20
+[  247.715202] RDX: ffff99d9b1dd8000 RSI: 0000000000000000 RDI: ffff99d9b=
+1dda000=20
+[  247.723161] RBP: 0000000000000000 R08: 000000003b9aca00 R09: ffff99d9b=
+1d87300=20
+[  247.731123] R10: 0000000000000000 R11: ffff99d9b1d87300 R12: ffff99d9b=
+1dda000=20
+[  247.739083] R13: ffff99d98492d1b0 R14: ffff99d9b1dda3f0 R15: ffff99d98=
+492d098=20
+[  247.747044] FS:  0000000000000000(0000) GS:ffff99d9b7c80000(0000) knlG=
+S:0000000000000000=20
+[  247.756073] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033=20
+[  247.762481] CR2: 0000000000000000 CR3: 000000023060a005 CR4: 000000000=
+01606e0=20
+[  247.770441] Call Trace:=20
+[  247.773170]  bfq_pd_offline+0x87/0xf0=20
+[  247.777254]  blkg_destroy+0x52/0xf0=20
+[  247.781143]  blkcg_destroy_blkgs+0x4f/0xa0=20
+[  247.785710]  css_killed_work_fn+0x4d/0xd0=20
+[  247.790181]  process_one_work+0x1b5/0x360=20
+[  247.794651]  worker_thread+0x50/0x3c0=20
+[  247.798733]  kthread+0xf9/0x130=20
+[  247.802234]  ? process_one_work+0x360/0x360=20
+[  247.806899]  ? kthread_park+0x90/0x90=20
+[  247.810983]  ret_from_fork+0x35/0x40=20
+>=20
+> --=20
+> Thanks,
+> Sasha
+>=20
 
-It seems I've missed your another mail in my client, I found it here
-(https://lkml.org/lkml/2020/2/27/1927) just now.
+--=20
+Murphy
 
-I think we have reached an agreement that the pud/pmd need READ_ONCE in
-huge_pte_offset() and disagreement is whether the pgd/p4d also need READ_ONCE,
-right ?
-
-> Are there any objections to the patch if the READ_ONCE() calls are removed?
-> 
-Because the pgd/p4g are only accessed and dereferenced once here, so some guys
-want to remove it.
-
-But we must make sure they are *really* accessed once, in other words, this
-makes we need to care about both the implementation of pgd_present/p4d_present
-and the behavior of any compiler, for example:
-
-'''
-static inline int func(int val)
-{
-    return subfunc1(val) & subfunc2(val);
-}
-
-func(*p); // int *p
-'''
-We must make sure there's no strange compiler to generate an assemble code that
-access and dereference 'p' more than once.
-
-I've not found any backwards with READ_ONCE here. However, if you also agree to
-remove READ_ONCE around pgd/p4d, I'll do.
-
-> Longpeng (Mike), can you recreate the issue by adding the delay and removing
-> the READ_ONCE() calls?
-> 
-I think remove the READ_ONCE around pgd/p4d won't cause any fucntional change.
-
----
-Regards,
-Longpeng(Mike)
