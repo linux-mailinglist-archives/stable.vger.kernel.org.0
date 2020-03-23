@@ -2,95 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9370A18EE8D
-	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 04:37:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECEB018EE93
+	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 04:43:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727059AbgCWDhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Mar 2020 23:37:37 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:16263 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727050AbgCWDhg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Mar 2020 23:37:36 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5e782ea60000>; Sun, 22 Mar 2020 20:36:06 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Sun, 22 Mar 2020 20:37:36 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Sun, 22 Mar 2020 20:37:36 -0700
-Received: from [10.19.66.205] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 23 Mar
- 2020 03:37:33 +0000
-Subject: Re: [PATCH] phy: tegra: should select USB_PHY
-To:     Corentin Labbe <clabbe@baylibre.com>, <jonathanh@nvidia.com>,
-        <kishon@ti.com>, <thierry.reding@gmail.com>, <treding@nvidia.com>
-CC:     <linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-References: <1584545013-19859-1-git-send-email-clabbe@baylibre.com>
-X-Nvconfidentiality: public
-From:   Nagarjuna Kristam <nkristam@nvidia.com>
-Message-ID: <f720dc73-e6c3-ead7-6a45-6f2b54e0f4ff@nvidia.com>
-Date:   Mon, 23 Mar 2020 09:09:41 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1727050AbgCWDnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Mar 2020 23:43:21 -0400
+Received: from szxga07-in.huawei.com ([45.249.212.35]:50272 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726979AbgCWDnV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 22 Mar 2020 23:43:21 -0400
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 72D3B7BDC1BD720A4460;
+        Mon, 23 Mar 2020 11:43:16 +0800 (CST)
+Received: from [10.173.228.124] (10.173.228.124) by smtp.huawei.com
+ (10.3.19.202) with Microsoft SMTP Server (TLS) id 14.3.487.0; Mon, 23 Mar
+ 2020 11:43:10 +0800
+Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by
+ huge_pte_offset()
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+CC:     <akpm@linux-foundation.org>, <kirill.shutemov@linux.intel.com>,
+        <linux-kernel@vger.kernel.org>, <arei.gonglei@huawei.com>,
+        <weidong.huang@huawei.com>, <weifuqiang@huawei.com>,
+        <kvm@vger.kernel.org>, <linux-mm@kvack.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Sean Christopherson" <sean.j.christopherson@intel.com>,
+        <stable@vger.kernel.org>
+References: <1582342427-230392-1-git-send-email-longpeng2@huawei.com>
+ <51a25d55-de49-4c0a-c994-bf1a8cfc8638@oracle.com>
+ <5700f44e-9df9-1b12-bc29-68e0463c2860@huawei.com>
+ <e16fe81b-5c4c-e689-2f48-214f2025df2f@oracle.com>
+From:   "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
+        <longpeng2@huawei.com>
+Message-ID: <e5ee0ed4-6af6-27af-1a0c-6eab3727768a@huawei.com>
+Date:   Mon, 23 Mar 2020 11:43:09 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <1584545013-19859-1-git-send-email-clabbe@baylibre.com>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"; format=flowed
+In-Reply-To: <e16fe81b-5c4c-e689-2f48-214f2025df2f@oracle.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1584934567; bh=0hfRlRzIddqZPpiMXJgOvPWCKjWj2e6XvJATvVythHo=;
-        h=X-PGP-Universal:Subject:To:CC:References:X-Nvconfidentiality:From:
-         Message-ID:Date:User-Agent:MIME-Version:In-Reply-To:
-         X-Originating-IP:X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=Asjl1iARSY27+VP5NLW7ipRgnnUhqQcODPj3NQ1VIqaR/HvKlS8L6D7JxTKD226P1
-         ejfxlKg3/bUtfKYWgByF2LSuDAc6uxYqYUQa7y8yKRYeLQLjnSdf0BT/cN3wg3Lt8y
-         jAoY+CbIParTjXM8TnlDLITOto9dQZ+HsaO1hoprfWw3GsUVMBlPEPL5ABxLlHbzNF
-         PiOEGjXlquz6Jti4rHsej1O4SEPnTdO0ZIhl9Utf0d4Oum2B5m9ET/A1h9g1mZNZnf
-         L3Roc4hHaNV07Nk6pomFOEnh8jNlIZCeBJ741PBIizMJtt2E/cuDU58yrF2em6wBWc
-         k0I40MaXPMO+w==
+X-Originating-IP: [10.173.228.124]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reviewed-by: Nagarjuna Kristam <nkristam@nvidia.com>
 
-On 18-03-2020 20:53, Corentin Labbe wrote:
-> External email: Use caution opening links or attachments
+
+On 2020/3/23 10:54, Mike Kravetz wrote:
+> On 3/22/20 7:03 PM, Longpeng (Mike, Cloud Infrastructure Service Product Dept.) wrote:
+>>
+>>
+>> On 2020/3/22 7:38, Mike Kravetz wrote:
+>>> On 2/21/20 7:33 PM, Longpeng(Mike) wrote:
+>>>> From: Longpeng <longpeng2@huawei.com>
+>>>>
+>>>> Our machine encountered a panic(addressing exception) after run
+>>>> for a long time and the calltrace is:
+
+[snip]
+
+>>>>
+>>>> We can avoid this race by read the pud only once. What's more, we also use
+>>>> READ_ONCE to access the entries for safe(e.g. avoid the compilier mischief)
+>>>>
+>>>> Cc: Matthew Wilcox <willy@infradead.org>
+>>>> Cc: Sean Christopherson <sean.j.christopherson@intel.com>
+>>>> Cc: Mike Kravetz <mike.kravetz@oracle.com>
+>>>> Cc: stable@vger.kernel.org
+>>>> Signed-off-by: Longpeng <longpeng2@huawei.com>
+>>>
+>>> Andrew dropped this patch from his tree which caused me to go back and
+>>> look at the status of this patch/issue.
+>>>
+>>> It is pretty obvious that code in the current huge_pte_offset routine
+>>> is racy.  I checked out the assembly code produced by my compiler and
+>>> verified that the line,
+>>>
+>>> 	if (pud_huge(*pud) || !pud_present(*pud))
+>>>
+>>> does actually dereference *pud twice.  So, the value could change between
+>>> those two dereferences.   Longpeng (Mike) could easlily recreate the issue
+>>> if he put a delay between the two dereferences.  I believe the only
+>>> reservations/concerns about the patch below was the use of READ_ONCE().
+>>> Is that correct?
+>>>
+>> Hi Mike,
+>>
+>> It seems I've missed your another mail in my client, I found it here
+>> (https://lkml.org/lkml/2020/2/27/1927) just now.
+>>
+>> I think we have reached an agreement that the pud/pmd need READ_ONCE in
+>> huge_pte_offset() and disagreement is whether the pgd/p4d also need READ_ONCE,
+>> right ?
 > 
+> Correct.
 > 
-> I have hit the following build error:
-> armv7a-hardfloat-linux-gnueabi-ld: drivers/phy/tegra/xusb.o: in function `tegra_xusb_port_unregister':
-> xusb.c:(.text+0x2ac): undefined reference to `usb_remove_phy'
-> armv7a-hardfloat-linux-gnueabi-ld: drivers/phy/tegra/xusb.o: in function `tegra_xusb_setup_ports':
-> xusb.c:(.text+0xf30): undefined reference to `usb_add_phy_dev'
+> Sorry, I did not reply to the mail thread with more context.
 > 
-> PHY_TEGRA_XUSB should select USB_PHY
+>>> Are there any objections to the patch if the READ_ONCE() calls are removed?
+>>>
+>> Because the pgd/p4g are only accessed and dereferenced once here, so some guys
+>> want to remove it.
+>>
+>> But we must make sure they are *really* accessed once, in other words, this
+>> makes we need to care about both the implementation of pgd_present/p4d_present
+>> and the behavior of any compiler, for example:
+>>
+>> '''
+>> static inline int func(int val)
+>> {
+>>     return subfunc1(val) & subfunc2(val);
+>> }
+>>
+>> func(*p); // int *p
+>> '''
+>> We must make sure there's no strange compiler to generate an assemble code that
+>> access and dereference 'p' more than once.
+>>
+>> I've not found any backwards with READ_ONCE here. However, if you also agree to
+>> remove READ_ONCE around pgd/p4d, I'll do.
+>>
 > 
-> Fixes: 23babe30fb45d ("phy: tegra: xusb: Add usb-phy support")
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-> ---
->   drivers/phy/tegra/Kconfig | 1 +
->   1 file changed, 1 insertion(+)
+> I would like to remove the READ_ONCE calls and move the patch forward.  It
+> does address a real issue you are seeing.
 > 
-> diff --git a/drivers/phy/tegra/Kconfig b/drivers/phy/tegra/Kconfig
-> index df07c4dea059..a208aca4ba7b 100644
-> --- a/drivers/phy/tegra/Kconfig
-> +++ b/drivers/phy/tegra/Kconfig
-> @@ -3,6 +3,7 @@ config PHY_TEGRA_XUSB
->          tristate "NVIDIA Tegra XUSB pad controller driver"
->          depends on ARCH_TEGRA
->          select USB_CONN_GPIO
-> +       select USB_PHY
->          help
->            Choose this option if you have an NVIDIA Tegra SoC.
+> To be honest, I am more worried about the races in lookup_address_in_pgd()
+> than using or not using READ_ONCE for  pgd/p4d in this patch.
 > 
-> --
-> 2.24.1
+I had the same worry, we've discussed in another thread
+(https://lkml.org/lkml/2020/2/20/1182) where I asked you `Is it possible the pud
+changes from pud_huge() to pud_none() while another CPU is walking the
+pagetable` and you thought it's possible.
+The reason why I didn't do something in lookup_address_in_pgd together is just
+because I haven't went into trouble caused by it yet.
+
+> I have not looked closely at the generated code for lookup_address_in_pgd.
+> It appears that it would dereference p4d, pud and pmd multiple times.  Sean
+> seemed to think there was something about the calling context that would
+> make issues like those seen with huge_pte_offset less likely to happen.  I
+> do not know if this is accurate or not.
 > 
+> Let's remove the two READ_ONCE calls and move this patch forward.  We can
+> look closer at lookup_address_in_pgd and generate another patch if that needs
+> to be fixed as well.
+> 
+OK, I'll remove them in v3.
+
+I'll do some fault injection or add some delays in lookup_address_in_pgd to test
+if it can work well.
+
+> Thanks
+> 
+
+---
+Regards,
+Longpeng(Mike)
