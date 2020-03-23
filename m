@@ -2,73 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EC8F18EFE9
-	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 07:48:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F64818F0B9
+	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 09:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727358AbgCWGs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Mar 2020 02:48:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49110 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726142AbgCWGs1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Mar 2020 02:48:27 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A309A20736;
-        Mon, 23 Mar 2020 06:48:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1584946107;
-        bh=qOFlhZkujaC+JRP+KmxtYFhSXy30kHvp1QbjUTFusoE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=S0zzGYG+/Phb/0Ly9A+0B24iiyIaboKqCx9HCcV5zBR7HZRPVBYJm8Cct/6B/7uRo
-         tJkcHncvw4MWEkxurkVKzRkMujdvxxvjD3Dn8G/4nJtk7MZYyB3acp/UapGU0Y86xH
-         ngpYL4yzi5LWbGPkYvwmlCeAjNZsxb7wTYwEd4iM=
-Date:   Mon, 23 Mar 2020 07:48:23 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>
-Subject: Re: [PATCH 5.5 00/65] 5.5.11-rc1 review
-Message-ID: <20200323064823.GC129571@kroah.com>
-References: <20200319123926.466988514@linuxfoundation.org>
- <fcf6db4c-cebe-9ad3-9f19-00d49a7b1043@roeck-us.net>
- <20200319145900.GC92193@kroah.com>
- <32c627bf-0e6b-8bc4-88d3-032a69484aa6@roeck-us.net>
- <20200320144658.GK4189@sasha-vm>
- <20200322195134.GA3127@duo.ucw.cz>
+        id S1727517AbgCWIUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Mar 2020 04:20:18 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:52307 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727516AbgCWIUS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 04:20:18 -0400
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <afa@pengutronix.de>)
+        id 1jGIJd-0003c0-0a; Mon, 23 Mar 2020 09:20:09 +0100
+Received: from afa by dude.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <afa@pengutronix.de>)
+        id 1jGIJb-0008Ge-3C; Mon, 23 Mar 2020 09:20:07 +0100
+From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
+To:     Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Rouven Czerwinski <r.czerwinski@pengutronix.de>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>
+Cc:     stable@vger.kernel.org,
+        Clemens Gruber <clemens.gruber@pqgruber.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y
+Date:   Mon, 23 Mar 2020 09:19:33 +0100
+Message-Id: <20200323081933.31497-1-a.fatoum@pengutronix.de>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200322195134.GA3127@duo.ucw.cz>
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: afa@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 22, 2020 at 08:51:34PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > > Thanks for letting me know, I've now dropped that patch (others
-> > > > complained about it for other reasons) and will push out a -rc2 with
-> > > > that fix.
-> > > > 
-> > > 
-> > > I did wonder why the offending patch was included, but then I figured that
-> > > I lost the "we apply too many patches to stable releases" battle, and I didn't
-> > > want to re-litigate it.
-> > 
-> > I usually much rather take prerequisite patches rather than do
-> > backports, which is why that patch was selected.
-> 
-> Unfortunately, that results in less useful -stable.
+512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+introduced an unintended linker error for i.MX6 configurations that have
+ARM_CPU_SUSPEND=n which can happen if neither CONFIG_PM, CONFIG_CPU_IDLE,
+nor ARM_PSCI_FW are selected.
 
-Not at all, it makes for a _MORE_ useful stable, as we want to mirror
-what is in Linus's tree whenever possible.
+Fix this by having v7_cpu_resume() compiled only when cpu_resume() it
+calls is available as well.
 
-Come on now, we've been doing this for 17+ years now, it's not new.
+The C declaration for the function remains unguarded to avoid future code
+inadvertently using a stub and introducing a regression to the bug the
+original commit fixed.
 
-greg k-h
+Cc: <stable@vger.kernel.org>
+Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+---
+ arch/arm/mach-imx/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/mach-imx/Makefile b/arch/arm/mach-imx/Makefile
+index 03506ce46149..e7364e6c8c6b 100644
+--- a/arch/arm/mach-imx/Makefile
++++ b/arch/arm/mach-imx/Makefile
+@@ -91,8 +91,10 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7-a
+ obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
+ obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
+ endif
++ifeq ($(CONFIG_ARM_CPU_SUSPEND),y)
+ AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
+ obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
++endif
+ obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
+ 
+ obj-$(CONFIG_SOC_IMX1) += mach-imx1.o
+-- 
+2.25.1
+
