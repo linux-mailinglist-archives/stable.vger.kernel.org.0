@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B396118F6EB
-	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 15:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3951418F706
+	for <lists+stable@lfdr.de>; Mon, 23 Mar 2020 15:36:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726009AbgCWO26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Mar 2020 10:28:58 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:40853 "EHLO
+        id S1727050AbgCWOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Mar 2020 10:36:19 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:38785 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725991AbgCWO26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 10:28:58 -0400
+        by vger.kernel.org with ESMTP id S1725830AbgCWOgT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 10:36:19 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id F2903596;
-        Mon, 23 Mar 2020 10:28:57 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 4229750F;
+        Mon, 23 Mar 2020 10:36:18 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 23 Mar 2020 10:28:58 -0400
+  by compute1.internal (MEProxy); Mon, 23 Mar 2020 10:36:18 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=k1S8vO
-        WIU+x2ctUwwHQbh3goEmRcqMSTW2AoVYAr/ZE=; b=35x5FUbfy+5Ez8+Nt29nUm
-        YC3fmnO2ZeAIYvTZX1Rd8GyniY8CoSPgm5m75ubobQrSNRKJ4ow7jFrxptVF4d+b
-        YfH4+Dp/lqQ12g/BRuUymdeX4As+yvaN4STKqjg9VU0HtqDUt1ZvcLGSYZgv7+fh
-        MsQNB/qJU5PauspEnnrb4DvHY++iKF7mceLB9zLFbbLoIsED4Ku5XPVRmU5VdXpZ
-        NBvCJCL8eD+MyNdQhFzC2UOQhfS6kjjKSJP3tZjSC3azam+wGhZDT//NNWfu8TZt
-        9oLGSGOTjL9H8odjtXnb31SYipElKV2740628ivBcEg7Pr68fPnM/It3DajLuVpA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=VStryR
+        +sFsYE8w86tPmnkuJUM+Ictvy5Zz3+DABFIDY=; b=souLEtpCz2JNWPO7mHGZMi
+        JZcxvzk6uNKIsi9h34DbNf/6nlz3aakD0PsDZUr1R5jSI7IrF2PaoIwxvkq9J58R
+        s+cRMqRnzRkX93HJMWAG8QoWHfcJV4SdPLWmrYZ2CTt7C/JT65QIzkVfuQBMzev/
+        iPQh8zqQPBXEnXLfbPpD8rC5h0H+CUOsamZshhf9A0ZP4VID1N4QKSulzTyYhTFL
+        JMWPDCRpIPLwkJ2Tsld+cQ4k0YK4zH4vKQB143gA7Ny3mb8KHuFwSEWAFd58oSSL
+        cecHQgeQ0aThOXe+u8WeLRY1G67Uef+2URA0GnVPR7T+Tgz1EGnCLZdpqEg6DaUQ
         ==
-X-ME-Sender: <xms:qcd4XpHmsUvdLZtim4I8hRJK55qhd7c2_zbRJ_jjBXkmfDHTUdMFBg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudegkedgieegucetufdoteggodetrfdotf
+X-ME-Sender: <xms:Ycl4XofjEpYnAjx-4I_IqQzR_wSGYhqmD16WPU3EvDl7wqzYsf1_kQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudegkedgieehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpegsohhothhlihhnrdgtohhmpdhgihhthhhusgdrtghomhenuc
-    fkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghr
-    rghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:qcd4XtW7RhUI5aGb0mMTT4yH_yslC3uDpab6-pqFJA7jwtG6c3sHdw>
-    <xmx:qcd4XnxFVmCjqUtwiARdUImKMuVX8FAEzGOZza6mwgx3a4j5UP5wjg>
-    <xmx:qcd4XpTUo5qzX_Sd1F8-Ti0cGWBSwJnDW-C5nxDtrFYaK7qCS_IBUg>
-    <xmx:qcd4Xiyf0zN0tCNcOTKFZK7mPUD_04ZJVk93aFAFj2D_HTv12ubmNg>
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:Ycl4XhUxh95O7GyC_WXkQMloBdHbiuiOSLefnlGu_YWgcSqNgsKYHg>
+    <xmx:Ycl4Xr2anG7Rmtt0oGoaHh6GTIAQ45bdJnVUIH3Qb3KgxVfzsjZnKg>
+    <xmx:Ycl4XmtTMfFObqXGBCrPDMVqZMV-HKgKeniEVjBkidupNNKIF4Osgg>
+    <xmx:Ycl4XjyF3vRCh2N8o-gg_YUlR9tkxxTvMc2JBlT4Wogep6R6KU0Kzw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 363EE3062AFB;
-        Mon, 23 Mar 2020 10:28:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] kbuild: Disable -Wpointer-to-enum-cast" failed to apply to 4.19-stable tree
-To:     natechancellor@gmail.com, masahiroy@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 255563062A4E;
+        Mon, 23 Mar 2020 10:36:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: NULL-deref for IOSQE_{ASYNC,DRAIN}" failed to apply to 5.5-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 23 Mar 2020 15:28:48 +0100
-Message-ID: <15849737281461@kroah.com>
+Date:   Mon, 23 Mar 2020 15:36:15 +0100
+Message-ID: <158497417567105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.5-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,42 +67,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 82f2bc2fcc0160d6f82dd1ac64518ae0a4dd183f Mon Sep 17 00:00:00 2001
-From: Nathan Chancellor <natechancellor@gmail.com>
-Date: Wed, 11 Mar 2020 12:41:21 -0700
-Subject: [PATCH] kbuild: Disable -Wpointer-to-enum-cast
+From f1d96a8fcbbbb22d4fbc1d69eaaa678bbb0ff6e2 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Fri, 13 Mar 2020 22:29:14 +0300
+Subject: [PATCH] io_uring: NULL-deref for IOSQE_{ASYNC,DRAIN}
 
-Clang's -Wpointer-to-int-cast deviates from GCC in that it warns when
-casting to enums. The kernel does this in certain places, such as device
-tree matches to set the version of the device being used, which allows
-the kernel to avoid using a gigantic union.
+Processing links, io_submit_sqe() prepares requests, drops sqes, and
+passes them with sqe=NULL to io_queue_sqe(). There IOSQE_DRAIN and/or
+IOSQE_ASYNC requests will go through the same prep, which doesn't expect
+sqe=NULL and fail with NULL pointer deference.
 
-https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L428
-https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L402
-https://elixir.bootlin.com/linux/v5.5.8/source/include/linux/mod_devicetable.h#L264
+Always do full prepare including io_alloc_async_ctx() for linked
+requests, and then it can skip the second preparation.
 
-To avoid a ton of false positive warnings, disable this particular part
-of the warning, which has been split off into a separate diagnostic so
-that the entire warning does not need to be turned off for clang. It
-will be visible under W=1 in case people want to go about fixing these
-easily and enabling the warning treewide.
+Cc: stable@vger.kernel.org # 5.5
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/887
-Link: https://github.com/llvm/llvm-project/commit/2a41b31fcdfcb67ab7038fc2ffb606fd50b83a84
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-
-diff --git a/scripts/Makefile.extrawarn b/scripts/Makefile.extrawarn
-index ecddf83ac142..ca08f2fe7c34 100644
---- a/scripts/Makefile.extrawarn
-+++ b/scripts/Makefile.extrawarn
-@@ -48,6 +48,7 @@ KBUILD_CFLAGS += -Wno-initializer-overrides
- KBUILD_CFLAGS += -Wno-format
- KBUILD_CFLAGS += -Wno-sign-compare
- KBUILD_CFLAGS += -Wno-format-zero-length
-+KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
- endif
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 1b2517291b78..b1fbc4424aa6 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4131,6 +4131,9 @@ static int io_req_defer_prep(struct io_kiocb *req,
+ {
+ 	ssize_t ret = 0;
  
- endif
++	if (!sqe)
++		return 0;
++
+ 	if (io_op_defs[req->opcode].file_table) {
+ 		ret = io_grab_files(req);
+ 		if (unlikely(ret))
+@@ -4907,6 +4910,11 @@ static bool io_submit_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 		if (sqe_flags & (IOSQE_IO_LINK|IOSQE_IO_HARDLINK)) {
+ 			req->flags |= REQ_F_LINK;
+ 			INIT_LIST_HEAD(&req->link_list);
++
++			if (io_alloc_async_ctx(req)) {
++				ret = -EAGAIN;
++				goto err_req;
++			}
+ 			ret = io_req_defer_prep(req, sqe);
+ 			if (ret)
+ 				req->flags |= REQ_F_FAIL_LINK;
 
