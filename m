@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86079191066
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4B1C19101D
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729630AbgCXN1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:27:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53586 "EHLO mail.kernel.org"
+        id S1729100AbgCXNZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729977AbgCXN1o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:27:44 -0400
+        id S1729373AbgCXNZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:25:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0ADF8208D6;
-        Tue, 24 Mar 2020 13:27:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48C8820870;
+        Tue, 24 Mar 2020 13:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056464;
-        bh=7nN6GI7/68woCdwk5Vi3mTAd6ov6wAQsoBiRvtFyc1E=;
+        s=default; t=1585056318;
+        bh=3xW+pscrqJeC5q3xuuLfk72SfIQsKV4XoV/9Yx9ilGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTvDF1bAO6pMnEg27YLpatwoGUOextPsdKgl4AHxER6ziwSPWAsGDXZ2dyBZhHSMZ
-         xHFu49nZj8Y6Mota5jo+Zjyb5cGWV/1SMi8osEEDgdrRQ8wDm+E3U+qoX101dAZhI8
-         ZNLRQ6oe30u0nAXmP+ZRSCJbRYoimwpUSCxqm0D8=
+        b=UxJyZCJytWGSqOiAOO4LkRjz6XuiCXLMGWu+XGQJDe9zu6UFSzQs/rYldrPSRbS6m
+         Ivgd2wjoL3atgMY1rXvvo1ZnP/qS7sGP7ywkbmrzwtmcjeKxV7N5WVRSd9oULMZC2Y
+         loVuYMqBWWzrzB9YAdltkoW1GduGx8MyZsjT9CKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom St Denis <tom.stdenis@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.5 089/119] drm/amd/amdgpu: Fix GPR read from debugfs (v2)
-Date:   Tue, 24 Mar 2020 14:11:14 +0100
-Message-Id: <20200324130817.113789314@linuxfoundation.org>
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        syzbot+05835159fe322770fe3d@syzkaller.appspotmail.com
+Subject: [PATCH 5.5 090/119] drm/lease: fix WARNING in idr_destroy
+Date:   Tue, 24 Mar 2020 14:11:15 +0100
+Message-Id: <20200324130817.204608490@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
 References: <20200324130808.041360967@linuxfoundation.org>
@@ -44,51 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom St Denis <tom.stdenis@amd.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit 5bbc6604a62814511c32f2e39bc9ffb2c1b92cbe upstream.
+commit b216a8e7908cd750550c0480cf7d2b3a37f06954 upstream.
 
-The offset into the array was specified in bytes but should
-be in terms of 32-bit words.  Also prevent large reads that
-would also cause a buffer overread.
+drm_lease_create takes ownership of leases. And leases will be released
+by drm_master_put.
 
-v2:  Read from correct offset from internal storage buffer.
+drm_master_put
+    ->drm_master_destroy
+            ->idr_destroy
 
-Signed-off-by: Tom St Denis <tom.stdenis@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+So we needn't call idr_destroy again.
+
+Reported-and-tested-by: syzbot+05835159fe322770fe3d@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
 Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/1584518030-4173-1-git-send-email-hqjagain@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_lease.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-@@ -694,11 +694,11 @@ static ssize_t amdgpu_debugfs_gpr_read(s
- 	ssize_t result = 0;
- 	uint32_t offset, se, sh, cu, wave, simd, thread, bank, *data;
+--- a/drivers/gpu/drm/drm_lease.c
++++ b/drivers/gpu/drm/drm_lease.c
+@@ -542,10 +542,12 @@ int drm_mode_create_lease_ioctl(struct d
+ 	}
  
--	if (size & 3 || *pos & 3)
-+	if (size > 4096 || size & 3 || *pos & 3)
- 		return -EINVAL;
+ 	DRM_DEBUG_LEASE("Creating lease\n");
++	/* lessee will take the ownership of leases */
+ 	lessee = drm_lease_create(lessor, &leases);
  
- 	/* decode offset */
--	offset = *pos & GENMASK_ULL(11, 0);
-+	offset = (*pos & GENMASK_ULL(11, 0)) >> 2;
- 	se = (*pos & GENMASK_ULL(19, 12)) >> 12;
- 	sh = (*pos & GENMASK_ULL(27, 20)) >> 20;
- 	cu = (*pos & GENMASK_ULL(35, 28)) >> 28;
-@@ -729,7 +729,7 @@ static ssize_t amdgpu_debugfs_gpr_read(s
- 	while (size) {
- 		uint32_t value;
+ 	if (IS_ERR(lessee)) {
+ 		ret = PTR_ERR(lessee);
++		idr_destroy(&leases);
+ 		goto out_leases;
+ 	}
  
--		value = data[offset++];
-+		value = data[result >> 2];
- 		r = put_user(value, (uint32_t *)buf);
- 		if (r) {
- 			result = r;
+@@ -580,7 +582,6 @@ out_lessee:
+ 
+ out_leases:
+ 	put_unused_fd(fd);
+-	idr_destroy(&leases);
+ 
+ 	DRM_DEBUG_LEASE("drm_mode_create_lease_ioctl failed: %d\n", ret);
+ 	return ret;
 
 
