@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B1C19101D
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC771910CB
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729100AbgCXNZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:25:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49496 "EHLO mail.kernel.org"
+        id S1728804AbgCXNUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:20:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729373AbgCXNZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:25:19 -0400
+        id S1727931AbgCXNUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:20:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48C8820870;
-        Tue, 24 Mar 2020 13:25:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8639206F6;
+        Tue, 24 Mar 2020 13:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056318;
-        bh=3xW+pscrqJeC5q3xuuLfk72SfIQsKV4XoV/9Yx9ilGo=;
+        s=default; t=1585056035;
+        bh=0TNe39U/n3LLxJ2voepxX+iI1yVqAXFhRSuLS/oi794=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UxJyZCJytWGSqOiAOO4LkRjz6XuiCXLMGWu+XGQJDe9zu6UFSzQs/rYldrPSRbS6m
-         Ivgd2wjoL3atgMY1rXvvo1ZnP/qS7sGP7ywkbmrzwtmcjeKxV7N5WVRSd9oULMZC2Y
-         loVuYMqBWWzrzB9YAdltkoW1GduGx8MyZsjT9CKM=
+        b=zOQjYC5lZS7bVzVJbhQdDvPgHjoBKtYV9HZnsBoGeYHG0BKvQwNNYFQceLXmEoAi6
+         Ess/ghMWrP77f4ccnwZRRM7E1hVo9yaBBSWtIRQ5tf0pMkTlVBi8etpCYDo6o6XRcZ
+         cZM5Pd2xAykYxuFaZsO0ulChdTJ9TvfnHQ/XXBMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        syzbot+05835159fe322770fe3d@syzkaller.appspotmail.com
-Subject: [PATCH 5.5 090/119] drm/lease: fix WARNING in idr_destroy
-Date:   Tue, 24 Mar 2020 14:11:15 +0100
-Message-Id: <20200324130817.204608490@linuxfoundation.org>
+        stable@vger.kernel.org, Chunguang Xu <brookxu@tencent.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 084/102] memcg: fix NULL pointer dereference in __mem_cgroup_usage_unregister_event
+Date:   Tue, 24 Mar 2020 14:11:16 +0100
+Message-Id: <20200324130815.057687859@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +48,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Chunguang Xu <brookxu@tencent.com>
 
-commit b216a8e7908cd750550c0480cf7d2b3a37f06954 upstream.
+commit 7d36665a5886c27ca4c4d0afd3ecc50b400f3587 upstream.
 
-drm_lease_create takes ownership of leases. And leases will be released
-by drm_master_put.
+An eventfd monitors multiple memory thresholds of the cgroup, closes them,
+the kernel deletes all events related to this eventfd.  Before all events
+are deleted, another eventfd monitors the memory threshold of this cgroup,
+leading to a crash:
 
-drm_master_put
-    ->drm_master_destroy
-            ->idr_destroy
+  BUG: kernel NULL pointer dereference, address: 0000000000000004
+  #PF: supervisor write access in kernel mode
+  #PF: error_code(0x0002) - not-present page
+  PGD 800000033058e067 P4D 800000033058e067 PUD 3355ce067 PMD 0
+  Oops: 0002 [#1] SMP PTI
+  CPU: 2 PID: 14012 Comm: kworker/2:6 Kdump: loaded Not tainted 5.6.0-rc4 #3
+  Hardware name: LENOVO 20AWS01K00/20AWS01K00, BIOS GLET70WW (2.24 ) 05/21/2014
+  Workqueue: events memcg_event_remove
+  RIP: 0010:__mem_cgroup_usage_unregister_event+0xb3/0x190
+  RSP: 0018:ffffb47e01c4fe18 EFLAGS: 00010202
+  RAX: 0000000000000001 RBX: ffff8bb223a8a000 RCX: 0000000000000001
+  RDX: 0000000000000001 RSI: ffff8bb22fb83540 RDI: 0000000000000001
+  RBP: ffffb47e01c4fe48 R08: 0000000000000000 R09: 0000000000000010
+  R10: 000000000000000c R11: 071c71c71c71c71c R12: ffff8bb226aba880
+  R13: ffff8bb223a8a480 R14: 0000000000000000 R15: 0000000000000000
+  FS:  0000000000000000(0000) GS:ffff8bb242680000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000004 CR3: 000000032c29c003 CR4: 00000000001606e0
+  Call Trace:
+    memcg_event_remove+0x32/0x90
+    process_one_work+0x172/0x380
+    worker_thread+0x49/0x3f0
+    kthread+0xf8/0x130
+    ret_from_fork+0x35/0x40
+  CR2: 0000000000000004
 
-So we needn't call idr_destroy again.
+We can reproduce this problem in the following ways:
 
-Reported-and-tested-by: syzbot+05835159fe322770fe3d@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/1584518030-4173-1-git-send-email-hqjagain@gmail.com
+1. We create a new cgroup subdirectory and a new eventfd, and then we
+   monitor multiple memory thresholds of the cgroup through this eventfd.
+
+2.  closing this eventfd, and __mem_cgroup_usage_unregister_event ()
+   will be called multiple times to delete all events related to this
+   eventfd.
+
+The first time __mem_cgroup_usage_unregister_event() is called, the
+kernel will clear all items related to this eventfd in thresholds->
+primary.
+
+Since there is currently only one eventfd, thresholds-> primary becomes
+empty, so the kernel will set thresholds-> primary and hresholds-> spare
+to NULL.  If at this time, the user creates a new eventfd and monitor
+the memory threshold of this cgroup, kernel will re-initialize
+thresholds-> primary.
+
+Then when __mem_cgroup_usage_unregister_event () is called for the
+second time, because thresholds-> primary is not empty, the system will
+access thresholds-> spare, but thresholds-> spare is NULL, which will
+trigger a crash.
+
+In general, the longer it takes to delete all events related to this
+eventfd, the easier it is to trigger this problem.
+
+The solution is to check whether the thresholds associated with the
+eventfd has been cleared when deleting the event.  If so, we do nothing.
+
+[akpm@linux-foundation.org: fix comment, per Kirill]
+Fixes: 907860ed381a ("cgroups: make cftype.unregister_event() void-returning")
+Signed-off-by: Chunguang Xu <brookxu@tencent.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/077a6f67-aefa-4591-efec-f2f3af2b0b02@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_lease.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/memcontrol.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_lease.c
-+++ b/drivers/gpu/drm/drm_lease.c
-@@ -542,10 +542,12 @@ int drm_mode_create_lease_ioctl(struct d
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -4151,7 +4151,7 @@ static void __mem_cgroup_usage_unregiste
+ 	struct mem_cgroup_thresholds *thresholds;
+ 	struct mem_cgroup_threshold_ary *new;
+ 	unsigned long usage;
+-	int i, j, size;
++	int i, j, size, entries;
+ 
+ 	mutex_lock(&memcg->thresholds_lock);
+ 
+@@ -4171,14 +4171,20 @@ static void __mem_cgroup_usage_unregiste
+ 	__mem_cgroup_threshold(memcg, type == _MEMSWAP);
+ 
+ 	/* Calculate new number of threshold */
+-	size = 0;
++	size = entries = 0;
+ 	for (i = 0; i < thresholds->primary->size; i++) {
+ 		if (thresholds->primary->entries[i].eventfd != eventfd)
+ 			size++;
++		else
++			entries++;
  	}
  
- 	DRM_DEBUG_LEASE("Creating lease\n");
-+	/* lessee will take the ownership of leases */
- 	lessee = drm_lease_create(lessor, &leases);
+ 	new = thresholds->spare;
  
- 	if (IS_ERR(lessee)) {
- 		ret = PTR_ERR(lessee);
-+		idr_destroy(&leases);
- 		goto out_leases;
- 	}
- 
-@@ -580,7 +582,6 @@ out_lessee:
- 
- out_leases:
- 	put_unused_fd(fd);
--	idr_destroy(&leases);
- 
- 	DRM_DEBUG_LEASE("drm_mode_create_lease_ioctl failed: %d\n", ret);
- 	return ret;
++	/* If no items related to eventfd have been cleared, nothing to do */
++	if (!entries)
++		goto unlock;
++
+ 	/* Set thresholds array to NULL if we don't have thresholds */
+ 	if (!size) {
+ 		kfree(new);
 
 
