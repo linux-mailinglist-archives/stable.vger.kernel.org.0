@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A82E190E86
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D26190FDD
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727384AbgCXNMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:12:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58750 "EHLO mail.kernel.org"
+        id S1729459AbgCXNXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727719AbgCXNMs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:12:48 -0400
+        id S1729050AbgCXNXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:23:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9F6820775;
-        Tue, 24 Mar 2020 13:12:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFDA4208FE;
+        Tue, 24 Mar 2020 13:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055568;
-        bh=4tIolwig/eG6kdesbtHxMMmhATOgOH0aKutX8PYYDHA=;
+        s=default; t=1585056226;
+        bh=mjm9lXsDUkQcojDLhC25W/kDX2lM5gjy9tCWyqwiQg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAOrmlXhVzafrWzFRk8GbNO4N3tOh2pnB02Vk0bSDwLkCWjMAa90NSGLU6kLVy4Zn
-         s0HFHoRCfaid+hDObI6mR2YM5y8AFWLGnx10fwUEN/316ldMGdIj3ChvkTb5nIF+vQ
-         kX53kFQai+5IqVaZeW+nVkbstiSEkfUfgN2v3hQc=
+        b=GaXdxcVkdA8ix+/sorOfkJhu1CYuZ+jJMxYDX+fZq+1mImoPbmxAUo1PsNvh5yhG0
+         kO3+dk5oQL3WrlxYu1r+CjCOE2qgGx2fM51u9srhqXOTAG2CXkpn5SeDH6SRgQpbn7
+         p6RH7TKQQpG0AF/Ac89H9ixnUWDy8ncE5B32VSiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 26/65] ALSA: line6: Fix endless MIDI read loop
+        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.5 062/119] iio: chemical: sps30: fix missing triggered buffer dependency
 Date:   Tue, 24 Mar 2020 14:10:47 +0100
-Message-Id: <20200324130800.538866245@linuxfoundation.org>
+Message-Id: <20200324130814.418252942@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
-References: <20200324130756.679112147@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Petr Štetiar <ynezz@true.cz>
 
-commit d683469b3c93d7e2afd39e6e1970f24700eb7a68 upstream.
+commit 016a8845f6da65b2203f102f192046fbb624e250 upstream.
 
-The MIDI input event parser of the LINE6 driver may enter into an
-endless loop when the unexpected data sequence is given, as it tries
-to continue the secondary bytes without termination.  Also, when the
-input data is too short, the parser returns a negative error, while
-the caller doesn't handle it properly.  This would lead to the
-unexpected behavior as well.
+SPS30 uses triggered buffer, but the dependency is not specified in the
+Kconfig file.  Fix this by selecting IIO_BUFFER and IIO_TRIGGERED_BUFFER
+config symbols.
 
-This patch addresses those issues by checking the return value
-correctly and handling the one-byte event in the parser properly.
-
-The bug was reported by syzkaller.
-
-Reported-by: syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/000000000000033087059f8f8fa3@google.com
-Link: https://lore.kernel.org/r/20200309095922.30269-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Fixes: 232e0f6ddeae ("iio: chemical: add support for Sensirion SPS30 sensor")
+Signed-off-by: Petr Štetiar <ynezz@true.cz>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/line6/driver.c  |    2 +-
- sound/usb/line6/midibuf.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/chemical/Kconfig |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -320,7 +320,7 @@ static void line6_data_received(struct u
- 				line6_midibuf_read(mb, line6->buffer_message,
- 						LINE6_MIDI_MESSAGE_MAXLEN);
- 
--			if (done == 0)
-+			if (done <= 0)
- 				break;
- 
- 			line6->message_length = done;
---- a/sound/usb/line6/midibuf.c
-+++ b/sound/usb/line6/midibuf.c
-@@ -163,7 +163,7 @@ int line6_midibuf_read(struct midi_buffe
- 			int midi_length_prev =
- 			    midibuf_message_length(this->command_prev);
- 
--			if (midi_length_prev > 0) {
-+			if (midi_length_prev > 1) {
- 				midi_length = midi_length_prev - 1;
- 				repeat = 1;
- 			} else
+--- a/drivers/iio/chemical/Kconfig
++++ b/drivers/iio/chemical/Kconfig
+@@ -91,6 +91,8 @@ config SPS30
+ 	tristate "SPS30 particulate matter sensor"
+ 	depends on I2C
+ 	select CRC8
++	select IIO_BUFFER
++	select IIO_TRIGGERED_BUFFER
+ 	help
+ 	  Say Y here to build support for the Sensirion SPS30 particulate
+ 	  matter sensor.
 
 
