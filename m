@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE576190F25
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A87190E88
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:14:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728665AbgCXNSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:18:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37956 "EHLO mail.kernel.org"
+        id S1727739AbgCXNMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:12:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728043AbgCXNSA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:18:00 -0400
+        id S1727736AbgCXNMw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:12:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1D04206F6;
-        Tue, 24 Mar 2020 13:17:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FEA320775;
+        Tue, 24 Mar 2020 13:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055880;
-        bh=mjm9lXsDUkQcojDLhC25W/kDX2lM5gjy9tCWyqwiQg4=;
+        s=default; t=1585055570;
+        bh=u0oxV+ZE30Cvfe5WC10gcHtQGNHrKMYUrIi5VvOstjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAq43nNCE6XCUb+zPECAFnN5X+UrRfduAIve3Q8qRdszD3V6oVvahM14ZUYNcCDQC
-         EoVncnYVSmdYuw1X0/Jc+yfxbWcVXH1EB4EbVuYy/r7nzf9RxIkRrFvLCy6q2piBun
-         JCWnEYt3gyYrFm/B/dqBlh2D7kKdsTYOdIMTXTE4=
+        b=lPfP74ToJZW0nUovBsvCR8hcmkoJAQsXE0wIWINOYdT0tk2Y/TcETq9gFn40tch9E
+         e49o2stc0i2r6NHy2iJAP9Hgq3OlUPgGmanRqTm9b4xWBfmxMUrmc+uRhr+/L7D6xR
+         61TwkZi5Zt3sh/sGJ2FLIE5EWEKdUBRyjctGP4Ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 056/102] iio: chemical: sps30: fix missing triggered buffer dependency
+        stable@vger.kernel.org, Andreas Steinmetz <ast@domdv.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 27/65] ALSA: seq: virmidi: Fix running status after receiving sysex
 Date:   Tue, 24 Mar 2020 14:10:48 +0100
-Message-Id: <20200324130812.405543780@linuxfoundation.org>
+Message-Id: <20200324130800.693038974@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130756.679112147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Štetiar <ynezz@true.cz>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 016a8845f6da65b2203f102f192046fbb624e250 upstream.
+commit 4384f167ce5fa7241b61bb0984d651bc528ddebe upstream.
 
-SPS30 uses triggered buffer, but the dependency is not specified in the
-Kconfig file.  Fix this by selecting IIO_BUFFER and IIO_TRIGGERED_BUFFER
-config symbols.
+The virmidi driver handles sysex event exceptionally in a short-cut
+snd_seq_dump_var_event() call, but this missed the reset of the
+running status.  As a result, it may lead to an incomplete command
+right after the sysex when an event with the same running status was
+queued.
 
-Cc: stable@vger.kernel.org
-Fixes: 232e0f6ddeae ("iio: chemical: add support for Sensirion SPS30 sensor")
-Signed-off-by: Petr Štetiar <ynezz@true.cz>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fix it by clearing the running status properly via alling
+snd_midi_event_reset_decode() for that code path.
+
+Reported-by: Andreas Steinmetz <ast@domdv.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/3b4a4e0f232b7afbaf0a843f63d0e538e3029bfd.camel@domdv.de
+Link: https://lore.kernel.org/r/20200316090506.23966-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/chemical/Kconfig |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/core/seq/seq_virmidi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/chemical/Kconfig
-+++ b/drivers/iio/chemical/Kconfig
-@@ -91,6 +91,8 @@ config SPS30
- 	tristate "SPS30 particulate matter sensor"
- 	depends on I2C
- 	select CRC8
-+	select IIO_BUFFER
-+	select IIO_TRIGGERED_BUFFER
- 	help
- 	  Say Y here to build support for the Sensirion SPS30 particulate
- 	  matter sensor.
+--- a/sound/core/seq/seq_virmidi.c
++++ b/sound/core/seq/seq_virmidi.c
+@@ -95,6 +95,7 @@ static int snd_virmidi_dev_receive_event
+ 			if ((ev->flags & SNDRV_SEQ_EVENT_LENGTH_MASK) != SNDRV_SEQ_EVENT_LENGTH_VARIABLE)
+ 				continue;
+ 			snd_seq_dump_var_event(ev, (snd_seq_dump_func_t)snd_rawmidi_receive, vmidi->substream);
++			snd_midi_event_reset_decode(vmidi->parser);
+ 		} else {
+ 			len = snd_midi_event_decode(vmidi->parser, msg, sizeof(msg), ev);
+ 			if (len > 0)
 
 
