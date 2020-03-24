@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC125190FD0
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F8C190F1B
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729342AbgCXNXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:23:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46426 "EHLO mail.kernel.org"
+        id S1728097AbgCXNRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:17:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729324AbgCXNXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:23:23 -0400
+        id S1728150AbgCXNRf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:17:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40513206F6;
-        Tue, 24 Mar 2020 13:23:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64995206F6;
+        Tue, 24 Mar 2020 13:17:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056202;
-        bh=iSHuwUJG/NcAT5Ue2QUNID8qtWpaoPKHRKW/XE8HZqQ=;
+        s=default; t=1585055854;
+        bh=pECr6roWR5M/8MW8H1Bv44fVIzAuTBT4NsDJCxywzY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rf8x2tYfpqwqJHx2oKlqKE6ymrVLjZ0LF7rvJ8K5hKx5Iq1ouXEB8QO5j6OjD0CZz
-         +yIe8BYokmH4ZcRgquScIm+1pC4nZ1k5aquvJWodE04MoRLLEuPb27yodFEb2cCGPM
-         CikK3NYsZ+3q7hw2XCcClL2CZYdlVLizhdfwYcMY=
+        b=hjnEhFtaJ7bc56qU1tvjNIJjtoJaVMAQ5j1UcuNoY7XPc0MRAxx4ub/edrexpL8/D
+         LcLZA8OF+tAP8q6YQ8hpk3Nnw52fmAGmFKJ3LN4gKIhG3qv9Asgrkn5Ntck9ns+Mb0
+         fA9Znu0Udw0ecq+956Un2xnNeGvqRminvYP3n+QA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 055/119] ALSA: hda/realtek - Enable the headset of Acer N50-600 with ALC662
+Subject: [PATCH 5.4 048/102] ALSA: hda/realtek - Enable headset mic of Acer X2660G with ALC662
 Date:   Tue, 24 Mar 2020 14:10:40 +0100
-Message-Id: <20200324130813.740243028@linuxfoundation.org>
+Message-Id: <20200324130811.623299122@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit a124458a127ccd7629e20cd7bae3e1f758ed32aa upstream.
+commit d858c706bdca97698752bd26b60c21ec07ef04f2 upstream.
 
-A headset on the desktop like Acer N50-600 does not work, until quirk
-ALC662_FIXUP_ACER_NITRO_HEADSET_MODE is applied.
+The Acer desktop X2660G with ALC662 can't detect the headset microphone
+until ALC662_FIXUP_ACER_X2660G_HEADSET_MODE quirk applied.
 
 Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200317082806.73194-3-jian-hong@endlessm.com
+Link: https://lore.kernel.org/r/20200317082806.73194-2-jian-hong@endlessm.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/pci/hda/patch_realtek.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -8611,6 +8611,7 @@ enum {
+@@ -8639,6 +8639,7 @@ enum {
+ 	ALC669_FIXUP_ACER_ASPIRE_ETHOS,
  	ALC669_FIXUP_ACER_ASPIRE_ETHOS_HEADSET,
  	ALC671_FIXUP_HP_HEADSET_MIC2,
- 	ALC662_FIXUP_ACER_X2660G_HEADSET_MODE,
-+	ALC662_FIXUP_ACER_NITRO_HEADSET_MODE,
++	ALC662_FIXUP_ACER_X2660G_HEADSET_MODE,
  };
  
  static const struct hda_fixup alc662_fixups[] = {
-@@ -8965,6 +8966,16 @@ static const struct hda_fixup alc662_fix
- 		.chained = true,
- 		.chain_id = ALC662_FIXUP_USI_FUNC
+@@ -8984,6 +8985,15 @@ static const struct hda_fixup alc662_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc671_fixup_hp_headset_mic2,
  	},
-+	[ALC662_FIXUP_ACER_NITRO_HEADSET_MODE] = {
++	[ALC662_FIXUP_ACER_X2660G_HEADSET_MODE] = {
 +		.type = HDA_FIXUP_PINS,
 +		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x1a, 0x01a11140 }, /* use as headset mic, without its own jack detect */
-+			{ 0x1b, 0x0221144f },
++			{ 0x1a, 0x02a1113c }, /* use as headset mic, without its own jack detect */
 +			{ }
 +		},
 +		.chained = true,
@@ -87,13 +86,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  };
  
  static const struct snd_pci_quirk alc662_fixup_tbl[] = {
-@@ -8976,6 +8987,7 @@ static const struct snd_pci_quirk alc662
+@@ -8995,6 +9005,7 @@ static const struct snd_pci_quirk alc662
  	SND_PCI_QUIRK(0x1025, 0x0349, "eMachines eM250", ALC662_FIXUP_INV_DMIC),
  	SND_PCI_QUIRK(0x1025, 0x034a, "Gateway LT27", ALC662_FIXUP_INV_DMIC),
  	SND_PCI_QUIRK(0x1025, 0x038b, "Acer Aspire 8943G", ALC662_FIXUP_ASPIRE),
-+	SND_PCI_QUIRK(0x1025, 0x123c, "Acer Nitro N50-600", ALC662_FIXUP_ACER_NITRO_HEADSET_MODE),
- 	SND_PCI_QUIRK(0x1025, 0x124e, "Acer 2660G", ALC662_FIXUP_ACER_X2660G_HEADSET_MODE),
++	SND_PCI_QUIRK(0x1025, 0x124e, "Acer 2660G", ALC662_FIXUP_ACER_X2660G_HEADSET_MODE),
  	SND_PCI_QUIRK(0x1028, 0x05d8, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
  	SND_PCI_QUIRK(0x1028, 0x05db, "Dell", ALC668_FIXUP_DELL_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1028, 0x05fe, "Dell XPS 15", ALC668_FIXUP_DELL_XPS13),
 
 
