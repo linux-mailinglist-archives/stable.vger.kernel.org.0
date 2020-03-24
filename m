@@ -2,95 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2427B190FD8
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEDD41910C6
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728852AbgCXNXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:23:38 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:40656 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729138AbgCXNXi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 09:23:38 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 02ODNZi6011310;
-        Tue, 24 Mar 2020 13:23:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id; s=corp-2020-01-29;
- bh=becv5FYJXzs3JnZ2rYy3TkDqfdaAi9xKRTFsZMsQFiY=;
- b=jWhoLaCSPQBNO5yNvn9VlMsIFN4OCFBwosat3YcVAyrzDlvhgHs5h3LTm0UCpB/zgexl
- 1j/LZkM7akjYVFW9qpAoG0fR79rCAZE9lgMZ/Rm121GJd8FFpJkaQA4iuf4JIBR9YBoi
- Jv9TAu7lmXQLQBc+hwJn/ZYdzxVYjiuhcw0535MwRNFgg0UQrdryDbq0WjDNsdTi2jtm
- FLkFFHxQsNttOlveftwmA9kEKy5GkCiQ18BHFZEIFCw8Zdviv0nBIQh4nsstv6WZsVjC
- lIpwEv8bNtSXlPw+Ckv6lRh+w3fbLJUXiErPEfI0S5jhYCLGQkUkyIB32/XxZZWMUthf PA== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 2ywavm47ua-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 24 Mar 2020 13:23:34 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 02ODNYlH115932;
-        Tue, 24 Mar 2020 13:23:34 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3020.oracle.com with ESMTP id 2yxw6mpyds-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 24 Mar 2020 13:23:34 +0000
-Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 02ODNQSF031276;
-        Tue, 24 Mar 2020 13:23:26 GMT
-Received: from localhost.localdomain (/114.88.246.185)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 24 Mar 2020 06:23:25 -0700
-From:   Bob Liu <bob.liu@oracle.com>
-To:     dm-devel@redhat.com
-Cc:     Damien.LeMoal@wdc.com, linux-block@vger.kernel.org,
-        Dmitry.Fomichev@wdc.com, snitzer@redhat.com,
-        Bob Liu <bob.liu@oracle.com>, stable@vger.kernel.org
-Subject: [PATCH resend] dm zoned: remove duplicated nr_rnd_zones increasement
-Date:   Tue, 24 Mar 2020 21:22:45 +0800
-Message-Id: <20200324132245.27843-1-bob.liu@oracle.com>
-X-Mailer: git-send-email 2.9.5
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9569 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 adultscore=0
- malwarescore=0 mlxscore=0 spamscore=0 mlxlogscore=999 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2003240072
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9569 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0
- priorityscore=1501 mlxscore=0 bulkscore=0 clxscore=1011 impostorscore=0
- phishscore=0 suspectscore=1 mlxlogscore=999 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2003240072
+        id S1728975AbgCXNbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:31:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42604 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728235AbgCXNU7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:20:59 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0901208DB;
+        Tue, 24 Mar 2020 13:20:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585056059;
+        bh=GF0nQgHSqr93FGkRxyrNN14Mg7LyWH6kxP3Xm7fVJ30=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=T2jSNL2DTpdfv+/J6TO0lMKDYN2T4KvCnv/Wga3tXZwolpUKinFn66ss0b7hIX5FP
+         ty0XfJAyBK71reFHC10jl5vp+Ch0svwqbqoiXXsZ1DgUEt/RN+ptsDufvgK70dt005
+         unh41jqHQ0ZqV8D3quEA9L9H/ltIdvIHwSnmTpqQ=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 001/119] locks: fix a potential use-after-free problem when wakeup a waiter
+Date:   Tue, 24 Mar 2020 14:09:46 +0100
+Message-Id: <20200324130808.172555793@linuxfoundation.org>
+X-Mailer: git-send-email 2.25.2
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-zmd->nr_rnd_zones was increased twice by mistake.
-The other place:
-1131                 zmd->nr_useable_zones++;
-1132                 if (dmz_is_rnd(zone)) {
-1133                         zmd->nr_rnd_zones++;
-					^^^
+From: yangerkun <yangerkun@huawei.com>
+
+[ Upstream commit 6d390e4b5d48ec03bb87e63cf0a2bff5f4e116da ]
+
+'16306a61d3b7 ("fs/locks: always delete_block after waiting.")' add the
+logic to check waiter->fl_blocker without blocked_lock_lock. And it will
+trigger a UAF when we try to wakeup some waiter：
+
+Thread 1 has create a write flock a on file, and now thread 2 try to
+unlock and delete flock a, thread 3 try to add flock b on the same file.
+
+Thread2                         Thread3
+                                flock syscall(create flock b)
+	                        ...flock_lock_inode_wait
+				    flock_lock_inode(will insert
+				    our fl_blocked_member list
+				    to flock a's fl_blocked_requests)
+				   sleep
+flock syscall(unlock)
+...flock_lock_inode_wait
+    locks_delete_lock_ctx
+    ...__locks_wake_up_blocks
+        __locks_delete_blocks(
+	b->fl_blocker = NULL)
+	...
+                                   break by a signal
+				   locks_delete_block
+				    b->fl_blocker == NULL &&
+				    list_empty(&b->fl_blocked_requests)
+	                            success, return directly
+				 locks_free_lock b
+	wake_up(&b->fl_waiter)
+	trigger UAF
+
+Fix it by remove this logic, and this patch may also fix CVE-2019-19769.
 
 Cc: stable@vger.kernel.org
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
-Signed-off-by: Bob Liu <bob.liu@oracle.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Fixes: 16306a61d3b7 ("fs/locks: always delete_block after waiting.")
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-zoned-metadata.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/locks.c | 14 --------------
+ 1 file changed, 14 deletions(-)
 
-diff --git a/drivers/md/dm-zoned-metadata.c b/drivers/md/dm-zoned-metadata.c
-index 516c7b6..369de15 100644
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -1109,7 +1109,6 @@ static int dmz_init_zone(struct blk_zone *blkz, unsigned int idx, void *data)
- 	switch (blkz->type) {
- 	case BLK_ZONE_TYPE_CONVENTIONAL:
- 		set_bit(DMZ_RND, &zone->flags);
--		zmd->nr_rnd_zones++;
- 		break;
- 	case BLK_ZONE_TYPE_SEQWRITE_REQ:
- 	case BLK_ZONE_TYPE_SEQWRITE_PREF:
+diff --git a/fs/locks.c b/fs/locks.c
+index 44b6da0328426..426b55d333d5b 100644
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -753,20 +753,6 @@ int locks_delete_block(struct file_lock *waiter)
+ {
+ 	int status = -ENOENT;
+ 
+-	/*
+-	 * If fl_blocker is NULL, it won't be set again as this thread
+-	 * "owns" the lock and is the only one that might try to claim
+-	 * the lock.  So it is safe to test fl_blocker locklessly.
+-	 * Also if fl_blocker is NULL, this waiter is not listed on
+-	 * fl_blocked_requests for some lock, so no other request can
+-	 * be added to the list of fl_blocked_requests for this
+-	 * request.  So if fl_blocker is NULL, it is safe to
+-	 * locklessly check if fl_blocked_requests is empty.  If both
+-	 * of these checks succeed, there is no need to take the lock.
+-	 */
+-	if (waiter->fl_blocker == NULL &&
+-	    list_empty(&waiter->fl_blocked_requests))
+-		return status;
+ 	spin_lock(&blocked_lock_lock);
+ 	if (waiter->fl_blocker)
+ 		status = 0;
 -- 
-2.9.5
+2.20.1
+
+
 
