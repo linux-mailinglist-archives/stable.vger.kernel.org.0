@@ -2,106 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C562719189F
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 19:08:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71B811918CB
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 19:20:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728026AbgCXSIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 14:08:15 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:46423 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728036AbgCXSIP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 14:08:15 -0400
-Received: by mail-lj1-f196.google.com with SMTP id v16so12593005ljk.13
-        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 11:08:14 -0700 (PDT)
+        id S1727845AbgCXSU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 14:20:29 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:41275 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727398AbgCXSU2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 14:20:28 -0400
+Received: by mail-lj1-f194.google.com with SMTP id n17so9338518lji.8
+        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 11:20:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=mGIdmSaD4bL8sXYCDOXTAHaizP73PQqueDtC+tJUTFU=;
-        b=uwepUZZsqvuP7LQ8t4z0sM0tNjEGZJINFJ2l1Ek5eoE1GrsnIMloCHRVN4NJwFRXfU
-         fiMV8A2Ej7nRCyCKJLwMUH4MSJ5llHRv75IjRxCr/bd++fTbC269ZKglRJHYLzUtY4z/
-         cMLJVvHw/YSorN9Jxtdl17Nx5khcoue8cS935EIhflOtaoTThxjZ05mB7sOLujLtpVJ7
-         RV2YXZ6ZC+wmdIKmw3DGGww3vGQ8Npw1rS6kXbVfZEfk5ndDgtSfipFdNJosg5rOB7Mh
-         XCbRly2hpv4FB0FTFpLIwTfiKrTcxz6oza+hoXtDPR6DMIkzsXeSAg2aleUM6akOkZAE
-         p7WA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=XXFNaMHE865KFMf7/FD9eexyYGXX3J3mTbjMUnsz/XY=;
+        b=PmXOw2hVAghdVL5iXAMxkoaQOE+md30LjhqAjxYJ0W/CrfPUFb9DkbSClQr2v0XkRu
+         +1QNTt4UOHmA4kMT32VUr7hMvwaF7aWcEWSooM+wGtbTh+trTYZpFZEypw4045uy4tmw
+         W/TYv3FFjfMQX6bS4Cwvu9l2M7/cZW2YuZaghLQRBJmpf3msgH+VRPmrgPf9I54LLSan
+         kkiHcwMu0vIn5tLBbsNWuttaQaiShPjNvvcLVFJGIbwBcL0/EptqiOvKBI4q3SUS4PrW
+         i1CFFacZaVTriv0A7ciYiBvsonVuqcD5odxeG8GUqZ6s5/g9pUkU7yaX95l7bzJTVAVC
+         mE+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=mGIdmSaD4bL8sXYCDOXTAHaizP73PQqueDtC+tJUTFU=;
-        b=ah5EM5LbfQcIvmupGmufPwk6z3v9X6m4E7t7nydZSUkOYhOglgfcMWgLMQUL6m3r6a
-         ReQjfbgFis7GBpFfNQRBNbEMr2ZVY5gbQmlKkK4dbm1qPNx3cEsxf7cQAmBujNUGmoaW
-         alOD0O+tq4wVrpEPwbv9o34yBFa9JOl6xJ8gy/Tj9ToY4VL657v5WAZ5QVu+cu9gZpQR
-         tvrRsoC2bcVzoraFgpqpmE4WpQMYJIi9zlSrJd4BgS7tA05/UHJSzyVnMjLj267mZzr2
-         +K2VVI+mnRKlEbTjhbT/pnLG7cd+7sPWhYcm8NkFWyV2J33KvKdJDS6l7PKh9AEyzKsq
-         +uQg==
-X-Gm-Message-State: ANhLgQ0G849cwGazf3U6OzTryxxCn5MYOdTNUhv8ZZWVLeQSo8SU1+kh
-        1q3YRDOHCzrH2ikjeRNdM56g2Q==
-X-Google-Smtp-Source: ADFU+vtFbYu+jTNqgRwyr2VDn3JFGCB1OWgIZUWVTILGWVoDJQ+XouDD460jKVCLf/M09JNvHbyQAw==
-X-Received: by 2002:a2e:9194:: with SMTP id f20mr7293688ljg.33.1585073293744;
-        Tue, 24 Mar 2020 11:08:13 -0700 (PDT)
-Received: from localhost.localdomain (h-158-174-22-210.NA.cust.bahnhof.se. [158.174.22.210])
-        by smtp.gmail.com with ESMTPSA id s10sm11029858ljp.87.2020.03.24.11.08.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Mar 2020 11:08:12 -0700 (PDT)
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
-Cc:     linux-mmc@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=XXFNaMHE865KFMf7/FD9eexyYGXX3J3mTbjMUnsz/XY=;
+        b=NBv5HRVfkPWqYWYcjW8f6ntVVCBb7bGhYaigUcIRA1XVtvAR6Y+rUblbZWsnKWHwEC
+         2kDsOsClNq1D9NyabLkrIa6vYdEBfn4WTvD5iYEEVE/p58y2aPfrvPVkcgEe+d/W4WE9
+         9R0xI/AzD+Cn7ULgy7M4B9VtVN65QQfYQ93y31gbr57doURUEJLMQUWvRMd5ro9py8ap
+         vr3hv/plsQ6jZsIme9Dp6hLTyEeT2GIBq5bhUeujFBZnZxqAw/eIE0m9goUdt7QU5w8Y
+         vHCBceNvC98C7eRE+KfFCzCflM0K1aU4XmMTQDLy7FMHDU9yo2ZD4X1gWPPDb9hmtFYp
+         oW0g==
+X-Gm-Message-State: ANhLgQ0EEKJ31JyE4fBau4mNUSBJDlfog0zuc6JSvTZG3HmGC4+uR4RA
+        zHYLnInE6lqOqNgBvAKPoV0RymWdvfVXPTePD4fRZQ==
+X-Google-Smtp-Source: ADFU+vssKk0TvsuhAuqLni5jz9W0bZI1fwWvOHj7M1YWG8xxniszV5r5PVzLod3GdiLOtsGj2xMpUys86huxeYmxjDE=
+X-Received: by 2002:a2e:811a:: with SMTP id d26mr17755811ljg.128.1585074026561;
+ Tue, 24 Mar 2020 11:20:26 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200324180650.28819-1-ulf.hansson@linaro.org>
+In-Reply-To: <20200324180650.28819-1-ulf.hansson@linaro.org>
+From:   Anders Roxell <anders.roxell@linaro.org>
+Date:   Tue, 24 Mar 2020 19:20:15 +0100
+Message-ID: <CADYN=9JsS-aTbun24PMOasBAK+2nwkkuvFZ6vSp88hjEnLQLmQ@mail.gmail.com>
+Subject: Re: [PATCH 5.5.12 0/5] mmc: Fix some busy detect problems
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        linux-mmc@vger.kernel.org,
         Sowjanya Komatineni <skomatineni@nvidia.com>,
         Faiz Abbas <faiz_abbas@ti.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Bitan Biswas <bbiswas@nvidia.com>,
-        Peter Geis <pgwipeout@gmail.com>
-Subject: [PATCH 4.19.113 5/5] mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
-Date:   Tue, 24 Mar 2020 19:08:00 +0100
-Message-Id: <20200324180800.28953-6-ulf.hansson@linaro.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200324180800.28953-1-ulf.hansson@linaro.org>
-References: <20200324180800.28953-1-ulf.hansson@linaro.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Naresh Kamboju <naresh.kamboju@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d2f8bfa4bff5028bc40ed56b4497c32e05b0178f ]
+On Tue, 24 Mar 2020 at 19:06, Ulf Hansson <ulf.hansson@linaro.org> wrote:
+>
+> This series provides a couple of manually backported mmc changes that fixes some
+> busy detect issues, for a couple of mmc host drivers (sdhci-tegra|omap).
+>
+> Ulf Hansson (5):
+>   mmc: core: Allow host controllers to require R1B for CMD6
+>   mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for erase/trim/discard
+>   mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
+>   mmc: sdhci-omap: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
+>   mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
 
-It has turned out that the sdhci-tegra controller requires the R1B response,
-for commands that has this response associated with them. So, converting
-from an R1B to an R1 response for a CMD6 for example, leads to problems
-with the HW busy detection support.
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
 
-Fix this by informing the mmc core about the requirement, via setting the
-host cap, MMC_CAP_NEED_RSP_BUSY.
+I tested it on a beagleboard x15.
 
-Reported-by: Bitan Biswas <bbiswas@nvidia.com>
-Reported-by: Peter Geis <pgwipeout@gmail.com>
-Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Tested-By: Peter Geis <pgwipeout@gmail.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
----
- drivers/mmc/host/sdhci-tegra.c | 3 +++
- 1 file changed, 3 insertions(+)
+Cheers,
+Anders
 
-diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
-index 14d749a0de95..27bdf6d499bd 100644
---- a/drivers/mmc/host/sdhci-tegra.c
-+++ b/drivers/mmc/host/sdhci-tegra.c
-@@ -502,6 +502,9 @@ static int sdhci_tegra_probe(struct platform_device *pdev)
- 	if (tegra_host->soc_data->nvquirks & NVQUIRK_ENABLE_DDR50)
- 		host->mmc->caps |= MMC_CAP_1_8V_DDR;
- 
-+	/* R1B responses is required to properly manage HW busy detection. */
-+	host->mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
-+
- 	tegra_host->power_gpio = devm_gpiod_get_optional(&pdev->dev, "power",
- 							 GPIOD_OUT_HIGH);
- 	if (IS_ERR(tegra_host->power_gpio)) {
--- 
-2.20.1
-
+>
+>  drivers/mmc/core/core.c        | 5 ++++-
+>  drivers/mmc/core/mmc.c         | 7 +++++--
+>  drivers/mmc/core/mmc_ops.c     | 8 +++++---
+>  drivers/mmc/host/sdhci-omap.c  | 3 +++
+>  drivers/mmc/host/sdhci-tegra.c | 3 +++
+>  include/linux/mmc/host.h       | 1 +
+>  6 files changed, 21 insertions(+), 6 deletions(-)
+>
+> --
+> 2.20.1
+>
