@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D4B319103A
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9783419103D
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729716AbgCXN0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:26:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51402 "EHLO mail.kernel.org"
+        id S1729221AbgCXN0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:26:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729442AbgCXN03 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:26:29 -0400
+        id S1729112AbgCXN0h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:26:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2CAD20870;
-        Tue, 24 Mar 2020 13:26:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49D7A208CA;
+        Tue, 24 Mar 2020 13:26:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056389;
-        bh=IGSlqq6hTkxv2h9XpSBomhmjn8iXo6CQHK+pMRjfako=;
+        s=default; t=1585056396;
+        bh=jBlR8myRFQ2UDNN474Qc1xJlIKXcLOzYLEnNwH4qlHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vavbrztVzYHerg03myf7lzx71BroION4CXa3UGVRdz9X/iOSrCPy2bYsCWEbFgX+N
-         FxK7hza+R2nbdc2O+1zwXV/ejv9hKZ8Z1ancPvfcvBkv05JYf49BnznThrQx3kPnRp
-         Q6Cfxk31sYkQCQ7X31UqRfOys4mJAegkpAS4bQlY=
+        b=sD1NWfPuvCoGJ7nv6LhV0dfe6kpPU89Nb+AfHruGU6Y4AUHzk8ayZAQHtXlvIMpKY
+         REsksocnzuJrdi2gA2nPdMVOfXAtLxXXI+//2/7+EfsEg3gmkAYIiz+AyGX2ugxKxY
+         XfthPkonboJIWZ7M3mVcR8VYidTi9ytoqKtiuwlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rong Chen <rong.a.chen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 104/119] futex: Unbreak futex hashing
-Date:   Tue, 24 Mar 2020 14:11:29 +0100
-Message-Id: <20200324130818.364602352@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 105/119] ALSA: hda/realtek: Fix pop noise on ALC225
+Date:   Tue, 24 Mar 2020 14:11:30 +0100
+Message-Id: <20200324130818.433688051@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
 References: <20200324130808.041360967@linuxfoundation.org>
@@ -44,45 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 8d67743653dce5a0e7aa500fcccb237cde7ad88e upstream.
+commit 3b36b13d5e69d6f51ff1c55d1b404a74646c9757 upstream.
 
-The recent futex inode life time fix changed the ordering of the futex key
-union struct members, but forgot to adjust the hash function accordingly,
+Commit 317d9313925c ("ALSA: hda/realtek - Set default power save node to
+0") makes the ALC225 have pop noise on S3 resume and cold boot.
 
-As a result the hashing omits the leading 64bit and even hashes beyond the
-futex key causing a bad hash distribution which led to a ~100% performance
-regression.
+So partially revert this commit for ALC225 to fix the regression.
 
-Hand in the futex key pointer instead of a random struct member and make
-the size calculation based of the struct offset.
-
-Fixes: 8019ad13ef7f ("futex: Fix inode life-time issue")
-Reported-by: Rong Chen <rong.a.chen@intel.com>
-Decoded-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Rong Chen <rong.a.chen@intel.com>
-Link: https://lkml.kernel.org/r/87h7yy90ve.fsf@nanos.tec.linutronix.de
+Fixes: 317d9313925c ("ALSA: hda/realtek - Set default power save node to 0")
+BugLink: https://bugs.launchpad.net/bugs/1866357
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200311061328.17614-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/futex.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -385,9 +385,9 @@ static inline int hb_waiters_pending(str
-  */
- static struct futex_hash_bucket *hash_futex(union futex_key *key)
- {
--	u32 hash = jhash2((u32*)&key->both.word,
--			  (sizeof(key->both.word)+sizeof(key->both.ptr))/4,
-+	u32 hash = jhash2((u32 *)key, offsetof(typeof(*key), both.offset) / 4,
- 			  key->both.offset);
-+
- 	return &futex_queues[hash & (futex_hashsize - 1)];
- }
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8051,6 +8051,8 @@ static int patch_alc269(struct hda_codec
+ 		spec->gen.mixer_nid = 0;
+ 		break;
+ 	case 0x10ec0225:
++		codec->power_save_node = 1;
++		/* fall through */
+ 	case 0x10ec0295:
+ 	case 0x10ec0299:
+ 		spec->codec_variant = ALC269_TYPE_ALC225;
 
 
