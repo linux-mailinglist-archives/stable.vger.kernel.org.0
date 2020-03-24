@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C5AE190FAD
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF3A9190EEF
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729134AbgCXNWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44372 "EHLO mail.kernel.org"
+        id S1728376AbgCXNQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:16:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729131AbgCXNWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:22:09 -0400
+        id S1727455AbgCXNQK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:16:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9397A206F6;
-        Tue, 24 Mar 2020 13:22:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FF5E20775;
+        Tue, 24 Mar 2020 13:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056129;
-        bh=bsVMTFks6CJCc2U67i947WHYTc+3oSIbcH7Igvdr4us=;
+        s=default; t=1585055769;
+        bh=tPs/d+Yq2tr/hQqhWozEI/NNN0vW9ApNX+NdvUDSQK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kIapsORghSOHhxRGWcoHiAtbqE53NIcblY1AgryimtAfmJhJQ/9zBM2kFY7J9wQZs
-         X+i0VXr99UcudD1bbnwY185/S/YaJMMxR44IO2Hxq6ZorcnhrV5fRGQuRFuAmQITYo
-         Cccdk8W761Pp6gx4eOxs3Y8WhJNPyQs5hCzurQac=
+        b=QGJLmnNkuwiXZ9v0JeHV+PV65bhfdaC+44xxnpXqu24SdAfW8R/C8LqEXV2cEmIyc
+         SPtrmpBRnY7l4DzOjPs3DysEOFPqMXVqRVaH/UE4Mhfr2TEjiwnd2hpBBEJ5/rAzfa
+         Lw26qqNskbdPh71D54V7lmGp6kRPihZp5SD4/IzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
+        Alexandre Ghiti <alex@ghiti.fr>,
         Anup Patel <anup@brainfault.org>,
+        Carlos de Paula <me@carlosedp.com>,
         Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 030/119] riscv: Force flat memory model with no-mmu
+Subject: [PATCH 5.4 023/102] riscv: avoid the PIC offset of static percpu data in module beyond 2G limits
 Date:   Tue, 24 Mar 2020 14:10:15 +0100
-Message-Id: <20200324130811.391353825@linuxfoundation.org>
+Message-Id: <20200324130808.870718920@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Vincent Chen <vincent.chen@sifive.com>
 
-[ Upstream commit aa2734202acc506d09c8e641db4da161f902df27 ]
+[ Upstream commit 0cff8bff7af886af0923d5c91776cd51603e531f ]
 
-Compilation errors trigger if ARCH_SPARSEMEM_ENABLE is enabled for
-a nommu kernel. Since the sparsemem model does not make sense anyway
-for the nommu case, do not allow selecting this option to always use
-the flatmem model.
+The compiler uses the PIC-relative method to access static variables
+instead of GOT when the code model is PIC. Therefore, the limitation of
+the access range from the instruction to the symbol address is +-2GB.
+Under this circumstance, the kernel cannot load a kernel module if this
+module has static per-CPU symbols declared by DEFINE_PER_CPU(). The reason
+is that kernel relocates the .data..percpu section of the kernel module to
+the end of kernel's .data..percpu. Hence, the distance between the per-CPU
+symbols and the instruction will exceed the 2GB limits. To solve this
+problem, the kernel should place the loaded module in the memory area
+[&_end-2G, VMALLOC_END].
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Suggested-by: Alexandre Ghiti <alex@ghiti.fr>
+Suggested-by: Anup Patel <anup@brainfault.org>
+Tested-by: Alexandre Ghiti <alex@ghiti.fr>
+Tested-by: Carlos de Paula <me@carlosedp.com>
 Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/kernel/module.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index fa7dc03459e7f..1be11c23fa335 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -121,6 +121,7 @@ config ARCH_FLATMEM_ENABLE
+diff --git a/arch/riscv/kernel/module.c b/arch/riscv/kernel/module.c
+index 70bb94ae61c59..6bf5b16743843 100644
+--- a/arch/riscv/kernel/module.c
++++ b/arch/riscv/kernel/module.c
+@@ -8,6 +8,10 @@
+ #include <linux/err.h>
+ #include <linux/errno.h>
+ #include <linux/moduleloader.h>
++#include <linux/vmalloc.h>
++#include <linux/sizes.h>
++#include <asm/pgtable.h>
++#include <asm/sections.h>
  
- config ARCH_SPARSEMEM_ENABLE
- 	def_bool y
-+	depends on MMU
- 	select SPARSEMEM_VMEMMAP_ENABLE
+ static int apply_r_riscv_32_rela(struct module *me, u32 *location, Elf_Addr v)
+ {
+@@ -386,3 +390,15 @@ int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
  
- config ARCH_SELECT_MEMORY_MODEL
+ 	return 0;
+ }
++
++#if defined(CONFIG_MMU) && defined(CONFIG_64BIT)
++#define VMALLOC_MODULE_START \
++	 max(PFN_ALIGN((unsigned long)&_end - SZ_2G), VMALLOC_START)
++void *module_alloc(unsigned long size)
++{
++	return __vmalloc_node_range(size, 1, VMALLOC_MODULE_START,
++				    VMALLOC_END, GFP_KERNEL,
++				    PAGE_KERNEL_EXEC, 0, NUMA_NO_NODE,
++				    __builtin_return_address(0));
++}
++#endif
 -- 
 2.20.1
 
