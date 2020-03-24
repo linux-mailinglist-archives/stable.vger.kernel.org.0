@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EBC419100C
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7667190F09
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728529AbgCXNY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:24:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48788 "EHLO mail.kernel.org"
+        id S1727869AbgCXNQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:16:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729188AbgCXNYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:24:54 -0400
+        id S1727977AbgCXNQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:16:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6307320775;
-        Tue, 24 Mar 2020 13:24:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E2DF208D6;
+        Tue, 24 Mar 2020 13:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056293;
-        bh=GWy6tmGEEcVt6nH/teAPu97o9qVvgBZbqgNUofs01Tw=;
+        s=default; t=1585055819;
+        bh=EEvvfhmxdev/pFSM7PgnHtvM1QPYghNhCKh9PDwsrys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bcGbfkqS9Q/A+5iFvmBeHTtPl+GRaIsnOoxpHR3LwUkpEwdpB5IQfRaZgWTak9ahM
-         es/0HZ1+c/bbjr6eluNjIHvOgK+4laNroMQql6pAjDgTt5XwafttK8HOD1lQ2wcPTN
-         RbjxIvg/EgQgH1M7HLH/eva3yRTSSJVEP1tPRtUU=
+        b=R7gXlEQYnzohLIuF97aMlXa6AIchfV1Mifq6MUCMiZijdcB6ndBhuIX4to4h8CzAH
+         CEHtwEgcMi9N5GJBNC2CTMj0l76s13fOYh722EaO5vNN+uIK7EhaufohYug4FrdWDy
+         +QWj751ItJi789N0Qy8TpYmehOdjdIZTRXipFnAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.5 044/119] USB: serial: option: add ME910G1 ECM composition 0x110b
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH 5.4 037/102] USB: Disable LPM on WD19s Realtek Hub
 Date:   Tue, 24 Mar 2020 14:10:29 +0100
-Message-Id: <20200324130812.736294303@linuxfoundation.org>
+Message-Id: <20200324130810.550515671@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 8e852a7953be2a6ee371449f7257fe15ace6a1fc upstream.
+commit b63e48fb50e1ca71db301ca9082befa6f16c55c4 upstream.
 
-Add ME910G1 ECM composition 0x110b: tty, tty, tty, ecm
+Realtek Hub (0bda:0x0487) used in Dell Dock WD19 sometimes drops off the
+bus when bringing underlying ports from U3 to U0.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20200304104310.2938-1-dnlplm@gmail.com
+Disabling LPM on the hub during setting link state is not enough, so
+let's disable LPM completely for this hub.
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20200205112633.25995-3-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1183,6 +1183,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110a, 0xff),	/* Telit ME910G1 */
- 	  .driver_info = NCTRL(0) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110b, 0xff),	/* Telit ME910G1 (ECM) */
-+	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -378,6 +378,9 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x0b05, 0x17e0), .driver_info =
+ 			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
+ 
++	/* Realtek hub in Dell WD19 (Type-C) */
++	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* Action Semiconductor flash disk */
+ 	{ USB_DEVICE(0x10d6, 0x2200), .driver_info =
+ 			USB_QUIRK_STRING_FETCH_255 },
 
 
