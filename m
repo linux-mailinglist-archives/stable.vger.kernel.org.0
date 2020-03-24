@@ -2,92 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9B91919F9
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 20:33:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EBA2191A41
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 20:45:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725941AbgCXTdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 15:33:37 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:40255 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725835AbgCXTdh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 15:33:37 -0400
-Received: by mail-lf1-f66.google.com with SMTP id j17so14276943lfe.7
-        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 12:33:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=6HwMKM8KRrL+In6hzaRGTJmiiuE30tt/i54WWDy2zpg=;
-        b=X1mH4818Nuc7tUpokWld/JdiOXe7Rs7x5uu7B9cAbKHsCkU5K3ARXW9ZPLovI371Tu
-         qPw2ENfUin3GqvM4xulQCI0FZnbaQ8/obc7KyCfo6hfmdt5TnVLnzt03GihqmjHYQ6us
-         ToKoYt/hVxSFkyXVozJ1I5JbsuaX6E39ROvTgyOYe/THieM6If28sSNmH+3HBDv3D6xw
-         ZapaigFUm608dw2Gt19lYVoiHq7uf10FyrUMwMShtXEqC95PvXR9Z609lu3PPVXljVub
-         Fi/hJnIQfegsLnDFkXIW2MoUpSBLxYg2oYmwj6yBWJpZoC2S2d5tY3OCpyT5whNnqqQO
-         XPOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6HwMKM8KRrL+In6hzaRGTJmiiuE30tt/i54WWDy2zpg=;
-        b=ci9Bg4LrmIV28hq93pM8oyn/PhYZ6z2m/VWWLE1+5DMqjdUZ6L0WNx5VqirXy7jVIt
-         3JE8tFC/e9PbueTKdEz0MUW1h993gvuyXCzlOC92oqjcMW8W+LJNzM2BLLXsuY8QEG9v
-         4bfA5kguBYtv7Z561pEp/zNXsqAfNwPa25uRwcU7rF37YLyqS8ZtMZod1AqPtXQQOCfh
-         eCcxTG3QimEAyw8RhxcpfeM/w+HWxufBqqFarDu1hTfNvfi1wjESbqwLAErdXbVxj/Q4
-         tZm6xI7mlsE5Om5pfiWVZ8vt4buLghTUPYM3kXbz5P/VrDhFgPtOSYHjShjDN4yDpUSd
-         XhhQ==
-X-Gm-Message-State: ANhLgQ3fQ/jgBqZmuOwnaO0KIvWjvxXFWNhHU00CptyTdGF95oNDAy1H
-        5mzA2nwORnWZCCRQ+MF+Cll7cBF1pF73NoWTVD+JVQ==
-X-Google-Smtp-Source: ADFU+vu4cpZOlo6jp54+jfss6TXf+5d17promk+DinZo5kAignxOjo4HgAji1Uhblbjq022OiWVG6a01cLVmSk7G9xw=
-X-Received: by 2002:a05:6512:1106:: with SMTP id l6mr17705731lfg.12.1585078414650;
- Tue, 24 Mar 2020 12:33:34 -0700 (PDT)
+        id S1725877AbgCXTpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 15:45:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54172 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725866AbgCXTpS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 15:45:18 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0999206F6;
+        Tue, 24 Mar 2020 19:45:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585079118;
+        bh=QXe2BDonVd4A5y1YVgANV1HUjWeMBpY4X8beEd0nj3M=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=DTWTEvWdVIpKECx/Pn/aY+VOG6RB8UPUOMahkv0F0AQp1PiZYwmV8TklDY8uN+WHT
+         o0hw54itihCJ3Bdko63bw8QpThr8SCEJxpsBhC1oAscFwuFU2J8mt5sjPvaVokfZy2
+         fG8PLzwb58OMPHWuVy1hxKo+G2U/UtI6NslXQMkM=
+Subject: Re: [PATCH 5.5 000/119] 5.5.12-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200324130808.041360967@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <ec5380ae-add2-09af-1690-4edf509dd908@kernel.org>
+Date:   Tue, 24 Mar 2020 13:45:06 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-References: <20200324180738.28892-1-ulf.hansson@linaro.org>
-In-Reply-To: <20200324180738.28892-1-ulf.hansson@linaro.org>
-From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Tue, 24 Mar 2020 20:33:23 +0100
-Message-ID: <CADYN=9JNsOw9SqJOS4JwQvjxrp0OPx-RX1PTHtC3Kurgh7OUaQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4.28 0/5] mmc: Fix some busy detect problems
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        linux-mmc@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Faiz Abbas <faiz_abbas@ti.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 24 Mar 2020 at 19:07, Ulf Hansson <ulf.hansson@linaro.org> wrote:
->
-> This series provides a couple of manually backported mmc changes that fixes some
-> busy detect issues, for a couple of mmc host drivers (sdhci-tegra|omap).
->
-> Ulf Hansson (5):
->   mmc: core: Allow host controllers to require R1B for CMD6
->   mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for erase/trim/discard
->   mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
->   mmc: sdhci-omap: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
->   mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
+On 3/24/20 7:09 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.5.12 release.
+> There are 119 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 26 Mar 2020 13:06:42 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.12-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Compiled and booted on my test system. No dmesg regressions.
 
-I tested it on a beagleboard x15.
+thanks,
+-- Shuah
 
-Cheers,
-Anders
-
->
->  drivers/mmc/core/core.c        | 5 ++++-
->  drivers/mmc/core/mmc.c         | 7 +++++--
->  drivers/mmc/core/mmc_ops.c     | 8 +++++---
->  drivers/mmc/host/sdhci-omap.c  | 3 +++
->  drivers/mmc/host/sdhci-tegra.c | 3 +++
->  include/linux/mmc/host.h       | 1 +
->  6 files changed, 21 insertions(+), 6 deletions(-)
->
-> --
-> 2.20.1
->
