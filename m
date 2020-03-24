@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C16FD190EED
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C5AE190FAD
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728358AbgCXNQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:16:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35330 "EHLO mail.kernel.org"
+        id S1729134AbgCXNWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:22:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728347AbgCXNQF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:16:05 -0400
+        id S1729131AbgCXNWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:22:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 983CD20775;
-        Tue, 24 Mar 2020 13:16:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9397A206F6;
+        Tue, 24 Mar 2020 13:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055764;
-        bh=6LKp/oRxKgmott8F39xSSbLgaXXdxdcuUA0dT6lBzm8=;
+        s=default; t=1585056129;
+        bh=bsVMTFks6CJCc2U67i947WHYTc+3oSIbcH7Igvdr4us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDha+mgzDesyWtAYw32d7498kNPDh1Ok1OMbX5zw5vrRUsHuMmQpldf8BkeVQ/K5b
-         9Bm3paxgA/e9aBFacGdXFhF3rajloPUXZ0dASvyv9Gy9BHr7wGS5IXnwV4rkBo48wu
-         2sI9AjS7r0nhM1Ksu9C6zLdVcdaG0GfiQwxMY9nM=
+        b=kIapsORghSOHhxRGWcoHiAtbqE53NIcblY1AgryimtAfmJhJQ/9zBM2kFY7J9wQZs
+         X+i0VXr99UcudD1bbnwY185/S/YaJMMxR44IO2Hxq6ZorcnhrV5fRGQuRFuAmQITYo
+         Cccdk8W761Pp6gx4eOxs3Y8WhJNPyQs5hCzurQac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Anup Patel <anup@brainfault.org>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/102] dm bio record: save/restore bi_end_io and bi_integrity
-Date:   Tue, 24 Mar 2020 14:10:13 +0100
-Message-Id: <20200324130808.691780352@linuxfoundation.org>
+Subject: [PATCH 5.5 030/119] riscv: Force flat memory model with no-mmu
+Date:   Tue, 24 Mar 2020 14:10:15 +0100
+Message-Id: <20200324130811.391353825@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit 1b17159e52bb31f982f82a6278acd7fab1d3f67b ]
+[ Upstream commit aa2734202acc506d09c8e641db4da161f902df27 ]
 
-Also, save/restore __bi_remaining in case the bio was used in a
-BIO_CHAIN (e.g. due to blk_queue_split).
+Compilation errors trigger if ARCH_SPARSEMEM_ENABLE is enabled for
+a nommu kernel. Since the sparsemem model does not make sense anyway
+for the nommu case, do not allow selecting this option to always use
+the flatmem model.
 
-Suggested-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-bio-record.h | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ arch/riscv/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/md/dm-bio-record.h b/drivers/md/dm-bio-record.h
-index c82578af56a5b..2ea0360108e1d 100644
---- a/drivers/md/dm-bio-record.h
-+++ b/drivers/md/dm-bio-record.h
-@@ -20,8 +20,13 @@
- struct dm_bio_details {
- 	struct gendisk *bi_disk;
- 	u8 bi_partno;
-+	int __bi_remaining;
- 	unsigned long bi_flags;
- 	struct bvec_iter bi_iter;
-+	bio_end_io_t *bi_end_io;
-+#if defined(CONFIG_BLK_DEV_INTEGRITY)
-+	struct bio_integrity_payload *bi_integrity;
-+#endif
- };
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index fa7dc03459e7f..1be11c23fa335 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -121,6 +121,7 @@ config ARCH_FLATMEM_ENABLE
  
- static inline void dm_bio_record(struct dm_bio_details *bd, struct bio *bio)
-@@ -30,6 +35,11 @@ static inline void dm_bio_record(struct dm_bio_details *bd, struct bio *bio)
- 	bd->bi_partno = bio->bi_partno;
- 	bd->bi_flags = bio->bi_flags;
- 	bd->bi_iter = bio->bi_iter;
-+	bd->__bi_remaining = atomic_read(&bio->__bi_remaining);
-+	bd->bi_end_io = bio->bi_end_io;
-+#if defined(CONFIG_BLK_DEV_INTEGRITY)
-+	bd->bi_integrity = bio_integrity(bio);
-+#endif
- }
+ config ARCH_SPARSEMEM_ENABLE
+ 	def_bool y
++	depends on MMU
+ 	select SPARSEMEM_VMEMMAP_ENABLE
  
- static inline void dm_bio_restore(struct dm_bio_details *bd, struct bio *bio)
-@@ -38,6 +48,11 @@ static inline void dm_bio_restore(struct dm_bio_details *bd, struct bio *bio)
- 	bio->bi_partno = bd->bi_partno;
- 	bio->bi_flags = bd->bi_flags;
- 	bio->bi_iter = bd->bi_iter;
-+	atomic_set(&bio->__bi_remaining, bd->__bi_remaining);
-+	bio->bi_end_io = bd->bi_end_io;
-+#if defined(CONFIG_BLK_DEV_INTEGRITY)
-+	bio->bi_integrity = bd->bi_integrity;
-+#endif
- }
- 
- #endif
+ config ARCH_SELECT_MEMORY_MODEL
 -- 
 2.20.1
 
