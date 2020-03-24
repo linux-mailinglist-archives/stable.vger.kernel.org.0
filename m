@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1840D190F44
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA565190EAB
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728797AbgCXNTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:19:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39554 "EHLO mail.kernel.org"
+        id S1727509AbgCXNOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:14:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728300AbgCXNTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:19:05 -0400
+        id S1727981AbgCXNOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:14:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EDBD206F6;
-        Tue, 24 Mar 2020 13:19:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9926420775;
+        Tue, 24 Mar 2020 13:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055944;
-        bh=FP8exDLQWAS3Yv+57ptU0YIK06sxWSjZtdpU9Sx7kZA=;
+        s=default; t=1585055640;
+        bh=6s9uy5xzX1sLLBScjhMoyQS+vuc5nqn5RX1vfWZv+xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qy7WPKFGNG1kHSUMYDLCUnySuyOuAFdnV4VyHghXmw5pdm/w4Dbpk3IoPQrJ3gRE5
-         3QeZ15xP31VjF88CVNorP2R7g/4+yc+n4J2zPyarpekyW4fBhtRaQIq1Zcxm+h1iOk
-         i71xVBALMvk1UClHcoCz86D7FNxOZpTPmwaY0NK4=
+        b=w0RXHJDcekxxSGfq0UcgYTD1AtISue6agP86AtKbRrbraPEBQGxcJGRi/DKSt+9zN
+         PoAjeYHeUcxG0EfpfhtdOEd4C5JC8JD5txyyjj0IxnZQukiO/69LHaZ//5SCh6WJ5h
+         vmFvVu1RuBt881T8BVK3VtBWLBZLryiwt3KGfdMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 075/102] intel_th: pci: Add Elkhart Lake CPU support
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        syzbot+05835159fe322770fe3d@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 46/65] drm/lease: fix WARNING in idr_destroy
 Date:   Tue, 24 Mar 2020 14:11:07 +0100
-Message-Id: <20200324130814.146476983@linuxfoundation.org>
+Message-Id: <20200324130802.802517861@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130756.679112147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit add492d2e9446a77ede9bb43699ec85ca8fc1aba upstream.
+commit b216a8e7908cd750550c0480cf7d2b3a37f06954 upstream.
 
-This adds support for the Trace Hub in Elkhart Lake CPU.
+drm_lease_create takes ownership of leases. And leases will be released
+by drm_master_put.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+drm_master_put
+    ->drm_master_destroy
+            ->idr_destroy
+
+So we needn't call idr_destroy again.
+
+Reported-and-tested-by: syzbot+05835159fe322770fe3d@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200317062215.15598-7-alexander.shishkin@linux.intel.com
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/1584518030-4173-1-git-send-email-hqjagain@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/pci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/drm_lease.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -235,6 +235,11 @@ static const struct pci_device_id intel_
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
- 	{
-+		/* Elkhart Lake CPU */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4529),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
-+	{
- 		/* Elkhart Lake */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4b26),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+--- a/drivers/gpu/drm/drm_lease.c
++++ b/drivers/gpu/drm/drm_lease.c
+@@ -545,10 +545,12 @@ int drm_mode_create_lease_ioctl(struct d
+ 	}
+ 
+ 	DRM_DEBUG_LEASE("Creating lease\n");
++	/* lessee will take the ownership of leases */
+ 	lessee = drm_lease_create(lessor, &leases);
+ 
+ 	if (IS_ERR(lessee)) {
+ 		ret = PTR_ERR(lessee);
++		idr_destroy(&leases);
+ 		goto out_leases;
+ 	}
+ 
+@@ -583,7 +585,6 @@ out_lessee:
+ 
+ out_leases:
+ 	put_unused_fd(fd);
+-	idr_destroy(&leases);
+ 
+ 	DRM_DEBUG_LEASE("drm_mode_create_lease_ioctl failed: %d\n", ret);
+ 	return ret;
 
 
