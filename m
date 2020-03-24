@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FBF3190E7A
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99CBA190FD9
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727661AbgCXNMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:12:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58414 "EHLO mail.kernel.org"
+        id S1729138AbgCXNXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:23:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727652AbgCXNMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:12:34 -0400
+        id S1728243AbgCXNXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:23:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E694720775;
-        Tue, 24 Mar 2020 13:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6040D21556;
+        Tue, 24 Mar 2020 13:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055554;
-        bh=GWy6tmGEEcVt6nH/teAPu97o9qVvgBZbqgNUofs01Tw=;
+        s=default; t=1585056216;
+        bh=wyLKa9e4fnj7moQyCDcCfUz9jCeCcmM9gRIIhMtIa1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNpNRK+K6LhMLRtYegW3sFgamdSzrUoKlZMsJ+ZQ1797/UNo6OaW3k5ybALbsB+AG
-         LGhNaLD+2Hd24XcxMXT/OGzvF4RPTQ3wz1QRe23zCnyPuk/ICbAHt89CILvT3ILgDy
-         4n3XkGEq+uz/d8f7PC3BFs7l593bP8Q4AyJaMkrk=
+        b=vVRnd5do1ezlth09tFhgMy24EPomWLY34lwIMHceBO/XxVtZMkl/DtO9a6gpgnCmD
+         bekY3axst8g406+3Lmechn3g/6HUpv1ydpUp0NuyNUsXx9oq4ZuisegIjUXUYIAHCX
+         ZAvpcTM3c77arqS5YLXAcFPo1VSk8QVVcvA9sSYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 22/65] USB: serial: option: add ME910G1 ECM composition 0x110b
-Date:   Tue, 24 Mar 2020 14:10:43 +0100
-Message-Id: <20200324130759.850045670@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+2a59ee7a9831b264f45e@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 059/119] ALSA: pcm: oss: Remove WARNING from snd_pcm_plug_alloc() checks
+Date:   Tue, 24 Mar 2020 14:10:44 +0100
+Message-Id: <20200324130814.113683867@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
-References: <20200324130756.679112147@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 8e852a7953be2a6ee371449f7257fe15ace6a1fc upstream.
+commit 5461e0530c222129dfc941058be114b5cbc00837 upstream.
 
-Add ME910G1 ECM composition 0x110b: tty, tty, tty, ecm
+The return value checks in snd_pcm_plug_alloc() are covered with
+snd_BUG_ON() macro that may trigger a kernel WARNING depending on the
+kconfig.  But since the error condition can be triggered by a weird
+user space parameter passed to OSS layer, we shouldn't give the kernel
+stack trace just for that.  As it's a normal error condition, let's
+remove snd_BUG_ON() macro usage there.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20200304104310.2938-1-dnlplm@gmail.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: syzbot+2a59ee7a9831b264f45e@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200312155730.7520-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/core/oss/pcm_plugin.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1183,6 +1183,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110a, 0xff),	/* Telit ME910G1 */
- 	  .driver_info = NCTRL(0) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110b, 0xff),	/* Telit ME910G1 (ECM) */
-+	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -111,7 +111,7 @@ int snd_pcm_plug_alloc(struct snd_pcm_su
+ 		while (plugin->next) {
+ 			if (plugin->dst_frames)
+ 				frames = plugin->dst_frames(plugin, frames);
+-			if (snd_BUG_ON((snd_pcm_sframes_t)frames <= 0))
++			if ((snd_pcm_sframes_t)frames <= 0)
+ 				return -ENXIO;
+ 			plugin = plugin->next;
+ 			err = snd_pcm_plugin_alloc(plugin, frames);
+@@ -123,7 +123,7 @@ int snd_pcm_plug_alloc(struct snd_pcm_su
+ 		while (plugin->prev) {
+ 			if (plugin->src_frames)
+ 				frames = plugin->src_frames(plugin, frames);
+-			if (snd_BUG_ON((snd_pcm_sframes_t)frames <= 0))
++			if ((snd_pcm_sframes_t)frames <= 0)
+ 				return -ENXIO;
+ 			plugin = plugin->prev;
+ 			err = snd_pcm_plugin_alloc(plugin, frames);
 
 
