@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F5B1910EB
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F811910E7
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728469AbgCXNSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38858 "EHLO mail.kernel.org"
+        id S1728430AbgCXNSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:18:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728738AbgCXNSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:18:36 -0400
+        id S1728243AbgCXNSo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:18:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D49A6208CA;
-        Tue, 24 Mar 2020 13:18:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF637208CA;
+        Tue, 24 Mar 2020 13:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055915;
-        bh=JMSM1luKAuE5kdgCyq1bEGHhHwVBpP6yWiX8i/xm41Y=;
+        s=default; t=1585055924;
+        bh=210tmJIMG61KprbjyUx2IQ90D8mA6Akj5BTIdzQwmPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p28R1RBUvgZmmjn0PX7FhdyG8KPbHHktLCkl43x7dtWagk49cGaH0D79u4SwEVNej
-         2Yqn+CSMp3ePHerLiaNW5/6GohScuW5Td4qQEtc5Jn3tgE5O7EW31q0eHS0bsHhNAk
-         p/jgezX+sTOWqjQIUbN8GjBYOWrTpcz4eZl3rfzg=
+        b=boQijVUdpALF8BVKAl0NHJZ4LtPT2bcRGxZjBvAHZR6FKjrZuGhcrgUgF8hUZEe67
+         hZAJu7l++vkLO3FA2Sh55OYURiZPZOiCKeMdflvxXgs5NyHSkHnHm6FZfqeMOi3pA7
+         2rK75TqMxTNKV0H98Gdgf0TAVVuuxIxoqyHFbk3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 067/102] mmc: sdhci-cadence: set SDHCI_QUIRK2_PRESET_VALUE_BROKEN for UniPhier
-Date:   Tue, 24 Mar 2020 14:10:59 +0100
-Message-Id: <20200324130813.399441209@linuxfoundation.org>
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.4 069/102] kbuild: Disable -Wpointer-to-enum-cast
+Date:   Tue, 24 Mar 2020 14:11:01 +0100
+Message-Id: <20200324130813.585252259@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
 References: <20200324130806.544601211@linuxfoundation.org>
@@ -44,89 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 18b587b45c13bb6a07ed0edac15f06892593d07a upstream.
+commit 82f2bc2fcc0160d6f82dd1ac64518ae0a4dd183f upstream.
 
-The SDHCI_PRESET_FOR_* registers are not set for the UniPhier platform
-integration. (They are all read as zeros).
+Clang's -Wpointer-to-int-cast deviates from GCC in that it warns when
+casting to enums. The kernel does this in certain places, such as device
+tree matches to set the version of the device being used, which allows
+the kernel to avoid using a gigantic union.
 
-Set the SDHCI_QUIRK2_PRESET_VALUE_BROKEN quirk flag. Otherwise, the
-High Speed DDR mode on the eMMC controller (MMC_TIMING_MMC_DDR52)
-would not work.
+https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L428
+https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L402
+https://elixir.bootlin.com/linux/v5.5.8/source/include/linux/mod_devicetable.h#L264
 
-I split the platform data to give no impact to other platforms,
-although the UniPhier platform is currently only the upstream user
-of this IP.
+To avoid a ton of false positive warnings, disable this particular part
+of the warning, which has been split off into a separate diagnostic so
+that the entire warning does not need to be turned off for clang. It
+will be visible under W=1 in case people want to go about fixing these
+easily and enabling the warning treewide.
 
-The SDHCI_QUIRK2_PRESET_VALUE_BROKEN flag is set if the compatible
-string matches to "socionext,uniphier-sd4hc".
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200312104257.21017-1-yamada.masahiro@socionext.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/887
+Link: https://github.com/llvm/llvm-project/commit/2a41b31fcdfcb67ab7038fc2ffb606fd50b83a84
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-cadence.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ scripts/Makefile.extrawarn |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/host/sdhci-cadence.c
-+++ b/drivers/mmc/host/sdhci-cadence.c
-@@ -11,6 +11,7 @@
- #include <linux/mmc/host.h>
- #include <linux/mmc/mmc.h>
- #include <linux/of.h>
-+#include <linux/of_device.h>
+--- a/scripts/Makefile.extrawarn
++++ b/scripts/Makefile.extrawarn
+@@ -48,6 +48,7 @@ KBUILD_CFLAGS += -Wno-initializer-overri
+ KBUILD_CFLAGS += -Wno-format
+ KBUILD_CFLAGS += -Wno-sign-compare
+ KBUILD_CFLAGS += -Wno-format-zero-length
++KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
+ endif
  
- #include "sdhci-pltfm.h"
- 
-@@ -235,6 +236,11 @@ static const struct sdhci_ops sdhci_cdns
- 	.set_uhs_signaling = sdhci_cdns_set_uhs_signaling,
- };
- 
-+static const struct sdhci_pltfm_data sdhci_cdns_uniphier_pltfm_data = {
-+	.ops = &sdhci_cdns_ops,
-+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
-+};
-+
- static const struct sdhci_pltfm_data sdhci_cdns_pltfm_data = {
- 	.ops = &sdhci_cdns_ops,
- };
-@@ -334,6 +340,7 @@ static void sdhci_cdns_hs400_enhanced_st
- static int sdhci_cdns_probe(struct platform_device *pdev)
- {
- 	struct sdhci_host *host;
-+	const struct sdhci_pltfm_data *data;
- 	struct sdhci_pltfm_host *pltfm_host;
- 	struct sdhci_cdns_priv *priv;
- 	struct clk *clk;
-@@ -350,8 +357,12 @@ static int sdhci_cdns_probe(struct platf
- 	if (ret)
- 		return ret;
- 
-+	data = of_device_get_match_data(dev);
-+	if (!data)
-+		data = &sdhci_cdns_pltfm_data;
-+
- 	nr_phy_params = sdhci_cdns_phy_param_count(dev->of_node);
--	host = sdhci_pltfm_init(pdev, &sdhci_cdns_pltfm_data,
-+	host = sdhci_pltfm_init(pdev, data,
- 				struct_size(priv, phy_params, nr_phy_params));
- 	if (IS_ERR(host)) {
- 		ret = PTR_ERR(host);
-@@ -431,7 +442,10 @@ static const struct dev_pm_ops sdhci_cdn
- };
- 
- static const struct of_device_id sdhci_cdns_match[] = {
--	{ .compatible = "socionext,uniphier-sd4hc" },
-+	{
-+		.compatible = "socionext,uniphier-sd4hc",
-+		.data = &sdhci_cdns_uniphier_pltfm_data,
-+	},
- 	{ .compatible = "cdns,sd4hc" },
- 	{ /* sentinel */ }
- };
+ endif
 
 
