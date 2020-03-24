@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2DB19109D
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC43C191127
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:39:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729350AbgCXNXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:23:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46558 "EHLO mail.kernel.org"
+        id S1728265AbgCXNRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:17:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727636AbgCXNXa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:23:30 -0400
+        id S1728630AbgCXNRl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:17:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4885208CA;
-        Tue, 24 Mar 2020 13:23:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE8D3206F6;
+        Tue, 24 Mar 2020 13:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056209;
-        bh=NghoYBc4zwZeQeF+mZJvDUpz7Iy6q1FiihAPCz2qp6U=;
+        s=default; t=1585055860;
+        bh=BqmL+3H48/Gpy+GE0Om4/hRbGWxIoleCGc5DLoDiXWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cU2/TAs5DF+3snNu03JWPqOrHax6PewvKkLlDLUWruKhS5C700ROZDcmpxeFXJmYx
-         Zuh09CI81EQN5jQrCje+GnpwYqFJF93kg9lp8hu7P8kEEhdokXZ4GRYgfhuQ3+0fTw
-         vjFclusG/kQBQMceLAZGsq+FltEjjiyW9grNekLI=
+        b=1ThtIPTSa0EBqcAu35vS7xZdEMo5UqQurY8OYF0nK1zF1H8PyvqqacBf/7trkR37o
+         WzLgbIiuH0ox485etV+dp6gjccKbi+vqSJCkqoXvpXBLGLwbFQJkkFs/zPEyX5SePR
+         AMAIEpqtYjglB10YfGlwWmeUsYs2bzCBKkLkfdM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 057/119] ALSA: seq: oss: Fix running status after receiving sysex
+        stable@vger.kernel.org, Andreas Steinmetz <ast@domdv.de>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 050/102] ALSA: seq: virmidi: Fix running status after receiving sysex
 Date:   Tue, 24 Mar 2020 14:10:42 +0100
-Message-Id: <20200324130813.917862887@linuxfoundation.org>
+Message-Id: <20200324130811.832828931@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +45,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 6c3171ef76a0bad892050f6959a7eac02fb16df7 upstream.
+commit 4384f167ce5fa7241b61bb0984d651bc528ddebe upstream.
 
-This is a similar bug like the previous case for virmidi: the invalid
-running status is kept after receiving a sysex message.
+The virmidi driver handles sysex event exceptionally in a short-cut
+snd_seq_dump_var_event() call, but this missed the reset of the
+running status.  As a result, it may lead to an incomplete command
+right after the sysex when an event with the same running status was
+queued.
 
-Again the fix is to clear the running status after handling the sysex.
+Fix it by clearing the running status properly via alling
+snd_midi_event_reset_decode() for that code path.
 
+Reported-by: Andreas Steinmetz <ast@domdv.de>
 Cc: <stable@vger.kernel.org>
 Link: https://lore.kernel.org/r/3b4a4e0f232b7afbaf0a843f63d0e538e3029bfd.camel@domdv.de
-Link: https://lore.kernel.org/r/20200316090506.23966-3-tiwai@suse.de
+Link: https://lore.kernel.org/r/20200316090506.23966-2-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/seq/oss/seq_oss_midi.c |    1 +
+ sound/core/seq/seq_virmidi.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/sound/core/seq/oss/seq_oss_midi.c
-+++ b/sound/core/seq/oss/seq_oss_midi.c
-@@ -602,6 +602,7 @@ send_midi_event(struct seq_oss_devinfo *
- 		len = snd_seq_oss_timer_start(dp->timer);
- 	if (ev->type == SNDRV_SEQ_EVENT_SYSEX) {
- 		snd_seq_oss_readq_sysex(dp->readq, mdev->seq_device, ev);
-+		snd_midi_event_reset_decode(mdev->coder);
- 	} else {
- 		len = snd_midi_event_decode(mdev->coder, msg, sizeof(msg), ev);
- 		if (len > 0)
+--- a/sound/core/seq/seq_virmidi.c
++++ b/sound/core/seq/seq_virmidi.c
+@@ -81,6 +81,7 @@ static int snd_virmidi_dev_receive_event
+ 			if ((ev->flags & SNDRV_SEQ_EVENT_LENGTH_MASK) != SNDRV_SEQ_EVENT_LENGTH_VARIABLE)
+ 				continue;
+ 			snd_seq_dump_var_event(ev, (snd_seq_dump_func_t)snd_rawmidi_receive, vmidi->substream);
++			snd_midi_event_reset_decode(vmidi->parser);
+ 		} else {
+ 			len = snd_midi_event_decode(vmidi->parser, msg, sizeof(msg), ev);
+ 			if (len > 0)
 
 
