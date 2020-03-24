@@ -2,93 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D54C1905A4
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 07:21:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 990DB1905A7
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 07:22:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725922AbgCXGVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 02:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46332 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725869AbgCXGVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 02:21:11 -0400
+        id S1725905AbgCXGWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 02:22:22 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:40479 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725869AbgCXGWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 02:22:22 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 800F92D2;
+        Tue, 24 Mar 2020 02:22:19 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 24 Mar 2020 02:22:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=W
+        Yea4OlgdnJnO5JNoMbXByYLZmfJ9FcXAWPvkLDjIEc=; b=V/Ow6sBNonVayKjHx
+        Ihl18DjdWp2kQviuMHza0FeCFFCxm68wevoDDofwyZvgEplkO1IUbVWn6BtRvvgW
+        y7J/qdyWRs7pE14AOHbMvtkUNuzS/UOBo8F2P6WwB8/Sym85oSmNNjEaiQFbhUzK
+        002mKioSegxAh8kTA3MEufZN44Q7lMLmLlOg/YQV1oYTCvsqylk+2dY2NwwIF/Bf
+        zNPs3Dh1XmChPOrdXoVIFbx+j4YsIAKKsB+H2BbyOXdsc4tJPyYZUCaOzZ/NmVvo
+        SZK98TfKkh81pQbsOpGzaMjMY8Fr3UmWQ/zW6YlMeVGURuSr1GNXU3uvEzkIjdP7
+        lnyUQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=WYea4OlgdnJnO5JNoMbXByYLZmfJ9FcXAWPvkLDjI
+        Ec=; b=jk006znmQfxtfwca00iWfXDIRmO4tKg9lm7nDG2t+C9pHkkHofiMSBmCv
+        b4rBOyDGPckE3lu1w98gALdSve2pDPwG7ryB5UZb5CMdr/XNv23eNnRtf+3GXIwM
+        miqA+wSFLCct0amDkp6biAyWrb5rdWZ8hqZ5ku1I1l3n9OVLlW9d+RoLhNdF33p4
+        6YfE7sYl48Et41motw+YrIocQV5AMRzRJai9YEMl88zxlNQbexijK/0tpLZlyh7B
+        akTMR/M2OsYUCgKWvTHfWl7IUQ4ebBphm9CeVFnfJWsROJr6c4+czQ6JQvAT5c2u
+        n3bP9+9hreEERGCPC7dhgQWKRewfg==
+X-ME-Sender: <xms:Gad5XuF67ZA-HC9MwfMbG6200QrFAogQFf-AO34LH0u9z7mi6QlMwQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudegledgledtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtjeenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
+    drohhrghdprghmrgiiohhnrgifshdrtghomhenucfkphepkeefrdekiedrkeelrddutdej
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvg
+    hgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:Gad5XuF5lU3vz3sdc5e2rYAjgFgcPzQ12DgDSqmV5fXZrVDZvX-yJQ>
+    <xmx:Gad5XqXD4z3GF5ptmqMFcvx2Sbq6VVvRATKi8KUf6zTNL9ZTcJKa5A>
+    <xmx:Gad5XskgoG_0TwfBvWWxgWdS91jKCK3eJn214JS2ONlQTpAk3q_-1Q>
+    <xmx:Gqd5XkoggtKpVfiiXreNrlM--qVDeWjXTKdLteB544M2tz-1cs1cuQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBF7E2073E;
-        Tue, 24 Mar 2020 06:21:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585030871;
-        bh=ngavZve41g+9oP2InKwVbg8PKuwt/mY/0KOBFNawSXI=;
-        h=Subject:To:From:Date:From;
-        b=OYl1fxcX0p231S9/LbU2ASud0R2UzsXo5Kfht/7EFNYY3yHxel+9fCi4w0e8luonD
-         mVqEtWS/w0nqW5iPITkniZgbgq2W4VXNa+ANI4rM7eVGBdUUBzpOoEknhoKVGqKAkd
-         uGfwVPunr/Cd7HcpVDnoUBdTG8ylH89Mw1xLy6DU=
-Subject: patch "nvmem: sprd: Fix the block lock operation" added to char-misc-next
-To:     freeman.liu@unisoc.com, baolin.wang7@gmail.com,
-        gregkh@linuxfoundation.org, srinivas.kandagatla@linaro.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 24 Mar 2020 07:18:34 +0100
-Message-ID: <158503071476241@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id A11A33280060;
+        Tue, 24 Mar 2020 02:22:17 -0400 (EDT)
+Date:   Tue, 24 Mar 2020 07:22:13 +0100
+From:   Greg KH <greg@kroah.com>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>,
+        Ondrej Moris <omoris@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Xiong Zhou <xzhou@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>
+Subject: Re: =?utf-8?B?8J+SpSBQQU5JQ0tFRA==?= =?utf-8?Q?=3A?= Test report for
+ kernel 5.5.12-rc1-8b841eb.cki (stable)
+Message-ID: <20200324062213.GA1961100@kroah.com>
+References: <cki.936A32626F.M0L95JS69X@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <cki.936A32626F.M0L95JS69X@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Mar 24, 2020 at 05:42:38AM -0000, CKI Project wrote:
+> 
+> Hello,
+> 
+> We ran automated tests on a recent commit from this kernel tree:
+> 
+>        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>             Commit: 8b841eb697e1 - Linux 5.5.12-rc1
+> 
+> The results of these automated tests are provided below.
+> 
+>     Overall result: FAILED (see details below)
+>              Merge: OK
+>            Compile: OK
+>              Tests: PANICKED
+> 
+> All kernel binaries, config files, and logs are available for download here:
+> 
+>   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/03/23/502039
+> 
+> One or more kernel tests failed:
+> 
+>     ppc64le:
+>      💥 xfstests - ext4
+> 
+>     aarch64:
+>      ❌ LTP
+> 
+>     x86_64:
+>      💥 xfstests - ext4
 
-This is a note to let you know that I've just added the patch titled
+Ok, it's time I start just blacklisting this report again, it's not
+being helpful in any way :(
 
-    nvmem: sprd: Fix the block lock operation
+Remember, if something starts breaking, I need some way to find out what
+caused it to break...
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From c66ebde4d988b592e8f0008e04c47cc4950a49d3 Mon Sep 17 00:00:00 2001
-From: Freeman Liu <freeman.liu@unisoc.com>
-Date: Mon, 23 Mar 2020 15:00:03 +0000
-Subject: nvmem: sprd: Fix the block lock operation
-
-According to the Spreadtrum eFuse specification, we should write 0 to
-the block to trigger the lock operation.
-
-Fixes: 096030e7f449 ("nvmem: sprd: Add Spreadtrum SoCs eFuse support")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Freeman Liu <freeman.liu@unisoc.com>
-Signed-off-by: Baolin Wang <baolin.wang7@gmail.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200323150007.7487-2-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/nvmem/sprd-efuse.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/nvmem/sprd-efuse.c b/drivers/nvmem/sprd-efuse.c
-index 2f1e0fbd1901..7a189ef52333 100644
---- a/drivers/nvmem/sprd-efuse.c
-+++ b/drivers/nvmem/sprd-efuse.c
-@@ -239,7 +239,7 @@ static int sprd_efuse_raw_prog(struct sprd_efuse *efuse, u32 blk, bool doub,
- 		ret = -EBUSY;
- 	} else {
- 		sprd_efuse_set_prog_lock(efuse, lock);
--		writel(*data, efuse->base + SPRD_EFUSE_MEM(blk));
-+		writel(0, efuse->base + SPRD_EFUSE_MEM(blk));
- 		sprd_efuse_set_prog_lock(efuse, false);
- 	}
- 
--- 
-2.25.2
-
-
+greg k-h
