@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D18C190EC3
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:15:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48350190F5A
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:20:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727570AbgCXNOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:14:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33200 "EHLO mail.kernel.org"
+        id S1728660AbgCXNTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:19:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728119AbgCXNOl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:14:41 -0400
+        id S1728466AbgCXNTr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:19:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBC47208CA;
-        Tue, 24 Mar 2020 13:14:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22749206F6;
+        Tue, 24 Mar 2020 13:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055681;
-        bh=KWXARkr/P5sdZ/AQzW16HvzsTOIF4H4GiQy8ryeZskU=;
+        s=default; t=1585055986;
+        bh=Mj4njnD9Bq21s8YvyxPwfN39vipUPGwGVgkRwvddbT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOtNfAwaxM9wGftpL1gNM9ic6yE5V8WCMwePtIyVu6ujcTm65KSc03iSCaQdV46UP
-         F0kX3awgJ0/mNCYEoTq4x5tsWul5n+AH+AfJctQWefsQPE415zfg6I2PenEnlmjfkW
-         eTADtqbChgY6NEDOmsIrUerZ+i0pDEMSc9PtxZg0=
+        b=YHPew+O7tQytrOLtYXNLWz9+CBKcYzm8ltMy6eYngmGaHDHHxUdxjnrSqIleZS08R
+         6seYr2lfjF/RGoNJS1tVw/jG0XA0UlP50bAzRlzkM2RyIMEvYBFLVUyeKhP5pC0XT3
+         e3i+TStPGTJFq+Gu3tZUXZA8zWYXwD8vsFA3+VMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.19 61/65] arm64: smp: fix smp_send_stop() behaviour
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 090/102] mm: slub: be more careful about the double cmpxchg of freelist
 Date:   Tue, 24 Mar 2020 14:11:22 +0100
-Message-Id: <20200324130804.563857299@linuxfoundation.org>
+Message-Id: <20200324130816.018538799@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
-References: <20200324130756.679112147@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,115 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit d0bab0c39e32d39a8c5cddca72e5b4a3059fe050 upstream.
+commit 5076190daded2197f62fe92cf69674488be44175 upstream.
 
-On a system with only one CPU online, when another one CPU panics while
-starting-up, smp_send_stop() will fail to send any STOP message to the
-other already online core, resulting in a system still responsive and
-alive at the end of the panic procedure.
+This is just a cleanup addition to Jann's fix to properly update the
+transaction ID for the slub slowpath in commit fd4d9c7d0c71 ("mm: slub:
+add missing TID bump..").
 
-[  186.700083] CPU3: shutdown
-[  187.075462] CPU2: shutdown
-[  187.162869] CPU1: shutdown
-[  188.689998] ------------[ cut here ]------------
-[  188.691645] kernel BUG at arch/arm64/kernel/cpufeature.c:886!
-[  188.692079] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[  188.692444] Modules linked in:
-[  188.693031] CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.6.0-rc4-00001-g338d25c35a98 #104
-[  188.693175] Hardware name: Foundation-v8A (DT)
-[  188.693492] pstate: 200001c5 (nzCv dAIF -PAN -UAO)
-[  188.694183] pc : has_cpuid_feature+0xf0/0x348
-[  188.694311] lr : verify_local_elf_hwcaps+0x84/0xe8
-[  188.694410] sp : ffff800011b1bf60
-[  188.694536] x29: ffff800011b1bf60 x28: 0000000000000000
-[  188.694707] x27: 0000000000000000 x26: 0000000000000000
-[  188.694801] x25: 0000000000000000 x24: ffff80001189a25c
-[  188.694905] x23: 0000000000000000 x22: 0000000000000000
-[  188.694996] x21: ffff8000114aa018 x20: ffff800011156a38
-[  188.695089] x19: ffff800010c944a0 x18: 0000000000000004
-[  188.695187] x17: 0000000000000000 x16: 0000000000000000
-[  188.695280] x15: 0000249dbde5431e x14: 0262cbe497efa1fa
-[  188.695371] x13: 0000000000000002 x12: 0000000000002592
-[  188.695472] x11: 0000000000000080 x10: 00400032b5503510
-[  188.695572] x9 : 0000000000000000 x8 : ffff800010c80204
-[  188.695659] x7 : 00000000410fd0f0 x6 : 0000000000000001
-[  188.695750] x5 : 00000000410fd0f0 x4 : 0000000000000000
-[  188.695836] x3 : 0000000000000000 x2 : ffff8000100939d8
-[  188.695919] x1 : 0000000000180420 x0 : 0000000000180480
-[  188.696253] Call trace:
-[  188.696410]  has_cpuid_feature+0xf0/0x348
-[  188.696504]  verify_local_elf_hwcaps+0x84/0xe8
-[  188.696591]  check_local_cpu_capabilities+0x44/0x128
-[  188.696666]  secondary_start_kernel+0xf4/0x188
-[  188.697150] Code: 52805001 72a00301 6b01001f 54000ec0 (d4210000)
-[  188.698639] ---[ end trace 3f12ca47652f7b72 ]---
-[  188.699160] Kernel panic - not syncing: Attempted to kill the idle task!
-[  188.699546] Kernel Offset: disabled
-[  188.699828] CPU features: 0x00004,20c02008
-[  188.700012] Memory Limit: none
-[  188.700538] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
+The transaction ID is what protects us against any concurrent accesses,
+but we should really also make sure to make the 'freelist' comparison
+itself always use the same freelist value that we then used as the new
+next free pointer.
 
-[root@arch ~]# echo Helo
-Helo
-[root@arch ~]# cat /proc/cpuinfo | grep proce
-processor	: 0
+Jann points out that if we do all of this carefully, we could skip the
+transaction ID update for all the paths that only remove entries from
+the lists, and only update the TID when adding entries (to avoid the ABA
+issue with cmpxchg and list handling re-adding a previously seen value).
 
-Make smp_send_stop() account also for the online status of the calling CPU
-while evaluating how many CPUs are effectively online: this way, the right
-number of STOPs is sent, so enforcing a proper freeze of the system at the
-end of panic even under the above conditions.
+But this patch just does the "make sure to cmpxchg the same value we
+used" rather than then try to be clever.
 
-Fixes: 08e875c16a16c ("arm64: SMP support")
-Reported-by: Dave Martin <Dave.Martin@arm.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Acked-by: Jann Horn <jannh@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/smp.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ mm/slub.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -936,11 +936,22 @@ void tick_broadcast(const struct cpumask
- }
- #endif
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -2977,11 +2977,13 @@ redo:
+ 	barrier();
  
-+/*
-+ * The number of CPUs online, not counting this CPU (which may not be
-+ * fully online and so not counted in num_online_cpus()).
-+ */
-+static inline unsigned int num_other_online_cpus(void)
-+{
-+	unsigned int this_cpu_online = cpu_online(smp_processor_id());
+ 	if (likely(page == c->page)) {
+-		set_freepointer(s, tail_obj, c->freelist);
++		void **freelist = READ_ONCE(c->freelist);
 +
-+	return num_online_cpus() - this_cpu_online;
-+}
-+
- void smp_send_stop(void)
- {
- 	unsigned long timeout;
++		set_freepointer(s, tail_obj, freelist);
  
--	if (num_online_cpus() > 1) {
-+	if (num_other_online_cpus()) {
- 		cpumask_t mask;
+ 		if (unlikely(!this_cpu_cmpxchg_double(
+ 				s->cpu_slab->freelist, s->cpu_slab->tid,
+-				c->freelist, tid,
++				freelist, tid,
+ 				head, next_tid(tid)))) {
  
- 		cpumask_copy(&mask, cpu_online_mask);
-@@ -953,10 +964,10 @@ void smp_send_stop(void)
- 
- 	/* Wait up to one second for other CPUs to stop */
- 	timeout = USEC_PER_SEC;
--	while (num_online_cpus() > 1 && timeout--)
-+	while (num_other_online_cpus() && timeout--)
- 		udelay(1);
- 
--	if (num_online_cpus() > 1)
-+	if (num_other_online_cpus())
- 		pr_warning("SMP: failed to stop secondary CPUs %*pbl\n",
- 			   cpumask_pr_args(cpu_online_mask));
- 
+ 			note_cmpxchg_failure("slab_free", s, tid);
 
 
