@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7B8A190ED0
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:15:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2850D190ED1
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:15:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727575AbgCXNPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:15:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33938 "EHLO mail.kernel.org"
+        id S1727511AbgCXNPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:15:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727561AbgCXNPK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:15:10 -0400
+        id S1727561AbgCXNPN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:15:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A77BB208D6;
-        Tue, 24 Mar 2020 13:15:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8180420936;
+        Tue, 24 Mar 2020 13:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055709;
-        bh=PN+Bt05PT9gsnYVdIAYKgtw9EZyRou2wOSjJfXPoulw=;
+        s=default; t=1585055713;
+        bh=wHZu1jd3Wc8fDcAHKp70c9SBOgeeKpFhQOSeNlrEjiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQ7HHERNl+6mbop8LSE0eiqXPTclzDOf9XFSKf0CJCXo+MmlGdvihq4/KFp7GyPxs
-         QUdX6rB55ujlrCGuTc5CkAvwhThhZeY2ePOJiiXkQPRNd2C6brJ0kU6hbK8Nl518Pa
-         7HH9aPTmqb/VDXXjHudq+xvEoBCafYm7t4+7KZZs=
+        b=ibBXHN8u6wEfcO7FOPGeLfMEavX9U9iaGgtcWW2Xko6fcHlPoLQx5J/gechG/N4cO
+         mfQe/0Is0jwtWVK4HKVs2dmwhW6zvPdT4bHAdGktgxirJyXFpflR3pOglf7aNsveB4
+         FeHlhu/4PTbsWgu0EWePpQyyogZX7fCGItrlkHVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
+        Tomas Novotny <tomas@novotny.cz>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 53/65] USB: cdc-acm: fix rounding error in TIOCSSERIAL
-Date:   Tue, 24 Mar 2020 14:11:14 +0100
-Message-Id: <20200324130803.562285869@linuxfoundation.org>
+Subject: [PATCH 4.19 54/65] iio: light: vcnl4000: update sampling periods for vcnl4200
+Date:   Tue, 24 Mar 2020 14:11:15 +0100
+Message-Id: <20200324130803.658678979@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
 References: <20200324130756.679112147@linuxfoundation.org>
@@ -43,82 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Mallet <anthony.mallet@laas.fr>
+From: Tomas Novotny <tomas@novotny.cz>
 
-[ Upstream commit b401f8c4f492cbf74f3f59c9141e5be3071071bb ]
+[ Upstream commit b42aa97ed5f1169cfd37175ef388ea62ff2dcf43 ]
 
-By default, tty_port_init() initializes those parameters to a multiple
-of HZ. For instance in line 69 of tty_port.c:
-   port->close_delay = (50 * HZ) / 100;
-https://github.com/torvalds/linux/blob/master/drivers/tty/tty_port.c#L69
+Vishay has published a new version of "Designing the VCNL4200 Into an
+Application" application note in October 2019. The new version specifies
+that there is +-20% of part to part tolerance. This explains the drift
+seen during experiments. The proximity pulse width is also changed from
+32us to 30us. According to the support, the tolerance also applies to
+ambient light.
 
-With e.g. CONFIG_HZ = 250 (as this is the case for Ubuntu 18.04
-linux-image-4.15.0-37-generic), the default setting for close_delay is
-thus 125.
+So update the sampling periods. As the reading is blocking, current
+users may notice slightly longer response time.
 
-When ioctl(fd, TIOCGSERIAL, &s) is executed, the setting returned in
-user space is '12' (125/10). When ioctl(fd, TIOCSSERIAL, &s) is then
-executed with the same setting '12', the value is interpreted as '120'
-which is different from the current setting and a EPERM error may be
-raised by set_serial_info() if !CAP_SYS_ADMIN.
-https://github.com/torvalds/linux/blob/master/drivers/usb/class/cdc-acm.c#L919
-
-Fixes: ba2d8ce9db0a6 ("cdc-acm: implement TIOCSSERIAL to avoid blocking close(2)")
-Signed-off-by: Anthony Mallet <anthony.mallet@laas.fr>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200312133101.7096-2-anthony.mallet@laas.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: be38866fbb97 ("iio: vcnl4000: add support for VCNL4200")
+Reviewed-by: Guido Günther <agx@sigxcpu.org>
+Signed-off-by: Tomas Novotny <tomas@novotny.cz>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ drivers/iio/light/vcnl4000.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 709884b99b3e3..8689bf7ba60ff 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -930,6 +930,7 @@ static int set_serial_info(struct acm *acm,
- {
- 	struct serial_struct new_serial;
- 	unsigned int closing_wait, close_delay;
-+	unsigned int old_closing_wait, old_close_delay;
- 	int retval = 0;
- 
- 	if (copy_from_user(&new_serial, newinfo, sizeof(new_serial)))
-@@ -940,18 +941,24 @@ static int set_serial_info(struct acm *acm,
- 			ASYNC_CLOSING_WAIT_NONE :
- 			msecs_to_jiffies(new_serial.closing_wait * 10);
- 
-+	/* we must redo the rounding here, so that the values match */
-+	old_close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
-+	old_closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
-+				ASYNC_CLOSING_WAIT_NONE :
-+				jiffies_to_msecs(acm->port.closing_wait) / 10;
-+
- 	mutex_lock(&acm->port.mutex);
- 
--	if (!capable(CAP_SYS_ADMIN)) {
--		if ((close_delay != acm->port.close_delay) ||
--		    (closing_wait != acm->port.closing_wait))
-+	if ((new_serial.close_delay != old_close_delay) ||
-+            (new_serial.closing_wait != old_closing_wait)) {
-+		if (!capable(CAP_SYS_ADMIN))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
--	} else {
--		acm->port.close_delay  = close_delay;
--		acm->port.closing_wait = closing_wait;
--	}
-+		else {
-+			acm->port.close_delay  = close_delay;
-+			acm->port.closing_wait = closing_wait;
-+		}
-+	} else
-+		retval = -EOPNOTSUPP;
- 
- 	mutex_unlock(&acm->port.mutex);
- 	return retval;
+diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
+index 04fd0d4b6f198..d3d65ecb30a5b 100644
+--- a/drivers/iio/light/vcnl4000.c
++++ b/drivers/iio/light/vcnl4000.c
+@@ -150,9 +150,10 @@ static int vcnl4200_init(struct vcnl4000_data *data)
+ 	data->al_scale = 24000;
+ 	data->vcnl4200_al.reg = VCNL4200_AL_DATA;
+ 	data->vcnl4200_ps.reg = VCNL4200_PS_DATA;
+-	/* Integration time is 50ms, but the experiments show 54ms in total. */
+-	data->vcnl4200_al.sampling_rate = ktime_set(0, 54000 * 1000);
+-	data->vcnl4200_ps.sampling_rate = ktime_set(0, 4200 * 1000);
++	/* Default wait time is 50ms, add 20% tolerance. */
++	data->vcnl4200_al.sampling_rate = ktime_set(0, 60000 * 1000);
++	/* Default wait time is 4.8ms, add 20% tolerance. */
++	data->vcnl4200_ps.sampling_rate = ktime_set(0, 5760 * 1000);
+ 	data->vcnl4200_al.last_measurement = ktime_set(0, 0);
+ 	data->vcnl4200_ps.last_measurement = ktime_set(0, 0);
+ 	mutex_init(&data->vcnl4200_al.lock);
 -- 
 2.20.1
 
