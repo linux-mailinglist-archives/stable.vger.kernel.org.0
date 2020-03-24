@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 082B3190EE1
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6773F190EE4
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727852AbgCXNPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:15:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34612 "EHLO mail.kernel.org"
+        id S1728297AbgCXNPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:15:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727744AbgCXNPh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:15:37 -0400
+        id S1727916AbgCXNPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:15:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13F5C208D6;
-        Tue, 24 Mar 2020 13:15:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC039206F6;
+        Tue, 24 Mar 2020 13:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055736;
-        bh=VNN/Ba9Qk+2mQeF62pFxERDG8oGP0Rl7oa62vD0FBsU=;
+        s=default; t=1585055743;
+        bh=bX0nVfN/TeCkwAQSkAb92VURqb0P0SUE2xUDDSS2voo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMOM5x6axhYEa6IaMzRUo34NpIKPx9pwpJJjWpoX2UmSiNl3ePBsUkUsq/F0nqftg
-         hoYzxlezxX8Yyzc8/Gdyr2fTPBjU4Tiw2W7dQd22r9YpbhT/95mE3ODp1kdBV4IZ21
-         TbnZuHcWn4l9CYtV+HuMdgZOFtkWnW5qH6wFXVp4=
+        b=bMvkFeGkqt1++1LBJ+neJi7kMmUJPsQ+GoQlMRaPZUa9YDCLLaE1KvzLX+CzXZWk0
+         QkIz395SvLxpty1xSC99T1TEaBQ5j9xleho9A/NKSsgKUS8G0MrIvB4oR3YdYc3AlX
+         lKmBgqbIveMfWjXhyb9FT/y+pHvpk85GBTL/CILQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
-        Evan Green <evgreen@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Inki Dae <inki.dae@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 013/102] spi: pxa2xx: Add CS control clock quirk
-Date:   Tue, 24 Mar 2020 14:10:05 +0100
-Message-Id: <20200324130807.885432626@linuxfoundation.org>
+Subject: [PATCH 5.4 015/102] drm/exynos: dsi: propagate error value and silence meaningless warning
+Date:   Tue, 24 Mar 2020 14:10:07 +0100
+Message-Id: <20200324130808.095853377@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
 References: <20200324130806.544601211@linuxfoundation.org>
@@ -45,85 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 683f65ded66a9a7ff01ed7280804d2132ebfdf7e ]
+[ Upstream commit 0a9d1e3f3f038785ebc72d53f1c409d07f6b4ff5 ]
 
-In some circumstances on Intel LPSS controllers, toggling the LPSS
-CS control register doesn't actually cause the CS line to toggle.
-This seems to be failure of dynamic clock gating that occurs after
-going through a suspend/resume transition, where the controller
-is sent through a reset transition. This ruins SPI transactions
-that either rely on delay_usecs, or toggle the CS line without
-sending data.
+Properly propagate error value from devm_regulator_bulk_get() and don't
+confuse user with meaningless warning about failure in getting regulators
+in case of deferred probe.
 
-Whenever CS is toggled, momentarily set the clock gating register
-to "Force On" to poke the controller into acting on CS.
-
-Signed-off-by: Rajat Jain <rajatja@google.com>
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Link: https://lore.kernel.org/r/20200211223700.110252-1-rajatja@google.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Inki Dae <inki.dae@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/gpu/drm/exynos/exynos_drm_dsi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index 2fd843b18297d..7231456732068 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -68,6 +68,10 @@ MODULE_ALIAS("platform:pxa2xx-spi");
- #define LPSS_CAPS_CS_EN_SHIFT			9
- #define LPSS_CAPS_CS_EN_MASK			(0xf << LPSS_CAPS_CS_EN_SHIFT)
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
+index 6926cee91b367..2767408c4750e 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
+@@ -1750,8 +1750,9 @@ static int exynos_dsi_probe(struct platform_device *pdev)
+ 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(dsi->supplies),
+ 				      dsi->supplies);
+ 	if (ret) {
+-		dev_info(dev, "failed to get regulators: %d\n", ret);
+-		return -EPROBE_DEFER;
++		if (ret != -EPROBE_DEFER)
++			dev_info(dev, "failed to get regulators: %d\n", ret);
++		return ret;
+ 	}
  
-+#define LPSS_PRIV_CLOCK_GATE 0x38
-+#define LPSS_PRIV_CLOCK_GATE_CLK_CTL_MASK 0x3
-+#define LPSS_PRIV_CLOCK_GATE_CLK_CTL_FORCE_ON 0x3
-+
- struct lpss_config {
- 	/* LPSS offset from drv_data->ioaddr */
- 	unsigned offset;
-@@ -84,6 +88,8 @@ struct lpss_config {
- 	unsigned cs_sel_shift;
- 	unsigned cs_sel_mask;
- 	unsigned cs_num;
-+	/* Quirks */
-+	unsigned cs_clk_stays_gated : 1;
- };
- 
- /* Keep these sorted with enum pxa_ssp_type */
-@@ -154,6 +160,7 @@ static const struct lpss_config lpss_platforms[] = {
- 		.tx_threshold_hi = 56,
- 		.cs_sel_shift = 8,
- 		.cs_sel_mask = 3 << 8,
-+		.cs_clk_stays_gated = true,
- 	},
- };
- 
-@@ -381,6 +388,22 @@ static void lpss_ssp_cs_control(struct spi_device *spi, bool enable)
- 	else
- 		value |= LPSS_CS_CONTROL_CS_HIGH;
- 	__lpss_ssp_write_priv(drv_data, config->reg_cs_ctrl, value);
-+	if (config->cs_clk_stays_gated) {
-+		u32 clkgate;
-+
-+		/*
-+		 * Changing CS alone when dynamic clock gating is on won't
-+		 * actually flip CS at that time. This ruins SPI transfers
-+		 * that specify delays, or have no data. Toggle the clock mode
-+		 * to force on briefly to poke the CS pin to move.
-+		 */
-+		clkgate = __lpss_ssp_read_priv(drv_data, LPSS_PRIV_CLOCK_GATE);
-+		value = (clkgate & ~LPSS_PRIV_CLOCK_GATE_CLK_CTL_MASK) |
-+			LPSS_PRIV_CLOCK_GATE_CLK_CTL_FORCE_ON;
-+
-+		__lpss_ssp_write_priv(drv_data, LPSS_PRIV_CLOCK_GATE, value);
-+		__lpss_ssp_write_priv(drv_data, LPSS_PRIV_CLOCK_GATE, clkgate);
-+	}
- }
- 
- static void cs_assert(struct spi_device *spi)
+ 	dsi->clks = devm_kcalloc(dev,
 -- 
 2.20.1
 
