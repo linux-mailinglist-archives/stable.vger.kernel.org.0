@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86332190E7B
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA624190E80
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:14:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727673AbgCXNMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:12:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58482 "EHLO mail.kernel.org"
+        id S1727685AbgCXNMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:12:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727666AbgCXNMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:12:37 -0400
+        id S1727681AbgCXNMj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:12:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6940B20775;
-        Tue, 24 Mar 2020 13:12:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3045208CA;
+        Tue, 24 Mar 2020 13:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055556;
-        bh=tpBnPSTv1xrJEYQtI9hj455MYVnSPgo7ITKi6PeqekA=;
+        s=default; t=1585055559;
+        bh=/yUkgZdWto5X5Jvg8caTaNLBPOv3Z7TfKUnt0YercZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mx9jXCdtQV133qlC/s8tZQLmY2Whx82p/g51VoybtkIGE1eljqwuw5DkqntF9GUXu
-         XHGHfEpFG0gWld1ETteYJGnrKVkA6SgFG5UPo+EFZUGpTzaC4h8f52s0lOgJyWkpv1
-         QEy3zFjWfBrTt0/MSg429mTDtI13NfiktKQ0y/mE=
+        b=CJirrFxCqNN0XOrxwZ109EIEGpw/yDwMl7VC19ze6QEi+y/rLjb7QWWCV9SgcnY/5
+         o6DCz+gren7pH6i5QfyX3MYrtbqUaOspJKadTNLl+PUD3dMiUnoTXRra3SuAbeLYuy
+         se8Af29hhpNpPaE7nGI+TPChPT/bExomlClEtnTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ran Wang <ran.wang_1@nxp.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.19 23/65] usb: host: xhci-plat: add a shutdown
-Date:   Tue, 24 Mar 2020 14:10:44 +0100
-Message-Id: <20200324130759.994494849@linuxfoundation.org>
+        stable@vger.kernel.org, Scott Chen <scott@labau.com.tw>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 24/65] USB: serial: pl2303: add device-id for HP LD381
+Date:   Tue, 24 Mar 2020 14:10:45 +0100
+Message-Id: <20200324130800.217686671@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
 References: <20200324130756.679112147@linuxfoundation.org>
@@ -44,33 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ran Wang <ran.wang_1@nxp.com>
+From: Scott Chen <scott@labau.com.tw>
 
-commit b433e340e7565110b0ce9ca4b3e26f4b97a1decf upstream.
+commit cecc113c1af0dd41ccf265c1fdb84dbd05e63423 upstream.
 
-When loading new kernel via kexec, we need to shutdown host controller to
-avoid any un-expected memory accessing during new kernel boot.
+Add a device id for HP LD381 Display
+LD381:   03f0:0f7f
 
-Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
+Signed-off-by: Scott Chen <scott@labau.com.tw>
 Cc: stable <stable@vger.kernel.org>
-Tested-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20200306092328.41253-1-ran.wang_1@nxp.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-plat.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/pl2303.c |    1 +
+ drivers/usb/serial/pl2303.h |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/usb/host/xhci-plat.c
-+++ b/drivers/usb/host/xhci-plat.c
-@@ -443,6 +443,7 @@ MODULE_DEVICE_TABLE(acpi, usb_xhci_acpi_
- static struct platform_driver usb_xhci_driver = {
- 	.probe	= xhci_plat_probe,
- 	.remove	= xhci_plat_remove,
-+	.shutdown = usb_hcd_platform_shutdown,
- 	.driver	= {
- 		.name = "xhci-hcd",
- 		.pm = &xhci_plat_pm_ops,
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -93,6 +93,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(SUPERIAL_VENDOR_ID, SUPERIAL_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220TA_PRODUCT_ID) },
++	{ USB_DEVICE(HP_VENDOR_ID, HP_LD381_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960TA_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM220_PRODUCT_ID) },
+--- a/drivers/usb/serial/pl2303.h
++++ b/drivers/usb/serial/pl2303.h
+@@ -124,6 +124,7 @@
+ #define HP_LM920_PRODUCT_ID	0x026b
+ #define HP_TD620_PRODUCT_ID	0x0956
+ #define HP_LD960_PRODUCT_ID	0x0b39
++#define HP_LD381_PRODUCT_ID	0x0f7f
+ #define HP_LCM220_PRODUCT_ID	0x3139
+ #define HP_LCM960_PRODUCT_ID	0x3239
+ #define HP_LD220_PRODUCT_ID	0x3524
 
 
