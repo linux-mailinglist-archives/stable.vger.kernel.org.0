@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 494E81905A1
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 07:18:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D54C1905A4
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 07:21:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727291AbgCXGSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 02:18:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43670 "EHLO mail.kernel.org"
+        id S1725922AbgCXGVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 02:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727290AbgCXGSU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 02:18:20 -0400
+        id S1725869AbgCXGVL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 02:21:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 574CE20663;
-        Tue, 24 Mar 2020 06:18:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBF7E2073E;
+        Tue, 24 Mar 2020 06:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585030699;
-        bh=pRGf+6QGpDRyff9oF/oQh+kf29KcFfdy1O589+Zuz8I=;
+        s=default; t=1585030871;
+        bh=ngavZve41g+9oP2InKwVbg8PKuwt/mY/0KOBFNawSXI=;
         h=Subject:To:From:Date:From;
-        b=Ddb37sdPpsVMJu21jFc4EWRDSL5ZdMrFluk0oJz3Tq6J0SynBQ9FtI6n6AKK07eHK
-         Z7XnDPip8QLFcGdINLSTF1QukOSrO0GH9n4qAY2wXktpnlztyzQIHz+dBQ5X6vJP4a
-         XaLua3ru11DtoaQfZVcqXT1jN7SNjPp1+1Mb2bTI=
-Subject: patch "staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table" added to staging-next
-To:     Larry.Finger@lwfinger.net, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, zraetn@gmail.com
+        b=OYl1fxcX0p231S9/LbU2ASud0R2UzsXo5Kfht/7EFNYY3yHxel+9fCi4w0e8luonD
+         mVqEtWS/w0nqW5iPITkniZgbgq2W4VXNa+ANI4rM7eVGBdUUBzpOoEknhoKVGqKAkd
+         uGfwVPunr/Cd7HcpVDnoUBdTG8ylH89Mw1xLy6DU=
+Subject: patch "nvmem: sprd: Fix the block lock operation" added to char-misc-next
+To:     freeman.liu@unisoc.com, baolin.wang7@gmail.com,
+        gregkh@linuxfoundation.org, srinivas.kandagatla@linaro.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 24 Mar 2020 07:18:07 +0100
-Message-ID: <158503068754196@kroah.com>
+Date:   Tue, 24 Mar 2020 07:18:34 +0100
+Message-ID: <158503071476241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,11 +41,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
+    nvmem: sprd: Fix the block lock operation
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -55,35 +56,38 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 38ef48f7d4b7342f145a1b4f96023bde99aeb245 Mon Sep 17 00:00:00 2001
-From: Larry Finger <Larry.Finger@lwfinger.net>
-Date: Sat, 21 Mar 2020 13:00:11 -0500
-Subject: staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
+From c66ebde4d988b592e8f0008e04c47cc4950a49d3 Mon Sep 17 00:00:00 2001
+From: Freeman Liu <freeman.liu@unisoc.com>
+Date: Mon, 23 Mar 2020 15:00:03 +0000
+Subject: nvmem: sprd: Fix the block lock operation
 
-The ASUS USB-N10 Nano B1 has been reported as a new RTL8188EU device.
-Add it to the device tables.
+According to the Spreadtrum eFuse specification, we should write 0 to
+the block to trigger the lock operation.
 
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Reported-by: kovi <zraetn@gmail.com>
-Cc: Stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200321180011.26153-1-Larry.Finger@lwfinger.net
+Fixes: 096030e7f449 ("nvmem: sprd: Add Spreadtrum SoCs eFuse support")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Freeman Liu <freeman.liu@unisoc.com>
+Signed-off-by: Baolin Wang <baolin.wang7@gmail.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200323150007.7487-2-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvmem/sprd-efuse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8188eu/os_dep/usb_intf.c b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-index 845c8817281c..f7f09c0d273f 100644
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -32,6 +32,7 @@ static const struct usb_device_id rtw_usb_id_tbl[] = {
- 	/****** 8188EUS ********/
- 	{USB_DEVICE(0x056e, 0x4008)}, /* Elecom WDC-150SU2M */
- 	{USB_DEVICE(0x07b8, 0x8179)}, /* Abocom - Abocom */
-+	{USB_DEVICE(0x0B05, 0x18F0)}, /* ASUS USB-N10 Nano B1 */
- 	{USB_DEVICE(0x2001, 0x330F)}, /* DLink DWA-125 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3310)}, /* Dlink DWA-123 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
+diff --git a/drivers/nvmem/sprd-efuse.c b/drivers/nvmem/sprd-efuse.c
+index 2f1e0fbd1901..7a189ef52333 100644
+--- a/drivers/nvmem/sprd-efuse.c
++++ b/drivers/nvmem/sprd-efuse.c
+@@ -239,7 +239,7 @@ static int sprd_efuse_raw_prog(struct sprd_efuse *efuse, u32 blk, bool doub,
+ 		ret = -EBUSY;
+ 	} else {
+ 		sprd_efuse_set_prog_lock(efuse, lock);
+-		writel(*data, efuse->base + SPRD_EFUSE_MEM(blk));
++		writel(0, efuse->base + SPRD_EFUSE_MEM(blk));
+ 		sprd_efuse_set_prog_lock(efuse, false);
+ 	}
+ 
 -- 
 2.25.2
 
