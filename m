@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50CBA190EEC
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 181AF190FAB
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727983AbgCXNQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:16:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35268 "EHLO mail.kernel.org"
+        id S1728862AbgCXNWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:22:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727843AbgCXNQC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:16:02 -0400
+        id S1727422AbgCXNWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:22:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01524208E4;
-        Tue, 24 Mar 2020 13:16:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8FA3206F6;
+        Tue, 24 Mar 2020 13:22:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055761;
-        bh=4yw0STCK+C5NSsvnEalgO/FdaunLe8EGQsfjZzCvPV8=;
+        s=default; t=1585056121;
+        bh=HDWemFmS6sNHHvqLejbRyMAPEs6e+okEDrDeTOhqVWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J0crxA2KUf7FM0CQ5pWOFih0cagy54U2PFX6ZJx/hEv3NmowCiXAxWpfnpGYs3+Pm
-         5zhzMiKLs+s1ACiDV8ChamwUHVklYoJ2c7VVq8QJ/aUOxNR9FEUtFjrtnnfW16vXXZ
-         5uyNRrBpD3KInkFL9zkC6+k2JFGTaRXU5gWMtT1o=
+        b=qHpKble/9gCSF5mQMxJXAA4trDni3Ab8IsDtCZ1jklyabhlvvL/z4sMg9C1wlZzTg
+         vyWLtsxUisD8Prhv9xF7IuRDPPjiPh+szlYzUeSaLi4Ngo9iCQ93mNeDCfBEn3pqLl
+         dzKsPFutTTWazAm8GKxaUK9Df9j8u3X5iGS6e57Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Igor M. Liplianin" <liplianin@netup.ru>,
-        Daniel Axtens <dja@axtens.net>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 020/102] altera-stapl: altera_get_note: prevent write beyond end of key
-Date:   Tue, 24 Mar 2020 14:10:12 +0100
-Message-Id: <20200324130808.580281959@linuxfoundation.org>
+Subject: [PATCH 5.5 028/119] ASoC: stm32: sai: manage rebind issue
+Date:   Tue, 24 Mar 2020 14:10:13 +0100
+Message-Id: <20200324130811.168634879@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,97 +44,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Olivier Moysan <olivier.moysan@st.com>
 
-[ Upstream commit 3745488e9d599916a0b40d45d3f30e3d4720288e ]
+[ Upstream commit 0d6defc7e0e437a9fd53622f7fd85740f38d5693 ]
 
-altera_get_note is called from altera_init, where key is kzalloc(33).
+The commit e894efef9ac7 ("ASoC: core: add support to card rebind")
+allows to rebind the sound card after a rebind of one of its component.
+With this commit, the sound card is actually rebound,
+but may be no more functional. The following problems have been seen
+with STM32 SAI driver.
 
-When the allocation functions are annotated to allow the compiler to see
-the sizes of objects, and with FORTIFY_SOURCE, we see:
+1) DMA channel is not requested:
 
-In file included from drivers/misc/altera-stapl/altera.c:14:0:
-In function ‘strlcpy’,
-    inlined from ‘altera_init’ at drivers/misc/altera-stapl/altera.c:2189:5:
-include/linux/string.h:378:4: error: call to ‘__write_overflow’ declared with attribute error: detected write beyond size of object passed as 1st parameter
-    __write_overflow();
-    ^~~~~~~~~~~~~~~~~~
+With the sound card rebind the simplified call sequence is:
+stm32_sai_sub_probe
+	snd_soc_register_component
+		snd_soc_try_rebind_card
+			snd_soc_instantiate_card
+	devm_snd_dmaengine_pcm_register
 
-That refers to this code in altera_get_note:
+The problem occurs because the pcm must be registered,
+before snd_soc_instantiate_card() is called.
 
-    if (key != NULL)
-            strlcpy(key, &p[note_strings +
-                            get_unaligned_be32(
-                            &p[note_table + (8 * i)])],
-                    length);
+Modify SAI driver, to change the call sequence as follows:
+stm32_sai_sub_probe
+	devm_snd_dmaengine_pcm_register
+	snd_soc_register_component
+		snd_soc_try_rebind_card
 
-The error triggers because the length of 'key' is 33, but the copy
-uses length supplied as the 'length' parameter, which is always
-256. Split the size parameter into key_len and val_len, and use the
-appropriate length depending on what is being copied.
+2) DMA channel is not released:
 
-Detected by compiler error, only compile-tested.
+dma_release_channel() is not called when
+devm_dmaengine_pcm_release() is executed.
+This occurs because SND_DMAENGINE_PCM_DRV_NAME component,
+has already been released through devm_component_release().
 
-Cc: "Igor M. Liplianin" <liplianin@netup.ru>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Link: https://lore.kernel.org/r/20200120074344.504-2-dja@axtens.net
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/202002251042.D898E67AC@keescook
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+devm_dmaengine_pcm_release() should be called before
+devm_component_release() to avoid this problem.
+
+Call snd_dmaengine_pcm_unregister() and snd_soc_unregister_component()
+explicitly from SAI driver, to have the right sequence.
+
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+Message-Id: <20200304102406.8093-1-olivier.moysan@st.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/altera-stapl/altera.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/soc/stm/stm32_sai_sub.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/misc/altera-stapl/altera.c b/drivers/misc/altera-stapl/altera.c
-index 25e5f24b3fecd..5bdf574723144 100644
---- a/drivers/misc/altera-stapl/altera.c
-+++ b/drivers/misc/altera-stapl/altera.c
-@@ -2112,8 +2112,8 @@ static int altera_execute(struct altera_state *astate,
- 	return status;
+diff --git a/sound/soc/stm/stm32_sai_sub.c b/sound/soc/stm/stm32_sai_sub.c
+index 30bcd5d3a32a8..10eb4b8e8e7ee 100644
+--- a/sound/soc/stm/stm32_sai_sub.c
++++ b/sound/soc/stm/stm32_sai_sub.c
+@@ -1543,20 +1543,20 @@ static int stm32_sai_sub_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = devm_snd_soc_register_component(&pdev->dev, &stm32_component,
+-					      &sai->cpu_dai_drv, 1);
++	ret = snd_dmaengine_pcm_register(&pdev->dev, conf, 0);
++	if (ret) {
++		dev_err(&pdev->dev, "Could not register pcm dma\n");
++		return ret;
++	}
++
++	ret = snd_soc_register_component(&pdev->dev, &stm32_component,
++					 &sai->cpu_dai_drv, 1);
+ 	if (ret)
+ 		return ret;
+ 
+ 	if (STM_SAI_PROTOCOL_IS_SPDIF(sai))
+ 		conf = &stm32_sai_pcm_config_spdif;
+ 
+-	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, conf, 0);
+-	if (ret) {
+-		dev_err(&pdev->dev, "Could not register pcm dma\n");
+-		return ret;
+-	}
+-
+ 	return 0;
  }
  
--static int altera_get_note(u8 *p, s32 program_size,
--			s32 *offset, char *key, char *value, int length)
-+static int altera_get_note(u8 *p, s32 program_size, s32 *offset,
-+			   char *key, char *value, int keylen, int vallen)
- /*
-  * Gets key and value of NOTE fields in the JBC file.
-  * Can be called in two modes:  if offset pointer is NULL,
-@@ -2170,7 +2170,7 @@ static int altera_get_note(u8 *p, s32 program_size,
- 						&p[note_table + (8 * i) + 4])];
+@@ -1565,6 +1565,8 @@ static int stm32_sai_sub_remove(struct platform_device *pdev)
+ 	struct stm32_sai_sub_data *sai = dev_get_drvdata(&pdev->dev);
  
- 				if (value != NULL)
--					strlcpy(value, value_ptr, length);
-+					strlcpy(value, value_ptr, vallen);
+ 	clk_unprepare(sai->pdata->pclk);
++	snd_dmaengine_pcm_unregister(&pdev->dev);
++	snd_soc_unregister_component(&pdev->dev);
  
- 			}
- 		}
-@@ -2189,13 +2189,13 @@ static int altera_get_note(u8 *p, s32 program_size,
- 				strlcpy(key, &p[note_strings +
- 						get_unaligned_be32(
- 						&p[note_table + (8 * i)])],
--					length);
-+					keylen);
- 
- 			if (value != NULL)
- 				strlcpy(value, &p[note_strings +
- 						get_unaligned_be32(
- 						&p[note_table + (8 * i) + 4])],
--					length);
-+					vallen);
- 
- 			*offset = i + 1;
- 		}
-@@ -2449,7 +2449,7 @@ int altera_init(struct altera_config *config, const struct firmware *fw)
- 			__func__, (format_version == 2) ? "Jam STAPL" :
- 						"pre-standardized Jam 1.1");
- 		while (altera_get_note((u8 *)fw->data, fw->size,
--					&offset, key, value, 256) == 0)
-+					&offset, key, value, 32, 256) == 0)
- 			printk(KERN_INFO "%s: NOTE \"%s\" = \"%s\"\n",
- 					__func__, key, value);
- 	}
+ 	return 0;
+ }
 -- 
 2.20.1
 
