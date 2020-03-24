@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 854F6190E83
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:14:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C177F190F23
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727705AbgCXNMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:12:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58678 "EHLO mail.kernel.org"
+        id S1728282AbgCXNR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:17:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727698AbgCXNMp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:12:45 -0400
+        id S1728171AbgCXNR5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:17:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F293E208CA;
-        Tue, 24 Mar 2020 13:12:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1700208CA;
+        Tue, 24 Mar 2020 13:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055564;
-        bh=3uYIFyGwaBuZfOVVH3bfbQDJfqRIkb/5lCL2RWgSi5Q=;
+        s=default; t=1585055876;
+        bh=iBjbZ09cVGZ1XntUHNiVR6x9U+7Uef9bZjfXZREwfb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zh6pH5cQBDfHiBQ2JMSZC6739v8vY7pskjeQfFyaNtyr2Ddwt3SNiGC/um92+Kj7d
-         6H0wr4Zqtcb7QXwWCn5QE3iGmU8BSJp0vpRAaPSebtojhapKyCa7ffpZmiQ1QxI/9Q
-         tf6BDhvwUjv34GwYsomyqHF4f6bT44sQ/zRGrjHU=
+        b=u0dTNzDH0Dk1SAjRGJZzNqE9nkvhzhcsbTrkTpmS3uUbOPH3t48juawAUYz7KhyUc
+         VZaXM8dCDSbqz9pF5Mbbov1V7Ukj+ra8XvyJtEOFX7n7Z0ZLTDEO/oDtUkmwJ+IRLM
+         e3OqXb2mVAXztVxoXh4he+DZeObtjRmeBQpc7gkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alberto Mattea <alberto@mattea.info>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 25/65] usb: xhci: apply XHCI_SUSPEND_DELAY to AMD XHCI controller 1022:145c
-Date:   Tue, 24 Mar 2020 14:10:46 +0100
-Message-Id: <20200324130800.374024759@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.4 055/102] tty: fix compat TIOCGSERIAL checking wrong function ptr
+Date:   Tue, 24 Mar 2020 14:10:47 +0100
+Message-Id: <20200324130812.314596042@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
-References: <20200324130756.679112147@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alberto Mattea <alberto@mattea.info>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 16263abc12d09871156a1c8650fb651f0e552f5e upstream.
+commit 6e622cd8bd888c7fa3ee2b7dfb3514ab53b21570 upstream.
 
-This controller timeouts during suspend (S3) with
-[  240.521724] xhci_hcd 0000:30:00.3: WARN: xHC save state timeout
-[  240.521729] xhci_hcd 0000:30:00.3: ERROR mismatched command completion event
-thus preventing the system from entering S3.
-Moreover it remains in an undefined state where some connected devices stop
-working until a reboot.
-Apply the XHCI_SUSPEND_DELAY quirk to make it suspend properly.
+Commit 77654350306a ("take compat TIOC[SG]SERIAL treatment into
+tty_compat_ioctl()") changed the compat version of TIOCGSERIAL to start
+checking for the presence of the ->set_serial function pointer rather
+than ->get_serial.  This appears to be a copy-and-paste error, since
+->get_serial is the function pointer that is called as well as the
+pointer that is checked by the non-compat version of TIOCGSERIAL.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Alberto Mattea <alberto@mattea.info>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200306150858.21904-3-mathias.nyman@linux.intel.com
+Fix this by checking the correct function pointer.
+
+Fixes: 77654350306a ("take compat TIOC[SG]SERIAL treatment into tty_compat_ioctl()")
+Cc: <stable@vger.kernel.org> # v4.20+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200224182044.234553-3-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-pci.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/tty_io.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -128,7 +128,8 @@ static void xhci_pci_quirks(struct devic
- 		xhci->quirks |= XHCI_AMD_PLL_FIX;
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -2735,7 +2735,7 @@ static int compat_tty_tiocgserial(struct
+ 	memset(&v, 0, sizeof(v));
+ 	memset(&v32, 0, sizeof(v32));
  
- 	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
--		(pdev->device == 0x15e0 ||
-+		(pdev->device == 0x145c ||
-+		 pdev->device == 0x15e0 ||
- 		 pdev->device == 0x15e1 ||
- 		 pdev->device == 0x43bb))
- 		xhci->quirks |= XHCI_SUSPEND_DELAY;
+-	if (!tty->ops->set_serial)
++	if (!tty->ops->get_serial)
+ 		return -ENOTTY;
+ 	err = tty->ops->get_serial(tty, &v);
+ 	if (!err) {
 
 
