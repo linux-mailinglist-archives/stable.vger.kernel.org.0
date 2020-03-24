@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B780191068
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C871910E3
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728872AbgCXN1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:27:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
+        id S1728784AbgCXNS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:18:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729979AbgCXN1r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:27:47 -0400
+        id S1728776AbgCXNS6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:18:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88167206F6;
-        Tue, 24 Mar 2020 13:27:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71D6B208E0;
+        Tue, 24 Mar 2020 13:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056467;
-        bh=6OrOnoiINJv+m8teJLQrQHUPd38IaKQ8DMAFSfTiJIA=;
+        s=default; t=1585055937;
+        bh=kD5OmQO4pEKHygBevvv6JpUwmgqLQSgBx1YueWzSU08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hup1sxAApOxMQNkUd8PISehSgxzgEw97Z2et7bzceWOgnaW7iNAiQemyIDk/9DVvd
-         mihXpWayijry7wCLWA3IM8OYlnaInQr+5aR3vNzlvRZ56LCZCy28s3bhQtbW4g8pZt
-         uIzue0NN5mBu7llj4j1BOcaLD9nNjLXIK2VUGh0A=
+        b=Uhrv46U7TZhqibXrb6NT33I4CI4EZhAVrDvVKGWz06STVwSBHpzZkHNKqcLt1VLRX
+         +z5YrkPLJiYMCAeIQbaglkFgAkEfdkKnNiBpX9byq5fW5vXI5YhmV/WV6izIvQdS2Q
+         1YEWybdkFxyXfmwRad1H+BLAjowlGsvsGw7C6Fok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirk Reiser <kirk@reisers.ca>,
-        Janina Sajka <janina@rednote.net>,
-        Alexandr Epaneshnikov <aarnaarn2@gmail.com>,
-        Gregory Nowak <greg@gregn.net>,
-        deedra waters <deedra@the-brannons.com>,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Michael Taboada <michael@michaels.world>
-Subject: [PATCH 5.5 080/119] staging/speakup: fix get_word non-space look-ahead
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 073/102] intel_th: msu: Fix the unexpected state warning
 Date:   Tue, 24 Mar 2020 14:11:05 +0100
-Message-Id: <20200324130816.307081927@linuxfoundation.org>
+Message-Id: <20200324130813.961202332@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,43 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 9d32c0cde4e2d1343dfb88a67b2ec6397705b32b upstream.
+commit 885f123554bbdc1807ca25a374be6e9b3bddf4de upstream.
 
-get_char was erroneously given the address of the pointer to the text
-instead of the address of the text, thus leading to random crashes when
-the user requests speaking a word while the current position is on a space
-character and say_word_ctl is not enabled.
+The unexpected state warning should only warn on illegal state
+transitions. Fix that.
 
-Reported-on: https://github.com/bytefire/speakup/issues/1
-Reported-by: Kirk Reiser <kirk@reisers.ca>
-Reported-by: Janina Sajka <janina@rednote.net>
-Reported-by: Alexandr Epaneshnikov <aarnaarn2@gmail.com>
-Reported-by: Gregory Nowak <greg@gregn.net>
-Reported-by: deedra waters <deedra@the-brannons.com>
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Tested-by: Alexandr Epaneshnikov <aarnaarn2@gmail.com>
-Tested-by: Gregory Nowak <greg@gregn.net>
-Tested-by: Michael Taboada <michael@michaels.world>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200306003047.thijtmqrnayd3dmw@function
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 615c164da0eb4 ("intel_th: msu: Introduce buffer interface")
+Cc: stable@vger.kernel.org # v5.4+
+Link: https://lore.kernel.org/r/20200317062215.15598-5-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/speakup/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwtracing/intel_th/msu.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/speakup/main.c
-+++ b/drivers/staging/speakup/main.c
-@@ -561,7 +561,7 @@ static u_long get_word(struct vc_data *v
- 		return 0;
- 	} else if (tmpx < vc->vc_cols - 2 &&
- 		   (ch == SPACE || ch == 0 || (ch < 0x100 && IS_WDLM(ch))) &&
--		   get_char(vc, (u_short *)&tmp_pos + 1, &temp) > SPACE) {
-+		   get_char(vc, (u_short *)tmp_pos + 1, &temp) > SPACE) {
- 		tmp_pos += 2;
- 		tmpx++;
- 	} else {
+--- a/drivers/hwtracing/intel_th/msu.c
++++ b/drivers/hwtracing/intel_th/msu.c
+@@ -718,9 +718,6 @@ static int msc_win_set_lockout(struct ms
+ 
+ 	if (old != expect) {
+ 		ret = -EINVAL;
+-		dev_warn_ratelimited(msc_dev(win->msc),
+-				     "expected lockout state %d, got %d\n",
+-				     expect, old);
+ 		goto unlock;
+ 	}
+ 
+@@ -741,6 +738,10 @@ unlock:
+ 		/* from intel_th_msc_window_unlock(), don't warn if not locked */
+ 		if (expect == WIN_LOCKED && old == new)
+ 			return 0;
++
++		dev_warn_ratelimited(msc_dev(win->msc),
++				     "expected lockout state %d, got %d\n",
++				     expect, old);
+ 	}
+ 
+ 	return ret;
 
 
