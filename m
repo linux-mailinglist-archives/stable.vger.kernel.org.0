@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7074C190FC6
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C6E5190F02
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728951AbgCXNXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:23:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45754 "EHLO mail.kernel.org"
+        id S1727490AbgCXNQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:16:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729197AbgCXNW7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:22:59 -0400
+        id S1727755AbgCXNQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:16:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5810F20870;
-        Tue, 24 Mar 2020 13:22:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DCA420775;
+        Tue, 24 Mar 2020 13:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056177;
-        bh=mlERIezMSUR87vZkqlbgJBYeiGBo6RjW0u8RV2Ki8Rg=;
+        s=default; t=1585055806;
+        bh=OGv4NJMH6egSO3CM+oM4/EP7ikbuiFpvtEs66GSlFxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZ6H9FeFEzdaV3Q0YaL26hxBZlbXfGQR3TVTeCXcFujKiLgze+F86M11O8bckEqVH
-         gF/orDfYKQ3Mlh5b2dpxwEIzYImalCkPXS6to5ftGnxBBh6nbIgHMNVYpQovdMViXu
-         3f96cO7n/NuqrVSktCTMDCf1uGkHrNp6gba3cnjI=
+        b=DrSFie3XAyKWVovOa6ruKIm7D47K1YvwahT3gP/AAZZ0Ykj0eca7bWcDlkKho84Nw
+         ZBYAAbhDuHRzntopNoJ1RWNZMqt6xTvJGNGfBXZnHzJm3xx7LEUE/OEozz3Gn3MqCp
+         ZcaFUn3dvnWPZsdb4wSARYvc4c/cXIFZkQ0pfL34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        stable@vger.kernel.org, Kwon Je Oh <kwonje.oh2@gmail.com>,
+        Carlo Nonato <carlo.nonato95@gmail.com>,
+        Paolo Valente <paolo.valente@linaro.org>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 039/119] io_uring: fix lockup with timeouts
-Date:   Tue, 24 Mar 2020 14:10:24 +0100
-Message-Id: <20200324130812.288225410@linuxfoundation.org>
+Subject: [PATCH 5.4 033/102] block, bfq: fix overwrite of bfq_group pointer in bfq_find_set_group()
+Date:   Tue, 24 Mar 2020 14:10:25 +0100
+Message-Id: <20200324130810.126577787@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Carlo Nonato <carlo.nonato95@gmail.com>
 
-[ Upstream commit f0e20b8943509d81200cef5e30af2adfddba0f5c ]
+[ Upstream commit 14afc59361976c0ba39e3a9589c3eaa43ebc7e1d ]
 
-There is a recipe to deadlock the kernel: submit a timeout sqe with a
-linked_timeout (e.g.  test_single_link_timeout_ception() from liburing),
-and SIGKILL the process.
+The bfq_find_set_group() function takes as input a blkcg (which represents
+a cgroup) and retrieves the corresponding bfq_group, then it updates the
+bfq internal group hierarchy (see comments inside the function for why
+this is needed) and finally it returns the bfq_group.
+In the hierarchy update cycle, the pointer holding the correct bfq_group
+that has to be returned is mistakenly used to traverse the hierarchy
+bottom to top, meaning that in each iteration it gets overwritten with the
+parent of the current group. Since the update cycle stops at root's
+children (depth = 2), the overwrite becomes a problem only if the blkcg
+describes a cgroup at a hierarchy level deeper than that (depth > 2). In
+this case the root's child that happens to be also an ancestor of the
+correct bfq_group is returned. The main consequence is that processes
+contained in a cgroup at depth greater than 2 are wrongly placed in the
+group described above by BFQ.
 
-Then, io_kill_timeouts() takes @ctx->completion_lock, but the timeout
-isn't flagged with REQ_F_COMP_LOCKED, and will try to double grab it
-during io_put_free() to cancel the linked timeout. Probably, the same
-can happen with another io_kill_timeout() call site, that is
-io_commit_cqring().
+This commits fixes this problem by using a different bfq_group pointer in
+the update cycle in order to avoid the overwrite of the variable holding
+the original group reference.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Reported-by: Kwon Je Oh <kwonje.oh2@gmail.com>
+Signed-off-by: Carlo Nonato <carlo.nonato95@gmail.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 1 +
- 1 file changed, 1 insertion(+)
+ block/bfq-cgroup.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2547c6395d5e4..44ae2641b4b06 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -688,6 +688,7 @@ static void io_kill_timeout(struct io_kiocb *req)
- 	if (ret != -1) {
- 		atomic_inc(&req->ctx->cq_timeouts);
- 		list_del_init(&req->list);
-+		req->flags |= REQ_F_COMP_LOCKED;
- 		io_cqring_fill_event(req, 0);
- 		io_put_req(req);
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index d0e36d6522649..86cd718e0380b 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -593,12 +593,13 @@ struct bfq_group *bfq_find_set_group(struct bfq_data *bfqd,
+ 	 */
+ 	entity = &bfqg->entity;
+ 	for_each_entity(entity) {
+-		bfqg = container_of(entity, struct bfq_group, entity);
+-		if (bfqg != bfqd->root_group) {
+-			parent = bfqg_parent(bfqg);
++		struct bfq_group *curr_bfqg = container_of(entity,
++						struct bfq_group, entity);
++		if (curr_bfqg != bfqd->root_group) {
++			parent = bfqg_parent(curr_bfqg);
+ 			if (!parent)
+ 				parent = bfqd->root_group;
+-			bfq_group_set_parent(bfqg, parent);
++			bfq_group_set_parent(curr_bfqg, parent);
+ 		}
  	}
+ 
 -- 
 2.20.1
 
