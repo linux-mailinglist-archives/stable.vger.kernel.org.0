@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A34D1910C5
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF8E19102B
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728863AbgCXNU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:20:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
+        id S1729434AbgCXNZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:25:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728975AbgCXNUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:20:55 -0400
+        id S1728858AbgCXNZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:25:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DE1220870;
-        Tue, 24 Mar 2020 13:20:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C3C2206F6;
+        Tue, 24 Mar 2020 13:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056054;
-        bh=9SZ6H8OtV/t5OwamSNzqhZZxFhLVRQt2dlOqOJNBvZA=;
+        s=default; t=1585056354;
+        bh=NEdggw3DsZKGNplSv0bxIHQE0OgYMgZZ0r2Y/Xougek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLYdJ2L7rhIRl5JVCItv3cvwoG9DIDEnNP4MPlt0fOnTRwx5wIZ9Dq63r94IEGjoW
-         4YEZGbj0pQTLk8pUEFVEg2aUSf093wrJlNVumWEHLbLpA3eMkVbo9LOjEU3ikP6qLw
-         H0Y/8XfO9F06MbS7i04vW3xUr8LBsrp2daSt8PUA=
+        b=NDmn222XkyoT106peec8CD2EXdtFNCU1T6EmpapuF4nAdCFXmf3Ia2KqlBJH2UxV7
+         cuKZYMcGzI0DQCHLCzHUE0AshH04GPynzHIcSbduLNRzj3PTSLHfAsME9vUifxsgUH
+         cEzgF1nFuYAvwzaNIn2q6ekGvnNxZXfXCDUAFNUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jason Baron <jbaron@akamai.com>,
         Jes Sorensen <jes.sorensen@gmail.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 089/102] epoll: fix possible lost wakeup on epoll_ctl() path
-Date:   Tue, 24 Mar 2020 14:11:21 +0100
-Message-Id: <20200324130815.919902714@linuxfoundation.org>
+Subject: [PATCH 5.5 097/119] epoll: fix possible lost wakeup on epoll_ctl() path
+Date:   Tue, 24 Mar 2020 14:11:22 +0100
+Message-Id: <20200324130817.843646270@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -102,7 +102,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/eventpoll.c
 +++ b/fs/eventpoll.c
-@@ -1881,9 +1881,9 @@ fetch_events:
+@@ -1860,9 +1860,9 @@ fetch_events:
  		waiter = true;
  		init_waitqueue_entry(&wait, current);
  
@@ -114,7 +114,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  
  	for (;;) {
-@@ -1931,9 +1931,9 @@ send_events:
+@@ -1910,9 +1910,9 @@ send_events:
  		goto fetch_events;
  
  	if (waiter) {
