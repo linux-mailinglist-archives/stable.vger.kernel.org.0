@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 795BF190E97
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:15:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BC75190FFA
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727725AbgCXNNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:13:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59588 "EHLO mail.kernel.org"
+        id S1728659AbgCXNY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:24:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727657AbgCXNNX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:13:23 -0400
+        id S1728729AbgCXNYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:24:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76A97208CA;
-        Tue, 24 Mar 2020 13:13:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CAF8208E4;
+        Tue, 24 Mar 2020 13:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055602;
-        bh=mscAE38OIZwHCpEJWrvZ05bmulZBqJDCegjaGUMKJVM=;
+        s=default; t=1585056261;
+        bh=D0Hozx/bh4O8WukFnY5fgudHZsM0yHVZbSlAKyQDQyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6WqPnyR1HoWWPquAHEDw/tInSHVHAlV3qqavxUR2CLDMPh3RpweK0W/9RqV3lzJF
-         6cwLP/WZmlcILpqcdcpZT/uN8ZBzg++25hPVVmS/Ih35zudkonM9NIl3vScd27h0Ol
-         UE2e2jjwNffbiuV+IAmA7xSBN4KT4o3Lnsy5XhgQ=
+        b=sr1oybK512FdRy8DUVLKjdPFlzPvmSj+B771ytfR0jXUKXUqVGc2plzr0qfhEa1Eu
+         SyNVGyl1UxEx2tY5wjftlxhMCssUqilFdiIu0v6uyttk8B/EoG8/ibhOwyGZW4AUb4
+         /05kp+mP0ARK/PnKGUW2Wt4Dpoq7uwSDDTBLrs34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
         Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 36/65] mmc: sdhci-of-at91: fix cd-gpios for SAMA5D2
+Subject: [PATCH 5.5 072/119] mmc: sdhci-of-at91: fix cd-gpios for SAMA5D2
 Date:   Tue, 24 Mar 2020 14:10:57 +0100
-Message-Id: <20200324130801.768764151@linuxfoundation.org>
+Message-Id: <20200324130815.415716127@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
-References: <20200324130756.679112147@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,17 +70,17 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mmc/host/sdhci-of-at91.c
 +++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -126,7 +126,8 @@ static void sdhci_at91_reset(struct sdhc
- {
+@@ -125,7 +125,8 @@ static void sdhci_at91_reset(struct sdhc
+ 
  	sdhci_reset(host, mask);
  
 -	if (host->mmc->caps & MMC_CAP_NONREMOVABLE)
 +	if ((host->mmc->caps & MMC_CAP_NONREMOVABLE)
 +	    || mmc_gpio_get_cd(host->mmc) >= 0)
  		sdhci_at91_set_force_card_detect(host);
- }
  
-@@ -405,8 +406,11 @@ static int sdhci_at91_probe(struct platf
+ 	if (priv->cal_always_on && (mask & SDHCI_RESET_ALL))
+@@ -416,8 +417,11 @@ static int sdhci_at91_probe(struct platf
  	 * detection procedure using the SDMCC_CD signal is bypassed.
  	 * This bit is reset when a software reset for all command is performed
  	 * so we need to implement our own reset function to set back this bit.
