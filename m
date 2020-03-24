@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A23190FCE
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F329190F52
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:20:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729130AbgCXNXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:23:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46308 "EHLO mail.kernel.org"
+        id S1727677AbgCXNTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:19:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729267AbgCXNXR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:23:17 -0400
+        id S1727770AbgCXNTe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:19:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B9DE206F6;
-        Tue, 24 Mar 2020 13:23:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8901C208D5;
+        Tue, 24 Mar 2020 13:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056196;
-        bh=Zh6Q81xz4S7Uy/uL5Zghtt2qm145iElh7QjBAawbpiU=;
+        s=default; t=1585055973;
+        bh=6gexxwiQdA9Su+qvuekL8GGkNoASq2gcrDkAT0Kh84Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2o7DBriDfwwCbjzA/saf2aNRFw6gpX1fW93cYCRwWnQQIK9C1fPQjlxHuamb1kqnI
-         JVHoaUENWMZ+6OvPhv7aiCcAIWNa8aui7pBEVVmduqnQH3cuWYgSrJEI6jwlWblnua
-         aOBAPJXOnEfmQYnaBmRz1r2njIMOymar36w7Jst0=
+        b=Z/tLLnvZXZ6X6ml49GY6Ir+sF2DFOkdj0uLD4cVSOwxlpV4XleOKrkqVWgMPyz/U8
+         CjEq6L54xCpOND/7xWvMdoHGyxDsDl/b3f+KCUKTQrTJuo2oGF3eigLhUk6bI/x5fl
+         CC+VY4S13Bjdi8Srt3aZF7dATtwwOvmfEUrJDA5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 053/119] ALSA: line6: Fix endless MIDI read loop
+        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>
+Subject: [PATCH 5.4 046/102] USB: cdc-acm: fix rounding error in TIOCSSERIAL
 Date:   Tue, 24 Mar 2020 14:10:38 +0100
-Message-Id: <20200324130813.545459545@linuxfoundation.org>
+Message-Id: <20200324130811.411479386@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Anthony Mallet <anthony.mallet@laas.fr>
 
-commit d683469b3c93d7e2afd39e6e1970f24700eb7a68 upstream.
+commit b401f8c4f492cbf74f3f59c9141e5be3071071bb upstream.
 
-The MIDI input event parser of the LINE6 driver may enter into an
-endless loop when the unexpected data sequence is given, as it tries
-to continue the secondary bytes without termination.  Also, when the
-input data is too short, the parser returns a negative error, while
-the caller doesn't handle it properly.  This would lead to the
-unexpected behavior as well.
+By default, tty_port_init() initializes those parameters to a multiple
+of HZ. For instance in line 69 of tty_port.c:
+   port->close_delay = (50 * HZ) / 100;
+https://github.com/torvalds/linux/blob/master/drivers/tty/tty_port.c#L69
 
-This patch addresses those issues by checking the return value
-correctly and handling the one-byte event in the parser properly.
+With e.g. CONFIG_HZ = 250 (as this is the case for Ubuntu 18.04
+linux-image-4.15.0-37-generic), the default setting for close_delay is
+thus 125.
 
-The bug was reported by syzkaller.
+When ioctl(fd, TIOCGSERIAL, &s) is executed, the setting returned in
+user space is '12' (125/10). When ioctl(fd, TIOCSSERIAL, &s) is then
+executed with the same setting '12', the value is interpreted as '120'
+which is different from the current setting and a EPERM error may be
+raised by set_serial_info() if !CAP_SYS_ADMIN.
+https://github.com/torvalds/linux/blob/master/drivers/usb/class/cdc-acm.c#L919
 
-Reported-by: syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/000000000000033087059f8f8fa3@google.com
-Link: https://lore.kernel.org/r/20200309095922.30269-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: ba2d8ce9db0a6 ("cdc-acm: implement TIOCSSERIAL to avoid blocking close(2)")
+Signed-off-by: Anthony Mallet <anthony.mallet@laas.fr>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200312133101.7096-2-anthony.mallet@laas.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/line6/driver.c  |    2 +-
- sound/usb/line6/midibuf.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/class/cdc-acm.c |   25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -305,7 +305,7 @@ static void line6_data_received(struct u
- 				line6_midibuf_read(mb, line6->buffer_message,
- 						LINE6_MIDI_MESSAGE_MAXLEN);
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -907,6 +907,7 @@ static int set_serial_info(struct tty_st
+ {
+ 	struct acm *acm = tty->driver_data;
+ 	unsigned int closing_wait, close_delay;
++	unsigned int old_closing_wait, old_close_delay;
+ 	int retval = 0;
  
--			if (done == 0)
-+			if (done <= 0)
- 				break;
+ 	close_delay = msecs_to_jiffies(ss->close_delay * 10);
+@@ -914,18 +915,24 @@ static int set_serial_info(struct tty_st
+ 			ASYNC_CLOSING_WAIT_NONE :
+ 			msecs_to_jiffies(ss->closing_wait * 10);
  
- 			line6->message_length = done;
---- a/sound/usb/line6/midibuf.c
-+++ b/sound/usb/line6/midibuf.c
-@@ -159,7 +159,7 @@ int line6_midibuf_read(struct midi_buffe
- 			int midi_length_prev =
- 			    midibuf_message_length(this->command_prev);
++	/* we must redo the rounding here, so that the values match */
++	old_close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
++	old_closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
++				ASYNC_CLOSING_WAIT_NONE :
++				jiffies_to_msecs(acm->port.closing_wait) / 10;
++
+ 	mutex_lock(&acm->port.mutex);
  
--			if (midi_length_prev > 0) {
-+			if (midi_length_prev > 1) {
- 				midi_length = midi_length_prev - 1;
- 				repeat = 1;
- 			} else
+-	if (!capable(CAP_SYS_ADMIN)) {
+-		if ((close_delay != acm->port.close_delay) ||
+-		    (closing_wait != acm->port.closing_wait))
++	if ((ss->close_delay != old_close_delay) ||
++            (ss->closing_wait != old_closing_wait)) {
++		if (!capable(CAP_SYS_ADMIN))
+ 			retval = -EPERM;
+-		else
+-			retval = -EOPNOTSUPP;
+-	} else {
+-		acm->port.close_delay  = close_delay;
+-		acm->port.closing_wait = closing_wait;
+-	}
++		else {
++			acm->port.close_delay  = close_delay;
++			acm->port.closing_wait = closing_wait;
++		}
++	} else
++		retval = -EOPNOTSUPP;
+ 
+ 	mutex_unlock(&acm->port.mutex);
+ 	return retval;
 
 
