@@ -2,150 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89DE2190C84
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 12:32:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49111190CA2
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 12:44:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727256AbgCXLb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 07:31:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46000 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727241AbgCXLb6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 07:31:58 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727112AbgCXLoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 07:44:39 -0400
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:24953 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726944AbgCXLoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 07:44:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1585050278;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=jIvetckhkjjzuq9TnkC7Ni1A2wTKG5T05w4nu+bxYFY=;
+        b=ByQga7NAAdUtc303n2n7yf4CHvbX6JBCiMRQ11f4RWTAG4+ZDetBMZaq9/afFoYIBvAWLa
+        94HZIb+p/M00mzjlic1Ld2wNNYQ3bnveczjzUnjNagczn+ygTza3Y9aVAIIVlNtm0DmH5n
+        wMcPo3mE2UwQAwr+yieuss8zpcd0TfE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-160-rUDM1GSTPC2IUPlcuJ4u2w-1; Tue, 24 Mar 2020 07:44:34 -0400
+X-MC-Unique: rUDM1GSTPC2IUPlcuJ4u2w-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C32882070A;
-        Tue, 24 Mar 2020 11:31:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585049517;
-        bh=hYUqExzcNj8UsG9Zp6+wz96+2AtMvxFk5pkMaYndbqQ=;
-        h=Subject:To:From:Date:From;
-        b=yLENMt1bPjNO9Dmceih5aKPwV9WiLh69fQEl8HvSp8uCbl3FdER4Wv0iHH3R0cEOT
-         ZwYiGS1l/MvhQBFQR8oubRc0T0tqvfz7+PR5RS8XvAWr9jvMu/04w+V4l1jgRMm18q
-         IKhX8f1/0p7q3HFEfOo7bGQLeS7dI+kg+HODaZ28=
-Subject: patch "vt: fix use after free in function "vc_do_resize"" added to tty-testing
-To:     yebin10@huawei.com, gregkh@linuxfoundation.org, jslaby@suse.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 24 Mar 2020 12:31:55 +0100
-Message-ID: <1585049515157141@kroah.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5835E13F5;
+        Tue, 24 Mar 2020 11:44:33 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 4E97119C6A;
+        Tue, 24 Mar 2020 11:44:33 +0000 (UTC)
+Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 139FA86380;
+        Tue, 24 Mar 2020 11:44:33 +0000 (UTC)
+Date:   Tue, 24 Mar 2020 07:44:32 -0400 (EDT)
+From:   Veronika Kabatova <vkabatov@redhat.com>
+To:     Greg KH <greg@kroah.com>
+Cc:     Memory Management <mm-qe@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        CKI Project <cki-project@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>
+Message-ID: <1768018191.15186361.1585050272846.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20200324111819.GA2234211@kroah.com>
+References: <cki.936A32626F.M0L95JS69X@redhat.com> <20200324062213.GA1961100@kroah.com> <970614328.15180583.1585048327050.JavaMail.zimbra@redhat.com> <20200324111819.GA2234211@kroah.com>
+Subject: =?utf-8?Q?Re:_=F0=9F=92=A5_PANICKED:_Test_report=09for=3Fke?=
+ =?utf-8?Q?rnel_5.5.12-rc1-8b841eb.cki_(stable)?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Originating-IP: [10.40.195.245, 10.4.195.20]
+Thread-Topic: ? PANICKED: Test report for?kernel 5.5.12-rc1-8b841eb.cki (stable)
+Thread-Index: ZEpX8ziB5QkKi4ugt4KkJow9EuYsrg==
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
 
-    vt: fix use after free in function "vc_do_resize"
+----- Original Message -----
+> From: "Greg KH" <greg@kroah.com>
+> To: "Veronika Kabatova" <vkabatov@redhat.com>
+> Cc: "Memory Management" <mm-qe@redhat.com>, "Ondrej Mosnacek" <omosnace@r=
+edhat.com>, "Linux Stable maillist"
+> <stable@vger.kernel.org>, "CKI Project" <cki-project@redhat.com>, "Jan St=
+ancek" <jstancek@redhat.com>, "LTP Mailing
+> List" <ltp@lists.linux.it>
+> Sent: Tuesday, March 24, 2020 12:18:19 PM
+> Subject: Re: =F0=9F=92=A5 PANICKED: Test report=09for?kernel 5.5.12-rc1-8=
+b841eb.cki (stable)
+>=20
+> On Tue, Mar 24, 2020 at 07:12:07AM -0400, Veronika Kabatova wrote:
+> >=20
+> >=20
+> > ----- Original Message -----
+> > > From: "Greg KH" <greg@kroah.com>
+> > > To: "CKI Project" <cki-project@redhat.com>
+> > > Cc: "Memory Management" <mm-qe@redhat.com>, "Ondrej Mosnacek"
+> > > <omosnace@redhat.com>, "Linux Stable maillist"
+> > > <stable@vger.kernel.org>, "Jan Stancek" <jstancek@redhat.com>, "LTP
+> > > Mailing List" <ltp@lists.linux.it>
+> > > Sent: Tuesday, March 24, 2020 7:22:13 AM
+> > > Subject: Re: =F0=9F=92=A5 PANICKED: Test report for=09kernel 5.5.12-r=
+c1-8b841eb.cki
+> > > (stable)
+> > >=20
+> > > On Tue, Mar 24, 2020 at 05:42:38AM -0000, CKI Project wrote:
+> > > >=20
+> > > > Hello,
+> > > >=20
+> > > > We ran automated tests on a recent commit from this kernel tree:
+> > > >=20
+> > > >        Kernel repo:
+> > > >        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux=
+-stable-rc.git
+> > > >             Commit: 8b841eb697e1 - Linux 5.5.12-rc1
+> > > >=20
+> > > > The results of these automated tests are provided below.
+> > > >=20
+> > > >     Overall result: FAILED (see details below)
+> > > >              Merge: OK
+> > > >            Compile: OK
+> > > >              Tests: PANICKED
+> > > >=20
+> > > > All kernel binaries, config files, and logs are available for downl=
+oad
+> > > > here:
+> > > >=20
+> > > >   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse/2020/03/23/502039
+> > > >=20
+> > > > One or more kernel tests failed:
+> > > >=20
+> > > >     ppc64le:
+> > > >      =F0=9F=92=A5 xfstests - ext4
+> > > >=20
+> > > >     aarch64:
+> > > >      =E2=9D=8C LTP
+> > > >=20
+> > > >     x86_64:
+> > > >      =F0=9F=92=A5 xfstests - ext4
+> > >=20
+> > > Ok, it's time I start just blacklisting this report again, it's not
+> > > being helpful in any way :(
+> > >=20
+> > > Remember, if something starts breaking, I need some way to find out w=
+hat
+> > > caused it to break...
+> > >=20
+> >=20
+> > Hi Greg,
+> >=20
+> > do you have any specific suggestions about what to include to help you =
+out?
+> > The linked console logs contain call traces for the panics [0]. Is ther=
+e
+> > anything else that would help you with debugging those? We're planning =
+on
+> > releasing core dumps, would those be helpful?
+>=20
+> Bisection to find the offending commit would be best.
+>=20
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the tty-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
+This is going to be really tricky for hard to reproduce bugs but we'll do
+some research on it, thanks!
 
 
-From 313a7425f23320844169046d83d8996c98fd8b1d Mon Sep 17 00:00:00 2001
-From: Ye Bin <yebin10@huawei.com>
-Date: Mon, 2 Mar 2020 19:28:56 +0800
-Subject: vt: fix use after free in function "vc_do_resize"
+Veronika
 
-Fix CVE-2020-8647 (https://nvd.nist.gov/vuln/detail/CVE-2020-8647),
-detail description about this CVE is in bugzilla
-"https://bugzilla.kernel.org/show_bug.cgi?id=206359".
-
-error information:
-BUG: KASan: use after free in vc_do_resize+0x49e/0xb30 at addr ffff88000016b9c0
-Read of size 2 by task syz-executor.3/24164
-page:ffffea0000005ac0 count:0 mapcount:0 mapping:          (null) index:0x0
-page flags: 0xfffff00000000()
-page dumped because: kasan: bad access detected
-CPU: 0 PID: 24164 Comm: syz-executor.3 Not tainted 3.10.0-862.14.2.1.x86_64+ #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-Call Trace:
- [<ffffffffb059f309>] dump_stack+0x1e/0x20
- [<ffffffffaf8af957>] kasan_report+0x577/0x950
- [<ffffffffaf8ae652>] __asan_load2+0x62/0x80
- [<ffffffffafe3728e>] vc_do_resize+0x49e/0xb30
- [<ffffffffafe3795c>] vc_resize+0x3c/0x60
- [<ffffffffafe1d80d>] vt_ioctl+0x16ed/0x2670
- [<ffffffffafe0089a>] tty_ioctl+0x46a/0x1a10
- [<ffffffffaf92db3d>] do_vfs_ioctl+0x5bd/0xc40
- [<ffffffffaf92e2f2>] SyS_ioctl+0x132/0x170
- [<ffffffffb05c9b1b>] system_call_fastpath+0x22/0x27
-
-In function vc_do_resize:
-......
-if (vc->vc_y > new_rows) {
-	.......
-	old_origin += first_copied_row * old_row_size;
-} else
-	first_copied_row = 0;
-end = old_origin + old_row_size * min(old_rows, new_rows);
-......
-while (old_origin < end) {
-	scr_memcpyw((unsigned short *) new_origin,
-		    (unsigned short *) old_origin, rlth);
-	if (rrem)
-		scr_memsetw((void *)(new_origin + rlth),
-			    vc->vc_video_erase_char, rrem);
-	old_origin += old_row_size;
-	new_origin += new_row_size;
-}
-......
-
-We can see that before calculate variable "end" may update variable
-"old_origin" with "old_origin += first_copied_row * old_row_size",
-variable "end" is equal to "old_origin + (first_copied_row +
-min(old_rows, new_rows))* old_row_size", it's possible that
-"first_copied_row + min(old_rows, new_rows)" large than "old_rows".  So
-when call scr_memcpyw function cpoy data from origin buffer to new
-buffer in "while" loop, which "old_origin" may large than real old
-buffer end. Now, we calculate origin buffer end before update
-"old_origin" to avoid illegal memory access.
-
-Cc: Jiri Slaby <jslaby@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-References: https://bugzilla.kernel.org/show_bug.cgi?id=206359
-Link: https://lore.kernel.org/r/20200302112856.1101-1-yebin10@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/vt/vt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
-index bbc26d73209a..60e60611141a 100644
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1231,6 +1231,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
- 	old_origin = vc->vc_origin;
- 	new_origin = (long) newscreen;
- 	new_scr_end = new_origin + new_screen_size;
-+	end = old_origin + old_row_size * min(old_rows, new_rows);
- 
- 	if (vc->vc_y > new_rows) {
- 		if (old_rows - vc->vc_y < new_rows) {
-@@ -1249,7 +1250,6 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
- 		old_origin += first_copied_row * old_row_size;
- 	} else
- 		first_copied_row = 0;
--	end = old_origin + old_row_size * min(old_rows, new_rows);
- 
- 	vc_uniscr_copy_area(new_uniscr, new_cols, new_rows,
- 			    get_vc_uniscr(vc), rlth/2, first_copied_row,
--- 
-2.25.2
-
+> thanks,
+>=20
+> greg k-h
+>=20
+>=20
+>=20
 
