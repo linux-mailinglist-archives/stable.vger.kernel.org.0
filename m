@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EEE31910D7
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A99791910D0
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727426AbgCXNbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:31:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40912 "EHLO mail.kernel.org"
+        id S1728570AbgCXNUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:20:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728701AbgCXNT4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:19:56 -0400
+        id S1728888AbgCXNT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:19:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A217F208FE;
-        Tue, 24 Mar 2020 13:19:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27C3320CC7;
+        Tue, 24 Mar 2020 13:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055995;
-        bh=8D71hQD/03lTr+XgQno0BDGmgGfxR9qJXHJh2/1h4KI=;
+        s=default; t=1585055997;
+        bh=vEE9Y225QIK4Llp+vuWKYxM49/expVtdDER2Jh9XvDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIXP3n8g5UCGg3TgqNEcCSJcpNeyLEAQeumleAYsyLPpDE4e6Teu8F9HyjwhNlQa8
-         D7Nwqyu7vaaewLbmLMvjjov5jh3wKfyqld0Fs8Ll+Alksb2A9DW6D6T+H/bqsMxgeh
-         vE2GNIGyo0a5AqJa0y7AHEtiTTQ76zMaY3CEpU64=
+        b=BLsyTZpcLdZs4HYHkv+6QSI0WBy6UbIp/g2KXymzw47otTfXHNbSnEWGyM5o1Fze1
+         U9wFQ2xLhIPgdT0S75xSrv/8GtNRuNTd520Kn9KuZDyxsCDFLaE8bt4a0AORhQ+V5P
+         suO/UqhmfbnKc0+ZfNnoKY65l5sKdfK3JSiOOrIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 093/102] x86/mm: split vmalloc_sync_all()
-Date:   Tue, 24 Mar 2020 14:11:25 +0100
-Message-Id: <20200324130816.253021445@linuxfoundation.org>
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.4 094/102] futex: Fix inode life-time issue
+Date:   Tue, 24 Mar 2020 14:11:26 +0100
+Message-Id: <20200324130816.339499753@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
 References: <20200324130806.544601211@linuxfoundation.org>
@@ -53,205 +44,222 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 763802b53a427ed3cbd419dbba255c414fdd9e7c upstream.
+commit 8019ad13ef7f64be44d4f892af9c840179009254 upstream.
 
-Commit 3f8fd02b1bf1 ("mm/vmalloc: Sync unmappings in
-__purge_vmap_area_lazy()") introduced a call to vmalloc_sync_all() in
-the vunmap() code-path.  While this change was necessary to maintain
-correctness on x86-32-pae kernels, it also adds additional cycles for
-architectures that don't need it.
+As reported by Jann, ihold() does not in fact guarantee inode
+persistence. And instead of making it so, replace the usage of inode
+pointers with a per boot, machine wide, unique inode identifier.
 
-Specifically on x86-64 with CONFIG_VMAP_STACK=y some people reported
-severe performance regressions in micro-benchmarks because it now also
-calls the x86-64 implementation of vmalloc_sync_all() on vunmap().  But
-the vmalloc_sync_all() implementation on x86-64 is only needed for newly
-created mappings.
+This sequence number is global, but shared (file backed) futexes are
+rare enough that this should not become a performance issue.
 
-To avoid the unnecessary work on x86-64 and to gain the performance
-back, split up vmalloc_sync_all() into two functions:
-
-	* vmalloc_sync_mappings(), and
-	* vmalloc_sync_unmappings()
-
-Most call-sites to vmalloc_sync_all() only care about new mappings being
-synchronized.  The only exception is the new call-site added in the
-above mentioned commit.
-
-Shile Zhang directed us to a report of an 80% regression in reaim
-throughput.
-
-Fixes: 3f8fd02b1bf1 ("mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy()")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Reported-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Borislav Petkov <bp@suse.de>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>	[GHES]
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20191009124418.8286-1-joro@8bytes.org
-Link: https://lists.01.org/hyperkitty/list/lkp@lists.01.org/thread/4D3JPPHBNOSPFK2KEPC6KGKS6J25AIDB/
-Link: http://lkml.kernel.org/r/20191113095530.228959-1-shile.zhang@linux.alibaba.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Jann Horn <jannh@google.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/mm/fault.c      |   26 ++++++++++++++++++++++++--
- drivers/acpi/apei/ghes.c |    2 +-
- include/linux/vmalloc.h  |    5 +++--
- kernel/notifier.c        |    2 +-
- mm/nommu.c               |   10 +++++++---
- mm/vmalloc.c             |   11 +++++++----
- 6 files changed, 43 insertions(+), 13 deletions(-)
+ fs/inode.c            |    1 
+ include/linux/fs.h    |    1 
+ include/linux/futex.h |   17 +++++----
+ kernel/futex.c        |   89 +++++++++++++++++++++++++++++---------------------
+ 4 files changed, 65 insertions(+), 43 deletions(-)
 
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -189,7 +189,7 @@ static inline pmd_t *vmalloc_sync_one(pg
- 	return pmd_k;
+--- a/fs/inode.c
++++ b/fs/inode.c
+@@ -137,6 +137,7 @@ int inode_init_always(struct super_block
+ 	inode->i_sb = sb;
+ 	inode->i_blkbits = sb->s_blocksize_bits;
+ 	inode->i_flags = 0;
++	atomic64_set(&inode->i_sequence, 0);
+ 	atomic_set(&inode->i_count, 1);
+ 	inode->i_op = &empty_iops;
+ 	inode->i_fop = &no_open_fops;
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -698,6 +698,7 @@ struct inode {
+ 		struct rcu_head		i_rcu;
+ 	};
+ 	atomic64_t		i_version;
++	atomic64_t		i_sequence; /* see futex */
+ 	atomic_t		i_count;
+ 	atomic_t		i_dio_count;
+ 	atomic_t		i_writecount;
+--- a/include/linux/futex.h
++++ b/include/linux/futex.h
+@@ -31,23 +31,26 @@ struct task_struct;
+ 
+ union futex_key {
+ 	struct {
++		u64 i_seq;
+ 		unsigned long pgoff;
+-		struct inode *inode;
+-		int offset;
++		unsigned int offset;
+ 	} shared;
+ 	struct {
++		union {
++			struct mm_struct *mm;
++			u64 __tmp;
++		};
+ 		unsigned long address;
+-		struct mm_struct *mm;
+-		int offset;
++		unsigned int offset;
+ 	} private;
+ 	struct {
++		u64 ptr;
+ 		unsigned long word;
+-		void *ptr;
+-		int offset;
++		unsigned int offset;
+ 	} both;
+ };
+ 
+-#define FUTEX_KEY_INIT (union futex_key) { .both = { .ptr = NULL } }
++#define FUTEX_KEY_INIT (union futex_key) { .both = { .ptr = 0ULL } }
+ 
+ #ifdef CONFIG_FUTEX
+ enum {
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -429,7 +429,7 @@ static void get_futex_key_refs(union fut
+ 
+ 	switch (key->both.offset & (FUT_OFF_INODE|FUT_OFF_MMSHARED)) {
+ 	case FUT_OFF_INODE:
+-		ihold(key->shared.inode); /* implies smp_mb(); (B) */
++		smp_mb();		/* explicit smp_mb(); (B) */
+ 		break;
+ 	case FUT_OFF_MMSHARED:
+ 		futex_get_mm(key); /* implies smp_mb(); (B) */
+@@ -463,7 +463,6 @@ static void drop_futex_key_refs(union fu
+ 
+ 	switch (key->both.offset & (FUT_OFF_INODE|FUT_OFF_MMSHARED)) {
+ 	case FUT_OFF_INODE:
+-		iput(key->shared.inode);
+ 		break;
+ 	case FUT_OFF_MMSHARED:
+ 		mmdrop(key->private.mm);
+@@ -505,6 +504,46 @@ futex_setup_timer(ktime_t *time, struct
+ 	return timeout;
  }
  
--void vmalloc_sync_all(void)
-+static void vmalloc_sync(void)
- {
- 	unsigned long address;
++/*
++ * Generate a machine wide unique identifier for this inode.
++ *
++ * This relies on u64 not wrapping in the life-time of the machine; which with
++ * 1ns resolution means almost 585 years.
++ *
++ * This further relies on the fact that a well formed program will not unmap
++ * the file while it has a (shared) futex waiting on it. This mapping will have
++ * a file reference which pins the mount and inode.
++ *
++ * If for some reason an inode gets evicted and read back in again, it will get
++ * a new sequence number and will _NOT_ match, even though it is the exact same
++ * file.
++ *
++ * It is important that match_futex() will never have a false-positive, esp.
++ * for PI futexes that can mess up the state. The above argues that false-negatives
++ * are only possible for malformed programs.
++ */
++static u64 get_inode_sequence_number(struct inode *inode)
++{
++	static atomic64_t i_seq;
++	u64 old;
++
++	/* Does the inode already have a sequence number? */
++	old = atomic64_read(&inode->i_sequence);
++	if (likely(old))
++		return old;
++
++	for (;;) {
++		u64 new = atomic64_add_return(1, &i_seq);
++		if (WARN_ON_ONCE(!new))
++			continue;
++
++		old = atomic64_cmpxchg_relaxed(&inode->i_sequence, 0, new);
++		if (old)
++			return old;
++		return new;
++	}
++}
++
+ /**
+  * get_futex_key() - Get parameters which are the keys for a futex
+  * @uaddr:	virtual address of the futex
+@@ -517,9 +556,15 @@ futex_setup_timer(ktime_t *time, struct
+  *
+  * The key words are stored in @key on success.
+  *
+- * For shared mappings, it's (page->index, file_inode(vma->vm_file),
+- * offset_within_page).  For private mappings, it's (uaddr, current->mm).
+- * We can usually work out the index without swapping in the page.
++ * For shared mappings (when @fshared), the key is:
++ *   ( inode->i_sequence, page->index, offset_within_page )
++ * [ also see get_inode_sequence_number() ]
++ *
++ * For private mappings (or when !@fshared), the key is:
++ *   ( current->mm, address, 0 )
++ *
++ * This allows (cross process, where applicable) identification of the futex
++ * without keeping the page pinned for the duration of the FUTEX_WAIT.
+  *
+  * lock_page() might sleep, the caller should not hold a spinlock.
+  */
+@@ -659,8 +704,6 @@ again:
+ 		key->private.mm = mm;
+ 		key->private.address = address;
  
-@@ -216,6 +216,16 @@ void vmalloc_sync_all(void)
+-		get_futex_key_refs(key); /* implies smp_mb(); (B) */
+-
+ 	} else {
+ 		struct inode *inode;
+ 
+@@ -692,40 +735,14 @@ again:
+ 			goto again;
+ 		}
+ 
+-		/*
+-		 * Take a reference unless it is about to be freed. Previously
+-		 * this reference was taken by ihold under the page lock
+-		 * pinning the inode in place so i_lock was unnecessary. The
+-		 * only way for this check to fail is if the inode was
+-		 * truncated in parallel which is almost certainly an
+-		 * application bug. In such a case, just retry.
+-		 *
+-		 * We are not calling into get_futex_key_refs() in file-backed
+-		 * cases, therefore a successful atomic_inc return below will
+-		 * guarantee that get_futex_key() will still imply smp_mb(); (B).
+-		 */
+-		if (!atomic_inc_not_zero(&inode->i_count)) {
+-			rcu_read_unlock();
+-			put_page(page);
+-
+-			goto again;
+-		}
+-
+-		/* Should be impossible but lets be paranoid for now */
+-		if (WARN_ON_ONCE(inode->i_mapping != mapping)) {
+-			err = -EFAULT;
+-			rcu_read_unlock();
+-			iput(inode);
+-
+-			goto out;
+-		}
+-
+ 		key->both.offset |= FUT_OFF_INODE; /* inode-based key */
+-		key->shared.inode = inode;
++		key->shared.i_seq = get_inode_sequence_number(inode);
+ 		key->shared.pgoff = basepage_index(tail);
+ 		rcu_read_unlock();
  	}
- }
  
-+void vmalloc_sync_mappings(void)
-+{
-+	vmalloc_sync();
-+}
++	get_futex_key_refs(key); /* implies smp_mb(); (B) */
 +
-+void vmalloc_sync_unmappings(void)
-+{
-+	vmalloc_sync();
-+}
-+
- /*
-  * 32-bit:
-  *
-@@ -318,11 +328,23 @@ out:
- 
- #else /* CONFIG_X86_64: */
- 
--void vmalloc_sync_all(void)
-+void vmalloc_sync_mappings(void)
- {
-+	/*
-+	 * 64-bit mappings might allocate new p4d/pud pages
-+	 * that need to be propagated to all tasks' PGDs.
-+	 */
- 	sync_global_pgds(VMALLOC_START & PGDIR_MASK, VMALLOC_END);
- }
- 
-+void vmalloc_sync_unmappings(void)
-+{
-+	/*
-+	 * Unmappings never allocate or free p4d/pud pages.
-+	 * No work is required here.
-+	 */
-+}
-+
- /*
-  * 64-bit:
-  *
---- a/drivers/acpi/apei/ghes.c
-+++ b/drivers/acpi/apei/ghes.c
-@@ -171,7 +171,7 @@ int ghes_estatus_pool_init(int num_ghes)
- 	 * New allocation must be visible in all pgd before it can be found by
- 	 * an NMI allocating from the pool.
- 	 */
--	vmalloc_sync_all();
-+	vmalloc_sync_mappings();
- 
- 	rc = gen_pool_add(ghes_estatus_pool, addr, PAGE_ALIGN(len), -1);
- 	if (rc)
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -126,8 +126,9 @@ extern int remap_vmalloc_range_partial(s
- 
- extern int remap_vmalloc_range(struct vm_area_struct *vma, void *addr,
- 							unsigned long pgoff);
--void vmalloc_sync_all(void);
-- 
-+void vmalloc_sync_mappings(void);
-+void vmalloc_sync_unmappings(void);
-+
- /*
-  *	Lowlevel-APIs (not for driver use!)
-  */
---- a/kernel/notifier.c
-+++ b/kernel/notifier.c
-@@ -554,7 +554,7 @@ NOKPROBE_SYMBOL(notify_die);
- 
- int register_die_notifier(struct notifier_block *nb)
- {
--	vmalloc_sync_all();
-+	vmalloc_sync_mappings();
- 	return atomic_notifier_chain_register(&die_chain, nb);
- }
- EXPORT_SYMBOL_GPL(register_die_notifier);
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -359,10 +359,14 @@ void vm_unmap_aliases(void)
- EXPORT_SYMBOL_GPL(vm_unmap_aliases);
- 
- /*
-- * Implement a stub for vmalloc_sync_all() if the architecture chose not to
-- * have one.
-+ * Implement a stub for vmalloc_sync_[un]mapping() if the architecture
-+ * chose not to have one.
-  */
--void __weak vmalloc_sync_all(void)
-+void __weak vmalloc_sync_mappings(void)
-+{
-+}
-+
-+void __weak vmalloc_sync_unmappings(void)
- {
- }
- 
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1259,7 +1259,7 @@ static bool __purge_vmap_area_lazy(unsig
- 	 * First make sure the mappings are removed from all page-tables
- 	 * before they are freed.
- 	 */
--	vmalloc_sync_all();
-+	vmalloc_sync_unmappings();
- 
- 	/*
- 	 * TODO: to calculate a flush range without looping.
-@@ -3050,16 +3050,19 @@ int remap_vmalloc_range(struct vm_area_s
- EXPORT_SYMBOL(remap_vmalloc_range);
- 
- /*
-- * Implement a stub for vmalloc_sync_all() if the architecture chose not to
-- * have one.
-+ * Implement stubs for vmalloc_sync_[un]mappings () if the architecture chose
-+ * not to have one.
-  *
-  * The purpose of this function is to make sure the vmalloc area
-  * mappings are identical in all page-tables in the system.
-  */
--void __weak vmalloc_sync_all(void)
-+void __weak vmalloc_sync_mappings(void)
- {
- }
- 
-+void __weak vmalloc_sync_unmappings(void)
-+{
-+}
- 
- static int f(pte_t *pte, unsigned long addr, void *data)
- {
+ out:
+ 	put_page(page);
+ 	return err;
 
 
