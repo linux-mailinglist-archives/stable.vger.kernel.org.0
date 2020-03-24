@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CE19191B88
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 21:55:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F24C191B8D
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 21:56:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728184AbgCXUzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 16:55:45 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:33386 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727753AbgCXUzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 16:55:44 -0400
-Received: by mail-pf1-f195.google.com with SMTP id j1so7245538pfe.0;
-        Tue, 24 Mar 2020 13:55:42 -0700 (PDT)
+        id S1728248AbgCXU4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 16:56:10 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:46753 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727753AbgCXU4K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 16:56:10 -0400
+Received: by mail-pl1-f195.google.com with SMTP id s23so855847plq.13;
+        Tue, 24 Mar 2020 13:56:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=eN8Lz2MZo0SLLqbg8we++NGp3HFGLmjd5S6MC1PWXWQ=;
-        b=Nh5pbwDACfFe1uOYVW+vcoesYwORRRvjxbMGaIHN6KHlt8S4yfdunJftsG6srkeF9t
-         HbY48HbWD6keVmkKQNH4zGYEDSvu8hzpnuO4sJy4QPMfEqW7a+UgHg6ORPRAVQZpQZxC
-         UTObfCSA+qeCDg+omDOQC8dpat9ik5fvUq8Jx5D2Pu82qIfthqawKbzJpzIw1kw5wrXo
-         k9GdzUkScLG5dGk5wPB6ydN+hFcD00oSXKU5GaqLdol4jU+M2KqKiNJaZBvH+JyM8QDD
-         SgzO0P1O28SUVTjgI1+yyJowLoaJ9lPTps1rr4Pzs7q7paqFbOD+kNjPDBrSZQ+qQDQZ
-         6pMA==
+        bh=N0bW9n1bKh3oOxBezz9nBioaPTelQGmBwxvufxLSmWk=;
+        b=MPYTp6oqgMLyGUq6PvO+GwQTEX4zp+hd5W4T4WCUJCjU+BZn6ITEnqDjMYgsBN2aH1
+         1phgmpHK5z796eJVMJHWbHyhX7d/Nfh0xzexTqBbs/oXRXHK+zFCbf3KCSSPgiAD6Keg
+         f4Pq3ayQyuEIqGkvySsXbzGafJ7/Cgk20solb7wfddtkEZlzYJop8mHPcJfdHsNdZOnH
+         d43Ojwhh3PgtmhzZHFzA4sofvO9I4LVFZblNBiYTaME9JgBr+XQcneGqPLtZJlHRWOkk
+         NsdmS49xSHcwC20fjz3jYQNgB3aW7dulZVbUkRnuf9MESYNBjZliCj9hx6o1GtRKKga8
+         Imzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=eN8Lz2MZo0SLLqbg8we++NGp3HFGLmjd5S6MC1PWXWQ=;
-        b=DqDEyrC4J6PC4UJI5qc/0VIEvzhmTju9cHwDPAHtdvX338uYto5ivmRKHNnKD0NOGl
-         hlMWLtdicjRfbnsOH9pJkfutNnf0r73IFIf3sVf+25elSBnBkneaZNy2qVkQ0Cxup92i
-         q7ybu6ZLiY1uuIhL2k/a+HwLyvMGH7nXTIA2M1PaFEcRt7RRbTjlPEzIH+LO6OgsBTe6
-         hrd2ndGF1aGCyZpwuNgpnsqm3TRSReS0np2Iz3rcv/oniCltWMytrRc+Vn+6PvYQXdPh
-         R8SdmflFY3RA24QJovSz9X1WU29O8j0bWdmJOHv8Fkf4JjHtZqAUneQ1YEF8Zrk+SGyt
-         kCMw==
-X-Gm-Message-State: ANhLgQ2fqXbW5ZI94sX9H+mOnHDnqR0jfcKu4Rbg8x/icIOi9TBSKNz5
-        V6Y95Ewhpq7f/Br/M7Q8yR1IAsbb
-X-Google-Smtp-Source: ADFU+vsnzOhmTZyCVZ0+3c2CFL0YkgS2wXtqxt9VuunSk1K8UsdO1hSkN/vGpZvHf3KPn9w1VSPLVQ==
-X-Received: by 2002:a63:4282:: with SMTP id p124mr30328187pga.59.1585083341563;
-        Tue, 24 Mar 2020 13:55:41 -0700 (PDT)
+        bh=N0bW9n1bKh3oOxBezz9nBioaPTelQGmBwxvufxLSmWk=;
+        b=VjQal4XoCjksx74kORBeS1772nMo+wsamZ7cbovGqH35/G3GBUHo/9Tj8iZl/lfvz8
+         +Whs5gDa+4HfYEjYx9WuExH1lHKdWtdw4d51xjkR5cybtAoxhWqCldGMLhgBXd7KSvBV
+         kuYZiAs4jDIktkJFYmLYGtw2tpvr2glXwHuIojPct9oeZIc8XRJfRomxBXlJRCcSZRfZ
+         +FJTJjMdn2kqIUfw3yo6qoPSCmhZUZZQ6X3mZvIZHjLy9UcPh4KLGtPjeT8UXihzrZ60
+         sDF02PGk+qizdrHl8fJzi5ThDghf576lZPq2HgE1kWoTx2i/g8bCcdd3ozAqyUt1Yym9
+         6DtA==
+X-Gm-Message-State: ANhLgQ2P8InyRFXAn0nq+c7gfz+cQ346Bomx+EjRrgaoAUwymQ3ks4NN
+        sgVl5K08XOx5RDVh0Qxx5nCmKM4c
+X-Google-Smtp-Source: ADFU+vusoS643wUfSHhcJRH39wdc9NZkkUiXNluPDDSHAKnBcQrYSV4zZr54du4wWGwWwIrxOFCNCA==
+X-Received: by 2002:a17:90a:36c7:: with SMTP id t65mr7257691pjb.182.1585083366848;
+        Tue, 24 Mar 2020 13:56:06 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id i189sm10425032pfc.148.2020.03.24.13.55.39
+        by smtp.gmail.com with ESMTPSA id i2sm2950459pjs.21.2020.03.24.13.56.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 24 Mar 2020 13:55:40 -0700 (PDT)
-Subject: Re: [PATCH 4.19 00/65] 4.19.113-rc1 review
+        Tue, 24 Mar 2020 13:56:06 -0700 (PDT)
+Subject: Re: [PATCH 5.4 000/102] 5.4.28-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -98,12 +98,12 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <e431a8e9-e891-6518-318e-54ba3bb90924@roeck-us.net>
-Date:   Tue, 24 Mar 2020 13:55:39 -0700
+Message-ID: <9f314bb0-cf6f-d828-8c8f-ab931e78e4c8@roeck-us.net>
+Date:   Tue, 24 Mar 2020 13:56:05 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -112,9 +112,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/24/20 6:10 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.113 release.
-> There are 65 patches in this series, all will be posted as a response
+On 3/24/20 6:09 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.28 release.
+> There are 102 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -123,9 +123,8 @@ On 3/24/20 6:10 AM, Greg Kroah-Hartman wrote:
 > 
 
 Build results:
-	total: 156 pass: 156 fail: 0
+	total: 158 pass: 158 fail: 0
 Qemu test results:
-	total: 418 pass: 418 fail: 0
+	total: 427 pass: 427 fail: 0
 
 Guenter
-
