@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A769191024
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5563E1910C9
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728644AbgCXNZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:25:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49972 "EHLO mail.kernel.org"
+        id S1727877AbgCXNUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:20:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725767AbgCXNZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:25:37 -0400
+        id S1728219AbgCXNUu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:20:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32A5420775;
-        Tue, 24 Mar 2020 13:25:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD19620870;
+        Tue, 24 Mar 2020 13:20:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056336;
-        bh=ORvtMhMdKgNc0eJyObJDx47xrCnmPs22ZWh7w983iDU=;
+        s=default; t=1585056049;
+        bh=xF5fLA2nCMUE47tbQ+fJTunsXNhyDpCWMZSzHvU219A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BicuWVBYXjwYTm2HQ3hxzl1Bu5qx49a7/JOxesQuERYHXnkSvEJVGwqn4bRdLbyBS
-         xO3qfMa+5GvPajOZXqWh3zt1qTXKxXbxO9VjIl8VXg41dI9YEPqUCV8HA+RiZmeaPA
-         fMa7YsGMNpKDbxcAMw+6/tLCrzv02BV5FcNrR44o=
+        b=d0XpSQx6TYy9qInRkIoOprZR8isqAZQP8Rp4bibKbkrhT7MbUvzrQRJ6RxaeyaQsO
+         lC9YdBeufL4+s4zvcdq234zbOKJ9UVwO6rriHyb0K4nTLF07lwyWHwupvTEjgMQZcr
+         mk8QBwyinppDOzFOC5ytoRGfzy1ToG6THbFxd5zI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>,
-        Chris Down <chris@chrisdown.name>,
+        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Tejun Heo <tj@kernel.org>, Michal Hocko <mhocko@kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Roman Gushchin <guro@fb.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Wei Yang <richardw.yang@linux.intel.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Mike Rapoport <rppt@linux.ibm.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 094/119] mm, memcg: throttle allocators based on ancestral memory.high
+Subject: [PATCH 5.4 087/102] mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case
 Date:   Tue, 24 Mar 2020 14:11:19 +0100
-Message-Id: <20200324130817.562078821@linuxfoundation.org>
+Message-Id: <20200324130815.363810014@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,160 +50,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Down <chris@chrisdown.name>
+From: Baoquan He <bhe@redhat.com>
 
-commit e26733e0d0ec6798eca93daa300bc3f43616127f upstream.
+commit d41e2f3bd54699f85b3d6f45abd09fa24a222cb9 upstream.
 
-Prior to this commit, we only directly check the affected cgroup's
-memory.high against its usage.  However, it's possible that we are being
-reclaimed as a result of hitting an ancestor memory.high and should be
-penalised based on that, instead.
+In section_deactivate(), pfn_to_page() doesn't work any more after
+ms->section_mem_map is resetting to NULL in SPARSEMEM|!VMEMMAP case.  It
+causes a hot remove failure:
 
-This patch changes memory.high overage throttling to use the largest
-overage in its ancestors when considering how many penalty jiffies to
-charge.  This makes sure that we penalise poorly behaving cgroups in the
-same way regardless of at what level of the hierarchy memory.high was
-breached.
+  kernel BUG at mm/page_alloc.c:4806!
+  invalid opcode: 0000 [#1] SMP PTI
+  CPU: 3 PID: 8 Comm: kworker/u16:0 Tainted: G        W         5.5.0-next-20200205+ #340
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
+  Workqueue: kacpi_hotplug acpi_hotplug_work_fn
+  RIP: 0010:free_pages+0x85/0xa0
+  Call Trace:
+   __remove_pages+0x99/0xc0
+   arch_remove_memory+0x23/0x4d
+   try_remove_memory+0xc8/0x130
+   __remove_memory+0xa/0x11
+   acpi_memory_device_remove+0x72/0x100
+   acpi_bus_trim+0x55/0x90
+   acpi_device_hotplug+0x2eb/0x3d0
+   acpi_hotplug_work_fn+0x1a/0x30
+   process_one_work+0x1a7/0x370
+   worker_thread+0x30/0x380
+   kthread+0x112/0x130
+   ret_from_fork+0x35/0x40
 
-Fixes: 0e4b01df8659 ("mm, memcg: throttle allocators when failing reclaim over memory.high")
-Reported-by: Johannes Weiner <hannes@cmpxchg.org>
-Signed-off-by: Chris Down <chris@chrisdown.name>
+Let's move the ->section_mem_map resetting after
+depopulate_section_memmap() to fix it.
+
+[akpm@linux-foundation.org: remove unneeded initialization, per David]
+Fixes: ba72b4c8cf60 ("mm/sparsemem: support sub-section hotplug")
+Signed-off-by: Baoquan He <bhe@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: <stable@vger.kernel.org>	[5.4.x+]
-Link: http://lkml.kernel.org/r/8cd132f84bd7e16cdb8fde3378cdbf05ba00d387.1584036142.git.chris@chrisdown.name
+Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200307084229.28251-2-bhe@redhat.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/memcontrol.c |   93 ++++++++++++++++++++++++++++++++++----------------------
- 1 file changed, 58 insertions(+), 35 deletions(-)
+ mm/sparse.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -2297,28 +2297,41 @@ static void high_work_func(struct work_s
-  #define MEMCG_DELAY_SCALING_SHIFT 14
+--- a/mm/sparse.c
++++ b/mm/sparse.c
+@@ -742,6 +742,7 @@ static void section_deactivate(unsigned
+ 	struct mem_section *ms = __pfn_to_section(pfn);
+ 	bool section_is_early = early_section(ms);
+ 	struct page *memmap = NULL;
++	bool empty;
+ 	unsigned long *subsection_map = ms->usage
+ 		? &ms->usage->subsection_map[0] : NULL;
  
- /*
-- * Scheduled by try_charge() to be executed from the userland return path
-- * and reclaims memory over the high limit.
-+ * Get the number of jiffies that we should penalise a mischievous cgroup which
-+ * is exceeding its memory.high by checking both it and its ancestors.
-  */
--void mem_cgroup_handle_over_high(void)
-+static unsigned long calculate_high_delay(struct mem_cgroup *memcg,
-+					  unsigned int nr_pages)
- {
--	unsigned long usage, high, clamped_high;
--	unsigned long pflags;
--	unsigned long penalty_jiffies, overage;
--	unsigned int nr_pages = current->memcg_nr_pages_over_high;
--	struct mem_cgroup *memcg;
-+	unsigned long penalty_jiffies;
-+	u64 max_overage = 0;
- 
--	if (likely(!nr_pages))
--		return;
-+	do {
-+		unsigned long usage, high;
-+		u64 overage;
-+
-+		usage = page_counter_read(&memcg->memory);
-+		high = READ_ONCE(memcg->high);
-+
-+		/*
-+		 * Prevent division by 0 in overage calculation by acting as if
-+		 * it was a threshold of 1 page
-+		 */
-+		high = max(high, 1UL);
-+
-+		overage = usage - high;
-+		overage <<= MEMCG_DELAY_PRECISION_SHIFT;
-+		overage = div64_u64(overage, high);
-+
-+		if (overage > max_overage)
-+			max_overage = overage;
-+	} while ((memcg = parent_mem_cgroup(memcg)) &&
-+		 !mem_cgroup_is_root(memcg));
- 
--	memcg = get_mem_cgroup_from_mm(current->mm);
--	reclaim_high(memcg, nr_pages, GFP_KERNEL);
--	current->memcg_nr_pages_over_high = 0;
-+	if (!max_overage)
-+		return 0;
- 
- 	/*
--	 * memory.high is breached and reclaim is unable to keep up. Throttle
--	 * allocators proactively to slow down excessive growth.
--	 *
- 	 * We use overage compared to memory.high to calculate the number of
- 	 * jiffies to sleep (penalty_jiffies). Ideally this value should be
- 	 * fairly lenient on small overages, and increasingly harsh when the
-@@ -2326,24 +2339,9 @@ void mem_cgroup_handle_over_high(void)
- 	 * its crazy behaviour, so we exponentially increase the delay based on
- 	 * overage amount.
+@@ -772,7 +773,8 @@ static void section_deactivate(unsigned
+ 	 * For 2/ and 3/ the SPARSEMEM_VMEMMAP={y,n} cases are unified
  	 */
--
--	usage = page_counter_read(&memcg->memory);
--	high = READ_ONCE(memcg->high);
--
--	if (usage <= high)
--		goto out;
--
--	/*
--	 * Prevent division by 0 in overage calculation by acting as if it was a
--	 * threshold of 1 page
--	 */
--	clamped_high = max(high, 1UL);
--
--	overage = div64_u64((u64)(usage - high) << MEMCG_DELAY_PRECISION_SHIFT,
--			  clamped_high);
--
--	penalty_jiffies = ((u64)overage * overage * HZ)
--		>> (MEMCG_DELAY_PRECISION_SHIFT + MEMCG_DELAY_SCALING_SHIFT);
-+	penalty_jiffies = max_overage * max_overage * HZ;
-+	penalty_jiffies >>= MEMCG_DELAY_PRECISION_SHIFT;
-+	penalty_jiffies >>= MEMCG_DELAY_SCALING_SHIFT;
+ 	bitmap_xor(subsection_map, map, subsection_map, SUBSECTIONS_PER_SECTION);
+-	if (bitmap_empty(subsection_map, SUBSECTIONS_PER_SECTION)) {
++	empty = bitmap_empty(subsection_map, SUBSECTIONS_PER_SECTION);
++	if (empty) {
+ 		unsigned long section_nr = pfn_to_section_nr(pfn);
  
- 	/*
- 	 * Factor in the task's own contribution to the overage, such that four
-@@ -2360,7 +2358,32 @@ void mem_cgroup_handle_over_high(void)
- 	 * application moving forwards and also permit diagnostics, albeit
- 	 * extremely slowly.
- 	 */
--	penalty_jiffies = min(penalty_jiffies, MEMCG_MAX_HIGH_DELAY_JIFFIES);
-+	return min(penalty_jiffies, MEMCG_MAX_HIGH_DELAY_JIFFIES);
-+}
-+
-+/*
-+ * Scheduled by try_charge() to be executed from the userland return path
-+ * and reclaims memory over the high limit.
-+ */
-+void mem_cgroup_handle_over_high(void)
-+{
-+	unsigned long penalty_jiffies;
-+	unsigned long pflags;
-+	unsigned int nr_pages = current->memcg_nr_pages_over_high;
-+	struct mem_cgroup *memcg;
-+
-+	if (likely(!nr_pages))
-+		return;
-+
-+	memcg = get_mem_cgroup_from_mm(current->mm);
-+	reclaim_high(memcg, nr_pages, GFP_KERNEL);
-+	current->memcg_nr_pages_over_high = 0;
-+
-+	/*
-+	 * memory.high is breached and reclaim is unable to keep up. Throttle
-+	 * allocators proactively to slow down excessive growth.
-+	 */
-+	penalty_jiffies = calculate_high_delay(memcg, nr_pages);
+ 		/*
+@@ -787,13 +789,15 @@ static void section_deactivate(unsigned
+ 			ms->usage = NULL;
+ 		}
+ 		memmap = sparse_decode_mem_map(ms->section_mem_map, section_nr);
+-		ms->section_mem_map = (unsigned long)NULL;
+ 	}
  
- 	/*
- 	 * Don't sleep if the amount of jiffies this memcg owes us is so low
+ 	if (section_is_early && memmap)
+ 		free_map_bootmem(memmap);
+ 	else
+ 		depopulate_section_memmap(pfn, nr_pages, altmap);
++
++	if (empty)
++		ms->section_mem_map = (unsigned long)NULL;
+ }
+ 
+ static struct page * __meminit section_activate(int nid, unsigned long pfn,
 
 
