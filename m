@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E396E191061
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FA78191065
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729961AbgCXN1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53352 "EHLO mail.kernel.org"
+        id S1729971AbgCXN1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:27:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729957AbgCXN1i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:27:38 -0400
+        id S1729966AbgCXN1l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:27:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12633208C3;
-        Tue, 24 Mar 2020 13:27:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88651208DB;
+        Tue, 24 Mar 2020 13:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056457;
-        bh=hA3gBctLWAPyif8p+Euj0bVCjmDtWTU30v68aHGHpKg=;
+        s=default; t=1585056461;
+        bh=5Re0jOeUhxzE/zh3aOjTH/ulS46Bc+He6U98wFGAzd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eL9Uoio7xWY6BuYcMs9VAKKLLHJnknLp6vuqBmvI5Bf5dMzVc3SB6H+yoMc+M4kbr
-         JkHjnejM/qR63jEP3ouJZC5efVfwUCJf/rFijBvJ7jOFZ+gPnQlCJGMpBfNw+6KO34
-         dHRMGTHZks8KAoL9r4XKk/GhdGsvUxSQL+RjCDV4=
+        b=bFWjpoT8de7wNMrocrMjnhUnhcGhuvJC6wvUWxVEUejq0OQNlBGmr7IMuz8gDtju8
+         HeMkKRx4T2CWjO8CXRHYuv2bHQ3smWBwuaPp6d1FZFy0VfmszMlgHDIib8s5ZvdSoj
+         MMQ8V5YLatnLyYN91g3a/1l6p9PaACtdQF+osWJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tzvetomir Stoyanov <tstoyanov@vmware.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.5 087/119] xhci: Do not open code __print_symbolic() in xhci trace events
-Date:   Tue, 24 Mar 2020 14:11:12 +0100
-Message-Id: <20200324130816.926811409@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.5 088/119] btrfs: fix log context list corruption after rename whiteout error
+Date:   Tue, 24 Mar 2020 14:11:13 +0100
+Message-Id: <20200324130817.020669790@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
 References: <20200324130808.041360967@linuxfoundation.org>
@@ -44,69 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 045706bff837ee89c13f1ace173db71922c1c40b upstream.
+commit 236ebc20d9afc5e9ff52f3cf3f365a91583aac10 upstream.
 
-libtraceevent (used by perf and trace-cmd) failed to parse the
-xhci_urb_dequeue trace event. This is because the user space trace
-event format parsing is not a full C compiler. It can handle some basic
-logic, but is not meant to be able to handle everything C can do.
+During a rename whiteout, if btrfs_whiteout_for_rename() returns an error
+we can end up returning from btrfs_rename() with the log context object
+still in the root's log context list - this happens if 'sync_log' was
+set to true before we called btrfs_whiteout_for_rename() and it is
+dangerous because we end up with a corrupt linked list (root->log_ctxs)
+as the log context object was allocated on the stack.
 
-In cases where a trace event field needs to be converted from a number
-to a string, there's the __print_symbolic() macro that should be used:
+After btrfs_rename() returns, any task that is running btrfs_sync_log()
+concurrently can end up crashing because that linked list is traversed by
+btrfs_sync_log() (through btrfs_remove_all_log_ctxs()). That results in
+the same issue that commit e6c617102c7e4 ("Btrfs: fix log context list
+corruption after rename exchange operation") fixed.
 
- See samples/trace_events/trace-events-sample.h
-
-Some xhci trace events open coded the __print_symbolic() causing the
-user spaces tools to fail to parse it. This has to be replaced with
-__print_symbolic() instead.
-
-CC: stable@vger.kernel.org
-Reported-by: Tzvetomir Stoyanov <tstoyanov@vmware.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206531
-Fixes: 5abdc2e6e12ff ("usb: host: xhci: add urb_enqueue/dequeue/giveback tracers")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200306150858.21904-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d4682ba03ef618 ("Btrfs: sync log after logging new name")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-trace.h |   23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ fs/btrfs/inode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/host/xhci-trace.h
-+++ b/drivers/usb/host/xhci-trace.h
-@@ -289,23 +289,12 @@ DECLARE_EVENT_CLASS(xhci_log_urb,
- 	),
- 	TP_printk("ep%d%s-%s: urb %p pipe %u slot %d length %d/%d sgs %d/%d stream %d flags %08x",
- 			__entry->epnum, __entry->dir_in ? "in" : "out",
--			({ char *s;
--			switch (__entry->type) {
--			case USB_ENDPOINT_XFER_INT:
--				s = "intr";
--				break;
--			case USB_ENDPOINT_XFER_CONTROL:
--				s = "control";
--				break;
--			case USB_ENDPOINT_XFER_BULK:
--				s = "bulk";
--				break;
--			case USB_ENDPOINT_XFER_ISOC:
--				s = "isoc";
--				break;
--			default:
--				s = "UNKNOWN";
--			} s; }), __entry->urb, __entry->pipe, __entry->slot_id,
-+			__print_symbolic(__entry->type,
-+				   { USB_ENDPOINT_XFER_INT,	"intr" },
-+				   { USB_ENDPOINT_XFER_CONTROL,	"control" },
-+				   { USB_ENDPOINT_XFER_BULK,	"bulk" },
-+				   { USB_ENDPOINT_XFER_ISOC,	"isoc" }),
-+			__entry->urb, __entry->pipe, __entry->slot_id,
- 			__entry->actual, __entry->length, __entry->num_mapped_sgs,
- 			__entry->num_sgs, __entry->stream, __entry->flags
- 		)
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -10159,6 +10159,10 @@ out_fail:
+ 		ret = btrfs_sync_log(trans, BTRFS_I(old_inode)->root, &ctx);
+ 		if (ret)
+ 			commit_transaction = true;
++	} else if (sync_log) {
++		mutex_lock(&root->log_mutex);
++		list_del(&ctx.list);
++		mutex_unlock(&root->log_mutex);
+ 	}
+ 	if (commit_transaction) {
+ 		ret = btrfs_commit_transaction(trans);
 
 
