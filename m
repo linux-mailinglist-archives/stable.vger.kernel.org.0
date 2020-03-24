@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F811910E7
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7AE21910E6
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728430AbgCXNSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:18:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39058 "EHLO mail.kernel.org"
+        id S1728764AbgCXNSt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:18:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728243AbgCXNSo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:18:44 -0400
+        id S1728138AbgCXNSt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:18:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF637208CA;
-        Tue, 24 Mar 2020 13:18:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DE6C208E0;
+        Tue, 24 Mar 2020 13:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055924;
-        bh=210tmJIMG61KprbjyUx2IQ90D8mA6Akj5BTIdzQwmPI=;
+        s=default; t=1585055928;
+        bh=cWF3WUe2wPdnGgifyfwwVAofNRCsrR9G7UqKaQgj4Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boQijVUdpALF8BVKAl0NHJZ4LtPT2bcRGxZjBvAHZR6FKjrZuGhcrgUgF8hUZEe67
-         hZAJu7l++vkLO3FA2Sh55OYURiZPZOiCKeMdflvxXgs5NyHSkHnHm6FZfqeMOi3pA7
-         2rK75TqMxTNKV0H98Gdgf0TAVVuuxIxoqyHFbk3E=
+        b=XYFt6cHe6Epa1CoZqm/GjSqVad//3x5hhTPV892YDNGuy+dJCLLSPFuhyeT01iTyc
+         i+5gcVlfzU9ug1iyLXs0b40r6b4iJdi2qdBmXGbgnbIHNecnIZ10J2wukcwi/p90yF
+         SPXN6nOrlDBlRtXPM0KTTDzNuI3YNTUW8thur98o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.4 069/102] kbuild: Disable -Wpointer-to-enum-cast
-Date:   Tue, 24 Mar 2020 14:11:01 +0100
-Message-Id: <20200324130813.585252259@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Straube <straube.linux@gmail.com>
+Subject: [PATCH 5.4 070/102] staging: rtl8188eu: Add device id for MERCUSYS MW150US v2
+Date:   Tue, 24 Mar 2020 14:11:02 +0100
+Message-Id: <20200324130813.678444400@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
 References: <20200324130806.544601211@linuxfoundation.org>
@@ -44,45 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Michael Straube <straube.linux@gmail.com>
 
-commit 82f2bc2fcc0160d6f82dd1ac64518ae0a4dd183f upstream.
+commit bb5786b9286c253557a0115bc8d21879e61b7b94 upstream.
 
-Clang's -Wpointer-to-int-cast deviates from GCC in that it warns when
-casting to enums. The kernel does this in certain places, such as device
-tree matches to set the version of the device being used, which allows
-the kernel to avoid using a gigantic union.
+This device was added to the stand-alone driver on github.
+Add it to the staging driver as well.
 
-https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L428
-https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L402
-https://elixir.bootlin.com/linux/v5.5.8/source/include/linux/mod_devicetable.h#L264
-
-To avoid a ton of false positive warnings, disable this particular part
-of the warning, which has been split off into a separate diagnostic so
-that the entire warning does not need to be turned off for clang. It
-will be visible under W=1 in case people want to go about fixing these
-easily and enabling the warning treewide.
-
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/887
-Link: https://github.com/llvm/llvm-project/commit/2a41b31fcdfcb67ab7038fc2ffb606fd50b83a84
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://github.com/lwfinger/rtl8188eu/commit/2141f244c3e7
+Signed-off-by: Michael Straube <straube.linux@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200312093652.13918-1-straube.linux@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- scripts/Makefile.extrawarn |    1 +
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/scripts/Makefile.extrawarn
-+++ b/scripts/Makefile.extrawarn
-@@ -48,6 +48,7 @@ KBUILD_CFLAGS += -Wno-initializer-overri
- KBUILD_CFLAGS += -Wno-format
- KBUILD_CFLAGS += -Wno-sign-compare
- KBUILD_CFLAGS += -Wno-format-zero-length
-+KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
- endif
- 
- endif
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -38,6 +38,7 @@ static const struct usb_device_id rtw_us
+ 	{USB_DEVICE(0x2001, 0x331B)}, /* D-Link DWA-121 rev B1 */
+ 	{USB_DEVICE(0x2357, 0x010c)}, /* TP-Link TL-WN722N v2 */
+ 	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
++	{USB_DEVICE(0x2C4E, 0x0102)}, /* MERCUSYS MW150US v2 */
+ 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
+ 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
+ 	{}	/* Terminating entry */
 
 
