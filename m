@@ -2,37 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9810319110E
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:39:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E2C191035
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbgCXNO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:14:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33500 "EHLO mail.kernel.org"
+        id S1727977AbgCXN0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:26:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728167AbgCXNOz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:14:55 -0400
+        id S1729153AbgCXN0U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:26:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8514C208D5;
-        Tue, 24 Mar 2020 13:14:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E1B7206F6;
+        Tue, 24 Mar 2020 13:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055695;
-        bh=ak+dhtGGb5Ikxn1R1/oMYJBnHc6GspN1fB8hTNkAQ0M=;
+        s=default; t=1585056379;
+        bh=qtlVM3TioO5SQTtBvaei2mTd6WZeFE8JFjePzxDJcMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLjKOF8zL+I6zUw4bvc8ZoXwA8qk+XKY3Lv3A66WLWk7mOZz9/c6P60q07VsShU/9
-         qr3YMx+gPNiCYw8UKlHk76QDJLCcZvqBwlNxCiHDoytAoyrqU9otcCsAlc/97Fehsq
-         OtTLf85ZQKht8xnWprhhxRfKl21lb1qgDebfs0u0=
+        b=T3woAcey44gnfgeqkqXAUOAv3+En6X9n4CexYmklhfc4MeaRaiHfu1Fh5APU+2qwU
+         +dxhkSC+QhsY3b97Xz/4LkUGlUFReACtXFSOlDdU1hGj86BaINmItlWjz6S7r1Is57
+         mXu7XLdmiXNzn4e0eioAHYxthk9rYlHkYupAdR24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 65/65] staging: greybus: loopback_test: fix potential path truncations
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.5 101/119] x86/mm: split vmalloc_sync_all()
 Date:   Tue, 24 Mar 2020 14:11:26 +0100
-Message-Id: <20200324130804.966730904@linuxfoundation.org>
+Message-Id: <20200324130818.153980158@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
-References: <20200324130756.679112147@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,94 +53,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit ae62cf5eb2792d9a818c2d93728ed92119357017 upstream.
+commit 763802b53a427ed3cbd419dbba255c414fdd9e7c upstream.
 
-Newer GCC warns about possible truncations of two generated path names as
-we're concatenating the configurable sysfs and debugfs path prefixes
-with a filename and placing the results in buffers of the same size as
-the maximum length of the prefixes.
+Commit 3f8fd02b1bf1 ("mm/vmalloc: Sync unmappings in
+__purge_vmap_area_lazy()") introduced a call to vmalloc_sync_all() in
+the vunmap() code-path.  While this change was necessary to maintain
+correctness on x86-32-pae kernels, it also adds additional cycles for
+architectures that don't need it.
 
-	snprintf(d->name, MAX_STR_LEN, "gb_loopback%u", dev_id);
+Specifically on x86-64 with CONFIG_VMAP_STACK=y some people reported
+severe performance regressions in micro-benchmarks because it now also
+calls the x86-64 implementation of vmalloc_sync_all() on vunmap().  But
+the vmalloc_sync_all() implementation on x86-64 is only needed for newly
+created mappings.
 
-	snprintf(d->sysfs_entry, MAX_SYSFS_PATH, "%s%s/",
-		 t->sysfs_prefix, d->name);
+To avoid the unnecessary work on x86-64 and to gain the performance
+back, split up vmalloc_sync_all() into two functions:
 
-	snprintf(d->debugfs_entry, MAX_SYSFS_PATH, "%sraw_latency_%s",
-		 t->debugfs_prefix, d->name);
+	* vmalloc_sync_mappings(), and
+	* vmalloc_sync_unmappings()
 
-Fix this by separating the maximum path length from the maximum prefix
-length and reducing the latter enough to fit the generated strings.
+Most call-sites to vmalloc_sync_all() only care about new mappings being
+synchronized.  The only exception is the new call-site added in the
+above mentioned commit.
 
-Note that we also need to reduce the device-name buffer size as GCC
-isn't smart enough to figure out that we ever only used MAX_STR_LEN
-bytes of it.
+Shile Zhang directed us to a report of an 80% regression in reaim
+throughput.
 
-Fixes: 6b0658f68786 ("greybus: tools: Add tools directory to greybus repo and add loopback")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200312110151.22028-4-johan@kernel.org
+Fixes: 3f8fd02b1bf1 ("mm/vmalloc: Sync unmappings in __purge_vmap_area_lazy()")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Reported-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Borislav Petkov <bp@suse.de>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>	[GHES]
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20191009124418.8286-1-joro@8bytes.org
+Link: https://lists.01.org/hyperkitty/list/lkp@lists.01.org/thread/4D3JPPHBNOSPFK2KEPC6KGKS6J25AIDB/
+Link: http://lkml.kernel.org/r/20191113095530.228959-1-shile.zhang@linux.alibaba.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/greybus/tools/loopback_test.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ arch/x86/mm/fault.c      |   26 ++++++++++++++++++++++++--
+ drivers/acpi/apei/ghes.c |    2 +-
+ include/linux/vmalloc.h  |    5 +++--
+ kernel/notifier.c        |    2 +-
+ mm/nommu.c               |   10 +++++++---
+ mm/vmalloc.c             |   11 +++++++----
+ 6 files changed, 43 insertions(+), 13 deletions(-)
 
---- a/drivers/staging/greybus/tools/loopback_test.c
-+++ b/drivers/staging/greybus/tools/loopback_test.c
-@@ -21,6 +21,7 @@
- #include <signal.h>
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -189,7 +189,7 @@ static inline pmd_t *vmalloc_sync_one(pg
+ 	return pmd_k;
+ }
  
- #define MAX_NUM_DEVICES 10
-+#define MAX_SYSFS_PREFIX 0x80
- #define MAX_SYSFS_PATH	0x200
- #define CSV_MAX_LINE	0x1000
- #define SYSFS_MAX_INT	0x20
-@@ -69,7 +70,7 @@ struct loopback_results {
- };
+-void vmalloc_sync_all(void)
++static void vmalloc_sync(void)
+ {
+ 	unsigned long address;
  
- struct loopback_device {
--	char name[MAX_SYSFS_PATH];
-+	char name[MAX_STR_LEN];
- 	char sysfs_entry[MAX_SYSFS_PATH];
- 	char debugfs_entry[MAX_SYSFS_PATH];
- 	struct loopback_results results;
-@@ -95,8 +96,8 @@ struct loopback_test {
- 	int stop_all;
- 	int poll_count;
- 	char test_name[MAX_STR_LEN];
--	char sysfs_prefix[MAX_SYSFS_PATH];
--	char debugfs_prefix[MAX_SYSFS_PATH];
-+	char sysfs_prefix[MAX_SYSFS_PREFIX];
-+	char debugfs_prefix[MAX_SYSFS_PREFIX];
- 	struct timespec poll_timeout;
- 	struct loopback_device devices[MAX_NUM_DEVICES];
- 	struct loopback_results aggregate_results;
-@@ -915,10 +916,10 @@ int main(int argc, char *argv[])
- 			t.iteration_max = atoi(optarg);
- 			break;
- 		case 'S':
--			snprintf(t.sysfs_prefix, MAX_SYSFS_PATH, "%s", optarg);
-+			snprintf(t.sysfs_prefix, MAX_SYSFS_PREFIX, "%s", optarg);
- 			break;
- 		case 'D':
--			snprintf(t.debugfs_prefix, MAX_SYSFS_PATH, "%s", optarg);
-+			snprintf(t.debugfs_prefix, MAX_SYSFS_PREFIX, "%s", optarg);
- 			break;
- 		case 'm':
- 			t.mask = atol(optarg);
-@@ -969,10 +970,10 @@ int main(int argc, char *argv[])
+@@ -216,6 +216,16 @@ void vmalloc_sync_all(void)
  	}
+ }
  
- 	if (!strcmp(t.sysfs_prefix, ""))
--		snprintf(t.sysfs_prefix, MAX_SYSFS_PATH, "%s", sysfs_prefix);
-+		snprintf(t.sysfs_prefix, MAX_SYSFS_PREFIX, "%s", sysfs_prefix);
++void vmalloc_sync_mappings(void)
++{
++	vmalloc_sync();
++}
++
++void vmalloc_sync_unmappings(void)
++{
++	vmalloc_sync();
++}
++
+ /*
+  * 32-bit:
+  *
+@@ -318,11 +328,23 @@ out:
  
- 	if (!strcmp(t.debugfs_prefix, ""))
--		snprintf(t.debugfs_prefix, MAX_SYSFS_PATH, "%s", debugfs_prefix);
-+		snprintf(t.debugfs_prefix, MAX_SYSFS_PREFIX, "%s", debugfs_prefix);
+ #else /* CONFIG_X86_64: */
  
- 	ret = find_loopback_devices(&t);
- 	if (ret)
+-void vmalloc_sync_all(void)
++void vmalloc_sync_mappings(void)
+ {
++	/*
++	 * 64-bit mappings might allocate new p4d/pud pages
++	 * that need to be propagated to all tasks' PGDs.
++	 */
+ 	sync_global_pgds(VMALLOC_START & PGDIR_MASK, VMALLOC_END);
+ }
+ 
++void vmalloc_sync_unmappings(void)
++{
++	/*
++	 * Unmappings never allocate or free p4d/pud pages.
++	 * No work is required here.
++	 */
++}
++
+ /*
+  * 64-bit:
+  *
+--- a/drivers/acpi/apei/ghes.c
++++ b/drivers/acpi/apei/ghes.c
+@@ -171,7 +171,7 @@ int ghes_estatus_pool_init(int num_ghes)
+ 	 * New allocation must be visible in all pgd before it can be found by
+ 	 * an NMI allocating from the pool.
+ 	 */
+-	vmalloc_sync_all();
++	vmalloc_sync_mappings();
+ 
+ 	rc = gen_pool_add(ghes_estatus_pool, addr, PAGE_ALIGN(len), -1);
+ 	if (rc)
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -139,8 +139,9 @@ extern int remap_vmalloc_range_partial(s
+ 
+ extern int remap_vmalloc_range(struct vm_area_struct *vma, void *addr,
+ 							unsigned long pgoff);
+-void vmalloc_sync_all(void);
+- 
++void vmalloc_sync_mappings(void);
++void vmalloc_sync_unmappings(void);
++
+ /*
+  *	Lowlevel-APIs (not for driver use!)
+  */
+--- a/kernel/notifier.c
++++ b/kernel/notifier.c
+@@ -519,7 +519,7 @@ NOKPROBE_SYMBOL(notify_die);
+ 
+ int register_die_notifier(struct notifier_block *nb)
+ {
+-	vmalloc_sync_all();
++	vmalloc_sync_mappings();
+ 	return atomic_notifier_chain_register(&die_chain, nb);
+ }
+ EXPORT_SYMBOL_GPL(register_die_notifier);
+--- a/mm/nommu.c
++++ b/mm/nommu.c
+@@ -370,10 +370,14 @@ void vm_unmap_aliases(void)
+ EXPORT_SYMBOL_GPL(vm_unmap_aliases);
+ 
+ /*
+- * Implement a stub for vmalloc_sync_all() if the architecture chose not to
+- * have one.
++ * Implement a stub for vmalloc_sync_[un]mapping() if the architecture
++ * chose not to have one.
+  */
+-void __weak vmalloc_sync_all(void)
++void __weak vmalloc_sync_mappings(void)
++{
++}
++
++void __weak vmalloc_sync_unmappings(void)
+ {
+ }
+ 
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -1287,7 +1287,7 @@ static bool __purge_vmap_area_lazy(unsig
+ 	 * First make sure the mappings are removed from all page-tables
+ 	 * before they are freed.
+ 	 */
+-	vmalloc_sync_all();
++	vmalloc_sync_unmappings();
+ 
+ 	/*
+ 	 * TODO: to calculate a flush range without looping.
+@@ -3120,16 +3120,19 @@ int remap_vmalloc_range(struct vm_area_s
+ EXPORT_SYMBOL(remap_vmalloc_range);
+ 
+ /*
+- * Implement a stub for vmalloc_sync_all() if the architecture chose not to
+- * have one.
++ * Implement stubs for vmalloc_sync_[un]mappings () if the architecture chose
++ * not to have one.
+  *
+  * The purpose of this function is to make sure the vmalloc area
+  * mappings are identical in all page-tables in the system.
+  */
+-void __weak vmalloc_sync_all(void)
++void __weak vmalloc_sync_mappings(void)
+ {
+ }
+ 
++void __weak vmalloc_sync_unmappings(void)
++{
++}
+ 
+ static int f(pte_t *pte, unsigned long addr, void *data)
+ {
 
 
