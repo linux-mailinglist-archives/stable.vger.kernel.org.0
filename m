@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9A41910A5
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5A431910DD
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727801AbgCXNaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:30:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46130 "EHLO mail.kernel.org"
+        id S1728828AbgCXNT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:19:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729297AbgCXNXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:23:11 -0400
+        id S1728390AbgCXNT0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:19:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AACAC20775;
-        Tue, 24 Mar 2020 13:23:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E60D20775;
+        Tue, 24 Mar 2020 13:19:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056191;
-        bh=npr2SWUuqVngmrPJq9R8bHzxLm6ewalMKQis6F4g21E=;
+        s=default; t=1585055965;
+        bh=a6COAg6MB9DpFUpTiXgHAkOs72a2wm6U+5vWQkJUJm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMvdcz+zt21yS73JaA4qAGY2eSBdRhmRJ3bH6DYh0bwnypvY0mOqNWeVbXK2Nr0uU
-         C4lQv4uWw2rLaXCBoz0GlmaxZnsA5AcOfml/6Sj8VAlSx6B61IMdR96KrO/CXKLCDd
-         opRb+cMVA6HRgZEixVKvL8t1Zle51ur3kOu6CUVo=
+        b=Vr0sYO17j0VgiG3jpkMYUoqxUUYavHuMbuA8g+zrldBRHo7GRoyKvnRGpzvYLoOlB
+         6Xpbv9HrU9RJcDu/LFfk3Yv82gu7hP3Ep9IIEgEb89p+xtLQ54dHiXPGNqcv+fjp6a
+         PjybkGVXCmQ7ZIseCnAVGRYxR4CdIfOzeU0gXZF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>
-Subject: [PATCH 5.5 051/119] USB: cdc-acm: fix close_delay and closing_wait units in TIOCSSERIAL
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 5.4 044/102] usb: typec: ucsi: displayport: Fix a potential race during registration
 Date:   Tue, 24 Mar 2020 14:10:36 +0100
-Message-Id: <20200324130813.371575958@linuxfoundation.org>
+Message-Id: <20200324130811.188208722@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Mallet <anthony.mallet@laas.fr>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit 633e2b2ded739a34bd0fb1d8b5b871f7e489ea29 upstream.
+commit 081da1325d351ea8804cf74e65263ea120834f33 upstream.
 
-close_delay and closing_wait are specified in hundredth of a second but stored
-internally in jiffies. Use the jiffies_to_msecs() and msecs_to_jiffies()
-functions to convert from each other.
+Locking the connector in ucsi_register_displayport() to make
+sure that nothing can access the displayport alternate mode
+before the function has finished and the alternate mode is
+actually ready.
 
-Signed-off-by: Anthony Mallet <anthony.mallet@laas.fr>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200312133101.7096-1-anthony.mallet@laas.fr
+Fixes: af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20200311130006.41288-3-heikki.krogerus@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-acm.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/usb/typec/ucsi/displayport.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -896,10 +896,10 @@ static int get_serial_info(struct tty_st
+--- a/drivers/usb/typec/ucsi/displayport.c
++++ b/drivers/usb/typec/ucsi/displayport.c
+@@ -290,6 +290,8 @@ struct typec_altmode *ucsi_register_disp
+ 	struct typec_altmode *alt;
+ 	struct ucsi_dp *dp;
  
- 	ss->xmit_fifo_size = acm->writesize;
- 	ss->baud_base = le32_to_cpu(acm->line.dwDTERate);
--	ss->close_delay	= acm->port.close_delay / 10;
-+	ss->close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
- 	ss->closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
- 				ASYNC_CLOSING_WAIT_NONE :
--				acm->port.closing_wait / 10;
-+				jiffies_to_msecs(acm->port.closing_wait) / 10;
- 	return 0;
++	mutex_lock(&con->lock);
++
+ 	/* We can't rely on the firmware with the capabilities. */
+ 	desc->vdo |= DP_CAP_DP_SIGNALING | DP_CAP_RECEPTACLE;
+ 
+@@ -298,12 +300,15 @@ struct typec_altmode *ucsi_register_disp
+ 	desc->vdo |= all_assignments << 16;
+ 
+ 	alt = typec_port_register_altmode(con->port, desc);
+-	if (IS_ERR(alt))
++	if (IS_ERR(alt)) {
++		mutex_unlock(&con->lock);
+ 		return alt;
++	}
+ 
+ 	dp = devm_kzalloc(&alt->dev, sizeof(*dp), GFP_KERNEL);
+ 	if (!dp) {
+ 		typec_unregister_altmode(alt);
++		mutex_unlock(&con->lock);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+@@ -316,5 +321,7 @@ struct typec_altmode *ucsi_register_disp
+ 	alt->ops = &ucsi_displayport_ops;
+ 	typec_altmode_set_drvdata(alt, dp);
+ 
++	mutex_unlock(&con->lock);
++
+ 	return alt;
  }
- 
-@@ -909,9 +909,10 @@ static int set_serial_info(struct tty_st
- 	unsigned int closing_wait, close_delay;
- 	int retval = 0;
- 
--	close_delay = ss->close_delay * 10;
-+	close_delay = msecs_to_jiffies(ss->close_delay * 10);
- 	closing_wait = ss->closing_wait == ASYNC_CLOSING_WAIT_NONE ?
--			ASYNC_CLOSING_WAIT_NONE : ss->closing_wait * 10;
-+			ASYNC_CLOSING_WAIT_NONE :
-+			msecs_to_jiffies(ss->closing_wait * 10);
- 
- 	mutex_lock(&acm->port.mutex);
- 
 
 
