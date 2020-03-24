@@ -2,82 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B73BD191BB6
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 22:08:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFE2F191BD8
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 22:19:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727023AbgCXVHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 17:07:37 -0400
-Received: from mga09.intel.com ([134.134.136.24]:23594 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726673AbgCXVHh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 17:07:37 -0400
-IronPort-SDR: kAUG2FrGJFqMtGMfH4rBF2M4cd/wkBu1RHEDkZ2R1o3VtJNoiknoa91vLPUlyoE5oBYffyauSw
- YEt+266g7b7Q==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2020 14:07:36 -0700
-IronPort-SDR: 4d1A11kMratSd7SKf0+PfLVh+dH0S4cIbjIlPUH/dfBkpcOL3ORNP/yEnLJ0gf2YgtJqClwukQ
- HJXcQKUCaUVQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,301,1580803200"; 
-   d="scan'208";a="448045780"
-Received: from twinkler-lnx.jer.intel.com ([10.12.91.155])
-  by fmsmga006.fm.intel.com with ESMTP; 24 Mar 2020 14:07:34 -0700
-From:   Tomas Winkler <tomas.winkler@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc-next] mei: me: add cedar fork device ids
-Date:   Tue, 24 Mar 2020 23:07:30 +0200
-Message-Id: <20200324210730.17672-1-tomas.winkler@intel.com>
-X-Mailer: git-send-email 2.21.1
+        id S1727088AbgCXVSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 17:18:02 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:45008 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727160AbgCXVSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 17:18:01 -0400
+Received: by mail-lf1-f66.google.com with SMTP id j188so7071lfj.11
+        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 14:17:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nFWhs7FYWqUzfSLp89dUr9RqAyDvvxrGjpfFY3Xf6t0=;
+        b=r/73bErWdHQvuSdWJNWD31sFM6sBzEI3plO5Ph0mnhTsKRC3h1QN3i7Fz3eKj47Yan
+         BwWMNi7sdz1VngrNfJgVhs4otMGlVbKrH5Ojtg4qQyZl6c5KNhEt2puHDbfeP7zS1g9z
+         9sb9L8shr//a5jX0W9biM5R/XFXVss0aK7nJnFNfhT69yuJ3vEp20yhHEiPfGub2S0l3
+         eAM6WE6onEd3buLeks9BWIX5O3wweUSmc37Ts60F6+qNm0gZUEZMEVw0o0nixNUSAlOc
+         geZpCA4tpuURui/rTdFdYUk8MNAkScEJxAEUfyVK4GkLj/8d6IGrDaMTou75bMHoukIi
+         C9DQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nFWhs7FYWqUzfSLp89dUr9RqAyDvvxrGjpfFY3Xf6t0=;
+        b=D+K7mJDn40xIynknshZwG+S6jDkM8dKSwTXPB5pnWTGNmxUQccOUqvlIRzQSYzOEpM
+         3pCLZCFbDd4i0joMnnjKIrURIXaz/J7v1gF2ObyrLYXu+aUFppJ0oBHfFxf6cc9pmlEP
+         RmK6lOGeeIPe+0NmT7LAooq5VUonMNw/KSZIDqbf4LUai0UMxdjsbLiLghn3XY6gSw1N
+         IoBgZtOKyo5Xd6yrauHaebSX9R3SkBHjTCDjKSMd1xcPhwaCW58dUqzBImiEN+JZMZwK
+         kbAWi69LwqUYY07rqxf0MjPNJ1uZhX4ldX/GtXlIdchR1zk76F7okW2kIjO51AWpKb9g
+         PdtQ==
+X-Gm-Message-State: ANhLgQ2NNVvYFYxPywL+097C/AKccQnh59dagAdHzjwtgwk3GznJh71k
+        /pYM+vp5IUaiyuLIWqPYD4af2sfVyx9aqngRH9c/MFPVdzY=
+X-Google-Smtp-Source: ADFU+vu/WFfI8+Ea0qixkispTE8M2IBdFmk3vOeBjdzg2fpI2YVxUN1mkgIfe3Rc2yqBnwLXF8WOfkInLMcS8iGWzNs=
+X-Received: by 2002:a19:6502:: with SMTP id z2mr23818lfb.47.1585084677811;
+ Tue, 24 Mar 2020 14:17:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200317113153.7945-1-linus.walleij@linaro.org>
+ <CAFEAcA9mXE+gPnvM6HZ-w0+BhbpeuH=osFH-9NUzCLv=w-c7HQ@mail.gmail.com>
+ <CACRpkdZtLNUwiZEMiJEoB0ojOBckyGcZeyFkR6MC69qv-ry9EA@mail.gmail.com>
+ <CAFEAcA-gdwi=KSW6LqVdEJWSo9VEL5abYQs9LoHd4mKE_-h=Aw@mail.gmail.com>
+ <CACRpkdYuZgZUznVxt1AHCSJa_GAXy8N0SduE5OrjDnE1s_L7Zg@mail.gmail.com>
+ <20200324023431.GD53396@mit.edu> <CAFEAcA_6RY1XFVNJCo5=tTkv2GQpXZRqh_Zz4dYadq-8MJZgTQ@mail.gmail.com>
+ <20200324184754.GG53396@mit.edu>
+In-Reply-To: <20200324184754.GG53396@mit.edu>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 24 Mar 2020 22:17:46 +0100
+Message-ID: <CACRpkdapsgkNbNNGz12tBQKh8GKgcUuwgLywM7CMghr94C-Fsg@mail.gmail.com>
+Subject: Re: [PATCH] ext4: Give 32bit personalities 32bit hashes
+To:     "Theodore Y. Ts'o" <tytso@mit.edu>
+Cc:     Peter Maydell <peter.maydell@linaro.org>,
+        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Ext4 Developers List <linux-ext4@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        QEMU Developers <qemu-devel@nongnu.org>,
+        Florian Weimer <fw@deneb.enyo.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+On Tue, Mar 24, 2020 at 7:48 PM Theodore Y. Ts'o <tytso@mit.edu> wrote:
+> On Tue, Mar 24, 2020 at 09:29:58AM +0000, Peter Maydell wrote:
+> >
+> > On the contrary, that would be a much better interface for QEMU.
+> > We always know when we're doing an open-syscall on behalf
+> > of the guest, and it would be trivial to make the fcntl() call then.
+> > That would ensure that we don't accidentally get the
+> > '32-bit semantics' on file descriptors QEMU opens for its own
+> > purposes, and wouldn't leave us open to the risk in future that
+> > setting the PER_LINUX32 flag for all of QEMU causes
+> > unexpected extra behaviour in future kernels that would be correct
+> > for the guest binary but wrong/broken for QEMU's own internals.
+>
+> If using a flag set by fcntl is better for qemu, then by all means
+> let's go with that instead of using a personality flag/number.
+>
+> Linus, do you have what you need to do a respin of the patch?
 
-Add Cedar Fork (CDF) device ids, those belongs to the cannon point family.
+Absolutely, I'm a bit occupied this week but I will try to get to it
+early next week!
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
----
- drivers/misc/mei/hw-me-regs.h | 2 ++
- drivers/misc/mei/pci-me.c     | 2 ++
- 2 files changed, 4 insertions(+)
+Thanks a lot for the directions here, it's highly valuable.
 
-diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
-index d2359aed79ae..9392934e3a06 100644
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -87,6 +87,8 @@
- #define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
- #define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
- 
-+#define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
-+
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
- 
- #define MEI_DEV_ID_JSP_N      0x4DE0  /* Jasper Lake Point N */
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index ebdc2d6f8ddb..3d21c38e2dbb 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -102,6 +102,8 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
- 
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CDF, MEI_ME_PCH8_CFG)},
-+
- 	/* required last entry */
- 	{0, }
- };
--- 
-2.21.1
-
+Yours,
+Linus Walleij
