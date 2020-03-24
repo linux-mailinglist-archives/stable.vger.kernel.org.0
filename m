@@ -2,380 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF55119039E
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 03:37:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C991903A0
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 03:38:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbgCXChk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Mar 2020 22:37:40 -0400
-Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:34469 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726824AbgCXChk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Mar 2020 22:37:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585017457;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=MbmB4gwfBE/AyMVAl780XPngz4BSUu8X1Azjt4TVZUo=;
-        b=F4iKzb1C2cPh/dZDxSIzDYw+OMYv2qwC8uNYJ9GenRmLDdYnZsxj8VERbKSXFUqaKCJe/K
-        2MobJBJk0O3no4kluijods24Jjswaf6L4qiUFYUhwl26TLUgb6ojFd4pxbwKSXEl9R1ron
-        1eKedUWLOfq/UUh7P7IxsGjsRKxCr3c=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-250-i2rChrHjOtO33tLX0bKrYA-1; Mon, 23 Mar 2020 22:37:34 -0400
-X-MC-Unique: i2rChrHjOtO33tLX0bKrYA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 148E68017CE;
-        Tue, 24 Mar 2020 02:37:33 +0000 (UTC)
-Received: from [172.54.50.34] (cpt-1014.paas.prod.upshift.rdu2.redhat.com [10.0.19.41])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8D5A219C6A;
-        Tue, 24 Mar 2020 02:37:29 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1727047AbgCXCiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Mar 2020 22:38:02 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:12180 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726824AbgCXCiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Mar 2020 22:38:01 -0400
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id A08EEAD13A6A126C81F7;
+        Tue, 24 Mar 2020 10:37:58 +0800 (CST)
+Received: from [10.173.228.124] (10.173.228.124) by smtp.huawei.com
+ (10.3.19.207) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 24 Mar
+ 2020 10:37:50 +0800
+Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by
+ huge_pte_offset()
+To:     Jason Gunthorpe <jgg@ziepe.ca>,
+        Mike Kravetz <mike.kravetz@oracle.com>
+CC:     <akpm@linux-foundation.org>, <kirill.shutemov@linux.intel.com>,
+        <linux-kernel@vger.kernel.org>, <arei.gonglei@huawei.com>,
+        <weidong.huang@huawei.com>, <weifuqiang@huawei.com>,
+        <kvm@vger.kernel.org>, <linux-mm@kvack.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Sean Christopherson" <sean.j.christopherson@intel.com>,
+        <stable@vger.kernel.org>
+References: <1582342427-230392-1-git-send-email-longpeng2@huawei.com>
+ <51a25d55-de49-4c0a-c994-bf1a8cfc8638@oracle.com>
+ <20200323160955.GY20941@ziepe.ca>
+ <69055395-e7e5-a8e2-7f3e-f61607149318@oracle.com>
+ <20200323180706.GC20941@ziepe.ca>
+ <88698dd7-eb87-4b0b-7ba7-44ef6eab6a6c@oracle.com>
+ <20200323225225.GF20941@ziepe.ca>
+From:   "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
+        <longpeng2@huawei.com>
+Message-ID: <e8e71ba4-d609-269a-6160-153e373e7563@huawei.com>
+Date:   Tue, 24 Mar 2020 10:37:49 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?q?=F0=9F=92=A5?= PANICKED: Test report for kernel
- 5.5.11-97814a0.cki (stable-queue)
-Date:   Tue, 24 Mar 2020 02:37:29 -0000
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>,
-        Ondrej Moris <omoris@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Xiong Zhou <xzhou@redhat.com>, Fei Liu <feliu@redhat.com>
-Message-ID: <cki.B5B641A2D4.YQMMK8835O@redhat.com>
-X-Gitlab-Pipeline-ID: 502272
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/502272
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <20200323225225.GF20941@ziepe.ca>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.173.228.124]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hello,
 
-We ran automated tests on a recent commit from this kernel tree:
+On 2020/3/24 6:52, Jason Gunthorpe wrote:
+> On Mon, Mar 23, 2020 at 01:35:07PM -0700, Mike Kravetz wrote:
+>> On 3/23/20 11:07 AM, Jason Gunthorpe wrote:
+>>> On Mon, Mar 23, 2020 at 10:27:48AM -0700, Mike Kravetz wrote:
+>>>
+>>>>>  	pgd = pgd_offset(mm, addr);
+>>>>> -	if (!pgd_present(*pgd))
+>>>>> +	if (!pgd_present(READ_ONCE(*pgd)))
+>>>>>  		return NULL;
+>>>>>  	p4d = p4d_offset(pgd, addr);
+>>>>> -	if (!p4d_present(*p4d))
+>>>>> +	if (!p4d_present(READ_ONCE(*p4d)))
+>>>>>  		return NULL;
+>>>>>  
+>>>>>       pud = pud_offset(p4d, addr);
+>>>>
+>>>> One would argue that pgd and p4d can not change from present to !present
+>>>> during the execution of this code.  To me, that seems like the issue which
+>>>> would cause an issue.  Of course, I could be missing something.
+>>>
+>>> This I am not sure of, I think it must be true under the read side of
+>>> the mmap_sem, but probably not guarenteed under RCU..
+>>>
+>>> In any case, it doesn't matter, the fact that *p4d can change at all
+>>> is problematic. Unwinding the above inlines we get:
+>>>
+>>>   p4d = p4d_offset(pgd, addr)
+>>>   if (!p4d_present(*p4d))
+>>>       return NULL;
+>>>   pud = (pud_t *)p4d_page_vaddr(*p4d) + pud_index(address);
+>>>
+>>> According to our memory model the compiler/CPU is free to execute this
+>>> as:
+>>>
+>>>   p4d = p4d_offset(pgd, addr)
+>>>   p4d_for_vaddr = *p4d;
+>>>   if (!p4d_present(*p4d))
+>>>       return NULL;
+>>>   pud = (pud_t *)p4d_page_vaddr(p4d_for_vaddr) + pud_index(address);
+>>>
+>>
+>> Wow!  How do you know this?  You don't need to answer :)
+> 
+> It says explicitly in Documentation/memory-barriers.txt - see
+> section COMPILER BARRIER:
+> 
+>  (*) The compiler is within its rights to reorder loads and stores
+>      to the same variable, and in some cases, the CPU is within its
+>      rights to reorder loads to the same variable.  This means that
+>      the following code:
+> 
+>         a[0] = x;
+>         a[1] = x;
+> 
+>      Might result in an older value of x stored in a[1] than in a[0].
+> 
+> It also says READ_ONCE puts things in program order, but we don't use
+> READ_ONCE inside pud_offset(), so it doesn't help us.
+> 
+> Best answer is to code things so there is exactly one dereference of
+> the pointer protected by READ_ONCE. Very clear to read, very safe.
+> 
+> Maybe Longpeng can rework the patch around these principles?
+> 
+Thanks Jason and Mike, I learn a lot from your analysis.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 97814a0792fd - io_uring: NULL-deref for IOSQE_{ASYNC,DRAI=
-N}
+So... the patch should like this ?
 
-The results of these automated tests are provided below.
+@@ -4909,29 +4909,33 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
+ 		       unsigned long addr, unsigned long sz)
+ {
+ 	pgd_t *pgd;
+-	p4d_t *p4d;
+-	pud_t *pud;
+-	pmd_t *pmd;
++	p4d_t *p4g, p4d_entry;
++	pud_t *pud, pud_entry;
++	pmd_t *pmd, pmd_entry;
 
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: PANICKED
+ 	pgd = pgd_offset(mm, addr);
+ 	if (!pgd_present(*pgd))
+ 		return NULL;
+-	p4d = p4d_offset(pgd, addr);
+-	if (!p4d_present(*p4d))
++
++	p4g = p4d_offset(pgd, addr);
++	p4d_entry = READ_ONCE(*p4g);
++	if (!p4d_present(p4d_entry))
+ 		return NULL;
 
-All kernel binaries, config files, and logs are available for download here:
+-	pud = pud_offset(p4d, addr);
+-	if (sz != PUD_SIZE && pud_none(*pud))
++	pud = pud_offset(&p4d_entry, addr);
++	pud_entry = READ_ONCE(*pud);
++	if (sz != PUD_SIZE && pud_none(pud_entry))
+ 		return NULL;
+ 	/* hugepage or swap? */
+-	if (pud_huge(*pud) || !pud_present(*pud))
++	if (pud_huge(pud_entry) || !pud_present(pud_entry))
+ 		return (pte_t *)pud;
 
-  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/03/23/502272
+-	pmd = pmd_offset(pud, addr);
+-	if (sz != PMD_SIZE && pmd_none(*pmd))
++	pmd = pmd_offset(&pud_entry, addr);
++	pmd_entry = READ_ONCE(*pmd);
++	if (sz != PMD_SIZE && pmd_none(pmd_entry))
+ 		return NULL;
+ 	/* hugepage or swap? */
+-	if (pmd_huge(*pmd) || !pmd_present(*pmd))
++	if (pmd_huge(pmd_entry) || !pmd_present(pmd_entry))
+ 		return (pte_t *)pmd;
 
-One or more kernel tests failed:
+> Also I wonder if the READ_ONCE(*pmdp) is OK. gup_pmd_range() uses it,
+> but I can't explain why it shouldn't be pmd_read_atomic().
+> 
+>>> In the case where p4 goes from !present -> present (ie
+>>> handle_mm_fault()):
+>>>
+>>> p4d_for_vaddr == p4d_none, and p4d_present(*p4d) == true, meaning the
+>>> p4d_page_vaddr() will crash.
+>>>
+>>> Basically the problem here is not just missing READ_ONCE, but that the
+>>> p4d is read multiple times at all. It should be written like gup_fast
+>>> does, to guarantee a single CPU read of the unstable data:
+>>>
+>>>   p4d = READ_ONCE(*p4d_offset(pgdp, addr));
+>>>   if (!p4d_present(p4))
+>>>       return NULL;
+>>>   pud = pud_offset(&p4d, addr);
+>>>
+>>> At least this is what I've been able to figure out :\
+>>
+>> In that case, I believe there are a bunch of similar routines with this issue.
+> 
+> Yes, my look around page walk related users makes me come to a similar
+> worry.
+> 
+> Fortunately, I think this is largely theoretical as most likely the
+> compiler will generate a single store for these coding patterns. 
+> 
+> That said, there have been bugs in the past, see commit 26c191788f18
+> ("mm: pmd_read_atomic: fix 32bit PAE pmd walk vs pmd_populate SMP race
+> condition") which is significantly related to the compiler lifting a
+> load inside pte_offset to before the required 'if (pmd_*)' checks.
+> 
+>> For this patch, I was primarily interested in seeing the obvious
+>> multiple dereferences in C fixed up.  This is above and beyond that!
+>> :)
+> 
+> Well, I think it is worth solving the underlying problem
+> properly. Otherwise we get weird solutions to data races like
+> pmd_trans_unstable()...
+> 
+> Jason
+> .
+> 
 
-    ppc64le:
-     =F0=9F=92=A5 LTP
-
-    aarch64:
-     =F0=9F=92=A5 xfstests - ext4
-
-    x86_64:
-     =F0=9F=92=A5 xfstests - ext4
-     =F0=9F=92=A5 Networking bridge: sanity
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =F0=9F=92=A5 xfstests - ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-  ppc64le:
-    Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =F0=9F=92=A5 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 iotop: sanity
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - megaraid_sas
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Storage SAN device stress - mpt3sas driver
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=92=A5 xfstests - ext4
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
-nity test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =F0=9F=92=A5 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking MACsec: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking sctp-auth: sockopts test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: sanity smoke test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
-
+---
+Regards,
+Longpeng(Mike)
