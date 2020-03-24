@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 643BF190F9B
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D377E190EDA
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:15:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729041AbgCXNV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:21:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
+        id S1727810AbgCXNPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:15:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729039AbgCXNVZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:21:25 -0400
+        id S1728268AbgCXNPa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:15:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84CDF20775;
-        Tue, 24 Mar 2020 13:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AD30208CA;
+        Tue, 24 Mar 2020 13:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056085;
-        bh=FTweWN98BoOY115uzLhzfrdwPwGcwkAI9w3aSqZ/KUs=;
+        s=default; t=1585055729;
+        bh=NdXj8AobCtKW15pxvIDIVPmaMMy5Xo0phZ+4bEez/Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p667t+PXgVjmpEpS9k8xkhZ4tOqpt+QFuOHthnGW6SSw8J0aB+IZ9480zFMI0BvEN
-         mLlFFTqOrBmzzaXKJBkco1QDIZMMRuAawppz9512POWO/+24Dmx2ERj5XxtsZd4qMS
-         6Ay2uIlFH6h5rk1/OLKN+F7PwP1XzrN+e/zlc3HQ=
+        b=c/QOR3fTtEHshLi7uM4Wu4TxRr748xFRgA+vVZKks2Nf8CjrmcjneuuxA5bFgapnO
+         EZDASfwzkxiU53I8xn1n+JaB53nZXOeQIGi7v/rictXsbw2xInHNgoSNxZ5OMwOx4O
+         GvZJx68VzcFeZ/NvdySvwQjwrqWhpkarFlmdmwBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Inki Dae <inki.dae@samsung.com>,
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Aurelien Aptel <aaptel@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 017/119] drm/exynos: dsi: propagate error value and silence meaningless warning
-Date:   Tue, 24 Mar 2020 14:10:02 +0100
-Message-Id: <20200324130809.654597043@linuxfoundation.org>
+Subject: [PATCH 5.4 011/102] cifs: add missing mount option to /proc/mounts
+Date:   Tue, 24 Mar 2020 14:10:03 +0100
+Message-Id: <20200324130807.702016298@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 0a9d1e3f3f038785ebc72d53f1c409d07f6b4ff5 ]
+[ Upstream commit ec57010acd03428a749d2600bf09bd537eaae993 ]
 
-Properly propagate error value from devm_regulator_bulk_get() and don't
-confuse user with meaningless warning about failure in getting regulators
-in case of deferred probe.
+We were not displaying the mount option "signloosely" in /proc/mounts
+for cifs mounts which some users found confusing recently
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_dsi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/cifs/cifsfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-index 72726f2c7a9fb..8d880012b5876 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-@@ -1751,8 +1751,9 @@ static int exynos_dsi_probe(struct platform_device *pdev)
- 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(dsi->supplies),
- 				      dsi->supplies);
- 	if (ret) {
--		dev_info(dev, "failed to get regulators: %d\n", ret);
--		return -EPROBE_DEFER;
-+		if (ret != -EPROBE_DEFER)
-+			dev_info(dev, "failed to get regulators: %d\n", ret);
-+		return ret;
- 	}
+diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+index 637624ab6e464..115f063497ffa 100644
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -530,6 +530,8 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
  
- 	dsi->clks = devm_kcalloc(dev,
+ 	if (tcon->seal)
+ 		seq_puts(s, ",seal");
++	else if (tcon->ses->server->ignore_signature)
++		seq_puts(s, ",signloosely");
+ 	if (tcon->nocase)
+ 		seq_puts(s, ",nocase");
+ 	if (tcon->local_lease)
 -- 
 2.20.1
 
