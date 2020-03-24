@@ -2,134 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9CE4190F83
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2427B190FD8
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728542AbgCXNU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41714 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728220AbgCXNUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:20:25 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE532206F6;
-        Tue, 24 Mar 2020 13:20:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056024;
-        bh=ehMOaz+Z5BY8hRWTVYWD5dhPNfhkATZ3WAZTvvc31TE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWUEYCnsKcBNem+wnMtiH3l6XLYgG6SO5CXJS/8FSrTO7ns2ehfmk2lVsUS/5Cygm
-         LruHeUnEY+7Ae2Qf2lfMRAoqgG7ixLNgFsJ6Dgf+WXo+kcIdmPh6r6gTaYx0QA4u4X
-         /saU220vW8mglKwkBIzUDQ0OWlW2BTcJ8rxGSbjU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 102/102] staging: greybus: loopback_test: fix potential path truncations
-Date:   Tue, 24 Mar 2020 14:11:34 +0100
-Message-Id: <20200324130817.040127872@linuxfoundation.org>
-X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1728852AbgCXNXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:23:38 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:40656 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729138AbgCXNXi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 09:23:38 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 02ODNZi6011310;
+        Tue, 24 Mar 2020 13:23:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id; s=corp-2020-01-29;
+ bh=becv5FYJXzs3JnZ2rYy3TkDqfdaAi9xKRTFsZMsQFiY=;
+ b=jWhoLaCSPQBNO5yNvn9VlMsIFN4OCFBwosat3YcVAyrzDlvhgHs5h3LTm0UCpB/zgexl
+ 1j/LZkM7akjYVFW9qpAoG0fR79rCAZE9lgMZ/Rm121GJd8FFpJkaQA4iuf4JIBR9YBoi
+ Jv9TAu7lmXQLQBc+hwJn/ZYdzxVYjiuhcw0535MwRNFgg0UQrdryDbq0WjDNsdTi2jtm
+ FLkFFHxQsNttOlveftwmA9kEKy5GkCiQ18BHFZEIFCw8Zdviv0nBIQh4nsstv6WZsVjC
+ lIpwEv8bNtSXlPw+Ckv6lRh+w3fbLJUXiErPEfI0S5jhYCLGQkUkyIB32/XxZZWMUthf PA== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by aserp2120.oracle.com with ESMTP id 2ywavm47ua-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 24 Mar 2020 13:23:34 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 02ODNYlH115932;
+        Tue, 24 Mar 2020 13:23:34 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3020.oracle.com with ESMTP id 2yxw6mpyds-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 24 Mar 2020 13:23:34 +0000
+Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 02ODNQSF031276;
+        Tue, 24 Mar 2020 13:23:26 GMT
+Received: from localhost.localdomain (/114.88.246.185)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 24 Mar 2020 06:23:25 -0700
+From:   Bob Liu <bob.liu@oracle.com>
+To:     dm-devel@redhat.com
+Cc:     Damien.LeMoal@wdc.com, linux-block@vger.kernel.org,
+        Dmitry.Fomichev@wdc.com, snitzer@redhat.com,
+        Bob Liu <bob.liu@oracle.com>, stable@vger.kernel.org
+Subject: [PATCH resend] dm zoned: remove duplicated nr_rnd_zones increasement
+Date:   Tue, 24 Mar 2020 21:22:45 +0800
+Message-Id: <20200324132245.27843-1-bob.liu@oracle.com>
+X-Mailer: git-send-email 2.9.5
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9569 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 adultscore=0
+ malwarescore=0 mlxscore=0 spamscore=0 mlxlogscore=999 bulkscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2003240072
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9569 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0
+ priorityscore=1501 mlxscore=0 bulkscore=0 clxscore=1011 impostorscore=0
+ phishscore=0 suspectscore=1 mlxlogscore=999 spamscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
+ definitions=main-2003240072
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+zmd->nr_rnd_zones was increased twice by mistake.
+The other place:
+1131                 zmd->nr_useable_zones++;
+1132                 if (dmz_is_rnd(zone)) {
+1133                         zmd->nr_rnd_zones++;
+					^^^
 
-commit ae62cf5eb2792d9a818c2d93728ed92119357017 upstream.
-
-Newer GCC warns about possible truncations of two generated path names as
-we're concatenating the configurable sysfs and debugfs path prefixes
-with a filename and placing the results in buffers of the same size as
-the maximum length of the prefixes.
-
-	snprintf(d->name, MAX_STR_LEN, "gb_loopback%u", dev_id);
-
-	snprintf(d->sysfs_entry, MAX_SYSFS_PATH, "%s%s/",
-		 t->sysfs_prefix, d->name);
-
-	snprintf(d->debugfs_entry, MAX_SYSFS_PATH, "%sraw_latency_%s",
-		 t->debugfs_prefix, d->name);
-
-Fix this by separating the maximum path length from the maximum prefix
-length and reducing the latter enough to fit the generated strings.
-
-Note that we also need to reduce the device-name buffer size as GCC
-isn't smart enough to figure out that we ever only used MAX_STR_LEN
-bytes of it.
-
-Fixes: 6b0658f68786 ("greybus: tools: Add tools directory to greybus repo and add loopback")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200312110151.22028-4-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+Signed-off-by: Bob Liu <bob.liu@oracle.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
- drivers/staging/greybus/tools/loopback_test.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/md/dm-zoned-metadata.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/staging/greybus/tools/loopback_test.c
-+++ b/drivers/staging/greybus/tools/loopback_test.c
-@@ -19,6 +19,7 @@
- #include <signal.h>
- 
- #define MAX_NUM_DEVICES 10
-+#define MAX_SYSFS_PREFIX 0x80
- #define MAX_SYSFS_PATH	0x200
- #define CSV_MAX_LINE	0x1000
- #define SYSFS_MAX_INT	0x20
-@@ -67,7 +68,7 @@ struct loopback_results {
- };
- 
- struct loopback_device {
--	char name[MAX_SYSFS_PATH];
-+	char name[MAX_STR_LEN];
- 	char sysfs_entry[MAX_SYSFS_PATH];
- 	char debugfs_entry[MAX_SYSFS_PATH];
- 	struct loopback_results results;
-@@ -93,8 +94,8 @@ struct loopback_test {
- 	int stop_all;
- 	int poll_count;
- 	char test_name[MAX_STR_LEN];
--	char sysfs_prefix[MAX_SYSFS_PATH];
--	char debugfs_prefix[MAX_SYSFS_PATH];
-+	char sysfs_prefix[MAX_SYSFS_PREFIX];
-+	char debugfs_prefix[MAX_SYSFS_PREFIX];
- 	struct timespec poll_timeout;
- 	struct loopback_device devices[MAX_NUM_DEVICES];
- 	struct loopback_results aggregate_results;
-@@ -907,10 +908,10 @@ int main(int argc, char *argv[])
- 			t.iteration_max = atoi(optarg);
- 			break;
- 		case 'S':
--			snprintf(t.sysfs_prefix, MAX_SYSFS_PATH, "%s", optarg);
-+			snprintf(t.sysfs_prefix, MAX_SYSFS_PREFIX, "%s", optarg);
- 			break;
- 		case 'D':
--			snprintf(t.debugfs_prefix, MAX_SYSFS_PATH, "%s", optarg);
-+			snprintf(t.debugfs_prefix, MAX_SYSFS_PREFIX, "%s", optarg);
- 			break;
- 		case 'm':
- 			t.mask = atol(optarg);
-@@ -961,10 +962,10 @@ int main(int argc, char *argv[])
- 	}
- 
- 	if (!strcmp(t.sysfs_prefix, ""))
--		snprintf(t.sysfs_prefix, MAX_SYSFS_PATH, "%s", sysfs_prefix);
-+		snprintf(t.sysfs_prefix, MAX_SYSFS_PREFIX, "%s", sysfs_prefix);
- 
- 	if (!strcmp(t.debugfs_prefix, ""))
--		snprintf(t.debugfs_prefix, MAX_SYSFS_PATH, "%s", debugfs_prefix);
-+		snprintf(t.debugfs_prefix, MAX_SYSFS_PREFIX, "%s", debugfs_prefix);
- 
- 	ret = find_loopback_devices(&t);
- 	if (ret)
-
+diff --git a/drivers/md/dm-zoned-metadata.c b/drivers/md/dm-zoned-metadata.c
+index 516c7b6..369de15 100644
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -1109,7 +1109,6 @@ static int dmz_init_zone(struct blk_zone *blkz, unsigned int idx, void *data)
+ 	switch (blkz->type) {
+ 	case BLK_ZONE_TYPE_CONVENTIONAL:
+ 		set_bit(DMZ_RND, &zone->flags);
+-		zmd->nr_rnd_zones++;
+ 		break;
+ 	case BLK_ZONE_TYPE_SEQWRITE_REQ:
+ 	case BLK_ZONE_TYPE_SEQWRITE_PREF:
+-- 
+2.9.5
 
