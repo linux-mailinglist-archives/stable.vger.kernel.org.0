@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82E04190EBF
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:15:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 327CB190F8E
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728044AbgCXNOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:14:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33008 "EHLO mail.kernel.org"
+        id S1728972AbgCXNUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727164AbgCXNOe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:14:34 -0400
+        id S1728969AbgCXNUw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:20:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15DC9208D6;
-        Tue, 24 Mar 2020 13:14:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43E2B206F6;
+        Tue, 24 Mar 2020 13:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055674;
-        bh=1PYz75fQhDi1f0xikc1C0S6f1Q7fc1lQY/Z6btMUpkY=;
+        s=default; t=1585056051;
+        bh=+xpPjaMhoBadtcvnqh6t0mLef2amTpzfhjgOuazpDck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mtbmbHghP/RPrjXQ/kzrvMUDcMfXhwqkTVOACschTH+swDos9Hl50ckrgOIlerNWs
-         gVfXgms2aBVilq9nL6jEESF1E6wv/UvrPwXuXYTVKNnfP6rwuxKraKFYAoAIwJ2ysu
-         Mj/JgT6ene4jVEzmwjN5Nlcq4KyMNkBHBMeLZTxI=
+        b=2aFpAMBAvmAAlJ3+n0mikARjSp6agHtpdgWVtkB27Qp4mY9nPimayOQq0xfRAZp0C
+         +aS76Wjc4GSCy2npkyaYLmnlhlRMSwA8kPOX9YBC3hrd9GgJmHwjA12Xd2lKOyX1L/
+         DQoYvYzbY7KHHeY73f7awwf61p6H2+vkHcQE7Q/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 59/65] Revert "ipv6: Fix handling of LLA with VRF and sockets bound to VRF"
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Minchan Kim <minchan@kernel.org>,
+        Daniel Colascione <dancol@google.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 088/102] mm: do not allow MADV_PAGEOUT for CoW pages
 Date:   Tue, 24 Mar 2020 14:11:20 +0100
-Message-Id: <20200324130804.142978887@linuxfoundation.org>
+Message-Id: <20200324130815.458944846@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
-References: <20200324130756.679112147@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +50,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 2b3541ffdd05198b329d21920a0f606009a1058b.
+From: Michal Hocko <mhocko@suse.com>
 
-This patch shouldn't have been backported to 4.19.
+commit 12e967fd8e4e6c3d275b4c69c890adc838891300 upstream.
 
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Jann has brought up a very interesting point [1].  While shared pages
+are excluded from MADV_PAGEOUT normally, CoW pages can be easily
+reclaimed that way.  This can lead to all sorts of hard to debug
+problems.  E.g.  performance problems outlined by Daniel [2].
+
+There are runtime environments where there is a substantial memory
+shared among security domains via CoW memory and a easy to reclaim way
+of that memory, which MADV_{COLD,PAGEOUT} offers, can lead to either
+performance degradation in for the parent process which might be more
+privileged or even open side channel attacks.
+
+The feasibility of the latter is not really clear to me TBH but there is
+no real reason for exposure at this stage.  It seems there is no real
+use case to depend on reclaiming CoW memory via madvise at this stage so
+it is much easier to simply disallow it and this is what this patch
+does.  Put it simply MADV_{PAGEOUT,COLD} can operate only on the
+exclusively owned memory which is a straightforward semantic.
+
+[1] http://lkml.kernel.org/r/CAG48ez0G3JkMq61gUmyQAaCq=_TwHbi1XKzWRooxZkv08PQKuw@mail.gmail.com
+[2] http://lkml.kernel.org/r/CAKOZueua_v8jHCpmEtTB6f3i9e2YnmX4mqdYVWhV4E=Z-n+zRQ@mail.gmail.com
+
+Fixes: 9c276cc65a58 ("mm: introduce MADV_COLD")
+Reported-by: Jann Horn <jannh@google.com>
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Daniel Colascione <dancol@google.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200312082248.GS23944@dhcp22.suse.cz
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/ipv6/tcp_ipv6.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ mm/madvise.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index c5f4e89b6ff30..7b0c2498f461b 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -734,7 +734,6 @@ static void tcp_v6_init_req(struct request_sock *req,
- 			    const struct sock *sk_listener,
- 			    struct sk_buff *skb)
- {
--	bool l3_slave = ipv6_l3mdev_skb(TCP_SKB_CB(skb)->header.h6.flags);
- 	struct inet_request_sock *ireq = inet_rsk(req);
- 	const struct ipv6_pinfo *np = inet6_sk(sk_listener);
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -335,12 +335,14 @@ static int madvise_cold_or_pageout_pte_r
+ 		}
  
-@@ -742,7 +741,7 @@ static void tcp_v6_init_req(struct request_sock *req,
- 	ireq->ir_v6_loc_addr = ipv6_hdr(skb)->daddr;
+ 		page = pmd_page(orig_pmd);
++
++		/* Do not interfere with other mappings of this page */
++		if (page_mapcount(page) != 1)
++			goto huge_unlock;
++
+ 		if (next - addr != HPAGE_PMD_SIZE) {
+ 			int err;
  
- 	/* So that link locals have meaning */
--	if ((!sk_listener->sk_bound_dev_if || l3_slave) &&
-+	if (!sk_listener->sk_bound_dev_if &&
- 	    ipv6_addr_type(&ireq->ir_v6_rmt_addr) & IPV6_ADDR_LINKLOCAL)
- 		ireq->ir_iif = tcp_v6_iif(skb);
+-			if (page_mapcount(page) != 1)
+-				goto huge_unlock;
+-
+ 			get_page(page);
+ 			spin_unlock(ptl);
+ 			lock_page(page);
+@@ -426,6 +428,10 @@ regular_page:
+ 			continue;
+ 		}
  
--- 
-2.20.1
-
++		/* Do not interfere with other mappings of this page */
++		if (page_mapcount(page) != 1)
++			continue;
++
+ 		VM_BUG_ON_PAGE(PageTransCompound(page), page);
+ 
+ 		if (pte_young(ptent)) {
 
 
