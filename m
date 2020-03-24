@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 692E0190ED7
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:15:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E7FB190FBF
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727778AbgCXNP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:15:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34296 "EHLO mail.kernel.org"
+        id S1729410AbgCXNWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:22:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727743AbgCXNPY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:15:24 -0400
+        id S1729074AbgCXNWs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:22:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F103208CA;
-        Tue, 24 Mar 2020 13:15:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F11AD206F6;
+        Tue, 24 Mar 2020 13:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055723;
-        bh=GF0nQgHSqr93FGkRxyrNN14Mg7LyWH6kxP3Xm7fVJ30=;
+        s=default; t=1585056168;
+        bh=ClFWbM6KRvO0jA0ltmJ0uDe7H7a6wSR5QyRk4Y8M8UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEBydxHpWfiR67T/Rgl/BuBETfTyI5n+tSiqycLjzYMH2qCyeaCf0uMnS2tongTnd
-         RbzOHiU9GHr3YUFnuZnJDrX4zk6UzJjFMsu6vvu0E4VrH8CrV5dV2QXMFw/7WKy/8k
-         K17pq+v4HI4mrS8752ZyhWIDcd3ULSJQwiglJy50=
+        b=BOAbrC1Osa/ZVMUTRcAZ2CXMjOJC+ot2Z6Tq+dMya7ZfM6h3DP1CY3iiSVPaX3yrY
+         8UfwhqWQg7IzUz0e1RRQPLbN1CLL8hMb92UlWLWGm6bRRkt3JQDDfJaMJTSEKtGRgH
+         WMpcEbb9A/mkd81sJObRZI4RDmeNAkGflU5tGY8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
-        Jeff Layton <jlayton@kernel.org>,
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Lokesh Vutla <lokeshvutla@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 001/102] locks: fix a potential use-after-free problem when wakeup a waiter
+Subject: [PATCH 5.5 008/119] ARM: dts: dra7-l4: mark timer13-16 as pwm capable
 Date:   Tue, 24 Mar 2020 14:09:53 +0100
-Message-Id: <20200324130806.654542883@linuxfoundation.org>
+Message-Id: <20200324130808.831489303@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,76 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit 6d390e4b5d48ec03bb87e63cf0a2bff5f4e116da ]
+[ Upstream commit 00a39c92c8ab94727f021297d1748531af113fcd ]
 
-'16306a61d3b7 ("fs/locks: always delete_block after waiting.")' add the
-logic to check waiter->fl_blocker without blocked_lock_lock. And it will
-trigger a UAF when we try to wakeup some waiter：
+DMTimers 13 - 16 are PWM capable and also can be used for CPTS input
+signals generation. Hence, mark them as "ti,timer-pwm".
 
-Thread 1 has create a write flock a on file, and now thread 2 try to
-unlock and delete flock a, thread 3 try to add flock b on the same file.
-
-Thread2                         Thread3
-                                flock syscall(create flock b)
-	                        ...flock_lock_inode_wait
-				    flock_lock_inode(will insert
-				    our fl_blocked_member list
-				    to flock a's fl_blocked_requests)
-				   sleep
-flock syscall(unlock)
-...flock_lock_inode_wait
-    locks_delete_lock_ctx
-    ...__locks_wake_up_blocks
-        __locks_delete_blocks(
-	b->fl_blocker = NULL)
-	...
-                                   break by a signal
-				   locks_delete_block
-				    b->fl_blocker == NULL &&
-				    list_empty(&b->fl_blocked_requests)
-	                            success, return directly
-				 locks_free_lock b
-	wake_up(&b->fl_waiter)
-	trigger UAF
-
-Fix it by remove this logic, and this patch may also fix CVE-2019-19769.
-
-Cc: stable@vger.kernel.org
-Fixes: 16306a61d3b7 ("fs/locks: always delete_block after waiting.")
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Reviewed-by: Lokesh Vutla <lokeshvutla@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/locks.c | 14 --------------
- 1 file changed, 14 deletions(-)
+ arch/arm/boot/dts/dra7-l4.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/locks.c b/fs/locks.c
-index 44b6da0328426..426b55d333d5b 100644
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -753,20 +753,6 @@ int locks_delete_block(struct file_lock *waiter)
- {
- 	int status = -ENOENT;
+diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
+index 7e7aa101d8a49..912ee8778830a 100644
+--- a/arch/arm/boot/dts/dra7-l4.dtsi
++++ b/arch/arm/boot/dts/dra7-l4.dtsi
+@@ -3461,6 +3461,7 @@
+ 				clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER13_CLKCTRL 24>;
+ 				clock-names = "fck";
+ 				interrupts = <GIC_SPI 339 IRQ_TYPE_LEVEL_HIGH>;
++				ti,timer-pwm;
+ 			};
+ 		};
  
--	/*
--	 * If fl_blocker is NULL, it won't be set again as this thread
--	 * "owns" the lock and is the only one that might try to claim
--	 * the lock.  So it is safe to test fl_blocker locklessly.
--	 * Also if fl_blocker is NULL, this waiter is not listed on
--	 * fl_blocked_requests for some lock, so no other request can
--	 * be added to the list of fl_blocked_requests for this
--	 * request.  So if fl_blocker is NULL, it is safe to
--	 * locklessly check if fl_blocked_requests is empty.  If both
--	 * of these checks succeed, there is no need to take the lock.
--	 */
--	if (waiter->fl_blocker == NULL &&
--	    list_empty(&waiter->fl_blocked_requests))
--		return status;
- 	spin_lock(&blocked_lock_lock);
- 	if (waiter->fl_blocker)
- 		status = 0;
+@@ -3489,6 +3490,7 @@
+ 				clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER14_CLKCTRL 24>;
+ 				clock-names = "fck";
+ 				interrupts = <GIC_SPI 340 IRQ_TYPE_LEVEL_HIGH>;
++				ti,timer-pwm;
+ 			};
+ 		};
+ 
+@@ -3517,6 +3519,7 @@
+ 				clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER15_CLKCTRL 24>;
+ 				clock-names = "fck";
+ 				interrupts = <GIC_SPI 341 IRQ_TYPE_LEVEL_HIGH>;
++				ti,timer-pwm;
+ 			};
+ 		};
+ 
+@@ -3545,6 +3548,7 @@
+ 				clocks = <&l4per3_clkctrl DRA7_L4PER3_TIMER16_CLKCTRL 24>;
+ 				clock-names = "fck";
+ 				interrupts = <GIC_SPI 342 IRQ_TYPE_LEVEL_HIGH>;
++				ti,timer-pwm;
+ 			};
+ 		};
+ 
 -- 
 2.20.1
 
