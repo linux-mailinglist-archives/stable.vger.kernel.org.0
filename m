@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B4E190EFC
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 174A4190E66
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727898AbgCXNQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:16:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36076 "EHLO mail.kernel.org"
+        id S1727361AbgCXNMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:12:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728470AbgCXNQd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:16:33 -0400
+        id S1727304AbgCXNMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:12:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AAC8206F6;
-        Tue, 24 Mar 2020 13:16:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C4DF208CA;
+        Tue, 24 Mar 2020 13:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055792;
-        bh=9dMFvrNqxpUvePmXG+6FIyrL9b0WiSp7fU/JGA6+lSs=;
+        s=default; t=1585055518;
+        bh=L57iPVKkL097o6qLvQ+L5j2oTFH13RI1AUODGUtvQTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wxoZQf1W5hEabs6qAVxAD7PebLk0cpS0xTco4QQk1XiTmkJZ6AYzA91pTJJs7w6QV
-         Zu8b3bC2BGdhmORpQq6NUZ2RWTwdPGpikYkdtcYJpWpAgubnvkOLLlo7ucGH6mJrJ0
-         gPq8Q3UOgMm7/G9/gAG0QkXNKx+yKu5wyfgEP61w=
+        b=x/U8//LCb86FP5GWagwziMBHZwrMXY6kxPaBOed8H5HX7RaIBuCMN1PE6JnZ4TSnL
+         Ykg3B5E2tpFkTl+R0Nfs1B2qHYVkvDeeM9DhC0Wc12vqP0GtL+kr/KZwtnyano6D3P
+         O2l5DGegvvArZE17NIGzwBGwR/Ttz1nQhPc4+wI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josip Pavic <Josip.Pavic@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Yuji sasaki <sasakiy@chromium.org>,
+        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/102] drm/amd/display: fix dcc swath size calculations on dcn1
-Date:   Tue, 24 Mar 2020 14:10:22 +0100
-Message-Id: <20200324130809.552286024@linuxfoundation.org>
+Subject: [PATCH 4.19 02/65] spi: qup: call spi_qup_pm_resume_runtime before suspending
+Date:   Tue, 24 Mar 2020 14:10:23 +0100
+Message-Id: <20200324130757.061144024@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130756.679112147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josip Pavic <Josip.Pavic@amd.com>
+From: Yuji Sasaki <sasakiy@chromium.org>
 
-[ Upstream commit a0275dfc82c9034eefbeffd556cca6dd239d7925 ]
+[ Upstream commit 136b5cd2e2f97581ae560cff0db2a3b5369112da ]
 
-[Why]
-Swath sizes are being calculated incorrectly. The horizontal swath size
-should be the product of block height, viewport width, and bytes per
-element, but the calculation uses viewport height instead of width. The
-vertical swath size is similarly incorrectly calculated. The effect of
-this is that we report the wrong DCC caps.
+spi_qup_suspend() will cause synchronous external abort when
+runtime suspend is enabled and applied, as it tries to
+access SPI controller register while clock is already disabled
+in spi_qup_pm_suspend_runtime().
 
-[How]
-Use viewport width in the horizontal swath size calculation and viewport
-height in the vertical swath size calculation.
-
-Signed-off-by: Josip Pavic <Josip.Pavic@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Yuji sasaki <sasakiy@chromium.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20200214074340.2286170-1-vkoul@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hubbub.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-qup.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hubbub.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hubbub.c
-index a02c10e23e0d6..d163388c99a06 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hubbub.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hubbub.c
-@@ -840,8 +840,8 @@ static void hubbub1_det_request_size(
+diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
+index 974a8ce58b68b..cb74fd1af2053 100644
+--- a/drivers/spi/spi-qup.c
++++ b/drivers/spi/spi-qup.c
+@@ -1190,6 +1190,11 @@ static int spi_qup_suspend(struct device *device)
+ 	struct spi_qup *controller = spi_master_get_devdata(master);
+ 	int ret;
  
- 	hubbub1_get_blk256_size(&blk256_width, &blk256_height, bpe);
++	if (pm_runtime_suspended(device)) {
++		ret = spi_qup_pm_resume_runtime(device);
++		if (ret)
++			return ret;
++	}
+ 	ret = spi_master_suspend(master);
+ 	if (ret)
+ 		return ret;
+@@ -1198,10 +1203,8 @@ static int spi_qup_suspend(struct device *device)
+ 	if (ret)
+ 		return ret;
  
--	swath_bytes_horz_wc = height * blk256_height * bpe;
--	swath_bytes_vert_wc = width * blk256_width * bpe;
-+	swath_bytes_horz_wc = width * blk256_height * bpe;
-+	swath_bytes_vert_wc = height * blk256_width * bpe;
+-	if (!pm_runtime_suspended(device)) {
+-		clk_disable_unprepare(controller->cclk);
+-		clk_disable_unprepare(controller->iclk);
+-	}
++	clk_disable_unprepare(controller->cclk);
++	clk_disable_unprepare(controller->iclk);
+ 	return 0;
+ }
  
- 	*req128_horz_wc = (2 * swath_bytes_horz_wc <= detile_buf_size) ?
- 			false : /* full 256B request */
 -- 
 2.20.1
 
