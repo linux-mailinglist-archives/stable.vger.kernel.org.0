@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 299001910ED
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4F5D191108
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728689AbgCXNSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38782 "EHLO mail.kernel.org"
+        id S1727186AbgCXNN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:13:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727829AbgCXNSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:18:32 -0400
+        id S1727752AbgCXNNZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:13:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2A68208D6;
-        Tue, 24 Mar 2020 13:18:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E69FE20B80;
+        Tue, 24 Mar 2020 13:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055912;
-        bh=a9nhZwx9EI0wQiaVo+A5K9svhSVJKhXAV6X6EYX4Rws=;
+        s=default; t=1585055605;
+        bh=cWF3WUe2wPdnGgifyfwwVAofNRCsrR9G7UqKaQgj4Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IlpLqZW1QK+tD3I1jIfgn/x8YkOwc20C+swPo3qA3NpJsf4PgV4UIVnftGSXs1Fqd
-         aiou/8iljdxRYClhvxVGjCvDTVxqc+803LhQB91LcbhqAb2BtcA3waa2m3o6EMGsAf
-         gqQP2QsxIkv/KvRpkeriJgBLIVUBfvc8xXltJWs0=
+        b=d+t6PUq/vxPxYQ41TZnScuyhKYG63inwPDa4jGWmZ9e+ZH163tGaFSnxj4rVv0GyQ
+         7pC4T07UytQV7F3qZu8swMBracxIHd+svbv5Cv+MgFl0qu4POZM3dXZ01A+Qc3CCJ7
+         nU+baa4cF+wRm/kd6noiXsMgk42fbtRxCSXH4RiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 066/102] mmc: sdhci-of-at91: fix cd-gpios for SAMA5D2
+        stable@vger.kernel.org, Michael Straube <straube.linux@gmail.com>
+Subject: [PATCH 4.19 37/65] staging: rtl8188eu: Add device id for MERCUSYS MW150US v2
 Date:   Tue, 24 Mar 2020 14:10:58 +0100
-Message-Id: <20200324130813.314010108@linuxfoundation.org>
+Message-Id: <20200324130801.912227286@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130756.679112147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Michael Straube <straube.linux@gmail.com>
 
-commit 53dd0a7cd65edc83b0c243d1c08377c8b876b2ee upstream.
+commit bb5786b9286c253557a0115bc8d21879e61b7b94 upstream.
 
-SAMA5D2x doesn't drive CMD line if GPIO is used as CD line (at least
-SAMA5D27 doesn't). Fix this by forcing card-detect in the module
-if module-controlled CD is not used.
+This device was added to the stand-alone driver on github.
+Add it to the staging driver as well.
 
-Fixed commit addresses the problem only for non-removable cards. This
-amends it to also cover gpio-cd case.
-
-Cc: stable@vger.kernel.org
-Fixes: 7a1e3f143176 ("mmc: sdhci-of-at91: force card detect value for non removable devices")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/8d10950d9940468577daef4772b82a071b204716.1584290561.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://github.com/lwfinger/rtl8188eu/commit/2141f244c3e7
+Signed-off-by: Michael Straube <straube.linux@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200312093652.13918-1-straube.linux@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-at91.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/host/sdhci-of-at91.c
-+++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -118,7 +118,8 @@ static void sdhci_at91_reset(struct sdhc
- {
- 	sdhci_reset(host, mask);
- 
--	if (host->mmc->caps & MMC_CAP_NONREMOVABLE)
-+	if ((host->mmc->caps & MMC_CAP_NONREMOVABLE)
-+	    || mmc_gpio_get_cd(host->mmc) >= 0)
- 		sdhci_at91_set_force_card_detect(host);
- }
- 
-@@ -397,8 +398,11 @@ static int sdhci_at91_probe(struct platf
- 	 * detection procedure using the SDMCC_CD signal is bypassed.
- 	 * This bit is reset when a software reset for all command is performed
- 	 * so we need to implement our own reset function to set back this bit.
-+	 *
-+	 * WA: SAMA5D2 doesn't drive CMD if using CD GPIO line.
- 	 */
--	if (host->mmc->caps & MMC_CAP_NONREMOVABLE)
-+	if ((host->mmc->caps & MMC_CAP_NONREMOVABLE)
-+	    || mmc_gpio_get_cd(host->mmc) >= 0)
- 		sdhci_at91_set_force_card_detect(host);
- 
- 	pm_runtime_put_autosuspend(&pdev->dev);
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -38,6 +38,7 @@ static const struct usb_device_id rtw_us
+ 	{USB_DEVICE(0x2001, 0x331B)}, /* D-Link DWA-121 rev B1 */
+ 	{USB_DEVICE(0x2357, 0x010c)}, /* TP-Link TL-WN722N v2 */
+ 	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
++	{USB_DEVICE(0x2C4E, 0x0102)}, /* MERCUSYS MW150US v2 */
+ 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
+ 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
+ 	{}	/* Terminating entry */
 
 
