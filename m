@@ -2,92 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B811918CB
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 19:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80C59191965
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 19:48:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727845AbgCXSU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 14:20:29 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:41275 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727398AbgCXSU2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 14:20:28 -0400
-Received: by mail-lj1-f194.google.com with SMTP id n17so9338518lji.8
-        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 11:20:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XXFNaMHE865KFMf7/FD9eexyYGXX3J3mTbjMUnsz/XY=;
-        b=PmXOw2hVAghdVL5iXAMxkoaQOE+md30LjhqAjxYJ0W/CrfPUFb9DkbSClQr2v0XkRu
-         +1QNTt4UOHmA4kMT32VUr7hMvwaF7aWcEWSooM+wGtbTh+trTYZpFZEypw4045uy4tmw
-         W/TYv3FFjfMQX6bS4Cwvu9l2M7/cZW2YuZaghLQRBJmpf3msgH+VRPmrgPf9I54LLSan
-         kkiHcwMu0vIn5tLBbsNWuttaQaiShPjNvvcLVFJGIbwBcL0/EptqiOvKBI4q3SUS4PrW
-         i1CFFacZaVTriv0A7ciYiBvsonVuqcD5odxeG8GUqZ6s5/g9pUkU7yaX95l7bzJTVAVC
-         mE+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XXFNaMHE865KFMf7/FD9eexyYGXX3J3mTbjMUnsz/XY=;
-        b=NBv5HRVfkPWqYWYcjW8f6ntVVCBb7bGhYaigUcIRA1XVtvAR6Y+rUblbZWsnKWHwEC
-         2kDsOsClNq1D9NyabLkrIa6vYdEBfn4WTvD5iYEEVE/p58y2aPfrvPVkcgEe+d/W4WE9
-         9R0xI/AzD+Cn7ULgy7M4B9VtVN65QQfYQ93y31gbr57doURUEJLMQUWvRMd5ro9py8ap
-         vr3hv/plsQ6jZsIme9Dp6hLTyEeT2GIBq5bhUeujFBZnZxqAw/eIE0m9goUdt7QU5w8Y
-         vHCBceNvC98C7eRE+KfFCzCflM0K1aU4XmMTQDLy7FMHDU9yo2ZD4X1gWPPDb9hmtFYp
-         oW0g==
-X-Gm-Message-State: ANhLgQ0EEKJ31JyE4fBau4mNUSBJDlfog0zuc6JSvTZG3HmGC4+uR4RA
-        zHYLnInE6lqOqNgBvAKPoV0RymWdvfVXPTePD4fRZQ==
-X-Google-Smtp-Source: ADFU+vssKk0TvsuhAuqLni5jz9W0bZI1fwWvOHj7M1YWG8xxniszV5r5PVzLod3GdiLOtsGj2xMpUys86huxeYmxjDE=
-X-Received: by 2002:a2e:811a:: with SMTP id d26mr17755811ljg.128.1585074026561;
- Tue, 24 Mar 2020 11:20:26 -0700 (PDT)
+        id S1727630AbgCXSsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 14:48:10 -0400
+Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:46184 "EHLO
+        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727365AbgCXSsK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 14:48:10 -0400
+Received: from callcc.thunk.org (pool-72-93-95-157.bstnma.fios.verizon.net [72.93.95.157])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 02OIlsE5019147
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 24 Mar 2020 14:47:54 -0400
+Received: by callcc.thunk.org (Postfix, from userid 15806)
+        id 2B396420EBA; Tue, 24 Mar 2020 14:47:54 -0400 (EDT)
+Date:   Tue, 24 Mar 2020 14:47:54 -0400
+From:   "Theodore Y. Ts'o" <tytso@mit.edu>
+To:     Peter Maydell <peter.maydell@linaro.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        "Suzuki K. Poulose" <suzuki.poulose@arm.com>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Ext4 Developers List <linux-ext4@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        QEMU Developers <qemu-devel@nongnu.org>,
+        Florian Weimer <fw@deneb.enyo.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] ext4: Give 32bit personalities 32bit hashes
+Message-ID: <20200324184754.GG53396@mit.edu>
+References: <20200317113153.7945-1-linus.walleij@linaro.org>
+ <CAFEAcA9mXE+gPnvM6HZ-w0+BhbpeuH=osFH-9NUzCLv=w-c7HQ@mail.gmail.com>
+ <CACRpkdZtLNUwiZEMiJEoB0ojOBckyGcZeyFkR6MC69qv-ry9EA@mail.gmail.com>
+ <CAFEAcA-gdwi=KSW6LqVdEJWSo9VEL5abYQs9LoHd4mKE_-h=Aw@mail.gmail.com>
+ <CACRpkdYuZgZUznVxt1AHCSJa_GAXy8N0SduE5OrjDnE1s_L7Zg@mail.gmail.com>
+ <20200324023431.GD53396@mit.edu>
+ <CAFEAcA_6RY1XFVNJCo5=tTkv2GQpXZRqh_Zz4dYadq-8MJZgTQ@mail.gmail.com>
 MIME-Version: 1.0
-References: <20200324180650.28819-1-ulf.hansson@linaro.org>
-In-Reply-To: <20200324180650.28819-1-ulf.hansson@linaro.org>
-From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Tue, 24 Mar 2020 19:20:15 +0100
-Message-ID: <CADYN=9JsS-aTbun24PMOasBAK+2nwkkuvFZ6vSp88hjEnLQLmQ@mail.gmail.com>
-Subject: Re: [PATCH 5.5.12 0/5] mmc: Fix some busy detect problems
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        linux-mmc@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Faiz Abbas <faiz_abbas@ti.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFEAcA_6RY1XFVNJCo5=tTkv2GQpXZRqh_Zz4dYadq-8MJZgTQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 24 Mar 2020 at 19:06, Ulf Hansson <ulf.hansson@linaro.org> wrote:
->
-> This series provides a couple of manually backported mmc changes that fixes some
-> busy detect issues, for a couple of mmc host drivers (sdhci-tegra|omap).
->
-> Ulf Hansson (5):
->   mmc: core: Allow host controllers to require R1B for CMD6
->   mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for erase/trim/discard
->   mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
->   mmc: sdhci-omap: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
->   mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
+On Tue, Mar 24, 2020 at 09:29:58AM +0000, Peter Maydell wrote:
+> 
+> On the contrary, that would be a much better interface for QEMU.
+> We always know when we're doing an open-syscall on behalf
+> of the guest, and it would be trivial to make the fcntl() call then.
+> That would ensure that we don't accidentally get the
+> '32-bit semantics' on file descriptors QEMU opens for its own
+> purposes, and wouldn't leave us open to the risk in future that
+> setting the PER_LINUX32 flag for all of QEMU causes
+> unexpected extra behaviour in future kernels that would be correct
+> for the guest binary but wrong/broken for QEMU's own internals.
 
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
+If using a flag set by fcntl is better for qemu, then by all means
+let's go with that instead of using a personality flag/number.
 
-I tested it on a beagleboard x15.
+Linus, do you have what you need to do a respin of the patch?
 
-Cheers,
-Anders
-
->
->  drivers/mmc/core/core.c        | 5 ++++-
->  drivers/mmc/core/mmc.c         | 7 +++++--
->  drivers/mmc/core/mmc_ops.c     | 8 +++++---
->  drivers/mmc/host/sdhci-omap.c  | 3 +++
->  drivers/mmc/host/sdhci-tegra.c | 3 +++
->  include/linux/mmc/host.h       | 1 +
->  6 files changed, 21 insertions(+), 6 deletions(-)
->
-> --
-> 2.20.1
->
+       	         	      	   	    	 - Ted
