@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D89B191117
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:39:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B49951910B7
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727741AbgCXNPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:15:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34712 "EHLO mail.kernel.org"
+        id S1729075AbgCXNVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:21:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727556AbgCXNPl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:15:41 -0400
+        id S1729071AbgCXNVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:21:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 559A9206F6;
-        Tue, 24 Mar 2020 13:15:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E83A20775;
+        Tue, 24 Mar 2020 13:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055740;
-        bh=e0FJE4mmKOLy1FnSL5Kj2UeQ9zkdN+4VFJKPic2+/YI=;
+        s=default; t=1585056102;
+        bh=6h5MTVyaKyz4i4lsW9DXrzFXoUBWZQhfBhzWyfVeCLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6xia5oZfYCqDMO3Y07XC8JwuSKwU/qFu0vDx3/xt+z/XJTcchsPDBYOZis8qo4cX
-         ZCOtkWZi5GPhbOmGvyz5L4A4aa28mgQgX6h6s++maMjkHRkxeOgiH+HAKrQHKOpDnI
-         Fx7YEvI9a9rU4DfAfo29CHxl8sUartmUAfV2UBSM=
+        b=C6fALpD7d2wqoHnHld/x250DUC2+ZdL69wUw4T59wWDrodP/r6oDX0wQuWmVsxDbC
+         YM78oI+YCcoZoKZ+imv9HFjnN5DCcvYo5UjraykuH2CFxmSX8/5lflV1ULLMBwQIVN
+         1pCS9fSaORZZqqSw8fQOghwJeGQEAyjyiXXfDRpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thommy Jakobsson <thommyj@gmail.com>,
-        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 014/102] spi/zynqmp: remove entry that causes a cs glitch
-Date:   Tue, 24 Mar 2020 14:10:06 +0100
-Message-Id: <20200324130807.993629707@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 022/119] io-wq: fix IO_WQ_WORK_NO_CANCEL cancellation
+Date:   Tue, 24 Mar 2020 14:10:07 +0100
+Message-Id: <20200324130810.607084704@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thommy Jakobsson <thommyj@gmail.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 5dd8304981ecffa77bb72b1c57c4be5dfe6cfae9 ]
+[ Upstream commit fc04c39bae01a607454f7619665309870c60937a ]
 
-In the public interface for chipselect, there is always an entry
-commented as "Dummy generic FIFO entry" pushed down to the fifo right
-after the activate/deactivate command. The dummy entry is 0x0,
-irregardless if the intention was to activate or deactive the cs. This
-causes the cs line to glitch rather than beeing activated in the case
-when there was an activate command.
+To cancel a work, io-wq sets IO_WQ_WORK_CANCEL and executes the
+callback. However, IO_WQ_WORK_NO_CANCEL works will just execute and may
+return next work, which will be ignored and lost.
 
-This has been observed on oscilloscope, and have caused problems for at
-least one specific flash device type connected to the qspi port. After
-the change the glitch is gone and cs goes active when intended.
+Cancel the whole link.
 
-The reason why this worked before (except for the glitch) was because
-when sending the actual data, the CS bits are once again set. Since
-most flashes uses mode 0, there is always a half clk period anyway for
-cs to clk active setup time. If someone would rely on timing from a
-chip_select call to a transfer_one, it would fail though.
-
-It is unknown why the dummy entry was there in the first place, git log
-seems to be of no help in this case. The reference manual gives no
-indication of the necessity of this. In fact the lower 8 bits are a
-setup (or hold in case of deactivate) time expressed in cycles. So this
-should not be needed to fulfill any setup/hold timings.
-
-Signed-off-by: Thommy Jakobsson <thommyj@gmail.com>
-Reviewed-by: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
-Link: https://lore.kernel.org/r/20200224162643.29102-1-thommyj@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynqmp-gqspi.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/io-wq.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
-index 60c4de4e44856..7412a3042a8d2 100644
---- a/drivers/spi/spi-zynqmp-gqspi.c
-+++ b/drivers/spi/spi-zynqmp-gqspi.c
-@@ -401,9 +401,6 @@ static void zynqmp_qspi_chipselect(struct spi_device *qspi, bool is_high)
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 25ffb6685baea..1f46fe663b287 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -733,6 +733,17 @@ static bool io_wq_can_queue(struct io_wqe *wqe, struct io_wqe_acct *acct,
+ 	return true;
+ }
  
- 	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, genfifoentry);
++static void io_run_cancel(struct io_wq_work *work)
++{
++	do {
++		struct io_wq_work *old_work = work;
++
++		work->flags |= IO_WQ_WORK_CANCEL;
++		work->func(&work);
++		work = (work == old_work) ? NULL : work;
++	} while (work);
++}
++
+ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+ {
+ 	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
+@@ -745,8 +756,7 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+ 	 * It's close enough to not be an issue, fork() has the same delay.
+ 	 */
+ 	if (unlikely(!io_wq_can_queue(wqe, acct, work))) {
+-		work->flags |= IO_WQ_WORK_CANCEL;
+-		work->func(&work);
++		io_run_cancel(work);
+ 		return;
+ 	}
  
--	/* Dummy generic FIFO entry */
--	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, 0x0);
--
- 	/* Manually start the generic FIFO command */
- 	zynqmp_gqspi_write(xqspi, GQSPI_CONFIG_OFST,
- 			zynqmp_gqspi_read(xqspi, GQSPI_CONFIG_OFST) |
+@@ -882,8 +892,7 @@ static enum io_wq_cancel io_wqe_cancel_cb_work(struct io_wqe *wqe,
+ 	spin_unlock_irqrestore(&wqe->lock, flags);
+ 
+ 	if (found) {
+-		work->flags |= IO_WQ_WORK_CANCEL;
+-		work->func(&work);
++		io_run_cancel(work);
+ 		return IO_WQ_CANCEL_OK;
+ 	}
+ 
+@@ -957,8 +966,7 @@ static enum io_wq_cancel io_wqe_cancel_work(struct io_wqe *wqe,
+ 	spin_unlock_irqrestore(&wqe->lock, flags);
+ 
+ 	if (found) {
+-		work->flags |= IO_WQ_WORK_CANCEL;
+-		work->func(&work);
++		io_run_cancel(work);
+ 		return IO_WQ_CANCEL_OK;
+ 	}
+ 
 -- 
 2.20.1
 
