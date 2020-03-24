@@ -2,210 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3408C190E01
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 13:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E40190E34
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 13:56:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727671AbgCXMsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 08:48:11 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:52111 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727431AbgCXMsL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 08:48:11 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1BADB5C0267;
-        Tue, 24 Mar 2020 08:48:09 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 24 Mar 2020 08:48:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=B
-        Y4Z4RYJ6jwxKjIoKLuPOtlbjqGdI4Q2Qaitx8WW4oA=; b=omRPui0Lu+I1O+4f/
-        S/MwwmyKEC6AFan7mQMy6CD/KsweCkKgccaKi36r7OGv8fiIXXTsesXyAbP6XMPK
-        A0njuZ7WWWtytmdViqZS3ya/a/7pTy0Z3gxerVhpzpFEJNHXmxBXVgV2k5Tm118I
-        +GJBNCq/4ksGof8bWl4yqox4Vn4TpcGnSiT5hbm4LxMgMGTQJxgvYagvkAgNcjI6
-        wLNtWWiE56cWWepA0C75XbYszmjJg+La/1bk2q+iCZkJvkOsx9jBBTE1PjIxkYHy
-        vXYen2Ku0nSD+Ln7YoUNmPZA8GGSrtJK8PTnZrmFGWiaBPpv5ROckn1NjREkcq2x
-        rEm7w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=BY4Z4RYJ6jwxKjIoKLuPOtlbjqGdI4Q2Qaitx8WW4
-        oA=; b=g95Pz5qHOZZxptMhYmFVq7PYuRoAxTrn2pTVCVvms82NDR4WxF3q84J3y
-        RNZXHxs5II7F6pzJ2sJvngCeKt/35O14lC9PRhqnRyHa6fTV9d+JKaUnCdKGuauS
-        YkjXUKwYESxL/ZUfIVZMOPazJYvgOsz5BiEpN8vb8wkMs7sKgsiapu/l2PU2nRZM
-        X6m9PQr8HcNwjtavjoLZTRBfkjHtbY/u/gyZvN6KhWlOVGobBU21aIKZLvDqzo7K
-        wY7WD1zJW0GYWFbpcDEIT5/5YoEb1KRKv7kNqPIHYTN7bwj493N921A/oJLg1Lie
-        SRKEHwBGO+FI3kWIkVw27rtTNy3ZQ==
-X-ME-Sender: <xms:iAF6XhTu1MMpzxLEqIdB5OWOaHn5O0aV3-GOv1bRI8_YJE-jG5dFhQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudehuddgudegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtjeenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
-    drohhrghdprghmrgiiohhnrgifshdrtghomhenucfkphepkeefrdekiedrkeelrddutdej
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvg
-    hgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:iAF6XrUKsJSzLNCwqEeOQtes1bLPfbTPzkt_0l6a1mLJrPsiQ-n06w>
-    <xmx:iAF6XiNAgbiusydgklTb1dppHJyb4uCyA3jmdQ44AFZoaISc3FfvkQ>
-    <xmx:iAF6XrrNhWlu3lvEcP4CM4tcmRXP88RfL66eVTK6f4LmE-CxiqUKpA>
-    <xmx:iQF6Xs_KEJaY7pyvTwgsokHAIncHO9ozq4QrrJZCnb6TwJKeMdLfCw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 721793065183;
-        Tue, 24 Mar 2020 08:48:08 -0400 (EDT)
-Date:   Tue, 24 Mar 2020 13:48:07 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Veronika Kabatova <vkabatov@redhat.com>
-Cc:     Memory Management <mm-qe@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        CKI Project <cki-project@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>
-Subject: Re: =?utf-8?B?8J+SpSBQQU5JQ0tFRA==?= =?utf-8?Q?=3A?=
- Test?report?for?kernel 5.5.12-rc1-8b841eb.cki (stable)
-Message-ID: <20200324124807.GA2401396@kroah.com>
-References: <cki.936A32626F.M0L95JS69X@redhat.com>
- <20200324062213.GA1961100@kroah.com>
- <970614328.15180583.1585048327050.JavaMail.zimbra@redhat.com>
- <20200324111819.GA2234211@kroah.com>
- <1768018191.15186361.1585050272846.JavaMail.zimbra@redhat.com>
- <20200324114727.GA2333047@kroah.com>
- <290791291.15199861.1585053755727.JavaMail.zimbra@redhat.com>
+        id S1727225AbgCXM4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 08:56:24 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:43809 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727083AbgCXM4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 08:56:24 -0400
+Received: by mail-pg1-f193.google.com with SMTP id u12so8969524pgb.10
+        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 05:56:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Tkfmwj3RBlLMXgPipfvJ93LuxSBf2OvK+Ff+jh0Ehg0=;
+        b=emhxi2eBq0EO0xqFJmN4FnXb1jez8v5FN4BF306ExKf1N6BMYP9OeuDs48hbbvrnEY
+         XWXTPstm8G0egVCju5hec5D7wNm4ty4HVHNrO9/U+onOkzZ5wg8M1wQ2BahBZvcmpY8M
+         YQeKBdc9pvdK9I8RdBoQM7iLRzlwtmlDexkkinvCxE5dNCBcAzKt7VDV6mo7hpCY09Di
+         dFkU4pj5q5vSE+8uWUqlpWXJtWBMqIECqhoecU0vivb/5hu/LS8CoXWWm951llhbb5Oe
+         7v99AZAhMZR3Mycx2vo2KCJ+FeL+/WaxFzJQl4Yd4SNW89u+l7hm5aj4BqMuGuxV+GDT
+         u/ow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Tkfmwj3RBlLMXgPipfvJ93LuxSBf2OvK+Ff+jh0Ehg0=;
+        b=fwM6JvX5wTlzLJSjSm6lcNX4en93SESTKDc92/yZgdjv6F/MuM3v7n4ZaT8Ae0qUs2
+         lC7ZQSif0ZLtIm9+q9g+/y5pcFBpJ4xyL8GPVH9QpuBZxgbueAxXEze+srHsDzcGC8zk
+         DLwktKYwp9n9KP3J+B9j/tksXWNGY96u2HpC/USPAj2CejuMZ8wdzkDAYfA9L8wAXVDA
+         jCYBXUHxtPdLW5+6puaH3z+MnlIE2941LrEmQONGrjvk9NUfNmh27C0+DzTra2zhD/GZ
+         TZBx26qkUzEf5+huy0aYKEoq0wF3Jr1pPSeppAAJ6MmTReT+CZgsz9wMywrzke2BHYm1
+         ymKQ==
+X-Gm-Message-State: ANhLgQ3ER5ckMLrN5/hWCob+kkSTFonGC9YHxSp5dKyiv8ApR2Mlx3IJ
+        2V9+slmwWiw81vuOg4B97PrddKhkgm4=
+X-Google-Smtp-Source: ADFU+vvpcX62gEQtlqaV25+L6KSxyqG9RGTtH3ZeMQzBE7bPwrNzIDlZ4KUgJDrZahybhJEQKWNbWg==
+X-Received: by 2002:a63:2ec1:: with SMTP id u184mr25936761pgu.446.1585054582216;
+        Tue, 24 Mar 2020 05:56:22 -0700 (PDT)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y137sm1325831pfg.103.2020.03.24.05.56.21
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Mar 2020 05:56:21 -0700 (PDT)
+Message-ID: <5e7a0375.1c69fb81.7c03a.47fe@mx.google.com>
+Date:   Tue, 24 Mar 2020 05:56:21 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <290791291.15199861.1585053755727.JavaMail.zimbra@redhat.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.216-123-gab9a373d5af1
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.4.y boot: 95 boots: 3 failed,
+ 84 passed with 4 offline, 4 untried/unknown (v4.4.216-123-gab9a373d5af1)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 24, 2020 at 08:42:35AM -0400, Veronika Kabatova wrote:
-> 
-> 
-> ----- Original Message -----
-> > From: "Greg KH" <greg@kroah.com>
-> > To: "Veronika Kabatova" <vkabatov@redhat.com>
-> > Cc: "Memory Management" <mm-qe@redhat.com>, "Ondrej Mosnacek" <omosnace@redhat.com>, "Linux Stable maillist"
-> > <stable@vger.kernel.org>, "CKI Project" <cki-project@redhat.com>, "Jan Stancek" <jstancek@redhat.com>, "LTP Mailing
-> > List" <ltp@lists.linux.it>
-> > Sent: Tuesday, March 24, 2020 12:47:27 PM
-> > Subject: Re: 💥 PANICKED: Test	report?for?kernel 5.5.12-rc1-8b841eb.cki (stable)
-> > 
-> > On Tue, Mar 24, 2020 at 07:44:32AM -0400, Veronika Kabatova wrote:
-> > > 
-> > > 
-> > > ----- Original Message -----
-> > > > From: "Greg KH" <greg@kroah.com>
-> > > > To: "Veronika Kabatova" <vkabatov@redhat.com>
-> > > > Cc: "Memory Management" <mm-qe@redhat.com>, "Ondrej Mosnacek"
-> > > > <omosnace@redhat.com>, "Linux Stable maillist"
-> > > > <stable@vger.kernel.org>, "CKI Project" <cki-project@redhat.com>, "Jan
-> > > > Stancek" <jstancek@redhat.com>, "LTP Mailing
-> > > > List" <ltp@lists.linux.it>
-> > > > Sent: Tuesday, March 24, 2020 12:18:19 PM
-> > > > Subject: Re: 💥 PANICKED: Test report	for?kernel 5.5.12-rc1-8b841eb.cki
-> > > > (stable)
-> > > > 
-> > > > On Tue, Mar 24, 2020 at 07:12:07AM -0400, Veronika Kabatova wrote:
-> > > > > 
-> > > > > 
-> > > > > ----- Original Message -----
-> > > > > > From: "Greg KH" <greg@kroah.com>
-> > > > > > To: "CKI Project" <cki-project@redhat.com>
-> > > > > > Cc: "Memory Management" <mm-qe@redhat.com>, "Ondrej Mosnacek"
-> > > > > > <omosnace@redhat.com>, "Linux Stable maillist"
-> > > > > > <stable@vger.kernel.org>, "Jan Stancek" <jstancek@redhat.com>, "LTP
-> > > > > > Mailing List" <ltp@lists.linux.it>
-> > > > > > Sent: Tuesday, March 24, 2020 7:22:13 AM
-> > > > > > Subject: Re: 💥 PANICKED: Test report for	kernel
-> > > > > > 5.5.12-rc1-8b841eb.cki
-> > > > > > (stable)
-> > > > > > 
-> > > > > > On Tue, Mar 24, 2020 at 05:42:38AM -0000, CKI Project wrote:
-> > > > > > > 
-> > > > > > > Hello,
-> > > > > > > 
-> > > > > > > We ran automated tests on a recent commit from this kernel tree:
-> > > > > > > 
-> > > > > > >        Kernel repo:
-> > > > > > >        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > > > > > >             Commit: 8b841eb697e1 - Linux 5.5.12-rc1
-> > > > > > > 
-> > > > > > > The results of these automated tests are provided below.
-> > > > > > > 
-> > > > > > >     Overall result: FAILED (see details below)
-> > > > > > >              Merge: OK
-> > > > > > >            Compile: OK
-> > > > > > >              Tests: PANICKED
-> > > > > > > 
-> > > > > > > All kernel binaries, config files, and logs are available for
-> > > > > > > download
-> > > > > > > here:
-> > > > > > > 
-> > > > > > >   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/03/23/502039
-> > > > > > > 
-> > > > > > > One or more kernel tests failed:
-> > > > > > > 
-> > > > > > >     ppc64le:
-> > > > > > >      💥 xfstests - ext4
-> > > > > > > 
-> > > > > > >     aarch64:
-> > > > > > >      ❌ LTP
-> > > > > > > 
-> > > > > > >     x86_64:
-> > > > > > >      💥 xfstests - ext4
-> > > > > > 
-> > > > > > Ok, it's time I start just blacklisting this report again, it's not
-> > > > > > being helpful in any way :(
-> > > > > > 
-> > > > > > Remember, if something starts breaking, I need some way to find out
-> > > > > > what
-> > > > > > caused it to break...
-> > > > > > 
-> > > > > 
-> > > > > Hi Greg,
-> > > > > 
-> > > > > do you have any specific suggestions about what to include to help you
-> > > > > out?
-> > > > > The linked console logs contain call traces for the panics [0]. Is
-> > > > > there
-> > > > > anything else that would help you with debugging those? We're planning
-> > > > > on
-> > > > > releasing core dumps, would those be helpful?
-> > > > 
-> > > > Bisection to find the offending commit would be best.
-> > > > 
-> > > 
-> > > This is going to be really tricky for hard to reproduce bugs but we'll do
-> > > some research on it, thanks!
-> > 
-> > I got about 8 "failed" emails today, it doesn't sound like it is hard to
-> > reproduce.
-> 
-> I meant in general, as we do catch a bunch of such problems. Those usually
-> require some input and testing from people who understand the subsystem to
-> create a reliable reproducer.
-> 
-> For this particular failure, do you want to try out the patches I linked
-> in the first email or should we waive them for now?
+stable-rc/linux-4.4.y boot: 95 boots: 3 failed, 84 passed with 4 offline, 4=
+ untried/unknown (v4.4.216-123-gab9a373d5af1)
 
-As this must be something new introduced by my current queue, why not
-find out what patch in there is causing the problem?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.216-123-gab9a373d5af1/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.216-123-gab9a373d5af1/
 
-If this is caused by something NOT in my queue, and is also a problem
-upstream in Linus's tree, then you need to notify the upstream
-developers as there's nothing I can do about it, right?
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.216-123-gab9a373d5af1
+Git Commit: ab9a373d5af1af68b82712bdd4b9d7838c97d450
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 49 unique boards, 17 SoC families, 17 builds out of 190
 
-If this is not upstream, but is a problem in the stable tree, then
-please submit the patches that fix the issue as documented in the stable
-kernel rules document for how to submit them.
+Boot Regressions Detected:
 
-To throw this horrible "something is BROKEN!" type email at me all the
-time just makes me want to delete it as I have no context at all.
+arm:
 
-thanks,
+    multi_v7_defconfig:
+        gcc-8:
+          tegra20-iris-512:
+              lab-baylibre-seattle: new failure (last pass: v4.4.216-120-g8=
+7aa7a2e6d25)
 
-greg k-h
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 44 days (last pass: v4.4.=
+212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
+
+    tegra_defconfig:
+        gcc-8:
+          tegra20-iris-512:
+              lab-baylibre-seattle: new failure (last pass: v4.4.216-120-g8=
+7aa7a2e6d25)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+
+    tegra_defconfig:
+        gcc-8
+            tegra20-iris-512: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
