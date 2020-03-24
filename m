@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6181910DE
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13FD51910A7
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728813AbgCXNTN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:19:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39784 "EHLO mail.kernel.org"
+        id S1729040AbgCXNXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:23:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728810AbgCXNTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:19:13 -0400
+        id S1727540AbgCXNXJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:23:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D30D208E0;
-        Tue, 24 Mar 2020 13:19:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EE5220870;
+        Tue, 24 Mar 2020 13:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055952;
-        bh=dsUFn1fct6hE7+Yo16X7dys63JfXbXmd3O1DfgNk3DY=;
+        s=default; t=1585056188;
+        bh=ZnOOPiaHl5nWaN+RU3/cJreKj3msAVLbLRJAV8qcMPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJrudf8rnbNhdSDWqtm3CwXS+tTMcPUmceKN4psIR7xualaKRYAsJ66godj4Pmjb7
-         1yM2+zqP/Ynp3zNrmNdtW6Kh+qQrib94W/vwMDV9hRCGDNLl4GDpVjBQ8lIJLptvmH
-         lujSfOrQkzHJ3A4TQwCMpZe3gwQrrpbeyG2YRJpw=
+        b=i1js38INsGLymQqs6QpU0UTY4jILeRC6Sf4N9UWZPBFftndrmZyzd/pANNTXWoMsd
+         DxrY2dH5ulgDo5gq9YiyQyq5ls3/4D2lvXx/0yl1U5yTqL4XFsqSG/1taCD6Y93a5a
+         052RVqc+fLPlmRUdaj30QM3cq82cRMXUUQ5CfDgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alberto Mattea <alberto@mattea.info>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.4 042/102] usb: xhci: apply XHCI_SUSPEND_DELAY to AMD XHCI controller 1022:145c
-Date:   Tue, 24 Mar 2020 14:10:34 +0100
-Message-Id: <20200324130810.999873979@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 5.5 050/119] usb: typec: ucsi: displayport: Fix a potential race during registration
+Date:   Tue, 24 Mar 2020 14:10:35 +0100
+Message-Id: <20200324130813.288931461@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alberto Mattea <alberto@mattea.info>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit 16263abc12d09871156a1c8650fb651f0e552f5e upstream.
+commit 081da1325d351ea8804cf74e65263ea120834f33 upstream.
 
-This controller timeouts during suspend (S3) with
-[  240.521724] xhci_hcd 0000:30:00.3: WARN: xHC save state timeout
-[  240.521729] xhci_hcd 0000:30:00.3: ERROR mismatched command completion event
-thus preventing the system from entering S3.
-Moreover it remains in an undefined state where some connected devices stop
-working until a reboot.
-Apply the XHCI_SUSPEND_DELAY quirk to make it suspend properly.
+Locking the connector in ucsi_register_displayport() to make
+sure that nothing can access the displayport alternate mode
+before the function has finished and the alternate mode is
+actually ready.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Alberto Mattea <alberto@mattea.info>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200306150858.21904-3-mathias.nyman@linux.intel.com
+Fixes: af8622f6a585 ("usb: typec: ucsi: Support for DisplayPort alt mode")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20200311130006.41288-3-heikki.krogerus@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-pci.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/typec/ucsi/displayport.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -136,7 +136,8 @@ static void xhci_pci_quirks(struct devic
- 		xhci->quirks |= XHCI_AMD_PLL_FIX;
+--- a/drivers/usb/typec/ucsi/displayport.c
++++ b/drivers/usb/typec/ucsi/displayport.c
+@@ -288,6 +288,8 @@ struct typec_altmode *ucsi_register_disp
+ 	struct typec_altmode *alt;
+ 	struct ucsi_dp *dp;
  
- 	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
--		(pdev->device == 0x15e0 ||
-+		(pdev->device == 0x145c ||
-+		 pdev->device == 0x15e0 ||
- 		 pdev->device == 0x15e1 ||
- 		 pdev->device == 0x43bb))
- 		xhci->quirks |= XHCI_SUSPEND_DELAY;
++	mutex_lock(&con->lock);
++
+ 	/* We can't rely on the firmware with the capabilities. */
+ 	desc->vdo |= DP_CAP_DP_SIGNALING | DP_CAP_RECEPTACLE;
+ 
+@@ -296,12 +298,15 @@ struct typec_altmode *ucsi_register_disp
+ 	desc->vdo |= all_assignments << 16;
+ 
+ 	alt = typec_port_register_altmode(con->port, desc);
+-	if (IS_ERR(alt))
++	if (IS_ERR(alt)) {
++		mutex_unlock(&con->lock);
+ 		return alt;
++	}
+ 
+ 	dp = devm_kzalloc(&alt->dev, sizeof(*dp), GFP_KERNEL);
+ 	if (!dp) {
+ 		typec_unregister_altmode(alt);
++		mutex_unlock(&con->lock);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+@@ -314,5 +319,7 @@ struct typec_altmode *ucsi_register_disp
+ 	alt->ops = &ucsi_displayport_ops;
+ 	typec_altmode_set_drvdata(alt, dp);
+ 
++	mutex_unlock(&con->lock);
++
+ 	return alt;
+ }
 
 
