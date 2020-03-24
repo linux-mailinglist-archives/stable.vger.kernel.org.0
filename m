@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C871910E3
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:32:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D81E9191019
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728784AbgCXNS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:18:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39404 "EHLO mail.kernel.org"
+        id S1729409AbgCXNZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:25:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728776AbgCXNS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:18:58 -0400
+        id S1729373AbgCXNZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:25:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71D6B208E0;
-        Tue, 24 Mar 2020 13:18:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CCD8208E0;
+        Tue, 24 Mar 2020 13:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055937;
+        s=default; t=1585056316;
         bh=kD5OmQO4pEKHygBevvv6JpUwmgqLQSgBx1YueWzSU08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uhrv46U7TZhqibXrb6NT33I4CI4EZhAVrDvVKGWz06STVwSBHpzZkHNKqcLt1VLRX
-         +z5YrkPLJiYMCAeIQbaglkFgAkEfdkKnNiBpX9byq5fW5vXI5YhmV/WV6izIvQdS2Q
-         1YEWybdkFxyXfmwRad1H+BLAjowlGsvsGw7C6Fok=
+        b=VGtfjwDVVWnkde/HMte2BtukMNhEeudULTbaJ6IgczJgap019D40wXKKJ2pzSeO01
+         FTFjZadJdcgP8rm73FDzTTEYWUhozOrG+MY2q0tHV1zzSuOAJpaIzlW9PJgUGGDhfL
+         zJZKLJA8ELpcobh6z940RCi4i0PW/8QVTKvngBy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 073/102] intel_th: msu: Fix the unexpected state warning
-Date:   Tue, 24 Mar 2020 14:11:05 +0100
-Message-Id: <20200324130813.961202332@linuxfoundation.org>
+Subject: [PATCH 5.5 081/119] intel_th: msu: Fix the unexpected state warning
+Date:   Tue, 24 Mar 2020 14:11:06 +0100
+Message-Id: <20200324130816.400154310@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
