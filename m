@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D377E190EDA
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDD4B190F9E
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727810AbgCXNPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:15:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34460 "EHLO mail.kernel.org"
+        id S1727891AbgCXNVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:21:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728268AbgCXNPa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:15:30 -0400
+        id S1729047AbgCXNV2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:21:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AD30208CA;
-        Tue, 24 Mar 2020 13:15:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D939208C3;
+        Tue, 24 Mar 2020 13:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055729;
-        bh=NdXj8AobCtKW15pxvIDIVPmaMMy5Xo0phZ+4bEez/Ss=;
+        s=default; t=1585056087;
+        bh=7M6BqcEOcrNXV0twxa5hDGdRFmjF/9exVisatz4hJbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/QOR3fTtEHshLi7uM4Wu4TxRr748xFRgA+vVZKks2Nf8CjrmcjneuuxA5bFgapnO
-         EZDASfwzkxiU53I8xn1n+JaB53nZXOeQIGi7v/rictXsbw2xInHNgoSNxZ5OMwOx4O
-         GvZJx68VzcFeZ/NvdySvwQjwrqWhpkarFlmdmwBc=
+        b=0yLDioWnXCW8sygw6vQIHy8w29HEngfoTEVYYSofUGeUXL4U+fzcSTQj1wk9FTB2w
+         l9ubtJChzHwaMDKwOauxMfxEAFJ8UCAiL6hahxWWp9IrrAk40gwJO+zbIV1hNlnwZJ
+         TCmUzzp3CL0Xm3kBQFBZN/iydT2bNPFOaHF8s8ZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Inki Dae <inki.dae@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/102] cifs: add missing mount option to /proc/mounts
+Subject: [PATCH 5.5 018/119] drm/exynos: dsi: fix workaround for the legacy clock name
 Date:   Tue, 24 Mar 2020 14:10:03 +0100
-Message-Id: <20200324130807.702016298@linuxfoundation.org>
+Message-Id: <20200324130809.977994463@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit ec57010acd03428a749d2600bf09bd537eaae993 ]
+[ Upstream commit c0fd99d659ba5582e09625c7a985d63fc2ca74b5 ]
 
-We were not displaying the mount option "signloosely" in /proc/mounts
-for cifs mounts which some users found confusing recently
+Writing to the built-in strings arrays doesn't work if driver is loaded
+as kernel module. This is also considered as a bad pattern. Fix this by
+adding a call to clk_get() with legacy clock name. This fixes following
+kernel oops if driver is loaded as module:
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Unable to handle kernel paging request at virtual address bf047978
+ pgd = (ptrval)
+ [bf047978] *pgd=59344811, *pte=5903c6df, *ppte=5903c65f
+ Internal error: Oops: 80f [#1] SMP ARM
+ Modules linked in: mc exynosdrm(+) analogix_dp rtc_s3c exynos_ppmu i2c_gpio
+ CPU: 1 PID: 212 Comm: systemd-udevd Not tainted 5.6.0-rc2-next-20200219 #326
+ videodev: Linux video capture interface: v2.00
+ Hardware name: Samsung Exynos (Flattened Device Tree)
+ PC is at exynos_dsi_probe+0x1f0/0x384 [exynosdrm]
+ LR is at exynos_dsi_probe+0x1dc/0x384 [exynosdrm]
+ ...
+ Process systemd-udevd (pid: 212, stack limit = 0x(ptrval))
+ ...
+ [<bf03cf14>] (exynos_dsi_probe [exynosdrm]) from [<c09b1ca0>] (platform_drv_probe+0x6c/0xa4)
+ [<c09b1ca0>] (platform_drv_probe) from [<c09afcb8>] (really_probe+0x210/0x350)
+ [<c09afcb8>] (really_probe) from [<c09aff74>] (driver_probe_device+0x60/0x1a0)
+ [<c09aff74>] (driver_probe_device) from [<c09b0254>] (device_driver_attach+0x58/0x60)
+ [<c09b0254>] (device_driver_attach) from [<c09b02dc>] (__driver_attach+0x80/0xbc)
+ [<c09b02dc>] (__driver_attach) from [<c09ade00>] (bus_for_each_dev+0x68/0xb4)
+ [<c09ade00>] (bus_for_each_dev) from [<c09aefd8>] (bus_add_driver+0x130/0x1e8)
+ [<c09aefd8>] (bus_add_driver) from [<c09b0d64>] (driver_register+0x78/0x110)
+ [<c09b0d64>] (driver_register) from [<bf038558>] (exynos_drm_init+0xe8/0x11c [exynosdrm])
+ [<bf038558>] (exynos_drm_init [exynosdrm]) from [<c0302fa8>] (do_one_initcall+0x50/0x220)
+ [<c0302fa8>] (do_one_initcall) from [<c03dd02c>] (do_init_module+0x60/0x210)
+ [<c03dd02c>] (do_init_module) from [<c03dbf44>] (load_module+0x1c0c/0x2310)
+ [<c03dbf44>] (load_module) from [<c03dc85c>] (sys_finit_module+0xac/0xbc)
+ [<c03dc85c>] (sys_finit_module) from [<c0301000>] (ret_fast_syscall+0x0/0x54)
+ Exception stack(0xd979bfa8 to 0xd979bff0)
+ ...
+ ---[ end trace db16efe05faab470 ]---
+
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Inki Dae <inki.dae@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/exynos/exynos_drm_dsi.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index 637624ab6e464..115f063497ffa 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -530,6 +530,8 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
+index 8d880012b5876..0f6497670e29d 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
+@@ -1766,9 +1766,10 @@ static int exynos_dsi_probe(struct platform_device *pdev)
+ 		dsi->clks[i] = devm_clk_get(dev, clk_names[i]);
+ 		if (IS_ERR(dsi->clks[i])) {
+ 			if (strcmp(clk_names[i], "sclk_mipi") == 0) {
+-				strcpy(clk_names[i], OLD_SCLK_MIPI_CLK_NAME);
+-				i--;
+-				continue;
++				dsi->clks[i] = devm_clk_get(dev,
++							OLD_SCLK_MIPI_CLK_NAME);
++				if (!IS_ERR(dsi->clks[i]))
++					continue;
+ 			}
  
- 	if (tcon->seal)
- 		seq_puts(s, ",seal");
-+	else if (tcon->ses->server->ignore_signature)
-+		seq_puts(s, ",signloosely");
- 	if (tcon->nocase)
- 		seq_puts(s, ",nocase");
- 	if (tcon->local_lease)
+ 			dev_info(dev, "failed to get the clock: %s\n",
 -- 
 2.20.1
 
