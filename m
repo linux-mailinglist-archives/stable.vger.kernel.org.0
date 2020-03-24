@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F27190F2A
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E07CA190F2E
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728673AbgCXNSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:18:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38176 "EHLO mail.kernel.org"
+        id S1728690AbgCXNSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:18:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727752AbgCXNSI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:18:08 -0400
+        id S1728701AbgCXNSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:18:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01312208CA;
-        Tue, 24 Mar 2020 13:18:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAE6D208CA;
+        Tue, 24 Mar 2020 13:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055888;
-        bh=JritSytOa17n9A8eCr1IfHZFbdBPS/YBgudn9Ph3Q20=;
+        s=default; t=1585055894;
+        bh=fgCakXjwGY+rUhPIQxjVi1O2wIJkX+bF8EbPDUz0qfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SP35owyrWYxDx/fsiDWb6BJenKLuCP0/LGeNEBH8sRhPSRRNHX0+SVaDexzuGlJqg
-         5crsQ7giK+bg3/aOhQUr/zbtjcdcVwlnj28ZgOaYVO9u6AOrxuKCC2NANfymHaZaen
-         sG89Q4vl4b15HH2SUCQNg2bmkXi3daj3NSeGZ4Dg=
+        b=vLfvnR1GURgpfapItce9trVLHOv+8ql6cbbdVAapUtr/qzMDMEef3iMDFtxMoohiA
+         zSMKObCbDWgZU69dvF99JloTF4U2Va8zrgmD0+4+NhFKHM9rEJGUzGLrHjOaAJG3Ye
+         yBsrdKjt8pHV/Qzo9K7kXupF5ueISreCJSqWWXUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Linus Waleij <linus.walleij@linaro.org>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 058/102] iio: trigger: stm32-timer: disable master mode when stopping
-Date:   Tue, 24 Mar 2020 14:10:50 +0100
-Message-Id: <20200324130812.588688285@linuxfoundation.org>
+Subject: [PATCH 5.4 060/102] iio: magnetometer: ak8974: Fix negative raw values in sysfs
+Date:   Tue, 24 Mar 2020 14:10:52 +0100
+Message-Id: <20200324130812.757689015@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
 References: <20200324130806.544601211@linuxfoundation.org>
@@ -44,58 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 29e8c8253d7d5265f58122c0a7902e26df6c6f61 upstream.
+commit b500c086e4110829a308c23e83a7cdc65b26228a upstream.
 
-Master mode should be disabled when stopping. This mainly impacts
-possible other use-case after timer has been stopped. Currently,
-master mode remains set (from start routine).
+At the moment, reading from in_magn_*_raw in sysfs tends to return
+large values around 65000, even though the output of ak8974 is actually
+limited to ±32768. This happens because the value is never converted
+to the signed 16-bit integer variant.
 
-Fixes: 6fb34812c2a2 ("iio: stm32 trigger: Add support for TRGO2 triggers")
+Add an explicit cast to s16 to fix this.
 
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Fixes: 7c94a8b2ee8c ("iio: magn: add a driver for AK8974")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Linus Waleij <linus.walleij@linaro.org>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/trigger/stm32-timer-trigger.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/iio/magnetometer/ak8974.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/trigger/stm32-timer-trigger.c
-+++ b/drivers/iio/trigger/stm32-timer-trigger.c
-@@ -161,7 +161,8 @@ static int stm32_timer_start(struct stm3
- 	return 0;
- }
+--- a/drivers/iio/magnetometer/ak8974.c
++++ b/drivers/iio/magnetometer/ak8974.c
+@@ -564,7 +564,7 @@ static int ak8974_read_raw(struct iio_de
+ 		 * We read all axes and discard all but one, for optimized
+ 		 * reading, use the triggered buffer.
+ 		 */
+-		*val = le16_to_cpu(hw_values[chan->address]);
++		*val = (s16)le16_to_cpu(hw_values[chan->address]);
  
--static void stm32_timer_stop(struct stm32_timer_trigger *priv)
-+static void stm32_timer_stop(struct stm32_timer_trigger *priv,
-+			     struct iio_trigger *trig)
- {
- 	u32 ccer, cr1;
- 
-@@ -179,6 +180,12 @@ static void stm32_timer_stop(struct stm3
- 	regmap_write(priv->regmap, TIM_PSC, 0);
- 	regmap_write(priv->regmap, TIM_ARR, 0);
- 
-+	/* Force disable master mode */
-+	if (stm32_timer_is_trgo2_name(trig->name))
-+		regmap_update_bits(priv->regmap, TIM_CR2, TIM_CR2_MMS2, 0);
-+	else
-+		regmap_update_bits(priv->regmap, TIM_CR2, TIM_CR2_MMS, 0);
-+
- 	/* Make sure that registers are updated */
- 	regmap_update_bits(priv->regmap, TIM_EGR, TIM_EGR_UG, TIM_EGR_UG);
- }
-@@ -197,7 +204,7 @@ static ssize_t stm32_tt_store_frequency(
- 		return ret;
- 
- 	if (freq == 0) {
--		stm32_timer_stop(priv);
-+		stm32_timer_stop(priv, trig);
- 	} else {
- 		ret = stm32_timer_start(priv, trig, freq);
- 		if (ret)
+ 		ret = IIO_VAL_INT;
+ 	}
 
 
