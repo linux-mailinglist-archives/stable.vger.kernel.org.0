@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F5D191108
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 452CE191109
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727186AbgCXNN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:13:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59660 "EHLO mail.kernel.org"
+        id S1727882AbgCXNNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:13:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727752AbgCXNNZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:13:25 -0400
+        id S1727881AbgCXNNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:13:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E69FE20B80;
-        Tue, 24 Mar 2020 13:13:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70F4820775;
+        Tue, 24 Mar 2020 13:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055605;
-        bh=cWF3WUe2wPdnGgifyfwwVAofNRCsrR9G7UqKaQgj4Gw=;
+        s=default; t=1585055609;
+        bh=NKO7/sy2SbHYRRuLnnyHaNYxduCv66hpOHZ2FY3V0lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+t6PUq/vxPxYQ41TZnScuyhKYG63inwPDa4jGWmZ9e+ZH163tGaFSnxj4rVv0GyQ
-         7pC4T07UytQV7F3qZu8swMBracxIHd+svbv5Cv+MgFl0qu4POZM3dXZ01A+Qc3CCJ7
-         nU+baa4cF+wRm/kd6noiXsMgk42fbtRxCSXH4RiM=
+        b=JnqCXdug2001lyGFZCvjp+PN96m4H5qHpQUdNqwdbKqcEiJNET0pkMCTv/4wWaBoJ
+         AbK44MLP4/cNXxrBMMUwGEHKmPGU1qZD2O6uLJK8xGmnajZPosPA3beuUrc18ctpdm
+         PqTE7cz+XLer3L30Rkt0m07HrKrvKQTpU45Ex5K4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Straube <straube.linux@gmail.com>
-Subject: [PATCH 4.19 37/65] staging: rtl8188eu: Add device id for MERCUSYS MW150US v2
-Date:   Tue, 24 Mar 2020 14:10:58 +0100
-Message-Id: <20200324130801.912227286@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 38/65] staging: greybus: loopback_test: fix poll-mask build breakage
+Date:   Tue, 24 Mar 2020 14:10:59 +0100
+Message-Id: <20200324130802.026151828@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
 References: <20200324130756.679112147@linuxfoundation.org>
@@ -42,32 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Straube <straube.linux@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit bb5786b9286c253557a0115bc8d21879e61b7b94 upstream.
+commit 8f3675be4bda33adbdc1dd2ab3b6c76a7599a79e upstream.
 
-This device was added to the stand-alone driver on github.
-Add it to the staging driver as well.
+A scripted conversion from userland POLL* to kernel EPOLL* constants
+mistakingly replaced the poll flags in the loopback_test tool, which
+therefore no longer builds.
 
-Link: https://github.com/lwfinger/rtl8188eu/commit/2141f244c3e7
-Signed-off-by: Michael Straube <straube.linux@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200312093652.13918-1-straube.linux@gmail.com
+Fixes: a9a08845e9ac ("vfs: do bulk POLL* -> EPOLL* replacement")
+Cc: stable <stable@vger.kernel.org>     # 4.16
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20200312110151.22028-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/greybus/tools/loopback_test.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -38,6 +38,7 @@ static const struct usb_device_id rtw_us
- 	{USB_DEVICE(0x2001, 0x331B)}, /* D-Link DWA-121 rev B1 */
- 	{USB_DEVICE(0x2357, 0x010c)}, /* TP-Link TL-WN722N v2 */
- 	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
-+	{USB_DEVICE(0x2C4E, 0x0102)}, /* MERCUSYS MW150US v2 */
- 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
- 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
- 	{}	/* Terminating entry */
+--- a/drivers/staging/greybus/tools/loopback_test.c
++++ b/drivers/staging/greybus/tools/loopback_test.c
+@@ -663,7 +663,7 @@ static int open_poll_files(struct loopba
+ 			goto err;
+ 		}
+ 		read(t->fds[fds_idx].fd, &dummy, 1);
+-		t->fds[fds_idx].events = EPOLLERR|EPOLLPRI;
++		t->fds[fds_idx].events = POLLERR | POLLPRI;
+ 		t->fds[fds_idx].revents = 0;
+ 		fds_idx++;
+ 	}
+@@ -756,7 +756,7 @@ static int wait_for_complete(struct loop
+ 		}
+ 
+ 		for (i = 0; i < t->poll_count; i++) {
+-			if (t->fds[i].revents & EPOLLPRI) {
++			if (t->fds[i].revents & POLLPRI) {
+ 				/* Dummy read to clear the event */
+ 				read(t->fds[i].fd, &dummy, 1);
+ 				number_of_events++;
 
 
