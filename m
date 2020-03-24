@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA31D19101F
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4C1191113
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:39:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729301AbgCXNZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:25:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49592 "EHLO mail.kernel.org"
+        id S1728230AbgCXNPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:15:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728290AbgCXNZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:25:23 -0400
+        id S1727561AbgCXNPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:15:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE0AF206F6;
-        Tue, 24 Mar 2020 13:25:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17FBE2137B;
+        Tue, 24 Mar 2020 13:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056323;
-        bh=gFYnGMRQ2z2WDGa1Ce7kJVmXByTCRC8DYYrHILf9p74=;
+        s=default; t=1585055715;
+        bh=ifh5+NO2a8Bf7LjnkrDL9Kt1p7E0gJkTC3guzHdEZxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEJoue3HquKmPLuRBX0DDXOftbbfcgvGKTMlPk2R+gVLUu7Pgxaf5gLqM8+Bm5ZE0
-         8z4HwN7l2p/0ysXddFWsgr7AAaVsaOez45wjKLOv4RJ+viJj4ogcopsGTu2XnWkDSP
-         Gr6f/8jVNa3pKMn4q2lm0euLgYj+QP//xUYHiI6E=
+        b=CI6nO3J7GZjGG/epma1MJqPNOcT6z8DG2ZIfTMmFT/XFBDsKAuCCnN/jg+LLP5Nr/
+         rkSsi/tXN1Y2Z95HKlayhYQrTVK4/1h4usc+QAxgZXc9v/1rlY33rZ+6Xrq9n5PKMu
+         tUWHLWEFi9xM9ZxHEgrH9M/erSRJVDwy91Y5OLvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.5 091/119] stm class: sys-t: Fix the use of time_after()
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 55/65] kbuild: Disable -Wpointer-to-enum-cast
 Date:   Tue, 24 Mar 2020 14:11:16 +0100
-Message-Id: <20200324130817.286646453@linuxfoundation.org>
+Message-Id: <20200324130803.760587988@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130756.679112147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 283f87c0d5d32b4a5c22636adc559bca82196ed3 upstream.
+commit 82f2bc2fcc0160d6f82dd1ac64518ae0a4dd183f upstream.
 
-The operands of time_after() are in a wrong order in both instances in
-the sys-t driver. Fix that.
+Clang's -Wpointer-to-int-cast deviates from GCC in that it warns when
+casting to enums. The kernel does this in certain places, such as device
+tree matches to set the version of the device being used, which allows
+the kernel to avoid using a gigantic union.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Fixes: 39f10239df75 ("stm class: p_sys-t: Add support for CLOCKSYNC packets")
-Fixes: d69d5e83110f ("stm class: Add MIPI SyS-T protocol support")
-Cc: stable@vger.kernel.org # v4.20+
-Link: https://lore.kernel.org/r/20200317062215.15598-3-alexander.shishkin@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L428
+https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L402
+https://elixir.bootlin.com/linux/v5.5.8/source/include/linux/mod_devicetable.h#L264
 
+To avoid a ton of false positive warnings, disable this particular part
+of the warning, which has been split off into a separate diagnostic so
+that the entire warning does not need to be turned off for clang. It
+will be visible under W=1 in case people want to go about fixing these
+easily and enabling the warning treewide.
+
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/887
+Link: https://github.com/llvm/llvm-project/commit/2a41b31fcdfcb67ab7038fc2ffb606fd50b83a84
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/stm/p_sys-t.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ scripts/Makefile.extrawarn | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/hwtracing/stm/p_sys-t.c
-+++ b/drivers/hwtracing/stm/p_sys-t.c
-@@ -238,7 +238,7 @@ static struct configfs_attribute *sys_t_
- static inline bool sys_t_need_ts(struct sys_t_output *op)
- {
- 	if (op->node.ts_interval &&
--	    time_after(op->ts_jiffies + op->node.ts_interval, jiffies)) {
-+	    time_after(jiffies, op->ts_jiffies + op->node.ts_interval)) {
- 		op->ts_jiffies = jiffies;
- 
- 		return true;
-@@ -250,8 +250,8 @@ static inline bool sys_t_need_ts(struct
- static bool sys_t_need_clock_sync(struct sys_t_output *op)
- {
- 	if (op->node.clocksync_interval &&
--	    time_after(op->clocksync_jiffies + op->node.clocksync_interval,
--		       jiffies)) {
-+	    time_after(jiffies,
-+		       op->clocksync_jiffies + op->node.clocksync_interval)) {
- 		op->clocksync_jiffies = jiffies;
- 
- 		return true;
+diff --git a/scripts/Makefile.extrawarn b/scripts/Makefile.extrawarn
+index 8d5357053f865..486e135d3e30a 100644
+--- a/scripts/Makefile.extrawarn
++++ b/scripts/Makefile.extrawarn
+@@ -72,5 +72,6 @@ KBUILD_CFLAGS += $(call cc-disable-warning, format)
+ KBUILD_CFLAGS += $(call cc-disable-warning, sign-compare)
+ KBUILD_CFLAGS += $(call cc-disable-warning, format-zero-length)
+ KBUILD_CFLAGS += $(call cc-disable-warning, uninitialized)
++KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
+ endif
+ endif
+-- 
+2.20.1
+
 
 
