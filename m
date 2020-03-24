@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A87190E88
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:14:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9BD190FE3
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727739AbgCXNMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58814 "EHLO mail.kernel.org"
+        id S1729482AbgCXNXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:23:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727736AbgCXNMw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:12:52 -0400
+        id S1729476AbgCXNXx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:23:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FEA320775;
-        Tue, 24 Mar 2020 13:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B04B2208DB;
+        Tue, 24 Mar 2020 13:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055570;
-        bh=u0oxV+ZE30Cvfe5WC10gcHtQGNHrKMYUrIi5VvOstjo=;
+        s=default; t=1585056233;
+        bh=JritSytOa17n9A8eCr1IfHZFbdBPS/YBgudn9Ph3Q20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPfP74ToJZW0nUovBsvCR8hcmkoJAQsXE0wIWINOYdT0tk2Y/TcETq9gFn40tch9E
-         e49o2stc0i2r6NHy2iJAP9Hgq3OlUPgGmanRqTm9b4xWBfmxMUrmc+uRhr+/L7D6xR
-         61TwkZi5Zt3sh/sGJ2FLIE5EWEKdUBRyjctGP4Ss=
+        b=EKnMKt7W5DfW44YtqKot9dv5Udmk8x8T9OH1r56B1bq8iZa53czN9SmsNYxOM6ERW
+         mivijZrl3zdW8HdJgs22QHVeVAOJZ3QoAmT4fLWqkxYaYgZvD9Pm6/2foQdvLSDWRq
+         X0tzZZppC72lJW+U153odjYwi7bgGQC1cjgaVQ+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Steinmetz <ast@domdv.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 27/65] ALSA: seq: virmidi: Fix running status after receiving sysex
-Date:   Tue, 24 Mar 2020 14:10:48 +0100
-Message-Id: <20200324130800.693038974@linuxfoundation.org>
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.5 064/119] iio: trigger: stm32-timer: disable master mode when stopping
+Date:   Tue, 24 Mar 2020 14:10:49 +0100
+Message-Id: <20200324130814.601492005@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
-References: <20200324130756.679112147@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-commit 4384f167ce5fa7241b61bb0984d651bc528ddebe upstream.
+commit 29e8c8253d7d5265f58122c0a7902e26df6c6f61 upstream.
 
-The virmidi driver handles sysex event exceptionally in a short-cut
-snd_seq_dump_var_event() call, but this missed the reset of the
-running status.  As a result, it may lead to an incomplete command
-right after the sysex when an event with the same running status was
-queued.
+Master mode should be disabled when stopping. This mainly impacts
+possible other use-case after timer has been stopped. Currently,
+master mode remains set (from start routine).
 
-Fix it by clearing the running status properly via alling
-snd_midi_event_reset_decode() for that code path.
+Fixes: 6fb34812c2a2 ("iio: stm32 trigger: Add support for TRGO2 triggers")
 
-Reported-by: Andreas Steinmetz <ast@domdv.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/3b4a4e0f232b7afbaf0a843f63d0e538e3029bfd.camel@domdv.de
-Link: https://lore.kernel.org/r/20200316090506.23966-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/seq/seq_virmidi.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/trigger/stm32-timer-trigger.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/sound/core/seq/seq_virmidi.c
-+++ b/sound/core/seq/seq_virmidi.c
-@@ -95,6 +95,7 @@ static int snd_virmidi_dev_receive_event
- 			if ((ev->flags & SNDRV_SEQ_EVENT_LENGTH_MASK) != SNDRV_SEQ_EVENT_LENGTH_VARIABLE)
- 				continue;
- 			snd_seq_dump_var_event(ev, (snd_seq_dump_func_t)snd_rawmidi_receive, vmidi->substream);
-+			snd_midi_event_reset_decode(vmidi->parser);
- 		} else {
- 			len = snd_midi_event_decode(vmidi->parser, msg, sizeof(msg), ev);
- 			if (len > 0)
+--- a/drivers/iio/trigger/stm32-timer-trigger.c
++++ b/drivers/iio/trigger/stm32-timer-trigger.c
+@@ -161,7 +161,8 @@ static int stm32_timer_start(struct stm3
+ 	return 0;
+ }
+ 
+-static void stm32_timer_stop(struct stm32_timer_trigger *priv)
++static void stm32_timer_stop(struct stm32_timer_trigger *priv,
++			     struct iio_trigger *trig)
+ {
+ 	u32 ccer, cr1;
+ 
+@@ -179,6 +180,12 @@ static void stm32_timer_stop(struct stm3
+ 	regmap_write(priv->regmap, TIM_PSC, 0);
+ 	regmap_write(priv->regmap, TIM_ARR, 0);
+ 
++	/* Force disable master mode */
++	if (stm32_timer_is_trgo2_name(trig->name))
++		regmap_update_bits(priv->regmap, TIM_CR2, TIM_CR2_MMS2, 0);
++	else
++		regmap_update_bits(priv->regmap, TIM_CR2, TIM_CR2_MMS, 0);
++
+ 	/* Make sure that registers are updated */
+ 	regmap_update_bits(priv->regmap, TIM_EGR, TIM_EGR_UG, TIM_EGR_UG);
+ }
+@@ -197,7 +204,7 @@ static ssize_t stm32_tt_store_frequency(
+ 		return ret;
+ 
+ 	if (freq == 0) {
+-		stm32_timer_stop(priv);
++		stm32_timer_stop(priv, trig);
+ 	} else {
+ 		ret = stm32_timer_start(priv, trig, freq);
+ 		if (ret)
 
 
