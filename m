@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9A8190F7D
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B5AB190F82
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727164AbgCXNUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:20:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41410 "EHLO mail.kernel.org"
+        id S1728232AbgCXNU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:20:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728140AbgCXNUO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:20:14 -0400
+        id S1728928AbgCXNUW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:20:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F2A920870;
-        Tue, 24 Mar 2020 13:20:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4406920775;
+        Tue, 24 Mar 2020 13:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056014;
-        bh=SKKMNxawj+JTG4PwVo9ZHSzlg0hcJb0jdQWP5yeJv6I=;
+        s=default; t=1585056021;
+        bh=WgJjLtVfEOKxgdNSI1QIGKizSI5Y9S61yzSjz9z8Z1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eaInU6RE5wTzHimRoGlBkBK4Q0VCn8dK1du4HKuzpY+2+dKK3rgLPro9gqcKd57cI
-         xVCD3WUB6vr9F5ggSI82o93MCynL3S8L2xTT0FU5gELRcEsiGEOZhXJ4/siganns8r
-         QXlKfxYUR7XJvq4rC7PD6Cm2LU+Y4N8w+VChkfvQ=
+        b=x6J9YPyUUadODB82pwgLXWSd/hqkyjeT7/1VxAfcYZAuusCyMfxfS78Lk6x0KVZi6
+         +wownaV0VDxUr/dAKiYRy2ZfQKceVPALhGI5Wbnn1NtSYsC9zwSRzj0KnrmL9JT3HB
+         LmWT15H8amNm7G+ApAsZmkMxXyR+y92PkmuzPSOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Wunderlich <mark.wunderlich@intel.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Keith Busch <kbusch@kernel.org>
-Subject: [PATCH 5.4 099/102] nvmet-tcp: set MSG_MORE only if we actually have more to send
-Date:   Tue, 24 Mar 2020 14:11:31 +0100
-Message-Id: <20200324130816.773551496@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 101/102] staging: greybus: loopback_test: fix potential path truncation
+Date:   Tue, 24 Mar 2020 14:11:33 +0100
+Message-Id: <20200324130816.944978159@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
 References: <20200324130806.544601211@linuxfoundation.org>
@@ -45,70 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Johan Hovold <johan@kernel.org>
 
-commit 98fd5c723730f560e5bea919a64ac5b83d45eb72 upstream.
+commit f16023834863932f95dfad13fac3fc47f77d2f29 upstream.
 
-When we send PDU data, we want to optimize the tcp stack
-operation if we have more data to send. So when we set MSG_MORE
-when:
-- We have more fragments coming in the batch, or
-- We have a more data to send in this PDU
-- We don't have a data digest trailer
-- We optimize with the SUCCESS flag and omit the NVMe completion
-  (used if sq_head pointer update is disabled)
+Newer GCC warns about a possible truncation of a generated sysfs path
+name as we're concatenating a directory path with a file name and
+placing the result in a buffer that is half the size of the maximum
+length of the directory path (which is user controlled).
 
-This addresses a regression in QD=1 with SUCCESS flag optimization
-as we unconditionally set MSG_MORE when we didn't actually have
-more data to send.
+loopback_test.c: In function 'open_poll_files':
+loopback_test.c:651:31: warning: '%s' directive output may be truncated writing up to 511 bytes into a region of size 255 [-Wformat-truncation=]
+  651 |   snprintf(buf, sizeof(buf), "%s%s", dev->sysfs_entry, "iteration_count");
+      |                               ^~
+loopback_test.c:651:3: note: 'snprintf' output between 16 and 527 bytes into a destination of size 255
+  651 |   snprintf(buf, sizeof(buf), "%s%s", dev->sysfs_entry, "iteration_count");
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fixes: 70583295388a ("nvmet-tcp: implement C2HData SUCCESS optimization")
-Reported-by: Mark Wunderlich <mark.wunderlich@intel.com>
-Tested-by: Mark Wunderlich <mark.wunderlich@intel.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Fix this by making sure the buffer is large enough the concatenated
+strings.
+
+Fixes: 6b0658f68786 ("greybus: tools: Add tools directory to greybus repo and add loopback")
+Fixes: 9250c0ee2626 ("greybus: Loopback_test: use poll instead of inotify")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20200312110151.22028-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvme/target/tcp.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/staging/greybus/tools/loopback_test.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -515,7 +515,7 @@ static int nvmet_try_send_data_pdu(struc
- 	return 1;
- }
- 
--static int nvmet_try_send_data(struct nvmet_tcp_cmd *cmd)
-+static int nvmet_try_send_data(struct nvmet_tcp_cmd *cmd, bool last_in_batch)
+--- a/drivers/staging/greybus/tools/loopback_test.c
++++ b/drivers/staging/greybus/tools/loopback_test.c
+@@ -637,7 +637,7 @@ baddir:
+ static int open_poll_files(struct loopback_test *t)
  {
- 	struct nvmet_tcp_queue *queue = cmd->queue;
- 	int ret;
-@@ -523,9 +523,15 @@ static int nvmet_try_send_data(struct nv
- 	while (cmd->cur_sg) {
- 		struct page *page = sg_page(cmd->cur_sg);
- 		u32 left = cmd->cur_sg->length - cmd->offset;
-+		int flags = MSG_DONTWAIT;
-+
-+		if ((!last_in_batch && cmd->queue->send_list_len) ||
-+		    cmd->wbytes_done + left < cmd->req.transfer_len ||
-+		    queue->data_digest || !queue->nvme_sq.sqhd_disabled)
-+			flags |= MSG_MORE;
- 
- 		ret = kernel_sendpage(cmd->queue->sock, page, cmd->offset,
--					left, MSG_DONTWAIT | MSG_MORE);
-+					left, flags);
- 		if (ret <= 0)
- 			return ret;
- 
-@@ -660,7 +666,7 @@ static int nvmet_tcp_try_send_one(struct
- 	}
- 
- 	if (cmd->state == NVMET_TCP_SEND_DATA) {
--		ret = nvmet_try_send_data(cmd);
-+		ret = nvmet_try_send_data(cmd, last_in_batch);
- 		if (ret <= 0)
- 			goto done_send;
- 	}
+ 	struct loopback_device *dev;
+-	char buf[MAX_STR_LEN];
++	char buf[MAX_SYSFS_PATH + MAX_STR_LEN];
+ 	char dummy;
+ 	int fds_idx = 0;
+ 	int i;
 
 
