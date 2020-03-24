@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C177F190F23
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A82E190E86
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:14:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728282AbgCXNR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37908 "EHLO mail.kernel.org"
+        id S1727384AbgCXNMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:12:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728171AbgCXNR5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:17:57 -0400
+        id S1727719AbgCXNMs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:12:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1700208CA;
-        Tue, 24 Mar 2020 13:17:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9F6820775;
+        Tue, 24 Mar 2020 13:12:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055876;
-        bh=iBjbZ09cVGZ1XntUHNiVR6x9U+7Uef9bZjfXZREwfb8=;
+        s=default; t=1585055568;
+        bh=4tIolwig/eG6kdesbtHxMMmhATOgOH0aKutX8PYYDHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0dTNzDH0Dk1SAjRGJZzNqE9nkvhzhcsbTrkTpmS3uUbOPH3t48juawAUYz7KhyUc
-         VZaXM8dCDSbqz9pF5Mbbov1V7Ukj+ra8XvyJtEOFX7n7Z0ZLTDEO/oDtUkmwJ+IRLM
-         e3OqXb2mVAXztVxoXh4he+DZeObtjRmeBQpc7gkg=
+        b=DAOrmlXhVzafrWzFRk8GbNO4N3tOh2pnB02Vk0bSDwLkCWjMAa90NSGLU6kLVy4Zn
+         s0HFHoRCfaid+hDObI6mR2YM5y8AFWLGnx10fwUEN/316ldMGdIj3ChvkTb5nIF+vQ
+         kX53kFQai+5IqVaZeW+nVkbstiSEkfUfgN2v3hQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.4 055/102] tty: fix compat TIOCGSERIAL checking wrong function ptr
+        stable@vger.kernel.org,
+        syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 26/65] ALSA: line6: Fix endless MIDI read loop
 Date:   Tue, 24 Mar 2020 14:10:47 +0100
-Message-Id: <20200324130812.314596042@linuxfoundation.org>
+Message-Id: <20200324130800.538866245@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130756.679112147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 6e622cd8bd888c7fa3ee2b7dfb3514ab53b21570 upstream.
+commit d683469b3c93d7e2afd39e6e1970f24700eb7a68 upstream.
 
-Commit 77654350306a ("take compat TIOC[SG]SERIAL treatment into
-tty_compat_ioctl()") changed the compat version of TIOCGSERIAL to start
-checking for the presence of the ->set_serial function pointer rather
-than ->get_serial.  This appears to be a copy-and-paste error, since
-->get_serial is the function pointer that is called as well as the
-pointer that is checked by the non-compat version of TIOCGSERIAL.
+The MIDI input event parser of the LINE6 driver may enter into an
+endless loop when the unexpected data sequence is given, as it tries
+to continue the secondary bytes without termination.  Also, when the
+input data is too short, the parser returns a negative error, while
+the caller doesn't handle it properly.  This would lead to the
+unexpected behavior as well.
 
-Fix this by checking the correct function pointer.
+This patch addresses those issues by checking the return value
+correctly and handling the one-byte event in the parser properly.
 
-Fixes: 77654350306a ("take compat TIOC[SG]SERIAL treatment into tty_compat_ioctl()")
-Cc: <stable@vger.kernel.org> # v4.20+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20200224182044.234553-3-ebiggers@kernel.org
+The bug was reported by syzkaller.
+
+Reported-by: syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000033087059f8f8fa3@google.com
+Link: https://lore.kernel.org/r/20200309095922.30269-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/tty_io.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/line6/driver.c  |    2 +-
+ sound/usb/line6/midibuf.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -2735,7 +2735,7 @@ static int compat_tty_tiocgserial(struct
- 	memset(&v, 0, sizeof(v));
- 	memset(&v32, 0, sizeof(v32));
+--- a/sound/usb/line6/driver.c
++++ b/sound/usb/line6/driver.c
+@@ -320,7 +320,7 @@ static void line6_data_received(struct u
+ 				line6_midibuf_read(mb, line6->buffer_message,
+ 						LINE6_MIDI_MESSAGE_MAXLEN);
  
--	if (!tty->ops->set_serial)
-+	if (!tty->ops->get_serial)
- 		return -ENOTTY;
- 	err = tty->ops->get_serial(tty, &v);
- 	if (!err) {
+-			if (done == 0)
++			if (done <= 0)
+ 				break;
+ 
+ 			line6->message_length = done;
+--- a/sound/usb/line6/midibuf.c
++++ b/sound/usb/line6/midibuf.c
+@@ -163,7 +163,7 @@ int line6_midibuf_read(struct midi_buffe
+ 			int midi_length_prev =
+ 			    midibuf_message_length(this->command_prev);
+ 
+-			if (midi_length_prev > 0) {
++			if (midi_length_prev > 1) {
+ 				midi_length = midi_length_prev - 1;
+ 				repeat = 1;
+ 			} else
 
 
