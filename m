@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE2F6190FF1
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 980AF190E91
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:14:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729612AbgCXNYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:24:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47686 "EHLO mail.kernel.org"
+        id S1727830AbgCXNNK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:13:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729603AbgCXNYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:24:12 -0400
+        id S1727826AbgCXNNJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:13:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9EBB208D6;
-        Tue, 24 Mar 2020 13:24:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D32AA2098B;
+        Tue, 24 Mar 2020 13:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056252;
-        bh=mB8hwxF60k8fq1kjgKp5j7nNZ/XLg8D4GNOSc+RwuRw=;
+        s=default; t=1585055589;
+        bh=0jMt3WINiBPNuIRvxABQcYRodklQyBeAydkA/QOnCmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDn5ekAs+68ZUEyr78NHduYokkYBe5G1xy9h5FXKhLGc4cNExzG341h8P2yBYts5m
-         MShV20ig9G3swYSkC61XXdXqJjtAIzlj146ylEVKmB5/gTImFfgBqo5kR7f947Sph2
-         WeJpOMcHiI+w1/z3RuQtsg59K56NPvksfSjb8AFQ=
+        b=ajABOKwc/eIPgaYiKhiAVrZiKdN/m/S74iDbhFnMnAQECtm/cQcgmFdiLoCz4mOTs
+         +ny54EzdpeRM6J7SGnLZwjzafIu5S0FMEoXwT0ynmUAGzz0PkLRHvOBJxwqVXaDG53
+         ZxOweiXsKL1hqAT6CtaAHiIMMoNDqSmeOWC5kuvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Tomas Novotny <tomas@novotny.cz>, Stable@vger.kernel.org,
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Linus Waleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.5 069/119] iio: light: vcnl4000: update sampling periods for vcnl4200
+Subject: [PATCH 4.19 33/65] iio: magnetometer: ak8974: Fix negative raw values in sysfs
 Date:   Tue, 24 Mar 2020 14:10:54 +0100
-Message-Id: <20200324130815.114746406@linuxfoundation.org>
+Message-Id: <20200324130801.396901297@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130756.679112147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Novotny <tomas@novotny.cz>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit b42aa97ed5f1169cfd37175ef388ea62ff2dcf43 upstream.
+commit b500c086e4110829a308c23e83a7cdc65b26228a upstream.
 
-Vishay has published a new version of "Designing the VCNL4200 Into an
-Application" application note in October 2019. The new version specifies
-that there is +-20% of part to part tolerance. This explains the drift
-seen during experiments. The proximity pulse width is also changed from
-32us to 30us. According to the support, the tolerance also applies to
-ambient light.
+At the moment, reading from in_magn_*_raw in sysfs tends to return
+large values around 65000, even though the output of ak8974 is actually
+limited to ±32768. This happens because the value is never converted
+to the signed 16-bit integer variant.
 
-So update the sampling periods. As the reading is blocking, current
-users may notice slightly longer response time.
+Add an explicit cast to s16 to fix this.
 
-Fixes: be38866fbb97 ("iio: vcnl4000: add support for VCNL4200")
-Reviewed-by: Guido Günther <agx@sigxcpu.org>
-Signed-off-by: Tomas Novotny <tomas@novotny.cz>
+Fixes: 7c94a8b2ee8c ("iio: magn: add a driver for AK8974")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Linus Waleij <linus.walleij@linaro.org>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/vcnl4000.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/magnetometer/ak8974.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/light/vcnl4000.c
-+++ b/drivers/iio/light/vcnl4000.c
-@@ -167,10 +167,10 @@ static int vcnl4200_init(struct vcnl4000
- 	data->vcnl4200_ps.reg = VCNL4200_PS_DATA;
- 	switch (id) {
- 	case VCNL4200_PROD_ID:
--		/* Integration time is 50ms, but the experiments */
--		/* show 54ms in total. */
--		data->vcnl4200_al.sampling_rate = ktime_set(0, 54000 * 1000);
--		data->vcnl4200_ps.sampling_rate = ktime_set(0, 4200 * 1000);
-+		/* Default wait time is 50ms, add 20% tolerance. */
-+		data->vcnl4200_al.sampling_rate = ktime_set(0, 60000 * 1000);
-+		/* Default wait time is 4.8ms, add 20% tolerance. */
-+		data->vcnl4200_ps.sampling_rate = ktime_set(0, 5760 * 1000);
- 		data->al_scale = 24000;
- 		break;
- 	case VCNL4040_PROD_ID:
+--- a/drivers/iio/magnetometer/ak8974.c
++++ b/drivers/iio/magnetometer/ak8974.c
+@@ -563,7 +563,7 @@ static int ak8974_read_raw(struct iio_de
+ 		 * We read all axes and discard all but one, for optimized
+ 		 * reading, use the triggered buffer.
+ 		 */
+-		*val = le16_to_cpu(hw_values[chan->address]);
++		*val = (s16)le16_to_cpu(hw_values[chan->address]);
+ 
+ 		ret = IIO_VAL_INT;
+ 	}
 
 
