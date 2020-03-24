@@ -2,54 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EFC191569
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 16:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AC3619161E
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 17:20:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727872AbgCXPz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 11:55:56 -0400
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:37958 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727916AbgCXPzz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 11:55:55 -0400
-Received: by mail-qk1-f196.google.com with SMTP id h14so19750023qke.5
-        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 08:55:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=WKfNG8umMlwkpQpy66f4+p/cJ7axBraMaD/gLOw+hwA=;
-        b=MrGUEZ9IiQLdHGz08a8ugYDa8Kh9rXV8aSLNAnHozoNnLeKHJVRGMe9+8m1GlUnstf
-         5tQpZMpOzCfVJxw86gZz4WggoXB0Lk1BX8/uFnmjM+uCn92w4dRor82thwtliC5iP6y4
-         /VJADA5NAPnbZwi11s0UvCWYud5WVJaWD2G41vqNRnnaMZFarV6c/scEaRy4/utVW5io
-         HuiW5m2mDE6YyHm6pmCHQqtyi6ePkAMcQR77qCpuFosHVAiGz+OrsD3/7tJilvvyxdrX
-         +quF2ez8iVba7Sx8HThDueT1e16xa52eSqf8BciD/j7h9YlZibh9+FT85mFcIKgSVAjO
-         +Ahw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=WKfNG8umMlwkpQpy66f4+p/cJ7axBraMaD/gLOw+hwA=;
-        b=EAE/fG+fOj/K5TAnDVAy2NKjmSk47xE399rSqoMkAV6V1gqtUsXlZ0/wQMhY4H5cRn
-         nwThSeF/2wR67IFaQvYe00yN1Xr2gS/WctZMOkE7+W5VzOBXxIlAgpQRhDKgH5wLPtgW
-         pprg0pFNHjfSuD8f3vUSZX/TmYjdfHsvk5PGIamcc+Y5UwSGyb1i+Tss+0OwAQE/eYSH
-         vb/hSaiB4qjBdWRvQ9tkZzbfF+shIDW37kv50a3kQLmBpYJ0g8jVZ1FbvrCjYlYO9Cq6
-         rsfJhFKjxWRJDrFxAC/TOdhLhoe8h/Rr3rpm1vYC938HtO+7MINlUyFPMiXurIOtP2gu
-         xuCg==
-X-Gm-Message-State: ANhLgQ3tuSlNKa2olywzCXZeReRq9iy6NMKNlg41YTsCRNMd9c6Bt9lG
-        J5w2QrByJiWItQJO1Giu6bXeLw==
-X-Google-Smtp-Source: ADFU+vuLBR4sW0l9XYEmX4X3U9KJJIggAbGvaXnj0Zmnvl3IhX2Vdun2/yaOWCfr3BoRN1vAtQoZlA==
-X-Received: by 2002:a37:a70e:: with SMTP id q14mr23857810qke.41.1585065353693;
-        Tue, 24 Mar 2020 08:55:53 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-57-212.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.57.212])
-        by smtp.gmail.com with ESMTPSA id v20sm12871207qth.10.2020.03.24.08.55.53
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 24 Mar 2020 08:55:53 -0700 (PDT)
-Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1jGluC-0004gw-I1; Tue, 24 Mar 2020 12:55:52 -0300
-Date:   Tue, 24 Mar 2020 12:55:52 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
+        id S1727951AbgCXQUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 12:20:10 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:42004 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727444AbgCXQUH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 12:20:07 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 02OGEe2o178890;
+        Tue, 24 Mar 2020 16:19:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=8+/c9w3BgxRJLSrj2uF9AmceMm8c9V83O9Cmas+6qpw=;
+ b=r2u8CeTqtFkN2tBlnu64WUaXJv8VkQH2VTfXx7kCYGVemUCoz6Dl3XQVQpEYpTzXPqoo
+ KQU5r/lfIJLCpdXfNuvR2j+Jvx6QAWFncs4keyDbOtjXja4HZVht0ckCecUcp6pZcSfM
+ H7zRqz5F2HadZRnH6zsx+kAmglRI1zxkSZBKJAcT55fPgoJK2ocBq/L2URhduLlwsBGB
+ h9iqo7yYppWkIHeP1uSzUidUehGKJ3jKA2eucbquHTP16FRRs/wMHykjIsr+JYFm3QD/
+ FxzlFVtjd58/y6ISSFeVYMzCQ6HK+Xenb4Xa0DYUARFzP9SI49hT+QlLcUSGzy622IV5 xA== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by userp2120.oracle.com with ESMTP id 2yx8ac293t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 24 Mar 2020 16:19:46 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 02OGJhPk185489;
+        Tue, 24 Mar 2020 16:19:45 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by userp3020.oracle.com with ESMTP id 2yxw6n17rg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 24 Mar 2020 16:19:45 +0000
+Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 02OGJVTZ018297;
+        Tue, 24 Mar 2020 16:19:31 GMT
+Received: from [192.168.1.206] (/71.63.128.209)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 24 Mar 2020 09:19:31 -0700
+Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by
+ huge_pte_offset()
+To:     Jason Gunthorpe <jgg@ziepe.ca>
 Cc:     "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
         <longpeng2@huawei.com>, akpm@linux-foundation.org,
         kirill.shutemov@linux.intel.com, linux-kernel@vger.kernel.org,
@@ -58,9 +51,6 @@ Cc:     "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)"
         Matthew Wilcox <willy@infradead.org>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH v2] mm/hugetlb: fix a addressing exception caused by
- huge_pte_offset()
-Message-ID: <20200324155552.GK20941@ziepe.ca>
 References: <1582342427-230392-1-git-send-email-longpeng2@huawei.com>
  <51a25d55-de49-4c0a-c994-bf1a8cfc8638@oracle.com>
  <20200323160955.GY20941@ziepe.ca>
@@ -71,70 +61,96 @@ References: <1582342427-230392-1-git-send-email-longpeng2@huawei.com>
  <e8e71ba4-d609-269a-6160-153e373e7563@huawei.com>
  <20200324115541.GH20941@ziepe.ca>
  <98d35563-8af0-2693-7e76-e6435da0bbee@oracle.com>
+ <20200324155552.GK20941@ziepe.ca>
+From:   Mike Kravetz <mike.kravetz@oracle.com>
+Message-ID: <66583587-ca4f-9847-c173-4a3d7938fec6@oracle.com>
+Date:   Tue, 24 Mar 2020 09:19:29 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <98d35563-8af0-2693-7e76-e6435da0bbee@oracle.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200324155552.GK20941@ziepe.ca>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9570 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 adultscore=0
+ malwarescore=0 mlxscore=0 spamscore=0 mlxlogscore=999 bulkscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2003240087
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9570 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 suspectscore=0 priorityscore=1501 malwarescore=0
+ mlxscore=0 adultscore=0 phishscore=0 impostorscore=0 mlxlogscore=999
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2003240087
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 24, 2020 at 08:25:09AM -0700, Mike Kravetz wrote:
-> On 3/24/20 4:55 AM, Jason Gunthorpe wrote:
-> > Also, since CH moved all the get_user_pages_fast code out of the
-> > arch's many/all archs can drop their arch specific version of this
-> > routine. This is really just a specialized version of gup_fast's
-> > algorithm..
-> > 
-> > (also the arch versions seem different, why do some return actual
-> >  ptes, not null?)
+On 3/24/20 8:55 AM, Jason Gunthorpe wrote:
+> On Tue, Mar 24, 2020 at 08:25:09AM -0700, Mike Kravetz wrote:
+>> On 3/24/20 4:55 AM, Jason Gunthorpe wrote:
+>>> Also, since CH moved all the get_user_pages_fast code out of the
+>>> arch's many/all archs can drop their arch specific version of this
+>>> routine. This is really just a specialized version of gup_fast's
+>>> algorithm..
+>>>
+>>> (also the arch versions seem different, why do some return actual
+>>>  ptes, not null?)
+>>
+>> Not sure I understand that last question.  The return value should be
+>> a *pte or null.
 > 
-> Not sure I understand that last question.  The return value should be
-> a *pte or null.
+> I mean the common code ends like this:
+> 
+> 	pmd = pmd_offset(pud, addr);
+> 	if (sz != PMD_SIZE && pmd_none(*pmd))
+> 		return NULL;
+> 	/* hugepage or swap? */
+> 	if (pmd_huge(*pmd) || !pmd_present(*pmd))
+> 		return (pte_t *)pmd;
+> 
+> 	return NULL;
+> 
+> So it always returns a pointer into a PUD or PMD, while say, ppc
+> in __find_linux_pte() ends like:
+> 
+> 	return pte_offset_kernel(&pmd, ea);
+> 
+> Which is pointing to a PTE
 
-I mean the common code ends like this:
+Ok, now I understand the question.  huge_pte_offset will/should only be
+called for addresses that are in a vma backed by hugetlb pages.  So,
+pte_offset_kernel() will only return page table type (PUD/PMD/etc) associated
+with a huge page supported by the particular arch.
 
-	pmd = pmd_offset(pud, addr);
-	if (sz != PMD_SIZE && pmd_none(*pmd))
-		return NULL;
-	/* hugepage or swap? */
-	if (pmd_huge(*pmd) || !pmd_present(*pmd))
-		return (pte_t *)pmd;
+> So does sparc:
+> 
+>         pmd = pmd_offset(pud, addr);
+>         if (pmd_none(*pmd))
+>                 return NULL;
+>         if (is_hugetlb_pmd(*pmd))
+>                 return (pte_t *)pmd;
+>         return pte_offset_map(pmd, addr);
+> 
+> Which is even worse because it is leaking a kmap..
+> 
+> etc
+> 
+>> /*
+>>  * huge_pte_offset() - Walk the page table to resolve the hugepage
+>>  * entry at address @addr
+>>  *
+>>  * Return: Pointer to page table or swap entry (PUD or PMD) for
+>                                               ^^^^^^^^^^^^^^^^^^^
+> 
+> Ie the above is not followed by the archs
+> 
+> I'm also scratching my head that a function that returns a pte_t *
+> always returns a PUD or PMD. Strange bit of type casting..
 
-	return NULL;
-
-So it always returns a pointer into a PUD or PMD, while say, ppc
-in __find_linux_pte() ends like:
-
-	return pte_offset_kernel(&pmd, ea);
-
-Which is pointing to a PTE
-
-So does sparc:
-
-        pmd = pmd_offset(pud, addr);
-        if (pmd_none(*pmd))
-                return NULL;
-        if (is_hugetlb_pmd(*pmd))
-                return (pte_t *)pmd;
-        return pte_offset_map(pmd, addr);
-
-Which is even worse because it is leaking a kmap..
-
-etc
-
-> /*
->  * huge_pte_offset() - Walk the page table to resolve the hugepage
->  * entry at address @addr
->  *
->  * Return: Pointer to page table or swap entry (PUD or PMD) for
-                                              ^^^^^^^^^^^^^^^^^^^
-
-Ie the above is not followed by the archs
-
-I'm also scratching my head that a function that returns a pte_t *
-always returns a PUD or PMD. Strange bit of type casting..
-
-Jason
+Yes, the casting is curious.  The casting continues in potential subsequent
+calls to huge_pte_alloc().
+-- 
+Mike Kravetz
