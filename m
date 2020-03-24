@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CEEA191055
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22417191057
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729788AbgCXN1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:27:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52738 "EHLO mail.kernel.org"
+        id S1729786AbgCXN1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:27:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729786AbgCXN1O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:27:14 -0400
+        id S1729796AbgCXN1S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:27:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B1D620870;
-        Tue, 24 Mar 2020 13:27:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D46EA20775;
+        Tue, 24 Mar 2020 13:27:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056433;
-        bh=3984FJ/Y0G+HBnmQiHPCk795zG/qltzzD458eTtcCSk=;
+        s=default; t=1585056436;
+        bh=WgJjLtVfEOKxgdNSI1QIGKizSI5Y9S61yzSjz9z8Z1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=huJvEfzDiSerDXbGThQhYLTRWf1DI91tLw7YfUyvLHifXkGkOY0Ho/QZn4+EAjpQB
-         4PpmC/a8mW+hLHLxc8AlCcQikoRt0kPPZyzG8lILk10Ym3dDeExYspdYpIZQxB1zr2
-         Y3aW8ok7pVYsb5jadl0j17oAiSS6bG6J/7kR20WE=
+        b=JDzwPw+vF5iAc2HS82J1KLVZHAOVLLWQn38cCE7R+FxhFMRM6wtJ/Yd2wd+7GLgX3
+         Yj7W5ouUh+ZYFbOkxd7IoPnhwJfIHy6pzW+c/kN2nW9bc3vEWpCCpQR/1F++Hrlkpr
+         dGXvLS6AVUjFvGJNdTJE0GXn6EZjZX/dpvqfBaLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.5 115/119] drm/i915: Handle all MCR ranges
-Date:   Tue, 24 Mar 2020 14:11:40 +0100
-Message-Id: <20200324130819.097547034@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.5 116/119] staging: greybus: loopback_test: fix potential path truncation
+Date:   Tue, 24 Mar 2020 14:11:41 +0100
+Message-Id: <20200324130819.171688363@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
 References: <20200324130808.041360967@linuxfoundation.org>
@@ -45,66 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Roper <matthew.d.roper@intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit fe8b7085cac3b0db03cdbb26d9309bc27325df0a upstream.
+commit f16023834863932f95dfad13fac3fc47f77d2f29 upstream.
 
-The bspec documents multiple MCR ranges; make sure they're all captured
-by the driver.
+Newer GCC warns about a possible truncation of a generated sysfs path
+name as we're concatenating a directory path with a file name and
+placing the result in a buffer that is half the size of the maximum
+length of the directory path (which is user controlled).
 
-Bspec: 13991, 52079
-Fixes: 592a7c5e082e ("drm/i915: Extend non readable mcr range")
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200311162300.1838847-2-matthew.d.roper@intel.com
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-(cherry picked from commit 415d1269975d3fc21c13a6ae8de7b5fe0e6febb1)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+loopback_test.c: In function 'open_poll_files':
+loopback_test.c:651:31: warning: '%s' directive output may be truncated writing up to 511 bytes into a region of size 255 [-Wformat-truncation=]
+  651 |   snprintf(buf, sizeof(buf), "%s%s", dev->sysfs_entry, "iteration_count");
+      |                               ^~
+loopback_test.c:651:3: note: 'snprintf' output between 16 and 527 bytes into a destination of size 255
+  651 |   snprintf(buf, sizeof(buf), "%s%s", dev->sysfs_entry, "iteration_count");
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fix this by making sure the buffer is large enough the concatenated
+strings.
+
+Fixes: 6b0658f68786 ("greybus: tools: Add tools directory to greybus repo and add loopback")
+Fixes: 9250c0ee2626 ("greybus: Loopback_test: use poll instead of inotify")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20200312110151.22028-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gt/intel_workarounds.c |   25 ++++++++++++++++++++++---
- 1 file changed, 22 insertions(+), 3 deletions(-)
+ drivers/staging/greybus/tools/loopback_test.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-@@ -1504,15 +1504,34 @@ err_obj:
- 	return ERR_PTR(err);
- }
- 
-+static const struct {
-+	u32 start;
-+	u32 end;
-+} mcr_ranges_gen8[] = {
-+	{ .start = 0x5500, .end = 0x55ff },
-+	{ .start = 0x7000, .end = 0x7fff },
-+	{ .start = 0x9400, .end = 0x97ff },
-+	{ .start = 0xb000, .end = 0xb3ff },
-+	{ .start = 0xe000, .end = 0xe7ff },
-+	{},
-+};
-+
- static bool mcr_range(struct drm_i915_private *i915, u32 offset)
+--- a/drivers/staging/greybus/tools/loopback_test.c
++++ b/drivers/staging/greybus/tools/loopback_test.c
+@@ -637,7 +637,7 @@ baddir:
+ static int open_poll_files(struct loopback_test *t)
  {
-+	int i;
-+
-+	if (INTEL_GEN(i915) < 8)
-+		return false;
-+
- 	/*
--	 * Registers in this range are affected by the MCR selector
-+	 * Registers in these ranges are affected by the MCR selector
- 	 * which only controls CPU initiated MMIO. Routing does not
- 	 * work for CS access so we cannot verify them on this path.
- 	 */
--	if (INTEL_GEN(i915) >= 8 && (offset >= 0xb000 && offset <= 0xb4ff))
--		return true;
-+	for (i = 0; mcr_ranges_gen8[i].start; i++)
-+		if (offset >= mcr_ranges_gen8[i].start &&
-+		    offset <= mcr_ranges_gen8[i].end)
-+			return true;
- 
- 	return false;
- }
+ 	struct loopback_device *dev;
+-	char buf[MAX_STR_LEN];
++	char buf[MAX_SYSFS_PATH + MAX_STR_LEN];
+ 	char dummy;
+ 	int fds_idx = 0;
+ 	int i;
 
 
