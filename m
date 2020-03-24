@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6883419108C
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC21C19112B
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:39:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729508AbgCXNYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:24:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47384 "EHLO mail.kernel.org"
+        id S1727752AbgCXNSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:18:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729503AbgCXNYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:24:00 -0400
+        id S1728690AbgCXNSL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:18:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27C4F208D6;
-        Tue, 24 Mar 2020 13:23:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BFE2206F6;
+        Tue, 24 Mar 2020 13:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056239;
-        bh=fgCakXjwGY+rUhPIQxjVi1O2wIJkX+bF8EbPDUz0qfU=;
+        s=default; t=1585055891;
+        bh=C6V82WfR0WiPhesQkqIHwf7eUT1pzEcPp6KnE4TR6zY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zfx51CJNpMx5peKtddl2XwCZh+R1c91/9yzKvbDMpv03yMVu7J3Apq2S+yDcICJv9
-         lsTYdFhQ4yT+AZQR0c3nktf+O4+8uEYtdHU7YeTIkj6R0yh1Yb0uEx8U/qRNBrfruH
-         F90TjG7PtCoSFtO34IFziiR+z3mQpgdnhbkE7bSI=
+        b=XaF8Bx72C45xTvXhz83aRnd/ZVfwSusTO0O0zbzFqrFWDp9cNVHZ0NccyAAAbYum6
+         V+uBg1ox5J+UQ8f6HoNyUiqGdScLWzdE0d/ei+6bjNYvW0h5W5wea4AtHBOwiRf2kK
+         QNqNt6vKfL0oLFr11eKfbFzgcCDu3X2htwfuxkuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Linus Waleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.5 066/119] iio: magnetometer: ak8974: Fix negative raw values in sysfs
+Subject: [PATCH 5.4 059/102] iio: accel: adxl372: Set iio_chan BE
 Date:   Tue, 24 Mar 2020 14:10:51 +0100
-Message-Id: <20200324130814.781134005@linuxfoundation.org>
+Message-Id: <20200324130812.670928703@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
+References: <20200324130806.544601211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Alexandru Tachici <alexandru.tachici@analog.com>
 
-commit b500c086e4110829a308c23e83a7cdc65b26228a upstream.
+commit cb2116ff97859d34fda6cb561ac654415f4c6230 upstream.
 
-At the moment, reading from in_magn_*_raw in sysfs tends to return
-large values around 65000, even though the output of ak8974 is actually
-limited to ±32768. This happens because the value is never converted
-to the signed 16-bit integer variant.
+Data stored in the iio-buffer is BE and this
+should be specified in the iio_chan_spec struct.
 
-Add an explicit cast to s16 to fix this.
-
-Fixes: 7c94a8b2ee8c ("iio: magn: add a driver for AK8974")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Linus Waleij <linus.walleij@linaro.org>
+Fixes: f4f55ce38e5f8 ("iio:adxl372: Add FIFO and interrupts support")
+Signed-off-by: Alexandru Tachici <alexandru.tachici@analog.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/magnetometer/ak8974.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/accel/adxl372.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/magnetometer/ak8974.c
-+++ b/drivers/iio/magnetometer/ak8974.c
-@@ -564,7 +564,7 @@ static int ak8974_read_raw(struct iio_de
- 		 * We read all axes and discard all but one, for optimized
- 		 * reading, use the triggered buffer.
- 		 */
--		*val = le16_to_cpu(hw_values[chan->address]);
-+		*val = (s16)le16_to_cpu(hw_values[chan->address]);
+--- a/drivers/iio/accel/adxl372.c
++++ b/drivers/iio/accel/adxl372.c
+@@ -237,6 +237,7 @@ static const struct adxl372_axis_lookup
+ 		.realbits = 12,						\
+ 		.storagebits = 16,					\
+ 		.shift = 4,						\
++		.endianness = IIO_BE,					\
+ 	},								\
+ }
  
- 		ret = IIO_VAL_INT;
- 	}
 
 
