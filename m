@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4473190FBB
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:29:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF9BC190E63
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:11:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728921AbgCXNWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:22:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44990 "EHLO mail.kernel.org"
+        id S1726802AbgCXNLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:11:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728209AbgCXNWf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:22:35 -0400
+        id S1726190AbgCXNLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:11:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DE98206F6;
-        Tue, 24 Mar 2020 13:22:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE712208CA;
+        Tue, 24 Mar 2020 13:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056154;
-        bh=kfUWbnTeMtmznHS2XI+DY12FQ9bzL1Ohz2f03135/Vs=;
+        s=default; t=1585055514;
+        bh=2r/XNzVFSWap5ZGR8e9lGlA6d7DtrmjBgB/Zzu8NrGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/hjgWMFbtso5HccJaj9+ppsZNbojwnm3PMfjYYCjPqlIZ+MNEYbm6rmWso8+xEtK
-         xbpbbojl6U1WrVkr8JKK6Wo1j6mCChwOf9996TZd9r9gAgbAL1ou5zhBRtsX/EemFE
-         nuUiUxgqV9fNKxOiNZbbbcbdMiijIGhSKPKsTUx4=
+        b=RYHr640FckM5t8tFC+IEy/RI8Q9zAo+HNZFwrK4A0+FRTGMZH65ABkZkk/MaQBy2E
+         KBrQ1bMgA4qDSe0bQH8ZJl3Urb+5QulV33d8zn+M07q/c9qHIOtgKfGluTEQfZP3TI
+         +NVZvdb4BN8bVNdpnwsj3Kv1u6H6tZmpYEfNk9Js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        David Abdurachmanov <david.abdurachmanov@gmail.com>,
-        Tycho Andersen <tycho@tycho.ws>,
-        Kees Cook <keescook@chromium.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, Evan Benn <evanbenn@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>, CK Hu <ck.hu@mediatek.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 037/119] riscv: fix seccomp reject syscall code path
+Subject: [PATCH 4.19 01/65] drm/mediatek: Find the cursor plane instead of hard coding it
 Date:   Tue, 24 Mar 2020 14:10:22 +0100
-Message-Id: <20200324130812.092109755@linuxfoundation.org>
+Message-Id: <20200324130756.930321348@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
-References: <20200324130808.041360967@linuxfoundation.org>
+In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130756.679112147@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,147 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tycho Andersen <tycho@tycho.ws>
+From: Evan Benn <evanbenn@chromium.org>
 
-[ Upstream commit af33d2433b03d63ed31fcfda842f46676a5e1afc ]
+[ Upstream commit 318caac7c81cdf5806df30c3d72385659a5f0f53 ]
 
-If secure_computing() rejected a system call, we were previously setting
-the system call number to -1, to indicate to later code that the syscall
-failed. However, if something (e.g. a user notification) was sleeping, and
-received a signal, we may set a0 to -ERESTARTSYS and re-try the system call
-again.
+The cursor and primary planes were hard coded.
+Now search for them for passing to drm_crtc_init_with_planes
 
-In this case, seccomp "denies" the syscall (because of the signal), and we
-would set a7 to -1, thus losing the value of the system call we want to
-restart.
-
-Instead, let's return -1 from do_syscall_trace_enter() to indicate that the
-syscall was rejected, so we don't clobber the value in case of -ERESTARTSYS
-or whatever.
-
-This commit fixes the user_notification_signal seccomp selftest on riscv to
-no longer hang. That test expects the system call to be re-issued after the
-signal, and it wasn't due to the above bug. Now that it is, everything
-works normally.
-
-Note that in the ptrace (tracer) case, the tracer can set the register
-values to whatever they want, so we still need to keep the code that
-handles out-of-bounds syscalls. However, we can drop the comment.
-
-We can also drop syscall_set_nr(), since it is no longer used anywhere, and
-the code that re-loads the value in a7 because of it.
-
-Reported in: https://lore.kernel.org/bpf/CAEn-LTp=ss0Dfv6J00=rCAy+N78U2AmhqJNjfqjr2FDpPYjxEQ@mail.gmail.com/
-
-Reported-by: David Abdurachmanov <david.abdurachmanov@gmail.com>
-Signed-off-by: Tycho Andersen <tycho@tycho.ws>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Evan Benn <evanbenn@chromium.org>
+Reviewed-by: Sean Paul <seanpaul@chromium.org>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/syscall.h |  7 -------
- arch/riscv/kernel/entry.S        | 11 +++--------
- arch/riscv/kernel/ptrace.c       | 11 +++++------
- 3 files changed, 8 insertions(+), 21 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/arch/riscv/include/asm/syscall.h b/arch/riscv/include/asm/syscall.h
-index 42347d0981e7e..49350c8bd7b09 100644
---- a/arch/riscv/include/asm/syscall.h
-+++ b/arch/riscv/include/asm/syscall.h
-@@ -28,13 +28,6 @@ static inline int syscall_get_nr(struct task_struct *task,
- 	return regs->a7;
- }
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
+index b86ee7d25af36..eac9caf322f90 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
+@@ -506,10 +506,18 @@ static const struct drm_crtc_helper_funcs mtk_crtc_helper_funcs = {
  
--static inline void syscall_set_nr(struct task_struct *task,
--				  struct pt_regs *regs,
--				  int sysno)
--{
--	regs->a7 = sysno;
--}
--
- static inline void syscall_rollback(struct task_struct *task,
- 				    struct pt_regs *regs)
+ static int mtk_drm_crtc_init(struct drm_device *drm,
+ 			     struct mtk_drm_crtc *mtk_crtc,
+-			     struct drm_plane *primary,
+-			     struct drm_plane *cursor, unsigned int pipe)
++			     unsigned int pipe)
  {
-diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
-index e163b7b64c86c..f6486d4956013 100644
---- a/arch/riscv/kernel/entry.S
-+++ b/arch/riscv/kernel/entry.S
-@@ -228,20 +228,13 @@ check_syscall_nr:
- 	/* Check to make sure we don't jump to a bogus syscall number. */
- 	li t0, __NR_syscalls
- 	la s0, sys_ni_syscall
--	/*
--	 * The tracer can change syscall number to valid/invalid value.
--	 * We use syscall_set_nr helper in syscall_trace_enter thus we
--	 * cannot trust the current value in a7 and have to reload from
--	 * the current task pt_regs.
--	 */
--	REG_L a7, PT_A7(sp)
- 	/*
- 	 * Syscall number held in a7.
- 	 * If syscall number is above allowed value, redirect to ni_syscall.
- 	 */
- 	bge a7, t0, 1f
- 	/*
--	 * Check if syscall is rejected by tracer or seccomp, i.e., a7 == -1.
-+	 * Check if syscall is rejected by tracer, i.e., a7 == -1.
- 	 * If yes, we pretend it was executed.
- 	 */
- 	li t1, -1
-@@ -334,6 +327,7 @@ work_resched:
- handle_syscall_trace_enter:
- 	move a0, sp
- 	call do_syscall_trace_enter
-+	move t0, a0
- 	REG_L a0, PT_A0(sp)
- 	REG_L a1, PT_A1(sp)
- 	REG_L a2, PT_A2(sp)
-@@ -342,6 +336,7 @@ handle_syscall_trace_enter:
- 	REG_L a5, PT_A5(sp)
- 	REG_L a6, PT_A6(sp)
- 	REG_L a7, PT_A7(sp)
-+	bnez t0, ret_from_syscall_rejected
- 	j check_syscall_nr
- handle_syscall_trace_exit:
- 	move a0, sp
-diff --git a/arch/riscv/kernel/ptrace.c b/arch/riscv/kernel/ptrace.c
-index 407464201b91e..444dc7b0fd78c 100644
---- a/arch/riscv/kernel/ptrace.c
-+++ b/arch/riscv/kernel/ptrace.c
-@@ -148,21 +148,19 @@ long arch_ptrace(struct task_struct *child, long request,
-  * Allows PTRACE_SYSCALL to work.  These are called from entry.S in
-  * {handle,ret_from}_syscall.
-  */
--__visible void do_syscall_trace_enter(struct pt_regs *regs)
-+__visible int do_syscall_trace_enter(struct pt_regs *regs)
- {
- 	if (test_thread_flag(TIF_SYSCALL_TRACE))
- 		if (tracehook_report_syscall_entry(regs))
--			syscall_set_nr(current, regs, -1);
-+			return -1;
+-	int ret;
++	struct drm_plane *primary = NULL;
++	struct drm_plane *cursor = NULL;
++	int i, ret;
++
++	for (i = 0; i < mtk_crtc->layer_nr; i++) {
++		if (mtk_crtc->planes[i].type == DRM_PLANE_TYPE_PRIMARY)
++			primary = &mtk_crtc->planes[i];
++		else if (mtk_crtc->planes[i].type == DRM_PLANE_TYPE_CURSOR)
++			cursor = &mtk_crtc->planes[i];
++	}
  
- 	/*
- 	 * Do the secure computing after ptrace; failures should be fast.
- 	 * If this fails we might have return value in a0 from seccomp
- 	 * (via SECCOMP_RET_ERRNO/TRACE).
- 	 */
--	if (secure_computing() == -1) {
--		syscall_set_nr(current, regs, -1);
--		return;
--	}
-+	if (secure_computing() == -1)
-+		return -1;
+ 	ret = drm_crtc_init_with_planes(drm, &mtk_crtc->base, primary, cursor,
+ 					&mtk_crtc_funcs, NULL);
+@@ -622,9 +630,7 @@ int mtk_drm_crtc_create(struct drm_device *drm_dev,
+ 			goto unprepare;
+ 	}
  
- #ifdef CONFIG_HAVE_SYSCALL_TRACEPOINTS
- 	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
-@@ -170,6 +168,7 @@ __visible void do_syscall_trace_enter(struct pt_regs *regs)
- #endif
- 
- 	audit_syscall_entry(regs->a7, regs->a0, regs->a1, regs->a2, regs->a3);
-+	return 0;
- }
- 
- __visible void do_syscall_trace_exit(struct pt_regs *regs)
+-	ret = mtk_drm_crtc_init(drm_dev, mtk_crtc, &mtk_crtc->planes[0],
+-				mtk_crtc->layer_nr > 1 ? &mtk_crtc->planes[1] :
+-				NULL, pipe);
++	ret = mtk_drm_crtc_init(drm_dev, mtk_crtc, pipe);
+ 	if (ret < 0)
+ 		goto unprepare;
+ 	drm_mode_crtc_set_gamma_size(&mtk_crtc->base, MTK_LUT_SIZE);
 -- 
 2.20.1
 
