@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7070C191895
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 19:08:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50C0A191897
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 19:08:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727509AbgCXSIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 14:08:06 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:41234 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727382AbgCXSIG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 14:08:06 -0400
-Received: by mail-lf1-f68.google.com with SMTP id z23so2339518lfh.8
-        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 11:08:04 -0700 (PDT)
+        id S1727366AbgCXSIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 14:08:07 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:46315 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727034AbgCXSIH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 14:08:07 -0400
+Received: by mail-lf1-f67.google.com with SMTP id q5so2170387lfb.13
+        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 11:08:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=qPTlvoqZxYaSsWLUlKp85khmY6NurtsqQgDSkrG+7e0=;
-        b=I+JGXSE88YxvsPtUKlKF1MiO+8fi4bFqL2WOW/yPYvRT9cwEQS/37Jp5hl/fgqFuDE
-         UHodP3Xk1fMPjkkc+Yi5H571MGWc3aQc7T2L6MCiz5Nv1Z/M7XVm4Kfu6gxEc8gO07X1
-         ny1uaJlnI+jh06WKE/D5LPTI782s2+FJjqOpjfRSXYuSSWEgDHqjOuG4HEFyZt4Eb5ba
-         2VC5qBgCGmp9T57tVzVu9lSvkp9DqWzArXOpoEAxuLlShW52X7wgpjjUleBqVzS4FV4f
-         KyXUrn86dd2Y7dbFzGed6V9PcIURvkf74tMmCoULwyd2XgVtt9mWtdjU8sSmRcry0Bhv
-         muFQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=5E1VJzGwtosUipNZawyOp6QQ2qvHexwnEsdNcedQu34=;
+        b=npCbnLl6rCS6PMqC396BY+LfqiKGtkTxvbNgpTQM2IG+qbkagX3mG9unHZNiqPbtzN
+         HjcXlqfhLcvKWtacfuTNq6h2S+W2LtoJwe6ag/2hoR2sV02g+Bg4GxOVqDgHtJDqmKeV
+         E2YvasBMpwUUmr9HLSWkWDJNYQ2K2r0o7gHI7umykeQ476OEHHZIZK3oH8Yy+0RR16ZP
+         b4uta55OslLMO+cSMjUzZbvpPXQjvBFDHS8IAMapTmfOY57E9Hf+EFdVzi5aJ3HIojt1
+         pQgI7Uth/eTjzVLMNLFs8liTp3fpdMWT07yl+50eVkGxgK7nN0nrnmu8Rx8C5TYBYoEi
+         gYKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=qPTlvoqZxYaSsWLUlKp85khmY6NurtsqQgDSkrG+7e0=;
-        b=rE3jt2MPMCGNjVXrqfMSvfuCekCDG8cFjQc9y7lWOveCmZXaSbuQMOTd52d/X4D0e1
-         o6vNfjJxrqP+tleGH1lwp5wBvq7bR4O6f+1Phw1MCd8cKqT1IheICOAs9skCgmMAEklh
-         lCZlaXKVoEI+xQXIgpeat/OhbDbzp1DuB/X24iq/dvuW6f3CLU9w05uO00Huo+4N+UjS
-         11HkVe2LhZf6g2VulyIz/AB52QBRqGb+/lqt4+vQJs+8wvz7akeCc/JLlo897PMNceYc
-         2DwLxh+CI0BTgVkTFNtKdOIZ+m/MEt5wqUiJ6M/dpyHSWs6sdkOZlmd98T78IFdf+fkH
-         rwpg==
-X-Gm-Message-State: ANhLgQ1xu9UsFfCDBHsKv2shHEDWEYFYtQCQKJqik1skvdFmsCUvJn7t
-        9K+5mU1NkOELgfBIP57o0YLT1w==
-X-Google-Smtp-Source: ADFU+vvwI3tniNorQxIU8Y/4s10YAbQxIuBl20Dl6KNeWPiFC7CtWz4MoGatq0qFp+/aAPq7i3z+0w==
-X-Received: by 2002:a19:be94:: with SMTP id o142mr10246761lff.13.1585073283419;
-        Tue, 24 Mar 2020 11:08:03 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=5E1VJzGwtosUipNZawyOp6QQ2qvHexwnEsdNcedQu34=;
+        b=YppyH5cWYl+9OA22Wq5Xh8PQMcHvZLuGTsJgq7SUZRUW3/wgoxipJLRhMH0CNPcsZi
+         XZ6aKV08BjxvAwngWkf8aek6ZkppqLFZPENCRG3ai5XYnT7xyQHX6QOgdrkt2RBYabIY
+         z5R6LpYhrRowzTS/yJUnXdNzRSBcG5bkQ7U01RkxBcI8cbVquqZKYoCimXxFpnX6n3u6
+         F6nldPiJpo0Ch3is0ncivYxEuMIWalBA9yJaA/F+17aztZ8b8SAXz7Hujlulgjabqo8a
+         E8UQ4OgK91kZfWgMlSBih+kILq2IMLjQwQiQBzDQxu10lJ/3AydJOWpXcEEJo56w62Vx
+         ktMA==
+X-Gm-Message-State: ANhLgQ0/YLvZH9p77rZV+UYy34hUsymjE3k/x6HxhuRzLKI5wgLBW3fV
+        vMvxmv7vXrcNKJh0rQugVgr8Qg==
+X-Google-Smtp-Source: ADFU+vvylM9aHeyX1GJIvKdQNfT5GzT5Kc9oSRG5Bbq4LDbH02/g96U9VJ2wPrUj5oqiVl6v76nxrA==
+X-Received: by 2002:a19:4f01:: with SMTP id d1mr13123052lfb.182.1585073285302;
+        Tue, 24 Mar 2020 11:08:05 -0700 (PDT)
 Received: from localhost.localdomain (h-158-174-22-210.NA.cust.bahnhof.se. [158.174.22.210])
-        by smtp.gmail.com with ESMTPSA id s10sm11029858ljp.87.2020.03.24.11.08.02
+        by smtp.gmail.com with ESMTPSA id s10sm11029858ljp.87.2020.03.24.11.08.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Mar 2020 11:08:02 -0700 (PDT)
+        Tue, 24 Mar 2020 11:08:04 -0700 (PDT)
 From:   Ulf Hansson <ulf.hansson@linaro.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
@@ -51,11 +51,14 @@ Cc:     linux-mmc@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
         Sowjanya Komatineni <skomatineni@nvidia.com>,
         Faiz Abbas <faiz_abbas@ti.com>,
         Anders Roxell <anders.roxell@linaro.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: [PATCH 4.19.113 0/5] mmc: Fix some busy detect problems
-Date:   Tue, 24 Mar 2020 19:07:55 +0100
-Message-Id: <20200324180800.28953-1-ulf.hansson@linaro.org>
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Peter Geis <pgwipeout@gmail.com>
+Subject: [PATCH 4.19.113 1/5] mmc: core: Allow host controllers to require R1B for CMD6
+Date:   Tue, 24 Mar 2020 19:07:56 +0100
+Message-Id: <20200324180800.28953-2-ulf.hansson@linaro.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200324180800.28953-1-ulf.hansson@linaro.org>
+References: <20200324180800.28953-1-ulf.hansson@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -63,24 +66,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This series provides a couple of manually backported mmc changes that fixes some
-busy detect issues, for a couple of mmc host drivers (sdhci-tegra|omap).
+[ Upstream commit 1292e3efb149ee21d8d33d725eeed4e6b1ade963 ]
 
-Ulf Hansson (5):
-  mmc: core: Allow host controllers to require R1B for CMD6
-  mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for erase/trim/discard
-  mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
-  mmc: sdhci-omap: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
-  mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
+It has turned out that some host controllers can't use R1B for CMD6 and
+other commands that have R1B associated with them. Therefore invent a new
+host cap, MMC_CAP_NEED_RSP_BUSY to let them specify this.
 
- drivers/mmc/core/core.c        | 5 ++++-
- drivers/mmc/core/mmc.c         | 7 +++++--
- drivers/mmc/core/mmc_ops.c     | 8 +++++---
- drivers/mmc/host/sdhci-omap.c  | 3 +++
- drivers/mmc/host/sdhci-tegra.c | 3 +++
- include/linux/mmc/host.h       | 1 +
- 6 files changed, 21 insertions(+), 6 deletions(-)
+In __mmc_switch(), let's check the flag and use it to prevent R1B responses
+from being converted into R1. Note that, this also means that the host are
+on its own, when it comes to manage the busy timeout.
 
+Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Tested-by: Faiz Abbas <faiz_abbas@ti.com>
+Tested-By: Peter Geis <pgwipeout@gmail.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+---
+ drivers/mmc/core/mmc_ops.c | 8 +++++---
+ include/linux/mmc/host.h   | 1 +
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/mmc/core/mmc_ops.c b/drivers/mmc/core/mmc_ops.c
+index 873b2aa0c155..693b99eff74b 100644
+--- a/drivers/mmc/core/mmc_ops.c
++++ b/drivers/mmc/core/mmc_ops.c
+@@ -536,10 +536,12 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
+ 	 * If the cmd timeout and the max_busy_timeout of the host are both
+ 	 * specified, let's validate them. A failure means we need to prevent
+ 	 * the host from doing hw busy detection, which is done by converting
+-	 * to a R1 response instead of a R1B.
++	 * to a R1 response instead of a R1B. Note, some hosts requires R1B,
++	 * which also means they are on their own when it comes to deal with the
++	 * busy timeout.
+ 	 */
+-	if (timeout_ms && host->max_busy_timeout &&
+-		(timeout_ms > host->max_busy_timeout))
++	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && timeout_ms &&
++	    host->max_busy_timeout && (timeout_ms > host->max_busy_timeout))
+ 		use_r1b_resp = false;
+ 
+ 	cmd.opcode = MMC_SWITCH;
+diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
+index 840462ed1ec7..7e8e5b20e82b 100644
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -332,6 +332,7 @@ struct mmc_host {
+ 				 MMC_CAP_UHS_SDR50 | MMC_CAP_UHS_SDR104 | \
+ 				 MMC_CAP_UHS_DDR50)
+ /* (1 << 21) is free for reuse */
++#define MMC_CAP_NEED_RSP_BUSY	(1 << 22)	/* Commands with R1B can't use R1. */
+ #define MMC_CAP_DRIVER_TYPE_A	(1 << 23)	/* Host supports Driver Type A */
+ #define MMC_CAP_DRIVER_TYPE_C	(1 << 24)	/* Host supports Driver Type C */
+ #define MMC_CAP_DRIVER_TYPE_D	(1 << 25)	/* Host supports Driver Type D */
 -- 
 2.20.1
 
