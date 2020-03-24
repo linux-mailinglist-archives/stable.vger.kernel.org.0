@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B01190EFE
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:19:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 155F4190E68
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727941AbgCXNQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:16:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36166 "EHLO mail.kernel.org"
+        id S1727304AbgCXNMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:12:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727833AbgCXNQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:16:36 -0400
+        id S1727389AbgCXNMB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:12:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECF3B20775;
-        Tue, 24 Mar 2020 13:16:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 244D2208D6;
+        Tue, 24 Mar 2020 13:11:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585055796;
-        bh=8utJ4PbiBkJFqLWavO/QYmjVPSaB2McN1fDCS3CNWwg=;
+        s=default; t=1585055520;
+        bh=54Z3IOKPM0nkcNth/I4oXAr63XpSif6SnvZmDt9Fi5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IgpjH/Q93Ot0OfOipy8zBj3xr0Vkvmsa2CP8CSURg4CfIe8UUDfpEIFMtXkw916oV
-         Y1fWy8aGEWSKkHrRIxdVbO9SFb63WuiFGtioJcgG/WO7/IseXstJRUSPUZKewGN4zt
-         GsC9c+Czn8ycwWUr5dNkSHDbl6o2vFhYm9JB30aI=
+        b=myqAi8y5CcHo6kRH3gyU2p2xbJB0VC1uUMM96ECPWT3tQf+YD/3NTiJDcfwSZFoDn
+         x0LluwOaZiu7/JtOPCdkOfczpJtsdrZWuRCbclnQc9az3nrlxHTRjuakUINOQRI1xR
+         msn4sy5hWw/5UBL7eECMtwhTmP7lPcO6XMdb0GtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 031/102] xenbus: req->body should be updated before req->state
-Date:   Tue, 24 Mar 2020 14:10:23 +0100
-Message-Id: <20200324130809.662179319@linuxfoundation.org>
+Subject: [PATCH 4.19 03/65] powerpc: Include .BTF section
+Date:   Tue, 24 Mar 2020 14:10:24 +0100
+Message-Id: <20200324130757.172126709@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130756.679112147@linuxfoundation.org>
+References: <20200324130756.679112147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,111 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 1b6a51e86cce38cf4d48ce9c242120283ae2f603 ]
+[ Upstream commit cb0cc635c7a9fa8a3a0f75d4d896721819c63add ]
 
-The req->body should be updated before req->state is updated and the
-order should be guaranteed by a barrier.
+Selecting CONFIG_DEBUG_INFO_BTF results in the below warning from ld:
+  ld: warning: orphan section `.BTF' from `.btf.vmlinux.bin.o' being placed in section `.BTF'
 
-Otherwise, read_reply() might return req->body = NULL.
+Include .BTF section in vmlinux explicitly to fix the same.
 
-Below is sample callstack when the issue is reproduced on purpose by
-reordering the updates of req->body and req->state and adding delay in
-code between updates of req->state and req->body.
-
-[   22.356105] general protection fault: 0000 [#1] SMP PTI
-[   22.361185] CPU: 2 PID: 52 Comm: xenwatch Not tainted 5.5.0xen+ #6
-[   22.366727] Hardware name: Xen HVM domU, BIOS ...
-[   22.372245] RIP: 0010:_parse_integer_fixup_radix+0x6/0x60
-... ...
-[   22.392163] RSP: 0018:ffffb2d64023fdf0 EFLAGS: 00010246
-[   22.395933] RAX: 0000000000000000 RBX: 75746e7562755f6d RCX: 0000000000000000
-[   22.400871] RDX: 0000000000000000 RSI: ffffb2d64023fdfc RDI: 75746e7562755f6d
-[   22.405874] RBP: 0000000000000000 R08: 00000000000001e8 R09: 0000000000cdcdcd
-[   22.410945] R10: ffffb2d6402ffe00 R11: ffff9d95395eaeb0 R12: ffff9d9535935000
-[   22.417613] R13: ffff9d9526d4a000 R14: ffff9d9526f4f340 R15: ffff9d9537654000
-[   22.423726] FS:  0000000000000000(0000) GS:ffff9d953bc80000(0000) knlGS:0000000000000000
-[   22.429898] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   22.434342] CR2: 000000c4206a9000 CR3: 00000001ea3fc002 CR4: 00000000001606e0
-[   22.439645] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   22.444941] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   22.450342] Call Trace:
-[   22.452509]  simple_strtoull+0x27/0x70
-[   22.455572]  xenbus_transaction_start+0x31/0x50
-[   22.459104]  netback_changed+0x76c/0xcc1 [xen_netfront]
-[   22.463279]  ? find_watch+0x40/0x40
-[   22.466156]  xenwatch_thread+0xb4/0x150
-[   22.469309]  ? wait_woken+0x80/0x80
-[   22.472198]  kthread+0x10e/0x130
-[   22.474925]  ? kthread_park+0x80/0x80
-[   22.477946]  ret_from_fork+0x35/0x40
-[   22.480968] Modules linked in: xen_kbdfront xen_fbfront(+) xen_netfront xen_blkfront
-[   22.486783] ---[ end trace a9222030a747c3f7 ]---
-[   22.490424] RIP: 0010:_parse_integer_fixup_radix+0x6/0x60
-
-The virt_rmb() is added in the 'true' path of test_reply(). The "while"
-is changed to "do while" so that test_reply() is used as a read memory
-barrier.
-
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Link: https://lore.kernel.org/r/20200303221423.21962-1-dongli.zhang@oracle.com
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200220113132.857132-1-naveen.n.rao@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xenbus/xenbus_comms.c | 2 ++
- drivers/xen/xenbus/xenbus_xs.c    | 9 ++++++---
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/vmlinux.lds.S | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/xen/xenbus/xenbus_comms.c b/drivers/xen/xenbus/xenbus_comms.c
-index d239fc3c5e3de..852ed161fc2a7 100644
---- a/drivers/xen/xenbus/xenbus_comms.c
-+++ b/drivers/xen/xenbus/xenbus_comms.c
-@@ -313,6 +313,8 @@ static int process_msg(void)
- 			req->msg.type = state.msg.type;
- 			req->msg.len = state.msg.len;
- 			req->body = state.body;
-+			/* write body, then update state */
-+			virt_wmb();
- 			req->state = xb_req_state_got_reply;
- 			req->cb(req);
- 		} else
-diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
-index ddc18da61834e..3a06eb699f333 100644
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -191,8 +191,11 @@ static bool xenbus_ok(void)
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index fd35eddf32669..d081d726ca8ea 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -322,6 +322,12 @@ SECTIONS
+ 		*(.branch_lt)
+ 	}
  
- static bool test_reply(struct xb_req_data *req)
- {
--	if (req->state == xb_req_state_got_reply || !xenbus_ok())
-+	if (req->state == xb_req_state_got_reply || !xenbus_ok()) {
-+		/* read req->state before all other fields */
-+		virt_rmb();
- 		return true;
++#ifdef CONFIG_DEBUG_INFO_BTF
++	.BTF : AT(ADDR(.BTF) - LOAD_OFFSET) {
++		*(.BTF)
 +	}
- 
- 	/* Make sure to reread req->state each time. */
- 	barrier();
-@@ -202,7 +205,7 @@ static bool test_reply(struct xb_req_data *req)
- 
- static void *read_reply(struct xb_req_data *req)
- {
--	while (req->state != xb_req_state_got_reply) {
-+	do {
- 		wait_event(req->wq, test_reply(req));
- 
- 		if (!xenbus_ok())
-@@ -216,7 +219,7 @@ static void *read_reply(struct xb_req_data *req)
- 		if (req->err)
- 			return ERR_PTR(req->err);
- 
--	}
-+	} while (req->state != xb_req_state_got_reply);
- 
- 	return req->body;
- }
++#endif
++
+ 	.opd : AT(ADDR(.opd) - LOAD_OFFSET) {
+ 		__start_opd = .;
+ 		KEEP(*(.opd))
 -- 
 2.20.1
 
