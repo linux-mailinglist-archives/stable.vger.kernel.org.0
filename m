@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5563E1910C9
-	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:31:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC14191026
+	for <lists+stable@lfdr.de>; Tue, 24 Mar 2020 14:30:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727877AbgCXNUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 09:20:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42318 "EHLO mail.kernel.org"
+        id S1728106AbgCXNZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 09:25:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728219AbgCXNUu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Mar 2020 09:20:50 -0400
+        id S1727935AbgCXNZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Mar 2020 09:25:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD19620870;
-        Tue, 24 Mar 2020 13:20:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89F10208CA;
+        Tue, 24 Mar 2020 13:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585056049;
-        bh=xF5fLA2nCMUE47tbQ+fJTunsXNhyDpCWMZSzHvU219A=;
+        s=default; t=1585056339;
+        bh=DP409ajFviKMx013wmdRjhrUduVC9VtoO0DR9ctjHH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0XpSQx6TYy9qInRkIoOprZR8isqAZQP8Rp4bibKbkrhT7MbUvzrQRJ6RxaeyaQsO
-         lC9YdBeufL4+s4zvcdq234zbOKJ9UVwO6rriHyb0K4nTLF07lwyWHwupvTEjgMQZcr
-         mk8QBwyinppDOzFOC5ytoRGfzy1ToG6THbFxd5zI=
+        b=pVqYKUWgE0C6hgE0Qi24er1hkazT9kc0k6FpRZ8GxkWEN9FWZvp61kWJRhNEnxDtP
+         7eSk2fCZbd27rkK4YYICVX87AnEO8xOCsls9CNYMo4dhzBOFYy/CvKGUes3C7Sc18t
+         EbznLCUm+CkMZCj9BU0TsOJ7KwCrQQ2koqokAjxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Oscar Salvador <osalvador@suse.de>,
         Mike Rapoport <rppt@linux.ibm.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 087/102] mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case
-Date:   Tue, 24 Mar 2020 14:11:19 +0100
-Message-Id: <20200324130815.363810014@linuxfoundation.org>
+Subject: [PATCH 5.5 095/119] mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case
+Date:   Tue, 24 Mar 2020 14:11:20 +0100
+Message-Id: <20200324130817.665452833@linuxfoundation.org>
 X-Mailer: git-send-email 2.25.2
-In-Reply-To: <20200324130806.544601211@linuxfoundation.org>
-References: <20200324130806.544601211@linuxfoundation.org>
+In-Reply-To: <20200324130808.041360967@linuxfoundation.org>
+References: <20200324130808.041360967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -102,7 +102,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/mm/sparse.c
 +++ b/mm/sparse.c
-@@ -742,6 +742,7 @@ static void section_deactivate(unsigned
+@@ -744,6 +744,7 @@ static void section_deactivate(unsigned
  	struct mem_section *ms = __pfn_to_section(pfn);
  	bool section_is_early = early_section(ms);
  	struct page *memmap = NULL;
@@ -110,7 +110,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	unsigned long *subsection_map = ms->usage
  		? &ms->usage->subsection_map[0] : NULL;
  
-@@ -772,7 +773,8 @@ static void section_deactivate(unsigned
+@@ -774,7 +775,8 @@ static void section_deactivate(unsigned
  	 * For 2/ and 3/ the SPARSEMEM_VMEMMAP={y,n} cases are unified
  	 */
  	bitmap_xor(subsection_map, map, subsection_map, SUBSECTIONS_PER_SECTION);
@@ -120,7 +120,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		unsigned long section_nr = pfn_to_section_nr(pfn);
  
  		/*
-@@ -787,13 +789,15 @@ static void section_deactivate(unsigned
+@@ -789,13 +791,15 @@ static void section_deactivate(unsigned
  			ms->usage = NULL;
  		}
  		memmap = sparse_decode_mem_map(ms->section_mem_map, section_nr);
