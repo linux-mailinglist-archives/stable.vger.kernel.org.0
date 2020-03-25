@@ -2,159 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBA3D192C18
-	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 16:19:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D1B192C41
+	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 16:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727674AbgCYPS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Mar 2020 11:18:56 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:35817 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727538AbgCYPS4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 11:18:56 -0400
-Received: by mail-io1-f67.google.com with SMTP id h8so2607549iob.2;
-        Wed, 25 Mar 2020 08:18:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PwggEMzU8RT5gVextfFr6ZJ6Cb6aIGerS+OjEWSFzGM=;
-        b=YkpVvk3cpUbmjXv2VeeH2Ikrh7SX9x5/EHloC3St2zeSPBRHUqXv50iLZfQkXRg5tK
-         ZZkMUu7dL5a3Pu7U3dA2uAI7kfGNCv8nu5CX85tiKXmh4eU0LGq7ccnIWio+DY3BTHf5
-         4bsQ9iCjmPM5BTtS5z9o7331oaMl+Y3nFAH/hBOI65DTAptyvuoX/m6r/rGHlOII8ZG/
-         oOD4ScOEf2HKK7lH0Mt6P/gAUSSeYEas9rqTfE0FzP8A2n2Nob9l4gNBG5h9P3pzCbPS
-         aZSkidmSKAYAlEj5tzPNYBoccl5zYgKX4+ZzHPqW3jwdF5vU6RvcoTb3IIIZoVY/5c/x
-         qMfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PwggEMzU8RT5gVextfFr6ZJ6Cb6aIGerS+OjEWSFzGM=;
-        b=PY5r7EyGpAB4ghKrE3f4ilZ9cI6KOq34WkOZnyzDSCr0f4ikLu7wkG/a6zWBBAESy4
-         Qxk/POYPZUKF/kWJwbGzcbKuvz7+eA0lECCgtABJzmzIMDqNp40MamxVKO0wsYJ+BejT
-         AykM/lyvpknJqb2mItqXwKjkFPjYAwg+nbg8HtaQKauXjhZBpjDY+lJSu7wpx6d+oN2f
-         G4DuE8C+Io38L985IFJcHa5u0bcDYIFMbRuIwwDfRPyx67PZLNWhl97H1vYJoZ0WYYOD
-         zPPrwT5C4ZxS3zGFQ/d3ffoB4FIvC0cH316CaSafVYDmj6dNlsH5SEqlCejZs/fwlTfO
-         YyZA==
-X-Gm-Message-State: ANhLgQ3PuhiWUVGHmuFkqRsOnSNZ0yzIshTqZ7FfLk+bWakE6RV2dp3E
-        aBSf6f5GdAiaJ7kXcqhZU+rmNoipn69CkA==
-X-Google-Smtp-Source: ADFU+vuVIMdR6DiEq04mOyja+XcS0ozqbhcLQiUa4XHsN5xHWYdfm9KfOs0VanJglVKI+l/wSGA/5w==
-X-Received: by 2002:a5d:89d1:: with SMTP id a17mr2846961iot.11.1585149535139;
-        Wed, 25 Mar 2020 08:18:55 -0700 (PDT)
-Received: from localhost.localdomain (c-73-243-191-173.hsd1.co.comcast.net. [73.243.191.173])
-        by smtp.gmail.com with ESMTPSA id p68sm7544047ilb.80.2020.03.25.08.18.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2020 08:18:54 -0700 (PDT)
-From:   Kelsey Skunberg <skunberg.kelsey@gmail.com>
-To:     linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
-Cc:     rbilovol@cisco.com, ddutile@redhat.com, bodong@mellanox.com,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        skhan@linuxfoundation.org, ruslan.bilovol@gmail.com,
-        bhelgaas@google.com, Kelsey Skunberg <kelsey.skunberg@gmail.com>,
-        stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH v2] PCI: sysfs: Change bus_rescan and dev_rescan to rescan
-Date:   Wed, 25 Mar 2020 09:17:08 -0600
-Message-Id: <20200325151708.32612-1-skunberg.kelsey@gmail.com>
-X-Mailer: git-send-email 2.20.1
+        id S1727491AbgCYPYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Mar 2020 11:24:21 -0400
+Received: from mx07-00178001.pphosted.com ([62.209.51.94]:64376 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727505AbgCYPYV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 11:24:21 -0400
+Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02PFDlLC004627;
+        Wed, 25 Mar 2020 16:23:53 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=STMicroelectronics;
+ bh=+JxsGMD/HKpVKs1dQBQK8ygKLAo12R6x7cJ4kdNJpoY=;
+ b=xUFx7a3pQOkxiDSq2J6BidiHMoZH0DtRUrMcypx4CppI5NKTKD3wy91Azg9nRqmN2hmE
+ 9HoeknXJEi2L8XvYLo1rzw6W3ijYD/2Jj7Utp7/ws3OaSVAKV7+knBoj1ifNWWQ8q2CA
+ cIGy9XoSWSrSAvcu2cPVuSZ8tJZqimSwi+3f/wBUTrMNPOMHcPLZZE/NfPv6HcaZiNiQ
+ mdtvcroqOlKKjQjPZrDIQSSrMiYDAZ/psPG8lTzsn75FiAmwENHU52BNSwR5wqvjQUN6
+ 5mcBiTcGF+YrTU7kN52Hs/bUq6wJOUAiTmMYWNHTYWyrd+dArbdZSan3MSU8h3QkQZRd bA== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com with ESMTP id 2yw995pgfk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 25 Mar 2020 16:23:49 +0100
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 67B6110002A;
+        Wed, 25 Mar 2020 16:23:48 +0100 (CET)
+Received: from Webmail-eu.st.com (sfhdag6node1.st.com [10.75.127.16])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 3A8062B5D06;
+        Wed, 25 Mar 2020 16:23:48 +0100 (CET)
+Received: from lmecxl0923.lme.st.com (10.75.127.51) by SFHDAG6NODE1.st.com
+ (10.75.127.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 25 Mar
+ 2020 16:23:46 +0100
+Subject: Re: [PATCH 1/2] driver core: platform: Initialize dma_parms for
+ platform devices
+To:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Haibo Chen <haibo.chen@nxp.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <dmaengine@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20200325113407.26996-1-ulf.hansson@linaro.org>
+ <20200325113407.26996-2-ulf.hansson@linaro.org>
+From:   Ludovic BARRE <ludovic.barre@st.com>
+Message-ID: <598b3a55-0321-d7ea-8758-edaba5d5cb2c@st.com>
+Date:   Wed, 25 Mar 2020 16:23:46 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
+In-Reply-To: <20200325113407.26996-2-ulf.hansson@linaro.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: fr
 Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.75.127.51]
+X-ClientProxiedBy: SFHDAG1NODE2.st.com (10.75.127.2) To SFHDAG6NODE1.st.com
+ (10.75.127.16)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.645
+ definitions=2020-03-25_07:2020-03-24,2020-03-25 signatures=0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kelsey Skunberg <kelsey.skunberg@gmail.com>
 
-rename device attribute name arguments 'bus_rescan' and 'dev_rescan' to 'rescan'
-to avoid breaking userspace applications.
 
-The attribute argument names were changed in the following commits:
-8bdfa145f582 ("PCI: sysfs: Define device attributes with DEVICE_ATTR*()")
-4e2b79436e4f ("PCI: sysfs: Change DEVICE_ATTR() to DEVICE_ATTR_WO()")
+Le 3/25/20 à 12:34 PM, Ulf Hansson a écrit :
+> It's currently the platform driver's responsibility to initialize the
+> pointer, dma_parms, for its corresponding struct device. The benefit with
+> this approach allows us to avoid the initialization and to not waste memory
+> for the struct device_dma_parameters, as this can be decided on a case by
+> case basis.
+> 
+> However, it has turned out that this approach is not very practical.  Not
+> only does it lead to open coding, but also to real errors. In principle
+> callers of dma_set_max_seg_size() doesn't check the error code, but just
+> assumes it succeeds.
+> 
+> For these reasons, let's do the initialization from the common platform bus
+> at the device registration point. This also follows the way the PCI devices
+> are being managed, see pci_device_add().
 
-Revert the names used for attributes back to the names used before the above
-patches were applied. This also requires to change DEVICE_ATTR_WO() to
-DEVICE_ATTR() and __ATTR().
+tested with mmc: mmci_sdmmc fix
+Tested-by: Ludovic Barre <ludovic.barre@st.com>
 
-Note when using DEVICE_ATTR() the attribute is automatically named
-dev_attr_<name>.attr. To avoid duplicated names between attributes, use
-__ATTR() instead of DEVICE_ATTR() to a assign a custom attribute name for
-dev_rescan.
-
-change bus_rescan_store() to dev_bus_rescan_store() to complete matching the
-names used before the mentioned patches were applied.
-
-Fixes: 8bdfa145f582 ("PCI: sysfs: Define device attributes with DEVICE_ATTR*()")
-Fixes: 4e2b79436e4f ("PCI: sysfs: Change DEVICE_ATTR() to DEVICE_ATTR_WO()")
-
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Kelsey Skunberg <kelsey.skunberg@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
-
-v2 updates: 
-	commit log updated to include 'Fixes: *' and Cc: stable to aid commit
-	being backported properly.
-
- drivers/pci/pci-sysfs.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-index 13f766db0684..667e13d597ff 100644
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -464,7 +464,10 @@ static ssize_t dev_rescan_store(struct device *dev,
- 	}
- 	return count;
- }
--static DEVICE_ATTR_WO(dev_rescan);
-+static struct device_attribute dev_rescan_attr = __ATTR(rescan,
-+							0220, NULL,
-+							dev_rescan_store);
-+
- 
- static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
- 			    const char *buf, size_t count)
-@@ -481,9 +484,9 @@ static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
- static DEVICE_ATTR_IGNORE_LOCKDEP(remove, 0220, NULL,
- 				  remove_store);
- 
--static ssize_t bus_rescan_store(struct device *dev,
--				struct device_attribute *attr,
--				const char *buf, size_t count)
-+static ssize_t dev_bus_rescan_store(struct device *dev,
-+				    struct device_attribute *attr,
-+				    const char *buf, size_t count)
- {
- 	unsigned long val;
- 	struct pci_bus *bus = to_pci_bus(dev);
-@@ -501,7 +504,7 @@ static ssize_t bus_rescan_store(struct device *dev,
- 	}
- 	return count;
- }
--static DEVICE_ATTR_WO(bus_rescan);
-+static DEVICE_ATTR(rescan, 0220, NULL, dev_bus_rescan_store);
- 
- #if defined(CONFIG_PM) && defined(CONFIG_ACPI)
- static ssize_t d3cold_allowed_store(struct device *dev,
-@@ -641,7 +644,7 @@ static struct attribute *pcie_dev_attrs[] = {
- };
- 
- static struct attribute *pcibus_attrs[] = {
--	&dev_attr_bus_rescan.attr,
-+	&dev_attr_rescan.attr,
- 	&dev_attr_cpuaffinity.attr,
- 	&dev_attr_cpulistaffinity.attr,
- 	NULL,
-@@ -1487,7 +1490,7 @@ static umode_t pci_dev_attrs_are_visible(struct kobject *kobj,
- 
- static struct attribute *pci_dev_hp_attrs[] = {
- 	&dev_attr_remove.attr,
--	&dev_attr_dev_rescan.attr,
-+	&dev_rescan_attr.attr,
- 	NULL,
- };
- 
--- 
-2.20.1
-
+> Suggested-by: Christoph Hellwig <hch@lst.de>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> ---
+>   drivers/base/platform.c         | 1 +
+>   include/linux/platform_device.h | 1 +
+>   2 files changed, 2 insertions(+)
+> 
+> diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+> index b5ce7b085795..46abbfb52655 100644
+> --- a/drivers/base/platform.c
+> +++ b/drivers/base/platform.c
+> @@ -512,6 +512,7 @@ int platform_device_add(struct platform_device *pdev)
+>   		pdev->dev.parent = &platform_bus;
+>   
+>   	pdev->dev.bus = &platform_bus_type;
+> +	pdev->dev.dma_parms = &pdev->dma_parms;
+>   
+>   	switch (pdev->id) {
+>   	default:
+> diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
+> index 041bfa412aa0..81900b3cbe37 100644
+> --- a/include/linux/platform_device.h
+> +++ b/include/linux/platform_device.h
+> @@ -25,6 +25,7 @@ struct platform_device {
+>   	bool		id_auto;
+>   	struct device	dev;
+>   	u64		platform_dma_mask;
+> +	struct device_dma_parameters dma_parms;
+>   	u32		num_resources;
+>   	struct resource	*resource;
+>   
+> 
