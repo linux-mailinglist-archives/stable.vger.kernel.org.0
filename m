@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5BB192731
-	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 12:34:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A43A192735
+	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 12:34:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727177AbgCYLeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Mar 2020 07:34:31 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:37950 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727260AbgCYLea (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 07:34:30 -0400
-Received: by mail-lf1-f65.google.com with SMTP id c5so1466915lfp.5
-        for <stable@vger.kernel.org>; Wed, 25 Mar 2020 04:34:29 -0700 (PDT)
+        id S1727158AbgCYLed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Mar 2020 07:34:33 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:43179 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727280AbgCYLed (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 07:34:33 -0400
+Received: by mail-lf1-f67.google.com with SMTP id n20so1442537lfl.10
+        for <stable@vger.kernel.org>; Wed, 25 Mar 2020 04:34:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=QPegYuSfHcA3EBvl8rBN548IrIHva7Siiqx3+i9i/fk=;
-        b=aXIfbdqkfrWHNMJxk7rgpfQnHosJstUgv+nPJg8nxRo+9pKouM26WAI5jitlKG5zYm
-         dZx7N6OfzJ8B8lp5AR5Z/nKynJm5BIZo5mfsjpnAouFOVrITTq+MpsKOdTK1TnVZGr6J
-         ZXD2xs25UMtjG5Seqi4Yh5xID9TbudX70og/9CFMxinK3V+PWmxJYgvnCCYaBfOylFDU
-         sGLI80eAP38UiXXmS6eBcqtzZVijLUoii6AuDKzHfZGoxLxCvXIxIjGTYuwjdAwTyjxy
-         RcJsKyFXDpgd4yPdbiI4DwWjQrdAE5T9nhViX9NpC7LDGEGvjepXCx2QLRJr9XWlR41n
-         bh0g==
+        bh=O7KffvUQLvEtuKLuleQeJ202vBQLqQy9HV1Fxk0tNOM=;
+        b=HDfdSaRDnAglhBGm1Inpp4+PGlm69FgGVABJzD28TMp6tqeNsKiHMI777YCormOPzd
+         uObNsIFHV1Npk5ziYCXZ0cQLBNe4T8aZZKrc3tZBoKsfGViR+Ix/mqOLR4JsgIMcm9t1
+         vFdk3jktgqFH4Z/+GU/IydPzWVGMjeoANomk1rbXDkBKfC1ZsDPJLBW8K0DcZwll9C24
+         tp+m/Jzg8CN8lYauf5ETMIUTJ1rrRQ1tXDrgUnt6dLpzH8GpssHm3HOsSizAit60PbjS
+         Q/2MXBDO8MYvbDm058vsshlEfxsxUgbcDLCNaTtOnWlyOVawtVI6kXoNhDLMsh67bsk+
+         papQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=QPegYuSfHcA3EBvl8rBN548IrIHva7Siiqx3+i9i/fk=;
-        b=oKvDzobwUXZgKE2bPKY19rrA1vKkYOOd08y8snzfd6GgquEF4QQDoUvVRtx8HZ+hhw
-         ot9TgGYwsavSqylpyaZGzZTX4xujbXmHRPRzeD+RjRkUpdHT6i4W1V6DgfYPWb+ltynh
-         +HyH6+cEyf8LHf8jMF2VMqfnbxsjS8vW6bcVXq59VGJAf4xWqgEa8nTQu0eQtdpFrliq
-         SZ2ldu2ek8O5IN6+7l6dL7AjDBlqI0Xvfijt8sdCzdbj3UmKCxwh1LRbI083Nn9PozTD
-         dxkgySePeMHWsJ0MjTbTeIixS3qyMhEm7hRNTII0r5aRuKRUv975HdsHpiwxwxgke4C3
-         RkLA==
-X-Gm-Message-State: ANhLgQ2hBrU7t7UNUy4gipzF9h8tZrVrDjFVzPegcBUMbomixO8mQ2gC
-        NrSutTNjOi6lX7SA2nQLFD79nw==
-X-Google-Smtp-Source: ADFU+vuRSm6/etAQz80VrEgGUDZc5VTTv9FpBEJTzRn3gDVEDfDCfTlInPIezeIUpXLoXiDhoHUYOw==
-X-Received: by 2002:a19:4cc2:: with SMTP id z185mr2098414lfa.0.1585136068643;
-        Wed, 25 Mar 2020 04:34:28 -0700 (PDT)
+        bh=O7KffvUQLvEtuKLuleQeJ202vBQLqQy9HV1Fxk0tNOM=;
+        b=LQtBS9v53ez9Sl2JQCWWedzcslBsIwdaADXsTmh9RNio4ZKMzCa79QG0dhy7rieU2l
+         IPPdLOjUyZJN/M/8O7Ic2lvu0CdJi94kA20MQQCqn/lvX74WBG2XXL4wmSBsPewJe9fw
+         ozuridxwxo0ZZ/TycSgHfsdRyz4zVMDlso/CjtJc//xe6EoC7QADlSUVK6NPzUmMZ4Pq
+         +sEBVRgMaDE32EOi7zSEq5YGt/HrOUcHeake1KXQ/+oSPsLWYQenUyl87EOXBBEvLHHW
+         b2Fd1N60xYVyfXZddwReEBw5ZDAzVVqComFmAod5IlkA7FJ/mGz56GPbWVgQVIKLMHmK
+         rI9w==
+X-Gm-Message-State: ANhLgQ0FXdf3r5+uAcmUqEmKJLeA+1rZ0kYe843Z6oULbM6FbpvxNQ45
+        X6FuPwSEKFOa9j8dPht+KnElPw==
+X-Google-Smtp-Source: ADFU+vtF9WPanLG3a1vSHxs2lc6VyzDOkLrVTfTbQpdbdnZ4basqRFJVF+b7L4EKM0fI2K8g88uVuw==
+X-Received: by 2002:ac2:4116:: with SMTP id b22mr1933177lfi.172.1585136070290;
+        Wed, 25 Mar 2020 04:34:30 -0700 (PDT)
 Received: from localhost.localdomain (h-158-174-22-210.NA.cust.bahnhof.se. [158.174.22.210])
-        by smtp.gmail.com with ESMTPSA id v22sm3920009ljc.79.2020.03.25.04.34.27
+        by smtp.gmail.com with ESMTPSA id v22sm3920009ljc.79.2020.03.25.04.34.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2020 04:34:28 -0700 (PDT)
+        Wed, 25 Mar 2020 04:34:29 -0700 (PDT)
 From:   Ulf Hansson <ulf.hansson@linaro.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Rafael J . Wysocki" <rafael@kernel.org>,
@@ -55,9 +55,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
         Ludovic Barre <ludovic.barre@st.com>,
         linux-arm-kernel@lists.infradead.org, dmaengine@vger.kernel.org,
         Ulf Hansson <ulf.hansson@linaro.org>, stable@vger.kernel.org
-Subject: [PATCH 1/2] driver core: platform: Initialize dma_parms for platform devices
-Date:   Wed, 25 Mar 2020 12:34:06 +0100
-Message-Id: <20200325113407.26996-2-ulf.hansson@linaro.org>
+Subject: [PATCH 2/2] amba: Initialize dma_parms for amba devices
+Date:   Wed, 25 Mar 2020 12:34:07 +0100
+Message-Id: <20200325113407.26996-3-ulf.hansson@linaro.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200325113407.26996-1-ulf.hansson@linaro.org>
 References: <20200325113407.26996-1-ulf.hansson@linaro.org>
@@ -68,53 +68,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It's currently the platform driver's responsibility to initialize the
-pointer, dma_parms, for its corresponding struct device. The benefit with
-this approach allows us to avoid the initialization and to not waste memory
-for the struct device_dma_parameters, as this can be decided on a case by
-case basis.
+It's currently the amba driver's responsibility to initialize the pointer,
+dma_parms, for its corresponding struct device. The benefit with this
+approach allows us to avoid the initialization and to not waste memory for
+the struct device_dma_parameters, as this can be decided on a case by case
+basis.
 
-However, it has turned out that this approach is not very practical.  Not
+However, it has turned out that this approach is not very practical. Not
 only does it lead to open coding, but also to real errors. In principle
 callers of dma_set_max_seg_size() doesn't check the error code, but just
 assumes it succeeds.
 
-For these reasons, let's do the initialization from the common platform bus
-at the device registration point. This also follows the way the PCI devices
+For these reasons, let's do the initialization from the common amba bus at
+the device registration point. This also follows the way the PCI devices
 are being managed, see pci_device_add().
 
 Suggested-by: Christoph Hellwig <hch@lst.de>
+Cc: Russell King <linux@armlinux.org.uk>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- drivers/base/platform.c         | 1 +
- include/linux/platform_device.h | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/amba/bus.c       | 2 ++
+ include/linux/amba/bus.h | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index b5ce7b085795..46abbfb52655 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -512,6 +512,7 @@ int platform_device_add(struct platform_device *pdev)
- 		pdev->dev.parent = &platform_bus;
+diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
+index fe1523664816..5e61783ce92d 100644
+--- a/drivers/amba/bus.c
++++ b/drivers/amba/bus.c
+@@ -374,6 +374,8 @@ static int amba_device_try_add(struct amba_device *dev, struct resource *parent)
+ 	WARN_ON(dev->irq[0] == (unsigned int)-1);
+ 	WARN_ON(dev->irq[1] == (unsigned int)-1);
  
- 	pdev->dev.bus = &platform_bus_type;
-+	pdev->dev.dma_parms = &pdev->dma_parms;
- 
- 	switch (pdev->id) {
- 	default:
-diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
-index 041bfa412aa0..81900b3cbe37 100644
---- a/include/linux/platform_device.h
-+++ b/include/linux/platform_device.h
-@@ -25,6 +25,7 @@ struct platform_device {
- 	bool		id_auto;
- 	struct device	dev;
- 	u64		platform_dma_mask;
++	dev->dev.dma_parms = &dev->dma_parms;
++
+ 	ret = request_resource(parent, &dev->res);
+ 	if (ret)
+ 		goto err_out;
+diff --git a/include/linux/amba/bus.h b/include/linux/amba/bus.h
+index 26f0ecf401ea..0bbfd647f5c6 100644
+--- a/include/linux/amba/bus.h
++++ b/include/linux/amba/bus.h
+@@ -65,6 +65,7 @@ struct amba_device {
+ 	struct device		dev;
+ 	struct resource		res;
+ 	struct clk		*pclk;
 +	struct device_dma_parameters dma_parms;
- 	u32		num_resources;
- 	struct resource	*resource;
- 
+ 	unsigned int		periphid;
+ 	unsigned int		cid;
+ 	struct amba_cs_uci_id	uci;
 -- 
 2.20.1
 
