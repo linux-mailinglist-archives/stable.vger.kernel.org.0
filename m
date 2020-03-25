@@ -2,140 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80308191FA8
-	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 04:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C2AB191FCD
+	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 04:36:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727259AbgCYDVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Mar 2020 23:21:25 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:45594 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727253AbgCYDVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 23:21:25 -0400
-Received: by mail-pl1-f196.google.com with SMTP id b9so251757pls.12
-        for <stable@vger.kernel.org>; Tue, 24 Mar 2020 20:21:24 -0700 (PDT)
+        id S1727262AbgCYDgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Mar 2020 23:36:52 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:33853 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727253AbgCYDgw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Mar 2020 23:36:52 -0400
+Received: by mail-pg1-f194.google.com with SMTP id t3so508545pgn.1;
+        Tue, 24 Mar 2020 20:36:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=7tZ6//gCFKaGgmQjwwY1C5tTuOpkZCtGYkq2IqI2FKo=;
-        b=TJuCdQFKyf+hI+mUcta3DvoPFbMdP8YBnIHFqF6ULNogiO2rJXq9xel1o834apZGry
-         mWP8S4FTAPbs4tWgJWLZyV5m7z1sEeLbwadUX3M7xQNisogB4sKBapIB+jFAUAX/o72o
-         IsEATDFheGiU16Ms7GfOPtDQ8sWnK5r51uHU68Nj+T1SVukajbYu1GnDfpjqI7MO7jEt
-         wElkVeAS5ItnbqgbTMnEUENON1KEHbzeFH7dozEFaWS4Jv1PGrFymHf/fy/71mOyL/uH
-         XUSkON9P+eGewaPsqWONnyMiFQW+YtEktlIzL3cQ4Wn/oSKu0CkMSW2OPUZzlYPeKEho
-         gDuQ==
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=TQggyO2aG3/J9tyHE64TxT0PFq58WGQfqt36Azet3yg=;
+        b=o5gis7qDgBKjJXhzvsX0VrxVPS54IUHWnCsEg5GCyHBh0ZIDrpjhcGP7HSYfIsoxys
+         5i57ygCgcyzJLMGA1/P+mBLC2TDTKajIeq/ILHv8sWXLP5dFmFUS3wuC/HXApmBUohlr
+         TtrWI8QJoSpvp0ftMXLbZ/EYWGNWtWkkBG4MEKTzIyk+EkLMVC3EFSOF7tq4Yc3GfnCq
+         DtJ93dGFP8D9C3t6wNwwaY0OgeVAIBFXHkHooHctkYyfgSwXFqn44ImvwkeJ9cPYBzD2
+         yqEHA2pgfGX5vEKgtUTd2DMrm5jL6b53ZLS8BaAWB2Nm9fq1qUC6pnxD2qtgA7udPvoy
+         7H1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=7tZ6//gCFKaGgmQjwwY1C5tTuOpkZCtGYkq2IqI2FKo=;
-        b=RIpbzPyGXefUuhM7rTQE8wT7SxW8PkXR0tM9wYnsResoeL9eejMz3b29FxfTakaxef
-         eXPH1XMO2y7YZjO2hfhg9Z2WSr5ivytcaMD4CpkHqhBlQNq7lp9v4+TIOsHOvvaHwwUG
-         blh69Iiu8dloL1oi1O8J9NnTY6xTK4GcrglBlDJvJNUcK2pIkP6dqbmMkJrgOopwLkgL
-         rUFyjyGdrsC1BCrAftCrHu75m96EaXQDizhjzIWw65HTgTfuW2hDxRhDombf+nITIfRU
-         TCL6+xVUZVkQm3UY8Mxkk9/wu8o4eskl/a4xEHhSPTv+MlVkCfIxEcnwTUo5mi5jl3m/
-         dYfw==
-X-Gm-Message-State: ANhLgQ2tP+E11HuBC+1gCotu2W9Wvn2Pl3fyKTMidXFzRrVGpIcTabs3
-        pPpRJSPF9owXdgiZwJrS97Yc382/CeI=
-X-Google-Smtp-Source: ADFU+vsxRQAtJ7jMymPmhjzSebCUQYKPrd4rCsVvHcvtguDA3k1p1pPNaDm8oqyV48ga4yAOxQz9+Q==
-X-Received: by 2002:a17:90b:430f:: with SMTP id ih15mr1250903pjb.56.1585106483772;
-        Tue, 24 Mar 2020 20:21:23 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c1sm3480956pje.24.2020.03.24.20.21.22
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Mar 2020 20:21:22 -0700 (PDT)
-Message-ID: <5e7ace32.1c69fb81.682fb.f2dc@mx.google.com>
-Date:   Tue, 24 Mar 2020 20:21:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.216-128-geb874cb221b9
-X-Kernelci-Report-Type: boot
-Subject: stable-rc/linux-4.9.y boot: 111 boots: 1 failed,
- 100 passed with 4 offline, 6 untried/unknown (v4.9.216-128-geb874cb221b9)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
+        bh=TQggyO2aG3/J9tyHE64TxT0PFq58WGQfqt36Azet3yg=;
+        b=GnqgSczbspq6SqZo4wFz3aquBbAPOgoF3xXuYOJoBcO4rJFGsrmK1wh+Lb7e7gnzKe
+         /601a7dRCeVYdecD2Ni2kSoNFNUd3LMpSg5+1uppe41t2dfcNYZUyVxCCP3mQLGaySB/
+         LOv3606Vmjx3RdqmgdwXYZHrGraN2Us27c6ruONj0LzQEpl2tmrFPkNXmAiYP1/D6WQh
+         noiyF60dLp6+VA2G01o3BGtDgGd32rOOwuuMQJvWEPwAdSVg7rP9gY+O20hYTzFw7gwt
+         yk4GGaQeYd/TD3dIP0HiE5IDKrSsiT7FkKbHKgNrl55O0BM4549fcva7fQ5+oslLjWhO
+         TsHw==
+X-Gm-Message-State: ANhLgQ04anus8RqZsJoozJmOCnf0V+L6BYy+gsO1Rno8F2OdIr4E6lag
+        6djlmmUI+TqxaEUQC2GaQUgECVVC3pLk2iqN
+X-Google-Smtp-Source: ADFU+vt0SEbslAUeIkMwoV0mKo8ZnPoNWtTbu+NRgu+LhYETVXY5iJlHeTYAFtJKYbzXAVOHILpl0A==
+X-Received: by 2002:a63:450b:: with SMTP id s11mr1041641pga.45.1585107410462;
+        Tue, 24 Mar 2020 20:36:50 -0700 (PDT)
+Received: from software.domain.org ([104.207.149.93])
+        by smtp.gmail.com with ESMTPSA id 144sm17405416pfx.184.2020.03.24.20.36.44
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Tue, 24 Mar 2020 20:36:49 -0700 (PDT)
+From:   Huacai Chen <chenhc@lemote.com>
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     linux-mips@vger.kernel.org, Fuxin Zhang <zhangfx@lemote.com>,
+        Zhangjin Wu <wuzhangjin@gmail.com>,
+        Huacai Chen <chenhuacai@gmail.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org,
+        Pei Huang <huangpei@loongson.cn>
+Subject: [PATCH] MIPS/tlbex: Fix LDDIR usage in setup_pw() for Loongson-3
+Date:   Wed, 25 Mar 2020 11:44:54 +0800
+Message-Id: <1585107894-8803-1-git-send-email-chenhc@lemote.com>
+X-Mailer: git-send-email 2.7.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 111 boots: 1 failed, 100 passed with 4 offline,=
- 6 untried/unknown (v4.9.216-128-geb874cb221b9)
+LDDIR/LDPTE is Loongson-3's acceleration for Page Table Walking. If BD
+(Base Directory, the 4th page directory) is not enabled, then GDOffset
+is biased by BadVAddr[63:62]. So, if GDOffset (aka. BadVAddr[47:36] for
+Loongson-3) is big enough, "0b11(BadVAddr[63:62])|BadVAddr[47:36]|...."
+can far beyond pg_swapper_dir. This means the pg_swapper_dir may NOT be
+accessed by LDDIR correctly, so fix it by set PWDirExt in CP0_PWCtl.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.216-128-geb874cb221b9/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.216-128-geb874cb221b9/
-
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.216-128-geb874cb221b9
-Git Commit: eb874cb221b92fb416c4ac5ec93bc929027d677f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 59 unique boards, 20 SoC families, 19 builds out of 197
-
-Boot Regressions Detected:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          tegra20-iris-512:
-              lab-baylibre-seattle: new failure (last pass: v4.9.216-122-g1=
-fabd1dda010)
-
-    omap2plus_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-baylibre: new failure (last pass: v4.9.216-122-g1fabd1dda=
-010)
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 45 days (last pass: v4.9.=
-213 - first fail: v4.9.213-37-g860ec95da9ad)
-
-    tegra_defconfig:
-        gcc-8:
-          tegra20-iris-512:
-              lab-baylibre-seattle: new failure (last pass: v4.9.216-122-g1=
-fabd1dda010)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.9.216-122-g1fabd1dd=
-a010)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pei Huang <huangpei@loongson.cn>
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
 ---
-For more info write to <info@kernelci.org>
+ arch/mips/mm/tlbex.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+index 344e6e9..da407cd 100644
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -1480,6 +1480,7 @@ static void build_r4000_tlb_refill_handler(void)
+ 
+ static void setup_pw(void)
+ {
++	unsigned int pwctl;
+ 	unsigned long pgd_i, pgd_w;
+ #ifndef __PAGETABLE_PMD_FOLDED
+ 	unsigned long pmd_i, pmd_w;
+@@ -1506,6 +1507,7 @@ static void setup_pw(void)
+ 
+ 	pte_i = ilog2(_PAGE_GLOBAL);
+ 	pte_w = 0;
++	pwctl = 1 << 30; /* Set PWDirExt */
+ 
+ #ifndef __PAGETABLE_PMD_FOLDED
+ 	write_c0_pwfield(pgd_i << 24 | pmd_i << 12 | pt_i << 6 | pte_i);
+@@ -1516,8 +1518,9 @@ static void setup_pw(void)
+ #endif
+ 
+ #ifdef CONFIG_MIPS_HUGE_TLB_SUPPORT
+-	write_c0_pwctl(1 << 6 | psn);
++	pwctl |= (1 << 6 | psn);
+ #endif
++	write_c0_pwctl(pwctl);
+ 	write_c0_kpgd((long)swapper_pg_dir);
+ 	kscratch_used_mask |= (1 << 7); /* KScratch6 is used for KPGD */
+ }
+-- 
+2.7.0
+
