@@ -2,77 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B75192FEE
-	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 18:54:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42147193097
+	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 19:46:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727843AbgCYRyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Mar 2020 13:54:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727006AbgCYRyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Mar 2020 13:54:50 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12685206F6;
-        Wed, 25 Mar 2020 17:54:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585158888;
-        bh=9ihdfZAOYRAaqC0XBdLAl2zGzdR+z6H0O8D0fLFiScw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rkCLY1+KAlrXzNMgQ4ADifcwG7HbpIwu+2LxO4e2bQtN53pvhULA2RG4Nivctah0B
-         4A0r45Lqd4JKJTngUk1GlhgRqw7B30KAsb7xA1a/uT3oh87CZYhOvyq2DFQcJTnQKL
-         UIUwsLyyALPnwjwyOxvIjH/L0FtjfhDHzg7Dkodw=
-Date:   Wed, 25 Mar 2020 18:54:46 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.5 000/119] 5.5.12-rc1 review
-Message-ID: <20200325175446.GD3765240@kroah.com>
-References: <20200324130808.041360967@linuxfoundation.org>
- <CA+G9fYvNRXe7phaXrUeAtx+KUnmRXG7ic=suN9Ek7dgDdYOv6Q@mail.gmail.com>
+        id S1727491AbgCYSqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Mar 2020 14:46:19 -0400
+Received: from mail-eopbgr1300109.outbound.protection.outlook.com ([40.107.130.109]:3278
+        "EHLO APC01-HK2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727027AbgCYSqT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Mar 2020 14:46:19 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=l0/akW0+/jxVV1yO8/SNGnTenboeK4QI83LyLFopr/JkacjtUmPcAUNOsKXMpCneEBBmmF4S675e67ia7LLGYt9e0qx6AMD3VA57Su8zosI8Vn9vxiY7b1Fz0RGgFFv08N8kuD5hPQsUmORKvig+oPcnsQSOZVzGBLpAicXdGvcLUkiAsond9TI6ggbNIbQE0VSTzJjzk4zM0VoFB+uxKuasDOIKcLjIg2iW1/HMJ9PEMpa3QQn2fTdRBZmE6dY+gdfW1fL54K7ydJ1a2TyYGzSnwex8FwA6agLgL3TSdprpYz3OnUKb4PP3my47TcDSbGMCBi7yLnr9jPk0bLG0Ug==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9y1sBBsEoSHTNIwfSIa7HjqizKab5qUjk0buT2t09XU=;
+ b=LXzR9z0yx53BbWFO0qzZr1kUtl5Wj5yRPZAVH6gRVUJBRjyY6AB4x6LTbJXNcEglpOx6ScVehW/dLqxKuB1V4XkvS2Ynh14JMhrUQaZz607dTsz/e5ijx/bgHrhL1Z9wnZePXKM3XUFj2UJqP+GDtN03AkaJKQu5xN5HDKB7ZX89Pn4WQuk8N3rR1ignt4ckjIms9VP7CBOYuZ1ZNwKNRdI4DJ8+VmzwReL3yFQxDImrBi8CXs+OyPysVakGq0sXvO80dm0PkFX/wqmHXxvwXG3T6TuR6WoYuUKbTnTLksnfZGI2kk8M7/PBcmGQYct2jQaEM8rVJqmtow8yjYY0nA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9y1sBBsEoSHTNIwfSIa7HjqizKab5qUjk0buT2t09XU=;
+ b=adnY5bf1ldo2XP3jAwNJ07I7FL2h678iV6H9bgFDWHlK9jrmmt8dXTPZRtlZfUhxIYuLfnmOo8X3s4nW5WcYMwj/qTBaG7FtnGJReihIOqh7odDSwpM8ASdTCS1yWbK622zQdh4FK76BV3sme4GoFJC3D7Ebgo77Z7A58HYB5KU=
+Received: from HK0P153MB0273.APCP153.PROD.OUTLOOK.COM (52.132.236.76) by
+ HK0P153MB0145.APCP153.PROD.OUTLOOK.COM (52.133.156.22) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2878.2; Wed, 25 Mar 2020 18:46:09 +0000
+Received: from HK0P153MB0273.APCP153.PROD.OUTLOOK.COM
+ ([fe80::2d07:e045:9d5b:898a]) by HK0P153MB0273.APCP153.PROD.OUTLOOK.COM
+ ([fe80::2d07:e045:9d5b:898a%2]) with mapi id 15.20.2878.007; Wed, 25 Mar 2020
+ 18:46:09 +0000
+From:   Dexuan Cui <decui@microsoft.com>
+To:     Yubo Xie <ltykernel@gmail.com>, KY Srinivasan <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <liuwe@microsoft.com>,
+        "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        Michael Kelley <mikelley@microsoft.com>
+CC:     Yubo Xie <yuboxie@microsoft.com>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        vkuznets <vkuznets@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>
+Subject: RE: [PATCH] x86/Hyper-V: Fix hv sched clock function return wrong
+ time unit
+Thread-Topic: [PATCH] x86/Hyper-V: Fix hv sched clock function return wrong
+ time unit
+Thread-Index: AQHWAe+sIAx5Fyul2kCy9Ve4hkotjqhZotyQ
+Date:   Wed, 25 Mar 2020 18:46:08 +0000
+Message-ID: <HK0P153MB0273AEB3D64694E8DF31C0B0BFCE0@HK0P153MB0273.APCP153.PROD.OUTLOOK.COM>
+References: <20200324151935.15814-1-yuboxie@microsoft.com>
+In-Reply-To: <20200324151935.15814-1-yuboxie@microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=True;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Owner=decui@microsoft.com;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2020-03-25T18:46:05.1806297Z;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=General;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Application=Microsoft Azure
+ Information Protection;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=5f141aee-3c29-4a29-a518-1eaaf4ed75fb;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Extended_MSFT_Method=Automatic
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=decui@microsoft.com; 
+x-originating-ip: [2601:600:a280:7f70:5896:cf8a:cefe:fd7]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 40370955-164e-446a-ca3c-08d7d0ecc897
+x-ms-traffictypediagnostic: HK0P153MB0145:|HK0P153MB0145:|HK0P153MB0145:
+x-ms-exchange-transport-forked: True
+x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
+x-microsoft-antispam-prvs: <HK0P153MB0145F019E012A065DD12F30DBFCE0@HK0P153MB0145.APCP153.PROD.OUTLOOK.COM>
+x-ms-oob-tlc-oobclassifiers: OLM:1923;
+x-forefront-prvs: 0353563E2B
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:HK0P153MB0273.APCP153.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFTY:;SFS:(10019020)(4636009)(366004)(6636002)(86362001)(8676002)(2906002)(110136005)(8990500004)(54906003)(64756008)(81156014)(66556008)(66946007)(66446008)(107886003)(81166006)(6506007)(66476007)(71200400001)(5660300002)(9686003)(55016002)(8936002)(498600001)(186003)(4744005)(52536014)(33656002)(7696005)(76116006)(4326008)(10290500003);DIR:OUT;SFP:1102;
+received-spf: None (protection.outlook.com: microsoft.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: rNG3kqcVDkUi3OWc+wWizxR0kV324lyjZKVbeEe3qAi0tj+lBb9KjbVNY03C5Q7oBAKFXswH1Yuky+SZ3D/Bo/XAezeasB9BhYjU46jDdLDteFLurF6OaAw1MujwhpkaJcclqlnhc0qxIw5yodmgwLJ7+cikmjmE3HOGcejSOKpMfgKcvb3lwNkEoK2lcTElJ0np7DxyASJfgPBk4vMHzx3cbhleEsn4Q2I7jSMElrFhEB0TfOkh+Pm3lOyKQ0Dd/Hz45D02GYpmVaS3Qw8X0f8+pwCGIeKmS0FTF88g15n/3cKyIvPg9LTDj9yPIQvta3DYPexJZBg4O/b5iVWMIBOfYKNyQDsYsuusyWWEMC3qWQtxRxgdBrsIRQbkiqPttdQRF1X3CKZC9tKBjtHSRJsgm2Ms02HlUDcjqvIIzagYGmddIwHysptKciFpAKeC
+x-ms-exchange-antispam-messagedata: Iw9i+7E/2lre9msuHgZHT+iRyf4AslnQIJHYXD3eA4rKYzldZWy6knS0Uv9ikn1K8cnDDYHtXsvpTIwx9kIIG0VhI7ZVr2AsirrTsMJO8TpjKONR1O2itkeoHJT6gnUnT+qfGPyyE+yuUCu/ZWNoGl27O+xs6nFxbnl+Bk6v/AjP7j0dNZ1OcYyGW4E/hRm9VG308sqWsqy9eRQk1Uqmrg==
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYvNRXe7phaXrUeAtx+KUnmRXG7ic=suN9Ek7dgDdYOv6Q@mail.gmail.com>
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 40370955-164e-446a-ca3c-08d7d0ecc897
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Mar 2020 18:46:08.8297
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: tuNX0ND4ggfXj/+pMSK7VsWr1lr+jSxE4uk0LDHFnsfokrUAKuRgLALu0TnRBKTgeSmV2C8dyN9ccNExEHOsQw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HK0P153MB0145
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 25, 2020 at 11:16:22AM +0530, Naresh Kamboju wrote:
-> On Tue, 24 Mar 2020 at 18:52, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.5.12 release.
-> > There are 119 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 26 Mar 2020 13:06:42 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.12-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+> From: linux-hyperv-owner@vger.kernel.org
+> <linux-hyperv-owner@vger.kernel.org> On Behalf Of Yubo Xie
+> Sent: Tuesday, March 24, 2020 8:20 AM
+> ...
+> sched clock callback should return time with nano second as unit
+> but current hv callback returns time with 100ns. Fix it.
 
-Great, thanks for testing these and letting me know.
+Hi Yubo,
+I'm curious how you found the bug? :-) Did you notice some kind of symtom?
 
-greg k-h
+Thanks,
+-- Dexuan
