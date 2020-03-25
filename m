@@ -2,94 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45D5C192B67
-	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 15:43:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A4D9192B75
+	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 15:45:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727883AbgCYOnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Mar 2020 10:43:18 -0400
-Received: from us-smtp-delivery-74.mimecast.com ([216.205.24.74]:57966 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727731AbgCYOnR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 10:43:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585147396;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=dqoV/KEwx95ZHleBlKYKHLasQWHeps4CF+K8aw8lRJc=;
-        b=TiyDZ7N5Y9z059pPHWmn5425d3F+CS77PnoLIG0CeZxGP4/Z92/zbrMH+AC2KmRZtsBznb
-        nkeS3LsLFKhU3l35XRh7dYPxQDVLpo4oM1bG7iKoFSQa2Z2LFwEbwa5WmW+8v3yHR+6KkD
-        DJyPikB3L2DOhfe62L5mkgM3ecWVKuE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-319-oUA_TMZGM-m3eTOr4kV0kg-1; Wed, 25 Mar 2020 10:43:15 -0400
-X-MC-Unique: oUA_TMZGM-m3eTOr4kV0kg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CDDDBDB60;
-        Wed, 25 Mar 2020 14:43:13 +0000 (UTC)
-Received: from x1.localdomain.com (ovpn-112-213.ams2.redhat.com [10.36.112.213])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9D73010002A7;
-        Wed, 25 Mar 2020 14:43:12 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Daniel Vetter <daniel.vetter@intel.com>,
-        David Airlie <airlied@linux.ie>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
-Subject: [PATCH] drm/vboxvideo: Add missing remove_conflicting_pci_framebuffers call
-Date:   Wed, 25 Mar 2020 15:43:10 +0100
-Message-Id: <20200325144310.36779-1-hdegoede@redhat.com>
+        id S1727697AbgCYOpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Mar 2020 10:45:38 -0400
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:50805 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727585AbgCYOpi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 10:45:38 -0400
+Received: by mail-pj1-f65.google.com with SMTP id v13so1125326pjb.0
+        for <stable@vger.kernel.org>; Wed, 25 Mar 2020 07:45:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ugCeqmp/Mq0jKBiu2BjHElJ0M5EMcj2uFtWdNcNxFTY=;
+        b=s6ai0HpgBFXJMc2A1CCq1fIq+8pcSCAs9jnRKN+CozD5xWouSJOMTteFYMwqkSnWaC
+         23OlBx0YSnpRaT5AXgbuwwR+l7+DhBNQP0moEM32N3LUdRZzJVR5i81tGKpiwuIFjjht
+         W0+hjzt0nIk8qCDCxmVX7EIHCRNTf8N+jGAKaw5X6eBhBDK5sMelpabUSZyhF3wUVUPY
+         u4FWINn0iAvbT6obpsiVn6mWdr30bXLbMlSSN1eeX8BBIVCh2Aai62cJITDs6jNwQ1NS
+         s6E73P7LIkgpaPAFEjixVTaeTPgEBW01vahtdJbQlIa7RTSBu5aj9k8qhfgJSmSqP8SU
+         qBYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ugCeqmp/Mq0jKBiu2BjHElJ0M5EMcj2uFtWdNcNxFTY=;
+        b=o9Y5/e25lsKd8XOgpFXOUNdmD+oOaiOrlOIEZl6+z8QEdGgdQWo4AmPii5+SVF7Ftl
+         ffG55V7hwTZNdWlPOP46873cTJtZLeejCu4rnETn6K5w3ks+exOIOpj6RvSu+DVy/VRP
+         d6fI7sQjDKq5lW//AggKecIn9X3UdAUI5gxVcgt48D+j5HEvLHrgq6AqyLJb8/OoiVQm
+         9QCvj3PNxtLWxF3+AWEH8Oe59nYAzYd2BizYsMa4JShfnQJQbfv1Z7flbJKioK4I5oH4
+         51FwUFfvkqUSXoWjBhMdmYNfw4boRROCzNr7vzhPcmmCbYHXy8KgrRr5VENlNH2Jiec6
+         c3Ig==
+X-Gm-Message-State: ANhLgQ1Wsk0tBKq5tJQd7eOO8fLlW1vOMRV2rx1R287Qs5Qv7MtoXZLs
+        zPX2U10aMp88i0GRHgFzoKht4B4R8oM=
+X-Google-Smtp-Source: ADFU+vvAbLYRUCdWvgyBkx9ZCsrk/1XNaQDOy94Ar8lWfRLP3c8Joii9wVmn8+tw3HHP5V2HvFTxzg==
+X-Received: by 2002:a17:90a:2226:: with SMTP id c35mr4268051pje.2.1585147535477;
+        Wed, 25 Mar 2020 07:45:35 -0700 (PDT)
+Received: from [10.0.9.4] ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y142sm19317132pfc.53.2020.03.25.07.45.33
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Mar 2020 07:45:33 -0700 (PDT)
+Message-ID: <5e7b6e8d.1c69fb81.35e47.93c5@mx.google.com>
+Date:   Wed, 25 Mar 2020 07:45:33 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.28
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.4.y boot: 104 boots: 2 failed,
+ 97 passed with 5 untried/unknown (v5.4.28)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The vboxvideo driver is missing a call to remove conflicting framebuffers=
-.
+stable/linux-5.4.y boot: 104 boots: 2 failed, 97 passed with 5 untried/unkn=
+own (v5.4.28)
 
-Surprisingly, when using legacy BIOS booting this does not really cause
-any issues. But when using UEFI to boot the VM then plymouth will draw
-on both the efifb /dev/fb0 and /dev/drm/card0 (which has registered
-/dev/fb1 as fbdev emulation).
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+4.y/kernel/v5.4.28/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
+rnel/v5.4.28/
 
-VirtualBox will actual display the output of both devices (I guess it is
-showing whatever was drawn last), this causes weird artifacts because of
-pitch issues in the efifb when the VM window is not sized at 1024x768
-(the window will resize to its last size once the vboxvideo driver loads,
-changing the pitch).
+Tree: stable
+Branch: linux-5.4.y
+Git Describe: v5.4.28
+Git Commit: 462afcd6e7ea94a7027a96a3bb12d0140b0b4216
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 66 unique boards, 19 SoC families, 18 builds out of 200
 
-Adding the missing drm_fb_helper_remove_conflicting_pci_framebuffers()
-call fixes this.
+Boot Regressions Detected:
 
-Cc: stable@vger.kernel.org
-Fixes: 2695eae1f6d3 ("drm/vboxvideo: Switch to generic fbdev emulation")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+arm:
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.4.27)
+
+    vexpress_defconfig:
+        gcc-8:
+          vexpress-v2p-ca15-tc1:
+              lab-baylibre: failing since 7 days (last pass: v5.4.25 - firs=
+t fail: v5.4.26)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            msm8998-mtp: 1 failed lab
+
 ---
- drivers/gpu/drm/vboxvideo/vbox_drv.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxv=
-ideo/vbox_drv.c
-index 8512d970a09f..261255085918 100644
---- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
-@@ -76,6 +76,10 @@ static int vbox_pci_probe(struct pci_dev *pdev, const =
-struct pci_device_id *ent)
- 	if (ret)
- 		goto err_mode_fini;
-=20
-+	ret =3D drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "vboxvi=
-deodrmfb");
-+	if (ret)
-+		goto err_irq_fini;
-+
- 	ret =3D drm_fbdev_generic_setup(&vbox->ddev, 32);
- 	if (ret)
- 		goto err_irq_fini;
---=20
-2.26.0.rc2
-
+For more info write to <info@kernelci.org>
