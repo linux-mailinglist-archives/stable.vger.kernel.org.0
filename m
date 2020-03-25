@@ -2,121 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A43A192735
-	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 12:34:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ED30192813
+	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 13:20:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727158AbgCYLed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Mar 2020 07:34:33 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:43179 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727280AbgCYLed (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 07:34:33 -0400
-Received: by mail-lf1-f67.google.com with SMTP id n20so1442537lfl.10
-        for <stable@vger.kernel.org>; Wed, 25 Mar 2020 04:34:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=O7KffvUQLvEtuKLuleQeJ202vBQLqQy9HV1Fxk0tNOM=;
-        b=HDfdSaRDnAglhBGm1Inpp4+PGlm69FgGVABJzD28TMp6tqeNsKiHMI777YCormOPzd
-         uObNsIFHV1Npk5ziYCXZ0cQLBNe4T8aZZKrc3tZBoKsfGViR+Ix/mqOLR4JsgIMcm9t1
-         vFdk3jktgqFH4Z/+GU/IydPzWVGMjeoANomk1rbXDkBKfC1ZsDPJLBW8K0DcZwll9C24
-         tp+m/Jzg8CN8lYauf5ETMIUTJ1rrRQ1tXDrgUnt6dLpzH8GpssHm3HOsSizAit60PbjS
-         Q/2MXBDO8MYvbDm058vsshlEfxsxUgbcDLCNaTtOnWlyOVawtVI6kXoNhDLMsh67bsk+
-         papQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=O7KffvUQLvEtuKLuleQeJ202vBQLqQy9HV1Fxk0tNOM=;
-        b=LQtBS9v53ez9Sl2JQCWWedzcslBsIwdaADXsTmh9RNio4ZKMzCa79QG0dhy7rieU2l
-         IPPdLOjUyZJN/M/8O7Ic2lvu0CdJi94kA20MQQCqn/lvX74WBG2XXL4wmSBsPewJe9fw
-         ozuridxwxo0ZZ/TycSgHfsdRyz4zVMDlso/CjtJc//xe6EoC7QADlSUVK6NPzUmMZ4Pq
-         +sEBVRgMaDE32EOi7zSEq5YGt/HrOUcHeake1KXQ/+oSPsLWYQenUyl87EOXBBEvLHHW
-         b2Fd1N60xYVyfXZddwReEBw5ZDAzVVqComFmAod5IlkA7FJ/mGz56GPbWVgQVIKLMHmK
-         rI9w==
-X-Gm-Message-State: ANhLgQ0FXdf3r5+uAcmUqEmKJLeA+1rZ0kYe843Z6oULbM6FbpvxNQ45
-        X6FuPwSEKFOa9j8dPht+KnElPw==
-X-Google-Smtp-Source: ADFU+vtF9WPanLG3a1vSHxs2lc6VyzDOkLrVTfTbQpdbdnZ4basqRFJVF+b7L4EKM0fI2K8g88uVuw==
-X-Received: by 2002:ac2:4116:: with SMTP id b22mr1933177lfi.172.1585136070290;
-        Wed, 25 Mar 2020 04:34:30 -0700 (PDT)
-Received: from localhost.localdomain (h-158-174-22-210.NA.cust.bahnhof.se. [158.174.22.210])
-        by smtp.gmail.com with ESMTPSA id v22sm3920009ljc.79.2020.03.25.04.34.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2020 04:34:29 -0700 (PDT)
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        linux-kernel@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
-        Russell King <linux@armlinux.org.uk>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Haibo Chen <haibo.chen@nxp.com>,
-        Ludovic Barre <ludovic.barre@st.com>,
-        linux-arm-kernel@lists.infradead.org, dmaengine@vger.kernel.org,
-        Ulf Hansson <ulf.hansson@linaro.org>, stable@vger.kernel.org
-Subject: [PATCH 2/2] amba: Initialize dma_parms for amba devices
-Date:   Wed, 25 Mar 2020 12:34:07 +0100
-Message-Id: <20200325113407.26996-3-ulf.hansson@linaro.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200325113407.26996-1-ulf.hansson@linaro.org>
-References: <20200325113407.26996-1-ulf.hansson@linaro.org>
+        id S1727275AbgCYMUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Mar 2020 08:20:11 -0400
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:42132 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727137AbgCYMUL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 08:20:11 -0400
+Received: from fllv0034.itg.ti.com ([10.64.40.246])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 02PCK8ai063515;
+        Wed, 25 Mar 2020 07:20:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1585138808;
+        bh=HVTSXMIwZpVCubTilDBdhYSPhm3IUZFIotzyKC7APK0=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References;
+        b=qUKL51BZYVciw2chUBkV2gZcrjdGK+rts4LPGaLijGa52V8ZyaK7fxxwjQvh3iyzd
+         IgE+1RjJ0X4bIyP5FaLcdbscof2+R5jL8NOgO295HZbHdD1W+gg8f9KBdrThz8gsxO
+         AU5MevI0udeufbE8i229s4w4RS/dB8O5sKVL0tZE=
+Received: from DFLE100.ent.ti.com (dfle100.ent.ti.com [10.64.6.21])
+        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 02PCK829019629
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 25 Mar 2020 07:20:08 -0500
+Received: from DFLE102.ent.ti.com (10.64.6.23) by DFLE100.ent.ti.com
+ (10.64.6.21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3; Wed, 25
+ Mar 2020 07:20:07 -0500
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DFLE102.ent.ti.com
+ (10.64.6.23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1847.3 via
+ Frontend Transport; Wed, 25 Mar 2020 07:20:07 -0500
+Received: from deskari.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 02PCK5XZ037237;
+        Wed, 25 Mar 2020 07:20:06 -0500
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+To:     <linux-media@vger.kernel.org>,
+        Steve Longerbeam <slongerbeam@gmail.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Benoit Parrot <bparrot@ti.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+CC:     Tomi Valkeinen <tomi.valkeinen@ti.com>, <stable@vger.kernel.org>
+Subject: [PATCH v3] media: ov5640: fix use of destroyed mutex
+Date:   Wed, 25 Mar 2020 14:20:00 +0200
+Message-ID: <20200325122000.26531-1-tomi.valkeinen@ti.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200313131948.13803-1-tomi.valkeinen@ti.com>
+References: <20200313131948.13803-1-tomi.valkeinen@ti.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It's currently the amba driver's responsibility to initialize the pointer,
-dma_parms, for its corresponding struct device. The benefit with this
-approach allows us to avoid the initialization and to not waste memory for
-the struct device_dma_parameters, as this can be decided on a case by case
-basis.
+v4l2_ctrl_handler_free() uses hdl->lock, which in ov5640 driver is set
+to sensor's own sensor->lock. In ov5640_remove(), the driver destroys the
+sensor->lock first, and then calls v4l2_ctrl_handler_free(), resulting
+in the use of the destroyed mutex.
 
-However, it has turned out that this approach is not very practical. Not
-only does it lead to open coding, but also to real errors. In principle
-callers of dma_set_max_seg_size() doesn't check the error code, but just
-assumes it succeeds.
+Fix this by calling moving the mutex_destroy() to the end of the cleanup
+sequence, as there's no need to destroy the mutex as early as possible.
 
-For these reasons, let's do the initialization from the common amba bus at
-the device registration point. This also follows the way the PCI devices
-are being managed, see pci_device_add().
-
-Suggested-by: Christoph Hellwig <hch@lst.de>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: stable@vger.kernel.org # v4.14+
+Reviewed-by: Benoit Parrot <bparrot@ti.com>
 ---
- drivers/amba/bus.c       | 2 ++
- include/linux/amba/bus.h | 1 +
- 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
-index fe1523664816..5e61783ce92d 100644
---- a/drivers/amba/bus.c
-+++ b/drivers/amba/bus.c
-@@ -374,6 +374,8 @@ static int amba_device_try_add(struct amba_device *dev, struct resource *parent)
- 	WARN_ON(dev->irq[0] == (unsigned int)-1);
- 	WARN_ON(dev->irq[1] == (unsigned int)-1);
+Added reviewed-by from Benoit
+Added stable version
+
+ drivers/media/i2c/ov5640.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index 854031f0b64a..2fe4a7ac0592 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -3093,8 +3093,8 @@ static int ov5640_probe(struct i2c_client *client)
+ free_ctrls:
+ 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
+ entity_cleanup:
+-	mutex_destroy(&sensor->lock);
+ 	media_entity_cleanup(&sensor->sd.entity);
++	mutex_destroy(&sensor->lock);
+ 	return ret;
+ }
  
-+	dev->dev.dma_parms = &dev->dma_parms;
-+
- 	ret = request_resource(parent, &dev->res);
- 	if (ret)
- 		goto err_out;
-diff --git a/include/linux/amba/bus.h b/include/linux/amba/bus.h
-index 26f0ecf401ea..0bbfd647f5c6 100644
---- a/include/linux/amba/bus.h
-+++ b/include/linux/amba/bus.h
-@@ -65,6 +65,7 @@ struct amba_device {
- 	struct device		dev;
- 	struct resource		res;
- 	struct clk		*pclk;
-+	struct device_dma_parameters dma_parms;
- 	unsigned int		periphid;
- 	unsigned int		cid;
- 	struct amba_cs_uci_id	uci;
+@@ -3104,9 +3104,9 @@ static int ov5640_remove(struct i2c_client *client)
+ 	struct ov5640_dev *sensor = to_ov5640_dev(sd);
+ 
+ 	v4l2_async_unregister_subdev(&sensor->sd);
+-	mutex_destroy(&sensor->lock);
+ 	media_entity_cleanup(&sensor->sd.entity);
+ 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
++	mutex_destroy(&sensor->lock);
+ 
+ 	return 0;
+ }
 -- 
-2.20.1
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
 
