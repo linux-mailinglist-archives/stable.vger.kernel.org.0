@@ -2,127 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E467D192C46
-	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 16:24:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5D53192C49
+	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 16:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727821AbgCYPY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Mar 2020 11:24:26 -0400
-Received: from mx07-00178001.pphosted.com ([62.209.51.94]:22386 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727505AbgCYPYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 11:24:25 -0400
-Received: from pps.filterd (m0046668.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02PFO1sb013405;
-        Wed, 25 Mar 2020 16:24:08 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=STMicroelectronics;
- bh=251aijJqzn9yU8MYctpjTqFbHgxmUCK4PXt+EtiJg48=;
- b=WKKjM5ybNsKQi5XoeHM7JN84FsIs3NlGRoaL4ek2paCb3OrTni7NtZm0fsCFTC6b3bkE
- aGz/X4HVmXYamniB8SgQIF7tOqG2Khi3EU2eSKSpyr1qhVS0AnBm/BI/vLMBY68mjnSm
- 4H3PytXKQyJoTNUyCyMS3vB2b0Xkfb5iVZB1HLTvI+M+xRvFjriFCPcdee9xpsJYPeFy
- SE4LM/QnpLIW9knaM2tZzcBsCXU4ZKtW1zP/Gtd2Ie00nJvz6rIVdB05tEZZOrslDKhN
- 0YjuL8//4iowC2Unc6oTr/4Dq4URKYht9MTo7erzejwzqpunFnLKms4LhJle22RLgi+6 +w== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com with ESMTP id 2yw995pgh8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 25 Mar 2020 16:24:08 +0100
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 0D0C510002A;
-        Wed, 25 Mar 2020 16:24:05 +0100 (CET)
-Received: from Webmail-eu.st.com (sfhdag6node1.st.com [10.75.127.16])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id E9B3F2B5D06;
-        Wed, 25 Mar 2020 16:24:04 +0100 (CET)
-Received: from lmecxl0923.lme.st.com (10.75.127.51) by SFHDAG6NODE1.st.com
- (10.75.127.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 25 Mar
- 2020 16:24:03 +0100
-Subject: Re: [PATCH 2/2] amba: Initialize dma_parms for amba devices
-To:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
-        Russell King <linux@armlinux.org.uk>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Haibo Chen <haibo.chen@nxp.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <dmaengine@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20200325113407.26996-1-ulf.hansson@linaro.org>
- <20200325113407.26996-3-ulf.hansson@linaro.org>
-From:   Ludovic BARRE <ludovic.barre@st.com>
-Message-ID: <f73aac31-d243-dbc6-474e-95174444fe3a@st.com>
-Date:   Wed, 25 Mar 2020 16:24:03 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        id S1727501AbgCYPYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Mar 2020 11:24:45 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:32780 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727319AbgCYPYo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 11:24:44 -0400
+Received: by mail-qt1-f195.google.com with SMTP id c14so2502930qtp.0
+        for <stable@vger.kernel.org>; Wed, 25 Mar 2020 08:24:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=l9GE4tNP0a/RYcvkghfD+VaPwEMEeyfTaeCdLtq9WBs=;
+        b=wVWeTezxWgvXAcgFch+CuNyCQLEX993+7lv4rY5iG3XINR5qc+jH54rGliBKEhLPq1
+         YpamQGAWuZudQBpIt8ifBbvloLD+k63TGJpGWDrlA/tfpvaTSdVmc5Cq7+z/Cn23n6b5
+         t/jZIwouA/Vb7mT/grgDUZCFq90A3GhQl/H2XcbkMFCyPR8etoBWYsQxTle1zkBC/0aj
+         1RTlSNlZG9mnMRgsa6J6ZgdwakrOpd1pLjk++s2eysIcxJtuZhJ1EfLnrVcutBwIHHTF
+         6GtfvvZFOIWDsCCqSGKLgYVFEdSKb/LphKT4Nd4ZewTJbFpE1VGJLA1SbrK54uHULvlO
+         krPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=l9GE4tNP0a/RYcvkghfD+VaPwEMEeyfTaeCdLtq9WBs=;
+        b=AkultlDFhYFVd9aBFEVxjxwvbq+wacP2cqSSzGz01ivBKt7AvZKymK//EpIL/ZuAm/
+         +8s6pOVq5Kb/QlBDWH4PhoUqgsSBfDDEowklr8wkRMzuQ0wk4VO/j/yLUbWFsev/B3iu
+         Z3eclwEDjAYihbrCLWfB0aOllFEKX6jQYJURdgf0orQc+dBOIX/yAqYbfO6T5gaMg4ja
+         gZ+XCD0kxGPqWGQRaYXbwWrondQbJ738L1DAAly1Hx/jh5HdnI0wII8d1wjxLl7mQJng
+         eNyrqaWa6Y7ZP4wcYgXl7l76myvggtKtVdds9/K7nX3RUxSTBjR5iWULzf8XTwOiqvVS
+         siAQ==
+X-Gm-Message-State: ANhLgQ3SHqzth9FqTUKR97bicJPfiqDu11lECF9lC8crzmMz1tRqR61v
+        BcAFv8GKEJY5Cu0sKl+NfsgGg69gscevQH9vJKPPqA==
+X-Google-Smtp-Source: ADFU+vsglUWcb8kSJWCWPe59RcqYFtxxJwWRhABAzMOq4UtV6psgXADMLDWsXL3t+InU3gTy9oWruRzOYaUvQgQRKg4=
+X-Received: by 2002:ac8:23fa:: with SMTP id r55mr3521929qtr.131.1585149883270;
+ Wed, 25 Mar 2020 08:24:43 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200325113407.26996-3-ulf.hansson@linaro.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: fr
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.75.127.51]
-X-ClientProxiedBy: SFHDAG3NODE2.st.com (10.75.127.8) To SFHDAG6NODE1.st.com
- (10.75.127.16)
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.645
- definitions=2020-03-25_08:2020-03-24,2020-03-25 signatures=0
+References: <20200325103154.32235-1-anssi.hannula@bitwise.fi>
+In-Reply-To: <20200325103154.32235-1-anssi.hannula@bitwise.fi>
+From:   Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Date:   Wed, 25 Mar 2020 16:24:32 +0100
+Message-ID: <CAMpxmJVrTJN_YgfvKfxbNHRKscM8rGetbc=ic6hsbqMwCJapPQ@mail.gmail.com>
+Subject: Re: [PATCH] tools: gpio: Fix out-of-tree build regression
+To:     Anssi Hannula <anssi.hannula@bitwise.fi>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio <linux-gpio@vger.kernel.org>,
+        "Stable # 4 . 20+" <stable@vger.kernel.org>,
+        Laura Abbott <labbott@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-Le 3/25/20 à 12:34 PM, Ulf Hansson a écrit :
-> It's currently the amba driver's responsibility to initialize the pointer,
-> dma_parms, for its corresponding struct device. The benefit with this
-> approach allows us to avoid the initialization and to not waste memory for
-> the struct device_dma_parameters, as this can be decided on a case by case
-> basis.
-> 
-> However, it has turned out that this approach is not very practical. Not
-> only does it lead to open coding, but also to real errors. In principle
-> callers of dma_set_max_seg_size() doesn't check the error code, but just
-> assumes it succeeds.
-> 
-> For these reasons, let's do the initialization from the common amba bus at
-> the device registration point. This also follows the way the PCI devices
-> are being managed, see pci_device_add().
-> 
-
-tested with mmc: mmci_sdmmc fix
-Tested-by: Ludovic Barre <ludovic.barre@st.com>
-
-> Suggested-by: Christoph Hellwig <hch@lst.de>
-> Cc: Russell King <linux@armlinux.org.uk>
+=C5=9Br., 25 mar 2020 o 11:33 Anssi Hannula <anssi.hannula@bitwise.fi> napi=
+sa=C5=82(a):
+>
+> Commit 0161a94e2d1c7 ("tools: gpio: Correctly add make dependencies for
+> gpio_utils") added a make rule for gpio-utils-in.o but used $(output)
+> instead of the correct $(OUTPUT) for the output directory, breaking
+> out-of-tree build (O=3Dxx) with the following error:
+>
+>   No rule to make target 'out/tools/gpio/gpio-utils-in.o', needed by 'out=
+/tools/gpio/lsgpio-in.o'.  Stop.
+>
+> Fix that.
+>
+> Fixes: 0161a94e2d1c ("tools: gpio: Correctly add make dependencies for gp=
+io_utils")
 > Cc: <stable@vger.kernel.org>
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> Cc: Laura Abbott <labbott@redhat.com>
+> Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
 > ---
->   drivers/amba/bus.c       | 2 ++
->   include/linux/amba/bus.h | 1 +
->   2 files changed, 3 insertions(+)
-> 
-> diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
-> index fe1523664816..5e61783ce92d 100644
-> --- a/drivers/amba/bus.c
-> +++ b/drivers/amba/bus.c
-> @@ -374,6 +374,8 @@ static int amba_device_try_add(struct amba_device *dev, struct resource *parent)
->   	WARN_ON(dev->irq[0] == (unsigned int)-1);
->   	WARN_ON(dev->irq[1] == (unsigned int)-1);
->   
-> +	dev->dev.dma_parms = &dev->dma_parms;
-> +
->   	ret = request_resource(parent, &dev->res);
->   	if (ret)
->   		goto err_out;
-> diff --git a/include/linux/amba/bus.h b/include/linux/amba/bus.h
-> index 26f0ecf401ea..0bbfd647f5c6 100644
-> --- a/include/linux/amba/bus.h
-> +++ b/include/linux/amba/bus.h
-> @@ -65,6 +65,7 @@ struct amba_device {
->   	struct device		dev;
->   	struct resource		res;
->   	struct clk		*pclk;
-> +	struct device_dma_parameters dma_parms;
->   	unsigned int		periphid;
->   	unsigned int		cid;
->   	struct amba_cs_uci_id	uci;
-> 
+>
+> The 0161a94e2d1c was also applied to stable releases, which is where I
+> got hit by the issue.
+>
+>  tools/gpio/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/tools/gpio/Makefile b/tools/gpio/Makefile
+> index 842287e42c83..440434027557 100644
+> --- a/tools/gpio/Makefile
+> +++ b/tools/gpio/Makefile
+> @@ -35,7 +35,7 @@ $(OUTPUT)include/linux/gpio.h: ../../include/uapi/linux=
+/gpio.h
+>
+>  prepare: $(OUTPUT)include/linux/gpio.h
+>
+> -GPIO_UTILS_IN :=3D $(output)gpio-utils-in.o
+> +GPIO_UTILS_IN :=3D $(OUTPUT)gpio-utils-in.o
+>  $(GPIO_UTILS_IN): prepare FORCE
+>         $(Q)$(MAKE) $(build)=3Dgpio-utils
+>
+> --
+> 2.21.1
+>
+
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
