@@ -2,136 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07AB5192A91
-	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 14:58:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A423F192ABF
+	for <lists+stable@lfdr.de>; Wed, 25 Mar 2020 15:07:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727536AbgCYN57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Mar 2020 09:57:59 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:35981 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726967AbgCYN56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 09:57:58 -0400
-Received: by mail-pg1-f194.google.com with SMTP id j29so1186882pgl.3;
-        Wed, 25 Mar 2020 06:57:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=UK1bTCjwWjERwUjBRJwj5mEVh+i6Cx+AtXtd2ZWguHU=;
-        b=Q/dc46LQGtihMg+xa069FnlVeBFJlEXwOOxRsN753Z76Ne+z3LYxYWJo+L2lbE4Fad
-         V8XGq5vBzJ3l731HxKxH7DycOAPc4jt4XvcddsqYX54/QkwEhfDo5D2mioTZne9cmn0t
-         IrJCKQtpaMzg2S4OffZC3m45QnCt84BLX/RcKdP2iCejB8B4zsH8cBAiAxe0j4P0sK3w
-         hayhiQFYu446lMreJKPDtWo3aMGr2eReEg2XvLIkS1uVUjuAoegZxwVZgx+0YbgywaVp
-         i5Ag/5207lNwTiQRmfIblk4IbgfhPbVU9J/ukNCUnj8wlxigklgS3N3iL9Lf5kvx0hm+
-         mCdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=UK1bTCjwWjERwUjBRJwj5mEVh+i6Cx+AtXtd2ZWguHU=;
-        b=T2yhMQLKRLybwRvNEIcuD8RGNm1t+knSuIIl01ybfTnxIgBUtnSmZHu4O+nboYv3w4
-         C95IPS9xjPvIxpOdjTfIJH8o1zYBzv7D8/V2FVBt+miDPCQBQa00chG8Po4Hnupy8J2d
-         KhPcvfWh3Ihfl5pDz14/sv368q4vBGSPUBxcW+NV9b7mTfLELQWiaVYD3lKoRPBLu3R2
-         OllnN8h+1Cge/jKyCEfSJSZSPA4i0espkKL+Pttxony55dAVjF72mjAeVWSlZYraV96k
-         FVDIqeFg7WReWh/uFmDm/+dHrKqWN1OuZV72WGCXbrTP+I/yE4kZnxdIz9BjC1U9HOEd
-         PT/Q==
-X-Gm-Message-State: ANhLgQ3bp2gQ4LZcmYK+EOHr2dh+0gzSLCUBpXaqNbj2O9w5nuPRc6X9
-        QLUMHUXX18S9Ar0F4Q9TGcA=
-X-Google-Smtp-Source: ADFU+vslu82Vg7HGoUVYAIPV1Q8ize5C9abSZMr6O3jjfgTuW8qGRtcVRrvTGKOjfabRs/GBBMWYtw==
-X-Received: by 2002:a65:5b49:: with SMTP id y9mr3204412pgr.153.1585144677478;
-        Wed, 25 Mar 2020 06:57:57 -0700 (PDT)
-Received: from ?IPv6:2404:f801:0:6:8000::a31c? ([2404:f801:9000:1a:efeb::a31c])
-        by smtp.gmail.com with ESMTPSA id a19sm18841126pfk.110.2020.03.25.06.57.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 25 Mar 2020 06:57:57 -0700 (PDT)
-Subject: Re: [PATCH] x86/Hyper-V: Fix hv sched clock function return wrong
- time unit
-To:     Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     Yubo Xie <yuboxie@microsoft.com>, linux-hyperv@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>, kys@microsoft.com,
-        haiyangz@microsoft.com, sthemmin@microsoft.com,
-        liuwe@microsoft.com, daniel.lezcano@linaro.org, tglx@linutronix.de,
-        michael.h.kelley@microsoft.com
-References: <20200324151935.15814-1-yuboxie@microsoft.com>
- <87ftdx7nxv.fsf@vitty.brq.redhat.com>
-From:   Tianyu Lan <ltykernel@gmail.com>
-Message-ID: <039e126f-f00d-d7e1-aa92-c049c9e3333b@gmail.com>
-Date:   Wed, 25 Mar 2020 21:57:52 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1727357AbgCYOHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Mar 2020 10:07:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39538 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726102AbgCYOHN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Mar 2020 10:07:13 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0172E20722;
+        Wed, 25 Mar 2020 14:07:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585145232;
+        bh=diBwSLo8wU9yZnIJ95vKRVAR15DopN3BP6vf9PO3T88=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uH2zC4S/RgnKGxWtghNl1SamqWsawwpHaEt9TT+1Sp0zx7h2V5l3Dmsrmm05Q8AHn
+         4iHmfEy63KjKNqG8Ibw8RrUdw5xdFJ5VhsXjnynR8ZG6/R1LTyjpApPHlMgqpWiB53
+         kiJRAonoSyD1eo0WYaOooK4A/sdty/eA/j9mwnuM=
+Date:   Wed, 25 Mar 2020 15:07:08 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jiri Slaby <jslaby@suse.cz>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Saravana Kannan <saravanak@google.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH 5.5 066/189] driver core: Call sync_state() even if
+ supplier has no consumers
+Message-ID: <20200325140708.GA3533248@kroah.com>
+References: <20200310123639.608886314@linuxfoundation.org>
+ <20200310123646.283600281@linuxfoundation.org>
+ <93643339-612c-3438-fff8-4eac728118a0@suse.cz>
 MIME-Version: 1.0
-In-Reply-To: <87ftdx7nxv.fsf@vitty.brq.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <93643339-612c-3438-fff8-4eac728118a0@suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Vitaly:
-     Thanks for your review.
+On Wed, Mar 25, 2020 at 02:42:27PM +0100, Jiri Slaby wrote:
+> On 10. 03. 20, 13:38, Greg Kroah-Hartman wrote:
+> > From: Saravana Kannan <saravanak@google.com>
+> > 
+> > commit 21eb93f432b1a785df193df1a56a59e9eb3a985f upstream.
+> > 
+> > The initial patch that added sync_state() support didn't handle the case
+> > where a supplier has no consumers. This was because when a device is
+> > successfully bound with a driver, only its suppliers were checked to see
+> > if they are eligible to get a sync_state(). This is not sufficient for
+> > devices that have no consumers but still need to do device state clean
+> > up. So fix this.
+> > 
+> > Fixes: fc5a251d0fd7ca90 (driver core: Add sync_state driver/bus callback)
+> 
+> This causes NULL ptr dereferences (in 5.5 only). It is enough to load
+> the mac80211_hwsim module.
+> 
+> The backport to 5.5 needs at least these two commits:
+> commit ac338acf514e7b578fa9e3742ec2c292323b4c1a
+> Author: Saravana Kannan <saravanak@google.com>
+> Date:   Fri Feb 21 00:05:09 2020 -0800
+> 
+>     driver core: Add dev_has_sync_state()
+> 
+> commit 77036165d8bcf7c7b2a2df28a601ec2c52bb172d
+> Author: Saravana Kannan <saravanak@google.com>
+> Date:   Fri Feb 21 00:05:10 2020 -0800
+> 
+>     driver core: Skip unnecessary work when device doesn't have sync_state()
+> 
+> 
+> and playing with includes.
+> 
+> I am not sure if a revert wouldn't be better -- leaving up to maintainers.
+> 
+> https://bugzilla.suse.com/show_bug.cgi?id=1167245
 
-On 3/24/2020 11:49 PM, Vitaly Kuznetsov wrote:
-> Yubo Xie <ltykernel@gmail.com> writes:
-> 
->> sched clock callback should return time with nano second as unit
->> but current hv callback returns time with 100ns. Fix it.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Yubo Xie <yuboxie@microsoft.com>
->> Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
->> Fixes: adb87ff4f96c ("clocksource/drivers/hyperv: Allocate Hyper-V TSC page statically")
-> 
-> I don't think this is the right commit to reference,
-> 
-> commit bd00cd52d5be655a2f217e2ed74b91a71cb2b14f
-> Author: Tianyu Lan <Tianyu.Lan@microsoft.com>
-> Date:   Wed Aug 14 20:32:16 2019 +0800
-> 
->      clocksource/drivers/hyperv: Add Hyper-V specific sched clock function
-> 
-> looks like the one.
+These are already queued up, I think I'll push out an update in a bit
+with them in a release...
 
-Sorry. You are right. Will update in the next version.
+thanks,
 
-> 
->> ---
->>   drivers/clocksource/hyperv_timer.c | 6 ++++--
->>   1 file changed, 4 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
->> index 9d808d595ca8..662ed978fa24 100644
->> --- a/drivers/clocksource/hyperv_timer.c
->> +++ b/drivers/clocksource/hyperv_timer.c
->> @@ -343,7 +343,8 @@ static u64 notrace read_hv_clock_tsc_cs(struct clocksource *arg)
->>   
->>   static u64 read_hv_sched_clock_tsc(void)
->>   {
->> -	return read_hv_clock_tsc() - hv_sched_clock_offset;
->> +	return (read_hv_clock_tsc() - hv_sched_clock_offset)
->> +		* (NSEC_PER_SEC / HV_CLOCK_HZ);
->>   }
->>   
->>   static void suspend_hv_clock_tsc(struct clocksource *arg)
->> @@ -398,7 +399,8 @@ static u64 notrace read_hv_clock_msr_cs(struct clocksource *arg)
->>   
->>   static u64 read_hv_sched_clock_msr(void)
->>   {
->> -	return read_hv_clock_msr() - hv_sched_clock_offset;
->> +	return (read_hv_clock_msr() - hv_sched_clock_offset)
->> +		* (NSEC_PER_SEC / HV_CLOCK_HZ);
->>   }
-> 
-> kvmclock seems to have the same (pre-patch) code ...
-
-
-kvm sched clock gets time from pvclock_clocksource_read() and
-the time unit is nanosecond. So there is such issue in KVM code.
-
-> 
->>   
->>   static struct clocksource hyperv_cs_msr = {
-> 
+greg k-h
