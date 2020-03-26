@@ -2,107 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C1AA19349D
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 00:33:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C85193502
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 01:38:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727402AbgCYXdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Mar 2020 19:33:14 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:41029 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727399AbgCYXdO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Mar 2020 19:33:14 -0400
-Received: by mail-lf1-f65.google.com with SMTP id z23so3290725lfh.8
-        for <stable@vger.kernel.org>; Wed, 25 Mar 2020 16:33:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fq+rH4YE72x0k6vRBalpeRHnZGOCdmKPprbP9ia4MOM=;
-        b=SNZW1PD3VW0c1h12/8mpMh7w/sIRy8tamsLzdz1LCfbU6hfQlo6W347kP/HwYMVR1F
-         Qc3yQZxk2Q6Ac3hySPQRuUUIwmpgB6X/EVSlxyyQNguRk2dl6pjGMgclgPV2raGbzK9K
-         s59O7jhtZLpU2H5VUcs/tWXFwDu7pd96OmcSlz6AjBg6aNFsyXNjjm+mTP00meS7lENx
-         30l18riTd02UZ0+iUuspw9fB5iqhvl4NzVmod84EmrphxF5y+4nSuUukkIRM/Yu9tVby
-         Q6rqikN8GIdZXWqgKQlp9hlkE1iRyVFIljrbqfzTgsWv9pAU/0VmpnsJ149VCt+YWN23
-         o4RQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fq+rH4YE72x0k6vRBalpeRHnZGOCdmKPprbP9ia4MOM=;
-        b=DlCWry60WmNK7xmygUg4QrULRg6HJviuHJZM7BfHBpB7u3zpPgY85dFOOalraJuClB
-         mi5JE8YArZw8P+/eS3IaK1GTx1TnXWV9GJ997fRsinY4bU1r1sX4ZZ1mQHypoeU+xUAR
-         zLWt2U6lTw24nKIlVh3VU+KbdkB+jqHLGm9yIkhquTOrumBiIpDARx72U2Mqf5SYvRbH
-         qtX4Xp4tidCG2eSKA6L/A2bzu2JCex/riDpUZfcvFosN2P3fJQlvNjchzFwirOowqI0q
-         Oq9R+HcRTylRoqSXEBuiUT4w8GfqdsZ/+szoOpit9hPg+4sdpRt/kDY6ZGsNYGnyH+a7
-         OK5A==
-X-Gm-Message-State: ANhLgQ1Z375OD4xowl+qRnE7ugNcOcgP2xVrac88Qyw22sLMfBSSXCyk
-        A2YKxQf7bOcJ2N8A15Bx6CNvmDSjM06e+cNJqIA3Rg==
-X-Google-Smtp-Source: ADFU+vuRDjYt3cPfXr2YkUhRSV2AIb2Y7M3IIMYmQtgu1PjJAXlpar+ygRx9KVGiGad0CHgJv35Duhka07JGj4GSRfE=
-X-Received: by 2002:a19:ac8:: with SMTP id 191mr3760382lfk.77.1585179191616;
- Wed, 25 Mar 2020 16:33:11 -0700 (PDT)
-MIME-Version: 1.0
-References: <1583941433-15876-1-git-send-email-tharvey@gateworks.com>
- <CACRpkdb3VzOFmnZkXXopsbKAAiQ9nzsqm6fMpcsCfmuvmaeOmg@mail.gmail.com>
- <CAJ+vNU0U9jKDoZLBdC2aRrCCQkKmWATk6G6XAzQcF03tQY9r8g@mail.gmail.com> <20200313150105.GF1349@sasha-vm>
-In-Reply-To: <20200313150105.GF1349@sasha-vm>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Thu, 26 Mar 2020 00:33:00 +0100
-Message-ID: <CACRpkdZmTi5xfiNRX6i1JKT_kxP0G1c=+SiqRi_eWb6YQ3NZ7Q@mail.gmail.com>
-Subject: Re: [PATCH] gpio: thunderx: fix irq_request_resources
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Tim Harvey <tharvey@gateworks.com>,
-        stable <stable@vger.kernel.org>,
-        Robert Richter <rrichter@marvell.com>,
-        Lokesh Vutla <lokeshvutla@ti.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1727611AbgCZAim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Mar 2020 20:38:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727536AbgCZAil (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Mar 2020 20:38:41 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0419920772;
+        Thu, 26 Mar 2020 00:38:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585183120;
+        bh=8QZDVrz+fcCuuDkzndKN8i1LFdm14sBqs3riAzzv3Xs=;
+        h=Date:From:To:Subject:From;
+        b=I43axuaNKWblRh/y05LXyxi31r53Sg/swXzF+n4ccDZKUIol+I532f6mijqJUWO0r
+         GXcnxXQoE3c47QA9/IHl/k42z3KwBjMoKC4tDqt1PFyeOKCD8yq73KG7opFPU2JrxI
+         R8xxpB+uwFaTQJkGxeFTGIIG0eqwqOPJo6fjsypU=
+Date:   Wed, 25 Mar 2020 17:38:39 -0700
+From:   akpm@linux-foundation.org
+To:     aneesh.kumar@linux.ibm.com, bhe@redhat.com,
+        dan.j.williams@intel.com, david@redhat.com, mhocko@suse.com,
+        mm-commits@vger.kernel.org, mpe@ellerman.id.au, osalvador@suse.de,
+        pankaj.gupta.linux@gmail.com, richardw.yang@linux.intel.com,
+        rppt@linux.ibm.com, sachinp@linux.vnet.ibm.com,
+        stable@vger.kernel.org
+Subject:  +
+ mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch added to -mm
+ tree
+Message-ID: <20200326003839.cDNaHS1pV%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 13, 2020 at 4:01 PM Sasha Levin <sashal@kernel.org> wrote:
-> On Thu, Mar 12, 2020 at 10:16:40AM -0700, Tim Harvey wrote:
-> >On Thu, Mar 12, 2020 at 6:42 AM Linus Walleij <linus.walleij@linaro.org> wrote:
-> >>
-> >> On Wed, Mar 11, 2020 at 4:43 PM Tim Harvey <tharvey@gateworks.com> wrote:
-> >>
-> >> > If there are no parent resources do not call irq_chip_request_resources_parent
-> >> > at all as this will return an error.
-> >> >
-> >> > This resolves a regression where devices using a thunderx gpio as an interrupt
-> >> > would fail probing.
-> >> >
-> >> > Fixes: 0d04d0c ("gpio: thunderx: Use the default parent apis for {request,release}_resources")
-> >> > Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> >>
-> >> This patch does not apply to the mainline kernel or v5.6-rc1.
-> >>
-> >> Please verify:
-> >> 1. If the problem is still in v5.6 (we refactored the driver to
-> >>    use GPIOLIB_IRQCHIP)
-> >
-> >Linus,
-> >
-> >Sorry, another issue was keeping me from being able to boot 5.6-rc but
-> >that's now understood and I can confirm the issue is not present in
-> >v5.6-rc5
-> >
-> >>
-> >> 2. If not, only propose it for linux-stable v5.5 etc.
-> >>
-> >
-> >Yes, needs to be applied to v5.2, v5.3, v5.4, v5.5. I cc'd stable. If
-> >I need to re-submit please let me know.
-> >
-> >Cc: stable@vger.kernel.org
->
-> Linus, could you ack this patch for stable?
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+The patch titled
+     Subject: mm/sparse: fix kernel crash with pfn_section_valid check
+has been added to the -mm tree.  Its filename is
+     mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch
 
-Sorry for the delay :/
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch
 
-Yours,
-Linus Walleij
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Subject: mm/sparse: fix kernel crash with pfn_section_valid check
+
+Fixes the below crash
+
+BUG: Kernel NULL pointer dereference on read at 0x00000000
+Faulting instruction address: 0xc000000000c3447c
+Oops: Kernel access of bad area, sig: 11 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+CPU: 11 PID: 7519 Comm: lt-ndctl Not tainted 5.6.0-rc7-autotest #1
+...
+NIP [c000000000c3447c] vmemmap_populated+0x98/0xc0
+LR [c000000000088354] vmemmap_free+0x144/0x320
+Call Trace:
+ section_deactivate+0x220/0x240
+ __remove_pages+0x118/0x170
+ arch_remove_memory+0x3c/0x150
+ memunmap_pages+0x1cc/0x2f0
+ devm_action_release+0x30/0x50
+ release_nodes+0x2f8/0x3e0
+ device_release_driver_internal+0x168/0x270
+ unbind_store+0x130/0x170
+ drv_attr_store+0x44/0x60
+ sysfs_kf_write+0x68/0x80
+ kernfs_fop_write+0x100/0x290
+ __vfs_write+0x3c/0x70
+ vfs_write+0xcc/0x240
+ ksys_write+0x7c/0x140
+ system_call+0x5c/0x68
+
+With commit: d41e2f3bd546 ("mm/hotplug: fix hot remove failure in
+SPARSEMEM|!VMEMMAP case") section_mem_map is set to NULL after
+depopulate_section_mem().  This was done so that pfn_page() can work
+correctly with kernel config that disables SPARSEMEM_VMEMMAP.  With that
+config pfn_to_page does
+
+	__section_mem_map_addr(__sec) + __pfn;
+where
+
+static inline struct page *__section_mem_map_addr(struct mem_section *section)
+{
+	unsigned long map = section->section_mem_map;
+	map &= SECTION_MAP_MASK;
+	return (struct page *)map;
+}
+
+Now with SPASEMEM_VMEMAP enabled, mem_section->usage->subsection_map is
+used to check the pfn validity (pfn_valid()).  Since section_deactivate
+release mem_section->usage if a section is fully deactivated, pfn_valid()
+check after a subsection_deactivate cause a kernel crash.
+
+static inline int pfn_valid(unsigned long pfn)
+{
+...
+	return early_section(ms) || pfn_section_valid(ms, pfn);
+}
+
+where
+
+static inline int pfn_section_valid(struct mem_section *ms, unsigned long pfn)
+{
+	int idx = subsection_map_index(pfn);
+
+	return test_bit(idx, ms->usage->subsection_map);
+}
+
+Avoid this by clearing SECTION_HAS_MEM_MAP when mem_section->usage is freed.
+
+Link: http://lkml.kernel.org/r/20200325031914.107660-1-aneesh.kumar@linux.ibm.com
+Fixes: d41e2f3bd546 ("mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case")
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/sparse.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/mm/sparse.c~mm-sparse-fix-kernel-crash-with-pfn_section_valid-check
++++ a/mm/sparse.c
+@@ -781,6 +781,8 @@ static void section_deactivate(unsigned
+ 			ms->usage = NULL;
+ 		}
+ 		memmap = sparse_decode_mem_map(ms->section_mem_map, section_nr);
++		/* Mark the section invalid */
++		ms->section_mem_map &= ~SECTION_HAS_MEM_MAP;
+ 	}
+ 
+ 	if (section_is_early && memmap)
+_
+
+Patches currently in -mm which might be from aneesh.kumar@linux.ibm.com are
+
+mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch
+
