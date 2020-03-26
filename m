@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C85193502
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 01:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC0819350A
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 01:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727611AbgCZAim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Mar 2020 20:38:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
+        id S1727554AbgCZAll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Mar 2020 20:41:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727536AbgCZAil (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Mar 2020 20:38:41 -0400
+        id S1727537AbgCZAll (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Mar 2020 20:41:41 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0419920772;
-        Thu, 26 Mar 2020 00:38:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D34F020737;
+        Thu, 26 Mar 2020 00:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585183120;
-        bh=8QZDVrz+fcCuuDkzndKN8i1LFdm14sBqs3riAzzv3Xs=;
+        s=default; t=1585183299;
+        bh=zBUJOw+hLdLQx9G/V6j1H3LAc21EVxXUc5sG6TV3J38=;
         h=Date:From:To:Subject:From;
-        b=I43axuaNKWblRh/y05LXyxi31r53Sg/swXzF+n4ccDZKUIol+I532f6mijqJUWO0r
-         GXcnxXQoE3c47QA9/IHl/k42z3KwBjMoKC4tDqt1PFyeOKCD8yq73KG7opFPU2JrxI
-         R8xxpB+uwFaTQJkGxeFTGIIG0eqwqOPJo6fjsypU=
-Date:   Wed, 25 Mar 2020 17:38:39 -0700
+        b=rowhcAh5aRl9C5ItavziV/WK4IMceJ3wz0v0qaIrQR2bSSsWcZa/CSe5ZcdwwzEYU
+         7+H6HDcDvjHYi/R8d+LI1lXIJRFTlTzMH0+MdUtpo6xK5UZw/OWWZRv5o2Uz6YbgSC
+         0qw/0adYDPACmt1X1cQfxVuT/JFdkC01ah4LIYhY=
+Date:   Wed, 25 Mar 2020 17:41:38 -0700
 From:   akpm@linux-foundation.org
-To:     aneesh.kumar@linux.ibm.com, bhe@redhat.com,
-        dan.j.williams@intel.com, david@redhat.com, mhocko@suse.com,
-        mm-commits@vger.kernel.org, mpe@ellerman.id.au, osalvador@suse.de,
-        pankaj.gupta.linux@gmail.com, richardw.yang@linux.intel.com,
-        rppt@linux.ibm.com, sachinp@linux.vnet.ibm.com,
-        stable@vger.kernel.org
+To:     dave@stgolabs.net, ebiederm@xmission.com,
+        elfring@users.sourceforge.net, manfred@colorfullife.com,
+        mm-commits@vger.kernel.org, oleg@redhat.com,
+        stable@vger.kernel.org, yoji.fujihar.min@gmail.com
 Subject:  +
- mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch added to -mm
- tree
-Message-ID: <20200326003839.cDNaHS1pV%akpm@linux-foundation.org>
+ ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission.patch added
+ to -mm tree
+Message-ID: <20200326004138.ceNbB-Eca%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -43,14 +41,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/sparse: fix kernel crash with pfn_section_valid check
+     Subject: ipc/mqueue.c: change __do_notify() to bypass check_kill_permission()
 has been added to the -mm tree.  Its filename is
-     mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch
+     ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission.patch
 
 This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch
+    http://ozlabs.org/~akpm/mmots/broken-out/ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission.patch
 and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch
+    http://ozlabs.org/~akpm/mmotm/broken-out/ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -64,109 +62,129 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: mm/sparse: fix kernel crash with pfn_section_valid check
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: ipc/mqueue.c: change __do_notify() to bypass check_kill_permission()
 
-Fixes the below crash
+Commit cc731525f26a ("signal: Remove kernel interal si_code magic")
+changed the value of SI_FROMUSER(SI_MESGQ), this means that mq_notify() no
+longer works if the sender doesn't have rights to send a signal.
 
-BUG: Kernel NULL pointer dereference on read at 0x00000000
-Faulting instruction address: 0xc000000000c3447c
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-CPU: 11 PID: 7519 Comm: lt-ndctl Not tainted 5.6.0-rc7-autotest #1
-...
-NIP [c000000000c3447c] vmemmap_populated+0x98/0xc0
-LR [c000000000088354] vmemmap_free+0x144/0x320
-Call Trace:
- section_deactivate+0x220/0x240
- __remove_pages+0x118/0x170
- arch_remove_memory+0x3c/0x150
- memunmap_pages+0x1cc/0x2f0
- devm_action_release+0x30/0x50
- release_nodes+0x2f8/0x3e0
- device_release_driver_internal+0x168/0x270
- unbind_store+0x130/0x170
- drv_attr_store+0x44/0x60
- sysfs_kf_write+0x68/0x80
- kernfs_fop_write+0x100/0x290
- __vfs_write+0x3c/0x70
- vfs_write+0xcc/0x240
- ksys_write+0x7c/0x140
- system_call+0x5c/0x68
+Change __do_notify() to use do_send_sig_info() instead of kill_pid_info()
+to avoid check_kill_permission().
 
-With commit: d41e2f3bd546 ("mm/hotplug: fix hot remove failure in
-SPARSEMEM|!VMEMMAP case") section_mem_map is set to NULL after
-depopulate_section_mem().  This was done so that pfn_page() can work
-correctly with kernel config that disables SPARSEMEM_VMEMMAP.  With that
-config pfn_to_page does
+This needs the additional notify.sigev_signo != 0 check, shouldn't we
+change do_mq_notify() to deny sigev_signo == 0 ?
 
-	__section_mem_map_addr(__sec) + __pfn;
-where
+Test-case:
 
-static inline struct page *__section_mem_map_addr(struct mem_section *section)
-{
-	unsigned long map = section->section_mem_map;
-	map &= SECTION_MAP_MASK;
-	return (struct page *)map;
-}
+	#include <signal.h>
+	#include <mqueue.h>
+	#include <unistd.h>
+	#include <sys/wait.h>
+	#include <assert.h>
 
-Now with SPASEMEM_VMEMAP enabled, mem_section->usage->subsection_map is
-used to check the pfn validity (pfn_valid()).  Since section_deactivate
-release mem_section->usage if a section is fully deactivated, pfn_valid()
-check after a subsection_deactivate cause a kernel crash.
+	static int notified;
 
-static inline int pfn_valid(unsigned long pfn)
-{
-...
-	return early_section(ms) || pfn_section_valid(ms, pfn);
-}
+	static void sigh(int sig)
+	{
+		notified = 1;
+	}
 
-where
+	int main(void)
+	{
+		signal(SIGIO, sigh);
 
-static inline int pfn_section_valid(struct mem_section *ms, unsigned long pfn)
-{
-	int idx = subsection_map_index(pfn);
+		int fd = mq_open("/mq", O_RDWR|O_CREAT, 0666, NULL);
+		assert(fd >= 0);
 
-	return test_bit(idx, ms->usage->subsection_map);
-}
+		struct sigevent se = {
+			.sigev_notify	= SIGEV_SIGNAL,
+			.sigev_signo	= SIGIO,
+		};
+		assert(mq_notify(fd, &se) == 0);
 
-Avoid this by clearing SECTION_HAS_MEM_MAP when mem_section->usage is freed.
+		if (!fork()) {
+			assert(setuid(1) == 0);
+			mq_send(fd, "",1,0);
+			return 0;
+		}
 
-Link: http://lkml.kernel.org/r/20200325031914.107660-1-aneesh.kumar@linux.ibm.com
-Fixes: d41e2f3bd546 ("mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
+		wait(NULL);
+		mq_unlink("/mq");
+		assert(notified);
+		return 0;
+	}
+
+Link: http://lkml.kernel.org/r/20200324200932.GB24230@redhat.com
+Fixes: cc731525f26a ("signal: Remove kernel interal si_code magic")
+Reported-by: Yoji <yoji.fujihar.min@gmail.com>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: Markus Elfring <elfring@users.sourceforge.net>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/sparse.c |    2 ++
- 1 file changed, 2 insertions(+)
+ ipc/mqueue.c |   28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
---- a/mm/sparse.c~mm-sparse-fix-kernel-crash-with-pfn_section_valid-check
-+++ a/mm/sparse.c
-@@ -781,6 +781,8 @@ static void section_deactivate(unsigned
- 			ms->usage = NULL;
- 		}
- 		memmap = sparse_decode_mem_map(ms->section_mem_map, section_nr);
-+		/* Mark the section invalid */
-+		ms->section_mem_map &= ~SECTION_HAS_MEM_MAP;
- 	}
+--- a/ipc/mqueue.c~ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission
++++ a/ipc/mqueue.c
+@@ -774,28 +774,40 @@ static void __do_notify(struct mqueue_in
+ 	 * synchronously. */
+ 	if (info->notify_owner &&
+ 	    info->attr.mq_curmsgs == 1) {
+-		struct kernel_siginfo sig_i;
+ 		switch (info->notify.sigev_notify) {
+ 		case SIGEV_NONE:
+ 			break;
+-		case SIGEV_SIGNAL:
+-			/* sends signal */
++		case SIGEV_SIGNAL: {
++			struct kernel_siginfo sig_i;
++			struct task_struct *task;
++
++			/* do_mq_notify() accepts sigev_signo == 0, why?? */
++			if (!info->notify.sigev_signo)
++				break;
  
- 	if (section_is_early && memmap)
+ 			clear_siginfo(&sig_i);
+ 			sig_i.si_signo = info->notify.sigev_signo;
+ 			sig_i.si_errno = 0;
+ 			sig_i.si_code = SI_MESGQ;
+ 			sig_i.si_value = info->notify.sigev_value;
+-			/* map current pid/uid into info->owner's namespaces */
+ 			rcu_read_lock();
++			/* map current pid/uid into info->owner's namespaces */
+ 			sig_i.si_pid = task_tgid_nr_ns(current,
+ 						ns_of_pid(info->notify_owner));
+-			sig_i.si_uid = from_kuid_munged(info->notify_user_ns, current_uid());
++			sig_i.si_uid = from_kuid_munged(info->notify_user_ns,
++						current_uid());
++			/*
++			 * We can't use kill_pid_info(), this signal should
++			 * bypass check_kill_permission(). It is from kernel
++			 * but si_fromuser() can't know this.
++			 */
++			task = pid_task(info->notify_owner, PIDTYPE_PID);
++			if (task)
++				do_send_sig_info(info->notify.sigev_signo,
++						&sig_i, task, PIDTYPE_TGID);
+ 			rcu_read_unlock();
+-
+-			kill_pid_info(info->notify.sigev_signo,
+-				      &sig_i, info->notify_owner);
+ 			break;
++		}
+ 		case SIGEV_THREAD:
+ 			set_cookie(info->notify_cookie, NOTIFY_WOKENUP);
+ 			netlink_sendskb(info->notify_sock, info->notify_cookie);
 _
 
-Patches currently in -mm which might be from aneesh.kumar@linux.ibm.com are
+Patches currently in -mm which might be from oleg@redhat.com are
 
-mm-sparse-fix-kernel-crash-with-pfn_section_valid-check.patch
+ipc-mqueuec-change-__do_notify-to-bypass-check_kill_permission.patch
+aio-simplify-read_events.patch
 
