@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F05E194CD9
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:27:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1748D194CD3
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727991AbgCZX1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 19:27:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45488 "EHLO mail.kernel.org"
+        id S1727509AbgCZX1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 19:27:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728159AbgCZXZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 19:25:02 -0400
+        id S1728168AbgCZXZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 19:25:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6ACD21707;
-        Thu, 26 Mar 2020 23:25:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3122A2083E;
+        Thu, 26 Mar 2020 23:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265101;
-        bh=TOlzQZqFBlXXk6vVW3nEQ7OnPHurudRh2uEU+6f1lvY=;
+        s=default; t=1585265102;
+        bh=XMf7QVap6ODLiVJo0XE8+jiJoxTHwXWjdNCTTv0ulBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1ijmhJ07r5cQ5V+GQ/wAvyxZcHh6HIAZhwPkrjdwomjNwkjWkzbHD7sH5Jcj7xW6
-         Puy0dGqRpoLXBJndQ31urDnH5tP08XE+2qoeioayuuKYd1QiNKFDSIF3TKwhC20rxw
-         M+5RJT+d1eUk+uHgxlYP4evFJegW3AdbJgeFEMAE=
+        b=W/tziAFzLJroiErUDiuaqLhNM819lJ9pwEfTN6LcbPgKxgI8bFiSGq7hy05UJaktt
+         l+ivojY2N6kIIzF5A8b1qOCu/8y0tppF3EOKvd4/Nqqct1WVCZgwqaqBufOwvVkgrm
+         TkxrFWZvJ2H8VMJmF55E73GzZ12hXNzzhmy0ZoVY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gerd Hoffmann <kraxel@redhat.com>,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>,
-        virtualization@lists.linux-foundation.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 05/15] drm/bochs: downgrade pci_request_region failure from error to warning
-Date:   Thu, 26 Mar 2020 19:24:45 -0400
-Message-Id: <20200326232455.8029-5-sashal@kernel.org>
+Cc:     Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 06/15] initramfs: restore default compression behavior
+Date:   Thu, 26 Mar 2020 19:24:46 -0400
+Message-Id: <20200326232455.8029-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200326232455.8029-1-sashal@kernel.org>
 References: <20200326232455.8029-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,43 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 
-[ Upstream commit 8c34cd1a7f089dc03933289c5d4a4d1489549828 ]
+[ Upstream commit 785d74ec3bbf26ac7f6e92e6e96a259aec0f107a ]
 
-Shutdown of firmware framebuffer has a bunch of problems.  Because
-of this the framebuffer region might still be reserved even after
-drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
+Even though INITRAMFS_SOURCE kconfig option isn't set in most of
+defconfigs it is used (set) extensively by various build systems.
+Commit f26661e12765 ("initramfs: make initramfs compression choice
+non-optional") has changed default compression mode. Previously we
+compress initramfs using available compression algorithm. Now
+we don't use any compression at all by default.
+It significantly increases the image size in case of build system
+chooses embedded initramfs. Initially I faced with this issue while
+using buildroot.
 
-Don't consider pci_request_region() failure for the framebuffer
-region as fatal error to workaround this issue.
+As of today it's not possible to set preferred compression mode
+in target defconfig as this option depends on INITRAMFS_SOURCE
+being set. Modification of all build systems either doesn't look
+like good option.
 
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Link: http://patchwork.freedesktop.org/patch/msgid/20200313084152.2734-1-kraxel@redhat.com
+Let's instead rewrite initramfs compression mode choices list
+the way that "INITRAMFS_COMPRESSION_NONE" will be the last option
+in the list. In that case it will be chosen only if all other
+options (which implements any compression) are not available.
+
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ usr/Kconfig | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-index a39b0343c197d..401c218567af9 100644
---- a/drivers/gpu/drm/bochs/bochs_hw.c
-+++ b/drivers/gpu/drm/bochs/bochs_hw.c
-@@ -97,10 +97,8 @@ int bochs_hw_init(struct drm_device *dev, uint32_t flags)
- 		size = min(size, mem);
- 	}
+diff --git a/usr/Kconfig b/usr/Kconfig
+index 43658b8a975e5..8b4826de1189f 100644
+--- a/usr/Kconfig
++++ b/usr/Kconfig
+@@ -131,17 +131,6 @@ choice
  
--	if (pci_request_region(pdev, 0, "bochs-drm") != 0) {
--		DRM_ERROR("Cannot request framebuffer\n");
--		return -EBUSY;
--	}
-+	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
-+		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
+ 	  If in doubt, select 'None'
  
- 	bochs->fb_map = ioremap(addr, size);
- 	if (bochs->fb_map == NULL) {
+-config INITRAMFS_COMPRESSION_NONE
+-	bool "None"
+-	help
+-	  Do not compress the built-in initramfs at all. This may sound wasteful
+-	  in space, but, you should be aware that the built-in initramfs will be
+-	  compressed at a later stage anyways along with the rest of the kernel,
+-	  on those architectures that support this. However, not compressing the
+-	  initramfs may lead to slightly higher memory consumption during a
+-	  short time at boot, while both the cpio image and the unpacked
+-	  filesystem image will be present in memory simultaneously
+-
+ config INITRAMFS_COMPRESSION_GZIP
+ 	bool "Gzip"
+ 	depends on RD_GZIP
+@@ -214,6 +203,17 @@ config INITRAMFS_COMPRESSION_LZ4
+ 	  If you choose this, keep in mind that most distros don't provide lz4
+ 	  by default which could cause a build failure.
+ 
++config INITRAMFS_COMPRESSION_NONE
++	bool "None"
++	help
++	  Do not compress the built-in initramfs at all. This may sound wasteful
++	  in space, but, you should be aware that the built-in initramfs will be
++	  compressed at a later stage anyways along with the rest of the kernel,
++	  on those architectures that support this. However, not compressing the
++	  initramfs may lead to slightly higher memory consumption during a
++	  short time at boot, while both the cpio image and the unpacked
++	  filesystem image will be present in memory simultaneously
++
+ endchoice
+ 
+ config INITRAMFS_COMPRESSION
 -- 
 2.20.1
 
