@@ -2,134 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E55AF193AB4
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 09:21:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 055A0193CCC
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 11:16:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726347AbgCZIVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 04:21:13 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:41705 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726298AbgCZIVN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 04:21:13 -0400
-Received: by mail-pg1-f195.google.com with SMTP id b1so2499803pgm.8
-        for <stable@vger.kernel.org>; Thu, 26 Mar 2020 01:21:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=5Ig5jQR/R19HeABvvN9qMBi3geLYni78LT/qUcTDGE8=;
-        b=SVTaJqX1SIvALzBuuwS0odox7rEpleeDv01UUiycEluu+syqFpXTyorjrpg+MKbeY+
-         nzbAb2VgpA1n2A2aqICWs8G6Jgxuh/re+2nwJvnHWQLP4SxZirQZzoqNGVMOjX/tiVsJ
-         GVLwDO0ega5wqNI5hHjiGJHNAH7cQV0v3fuPyl1piRS0cZdOwD0fCl0QSLl/hHNqyEDJ
-         TLfr/v2qBs4wzSImc6qxKK6IgfrPS8AlvZ/26oidNRNDHyxBAxzxGHJGuh8gN1+LDUXw
-         PHR1N5aoPvVVBtVbzGBIxlwIW1usvQGsZ2HttJNSbsf8ktrMwgtr/LSH9aL6q9w2bgC4
-         je4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=5Ig5jQR/R19HeABvvN9qMBi3geLYni78LT/qUcTDGE8=;
-        b=q4VI0Y7d+7KxGVSrraHgicb2BxZZWQN7AzswPucH0XUkbQF221XoWmWKO+NvaglaCd
-         /yrlGqUCG815LaNHbUXvmZp3Q+IPJrBaSZMxasMX58s/aVOKWHZZd8p0uxzDSh6e4HDH
-         X1oZNDHqcGfoNWhBAbLngl66Y2a402tyiRb9A7wcSZ2UCxRQCEhQd5SKxUcqTzBAxm+3
-         UIzzLOlOJXs9mSGbDanlwthM8j74otgT55ILYegy4eW+i7VXOg/bYTCf8YmzIoDiAqDm
-         yttC/z6q5gahycUTj82epUr6dRjSTDKU7WXebwAtp2eMXu9BNVkXw2ywecN8UdCM7geY
-         N7zA==
-X-Gm-Message-State: ANhLgQ2xK7EnTnF7C03np6iyHeaOjOm/Nws1DSTWYxtx0Yd3+e5dJEih
-        HEPsYJ4zgspA8PuwE9FmRQYMcysGejs=
-X-Google-Smtp-Source: ADFU+vucn2s5DWbRjIgnWoQa6m4742kCI4iiXnLMGG2hgw/3j/Ev9qTrEoVY3VekPRqbrS/4ba3oDg==
-X-Received: by 2002:aa7:8685:: with SMTP id d5mr7943180pfo.3.1585210871109;
-        Thu, 26 Mar 2020 01:21:11 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y7sm1051763pfq.159.2020.03.26.01.21.09
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Mar 2020 01:21:10 -0700 (PDT)
-Message-ID: <5e7c65f6.1c69fb81.4ac11.46cf@mx.google.com>
-Date:   Thu, 26 Mar 2020 01:21:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727688AbgCZKQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 06:16:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45568 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727636AbgCZKQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 06:16:27 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5795B2073E;
+        Thu, 26 Mar 2020 10:16:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585217785;
+        bh=AeApZSQRVhkh4UMwQs6NlsZ2yQjmstnPaP6hjSRdRBo=;
+        h=Subject:To:From:Date:From;
+        b=04iNJHIKcGNYAEvScaOAl5RoaieF3CdQQ/MzNLghYjBmRy+UcanSShv04kZEHeKty
+         c+vGBFOdN8U+Uip9muPdum3j5fa6mvijn+BNuFoN0MhtiVXn8xkiA3peIYqlLXb2r9
+         DftZd5GWTHxeufr/o20sKwOCoxCZ2qMBQk2nh7CQ=
+Subject: patch "USB: serial: option: add support for ASKEY WWHC050" added to usb-testing
+To:     paweldembicki@gmail.com, cezary@eko.one.pl, johan@kernel.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 26 Mar 2020 11:15:57 +0100
+Message-ID: <1585217757237222@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.113
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y boot: 113 boots: 1 failed,
- 106 passed with 3 offline, 3 untried/unknown (v4.19.113)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 113 boots: 1 failed, 106 passed with 3 offline=
-, 3 untried/unknown (v4.19.113)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.113/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.113/
+This is a note to let you know that I've just added the patch titled
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.113
-Git Commit: 54b4fa6d39551639cb10664f6ac78b01993a1d7e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 74 unique boards, 21 SoC families, 20 builds out of 206
+    USB: serial: option: add support for ASKEY WWHC050
 
-Boot Regressions Detected:
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
 
-arm:
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 46 days (last pass: v4.19=
-.101 - first fail: v4.19.102-96-g0632821fe218)
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 13 days (last pass: v4.19.108-87-=
-g624c124960e8 - first fail: v4.19.109)
+If you have any questions about this process, please let me know.
 
-arm64:
 
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v4.19.109-202-g=
-69e7137de31c)
-          meson-gxl-s905d-p230:
-              lab-baylibre: failing since 1 day (last pass: v4.19.109-192-g=
-bae09bf235a5 - first fail: v4.19.109-202-g69e7137de31c)
+From 007d20dca2376a751b1dad03442f118438b7e65e Mon Sep 17 00:00:00 2001
+From: Pawel Dembicki <paweldembicki@gmail.com>
+Date: Wed, 25 Mar 2020 06:44:17 +0100
+Subject: USB: serial: option: add support for ASKEY WWHC050
 
-Boot Failure Detected:
+ASKEY WWHC050 is a mcie LTE modem.
+The oem configuration states:
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1690 ProdID=7588 Rev=ff.ff
+S:  Manufacturer=Android
+S:  Product=Android
+S:  SerialNumber=813f0eef6e6e
+C:* #Ifs= 6 Cfg#= 1 Atr=80 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50 Driver=(none)
+E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=125us
 
-Offline Platforms:
+Tested on openwrt distribution.
 
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
+Co-developed-by: Cezary Jackiewicz <cezary@eko.one.pl>
+Signed-off-by: Cezary Jackiewicz <cezary@eko.one.pl>
+Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/usb/serial/option.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 084cc2fff3ae..ec3078b0e8b8 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1990,6 +1990,8 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e01, 0xff, 0xff, 0xff) },	/* D-Link DWM-152/C1 */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e02, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/C1 */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x7e11, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/A3 */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1690, 0x7588, 0xff),			/* ASKEY WWHC050 */
++	  .driver_info = RSVD(1) | RSVD(4) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2031, 0xff),			/* Olicard 600 */
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2060, 0xff),			/* BroadMobi BM818 */
+-- 
+2.26.0
+
+
