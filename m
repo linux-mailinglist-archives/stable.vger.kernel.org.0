@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E099194D0C
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:28:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82F3C194D0F
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:28:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727922AbgCZXYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 19:24:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44172 "EHLO mail.kernel.org"
+        id S1727959AbgCZX2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 19:28:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727912AbgCZXY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 19:24:29 -0400
+        id S1727923AbgCZXYa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 19:24:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C25220719;
-        Thu, 26 Mar 2020 23:24:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56D5B2082D;
+        Thu, 26 Mar 2020 23:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265068;
-        bh=HlxskFbsYt3+njsgtfJZSeFdRTEuzk6dYipazKydfG4=;
+        s=default; t=1585265070;
+        bh=jfT/vt+aedy9qZ+p0lGN1nj1vzPO6uDTNZJwx++fvUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ov/npAwsHIdau8ZhA0+WeQYN+p6KGJS6V45IV/2uW0db32+Ri1WIv37NB9UFBrtos
-         uQ+Zk/TyItFpoxYCkMldWqA5RzBu4DBOxBU7HKLPK/5NVZFxJwfx7u+0Mqq+Q+FwgS
-         P+klsysXlZzzen3mfxdj6/zdxrXW/oylqHBYpXt0=
+        b=H6kjFlFMOCKjOLMVOKt8WNZBWcAWtR1Mq/ut5dAdGI79m8N7jf7qvzkh2T1t4sTTx
+         LnqGr8jZmJS5QDucv3bSWIrbChujauVzhS8g7++s84+owgk8gmOsbqykvoAo3jhBSY
+         HhodDJB9PQzMTY/Iw2miiYtozj+j/rAatBePO5b0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Biggers <ebiggers@google.com>,
-        syzbot+8da9175e28eadcb203ce@syzkaller.appspotmail.com,
-        Jiri Slaby <jslaby@suse.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 27/28] tty: fix compat TIOCGSERIAL leaking uninitialized memory
-Date:   Thu, 26 Mar 2020 19:23:56 -0400
-Message-Id: <20200326232357.7516-27-sashal@kernel.org>
+Cc:     Qiujun Huang <hqjagain@gmail.com>,
+        syzbot+05835159fe322770fe3d@syzkaller.appspotmail.com,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 28/28] drm/lease: fix WARNING in idr_destroy
+Date:   Thu, 26 Mar 2020 19:23:57 -0400
+Message-Id: <20200326232357.7516-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200326232357.7516-1-sashal@kernel.org>
 References: <20200326232357.7516-1-sashal@kernel.org>
@@ -45,47 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-[ Upstream commit 17329563a97df3ba474eca5037c1336e46e14ff8 ]
+[ Upstream commit b216a8e7908cd750550c0480cf7d2b3a37f06954 ]
 
-Commit 77654350306a ("take compat TIOC[SG]SERIAL treatment into
-tty_compat_ioctl()") changed the compat version of TIOCGSERIAL to start
-copying a whole 'serial_struct32' to userspace rather than individual
-fields, but failed to initialize all padding and fields -- namely the
-hole after the 'iomem_reg_shift' field, and the 'reserved' field.
+drm_lease_create takes ownership of leases. And leases will be released
+by drm_master_put.
 
-Fix this by initializing the struct to zero.
+drm_master_put
+    ->drm_master_destroy
+            ->idr_destroy
 
-[v2: use sizeof, and convert the adjacent line for consistency.]
+So we needn't call idr_destroy again.
 
-Reported-by: syzbot+8da9175e28eadcb203ce@syzkaller.appspotmail.com
-Fixes: 77654350306a ("take compat TIOC[SG]SERIAL treatment into tty_compat_ioctl()")
-Cc: <stable@vger.kernel.org> # v4.20+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20200224182044.234553-2-ebiggers@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-and-tested-by: syzbot+05835159fe322770fe3d@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/1584518030-4173-1-git-send-email-hqjagain@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_io.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_lease.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index d9f54c7d94f29..186e08a81b986 100644
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -2734,7 +2734,9 @@ static int compat_tty_tiocgserial(struct tty_struct *tty,
- 	struct serial_struct32 v32;
- 	struct serial_struct v;
- 	int err;
--	memset(&v, 0, sizeof(struct serial_struct));
-+
-+	memset(&v, 0, sizeof(v));
-+	memset(&v32, 0, sizeof(v32));
+diff --git a/drivers/gpu/drm/drm_lease.c b/drivers/gpu/drm/drm_lease.c
+index b481cafdde280..825abe38201ac 100644
+--- a/drivers/gpu/drm/drm_lease.c
++++ b/drivers/gpu/drm/drm_lease.c
+@@ -542,10 +542,12 @@ int drm_mode_create_lease_ioctl(struct drm_device *dev,
+ 	}
  
- 	if (!tty->ops->set_serial)
- 		return -ENOTTY;
+ 	DRM_DEBUG_LEASE("Creating lease\n");
++	/* lessee will take the ownership of leases */
+ 	lessee = drm_lease_create(lessor, &leases);
+ 
+ 	if (IS_ERR(lessee)) {
+ 		ret = PTR_ERR(lessee);
++		idr_destroy(&leases);
+ 		goto out_leases;
+ 	}
+ 
+@@ -580,7 +582,6 @@ int drm_mode_create_lease_ioctl(struct drm_device *dev,
+ 
+ out_leases:
+ 	put_unused_fd(fd);
+-	idr_destroy(&leases);
+ 
+ 	DRM_DEBUG_LEASE("drm_mode_create_lease_ioctl failed: %d\n", ret);
+ 	return ret;
 -- 
 2.20.1
 
