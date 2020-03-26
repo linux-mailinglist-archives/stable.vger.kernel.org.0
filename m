@@ -2,172 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8314A193FE7
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 14:39:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D6B193FE9
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 14:39:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726336AbgCZNjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 09:39:08 -0400
-Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:31486 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726318AbgCZNjI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 09:39:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585229946;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=wr4jPDIMj1FqtFxJaJjCDHQzG5brlUS2imDNvMHzjUo=;
-        b=PryVeClDEOqLWZBwkCQnyqS1dnDPoBcMqhRqjL4B53ddOm8GDFj4FaXZmOG02PcgVidNbj
-        T20BMmD8lwESub1mNox+SgsHcKiCTIlEcEf7YPbZ+vJPDQUCZ8PjYyNL77/7UpGleR9LPA
-        KmaAf4CSoyQDAhG2To4Pn40tfwETayk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-56-pO3scfLXNkiI0KRJArO-Ow-1; Thu, 26 Mar 2020 09:39:02 -0400
-X-MC-Unique: pO3scfLXNkiI0KRJArO-Ow-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4C567800D4E;
-        Thu, 26 Mar 2020 13:39:00 +0000 (UTC)
-Received: from localhost (ovpn-12-117.pek2.redhat.com [10.72.12.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A727360C18;
-        Thu, 26 Mar 2020 13:38:56 +0000 (UTC)
-Date:   Thu, 26 Mar 2020 21:38:53 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc:     linux-mm@kvack.org, akpm@linux-foundation.org,
-        linux-kernel@vger.kernel.org, mpe@ellerman.id.au,
-        linuxppc-dev@lists.ozlabs.org,
-        Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Wei Yang <richardw.yang@linux.intel.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Mike Rapoport <rppt@linux.ibm.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2] mm/sparse: Fix kernel crash with pfn_section_valid
- check
-Message-ID: <20200326133853.GF9942@MiWiFi-R3L-srv>
-References: <20200326133235.343616-1-aneesh.kumar@linux.ibm.com>
+        id S1726270AbgCZNjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 09:39:15 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:40150 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725994AbgCZNjP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 09:39:15 -0400
+Received: by mail-ot1-f68.google.com with SMTP id e19so5789999otj.7
+        for <stable@vger.kernel.org>; Thu, 26 Mar 2020 06:39:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4wFukWW15LjhcYxnyyQgEVJMiluS1D1UebU3PqciR6c=;
+        b=Z9bOoga5Dsf9B7qM+H9BYluIYS9CJlkJidwW66pTirx8dImcAZnujcY18qnMs5QESk
+         EMUdZvvpqatKOBCqVfo+Dmk1+HgTfa4uJdTF2gs3pSl0qrF+VNRPp5A6cd2ro1qrUqeb
+         6klegKIlgdYuooORzPro8zsCjwJnPm2bzuWZ4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4wFukWW15LjhcYxnyyQgEVJMiluS1D1UebU3PqciR6c=;
+        b=YilLKYZpvCrouyo0BaWtW3JfOUqcrT5E2MxwgUbUiWppWnyCYL9NmoX2FtbSH61y5I
+         NsIEBzUmu9iF0uttC1UawKy7jEDAiYXinWEWvZOIvdiCJ/HFmPAJcSYuU4JzQQJ+OkCi
+         9DLIale22t2BTuHjDBkbwapTKzrVkhajwdGqEKIh6O/Qns4P2HFoNOulUSpeZ8Yt/Ypp
+         PlsmOmQYAxla2JE/EgnhX+oHzM/vJOrAzbB+mnJOBdmOEU8TGZ2XwTobhxn9lrc1GI3J
+         B8gV3TPBrcdFoiSbkeneMWPtH+ySdoSNex6B4aSPoKUv4O5na78pd6SXdU/JJJdbghbU
+         MwSA==
+X-Gm-Message-State: ANhLgQ2UQuLtYePmJ9amkak23GBWKrf251vdq5mTuhZnuzjQ5N8HOJTG
+        Vvr/tFp9+KRAaCfyY4+1q5SrMg58bpCccP6XAwBpag==
+X-Google-Smtp-Source: ADFU+vu2s+1yMhU4GRNQWJZu0otaBAkns9ncxkcB7AdTHzNGwa+65xqc9vvC9AsqVjVakENzquklJG5zu1FXEHDe2/o=
+X-Received: by 2002:a9d:554d:: with SMTP id h13mr6198795oti.303.1585229954600;
+ Thu, 26 Mar 2020 06:39:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200326133235.343616-1-aneesh.kumar@linux.ibm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+References: <20200325144310.36779-1-hdegoede@redhat.com> <20200326112959.GZ2363188@phenom.ffwll.local>
+ <8b9d940d-b236-062d-4ac3-c7462090066f@redhat.com>
+In-Reply-To: <8b9d940d-b236-062d-4ac3-c7462090066f@redhat.com>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Thu, 26 Mar 2020 14:39:03 +0100
+Message-ID: <CAKMK7uHA+uefrWVR42wTss65mq_D4q5odfePm6uj399emkWx8w@mail.gmail.com>
+Subject: Re: [PATCH] drm/vboxvideo: Add missing remove_conflicting_pci_framebuffers
+ call
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Daniel Vetter <daniel.vetter@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        stable <stable@vger.kernel.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 03/26/20 at 07:02pm, Aneesh Kumar K.V wrote:
-> Fixes the below crash
-> 
-> BUG: Kernel NULL pointer dereference on read at 0x00000000
-> Faulting instruction address: 0xc000000000c3447c
-> Oops: Kernel access of bad area, sig: 11 [#1]
-> LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-> CPU: 11 PID: 7519 Comm: lt-ndctl Not tainted 5.6.0-rc7-autotest #1
-> ...
-> NIP [c000000000c3447c] vmemmap_populated+0x98/0xc0
-> LR [c000000000088354] vmemmap_free+0x144/0x320
-> Call Trace:
->  section_deactivate+0x220/0x240
->  __remove_pages+0x118/0x170
->  arch_remove_memory+0x3c/0x150
->  memunmap_pages+0x1cc/0x2f0
->  devm_action_release+0x30/0x50
->  release_nodes+0x2f8/0x3e0
->  device_release_driver_internal+0x168/0x270
->  unbind_store+0x130/0x170
->  drv_attr_store+0x44/0x60
->  sysfs_kf_write+0x68/0x80
->  kernfs_fop_write+0x100/0x290
->  __vfs_write+0x3c/0x70
->  vfs_write+0xcc/0x240
->  ksys_write+0x7c/0x140
->  system_call+0x5c/0x68
-> 
-> The crash is due to NULL dereference at
-> 
-> test_bit(idx, ms->usage->subsection_map); due to ms->usage = NULL; in pfn_section_valid()
-> 
-> With commit: d41e2f3bd546 ("mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case")
-> section_mem_map is set to NULL after depopulate_section_mem(). This
-> was done so that pfn_page() can work correctly with kernel config that disables
-> SPARSEMEM_VMEMMAP. With that config pfn_to_page does
-> 
-> 	__section_mem_map_addr(__sec) + __pfn;
-> where
-> 
-> static inline struct page *__section_mem_map_addr(struct mem_section *section)
-> {
-> 	unsigned long map = section->section_mem_map;
-> 	map &= SECTION_MAP_MASK;
-> 	return (struct page *)map;
-> }
-> 
-> Now with SPASEMEM_VMEMAP enabled, mem_section->usage->subsection_map is used to
-> check the pfn validity (pfn_valid()). Since section_deactivate release
-> mem_section->usage if a section is fully deactivated, pfn_valid() check after
-> a subsection_deactivate cause a kernel crash.
-> 
-> static inline int pfn_valid(unsigned long pfn)
-> {
-> ...
-> 	return early_section(ms) || pfn_section_valid(ms, pfn);
-> }
-> 
-> where
-> 
-> static inline int pfn_section_valid(struct mem_section *ms, unsigned long pfn)
-> {
-> 	int idx = subsection_map_index(pfn);
-> 
-> 	return test_bit(idx, ms->usage->subsection_map);
-> }
-> 
-> Avoid this by clearing SECTION_HAS_MEM_MAP when mem_section->usage is freed.
-> For architectures like ppc64 where large pages are used for vmmemap mapping (16MB),
-> a specific vmemmap mapping can cover multiple sections. Hence before a vmemmap
-> mapping page can be freed, the kernel needs to make sure there are no valid sections
-> within that mapping. Clearing the section valid bit before
-> depopulate_section_memap enables this.
-> 
-> Fixes: d41e2f3bd546 ("mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case")
-> Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-> Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-> Cc: Baoquan He <bhe@redhat.com>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Wei Yang <richardw.yang@linux.intel.com>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Mike Rapoport <rppt@linux.ibm.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-> ---
->  mm/sparse.c | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/mm/sparse.c b/mm/sparse.c
-> index aadb7298dcef..65599e8bd636 100644
-> --- a/mm/sparse.c
-> +++ b/mm/sparse.c
-> @@ -781,6 +781,12 @@ static void section_deactivate(unsigned long pfn, unsigned long nr_pages,
->  			ms->usage = NULL;
->  		}
->  		memmap = sparse_decode_mem_map(ms->section_mem_map, section_nr);
-> +		/*
-> +		 * Mark the section invalid so that valid_section()
-> +		 * return false. This prevents code from dereferencing
-> +		 * ms->usage array.
-> +		 */
-> +		ms->section_mem_map &= ~SECTION_HAS_MEM_MAP;
->  	}
+On Thu, Mar 26, 2020 at 2:18 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>
+> Hi,
+>
+> On 3/26/20 12:29 PM, Daniel Vetter wrote:
+> > On Wed, Mar 25, 2020 at 03:43:10PM +0100, Hans de Goede wrote:
+> >> The vboxvideo driver is missing a call to remove conflicting framebuffers.
+> >>
+> >> Surprisingly, when using legacy BIOS booting this does not really cause
+> >> any issues. But when using UEFI to boot the VM then plymouth will draw
+> >> on both the efifb /dev/fb0 and /dev/drm/card0 (which has registered
+> >> /dev/fb1 as fbdev emulation).
+> >>
+> >> VirtualBox will actual display the output of both devices (I guess it is
+> >> showing whatever was drawn last), this causes weird artifacts because of
+> >> pitch issues in the efifb when the VM window is not sized at 1024x768
+> >> (the window will resize to its last size once the vboxvideo driver loads,
+> >> changing the pitch).
+> >>
+> >> Adding the missing drm_fb_helper_remove_conflicting_pci_framebuffers()
+> >> call fixes this.
+> >>
+> >> Cc: stable@vger.kernel.org
+> >> Fixes: 2695eae1f6d3 ("drm/vboxvideo: Switch to generic fbdev emulation")
+> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> >> ---
+> >>   drivers/gpu/drm/vboxvideo/vbox_drv.c | 4 ++++
+> >>   1 file changed, 4 insertions(+)
+> >>
+> >> diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+> >> index 8512d970a09f..261255085918 100644
+> >> --- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
+> >> +++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+> >> @@ -76,6 +76,10 @@ static int vbox_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+> >>      if (ret)
+> >>              goto err_mode_fini;
+> >>
+> >> +    ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "vboxvideodrmfb");
+> >> +    if (ret)
+> >> +            goto err_irq_fini;
+> >
+> > To avoid transient issues this should be done as early as possible,
+> > definitely before the drm driver starts to touch the "hw".>
+>
+> Ok will fix and then push this to drm-misc-next-fixes, thank you.
+>
+> > With that
+> >
+> > Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> >
+> > I do wonder though why the automatic removal of conflicting framebuffers
+> > doesn't work, fbdev should already do that from register_framebuffer(),
+> > which is called somewhere in drm_fbdev_generic_setup (after a few layers).
+> >
+> > Did you check why the two framebuffers don't conflict, and why the uefi
+> > one doesn't get thrown out?
+>
+> I did not check, I was not aware that this check was already happening
+> in register_framebuffer(). So I just checked and the reason why this
+> is not working is because the fbdev emulation done by drm_fbdev_generic_setup
+> does not fill in fb_info.apertures->ranges[0] .
+>
+> So fb_info.apertures->ranges[0].base is left as 0 which does not match
+> with the registered efifb's aperture.
+>
+> We could try to fix this, but that is not entirely trivial, we would
+> need to pass the pci_dev pointer down into drm_fb_helper_alloc_fbi()
+> then and then like remove_conflicting_pci_framebuffers() does add
+> apertures for all IORESOURCE_MEM PCI bars, but that would conflict
+> with drivers which do rely on drm_fb_helper_alloc_fbi() currently
+> allocating one empty aperture and then actually fill that itself...
 
-Reviewed-by: Baoquan He <bhe@redhat.com>
+You don't need the pci device, because resources are attached to the
+struct device directly. So you could just go through all
+IORESOURCE_MEM ranges, and add them. And the struct device we always
+have through drm_device->dev. This idea just crossed my mind since you
+brought up IORESOURCE_MEM, might be good to try that out instead of
+having to litter all drivers with explicit removal calls. The explicit
+removal is really only for races (vga hw tends to blow up if 2 drivers
+touch it, stuff like that), or when there's resources conflicts. Can
+you try to look into that?
 
+This generic solution will still not be enough for shmem/cma based
+drivers on SoC, but at least it should take care of anything that puts
+the framebuffer into some kind of bar or stolen memory region. What
+drivers do explicitly for those is just put in the framebuffer base
+address. But iirc fbdev core does that already unconditionally.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
