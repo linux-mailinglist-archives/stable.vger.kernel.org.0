@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51D33194C78
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:25:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D532A194CC4
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:27:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728133AbgCZXZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 19:25:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
+        id S1728219AbgCZXZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 19:25:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726067AbgCZXZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 19:25:09 -0400
+        id S1727443AbgCZXZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 19:25:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1031208FE;
-        Thu, 26 Mar 2020 23:25:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A794820A8B;
+        Thu, 26 Mar 2020 23:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265108;
-        bh=2SnIw+qa73YvKL5CuWhDtXX7O/rmDnHV2j0BMtChfm0=;
+        s=default; t=1585265109;
+        bh=HZKph1vlL2+lbjT545LdjST3edbD4zKJanui7XS+8/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIHILtaEFfu45B4VCv4vEOsk4r95gJZM1U15r24xgtdumnedSIFSQK0Q4it7fzTzL
-         20MhHY//1fxihAKiCaxO+SUDcSLT6CMjEnW2omLecl07WV+8NXJoISD2OIBXTLedsW
-         0FkpMA6wpSVxXLVyT8zO6NltFokMNb6PjsLLOpLQ=
+        b=wSMWWDw1/NpEuunTdz8VQ6HoEzW8OSGALIY2B8jVct6vKxtpZ7TgrmpQov6hpa1ZJ
+         DKUzIN6dYLZ3RxAMUali20mDHBin0IeGhD/gZebIydBSrKSB/T7rrf+6Z4T/pz50nr
+         a+ZdGYqGcLvhJH1pe7YAHRi7zZ0JiPeQz6EE3mFs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Len Brown <len.brown@intel.com>, Sasha Levin <sashal@kernel.org>,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 11/15] tools/power turbostat: Fix missing SYS_LPI counter on some Chromebooks
-Date:   Thu, 26 Mar 2020 19:24:51 -0400
-Message-Id: <20200326232455.8029-11-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        syzbot+e1fe9f44fb8ecf4fb5dd@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 12/15] ALSA: pcm: oss: Avoid plugin buffer overflow
+Date:   Thu, 26 Mar 2020 19:24:52 -0400
+Message-Id: <20200326232455.8029-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200326232455.8029-1-sashal@kernel.org>
 References: <20200326232455.8029-1-sashal@kernel.org>
@@ -42,86 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Brown <len.brown@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 1f81c5efc020314b2db30d77efe228b7e117750d ]
+[ Upstream commit f2ecf903ef06eb1bbbfa969db9889643d487e73a ]
 
-Some Chromebook BIOS' do not export an ACPI LPIT, which is how
-Linux finds the residency counter for CPU and SYSTEM low power states,
-that is exports in /sys/devices/system/cpu/cpuidle/*residency_us
+Each OSS PCM plugins allocate its internal buffer per pre-calculation
+of the max buffer size through the chain of plugins (calling
+src_frames and dst_frames callbacks).  This works for most plugins,
+but the rate plugin might behave incorrectly.  The calculation in the
+rate plugin involves with the fractional position, i.e. it may vary
+depending on the input position.  Since the buffer size
+pre-calculation is always done with the offset zero, it may return a
+shorter size than it might be; this may result in the out-of-bound
+access as spotted by fuzzer.
 
-When these sysfs attributes are missing, check the debugfs attrubte
-from the pmc_core driver, which accesses the same counter value.
+This patch addresses those possible buffer overflow accesses by simply
+setting the upper limit per the given buffer size for each plugin
+before src_frames() and after dst_frames() calls.
 
-Signed-off-by: Len Brown <len.brown@intel.com>
+Reported-by: syzbot+e1fe9f44fb8ecf4fb5dd@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000b25ea005a02bcf21@google.com
+Link: https://lore.kernel.org/r/20200309082148.19855-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ sound/core/oss/pcm_plugin.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index fb665fdc722a4..2233cf722c692 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -299,6 +299,10 @@ int *irqs_per_cpu;		/* indexed by cpu_num */
- 
- void setup_all_buffers(void);
- 
-+char *sys_lpi_file;
-+char *sys_lpi_file_sysfs = "/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us";
-+char *sys_lpi_file_debugfs = "/sys/kernel/debug/pmc_core/slp_s0_residency_usec";
-+
- int cpu_is_not_present(int cpu)
- {
- 	return !CPU_ISSET_S(cpu, cpu_present_setsize, cpu_present_set);
-@@ -2844,8 +2848,6 @@ int snapshot_gfx_mhz(void)
-  *
-  * record snapshot of
-  * /sys/devices/system/cpu/cpuidle/low_power_idle_cpu_residency_us
-- *
-- * return 1 if config change requires a restart, else return 0
-  */
- int snapshot_cpu_lpi_us(void)
- {
-@@ -2865,17 +2867,14 @@ int snapshot_cpu_lpi_us(void)
- /*
-  * snapshot_sys_lpi()
-  *
-- * record snapshot of
-- * /sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us
-- *
-- * return 1 if config change requires a restart, else return 0
-+ * record snapshot of sys_lpi_file
-  */
- int snapshot_sys_lpi_us(void)
- {
- 	FILE *fp;
- 	int retval;
- 
--	fp = fopen_or_die("/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us", "r");
-+	fp = fopen_or_die(sys_lpi_file, "r");
- 
- 	retval = fscanf(fp, "%lld", &cpuidle_cur_sys_lpi_us);
- 	if (retval != 1)
-@@ -4743,10 +4742,16 @@ void process_cpuid()
- 	else
- 		BIC_NOT_PRESENT(BIC_CPU_LPI);
- 
--	if (!access("/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us", R_OK))
-+	if (!access(sys_lpi_file_sysfs, R_OK)) {
-+		sys_lpi_file = sys_lpi_file_sysfs;
- 		BIC_PRESENT(BIC_SYS_LPI);
--	else
-+	} else if (!access(sys_lpi_file_debugfs, R_OK)) {
-+		sys_lpi_file = sys_lpi_file_debugfs;
-+		BIC_PRESENT(BIC_SYS_LPI);
-+	} else {
-+		sys_lpi_file_sysfs = NULL;
- 		BIC_NOT_PRESENT(BIC_SYS_LPI);
-+	}
- 
- 	if (!quiet)
- 		decode_misc_feature_control();
+diff --git a/sound/core/oss/pcm_plugin.c b/sound/core/oss/pcm_plugin.c
+index 31cb2acf8afcc..9b588c6a6f099 100644
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -209,6 +209,8 @@ snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_p
+ 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin && drv_frames > 0) {
++			if (drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames)
+ 				drv_frames = plugin->src_frames(plugin, drv_frames);
+@@ -220,6 +222,8 @@ snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_p
+ 			plugin_next = plugin->next;
+ 			if (plugin->dst_frames)
+ 				drv_frames = plugin->dst_frames(plugin, drv_frames);
++			if (drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else
+@@ -248,11 +252,15 @@ snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug, snd_pc
+ 				if (frames < 0)
+ 					return frames;
+ 			}
++			if (frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin) {
++			if (frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames) {
+ 				frames = plugin->src_frames(plugin, frames);
 -- 
 2.20.1
 
