@@ -2,127 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFF6F193DDB
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 12:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD1E193E6E
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 12:56:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728065AbgCZLaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 07:30:07 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:33063 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727560AbgCZLaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 07:30:06 -0400
-Received: by mail-wr1-f66.google.com with SMTP id a25so7356685wrd.0
-        for <stable@vger.kernel.org>; Thu, 26 Mar 2020 04:30:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=SH22KWe1hT6c0thd/+qCFAA217uZva8JGmRsF7nMdrA=;
-        b=Udzcw45qPPv5A25jk54OFhj4fJwPHOulVPqhrWDFHVr7egVfXw1/rrCOFyiXC9/5Bp
-         v/WLaUaIbebAQRjSvqpEPj4tK9OytkaOuGtNkEAudOoSpyHwDtBfqDwnneFLkLXEc/rt
-         c1qapb5G/wcuTC+RV9F5OhQpkQRnaZiASAjvc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=SH22KWe1hT6c0thd/+qCFAA217uZva8JGmRsF7nMdrA=;
-        b=R4dCvPnGY1G45WdMkTXb+rnHwVo2rOoCdYNORcLz3H8FphJCAGP2Y7IZEB9ujfe9gm
-         Xonu1OPnLbLbDYHl/U+yJQMe3rGtAJkkCWDKm/AigQe/sWIplJRY3+m9PVr76PzKApHQ
-         PlhQj13ogreeZGXPu/obdkkJdM2Bw3NUmvlGUVReOWHcLoN7QmR99MPFDx862EMlfw6g
-         /rhmTW8CeAH01Zz1xqlnnc6JHc2WEna2TWYVGZ5/gDp+0qvBjVBnYph0hZiYw2SGewzB
-         Tuw/Ko4DilVkLhk3rd//Nocwnm0Xs0IXFAqRPoxVPeoFCF1wM/++c7nELl31s3+0iAke
-         LeNA==
-X-Gm-Message-State: ANhLgQ00m1/NGEIc+5ORWTqTmSbtpAHzwxj0V+04XYtsa8fBP2UgnATD
-        xPxAoPvjH4WRualbBAfrVnO2qw==
-X-Google-Smtp-Source: ADFU+vtXp3l+t9NAurWabAT9joFdTO4RnwXRXgDGk4vJs2NLHapAKQS6g3wo+eJTwAhIGXmdalQRlw==
-X-Received: by 2002:adf:b60d:: with SMTP id f13mr9335271wre.12.1585222203361;
-        Thu, 26 Mar 2020 04:30:03 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id c5sm10817838wma.3.2020.03.26.04.30.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Mar 2020 04:30:01 -0700 (PDT)
-Date:   Thu, 26 Mar 2020 12:29:59 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Daniel Vetter <daniel.vetter@intel.com>,
-        David Airlie <airlied@linux.ie>, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH] drm/vboxvideo: Add missing
- remove_conflicting_pci_framebuffers call
-Message-ID: <20200326112959.GZ2363188@phenom.ffwll.local>
-References: <20200325144310.36779-1-hdegoede@redhat.com>
+        id S1727991AbgCZL4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 07:56:41 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:35650 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728165AbgCZL4l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 07:56:41 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1585223801; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=G/SzWdBthTVoxAFwbG7tG3/SXJnZK649aqz/vWmd9I8=; b=xDuTHokYWjlUNujh6DNZ4QwygrtzCx+IlJtyWyTXBWXDTiW2MdU+L766PQ07shhMDeJpLO8/
+ wU+SL1CrG6zfI9yQSht0oFlC5VpiXsXuzWqFcm3EdViitzetfnbb17xkYWjSzPchNgO4sXGN
+ FSxrzQ/V8c5fQAWzRsXLVg7rv9o=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e7c9872.7f07e84452d0-smtp-out-n01;
+ Thu, 26 Mar 2020 11:56:34 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 280F1C433BA; Thu, 26 Mar 2020 11:56:34 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE,
+        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from sallenki-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: sallenki)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 60906C433D2;
+        Thu, 26 Mar 2020 11:56:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 60906C433D2
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=sallenki@codeaurora.org
+From:   Sriharsha Allenki <sallenki@codeaurora.org>
+To:     balbi@kernel.org, gregkh@linuxfoundation.org,
+        linux-usb@vger.kernel.org
+Cc:     peter.chen@nxp.com, stable@vger.kernel.org, mgautam@codeaurora.org,
+        jackp@codeaurora.org, Sriharsha Allenki <sallenki@codeaurora.org>
+Subject: [PATCH v2] usb: gadget: f_fs: Fix use after free issue as part of queue failure
+Date:   Thu, 26 Mar 2020 17:26:20 +0530
+Message-Id: <20200326115620.12571-1-sallenki@codeaurora.org>
+X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200325144310.36779-1-hdegoede@redhat.com>
-X-Operating-System: Linux phenom 5.3.0-3-amd64 
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 25, 2020 at 03:43:10PM +0100, Hans de Goede wrote:
-> The vboxvideo driver is missing a call to remove conflicting framebuffers.
-> 
-> Surprisingly, when using legacy BIOS booting this does not really cause
-> any issues. But when using UEFI to boot the VM then plymouth will draw
-> on both the efifb /dev/fb0 and /dev/drm/card0 (which has registered
-> /dev/fb1 as fbdev emulation).
-> 
-> VirtualBox will actual display the output of both devices (I guess it is
-> showing whatever was drawn last), this causes weird artifacts because of
-> pitch issues in the efifb when the VM window is not sized at 1024x768
-> (the window will resize to its last size once the vboxvideo driver loads,
-> changing the pitch).
-> 
-> Adding the missing drm_fb_helper_remove_conflicting_pci_framebuffers()
-> call fixes this.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 2695eae1f6d3 ("drm/vboxvideo: Switch to generic fbdev emulation")
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/gpu/drm/vboxvideo/vbox_drv.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
-> index 8512d970a09f..261255085918 100644
-> --- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
-> +++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
-> @@ -76,6 +76,10 @@ static int vbox_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
->  	if (ret)
->  		goto err_mode_fini;
->  
-> +	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "vboxvideodrmfb");
-> +	if (ret)
-> +		goto err_irq_fini;
+In AIO case, the request is freed up if ep_queue fails.
+However, io_data->req still has the reference to this freed
+request. In the case of this failure if there is aio_cancel
+call on this io_data it will lead to an invalid dequeue
+operation and a potential use after free issue.
+Fix this by setting the io_data->req to NULL when the request
+is freed as part of queue failure.
 
-To avoid transient issues this should be done as early as possible,
-definitely before the drm driver starts to touch the "hw". With that
+Fixes: 2e4c7553cd6f ("usb: gadget: f_fs: add aio support")
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+CC: stable <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+---
+Changes in v2:
+	- As suggested by Greg, updated the tags
 
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+ drivers/usb/gadget/function/f_fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-I do wonder though why the automatic removal of conflicting framebuffers
-doesn't work, fbdev should already do that from register_framebuffer(),
-which is called somewhere in drm_fbdev_generic_setup (after a few layers).
-
-Did you check why the two framebuffers don't conflict, and why the uefi
-one doesn't get thrown out?
--Daniel
-
-> +
->  	ret = drm_fbdev_generic_setup(&vbox->ddev, 32);
->  	if (ret)
->  		goto err_irq_fini;
-> -- 
-> 2.26.0.rc2
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 571917677d35..767f30b86645 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1120,6 +1120,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 
+ 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
+ 		if (unlikely(ret)) {
++			io_data->req = NULL;
+ 			usb_ep_free_request(ep->ep, req);
+ 			goto error_lock;
+ 		}
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, a Linux Foundation Collaborative Project
