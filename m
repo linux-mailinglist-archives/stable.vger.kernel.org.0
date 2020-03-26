@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34192194C89
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:25:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D85DB194CAF
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:26:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728334AbgCZXZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 19:25:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46456 "EHLO mail.kernel.org"
+        id S1727965AbgCZX0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 19:26:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728300AbgCZXZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 19:25:28 -0400
+        id S1728338AbgCZXZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 19:25:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5641F20774;
-        Thu, 26 Mar 2020 23:25:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6918B208FE;
+        Thu, 26 Mar 2020 23:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265128;
-        bh=lQb/xXX8zVFoZHn6gU47t5ZizdgR0lyDspWP5kOlTWE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=UxNPq30ggtP+Thjhe2Em4IXnS/K/S/yje3I3U0xnn6870qq6uwEooBcyE5qpsAbRH
-         F1r75U9f8eHLsCjoThNZsyOgeIEmeKVBhqLtDlu/nh1A4a81+w1Kc3rjc74qVMibhQ
-         SJqxsWP89ElNDK2gtd0UYf4vsLqHAcL6/26hhVJQ=
+        s=default; t=1585265129;
+        bh=TOlzQZqFBlXXk6vVW3nEQ7OnPHurudRh2uEU+6f1lvY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=nzk2F0tgiDlQXRErxVBhCx7AaLVyRWAdpTl4npySNx/qY6KHyV4jXbKXSt0KywMgV
+         SHT+lu2IEhtTRbyNQRGAFR8gP3s23j91mvsCcbeGaSb8caF1BgKpdPJxyJ6m0+BAKx
+         51lLYjaEHp/SQ19ufeabMtBt6a1ah4f+hXUWl3cs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 1/7] ALSA: hda/realtek: Fix pop noise on ALC225
-Date:   Thu, 26 Mar 2020 19:25:20 -0400
-Message-Id: <20200326232526.8349-1-sashal@kernel.org>
+Cc:     Gerd Hoffmann <kraxel@redhat.com>,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.9 2/7] drm/bochs: downgrade pci_request_region failure from error to warning
+Date:   Thu, 26 Mar 2020 19:25:21 -0400
+Message-Id: <20200326232526.8349-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200326232526.8349-1-sashal@kernel.org>
+References: <20200326232526.8349-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -41,38 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-[ Upstream commit 3b36b13d5e69d6f51ff1c55d1b404a74646c9757 ]
+[ Upstream commit 8c34cd1a7f089dc03933289c5d4a4d1489549828 ]
 
-Commit 317d9313925c ("ALSA: hda/realtek - Set default power save node to
-0") makes the ALC225 have pop noise on S3 resume and cold boot.
+Shutdown of firmware framebuffer has a bunch of problems.  Because
+of this the framebuffer region might still be reserved even after
+drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
 
-So partially revert this commit for ALC225 to fix the regression.
+Don't consider pci_request_region() failure for the framebuffer
+region as fatal error to workaround this issue.
 
-Fixes: 317d9313925c ("ALSA: hda/realtek - Set default power save node to 0")
-BugLink: https://bugs.launchpad.net/bugs/1866357
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20200311061328.17614-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200313084152.2734-1-kraxel@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index a64612db1f155..d7b33c9c9f40b 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6410,6 +6410,8 @@ static int patch_alc269(struct hda_codec *codec)
- 		spec->gen.mixer_nid = 0;
- 		break;
- 	case 0x10ec0225:
-+		codec->power_save_node = 1;
-+		/* fall through */
- 	case 0x10ec0295:
- 		spec->codec_variant = ALC269_TYPE_ALC225;
- 		break;
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index a39b0343c197d..401c218567af9 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -97,10 +97,8 @@ int bochs_hw_init(struct drm_device *dev, uint32_t flags)
+ 		size = min(size, mem);
+ 	}
+ 
+-	if (pci_request_region(pdev, 0, "bochs-drm") != 0) {
+-		DRM_ERROR("Cannot request framebuffer\n");
+-		return -EBUSY;
+-	}
++	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
++		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
+ 
+ 	bochs->fb_map = ioremap(addr, size);
+ 	if (bochs->fb_map == NULL) {
 -- 
 2.20.1
 
