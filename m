@@ -2,92 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F5CA193CCE
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 11:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D028F193CF7
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 11:35:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727560AbgCZKQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 06:16:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45652 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727636AbgCZKQd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 06:16:33 -0400
+        id S1727688AbgCZKfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 06:35:08 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:55091 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727560AbgCZKfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 06:35:07 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id BB9F15C01E5;
+        Thu, 26 Mar 2020 06:35:06 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 26 Mar 2020 06:35:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=Qzys90o5abW780iClkZnIacvhuv
+        2mRRaM2JQPil3+74=; b=IlvHjX2eESlyXYZNVrxszyGz+fyHHokBJcFoJRRf+AI
+        lKsNnRwnEuEgSmZitUg4oMpU7h5v96/TCJMH5yxNlp7vJylKAnpAYqbJaj5yI9cg
+        EzYoJvYu70+/E4Vu8EVgL//Z8/FoVf+6zHhonKxu2LYBdAO5jzs4ze29iaI7s0iY
+        f14KTRLfqxbBxXzPo1U1bALUmEiRWo+gTc67S7UKkVZGlxNx379t6g4w+z8Lqfrn
+        qxEY2MSbsfvE2bsQ8TSl0vsDuUzveRoZ9LjVztwDGeqNO9Ou9Xc8OQVrUSCvh6/9
+        RbeBdVBmTnzs0dKiDBdNxaaU6eMAGawDx6819UGosNw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Qzys90
+        o5abW780iClkZnIacvhuv2mRRaM2JQPil3+74=; b=HWeHdvMihzmQNlWYpPwQua
+        Mu40jU+SxgzRtr08stvGCayjXJsVeW9JuPi+oCWURg7ka793ZC0U+8yNLAx2y1W1
+        pAuwNrTxQMO4FobjI9RUAhOtTcYC6pXaRQZGC3na2lKwEMrPb1+BV3GiiQ7K5phY
+        lCvKxVLRIGOXTNbGBh0nR6kSuPNlQ2T1NuqrQMKRfk2aIjmgPpRD6l4PwaTcpsMH
+        qA7of3yRVKWKIewzFDuiBCk/oZPkILkSEeW0tiMuRdDq+n7iQ5N9G25C0Dd2nBTK
+        bkhOIFM/Ne351JrCtijgO6qr5hTAUvNmKxCGWl/iHDI92njPE2UhP/Kg1q6aLUMA
+        ==
+X-ME-Sender: <xms:WoV8XniwNQsBACrEuER1ZWkK8woHZY7pcP8yWnOLBkrvKrKiPvTqLA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudehiedgudejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhr
+    vghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:WoV8Xv-xTAqxwIuF_eUVJVS5lBB4mVByMgxiWHRvIGiC0Y9cos3GhQ>
+    <xmx:WoV8XtN_iEaq-5XZB4gdxMyRtpdUnFqtOjeEsUCDo52LSAFJ1LHmkg>
+    <xmx:WoV8XqrXH54al0bzHJrICOXqote-x_OQ0vMrH35AtrwKWjiZXN6yXw>
+    <xmx:WoV8XlrhHz6_Et1MmddDhOkRtLHMnuBbrotfE-wgAg6pcpwL-Z0DPA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F3232076A;
-        Thu, 26 Mar 2020 10:16:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585217792;
-        bh=GeSD1VNS2rddhAS1gK9Xx4i3fM0dbVHCa8CIGMqPJ6E=;
-        h=Subject:To:From:Date:From;
-        b=UlvsrNITw9WW8lyW0V3RtRkp09hrObgJohdmpjG3Yl92ffRHSCmhksDtJd2RSFAEj
-         ywb8ihR4kFAduk1xViIDyX81PizOchXKJGoJiHK89X+m6dhvXiUBRziSupPauVeoWM
-         6iOXRWg1gBjHF/kGlBGf+xBb2OO6LZyDDH/S/F5k=
-Subject: patch "USB: serial: io_edgeport: fix slab-out-of-bounds read in" added to usb-testing
-To:     hqjagain@gmail.com, johan@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 26 Mar 2020 11:15:58 +0100
-Message-ID: <15852177582275@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3DB273069835;
+        Thu, 26 Mar 2020 06:35:06 -0400 (EDT)
+Date:   Thu, 26 Mar 2020 11:35:01 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Sagi Grimberg <sagi@grimberg.me>
+Cc:     stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>
+Subject: Re: [PATCH stable 5.4] nvmet: fix dsm failure when payload does not
+ match sgl descriptor
+Message-ID: <20200326103501.GA1079173@kroah.com>
+References: <20200320060314.31192-1-sagi@grimberg.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200320060314.31192-1-sagi@grimberg.me>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Mar 19, 2020 at 11:03:14PM -0700, Sagi Grimberg wrote:
+> commit b716e6889c95f64ba32af492461f6cc9341f3f05 upstream.
+> 
+> The host is allowed to pass the controller an sgl describing a buffer
+> that is larger than the dsm payload itself, allow it when executing
+> dsm.
+> 
+> Reported-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>,
+> Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+> Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+> Signed-off-by: Keith Busch <kbusch@kernel.org>
+> ---
+>  drivers/nvme/target/core.c        | 11 +++++++++++
+>  drivers/nvme/target/io-cmd-bdev.c |  2 +-
+>  drivers/nvme/target/io-cmd-file.c |  2 +-
+>  drivers/nvme/target/nvmet.h       |  1 +
+>  4 files changed, 14 insertions(+), 2 deletions(-)
 
-This is a note to let you know that I've just added the patch titled
+This patch does not apply to the 5.4 tree at all:
 
-    USB: serial: io_edgeport: fix slab-out-of-bounds read in
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 57aa9f294b09463492f604feaa5cc719beaace32 Mon Sep 17 00:00:00 2001
-From: Qiujun Huang <hqjagain@gmail.com>
-Date: Wed, 25 Mar 2020 15:52:37 +0800
-Subject: USB: serial: io_edgeport: fix slab-out-of-bounds read in
- edge_interrupt_callback
-
-Fix slab-out-of-bounds read in the interrupt-URB completion handler.
-
-The boundary condition should be (length - 1) as we access
-data[position + 1].
-
-Reported-and-tested-by: syzbot+37ba33391ad5f3935bbd@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/io_edgeport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/usb/serial/io_edgeport.c b/drivers/usb/serial/io_edgeport.c
-index 5737add6a2a4..4cca0b836f43 100644
---- a/drivers/usb/serial/io_edgeport.c
-+++ b/drivers/usb/serial/io_edgeport.c
-@@ -710,7 +710,7 @@ static void edge_interrupt_callback(struct urb *urb)
- 		/* grab the txcredits for the ports if available */
- 		position = 2;
- 		portNumber = 0;
--		while ((position < length) &&
-+		while ((position < length - 1) &&
- 				(portNumber < edge_serial->serial->num_ports)) {
- 			txCredits = data[position] | (data[position+1] << 8);
- 			if (txCredits) {
--- 
-2.26.0
+checking file drivers/nvme/target/core.c
+Hunk #1 succeeded at 941 with fuzz 2 (offset 2 lines).
+checking file drivers/nvme/target/io-cmd-bdev.c
+Hunk #1 FAILED at 280.
+1 out of 1 hunk FAILED
+checking file drivers/nvme/target/io-cmd-file.c
+Hunk #1 FAILED at 336.
+1 out of 1 hunk FAILED
+checking file drivers/nvme/target/nvmet.h
+Hunk #1 FAILED at 374.
 
 
+Are you sure you generated this properly?
+
+thanks,
+
+greg k-h
