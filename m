@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E297C194D31
+	by mail.lfdr.de (Postfix) with ESMTP id 792C6194D30
 	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:29:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727726AbgCZXYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 19:24:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43354 "EHLO mail.kernel.org"
+        id S1727751AbgCZXYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 19:24:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727719AbgCZXYH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 19:24:07 -0400
+        id S1727736AbgCZXYJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 19:24:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77BE42074D;
-        Thu, 26 Mar 2020 23:24:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C78E2083E;
+        Thu, 26 Mar 2020 23:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265047;
-        bh=q7wvOp/B+vcsKe//MRTz/um2sZICyj6+bgXMc/jce7k=;
+        s=default; t=1585265048;
+        bh=mydvpf9JQotGF33zrvwujih4d2LyJw0bPk+qpk20hdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t6PxG26Cv/HG2KtE1WmvTHZhLXbIox26JvVyaqmpg0lzmxTWEf6del734yseTjDIf
-         2Bm3CPugmjMKaqKe/C617J9e16z+kOJFZgA2FGwQsgZpM4MR0++6XE7Fn58G3hrNLh
-         SEf/vRjyKFOM7jpVsDqInocmnuUXL/E3ZCUvE4qU=
+        b=c6xobrK9aevBeXV6bHsOJFQT0BFhKGI1CsuzoI6H1+VuchCSW2uuW9+028ZRdnly7
+         l/b5k3qFcOZelMxM225CV+0oS6XpVRZfZKsNSLFENAOh6aEomgoAilsl8m0YKKNeeE
+         wVT4Dfy70X3ozJ0EhXhzgME782DR6Ouqb7vpdfI0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Quan <evan.quan@amd.com>,
+Cc:     Mario Kleiner <mario.kleiner.de@gmail.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 08/28] drm/amdgpu: add fbdev suspend/resume on gpu reset
-Date:   Thu, 26 Mar 2020 19:23:37 -0400
-Message-Id: <20200326232357.7516-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 09/28] drm/amd/display: Add link_rate quirk for Apple 15" MBP 2017
+Date:   Thu, 26 Mar 2020 19:23:38 -0400
+Message-Id: <20200326232357.7516-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200326232357.7516-1-sashal@kernel.org>
 References: <20200326232357.7516-1-sashal@kernel.org>
@@ -44,44 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Mario Kleiner <mario.kleiner.de@gmail.com>
 
-[ Upstream commit 063e768ebd27d3ec0d6908b7f8ea9b0a732b9949 ]
+[ Upstream commit dec9de2ada523b344eb2428abfedf9d6cd0a0029 ]
 
-This can fix the baco reset failure seen on Navi10.
-And this should be a low risk fix as the same sequence
-is already used for system suspend/resume.
+This fixes a problem found on the MacBookPro 2017 Retina panel:
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+The panel reports 10 bpc color depth in its EDID, and the
+firmware chooses link settings at boot which support enough
+bandwidth for 10 bpc (324000 kbit/sec aka LINK_RATE_RBR2
+aka 0xc), but the DP_MAX_LINK_RATE dpcd register only reports
+2.7 Gbps (multiplier value 0xa) as possible, in direct
+contradiction of what the firmware successfully set up.
+
+This restricts the panel to 8 bpc, not providing the full
+color depth of the panel on Linux <= 5.5. Additionally, commit
+'4a8ca46bae8a ("drm/amd/display: Default max bpc to 16 for eDP")'
+introduced into Linux 5.6-rc1 will unclamp panel depth to
+its full 10 bpc, thereby requiring a eDP bandwidth for all
+modes that exceeds the bandwidth available and causes all modes
+to fail validation -> No modes for the laptop panel -> failure
+to set any mode -> Panel goes dark.
+
+This patch adds a quirk specific to the MBP 2017 15" Retina
+panel to override reported max link rate to the correct maximum
+of 0xc = LINK_RATE_RBR2 to fix the darkness and reduced display
+precision.
+
+Please apply for Linux 5.6+ to avoid regressing Apple MBP panel
+support.
+
+Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 332b9c24a2cd0..9a8a1c6ca3210 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3854,6 +3854,8 @@ static int amdgpu_do_asic_reset(struct amdgpu_hive_info *hive,
- 				if (r)
- 					goto out;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 504055fc70e89..6f2b3ec17e7f0 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -2909,6 +2909,17 @@ static bool retrieve_link_cap(struct dc_link *link)
+ 		sink_id.ieee_device_id,
+ 		sizeof(sink_id.ieee_device_id));
  
-+				amdgpu_fbdev_set_suspend(tmp_adev, 0);
++	/* Quirk Apple MBP 2017 15" Retina panel: Wrong DP_MAX_LINK_RATE */
++	{
++		uint8_t str_mbp_2017[] = { 101, 68, 21, 101, 98, 97 };
 +
- 				/* must succeed. */
- 				amdgpu_ras_resume(tmp_adev);
- 
-@@ -4023,6 +4025,8 @@ int amdgpu_device_gpu_recover(struct amdgpu_device *adev,
- 		 */
- 		amdgpu_unregister_gpu_instance(tmp_adev);
- 
-+		amdgpu_fbdev_set_suspend(adev, 1);
++		if ((link->dpcd_caps.sink_dev_id == 0x0010fa) &&
++		    !memcmp(link->dpcd_caps.sink_dev_id_str, str_mbp_2017,
++			    sizeof(str_mbp_2017))) {
++			link->reported_link_cap.link_rate = 0x0c;
++		}
++	}
 +
- 		/* disable ras on ALL IPs */
- 		if (!in_ras_intr && amdgpu_device_ip_need_full_reset(tmp_adev))
- 			amdgpu_ras_suspend(tmp_adev);
+ 	core_link_read_dpcd(
+ 		link,
+ 		DP_SINK_HW_REVISION_START,
 -- 
 2.20.1
 
