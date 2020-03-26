@@ -2,133 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3F6194831
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 21:05:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05992194861
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 21:08:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727719AbgCZUFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 16:05:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35648 "EHLO mail.kernel.org"
+        id S1727851AbgCZUI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 16:08:27 -0400
+Received: from er-systems.de ([148.251.68.21]:38368 "EHLO er-systems.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727612AbgCZUFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 16:05:03 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        id S1727719AbgCZUI1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 16:08:27 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+        by er-systems.de (Postfix) with ESMTP id DDA7BD6005E;
+        Thu, 26 Mar 2020 21:08:22 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on er-systems.de
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=5.0 tests=ALL_TRUSTED,AWL,BAYES_00,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.2
+Received: from localhost (localhost [127.0.0.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6279206E6;
-        Thu, 26 Mar 2020 20:05:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585253103;
-        bh=0KCnYsuM4FCGda9+swhWI+aSCP2OsC5jlIXzqH+fkp0=;
-        h=Date:From:To:Subject:From;
-        b=Z8CtXW8Z0oCyZyGL/JBBG/HJ5uYjZdRpqFFLCwxfc/+oSZLq2YpH5uOvoafj+nZsP
-         8/ljqpSKv/L+juNJKBDW2wK4NWhROWeOd4aIQKYSalF2fDuajVFnAxjTIT0tduo9ZL
-         Igj0X/K95D2d8uHfe961FlLnJX1nhpDFlLhqxxik=
-Date:   Thu, 26 Mar 2020 13:05:02 -0700
-From:   akpm@linux-foundation.org
-To:     bsingharora@gmail.com, davem@davemloft.net, dsahern@gmail.com,
-        johannes@sipsolutions.net, laoar.shao@gmail.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  +
- kernel-taskstats-fix-wrong-nla-type-for-cgrouptaskstats-policy.patch added
- to -mm tree
-Message-ID: <20200326200502.2a5joA7oB%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by er-systems.de (Postfix) with ESMTPS id BECB7D6005A;
+        Thu, 26 Mar 2020 21:08:22 +0100 (CET)
+Date:   Thu, 26 Mar 2020 21:08:22 +0100 (CET)
+From:   Thomas Voegtle <tv@lio96.de>
+X-X-Sender: thomas@er-systems.de
+To:     Paolo Bonzini <pbonzini@redhat.com>
+cc:     stable@vger.kernel.org,
+        Zhuang Yanying <ann.zhuangyanying@huawei.com>,
+        LinFeng <linfeng23@huawei.com>
+Subject: Re: proposing 7df003c85218b5f for v5.5.y, v5.4.y, 4.19.y, v4.14.y,
+ v4.9.y
+In-Reply-To: <8350b14e-f708-f2e3-19cd-4e85a4a3235c@redhat.com>
+Message-ID: <alpine.LSU.2.21.2003262103280.20929@er-systems.de>
+References: <alpine.LSU.2.21.2003261831320.11753@er-systems.de> <8350b14e-f708-f2e3-19cd-4e85a4a3235c@redhat.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="-74181308-1815079019-1585253302=:20929"
+X-Virus-Status: No
+X-Virus-Checker-Version: clamassassin 1.2.4 with clamdscan / ClamAV 0.102.2/25763/Thu Mar 26 14:07:34 2020 signatures .
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-The patch titled
-     Subject: kernel/taskstats: fix wrong nla type for {cgroup,task}stats policy
-has been added to the -mm tree.  Its filename is
-     kernel-taskstats-fix-wrong-nla-type-for-cgrouptaskstats-policy.patch
+---74181308-1815079019-1585253302=:20929
+Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/kernel-taskstats-fix-wrong-nla-type-for-cgrouptaskstats-policy.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/kernel-taskstats-fix-wrong-nla-type-for-cgrouptaskstats-policy.patch
+On Thu, 26 Mar 2020, Paolo Bonzini wrote:
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+> On 26/03/20 18:43, Thomas Voegtle wrote:
+>>
+>> Hello,
+>>
+>> the following one line commit
+>>
+>> commit 7df003c85218b5f5b10a7f6418208f31e813f38f
+>> Author: Zhuang Yanying <ann.zhuangyanying@huawei.com>
+>> Date:   Sat Oct 12 11:37:31 2019 +0800
+>>
+>>     KVM: fix overflow of zero page refcount with ksm running
+>>
+>>
+>> applies cleanly to v5.5.y, v5.4.y, 4.19.y, v4.14.y and v4.9.y.
+>>
+>> I actually ran into that bug on 4.9.y
+>>
+>> Thanks in advance,
+>>
+>>  Thomas
+>>
+>>
+>>
+>
+> Yes, indeed.  It's not a trivial backport though, so I prefer to do it
+> manually.  I can help with that, or with reviews if Yanying already has
+> patches ready.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Are you sure we are talking about the same commit? Or do I really see 
+something wrong here?
+It's an one liner. Applies cleanly. Compiles.
+Don't know if it fixes the bug, though.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
 
-------------------------------------------------------
-From: Yafang Shao <laoar.shao@gmail.com>
-Subject: kernel/taskstats: fix wrong nla type for {cgroup,task}stats policy
+       Thomas
 
-After our server is upgraded to a newer kernel, we found that it
-continuesly print a warning in the kernel message.  The warning is,
-
-[832984.946322] netlink: 'irmas.lc': attribute type 1 has an invalid length.
-
-irmas.lc is one of our container monitor daemons, and it will use
-CGROUPSTATS_CMD_GET to get the cgroupstats, that is similar with
-tools/accounting/getdelays.c.  We can also produce this warning with
-getdelays.  For example, after running bellow command
-
-	$ ./getdelays -C /sys/fs/cgroup/memory
-
-then you can find a warning in dmesg,
-[61607.229318] netlink: 'getdelays': attribute type 1 has an invalid length.
-
-This warning is introduced in commit 6e237d099fac ("netlink: Relax attr
-validation for fixed length types"), which is used to check whether
-attributes using types NLA_U* and NLA_S* have an exact length.
-
-Regarding this issue, the root cause is cgroupstats_cmd_get_policy defines
-a wrong type as NLA_U32, while it should be NLA_NESTED an its minimal
-length is NLA_HDRLEN.  That is similar to taskstats_cmd_get_policy.
-
-As this behavior change really breaks our application, we'd better cc
-stable as well.
-
-Link: http://lkml.kernel.org/r/1585191042-9935-1-git-send-email-laoar.shao@gmail.com
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Cc: Balbir Singh <bsingharora@gmail.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- kernel/taskstats.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
---- a/kernel/taskstats.c~kernel-taskstats-fix-wrong-nla-type-for-cgrouptaskstats-policy
-+++ a/kernel/taskstats.c
-@@ -35,8 +35,8 @@ struct kmem_cache *taskstats_cache;
- static struct genl_family family;
- 
- static const struct nla_policy taskstats_cmd_get_policy[TASKSTATS_CMD_ATTR_MAX+1] = {
--	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_U32 },
--	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_U32 },
-+	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_NESTED },
-+	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_NESTED },
- 	[TASKSTATS_CMD_ATTR_REGISTER_CPUMASK] = { .type = NLA_STRING },
- 	[TASKSTATS_CMD_ATTR_DEREGISTER_CPUMASK] = { .type = NLA_STRING },};
- 
-@@ -45,7 +45,7 @@ static const struct nla_policy taskstats
-  * Make sure they are always aligned.
-  */
- static const struct nla_policy cgroupstats_cmd_get_policy[TASKSTATS_CMD_ATTR_MAX+1] = {
--	[CGROUPSTATS_CMD_ATTR_FD] = { .type = NLA_U32 },
-+	[CGROUPSTATS_CMD_ATTR_FD] = { .type = NLA_NESTED },
- };
- 
- struct listener {
-_
-
-Patches currently in -mm which might be from laoar.shao@gmail.com are
-
-kernel-taskstats-fix-wrong-nla-type-for-cgrouptaskstats-policy.patch
-mm-memcg-fix-build-error-around-the-usage-of-kmem_caches.patch
+---74181308-1815079019-1585253302=:20929--
 
