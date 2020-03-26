@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A4C1194C38
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:24:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1918194D33
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:29:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727717AbgCZXYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727708AbgCZXYH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 26 Mar 2020 19:24:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43258 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727689AbgCZXYF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 19:24:05 -0400
+        id S1727674AbgCZXYG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 19:24:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26E2F212CC;
-        Thu, 26 Mar 2020 23:24:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7926820663;
+        Thu, 26 Mar 2020 23:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265045;
-        bh=JzE8QSLBSji/fwbdetznn6wuAkvze4RHNwUOhEGZU9c=;
+        s=default; t=1585265046;
+        bh=VfplG4asbBOJ9obO1kL+1KRmnwnGfmgoalGJBfSqDbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cXGm5OHwXYJ049jHHuOGPBnfs3rxNHgDGKg1gypfVkKPUFspT/6WZkC8emxznePqm
-         xEqQzgaElbbw+deCSdStnD+1rfCeOewtGZfMDVJLjjg9Je8KIZzwPKSJOh6NRFvqYS
-         Cqcpc2vYwXCkDGpg0ouab7Tvno00LUDZsYGHLF4U=
+        b=U1GU7a+dRaEuLRMSBNrsoAtAWTCYvKbxY3SH5x92VBqq/7fk/SH5g8A0VzySkyCH4
+         +xtD9ku2PRTN5+ymyR0VncUgde/wCH0MM4xzYtJHBJ0lJpmFPjohO+OsNSXW9tcxiT
+         wqfL1wdmk/47d0RhFXjI7+Mf2lA9cuodDG5d4hkI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        George Spelvin <lkml@sdf.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.5 06/28] kconfig: introduce m32-flag and m64-flag
-Date:   Thu, 26 Mar 2020 19:23:35 -0400
-Message-Id: <20200326232357.7516-6-sashal@kernel.org>
+        George Spelvin <lkml@sdf.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 07/28] int128: fix __uint128_t compiler test in Kconfig
+Date:   Thu, 26 Mar 2020 19:23:36 -0400
+Message-Id: <20200326232357.7516-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200326232357.7516-1-sashal@kernel.org>
 References: <20200326232357.7516-1-sashal@kernel.org>
@@ -47,80 +44,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 8cc4fd73501d9f1370c3eebb70cfe8cc9e24062b ]
+[ Upstream commit 3a7c733165a4799fa1beb262fe244bfbcdd1c163 ]
 
-When a compiler supports multiple architectures, some compiler features
-can be dependent on the target architecture.
+The support for __uint128_t is dependent on the target bit size.
 
-This is typical for Clang, which supports multiple LLVM backends.
-Even for GCC, we need to take care of biarch compiler cases.
+GCC that defaults to the 32-bit can still build the 64-bit kernel
+with -m64 flag passed.
 
-It is not a problem when we evaluate cc-option in Makefiles because
-cc-option is tested against the flag in question + $(KBUILD_CFLAGS).
+However, $(cc-option,-D__SIZEOF_INT128__=0) is evaluated against the
+default machine bit, which may not match to the kernel it is building.
 
-The cc-option in Kconfig, on the other hand, does not accumulate
-tested flags. Due to this simplification, it could potentially test
-cc-option against a different target.
+Theoretically, this could be evaluated separately for 64BIT/32BIT.
 
-At first, Kconfig always evaluated cc-option against the host
-architecture.
-
-Since commit e8de12fb7cde ("kbuild: Check for unknown options with
-cc-option usage in Kconfig and clang"), in case of cross-compiling
-with Clang, the target triple is correctly passed to Kconfig.
-
-The case with biarch GCC (and native build with Clang) is still not
-handled properly. We need to pass some flags to specify the target
-machine bit.
-
-Due to the design, all the macros in Kconfig are expanded in the
-parse stage, where we do not know the target bit size yet.
-
-For example, arch/x86/Kconfig allows a user to toggle CONFIG_64BIT.
-If a compiler flag -foo depends on the machine bit, it must be tested
-twice, one with -m32 and the other with -m64.
-
-However, -m32/-m64 are not always recognized. So, this commits adds
-m64-flag and m32-flag macros. They expand to -m32, -m64, respectively
-if supported. Or, they expand to an empty string if unsupported.
-
-The typical usage is like this:
-
-  config FOO
+  config CC_HAS_INT128
           bool
-          default $(cc-option,$(m64-flag) -foo) if 64BIT
-          default $(cc-option,$(m32-flag) -foo)
+          default !$(cc-option,$(m64-flag) -D__SIZEOF_INT128__=0) if 64BIT
+          default !$(cc-option,$(m32-flag) -D__SIZEOF_INT128__=0)
 
-This is clumsy, but there is no elegant way to handle this in the
-current static macro expansion.
+I simplified it more because the 32-bit compiler is unlikely to support
+__uint128_t.
 
-There was discussion for static functions vs dynamic functions.
-The consensus was to go as far as possible with the static functions.
-(https://lkml.org/lkml/2018/3/2/22)
-
+Fixes: c12d3362a74b ("int128: move __uint128_t compiler test to Kconfig")
+Reported-by: George Spelvin <lkml@sdf.org>
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Tested-by: George Spelvin <lkml@sdf.org>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Kconfig.include | 7 +++++++
- 1 file changed, 7 insertions(+)
+ init/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/scripts/Kconfig.include b/scripts/Kconfig.include
-index bfb44b265a948..77a69ba9cd198 100644
---- a/scripts/Kconfig.include
-+++ b/scripts/Kconfig.include
-@@ -40,3 +40,10 @@ $(error-if,$(success, $(LD) -v | grep -q gold), gold linker '$(LD)' not supporte
+diff --git a/init/Kconfig b/init/Kconfig
+index 47d40f3990005..74297c392dd49 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -767,8 +767,7 @@ config ARCH_WANT_BATCHED_UNMAP_TLB_FLUSH
+ 	bool
  
- # gcc version including patch level
- gcc-version := $(shell,$(srctree)/scripts/gcc-version.sh $(CC))
-+
-+# machine bit flags
-+#  $(m32-flag): -m32 if the compiler supports it, or an empty string otherwise.
-+#  $(m64-flag): -m64 if the compiler supports it, or an empty string otherwise.
-+cc-option-bit = $(if-success,$(CC) -Werror $(1) -E -x c /dev/null -o /dev/null,$(1))
-+m32-flag := $(cc-option-bit,-m32)
-+m64-flag := $(cc-option-bit,-m64)
+ config CC_HAS_INT128
+-	def_bool y
+-	depends on !$(cc-option,-D__SIZEOF_INT128__=0)
++	def_bool !$(cc-option,$(m64-flag) -D__SIZEOF_INT128__=0) && 64BIT
+ 
+ #
+ # For architectures that know their GCC __int128 support is sound
 -- 
 2.20.1
 
