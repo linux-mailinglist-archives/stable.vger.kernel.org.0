@@ -2,131 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5A319373F
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 05:12:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54275193754
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 05:38:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725775AbgCZEMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 00:12:22 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:42155 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725306AbgCZEMW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 00:12:22 -0400
-Received: by mail-pg1-f196.google.com with SMTP id h8so2230091pgs.9
-        for <stable@vger.kernel.org>; Wed, 25 Mar 2020 21:12:21 -0700 (PDT)
+        id S1726138AbgCZEix (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 00:38:53 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:35752 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726038AbgCZEix (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 00:38:53 -0400
+Received: by mail-lj1-f194.google.com with SMTP id k21so5021264ljh.2
+        for <stable@vger.kernel.org>; Wed, 25 Mar 2020 21:38:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=5cuULBhruLNAJdEgZRCJvzEphCgAFIC+1h3tAvXk6k0=;
-        b=DZ5/o70AnhTWBPAG9u5/7NimrI423SzzlZqYmaOXlWo9JqPfr+0mRP7dp8tt36kz9D
-         /7OClVie9Bhmpun5RDd44g9/rz6EOhH9sWvyRmFoCBNQTxCOSPmMDxeLqbu4ua5Qy3G3
-         DOocj74sOgK+OM5PXYI7zxTw7iIxcuDPd5/dcvZfv1hE95fN9B+fe+vsTTaLh5xpFXm3
-         jJKHnakbHGdUGFl01JWWlVG+4VmuVmcAz7su8/ExWSQT9ltvBktZKWwlRBn5Z5oSd/l0
-         DopEBsa/VLmLpsQzmC9XEQYmp65+5j3I8wXhFBJZmkVUKlU80d/xmioIjK9vcn3C4oS9
-         if6w==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=fGs2Fkq+JYwqsVvuiDWV5GE6EV18e6pUOVPfSl4Vkws=;
+        b=BSsmzr6IQUuTjeowtedlu9tNNgVPDr+nYNScnZkr85pdX6ZmVQss+TJQopSDkzUeP1
+         +MDVcvdFtmunqrK+0huuUuWRu0EytgvDvq1AWSOu3cmVzD/QMkrEopgaT3XMVRZm7rk8
+         FALLNJ7rBV3mMyd5r4R7V4SIsR+f2FnCvYWvqro59pQ8N+VefOkZpshcYhSX/UVzmpAt
+         lcJnQm3xCIYt/zYnfe7fiiuQLN+JpHdXQNp2DxAPWTcCJps6u6Qm5FQALtX/EIJ0ixrQ
+         ey06pINwKwa5Wt4Jc4ltm12Qoa0kFbzwkgwKP6h4oi5GSI+NrC5JfUv/NajDR7fhq0wy
+         PTvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=5cuULBhruLNAJdEgZRCJvzEphCgAFIC+1h3tAvXk6k0=;
-        b=JdtN2+EsmS2oDmt7x/cRf4XIqOGSP1kO3hEo8B5vhZw1+pcoWgPGHIQRRKe2dpGYnC
-         L+3xNH3qEQBLxMUoAafZUpMOoj7eEQgZqBBwuPxMT/H6tgAweX8uXV7OZu9+0kXZXiZX
-         UEkBmpx2PaLcxsOjUqvN+uk9o5IXfRUcu8jcn4bHxnfY9K6v6Ln4yAoXi/J3tbxUVYzP
-         YgeOnu5FI81wzVI1jZT+1U9dQuVjI9xmt6MQeWUfHnDhPAiah7i3GSssJVFGqMWDsSvI
-         We/8H5x9bJLP2vZPMH9p/TeWUAUlyBaiZuTLse7Bqa8NoaePlRIgQV0rOwORjcdYE3Cm
-         vhdA==
-X-Gm-Message-State: ANhLgQ3dK98lAt7AQUjCU4BOqHLdVlodzpr0Srw8XABy/yfQMuGHdHHB
-        ykrGbtieUCZKERznDdFnkkBt2jFkBaI=
-X-Google-Smtp-Source: ADFU+vvgK6crIMvFWMv44FjAY8roW2CA237diOVgpWrtPcTQGRpugekkDxbfkPQqqf4fNxguExVb6g==
-X-Received: by 2002:a62:1dd3:: with SMTP id d202mr6992460pfd.47.1585195940817;
-        Wed, 25 Mar 2020 21:12:20 -0700 (PDT)
-Received: from [10.0.9.4] ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b11sm597616pjc.27.2020.03.25.21.12.19
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2020 21:12:19 -0700 (PDT)
-Message-ID: <5e7c2ba3.1c69fb81.8a4e0.3136@mx.google.com>
-Date:   Wed, 25 Mar 2020 21:12:19 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=fGs2Fkq+JYwqsVvuiDWV5GE6EV18e6pUOVPfSl4Vkws=;
+        b=F89/nhR1FS6N7JjYPhF3fSwv3uelhZk39pYNli5hSTvF2LjHP1fMZYWnd8/GwTlJBD
+         MfMYL3c2mrDdxddUjQVUszMn6ZkvfHt+zHDYAfpKfBKbkrEiJAf3swElSCT7LYrmYFVJ
+         J8moLQJeY/E1H5vGIif7Iyqqs/QgDR14+8w4I5XfWSA6mY5yJov0u0ecgvuUoBA7ZKw/
+         neLaD+MCqQKApC5dy27EsUoYH/ksC1Pd1mgRVuQtu0RmoQ6K8eUn87qFWoYRfTZBnuwX
+         guRaCe6s0WZ7tOZmHDq3pSTcnkyrVH+oOYEV2NRxcg2PkGXGJTo+G8fMbvUJrz8jDrjS
+         EaPg==
+X-Gm-Message-State: AGi0PuZ6dVWOJOPde4l38lLVXfZxFEa01UG30xUDDhXRusaHsw/WEf9S
+        eO9H3hCOdIb99BoUucX3161qxvMJIo+r1lflQfY15Q==
+X-Google-Smtp-Source: APiQypKLx0qGen5VpCIUnaclGGr5pVb8zOTvau+T484s06BImCVFsm0HyLLdPILkq5Kr/8LBazJqb8ae9NZwH/fJsc8=
+X-Received: by 2002:a2e:990b:: with SMTP id v11mr4095616lji.243.1585197531085;
+ Wed, 25 Mar 2020 21:38:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.217
-X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y build: 190 builds: 1 failed, 189 passed,
- 2 errors, 13 warnings (v4.4.217)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20200324180650.28819-1-ulf.hansson@linaro.org> <20200326025132.GA4189@sasha-vm>
+In-Reply-To: <20200326025132.GA4189@sasha-vm>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 26 Mar 2020 10:08:39 +0530
+Message-ID: <CA+G9fYvGbNuTY0rNh_W5HzxtTjUBb8YXkixG5DCseXppTVGJzA@mail.gmail.com>
+Subject: Re: [PATCH 5.5.12 0/5] mmc: Fix some busy detect problems
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux- stable <stable@vger.kernel.org>,
+        linux-mmc@vger.kernel.org,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        Anders Roxell <anders.roxell@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y build: 190 builds: 1 failed, 189 passed, 2 errors, 13=
- warnings (v4.4.217)
+On Thu, 26 Mar 2020 at 08:21, Sasha Levin <sashal@kernel.org> wrote:
+>
+> On Tue, Mar 24, 2020 at 07:06:45PM +0100, Ulf Hansson wrote:
+> >This series provides a couple of manually backported mmc changes that fixes some
+> >busy detect issues, for a couple of mmc host drivers (sdhci-tegra|omap).
+> >
+> >Ulf Hansson (5):
+> >  mmc: core: Allow host controllers to require R1B for CMD6
+> >  mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for erase/trim/discard
+> >  mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
+> >  mmc: sdhci-omap: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
+> >  mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
+> >
+> > drivers/mmc/core/core.c        | 5 ++++-
+> > drivers/mmc/core/mmc.c         | 7 +++++--
+> > drivers/mmc/core/mmc_ops.c     | 8 +++++---
+> > drivers/mmc/host/sdhci-omap.c  | 3 +++
+> > drivers/mmc/host/sdhci-tegra.c | 3 +++
+> > include/linux/mmc/host.h       | 1 +
+> > 6 files changed, 21 insertions(+), 6 deletions(-)
+>
+> I've queued this, the 5.4, and the 4.19 series. Thanks!
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.217/
+I think this was tested for 5.4 branch.
+Not sure about 4.19
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.217
-Git Commit: 3b41c631678a15390920ffc1e72470e83db73ac8
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
+Anders and Ulf,
+Was it validated against 4.19 branch ?
 
-Build Failure Detected:
-
-mips:
-    sead3micro_defconfig: (gcc-8) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-    allnoconfig (gcc-8): 3 warnings
-    tinyconfig (gcc-8): 4 warnings
-
-arm64:
-
-arm:
-    clps711x_defconfig (gcc-8): 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
-    lpc32xx_defconfig (gcc-8): 1 warning
-    mxs_defconfig (gcc-8): 1 warning
-
-i386:
-
-mips:
-    ip22_defconfig (gcc-8): 1 warning
-    ip28_defconfig (gcc-8): 1 warning
-    sead3micro_defconfig (gcc-8): 2 errors
-
-x86_64:
-
-Errors summary:
-
-    1    arch/mips/kernel/genex.S:271: Error: branch to a symbol in another=
- ISA mode
-    1    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another=
- ISA mode
-
-Warnings summary:
-
-    7    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct d=
-ependencies (FUTEX)
-    2    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argum=
-ent 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer withou=
-t a cast [-Wint-conversion]
-    1    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98c=
-onst=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=
-=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=
-=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
- =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----
-For more info write to <info@kernelci.org>
+- Naresh
