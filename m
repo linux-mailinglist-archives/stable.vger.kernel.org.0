@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5DC8194133
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 15:23:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F562194196
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 15:33:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728041AbgCZOXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 10:23:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35394 "EHLO mail.kernel.org"
+        id S1727738AbgCZOdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 10:33:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727989AbgCZOXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 10:23:23 -0400
+        id S1726296AbgCZOdA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 10:33:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 618B62073E;
-        Thu, 26 Mar 2020 14:23:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E0BF20714;
+        Thu, 26 Mar 2020 14:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585232602;
-        bh=gZPH1bQX+In6qDVc9GYb0ywyndzwcr/aQTSoniEmhVI=;
+        s=default; t=1585233178;
+        bh=zbwaaLTevG6T3/sZRK7PBYIQQ1wDG6X46VX+8Z3S8ns=;
         h=Subject:To:From:Date:From;
-        b=rCcHIatDkvLFYLy0w6ZcTYLo+V4pPDDRVV0g0zoBvrU/MSOvOftXCYnTHFUMxoBVd
-         jz9ti3cNjHctSNvbgUOxdlxuwrG5IcmNQPWd3M4Hlta/btJvwSq240fzhVyOhjw/3h
-         ycQU7Cf93lPOJ6oE5heUHWqRR/fE9eJIZGd8Mjlc=
-Subject: patch "coresight: do not use the BIT() macro in the UAPI header" added to char-misc-testing
-To:     esyr@redhat.com, gregkh@linuxfoundation.org,
-        mathieu.poirier@linaro.org, stable@vger.kernel.org
+        b=wZ7uTWSBPtcGb1ghJkqowExzU2s5XX5L2a5nPdIspLii4Djx9V1ZBjGoamUDrRIoW
+         3ScnFjxHKRmdb/75DDRw4m0QeU/HVJ1XQ1psDZ+wnfZc6FU8BdZZjsoTST6J6snCPN
+         GWAWgsqIXShj/McwB0eIg3MH+SSNttxSmYGmmmBo=
+Subject: patch "mei: me: add cedar fork device ids" added to char-misc-testing
+To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, tomas.winkler@intel.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 26 Mar 2020 15:23:12 +0100
-Message-ID: <1585232592195205@kroah.com>
+Date:   Thu, 26 Mar 2020 15:32:55 +0100
+Message-ID: <1585233175213129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    coresight: do not use the BIT() macro in the UAPI header
+    mei: me: add cedar fork device ids
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -55,42 +55,49 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 9b6eaaf3db5e5888df7bca7fed7752a90f7fd871 Mon Sep 17 00:00:00 2001
-From: Eugene Syromiatnikov <esyr@redhat.com>
-Date: Tue, 24 Mar 2020 05:22:13 +0100
-Subject: coresight: do not use the BIT() macro in the UAPI header
+From 99397d33b763dc554d118aaa38cc5abc6ce985de Mon Sep 17 00:00:00 2001
+From: Alexander Usyskin <alexander.usyskin@intel.com>
+Date: Tue, 24 Mar 2020 23:07:30 +0200
+Subject: mei: me: add cedar fork device ids
 
-The BIT() macro definition is not available for the UAPI headers
-(moreover, it can be defined differently in the user space); replace
-its usage with the _BITUL() macro that is defined in <linux/const.h>.
+Add Cedar Fork (CDF) device ids, those belongs to the cannon point family.
 
-Fixes: 237483aa5cf4 ("coresight: stm: adding driver for CoreSight STM component")
-Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200324042213.GA10452@asgard.redhat.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20200324210730.17672-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/coresight-stm.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/misc/mei/hw-me-regs.h | 2 ++
+ drivers/misc/mei/pci-me.c     | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/include/uapi/linux/coresight-stm.h b/include/uapi/linux/coresight-stm.h
-index aac550a52f80..8847dbf24151 100644
---- a/include/uapi/linux/coresight-stm.h
-+++ b/include/uapi/linux/coresight-stm.h
-@@ -2,8 +2,10 @@
- #ifndef __UAPI_CORESIGHT_STM_H_
- #define __UAPI_CORESIGHT_STM_H_
+diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
+index d2359aed79ae..9392934e3a06 100644
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -87,6 +87,8 @@
+ #define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
+ #define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
  
--#define STM_FLAG_TIMESTAMPED   BIT(3)
--#define STM_FLAG_GUARANTEED    BIT(7)
-+#include <linux/const.h>
++#define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
 +
-+#define STM_FLAG_TIMESTAMPED   _BITUL(3)
-+#define STM_FLAG_GUARANTEED    _BITUL(7)
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
  
- /*
-  * The CoreSight STM supports guaranteed and invariant timing
+ #define MEI_DEV_ID_JSP_N      0x4DE0  /* Jasper Lake Point N */
+diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
+index ebdc2d6f8ddb..3d21c38e2dbb 100644
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -102,6 +102,8 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_CDF, MEI_ME_PCH8_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
 -- 
 2.26.0
 
