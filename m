@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 308C0194C87
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:25:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF8E194CA9
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728277AbgCZXZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 19:25:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
+        id S1728306AbgCZXZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 19:25:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728290AbgCZXZW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728300AbgCZXZW (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 26 Mar 2020 19:25:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 431AB20409;
-        Thu, 26 Mar 2020 23:25:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61C3220B1F;
+        Thu, 26 Mar 2020 23:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265121;
-        bh=FSd3fJIXeOlcrAo6oTBMOb+MgrVZs0hV0/32Lr+h9Ao=;
+        s=default; t=1585265122;
+        bh=h2eGqPeixL/ya52/luORgsLdlKSXvpz5U783GSmKz9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SWWKJVxVY9GO+zBLMlU9WW/lL74comLnvtx1TCYD77ivSRPJW3gjCSMc0q181oBdm
-         HVyco7zqF1A/5BolRXVXC/YrfrzM69cXGgD9AZjGbUDrtOQ9WERJrDdtQbVwT9MGI+
-         VgW8VWtVy4Bo9gA2srhhyUJBwtlUB7INdoYRqp60=
+        b=H/Vhb7dbw7XvjsaUiAgzWMyAtUUj5FkTPJbipXblcl6izVCBPU+VkbRWZH6m84Xne
+         mE4dWB+rs0LoHIVJrydPnf2UsVkECFCozsJd3mfsOS/52SqLF4x5kSPRHD/9Q3dugO
+         I+37zsyRmmy5SdvPGYtDpBPkpoCeaqTju0NF8fSo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, greybus-dev@lists.linaro.org,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.14 06/10] staging: greybus: loopback_test: fix potential path truncations
-Date:   Thu, 26 Mar 2020 19:25:09 -0400
-Message-Id: <20200326232513.8212-6-sashal@kernel.org>
+Cc:     Len Brown <len.brown@intel.com>, Sasha Levin <sashal@kernel.org>,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 07/10] tools/power turbostat: Fix gcc build warnings
+Date:   Thu, 26 Mar 2020 19:25:10 -0400
+Message-Id: <20200326232513.8212-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200326232513.8212-1-sashal@kernel.org>
 References: <20200326232513.8212-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,97 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Len Brown <len.brown@intel.com>
 
-[ Upstream commit ae62cf5eb2792d9a818c2d93728ed92119357017 ]
+[ Upstream commit d8d005ba6afa502ca37ced5782f672c4d2fc1515 ]
 
-Newer GCC warns about possible truncations of two generated path names as
-we're concatenating the configurable sysfs and debugfs path prefixes
-with a filename and placing the results in buffers of the same size as
-the maximum length of the prefixes.
+Warning: ‘__builtin_strncpy’ specified bound 20 equals destination size
+	[-Wstringop-truncation]
 
-	snprintf(d->name, MAX_STR_LEN, "gb_loopback%u", dev_id);
+reduce param to strncpy, to guarantee that a null byte is always copied
+into destination buffer.
 
-	snprintf(d->sysfs_entry, MAX_SYSFS_PATH, "%s%s/",
-		 t->sysfs_prefix, d->name);
-
-	snprintf(d->debugfs_entry, MAX_SYSFS_PATH, "%sraw_latency_%s",
-		 t->debugfs_prefix, d->name);
-
-Fix this by separating the maximum path length from the maximum prefix
-length and reducing the latter enough to fit the generated strings.
-
-Note that we also need to reduce the device-name buffer size as GCC
-isn't smart enough to figure out that we ever only used MAX_STR_LEN
-bytes of it.
-
-Fixes: 6b0658f68786 ("greybus: tools: Add tools directory to greybus repo and add loopback")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200312110151.22028-4-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/tools/loopback_test.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ tools/power/x86/turbostat/turbostat.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/greybus/tools/loopback_test.c b/drivers/staging/greybus/tools/loopback_test.c
-index ddea50523d562..b6aa70b94f335 100644
---- a/drivers/staging/greybus/tools/loopback_test.c
-+++ b/drivers/staging/greybus/tools/loopback_test.c
-@@ -20,6 +20,7 @@
- #include <signal.h>
- 
- #define MAX_NUM_DEVICES 10
-+#define MAX_SYSFS_PREFIX 0x80
- #define MAX_SYSFS_PATH	0x200
- #define CSV_MAX_LINE	0x1000
- #define SYSFS_MAX_INT	0x20
-@@ -68,7 +69,7 @@ struct loopback_results {
- };
- 
- struct loopback_device {
--	char name[MAX_SYSFS_PATH];
-+	char name[MAX_STR_LEN];
- 	char sysfs_entry[MAX_SYSFS_PATH];
- 	char debugfs_entry[MAX_SYSFS_PATH];
- 	struct loopback_results results;
-@@ -94,8 +95,8 @@ struct loopback_test {
- 	int stop_all;
- 	int poll_count;
- 	char test_name[MAX_STR_LEN];
--	char sysfs_prefix[MAX_SYSFS_PATH];
--	char debugfs_prefix[MAX_SYSFS_PATH];
-+	char sysfs_prefix[MAX_SYSFS_PREFIX];
-+	char debugfs_prefix[MAX_SYSFS_PREFIX];
- 	struct timespec poll_timeout;
- 	struct loopback_device devices[MAX_NUM_DEVICES];
- 	struct loopback_results aggregate_results;
-@@ -914,10 +915,10 @@ int main(int argc, char *argv[])
- 			t.iteration_max = atoi(optarg);
- 			break;
- 		case 'S':
--			snprintf(t.sysfs_prefix, MAX_SYSFS_PATH, "%s", optarg);
-+			snprintf(t.sysfs_prefix, MAX_SYSFS_PREFIX, "%s", optarg);
- 			break;
- 		case 'D':
--			snprintf(t.debugfs_prefix, MAX_SYSFS_PATH, "%s", optarg);
-+			snprintf(t.debugfs_prefix, MAX_SYSFS_PREFIX, "%s", optarg);
- 			break;
- 		case 'm':
- 			t.mask = atol(optarg);
-@@ -968,10 +969,10 @@ int main(int argc, char *argv[])
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 19e345cf8193e..0692f2efc25ef 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -4650,9 +4650,9 @@ int add_counter(unsigned int msr_num, char *path, char *name,
  	}
  
- 	if (!strcmp(t.sysfs_prefix, ""))
--		snprintf(t.sysfs_prefix, MAX_SYSFS_PATH, "%s", sysfs_prefix);
-+		snprintf(t.sysfs_prefix, MAX_SYSFS_PREFIX, "%s", sysfs_prefix);
- 
- 	if (!strcmp(t.debugfs_prefix, ""))
--		snprintf(t.debugfs_prefix, MAX_SYSFS_PATH, "%s", debugfs_prefix);
-+		snprintf(t.debugfs_prefix, MAX_SYSFS_PREFIX, "%s", debugfs_prefix);
- 
- 	ret = find_loopback_devices(&t);
- 	if (ret)
+ 	msrp->msr_num = msr_num;
+-	strncpy(msrp->name, name, NAME_BYTES);
++	strncpy(msrp->name, name, NAME_BYTES - 1);
+ 	if (path)
+-		strncpy(msrp->path, path, PATH_BYTES);
++		strncpy(msrp->path, path, PATH_BYTES - 1);
+ 	msrp->width = width;
+ 	msrp->type = type;
+ 	msrp->format = format;
 -- 
 2.20.1
 
