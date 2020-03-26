@@ -2,88 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD1E193E6E
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 12:56:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37961193F96
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 14:18:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727991AbgCZL4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 07:56:41 -0400
-Received: from mail27.static.mailgun.info ([104.130.122.27]:35650 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728165AbgCZL4l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 07:56:41 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1585223801; h=Content-Transfer-Encoding: MIME-Version:
- Message-Id: Date: Subject: Cc: To: From: Sender;
- bh=G/SzWdBthTVoxAFwbG7tG3/SXJnZK649aqz/vWmd9I8=; b=xDuTHokYWjlUNujh6DNZ4QwygrtzCx+IlJtyWyTXBWXDTiW2MdU+L766PQ07shhMDeJpLO8/
- wU+SL1CrG6zfI9yQSht0oFlC5VpiXsXuzWqFcm3EdViitzetfnbb17xkYWjSzPchNgO4sXGN
- FSxrzQ/V8c5fQAWzRsXLVg7rv9o=
-X-Mailgun-Sending-Ip: 104.130.122.27
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e7c9872.7f07e84452d0-smtp-out-n01;
- Thu, 26 Mar 2020 11:56:34 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 280F1C433BA; Thu, 26 Mar 2020 11:56:34 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from sallenki-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: sallenki)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 60906C433D2;
-        Thu, 26 Mar 2020 11:56:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 60906C433D2
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=sallenki@codeaurora.org
-From:   Sriharsha Allenki <sallenki@codeaurora.org>
-To:     balbi@kernel.org, gregkh@linuxfoundation.org,
-        linux-usb@vger.kernel.org
-Cc:     peter.chen@nxp.com, stable@vger.kernel.org, mgautam@codeaurora.org,
-        jackp@codeaurora.org, Sriharsha Allenki <sallenki@codeaurora.org>
-Subject: [PATCH v2] usb: gadget: f_fs: Fix use after free issue as part of queue failure
-Date:   Thu, 26 Mar 2020 17:26:20 +0530
-Message-Id: <20200326115620.12571-1-sallenki@codeaurora.org>
-X-Mailer: git-send-email 2.26.0
+        id S1726336AbgCZNSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 09:18:34 -0400
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:59139 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726281AbgCZNSe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 09:18:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1585228713;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=s/zfRe7WbIKDZu9rHgVTTfByJPyfRtrbOIZkKq03EzA=;
+        b=B8FMseCLOVcGbS9VRAZ0JDp2V+D7Mlmw+OHAyzwwuOSVXEu8JQXzhWUPKVxGqFY7f+sPYv
+        o+8r49kUFbrbS9sQge3E696anSo3xPk/ikIlZEqNftxwYjcQaDdSeT4h0mMCWypUQUzAO+
+        FRK7QYIyk+hfhClUnANtjuNgaImhmGw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-42-OmouecM_OyCvITMuGxKUmw-1; Thu, 26 Mar 2020 09:18:31 -0400
+X-MC-Unique: OmouecM_OyCvITMuGxKUmw-1
+Received: by mail-wm1-f70.google.com with SMTP id t22so2159247wmt.4
+        for <stable@vger.kernel.org>; Thu, 26 Mar 2020 06:18:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=s/zfRe7WbIKDZu9rHgVTTfByJPyfRtrbOIZkKq03EzA=;
+        b=Xxmn1VhUSGyNZCb5rboOouTiy2NMU883Zz9m/YrnHJ9y/445a65sEV78n7G//sgBFm
+         vajfhjPCl/psKbznWoGmMM0Nyn7LpctST7CQR3h6F7jDuMtdNruG+hW9FcOkj9j3ojUu
+         jy+MgSKd9zL5UolmloEr+JfSqTRDgGofhEp0lX/SiKhx9NhewAYAGRr/iQdYwvsFGcDG
+         Ex/XqeD0BaNQeOxTpt1z+8cJ6B6mP+Tdyr1KYFsZuTpDXMjwR2La4/kjEBr3fUL5eo+w
+         jee8D352jWJU16eOCMkZFuWf9wNXtPRAoB5OUWwjUWmgScjZcjN28HWrnVY/lFU/uuiq
+         CLUQ==
+X-Gm-Message-State: ANhLgQ2b43N8xIsdYWY67/fOF6BNYi82aQyPrn93jG0tIBr3jKWsnRZ6
+        wyembuS8M1RgdmOSxcsfcOOJ4E4tXki+knGcOWfGvVeB1P6NYYiyDEALCtoyUdrrQTue43YxKIH
+        fwvhll/pJUNuOCoLm
+X-Received: by 2002:a1c:5443:: with SMTP id p3mr2970849wmi.149.1585228710005;
+        Thu, 26 Mar 2020 06:18:30 -0700 (PDT)
+X-Google-Smtp-Source: ADFU+vuhyYp2unZxtr+DOf6fOQ0tX3xjuk3Q++2CvHmFNv4DrlQv37bTzqulHfDpF1n0aBB5aBJ8JQ==
+X-Received: by 2002:a1c:5443:: with SMTP id p3mr2970830wmi.149.1585228709763;
+        Thu, 26 Mar 2020 06:18:29 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-fc7e-fd47-85c1-1ab3.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:fc7e:fd47:85c1:1ab3])
+        by smtp.gmail.com with ESMTPSA id g127sm3582543wmf.10.2020.03.26.06.18.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 26 Mar 2020 06:18:29 -0700 (PDT)
+Subject: Re: [PATCH] drm/vboxvideo: Add missing
+ remove_conflicting_pci_framebuffers call
+To:     Daniel Vetter <daniel@ffwll.ch>
+Cc:     Daniel Vetter <daniel.vetter@intel.com>,
+        David Airlie <airlied@linux.ie>, stable@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+References: <20200325144310.36779-1-hdegoede@redhat.com>
+ <20200326112959.GZ2363188@phenom.ffwll.local>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <8b9d940d-b236-062d-4ac3-c7462090066f@redhat.com>
+Date:   Thu, 26 Mar 2020 14:18:28 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200326112959.GZ2363188@phenom.ffwll.local>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In AIO case, the request is freed up if ep_queue fails.
-However, io_data->req still has the reference to this freed
-request. In the case of this failure if there is aio_cancel
-call on this io_data it will lead to an invalid dequeue
-operation and a potential use after free issue.
-Fix this by setting the io_data->req to NULL when the request
-is freed as part of queue failure.
+Hi,
 
-Fixes: 2e4c7553cd6f ("usb: gadget: f_fs: add aio support")
-Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
-CC: stable <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
----
-Changes in v2:
-	- As suggested by Greg, updated the tags
+On 3/26/20 12:29 PM, Daniel Vetter wrote:
+> On Wed, Mar 25, 2020 at 03:43:10PM +0100, Hans de Goede wrote:
+>> The vboxvideo driver is missing a call to remove conflicting framebuffers.
+>>
+>> Surprisingly, when using legacy BIOS booting this does not really cause
+>> any issues. But when using UEFI to boot the VM then plymouth will draw
+>> on both the efifb /dev/fb0 and /dev/drm/card0 (which has registered
+>> /dev/fb1 as fbdev emulation).
+>>
+>> VirtualBox will actual display the output of both devices (I guess it is
+>> showing whatever was drawn last), this causes weird artifacts because of
+>> pitch issues in the efifb when the VM window is not sized at 1024x768
+>> (the window will resize to its last size once the vboxvideo driver loads,
+>> changing the pitch).
+>>
+>> Adding the missing drm_fb_helper_remove_conflicting_pci_framebuffers()
+>> call fixes this.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 2695eae1f6d3 ("drm/vboxvideo: Switch to generic fbdev emulation")
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/gpu/drm/vboxvideo/vbox_drv.c | 4 ++++
+>>   1 file changed, 4 insertions(+)
+>>
+>> diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+>> index 8512d970a09f..261255085918 100644
+>> --- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
+>> +++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+>> @@ -76,6 +76,10 @@ static int vbox_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+>>   	if (ret)
+>>   		goto err_mode_fini;
+>>   
+>> +	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "vboxvideodrmfb");
+>> +	if (ret)
+>> +		goto err_irq_fini;
+> 
+> To avoid transient issues this should be done as early as possible,
+> definitely before the drm driver starts to touch the "hw".>
 
- drivers/usb/gadget/function/f_fs.c | 1 +
- 1 file changed, 1 insertion(+)
+Ok will fix and then push this to drm-misc-next-fixes, thank you.
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 571917677d35..767f30b86645 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1120,6 +1120,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
- 
- 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
- 		if (unlikely(ret)) {
-+			io_data->req = NULL;
- 			usb_ep_free_request(ep->ep, req);
- 			goto error_lock;
- 		}
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, a Linux Foundation Collaborative Project
+> With that
+> 
+> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> 
+> I do wonder though why the automatic removal of conflicting framebuffers
+> doesn't work, fbdev should already do that from register_framebuffer(),
+> which is called somewhere in drm_fbdev_generic_setup (after a few layers).
+> 
+> Did you check why the two framebuffers don't conflict, and why the uefi
+> one doesn't get thrown out?
+
+I did not check, I was not aware that this check was already happening
+in register_framebuffer(). So I just checked and the reason why this
+is not working is because the fbdev emulation done by drm_fbdev_generic_setup
+does not fill in fb_info.apertures->ranges[0] .
+
+So fb_info.apertures->ranges[0].base is left as 0 which does not match
+with the registered efifb's aperture.
+
+We could try to fix this, but that is not entirely trivial, we would
+need to pass the pci_dev pointer down into drm_fb_helper_alloc_fbi()
+then and then like remove_conflicting_pci_framebuffers() does add
+apertures for all IORESOURCE_MEM PCI bars, but that would conflict
+with drivers which do rely on drm_fb_helper_alloc_fbi() currently
+allocating one empty aperture and then actually fill that itself...
+
+Regards,
+
+Hans
+
