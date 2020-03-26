@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF8E194CA9
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:26:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CDF9194CB4
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:26:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728306AbgCZXZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 19:25:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46240 "EHLO mail.kernel.org"
+        id S1728066AbgCZX0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 19:26:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728300AbgCZXZW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 19:25:22 -0400
+        id S1727722AbgCZXZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 19:25:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61C3220B1F;
-        Thu, 26 Mar 2020 23:25:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F40F2082D;
+        Thu, 26 Mar 2020 23:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265122;
-        bh=h2eGqPeixL/ya52/luORgsLdlKSXvpz5U783GSmKz9E=;
+        s=default; t=1585265123;
+        bh=W0Nkmr1pxbEzsY8D6fArEYRWcqQZNP6Afga//UVAqKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H/Vhb7dbw7XvjsaUiAgzWMyAtUUj5FkTPJbipXblcl6izVCBPU+VkbRWZH6m84Xne
-         mE4dWB+rs0LoHIVJrydPnf2UsVkECFCozsJd3mfsOS/52SqLF4x5kSPRHD/9Q3dugO
-         I+37zsyRmmy5SdvPGYtDpBPkpoCeaqTju0NF8fSo=
+        b=GwK6BAXiHZfGIPv2xx9MbO/Z0dua/kECw5gtC7evPFhGqm7erhMgKRslhe55MNpmB
+         ZfSYwSmax4hJNSZ2aNbmNCtz7DwLW2vsiepTQ8k2Z8nNwqe8POoHE4lEfulNEB57vf
+         Mx2vtMO2VuYPtroXrbcxqQsQy98GaCKHWv55gVzw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Len Brown <len.brown@intel.com>, Sasha Levin <sashal@kernel.org>,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 07/10] tools/power turbostat: Fix gcc build warnings
-Date:   Thu, 26 Mar 2020 19:25:10 -0400
-Message-Id: <20200326232513.8212-7-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        syzbot+e1fe9f44fb8ecf4fb5dd@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 08/10] ALSA: pcm: oss: Avoid plugin buffer overflow
+Date:   Thu, 26 Mar 2020 19:25:11 -0400
+Message-Id: <20200326232513.8212-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200326232513.8212-1-sashal@kernel.org>
 References: <20200326232513.8212-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,38 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Brown <len.brown@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit d8d005ba6afa502ca37ced5782f672c4d2fc1515 ]
+[ Upstream commit f2ecf903ef06eb1bbbfa969db9889643d487e73a ]
 
-Warning: ‘__builtin_strncpy’ specified bound 20 equals destination size
-	[-Wstringop-truncation]
+Each OSS PCM plugins allocate its internal buffer per pre-calculation
+of the max buffer size through the chain of plugins (calling
+src_frames and dst_frames callbacks).  This works for most plugins,
+but the rate plugin might behave incorrectly.  The calculation in the
+rate plugin involves with the fractional position, i.e. it may vary
+depending on the input position.  Since the buffer size
+pre-calculation is always done with the offset zero, it may return a
+shorter size than it might be; this may result in the out-of-bound
+access as spotted by fuzzer.
 
-reduce param to strncpy, to guarantee that a null byte is always copied
-into destination buffer.
+This patch addresses those possible buffer overflow accesses by simply
+setting the upper limit per the given buffer size for each plugin
+before src_frames() and after dst_frames() calls.
 
-Signed-off-by: Len Brown <len.brown@intel.com>
+Reported-by: syzbot+e1fe9f44fb8ecf4fb5dd@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000b25ea005a02bcf21@google.com
+Link: https://lore.kernel.org/r/20200309082148.19855-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/core/oss/pcm_plugin.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index 19e345cf8193e..0692f2efc25ef 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -4650,9 +4650,9 @@ int add_counter(unsigned int msr_num, char *path, char *name,
- 	}
- 
- 	msrp->msr_num = msr_num;
--	strncpy(msrp->name, name, NAME_BYTES);
-+	strncpy(msrp->name, name, NAME_BYTES - 1);
- 	if (path)
--		strncpy(msrp->path, path, PATH_BYTES);
-+		strncpy(msrp->path, path, PATH_BYTES - 1);
- 	msrp->width = width;
- 	msrp->type = type;
- 	msrp->format = format;
+diff --git a/sound/core/oss/pcm_plugin.c b/sound/core/oss/pcm_plugin.c
+index b8ab46b8298de..6583eb411f82a 100644
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -209,6 +209,8 @@ snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_p
+ 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin && drv_frames > 0) {
++			if (drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames)
+ 				drv_frames = plugin->src_frames(plugin, drv_frames);
+@@ -220,6 +222,8 @@ snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_p
+ 			plugin_next = plugin->next;
+ 			if (plugin->dst_frames)
+ 				drv_frames = plugin->dst_frames(plugin, drv_frames);
++			if (drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else
+@@ -248,11 +252,15 @@ snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug, snd_pc
+ 				if (frames < 0)
+ 					return frames;
+ 			}
++			if (frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin) {
++			if (frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames) {
+ 				frames = plugin->src_frames(plugin, frames);
 -- 
 2.20.1
 
