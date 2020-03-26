@@ -2,90 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97710194B9E
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 23:36:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAF8B194BD8
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 23:55:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727495AbgCZWg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 18:36:56 -0400
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:38388 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726067AbgCZWg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 18:36:56 -0400
-Received: by mail-qk1-f196.google.com with SMTP id h14so8914299qke.5
-        for <stable@vger.kernel.org>; Thu, 26 Mar 2020 15:36:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=NormYpJ0WL2CED+488mTmDECM1nK7D4ZdOG55PqKthI=;
-        b=PkPUIpZdJY6wSaOKhMDOEtebczZu4Zq6OuAJFko0Dx9GVtfQADpUcXimN3PDe3Hzye
-         dgPV84DzdLsq11bsd4oHBFRLpxVxasMmrtiu2k5BIHbovdFpr7ewJx+LeAd5TalvkXax
-         vgQTPpmQUB5M1a5vKFznMCr+v4GgVFkYYyBXHm8n7Hya4CRFIdgj5zmQOid4vP2KpdBO
-         7L1hQcfF129LD7ixrNn3NBe/5gKajH69dfw9Gd1GLzL/2e6bulqEjE6882Wr9x5jYjR/
-         zVkUR498WYJNLFzYCccNASj/IO/dorqtkhxq52TzkTCZlV3Iw/+pDIAxDHHQONO3m/ha
-         Zhdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=NormYpJ0WL2CED+488mTmDECM1nK7D4ZdOG55PqKthI=;
-        b=rGmcPqdSaSMBjAlLbBXMAHPFraIynu5GkTFTP5PonnjAH8wHBNnRotgdATJE5tVYHq
-         tXbwZXpFAdc/frF5UToNGIeTmGtM76wP3JJ9rsOX+UsPg1lhpH5xIjzf4VPVpP7HkiT2
-         nh5yCX+HherNePw6zJ4JEp4eEJ7R1fsclHxJ+rwERYmvseW9VOkQ9F4OZiwTIdB43hvM
-         rl6Rjt3gpSS08yxOAVO1XaiVkMKjq1/1iKbj1o6seyQxJyGeU1r1TBwaMbvqmRPyefdw
-         khQTIG58y3+AMaTRmAymGuV00Q9FUFXW7A5oS5BfIaJuRIA+a2he7Zrg05MWv1sGMw/S
-         OD2w==
-X-Gm-Message-State: ANhLgQ0dfcUQCjRwKg0rC20ijKVHptYuZWEC97VWPYebamUMREBDhAJt
-        l90HbjwmzDou1D5PRDaYswkYMQ==
-X-Google-Smtp-Source: ADFU+vvlxsSdFFr7nLxH8lIXDgrYj8G3NGiQXaM0cMsSnurErLQ6dBYf6xeq+wJogmzJZxteNBJANg==
-X-Received: by 2002:a37:e87:: with SMTP id 129mr11015532qko.340.1585262214038;
-        Thu, 26 Mar 2020 15:36:54 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-68-57-212.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.68.57.212])
-        by smtp.gmail.com with ESMTPSA id y132sm2421742qka.19.2020.03.26.15.36.53
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 26 Mar 2020 15:36:53 -0700 (PDT)
-Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1jHb7N-0003a9-8Z; Thu, 26 Mar 2020 19:36:53 -0300
-Date:   Thu, 26 Mar 2020 19:36:53 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     "Wan, Kaike" <kaike.wan@intel.com>
-Cc:     "Dalessandro, Dennis" <dennis.dalessandro@intel.com>,
-        "dledford@redhat.com" <dledford@redhat.com>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "Marciniszyn, Mike" <mike.marciniszyn@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH for-rc 1/2] IB/hfi1: Fix memory leaks in sysfs
- registration and unregistration
-Message-ID: <20200326223653.GQ20941@ziepe.ca>
-References: <20200326163619.21129.13002.stgit@awfm-01.aw.intel.com>
- <20200326163807.21129.27371.stgit@awfm-01.aw.intel.com>
- <20200326172541.GM20941@ziepe.ca>
- <MW3PR11MB466550446C9C322CAB52AAE7F4CF0@MW3PR11MB4665.namprd11.prod.outlook.com>
- <20200326194251.GO20941@ziepe.ca>
- <MW3PR11MB466518FEF749DC4DD1ABDC91F4CF0@MW3PR11MB4665.namprd11.prod.outlook.com>
+        id S1727653AbgCZWzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 18:55:50 -0400
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:13638 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726359AbgCZWzt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 18:55:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1585263349; x=1616799349;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=mjWweq6vKQe1KU4jUKpwBak5e4w+99oGd+5jnkC15WI=;
+  b=nCbpvAAus8TtNEhAIxkJLXm993Tfzkt/vothGSMOyCjCQc+ylNQjiJdL
+   iRNndMX2Igtvp2BPN6JpnxqT6hsE8b0gihCmTUxzL2DCRI5OgMsIHBtbO
+   ESuXx89cOZ0MJGh26ZgpfCAZLY9pPag+fYKymLevZSI0SgenOs4rcPm28
+   cGYGwn9pW0c+H9BddzWz5W3bzB0DKHkghPNbwTa+zoKgkej8NEKM20tc0
+   LN7Sfs638NWh2CLjb1i7szNBPynskqMDyFbyb53VNxYdBoOPrdtFAQq4H
+   /HzmqbMPyjDMYZlI9pELz7TQSecEV7Evc0j6T1mSv1kDuamY49UzT6Vl6
+   Q==;
+IronPort-SDR: kFjfheMPlvMycIwEdaTDC5ndHkKQQYyiMwZjxI5GJfFngXtmikx/PWKPu7a6e2P7EgnxRZ3Geq
+ UPR/t7AVqV/Ag6IuUHl40VyhI4m9z7LhYHaGo31hwLfwKboetFjaqE8ZSdAxEFnMBKkJB6RFFd
+ sJdRj2PgEbmpvFCmeYI/ZEPJgi0E2QQnHGouFWt0XZtyk7HJw7xvNE5FtvHnBNvTj4H3RPRvxr
+ v9DARMEo9NaQTcAGk1+Gruri3ssns6C17FgR5efYQFmSOCSkI3Oc/Jv0lEEErgri2yd191JDtM
+ NcY=
+X-IronPort-AV: E=Sophos;i="5.72,310,1580745600"; 
+   d="scan'208";a="135062675"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 27 Mar 2020 06:55:49 +0800
+IronPort-SDR: KyaZhbpuThMMLO2ihdUmR88HzGERWMtXq1LX5pE7hjof/q7heo+z+RkK+8SuZ6/mLSdL0uYcvL
+ lH5c2nPdmpEePlN9czMz2iQaecTjjo3GlXMiqYKYgAh74PJ2uPvv6dEshDO8O3QD5yMrB7bLFg
+ MpSbn+J9pbuKJ1Ej5oqjvcSrw+6zNNqpsgCakxlEnVfZwXl27InuVfo4lcKfNVC3H1jKBeCPb8
+ HSyLz7bUR280SoopSH6AarZ00SPt095VJwZkuvlc4LMVS4SejtxwDUkSOgrVtvHQYC7vdosyUk
+ YQtbtZQ6NENaOAb6Oki/GRbR
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Mar 2020 15:46:50 -0700
+IronPort-SDR: 4+eWXov323OMMXGWI5WnHrjL0z96tBhZxdEnOt+ic195WuK5Bv7pDhJGayUUV/ZljmpbR7M7SH
+ u/k7jH1ItiL3HrU1jMtxN65CQAV3VyWLfPKdOkkFCaQ61yv5iui1cvVnGOS79l3a8YiLU01nue
+ ADzzJ7L4QPHq8BCEk8yjkXGyAlo0RSb0qksCfegmkGGas0vnEXy1wb8cJLU+2cwgTsY7mARiAS
+ kYybxKPO17BeuzZn0IpJWDudQOh43o9YpvhgzOecTb+HYGtRrV3Omne0bweFfcnAvfuBsGEXtQ
+ MyA=
+WDCIronportException: Internal
+Received: from 6hj08h2.ad.shared (HELO yoda.hgst.com) ([10.86.54.191])
+  by uls-op-cesaip02.wdc.com with ESMTP; 26 Mar 2020 15:55:48 -0700
+From:   Atish Patra <atish.patra@wdc.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Atish Patra <atish.patra@wdc.com>, stable@vger.kernel.org,
+        Anup Patel <anup@brainfault.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexandre Ghiti <alex@ghiti.fr>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anup Patel <Anup.Patel@wdc.com>,
+        David Abdurachmanov <david.abdurachmanov@gmail.com>,
+        Greentime Hu <greentime.hu@sifive.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        linux-riscv@lists.infradead.org, Nick Hu <nickhu@andestech.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH v2] RISC-V: Move all address space definition macros to one place
+Date:   Thu, 26 Mar 2020 15:55:46 -0700
+Message-Id: <20200326225546.499343-1-atish.patra@wdc.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MW3PR11MB466518FEF749DC4DD1ABDC91F4CF0@MW3PR11MB4665.namprd11.prod.outlook.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 26, 2020 at 10:24:51PM +0000, Wan, Kaike wrote:
+We get the following compilation error if CONFIG_SPARSEMEM_VMEMMAP is set.
 
-> > To see if there is an issue here delete the kobject_del and kobject_put
-> > entirely to leave a dangling sysfs during registration and see if ib device
-> > unregistration explodes.
+---------------------------------------------------------------
+./arch/riscv/include/asm/pgtable-64.h: In function ‘pud_page’:
+./include/asm-generic/memory_model.h:54:29: error: ‘vmemmap’ undeclared
+(first use in this function); did you mean ‘mem_map’?
+ #define __pfn_to_page(pfn) (vmemmap + (pfn))
+                             ^~~~~~~
+./include/asm-generic/memory_model.h:82:21: note: in expansion of
+macro ‘__pfn_to_page’
 
-> I tried a patch wherein the function hfi1_verbs_unregister_sysfs()
-> is never called at all and when unloading the driver the ib device
-> un-registration went through smoothly(no error, the
-> /sys/class/infiniband/hfi1_0 directory gone). Only kmemleak
-> complaints were observed.
+ #define pfn_to_page __pfn_to_page
+                     ^~~~~~~~~~~~~
+./arch/riscv/include/asm/pgtable-64.h:70:9: note: in expansion of macro
+‘pfn_to_page’
+  return pfn_to_page(pud_val(pud) >> _PAGE_PFN_SHIFT);
+---------------------------------------------------------------
 
-Then perhaps there is nothing to worry about and the patches are fine
+Fix the compliation errors by moving all the address space definition
+macros before including pgtable-64.h.
 
-Jason
+Cc: stable@vger.kernel.org
+Fixes: 8ad8b72721d0 (riscv: Add KASAN support)
+
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+---
+ arch/riscv/include/asm/pgtable.h | 78 +++++++++++++++++---------------
+ 1 file changed, 41 insertions(+), 37 deletions(-)
+
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index e43041519edd..393f2014dfee 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -19,6 +19,47 @@
+ #include <asm/tlbflush.h>
+ #include <linux/mm_types.h>
+ 
++#ifdef CONFIG_MMU
++
++#define VMALLOC_SIZE     (KERN_VIRT_SIZE >> 1)
++#define VMALLOC_END      (PAGE_OFFSET - 1)
++#define VMALLOC_START    (PAGE_OFFSET - VMALLOC_SIZE)
++
++#define BPF_JIT_REGION_SIZE	(SZ_128M)
++#define BPF_JIT_REGION_START	(PAGE_OFFSET - BPF_JIT_REGION_SIZE)
++#define BPF_JIT_REGION_END	(VMALLOC_END)
++
++/*
++ * Roughly size the vmemmap space to be large enough to fit enough
++ * struct pages to map half the virtual address space. Then
++ * position vmemmap directly below the VMALLOC region.
++ */
++#define VMEMMAP_SHIFT \
++	(CONFIG_VA_BITS - PAGE_SHIFT - 1 + STRUCT_PAGE_MAX_SHIFT)
++#define VMEMMAP_SIZE	BIT(VMEMMAP_SHIFT)
++#define VMEMMAP_END	(VMALLOC_START - 1)
++#define VMEMMAP_START	(VMALLOC_START - VMEMMAP_SIZE)
++
++/*
++ * Define vmemmap for pfn_to_page & page_to_pfn calls. Needed if kernel
++ * is configured with CONFIG_SPARSEMEM_VMEMMAP enabled.
++ */
++#define vmemmap		((struct page *)VMEMMAP_START)
++
++#define PCI_IO_SIZE      SZ_16M
++#define PCI_IO_END       VMEMMAP_START
++#define PCI_IO_START     (PCI_IO_END - PCI_IO_SIZE)
++
++#define FIXADDR_TOP      PCI_IO_START
++#ifdef CONFIG_64BIT
++#define FIXADDR_SIZE     PMD_SIZE
++#else
++#define FIXADDR_SIZE     PGDIR_SIZE
++#endif
++#define FIXADDR_START    (FIXADDR_TOP - FIXADDR_SIZE)
++
++#endif
++
+ #ifdef CONFIG_64BIT
+ #include <asm/pgtable-64.h>
+ #else
+@@ -90,31 +131,6 @@ extern pgd_t swapper_pg_dir[];
+ #define __S110	PAGE_SHARED_EXEC
+ #define __S111	PAGE_SHARED_EXEC
+ 
+-#define VMALLOC_SIZE     (KERN_VIRT_SIZE >> 1)
+-#define VMALLOC_END      (PAGE_OFFSET - 1)
+-#define VMALLOC_START    (PAGE_OFFSET - VMALLOC_SIZE)
+-
+-#define BPF_JIT_REGION_SIZE	(SZ_128M)
+-#define BPF_JIT_REGION_START	(PAGE_OFFSET - BPF_JIT_REGION_SIZE)
+-#define BPF_JIT_REGION_END	(VMALLOC_END)
+-
+-/*
+- * Roughly size the vmemmap space to be large enough to fit enough
+- * struct pages to map half the virtual address space. Then
+- * position vmemmap directly below the VMALLOC region.
+- */
+-#define VMEMMAP_SHIFT \
+-	(CONFIG_VA_BITS - PAGE_SHIFT - 1 + STRUCT_PAGE_MAX_SHIFT)
+-#define VMEMMAP_SIZE	BIT(VMEMMAP_SHIFT)
+-#define VMEMMAP_END	(VMALLOC_START - 1)
+-#define VMEMMAP_START	(VMALLOC_START - VMEMMAP_SIZE)
+-
+-/*
+- * Define vmemmap for pfn_to_page & page_to_pfn calls. Needed if kernel
+- * is configured with CONFIG_SPARSEMEM_VMEMMAP enabled.
+- */
+-#define vmemmap		((struct page *)VMEMMAP_START)
+-
+ static inline int pmd_present(pmd_t pmd)
+ {
+ 	return (pmd_val(pmd) & (_PAGE_PRESENT | _PAGE_PROT_NONE));
+@@ -432,18 +448,6 @@ static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
+ #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) })
+ #define __swp_entry_to_pte(x)	((pte_t) { (x).val })
+ 
+-#define PCI_IO_SIZE      SZ_16M
+-#define PCI_IO_END       VMEMMAP_START
+-#define PCI_IO_START     (PCI_IO_END - PCI_IO_SIZE)
+-
+-#define FIXADDR_TOP      PCI_IO_START
+-#ifdef CONFIG_64BIT
+-#define FIXADDR_SIZE     PMD_SIZE
+-#else
+-#define FIXADDR_SIZE     PGDIR_SIZE
+-#endif
+-#define FIXADDR_START    (FIXADDR_TOP - FIXADDR_SIZE)
+-
+ /*
+  * Task size is 0x4000000000 for RV64 or 0x9fc00000 for RV32.
+  * Note that PGDIR_SIZE must evenly divide TASK_SIZE.
+-- 
+2.25.1
+
