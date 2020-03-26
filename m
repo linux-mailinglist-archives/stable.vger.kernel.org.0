@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26443194C65
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:25:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 860D9194CED
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:27:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728048AbgCZXYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 19:24:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44974 "EHLO mail.kernel.org"
+        id S1727828AbgCZX1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 19:27:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728041AbgCZXYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 19:24:48 -0400
+        id S1728060AbgCZXYt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 19:24:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51EC920B80;
-        Thu, 26 Mar 2020 23:24:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 797E320409;
+        Thu, 26 Mar 2020 23:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265088;
-        bh=x1oBz/4EeoEH0IuRsxGJH5wWdqksV4YEUNXQ3V7mBW8=;
+        s=default; t=1585265089;
+        bh=HZKph1vlL2+lbjT545LdjST3edbD4zKJanui7XS+8/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TSV/FMmIrwy8gO8AdhkiEjMdh/nBQPYu2bZKkF4eBplDVx9JXOpcXbe3DLQ1Q+IJ
-         l1jegLEnluZ6dZLNpdn6E5mcap3UIw6psvnpCJfdtw08eH1wcn4qW5M4nX48FdSPiQ
-         OH0upsGm1YPmpJTT/6X0Y74meOk20/qVXO0AhD6I=
+        b=awNVImfem1FjxMDX6/ArD9J0T/EkPE31LyCBS9kNiWvrkLzlIjCIQqdWuhXXn0IsP
+         KJUEZZLuh2Jn1f1AcKnfmEFJ1NMS0d12xgo5YSuipSwNpRtvlql6itKm5qX39YvWrG
+         TEWdCKYZTxRqb7XlrZtGd33jsZqimch4ZkC9Z+qk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>,
-        Mark Wunderlich <mark.wunderlich@intel.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 14/19] nvmet-tcp: set MSG_MORE only if we actually have more to send
-Date:   Thu, 26 Mar 2020 19:24:26 -0400
-Message-Id: <20200326232431.7816-14-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        syzbot+e1fe9f44fb8ecf4fb5dd@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 15/19] ALSA: pcm: oss: Avoid plugin buffer overflow
+Date:   Thu, 26 Mar 2020 19:24:27 -0400
+Message-Id: <20200326232431.7816-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200326232431.7816-1-sashal@kernel.org>
 References: <20200326232431.7816-1-sashal@kernel.org>
@@ -44,72 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 98fd5c723730f560e5bea919a64ac5b83d45eb72 ]
+[ Upstream commit f2ecf903ef06eb1bbbfa969db9889643d487e73a ]
 
-When we send PDU data, we want to optimize the tcp stack
-operation if we have more data to send. So when we set MSG_MORE
-when:
-- We have more fragments coming in the batch, or
-- We have a more data to send in this PDU
-- We don't have a data digest trailer
-- We optimize with the SUCCESS flag and omit the NVMe completion
-  (used if sq_head pointer update is disabled)
+Each OSS PCM plugins allocate its internal buffer per pre-calculation
+of the max buffer size through the chain of plugins (calling
+src_frames and dst_frames callbacks).  This works for most plugins,
+but the rate plugin might behave incorrectly.  The calculation in the
+rate plugin involves with the fractional position, i.e. it may vary
+depending on the input position.  Since the buffer size
+pre-calculation is always done with the offset zero, it may return a
+shorter size than it might be; this may result in the out-of-bound
+access as spotted by fuzzer.
 
-This addresses a regression in QD=1 with SUCCESS flag optimization
-as we unconditionally set MSG_MORE when we didn't actually have
-more data to send.
+This patch addresses those possible buffer overflow accesses by simply
+setting the upper limit per the given buffer size for each plugin
+before src_frames() and after dst_frames() calls.
 
-Fixes: 70583295388a ("nvmet-tcp: implement C2HData SUCCESS optimization")
-Reported-by: Mark Wunderlich <mark.wunderlich@intel.com>
-Tested-by: Mark Wunderlich <mark.wunderlich@intel.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reported-by: syzbot+e1fe9f44fb8ecf4fb5dd@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000b25ea005a02bcf21@google.com
+Link: https://lore.kernel.org/r/20200309082148.19855-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ sound/core/oss/pcm_plugin.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index d535080b781f9..2fe34fd4c3f3b 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -515,7 +515,7 @@ static int nvmet_try_send_data_pdu(struct nvmet_tcp_cmd *cmd)
- 	return 1;
- }
- 
--static int nvmet_try_send_data(struct nvmet_tcp_cmd *cmd)
-+static int nvmet_try_send_data(struct nvmet_tcp_cmd *cmd, bool last_in_batch)
- {
- 	struct nvmet_tcp_queue *queue = cmd->queue;
- 	int ret;
-@@ -523,9 +523,15 @@ static int nvmet_try_send_data(struct nvmet_tcp_cmd *cmd)
- 	while (cmd->cur_sg) {
- 		struct page *page = sg_page(cmd->cur_sg);
- 		u32 left = cmd->cur_sg->length - cmd->offset;
-+		int flags = MSG_DONTWAIT;
-+
-+		if ((!last_in_batch && cmd->queue->send_list_len) ||
-+		    cmd->wbytes_done + left < cmd->req.transfer_len ||
-+		    queue->data_digest || !queue->nvme_sq.sqhd_disabled)
-+			flags |= MSG_MORE;
- 
- 		ret = kernel_sendpage(cmd->queue->sock, page, cmd->offset,
--					left, MSG_DONTWAIT | MSG_MORE);
-+					left, flags);
- 		if (ret <= 0)
- 			return ret;
- 
-@@ -660,7 +666,7 @@ static int nvmet_tcp_try_send_one(struct nvmet_tcp_queue *queue,
- 	}
- 
- 	if (cmd->state == NVMET_TCP_SEND_DATA) {
--		ret = nvmet_try_send_data(cmd);
-+		ret = nvmet_try_send_data(cmd, last_in_batch);
- 		if (ret <= 0)
- 			goto done_send;
- 	}
+diff --git a/sound/core/oss/pcm_plugin.c b/sound/core/oss/pcm_plugin.c
+index 31cb2acf8afcc..9b588c6a6f099 100644
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -209,6 +209,8 @@ snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_p
+ 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin && drv_frames > 0) {
++			if (drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames)
+ 				drv_frames = plugin->src_frames(plugin, drv_frames);
+@@ -220,6 +222,8 @@ snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_p
+ 			plugin_next = plugin->next;
+ 			if (plugin->dst_frames)
+ 				drv_frames = plugin->dst_frames(plugin, drv_frames);
++			if (drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else
+@@ -248,11 +252,15 @@ snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug, snd_pc
+ 				if (frames < 0)
+ 					return frames;
+ 			}
++			if (frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin) {
++			if (frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames) {
+ 				frames = plugin->src_frames(plugin, frames);
 -- 
 2.20.1
 
