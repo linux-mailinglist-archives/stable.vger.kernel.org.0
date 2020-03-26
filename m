@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9707194C62
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:24:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 129FD194D02
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 00:28:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727973AbgCZXYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 19:24:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44516 "EHLO mail.kernel.org"
+        id S1728150AbgCZX2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 19:28:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727968AbgCZXYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Mar 2020 19:24:38 -0400
+        id S1727885AbgCZXYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Mar 2020 19:24:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F91F20A8B;
-        Thu, 26 Mar 2020 23:24:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89DBD20409;
+        Thu, 26 Mar 2020 23:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585265078;
-        bh=kkdU1QXIZFrX+rWtjvi1c9fZwqHBpQtxlsPp5P5FGXk=;
+        s=default; t=1585265079;
+        bh=JZKbPbuU2UHbrb6VuFFKYu3d0IBGpuh9U6WpdN5Q95o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jig9IXsS+DDvXx+FWHqqMpjgbLcctANxbyPP+iDrOabC76hiBmOkuAHkG2dUI+cCW
-         0hSWSwPdcW2ZakSb6+g6gPqEaUNp8kMZWCDxMrjqFLdJNRk0BMEY0A6MycXzwFa3eA
-         W2x04XNiwOKUV4qfvULvT8OpJA4IHWlUkO/ms9Mw=
+        b=q85PokZ2dhFL2w2cjl+pt4aJsxsGn8rSQqaWZN0Su9jLT7w038vLGmLXxn4iYe8J0
+         HqsRRX9+JfHKQp+EGEmIwKmNx7lAYHCxh20AOVFFz5Hxj4VhrBPlZhq4RAJMtRiI5A
+         069I/f0J7/hN4SFkIWC+18m8iERA/XG6Zt6NLBis=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mario Kleiner <mario.kleiner.de@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+Cc:     Gerd Hoffmann <kraxel@redhat.com>,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 05/19] drm/amd/display: Add link_rate quirk for Apple 15" MBP 2017
-Date:   Thu, 26 Mar 2020 19:24:17 -0400
-Message-Id: <20200326232431.7816-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 06/19] drm/bochs: downgrade pci_request_region failure from error to warning
+Date:   Thu, 26 Mar 2020 19:24:18 -0400
+Message-Id: <20200326232431.7816-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200326232431.7816-1-sashal@kernel.org>
 References: <20200326232431.7816-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,65 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Kleiner <mario.kleiner.de@gmail.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-[ Upstream commit dec9de2ada523b344eb2428abfedf9d6cd0a0029 ]
+[ Upstream commit 8c34cd1a7f089dc03933289c5d4a4d1489549828 ]
 
-This fixes a problem found on the MacBookPro 2017 Retina panel:
+Shutdown of firmware framebuffer has a bunch of problems.  Because
+of this the framebuffer region might still be reserved even after
+drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
 
-The panel reports 10 bpc color depth in its EDID, and the
-firmware chooses link settings at boot which support enough
-bandwidth for 10 bpc (324000 kbit/sec aka LINK_RATE_RBR2
-aka 0xc), but the DP_MAX_LINK_RATE dpcd register only reports
-2.7 Gbps (multiplier value 0xa) as possible, in direct
-contradiction of what the firmware successfully set up.
+Don't consider pci_request_region() failure for the framebuffer
+region as fatal error to workaround this issue.
 
-This restricts the panel to 8 bpc, not providing the full
-color depth of the panel on Linux <= 5.5. Additionally, commit
-'4a8ca46bae8a ("drm/amd/display: Default max bpc to 16 for eDP")'
-introduced into Linux 5.6-rc1 will unclamp panel depth to
-its full 10 bpc, thereby requiring a eDP bandwidth for all
-modes that exceeds the bandwidth available and causes all modes
-to fail validation -> No modes for the laptop panel -> failure
-to set any mode -> Panel goes dark.
-
-This patch adds a quirk specific to the MBP 2017 15" Retina
-panel to override reported max link rate to the correct maximum
-of 0xc = LINK_RATE_RBR2 to fix the darkness and reduced display
-precision.
-
-Please apply for Linux 5.6+ to avoid regressing Apple MBP panel
-support.
-
-Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200313084152.2734-1-kraxel@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index 0ab890c927ec7..6dd2334dd5e60 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -2879,6 +2879,17 @@ static bool retrieve_link_cap(struct dc_link *link)
- 		sink_id.ieee_device_id,
- 		sizeof(sink_id.ieee_device_id));
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index e567bdfa2ab8e..bb1391784caf0 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -156,10 +156,8 @@ int bochs_hw_init(struct drm_device *dev)
+ 		size = min(size, mem);
+ 	}
  
-+	/* Quirk Apple MBP 2017 15" Retina panel: Wrong DP_MAX_LINK_RATE */
-+	{
-+		uint8_t str_mbp_2017[] = { 101, 68, 21, 101, 98, 97 };
-+
-+		if ((link->dpcd_caps.sink_dev_id == 0x0010fa) &&
-+		    !memcmp(link->dpcd_caps.sink_dev_id_str, str_mbp_2017,
-+			    sizeof(str_mbp_2017))) {
-+			link->reported_link_cap.link_rate = 0x0c;
-+		}
-+	}
-+
- 	core_link_read_dpcd(
- 		link,
- 		DP_SINK_HW_REVISION_START,
+-	if (pci_request_region(pdev, 0, "bochs-drm") != 0) {
+-		DRM_ERROR("Cannot request framebuffer\n");
+-		return -EBUSY;
+-	}
++	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
++		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
+ 
+ 	bochs->fb_map = ioremap(addr, size);
+ 	if (bochs->fb_map == NULL) {
 -- 
 2.20.1
 
