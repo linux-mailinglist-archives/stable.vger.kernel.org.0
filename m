@@ -2,120 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BD75194881
-	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 21:15:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AF951948A6
+	for <lists+stable@lfdr.de>; Thu, 26 Mar 2020 21:18:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727446AbgCZUPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 16:15:37 -0400
-Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:20960 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726363AbgCZUPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 16:15:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585253736;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Awvdr9EejHG6LgAifa/OlpP1SiaNNAcBf8oMqF5bozk=;
-        b=H4Z9EVa2S8QDeBemKpcZs2L9N/QOC6OWJL5JPExEEWyp8O/wNPLKVdOVc6Q+u0Df6fMkX5
-        ngnJpUtKM600Dyzu1ZAwaWmeLGUqS9UQ6N5DD4oDVOOiTSP211JNVOL217fx1c2Nukaz6e
-        x5czy2vrSj8+y5CKMPpCJT1QWDJo7cE=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-340-YyccHX8iNQiB436XbHTBjQ-1; Thu, 26 Mar 2020 16:15:34 -0400
-X-MC-Unique: YyccHX8iNQiB436XbHTBjQ-1
-Received: by mail-wm1-f69.google.com with SMTP id i9so1252827wmb.5
-        for <stable@vger.kernel.org>; Thu, 26 Mar 2020 13:15:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Awvdr9EejHG6LgAifa/OlpP1SiaNNAcBf8oMqF5bozk=;
-        b=jTg2fb8qBFANxdXW8AVZjj7BTpQVuf13rJkRjynO+T8B734tRBmdIlzKoHYgCe+ZqY
-         oevYkRlJOoDSPj1BZVqr68vwfefYNteVk5om7jcMW0obgjqWQhYpVCPU4vnIEXNEjY9g
-         hw6MUKZTNf83vzUBK/iEwGv7KQp5D3j23tTq6rLPCoCQFgI/rR7b6eOPoV8F3FvKkoJm
-         rTEa8fz4++5HiQ367ik/hYmXj69VfA1LVMi51WDYVQ+S1cZBV154rGVzmiCgpmF+2cfQ
-         F6+XZNk63N6tpHKFIpWz5FfMJ6xGL/ITaIeRJJdq4aNwh29aIA9PHeiRfF+ppU3F09Zl
-         r6EQ==
-X-Gm-Message-State: ANhLgQ2vWdtg3HlML9ipLI0ZJcR2WhGg3MEkxGNaXyzDlvJE84aitUba
-        OKBWaHJEq4zT/uJ0rn42zB6+GVoSJ7oiIvVysvnfTW+VF7SBtu6qxnaNFVFU7GPEo2+QL85bWW+
-        Bi4kqwvdLhFvi1It/
-X-Received: by 2002:a5d:6109:: with SMTP id v9mr11537586wrt.203.1585253733322;
-        Thu, 26 Mar 2020 13:15:33 -0700 (PDT)
-X-Google-Smtp-Source: ADFU+vtscskn14vA31RwZYWmkQbHQ1sAUUEad5PTUfbHowUoCzcvBXVzzKaOWC71tfeuvNdlPp5zDw==
-X-Received: by 2002:a5d:6109:: with SMTP id v9mr11537568wrt.203.1585253733085;
-        Thu, 26 Mar 2020 13:15:33 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:ac:65bc:cc13:a014? ([2001:b07:6468:f312:ac:65bc:cc13:a014])
-        by smtp.gmail.com with ESMTPSA id e1sm5178897wrx.90.2020.03.26.13.15.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Mar 2020 13:15:32 -0700 (PDT)
-Subject: Re: proposing 7df003c85218b5f for v5.5.y, v5.4.y, 4.19.y, v4.14.y,
- v4.9.y
-To:     Thomas Voegtle <tv@lio96.de>
-Cc:     stable@vger.kernel.org,
-        Zhuang Yanying <ann.zhuangyanying@huawei.com>,
-        LinFeng <linfeng23@huawei.com>
-References: <alpine.LSU.2.21.2003261831320.11753@er-systems.de>
- <8350b14e-f708-f2e3-19cd-4e85a4a3235c@redhat.com>
- <alpine.LSU.2.21.2003262103280.20929@er-systems.de>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <9e343d48-ab47-9611-fb3b-4d60b347d129@redhat.com>
-Date:   Thu, 26 Mar 2020 21:15:30 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1728614AbgCZUSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 16:18:33 -0400
+Received: from s3.sipsolutions.net ([144.76.43.62]:54700 "EHLO
+        sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727879AbgCZUSd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 16:18:33 -0400
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.93)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1jHYxL-00CEzj-Da; Thu, 26 Mar 2020 21:18:23 +0100
+Message-ID: <0945d867728008ad9d2243b4427220ef4745098f.camel@sipsolutions.net>
+Subject: Re: [PATCH] kernel/taskstats: fix wrong nla type for
+ {cgroup,task}stats policy
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Yafang Shao <laoar.shao@gmail.com>
+Cc:     bsingharora@gmail.com, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        "David S.Miller" <davem@davemloft.net>
+Date:   Thu, 26 Mar 2020 21:18:22 +0100
+In-Reply-To: <20200326130808.ccbacd6cba99a40326936fea@linux-foundation.org>
+References: <1585191042-9935-1-git-send-email-laoar.shao@gmail.com>
+         <20200326130808.ccbacd6cba99a40326936fea@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
 MIME-Version: 1.0
-In-Reply-To: <alpine.LSU.2.21.2003262103280.20929@er-systems.de>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 26/03/20 21:08, Thomas Voegtle wrote:
-> On Thu, 26 Mar 2020, Paolo Bonzini wrote:
-> 
->> On 26/03/20 18:43, Thomas Voegtle wrote:
->>>
->>> Hello,
->>>
->>> the following one line commit
->>>
->>> commit 7df003c85218b5f5b10a7f6418208f31e813f38f
->>> Author: Zhuang Yanying <ann.zhuangyanying@huawei.com>
->>> Date:   Sat Oct 12 11:37:31 2019 +0800
->>>
->>>     KVM: fix overflow of zero page refcount with ksm running
->>>
->>>
->>> applies cleanly to v5.5.y, v5.4.y, 4.19.y, v4.14.y and v4.9.y.
->>>
->>> I actually ran into that bug on 4.9.y
->>>
->>> Thanks in advance,
->>>
->>>  Thomas
->>>
->>>
->>>
->>
->> Yes, indeed.  It's not a trivial backport though, so I prefer to do it
->> manually.  I can help with that, or with reviews if Yanying already has
->> patches ready.
-> 
-> Are you sure we are talking about the same commit? Or do I really see
-> something wrong here?
-> It's an one liner. Applies cleanly. Compiles.
-> Don't know if it fixes the bug, though.
+On Thu, 2020-03-26 at 13:08 -0700, Andrew Morton wrote:
 
-It's a one liner, but usage of the function it touches has changed
-subtly over the years.  So before committing it to stable I need to
-check that all uses of kvm_is_reserved_pfn match 5.6 (and also
-kvm_is_zone_device_pfn is probably not there in older kernels, though I
-might be missing more stable backports there).
+> > After our server is upgraded to a newer kernel, we found that it
+> > continuesly print a warning in the kernel message. The warning is,
+> > [832984.946322] netlink: 'irmas.lc': attribute type 1 has an invalid length.
+> > 
+> > irmas.lc is one of our container monitor daemons, and it will use
+> > CGROUPSTATS_CMD_GET to get the cgroupstats, that is similar with
+> > tools/accounting/getdelays.c. We can also produce this warning with
+> > getdelays. For example, after running bellow command
+> > 	$ ./getdelays -C /sys/fs/cgroup/memory
+> > then you can find a warning in dmesg,
+> > [61607.229318] netlink: 'getdelays': attribute type 1 has an invalid length.
+> > 
+> > This warning is introduced in commit 6e237d099fac ("netlink: Relax attr
+> > validation for fixed length types"), which is used to check whether
+> > attributes using types NLA_U* and NLA_S* have an exact length.
+> > 
+> > Regarding this issue, the root cause is cgroupstats_cmd_get_policy defines
+> > a wrong type as NLA_U32, while it should be NLA_NESTED an its minimal
+> > length is NLA_HDRLEN. That is similar to taskstats_cmd_get_policy.
+> > 
+> > As this behavior change really breaks our application, we'd better
+> > cc stable as well.
 
-Paolo
+Can you explain how it breaks the application? I mean, it's really only
+printing a message to the kernel log in this case? At least that's what
+you're describing.
+
+I think you may be describing it wrong, because an NLA_NESTED is allowed
+to be *empty* (but otherwise must have at least 4 bytes just like an
+NLA_U32).
+
+That said, I'm not even sure I agree that this fix is right? See below.
+
+> Is it correct to say that although the code has always been incorrect,
+> but only kernels after 6e237d099fac need this change?  If so, I'll add
+> Fixes:6e237d099fac to guide the -stable backporting.
+
+That doesn't really seem right - 6e237d099fac *relaxed* the checks. If
+anything then it ought to point to 28033ae4e0f5 which may have actually
+returned an error; but again, need to understand better what really the
+issue is.
+
+> > diff --git a/kernel/taskstats.c b/kernel/taskstats.c
+> > index e2ac0e3..b90a520 100644
+> > --- a/kernel/taskstats.c
+> > +++ b/kernel/taskstats.c
+> > @@ -35,8 +35,8 @@
+> >  static struct genl_family family;
+> >  
+> >  static const struct nla_policy taskstats_cmd_get_policy[TASKSTATS_CMD_ATTR_MAX+1] = {
+> > -	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_U32 },
+> > -	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_U32 },
+> > +	[TASKSTATS_CMD_ATTR_PID]  = { .type = NLA_NESTED },
+> > +	[TASKSTATS_CMD_ATTR_TGID] = { .type = NLA_NESTED },
+
+
+I'm not sure where this is coming from - the kernel evidently uses them
+as nested attributes in *outgoing* data (see mk_reply()), but as NLA_U32
+in *incoming* data, (see cmd_attr_pid() and cmd_attr_tgid()).
+
+I would generally recommend not doing such a thing as it's messy, but we
+do have quite a few such instances cases. In all those cases must the
+policy list the incoming policy since that's what the kernel uses to
+validate the attributes.
+
+IOW, this part of the change seems _wrong_.
+
+
+> >   * Make sure they are always aligned.
+> >   */
+> >  static const struct nla_policy cgroupstats_cmd_get_policy[TASKSTATS_CMD_ATTR_MAX+1] = {
+> > -	[CGROUPSTATS_CMD_ATTR_FD] = { .type = NLA_U32 },
+> > +	[CGROUPSTATS_CMD_ATTR_FD] = { .type = NLA_NESTED },
+> >  };
+
+And same here, actually.
+
+johannes
 
