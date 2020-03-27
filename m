@@ -2,75 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A631F195715
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 13:28:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB1F71957C0
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 14:11:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727125AbgC0M2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 08:28:33 -0400
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:35700 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727115AbgC0M2d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 08:28:33 -0400
-Received: by mail-ed1-f65.google.com with SMTP id a20so10893385edj.2;
-        Fri, 27 Mar 2020 05:28:31 -0700 (PDT)
+        id S1726742AbgC0NL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 09:11:59 -0400
+Received: from mail-ot1-f52.google.com ([209.85.210.52]:41353 "EHLO
+        mail-ot1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726540AbgC0NL6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 09:11:58 -0400
+Received: by mail-ot1-f52.google.com with SMTP id f52so9595291otf.8
+        for <stable@vger.kernel.org>; Fri, 27 Mar 2020 06:11:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=PgAzbs+aBW5+w0uP4I/irYOZdFxy1JgNoFDb63WsShQ=;
-        b=rM8mPNvCRkPONqmqdOYz6rTEOVT8lpgfnN0BqLYFePU7HAqYvYAEbC1E8k4clfvC6i
-         kZsiGFObYe0S/qcpl5k308oHoBZe+ustRQ/fYJWOGsjTckn0fKhXT8858orL9HkXoqN4
-         1Uh1HG9eVBWGeblo9t82rp/xH0zouRXsFC+kESg7xHIwez8hNUBVsfD2KsHFH92VoYqs
-         R/R2g0sxl/m/Iazv6oqYB9Vzu35d37difAopA89+XL1x5mkqxzRt5cw2adpxiHBdWTI4
-         hIeJfZ5gRF1kpG9acA9kUX0fInfL9NUNIWFlAlLW7WXbln95jbLLi5LWmfMSCwz8Eu5p
-         oH3Q==
-X-Gm-Message-State: ANhLgQ0TPDva7U3zs3E91cziuGanmV+3uyk3Q2aeNjWY2QjvV6pMJef4
-        qrn852VhqvmYVueFu2UlMEk=
-X-Google-Smtp-Source: ADFU+vsCHvofpuiv7htgtNWNiK1WxSHJPJwjKg2k65ooH8I4fUF5mGcVNpdlu5pgkBQxAvEOSy79bQ==
-X-Received: by 2002:a05:6402:705:: with SMTP id w5mr13218258edx.288.1585312111110;
-        Fri, 27 Mar 2020 05:28:31 -0700 (PDT)
-Received: from kozik-lap ([194.230.155.125])
-        by smtp.googlemail.com with ESMTPSA id i23sm27707edr.54.2020.03.27.05.28.29
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 27 Mar 2020 05:28:30 -0700 (PDT)
-Date:   Fri, 27 Mar 2020 13:28:28 +0100
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Marek Szyprowski <m.szyprowski@samsung.com>
-Cc:     linux-samsung-soc@vger.kernel.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Simon Shields <simon@lineageos.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] ARM: dts: exynos: Fix GPIO polarity for thr GalaxyS3
- CM36651 sensor's bus
-Message-ID: <20200327122828.GF7233@kozik-lap>
-References: <CGME20200326142048eucas1p29aee56575f8b530fc2d83860f6185d6b@eucas1p2.samsung.com>
- <20200326142037.20418-1-m.szyprowski@samsung.com>
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=1Dd6kzRbtZe6HYQ+jorBihp2W8go1iGX8kErxL/Dvw8=;
+        b=bz+T2+PqdhAOntlnGAcnDtRM/erhVq3Y7d+BoQD2SQW2g/wxyY8hjYhbEAR08o1nAT
+         r76/W7KsOkwHowBWfw9LTYzSSglGaw5yrjMpXJGLUuQGNRAkxLyIj7/W30IL79MXct8X
+         k5p/mZWcSdgbeCGoFt8jUMCkMmuxgdjRJffI0dCBZSIDPrIIFiQfd7jL3ioavfZlaoOZ
+         iHalj4yAFoy6ueKWfGafOjBEds0L7Td3yXq9n5fRFgLJ42l44whAXGXXS7wf4kLGTESJ
+         lqdfOcTvus6wCtNBNTOC23sIuTwAIzmeUzErAV/QlpnvxHQtrI/0voybzfs6Bs382X5/
+         AYbg==
+X-Gm-Message-State: ANhLgQ3PV1C+bXHd7ZLV7HGok0cyVCYVr4Vj0IexE/7iTKWhKB9WIPSV
+        gldb/JXX5hVpIafUdSd/Ty6JDD8ev9qUC//YCrM=
+X-Google-Smtp-Source: ADFU+vsCNT7UWNgcDySNL7V1+WqUoHDuetKklFpQK46rxruvRctboMOozIp0AA+SN1oOHPIkhUMTUDd64Ap4B50zHu0=
+X-Received: by 2002:a05:6830:14cc:: with SMTP id t12mr9811604otq.118.1585314717789;
+ Fri, 27 Mar 2020 06:11:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200326142037.20418-1-m.szyprowski@samsung.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Fri, 27 Mar 2020 14:11:46 +0100
+Message-ID: <CAJZ5v0izbXdxMWZaySokD+7smnZhSpjOJy5DQGNG+Dw3+iFVZQ@mail.gmail.com>
+Subject: Commit 024aa8732acb for 5.4.y
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 26, 2020 at 03:20:37PM +0100, Marek Szyprowski wrote:
-> GPIO lines for the CM36651 sensor I2C bus use the normal not the inverted
-> polarity. This bug has been there since adding the CM36651 sensor by
-> commit 85cb4e0bd2294, but went unnoticed because the "i2c-gpio" driver
-> ignored the GPIO polarity specified in the device-tree.
-> 
-> The recent conversion of "i2c-gpio" driver to the new, descriptor based
-> GPIO API, automatically made it the DT-specified polarity aware, what
-> broke the CM36651 sensor operation.
-> 
-> Fixes: c769eaf7a85d ("ARM: dts: exynos: Split Trats2 DTS in preparation for Midas boards")
-> Fixes: c10d3290cbde ("ARM: dts: Use GPIO constants for flags cells in exynos4412 boards")
-> Fixes: 85cb4e0bd229 ("ARM: dts: add cm36651 light/proximity sensor node for exynos4412-trats2")
+Hi Greg at al,
 
-Thanks, applied. I kept only last Fixes as this is the original error.
-All later were just refactorings of the same bug.
+Please the following commit:
 
-Best regards,
-Krzysztof
+commit 024aa8732acb7d2503eae43c3fe3504d0a8646d0
+Author: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Date:   Thu Nov 28 23:50:40 2019 +0100
 
+    ACPI: PM: s2idle: Rework ACPI events synchronization
+
+    Note that the EC GPE processing need not be synchronized in
+    acpi_s2idle_wake() after invoking acpi_ec_dispatch_gpe(), because
+    that function checks the GPE status and dispatches its handler if
+    need be and the SCI action handler is not going to run anyway at
+    that point.
+
+    Moreover, it is better to drain all of the pending ACPI events
+    before restoring the working-state configuration of GPEs in
+    acpi_s2idle_restore(), because those events are likely to be related
+    to system wakeup, in which case they will not be relevant going
+    forward.
+
+    Rework the code to take these observations into account.
+
+    Tested-by: Kenneth R. Crudup <kenny@panix.com>
+    Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+
+into 5.4.y as it is needed to fix an ACPI wakeup events
+synchronization issue in suspend-to-idle.
+
+Note that this commit was present in 5.5.0, so 5.4.y is the only
+-stable series needing this fix.
+
+Cheers,
+Rafael
