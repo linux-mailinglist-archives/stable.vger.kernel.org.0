@@ -2,75 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20D8219562A
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 12:21:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3444195664
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 12:31:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726661AbgC0LV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 07:21:26 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:57117 "EHLO
-        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726454AbgC0LVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 07:21:25 -0400
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=[IPv6:::1])
-        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
-        (envelope-from <a.fatoum@pengutronix.de>)
-        id 1jHn3E-0005sM-9k; Fri, 27 Mar 2020 12:21:24 +0100
-Subject: Re: [PATCH] ARM: imx: provide v7_cpu_resume() only on
- ARM_CPU_SUSPEND=y
-From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
-To:     Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Rouven Czerwinski <r.czerwinski@pengutronix.de>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Clemens Gruber <clemens.gruber@pqgruber.com>,
-        Russell King <linux@armlinux.org.uk>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20200323081933.31497-1-a.fatoum@pengutronix.de>
- <6ae60120-2b3e-2ce2-14cc-8c44889d49ee@pengutronix.de>
-Message-ID: <453f9aca-504a-6478-7e8d-5db646948c49@pengutronix.de>
-Date:   Fri, 27 Mar 2020 12:21:22 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1727352AbgC0LbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 07:31:05 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:53112 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726165AbgC0LbF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 07:31:05 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jHnCV-0004rb-Kw; Fri, 27 Mar 2020 12:30:59 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 4016E1C03AB;
+        Fri, 27 Mar 2020 12:30:59 +0100 (CET)
+Date:   Fri, 27 Mar 2020 11:30:58 -0000
+From:   "tip-bot2 for Yubo Xie" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/urgent] clocksource/drivers/hyper-v: Make sched clock
+ return nanoseconds correctly
+Cc:     Yubo Xie <yuboxie@microsoft.com>,
+        Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200327021159.31429-1-Tianyu.Lan@microsoft.com>
+References: <20200327021159.31429-1-Tianyu.Lan@microsoft.com>
 MIME-Version: 1.0
-In-Reply-To: <6ae60120-2b3e-2ce2-14cc-8c44889d49ee@pengutronix.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Message-ID: <158530865882.28353.581776728371427215.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: a.fatoum@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Shawn,
+The following commit has been merged into the timers/urgent branch of tip:
 
-On 3/23/20 9:25 AM, Ahmad Fatoum wrote:
-> On 3/23/20 9:19 AM, Ahmad Fatoum wrote:
->> Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
-> 
-> This commit is new in v5.6-rc5, so it would be great if the fix can land in
-> Linus' tree before v5.6.
+Commit-ID:     749da8ca978f19710aba496208c480ad42d37f79
+Gitweb:        https://git.kernel.org/tip/749da8ca978f19710aba496208c480ad42d37f79
+Author:        Yubo Xie <yuboxie@microsoft.com>
+AuthorDate:    Thu, 26 Mar 2020 19:11:59 -07:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Fri, 27 Mar 2020 12:27:45 +01:00
 
-Gentle ping. I've received a few pings myself because it broke people's
-stable release builds and I would like to avoid that for v5.6 as well..
+clocksource/drivers/hyper-v: Make sched clock return nanoseconds correctly
 
-Cheers
-Ahmad
+The sched clock read functions return the HV clock (100ns granularity)
+without converting it to nanoseconds.
 
-> 
-> Cheers
-> Ahmad
-> 
+Add the missing conversion.
 
--- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Fixes: bd00cd52d5be ("clocksource/drivers/hyperv: Add Hyper-V specific sched clock function")
+Signed-off-by: Yubo Xie <yuboxie@microsoft.com>
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200327021159.31429-1-Tianyu.Lan@microsoft.com
+
+---
+ drivers/clocksource/hyperv_timer.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+index 9d808d5..eb0ba78 100644
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -343,7 +343,8 @@ static u64 notrace read_hv_clock_tsc_cs(struct clocksource *arg)
+ 
+ static u64 read_hv_sched_clock_tsc(void)
+ {
+-	return read_hv_clock_tsc() - hv_sched_clock_offset;
++	return (read_hv_clock_tsc() - hv_sched_clock_offset) *
++		(NSEC_PER_SEC / HV_CLOCK_HZ);
+ }
+ 
+ static void suspend_hv_clock_tsc(struct clocksource *arg)
+@@ -398,7 +399,8 @@ static u64 notrace read_hv_clock_msr_cs(struct clocksource *arg)
+ 
+ static u64 read_hv_sched_clock_msr(void)
+ {
+-	return read_hv_clock_msr() - hv_sched_clock_offset;
++	return (read_hv_clock_msr() - hv_sched_clock_offset) *
++		(NSEC_PER_SEC / HV_CLOCK_HZ);
+ }
+ 
+ static struct clocksource hyperv_cs_msr = {
