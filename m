@@ -2,124 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0FEB195869
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 14:56:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA9741958C5
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 15:16:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726454AbgC0N4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 09:56:01 -0400
-Received: from mickerik.phytec.de ([195.145.39.210]:57974 "EHLO
-        mickerik.phytec.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726275AbgC0N4A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 09:56:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; d=phytec.de; s=a1; c=relaxed/simple;
-        q=dns/txt; i=@phytec.de; t=1585317359; x=1587909359;
-        h=From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=w/C/DGhy+XVpgJUliLirqFOfdwQNqUxARZ0xfZPOw/o=;
-        b=pRjFjC2CT1BOCxtWhQ4WqoOP4CBfGpVeLYqIaZyBlStdd/+spbrCGKi5HyjPKmKq
-        sPIRh1pgqBNREXH7K0jdkSkeP+HbdNWTH41OTsRygUi8lPPJHlmCgKMz4Q8rCJqA
-        N+8XsnO7Fg52sGiSRPO0x76jzHQb2/76VdEu/W7+j6M=;
-X-AuditID: c39127d2-583ff70000001db9-08-5e7e05efcfcf
-Received: from idefix.phytec.de (Unknown_Domain [172.16.0.10])
-        by mickerik.phytec.de (PHYTEC Mail Gateway) with SMTP id A0.83.07609.FE50E7E5; Fri, 27 Mar 2020 14:55:59 +0100 (CET)
+        id S1727287AbgC0OQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 10:16:15 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:39024 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727115AbgC0OQO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 10:16:14 -0400
+Received: by mail-wr1-f66.google.com with SMTP id p10so11589431wrt.6;
+        Fri, 27 Mar 2020 07:16:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=9wNt2gai8dRVSKQAlV2TOplqX3mifpAWTobUqLn101c=;
+        b=inBI3zIMOQoWlxqDdeGv06GRSPaAjKkg26RelATkUJiHTcP9LZQnSO/ULU1nW/atKk
+         GKf6/AVfYIuDEf5LyNTh33Tp39tDTnVLptNWdPYKqdZR9wn6MHdCwLJaIGX4oKWqUIUQ
+         /J0Sq4xc09A5xL4LU1ZpBdePsC1fztREX3HVdk7Y6dBuDQ34vFmYc8s8v4v09jI6Cb1k
+         c735gWJCGxyrXyhVtCL0BVi9Q/t9Q2jcXKwDZZrU6N6oS0DhJS8EOvpFdzvjJ3OvqvMe
+         xv8OKLs9MFOkQLrsj7FElzDPCHR4BuBZiWvpsmhGIro1hJKXXmCLsDfS/GPcN9NMsQlJ
+         H/9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9wNt2gai8dRVSKQAlV2TOplqX3mifpAWTobUqLn101c=;
+        b=Y5aYPCSCC4waSpz7OZPzd6NquDjL/BBNYXLvd8nJlQ1feD0VSQNKfyXyYRWO2WcJw5
+         QgX9zw+JxS9JvbObXM86hUYiR06HECKh/2QxVkQmD9NjPt8tOrOLWb1O64n4S/R6f66I
+         O0eTRoM8BbRJhGdcvktJByVRH6CDfqvi5tZis8kCEXgF2kSToS42YU5un0P5GBQnfh/e
+         dVnIO5TGtJgbgeJ7S0UKoY7klKzSBRGaa7p41KVKFSZHos1eUNHlC5hXdLZuxsICeMhr
+         C50Y1ZWdMl6DwZ+CRXhgdKER5qQmOtrT2SMB0Up5yWmTP9PhIjXcmFmEE6lXgT67uQFT
+         uSUA==
+X-Gm-Message-State: ANhLgQ0+A9EGT1iA7gQoQvmu2dRljZRHlP/i3zByAbcNQ8HhkU2rUZgj
+        kWiLJ+WpkJSBEXAwA2Zd7Sxjl1/8TKSqSIZo/5s=
+X-Google-Smtp-Source: ADFU+vv/Vh/Usi3RX7zJFDIxkoX6XlRPz6qGaxO2o50FKhqyLTNRGqCUFnkaHDBaoZdAfcbG/1I2SUpXx72SUWSdNGo=
+X-Received: by 2002:a5d:6187:: with SMTP id j7mr15924936wru.419.1585318572316;
+ Fri, 27 Mar 2020 07:16:12 -0700 (PDT)
 MIME-Version: 1.0
-X-Disclaimed: 1
-Sensitivity: 
-Importance: Normal
-X-Priority: 3 (Normal)
-In-Reply-To: <20200327133624.26160-1-festevam@gmail.com>
-References: <20200327133624.26160-1-festevam@gmail.com>
-Subject: Antwort: [PATCH] ARM: dts: imx27-phytec-phycard-s-rdk: Fix the I2C1 pinctrl
- entries
-From:   =?ISO-8859-1?Q?Stefan_Riedm=FCller?= <S.Riedmueller@phytec.de>
-To:     Fabio Estevam <festevam@gmail.com>
-Cc:     shawnguo@kernel.org, kernel@pengutronix.de,
-        Christian Hemp <C.Hemp@phytec.de>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Message-ID: <OF690DE83F.5FD7A3A3-ONC1258538.004C346E-C1258538.004C8958@phytec.de>
-Date:   Fri, 27 Mar 2020 14:55:58 +0100
-X-Mailer: Lotus Domino Web Server Release 9.0.1FP7 August  17, 2016
-X-MIMETrack: Serialize by HTTP Server on Idefix/Phytec(Release 9.0.1FP7|August  17, 2016) at
- 27.03.2020 14:55:58,
-        Serialize complete at 27.03.2020 14:55:59,
-        Itemize by HTTP Server on Idefix/Phytec(Release 9.0.1FP7|August  17, 2016) at
- 27.03.2020 14:55:59,
-        Serialize by Router on Idefix/Phytec(Release 9.0.1FP7|August  17, 2016) at
- 27.03.2020 14:55:59
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-        charset=ISO-8859-1
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrALMWRmVeSWpSXmKPExsWyRoCBS/c9a12cwbwdHBYPr/pbrJq6k8Vi
-        0+NrrBYvtohbLNj4iNGB1WPnrLvsHptWdbJ5bF5S79H/18Dj8ya5ANYoLpuU1JzMstQifbsE
-        rozlh64zFRzlr7j/YCpzA+Mm3i5GTg4JAROJGz1vmboYuTiEBLYySjxZN5EFJMErIChxcuYT
-        FogifolPf1rZQGxhAV6JTW9nM4LYnAJCEh1XO1khasQkJqz7xdzFyAEUt5BoOCUIEhYSMJf4
-        f38rO0RrnETHxE4wm03ARaK5axs7SLmIgJrE6Xn6ICcwC0xnlDj+9BITxAmBEmd3bgFbyyKg
-        KnHw+ksmiFXOEov/XGABaZAQeMUk0da/F+wGZgFtiWULXzND2HoS/3+eYpzAKDwLyTuzkJTN
-        QlK2gJF5FaNQbmZydmpRZrZeQUZlSWqyXkrqJkZgLByeqH5pB2PfHI9DjEwcjIcYJTiYlUR4
-        n0bWxAnxpiRWVqUW5ccXleakFh9ilOZgURLn3cBbEiYkkJ5YkpqdmlqQWgSTZeLglGpgFP0/
-        pZa5JXBWZaLnGY5/C05lJe/PSnuz2c3uxvl0RqX5/IzWay+zbmNNrb6x5EtCppOc36fZXYtT
-        BJQXqmw9ZGM58cXBaK/9b3lqZYLU/zK+crq/JZ/PUfjOQbVLlpf879cxJP2pE7RIjG0/dmBr
-        csgGlvLsHPWZH/2nT8+3Zo6V7hM//+O3EktxRqKhFnNRcSIANlITtnMCAAA=
+References: <CGME20200327082453eucas1p15b2371b61f653031408f319cc6d13893@eucas1p1.samsung.com>
+ <20200327082446.18480-1-m.szyprowski@samsung.com> <CABnpCuDySf89HL2AksMB2fOcVCci+1zgB9r8zjRdpCAH3GWhPA@mail.gmail.com>
+ <64025801-10f0-9f28-17b2-2c04d4308ac5@samsung.com> <CABnpCuBUEO6V=hwzHkUEKK5KDXC=ovPrTHyb9zFYrj0KaHHdww@mail.gmail.com>
+In-Reply-To: <CABnpCuBUEO6V=hwzHkUEKK5KDXC=ovPrTHyb9zFYrj0KaHHdww@mail.gmail.com>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Fri, 27 Mar 2020 10:16:01 -0400
+Message-ID: <CADnq5_N65tF-b772uJ2E72=Er8JeeX9UZ34PVGqssprHCMGF1g@mail.gmail.com>
+Subject: Re: [PATCH] drm/prime: fix extracting of the DMA addresses from a scatterlist
+To:     Shane Francis <bigbeeshane@gmail.com>
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        linux-samsung-soc@vger.kernel.org,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        David Airlie <airlied@linux.ie>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "for 3.8" <stable@vger.kernel.org>,
+        "Michael J . Ruhl" <michael.j.ruhl@intel.com>,
+        Maling list - DRI developers 
+        <dri-devel@lists.freedesktop.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Alex Deucher <alexander.deucher@amd.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Fabio,
+On Fri, Mar 27, 2020 at 6:25 AM Shane Francis <bigbeeshane@gmail.com> wrote:
+>
+> Hello Marek,
+>
+> On Fri, Mar 27, 2020 at 9:00 AM Marek Szyprowski
+> <m.szyprowski@samsung.com> wrote:
+> > > I have tested the above patch against my original issues with amdgpu
+> > > and radeon drivers and everything is still working as expected.
+> > >
+> > > Sorry I missed this in my original patches.
+> >
+> > No problem. Thanks for testing!
+> >
+> > Best regards
+> > --
+> > Marek Szyprowski, PhD
+> > Samsung R&D Institute Poland
+> >
+> Just a thought.
+>
+> Would it be worth adding some comments to the code to explain why this
+> is needed, reading
+> the thread around my original patches and the DMA-API documentation it
+> is not instantly
+> clear why you would be mapping the pages in this way.
+>
+> Would probably prevent someone in the future making the same mistake I
+> did while updating
+> this code.
 
------Fabio Estevam <festevam@gmail.com> schrieb: -----
+With a comment similar to the commit messaged added to this function,
+this patch is:
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 
->An: shawnguo@kernel.org
->Von: Fabio Estevam <festevam@gmail.com>
->Datum: 27.03.2020 14:36
->Kopie: kernel@pengutronix.de, c.hemp@phytec.de,
->s.riedmueller@phytec.de, linux-arm-kernel@lists.infradead.org, Fabio
->Estevam <festevam@gmail.com>, stable@vger.kernel.org
->Betreff: [PATCH] ARM: dts: imx27-phytec-phycard-s-rdk: Fix the I2C1
->pinctrl entries
->
->The I2C2 pins are already used and the following errors are seen:
->
->imx27-pinctrl 10015000.iomuxc: pin MX27=5FPAD=5FI2C2=5FSDA already
->requested by 10012000.i2c; cannot claim for 1001d000.i2c
->imx27-pinctrl 10015000.iomuxc: pin-69 (1001d000.i2c) status -22
->imx27-pinctrl 10015000.iomuxc: could not request pin 69
->(MX27=5FPAD=5FI2C2=5FSDA) from group i2c2grp  on device 10015000.iomuxc
->imx-i2c 1001d000.i2c: Error applying setting, reverse things back
->imx-i2c: probe of 1001d000.i2c failed with error -22
->
->Fix it by adding the correct I2C1 IOMUX entries for the pinctrl=5Fi2c1
->group.
->
->Cc: <stable@vger.kernel.org>=20
->Fixes: 61664d0b432a ("ARM: dts: imx27 phyCARD-S pinctrl")
->Signed-off-by: Fabio Estevam <festevam@gmail.com>
->---
-> arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts | 4 ++--
-> 1 file changed, 2 insertions(+), 2 deletions(-)
->
->diff --git a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
->b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
->index 0cd75dadf292..188639738dc3 100644
->--- a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
->+++ b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
->@@ -75,8 +75,8 @@
->  imx27-phycard-s-rdk {
-> 		pinctrl=5Fi2c1: i2c1grp {
-> 			fsl,pins =3D <
->-				MX27=5FPAD=5FI2C2=5FSDA=5F=5FI2C2=5FSDA 0x0
->-				MX27=5FPAD=5FI2C2=5FSCL=5F=5FI2C2=5FSCL 0x0
->+				MX27=5FPAD=5FI2C=5FDATA=5F=5FI2C=5FDATA 0x0
->+				MX27=5FPAD=5FI2C=5FCLK=5F=5FI2C=5FCLK 0x0
-> 			>;
-> 		};
->=20
->--
+Thanks!
 
-Reviewed-by: Stefan Riedmueller <s.riedmueller@phytec.de>
-=20
->2.17.1
->
->
+Alex
