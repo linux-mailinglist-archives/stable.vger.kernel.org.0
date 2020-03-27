@@ -2,106 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7BCD195F67
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 21:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29ACA19604A
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 22:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727322AbgC0UDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 16:03:08 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:43908 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727252AbgC0UDH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 16:03:07 -0400
-Received: by mail-wr1-f68.google.com with SMTP id m11so7111867wrx.10
-        for <stable@vger.kernel.org>; Fri, 27 Mar 2020 13:03:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:date:to:cc:subject:in-reply-to:message-id:references
-         :mime-version;
-        bh=j/OkHoE9ro+FS7kIKsKj8MxdkSIGzorOdjF2lgklWaU=;
-        b=Wqt247jBbkcmuopxr4bZf+nX1skD780fSsrsQe7h6+1a2FKAbKthwzOP37uekv7brs
-         2utFa4d9xWPo7RNEmZAsdqG68IfYzVAdDeCox+goaOCUJpzoqNJBYgLHu4g1/lQv0o22
-         yNgDkhvbYygkGw+y6Y8+u8rAMffLaB3Syx50OfFMhBJG1+T/Jp17c3NrKdqFrsZdfvyp
-         LUNnJ0LGfhQbwgdJC6L9fKPg3mCG3hLtgK7mNlT0FI0dobAr0NcdOKpK5bc4xhJGwXBJ
-         Zg/PeQ7K5QurQQ75MFX2jXVEAlRvA3bwL48uAFJJyP7Rs89bwjq4u4FCGswqVu8tQxXK
-         Y48Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:date:to:cc:subject:in-reply-to:message-id
-         :references:mime-version;
-        bh=j/OkHoE9ro+FS7kIKsKj8MxdkSIGzorOdjF2lgklWaU=;
-        b=p5Qm+woxzeDmYD1cz2cL/udTE7fq/bFSAN/DsGdMeATxOGSiusC3hIfR2XYxpLomIO
-         sxjIJbx6FdWkHxgTYUiaXojOSnl0c/eaervwUXQP2NrELY+7Qnmm64fJPmD2m7YyjTn9
-         m0ANlkzX811GY+mqiKfcLBLeRl38BkVqcoDqUkGZVzgVoxoKQyUwY0MhAdecMFL2QBKd
-         CKLV2kfQMjjvRfbCg5VYIpLkkYHZZaaz39VVQU15pBaXnym7y8g7pXaFhq/mioIClg1z
-         oIaqOcyUwgia3Um+U/PNmoF3aDJc3eOanPV5ABoc6cOpcLWGVfnYPJuCCd4DbxJXEiGA
-         jrIg==
-X-Gm-Message-State: ANhLgQ1yoEcSnLwV1x5UBsGE8a7rNH1tcogBN5/iHAhLbXvJlY+Ko7jd
-        4dK/xQrUHfDOOZI+bpj/LQ==
-X-Google-Smtp-Source: ADFU+vtsg0ksxBGhkyw2URPPe2qJfEMV56TeAw+wCauhFrp3b/TrMbhNOjZUSxxtv606eUxa4KefAQ==
-X-Received: by 2002:a5d:474b:: with SMTP id o11mr1140550wrs.4.1585339385869;
-        Fri, 27 Mar 2020 13:03:05 -0700 (PDT)
-Received: from ninjahost.lan (host-92-23-82-35.as13285.net. [92.23.82.35])
-        by smtp.gmail.com with ESMTPSA id r9sm9752815wma.47.2020.03.27.13.03.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Mar 2020 13:03:05 -0700 (PDT)
-From:   Jules Irenge <jbi.octave@gmail.com>
-X-Google-Original-From: Jules Irenge <alien@ninjahost.lan>
-Date:   Fri, 27 Mar 2020 20:02:57 +0000 (GMT)
-To:     Jules Irenge <jbi.octave@gmail.com>
-cc:     Corentin Labbe <clabbe@baylibre.com>,
-        stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 01/11] rtc: max8907: add missing select REGMAP_IRQ
-In-Reply-To: <20200327195150.378413-1-jbi.octave@gmail.com>
-Message-ID: <alpine.LFD.2.21.2003272002120.381538@ninjahost.lan>
-References: <20200327195150.378413-1-jbi.octave@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        id S1727509AbgC0VQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 17:16:19 -0400
+Received: from mga17.intel.com ([192.55.52.151]:7152 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727495AbgC0VQT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Mar 2020 17:16:19 -0400
+IronPort-SDR: g+lgqZGcwJ6k9p0wm5HVYOdx96f4e41rmUbciPgegZmRw78Z/h16vbxxW/1OGU7Gw7ZvytOpq6
+ U/R4TaSEL73g==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2020 14:16:19 -0700
+IronPort-SDR: rV7hqmr13pWJuQkiYhYbSJXKKHrwVG0cAM+xP1wWQgv8sVrOS6I1VcXCqR+FEJ6aezxiHIIFZq
+ bKkm1znzny2w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,313,1580803200"; 
+   d="scan'208";a="282971379"
+Received: from otc-nc-03.jf.intel.com ([10.54.39.25])
+  by fmsmga002.fm.intel.com with ESMTP; 27 Mar 2020 14:16:18 -0700
+From:   Ashok Raj <ashok.raj@intel.com>
+To:     linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>
+Cc:     Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] pci: Fixes MaxPayloadSize (MPS) programming for RCiEP devices.
+Date:   Fri, 27 Mar 2020 14:16:15 -0700
+Message-Id: <1585343775-4019-1-git-send-email-ashok.raj@intel.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Root Complex Integrated devices (RCiEP) do not have a Root Port before the
+device. pci_configure_mps() should simply stick the max value for MaxPayload
+size in Device Control, and for MaxReadReq. Unless pcie=pcie_bus-peer2peer
+is used in kernel commandline PCIE_BUS_PEER2PEER.
 
+When MPS is configured lower, it could result in reduced performance.
 
-On Fri, 27 Mar 2020, Jules Irenge wrote:
+Fixes: 9dae3a97297f ("PCI: Move MPS configuration check to pci_configure_device()")
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Tested-by: Dave Jiang <dave.jiang@intel.com>
+To: Bjorn Helgaas <bhelgaas@google.com>
+To: linux-pci@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Cc: Ashok Raj <ashok.raj@intel.com>
+---
+ drivers/pci/probe.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-> From: Corentin Labbe <clabbe@baylibre.com>
-> 
-> I have hit the following build error:
-> 
->   armv7a-hardfloat-linux-gnueabi-ld: drivers/rtc/rtc-max8907.o: in function `max8907_rtc_probe':
->   rtc-max8907.c:(.text+0x400): undefined reference to `regmap_irq_get_virq'
-> 
-> max8907 should select REGMAP_IRQ
-> 
-> Fixes: 94c01ab6d7544 ("rtc: add MAX8907 RTC driver")
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> ---
->  drivers/rtc/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 34c8b6c7e095..8e503881d9d6 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -327,6 +327,7 @@ config RTC_DRV_MAX6900
->  config RTC_DRV_MAX8907
->  	tristate "Maxim MAX8907"
->  	depends on MFD_MAX8907 || COMPILE_TEST
-> +	select REGMAP_IRQ
->  	help
->  	  If you say yes here you will get support for the
->  	  RTC of Maxim MAX8907 PMIC.
-> -- 
-> 2.25.1
-> 
-> 
-Apology. I sent this one by mistake.
-Please disregard it.
-
-Polite regards,
-Jules
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index eeff8a07..a738b1c 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -1895,13 +1895,34 @@ static void pci_configure_mps(struct pci_dev *dev)
+ 	struct pci_dev *bridge = pci_upstream_bridge(dev);
+ 	int mps, mpss, p_mps, rc;
+ 
+-	if (!pci_is_pcie(dev) || !bridge || !pci_is_pcie(bridge))
++	if (!pci_is_pcie(dev))
+ 		return;
+ 
+ 	/* MPS and MRRS fields are of type 'RsvdP' for VFs, short-circuit out */
+ 	if (dev->is_virtfn)
+ 		return;
+ 
++	/*
++	 * If this is a Root Complex Integrated Endpoint
++	 * Simply program the max value from DEVCAP. No additional
++	 * Lookup is necessary
++	 */
++	if (pci_pcie_type(dev) == PCI_EXP_TYPE_RC_END) {
++		if (pcie_bus_config == PCIE_BUS_PEER2PEER)
++			mps = 128;
++		else
++			mps = 128 << dev->pcie_mpss;
++		rc = pcie_set_mps(dev, mps);
++		if (rc) {
++			pci_warn(dev, "can't set Max Payload Size to %d; if necessary, use \"pci=pcie_bus_safe\" and report a bug\n",
++			 mps);
++			return;
++		}
++	}
++
++	if (!bridge || !pci_is_pcie(bridge))
++		return;
++
+ 	mps = pcie_get_mps(dev);
+ 	p_mps = pcie_get_mps(bridge);
+ 
+-- 
+2.7.4
 
