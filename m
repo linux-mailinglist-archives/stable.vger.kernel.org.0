@@ -2,97 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10139194E9B
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 02:51:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBD4D194ECF
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 03:12:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727607AbgC0BvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Mar 2020 21:51:01 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:46504 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727122AbgC0BvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 21:51:00 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 02R1o3QK102384;
-        Fri, 27 Mar 2020 01:50:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : references : date : in-reply-to : message-id : mime-version :
- content-type; s=corp-2020-01-29;
- bh=3qGek2yKWQLijs+5JbpVCUiG2M8HpMlzKySDTcmY8YM=;
- b=kgeOGsuB5EhESLZic4SdXkd8oeZ+hhPTA2H8QZYOyiuVElVwjSIboUJEN1475BrSKkuz
- +pjdH8jzWyp7rbRfSOH0OhcE7FxL+k9iwK1VW7mGgKkUjStZaFiUkkNOGYiAQRfjwe69
- qo0Xbqzf7tGwmxN8+SbDBZ6DeNFM/mzmhc4SG5ai28dWyEh9GjTAKH1S8tKnR7vbpI6o
- ODVJ7QLmrAlVh/TbR+DAEJrolgw3eEnMSEKYZhtHY7A/mN6lh6OpKBAc15teXvrwp967
- 1ikjVQaA8sdGC8aQr2qVw1hEtQ6Dz6Kdzzr4GfTUDsWaL+eTrGgK07R5bmjKqZp++bgd mg== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by userp2120.oracle.com with ESMTP id 300urk3m79-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 Mar 2020 01:50:55 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 02R1oDsx166315;
-        Fri, 27 Mar 2020 01:50:54 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by aserp3030.oracle.com with ESMTP id 3006r9fskt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 27 Mar 2020 01:50:54 +0000
-Received: from abhmp0001.oracle.com (abhmp0001.oracle.com [141.146.116.7])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 02R1ooWJ000698;
-        Fri, 27 Mar 2020 01:50:52 GMT
-Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 26 Mar 2020 18:50:50 -0700
-To:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Cc:     "Elliott\, Robert \(Servers\)" <elliott@hpe.com>,
-        "martin.petersen\@oracle.com" <martin.petersen@oracle.com>,
-        "linux-scsi\@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-        "sathya.prakash\@broadcom.com" <sathya.prakash@broadcom.com>,
-        "suganath-prabu.subramani\@broadcom.com" 
-        <suganath-prabu.subramani@broadcom.com>,
-        "stable\@vger.kernel.org" <stable@vger.kernel.org>,
-        "amit\@kernel.org" <amit@kernel.org>
-Subject: Re: [PATCH] mpt3sas: Fix kernel panic observed on soft HBA unplug
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-References: <1583923013-3935-1-git-send-email-sreekanth.reddy@broadcom.com>
-        <DF4PR8401MB12415ADC9760286F3930DBE4ABFB0@DF4PR8401MB1241.NAMPRD84.PROD.OUTLOOK.COM>
-        <CAK=zhgqWJs+Wbmgy9xp6WDRp2w5e+5BGD+R5mck-dVh5oOUQ0g@mail.gmail.com>
-Date:   Thu, 26 Mar 2020 21:50:47 -0400
-In-Reply-To: <CAK=zhgqWJs+Wbmgy9xp6WDRp2w5e+5BGD+R5mck-dVh5oOUQ0g@mail.gmail.com>
-        (Sreekanth Reddy's message of "Mon, 16 Mar 2020 11:45:15 +0530")
-Message-ID: <yq1bloiftvs.fsf@oracle.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9572 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 adultscore=0 suspectscore=0
- phishscore=0 spamscore=0 mlxscore=0 mlxlogscore=680 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2003270012
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9572 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 spamscore=0
- mlxlogscore=741 clxscore=1011 lowpriorityscore=0 mlxscore=0 phishscore=0
- bulkscore=0 impostorscore=0 adultscore=0 malwarescore=0 priorityscore=1501
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2003270012
+        id S1727666AbgC0CMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Mar 2020 22:12:13 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:34196 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726496AbgC0CMN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Mar 2020 22:12:13 -0400
+Received: by mail-pf1-f196.google.com with SMTP id 23so3772808pfj.1;
+        Thu, 26 Mar 2020 19:12:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=FOm6MV3EMePJN0FuLWiMdiV/GLEXaRUsnceHfNcS4rI=;
+        b=dJEPY5dPpm7vUNfoirSoxG9vs6rh1upSUPocJViZ9qUJB56uMUc3xZ+GaVnH9Kd6ia
+         yU36LekPM9Rs+hIGO9OfPGD9CeZroyCQJkbEgF7gKDiMHnROVofESe+yCdPWUzMt+Vq+
+         soIrVlHmdntzH5PC8REyn+2OJxZLuZUHRhuMmrT4Gn8IGB/MnpYYC2eTnF6bdX8DeUQz
+         qaXVcbMdxKsQzokDH1AH50jXmnHKcNlJkbJVqSNVhIZgkkYA8RcIU0oko3DOiXlxZLcD
+         Zcjd3L/wujq57anjnFWP0pk2EcBKbs9TVtAs4P7t7WxaJXmjsWvpOOH0kJ/eD7ROrd3j
+         g0vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=FOm6MV3EMePJN0FuLWiMdiV/GLEXaRUsnceHfNcS4rI=;
+        b=TDkSKRkErB5u0xtTsXwOdPJq9waCwOVHfjKfEDSoyuD54eHLwg+sWh6iPaPmoes6St
+         58sGI+/TSKn5aX4JJXfIUchQlpXVwCX+4pRlcWHdQ8wa+6VnksqqInL37IKrpBCigBFB
+         0u6f84YD6gL/RiX9TY/VqQfJG7IxNiD/hMtAR666FWYcLeLHm0AgFy64XuNorYdf/igN
+         XYtK4Go1GuoGANJPvCY6n6Jz40Mbi8xsz4XPeZWz3/nmZKgIXZunAPQwDw+CgbClhcYF
+         TFcwbnqXAFUddjtRwP/IRhAO/8vtXDexlu26okzi0+4UpkIJ3xOlngdFuuoWYUMBXkQd
+         +Hmg==
+X-Gm-Message-State: ANhLgQ3cHzConVQPAsh8U1QecJVI5FDEdKbf38m+WLi9HQJyPOwb9O4x
+        8bggZ4ZWd/ECoKIN2oar2ahDgVTJIWU=
+X-Google-Smtp-Source: ADFU+vuBkEqnRm6ngW5777xbhAVueA0Lix6mvtGr3oV7fkUyr7/2zLlP6r/i6whCO2U0s2oQYzfI8w==
+X-Received: by 2002:a63:5859:: with SMTP id i25mr11245278pgm.74.1585275132126;
+        Thu, 26 Mar 2020 19:12:12 -0700 (PDT)
+Received: from localhost.corp.microsoft.com ([131.107.160.210])
+        by smtp.googlemail.com with ESMTPSA id w31sm2673844pgl.84.2020.03.26.19.12.10
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 26 Mar 2020 19:12:11 -0700 (PDT)
+From:   Tianyu Lan <ltykernel@gmail.com>
+X-Google-Original-From: Tianyu Lan <Tianyu.Lan@microsoft.com>
+To:     kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
+        liuwe@microsoft.com, daniel.lezcano@linaro.org, tglx@linutronix.de,
+        michael.h.kelley@microsoft.com
+Cc:     Tianyu Lan <Tianyu.Lan@microsoft.com>,
+        linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
+        vkuznets@redhat.com, stable@vger.kernel.org,
+        Yubo Xie <yuboxie@microsoft.com>
+Subject: [PATCH V2] x86/Hyper-V: Fix hv sched clock function return wrong time unit
+Date:   Thu, 26 Mar 2020 19:11:59 -0700
+Message-Id: <20200327021159.31429-1-Tianyu.Lan@microsoft.com>
+X-Mailer: git-send-email 2.14.5
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Yubo Xie <yuboxie@microsoft.com>
 
-Sreekanth,
+sched clock callback should return time with nano second as unit
+but current hv callback returns time with 100ns. Fix it.
 
-> In the unload path driver call sas_remove_host() API before releasing
-> the resources. This sas_remove_host() API waits for all the
-> outstanding IOs to be completed. So here, indirectly driver is waiting
-> for the outstanding IOs to be processed before releasing the HBA
-> resources.  So only in the cases where HBA is inaccessible (e.g. HBA
-> unplug case), driver is flushing out the outstanding commands to avoid
-> SCSI error handling over head and can quilkey complete the driver
-> unload operation.
+Cc: stable@vger.kernel.org
+Signed-off-by: Yubo Xie <yuboxie@microsoft.com>
+Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
+Fixes: bd00cd52d5be ("clocksource/drivers/hyperv: Add Hyper-V specific sched clock function")
+---
+Change since v1:
+	Update fix commit number in change log. 
+---
+ drivers/clocksource/hyperv_timer.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-None of this is clear from the commit description. Please resubmit patch
-with a new description clarifying why and when it is safe to drop
-outstanding commands.
-
+diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+index 9d808d595ca8..662ed978fa24 100644
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -343,7 +343,8 @@ static u64 notrace read_hv_clock_tsc_cs(struct clocksource *arg)
+ 
+ static u64 read_hv_sched_clock_tsc(void)
+ {
+-	return read_hv_clock_tsc() - hv_sched_clock_offset;
++	return (read_hv_clock_tsc() - hv_sched_clock_offset)
++		* (NSEC_PER_SEC / HV_CLOCK_HZ);
+ }
+ 
+ static void suspend_hv_clock_tsc(struct clocksource *arg)
+@@ -398,7 +399,8 @@ static u64 notrace read_hv_clock_msr_cs(struct clocksource *arg)
+ 
+ static u64 read_hv_sched_clock_msr(void)
+ {
+-	return read_hv_clock_msr() - hv_sched_clock_offset;
++	return (read_hv_clock_msr() - hv_sched_clock_offset)
++		* (NSEC_PER_SEC / HV_CLOCK_HZ);
+ }
+ 
+ static struct clocksource hyperv_cs_msr = {
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+2.14.5
+
