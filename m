@@ -2,195 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80A78195941
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 15:44:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70590195976
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 16:03:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727560AbgC0Oo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 10:44:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37012 "EHLO mail.kernel.org"
+        id S1727423AbgC0PDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 11:03:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726900AbgC0Oo2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Mar 2020 10:44:28 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1726900AbgC0PDh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Mar 2020 11:03:37 -0400
+Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CEBF206F1;
-        Fri, 27 Mar 2020 14:44:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7953F20748;
+        Fri, 27 Mar 2020 15:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585320266;
-        bh=YaQSUIJh+1eY97mLByjppSha/ZEkq8e8vs2mZKrsrnQ=;
-        h=Subject:To:From:Date:From;
-        b=QsGxuNSYiEtJz6MNDy5bI1eYFlFiHvO9Rehwua8t4emD4clMqAIfl36FGSJWVl879
-         TW2rrotnrKb74xsJmcnqzIWLP8vGBkVsgj0w92OStkagtI5TGybmNsPz5RgpsIYYHn
-         y+b5Thawn4fywYVHAknwdMDOwB9ENddt9slfLJLg=
-Subject: patch "vt: vt_ioctl: fix use-after-free in vt_in_use()" added to tty-testing
-To:     ebiggers@google.com, gregkh@linuxfoundation.org, jslaby@suse.cz,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 27 Mar 2020 15:44:15 +0100
-Message-ID: <158532025524890@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        s=default; t=1585321416;
+        bh=6BljeoalHNjzRmGiTkR8t8oBE7c7fmlwnyuOZVlKyG0=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=KrX64+c9habUpaAD0e9Pompsd1BZ40t8hiSZFEU7rmXhE7i0I9NfTvrUizFhSz0o4
+         sSd3vmquz61icI38G2AwW0fOhd9/71WNmmaM7fmqKX5ibjKmpU5coeOy95tn90LIrd
+         NVtjgexlgyXkagX3L9WR+2KfSTRDlKOraQkKsxmM=
+Date:   Fri, 27 Mar 2020 15:03:35 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Huacai Chen <chenhc@lemote.com>
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     linux-mips@vger.kernel.org, Fuxin Zhang <zhangfx@lemote.com>
+Cc:     <stable@vger.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS/tlbex: Fix LDDIR usage in setup_pw() for Loongson-3
+In-Reply-To: <1585107894-8803-1-git-send-email-chenhc@lemote.com>
+References: <1585107894-8803-1-git-send-email-chenhc@lemote.com>
+Message-Id: <20200327150336.7953F20748@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi
 
-This is a note to let you know that I've just added the patch titled
+[This is an automated email]
 
-    vt: vt_ioctl: fix use-after-free in vt_in_use()
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
+The bot has tested the following trees: v5.5.11, v5.4.27, v4.19.112, v4.14.174, v4.9.217, v4.4.217.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+v5.5.11: Build OK!
+v5.4.27: Build OK!
+v4.19.112: Build OK!
+v4.14.174: Failed to apply! Possible dependencies:
+    b023a9396062 ("MIPS: Avoid using array as parameter to write_c0_kpgd()")
 
-The patch will be merged to the tty-next branch sometime soon,
-after it passes testing, and the merge window is open.
+v4.9.217: Failed to apply! Possible dependencies:
+    b023a9396062 ("MIPS: Avoid using array as parameter to write_c0_kpgd()")
 
-If you have any questions about this process, please let me know.
+v4.4.217: Failed to apply! Possible dependencies:
+    0c94fa33b4de ("MIPS: cpu: Convert MIPS_CPU_* defs to (1ull << x)")
+    380cd582c088 ("MIPS: Loongson-3: Fast TLB refill handler")
+    5fa393c85719 ("MIPS: Break down cacheops.h definitions")
+    9519ef37a4a4 ("MIPS: Define the legacy-NaN and 2008-NaN features")
+    b023a9396062 ("MIPS: Avoid using array as parameter to write_c0_kpgd()")
+    b2edcfc81401 ("MIPS: Loongson: Add Loongson-3A R2 basic support")
+    c0291f7c7359 ("MIPS: cpu: Alter MIPS_CPU_* definitions to fill gap")
+    f270d881fa55 ("MIPS: Detect MIPSr6 Virtual Processor support")
 
 
-From 7cf64b18b0b96e751178b8d0505d8466ff5a448f Mon Sep 17 00:00:00 2001
-From: Eric Biggers <ebiggers@google.com>
-Date: Sat, 21 Mar 2020 20:43:05 -0700
-Subject: vt: vt_ioctl: fix use-after-free in vt_in_use()
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
-vt_in_use() dereferences console_driver->ttys[i] without proper locking.
-This is broken because the tty can be closed and freed concurrently.
+How should we proceed with this patch?
 
-We could fix this by using 'READ_ONCE(console_driver->ttys[i]) != NULL'
-and skipping the check of tty_struct::count.  But, looking at
-console_driver->ttys[i] isn't really appropriate anyway because even if
-it is NULL the tty can still be in the process of being closed.
-
-Instead, fix it by making vt_in_use() require console_lock() and check
-whether the vt is allocated and has port refcount > 1.  This works since
-following the patch "vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use
-virtual console" the port refcount is incremented while the vt is open.
-
-Reproducer (very unreliable, but it worked for me after a few minutes):
-
-	#include <fcntl.h>
-	#include <linux/vt.h>
-
-	int main()
-	{
-		int fd, nproc;
-		struct vt_stat state;
-		char ttyname[16];
-
-		fd = open("/dev/tty10", O_RDONLY);
-		for (nproc = 1; nproc < 8; nproc *= 2)
-			fork();
-		for (;;) {
-			sprintf(ttyname, "/dev/tty%d", rand() % 8);
-			close(open(ttyname, O_RDONLY));
-			ioctl(fd, VT_GETSTATE, &state);
-		}
-	}
-
-KASAN report:
-
-	BUG: KASAN: use-after-free in vt_in_use drivers/tty/vt/vt_ioctl.c:48 [inline]
-	BUG: KASAN: use-after-free in vt_ioctl+0x1ad3/0x1d70 drivers/tty/vt/vt_ioctl.c:657
-	Read of size 4 at addr ffff888065722468 by task syz-vt2/132
-
-	CPU: 0 PID: 132 Comm: syz-vt2 Not tainted 5.6.0-rc5-00130-g089b6d3654916 #13
-	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20191223_100556-anatol 04/01/2014
-	Call Trace:
-	 [...]
-	 vt_in_use drivers/tty/vt/vt_ioctl.c:48 [inline]
-	 vt_ioctl+0x1ad3/0x1d70 drivers/tty/vt/vt_ioctl.c:657
-	 tty_ioctl+0x9db/0x11b0 drivers/tty/tty_io.c:2660
-	 [...]
-
-	Allocated by task 136:
-	 [...]
-	 kzalloc include/linux/slab.h:669 [inline]
-	 alloc_tty_struct+0x96/0x8a0 drivers/tty/tty_io.c:2982
-	 tty_init_dev+0x23/0x350 drivers/tty/tty_io.c:1334
-	 tty_open_by_driver drivers/tty/tty_io.c:1987 [inline]
-	 tty_open+0x3ca/0xb30 drivers/tty/tty_io.c:2035
-	 [...]
-
-	Freed by task 41:
-	 [...]
-	 kfree+0xbf/0x200 mm/slab.c:3757
-	 free_tty_struct+0x8d/0xb0 drivers/tty/tty_io.c:177
-	 release_one_tty+0x22d/0x2f0 drivers/tty/tty_io.c:1468
-	 process_one_work+0x7f1/0x14b0 kernel/workqueue.c:2264
-	 worker_thread+0x8b/0xc80 kernel/workqueue.c:2410
-	 [...]
-
-Fixes: 4001d7b7fc27 ("vt: push down the tty lock so we can see what is left to tackle")
-Cc: <stable@vger.kernel.org> # v3.4+
-Acked-by: Jiri Slaby <jslaby@suse.cz>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20200322034305.210082-3-ebiggers@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/vt/vt_ioctl.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/tty/vt/vt_ioctl.c b/drivers/tty/vt/vt_ioctl.c
-index f62f498f63c0..daf61c28ba76 100644
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -43,9 +43,15 @@ bool vt_dont_switch;
- 
- static inline bool vt_in_use(unsigned int i)
- {
--	extern struct tty_driver *console_driver;
-+	const struct vc_data *vc = vc_cons[i].d;
- 
--	return console_driver->ttys[i] && console_driver->ttys[i]->count;
-+	/*
-+	 * console_lock must be held to prevent the vc from being deallocated
-+	 * while we're checking whether it's in-use.
-+	 */
-+	WARN_CONSOLE_UNLOCKED();
-+
-+	return vc && kref_read(&vc->port.kref) > 1;
- }
- 
- static inline bool vt_busy(int i)
-@@ -643,15 +649,16 @@ int vt_ioctl(struct tty_struct *tty,
- 		struct vt_stat __user *vtstat = up;
- 		unsigned short state, mask;
- 
--		/* Review: FIXME: Console lock ? */
- 		if (put_user(fg_console + 1, &vtstat->v_active))
- 			ret = -EFAULT;
- 		else {
- 			state = 1;	/* /dev/tty0 is always open */
-+			console_lock(); /* required by vt_in_use() */
- 			for (i = 0, mask = 2; i < MAX_NR_CONSOLES && mask;
- 							++i, mask <<= 1)
- 				if (vt_in_use(i))
- 					state |= mask;
-+			console_unlock();
- 			ret = put_user(state, &vtstat->v_state);
- 		}
- 		break;
-@@ -661,10 +668,11 @@ int vt_ioctl(struct tty_struct *tty,
- 	 * Returns the first available (non-opened) console.
- 	 */
- 	case VT_OPENQRY:
--		/* FIXME: locking ? - but then this is a stupid API */
-+		console_lock(); /* required by vt_in_use() */
- 		for (i = 0; i < MAX_NR_CONSOLES; ++i)
- 			if (!vt_in_use(i))
- 				break;
-+		console_unlock();
- 		uival = i < MAX_NR_CONSOLES ? (i+1) : -1;
- 		goto setint;		 
- 
 -- 
-2.26.0
-
-
+Thanks
+Sasha
