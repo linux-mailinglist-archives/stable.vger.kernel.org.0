@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D77119597C
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 16:03:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 243F3195985
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 16:03:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727701AbgC0PDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 11:03:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43970 "EHLO mail.kernel.org"
+        id S1727733AbgC0PDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 11:03:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727505AbgC0PDn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Mar 2020 11:03:43 -0400
+        id S1727370AbgC0PDo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Mar 2020 11:03:44 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 252AF20748;
-        Fri, 27 Mar 2020 15:03:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 411A82074F;
+        Fri, 27 Mar 2020 15:03:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585321422;
+        s=default; t=1585321423;
         bh=uQAoIT8IYZGWS+wOzgrkceyj7G269FzTYD2h/MAKnqU=;
         h=Date:From:To:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:
          From;
-        b=wlaPBjzGo6i8U6hWxrBx6wIHAae/ymc3Br8cAH38VefqRhkhHPsjMRJ2HqDd9kueA
-         XJQOw44ShbRzzEoO7/5GEWt/lWLa64aob9DSCA9/OZdNKAx6+YU9+l3L9gtfuLQQQg
-         v/7SFax8M8bsqDc1t37S8mcP/EupmWUuyUQBQKL8=
-Date:   Fri, 27 Mar 2020 15:03:41 +0000
+        b=FeyvQd5HARFEJx0UiI3BapOB0dD4Yht2+uLawApf76qv06OXfNn1E482nvqk5pjCe
+         KhiQV6YDpKT0dIhnTYoVJrQb+pqqDEZv8fVoJaN4+x0srb8Klwoy5DH59VB2UDfjfJ
+         ftZOxTn5dvBMH9S8YDrxzTXmn4o1pBcZHsq24fNE=
+Date:   Fri, 27 Mar 2020 15:03:42 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
 To:     Luca Coelho <luca@coelho.fi>
@@ -33,10 +33,10 @@ To:     johannes@sipsolutions.net
 Cc:     linux-wireless@vger.kernel.org
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2 11/12] mac80211: drop data frames without key on encrypted links
-In-Reply-To: <iwlwifi.20200326150855.6865c7f28a14.I9fb1d911b064262d33e33dfba730cdeef83926ca@changeid>
-References: <iwlwifi.20200326150855.6865c7f28a14.I9fb1d911b064262d33e33dfba730cdeef83926ca@changeid>
-Message-Id: <20200327150342.252AF20748@mail.kernel.org>
+Subject: Re: [PATCH 11/12] mac80211: drop data frames without key on encrypted links
+In-Reply-To: <20200326120042.578777-12-luca@coelho.fi>
+References: <20200326120042.578777-12-luca@coelho.fi>
+Message-Id: <20200327150343.411A82074F@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
