@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F347195176
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 07:45:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F281C195177
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 07:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726333AbgC0Gpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 02:45:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49710 "EHLO mail.kernel.org"
+        id S1726400AbgC0Gps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 02:45:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725956AbgC0Gpo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Mar 2020 02:45:44 -0400
+        id S1725956AbgC0Gps (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Mar 2020 02:45:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D880820714;
-        Fri, 27 Mar 2020 06:45:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C502C20714;
+        Fri, 27 Mar 2020 06:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585291543;
-        bh=T9gf3dazjNewCdI74E7CACABk4ph6Xwjb1i/fBY8AR8=;
+        s=default; t=1585291547;
+        bh=Jrd64wZb9ebpsRgXxqFa7NbW0umwef/lmf2/ISkFucE=;
         h=Subject:To:From:Date:From;
-        b=Xq1SnPNOVlpgAjg/U0KkFLSzaE7LXaR9uAa8s7tInPl3+k+9e5yvS5AM4MwaA7uTf
-         hToxVRia3LCKRV09W9RV0pz0seY5WgBc1tEcMp7uwFKYJBZVMxiA2ran5V/sQMbTBt
-         7K+p3OlqMFpCmqyZJtvn9dFWuyOEA36sujMSH3RE=
-Subject: patch "USB: serial: io_edgeport: fix slab-out-of-bounds read in" added to usb-next
-To:     hqjagain@gmail.com, johan@kernel.org, stable@vger.kernel.org
+        b=g7XTDS9I4g3x8B3LgCONoBTxDYl8EpbO6QBKFsQviymJDdMV45HH2axIQMpecXZpD
+         R73zupR2j/+AvdX0AJ5keEvHynCBJrKlxHqxKktmOY1DWFvS7iVK4RQyV+W87yl6gP
+         8FjhHfb6XAvbeu63lJ5lne6HtKEF7fsQdIDXtfRE=
+Subject: patch "usb: gadget: f_fs: Fix use after free issue as part of queue failure" added to usb-next
+To:     sallenki@codeaurora.org, gregkh@linuxfoundation.org,
+        peter.chen@nxp.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 27 Mar 2020 07:45:00 +0100
-Message-ID: <1585291500179113@kroah.com>
+Date:   Fri, 27 Mar 2020 07:45:01 +0100
+Message-ID: <15852915016261@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: serial: io_edgeport: fix slab-out-of-bounds read in
+    usb: gadget: f_fs: Fix use after free issue as part of queue failure
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -54,39 +55,41 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 57aa9f294b09463492f604feaa5cc719beaace32 Mon Sep 17 00:00:00 2001
-From: Qiujun Huang <hqjagain@gmail.com>
-Date: Wed, 25 Mar 2020 15:52:37 +0800
-Subject: USB: serial: io_edgeport: fix slab-out-of-bounds read in
- edge_interrupt_callback
+From f63ec55ff904b2f2e126884fcad93175f16ab4bb Mon Sep 17 00:00:00 2001
+From: Sriharsha Allenki <sallenki@codeaurora.org>
+Date: Thu, 26 Mar 2020 17:26:20 +0530
+Subject: usb: gadget: f_fs: Fix use after free issue as part of queue failure
 
-Fix slab-out-of-bounds read in the interrupt-URB completion handler.
+In AIO case, the request is freed up if ep_queue fails.
+However, io_data->req still has the reference to this freed
+request. In the case of this failure if there is aio_cancel
+call on this io_data it will lead to an invalid dequeue
+operation and a potential use after free issue.
+Fix this by setting the io_data->req to NULL when the request
+is freed as part of queue failure.
 
-The boundary condition should be (length - 1) as we access
-data[position + 1].
-
-Reported-and-tested-by: syzbot+37ba33391ad5f3935bbd@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 2e4c7553cd6f ("usb: gadget: f_fs: add aio support")
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+CC: stable <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20200326115620.12571-1-sallenki@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/io_edgeport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/serial/io_edgeport.c b/drivers/usb/serial/io_edgeport.c
-index 5737add6a2a4..4cca0b836f43 100644
---- a/drivers/usb/serial/io_edgeport.c
-+++ b/drivers/usb/serial/io_edgeport.c
-@@ -710,7 +710,7 @@ static void edge_interrupt_callback(struct urb *urb)
- 		/* grab the txcredits for the ports if available */
- 		position = 2;
- 		portNumber = 0;
--		while ((position < length) &&
-+		while ((position < length - 1) &&
- 				(portNumber < edge_serial->serial->num_ports)) {
- 			txCredits = data[position] | (data[position+1] << 8);
- 			if (txCredits) {
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 571917677d35..767f30b86645 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1120,6 +1120,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+ 
+ 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
+ 		if (unlikely(ret)) {
++			io_data->req = NULL;
+ 			usb_ep_free_request(ep->ep, req);
+ 			goto error_lock;
+ 		}
 -- 
 2.26.0
 
