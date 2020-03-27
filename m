@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F281C195177
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 07:45:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89500195194
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 07:50:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726400AbgC0Gps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 02:45:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49778 "EHLO mail.kernel.org"
+        id S1725936AbgC0GuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 02:50:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725956AbgC0Gps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Mar 2020 02:45:48 -0400
+        id S1725857AbgC0GuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Mar 2020 02:50:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C502C20714;
-        Fri, 27 Mar 2020 06:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C435520578;
+        Fri, 27 Mar 2020 06:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585291547;
-        bh=Jrd64wZb9ebpsRgXxqFa7NbW0umwef/lmf2/ISkFucE=;
+        s=default; t=1585291801;
+        bh=c5hsKw5GMzuaNvqxKorcUX0UoQCXfJZ1HG/u97+OWOw=;
         h=Subject:To:From:Date:From;
-        b=g7XTDS9I4g3x8B3LgCONoBTxDYl8EpbO6QBKFsQviymJDdMV45HH2axIQMpecXZpD
-         R73zupR2j/+AvdX0AJ5keEvHynCBJrKlxHqxKktmOY1DWFvS7iVK4RQyV+W87yl6gP
-         8FjhHfb6XAvbeu63lJ5lne6HtKEF7fsQdIDXtfRE=
-Subject: patch "usb: gadget: f_fs: Fix use after free issue as part of queue failure" added to usb-next
-To:     sallenki@codeaurora.org, gregkh@linuxfoundation.org,
-        peter.chen@nxp.com, stable@vger.kernel.org
+        b=j1j680AYQlDLUE67DTQQP1gmmR3EfgGZ0QrXhfmW2rJxNtJXup6NTAslrsEr5J9Qb
+         9BwMgy7sLoT1lbyiYaGGGV4YcKZ8FBrGODYSLP++HEILM/zWsKnRa2EpTI28Cwmy10
+         kVHPTTwGWY2SxN9obnuwwL+/S4STq2i3XQ+xWFiM=
+Subject: patch "staging: wlan-ng: fix use-after-free Read in hfa384x_usbin_callback" added to staging-next
+To:     hqjagain@gmail.com, gregkh@linuxfoundation.org, hdanton@sina.com,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 27 Mar 2020 07:45:01 +0100
-Message-ID: <15852915016261@kroah.com>
+Date:   Fri, 27 Mar 2020 07:49:26 +0100
+Message-ID: <158529176619381@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,11 +40,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: f_fs: Fix use after free issue as part of queue failure
+    staging: wlan-ng: fix use-after-free Read in hfa384x_usbin_callback
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -55,41 +55,38 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From f63ec55ff904b2f2e126884fcad93175f16ab4bb Mon Sep 17 00:00:00 2001
-From: Sriharsha Allenki <sallenki@codeaurora.org>
-Date: Thu, 26 Mar 2020 17:26:20 +0530
-Subject: usb: gadget: f_fs: Fix use after free issue as part of queue failure
+From 1165dd73e811a07d947aee218510571f516081f6 Mon Sep 17 00:00:00 2001
+From: Qiujun Huang <hqjagain@gmail.com>
+Date: Thu, 26 Mar 2020 21:18:50 +0800
+Subject: staging: wlan-ng: fix use-after-free Read in hfa384x_usbin_callback
 
-In AIO case, the request is freed up if ep_queue fails.
-However, io_data->req still has the reference to this freed
-request. In the case of this failure if there is aio_cancel
-call on this io_data it will lead to an invalid dequeue
-operation and a potential use after free issue.
-Fix this by setting the io_data->req to NULL when the request
-is freed as part of queue failure.
+We can't handle the case length > WLAN_DATA_MAXLEN.
+Because the size of rxfrm->data is WLAN_DATA_MAXLEN(2312), and we can't
+read more than that.
 
-Fixes: 2e4c7553cd6f ("usb: gadget: f_fs: add aio support")
-Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
-CC: stable <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20200326115620.12571-1-sallenki@codeaurora.org
+Thanks-to: Hillf Danton <hdanton@sina.com>
+Reported-and-tested-by: syzbot+7d42d68643a35f71ac8a@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200326131850.17711-1-hqjagain@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/wlan-ng/hfa384x_usb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 571917677d35..767f30b86645 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1120,6 +1120,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
+diff --git a/drivers/staging/wlan-ng/hfa384x_usb.c b/drivers/staging/wlan-ng/hfa384x_usb.c
+index e38acb58cd5e..fa1bf8b069fd 100644
+--- a/drivers/staging/wlan-ng/hfa384x_usb.c
++++ b/drivers/staging/wlan-ng/hfa384x_usb.c
+@@ -3376,6 +3376,8 @@ static void hfa384x_int_rxmonitor(struct wlandevice *wlandev,
+ 	     WLAN_HDR_A4_LEN + WLAN_DATA_MAXLEN + WLAN_CRC_LEN)) {
+ 		pr_debug("overlen frm: len=%zd\n",
+ 			 skblen - sizeof(struct p80211_caphdr));
++
++		return;
+ 	}
  
- 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
- 		if (unlikely(ret)) {
-+			io_data->req = NULL;
- 			usb_ep_free_request(ep->ep, req);
- 			goto error_lock;
- 		}
+ 	skb = dev_alloc_skb(skblen);
 -- 
 2.26.0
 
