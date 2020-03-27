@@ -2,100 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29ACA19604A
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 22:16:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1391D196068
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 22:28:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727509AbgC0VQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 17:16:19 -0400
-Received: from mga17.intel.com ([192.55.52.151]:7152 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727495AbgC0VQT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Mar 2020 17:16:19 -0400
-IronPort-SDR: g+lgqZGcwJ6k9p0wm5HVYOdx96f4e41rmUbciPgegZmRw78Z/h16vbxxW/1OGU7Gw7ZvytOpq6
- U/R4TaSEL73g==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2020 14:16:19 -0700
-IronPort-SDR: rV7hqmr13pWJuQkiYhYbSJXKKHrwVG0cAM+xP1wWQgv8sVrOS6I1VcXCqR+FEJ6aezxiHIIFZq
- bKkm1znzny2w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,313,1580803200"; 
-   d="scan'208";a="282971379"
-Received: from otc-nc-03.jf.intel.com ([10.54.39.25])
-  by fmsmga002.fm.intel.com with ESMTP; 27 Mar 2020 14:16:18 -0700
-From:   Ashok Raj <ashok.raj@intel.com>
-To:     linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>
-Cc:     Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] pci: Fixes MaxPayloadSize (MPS) programming for RCiEP devices.
-Date:   Fri, 27 Mar 2020 14:16:15 -0700
-Message-Id: <1585343775-4019-1-git-send-email-ashok.raj@intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S1727548AbgC0V2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 17:28:32 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:42126 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727444AbgC0V2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 17:28:31 -0400
+Received: by mail-lf1-f67.google.com with SMTP id t21so9063072lfe.9
+        for <stable@vger.kernel.org>; Fri, 27 Mar 2020 14:28:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AKs2wUFl9mGzanJxstXyv3eIv3rgDvp5GN7P4hoUxzU=;
+        b=bXvaM7O2ssMqHhYhwo6oK1Jw53UiTWSKEt1XglHA8CnPQ1fyd+ZI62/7aMfqESwZTe
+         Xi/NInkuT/diSkGzzsziGL/kvqGwV/x5KpPlSLyI9EqIwJ7On3chcc4GlbVTgUzk3miE
+         2r1OaW9CDcCesVopTtnBJ0O+A4i8bd9Vxnj7VEoss22QmJJ0KqWCw5zyIZsh2Qn4WD+z
+         OwMCNsUjsbIrUpQLan32VNbK5Kih8QTdImTcN1PKw8nhsjgqa2sDUptAtKtwcclxQ5Sh
+         2WXwSYmX4x7jr3wqpzvmb3Ma8eT5hVWACOCLyGLznxWB2t/W7oOPPXl/+5Y2Wsy12XlI
+         N9ww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AKs2wUFl9mGzanJxstXyv3eIv3rgDvp5GN7P4hoUxzU=;
+        b=HXQu+1V/vemzetO1wfGCdYL5gmZP45F+93UXGOtnO736vG0pw2ujPuP4efMNPTWuOi
+         0xC+zhRc4ha52pc/9Qd9H8VHfOMEVzrMFIsoi+LVJzjkOvPHq7ZyCDspKGHxaW6fA7sw
+         wsQS/swjmFXOS9fMiA7aisqXOvIbahb9EZvI/jPcAi8ZTLiVKsHPq+z0REs3pP4qYnyN
+         3Q+xCMAVhay/AVP72KtoERKHHFfMvqb2JDHwAS8+m4iPrJ0U1JvsQ6FYCEKWxP27/wxf
+         0AvooQMFLJA4maS7QdYhveB7QZbP5VjxhH7MW5PajKtZeujzL8/6drSh4ZQQplHuu1q6
+         LszQ==
+X-Gm-Message-State: AGi0PuapUCs4psY+I1InEhFozwijRt/O7Heimv5E9+saxSG5lsMKMDfF
+        yLhRlZomMNDISpInuuyRFz4ybeYWYMg3ATw2nySlVftsDvk=
+X-Google-Smtp-Source: APiQypKqfkkJWo0LyofqKXzbQiZeKqIvwRaDCBJui4ScAZ7ROxscEufS43eqyhCR13YrShZVlst0oCy4cgAUK1mRC50=
+X-Received: by 2002:a19:6502:: with SMTP id z2mr763585lfb.47.1585344509130;
+ Fri, 27 Mar 2020 14:28:29 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200325103154.32235-1-anssi.hannula@bitwise.fi>
+In-Reply-To: <20200325103154.32235-1-anssi.hannula@bitwise.fi>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Fri, 27 Mar 2020 22:28:17 +0100
+Message-ID: <CACRpkdafCsx+Q+L0q2j-=Q-5PY3yJx=JCmhPmDiDkt6p3YK2RA@mail.gmail.com>
+Subject: Re: [PATCH] tools: gpio: Fix out-of-tree build regression
+To:     Anssi Hannula <anssi.hannula@bitwise.fi>
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Laura Abbott <labbott@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Root Complex Integrated devices (RCiEP) do not have a Root Port before the
-device. pci_configure_mps() should simply stick the max value for MaxPayload
-size in Device Control, and for MaxReadReq. Unless pcie=pcie_bus-peer2peer
-is used in kernel commandline PCIE_BUS_PEER2PEER.
+On Wed, Mar 25, 2020 at 11:33 AM Anssi Hannula <anssi.hannula@bitwise.fi> wrote:
 
-When MPS is configured lower, it could result in reduced performance.
+> Commit 0161a94e2d1c7 ("tools: gpio: Correctly add make dependencies for
+> gpio_utils") added a make rule for gpio-utils-in.o but used $(output)
+> instead of the correct $(OUTPUT) for the output directory, breaking
+> out-of-tree build (O=xx) with the following error:
+>
+>   No rule to make target 'out/tools/gpio/gpio-utils-in.o', needed by 'out/tools/gpio/lsgpio-in.o'.  Stop.
+>
+> Fix that.
+>
+> Fixes: 0161a94e2d1c ("tools: gpio: Correctly add make dependencies for gpio_utils")
+> Cc: <stable@vger.kernel.org>
+> Cc: Laura Abbott <labbott@redhat.com>
+> Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-Fixes: 9dae3a97297f ("PCI: Move MPS configuration check to pci_configure_device()")
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-Tested-by: Dave Jiang <dave.jiang@intel.com>
-To: Bjorn Helgaas <bhelgaas@google.com>
-To: linux-pci@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Cc: Ashok Raj <ashok.raj@intel.com>
----
- drivers/pci/probe.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+Patch applied with Bartosz' review tag.
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index eeff8a07..a738b1c 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -1895,13 +1895,34 @@ static void pci_configure_mps(struct pci_dev *dev)
- 	struct pci_dev *bridge = pci_upstream_bridge(dev);
- 	int mps, mpss, p_mps, rc;
- 
--	if (!pci_is_pcie(dev) || !bridge || !pci_is_pcie(bridge))
-+	if (!pci_is_pcie(dev))
- 		return;
- 
- 	/* MPS and MRRS fields are of type 'RsvdP' for VFs, short-circuit out */
- 	if (dev->is_virtfn)
- 		return;
- 
-+	/*
-+	 * If this is a Root Complex Integrated Endpoint
-+	 * Simply program the max value from DEVCAP. No additional
-+	 * Lookup is necessary
-+	 */
-+	if (pci_pcie_type(dev) == PCI_EXP_TYPE_RC_END) {
-+		if (pcie_bus_config == PCIE_BUS_PEER2PEER)
-+			mps = 128;
-+		else
-+			mps = 128 << dev->pcie_mpss;
-+		rc = pcie_set_mps(dev, mps);
-+		if (rc) {
-+			pci_warn(dev, "can't set Max Payload Size to %d; if necessary, use \"pci=pcie_bus_safe\" and report a bug\n",
-+			 mps);
-+			return;
-+		}
-+	}
-+
-+	if (!bridge || !pci_is_pcie(bridge))
-+		return;
-+
- 	mps = pcie_get_mps(dev);
- 	p_mps = pcie_get_mps(bridge);
- 
--- 
-2.7.4
-
+Yours,
+Linus Walleij
