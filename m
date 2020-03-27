@@ -2,79 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1391D196068
-	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 22:28:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A64196073
+	for <lists+stable@lfdr.de>; Fri, 27 Mar 2020 22:33:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727548AbgC0V2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 17:28:32 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:42126 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727444AbgC0V2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 17:28:31 -0400
-Received: by mail-lf1-f67.google.com with SMTP id t21so9063072lfe.9
-        for <stable@vger.kernel.org>; Fri, 27 Mar 2020 14:28:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AKs2wUFl9mGzanJxstXyv3eIv3rgDvp5GN7P4hoUxzU=;
-        b=bXvaM7O2ssMqHhYhwo6oK1Jw53UiTWSKEt1XglHA8CnPQ1fyd+ZI62/7aMfqESwZTe
-         Xi/NInkuT/diSkGzzsziGL/kvqGwV/x5KpPlSLyI9EqIwJ7On3chcc4GlbVTgUzk3miE
-         2r1OaW9CDcCesVopTtnBJ0O+A4i8bd9Vxnj7VEoss22QmJJ0KqWCw5zyIZsh2Qn4WD+z
-         OwMCNsUjsbIrUpQLan32VNbK5Kih8QTdImTcN1PKw8nhsjgqa2sDUptAtKtwcclxQ5Sh
-         2WXwSYmX4x7jr3wqpzvmb3Ma8eT5hVWACOCLyGLznxWB2t/W7oOPPXl/+5Y2Wsy12XlI
-         N9ww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AKs2wUFl9mGzanJxstXyv3eIv3rgDvp5GN7P4hoUxzU=;
-        b=HXQu+1V/vemzetO1wfGCdYL5gmZP45F+93UXGOtnO736vG0pw2ujPuP4efMNPTWuOi
-         0xC+zhRc4ha52pc/9Qd9H8VHfOMEVzrMFIsoi+LVJzjkOvPHq7ZyCDspKGHxaW6fA7sw
-         wsQS/swjmFXOS9fMiA7aisqXOvIbahb9EZvI/jPcAi8ZTLiVKsHPq+z0REs3pP4qYnyN
-         3Q+xCMAVhay/AVP72KtoERKHHFfMvqb2JDHwAS8+m4iPrJ0U1JvsQ6FYCEKWxP27/wxf
-         0AvooQMFLJA4maS7QdYhveB7QZbP5VjxhH7MW5PajKtZeujzL8/6drSh4ZQQplHuu1q6
-         LszQ==
-X-Gm-Message-State: AGi0PuapUCs4psY+I1InEhFozwijRt/O7Heimv5E9+saxSG5lsMKMDfF
-        yLhRlZomMNDISpInuuyRFz4ybeYWYMg3ATw2nySlVftsDvk=
-X-Google-Smtp-Source: APiQypKqfkkJWo0LyofqKXzbQiZeKqIvwRaDCBJui4ScAZ7ROxscEufS43eqyhCR13YrShZVlst0oCy4cgAUK1mRC50=
-X-Received: by 2002:a19:6502:: with SMTP id z2mr763585lfb.47.1585344509130;
- Fri, 27 Mar 2020 14:28:29 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200325103154.32235-1-anssi.hannula@bitwise.fi>
-In-Reply-To: <20200325103154.32235-1-anssi.hannula@bitwise.fi>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 27 Mar 2020 22:28:17 +0100
-Message-ID: <CACRpkdafCsx+Q+L0q2j-=Q-5PY3yJx=JCmhPmDiDkt6p3YK2RA@mail.gmail.com>
-Subject: Re: [PATCH] tools: gpio: Fix out-of-tree build regression
-To:     Anssi Hannula <anssi.hannula@bitwise.fi>
-Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Laura Abbott <labbott@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1727726AbgC0Vdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Mar 2020 17:33:46 -0400
+Received: from mga06.intel.com ([134.134.136.31]:35671 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727707AbgC0Vdp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Mar 2020 17:33:45 -0400
+IronPort-SDR: WA8aq6lQRrHdQd4qMpCpeflMOPOEurCX/VBGRZoZUjl9054NP/kcoQMIikNKK00Ew2U2KR1OtV
+ tPfxeV2AIZUw==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Mar 2020 14:33:44 -0700
+IronPort-SDR: GWBxbGZ4a2SnP5jVDcNJzPcCIzrD84ngJLqG6GFcUOrDFNHk2xfblK2gEETZBr+aJhJFtYCwfA
+ MaK66qRkGc6Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,313,1580803200"; 
+   d="scan'208";a="358607255"
+Received: from gayuk-dev-mach.sc.intel.com ([10.3.79.171])
+  by fmsmga001.fm.intel.com with ESMTP; 27 Mar 2020 14:33:45 -0700
+From:   Gayatri Kammela <gayatri.kammela@intel.com>
+To:     linux-pm@vger.kernel.org
+Cc:     platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        lenb@kernel.org, dvhart@infradead.org, alex.hung@canonical.com,
+        rui.zhang@intel.com, daniel.lezcano@linaro.org,
+        amit.kucheria@verdurent.com, mika.westerberg@intel.com,
+        peterz@infradead.org, charles.d.prestopine@intel.com,
+        Gayatri Kammela <gayatri.kammela@intel.com>,
+        "5 . 6+" <stable@vger.kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH v2 1/3] ACPI: fix: Update Tiger Lake ACPI device IDs
+Date:   Fri, 27 Mar 2020 14:28:19 -0700
+Message-Id: <9359b8e261d69983b1eed2b8e53ef9eabfdfdd51.1585343507.git.gayatri.kammela@intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <cover.1585343507.git.gayatri.kammela@intel.com>
+References: <cover.1585343507.git.gayatri.kammela@intel.com>
+In-Reply-To: <cover.1585343507.git.gayatri.kammela@intel.com>
+References: <cover.1585343507.git.gayatri.kammela@intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 25, 2020 at 11:33 AM Anssi Hannula <anssi.hannula@bitwise.fi> wrote:
+Tiger Lake's new unique ACPI device IDs for DPTF and fan drivers are not
+valid as the IDs are missing 'C'. Fix the IDs by updating them.
 
-> Commit 0161a94e2d1c7 ("tools: gpio: Correctly add make dependencies for
-> gpio_utils") added a make rule for gpio-utils-in.o but used $(output)
-> instead of the correct $(OUTPUT) for the output directory, breaking
-> out-of-tree build (O=xx) with the following error:
->
->   No rule to make target 'out/tools/gpio/gpio-utils-in.o', needed by 'out/tools/gpio/lsgpio-in.o'.  Stop.
->
-> Fix that.
->
-> Fixes: 0161a94e2d1c ("tools: gpio: Correctly add make dependencies for gpio_utils")
-> Cc: <stable@vger.kernel.org>
-> Cc: Laura Abbott <labbott@redhat.com>
-> Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+After the update, the new IDs should now look like
+INT1047 --> INTC1047
+INT1040 --> INTC1040
+INT1043 --> INTC1043
+INT1044 --> INTC1044
 
-Patch applied with Bartosz' review tag.
+Fixes: 55cfe6a5c582 ("ACPI: DPTF: Add Tiger Lake ACPI device IDs")
+Fixes: c248dfe7e0ca ("ACPI: fan: Add Tiger Lake ACPI device ID")
+Cc: 5.6+ <stable@vger.kernel.org> # 5.6+
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Suggested-by: Srinivas Pandruvada <srinivas.pandruvada@intel.com>
+Signed-off-by: Gayatri Kammela <gayatri.kammela@intel.com>
+---
+ drivers/acpi/device_pm.c            | 2 +-
+ drivers/acpi/dptf/dptf_power.c      | 2 +-
+ drivers/acpi/dptf/int340x_thermal.c | 8 ++++----
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
+index b64c62bfcea5..80dae3b3c36a 100644
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -1321,7 +1321,7 @@ int acpi_dev_pm_attach(struct device *dev, bool power_on)
+ 	 */
+ 	static const struct acpi_device_id special_pm_ids[] = {
+ 		{"PNP0C0B", }, /* Generic ACPI fan */
+-		{"INT1044", }, /* Fan for Tiger Lake generation */
++		{"INTC1044", }, /* Fan for Tiger Lake generation */
+ 		{"INT3404", }, /* Fan */
+ 		{}
+ 	};
+diff --git a/drivers/acpi/dptf/dptf_power.c b/drivers/acpi/dptf/dptf_power.c
+index 387f27ef3368..e5fb34bfa52c 100644
+--- a/drivers/acpi/dptf/dptf_power.c
++++ b/drivers/acpi/dptf/dptf_power.c
+@@ -97,7 +97,7 @@ static int dptf_power_remove(struct platform_device *pdev)
+ }
+ 
+ static const struct acpi_device_id int3407_device_ids[] = {
+-	{"INT1047", 0},
++	{"INTC1047", 0},
+ 	{"INT3407", 0},
+ 	{"", 0},
+ };
+diff --git a/drivers/acpi/dptf/int340x_thermal.c b/drivers/acpi/dptf/int340x_thermal.c
+index 1ec7b6900662..29b5c77256dd 100644
+--- a/drivers/acpi/dptf/int340x_thermal.c
++++ b/drivers/acpi/dptf/int340x_thermal.c
+@@ -13,10 +13,10 @@
+ 
+ #define INT3401_DEVICE 0X01
+ static const struct acpi_device_id int340x_thermal_device_ids[] = {
+-	{"INT1040"},
+-	{"INT1043"},
+-	{"INT1044"},
+-	{"INT1047"},
++	{"INTC1040"},
++	{"INTC1043"},
++	{"INTC1044"},
++	{"INTC1047"},
+ 	{"INT3400"},
+ 	{"INT3401", INT3401_DEVICE},
+ 	{"INT3402"},
+-- 
+2.17.1
+
