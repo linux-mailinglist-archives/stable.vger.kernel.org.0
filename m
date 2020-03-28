@@ -2,226 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 401941969BE
-	for <lists+stable@lfdr.de>; Sat, 28 Mar 2020 23:10:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A62AA1969D6
+	for <lists+stable@lfdr.de>; Sat, 28 Mar 2020 23:33:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727706AbgC1WKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Mar 2020 18:10:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34260 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727461AbgC1WKK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 28 Mar 2020 18:10:10 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F056520716;
-        Sat, 28 Mar 2020 22:10:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585433409;
-        bh=vevYlXcZkpJHh31WS28GBKwYWP3pIrDL6PTJ1dN+AMY=;
-        h=Date:From:To:Subject:From;
-        b=afrNd/rX8NNS/mQXQJPudFFm+QBD4rt69hGXtrViI5iS+5tgYVuqEUt6IOvvf86oH
-         gXerTRZl+k0IkhIxFm2qsCzgr7VJg+Cjjk/TtIXNuLAY3mn7+1v2sEHG6ItrIsG+rw
-         oyQ40hKXmt5VgtnFEZxwCI2PwmZcW3bwNGKEDarY=
-Date:   Sat, 28 Mar 2020 15:10:08 -0700
-From:   akpm@linux-foundation.org
-To:     jgg@ziepe.ca, longpeng2@huawei.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, sean.j.christopherson@intel.com,
-        stable@vger.kernel.org, willy@infradead.org
-Subject:  +
- mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch added
- to -mm tree
-Message-ID: <20200328221008.c6KdUoTLQ%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1727779AbgC1WdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Mar 2020 18:33:19 -0400
+Received: from mail-vi1eur05olkn2020.outbound.protection.outlook.com ([40.92.90.20]:53600
+        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727151AbgC1WdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 28 Mar 2020 18:33:19 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=i6ZPzGrOgk5n0HE94J5P7Qf/JBAkPTVLkU/lQsJNoa67Pt9mHAxv4U8UerMkE2pQ97QFhh1w1fTd8xfYgINbYslUC8l1xxBzNp8xNZgXIS+p66VAF5kmXopQmbTDuQg2bM8HRE0XV6uFaLKldt0pYT8PjaQxBvn2yMRgf+k6DxNMaajTGz8k5II25THmY6CMq6QJtdmDp5bUMfgXuyKpAq3wFcy2FXjylJ8TNb4eYQHi4MukmyrkAQ2yNwGCkbmofj9sDFHIZLBlmie2NMnK7Pz7WEXHrUMbrgJiIe+nmMFhWZuXLKnSKD9udrQUIMogpuEaQ4kqEd6YH6Z1LFTJIw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CHzRx0DZ4kZOpnuBwE/f6X/qED4fp9P8EPBb08k75Bk=;
+ b=LSZ6wdfi/UmWPmCRWLnG0UpnaUn6lcb+rndkeToT8n996QR6TLrZfbhIpI5N4ZoVpsiurGjKx2pkSO+eV+Nl2wjBxW5HqSefxPl+Lf3xLBckOVfn8xa0JZoIhDAY3kJ3Zim796OM4QPhR05ILbuqY3Sl1wE4vxF0IWqAb0emh33NKvt9cScRstXKA7fT7ag6JDYjIWI2/R9vBx86hQRm7k3okXHozRiAmLq4WUZEXUn2m6dpgOY+BAuiDXG2yyoa3UQCtHh8b7q5KbcpEA4XB4qf2wHDeARBPrSHqbnXupRUWH4AztUcbHUIoaItvCKiTON6sTvqPw1KflP0QI7s1Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
+ dkim=pass header.d=hotmail.de; arc=none
+Received: from DB8EUR05FT029.eop-eur05.prod.protection.outlook.com
+ (2a01:111:e400:fc0f::52) by
+ DB8EUR05HT204.eop-eur05.prod.protection.outlook.com (2a01:111:e400:fc0f::475)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2856.17; Sat, 28 Mar
+ 2020 22:32:38 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.233.238.54) by
+ DB8EUR05FT029.mail.protection.outlook.com (10.233.239.51) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2856.17 via Frontend Transport; Sat, 28 Mar 2020 22:32:38 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:07C77262F52CC5A0909879BEA80AE5195078149DF8382879DA587CD3D938E4C3;UpperCasedChecksum:629D2025165B1AF1E6127CB4CC865450842B380AAD5D08EEF0AB9C897C481B57;SizeAsReceived:9474;Count:50
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
+ ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2835.025; Sat, 28 Mar 2020
+ 22:32:38 +0000
+Subject: Re: [PATCH v6 00/16] Infrastructure to allow fixing exec deadlocks
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+References: <AM6PR03MB5170B2F5BE24A28980D05780E4F50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <871rpg8o7v.fsf@x220.int.ebiederm.org>
+From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
+Message-ID: <AM6PR03MB5170938306F22C3CF61CC573E4CD0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Sat, 28 Mar 2020 23:32:35 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+In-Reply-To: <871rpg8o7v.fsf@x220.int.ebiederm.org>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: ZRAP278CA0009.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:10::19) To AM6PR03MB5170.eurprd03.prod.outlook.com
+ (2603:10a6:20b:ca::23)
+X-Microsoft-Original-Message-ID: <3b999eea-781e-ea54-3cad-1e3d31704e35@hotmail.de>
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [192.168.1.101] (92.77.140.102) by ZRAP278CA0009.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:10::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2856.19 via Frontend Transport; Sat, 28 Mar 2020 22:32:36 +0000
+X-Microsoft-Original-Message-ID: <3b999eea-781e-ea54-3cad-1e3d31704e35@hotmail.de>
+X-TMN:  [Wb+RayWrRxNa9tP0qc+L6Ys6ZZ4B7nLV]
+X-MS-PublicTrafficType: Email
+X-IncomingHeaderCount: 50
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-Correlation-Id: aa64989f-b15f-4b08-4772-08d7d367eb51
+X-MS-TrafficTypeDiagnostic: DB8EUR05HT204:
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: qLc/zbJBOpOw9Xagz3/d8ZqTii00cEZk7SpuJ4KXTnWqwBVu23pTGKb+0xxGR0FmfYDk88t1kzZayd4WTG0AMu+LLTJ+W9IzWbNQQyJZYHKSjk17+ot18jq6ORxanEUbzTxOmMnTbv4momX21JsIklM3kKcowBcSU37+zlLkbiuj62rTUMxGHpQwdSTvRPFRBbMKB9E88rVQ0nzOzA1kIH9aBIMROgk5joTRZWvXFWs=
+X-MS-Exchange-AntiSpam-MessageData: F/awmNM0cKPdFfpmZ6zrODiCLG4bMc50yzrue4hvpAlrErlVRpMUAwgVVT9ZdqjpRqUbnZr++ETxSfW/4BMotH+pZsUVUwhYoZkPXTOrLnSb3yFYc55UqWpLJomT0crY8sdlQYovrsh9DHn3UT9ViQ==
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: aa64989f-b15f-4b08-4772-08d7d367eb51
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Mar 2020 22:32:38.4596
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8EUR05HT204
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 3/25/20 4:10 PM, Eric W. Biederman wrote:
+> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
+> 
+>> This is an infrastructure change that makes way for fixing this issue.
+>> Each patch was already posted previously so this is just a cleanup of
+>> the original mailing list thread(s) which got out of control by now.
+>>
+>> Everything started here:
+>> https://lore.kernel.org/lkml/AM6PR03MB5170B06F3A2B75EFB98D071AE4E60@AM6PR03MB5170.eurprd03.prod.outlook.com/
+>>
+>> I added reviewed-by tags from the mailing list threads, except when
+>> withdrawn.
+>>
+>> It took a lot longer than expected to collect everything from the
+>> mailinglist threads, since several commit messages have been infected
+>> with typos, and they got fixed without a new patch version.
+>>
+>> - Correct the point of no return.
+>> - Add two new mutexes to replace cred_guard_mutex.
+>> - Fix each use of cred_guard_mutex.
+>> - Update documentation.
+>> - Add a test case.
+>>
+>> Bernd Edlinger (11):
+>>   exec: Fix a deadlock in strace
+>>   selftests/ptrace: add test cases for dead-locks
+>>   mm: docs: Fix a comment in process_vm_rw_core
+>>   kernel: doc: remove outdated comment cred.c
+>>   kernel/kcmp.c: Use new infrastructure to fix deadlocks in execve
+>>   proc: Use new infrastructure to fix deadlocks in execve
+>>   proc: io_accounting: Use new infrastructure to fix deadlocks in execve
+>>   perf: Use new infrastructure to fix deadlocks in execve
+>>   pidfd: Use new infrastructure to fix deadlocks in execve
+>>   exec: Fix dead-lock in de_thread with ptrace_attach
+>>   doc: Update documentation of ->exec_*_mutex
+>>
+>> Eric W. Biederman (5):
+>>   exec: Only compute current once in flush_old_exec
+>>   exec: Factor unshare_sighand out of de_thread and call it separately
+>>   exec: Move cleanup of posix timers on exec out of de_thread
+>>   exec: Move exec_mmap right after de_thread in flush_old_exec
+>>   exec: Add exec_update_mutex to replace cred_guard_mutex
+>>
+>>  Documentation/security/credentials.rst    |  29 +++++--
+>>  fs/exec.c                                 | 122 ++++++++++++++++++++++--------
+>>  fs/proc/base.c                            |  23 +++---
+>>  include/linux/binfmts.h                   |   8 +-
+>>  include/linux/sched/signal.h              |  17 ++++-
+>>  init/init_task.c                          |   3 +-
+>>  kernel/cred.c                             |   4 +-
+>>  kernel/events/core.c                      |  12 +--
+>>  kernel/fork.c                             |   7 +-
+>>  kernel/kcmp.c                             |   8 +-
+>>  kernel/pid.c                              |   4 +-
+>>  kernel/ptrace.c                           |  20 ++++-
+>>  kernel/seccomp.c                          |  15 ++--
+>>  mm/process_vm_access.c                    |   2 +-
+>>  tools/testing/selftests/ptrace/Makefile   |   4 +-
+>>  tools/testing/selftests/ptrace/vmaccess.c |  86 +++++++++++++++++++++
+>>  16 files changed, 278 insertions(+), 86 deletions(-)
+>>  create mode 100644 tools/testing/selftests/ptrace/vmaccess.c
+> 
+> Two small nits.
+> 
+> - You reposted my patches with adding your signed-off-by
+> - You reposted my patches and did not include a "From:"
+>   in the body so "git am" listed you as the author.
 
-The patch titled
-     Subject: mm/hugetlb: fix a addressing exception caused by huge_pte_offset
-has been added to the -mm tree.  Its filename is
-     mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch
+Oh, do I understand you right, that I can add a From: in the
+*body* of the mail, and then the From: in the MIME header part
+which I cannot change is ignored, so I can make you the author?
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Thanks
+Bernd.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Longpeng <longpeng2@huawei.com>
-Subject: mm/hugetlb: fix a addressing exception caused by huge_pte_offset
-
-Our machine encountered a panic(addressing exception) after run
-for a long time and the calltrace is:
-RIP: 0010:[<ffffffff9dff0587>]  [<ffffffff9dff0587>] hugetlb_fault+0x307/0xbe0
-RSP: 0018:ffff9567fc27f808  EFLAGS: 00010286
-RAX: e800c03ff1258d48 RBX: ffffd3bb003b69c0 RCX: e800c03ff1258d48
-RDX: 17ff3fc00eda72b7 RSI: 00003ffffffff000 RDI: e800c03ff1258d48
-RBP: ffff9567fc27f8c8 R08: e800c03ff1258d48 R09: 0000000000000080
-R10: ffffaba0704c22a8 R11: 0000000000000001 R12: ffff95c87b4b60d8
-R13: 00005fff00000000 R14: 0000000000000000 R15: ffff9567face8074
-FS:  00007fe2d9ffb700(0000) GS:ffff956900e40000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffd3bb003b69c0 CR3: 000000be67374000 CR4: 00000000003627e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- [<ffffffff9df9b71b>] ? unlock_page+0x2b/0x30
- [<ffffffff9dff04a2>] ? hugetlb_fault+0x222/0xbe0
- [<ffffffff9dff1405>] follow_hugetlb_page+0x175/0x540
- [<ffffffff9e15b825>] ? cpumask_next_and+0x35/0x50
- [<ffffffff9dfc7230>] __get_user_pages+0x2a0/0x7e0
- [<ffffffff9dfc648d>] __get_user_pages_unlocked+0x15d/0x210
- [<ffffffffc068cfc5>] __gfn_to_pfn_memslot+0x3c5/0x460 [kvm]
- [<ffffffffc06b28be>] try_async_pf+0x6e/0x2a0 [kvm]
- [<ffffffffc06b4b41>] tdp_page_fault+0x151/0x2d0 [kvm]
- ...
- [<ffffffffc06a6f90>] kvm_arch_vcpu_ioctl_run+0x330/0x490 [kvm]
- [<ffffffffc068d919>] kvm_vcpu_ioctl+0x309/0x6d0 [kvm]
- [<ffffffff9deaa8c2>] ? dequeue_signal+0x32/0x180
- [<ffffffff9deae34d>] ? do_sigtimedwait+0xcd/0x230
- [<ffffffff9e03aed0>] do_vfs_ioctl+0x3f0/0x540
- [<ffffffff9e03b0c1>] SyS_ioctl+0xa1/0xc0
- [<ffffffff9e53879b>] system_call_fastpath+0x22/0x27
-
-For 1G hugepages, huge_pte_offset() wants to return NULL or pudp, but it
-may return a wrong 'pmdp' if there is a race. Please look at the following
-code snippet:
-    ...
-    pud = pud_offset(p4d, addr);
-    if (sz != PUD_SIZE && pud_none(*pud))
-        return NULL;
-    /* hugepage or swap? */
-    if (pud_huge(*pud) || !pud_present(*pud))
-        return (pte_t *)pud;
-
-    pmd = pmd_offset(pud, addr);
-    if (sz != PMD_SIZE && pmd_none(*pmd))
-        return NULL;
-    /* hugepage or swap? */
-    if (pmd_huge(*pmd) || !pmd_present(*pmd))
-        return (pte_t *)pmd;
-    ...
-
-The following sequence would trigger this bug:
-1. CPU0: sz = PUD_SIZE and *pud = 0 , continue
-1. CPU0: "pud_huge(*pud)" is false
-2. CPU1: calling hugetlb_no_page and set *pud to xxxx8e7(PRESENT)
-3. CPU0: "!pud_present(*pud)" is false, continue
-4. CPU0: pmd = pmd_offset(pud, addr) and maybe return a wrong pmdp
-However, we want CPU0 to return NULL or pudp in this case.
-
-Also, according to the section 'COMPILER BARRIER' of memory-barriers.txt:
-'''
- (*) The compiler is within its rights to reorder loads and stores
-     to the same variable, and in some cases, the CPU is within its
-     rights to reorder loads to the same variable.  This means that
-     the following code:
-
-        a[0] = x;
-        a[1] = x;
-
-     Might result in an older value of x stored in a[1] than in a[0].
-'''
-there're several other data races in huge_pte_offset, for example:
-'''
-  p4d = p4d_offset(pgd, addr)
-  if (!p4d_present(*p4d))
-      return NULL;
-  pud = pud_offset(p4d, addr) <-- will be unwinded as:
-    pud = (pud_t *)p4d_page_vaddr(*p4d) + pud_index(address);
-'''
-which is free for the compiler/CPU to execute as:
-'''
-  p4d = p4d_offset(pgd, addr)
-  p4d_for_vaddr = *p4d;
-  if (!p4d_present(*p4d))
-      return NULL;
-  pud = (pud_t *)p4d_page_vaddr(p4d_for_vaddr) + pud_index(address);
-'''
-so in the case where *p4d goes from '!present' to 'present':
-p4d_present(*p4d) == true and p4d_for_vaddr == none, meaning the
-p4d_page_vaddr() will crash.
-
-For these reasons, we must make sure there is exactly one dereference of
-p4d, pud and pmd.
-
-Link: http://lkml.kernel.org/r/20200327235748.2048-1-longpeng2@huawei.com
-Signed-off-by: Longpeng <longpeng2@huawei.com>
-Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Sean Christopherson <sean.j.christopherson@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c |   24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
-
---- a/mm/hugetlb.c~mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset
-+++ a/mm/hugetlb.c
-@@ -4909,29 +4909,33 @@ pte_t *huge_pte_offset(struct mm_struct
- 		       unsigned long addr, unsigned long sz)
- {
- 	pgd_t *pgd;
--	p4d_t *p4d;
--	pud_t *pud;
--	pmd_t *pmd;
-+	p4d_t *p4d, p4d_entry;
-+	pud_t *pud, pud_entry;
-+	pmd_t *pmd, pmd_entry;
- 
- 	pgd = pgd_offset(mm, addr);
- 	if (!pgd_present(*pgd))
- 		return NULL;
-+
- 	p4d = p4d_offset(pgd, addr);
--	if (!p4d_present(*p4d))
-+	p4d_entry = READ_ONCE(*p4d);
-+	if (!p4d_present(p4d_entry))
- 		return NULL;
- 
--	pud = pud_offset(p4d, addr);
--	if (sz != PUD_SIZE && pud_none(*pud))
-+	pud = pud_offset(&p4d_entry, addr);
-+	pud_entry = READ_ONCE(*pud);
-+	if (sz != PUD_SIZE && pud_none(pud_entry))
- 		return NULL;
- 	/* hugepage or swap? */
--	if (pud_huge(*pud) || !pud_present(*pud))
-+	if (pud_huge(pud_entry) || !pud_present(pud_entry))
- 		return (pte_t *)pud;
- 
--	pmd = pmd_offset(pud, addr);
--	if (sz != PMD_SIZE && pmd_none(*pmd))
-+	pmd = pmd_offset(&pud_entry, addr);
-+	pmd_entry = READ_ONCE(*pmd);
-+	if (sz != PMD_SIZE && pmd_none(pmd_entry))
- 		return NULL;
- 	/* hugepage or swap? */
--	if (pmd_huge(*pmd) || !pmd_present(*pmd))
-+	if (pmd_huge(pmd_entry) || !pmd_present(pmd_entry))
- 		return (pte_t *)pmd;
- 
- 	return NULL;
-_
-
-Patches currently in -mm which might be from longpeng2@huawei.com are
-
-mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch
-
+> 
+> I have fixed those up and will be merging this code to linux-next,
+> unless you object.
+> 
+> Eric
+> 
