@@ -2,108 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A350196381
-	for <lists+stable@lfdr.de>; Sat, 28 Mar 2020 05:10:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5DE5196419
+	for <lists+stable@lfdr.de>; Sat, 28 Mar 2020 08:14:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725800AbgC1EKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Mar 2020 00:10:21 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:33802 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725372AbgC1EKU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Mar 2020 00:10:20 -0400
-Received: by mail-pl1-f193.google.com with SMTP id a23so4276189plm.1
-        for <stable@vger.kernel.org>; Fri, 27 Mar 2020 21:10:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=vh2TbZbVBx3YkavFm9bOvpWcwGT8+PaUcA6R4fi4DNg=;
-        b=X94Kw6q8foLRNKQalzoVq+KV8BVkM6JfkbMF8qF+q1wTiOFTHdamQaaJUdAHAzkqXQ
-         oXfs++WD8LVW84zhH7T5INUDj+Li1dNTNdK/P6Z/op4ynbfMEGqVDyJapwlckYMoA00u
-         tTEdL2UYR/WL4aKPYlibxAkZdGI69hnAgpDUBTdkiUutXifthtJMN7v/+yp2gRokGf8H
-         7LfbENqVKkAuYvhrnjh2Gj2jynvRIZGN2Z4WWSbblmj18XwSEynbTZPsNjZlo6LWz2NH
-         lWRJAJlL0dOpDrV/KoMR7mXtManI9OZzjkIzTgRG7dWPM/v2AqVJVKStvJvklU856QCy
-         Aogw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mime-version:content-disposition:user-agent;
-        bh=vh2TbZbVBx3YkavFm9bOvpWcwGT8+PaUcA6R4fi4DNg=;
-        b=srTgWUbvh1pQ4utMSflCVptEYMctL/r7wAdjQsrAG9uNi3Umax9ScKqH0L3FJIlIid
-         HH9iv3xRUR6dubbm0HqzmL32N0MKAWzrH14xAHNNG9An2ME0HgdQ0+PlLkFN7AU+DV0N
-         0W2FKCVm5ZKNSqi2J7Iei77cjR0hMOknn7gF0x79KZSVAH7H7xAx1itBxM8OobVWjMes
-         /1ez+Om/skRPslxxE56zFUlipi7AM0oaP6tRDmK77lq28lMZLk/f0BrL9NzrdRJ/1rzB
-         yL6mfy2aCR3h4IknYRgVGWq82EmIkNbDbX2TSpDS52DTZ0qxaoFS6q8Q12Zf1W+y4Ent
-         EsRg==
-X-Gm-Message-State: ANhLgQ3a7k6PqeT0neT8EZlpDgj71YLjALcXtgfhAKOdPwJSW3pubgcT
-        DzfYDd6pe4PFMoxyTfLOulaOPki2
-X-Google-Smtp-Source: ADFU+vvpEkuBpnQzRoqe5ptUsI7JpjZln0ZT2AjNHMjb19+5zeXHdFI+zUU9wxeXvpUad0QuB3LgsQ==
-X-Received: by 2002:a17:902:9a98:: with SMTP id w24mr2293475plp.40.1585368619706;
-        Fri, 27 Mar 2020 21:10:19 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id l5sm4954244pgt.10.2020.03.27.21.10.18
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 27 Mar 2020 21:10:18 -0700 (PDT)
-Date:   Fri, 27 Mar 2020 21:10:17 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: Patches for v4.4.y
-Message-ID: <20200328041017.GA258977@roeck-us.net>
+        id S1726518AbgC1HMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Mar 2020 03:12:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58750 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725372AbgC1HMO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 28 Mar 2020 03:12:14 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAE5720714;
+        Sat, 28 Mar 2020 07:12:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585379533;
+        bh=TxhPOQBf5e0sgE0Ulz1DahmTCACDeHgvtBK2s4hV5rY=;
+        h=Subject:To:From:Date:From;
+        b=SUk7UaPFmmJ7szjoMMBDs1XQWKjAl9scJP887YqlZ6JeTXNq7XwJZ7LxAFFxBmTua
+         CcaGiVDmSNtbnL9eWWLw9esUNcY3NYix7qxVMsKcj7Xpyr3G+tVG+HhK6FRPqFXmID
+         i10BLgqr0dCmd6XdiE+xRQt3eNCTqJ+m6Kwy9SZc=
+Subject: patch "USB: cdc-acm: restore capability check order" added to usb-next
+To:     hias@horus.com, anthony.mallet@laas.fr, gregkh@linuxfoundation.org,
+        oneukum@suse.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 28 Mar 2020 08:12:10 +0100
+Message-ID: <1585379530163241@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-Please consider applying the following patches to v4.4.y.
+This is a note to let you know that I've just added the patch titled
 
-The following patches were found to be missing in v4.4.y by the ChromeOS
-missing patches robot. The patches meet the following criteria.
-- The patch includes a Fixes: tag
-- The patch referenced in the Fixes: tag has been applied to v4.4.y
-- The patch itself has not been applied to v4.4.y
+    USB: cdc-acm: restore capability check order
 
-All patches have been applied to v4.4.y and chromeos-4-4. Resulting images
-have been build- and runtime-tested on real hardware running chromeos-4.4
-and with virtual hardware on kerneltests.org.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
-Upstream commit 14fa91e0fef8 ("IB/ipoib: Do not warn if IPoIB debugfs doesn't exist")
-	Fixes: 771a52584096 ("IB/IPoIB: ibX: failed to create mcg debug file")
-	in v4.4.y: 771a52584096
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Upstream commit efc45154828a ("uapi glibc compat: fix outer guard of net device flags enum")
-	Fixes: 4a91cb61bb99 ("uapi glibc compat: fix compile errors when glibc net/if.h included before linux/if.h")
-	in v4.4.y: 1575c095e444
+The patch will also be merged in the next major kernel release
+during the merge window.
 
-Upstream commit c4409905cd6e ("KVM: VMX: Do not allow reexecute_instruction() when skipping MMIO instr")
-	Fixes: d391f1207067 ("x86/kvm/vmx: do not use vm-exit instruction length for fast MMIO when running nested")
-	in v4.4.y: 0c53038267a9
-	Notes:
-		This patch also applies to v4.9.y.
-		This patch has already been applied to v4.14.y.
-		This patch does not affect v4.19.y and later.
+If you have any questions about this process, please let me know.
 
-Upstream commit b76ba4af4ddd ("drivers/hwspinlock: use correct radix tree API")
-	Fixes: c6400ba7e13a ("drivers/hwspinlock: fix race between radix tree insertion and lookup")
-	in v4.4.y: 077b6173a8c8
 
-Upstream commit 28d35bcdd392 ("net: ipv4: don't let PMTU updates increase route MTU")
-	Fixes: d52e5a7e7ca4 ("ipv4: lock mtu in fnhe when received PMTU < net.ipv4.route.min_pmtu")
-	in v4.4.y: 119bbaa6795a
-	Notes:
-		This patch also applies to v4.9.y.
-		This patch also applies to v4.14.y.
-		This patch does not affect v4.19.y and later.
+From 62d65bdd9d05158aa2547f8ef72375535f3bc6e3 Mon Sep 17 00:00:00 2001
+From: Matthias Reichl <hias@horus.com>
+Date: Fri, 27 Mar 2020 16:03:50 +0100
+Subject: USB: cdc-acm: restore capability check order
 
-Note: I generated this notification manually. I hope I'll have some
-automation soon; until then I'll send similar notifications for other
-kernel branches as I find the time.
+commit b401f8c4f492c ("USB: cdc-acm: fix rounding error in TIOCSSERIAL")
+introduced a regression by changing the order of capability and close
+settings change checks. When running with CAP_SYS_ADMIN setting the
+close settings to the values already set resulted in -EOPNOTSUPP.
 
-Thanks,
-Guenter
+Fix this by changing the check order back to how it was before.
+
+Fixes: b401f8c4f492c ("USB: cdc-acm: fix rounding error in TIOCSSERIAL")
+Cc: Anthony Mallet <anthony.mallet@laas.fr>
+Cc: stable <stable@vger.kernel.org>
+Cc: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Matthias Reichl <hias@horus.com>
+Link: https://lore.kernel.org/r/20200327150350.3657-1-hias@horus.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/class/cdc-acm.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 47f09a6ce7bd..84d6f7df09a4 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -923,16 +923,16 @@ static int set_serial_info(struct tty_struct *tty, struct serial_struct *ss)
+ 
+ 	mutex_lock(&acm->port.mutex);
+ 
+-	if ((ss->close_delay != old_close_delay) ||
+-            (ss->closing_wait != old_closing_wait)) {
+-		if (!capable(CAP_SYS_ADMIN))
++	if (!capable(CAP_SYS_ADMIN)) {
++		if ((ss->close_delay != old_close_delay) ||
++		    (ss->closing_wait != old_closing_wait))
+ 			retval = -EPERM;
+-		else {
+-			acm->port.close_delay  = close_delay;
+-			acm->port.closing_wait = closing_wait;
+-		}
+-	} else
+-		retval = -EOPNOTSUPP;
++		else
++			retval = -EOPNOTSUPP;
++	} else {
++		acm->port.close_delay  = close_delay;
++		acm->port.closing_wait = closing_wait;
++	}
+ 
+ 	mutex_unlock(&acm->port.mutex);
+ 	return retval;
+-- 
+2.26.0
+
+
