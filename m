@@ -2,95 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35B9C19630C
-	for <lists+stable@lfdr.de>; Sat, 28 Mar 2020 03:15:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A350196381
+	for <lists+stable@lfdr.de>; Sat, 28 Mar 2020 05:10:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727067AbgC1CPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Mar 2020 22:15:22 -0400
-Received: from mail-il1-f195.google.com ([209.85.166.195]:41577 "EHLO
-        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726225AbgC1CPW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Mar 2020 22:15:22 -0400
-Received: by mail-il1-f195.google.com with SMTP id t6so7039839ilj.8;
-        Fri, 27 Mar 2020 19:15:22 -0700 (PDT)
+        id S1725800AbgC1EKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Mar 2020 00:10:21 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:33802 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725372AbgC1EKU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Mar 2020 00:10:20 -0400
+Received: by mail-pl1-f193.google.com with SMTP id a23so4276189plm.1
+        for <stable@vger.kernel.org>; Fri, 27 Mar 2020 21:10:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=vh2TbZbVBx3YkavFm9bOvpWcwGT8+PaUcA6R4fi4DNg=;
+        b=X94Kw6q8foLRNKQalzoVq+KV8BVkM6JfkbMF8qF+q1wTiOFTHdamQaaJUdAHAzkqXQ
+         oXfs++WD8LVW84zhH7T5INUDj+Li1dNTNdK/P6Z/op4ynbfMEGqVDyJapwlckYMoA00u
+         tTEdL2UYR/WL4aKPYlibxAkZdGI69hnAgpDUBTdkiUutXifthtJMN7v/+yp2gRokGf8H
+         7LfbENqVKkAuYvhrnjh2Gj2jynvRIZGN2Z4WWSbblmj18XwSEynbTZPsNjZlo6LWz2NH
+         lWRJAJlL0dOpDrV/KoMR7mXtManI9OZzjkIzTgRG7dWPM/v2AqVJVKStvJvklU856QCy
+         Aogw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=8NLaXs1x53Gpt69OjCAT0PST4jBvOMzZ0ezBjlwS/+E=;
-        b=DFghnsHViTgJ9RL7jMFforLYX0+RowmIiQVdwcFajuJdt/5ExEC5/37isR1jovsz4q
-         sRotz1R3zFO5t54FKvpZ3B4pYc/TcyvWe9O8uHUFDqOU3B+mBG9fxfIqKlGiTHbCaRHK
-         ZjwkMr/LMYN76kB74RUEKs1MfnkUMriP9306IDGCnLe9yZdTrYys14uOew7s1hQbanJD
-         oN4s55atQFFTqompck0UPETIpdmStJTeMvjQIbi29hz1Q30EvNYpjEbh6KpKpasqkUgO
-         e9ef/zX2fR81MvOXr6s23Ge8TFXxjGMFd1hO+AjKHiRMPnimP81DVGvtJFEWLUhQEc10
-         rRbQ==
-X-Gm-Message-State: ANhLgQ1xlNVQuUfZ4C8D3B4VdaUKXxSH3ke0J5goSCgM7Zihko7mry9Z
-        NJ8Ux4KJb7XbMW1GrDE0adCmMP2E083aUW1QYoo=
-X-Google-Smtp-Source: ADFU+vsVcyTNByy/XEUldC3+4+I9377tEMzAOpSrVXzyOQpcXiEQEJK0O1fiCNoJAUxf73P2M+cpSy88hsh2XYGxPHc=
-X-Received: by 2002:a92:8510:: with SMTP id f16mr2068838ilh.208.1585361722101;
- Fri, 27 Mar 2020 19:15:22 -0700 (PDT)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition:user-agent;
+        bh=vh2TbZbVBx3YkavFm9bOvpWcwGT8+PaUcA6R4fi4DNg=;
+        b=srTgWUbvh1pQ4utMSflCVptEYMctL/r7wAdjQsrAG9uNi3Umax9ScKqH0L3FJIlIid
+         HH9iv3xRUR6dubbm0HqzmL32N0MKAWzrH14xAHNNG9An2ME0HgdQ0+PlLkFN7AU+DV0N
+         0W2FKCVm5ZKNSqi2J7Iei77cjR0hMOknn7gF0x79KZSVAH7H7xAx1itBxM8OobVWjMes
+         /1ez+Om/skRPslxxE56zFUlipi7AM0oaP6tRDmK77lq28lMZLk/f0BrL9NzrdRJ/1rzB
+         yL6mfy2aCR3h4IknYRgVGWq82EmIkNbDbX2TSpDS52DTZ0qxaoFS6q8Q12Zf1W+y4Ent
+         EsRg==
+X-Gm-Message-State: ANhLgQ3a7k6PqeT0neT8EZlpDgj71YLjALcXtgfhAKOdPwJSW3pubgcT
+        DzfYDd6pe4PFMoxyTfLOulaOPki2
+X-Google-Smtp-Source: ADFU+vvpEkuBpnQzRoqe5ptUsI7JpjZln0ZT2AjNHMjb19+5zeXHdFI+zUU9wxeXvpUad0QuB3LgsQ==
+X-Received: by 2002:a17:902:9a98:: with SMTP id w24mr2293475plp.40.1585368619706;
+        Fri, 27 Mar 2020 21:10:19 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l5sm4954244pgt.10.2020.03.27.21.10.18
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 27 Mar 2020 21:10:18 -0700 (PDT)
+Date:   Fri, 27 Mar 2020 21:10:17 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: Patches for v4.4.y
+Message-ID: <20200328041017.GA258977@roeck-us.net>
 MIME-Version: 1.0
-References: <1585107894-8803-1-git-send-email-chenhc@lemote.com> <20200327150336.7953F20748@mail.kernel.org>
-In-Reply-To: <20200327150336.7953F20748@mail.kernel.org>
-From:   Huacai Chen <chenhc@lemote.com>
-Date:   Sat, 28 Mar 2020 10:22:09 +0800
-Message-ID: <CAAhV-H5MS0sX5eov49ed-0mjsR72BdMc7o8L24uP1qHdGwRzEQ@mail.gmail.com>
-Subject: Re: [PATCH] MIPS/tlbex: Fix LDDIR usage in setup_pw() for Loongson-3
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "open list:MIPS" <linux-mips@vger.kernel.org>,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Sasha,
+Hi,
 
-For 4.9 and 4.14 please backport b023a9396062 ("MIPS: Avoid using
-array as parameter to write_c0_kpgd()"). And for 4.4 please just
-ignore this patch.
+Please consider applying the following patches to v4.4.y.
 
-Regards,
-Huacai
+The following patches were found to be missing in v4.4.y by the ChromeOS
+missing patches robot. The patches meet the following criteria.
+- The patch includes a Fixes: tag
+- The patch referenced in the Fixes: tag has been applied to v4.4.y
+- The patch itself has not been applied to v4.4.y
 
-On Fri, Mar 27, 2020 at 11:03 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->
-> The bot has tested the following trees: v5.5.11, v5.4.27, v4.19.112, v4.14.174, v4.9.217, v4.4.217.
->
-> v5.5.11: Build OK!
-> v5.4.27: Build OK!
-> v4.19.112: Build OK!
-> v4.14.174: Failed to apply! Possible dependencies:
->     b023a9396062 ("MIPS: Avoid using array as parameter to write_c0_kpgd()")
->
-> v4.9.217: Failed to apply! Possible dependencies:
->     b023a9396062 ("MIPS: Avoid using array as parameter to write_c0_kpgd()")
->
-> v4.4.217: Failed to apply! Possible dependencies:
->     0c94fa33b4de ("MIPS: cpu: Convert MIPS_CPU_* defs to (1ull << x)")
->     380cd582c088 ("MIPS: Loongson-3: Fast TLB refill handler")
->     5fa393c85719 ("MIPS: Break down cacheops.h definitions")
->     9519ef37a4a4 ("MIPS: Define the legacy-NaN and 2008-NaN features")
->     b023a9396062 ("MIPS: Avoid using array as parameter to write_c0_kpgd()")
->     b2edcfc81401 ("MIPS: Loongson: Add Loongson-3A R2 basic support")
->     c0291f7c7359 ("MIPS: cpu: Alter MIPS_CPU_* definitions to fill gap")
->     f270d881fa55 ("MIPS: Detect MIPSr6 Virtual Processor support")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
->
-> --
-> Thanks
-> Sasha
+All patches have been applied to v4.4.y and chromeos-4-4. Resulting images
+have been build- and runtime-tested on real hardware running chromeos-4.4
+and with virtual hardware on kerneltests.org.
+
+Upstream commit 14fa91e0fef8 ("IB/ipoib: Do not warn if IPoIB debugfs doesn't exist")
+	Fixes: 771a52584096 ("IB/IPoIB: ibX: failed to create mcg debug file")
+	in v4.4.y: 771a52584096
+
+Upstream commit efc45154828a ("uapi glibc compat: fix outer guard of net device flags enum")
+	Fixes: 4a91cb61bb99 ("uapi glibc compat: fix compile errors when glibc net/if.h included before linux/if.h")
+	in v4.4.y: 1575c095e444
+
+Upstream commit c4409905cd6e ("KVM: VMX: Do not allow reexecute_instruction() when skipping MMIO instr")
+	Fixes: d391f1207067 ("x86/kvm/vmx: do not use vm-exit instruction length for fast MMIO when running nested")
+	in v4.4.y: 0c53038267a9
+	Notes:
+		This patch also applies to v4.9.y.
+		This patch has already been applied to v4.14.y.
+		This patch does not affect v4.19.y and later.
+
+Upstream commit b76ba4af4ddd ("drivers/hwspinlock: use correct radix tree API")
+	Fixes: c6400ba7e13a ("drivers/hwspinlock: fix race between radix tree insertion and lookup")
+	in v4.4.y: 077b6173a8c8
+
+Upstream commit 28d35bcdd392 ("net: ipv4: don't let PMTU updates increase route MTU")
+	Fixes: d52e5a7e7ca4 ("ipv4: lock mtu in fnhe when received PMTU < net.ipv4.route.min_pmtu")
+	in v4.4.y: 119bbaa6795a
+	Notes:
+		This patch also applies to v4.9.y.
+		This patch also applies to v4.14.y.
+		This patch does not affect v4.19.y and later.
+
+Note: I generated this notification manually. I hope I'll have some
+automation soon; until then I'll send similar notifications for other
+kernel branches as I find the time.
+
+Thanks,
+Guenter
