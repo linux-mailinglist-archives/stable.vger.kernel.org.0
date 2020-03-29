@@ -2,67 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7A2A19705D
-	for <lists+stable@lfdr.de>; Sun, 29 Mar 2020 22:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9456197089
+	for <lists+stable@lfdr.de>; Sun, 29 Mar 2020 23:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728835AbgC2UuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Mar 2020 16:50:24 -0400
-Received: from s3.sipsolutions.net ([144.76.43.62]:37154 "EHLO
-        sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727370AbgC2UuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Mar 2020 16:50:23 -0400
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.93)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1jIesj-003vlB-Sy; Sun, 29 Mar 2020 22:50:10 +0200
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Cc:     davem@davemloft.net, j@w1.fi,
-        Johannes Berg <johannes.berg@intel.com>, stable@vger.kernel.org
-Subject: [PATCH v2] mac80211: fix authentication with iwlwifi/mvm
-Date:   Sun, 29 Mar 2020 22:50:06 +0200
-Message-Id: <20200329225004.115da08b271d.I9712908b102ee30fe76fa72c9ec93c92f52ab689@changeid>
-X-Mailer: git-send-email 2.25.1
+        id S1728938AbgC2VdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Mar 2020 17:33:25 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:37163 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727370AbgC2VdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Mar 2020 17:33:25 -0400
+Received: by mail-pl1-f193.google.com with SMTP id x1so5915311plm.4
+        for <stable@vger.kernel.org>; Sun, 29 Mar 2020 14:33:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=xCJS/qSV+9PFqHglloSdKWew+uZsleBm6KwvCU4mWPg=;
+        b=JrlXL6+IJJlb7MWiOs1lGugjk0rL0haqaymhHSW7sib1NAcVTALOvERDSOpKGhvVME
+         /fFAazdrw7xZuR7CH3FXV9WeGEXUWzgrDwh4XKDp57UPOan9gVljWPQt2VUAk5ITecty
+         JXL1cQ218m+U+6cefqkXtW9U4VoZkB+u+TwRtGsGH9NoQf9JFK1rUBrQ5otMkRQpZ0E4
+         Ric6FcM5HHORVdjTgkxaHcMLxO1r2ZHLpZaItQdz1QCzzQkuKDGXCjpDfKdvyVkeUc99
+         hwKVUMQg+LKGX7Lhc2XWgPvamK/ySin6+LGilGKIQ+lg9nB3r/SebWfLwgDugcWq98qh
+         beHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition:user-agent;
+        bh=xCJS/qSV+9PFqHglloSdKWew+uZsleBm6KwvCU4mWPg=;
+        b=XVduOvwwEov1Dtm59I5M8QSSOGzLoHPiN1oCywhibF/qJQ3xXGP2DxzRm7mQFR/A15
+         8Zn18bpvtKQVSL8koLBKzbxbNOhOD0MOB447haZl5Au6KuyxoXqlsnrLDl24R2xaJ9Qr
+         jO9k8vyo9/noNph19LcE1MgR+YezkajZDmrFwarSrIvQC52Uk+3xzX+qS/p/oFbdQtRT
+         5ApXrDJ7ly/3KphL0a11PbeDJ68GEQmI8i+R3D/iEetWWPGP98lJZbOICZMwKhF1/bov
+         uvEhloW7dq+CN16Nz8tq2+yUCg2S/w42Dg5S8G+CZUUFB1FyAPRbPXwr5OiKmR+miikW
+         SzeQ==
+X-Gm-Message-State: ANhLgQ0Z3ca6CHmYvKUbJLlC1ZOZRWWhinIug9aMLG6j61fKZOviEN8F
+        J0ZrVvT2AP9DBbLSQKlrzljUhZjN
+X-Google-Smtp-Source: ADFU+vsBiahUVULAvbgHxacj9WBCoQL/OkxB4NczuOofaARLBjbIXKG/emVnZlx2kYkn5qz3Dk8rUA==
+X-Received: by 2002:a17:90a:5805:: with SMTP id h5mr12327524pji.175.1585517604323;
+        Sun, 29 Mar 2020 14:33:24 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 189sm8212063pgh.58.2020.03.29.14.33.23
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Sun, 29 Mar 2020 14:33:23 -0700 (PDT)
+Date:   Sun, 29 Mar 2020 14:33:22 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: Patches for v4.14.y
+Message-ID: <20200329213322.GA23871@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+Hi,
 
-The original patch didn't copy the ieee80211_is_data() condition
-because on most drivers the management frames don't go through
-this path. However, they do on iwlwifi/mvm, so we do need to keep
-the condition here.
+Please consider applying the following patches to v4.14.y.
 
-Cc: stable@vger.kernel.org
-Fixes: ce2e1ca70307 ("mac80211: Check port authorization in the ieee80211_tx_dequeue() case")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
----
-Dave, can you please apply this directly?
+The following patches were found to be missing in v4.14.y by the ChromeOS
+missing patch robot. The patches meet the following criteria.
+- The patch includes a Fixes: tag
+- The patch referenced in the Fixes: tag has been applied to v4.14.y
+- The patch has not been applied to v4.14.y
 
-(sorry, I shall remember to use git commit --amend properly)
+All patches have been applied to v4.14.y and chromeos-4.14. Resulting images
+have been build- and runtime-tested on real hardware with chromeos-4.14
+and with virtual hardware on kerneltests.org.
 
----
- net/mac80211/tx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Upstream commit 76fc52bd07d3 ("arm64: ptrace: map SPSR_ELx<->PSR for compat tasks")
+	Fixes: 7206dc93a58fb764 ("arm64: Expose Arm v8.4 features")
+	in v4.14.y: 053cdffad3dd
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index d9cca6dbd870..efe4c1fc68e5 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -3610,7 +3610,8 @@ struct sk_buff *ieee80211_tx_dequeue(struct ieee80211_hw *hw,
- 		 * Drop unicast frames to unauthorised stations unless they are
- 		 * EAPOL frames from the local station.
- 		 */
--		if (unlikely(!ieee80211_vif_is_mesh(&tx.sdata->vif) &&
-+		if (unlikely(ieee80211_is_data(hdr->frame_control) &&
-+			     !ieee80211_vif_is_mesh(&tx.sdata->vif) &&
- 			     tx.sdata->vif.type != NL80211_IFTYPE_OCB &&
- 			     !is_multicast_ether_addr(hdr->addr1) &&
- 			     !test_sta_flag(tx.sta, WLAN_STA_AUTHORIZED) &&
--- 
-2.25.1
+Upstream commit 25dc2c80cfa3 ("arm64: compat: map SPSR_ELx<->PSR for signals")
+	Fixes: 7206dc93a58fb764 ("arm64: Expose Arm v8.4 features")
+	in v4.14.y: 053cdffad3dd
 
+Upstream commit 93a64ee71d10 ("MAINTAINERS: Remove deleted file from futex file pattern")
+	Fixes: 04e7712f4460 ("y2038: futex: Move compat implementation into futex.c")
+	in v4.14.y: 0c08f1da992d
+	Notes:
+		Also applies to v4.19.y.
+		This is an example for a patch which isn't really necessary
+		(it doesn't fix a bug, only an entry in the the MAINTAINERS file),
+		but automation won't be able to know that. Please let me know
+		what to do with similar patches in the future.
+
+Upstream commit 074376ac0e1d ("ftrace/x86: Anotate text_mutex split between ftrace_arch_code_modify_post_process() and ftrace_arch_code_modify_prepare()")
+	Fixes: 39611265edc1a ("ftrace/x86: Add a comment to why we take text_mutex in ftrace_arch_code_modify_prepare()")
+	Fixes: d5b844a2cf507 ("ftrace/x86: Remove possible deadlock between register_kprobe() and ftrace_run_update_code()")
+	in v4.14.y: 0c0b54770189 (upstream d5b844a2cf507)
+	Notes:
+		Also applies to v4.19.y.
+
+Thanks,
+Guenter
