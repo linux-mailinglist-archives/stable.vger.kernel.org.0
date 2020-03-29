@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F350196B29
-	for <lists+stable@lfdr.de>; Sun, 29 Mar 2020 06:31:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB076196B87
+	for <lists+stable@lfdr.de>; Sun, 29 Mar 2020 08:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727355AbgC2EbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Mar 2020 00:31:21 -0400
-Received: from mail-oln040092072097.outbound.protection.outlook.com ([40.92.72.97]:46857
+        id S1727336AbgC2GgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Mar 2020 02:36:22 -0400
+Received: from mail-oln040092072031.outbound.protection.outlook.com ([40.92.72.31]:43515
         "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725813AbgC2EbU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Mar 2020 00:31:20 -0400
+        id S1726912AbgC2GgW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Mar 2020 02:36:22 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kyup1taQce7Czvt7r62RNYdbwR337OIPCOcCoEdRyTJRYDV8GLaNxAiL+bCCFyiWG9wCBa6VqWYqremWrUt/TqXQ5Zvcb0NEL8ZYrhItSyqGsTpb50rrsiivE/WA6p1PG0nsp9LXmwJeG2xxonJPV91T2J96ZoJfobB75ney0oeIuzcN+weNzkRWIOP05cs/1U+EnkxdP3GyDGhzVqxEEo18LI7TFGZC/vuWGr/XR8gebaZxOfPzkD/pNfJBSQ9ULBvxzB8jkz0ev4QEQLaAwL9vzEYkFA0m1H6jZGHbHlJ170I0hYcYnkwQSH7x5ZM4qKfILIkQiZpUp0OnHQVlJQ==
+ b=DxQBZvT1De1T0Q2PiYx+KqrbhtmorGJ4L9u35Mejs0hEteq0+H4qKdVhbpbHX6ux6SJm1Mv8ZtZ0vDagII2XZYHXH/Nk2ioh6z9QHGQIckce++W/RsHyFZnnvNAsR0aSV8BEssReRaEENV0UvLC/O5Rypt0GWeQEiBQ2vVD5ev0eBg7V5z3D97xa9w4ZB5tEtUl3+eJ4RcC4RUy8p4GRvaboWC+geeBPrdwCS2FvMklCGBWx9xKgvOC33LcYUKR/e+V/DnVyRzEOX7Ht9Bck9RptcZhQYB7BtPWoHsfIwBSokFWgJ7xHSFu5AOgh2QjpnBnGKlebjW/4ZZwqqXJe3Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BU6qOvtkmoxpqbOUiMCq2Q6Uh6Xqp4ZpfT/eykTnfl4=;
- b=ltV5XHTSw9REvhh8GTOAeC3mMtQvHO+X3Xn9KrB9aMLKZGgBpvjArcO87SLf2r4Sif03lMUfNWM5T8tr98vB6APpmaXtC4uBRO9gf/o2pKlNjqtHmOLlkiyk0IDhXSyBxb47t8asemeIYnpwQKLh8p3g4Qh8jFYCYo4HoaYkB5rWaxRMnFcH1vvIIHz8/us6KSV9p0hqNFF5y+ZFVBxNcDJFQCLS8iXbv4QFIKf8He9zkJDHlIjoDnmKe4r0K+qGl/XdSYgtRbTvSCEuFU9AnODrj2w8DqsY+T9wFrAhy1h6YgHTdj9Heqlg3LlB9eh2SqQZkj78kzrw2FB1xndJCw==
+ bh=Fwp+uQ8HM8pwpe8ZH/JzuU7EHAJYZBBWZMnostibveQ=;
+ b=SrV5wO1SmDM+k30P+vb4UW58n0ULyNOGp4D7KbOV+bBUoiTxc5bCa8Veno00mVpgaV7s2JqPg/WiUGcBqorttFvJaUlVG70HYCIZ+wTkMNLJcAz+rCrZ9OzlrcnM2VBqrjMHEtG3k6kfXbXsgOtFzu5MtJQ/zKqnxBdxp6NcCI75E/6r+OBUIpkcFx//8hgSrC+CKuQHRDzSomWy+Vc0SSIwgCpi6nvudyDs1pdlAWZNRDhAXBcfjp28Bx4L/hWGV2co9pTwamUMeQzn7aUYHQmpmld8TJatmV/JfmeqjaQG+X4wxtrNHQ6we+VxI0kHglhHbLHhBZflMcDjKMeiGQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
  dkim=pass header.d=hotmail.de; arc=none
-Received: from VE1EUR03FT048.eop-EUR03.prod.protection.outlook.com
- (2a01:111:e400:7e09::52) by
- VE1EUR03HT047.eop-EUR03.prod.protection.outlook.com (2a01:111:e400:7e09::416)
+Received: from VE1EUR03FT041.eop-EUR03.prod.protection.outlook.com
+ (2a01:111:e400:7e09::4d) by
+ VE1EUR03HT115.eop-EUR03.prod.protection.outlook.com (2a01:111:e400:7e09::268)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2856.17; Sun, 29 Mar
- 2020 04:31:14 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.18.51) by
- VE1EUR03FT048.mail.protection.outlook.com (10.152.19.8) with Microsoft SMTP
+ 2020 06:36:18 +0000
+Received: from AM6PR03MB5170.eurprd03.prod.outlook.com (10.152.18.56) by
+ VE1EUR03FT041.mail.protection.outlook.com (10.152.19.163) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2856.17 via Frontend Transport; Sun, 29 Mar 2020 04:31:14 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:ED9EED656349D1FAC421A208C7F8CFD1A715EF757F9B8E5B54AB5D7201CA1406;UpperCasedChecksum:872083040AC657C2F86F36691608A054C21B532E3E0B156EAF4E00B017714D8F;SizeAsReceived:9568;Count:50
+ 15.20.2856.17 via Frontend Transport; Sun, 29 Mar 2020 06:36:18 +0000
+X-IncomingTopHeaderMarker: OriginalChecksum:9C4D017BA2481E7479A2C2531E34F8C07BDE1FCF52BD939200BB0D77DF220E73;UpperCasedChecksum:66BD48ECA13AC4D92CFCF8DB80D93BFE98FA00C1F0ACA51A672F531C510B0964;SizeAsReceived:9666;Count:50
 Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd]) by AM6PR03MB5170.eurprd03.prod.outlook.com
  ([fe80::1956:d274:cab3:b4dd%6]) with mapi id 15.20.2835.025; Sun, 29 Mar 2020
- 04:31:14 +0000
+ 06:36:18 +0000
 Subject: Re: [PATCH v6 15/16] exec: Fix dead-lock in de_thread with
  ptrace_attach
+From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
 To:     "Eric W. Biederman" <ebiederm@xmission.com>
 Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
         Kirill Tkhai <ktkhai@virtuozzo.com>,
@@ -76,135 +77,83 @@ Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
 References: <077b63b7-6f5e-aa8e-bf96-a586b481cc46@hotmail.de>
  <b6537ae6-31b1-5c50-f32b-8b8332ace882@hotmail.de>
  <87a7448q7t.fsf@x220.int.ebiederm.org>
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-Message-ID: <AM6PR03MB51700B30078BDCB6C6A4E0CAE4CA0@AM6PR03MB5170.eurprd03.prod.outlook.com>
-Date:   Sun, 29 Mar 2020 06:31:11 +0200
+ <AM6PR03MB51700B30078BDCB6C6A4E0CAE4CA0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Message-ID: <AM6PR03MB5170480FE4462D0DFF04B14BE4CA0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+Date:   Sun, 29 Mar 2020 08:36:15 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.6.1
-In-Reply-To: <87a7448q7t.fsf@x220.int.ebiederm.org>
+In-Reply-To: <AM6PR03MB51700B30078BDCB6C6A4E0CAE4CA0@AM6PR03MB5170.eurprd03.prod.outlook.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ZRAP278CA0013.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:10::23) To AM6PR03MB5170.eurprd03.prod.outlook.com
+X-ClientProxiedBy: ZR0P278CA0038.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:1d::7) To AM6PR03MB5170.eurprd03.prod.outlook.com
  (2603:10a6:20b:ca::23)
-X-Microsoft-Original-Message-ID: <88361bfb-17d9-aae5-b7ef-08d4271c9bad@hotmail.de>
+X-Microsoft-Original-Message-ID: <468cc5cc-9ac0-190e-c869-afc8eeb4264b@hotmail.de>
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.101] (92.77.140.102) by ZRAP278CA0013.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:10::23) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2856.18 via Frontend Transport; Sun, 29 Mar 2020 04:31:12 +0000
-X-Microsoft-Original-Message-ID: <88361bfb-17d9-aae5-b7ef-08d4271c9bad@hotmail.de>
-X-TMN:  [4KLlOOtqgqNbDk08WSbsS+zK6jdLXZV3]
+Received: from [192.168.1.101] (92.77.140.102) by ZR0P278CA0038.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:1d::7) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2856.19 via Frontend Transport; Sun, 29 Mar 2020 06:36:16 +0000
+X-Microsoft-Original-Message-ID: <468cc5cc-9ac0-190e-c869-afc8eeb4264b@hotmail.de>
+X-TMN:  [YSNqkoVkGPbE9LVpfsvLuc8avDaSmBwm]
 X-MS-PublicTrafficType: Email
 X-IncomingHeaderCount: 50
 X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: 5e9d7664-0054-49af-6157-08d7d39a042d
-X-MS-TrafficTypeDiagnostic: VE1EUR03HT047:
+X-MS-Office365-Filtering-Correlation-Id: aca972d2-0306-4c2d-f6f3-08d7d3ab7c7f
+X-MS-TrafficTypeDiagnostic: VE1EUR03HT115:
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: d/6ABfWPMOvYmVF/EnnTcKRwiZPgLYPvr9qYP8jRl35a42BJw0NbBjO/e48BVSF42XmzPdJwjUbP9h3SJGDuz+7vz7LJ1bI6sn3wCVeVjFdf3Pi961YLETO0X7GX8ETHia8ANJfWrrWlmrJGYm2mWbk8A7T6SFy98uAid0TnK1B6AXwXYlncFMVa143CX/BL
-X-MS-Exchange-AntiSpam-MessageData: HQ9anwJaCcDwGJH2DhJEt2I93KHYcht9rU00eGoDRXCyeI/s7Y+OTYslB3oEYTQfG8GxhJaDmu4PnyOf02kIWSi6k/O3/ue36tkcKJ3XVWLM0VZOaYkWjLwa1Ge1G5nfu3MnD6+FHKRkLsLGk79+WQ==
+X-Microsoft-Antispam-Message-Info: w74RRcKfQNGFhv2iIUBASQoDIm6/Pxdz8wDja7713bv3BcDYbTL1fNdsRWtgWCOi5XZC64ZKdo9u9cRoHwlJXu2jQB72Xx9EaTFYGTu6zp337qa+cDIyuLJBAjUltGhoAtrYyrGv0QfPwjrK9xSUBb+kBZ6SUKtjMhFsHBgKxSDlMWoiXhsuGMp8ZzTSJ1Fo
+X-MS-Exchange-AntiSpam-MessageData: d3puSzqSYI2uPhPDzZu5cNqyZHjfI8e3lGyn9tAhrbSbUYVC3bynFSO+qK5hfe02MW20eZpTFX6MQPgEXvuFkzDlrTXAL3NoDpOu34O/W4PpLvp7TtdoUQGG5BI98Kv3TrtbZUZbw9/2koKUhgM8/g==
 X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5e9d7664-0054-49af-6157-08d7d39a042d
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2020 04:31:14.7979
+X-MS-Exchange-CrossTenant-Network-Message-Id: aca972d2-0306-4c2d-f6f3-08d7d3ab7c7f
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Mar 2020 06:36:18.1761
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VE1EUR03HT047
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VE1EUR03HT115
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/25/20 3:27 PM, Eric W. Biederman wrote:
-> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
-> 
->> This removes the last users of cred_guard_mutex
->> and replaces it with a new mutex exec_guard_mutex,
->> and a boolean unsafe_execve_in_progress.
+On 3/29/20 6:31 AM, Bernd Edlinger wrote:
+> On 3/25/20 3:27 PM, Eric W. Biederman wrote:
+>> Bernd Edlinger <bernd.edlinger@hotmail.de> writes:
+>> At a minimum the code is subtle and I don't see big fat
+>> warning comments that subtle code needs to keep people
+>> from using it wrong.
 >>
->> This addresses the case when at least one of the
->> sibling threads is traced, and therefore the trace
->> process may dead-lock in ptrace_attach, but de_thread
->> will need to wait for the tracer to continue execution.
->>
->> The solution is to detect this situation and make
->> ptrace_attach and similar functions return -EAGAIN,
->> but only in a situation where a dead-lock is imminent.
->>
->> This means this is an API change, but only when the
->> process is traced while execve happens in a
->> multi-threaded application.
->>
->> See tools/testing/selftests/ptrace/vmaccess.c
->> for a test case that gets fixed by this change.
 > 
-> Hmm.  The logic with unsafe_execve_in_progress is interesting.
-> I think I see what you are aiming for.
-> 
-> So far as you have hit what you are aiming for I think this is
-> a safe change as the only cases that will change are the cases
-> that would deadlock today.
-> 
-> At a minimum the code is subtle and I don't see big fat
-> warning comments that subtle code needs to keep people
-> from using it wrong.
+> Okay, I can add big fat warning comments, yeah.
 > 
 
-Okay, I can add big fat warning comments, yeah.
+So how about that:
 
-> Further while the change below to proc_pid_attr_write looks
-> like it is being treated the same as ptrace_attach.  When in
-> fact proc_pid_attr_write needs the no_new_privs and ptrace_attach
-> protection the same as exec.  As the updated cred won't be used in an
-> ongoing exec, exec does not need protection from proc_pid_attr_write,
-> other than deadlock protection.
-> 
+diff --git a/kernel/ptrace.c b/kernel/ptrace.c
+index 221759e..2d6b5cd 100644
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -395,6 +395,17 @@ static int ptrace_attach(struct task_struct *task, long req
+        if (mutex_lock_interruptible(&task->signal->exec_guard_mutex))
+                goto out;
+ 
++       /*
++        * BIG FAT WARNING - Fragile code ahead.
++        * Please do not insert any code between these two
++        * if statements.  It may happen that execve has to
++        * release the exec_guard_mutex in order to prevent
++        * deadlocks.  In that case unsafe_execve_in_progress
++        * will be set.  If that happens you cannot assume that
++        * the usual guarantees implied by exec_guard_mutex
++        * are valid.  Just return -EAGAIN in that case and
++        * unlock the mutex immediately.
++        */
+        retval = -EAGAIN;
+        if (unlikely(task->signal->unsafe_execve_in_progress))
+                goto unlock_creds;
 
-Not sure I understand this comment correct.
-You refer to this block here:
-
-> @@ -2680,14 +2680,17 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
->         }
-> 
->         /* Guard against adverse ptrace interaction */
-> -       rv = mutex_lock_interruptible(&current->signal->cred_guard_mutex);
-> +       rv = mutex_lock_interruptible(&current->signal->exec_guard_mutex);
->         if (rv < 0)
->                 goto out_free;
-> 
-> -       rv = security_setprocattr(PROC_I(inode)->op.lsm,
-> -                                 file->f_path.dentry->d_name.name, page,
-> -                                 count);
-> -       mutex_unlock(&current->signal->cred_guard_mutex);
-> +       if (unlikely(current->signal->unsafe_execve_in_progress))
-> +               rv = -EAGAIN;
-> +       else
-> +               rv = security_setprocattr(PROC_I(inode)->op.lsm,
-> +                                         file->f_path.dentry->d_name.name,
-> +                                         page, count);
-> +       mutex_unlock(&current->signal->exec_guard_mutex);
->  out_free:
->         kfree(page);
-
-I think the logic is correct, but instead if an if-then-else,
-I need the big-fat-warning-comment followed by if-unsafe-goto-mutex-unlock
-kind of thing, so it looks more like the other places, right?
-
-
-> Having the relevant lock be per task_struct lock would probably be a
-> better way to avoid deadlock with a concurrent proc_pid_attr_write.
-> 
-
-Please elaborate your idea a bit.
-
-> 
-> So I am going to pass on these last two patches for now, and apply the
-> rest and get them into linux-next.
-> 
-
-No problem, I can update this patch and if you like take it to your tree,
-otherwise it is of course not the most important issue in the world ;-)
+Is that cool enough :-)
 
 
 Thanks
