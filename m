@@ -2,161 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6087196A9C
-	for <lists+stable@lfdr.de>; Sun, 29 Mar 2020 04:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC12196AE4
+	for <lists+stable@lfdr.de>; Sun, 29 Mar 2020 05:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727118AbgC2CRb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Mar 2020 22:17:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38950 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726315AbgC2CRb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 28 Mar 2020 22:17:31 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85A32206DB;
-        Sun, 29 Mar 2020 02:17:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585448250;
-        bh=ITZ+wyQPuPawCVfy3wFhamMcldvPSgTgHYy2EgbAR+4=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=XHsIKKRSiAqmdy8RdHout75gO+y6sHZz+decLeVuDZgfa3uMzAxeloBCFXlUhVNKA
-         NITV5EVU46TTBdeztzW1pBtU9XJJuGcrNiViQrYoceczeeIU9F0vMxqG7bvBUdlD/0
-         M+5hxZOBMICbvQJ9R2Kpdlc4yKzW3frW58w3faxI=
-Date:   Sat, 28 Mar 2020 19:17:29 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, aneesh.kumar@linux.ibm.com,
-        bhe@redhat.com, dan.j.williams@intel.com, david@redhat.com,
-        linux-mm@kvack.org, mhocko@suse.com, mm-commits@vger.kernel.org,
-        mpe@ellerman.id.au, osalvador@suse.de,
-        pankaj.gupta.linux@gmail.com, richard.weiyang@gmail.com,
-        rppt@linux.ibm.com, sachinp@linux.vnet.ibm.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 5/5] mm/sparse: fix kernel crash with
- pfn_section_valid check
-Message-ID: <20200329021729.BYOHDz5tg%akpm@linux-foundation.org>
-In-Reply-To: <20200328191456.4fc0b9ca86780f26c122399e@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1727431AbgC2DpC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Mar 2020 23:45:02 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:42918 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726382AbgC2DpB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Mar 2020 23:45:01 -0400
+Received: by mail-pl1-f193.google.com with SMTP id e1so5229490plt.9
+        for <stable@vger.kernel.org>; Sat, 28 Mar 2020 20:44:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=tOMeImpQlmJPJjbTvFw9sx81zqMGufvcRO7HUAVzTPk=;
+        b=kmDAc4XidmYjLC++7ySgAvEPEaLOzhVygGmfc3tvLrJh2pD+E++E/+6jVFBWKWDTMW
+         qtadgENjxFc7lmy7E6jX5N423RFzZoxLMhSmGAGajCcLzDnXwf+q4Tta1fCod+fkQ6ta
+         UF2F8doWtGBek20ce2FtM/5AVb/TUCLC/W71M=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=tOMeImpQlmJPJjbTvFw9sx81zqMGufvcRO7HUAVzTPk=;
+        b=Oqn3/o4BMR1FonhcFHDpgYHFQoiirL69+1VTM9AzEl+NVxU9Jkc+mKVoTL7uUXYgeF
+         pOdvO6y5hin80ob0dGYGDq4iacaz91GH7rEEkn5vkNH4JAIU3sPX+qBKtkE0HbHLrvUx
+         5ldupnFXB4PTX5fBvR1Sey2d7DdBPQgXn7uwtnjz/1so9x3uMcck6oGXwfiPM+9ObpqD
+         +ORWz5HhHgO35I3at80a/8N+Gs6B8vUfn0lF/ubVQvqi7OblFc8IvrF0zoBKGxf4ukLU
+         Xg/LlIPgt2nAUCTse7F1xuk5gSlc9b8JNviMKpN6zrAiEIxLEXwekDX1UzS+BWB7U1ed
+         gaaQ==
+X-Gm-Message-State: ANhLgQ03NqA4c8lI++Ru4PApXbEDUtUdkLXkLdb5tidJ1eAnHgsEP00q
+        u2wDrucNV9fEhVTXFQH+EKzXqA==
+X-Google-Smtp-Source: ADFU+vvpOC+pSdCvg5rozciCqTYf3qlku+1EUAor0tvwj5i7VN8ej+h/GHJzxcyBc3ydt9oaTrxXsw==
+X-Received: by 2002:a17:90a:fa17:: with SMTP id cm23mr8436144pjb.121.1585453499377;
+        Sat, 28 Mar 2020 20:44:59 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id g10sm7368484pfk.90.2020.03.28.20.44.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 28 Mar 2020 20:44:58 -0700 (PDT)
+Date:   Sat, 28 Mar 2020 20:44:57 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Bernd Edlinger <bernd.edlinger@hotmail.de>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Andrei Vagin <avagin@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yuyang Du <duyuyang@gmail.com>,
+        David Hildenbrand <david@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Howells <dhowells@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Christian Kellner <christian@kellner.me>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
+Subject: Re: [PATCH v6 00/16] Infrastructure to allow fixing exec deadlocks
+Message-ID: <202003282041.A2639091@keescook>
+References: <AM6PR03MB5170B2F5BE24A28980D05780E4F50@AM6PR03MB5170.eurprd03.prod.outlook.com>
+ <871rpg8o7v.fsf@x220.int.ebiederm.org>
+ <AM6PR03MB5170938306F22C3CF61CC573E4CD0@AM6PR03MB5170.eurprd03.prod.outlook.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AM6PR03MB5170938306F22C3CF61CC573E4CD0@AM6PR03MB5170.eurprd03.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: mm/sparse: fix kernel crash with pfn_section_valid check
+On Sat, Mar 28, 2020 at 11:32:35PM +0100, Bernd Edlinger wrote:
+> Oh, do I understand you right, that I can add a From: in the
+> *body* of the mail, and then the From: in the MIME header part
+> which I cannot change is ignored, so I can make you the author?
 
-Fix the below crash
+Correct. (If you use "git send-email" it'll do this automatically.)
 
-BUG: Kernel NULL pointer dereference on read at 0x00000000
-Faulting instruction address: 0xc000000000c3447c
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-CPU: 11 PID: 7519 Comm: lt-ndctl Not tainted 5.6.0-rc7-autotest #1
-...
-NIP [c000000000c3447c] vmemmap_populated+0x98/0xc0
-LR [c000000000088354] vmemmap_free+0x144/0x320
-Call Trace:
- section_deactivate+0x220/0x240
- __remove_pages+0x118/0x170
- arch_remove_memory+0x3c/0x150
- memunmap_pages+0x1cc/0x2f0
- devm_action_release+0x30/0x50
- release_nodes+0x2f8/0x3e0
- device_release_driver_internal+0x168/0x270
- unbind_store+0x130/0x170
- drv_attr_store+0x44/0x60
- sysfs_kf_write+0x68/0x80
- kernfs_fop_write+0x100/0x290
- __vfs_write+0x3c/0x70
- vfs_write+0xcc/0x240
- ksys_write+0x7c/0x140
- system_call+0x5c/0x68
+e.g., trimmed from my workflow:
 
-The crash is due to NULL dereference at
+git format-patch -n --to "$to" --cover-letter -o outgoing/ \
+	--subject-prefix "PATCH v$version" "$SHA"
+edit outgoing/0000-*
+git send-email --transfer-encoding=8bit --8bit-encoding=UTF-8 \
+	--from="$ME" --to="$to" --cc="$ME" --cc="...more..." outgoing/*
 
-test_bit(idx, ms->usage->subsection_map); due to ms->usage = NULL; in
-pfn_section_valid()
 
-With commit d41e2f3bd546 ("mm/hotplug: fix hot remove failure in
-SPARSEMEM|!VMEMMAP case") section_mem_map is set to NULL after
-depopulate_section_mem().  This was done so that pfn_page() can work
-correctly with kernel config that disables SPARSEMEM_VMEMMAP.  With that
-config pfn_to_page does
-
-	__section_mem_map_addr(__sec) + __pfn;
-
-where
-
-static inline struct page *__section_mem_map_addr(struct mem_section *section)
-{
-	unsigned long map = section->section_mem_map;
-	map &= SECTION_MAP_MASK;
-	return (struct page *)map;
-}
-
-Now with SPASEMEM_VMEMAP enabled, mem_section->usage->subsection_map is
-used to check the pfn validity (pfn_valid()).  Since section_deactivate
-release mem_section->usage if a section is fully deactivated, pfn_valid()
-check after a subsection_deactivate cause a kernel crash.
-
-static inline int pfn_valid(unsigned long pfn)
-{
-...
-	return early_section(ms) || pfn_section_valid(ms, pfn);
-}
-
-where
-
-static inline int pfn_section_valid(struct mem_section *ms, unsigned long pfn)
-{
-	int idx = subsection_map_index(pfn);
-
-	return test_bit(idx, ms->usage->subsection_map);
-}
-
-Avoid this by clearing SECTION_HAS_MEM_MAP when mem_section->usage is
-freed.  For architectures like ppc64 where large pages are used for
-vmmemap mapping (16MB), a specific vmemmap mapping can cover multiple
-sections.  Hence before a vmemmap mapping page can be freed, the kernel
-needs to make sure there are no valid sections within that mapping. 
-Clearing the section valid bit before depopulate_section_memap enables
-this.
-
-[aneesh.kumar@linux.ibm.com: add comment]
-  Link: http://lkml.kernel.org/r/20200326133235.343616-1-aneesh.kumar@linux.ibm.comLink: http://lkml.kernel.org/r/20200325031914.107660-1-aneesh.kumar@linux.ibm.com
-Fixes: d41e2f3bd546 ("mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/sparse.c |    6 ++++++
- 1 file changed, 6 insertions(+)
-
---- a/mm/sparse.c~mm-sparse-fix-kernel-crash-with-pfn_section_valid-check
-+++ a/mm/sparse.c
-@@ -781,6 +781,12 @@ static void section_deactivate(unsigned
- 			ms->usage = NULL;
- 		}
- 		memmap = sparse_decode_mem_map(ms->section_mem_map, section_nr);
-+		/*
-+		 * Mark the section invalid so that valid_section()
-+		 * return false. This prevents code from dereferencing
-+		 * ms->usage array.
-+		 */
-+		ms->section_mem_map &= ~SECTION_HAS_MEM_MAP;
- 	}
- 
- 	if (section_is_early && memmap)
-_
+-- 
+Kees Cook
