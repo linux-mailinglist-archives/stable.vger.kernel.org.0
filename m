@@ -2,102 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE675196F4E
-	for <lists+stable@lfdr.de>; Sun, 29 Mar 2020 20:41:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD8E5196F69
+	for <lists+stable@lfdr.de>; Sun, 29 Mar 2020 20:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727837AbgC2SlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Mar 2020 14:41:24 -0400
-Received: from mail-qk1-f193.google.com ([209.85.222.193]:40244 "EHLO
-        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727506AbgC2SlX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Mar 2020 14:41:23 -0400
-Received: by mail-qk1-f193.google.com with SMTP id l25so16748664qki.7
-        for <stable@vger.kernel.org>; Sun, 29 Mar 2020 11:41:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3cGZvjYwHajcr93/tSPs0TDlTx6x2JxB8d17ydT2haw=;
-        b=ur8/dTChczw/2YMx6il2YoL2xMeACDwyU6oBzNSgzAPySMneW5tyZPcdZVuKKISLpf
-         QfFaMZgUpceaT+5bOpyZ/TSKUkpC+rxTtiMFvwg+pupVgsqryycVjAIfK1Yg8+ph/0bR
-         h6ta6MQCuSIgxK4SAIzjfN1Gv8m+dYbbmfRzpKjvJzeXrLxsOfnSl1AiBgdJ8m3G7mo6
-         nJ2sQf6IXC8/HxgoZfPFtGzI6R9frtoogMuE1HPjTUlgN2Pi4S/nn/oiovEYqZGyfRj3
-         7X79fko9Y4nykPb8BMFBO0gdI/RZ+ATYnqgk7XTKVFXKs0bEPLh7pdX+39iFW5sdJGDN
-         9sfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3cGZvjYwHajcr93/tSPs0TDlTx6x2JxB8d17ydT2haw=;
-        b=goU+YDWV7x/sBpzCDdA4xaVhZL9aUDkYinRGuzjrFjfmI/1EF7q2SV51nfScXBnixl
-         CQAAQWUEfBb4A+9IdLf0twKqCZByL9XI2RldsT3mUlVAM1IiXCyqg9HdO4F8zgs1jC9s
-         8ieVLcxgeXp0kof7Fgi+wW9cXJecufH3KtaiCNEq/aTQe6MVN8oY+2tiSYW7CuuDp8Mi
-         Au4sxNCxTLfRl8dvOx/0/RmMtJ85mP/YB7oH+qOEhGzFveS9W4idDk0xQjomM7Cx/iwk
-         yW63AutGLVLlT9RnCSHEpVP5GvogsqxQvwaJC+hXd47O5Kg56Y7Ofq604PB/qquET5Dn
-         eiHw==
-X-Gm-Message-State: ANhLgQ0vF55sib6LycXBXw5zAT0QGnCT4zdoF2LQNTrBsW3wB/VOsRpt
-        v3IMK5ztE/bx7uiCbq5D17yCXa4e
-X-Google-Smtp-Source: ADFU+vteeOcqmJElMOqZWf/7cW/ViPMoMcO/LWMqpDrXyBhQISI7vQtHalxph3JQraS0XwckPIaEpA==
-X-Received: by 2002:a37:4852:: with SMTP id v79mr8253515qka.459.1585507282215;
-        Sun, 29 Mar 2020 11:41:22 -0700 (PDT)
-Received: from pm2-ws13.praxislan02.com ([2001:470:8:67e:ba27:ebff:fee8:ce27])
-        by smtp.gmail.com with ESMTPSA id n142sm8490599qkn.11.2020.03.29.11.41.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Mar 2020 11:41:21 -0700 (PDT)
-From:   Jason Andryuk <jandryuk@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Jason Andryuk <jandryuk@gmail.com>
-Subject: Stable request: iwlwifi: mvm: fix non-ACPI function
-Date:   Sun, 29 Mar 2020 14:41:11 -0400
-Message-Id: <20200329184111.17469-1-jandryuk@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        id S1726244AbgC2SoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Mar 2020 14:44:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42876 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728616AbgC2SnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Mar 2020 14:43:19 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0E38212CC;
+        Sun, 29 Mar 2020 18:43:18 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.93)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1jIctx-002Fy6-OY; Sun, 29 Mar 2020 14:43:17 -0400
+Message-Id: <20200329184317.641598238@goodmis.org>
+User-Agent: quilt/0.65
+Date:   Sun, 29 Mar 2020 14:43:07 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Taeung Song <treeze.taeung@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [for-next][PATCH 15/21] ftrace/kprobe: Show the maxactive number on kprobe_events
+References: <20200329184252.289087453@goodmis.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 7937fd3227055892e169f4b34d21157e57d919e2 upstream.
+Show maxactive parameter on kprobe_events.
+This allows user to save the current configuration and
+restore it without losing maxactive parameter.
 
-The code now compiles without ACPI, but there's a warning since
-iwl_mvm_get_ppag_table() isn't used, and iwl_mvm_ppag_init() must
-not unconditionally fail but return success instead.
+Link: http://lkml.kernel.org/r/4762764a-6df7-bc93-ed60-e336146dce1f@gmail.com
+Link: http://lkml.kernel.org/r/158503528846.22706.5549974121212526020.stgit@devnote2
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-[Drop hunk removing iwl_mvm_get_ppag_table() since it doesn't exist in
-5.4]
-Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 696ced4fb1d76 ("tracing/kprobes: expose maxactive for kretprobe in kprobe_events")
+Reported-by: Taeung Song <treeze.taeung@gmail.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
-A 5.4 kernel can't "up" an iwlwifi interface when CONFIG_ACPI=n.
-`wpa_supplicant` or `ip link set wlan0 up` return "No such file or
-directory".  The non-acpi stub iwl_mvm_ppag_init() always returns
--ENOENT which means iwl_mvm_up() always fails.  Backporting the commit
-lets iwl_mvm_up() succeed.
+ kernel/trace/trace_kprobe.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-index c59cbb8cbdd7..c54fe6650018 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-@@ -1181,7 +1181,7 @@ int iwl_mvm_ppag_send_cmd(struct iwl_mvm *mvm)
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index 362cca52f5de..d0568af4a0ef 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -1078,6 +1078,8 @@ static int trace_kprobe_show(struct seq_file *m, struct dyn_event *ev)
+ 	int i;
  
- static int iwl_mvm_ppag_init(struct iwl_mvm *mvm)
- {
--	return -ENOENT;
-+	return 0;
- }
- #endif /* CONFIG_ACPI */
+ 	seq_putc(m, trace_kprobe_is_return(tk) ? 'r' : 'p');
++	if (trace_kprobe_is_return(tk) && tk->rp.maxactive)
++		seq_printf(m, "%d", tk->rp.maxactive);
+ 	seq_printf(m, ":%s/%s", trace_probe_group_name(&tk->tp),
+ 				trace_probe_name(&tk->tp));
  
 -- 
 2.25.1
+
 
