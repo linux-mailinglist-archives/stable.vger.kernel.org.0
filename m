@@ -2,101 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9456197089
-	for <lists+stable@lfdr.de>; Sun, 29 Mar 2020 23:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B826D1970CE
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 00:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728938AbgC2VdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Mar 2020 17:33:25 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:37163 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727370AbgC2VdZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Mar 2020 17:33:25 -0400
-Received: by mail-pl1-f193.google.com with SMTP id x1so5915311plm.4
-        for <stable@vger.kernel.org>; Sun, 29 Mar 2020 14:33:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=xCJS/qSV+9PFqHglloSdKWew+uZsleBm6KwvCU4mWPg=;
-        b=JrlXL6+IJJlb7MWiOs1lGugjk0rL0haqaymhHSW7sib1NAcVTALOvERDSOpKGhvVME
-         /fFAazdrw7xZuR7CH3FXV9WeGEXUWzgrDwh4XKDp57UPOan9gVljWPQt2VUAk5ITecty
-         JXL1cQ218m+U+6cefqkXtW9U4VoZkB+u+TwRtGsGH9NoQf9JFK1rUBrQ5otMkRQpZ0E4
-         Ric6FcM5HHORVdjTgkxaHcMLxO1r2ZHLpZaItQdz1QCzzQkuKDGXCjpDfKdvyVkeUc99
-         hwKVUMQg+LKGX7Lhc2XWgPvamK/ySin6+LGilGKIQ+lg9nB3r/SebWfLwgDugcWq98qh
-         beHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mime-version:content-disposition:user-agent;
-        bh=xCJS/qSV+9PFqHglloSdKWew+uZsleBm6KwvCU4mWPg=;
-        b=XVduOvwwEov1Dtm59I5M8QSSOGzLoHPiN1oCywhibF/qJQ3xXGP2DxzRm7mQFR/A15
-         8Zn18bpvtKQVSL8koLBKzbxbNOhOD0MOB447haZl5Au6KuyxoXqlsnrLDl24R2xaJ9Qr
-         jO9k8vyo9/noNph19LcE1MgR+YezkajZDmrFwarSrIvQC52Uk+3xzX+qS/p/oFbdQtRT
-         5ApXrDJ7ly/3KphL0a11PbeDJ68GEQmI8i+R3D/iEetWWPGP98lJZbOICZMwKhF1/bov
-         uvEhloW7dq+CN16Nz8tq2+yUCg2S/w42Dg5S8G+CZUUFB1FyAPRbPXwr5OiKmR+miikW
-         SzeQ==
-X-Gm-Message-State: ANhLgQ0Z3ca6CHmYvKUbJLlC1ZOZRWWhinIug9aMLG6j61fKZOviEN8F
-        J0ZrVvT2AP9DBbLSQKlrzljUhZjN
-X-Google-Smtp-Source: ADFU+vsBiahUVULAvbgHxacj9WBCoQL/OkxB4NczuOofaARLBjbIXKG/emVnZlx2kYkn5qz3Dk8rUA==
-X-Received: by 2002:a17:90a:5805:: with SMTP id h5mr12327524pji.175.1585517604323;
-        Sun, 29 Mar 2020 14:33:24 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 189sm8212063pgh.58.2020.03.29.14.33.23
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 29 Mar 2020 14:33:23 -0700 (PDT)
-Date:   Sun, 29 Mar 2020 14:33:22 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: Patches for v4.14.y
-Message-ID: <20200329213322.GA23871@roeck-us.net>
+        id S1728919AbgC2Wec (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Mar 2020 18:34:32 -0400
+Received: from us-smtp-delivery-74.mimecast.com ([216.205.24.74]:56675 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728895AbgC2Web (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Mar 2020 18:34:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1585521270;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mXnpHPVB8oNjkrr0GvLRzt8WY0+Fyot03Jm3B6RUun4=;
+        b=haI11/WLAPkOdyrzmTehxAHWxuEsmj3cpwngLPollSetdnJQ8hNM59Noj7fTBuBApYVTSY
+        Qy4ApMWcul1sb37Ehs2MalrJy8z3jYxajztxKOXRj10B1gCptsZvtM2qCuz8/O1owwYwms
+        lMq2cMm5ETMwflGR2c2XXeG33s5Kg50=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-17-Gvb4R2v2Pza2-RVY6EJ3PA-1; Sun, 29 Mar 2020 18:34:26 -0400
+X-MC-Unique: Gvb4R2v2Pza2-RVY6EJ3PA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 327C113F9;
+        Sun, 29 Mar 2020 22:34:25 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-112-12.ams2.redhat.com [10.36.112.12])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 749045DA66;
+        Sun, 29 Mar 2020 22:34:23 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-acpi@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "5 . 4+" <stable@vger.kernel.org>
+Subject: [PATCH 5.6 regression fix 1/2] ACPI: PM: Add acpi_s2idle_register_wake_callback()
+Date:   Mon, 30 Mar 2020 00:34:18 +0200
+Message-Id: <20200329223419.122796-2-hdegoede@redhat.com>
+In-Reply-To: <20200329223419.122796-1-hdegoede@redhat.com>
+References: <20200329223419.122796-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Since commit fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from
+waking up the system") the SCI triggering without there being a wakeup
+cause recognized by the ACPI sleep code will no longer wakeup the system.
 
-Please consider applying the following patches to v4.14.y.
+This works as intended, but this is a problem for devices where the SCI
+is shared with another device which is also a wakeup source.
 
-The following patches were found to be missing in v4.14.y by the ChromeOS
-missing patch robot. The patches meet the following criteria.
-- The patch includes a Fixes: tag
-- The patch referenced in the Fixes: tag has been applied to v4.14.y
-- The patch has not been applied to v4.14.y
+In the past these, from the pov of the ACPI sleep code, spurious SCIs
+would still cause a wakeup so the wakeup from the device sharing the
+interrupt would actually wakeup the system. This now no longer works.
 
-All patches have been applied to v4.14.y and chromeos-4.14. Resulting images
-have been build- and runtime-tested on real hardware with chromeos-4.14
-and with virtual hardware on kerneltests.org.
+This is a problem on e.g. Bay Trail-T and Cherry Trail devices where
+some peripherals (typically the XHCI controller) can signal a
+Power Management Event (PME) to the Power Management Controller (PMC)
+to wakeup the system, this uses the same interrupt as the SCI.
+These wakeups are handled through a special INT0002 ACPI device which
+checks for events in the GPE0a_STS for this and takes care of acking
+the PME so that the shared interrupt stops triggering.
 
-Upstream commit 76fc52bd07d3 ("arm64: ptrace: map SPSR_ELx<->PSR for compat tasks")
-	Fixes: 7206dc93a58fb764 ("arm64: Expose Arm v8.4 features")
-	in v4.14.y: 053cdffad3dd
+The change to the ACPI sleep code to ignore the spurious SCI, causes
+the system to no longer wakeup on these PME events. To make things
+worse this means that the INT0002 device driver interrupt handler will
+no longer run, causing the PME to not get cleared and resulting in the
+system hanging. Trying to wakeup the system after such a PME through e.g.
+the power button no longer works.
 
-Upstream commit 25dc2c80cfa3 ("arm64: compat: map SPSR_ELx<->PSR for signals")
-	Fixes: 7206dc93a58fb764 ("arm64: Expose Arm v8.4 features")
-	in v4.14.y: 053cdffad3dd
+Add an acpi_s2idle_register_wake_callback() function which registers
+a callback to be called from acpi_s2idle_wake() and when the callback
+returns true, return true from acpi_s2idle_wake().
 
-Upstream commit 93a64ee71d10 ("MAINTAINERS: Remove deleted file from futex file pattern")
-	Fixes: 04e7712f4460 ("y2038: futex: Move compat implementation into futex.c")
-	in v4.14.y: 0c08f1da992d
-	Notes:
-		Also applies to v4.19.y.
-		This is an example for a patch which isn't really necessary
-		(it doesn't fix a bug, only an entry in the the MAINTAINERS file),
-		but automation won't be able to know that. Please let me know
-		what to do with similar patches in the future.
+The INT0002 driver will use this mechanism to check the GPE0a_STS
+register from acpi_s2idle_wake() and to tell the system to wakeup
+if a PME is signaled in the register.
 
-Upstream commit 074376ac0e1d ("ftrace/x86: Anotate text_mutex split between ftrace_arch_code_modify_post_process() and ftrace_arch_code_modify_prepare()")
-	Fixes: 39611265edc1a ("ftrace/x86: Add a comment to why we take text_mutex in ftrace_arch_code_modify_prepare()")
-	Fixes: d5b844a2cf507 ("ftrace/x86: Remove possible deadlock between register_kprobe() and ftrace_run_update_code()")
-	in v4.14.y: 0c0b54770189 (upstream d5b844a2cf507)
-	Notes:
-		Also applies to v4.19.y.
+Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking=
+ up the system")
+Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/acpi/sleep.c | 70 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/acpi.h |  7 +++++
+ 2 files changed, 77 insertions(+)
 
-Thanks,
-Guenter
+diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
+index e5f95922bc21..e360e51afa8e 100644
+--- a/drivers/acpi/sleep.c
++++ b/drivers/acpi/sleep.c
+@@ -943,6 +943,65 @@ static struct acpi_scan_handler lps0_handler =3D {
+ 	.attach =3D lps0_device_attach,
+ };
+=20
++struct s2idle_wake_callback {
++	struct list_head list;
++	bool (*function)(void *data);
++	void *user_data;
++};
++
++static LIST_HEAD(s2idle_wake_callback_head);
++static DEFINE_MUTEX(s2idle_wake_callback_mutex);
++
++/*
++ * Drivers which may share an IRQ with the SCI can use this to register
++ * a callback which returns true when the device they are managing wants
++ * to trigger a wakeup.
++ */
++int acpi_s2idle_register_wake_callback(
++	int wake_irq, bool (*function)(void *data), void *user_data)
++{
++	struct s2idle_wake_callback *callback;
++
++	/*
++	 * If the device is not sharing its IRQ with the SCI, there is no
++	 * need to register the callback.
++	 */
++	if (!acpi_sci_irq_valid() || wake_irq !=3D acpi_sci_irq)
++		return 0;
++
++	callback =3D kmalloc(sizeof(*callback), GFP_KERNEL);
++	if (!callback)
++		return -ENOMEM;
++
++	callback->function =3D function;
++	callback->user_data =3D user_data;
++
++	mutex_lock(&s2idle_wake_callback_mutex);
++	list_add(&callback->list, &s2idle_wake_callback_head);
++	mutex_unlock(&s2idle_wake_callback_mutex);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(acpi_s2idle_register_wake_callback);
++
++void acpi_s2idle_unregister_wake_callback(
++	bool (*function)(void *data), void *user_data)
++{
++	struct s2idle_wake_callback *cb;
++
++	mutex_lock(&s2idle_wake_callback_mutex);
++	list_for_each_entry(cb, &s2idle_wake_callback_head, list) {
++		if (cb->function =3D=3D function &&
++		    cb->user_data =3D=3D user_data) {
++			list_del(&cb->list);
++			kfree(cb);
++			break;
++		}
++	}
++	mutex_unlock(&s2idle_wake_callback_mutex);
++}
++EXPORT_SYMBOL_GPL(acpi_s2idle_unregister_wake_callback);
++
+ static int acpi_s2idle_begin(void)
+ {
+ 	acpi_scan_lock_acquire();
+@@ -992,6 +1051,8 @@ static void acpi_s2idle_sync(void)
+=20
+ static bool acpi_s2idle_wake(void)
+ {
++	struct s2idle_wake_callback *cb;
++
+ 	if (!acpi_sci_irq_valid())
+ 		return pm_wakeup_pending();
+=20
+@@ -1025,6 +1086,15 @@ static bool acpi_s2idle_wake(void)
+ 		if (acpi_any_gpe_status_set() && !acpi_ec_dispatch_gpe())
+ 			return true;
+=20
++		/*
++		 * Check callbacks registered by drivers sharing the SCI.
++		 * Note no need to lock, nothing else is running.
++		 */
++		list_for_each_entry(cb, &s2idle_wake_callback_head, list) {
++			if (cb->function(cb->user_data))
++				return true;
++		}
++
+ 		/*
+ 		 * Cancel the wakeup and process all pending events in case
+ 		 * there are any wakeup ones in there.
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 0f24d701fbdc..9f06e1dc79c1 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -488,6 +488,13 @@ void __init acpi_nvs_nosave_s3(void);
+ void __init acpi_sleep_no_blacklist(void);
+ #endif /* CONFIG_PM_SLEEP */
+=20
++#ifdef CONFIG_ACPI_SYSTEM_POWER_STATES_SUPPORT
++int acpi_s2idle_register_wake_callback(
++	int wake_irq, bool (*function)(void *data), void *user_data);
++void acpi_s2idle_unregister_wake_callback(
++	bool (*function)(void *data), void *user_data);
++#endif
++
+ struct acpi_osc_context {
+ 	char *uuid_str;			/* UUID string */
+ 	int rev;
+--=20
+2.26.0
+
