@@ -2,78 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7F819811B
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 18:23:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49D8119812D
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 18:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727915AbgC3QX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 12:23:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56338 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728708AbgC3QX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Mar 2020 12:23:58 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 700F6206CC;
-        Mon, 30 Mar 2020 16:23:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585585437;
-        bh=B16m0Ow773Aqt4Qa1Tz8oIJFgNSYnnbreOBbAtbj1TE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ALdimsSjD+8ZuMxjCyejq9LaubNn4niiZn/BBj6zc00nY86kzolBYNOlXXzgp3Vwq
-         rJD/6moM7Oc7jMeVQ1gr0/5tku4c3slQ/4Uvw0VCpAiZ+mEkp2DhNnqEQyoIn9uH0i
-         2kV39z5cedZYZscRkdnZY5Ah/l6OdMzq870hvKzE=
-Date:   Mon, 30 Mar 2020 12:23:56 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     johannes.berg@intel.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] mac80211: set
- IEEE80211_TX_CTRL_PORT_CTRL_PROTO for nl80211" failed to apply to
- 4.19-stable tree
-Message-ID: <20200330162356.GJ4189@sasha-vm>
-References: <158557523660185@kroah.com>
+        id S1726981AbgC3Q1i convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 30 Mar 2020 12:27:38 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:65280 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726085AbgC3Q1i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 12:27:38 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 20742597-1500050 
+        for multiple; Mon, 30 Mar 2020 17:27:29 +0100
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <158557523660185@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20200330033057.2629052-3-sultan@kerneltoast.com>
+References: <20200330033057.2629052-1-sultan@kerneltoast.com> <20200330033057.2629052-3-sultan@kerneltoast.com>
+Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Sultan Alsawaf <sultan@kerneltoast.com>
+To:     Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] drm/i915/gt: Schedule request retirement when timeline idles
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Message-ID: <158558564835.3228.8789679707542626662@build.alporthouse.com>
+User-Agent: alot/0.8.1
+Date:   Mon, 30 Mar 2020 17:27:28 +0100
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 30, 2020 at 03:33:56PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From b95d2ccd2ccb834394d50347d0e40dc38a954e4a Mon Sep 17 00:00:00 2001
->From: Johannes Berg <johannes.berg@intel.com>
->Date: Thu, 26 Mar 2020 15:53:34 +0100
->Subject: [PATCH] mac80211: set IEEE80211_TX_CTRL_PORT_CTRL_PROTO for nl80211
-> TX
->
->When a frame is transmitted via the nl80211 TX rather than as a
->normal frame, IEEE80211_TX_CTRL_PORT_CTRL_PROTO wasn't set and
->this will lead to wrong decisions (rate control etc.) being made
->about the frame; fix this.
->
->Fixes: 911806491425 ("mac80211: Add support for tx_control_port")
->Signed-off-by: Johannes Berg <johannes.berg@intel.com>
->Link: https://lore.kernel.org/r/20200326155333.f183f52b02f0.I4054e2a8c11c2ddcb795a0103c87be3538690243@changeid
->Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Quoting Sultan Alsawaf (2020-03-30 04:30:57)
+> +static void engine_retire(struct work_struct *work)
+> +{
+> +       struct intel_engine_cs *engine =
+> +               container_of(work, typeof(*engine), retire_work);
+> +       struct intel_timeline *tl = xchg(&engine->retire, NULL);
+> +
+> +       do {
+> +               struct intel_timeline *next = xchg(&tl->retire, NULL);
+> +
+> +               /*
+> +                * Our goal here is to retire _idle_ timelines as soon as
+> +                * possible (as they are idle, we do not expect userspace
+> +                * to be cleaning up anytime soon).
+> +                *
+> +                * If the timeline is currently locked, either it is being
+> +                * retired elsewhere or about to be!
+> +                */
 
-I've also grabbed 060167729a78 ("mac80211: add option for setting
-control flags") for 4.19.
+iirc the backport requires the retirement to be wrapped in struct_mutex
 
--- 
-Thanks,
-Sasha
+mutex_lock(&engine->i915->drm.struct_mutex);
+
+> +               if (mutex_trylock(&tl->mutex)) {
+> +                       retire_requests(tl);
+> +                       mutex_unlock(&tl->mutex);
+> +               }
+
+mutex_unlock(&engine->i915->drm.struct_mutex);
+
+Now the question is whether that was for 5.3 or 5.4. I think 5.3 is
+where the changes were more severe and where we switch to the 4.19
+approach.
+
+> +               intel_timeline_put(tl);
+> +
+> +               GEM_BUG_ON(!next);
+> +               tl = ptr_mask_bits(next, 1);
+> +       } while (tl);
+> +}
