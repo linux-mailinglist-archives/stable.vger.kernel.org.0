@@ -2,101 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 752A6197EBD
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 16:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68B89197F10
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 16:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbgC3Oqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 10:46:32 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:33297 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727874AbgC3Oqb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 10:46:31 -0400
-Received: by mail-wr1-f68.google.com with SMTP id a25so22026571wrd.0
-        for <stable@vger.kernel.org>; Mon, 30 Mar 2020 07:46:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=tpz3hcUinCwP2DWU0+Otg3a4kmarez+oM4RdYnuHgZ8=;
-        b=Xg8Zh0NT42H/6GvxmHujZ3EoDU6alYlIB1UP0hgn3lJd6J/cGDJyGQPSHJLDsffMKQ
-         cCfgM2guOg3YS9xaZNkjRZcPMxsbzK5OyQQUH8xvUyyFv5rZl8yZ3if4J5tifsqlIeca
-         /uVoX4+XcE2YLxjicjghx+54pQ9GPrQgFAE7w=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=tpz3hcUinCwP2DWU0+Otg3a4kmarez+oM4RdYnuHgZ8=;
-        b=N/T96uCGYTw3FY/Llu1D5AxHnK4T1C35ntbuanY+rSladRI2XQ0XZHSnxbQFK2NKDi
-         5a1clT7GHqr+WdH7DHx5qoN0jpYQpPfHVt2tX99uO/Q/ke3dQr7WTRHjiaOFA69MUhR7
-         /UhlKoljiU0TRUgdS1AhUk8CRPFRso2vfxec95WLU4PX0PCsrGcBE3kroi94bnsY6CNe
-         Q/KmFql5IYZ34YhT82G+LUPX4vVi/7r5ItF1h+gZ5YM8Z82fE7TuyUbC3KOmPyRxe17+
-         PtpVJ3nkdUmGCZe2qPVjLxtnO2ClIP8pjb5CQ39lkl/MtHHZ79CQBs7bYbSrNHgszrmB
-         11Ww==
-X-Gm-Message-State: ANhLgQ1NwFvE7o+vSCJcELko0ZolOTplou+UXqOFAgRTvl8NKINjqAS+
-        up0Lo6svKQRgLlWDE1dq4s5ARw==
-X-Google-Smtp-Source: ADFU+vuifVDYMdzZofr1X+74yfPXUSfi61+tN8zpZ+l2OdZihgFOzAzKaJnywRgN+CQR/eW2eYm0fw==
-X-Received: by 2002:adf:fac7:: with SMTP id a7mr15711731wrs.191.1585579589077;
-        Mon, 30 Mar 2020 07:46:29 -0700 (PDT)
-Received: from chatter.i7.local (tor-exit-1.zbau.f3netze.de. [185.220.100.252])
-        by smtp.gmail.com with ESMTPSA id g2sm23189735wrs.42.2020.03.30.07.46.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Mar 2020 07:46:28 -0700 (PDT)
-Date:   Mon, 30 Mar 2020 10:46:20 -0400
-From:   Konstantin Ryabitsev <konstantin@linuxfoundation.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Karel Zak <kzak@redhat.com>, Linux-MM <linux-mm@kvack.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Michal Hocko <mhocko@suse.com>, mm-commits@vger.kernel.org,
-        ndfont@gmail.com, pbadari@us.ibm.com,
-        Rafael Wysocki <rafael@kernel.org>, rcj@linux.vnet.ibm.com,
-        stable <stable@vger.kernel.org>, steve.scargall@intel.com
-Subject: Re: [patch 2/5] drivers/base/memory.c: indicate all memory blocks as
- removable
-Message-ID: <20200330144620.latd7lgfgzkmyfay@chatter.i7.local>
-References: <20200328191456.4fc0b9ca86780f26c122399e@linux-foundation.org>
- <20200329021719.MBKzW0xSl%akpm@linux-foundation.org>
- <CAHk-=wgs1mfvk8pwefSD2A4=RgH6td50x9D-yn3Axm7icp5Xag@mail.gmail.com>
- <b80d7cea-a8f7-11c9-66fa-bdc272bdf099@redhat.com>
- <20200329194354.xrbzlvlbjimy3pzz@chatter.i7.local>
- <CAHk-=wheAem=MzY=F0ox7tuxFR47SgUj7zB+2S_KOhEB49zsPA@mail.gmail.com>
+        id S1728321AbgC3OyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 10:54:02 -0400
+Received: from mga05.intel.com ([192.55.52.43]:48804 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728080AbgC3OyC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Mar 2020 10:54:02 -0400
+IronPort-SDR: bVE95S9nAHI880y/LpLOMlmtoIklyC4wJHD1AIj49tGULlfaOccTyU54+PK5QS92KXY78Avsnz
+ N+qx/7JF+Bfg==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2020 07:54:01 -0700
+IronPort-SDR: 6AZb4YxdwxccLW4pzPd13dyt/rHXVVgzptn6Vdg54LA9vG/5fJTzc+V8sE6REJPm3QXDHa1ck3
+ 3hn2SE3ALAzg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,324,1580803200"; 
+   d="scan'208";a="395146086"
+Received: from linux.intel.com ([10.54.29.200])
+  by orsmga004.jf.intel.com with ESMTP; 30 Mar 2020 07:54:01 -0700
+Received: from [10.252.136.240] (kliang2-mobl.ccr.corp.intel.com [10.252.136.240])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by linux.intel.com (Postfix) with ESMTPS id 0BAF25805A1;
+        Mon, 30 Mar 2020 07:54:00 -0700 (PDT)
+Subject: Re: [PATCH] perf/x86/intel: Add more available bits for
+ OFFCORE_RESPONSE of Intel Tremont
+To:     peterz@infradead.org, mingo@redhat.com,
+        linux-kernel@vger.kernel.org
+Cc:     ak@linux.intel.com, eranian@google.com, stable@vger.kernel.org
+References: <20200308125507.18670-1-kan.liang@linux.intel.com>
+From:   "Liang, Kan" <kan.liang@linux.intel.com>
+Message-ID: <0a06d798-c90f-1824-50dc-acbeae6ee18a@linux.intel.com>
+Date:   Mon, 30 Mar 2020 10:53:59 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wheAem=MzY=F0ox7tuxFR47SgUj7zB+2S_KOhEB49zsPA@mail.gmail.com>
+In-Reply-To: <20200308125507.18670-1-kan.liang@linux.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Mar 29, 2020 at 12:55:09PM -0700, Linus Torvalds wrote:
-> On Sun, Mar 29, 2020 at 12:43 PM Konstantin Ryabitsev
-> <konstantin@linuxfoundation.org> wrote:
-> >
-> > It would appear that the workflow Andrew uses to queue up patches from
-> > you isn't expecting quoted-printable formatting, which is why when Linus
-> > gets them, they are mangled.
+Hi Peter,
+
+Could you please take a look and apply the patch?
+
+Thanks,
+Kan
+
+On 3/8/2020 8:55 AM, kan.liang@linux.intel.com wrote:
+> From: Kan Liang <kan.liang@linux.intel.com>
 > 
-> I don't think that's the case.
+> The mask in the extra_regs for Intel Tremont need to be extended to
+> allow more defined bits.
 > 
-> Why? Because I see _proper_ handling of MIME and quoted-printable from
-> Andrew all the time.
-
-Hmm... You are correct. I see that Naohiro Aota's original patch was 
-also QP-encoded. I'm just as confused as everyone, then. :) As far as I 
-can tell, there is no meaningful difference between David's emails and 
-Naohiro's:
-
-https://lore.kernel.org/linux-mm/20200206090132.154869-1-naohiro.aota@wdc.com/raw
-https://lore.kernel.org/linux-mm/20200128093542.6908-1-david@redhat.com/raw
-
-David's original patch is well-formed and the only notable difference 
-between the two is that there's a line of ==== in Nahorio's email that 
-makes it immediately obvious that the message needs to be decoded before 
-it can be used.
-
--K
+> "Outstanding Requests" (bit 63) is only available on MSR_OFFCORE_RSP0;
+> 
+> Fixes: 6daeb8737f8a ("perf/x86/intel: Add Tremont core PMU support")
+> Reported-by: Stephane Eranian <eranian@google.com>
+> Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+> Cc: stable@vger.kernel.org
+> ---
+>   arch/x86/events/intel/core.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+> index 3be51aa06e67..ba08ad1f560b 100644
+> --- a/arch/x86/events/intel/core.c
+> +++ b/arch/x86/events/intel/core.c
+> @@ -1892,8 +1892,8 @@ static __initconst const u64 tnt_hw_cache_extra_regs
+>   
+>   static struct extra_reg intel_tnt_extra_regs[] __read_mostly = {
+>   	/* must define OFFCORE_RSP_X first, see intel_fixup_er() */
+> -	INTEL_UEVENT_EXTRA_REG(0x01b7, MSR_OFFCORE_RSP_0, 0xffffff9fffull, RSP_0),
+> -	INTEL_UEVENT_EXTRA_REG(0x02b7, MSR_OFFCORE_RSP_1, 0xffffff9fffull, RSP_1),
+> +	INTEL_UEVENT_EXTRA_REG(0x01b7, MSR_OFFCORE_RSP_0, 0x800ff0ffffff9fffull, RSP_0),
+> +	INTEL_UEVENT_EXTRA_REG(0x02b7, MSR_OFFCORE_RSP_1, 0xff0ffffff9fffull, RSP_1),
+>   	EVENT_EXTRA_END
+>   };
+>   
+> 
