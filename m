@@ -2,28 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B131197F4F
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 17:14:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E16F0197F79
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 17:22:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727981AbgC3POB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 11:14:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38174 "EHLO mail.kernel.org"
+        id S1728990AbgC3PWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 11:22:47 -0400
+Received: from mga12.intel.com ([192.55.52.136]:3777 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727183AbgC3POB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Mar 2020 11:14:01 -0400
-Received: from localhost.localdomain (host109-155-186-24.range109-155.btcentralplus.com [109.155.186.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 636D0206F5;
-        Mon, 30 Mar 2020 15:14:00 +0000 (UTC)
-From:   Anton Altaparmakov <anton@tuxera.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>
-Cc:     linux-fsdevel@vger.kernel.org,
-        Anton Altaparmakov <anton@tuxera.com>, stable@vger.kernel.org
-Subject: [PATCH] Remove bogus warning in __mark_inode_dirty().
-Date:   Mon, 30 Mar 2020 16:13:54 +0100
-Message-Id: <20200330151354.16648-1-anton@tuxera.com>
-X-Mailer: git-send-email 2.24.1 (Apple Git-126)
+        id S1728926AbgC3PWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Mar 2020 11:22:47 -0400
+IronPort-SDR: 4z+ijVWFfz5HK/UuwwDMlXCpq+aJ/jvL5BU33E1/9Vj6W7FyuXox1pBpMPDtIeBZxmksHY5zj9
+ V/AR9PKxeg7w==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2020 08:22:48 -0700
+IronPort-SDR: VPsHJZfrK7HppLj1wlNQEaTO2HIfOiOdtz+dyMZJjicCB9DfuV2IOxCItKP6sT2BP3gQg8PWkm
+ MATqeatPWQcQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,324,1580803200"; 
+   d="scan'208";a="248733724"
+Received: from ideak-desk.fi.intel.com ([10.237.72.183])
+  by orsmga003.jf.intel.com with ESMTP; 30 Mar 2020 08:22:45 -0700
+From:   Imre Deak <imre.deak@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] drm/i915/icl+: Don't enable DDI IO power on a TypeC port in TBT mode
+Date:   Mon, 30 Mar 2020 18:22:44 +0300
+Message-Id: <20200330152244.11316-1-imre.deak@intel.com>
+X-Mailer: git-send-email 2.23.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -31,40 +38,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The warning about "bdi-%s not registered" in __mark_inode_dirty()
-is incorrect and can relatively easily be triggered during failsafe
-testing of any file system where the test involves unplugging the
-storage without unmounting in the middle of write operations.
+The DDI IO power well must not be enabled for a TypeC port in TBT mode,
+ensure this during driver loading/system resume.
 
-Even if the filesystem checks "is device not unplugged" before calling
-__mark_inode_dirty() the device unplug can happen after this check has
-been performed but before __mark_inode_dirty() gets to the check inside
-the WARN().
+This gets rid of error messages like
+[drm] *ERROR* power well DDI E TC2 IO state mismatch (refcount 1/enabled 0)
 
-Thus this patch simply removes this warning as it is perfectly normal
-thing to happen when volume is unplugged whilst being written to.
+and avoids leaking the power ref when disabling the output.
 
-Signed-off-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
 ---
- fs/fs-writeback.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/gpu/drm/i915/display/intel_ddi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 76ac9c7d32ec..443134d3dbf3 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -2318,10 +2318,6 @@ void __mark_inode_dirty(struct inode *inode, int flags)
+diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+index 916a802af788..654151d9a6db 100644
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -1899,7 +1899,11 @@ static void intel_ddi_get_power_domains(struct intel_encoder *encoder,
+ 		return;
  
- 			wb = locked_inode_to_wb_and_lock_list(inode);
+ 	dig_port = enc_to_dig_port(encoder);
+-	intel_display_power_get(dev_priv, dig_port->ddi_io_power_domain);
++
++	if (!intel_phy_is_tc(dev_priv, phy) ||
++	    dig_port->tc_mode != TC_PORT_TBT_ALT)
++		intel_display_power_get(dev_priv,
++					dig_port->ddi_io_power_domain);
  
--			WARN(bdi_cap_writeback_dirty(wb->bdi) &&
--			     !test_bit(WB_registered, &wb->state),
--			     "bdi-%s not registered\n", wb->bdi->name);
--
- 			inode->dirtied_when = jiffies;
- 			if (dirtytime)
- 				inode->dirtied_time_when = jiffies;
+ 	/*
+ 	 * AUX power is only needed for (e)DP mode, and for HDMI mode on TC
 -- 
-2.24.1 (Apple Git-126)
+2.23.1
 
