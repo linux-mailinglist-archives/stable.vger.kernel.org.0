@@ -2,85 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E00019833A
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 20:18:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7559198343
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 20:21:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727815AbgC3SSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 14:18:37 -0400
-Received: from mga17.intel.com ([192.55.52.151]:34703 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726017AbgC3SSh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Mar 2020 14:18:37 -0400
-IronPort-SDR: SZBKxaFR//kXzATZrsEbOY2QA4UiOjQgDsyOVHfzIIbriVi8RMpnERq5oL3K52zkuEtZpO0vrY
- QckcV9FMlJjA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2020 11:18:37 -0700
-IronPort-SDR: B4IGHahozMVLUZgTj4vgXloJOHX4x/spN4o1J1r1l8ACPD2tXU3Qqsc+vKRlPn8ftpP9KdHxM3
- SZbYml5lnTjw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,325,1580803200"; 
-   d="scan'208";a="294684511"
-Received: from fmsmsx107.amr.corp.intel.com ([10.18.124.205])
-  by FMSMGA003.fm.intel.com with ESMTP; 30 Mar 2020 11:18:36 -0700
-Received: from fmsmsx123.amr.corp.intel.com (10.18.125.38) by
- fmsmsx107.amr.corp.intel.com (10.18.124.205) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Mon, 30 Mar 2020 11:18:33 -0700
-Received: from fmsmsx116.amr.corp.intel.com ([169.254.2.62]) by
- fmsmsx123.amr.corp.intel.com ([169.254.7.47]) with mapi id 14.03.0439.000;
- Mon, 30 Mar 2020 11:18:33 -0700
-From:   "Souza, Jose" <jose.souza@intel.com>
-To:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "Deak, Imre" <imre.deak@intel.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915/icl+: Don't enable DDI IO power on
- a TypeC port in TBT mode
-Thread-Topic: [Intel-gfx] [PATCH] drm/i915/icl+: Don't enable DDI IO power
- on a TypeC port in TBT mode
-Thread-Index: AQHWBqcfnsCiQVK6xk+ajFqTX6qZK6hh57IA
-Date:   Mon, 30 Mar 2020 18:18:32 +0000
-Message-ID: <815ba1ab31f27a14de6ed5845d6ec07c6d56b32d.camel@intel.com>
-References: <20200330152244.11316-1-imre.deak@intel.com>
-In-Reply-To: <20200330152244.11316-1-imre.deak@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.24.15.8]
+        id S1727390AbgC3SV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 14:21:26 -0400
+Received: from mail-pj1-f68.google.com ([209.85.216.68]:50984 "EHLO
+        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726672AbgC3SV0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 14:21:26 -0400
+Received: by mail-pj1-f68.google.com with SMTP id v13so7987673pjb.0
+        for <stable@vger.kernel.org>; Mon, 30 Mar 2020 11:21:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Qltk+PWFTjKjP2hRg3FyZAuqLFvG83DYYoa+4wffpFo=;
+        b=lTP6JeYx0Ux+9r0EO6+yhzpGkiRPE8FwnNRHDgJnYEuY2X1ar77yaW5owDlM6chMjb
+         KqPReLoyWkR5sFsE7HpYU5DEhoj0RvLEOts1KdLVNEcWIXbNCHSoOm6LhJydD84iuWXs
+         gKzDoY/XuYoWtJeD3DneJVXf3MDx51tWlU1MnlrBIoQ4WpABv6osYN80Ne2kkAOS0suk
+         gCu8sIToB0qIJT//i5UlqJO/qLFRo7pYD4W1lI5XSdkHAaqkknsbqYyFDJZgeUvRx8ac
+         DBp5e2aJ5eeKfchPt+eXBUNLlQb5Fy82/TaOHcTEGBxLPe2RMT+9RAMypcITWgpz8gsn
+         MqiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Qltk+PWFTjKjP2hRg3FyZAuqLFvG83DYYoa+4wffpFo=;
+        b=Dcro9/rOEzrReJs/NPXia6c80mCjxK+THYdM+dRZkjWEZ1RWJBCiLAbBa5Awh8aKSP
+         G9WN1p4eUPyUgDN87OAHH6oO0QphhKnO0ZK4znYI+uefy12USsrCw8ktih7Ii2jxeela
+         Sjns9eaHiYPOua3DwaD8jIPG9AK5/uUUs62P0GJbz0aNm79FMHQ7zri04Ep9pR0JLGYj
+         dCITdnQLFSs3KJifTbudoOr4fIXLLvj70Xsy9cwQxVo8ow8RPRg7BvrIQPU7nRiVbZ8U
+         y1Fg7Xg/wRzzCxTideK8/17GqxA2JajZ2V/JrqktOuyV6k9bOJkc3Cq7nyY7GUvMHd5Q
+         hJgw==
+X-Gm-Message-State: AGi0PubnGucZbxh89V4PThbwRzjHNDkRRnj+QsrYmjCajpwPHK2KWjXt
+        tTFz0Z4C2lmi+OR1yo6qlRBWpX4lhHU=
+X-Google-Smtp-Source: APiQypK5+aTSuUZgCX957xfYHu0SsPCBKQTFQQ0ffoa9n68acTRYT/WnAjIiKx+lUZ3s/PpTpAsQgA==
+X-Received: by 2002:a17:902:b101:: with SMTP id q1mr712597plr.246.1585592484971;
+        Mon, 30 Mar 2020 11:21:24 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i6sm10687630pfe.62.2020.03.30.11.21.23
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Mar 2020 11:21:23 -0700 (PDT)
+Message-ID: <5e8238a3.1c69fb81.b2b09.f6f2@mx.google.com>
+Date:   Mon, 30 Mar 2020 11:21:23 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-ID: <8C122FC9C741F24AB64B3CE9197E0D65@intel.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.113-79-g81a370c0d238
+X-Kernelci-Report-Type: build
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y build: 206 builds: 2 failed, 204 passed,
+ 2 errors, 8 warnings (v4.19.113-79-g81a370c0d238)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gTW9uLCAyMDIwLTAzLTMwIGF0IDE4OjIyICswMzAwLCBJbXJlIERlYWsgd3JvdGU6DQo+IFRo
-ZSBEREkgSU8gcG93ZXIgd2VsbCBtdXN0IG5vdCBiZSBlbmFibGVkIGZvciBhIFR5cGVDIHBvcnQg
-aW4gVEJUDQo+IG1vZGUsDQo+IGVuc3VyZSB0aGlzIGR1cmluZyBkcml2ZXIgbG9hZGluZy9zeXN0
-ZW0gcmVzdW1lLg0KPiANCj4gVGhpcyBnZXRzIHJpZCBvZiBlcnJvciBtZXNzYWdlcyBsaWtlDQo+
-IFtkcm1dICpFUlJPUiogcG93ZXIgd2VsbCBEREkgRSBUQzIgSU8gc3RhdGUgbWlzbWF0Y2ggKHJl
-ZmNvdW50DQo+IDEvZW5hYmxlZCAwKQ0KPiANCj4gYW5kIGF2b2lkcyBsZWFraW5nIHRoZSBwb3dl
-ciByZWYgd2hlbiBkaXNhYmxpbmcgdGhlIG91dHB1dC4NCg0KTWF0Y2hlcyBpbnRlbF9kZGlfcG9z
-dF9kaXNhYmxlX2RwIGFuZA0KdGdsX2RkaV9wcmVfZW5hYmxlX2RwL2hzd19kZGlfcHJlX2VuYWJs
-ZV9kcC4NCg0KUmV2aWV3ZWQtYnk6IEpvc8OpIFJvYmVydG8gZGUgU291emEgPGpvc2Uuc291emFA
-aW50ZWwuY29tPg0KDQo+IA0KPiBDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+ICMgdjUuNCsN
-Cj4gU2lnbmVkLW9mZi1ieTogSW1yZSBEZWFrIDxpbXJlLmRlYWtAaW50ZWwuY29tPg0KPiAtLS0N
-Cj4gIGRyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZGRpLmMgfCA2ICsrKysrLQ0K
-PiAgMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPiANCj4g
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZGRpLmMNCj4g
-Yi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX2RkaS5jDQo+IGluZGV4IDkxNmE4
-MDJhZjc4OC4uNjU0MTUxZDlhNmRiIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vaTkx
-NS9kaXNwbGF5L2ludGVsX2RkaS5jDQo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3Bs
-YXkvaW50ZWxfZGRpLmMNCj4gQEAgLTE4OTksNyArMTg5OSwxMSBAQCBzdGF0aWMgdm9pZCBpbnRl
-bF9kZGlfZ2V0X3Bvd2VyX2RvbWFpbnMoc3RydWN0DQo+IGludGVsX2VuY29kZXIgKmVuY29kZXIs
-DQo+ICAJCXJldHVybjsNCj4gIA0KPiAgCWRpZ19wb3J0ID0gZW5jX3RvX2RpZ19wb3J0KGVuY29k
-ZXIpOw0KPiAtCWludGVsX2Rpc3BsYXlfcG93ZXJfZ2V0KGRldl9wcml2LCBkaWdfcG9ydC0NCj4g
-PmRkaV9pb19wb3dlcl9kb21haW4pOw0KPiArDQo+ICsJaWYgKCFpbnRlbF9waHlfaXNfdGMoZGV2
-X3ByaXYsIHBoeSkgfHwNCj4gKwkgICAgZGlnX3BvcnQtPnRjX21vZGUgIT0gVENfUE9SVF9UQlRf
-QUxUKQ0KPiArCQlpbnRlbF9kaXNwbGF5X3Bvd2VyX2dldChkZXZfcHJpdiwNCj4gKwkJCQkJZGln
-X3BvcnQtPmRkaV9pb19wb3dlcl9kb21haW4pOw0KPiAgDQo+ICAJLyoNCj4gIAkgKiBBVVggcG93
-ZXIgaXMgb25seSBuZWVkZWQgZm9yIChlKURQIG1vZGUsIGFuZCBmb3IgSERNSSBtb2RlDQo+IG9u
-IFRDDQo=
+stable-rc/linux-4.19.y build: 206 builds: 2 failed, 204 passed, 2 errors, 8=
+ warnings (v4.19.113-79-g81a370c0d238)
+
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.113-79-g81a370c0d238/
+
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.113-79-g81a370c0d238
+Git Commit: 81a370c0d2380a99e6a2fad5d3d9456ce054966c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
+
+Build Failures Detected:
+
+arm:
+    multi_v7_defconfig: (gcc-8) FAIL
+    sunxi_defconfig: (gcc-8) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+
+arm64:
+
+arm:
+    multi_v7_defconfig (gcc-8): 1 error, 1 warning
+    sunxi_defconfig (gcc-8): 1 error, 1 warning
+
+i386:
+
+mips:
+    lemote2f_defconfig (gcc-8): 1 warning
+    loongson3_defconfig (gcc-8): 2 warnings
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
+    nlm_xlp_defconfig (gcc-8): 1 warning
+
+riscv:
+
+x86_64:
+    tinyconfig (gcc-8): 1 warning
+
+Errors summary:
+
+    2    Error: ../arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts:419.38-39 synt=
+ax error
+
+Warnings summary:
+
+    3    net/core/rtnetlink.c:3190:1: warning: the frame size of 1312 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
+    2    drivers/gpu/drm/sun4i/sun4i_hdmi_tmds_clk.c:159:5: warning: =E2=80=
+=98is_double=E2=80=99 may be used uninitialized in this function [-Wmaybe-u=
+ninitialized]
+    1    {standard input}:131: Warning: macro instruction expanded into mul=
+tiple instructions
+    1    arch/mips/configs/loongson3_defconfig:55:warning: symbol value 'm'=
+ invalid for HOTPLUG_PCI_SHPC
+    1    .config:1010:warning: override: UNWINDER_GUESS changes choice state
+
+---
+For more info write to <info@kernelci.org>
