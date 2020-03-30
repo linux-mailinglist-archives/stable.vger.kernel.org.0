@@ -2,73 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E16F0197F79
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 17:22:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C807197FDC
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 17:39:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728990AbgC3PWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 11:22:47 -0400
-Received: from mga12.intel.com ([192.55.52.136]:3777 "EHLO mga12.intel.com"
+        id S1729335AbgC3Pjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 11:39:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728926AbgC3PWr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Mar 2020 11:22:47 -0400
-IronPort-SDR: 4z+ijVWFfz5HK/UuwwDMlXCpq+aJ/jvL5BU33E1/9Vj6W7FyuXox1pBpMPDtIeBZxmksHY5zj9
- V/AR9PKxeg7w==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2020 08:22:48 -0700
-IronPort-SDR: VPsHJZfrK7HppLj1wlNQEaTO2HIfOiOdtz+dyMZJjicCB9DfuV2IOxCItKP6sT2BP3gQg8PWkm
- MATqeatPWQcQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,324,1580803200"; 
-   d="scan'208";a="248733724"
-Received: from ideak-desk.fi.intel.com ([10.237.72.183])
-  by orsmga003.jf.intel.com with ESMTP; 30 Mar 2020 08:22:45 -0700
-From:   Imre Deak <imre.deak@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] drm/i915/icl+: Don't enable DDI IO power on a TypeC port in TBT mode
-Date:   Mon, 30 Mar 2020 18:22:44 +0300
-Message-Id: <20200330152244.11316-1-imre.deak@intel.com>
-X-Mailer: git-send-email 2.23.1
+        id S1725978AbgC3Pjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Mar 2020 11:39:49 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0F752072E;
+        Mon, 30 Mar 2020 15:39:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585582789;
+        bh=RXukKmZZo9MdjZF0bSbjfbAdbc0UUu3OTOX6WT5sf8A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=G+eY5ca8tNzgYuLq8Bj2+elfTY/pLUcU1Jvf4FVtWcZV/ex6q6ujW3F8K8dEbgmT0
+         KRlOU0guEYOZjZBgzvDGl8D4A4QN2MGbMdogiyJO55j7SG9dRTm8GaIPgBh+OcmB2e
+         TYi1Im3NNM2S+T7VWfjg5K8kV0vdLcoQNHTkNg1k=
+Date:   Mon, 30 Mar 2020 11:39:47 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     mhiramat@kernel.org, acme@redhat.com, akpm@linux-foundation.org,
+        bp@alien8.de, geert@linux-m68k.org, jolsa@redhat.com,
+        masahiroy@kernel.org, michal.lkml@markovi.net,
+        peterz@infradead.org, rdunlap@infradead.org, rostedt@goodmis.org,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] tools: Let O= makes handle a relative
+ path with -C option" failed to apply to 4.9-stable tree
+Message-ID: <20200330153947.GG4189@sasha-vm>
+References: <1585570296177156@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1585570296177156@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The DDI IO power well must not be enabled for a TypeC port in TBT mode,
-ensure this during driver loading/system resume.
+On Mon, Mar 30, 2020 at 02:11:36PM +0200, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.9-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From be40920fbf1003c38ccdc02b571e01a75d890c82 Mon Sep 17 00:00:00 2001
+>From: Masami Hiramatsu <mhiramat@kernel.org>
+>Date: Sat, 7 Mar 2020 03:32:58 +0900
+>Subject: [PATCH] tools: Let O= makes handle a relative path with -C option
+>
+>When I tried to compile tools/perf from the top directory with the -C
+>option, the O= option didn't work correctly if I passed a relative path:
+>
+>  $ make O=BUILD -C tools/perf/
+>  make: Entering directory '/home/mhiramat/ksrc/linux/tools/perf'
+>    BUILD:   Doing 'make -j8' parallel build
+>  ../scripts/Makefile.include:4: *** O=/home/mhiramat/ksrc/linux/tools/perf/BUILD does not exist.  Stop.
+>  make: *** [Makefile:70: all] Error 2
+>  make: Leaving directory '/home/mhiramat/ksrc/linux/tools/perf'
+>
+>The O= directory existence check failed because the check script ran in
+>the build target directory instead of the directory where I ran the make
+>command.
+>
+>To fix that, once change directory to $(PWD) and check O= directory,
+>since the PWD is set to where the make command runs.
+>
+>Fixes: c883122acc0d ("perf tools: Let O= makes handle relative paths")
+>Reported-by: Randy Dunlap <rdunlap@infradead.org>
+>Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+>Cc: Andrew Morton <akpm@linux-foundation.org>
+>Cc: Borislav Petkov <bp@alien8.de>
+>Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+>Cc: Jiri Olsa <jolsa@redhat.com>
+>Cc: Masahiro Yamada <masahiroy@kernel.org>
+>Cc: Michal Marek <michal.lkml@markovi.net>
+>Cc: Peter Zijlstra <peterz@infradead.org>
+>Cc: Sasha Levin <sashal@kernel.org>
+>Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+>Cc: stable@vger.kernel.org
+>Link: http://lore.kernel.org/lkml/158351957799.3363.15269768530697526765.stgit@devnote2
+>Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-This gets rid of error messages like
-[drm] *ERROR* power well DDI E TC2 IO state mismatch (refcount 1/enabled 0)
+Context conflicts with license changes... Fixed and queued up.
 
-and avoids leaking the power ref when disabling the output.
-
-Cc: <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Imre Deak <imre.deak@intel.com>
----
- drivers/gpu/drm/i915/display/intel_ddi.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
-index 916a802af788..654151d9a6db 100644
---- a/drivers/gpu/drm/i915/display/intel_ddi.c
-+++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-@@ -1899,7 +1899,11 @@ static void intel_ddi_get_power_domains(struct intel_encoder *encoder,
- 		return;
- 
- 	dig_port = enc_to_dig_port(encoder);
--	intel_display_power_get(dev_priv, dig_port->ddi_io_power_domain);
-+
-+	if (!intel_phy_is_tc(dev_priv, phy) ||
-+	    dig_port->tc_mode != TC_PORT_TBT_ALT)
-+		intel_display_power_get(dev_priv,
-+					dig_port->ddi_io_power_domain);
- 
- 	/*
- 	 * AUX power is only needed for (e)DP mode, and for HDMI mode on TC
 -- 
-2.23.1
-
+Thanks,
+Sasha
