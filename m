@@ -2,75 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D8119812D
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 18:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F6D19813E
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 18:30:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726981AbgC3Q1i convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 30 Mar 2020 12:27:38 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:65280 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726085AbgC3Q1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 12:27:38 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 20742597-1500050 
-        for multiple; Mon, 30 Mar 2020 17:27:29 +0100
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20200330033057.2629052-3-sultan@kerneltoast.com>
-References: <20200330033057.2629052-1-sultan@kerneltoast.com> <20200330033057.2629052-3-sultan@kerneltoast.com>
-Cc:     Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        id S1729509AbgC3QaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 12:30:16 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:42828 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729444AbgC3QaP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 12:30:15 -0400
+Received: by mail-pl1-f196.google.com with SMTP id e1so6919195plt.9;
+        Mon, 30 Mar 2020 09:30:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=YsFnz05oWNhz5mB25S0tg2/lHQPk1r/Q+IZIha4yD4g=;
+        b=JdZ85hCh2IWweTJsm7TzpgIDVDkqZMFiJ+soe2dtRVw6YicrOBkvlKPkhTq29ZW2q3
+         LGHD/qq7NoF4kxJIVDnch7KkDxZpWVdl4u7BlMUezqA2PUD4QC4DxtoC4k0MyTfLYdQo
+         onZ8VKcp/N0FWGcg+j2eO48HWbCCZtbQ7hWMqueYERIGBOAqJAHTclXc6wb6zYDXtTpt
+         2lyoJFmLWR9XElkF19sxjdnD94c2wm1WJRIXjTwNKK6WgnIg2DxPYVF3WNucsOh5tDsV
+         DgtiF7nF/El97+EG7aVc5CO8fvSQ/YisP6ysf4xN5rm6CoynBRFFue8jCWiRsE13Lp/W
+         kutw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references:mime-version:content-transfer-encoding;
+        bh=YsFnz05oWNhz5mB25S0tg2/lHQPk1r/Q+IZIha4yD4g=;
+        b=VHi7ur2inAEyeaTFeYJGFvGtrYPyWSb+feNxmlrEVcorGxGt2WZgwQjS1eHKVElngq
+         wxqLEunZdJRjq6tNpK0MErgXHh7ZLUoXVvVSNNdOlxT4QguZuEdgFF6KkS4fMqQgEhl7
+         HUTdyc6ToDPqa2/rnqDoBpjkD36Krl6KyZyDv6TjAgE04JVHvefZoHMTItfp41cyyyd3
+         PJswcvPxb4/tKO4OEXAM5cA5TED1vgShb/P654oFZJJTdNzIplK8tYeb2qelf5qCTko6
+         lX3hT3VzUxLTRilJZa3PTBF5N9lyldewjRdvntQBM1kWfNHc4EJQL4KuN49GlsRDf6NQ
+         EgfQ==
+X-Gm-Message-State: AGi0Pub153AU5asy+VILnrkksWyQsl9SXLMdZANLbJgfxm1ED20HlTiF
+        ba/rARQY9ViATxumZkLMTdtAIlWY
+X-Google-Smtp-Source: APiQypLKwTWLKPEXmnURAH+r7lBTLubzxQ5KTakvKvOjLME40mOemJSUjBpb3ALb+AXhqu6rB+Ycpg==
+X-Received: by 2002:a17:90a:d0c3:: with SMTP id y3mr50155pjw.128.1585585813996;
+        Mon, 30 Mar 2020 09:30:13 -0700 (PDT)
+Received: from sultan-box.localdomain (static-198-54-129-52.cust.tzulo.com. [198.54.129.52])
+        by smtp.gmail.com with ESMTPSA id mu15sm14398pjb.30.2020.03.30.09.30.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Mar 2020 09:30:13 -0700 (PDT)
+From:   Sultan Alsawaf <sultan@kerneltoast.com>
+X-Google-Original-From: Sultan Alsawaf
+To:     linux-kernel@vger.kernel.org
+Cc:     Jani Nikula <jani.nikula@linux.intel.com>,
         Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Sultan Alsawaf <sultan@kerneltoast.com>
-To:     Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] drm/i915/gt: Schedule request retirement when timeline idles
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-Message-ID: <158558564835.3228.8789679707542626662@build.alporthouse.com>
-User-Agent: alot/0.8.1
-Date:   Mon, 30 Mar 2020 17:27:28 +0100
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org
+Subject: [PATCH 1/1] drm/i915: Disable Panel Self Refresh (PSR) by default
+Date:   Mon, 30 Mar 2020 09:30:06 -0700
+Message-Id: <20200330163006.4064-2-sultan@kerneltoast.com>
+X-Mailer: git-send-email 2.26.0
+In-Reply-To: <20200330163006.4064-1-sultan@kerneltoast.com>
+References: <20200330163006.4064-1-sultan@kerneltoast.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Sultan Alsawaf (2020-03-30 04:30:57)
-> +static void engine_retire(struct work_struct *work)
-> +{
-> +       struct intel_engine_cs *engine =
-> +               container_of(work, typeof(*engine), retire_work);
-> +       struct intel_timeline *tl = xchg(&engine->retire, NULL);
-> +
-> +       do {
-> +               struct intel_timeline *next = xchg(&tl->retire, NULL);
-> +
-> +               /*
-> +                * Our goal here is to retire _idle_ timelines as soon as
-> +                * possible (as they are idle, we do not expect userspace
-> +                * to be cleaning up anytime soon).
-> +                *
-> +                * If the timeline is currently locked, either it is being
-> +                * retired elsewhere or about to be!
-> +                */
+From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-iirc the backport requires the retirement to be wrapped in struct_mutex
+On all Dell laptops with panels and chipsets that support PSR (an
+esoteric power-saving mechanism), both PSR1 and PSR2 cause flickering
+and graphical glitches, sometimes to the point of making the laptop
+unusable. Many laptops don't support PSR so it isn't known if PSR works
+correctly on any consumer hardware right now. PSR was enabled by default
+in 5.0 for capable hardware, so this patch just restores the previous
+functionality of PSR being disabled by default.
 
-mutex_lock(&engine->i915->drm.struct_mutex);
+More info is available on the freedesktop bug:
+https://gitlab.freedesktop.org/drm/intel/issues/425
 
-> +               if (mutex_trylock(&tl->mutex)) {
-> +                       retire_requests(tl);
-> +                       mutex_unlock(&tl->mutex);
-> +               }
+Cc: <stable@vger.kernel.org> # 5.4.x, 5.5.x
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ drivers/gpu/drm/i915/i915_params.c | 3 +--
+ drivers/gpu/drm/i915/i915_params.h | 2 +-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-mutex_unlock(&engine->i915->drm.struct_mutex);
+diff --git a/drivers/gpu/drm/i915/i915_params.c b/drivers/gpu/drm/i915/i915_params.c
+index 1dd1f3652795..0c4661fcf011 100644
+--- a/drivers/gpu/drm/i915/i915_params.c
++++ b/drivers/gpu/drm/i915/i915_params.c
+@@ -85,8 +85,7 @@ i915_param_named_unsafe(enable_hangcheck, bool, 0600,
+ 
+ i915_param_named_unsafe(enable_psr, int, 0600,
+ 	"Enable PSR "
+-	"(0=disabled, 1=enabled) "
+-	"Default: -1 (use per-chip default)");
++	"(-1=use per-chip default, 0=disabled [default], 1=enabled) ");
+ 
+ i915_param_named_unsafe(force_probe, charp, 0400,
+ 	"Force probe the driver for specified devices. "
+diff --git a/drivers/gpu/drm/i915/i915_params.h b/drivers/gpu/drm/i915/i915_params.h
+index 31b88f297fbc..4a9a3df7d292 100644
+--- a/drivers/gpu/drm/i915/i915_params.h
++++ b/drivers/gpu/drm/i915/i915_params.h
+@@ -50,7 +50,7 @@ struct drm_printer;
+ 	param(int, vbt_sdvo_panel_type, -1) \
+ 	param(int, enable_dc, -1) \
+ 	param(int, enable_fbc, -1) \
+-	param(int, enable_psr, -1) \
++	param(int, enable_psr, 0) \
+ 	param(int, disable_power_well, -1) \
+ 	param(int, enable_ips, 1) \
+ 	param(int, invert_brightness, 0) \
+-- 
+2.26.0
 
-Now the question is whether that was for 5.3 or 5.4. I think 5.3 is
-where the changes were more severe and where we switch to the 4.19
-approach.
-
-> +               intel_timeline_put(tl);
-> +
-> +               GEM_BUG_ON(!next);
-> +               tl = ptr_mask_bits(next, 1);
-> +       } while (tl);
-> +}
