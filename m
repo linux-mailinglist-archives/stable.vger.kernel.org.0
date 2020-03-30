@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 869B3197B9A
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 14:14:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA55A197B9B
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 14:14:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730088AbgC3MOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 08:14:21 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:57571 "EHLO
+        id S1729898AbgC3MOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 08:14:30 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:56281 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729996AbgC3MOV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 08:14:21 -0400
+        by vger.kernel.org with ESMTP id S1729705AbgC3MOa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 08:14:30 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id AC41B5C059E;
-        Mon, 30 Mar 2020 08:14:20 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 30 Mar 2020 08:14:20 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 268C05C059C;
+        Mon, 30 Mar 2020 08:14:29 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 30 Mar 2020 08:14:29 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6FIrDe
-        XqPqcGvjpqnv3q3QKLpvV0GVw5LFfdAZUPesQ=; b=QbP9721sbEYeNlT1E7tvgd
-        HVln0d7cQJdW4njucEcfEdQ5gV/upaqwA5V6Cykgh+ukulX0PixXYiWl3GgPWyjD
-        4sXPw3A/SnrV2QHdWiWezV3DuFAPi2KG1zjGk8OS70MOtWWY82QQrZ9jV2gQPK1a
-        GQ8kxEBmXdby19HY/5I30C7tW44js7VcNxhQpN7VYyLSgrQzsez0C7oacgZRpuWM
-        znK/lNYSFdGLQDQj290IUqerCfoZ76Ii1Hgej8Kbw1wApSI8/dAnHW/cwOkCgrbB
-        8Ry2jUB0znO6AS6+rfPYbqUE0ZF9vETCMPou85fP9lCYXEMOP4URYbMnXPIpLA3A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xIEA6y
+        6VqMdhhk2KL2xxKPCEa2QltKJOlh/mIQUT3Fc=; b=bE2Pz6ery4hY5QyjtcfjvN
+        huIfH8q5DJIENesyLTX1I/NOK1xrZQH4ow2H9cg6dOus0n70pm62e0Dt1OWBDDT7
+        ZjUaYxbJPAgJ640N0x0vkDMDuV95tpNuClc++xuErSFlOVMhV8Dztxbzqymxumzf
+        0Xi/JNyCeRKcQcZq2HQp7w2bBW1RjUqXvTmEPPeg3AZ3pNlEKSlVJBn0Riras/Lh
+        o7vmP5doRdzg6ttXv7C6852aOdp8fZhm/m1H6nSYn96UvOAzOy4+c7bqzJyBGB/K
+        7aU0cXRf87xt8nJQz+kmYIuAWs96XZZYUa/yhm/tmvii3ETpFjxHdq87S5bBf28w
         ==
-X-ME-Sender: <xms:nOKBXl7KO5Aa2Zvmq8cap6cnt9B3VAoiSA1T_tBrueFgP40na9fgag>
+X-ME-Sender: <xms:peKBXvkvvOpVHZLjnMeXBBrZt5WE25OerzXlbh5h1fMyKIzu_1v7wg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudeihedggeelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
+    dutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhep
     ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:nOKBXsaAXm9f0MoajR4us3Wumuc1Jb_z2EEkANQad3d_L1M2vNhISg>
-    <xmx:nOKBXgvlKfCQoIjhAFU5Uk9U9iwaxTtvuyhKp6TVn3Dg65eyw7DS2Q>
-    <xmx:nOKBXluyPwTviQ_krApMycybzLMI-Jq4m5moBLsYJBXNkG97O3B-8A>
-    <xmx:nOKBXjD_luolwEsisr5y_oLaOtWJRaQQuycSZHh3rCXp6XY8pcevgA>
+X-ME-Proxy: <xmx:peKBXq_0xFe5bXLetNalZZfmcWWz4CxueH4fHVh_mzRHOQyhAV9pGw>
+    <xmx:peKBXlJ2nm_OTBDHCvqH0jGj5o-5_pGR2BUWB2x2ltxYzfdD4s0GrA>
+    <xmx:peKBXniLyGYrmYBPCwf-gjMzqT_5QJgVEGlBec8-OiDdc-y9WbPA2Q>
+    <xmx:peKBXrWfBu3473jAdyUQDp3Xfkc1Dr46hBMJuwxi8iU9esqTVlc3FA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 024F2306C9BE;
-        Mon, 30 Mar 2020 08:14:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] clocksource/drivers/hyper-v: Make sched clock return" failed to apply to 5.5-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B809C3280065;
+        Mon, 30 Mar 2020 08:14:28 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] clocksource/drivers/hyper-v: Make sched clock return" failed to apply to 5.4-stable tree
 To:     yuboxie@microsoft.com, Tianyu.Lan@microsoft.com,
         tglx@linutronix.de, vkuznets@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 30 Mar 2020 14:14:18 +0200
-Message-ID: <158557045893151@kroah.com>
+Message-ID: <158557045812216@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.5-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
