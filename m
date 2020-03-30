@@ -2,126 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 300E2197D01
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 15:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3F75197D29
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 15:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726085AbgC3NeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 09:34:01 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:35739 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726028AbgC3NeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 09:34:01 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 3301F5FC;
-        Mon, 30 Mar 2020 09:34:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 30 Mar 2020 09:34:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TomnyI
-        +lunWDmukAnYGYZNDxIM0bTVYBIjQecqMipSg=; b=FFlE2BkP/xtGDFQ8BiENvN
-        RA3OPIpx1jYiSZYQYkQBCkYFctzwgPYke7NYVgvXLC6pf/h0rgVAdFfqA5zCUiS8
-        9Lz6HQQxbSqeocYJj4ds7qcUD+sIjn2coyhXsNBE2Dp+uFJV/z9pLBQphwW5yfYr
-        DHMnOeZ0CBdXB8FYjwOK/tqq5OxLJC6tYH+uXUqQ89MZc45ep+GxDIbH+XqLSO20
-        k3h1ymN0XRoUIeh7inY6EGFz6aDS4V18ZRbAesqW7B8fD/ysZnM5iNxMWoTonDLh
-        3ESqPllTWi+5qO9SBJP5sGFOiVA/ZIw5xjXUwqBVv+jfxFpd+0d5t6vfs26a4uNA
-        ==
-X-ME-Sender: <xms:R_WBXjVI38SHl1eJlA4BSezsIPVl3hU1CP9AWf52fLSJ-fFVlnNZoA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudeihedgieehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
-    ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:R_WBXv1R8pXMHHGr9NX_lXQCMu41gC-fFGCYH2aiWfsUHOD8EL_myw>
-    <xmx:R_WBXqYjvUp00y9u72VluoV7CN6FTsu7WOW3Q-VudPo3fBjkyHXp6g>
-    <xmx:R_WBXipblqCwA0Zt0MFdrZKFUbx9PgjHE0a7BSIPiA3zZCvzW7y8ww>
-    <xmx:R_WBXqhX70rjrPy08_SUmDjU03n1vpXsL3EmQWoyki4ZsJut8ZwxGQ>
+        id S1728181AbgC3Nkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 09:40:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36454 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728091AbgC3Nkm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Mar 2020 09:40:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E6B84306C9CA;
-        Mon, 30 Mar 2020 09:33:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mac80211: set IEEE80211_TX_CTRL_PORT_CTRL_PROTO for nl80211" failed to apply to 4.19-stable tree
-To:     johannes.berg@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 30 Mar 2020 15:33:56 +0200
-Message-ID: <158557523660185@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0B932073B;
+        Mon, 30 Mar 2020 13:40:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585575642;
+        bh=Rq9pjcYdP+FLKKa18jxJtMzX9TjOTiqhSQsNTmLSUw0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=NvYJsEyD1r0L7+hpm3gz+UKkVljgej39Mq0EXVrDTC2qpIC6wsSEIL/6DEq6AA2JW
+         4sXwLGPakXENXByu780o2C7etdrUPkb5pQKcjAp9LiOctAoy+Ani/x+JM3+ZB4RYAH
+         0f3tSGw9XIs/QmBWvDENHqDwKnO+fYcocUnb9bGk=
+Date:   Mon, 30 Mar 2020 15:40:39 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Zhuang Yanying <ann.zhuangyanying@huawei.com>
+Cc:     tv@lio96.de, stable@vger.kernel.org, pbonzini@redhat.com,
+        LinFeng <linfeng23@huawei.com>
+Subject: Re: [PATCH 0/2] KVM: fix overflow of zero page refcount with ksm
+ running
+Message-ID: <20200330134039.GA332213@kroah.com>
+References: <8350b14e-f708-f2e3-19cd-4e85a4a3235c@redhat.com>
+ <1585575162-37912-1-git-send-email-ann.zhuangyanying@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1585575162-37912-1-git-send-email-ann.zhuangyanying@huawei.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 30, 2020 at 09:32:40PM +0800, Zhuang Yanying wrote:
+> From: LinFeng <linfeng23@huawei.com>
+> 
+> We found that the !is_zero_page() in kvm_is_mmio_pfn() was
+> submmited in commit:90cff5a8cc("KVM: check for !is_zero_pfn() in
+> kvm_is_mmio_pfn()"), but reverted in commit:0ef2459983("kvm: fix
+> kvm_is_mmio_pfn() and rename to kvm_is_reserved_pfn()").
+> 
+> Maybe just adding !is_zero_page() to kvm_is_reserved_pfn() is too
+> rough. According to commit:e433e83bc3("KVM: MMU: Do not treat
+> ZONE_DEVICE pages as being reserved"), special handling in some
+> other flows is also need by zero_page, if we treat zero_page as
+> being reserved.
+> 
+> Well, as fixing all functions reference to kvm_is_reserved_pfn() in
+> this patch, we found that only kvm_release_pfn_clean() and
+> kvm_get_pfn() don't need special handling.
+> 
+> So, we thought why not only check is_zero_page() in before get and
+> put page, and revert our last commit:31e813f38f("KVM: fix overflow
+> of zero page refcount with ksm running").
+> Instead of add !is_zero_page() in kvm_is_reserved_pfn(),
+> new idea is as follow:
+> 
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index 7f9ee2929cfe..f9a1f9cf188e 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -1695,7 +1695,8 @@ EXPORT_SYMBOL_GPL(kvm_release_page_clean);
+>  
+>  void kvm_release_pfn_clean(kvm_pfn_t pfn)
+>  {
+> -	if (!is_error_noslot_pfn(pfn) && !kvm_is_reserved_pfn(pfn))
+> +	if (!is_error_noslot_pfn(pfn) &&
+> +	    (!kvm_is_reserved_pfn(pfn) || is_zero_pfn(pfn)))
+>  		put_page(pfn_to_page(pfn));
+>  }
+>  EXPORT_SYMBOL_GPL(kvm_release_pfn_clean);
+> @@ -1734,7 +1735,7 @@ EXPORT_SYMBOL_GPL(kvm_set_pfn_accessed);
+>  
+>  void kvm_get_pfn(kvm_pfn_t pfn)
+>  {
+> -	if (!kvm_is_reserved_pfn(pfn))
+> +	if (!kvm_is_reserved_pfn(pfn) || is_zero_pfn(pfn))
+>  		get_page(pfn_to_page(pfn));
+>  }
+>  EXPORT_SYMBOL_GPL(kvm_get_pfn);
+> 
+> We are confused why ZONE_DEVICE not do this, but treating it as
+> no reserved. Is it racy if we change only use the patch in cover letter,
+> but not the series patches.
+> 
+> LinFeng (1):
+>   KVM: special handling of zero_page in some flows
+> 
+> Zhuang Yanying (1):
+>   KVM: fix overflow of zero page refcount with ksm running
+> 
+>  arch/x86/kvm/mmu.c  | 2 ++
+>  virt/kvm/kvm_main.c | 9 +++++----
+>  2 files changed, 7 insertions(+), 4 deletions(-)
+> 
+> -- 
+> 2.23.0
+> 
+> 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+<formletter>
 
-thanks,
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From b95d2ccd2ccb834394d50347d0e40dc38a954e4a Mon Sep 17 00:00:00 2001
-From: Johannes Berg <johannes.berg@intel.com>
-Date: Thu, 26 Mar 2020 15:53:34 +0100
-Subject: [PATCH] mac80211: set IEEE80211_TX_CTRL_PORT_CTRL_PROTO for nl80211
- TX
-
-When a frame is transmitted via the nl80211 TX rather than as a
-normal frame, IEEE80211_TX_CTRL_PORT_CTRL_PROTO wasn't set and
-this will lead to wrong decisions (rate control etc.) being made
-about the frame; fix this.
-
-Fixes: 911806491425 ("mac80211: Add support for tx_control_port")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200326155333.f183f52b02f0.I4054e2a8c11c2ddcb795a0103c87be3538690243@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 455eb8e6a459..d9cca6dbd870 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -5,7 +5,7 @@
-  * Copyright 2006-2007	Jiri Benc <jbenc@suse.cz>
-  * Copyright 2007	Johannes Berg <johannes@sipsolutions.net>
-  * Copyright 2013-2014  Intel Mobile Communications GmbH
-- * Copyright (C) 2018 Intel Corporation
-+ * Copyright (C) 2018, 2020 Intel Corporation
-  *
-  * Transmit and frame generation functions.
-  */
-@@ -5149,6 +5149,7 @@ int ieee80211_tx_control_port(struct wiphy *wiphy, struct net_device *dev,
- 	struct ieee80211_local *local = sdata->local;
- 	struct sk_buff *skb;
- 	struct ethhdr *ehdr;
-+	u32 ctrl_flags = 0;
- 	u32 flags;
- 
- 	/* Only accept CONTROL_PORT_PROTOCOL configured in CONNECT/ASSOCIATE
-@@ -5158,6 +5159,9 @@ int ieee80211_tx_control_port(struct wiphy *wiphy, struct net_device *dev,
- 	    proto != cpu_to_be16(ETH_P_PREAUTH))
- 		return -EINVAL;
- 
-+	if (proto == sdata->control_port_protocol)
-+		ctrl_flags |= IEEE80211_TX_CTRL_PORT_CTRL_PROTO;
-+
- 	if (unencrypted)
- 		flags = IEEE80211_TX_INTFL_DONT_ENCRYPT;
- 	else
-@@ -5183,7 +5187,7 @@ int ieee80211_tx_control_port(struct wiphy *wiphy, struct net_device *dev,
- 	skb_reset_mac_header(skb);
- 
- 	local_bh_disable();
--	__ieee80211_subif_start_xmit(skb, skb->dev, flags, 0);
-+	__ieee80211_subif_start_xmit(skb, skb->dev, flags, ctrl_flags);
- 	local_bh_enable();
- 
- 	return 0;
-
+</formletter>
