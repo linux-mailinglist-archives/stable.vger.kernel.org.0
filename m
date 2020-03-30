@@ -2,65 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E8E19820F
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 19:17:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E16EB19823B
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 19:24:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727929AbgC3RRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 13:17:48 -0400
-Received: from mail-lj1-f177.google.com ([209.85.208.177]:45400 "EHLO
-        mail-lj1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726981AbgC3RRs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 13:17:48 -0400
-Received: by mail-lj1-f177.google.com with SMTP id t17so18984309ljc.12
-        for <stable@vger.kernel.org>; Mon, 30 Mar 2020 10:17:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=5BBm4f47SH280MKWP5Vx5+wHH+PyL05wpqB2N7hI1nc=;
-        b=lx3rAQDa1APYCez8z8KO0ob3ZfbCEOJ0iX7osSFrvZFKmYMgK/bhAwcfouzsKYXcLK
-         kW5i6L2+y/mpllGx8MuoeKPeURxUdADKH1tarEJjDnMo+y+ojYoa4XGTAHhvRl4Je2Jy
-         xqE9pOuKXtL/1ngNwpYp+OQZYyUrWJckk5mRC9t2TvlYUHvjcoD/KNqVqnCmUO7JJz/Q
-         i3WS3YsNttqpmIVoP04aG9NdcnOtGGGB6aDhBb+nbxkWpoicJWgVcYUo8ImRzJ1LCgkq
-         TYicdsLOMqCISS2ojDH/59xUpE6NYYWfaTjU36YFKshlmxgOPQpCbYKKmAmGuc3Fw+83
-         iYjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=5BBm4f47SH280MKWP5Vx5+wHH+PyL05wpqB2N7hI1nc=;
-        b=Ap2jhFmmGle9PSyr5M3nKAlqe2DBJJjfrKCXxhgHwN1TFFnti69XTje5vXiYUaBs4K
-         IyvkrFAtFnJv8xAn3JphpAcuJBIy6HvLmVbFXlGUqfhaQFjjN8Azg63yiGwgT7v0G2FP
-         EeYaRXLaFqeZ7IfMO92ICNAtgY81nWg3lxN15CXHcgpVIxgChStEFtpHemyOLo/rUxvl
-         fTw1iqFb6y/4danuzGsH1uQ11urMxxAVqidFedTVGxjYA0VnlRh1TdltVfgcxnVrgaIm
-         RX7EdJvW0RIt3Qrh1CNkV0PETf4QCqeFl4PvXWbBSixQ64wtIZJ24pkl5Rq6zXqe2Xtm
-         yEow==
-X-Gm-Message-State: AGi0PuZG4yhkdaUqi1OeZw4kHv7c/JKZpc6DvHNvGiN+6fKPK5HYuSzu
-        np+ZtX4Kg0fCStBaWTUA2ZLQwnCeHezQaHEtHAqq3w==
-X-Google-Smtp-Source: APiQypLpbJT/EFuPO1t/YsCMB67WXRIQBFDoLyFTLtQh+eAtoRoFg24lpIncxdrx8Wqu3fhnJC8zwIH6wxMCFzIl8h4=
-X-Received: by 2002:a2e:3c08:: with SMTP id j8mr7853898lja.243.1585588666210;
- Mon, 30 Mar 2020 10:17:46 -0700 (PDT)
+        id S1729293AbgC3RYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 13:24:42 -0400
+Received: from mga14.intel.com ([192.55.52.115]:9708 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729258AbgC3RYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Mar 2020 13:24:42 -0400
+IronPort-SDR: LZW4YUZWP6x5AjKPuSwUbf7rMS8XjYbfEUiK1x5bN/atnFHIOKvCQWxcl8POnPoYczOyAgu8UG
+ ohc+hXShLsEA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2020 10:24:41 -0700
+IronPort-SDR: khEsAdfQ04GnUcVnWdSUII4a7icC2ARyfKpe9a3E8IN6sFpeiSQJS8QR5d6IU4j8PAaPonk3FW
+ wTm72Hn1eCIQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,325,1580803200"; 
+   d="scan'208";a="242091499"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga008.jf.intel.com with ESMTP; 30 Mar 2020 10:24:37 -0700
+Received: from andy by smile with local (Exim 4.93)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1jIy9P-00EGgo-L6; Mon, 30 Mar 2020 20:24:39 +0300
+Date:   Mon, 30 Mar 2020 20:24:39 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     Gayatri Kammela <gayatri.kammela@intel.com>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Len Brown <lenb@kernel.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Alex Hung <alex.hung@canonical.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amit.kucheria@verdurent.com>,
+        Mika Westerberg <mika.westerberg@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Prestopine, Charles D" <charles.d.prestopine@intel.com>,
+        "5 . 6+" <stable@vger.kernel.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: Re: [PATCH v2 1/3] ACPI: fix: Update Tiger Lake ACPI device IDs
+Message-ID: <20200330172439.GB1922688@smile.fi.intel.com>
+References: <cover.1585343507.git.gayatri.kammela@intel.com>
+ <9359b8e261d69983b1eed2b8e53ef9eabfdfdd51.1585343507.git.gayatri.kammela@intel.com>
+ <CAJZ5v0j8OaqM6k52Ar9sYn0Ea_u9+MBB0rcMWv6vGBt5jXCQBQ@mail.gmail.com>
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 30 Mar 2020 22:47:34 +0530
-Message-ID: <CA+G9fYsZRZoxTGieMCew7aC0pGCMjqJS0XbFzKgjw317gecEng@mail.gmail.com>
-Subject: stable-rc-4.19: arm: dts: sun8i-a83t-tbs-a711: make dtbs failed
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, megous@megous.com, maxime@cerno.tech
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJZ5v0j8OaqM6k52Ar9sYn0Ea_u9+MBB0rcMWv6vGBt5jXCQBQ@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
- # make -sk KBUILD_BUILD_USER=TuxBuild -C/linux ARCH=arm
-CROSS_COMPILE=arm-linux-gnueabihf- HOSTCC=gcc CC="sccache
-arm-linux-gnueabihf-gcc" O=build dtbs
- #
- Error: ../arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts:419.38-39 syntax error
- FATAL ERROR: Unable to parse input tree
- make[2]: *** [scripts/Makefile.lib:294:
-arch/arm/boot/dts/sun8i-a83t-tbs-a711.dtb] Error 1
+On Mon, Mar 30, 2020 at 06:43:35PM +0200, Rafael J. Wysocki wrote:
+> On Fri, Mar 27, 2020 at 10:34 PM Gayatri Kammela
+> <gayatri.kammela@intel.com> wrote:
 
-ref:
-https://gitlab.com/Linaro/lkft/kernel-runs/-/jobs/491105939
+> > -       {"INT1044"},
+> > -       {"INT1047"},
+> > +       {"INTC1040"},
+> > +       {"INTC1043"},
+> > +       {"INTC1044"},
+> > +       {"INTC1047"},
+> >         {"INT3400"},
+> >         {"INT3401", INT3401_DEVICE},
+> >         {"INT3402"},
+> > --
+> 
+> I can take this along with the other two patches in the series if that
+> is fine by Andy and Rui.
+
+One nit is to fix the ordering to be alphanumeric or close enough
+(I admit in some cases it might require unneeded churn) to that.
+
+Otherwise,
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
