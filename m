@@ -2,145 +2,237 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 990EC1974A4
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 08:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2FAB1975B5
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 09:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729229AbgC3Gnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 02:43:35 -0400
-Received: from mail-pl1-f201.google.com ([209.85.214.201]:37826 "EHLO
-        mail-pl1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729222AbgC3Gnf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 02:43:35 -0400
-Received: by mail-pl1-f201.google.com with SMTP id t12so12241113plo.4
-        for <stable@vger.kernel.org>; Sun, 29 Mar 2020 23:43:33 -0700 (PDT)
+        id S1729486AbgC3Hal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 03:30:41 -0400
+Received: from mail-qk1-f196.google.com ([209.85.222.196]:43284 "EHLO
+        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729431AbgC3Hal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 03:30:41 -0400
+Received: by mail-qk1-f196.google.com with SMTP id o10so17898125qki.10;
+        Mon, 30 Mar 2020 00:30:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:cc;
-        bh=xapqDhPFeX4c/sEZFBXwtVQVL9ia2nDPE/e7jpQzTQA=;
-        b=d8hUdfNwN+8iAFJdBnwUiTZeEYcdMVOCOWJfgJWR7/vu/vixLec11deCzX+uCdblaJ
-         vKTaEhiX0gbcQtU4EApIuDXMtuTCWFoDKk4CgV8V935/DxbKWIDs72JckC3qfblOJpgk
-         G9weGGi1TLjXnb+sCyklu/HBRr22EUaVJtVA40MdyL4HyOlURlp86JTaxm5hNpkh/Ucp
-         HprDqPmzfRmnX01nh+JznDUcsbJGNU+qhqlQlILFD+CnXbBVSFh4f8+tvKF4yDKkNhJV
-         AqXyZPKRB5yIndXdCOloQ2x0tlgm5EJ08HcBtcME/64wFkfUFajpMjx7jSKtQTt64fW9
-         P6tg==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=J0mF9YuJjdBJn2ibrPXteakvuUEew7gBpgHO80gKios=;
+        b=hvzKxesc6T9Xr7/+N5hnlAWriKe2jdgQEGrG6lKHD2Ur5i9WbpwXQKJBUxlzWk4Gfo
+         5XsHcMb1vv4xi3J7BY5dC9SRJV+1VPMW5HkUaJU5LbVzhVYtUQIw2eAUEZHTPxr0fFW6
+         FGcKTuHqs8z9C7e1YVZLUGDCt4JzmoVXvLnTjd+YYIQcq7x1v2JWIoce2YdK7bnh/kk+
+         pRDCGTMW3AAjDXQDFRoNVEqA8+pu1mFKgZP6Pa7TydTYlvbsIuCs09MsI+m+WHV0z66L
+         oYF7MJ3IwkD/hhRzl7IXv9ueclrrM2pwLoUFKsd7d4vXgutuqTM+IAj+Cr3+6KhWWRl4
+         WP7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:cc;
-        bh=xapqDhPFeX4c/sEZFBXwtVQVL9ia2nDPE/e7jpQzTQA=;
-        b=ftbvLi6MuXYWm3Qw3FKzIX9zoxp8hZJKSbKFwu4U7+jMDW2wgu3GWsRMRtLTvJGAKj
-         PesGP/tFGgyqYz5jrKAO1ORRaIT65L+0AhYmSnIs3FSaLo5mRGlb2sLyS8xPFC2HoKm/
-         +WN4nJchW8WEBG8wnkrhgQbq0sVOdAU1SP+5FJH4gzJ3LI69bYcJyRajrvcJbr8Qwf/K
-         o/F4JXxnJBAutPxpMB3F68wG85aCA1T1SPXc/s0raGRMjkKMLyWttDrbEEzoMmCZiWeW
-         Nx+5RW7YnG+w973CNB+URn+YTTq8cOb0HnwT2FDNM/FnNz0stNTQ3sPeW/VBW0p/n5z4
-         1goA==
-X-Gm-Message-State: ANhLgQ35uO6qTKp4oDGlPLShn8cwDdtSIS0erWF3jFLxzUZ0G9MWn7eD
-        8OtRBMtYKY4NS9B/IsYX7K3tnd9abkot
-X-Google-Smtp-Source: ADFU+vt/FJekYfgoafMZ/9Mp0r3DKbDy5dLBs00R2iJNcH8rD82TihvKhdtepI0FKoL9nXRN2ERfhcyim+8b
-X-Received: by 2002:a17:90a:65c8:: with SMTP id i8mr14048414pjs.156.1585550612534;
- Sun, 29 Mar 2020 23:43:32 -0700 (PDT)
-Date:   Mon, 30 Mar 2020 08:43:19 +0200
-In-Reply-To: <20200327100801.161671-1-courbet@google.com>
-Message-Id: <20200330064323.76162-1-courbet@google.com>
-Mime-Version: 1.0
-References: <20200327100801.161671-1-courbet@google.com>
-X-Mailer: git-send-email 2.26.0.rc2.310.g2932bb562d-goog
-Subject: [PATCH v2] powerpc: Make setjmp/longjmp signature standard
-From:   Clement Courbet <courbet@google.com>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Clement Courbet <courbet@google.com>, stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Allison Randal <allison@lohutok.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
-To:     unlisted-recipients:; (no To-header on input)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=J0mF9YuJjdBJn2ibrPXteakvuUEew7gBpgHO80gKios=;
+        b=YtwQdgYmwMloj6weZ0C2KQnJZjMhmgNh/U8Fm0j4fsrZv2mmQSyVinhbnJr6FJKuKH
+         sCKdvItcZXOKcfkLxOq9I+nPXFNmfGqM/mlZAqflqsd8X7/A+bOl0W+5dvFVAlZaLrp9
+         9qet8uUo5RS5mge/YySHXktIZRtteImBMKjlwBzfY0TPEi85dnBeK+XZNq5CYGmF+9OP
+         1wYqSPuY4r6sobMXBVSmR9IsW/rPvSOzuev/xgvubXzxfouOqHRPhAy2M3cH5lWTtVeF
+         WDf5ZeTziahl+NdrmL6JZsUL7JP4R4IQgCt4jgsVfHWVsYw92Yyx15bONsVzCQ4wRXaY
+         7Czg==
+X-Gm-Message-State: ANhLgQ22qtHFhxKKTp6E98lvS0A9hHE9PPEGfZX3pbSYso09+KUtfGAD
+        pj+XLAEZnRD+m8uk+A47+Lk=
+X-Google-Smtp-Source: ADFU+vs6NUiM8C4jsWZ+vAHnLW2Y842aF6c7pNjPZoSWGT35QxH1qwA4b2SFMyyNZ1+dOPROnLh+SQ==
+X-Received: by 2002:ae9:ed56:: with SMTP id c83mr3965463qkg.200.1585553439424;
+        Mon, 30 Mar 2020 00:30:39 -0700 (PDT)
+Received: from stingray.lan (pool-173-76-255-234.bstnma.fios.verizon.net. [173.76.255.234])
+        by smtp.gmail.com with ESMTPSA id n63sm10078499qka.80.2020.03.30.00.30.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Mar 2020 00:30:39 -0700 (PDT)
+From:   Thomas Hebb <tommyhebb@gmail.com>
+To:     alsa-devel@alsa-project.org, linux-kernel@vger.kernel.or
+Cc:     Kailang Yang <kailang@realtek.com>,
+        Thomas Hebb <tommyhebb@gmail.com>, stable@vger.kernel.org,
+        Jaroslav Kysela <perex@perex.cz>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Takashi Iwai <tiwai@suse.com>, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] ALSA: doc: Document PC Beep Hidden Register on Realtek ALC256
+Date:   Mon, 30 Mar 2020 03:30:30 -0400
+Message-Id: <bd69dfdeaf40ff31c4b7b797c829bb320031739c.1585553414.git.tommyhebb@gmail.com>
+X-Mailer: git-send-email 2.25.2
+In-Reply-To: <cover.1585553414.git.tommyhebb@gmail.com>
+References: <cover.1585553414.git.tommyhebb@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Declaring setjmp()/longjmp() as taking longs makes the signature
-non-standard, and makes clang complain. In the past, this has been
-worked around by adding -ffreestanding to the compile flags.
+This codec (among others) has a hidden set of audio routes, apparently
+designed to allow PC Beep output without a mixer widget on the output
+path, which are controlled by an undocumented Realtek vendor register.
+The default configuration of these routes means that certain inputs
+aren't accessible, necessitating driver control of the register.
+However, Realtek has provided no documentation of the register, instead
+opting to fix issues by providing magic numbers, most of which have been
+at least somewhat erroneous. These magic numbers then get copied by
+others into model-specific fixups, leading to a fragmented and buggy set
+of configurations.
 
-The implementation looks like it only ever propagates the value
-(in longjmp) or sets it to 1 (in setjmp), and we only call longjmp
-with integer parameters.
+To get out of this situation, I've reverse engineered the register by
+flipping bits and observing how the codec's behavior changes. This
+commit documents my findings. It does not change any code.
 
-This allows removing -ffreestanding from the compilation flags.
-
-Context:
-https://lore.kernel.org/patchwork/patch/1214060
-https://lore.kernel.org/patchwork/patch/1216174
-
-Signed-off-by: Clement Courbet <courbet@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
 ---
 
-v2:
-Use and array type as suggested by Segher Boessenkool
-Cc: stable@vger.kernel.org # v4.14+
-Fixes: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp and longjmp")
----
- arch/powerpc/include/asm/setjmp.h | 6 ++++--
- arch/powerpc/kexec/Makefile       | 3 ---
- arch/powerpc/xmon/Makefile        | 3 ---
- 3 files changed, 4 insertions(+), 8 deletions(-)
+ Documentation/sound/hd-audio/index.rst        |   1 +
+ .../sound/hd-audio/realtek-pc-beep.rst        | 129 ++++++++++++++++++
+ 2 files changed, 130 insertions(+)
+ create mode 100644 Documentation/sound/hd-audio/realtek-pc-beep.rst
 
-diff --git a/arch/powerpc/include/asm/setjmp.h b/arch/powerpc/include/asm/setjmp.h
-index e9f81bb3f83b..f798e80e4106 100644
---- a/arch/powerpc/include/asm/setjmp.h
-+++ b/arch/powerpc/include/asm/setjmp.h
-@@ -7,7 +7,9 @@
- 
- #define JMP_BUF_LEN    23
- 
--extern long setjmp(long *) __attribute__((returns_twice));
--extern void longjmp(long *, long) __attribute__((noreturn));
-+typedef long jmp_buf[JMP_BUF_LEN];
+diff --git a/Documentation/sound/hd-audio/index.rst b/Documentation/sound/hd-audio/index.rst
+index f8a72ffffe66..6e12de9fc34e 100644
+--- a/Documentation/sound/hd-audio/index.rst
++++ b/Documentation/sound/hd-audio/index.rst
+@@ -8,3 +8,4 @@ HD-Audio
+    models
+    controls
+    dp-mst
++   realtek-pc-beep
+diff --git a/Documentation/sound/hd-audio/realtek-pc-beep.rst b/Documentation/sound/hd-audio/realtek-pc-beep.rst
+new file mode 100644
+index 000000000000..be47c6f76a6e
+--- /dev/null
++++ b/Documentation/sound/hd-audio/realtek-pc-beep.rst
+@@ -0,0 +1,129 @@
++===============================
++Realtek PC Beep Hidden Register
++===============================
 +
-+extern int setjmp(jmp_buf env) __attribute__((returns_twice));
-+extern void longjmp(jmp_buf env, int val) __attribute__((noreturn));
- 
- #endif /* _ASM_POWERPC_SETJMP_H */
-diff --git a/arch/powerpc/kexec/Makefile b/arch/powerpc/kexec/Makefile
-index 378f6108a414..86380c69f5ce 100644
---- a/arch/powerpc/kexec/Makefile
-+++ b/arch/powerpc/kexec/Makefile
-@@ -3,9 +3,6 @@
- # Makefile for the linux kernel.
- #
- 
--# Avoid clang warnings around longjmp/setjmp declarations
--CFLAGS_crash.o += -ffreestanding
--
- obj-y				+= core.o crash.o core_$(BITS).o
- 
- obj-$(CONFIG_PPC32)		+= relocate_32.o
-diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
-index c3842dbeb1b7..6f9cccea54f3 100644
---- a/arch/powerpc/xmon/Makefile
-+++ b/arch/powerpc/xmon/Makefile
-@@ -1,9 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for xmon
- 
--# Avoid clang warnings around longjmp/setjmp declarations
--subdir-ccflags-y := -ffreestanding
--
- GCOV_PROFILE := n
- KCOV_INSTRUMENT := n
- UBSAN_SANITIZE := n
++This file documents the "PC Beep Hidden Register", which is present in certain
++Realtek HDA codecs and controls a muxer and pair of passthrough mixers that can
++route audio between pins but aren't themselves exposed as HDA widgets. As far
++as I can tell, these hidden routes are designed to allow flexible PC Beep output
++for codecs that don't have mixer widgets in their output paths. Why it's easier
++to hide a mixer behind an undocumented vendor register than to just expose it
++as a widget, I have no idea.
++
++Register Description
++====================
++
++The register is accessed via processing coefficient 0x36 on NID 20h. Bits not
++identified below have no discernible effect on my machine, a Dell XPS 13 9350::
++
++  MSB                           LSB
++  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
++  | |h|S|L|         | B |R|       | Known bits
++  +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
++  |0|0|1|1|  0x7  |0|0x0|1|  0x7  | Reset value
++  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
++
++1Ah input select (B): 2 bits
++  When zero, expose the PC Beep line (from the internal beep generator, when
++  enabled with the Set Beep Generation verb on NID 01h, or else from the
++  external PCBEEP pin) on the 1Ah pin node. When nonzero, expose the headphone
++  jack (or possibly Line In on some machines) input instead. If PC Beep is
++  selected, the 1Ah boost control has no effect.
++
++Amplify 1Ah loopback, left (L): 1 bit
++  Amplify the left channel of 1Ah before mixing it into outputs as specified
++  by h and S bits. Does not affect the level of 1Ah exposed to other widgets.
++
++Amplify 1Ah loopback, right (R): 1 bit
++  Amplify the right channel of 1Ah before mixing it into outputs as specified
++  by h and S bits. Does not affect the level of 1Ah exposed to other widgets.
++
++Loopback 1Ah to 21h [active low] (h): 1 bit
++  When zero, mix 1Ah (possibly with amplification, depending on L and R bits)
++  into 21h (headphone jack on my machine). Mixed signal respects the mute
++  setting on 21h.
++
++Loopback 1Ah to 14h (S): 1 bit
++  When one, mix 1Ah (possibly with amplification, depending on L and R bits)
++  into 14h (internal speaker on my machine). Mixed signal **ignores** the mute
++  setting on 14h and is present whenever 14h is configured as an output.
++
++Path diagrams
++=============
++
++1Ah input selection (DIV is the PC Beep divider set on NID 01h)::
++
++  <Beep generator>   <PCBEEP pin>    <Headphone jack>
++          |                |                |
++          +--DIV--+--!DIV--+       {1Ah boost control}
++                  |                         |
++                  +--(b == 0)--+--(b != 0)--+
++                               |
++               >1Ah (Beep/Headphone Mic/Line In)<
++
++Loopback of 1Ah to 21h/14h::
++
++               <1Ah (Beep/Headphone Mic/Line In)>
++                               |
++                        {amplify if L/R}
++                               |
++                  +-----!h-----+-----S-----+
++                  |                        |
++          {21h mute control}               |
++                  |                        |
++          >21h (Headphone)<     >14h (Internal Speaker)<
++
++Background
++==========
++
++All Realtek HDA codecs have a vendor-defined widget with node ID 20h which
++provides access to a bank of registers that control various codec functions.
++Registers are read and written via the standard HDA processing coefficient
++verbs (Set/Get Coefficient Index, Set/Get Processing Coefficient). The node is
++named "Realtek Vendor Registers" in public datasheets' verb listings and,
++apart from that, is entirely undocumented.
++
++This particular register, exposed at coefficient 0x36 and named in commits from
++Realtek, is of note: unlike most registers, which seem to control detailed
++amplifier parameters not in scope of the HDA specification, it controls audio
++routing which could just as easily have been defined using standard HDA mixer
++and selector widgets.
++
++Specifically, it selects between two sources for the input pin widget with Node
++ID (NID) 1Ah: the widget's signal can come either from an audio jack (on my
++laptop, a Dell XPS 13 9350, it's the headphone jack, but comments in Realtek
++commits indicate that it might be a Line In on some machines) or from the PC
++Beep line (which is itself multiplexed between the codec's internal beep
++generator and external PCBEEP pin, depending on if the beep generator is
++enabled via verbs on NID 01h). Additionally, it can mix (with optional
++amplification) that signal onto the 21h and/or 14h output pins.
++
++The register's reset value is 0x3717, corresponding to PC Beep on 1Ah that is
++then amplified and mixed into both the headphones and the speakers. Not only
++does this violate the HDA specification, which says that "[a vendor defined
++beep input pin] connection may be maintained *only* while the Link reset
++(**RST#**) is asserted", it means that we cannot ignore the register if we care
++about the input that 1Ah would otherwise expose or if the PCBEEP trace is
++poorly shielded and picks up chassis noise (both of which are the case on my
++machine).
++
++Unfortunately, there are lots of ways to get this register configuration wrong.
++Linux, it seems, has gone through most of them. For one, the register resets
++after S3 suspend: judging by existing code, this isn't the case for all vendor
++registers, and it's led to some fixes that improve behavior on cold boot but
++don't last after suspend. Other fixes have successfully switched the 1Ah input
++away from PC Beep but have failed to disable both loopback paths. On my
++machine, this means that the headphone input is amplified and looped back to
++the headphone output, which uses the exact same pins! As you might expect, this
++causes terrible headphone noise, the character of which is controlled by the
++1Ah boost control. (If you've seen instructions online to fix XPS 13 headphone
++noise by changing "Headphone Mic Boost" in ALSA, now you know why.)
++
++The information here has been obtained through black-box reverse engineering of
++the ALC256 codec's behavior and is not guaranteed to be correct. It likely
++also applies for the ALC255, ALC257, ALC235, and ALC236, since those codecs
++seem to be close relatives of the ALC256. (They all share one initialization
++function.) Additionally, other codecs like the ALC225 and ALC285 also have this
++register, judging by existing fixups in ``patch_realtek.c``, but specific
++data (e.g. node IDs, bit positions, pin mappings) for those codecs may differ
++from what I've described here.
 -- 
-2.26.0.rc2.310.g2932bb562d-goog
+2.25.2
 
