@@ -2,55 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 745B81972CD
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 05:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D1E01972CE
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 05:31:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729188AbgC3DbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Mar 2020 23:31:10 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:38345 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728107AbgC3DbK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Mar 2020 23:31:10 -0400
-Received: by mail-pl1-f194.google.com with SMTP id w3so6186509plz.5
-        for <stable@vger.kernel.org>; Sun, 29 Mar 2020 20:31:09 -0700 (PDT)
+        id S1729239AbgC3DbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Mar 2020 23:31:13 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:42958 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728107AbgC3DbM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Mar 2020 23:31:12 -0400
+Received: by mail-pg1-f196.google.com with SMTP id h8so8029433pgs.9
+        for <stable@vger.kernel.org>; Sun, 29 Mar 2020 20:31:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=RP4sogAjLFxzd4//fXGW951tKyUqDRPaNOLYGNCpjt8=;
-        b=bHGAwRl/1HcaNZk9w4mvs36XwX/YB8QXFluH37bE7MHWQWFjk9aPaSr9Nw85hZ9EQL
-         Mf4iFbmAlfYc1ibRxYgHFmPhCMd4/6gXMdDgHmml1F3DduOVOlnDcqfQzLZPiabdPpO+
-         s1xoxQBr5MyuA9Q2PyNoUYZ1zDi8zPu3jStRiZrybt00PZ6iPVJey61jfbYwTB8ckBrv
-         ZO3xTzygpGhz1JuLfi6YEV63l0Eoa9DJmw6zgdOw5HFen7y6YYvlYvo/lcQrYLWVmqwG
-         Wo5urAJbm1jo6xwI2ZfVclpj3tNFu2lEtBOJ/BucbR6u7Ae3Vx02eq6+02XQWYha1uDX
-         7jCA==
+        bh=AXapnbCniL8erkZ4wDrAlLNF82gBP6zmOZWurvP/doY=;
+        b=hzL0xjmTTUJzQhVckOMghFite6kCduID/rIS4dNBIqwyW5Vy6ZHTd98JEIAnVhnHq4
+         bkBO0KHVeduyWZeD52nHwba0KGvV05DMxjqhl9ZdbFWeQycYMCqskffrbMMrJ+mv5ZDE
+         f6QKpgyhXmGdu8mEKJbYcFFBz9US2noaTM+g9vMcvStwtel/NMS18AJ9bvvetJxVv4NW
+         wwzKHfqZqvQkLU9EBBFdUeLLm0s/5cWB5mTCZEKXV+UHCfd/oekjyVOhYXLU2uBLwNBv
+         U3I0lXoPYHLC3n9sw3iHbroGGCErDdoAonegENwmzrxkJ6gRLGctF2CeaEWJrWUAYlP9
+         6LjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=RP4sogAjLFxzd4//fXGW951tKyUqDRPaNOLYGNCpjt8=;
-        b=RcFHEjwA6oT07/ocX7o1Nd9yaD1UOxdQ++fbBg4uby+leuHcJSgT32rPy8ZaAo0S7v
-         7FHuz83+iDTkhZw7fzNKfx/daa/UjHdDaE2JvGlcUz03Djwbd2kQpYoMbXs+GBw+jnLP
-         CHPIMYDfDurN2ar+hRV8AtQB1BFK7hc2DBzfge9jKzagmWDAx4tojKybXsgXdivM7quH
-         CIohupQDpiM+Ai2CYlgkGwAlJEZaExlMh+CG5G/NMtemXvobpY6Z2AH9WTCKrlwTn9N9
-         62VNp70ECbMjJNlPXynxexs/jeMcpLpdIosncUBL/xSnyDgktkgrBIqHpA6dZQxbnbBB
-         wcIg==
-X-Gm-Message-State: ANhLgQ0b9L9D5d9LxvQTbYpenSk0K8lMxVaYqX4QukfWqNK7/wsJYw1x
-        HL4Zd8PetvFwL4YoOqQbQtcAVhPh
-X-Google-Smtp-Source: ADFU+vs8Kh7c6PoIl7+wgDMXOlItq51K8Ny1Bo762H2MNph9jmb/eIPg/ojidLopQ6NLQCQFM+6mGQ==
-X-Received: by 2002:a17:90a:8d17:: with SMTP id c23mr12993498pjo.187.1585539068587;
-        Sun, 29 Mar 2020 20:31:08 -0700 (PDT)
+        bh=AXapnbCniL8erkZ4wDrAlLNF82gBP6zmOZWurvP/doY=;
+        b=NxuY4tTTvcs7p/Z88JCGif7h3w4t5ZEOy8GZBlbEx/fXSj6+eXl+11SFJGYXKbUOJx
+         8K+bbnMR1SV2n6Ub3iGDQP7sRWs7rPnQJeb1VACknhId+aSA7Lc1uKvoMPEHk4v1W5il
+         VmP8VnC2gsC42qKjMjZGQu8v2qox1pWLzhm1VZSTU8aTuBfJQmEMYMFRfb4IHfvJiHqI
+         vevdjhLVSpq/f6fer3GaC+2KKeiA/Lg/gWxqHrUZFMi9mx1XjtxPKnc9M3rGBcGSey+P
+         EOX1nyajiAoP9bmPIAU3LjE0RsBvKh1wizHnDwm8fornqUK9La9CTp7OXhCOnHXpi52o
+         FAGw==
+X-Gm-Message-State: ANhLgQ0hYsTHlyQwfXWFILwGMhNGaMeAQiY7Zs3c2fCn3kJ4WnMC7Z2k
+        yArYaiBGKt4DyWvkGJxewlY++ChA
+X-Google-Smtp-Source: ADFU+vvBGDE1c+McrXshy9aJ2vtXJEUDoghZBVN+qAJVk/De/khms0nUNRHE11rEp3xfDv/BIP/n5g==
+X-Received: by 2002:a63:715b:: with SMTP id b27mr10552993pgn.351.1585539070435;
+        Sun, 29 Mar 2020 20:31:10 -0700 (PDT)
 Received: from sultan-box.localdomain (static-198-54-129-52.cust.tzulo.com. [198.54.129.52])
-        by smtp.gmail.com with ESMTPSA id y193sm8512447pgd.87.2020.03.29.20.31.07
+        by smtp.gmail.com with ESMTPSA id y193sm8512447pgd.87.2020.03.29.20.31.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Mar 2020 20:31:08 -0700 (PDT)
+        Sun, 29 Mar 2020 20:31:09 -0700 (PDT)
 From:   Sultan Alsawaf <sultan@kerneltoast.com>
 X-Google-Original-From: Sultan Alsawaf
 To:     stable@vger.kernel.org
-Cc:     Sultan Alsawaf <sultan@kerneltoast.com>
-Subject: [PATCH 1/2] drm/i915: Disable Panel Self Refresh (PSR) by default
-Date:   Sun, 29 Mar 2020 20:30:56 -0700
-Message-Id: <20200330033057.2629052-2-sultan@kerneltoast.com>
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Sultan Alsawaf <sultan@kerneltoast.com>
+Subject: [PATCH 2/2] drm/i915/gt: Schedule request retirement when timeline idles
+Date:   Sun, 29 Mar 2020 20:30:57 -0700
+Message-Id: <20200330033057.2629052-3-sultan@kerneltoast.com>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200330033057.2629052-1-sultan@kerneltoast.com>
 References: <20200330033057.2629052-1-sultan@kerneltoast.com>
@@ -61,53 +64,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sultan Alsawaf <sultan@kerneltoast.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-On all Dell laptops with panels and chipsets that support PSR (an
-esoteric power-saving mechanism), both PSR1 and PSR2 cause flickering
-and graphical glitches, sometimes to the point of making the laptop
-unusable. Many laptops don't support PSR so it isn't known if PSR works
-correctly on any consumer hardware as of 5.4. PSR was enabled by default
-in 5.0 for capable hardware, so this patch just restores the previous
-functionality of PSR being disabled by default.
+commit 311770173fac27845a3a83e2c16100a54d308f72 upstream.
 
-More info is available on the freedesktop bug:
-https://gitlab.freedesktop.org/drm/intel/issues/425
+The major drawback of commit 7e34f4e4aad3 ("drm/i915/gen8+: Add RC6 CTX
+corruption WA") is that it disables RC6 while Skylake (and friends) is
+active, and we do not consider the GPU idle until all outstanding
+requests have been retired and the engine switched over to the kernel
+context. If userspace is idle, this task falls onto our background idle
+worker, which only runs roughly once a second, meaning that userspace has
+to have been idle for a couple of seconds before we enable RC6 again.
+Naturally, this causes us to consume considerably more energy than
+before as powersaving is effectively disabled while a display server
+(here's looking at you Xorg) is running.
 
+As execlists will get a completion event as each context is completed,
+we can use this interrupt to queue a retire worker bound to this engine
+to cleanup idle timelines. We will then immediately notice the idle
+engine (without userspace intervention or the aid of the background
+retire worker) and start parking the GPU. Thus during light workloads,
+we will do much more work to idle the GPU faster...  Hopefully with
+commensurate power saving!
+
+v2: Watch context completions and only look at those local to the engine
+when retiring to reduce the amount of excess work we perform.
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=112315
+References: 7e34f4e4aad3 ("drm/i915/gen8+: Add RC6 CTX corruption WA")
+References: 2248a28384fe ("drm/i915/gen8+: Add RC6 CTX corruption WA")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191125105858.1718307-3-chris@chris-wilson.co.uk
+(cherry picked from commit 4f88f8747fa43c97c3b3712d8d87295ea757cc51)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Cc: <stable@vger.kernel.org> # 5.4.x
 Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 ---
- drivers/gpu/drm/i915/i915_params.c | 3 +--
- drivers/gpu/drm/i915/i915_params.h | 2 +-
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_engine_cs.c     |  2 +
+ drivers/gpu/drm/i915/gt/intel_engine_types.h  |  8 ++
+ drivers/gpu/drm/i915/gt/intel_lrc.c           |  8 ++
+ drivers/gpu/drm/i915/gt/intel_timeline.c      |  1 +
+ .../gpu/drm/i915/gt/intel_timeline_types.h    |  3 +
+ drivers/gpu/drm/i915/i915_request.c           | 73 +++++++++++++++++++
+ drivers/gpu/drm/i915/i915_request.h           |  4 +
+ 7 files changed, 99 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/i915_params.c b/drivers/gpu/drm/i915/i915_params.c
-index 296452f9efe4..4a0d37f7cf49 100644
---- a/drivers/gpu/drm/i915/i915_params.c
-+++ b/drivers/gpu/drm/i915/i915_params.c
-@@ -84,8 +84,7 @@ i915_param_named_unsafe(enable_hangcheck, bool, 0600,
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+index 4ce8626b140e..f732a2177cd0 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
++++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+@@ -600,6 +600,7 @@ static int intel_engine_setup_common(struct intel_engine_cs *engine)
+ 	intel_engine_init_hangcheck(engine);
+ 	intel_engine_init_cmd_parser(engine);
+ 	intel_engine_init__pm(engine);
++	intel_engine_init_retire(engine);
  
- i915_param_named_unsafe(enable_psr, int, 0600,
- 	"Enable PSR "
--	"(0=disabled, 1=enabled) "
--	"Default: -1 (use per-chip default)");
-+	"(-1=use per-chip default, 0=disabled [default], 1=enabled) ");
+ 	intel_engine_pool_init(&engine->pool);
  
- i915_param_named_unsafe(force_probe, charp, 0400,
- 	"Force probe the driver for specified devices. "
-diff --git a/drivers/gpu/drm/i915/i915_params.h b/drivers/gpu/drm/i915/i915_params.h
-index d29ade3b7de6..715888811593 100644
---- a/drivers/gpu/drm/i915/i915_params.h
-+++ b/drivers/gpu/drm/i915/i915_params.h
-@@ -50,7 +50,7 @@ struct drm_printer;
- 	param(int, vbt_sdvo_panel_type, -1) \
- 	param(int, enable_dc, -1) \
- 	param(int, enable_fbc, -1) \
--	param(int, enable_psr, -1) \
-+	param(int, enable_psr, 0) \
- 	param(int, disable_power_well, -1) \
- 	param(int, enable_ips, 1) \
- 	param(int, invert_brightness, 0) \
+@@ -807,6 +808,7 @@ void intel_engine_cleanup_common(struct intel_engine_cs *engine)
+ 
+ 	cleanup_status_page(engine);
+ 
++	intel_engine_fini_retire(engine);
+ 	intel_engine_pool_fini(&engine->pool);
+ 	intel_engine_fini_breadcrumbs(engine);
+ 	intel_engine_cleanup_cmd_parser(engine);
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+index c77c9518c58b..1eb7189f88e1 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+@@ -471,6 +471,14 @@ struct intel_engine_cs {
+ 
+ 	struct intel_engine_execlists execlists;
+ 
++	/*
++	 * Keep track of completed timelines on this engine for early
++	 * retirement with the goal of quickly enabling powersaving as
++	 * soon as the engine is idle.
++	 */
++	struct intel_timeline *retire;
++	struct work_struct retire_work;
++
+ 	/* status_notifier: list of callbacks for context-switch changes */
+ 	struct atomic_notifier_head context_status_notifier;
+ 
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 66f6d1a897f2..a1538c8f7922 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -606,6 +606,14 @@ __execlists_schedule_out(struct i915_request *rq,
+ {
+ 	struct intel_context * const ce = rq->hw_context;
+ 
++	/*
++	 * If we have just completed this context, the engine may now be
++	 * idle and we want to re-enter powersaving.
++	 */
++	if (list_is_last(&rq->link, &ce->timeline->requests) &&
++	    i915_request_completed(rq))
++		intel_engine_add_retire(engine, ce->timeline);
++
+ 	intel_engine_context_out(engine);
+ 	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_OUT);
+ 	intel_gt_pm_put(engine->gt);
+diff --git a/drivers/gpu/drm/i915/gt/intel_timeline.c b/drivers/gpu/drm/i915/gt/intel_timeline.c
+index 9cb01d9828f1..63515e3caaf2 100644
+--- a/drivers/gpu/drm/i915/gt/intel_timeline.c
++++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
+@@ -282,6 +282,7 @@ void intel_timeline_fini(struct intel_timeline *timeline)
+ {
+ 	GEM_BUG_ON(atomic_read(&timeline->pin_count));
+ 	GEM_BUG_ON(!list_empty(&timeline->requests));
++	GEM_BUG_ON(timeline->retire);
+ 
+ 	if (timeline->hwsp_cacheline)
+ 		cacheline_free(timeline->hwsp_cacheline);
+diff --git a/drivers/gpu/drm/i915/gt/intel_timeline_types.h b/drivers/gpu/drm/i915/gt/intel_timeline_types.h
+index 2b1baf2fcc8e..adf2d14ef647 100644
+--- a/drivers/gpu/drm/i915/gt/intel_timeline_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_timeline_types.h
+@@ -65,6 +65,9 @@ struct intel_timeline {
+ 	 */
+ 	struct i915_active_request last_request;
+ 
++	/** A chain of completed timelines ready for early retirement. */
++	struct intel_timeline *retire;
++
+ 	/**
+ 	 * We track the most recent seqno that we wait on in every context so
+ 	 * that we only have to emit a new await and dependency on a more
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 0d39038898d4..4d59cfca9eae 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -600,6 +600,79 @@ static void retire_requests(struct intel_timeline *tl)
+ 			break;
+ }
+ 
++static void engine_retire(struct work_struct *work)
++{
++	struct intel_engine_cs *engine =
++		container_of(work, typeof(*engine), retire_work);
++	struct intel_timeline *tl = xchg(&engine->retire, NULL);
++
++	do {
++		struct intel_timeline *next = xchg(&tl->retire, NULL);
++
++		/*
++		 * Our goal here is to retire _idle_ timelines as soon as
++		 * possible (as they are idle, we do not expect userspace
++		 * to be cleaning up anytime soon).
++		 *
++		 * If the timeline is currently locked, either it is being
++		 * retired elsewhere or about to be!
++		 */
++		if (mutex_trylock(&tl->mutex)) {
++			retire_requests(tl);
++			mutex_unlock(&tl->mutex);
++		}
++		intel_timeline_put(tl);
++
++		GEM_BUG_ON(!next);
++		tl = ptr_mask_bits(next, 1);
++	} while (tl);
++}
++
++static bool add_retire(struct intel_engine_cs *engine,
++		       struct intel_timeline *tl)
++{
++	struct intel_timeline *first;
++
++	/*
++	 * We open-code a llist here to include the additional tag [BIT(0)]
++	 * so that we know when the timeline is already on a
++	 * retirement queue: either this engine or another.
++	 *
++	 * However, we rely on that a timeline can only be active on a single
++	 * engine at any one time and that add_retire() is called before the
++	 * engine releases the timeline and transferred to another to retire.
++	 */
++
++	if (READ_ONCE(tl->retire)) /* already queued */
++		return false;
++
++	intel_timeline_get(tl);
++	first = READ_ONCE(engine->retire);
++	do
++		tl->retire = ptr_pack_bits(first, 1, 1);
++	while (!try_cmpxchg(&engine->retire, &first, tl));
++
++	return !first;
++}
++
++void intel_engine_add_retire(struct intel_engine_cs *engine,
++			     struct intel_timeline *tl)
++{
++	if (add_retire(engine, tl))
++		schedule_work(&engine->retire_work);
++}
++
++void intel_engine_init_retire(struct intel_engine_cs *engine)
++{
++	INIT_WORK(&engine->retire_work, engine_retire);
++}
++
++void intel_engine_fini_retire(struct intel_engine_cs *engine)
++{
++	flush_work(&engine->retire_work);
++	GEM_BUG_ON(engine->retire);
++}
++
+ static noinline struct i915_request *
+ request_alloc_slow(struct intel_timeline *tl, gfp_t gfp)
+ {
+diff --git a/drivers/gpu/drm/i915/i915_request.h b/drivers/gpu/drm/i915/i915_request.h
+index 3a3e7bbf19ff..40caa2f3f4a4 100644
+--- a/drivers/gpu/drm/i915/i915_request.h
++++ b/drivers/gpu/drm/i915/i915_request.h
+@@ -445,5 +445,9 @@ static inline bool i915_request_has_nopreempt(const struct i915_request *rq)
+ }
+ 
+ bool i915_retire_requests(struct drm_i915_private *i915);
++void intel_engine_init_retire(struct intel_engine_cs *engine);
++void intel_engine_add_retire(struct intel_engine_cs *engine,
++			     struct intel_timeline *tl);
++void intel_engine_fini_retire(struct intel_engine_cs *engine);
+ 
+ #endif /* I915_REQUEST_H */
 -- 
 2.26.0
 
