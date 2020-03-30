@@ -2,106 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A210419760B
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 09:57:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E6219761D
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 10:04:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729512AbgC3H5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 03:57:53 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:35641 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729474AbgC3H5x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 03:57:53 -0400
-Received: by mail-oi1-f194.google.com with SMTP id t25so14928754oij.2;
-        Mon, 30 Mar 2020 00:57:51 -0700 (PDT)
+        id S1729589AbgC3IEK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 04:04:10 -0400
+Received: from mail-qv1-f74.google.com ([209.85.219.74]:47614 "EHLO
+        mail-qv1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729474AbgC3IEJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 04:04:09 -0400
+Received: by mail-qv1-f74.google.com with SMTP id f9so6363978qvt.14
+        for <stable@vger.kernel.org>; Mon, 30 Mar 2020 01:04:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=+ipscCDhCltPMVSXcwaABkat0P1XLNamIU3q22ca/b4=;
-        b=eprL7mwrrsjCnp/4zHjc/j1s9AJgIbn7qTQgEjaMpAPLqQSM2S7IFpN7J4j+e9uZz7
-         0g2S1iDnBRmuq2ib0noJraYxCDZR98cIBrMdSWT2hEBhgeWxj08mG5X7KZYmyXJPCU0i
-         KynIoAHVq9sLwieMz5eFTLTcNKchCG0BcUG9XpBZYKkRcX6mijmWMaE6xWuO/aHaxpGE
-         5jgXZh4nIWuYxBob3+SW8ZhCCE/Cy+UvFXkMCNGS/LZBNscbBuiJd6YC9A6xKTjNK3zG
-         spPnbJCX3qgRTyZUOc0S5pKc9LTZYqP2N3h9XcBRC/s40pHLopVUYpdRiyZv6XGvTrti
-         j3kQ==
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:cc;
+        bh=6uUpEI08oXikXCp5+9gsd81DMfh5aZ7xYc26aZNsMcE=;
+        b=R5aQu0gPcdYxwympNDA6UKdwMEnC2lGvXrGlXdylt5YSMQ4nAlR4gXuAS+7DzVEFW9
+         bncYZz2qzYyv60L9tsSIMS6mi7tymeJ2mjj2uFTPgT8gTz02xBhf4Ut/2l8JRwepapq6
+         v7MV4eHIuJsBec5DldbEcDJ/X2g+0uDLUfpyPOsLAWJG+7u5noEunaLudIgD88epxYKv
+         Jdolza7eiLG5kgnu5wfR62bw23CdRRHVOQAFXqOhIs2UJBqImVKGEcmPswTxOAVJmNqi
+         QkhU2j1WsrWkCb5+2hNw1Xx4esmiKqnMFvbnwL0CIsgEPe//N0hq9yOnyhTr3R1xVQrZ
+         tHGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=+ipscCDhCltPMVSXcwaABkat0P1XLNamIU3q22ca/b4=;
-        b=q95jLwB3ywdQbNk6A9RCbbuL0gJYtRSfHIpNg+6PnNejIdNZKSbu41eDoBgD6x6lIn
-         4acc/ZXlwLh67diva8D5H7l4FpEv5vtyog2jog8loX7pQZMqnOuxZzHba/PR6Sw7lrzq
-         bbDv/I0mZWvhMRBhturwSwXkZD09qgkyUyLBTjD2ODfw/3RkJiOKkPP9Q+YTBV48QbX0
-         6Sfa+uQpgQIBO8vViTSUYyLQ4FavJZxRYpxUU9r4Lh8v7eWgWNm1E9VjKe510sElrwAu
-         Kn5md6UwM2xaRNju3zp8o0jzK+p4ZtfieRLF5aeVuEB9GtCdwBqexIaKpKImUEz2/W4E
-         HELg==
-X-Gm-Message-State: ANhLgQ0BuIEdIkckuYC8hzgJS/E7W694xbLCaxH++prEvDlWvdu1G7wH
-        QdBOiaQaNz8bDodpLEJRTVg=
-X-Google-Smtp-Source: ADFU+vtrqQS7LDW0ZaqXWmRdN1F1p47K+hiXfWjqZgJQouPW+xEwSglG1RNMjCP/sRYf9Vt005/AZg==
-X-Received: by 2002:aca:b854:: with SMTP id i81mr6490664oif.22.1585555070879;
-        Mon, 30 Mar 2020 00:57:50 -0700 (PDT)
-Received: from ubuntu-m2-xlarge-x86 ([2604:1380:4111:8b00::1])
-        by smtp.gmail.com with ESMTPSA id o1sm4131334otl.49.2020.03.30.00.57.49
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 30 Mar 2020 00:57:50 -0700 (PDT)
-Date:   Mon, 30 Mar 2020 00:57:47 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Clement Courbet <courbet@google.com>
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:cc;
+        bh=6uUpEI08oXikXCp5+9gsd81DMfh5aZ7xYc26aZNsMcE=;
+        b=WHKl4V82XSJr8JTdoYLPWLCql2VpPBoGyMpd9yNchXcCcozZ22qOBv/2RRLnvdYF3u
+         lCbZDXj5q0ARVIvs+UokUOaoQo2Q0ljdkxC3dk3D1F67MIvW3qKGB487ELR+Yfk9s9Mp
+         eJyhaCRUDGae25TnuFThj0T0mhjm9DshHxWjG6qie/SpCH8sBucomMLYSnb2E3qgreHQ
+         7kXUs0dop0bUdUNkXtBOhXNqkSqTVQglI7pgQhU9QlGFBxAggfbQHYlSO5oa064xzMkA
+         2MOMN1PfetgfgszaDaRlmJPdxIZK6PacM8Wz1lPdmPqcCzmFb2ols6V1Mh+bwPtIGZP/
+         psFQ==
+X-Gm-Message-State: ANhLgQ1X1HCH+gFsVkvp7mtO98HVjEV9C9cwqfwdcHovEBGPcvok9Jo5
+        tErzLm744qBtxx2OtD96ptJnVCd2tdVm
+X-Google-Smtp-Source: ADFU+vtYJzmxymIGka0/I/Su3giY+YfBRdfUHQGLXnJq4xIk/Xdj15dHeXATi7wBUj2ccVnQni5sms+J4AtS
+X-Received: by 2002:ac8:6890:: with SMTP id m16mr10623891qtq.5.1585555446842;
+ Mon, 30 Mar 2020 01:04:06 -0700 (PDT)
+Date:   Mon, 30 Mar 2020 10:03:56 +0200
+In-Reply-To: <20200327100801.161671-1-courbet@google.com>
+Message-Id: <20200330080400.124803-1-courbet@google.com>
+Mime-Version: 1.0
+References: <20200327100801.161671-1-courbet@google.com>
+X-Mailer: git-send-email 2.26.0.rc2.310.g2932bb562d-goog
+Subject: [PATCH v3] powerpc: Make setjmp/longjmp signature standard
+From:   Clement Courbet <courbet@google.com>
 Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Segher Boessenkool <segher@kernel.crashing.org>,
-        stable@vger.kernel.org,
+        Clement Courbet <courbet@google.com>, stable@vger.kernel.org,
         Benjamin Herrenschmidt <benh@kernel.crashing.org>,
         Paul Mackerras <paulus@samba.org>,
-        Allison Randal <allison@lohutok.net>,
         Thomas Gleixner <tglx@linutronix.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christophe Leroy <christophe.leroy@c-s.fr>,
         linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
         clang-built-linux@googlegroups.com
-Subject: Re: [PATCH v2] powerpc: Make setjmp/longjmp signature standard
-Message-ID: <20200330075747.GA19343@ubuntu-m2-xlarge-x86>
-References: <20200327100801.161671-1-courbet@google.com>
- <20200330064323.76162-1-courbet@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200330064323.76162-1-courbet@google.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset="UTF-8"
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 30, 2020 at 08:43:19AM +0200, Clement Courbet wrote:
-> Declaring setjmp()/longjmp() as taking longs makes the signature
-> non-standard, and makes clang complain. In the past, this has been
-> worked around by adding -ffreestanding to the compile flags.
-> 
-> The implementation looks like it only ever propagates the value
-> (in longjmp) or sets it to 1 (in setjmp), and we only call longjmp
-> with integer parameters.
-> 
-> This allows removing -ffreestanding from the compilation flags.
-> 
-> Context:
-> https://lore.kernel.org/patchwork/patch/1214060
-> https://lore.kernel.org/patchwork/patch/1216174
-> 
-> Signed-off-by: Clement Courbet <courbet@google.com>
-> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-> Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-> 
-> ---
-> 
-> v2:
-> Use and array type as suggested by Segher Boessenkool
-> Cc: stable@vger.kernel.org # v4.14+
-> Fixes: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp and longjmp")
+Declaring setjmp()/longjmp() as taking longs makes the signature
+non-standard, and makes clang complain. In the past, this has been
+worked around by adding -ffreestanding to the compile flags.
 
-Actual diff itself looks good but these two tags need to be above your
-signoff to be included in the final changelog. Not sure if Michael will
-want a v3 with that or if it can manually be done when applying.
+The implementation looks like it only ever propagates the value
+(in longjmp) or sets it to 1 (in setjmp), and we only call longjmp
+with integer parameters.
 
-Cheers,
-Nathan
+This allows removing -ffreestanding from the compilation flags.
+
+Context:
+https://lore.kernel.org/patchwork/patch/1214060
+https://lore.kernel.org/patchwork/patch/1216174
+
+Signed-off-by: Clement Courbet <courbet@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Cc: stable@vger.kernel.org # v4.14+
+Fixes: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp and longjmp")
+
+---
+
+v2:
+Use and array type as suggested by Segher Boessenkool
+Add fix tags.
+
+v3:
+Properly place tags.
+---
+ arch/powerpc/include/asm/setjmp.h | 6 ++++--
+ arch/powerpc/kexec/Makefile       | 3 ---
+ arch/powerpc/xmon/Makefile        | 3 ---
+ 3 files changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/arch/powerpc/include/asm/setjmp.h b/arch/powerpc/include/asm/setjmp.h
+index e9f81bb3f83b..f798e80e4106 100644
+--- a/arch/powerpc/include/asm/setjmp.h
++++ b/arch/powerpc/include/asm/setjmp.h
+@@ -7,7 +7,9 @@
+ 
+ #define JMP_BUF_LEN    23
+ 
+-extern long setjmp(long *) __attribute__((returns_twice));
+-extern void longjmp(long *, long) __attribute__((noreturn));
++typedef long jmp_buf[JMP_BUF_LEN];
++
++extern int setjmp(jmp_buf env) __attribute__((returns_twice));
++extern void longjmp(jmp_buf env, int val) __attribute__((noreturn));
+ 
+ #endif /* _ASM_POWERPC_SETJMP_H */
+diff --git a/arch/powerpc/kexec/Makefile b/arch/powerpc/kexec/Makefile
+index 378f6108a414..86380c69f5ce 100644
+--- a/arch/powerpc/kexec/Makefile
++++ b/arch/powerpc/kexec/Makefile
+@@ -3,9 +3,6 @@
+ # Makefile for the linux kernel.
+ #
+ 
+-# Avoid clang warnings around longjmp/setjmp declarations
+-CFLAGS_crash.o += -ffreestanding
+-
+ obj-y				+= core.o crash.o core_$(BITS).o
+ 
+ obj-$(CONFIG_PPC32)		+= relocate_32.o
+diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
+index c3842dbeb1b7..6f9cccea54f3 100644
+--- a/arch/powerpc/xmon/Makefile
++++ b/arch/powerpc/xmon/Makefile
+@@ -1,9 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for xmon
+ 
+-# Avoid clang warnings around longjmp/setjmp declarations
+-subdir-ccflags-y := -ffreestanding
+-
+ GCOV_PROFILE := n
+ KCOV_INSTRUMENT := n
+ UBSAN_SANITIZE := n
+-- 
+2.26.0.rc2.310.g2932bb562d-goog
+
