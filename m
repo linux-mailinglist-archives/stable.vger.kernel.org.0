@@ -2,130 +2,267 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC78E1986CD
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 23:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF91219874B
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 00:23:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728876AbgC3VvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 17:51:14 -0400
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:50418 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728864AbgC3VvO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 17:51:14 -0400
-Received: by mail-pj1-f66.google.com with SMTP id v13so196089pjb.0
-        for <stable@vger.kernel.org>; Mon, 30 Mar 2020 14:51:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Cjv6tZ7FcMrttiayFZJoIdfDavhrU12OclWThW481nM=;
-        b=0JFAlqBrUw8NesL1+KNkPV5krg/zN7Iv3G6+nHS9zW1U25+PYyhLPF0ObKtnplbFeL
-         m0Wl8a/4lO1kbGcEN5NSI/hXsT5uxVuugkVNPw6LhUARt0qWWkDACnboDdMb0TFGiv6R
-         TVW5Ouno/PhZTB0lQDXF9SVAVxOtJ/z8ORsnksE1JCwYzWbpMBRzO3Cl09lYr0EVdEQX
-         s1vJGpAWYZvWqeYG7XILlvzSZGk0wKOPjQww2s8eGyz/5JPnTFyY8iJCoqwwEHjmd7sU
-         /avwXwobAO575rSKHsJHCS5yX46bBbRbehym95DHK6OX9Lk7qUc5rHPq+eB4w9mmXvNu
-         KQcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Cjv6tZ7FcMrttiayFZJoIdfDavhrU12OclWThW481nM=;
-        b=h2R+QwjWzGHOyhm1y2IhJdWwRJwiHi/8tLE+xITqYqGbmYe+y6t6wge7eXlIi180Cg
-         I/ZuvI8E+7J6cjqfhYrEEbEhLk9UGdt3d280COzS583D40/37iyglbSZaj++ktn8GoQX
-         7m+hMICYTpNEOjBugAf+hG/jolZiCqZG8eMm+k6BTfi+XLPdMiqUwmDEqO2ykh8QhJ+x
-         LZi6uTqJnmwGPk9FdKo7mSm6kgZqQS4XnlB2mqvIDA3SoQ4J3/vrWiNJ41GAL8Cx8Axg
-         002vLhF4Ig8YBd4UfODuoNzRd94y8c6Pi1faGY8KTm9CbKMBrvxcTRqIfqvKFfsOCOTk
-         V/og==
-X-Gm-Message-State: AGi0PubK2vu0KkbqZVy7K/FBiP1YU+NVByKu71Eajq3F0eFwFE6h8DqE
-        gwts6IBNtKxa64021g81N+4thPEMVJg=
-X-Google-Smtp-Source: APiQypJyxNk63s5j44jiPehn4WeLa91fmqpnuIk0LYWP0rALT4LyzDGRq1hBPEIxv8Fdi9aYXok78A==
-X-Received: by 2002:a17:90a:a385:: with SMTP id x5mr213299pjp.102.1585605071089;
-        Mon, 30 Mar 2020 14:51:11 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r63sm11139934pfr.42.2020.03.30.14.51.09
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Mar 2020 14:51:10 -0700 (PDT)
-Message-ID: <5e8269ce.1c69fb81.54443.0c7b@mx.google.com>
-Date:   Mon, 30 Mar 2020 14:51:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.113-79-g81a370c0d238
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y boot: 93 boots: 1 failed,
- 84 passed with 2 offline, 6 untried/unknown (v4.19.113-79-g81a370c0d238)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1729019AbgC3WXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 18:23:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47494 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728880AbgC3WW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Mar 2020 18:22:59 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46E2120658;
+        Mon, 30 Mar 2020 22:22:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585606978;
+        bh=9GcIESwnvTg56wnTU3a8Ew82Eu8bbBUo9kqo8f7pu7g=;
+        h=Date:From:To:Subject:From;
+        b=HvQ6kkE60sWvM8mQfglT5vHKlbAve0y8k+gbMkyhta7sbaiFiKncnWjUmTG4BOpbz
+         86wIdsmJ/YZYuTvx5CKsPwK213n0qG0sSWBs0QZZ2/NwtoiS6fuQgZa73xA/plS0ql
+         2ZhT0xthSvl3SzJWZ+NmcqgipJu+vXAud8ylkkhk=
+Date:   Mon, 30 Mar 2020 15:22:57 -0700
+From:   akpm@linux-foundation.org
+To:     akpm@linux-foundation.org, darrick.wong@oracle.com,
+        hch@infradead.org, mm-commits@vger.kernel.org,
+        naohiro.aota@wdc.com, qais.yousef@arm.com, stable@vger.kernel.org
+Subject:  [merged]
+ mm-swap-move-inode_lock-out-of-claim_swapfile.patch removed from -mm tree
+Message-ID: <20200330222257.TlLPGi_Gm%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 93 boots: 1 failed, 84 passed with 2 offline, =
-6 untried/unknown (v4.19.113-79-g81a370c0d238)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.113-79-g81a370c0d238/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.113-79-g81a370c0d238/
+The patch titled
+     Subject: mm/swapfile.c: move inode_lock out of claim_swapfile
+has been removed from the -mm tree.  Its filename was
+     mm-swap-move-inode_lock-out-of-claim_swapfile.patch
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.113-79-g81a370c0d238
-Git Commit: 81a370c0d2380a99e6a2fad5d3d9456ce054966c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 64 unique boards, 21 SoC families, 20 builds out of 206
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-Boot Regressions Detected:
+------------------------------------------------------
+From: Naohiro Aota <naohiro.aota@wdc.com>
+Subject: mm/swapfile.c: move inode_lock out of claim_swapfile
 
-arm:
+claim_swapfile() currently keeps the inode locked when it is successful,
+or the file is already swapfile (with -EBUSY).  And, on the other error
+cases, it does not lock the inode.
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 51 days (last pass: v4.19=
-.101 - first fail: v4.19.102-96-g0632821fe218)
+This inconsistency of the lock state and return value is quite confusing
+and actually causing a bad unlock balance as below in the "bad_swap"
+section of __do_sys_swapon().
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 17 days (last pass: v4.19.108-87-=
-g624c124960e8 - first fail: v4.19.109)
+This commit fixes this issue by moving the inode_lock() and IS_SWAPFILE
+check out of claim_swapfile().  The inode is unlocked in
+"bad_swap_unlock_inode" section, so that the inode is ensured to be
+unlocked at "bad_swap".  Thus, error handling codes after the locking now
+jumps to "bad_swap_unlock_inode" instead of "bad_swap".
 
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.19.113)
+    =====================================
+    WARNING: bad unlock balance detected!
+    5.5.0-rc7+ #176 Not tainted
+    -------------------------------------
+    swapon/4294 is trying to release lock (&sb->s_type->i_mutex_key) at:
+    [<ffffffff8173a6eb>] __do_sys_swapon+0x94b/0x3550
+    but there are no more locks to release!
 
-arm64:
+    other info that might help us debug this:
+    no locks held by swapon/4294.
 
-    defconfig:
-        gcc-8:
-          meson-gxl-s905d-p230:
-              lab-baylibre: failing since 6 days (last pass: v4.19.109-192-=
-gbae09bf235a5 - first fail: v4.19.109-202-g69e7137de31c)
+    stack backtrace:
+    CPU: 5 PID: 4294 Comm: swapon Not tainted 5.5.0-rc7-BTRFS-ZNS+ #176
+    Hardware name: ASUS All Series/H87-PRO, BIOS 2102 07/29/2014
+    Call Trace:
+     dump_stack+0xa1/0xea
+     ? __do_sys_swapon+0x94b/0x3550
+     print_unlock_imbalance_bug.cold+0x114/0x123
+     ? __do_sys_swapon+0x94b/0x3550
+     lock_release+0x562/0xed0
+     ? kvfree+0x31/0x40
+     ? lock_downgrade+0x770/0x770
+     ? kvfree+0x31/0x40
+     ? rcu_read_lock_sched_held+0xa1/0xd0
+     ? rcu_read_lock_bh_held+0xb0/0xb0
+     up_write+0x2d/0x490
+     ? kfree+0x293/0x2f0
+     __do_sys_swapon+0x94b/0x3550
+     ? putname+0xb0/0xf0
+     ? kmem_cache_free+0x2e7/0x370
+     ? do_sys_open+0x184/0x3e0
+     ? generic_max_swapfile_size+0x40/0x40
+     ? do_syscall_64+0x27/0x4b0
+     ? entry_SYSCALL_64_after_hwframe+0x49/0xbe
+     ? lockdep_hardirqs_on+0x38c/0x590
+     __x64_sys_swapon+0x54/0x80
+     do_syscall_64+0xa4/0x4b0
+     entry_SYSCALL_64_after_hwframe+0x49/0xbe
+    RIP: 0033:0x7f15da0a0dc7
 
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
+Link: http://lkml.kernel.org/r/20200206090132.154869-1-naohiro.aota@wdc.com
+Fixes: 1638045c3677 ("mm: set S_SWAPFILE on blockdev swap devices")
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Tested-by: Qais Youef <qais.yousef@arm.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ mm/swapfile.c |   41 ++++++++++++++++++++---------------------
+ 1 file changed, 20 insertions(+), 21 deletions(-)
+
+--- a/mm/swapfile.c~mm-swap-move-inode_lock-out-of-claim_swapfile
++++ a/mm/swapfile.c
+@@ -2899,10 +2899,6 @@ static int claim_swapfile(struct swap_in
+ 		p->bdev = inode->i_sb->s_bdev;
+ 	}
+ 
+-	inode_lock(inode);
+-	if (IS_SWAPFILE(inode))
+-		return -EBUSY;
+-
+ 	return 0;
+ }
+ 
+@@ -3157,36 +3153,41 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 	mapping = swap_file->f_mapping;
+ 	inode = mapping->host;
+ 
+-	/* will take i_rwsem; */
+ 	error = claim_swapfile(p, inode);
+ 	if (unlikely(error))
+ 		goto bad_swap;
+ 
++	inode_lock(inode);
++	if (IS_SWAPFILE(inode)) {
++		error = -EBUSY;
++		goto bad_swap_unlock_inode;
++	}
++
+ 	/*
+ 	 * Read the swap header.
+ 	 */
+ 	if (!mapping->a_ops->readpage) {
+ 		error = -EINVAL;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 	page = read_mapping_page(mapping, 0, swap_file);
+ 	if (IS_ERR(page)) {
+ 		error = PTR_ERR(page);
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 	swap_header = kmap(page);
+ 
+ 	maxpages = read_swap_header(p, swap_header, inode);
+ 	if (unlikely(!maxpages)) {
+ 		error = -EINVAL;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 
+ 	/* OK, set up the swap map and apply the bad block list */
+ 	swap_map = vzalloc(maxpages);
+ 	if (!swap_map) {
+ 		error = -ENOMEM;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 
+ 	if (bdi_cap_stable_pages_required(inode_to_bdi(inode)))
+@@ -3211,7 +3212,7 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 					GFP_KERNEL);
+ 		if (!cluster_info) {
+ 			error = -ENOMEM;
+-			goto bad_swap;
++			goto bad_swap_unlock_inode;
+ 		}
+ 
+ 		for (ci = 0; ci < nr_cluster; ci++)
+@@ -3220,7 +3221,7 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 		p->percpu_cluster = alloc_percpu(struct percpu_cluster);
+ 		if (!p->percpu_cluster) {
+ 			error = -ENOMEM;
+-			goto bad_swap;
++			goto bad_swap_unlock_inode;
+ 		}
+ 		for_each_possible_cpu(cpu) {
+ 			struct percpu_cluster *cluster;
+@@ -3234,13 +3235,13 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 
+ 	error = swap_cgroup_swapon(p->type, maxpages);
+ 	if (error)
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 
+ 	nr_extents = setup_swap_map_and_extents(p, swap_header, swap_map,
+ 		cluster_info, maxpages, &span);
+ 	if (unlikely(nr_extents < 0)) {
+ 		error = nr_extents;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 	/* frontswap enabled? set up bit-per-page map for frontswap */
+ 	if (IS_ENABLED(CONFIG_FRONTSWAP))
+@@ -3280,7 +3281,7 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 
+ 	error = init_swap_address_space(p->type, maxpages);
+ 	if (error)
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 
+ 	/*
+ 	 * Flush any pending IO and dirty mappings before we start using this
+@@ -3290,7 +3291,7 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 	error = inode_drain_writes(inode);
+ 	if (error) {
+ 		inode->i_flags &= ~S_SWAPFILE;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 
+ 	mutex_lock(&swapon_mutex);
+@@ -3315,6 +3316,8 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 
+ 	error = 0;
+ 	goto out;
++bad_swap_unlock_inode:
++	inode_unlock(inode);
+ bad_swap:
+ 	free_percpu(p->percpu_cluster);
+ 	p->percpu_cluster = NULL;
+@@ -3322,6 +3325,7 @@ bad_swap:
+ 		set_blocksize(p->bdev, p->old_block_size);
+ 		blkdev_put(p->bdev, FMODE_READ | FMODE_WRITE | FMODE_EXCL);
+ 	}
++	inode = NULL;
+ 	destroy_swap_extents(p);
+ 	swap_cgroup_swapoff(p->type);
+ 	spin_lock(&swap_lock);
+@@ -3333,13 +3337,8 @@ bad_swap:
+ 	kvfree(frontswap_map);
+ 	if (inced_nr_rotate_swap)
+ 		atomic_dec(&nr_rotate_swap);
+-	if (swap_file) {
+-		if (inode) {
+-			inode_unlock(inode);
+-			inode = NULL;
+-		}
++	if (swap_file)
+ 		filp_close(swap_file, NULL);
+-	}
+ out:
+ 	if (page && !IS_ERR(page)) {
+ 		kunmap(page);
+_
+
+Patches currently in -mm which might be from naohiro.aota@wdc.com are
+
+
