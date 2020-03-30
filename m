@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9267519874C
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 00:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8967E19874F
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 00:23:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729140AbgC3WXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 18:23:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
+        id S1729448AbgC3WXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 18:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728880AbgC3WXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Mar 2020 18:23:04 -0400
+        id S1729035AbgC3WXI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Mar 2020 18:23:08 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C11A120771;
-        Mon, 30 Mar 2020 22:23:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AACDD20771;
+        Mon, 30 Mar 2020 22:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585606981;
-        bh=mZnxBIwgl1lRgOImmu6osgUcDdOL38Xnm7lWVM5Kyn0=;
+        s=default; t=1585606986;
+        bh=byQL8CQkPbveXppasiwtC80gmgM7lCres5yzqiePbz8=;
         h=Date:From:To:Subject:From;
-        b=pxvb1uY7Nba5SI23w64wTA2AZuQvX9gviyHeGBzNHlYoakvuSg9om6WM0CMZ/X63I
-         1HNp3jk8dHM/yAIpPDX/h7ISx7yT44nl13Y8TwKb5fEBDGqtCyCU7nEXVVKG6NkzQW
-         QTasSXHXzWx8wdTkFZAFQDI1ZKnQ/tQvPtVofovY=
-Date:   Mon, 30 Mar 2020 15:23:00 -0700
+        b=E1O9LoK7AvYjOx84KEHdG8F0AEYc87j5eGdKY/Kamgbij2h4EXeI40Jpy0EKTEts8
+         0r5j1RZFtAWlJykPwNFcXzA5Ao2JK9pISQsp3k1kf+Kh7XKSWwgUtkHE+odf4kysX9
+         41N1bLtXYG/XNi+stNygh6dFb4cXhbSw9r/kIFh0=
+Date:   Mon, 30 Mar 2020 15:23:06 -0700
 From:   akpm@linux-foundation.org
-To:     dan.j.williams@intel.com, david@redhat.com,
-        gregkh@linuxfoundation.org, heiko.carstens@de.ibm.com,
-        kzak@redhat.com, mhocko@kernel.org, mhocko@suse.com,
-        mm-commits@vger.kernel.org, ndfont@gmail.com, pbadari@us.ibm.com,
-        rafael@kernel.org, rcj@linux.vnet.ibm.com, stable@vger.kernel.org,
-        steve.scargall@intel.com
+To:     bharata@linux.ibm.com, guro@fb.com, hannes@cmpxchg.org,
+        mhocko@kernel.org, mm-commits@vger.kernel.org, shakeelb@google.com,
+        stable@vger.kernel.org
 Subject:  [merged]
- drivers-base-memoryc-indicate-all-memory-blocks-as-removable.patch removed
- from -mm tree
-Message-ID: <20200330222300.MZu16fr6f%akpm@linux-foundation.org>
+ =?US-ASCII?Q?mm-fork-fix-kernel=5Fstack-memcg-stats-for-various-stack-i?=
+ =?US-ASCII?Q?mplementations.patch?= removed from -mm tree
+Message-ID: <20200330222306.B8yVlf9m6%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -43,161 +42,186 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: drivers/base/memory.c: indicate all memory blocks as removable
+     Subject: mm: fork: fix kernel_stack memcg stats for various stack implementations
 has been removed from the -mm tree.  Its filename was
-     drivers-base-memoryc-indicate-all-memory-blocks-as-removable.patch
+     mm-fork-fix-kernel_stack-memcg-stats-for-various-stack-implementations.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: David Hildenbrand <david@redhat.com>
-Subject: drivers/base/memory.c: indicate all memory blocks as removable
+From: Roman Gushchin <guro@fb.com>
+Subject: mm: fork: fix kernel_stack memcg stats for various stack implementations
 
-We see multiple issues with the implementation/interface to compute
-whether a memory block can be offlined (exposed via
-/sys/devices/system/memory/memoryX/removable) and would like to simplify
-it (remove the implementation).
+Depending on CONFIG_VMAP_STACK and the THREAD_SIZE / PAGE_SIZE ratio the
+space for task stacks can be allocated using __vmalloc_node_range(),
+alloc_pages_node() and kmem_cache_alloc_node().  In the first and the
+second cases page->mem_cgroup pointer is set, but in the third it's not:
+memcg membership of a slab page should be determined using the
+memcg_from_slab_page() function, which looks at
+page->slab_cache->memcg_params.memcg .  In this case, using
+mod_memcg_page_state() (as in account_kernel_stack()) is incorrect:
+page->mem_cgroup pointer is NULL even for pages charged to a non-root
+memory cgroup.
 
-1. It runs basically lockless. While this might be good for performance,
-   we see possible races with memory offlining that will require at least
-   some sort of locking to fix.
+It can lead to kernel_stack per-memcg counters permanently showing 0 on
+some architectures (depending on the configuration).
 
-2. Nowadays, more false positives are possible. No arch-specific checks
-   are performed that validate if memory offlining will not be denied
-   right away (and such check will require locking). For example, arm64
-   won't allow to offline any memory block that was added during boot -
-   which will imply a very high error rate. Other archs have other
-   constraints.
+In order to fix it, let's introduce a mod_memcg_obj_state() helper, which
+takes a pointer to a kernel object as a first argument, uses
+mem_cgroup_from_obj() to get a RCU-protected memcg pointer and calls
+mod_memcg_state().  It allows to handle all possible configurations
+(CONFIG_VMAP_STACK and various THREAD_SIZE/PAGE_SIZE values) without
+spilling any memcg/kmem specifics into fork.c .
 
-3. The interface is inherently racy. E.g., if a memory block is
-   detected to be removable (and was not a false positive at that time),
-   there is still no guarantee that offlining will actually succeed. So
-   any caller already has to deal with false positives.
+Note: This is a special version of the patch created for stable
+backports. It contains code from the following two patches:
+  - mm: memcg/slab: introduce mem_cgroup_from_obj()
+  - mm: fork: fix kernel_stack memcg stats for various stack implementations
 
-4. It is unclear which performance benefit this interface actually
-   provides. The introducing commit 5c755e9fd813 ("memory-hotplug: add
-   sysfs removable attribute for hotplug memory remove") mentioned
-	"A user-level agent must be able to identify which sections of
-	 memory are likely to be removable before attempting the
-	 potentially expensive operation."
-   However, no actual performance comparison was included.
-
-Known users:
-- lsmem: Will group memory blocks based on the "removable" property. [1]
-- chmem: Indirect user. It has a RANGE mode where one can specify
-	 removable ranges identified via lsmem to be offlined. However, it
-	 also has a "SIZE" mode, which allows a sysadmin to skip the manual
-	 "identify removable blocks" step. [2]
-- powerpc-utils: Uses the "removable" attribute to skip some memory
-		 blocks right away when trying to find some to
-		 offline+remove. However, with ballooning enabled, it
-		 already skips this information completely (because it
-		 once resulted in many false negatives). Therefore, the
-		 implementation can deal with false positives properly
-		 already. [3]
-
-According to Nathan Fontenot, DLPAR on powerpc is nowadays no longer
-driven from userspace via the drmgr command (powerpc-utils). Nowadays
-it's managed in the kernel - including onlining/offlining of memory
-blocks - triggered by drmgr writing to /sys/kernel/dlpar. So the
-affected legacy userspace handling is only active on old kernels. Only ve=
-ry
-old versions of drmgr on a new kernel (unlikely) might execute slower -
-totally acceptable.
-
-With CONFIG_MEMORY_HOTREMOVE, always indicating "removable" should not
-break any user space tool. We implement a very bad heuristic now.  Withou=
-t
-CONFIG_MEMORY_HOTREMOVE we cannot offline anything, so report
-"not removable" as before.
-
-Original discussion can be found in [4] ("[PATCH RFC v1] mm:
-is_mem_section_removable() overhaul").
-
-Other users of is_mem_section_removable() will be removed next, so that
-we can remove is_mem_section_removable() completely.
-
-[1] http://man7.org/linux/man-pages/man1/lsmem.1.html
-[2] http://man7.org/linux/man-pages/man8/chmem.8.html
-[3] https://github.com/ibm-power-utilities/powerpc-utils
-[4] https://lkml.kernel.org/r/20200117105759.27905-1-david@redhat.com
-
-Also, this patch probably fixes a crash reported by Steve. 
-http://lkml.kernel.org/r/CAPcyv4jpdaNvJ67SkjyUJLBnBnXXQv686BiVW042g03FUmWLXw@mail.gmail.com
-
-Link: http://lkml.kernel.org/r/20200128093542.6908-1-david@redhat.com
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Suggested-by: Michal Hocko <mhocko@kernel.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Nathan Fontenot <ndfont@gmail.com>
-Reported-by: "Scargall, Steve" <steve.scargall@intel.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Robert Jennings <rcj@linux.vnet.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Karel Zak <kzak@redhat.com>
+[guro@fb.com: introduce mem_cgroup_from_obj()]
+  Link: http://lkml.kernel.org/r/20200324004221.GA36662@carbon.dhcp.thefacebook.com
+Link: http://lkml.kernel.org/r/20200303233550.251375-1-guro@fb.com
+Fixes: 4d96ba353075 ("mm: memcg/slab: stop setting page->mem_cgroup pointer for slab pages")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Bharata B Rao <bharata@linux.ibm.com>
+Cc: Shakeel Butt <shakeelb@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/base/memory.c |   23 +++--------------------
- 1 file changed, 3 insertions(+), 20 deletions(-)
+ include/linux/memcontrol.h |   12 +++++++++++
+ kernel/fork.c              |    4 +--
+ mm/memcontrol.c            |   38 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 52 insertions(+), 2 deletions(-)
 
---- a/drivers/base/memory.c~drivers-base-memoryc-indicate-all-memory-blocks-as-removable
-+++ a/drivers/base/memory.c
-@@ -97,30 +97,13 @@ static ssize_t phys_index_show(struct de
+--- a/include/linux/memcontrol.h~mm-fork-fix-kernel_stack-memcg-stats-for-various-stack-implementations
++++ a/include/linux/memcontrol.h
+@@ -695,6 +695,7 @@ static inline unsigned long lruvec_page_
+ void __mod_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+ 			int val);
+ void __mod_lruvec_slab_state(void *p, enum node_stat_item idx, int val);
++void mod_memcg_obj_state(void *p, int idx, int val);
+ 
+ static inline void mod_lruvec_state(struct lruvec *lruvec,
+ 				    enum node_stat_item idx, int val)
+@@ -1123,6 +1124,10 @@ static inline void __mod_lruvec_slab_sta
+ 	__mod_node_page_state(page_pgdat(page), idx, val);
  }
  
- /*
-- * Show whether the memory block is likely to be offlineable (or is already
-- * offline). Once offline, the memory block could be removed. The return
-- * value does, however, not indicate that there is a way to remove the
-- * memory block.
-+ * Legacy interface that we cannot remove. Always indicate "removable"
-+ * with CONFIG_MEMORY_HOTREMOVE - bad heuristic.
-  */
- static ssize_t removable_show(struct device *dev, struct device_attribute *attr,
- 			      char *buf)
++static inline void mod_memcg_obj_state(void *p, int idx, int val)
++{
++}
++
+ static inline
+ unsigned long mem_cgroup_soft_limit_reclaim(pg_data_t *pgdat, int order,
+ 					    gfp_t gfp_mask,
+@@ -1427,6 +1432,8 @@ static inline int memcg_cache_id(struct
+ 	return memcg ? memcg->kmemcg_id : -1;
+ }
+ 
++struct mem_cgroup *mem_cgroup_from_obj(void *p);
++
+ #else
+ 
+ static inline int memcg_kmem_charge(struct page *page, gfp_t gfp, int order)
+@@ -1468,6 +1475,11 @@ static inline void memcg_put_cache_ids(v
  {
--	struct memory_block *mem = to_memory_block(dev);
--	unsigned long pfn;
--	int ret = 1, i;
--
--	if (mem->state != MEM_ONLINE)
--		goto out;
--
--	for (i = 0; i < sections_per_block; i++) {
--		if (!present_section_nr(mem->start_section_nr + i))
--			continue;
--		pfn = section_nr_to_pfn(mem->start_section_nr + i);
--		ret &= is_mem_section_removable(pfn, PAGES_PER_SECTION);
--	}
--
--out:
--	return sprintf(buf, "%d\n", ret);
-+	return sprintf(buf, "%d\n", (int)IS_ENABLED(CONFIG_MEMORY_HOTREMOVE));
  }
  
- /*
++static inline struct mem_cgroup *mem_cgroup_from_obj(void *p)
++{
++       return NULL;
++}
++
+ #endif /* CONFIG_MEMCG_KMEM */
+ 
+ #endif /* _LINUX_MEMCONTROL_H */
+--- a/kernel/fork.c~mm-fork-fix-kernel_stack-memcg-stats-for-various-stack-implementations
++++ a/kernel/fork.c
+@@ -397,8 +397,8 @@ static void account_kernel_stack(struct
+ 		mod_zone_page_state(page_zone(first_page), NR_KERNEL_STACK_KB,
+ 				    THREAD_SIZE / 1024 * account);
+ 
+-		mod_memcg_page_state(first_page, MEMCG_KERNEL_STACK_KB,
+-				     account * (THREAD_SIZE / 1024));
++		mod_memcg_obj_state(stack, MEMCG_KERNEL_STACK_KB,
++				    account * (THREAD_SIZE / 1024));
+ 	}
+ }
+ 
+--- a/mm/memcontrol.c~mm-fork-fix-kernel_stack-memcg-stats-for-various-stack-implementations
++++ a/mm/memcontrol.c
+@@ -777,6 +777,17 @@ void __mod_lruvec_slab_state(void *p, en
+ 	rcu_read_unlock();
+ }
+ 
++void mod_memcg_obj_state(void *p, int idx, int val)
++{
++	struct mem_cgroup *memcg;
++
++	rcu_read_lock();
++	memcg = mem_cgroup_from_obj(p);
++	if (memcg)
++		mod_memcg_state(memcg, idx, val);
++	rcu_read_unlock();
++}
++
+ /**
+  * __count_memcg_events - account VM events in a cgroup
+  * @memcg: the memory cgroup
+@@ -2661,6 +2672,33 @@ static void commit_charge(struct page *p
+ }
+ 
+ #ifdef CONFIG_MEMCG_KMEM
++/*
++ * Returns a pointer to the memory cgroup to which the kernel object is charged.
++ *
++ * The caller must ensure the memcg lifetime, e.g. by taking rcu_read_lock(),
++ * cgroup_mutex, etc.
++ */
++struct mem_cgroup *mem_cgroup_from_obj(void *p)
++{
++	struct page *page;
++
++	if (mem_cgroup_disabled())
++		return NULL;
++
++	page = virt_to_head_page(p);
++
++	/*
++	 * Slab pages don't have page->mem_cgroup set because corresponding
++	 * kmem caches can be reparented during the lifetime. That's why
++	 * memcg_from_slab_page() should be used instead.
++	 */
++	if (PageSlab(page))
++		return memcg_from_slab_page(page);
++
++	/* All other pages use page->mem_cgroup */
++	return page->mem_cgroup;
++}
++
+ static int memcg_alloc_cache_id(void)
+ {
+ 	int id, size;
 _
 
-Patches currently in -mm which might be from david@redhat.com are
+Patches currently in -mm which might be from guro@fb.com are
 
-drivers-base-memoryc-cache-memory-blocks-in-xarray-to-accelerate-lookup-fix.patch
-virtio-balloon-switch-back-to-oom-handler-for-virtio_balloon_f_deflate_on_oom.patch
-drivers-base-memoryc-drop-section_count.patch
-drivers-base-memoryc-drop-pages_correctly_probed.patch
-mm-page_extc-drop-pfn_present-check-when-onlining.patch
-mm-memory_hotplug-simplify-calculation-of-number-of-pages-in-__remove_pages.patch
-mm-memory_hotplug-cleanup-__add_pages.patch
-drivers-base-memory-rename-mmop_online_keep-to-mmop_online.patch
-drivers-base-memory-map-mmop_offline-to-0.patch
-drivers-base-memory-store-mapping-between-mmop_-and-string-in-an-array.patch
-powernv-memtrace-always-online-added-memory-blocks.patch
-hv_balloon-dont-check-for-memhp_auto_online-manually.patch
-mm-memory_hotplug-unexport-memhp_auto_online.patch
-mm-memory_hotplug-convert-memhp_auto_online-to-store-an-online_type.patch
-mm-memory_hotplug-allow-to-specify-a-default-online_type.patch
+mm-memcg-slab-introduce-mem_cgroup_from_obj.patch
+mm-kmem-cleanup-__memcg_kmem_charge_memcg-arguments.patch
+mm-kmem-cleanup-memcg_kmem_uncharge_memcg-arguments.patch
+mm-kmem-rename-memcg_kmem_uncharge-into-memcg_kmem_uncharge_page.patch
+mm-kmem-switch-to-nr_pages-in-__memcg_kmem_charge_memcg.patch
+mm-memcg-slab-cache-page-number-in-memcg_uncharge_slab.patch
+mm-kmem-rename-__memcg_kmem_uncharge_memcg-to-__memcg_kmem_uncharge.patch
+mm-memcg-make-memoryoomgroup-tolerable-to-task-migration.patch
+mmpage_alloccma-conditionally-prefer-cma-pageblocks-for-movable-allocations.patch
+mmpage_alloccma-conditionally-prefer-cma-pageblocks-for-movable-allocations-fix.patch
+mm-hugetlb-optionally-allocate-gigantic-hugepages-using-cma.patch
+mm-hugetlb-optionally-allocate-gigantic-hugepages-using-cma-fix.patch
+mm-hugetlb-optionally-allocate-gigantic-hugepages-using-cma-fix-2.patch
+mm-hugetlb-fix-hugetlb_cma_reserve-if-config_numa-isnt-set.patch
 
