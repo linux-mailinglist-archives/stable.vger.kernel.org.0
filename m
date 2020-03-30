@@ -2,79 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2C4197C39
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 14:48:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9B9197C78
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 15:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729705AbgC3Ms2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 08:48:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51374 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727339AbgC3Ms2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Mar 2020 08:48:28 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1729976AbgC3NJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 09:09:40 -0400
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:56299 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729961AbgC3NJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 09:09:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1585573779;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ahq/o5I/YbrAOVCAI5uwMxuNLuPNHglciTc/hlUXnN0=;
+        b=RNf8VI/NzaZDns9zootjPipAF2vWy5HAAgVKJQB5zP9iODtG2XTfl8utdw7WPKAjpcoUjk
+        j+CIPd3iV6Vuwn3OemeAHQ7bPeEg5uKiJcvAwYNe6CuukHsguR3va3T7JajsCnl1QroXDz
+        pasx84CAUs9qp6Gn7UCKtTUHyt0AN/E=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-268-3INrmXdwM_ykDgQiXmvsRQ-1; Mon, 30 Mar 2020 09:09:36 -0400
+X-MC-Unique: 3INrmXdwM_ykDgQiXmvsRQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AE6B206F6;
-        Mon, 30 Mar 2020 12:48:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585572507;
-        bh=x7TFFF3jEqeQif2ldU+S78OO5Af5QWf6bxWDLcb+d0s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rzkNNLJQNqjpXXpuhRSm3lm3k+D6gvcP0wrpWnte81hQqIdwAawNqcMdgzwiDl5UK
-         x5EfxffdYmIhS+tG+gFktN5usOnO/9N/xwk2VNFLI3rrAKegkTZUY/5ZchGK7s8hBi
-         R+7R18R9V/C8N141rtDPpHmcaKid9SikYZrxLmTw=
-Date:   Mon, 30 Mar 2020 08:48:26 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     dan.carpenter@oracle.com, dmitry.torokhov@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] Input: raydium_i2c_ts - fix error codes
- in" failed to apply to 4.14-stable tree
-Message-ID: <20200330124826.GF4189@sasha-vm>
-References: <15855617453276@kroah.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5F96F107ACC4;
+        Mon, 30 Mar 2020 13:09:34 +0000 (UTC)
+Received: from [10.3.114.78] (ovpn-114-78.phx2.redhat.com [10.3.114.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DE1A460C63;
+        Mon, 30 Mar 2020 13:09:32 +0000 (UTC)
+Subject: Re: [Linux-kernel-mentees] [PATCH v2] PCI: sysfs: Change bus_rescan
+ and dev_rescan to rescan
+To:     Bjorn Helgaas <helgaas@kernel.org>,
+        Kelsey <skunberg.kelsey@gmail.com>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-pci@vger.kernel.org,
+        Kelsey Skunberg <kelsey.skunberg@gmail.com>,
+        rbilovol@cisco.com, stable <stable@vger.kernel.org>,
+        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+        linux-kernel-mentees@lists.linuxfoundation.org,
+        Bodong Wang <bodong@mellanox.com>
+References: <20200328195932.GA96482@google.com>
+From:   Don Dutile <ddutile@redhat.com>
+Message-ID: <4ab3854e-e7ca-5a3f-dca9-bd855d47e95b@redhat.com>
+Date:   Mon, 30 Mar 2020 09:09:32 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <15855617453276@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200328195932.GA96482@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 30, 2020 at 11:49:05AM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.14-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 32cf3a610c35cb21e3157f4bbf29d89960e30a36 Mon Sep 17 00:00:00 2001
->From: Dan Carpenter <dan.carpenter@oracle.com>
->Date: Fri, 6 Mar 2020 11:50:51 -0800
->Subject: [PATCH] Input: raydium_i2c_ts - fix error codes in
-> raydium_i2c_boot_trigger()
->
->These functions are supposed to return negative error codes but instead
->it returns true on failure and false on success.  The error codes are
->eventually propagated back to user space.
->
->Fixes: 48a2b783483b ("Input: add Raydium I2C touchscreen driver")
->Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
->Link: https://lore.kernel.org/r/20200303101306.4potflz7na2nn3od@kili.mountain
->Cc: stable@vger.kernel.org
->Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On 3/28/20 3:59 PM, Bjorn Helgaas wrote:
+> On Thu, Mar 26, 2020 at 12:29:11AM -0600, Kelsey wrote:
+>> On Wed, Mar 25, 2020 at 4:10 PM Bjorn Helgaas <helgaas@kernel.org> wrote:
+> 
+>>> Thanks for taking care of this!  Two questions:
+>>>
+>>> 1) You supplied permissions of 0220, but DEVICE_ATTR_WO()
+>>> uses__ATTR_WO(), which uses 0200.  Shouldn't we keep 0200?
+>>>
+>>
+>> Good catch. Before changing to DEVICE_ATTR_WO(), the permissions used
+>> was (S_IWUSR | S_IWGRP), which would be 0220. This means the
+>> permissions were mistakenly changed from 0220 to 0200 in the same
+>> patch:
+>>
+>> commit 4e2b79436e4f ("PCI: sysfs: Change DEVICE_ATTR() to DEVICE_ATTR_WO()")
+>>
+>> To verify DEVICE_ATTR_WO() is using __ATTR_WO() can be seen in
+>> /include/linux/device.h
+>> To verify permissions for __ATTR_WO() is 0200 can be seen in
+>> /inlcude/linux/sysfs.h
+>>
+>> These attributes had permissions 0220 when first being introduced and
+>> before the above mentioned patch, so I'm on the side to believe that
+>> 0220 should be used.
+> 
+> I'm not sure it was a mistake that 4e2b79436e4f changed from 0220 to
+> 200 or not.  I'd say __ATTR_WO (0200) is the "standard" one, and we
+> should have a special reason to use 0220.
+> 
+Bjorn,
+Thanks for verifying the 0200 vs 0220 permissions.
+I had recalled that discussion thread on the permissions when the original ATTR patch was proposed, but hadn't had time to dig it up.
+Apologies for the delay, thanks for the (final?) cleanup.
+- Don
 
-I also took 6cad4e269e25 ("Input: raydium_i2c_ts - use true and false
-for boolean values") to work around this conflict. Queued both for 4.14
-and 4.9.
-
--- 
-Thanks,
-Sasha
