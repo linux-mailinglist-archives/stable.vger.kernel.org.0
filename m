@@ -2,148 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E6219761D
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 10:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3861976FD
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 10:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729589AbgC3IEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 04:04:10 -0400
-Received: from mail-qv1-f74.google.com ([209.85.219.74]:47614 "EHLO
-        mail-qv1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729474AbgC3IEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 04:04:09 -0400
-Received: by mail-qv1-f74.google.com with SMTP id f9so6363978qvt.14
-        for <stable@vger.kernel.org>; Mon, 30 Mar 2020 01:04:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:cc;
-        bh=6uUpEI08oXikXCp5+9gsd81DMfh5aZ7xYc26aZNsMcE=;
-        b=R5aQu0gPcdYxwympNDA6UKdwMEnC2lGvXrGlXdylt5YSMQ4nAlR4gXuAS+7DzVEFW9
-         bncYZz2qzYyv60L9tsSIMS6mi7tymeJ2mjj2uFTPgT8gTz02xBhf4Ut/2l8JRwepapq6
-         v7MV4eHIuJsBec5DldbEcDJ/X2g+0uDLUfpyPOsLAWJG+7u5noEunaLudIgD88epxYKv
-         Jdolza7eiLG5kgnu5wfR62bw23CdRRHVOQAFXqOhIs2UJBqImVKGEcmPswTxOAVJmNqi
-         QkhU2j1WsrWkCb5+2hNw1Xx4esmiKqnMFvbnwL0CIsgEPe//N0hq9yOnyhTr3R1xVQrZ
-         tHGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:cc;
-        bh=6uUpEI08oXikXCp5+9gsd81DMfh5aZ7xYc26aZNsMcE=;
-        b=WHKl4V82XSJr8JTdoYLPWLCql2VpPBoGyMpd9yNchXcCcozZ22qOBv/2RRLnvdYF3u
-         lCbZDXj5q0ARVIvs+UokUOaoQo2Q0ljdkxC3dk3D1F67MIvW3qKGB487ELR+Yfk9s9Mp
-         eJyhaCRUDGae25TnuFThj0T0mhjm9DshHxWjG6qie/SpCH8sBucomMLYSnb2E3qgreHQ
-         7kXUs0dop0bUdUNkXtBOhXNqkSqTVQglI7pgQhU9QlGFBxAggfbQHYlSO5oa064xzMkA
-         2MOMN1PfetgfgszaDaRlmJPdxIZK6PacM8Wz1lPdmPqcCzmFb2ols6V1Mh+bwPtIGZP/
-         psFQ==
-X-Gm-Message-State: ANhLgQ1X1HCH+gFsVkvp7mtO98HVjEV9C9cwqfwdcHovEBGPcvok9Jo5
-        tErzLm744qBtxx2OtD96ptJnVCd2tdVm
-X-Google-Smtp-Source: ADFU+vtYJzmxymIGka0/I/Su3giY+YfBRdfUHQGLXnJq4xIk/Xdj15dHeXATi7wBUj2ccVnQni5sms+J4AtS
-X-Received: by 2002:ac8:6890:: with SMTP id m16mr10623891qtq.5.1585555446842;
- Mon, 30 Mar 2020 01:04:06 -0700 (PDT)
-Date:   Mon, 30 Mar 2020 10:03:56 +0200
-In-Reply-To: <20200327100801.161671-1-courbet@google.com>
-Message-Id: <20200330080400.124803-1-courbet@google.com>
-Mime-Version: 1.0
-References: <20200327100801.161671-1-courbet@google.com>
-X-Mailer: git-send-email 2.26.0.rc2.310.g2932bb562d-goog
-Subject: [PATCH v3] powerpc: Make setjmp/longjmp signature standard
-From:   Clement Courbet <courbet@google.com>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Clement Courbet <courbet@google.com>, stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
-To:     unlisted-recipients:; (no To-header on input)
+        id S1729538AbgC3IuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 04:50:11 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:53067 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728759AbgC3IuL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 04:50:11 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 4ADB35C07F9;
+        Mon, 30 Mar 2020 04:50:10 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 30 Mar 2020 04:50:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=TAc9BqbPJQRkYjEeHp/KesbVTGc
+        OThwXtcE4IBNbdjQ=; b=gVLOl7bPHHI6DCmUw5/tJyzpH8CPXfxKWL0Nh64mV+l
+        cbXe/1OnMczhkDBnszyc2jWCHmudyl6FD72IVb9SOln1CcSiurOFAy1u5WLGHXrc
+        6agBrZQl3f4p4SHYJzM/yXoZhe4/VG7mR6OqZeBQl2i1Iy5IBbgGOrYACXArfBAF
+        QEFQStuieBrF2lcVMOiABtQJ2lmnvmZS3rF6SKyk8ce0z/bQaMCzDE0arDwhP61r
+        /aZRfhGh0GZXKYoSBlXODbCUY/hVV/BxAtLB3kJ7hNFttxlUat8/A1CSzNzOr/17
+        7+EFa5AugOlD+cjlz4dX0ursqjMCkNRCGsDEJJOVJKA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TAc9Bq
+        bPJQRkYjEeHp/KesbVTGcOThwXtcE4IBNbdjQ=; b=18N07cyeooU50jb5UTtkaD
+        mFnao8sgAoMn/wCirer+j1qt7ZeFjmRYVqe10Zf07hIfYkzZYtHk/t++bVHE5v/M
+        l4w9ditc02s/MDwRpk0pgjIw7gepq3AJLPnBD/rGAUY5UOlraBAomjxs2bplFM0B
+        3qFpeq0igTyXkv/pqpNoyeNrFBUNFUPSAW8HXqeYLd94BPLNYK8A8mZo91GCvcD3
+        iGWZiIfIuFU5dCvTzIIpYJf8uIVzrUUxIfuga93R0GpfgvfvQmcEHXcvdawPBaYh
+        NmHG8ADmfZv8j6SrUGns1e0Hhz3k8kCUfkzthQMgoD60fcpA9ZbgZmwq43ar39oA
+        ==
+X-ME-Sender: <xms:wrKBXlVpMVLxhZdo8Xl7Vb17xgu_z1e5ibSTgE5oAecgjRwouxrKPw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudeihedgtdekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhr
+    vghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:wrKBXo0_hmiOoS4pbo8XZic-Iy2G_QsKhm1x89LNwVECHk4tYq94yA>
+    <xmx:wrKBXq1ACOPhKyO2xue325B92LNkOtkFeUC2rDRN0bGc1IwdVB2nkw>
+    <xmx:wrKBXj9zfCTPwV6GLgIXHMHGfMo3ruoOI-e-bPgrqi2Sql7zfY9dBw>
+    <xmx:wrKBXoGNCVB3KLbJ9-lLkEkm3jOVoDoTdhkM-xdoecIsDGYR47PoCQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C89FF306C975;
+        Mon, 30 Mar 2020 04:50:09 -0400 (EDT)
+Date:   Mon, 30 Mar 2020 10:50:07 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Jason Andryuk <jandryuk@gmail.com>
+Cc:     stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: Re: Stable request: iwlwifi: mvm: fix non-ACPI function
+Message-ID: <20200330085007.GA239298@kroah.com>
+References: <20200329184111.17469-1-jandryuk@gmail.com>
+ <CAKf6xpub_isHjErmj=7yoxeo=2+CKOm+w8b=AWxE-KLJG5d2Dg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKf6xpub_isHjErmj=7yoxeo=2+CKOm+w8b=AWxE-KLJG5d2Dg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Declaring setjmp()/longjmp() as taking longs makes the signature
-non-standard, and makes clang complain. In the past, this has been
-worked around by adding -ffreestanding to the compile flags.
+On Sun, Mar 29, 2020 at 03:17:32PM -0400, Jason Andryuk wrote:
+> On Sun, Mar 29, 2020 at 2:41 PM Jason Andryuk <jandryuk@gmail.com> wrote:
+> >
+> > From: Johannes Berg <johannes.berg@intel.com>
+> >
+> > commit 7937fd3227055892e169f4b34d21157e57d919e2 upstream.
+> >
+> > The code now compiles without ACPI, but there's a warning since
+> > iwl_mvm_get_ppag_table() isn't used, and iwl_mvm_ppag_init() must
+> > not unconditionally fail but return success instead.
+> >
+> > Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+> > Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+> > Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> > [Drop hunk removing iwl_mvm_get_ppag_table() since it doesn't exist in
+> > 5.4]
+> > Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
+> > ---
+> > A 5.4 kernel can't "up" an iwlwifi interface when CONFIG_ACPI=n.
+> > `wpa_supplicant` or `ip link set wlan0 up` return "No such file or
+> > directory".  The non-acpi stub iwl_mvm_ppag_init() always returns
+> > -ENOENT which means iwl_mvm_up() always fails.  Backporting the commit
+> > lets iwl_mvm_up() succeed.
+> 
+> This stable request is only applicable to 5.4
+> 
+> Fixes 6ce1e5c0c207 "iwlwifi: support per-platform antenna gain"
 
-The implementation looks like it only ever propagates the value
-(in longjmp) or sets it to 1 (in setjmp), and we only call longjmp
-with integer parameters.
+Now queued up, thanks.
 
-This allows removing -ffreestanding from the compilation flags.
-
-Context:
-https://lore.kernel.org/patchwork/patch/1214060
-https://lore.kernel.org/patchwork/patch/1216174
-
-Signed-off-by: Clement Courbet <courbet@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: stable@vger.kernel.org # v4.14+
-Fixes: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp and longjmp")
-
----
-
-v2:
-Use and array type as suggested by Segher Boessenkool
-Add fix tags.
-
-v3:
-Properly place tags.
----
- arch/powerpc/include/asm/setjmp.h | 6 ++++--
- arch/powerpc/kexec/Makefile       | 3 ---
- arch/powerpc/xmon/Makefile        | 3 ---
- 3 files changed, 4 insertions(+), 8 deletions(-)
-
-diff --git a/arch/powerpc/include/asm/setjmp.h b/arch/powerpc/include/asm/setjmp.h
-index e9f81bb3f83b..f798e80e4106 100644
---- a/arch/powerpc/include/asm/setjmp.h
-+++ b/arch/powerpc/include/asm/setjmp.h
-@@ -7,7 +7,9 @@
- 
- #define JMP_BUF_LEN    23
- 
--extern long setjmp(long *) __attribute__((returns_twice));
--extern void longjmp(long *, long) __attribute__((noreturn));
-+typedef long jmp_buf[JMP_BUF_LEN];
-+
-+extern int setjmp(jmp_buf env) __attribute__((returns_twice));
-+extern void longjmp(jmp_buf env, int val) __attribute__((noreturn));
- 
- #endif /* _ASM_POWERPC_SETJMP_H */
-diff --git a/arch/powerpc/kexec/Makefile b/arch/powerpc/kexec/Makefile
-index 378f6108a414..86380c69f5ce 100644
---- a/arch/powerpc/kexec/Makefile
-+++ b/arch/powerpc/kexec/Makefile
-@@ -3,9 +3,6 @@
- # Makefile for the linux kernel.
- #
- 
--# Avoid clang warnings around longjmp/setjmp declarations
--CFLAGS_crash.o += -ffreestanding
--
- obj-y				+= core.o crash.o core_$(BITS).o
- 
- obj-$(CONFIG_PPC32)		+= relocate_32.o
-diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
-index c3842dbeb1b7..6f9cccea54f3 100644
---- a/arch/powerpc/xmon/Makefile
-+++ b/arch/powerpc/xmon/Makefile
-@@ -1,9 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for xmon
- 
--# Avoid clang warnings around longjmp/setjmp declarations
--subdir-ccflags-y := -ffreestanding
--
- GCOV_PROFILE := n
- KCOV_INSTRUMENT := n
- UBSAN_SANITIZE := n
--- 
-2.26.0.rc2.310.g2932bb562d-goog
-
+greg k-h
