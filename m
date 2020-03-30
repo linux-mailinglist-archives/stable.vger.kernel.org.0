@@ -2,116 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EE9D197932
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 12:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FE9319794F
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 12:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729900AbgC3KWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 06:22:07 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:40074 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729249AbgC3KWG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 06:22:06 -0400
-Received: by mail-wm1-f68.google.com with SMTP id a81so21253753wmf.5;
-        Mon, 30 Mar 2020 03:22:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=4vIQEBciMld0vCiDFU9TfH/0TDdbnuRcouDz7FT+Dao=;
-        b=fsu+c4P/6tAyRUitocVZp9kKKEf6AMJhKGDMC8AcCM0SLJnHTp6Vkuo+CbciFHwI6O
-         8b5YYjEVg1p7uesi3fBhQiD9EFV0RMTZD+XbK98vRqVhJME6U8250HKlzukT6EWfIPSP
-         aMq0QnRba9AtGeI7sleKPcXgqzOGkqwQO8LWgRj01yCEArGHZaHDAwmDNAjxheigoqoq
-         6IepDnkxmRIosvbJWX9TD20zwOaaA7t7Gl0Tot+CPN3KNS+QknxKlhkyfsHk+Nc0l1qq
-         AfsVvqbzy5kF1C2vUHLJSz7r42OD8ZqJXN4tWa47lb3X4xQVC1EZJEBBc+/CBCLP2lRT
-         B4Qw==
-X-Gm-Message-State: ANhLgQ3GQcYidWHrL5Qd6IoPT8ozmnkh8RuW03dDPCAVUudzdQg2Lbbk
-        nehW2G9zBpaAm2uEfFqbTJo=
-X-Google-Smtp-Source: ADFU+vuFweYk6OhehoyQZbg793z94p/aKZfJExcaGXCIEngab5qdWnPGnlE59M917AKIDjvsSPRFTQ==
-X-Received: by 2002:a05:600c:4410:: with SMTP id u16mr12292810wmn.161.1585563724488;
-        Mon, 30 Mar 2020 03:22:04 -0700 (PDT)
-Received: from debian (44.142.6.51.dyn.plus.net. [51.6.142.44])
-        by smtp.gmail.com with ESMTPSA id x11sm14972395wru.62.2020.03.30.03.22.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Mar 2020 03:22:03 -0700 (PDT)
-Date:   Mon, 30 Mar 2020 11:22:01 +0100
-From:   Wei Liu <wei.liu@kernel.org>
-To:     Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     Tianyu Lan <ltykernel@gmail.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Yubo Xie <yuboxie@microsoft.com>,
-        kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
-        liuwe@microsoft.com, daniel.lezcano@linaro.org, tglx@linutronix.de,
-        michael.h.kelley@microsoft.com, Wei Liu <wei.liu@kernel.org>
-Subject: Re: [PATCH V2] x86/Hyper-V: Fix hv sched clock function return wrong
- time unit
-Message-ID: <20200330102201.qs2ty22zxx2n53h3@debian>
-References: <20200327021159.31429-1-Tianyu.Lan@microsoft.com>
- <87k13641rg.fsf@vitty.brq.redhat.com>
- <20200330100502.hh2yygyxctsmwd6o@debian>
+        id S1728764AbgC3KcR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 06:32:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43446 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728746AbgC3KcR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Mar 2020 06:32:17 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15B9920716;
+        Mon, 30 Mar 2020 10:32:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585564336;
+        bh=3c8X4yaYbiYELpXcUhGSKmcIZCtpNCQnR/TuyyFUjwA=;
+        h=Subject:To:From:Date:From;
+        b=W95/zovuH1NtJCEEpwdtFEComDQG/9XwUuR1K3JZ30au07ohZNpZ3G8fNMSn6NkdY
+         ZGkwpjt066HS4MzKYAu3VY0ErY6N4asxPyaa6dkCXHeVTQuI57LFnZN64xtGLXN6eX
+         XiOk0EAQHbddeaaIOpvggbP3vjUnJio4yn3wZ8Q4=
+Subject: patch "mei: me: add cedar fork device ids" added to char-misc-next
+To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, tomas.winkler@intel.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 30 Mar 2020 12:32:11 +0200
+Message-ID: <1585564331211195@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200330100502.hh2yygyxctsmwd6o@debian>
-User-Agent: NeoMutt/20180716
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 30, 2020 at 11:05:02AM +0100, Wei Liu wrote:
-> On Fri, Mar 27, 2020 at 09:53:39AM +0100, Vitaly Kuznetsov wrote:
-> > Tianyu Lan <ltykernel@gmail.com> writes:
-> > 
-> > > From: Yubo Xie <yuboxie@microsoft.com>
-> > >
-> > > sched clock callback should return time with nano second as unit
-> > > but current hv callback returns time with 100ns. Fix it.
-> > >
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Yubo Xie <yuboxie@microsoft.com>
-> > > Signed-off-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-> > > Fixes: bd00cd52d5be ("clocksource/drivers/hyperv: Add Hyper-V specific sched clock function")
-> > > ---
-> > > Change since v1:
-> > > 	Update fix commit number in change log. 
-> > > ---
-> > >  drivers/clocksource/hyperv_timer.c | 6 ++++--
-> > >  1 file changed, 4 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
-> > > index 9d808d595ca8..662ed978fa24 100644
-> > > --- a/drivers/clocksource/hyperv_timer.c
-> > > +++ b/drivers/clocksource/hyperv_timer.c
-> > > @@ -343,7 +343,8 @@ static u64 notrace read_hv_clock_tsc_cs(struct clocksource *arg)
-> > >  
-> > >  static u64 read_hv_sched_clock_tsc(void)
-> > >  {
-> > > -	return read_hv_clock_tsc() - hv_sched_clock_offset;
-> > > +	return (read_hv_clock_tsc() - hv_sched_clock_offset)
-> > > +		* (NSEC_PER_SEC / HV_CLOCK_HZ);
-> > >  }
-> > >  
-> > >  static void suspend_hv_clock_tsc(struct clocksource *arg)
-> > > @@ -398,7 +399,8 @@ static u64 notrace read_hv_clock_msr_cs(struct clocksource *arg)
-> > >  
-> > >  static u64 read_hv_sched_clock_msr(void)
-> > >  {
-> > > -	return read_hv_clock_msr() - hv_sched_clock_offset;
-> > > +	return (read_hv_clock_msr() - hv_sched_clock_offset)
-> > > +		* (NSEC_PER_SEC / HV_CLOCK_HZ);
-> > >  }
-> > >  
-> > >  static struct clocksource hyperv_cs_msr = {
-> > 
-> > Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-> 
-> Queued for hyperv-fixes. Thank you both.
 
-It appears Thomas already sent this to Linus, so I will drop this from
-my branch.
+This is a note to let you know that I've just added the patch titled
 
-Wei.
+    mei: me: add cedar fork device ids
 
-> 
-> Wei.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 99397d33b763dc554d118aaa38cc5abc6ce985de Mon Sep 17 00:00:00 2001
+From: Alexander Usyskin <alexander.usyskin@intel.com>
+Date: Tue, 24 Mar 2020 23:07:30 +0200
+Subject: mei: me: add cedar fork device ids
+
+Add Cedar Fork (CDF) device ids, those belongs to the cannon point family.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20200324210730.17672-1-tomas.winkler@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/misc/mei/hw-me-regs.h | 2 ++
+ drivers/misc/mei/pci-me.c     | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
+index d2359aed79ae..9392934e3a06 100644
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -87,6 +87,8 @@
+ #define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
+ #define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
+ 
++#define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
++
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
+ 
+ #define MEI_DEV_ID_JSP_N      0x4DE0  /* Jasper Lake Point N */
+diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
+index ebdc2d6f8ddb..3d21c38e2dbb 100644
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -102,6 +102,8 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_CDF, MEI_ME_PCH8_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
+-- 
+2.26.0
+
+
