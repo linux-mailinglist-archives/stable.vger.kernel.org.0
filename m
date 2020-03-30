@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8090197CF3
-	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 15:31:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 824FF197CF4
+	for <lists+stable@lfdr.de>; Mon, 30 Mar 2020 15:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726788AbgC3Nbm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Mar 2020 09:31:42 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:54991 "EHLO
+        id S1727170AbgC3NcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Mar 2020 09:32:07 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:34363 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726085AbgC3Nbm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 09:31:42 -0400
+        by vger.kernel.org with ESMTP id S1726017AbgC3NcG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Mar 2020 09:32:06 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id D81DB39E;
-        Mon, 30 Mar 2020 09:31:41 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 30 Mar 2020 09:31:42 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 49AEE6C2;
+        Mon, 30 Mar 2020 09:32:06 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 30 Mar 2020 09:32:06 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=E+Ltuv
-        wUhvfNChJ4x7L0ay6Gyl3WP1psW8e9/YP0Fzg=; b=dSzQ8+yu2e5DjtfpFMStxJ
-        yqkWQrZg2+mR5RZWa6Fq2V3wz6mB5HnDejEqvMbr/HbaBpakJbF6iLQLN7TylADk
-        RT8zFZvb/szefGeKeYVLvUPjDyFRZ4pnxFUXtvp7JCP0AENTvq1yhel3Dz7aksrF
-        /40k+EzCyQiQotxoY5N5DuoAQIHSJmx+VzQYRQKvJu1wfiHBa2CfC/esniNF2e8f
-        18v0rWWb0JZ1aBlqB0FAqGok/zObs9wj3w0NHx4BsRjkDtvo+TOF9Admm+oW2e41
-        YTXGwUjVdKm818Wo9WwZSwWrQJoY4mTMI/SB3S8OyUK/yWyPbx3/gjYxNqazMnpg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1udPbv
+        KrlwSw1Sd7yrwh19lrBQW6377hb+5xsobA/1Y=; b=PyV7wpXMbV+3vZ9SnZq0WZ
+        63PqkOQpeQntI/uctxKPLlny/Tn4Gks/lygfR3XwrRwinUXfq4cBTBqtdII03NXz
+        tTalvD4G3/QuCCviLPOCp/gkGZQIKFHXGZ++ZqdXvLGB+sq57b8pQLg2Y8Rt1e2x
+        b518XPStKr+C9xDCrhXfaKi5w3UesdftjwhdWGzAcBgQlv6ISbwDwN8GvwNvhW8/
+        tVAGSTIydCCEFOzXNxtTvVDVNzz4hHSCQAAPFsy/VgER7DPK0Zxtrb/6sgRqvbCV
+        N7wnmx1inDJSrKP0YHC84Qr9wKbMu842H3FfkEBEUwkPe5H1lK20wrgGQDv9UYKg
         ==
-X-ME-Sender: <xms:vfSBXsdDlaRzcOC-aIWlCjjzkqAef7LBrl_JcINntET6-yHHolRCCQ>
+X-ME-Sender: <xms:1fSBXvbgn6x7_oSWodaFDpYHjWgE5V1VAQyY3uHJWkpjHr6Vqqlzug>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedugedrudeihedgieegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtne
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedune
     curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:vfSBXiebC92XLdF2eslKnICQ08g7qjGugMYfG8KFIGHtigICxSo6lQ>
-    <xmx:vfSBXogG9SaFwqkllILJ5nSRvdTi6dbZepFiroLygCbe4fDH5J-eIg>
-    <xmx:vfSBXmQBkb5h9cYOf0vo4dN-o6HWizofVEVXeajWT2KJNLqpQ_lSMA>
-    <xmx:vfSBXnpzvjJEbwNrTOyIMV5fBN1V-dqjflwNrc0fibzsMLBO7qUedw>
+X-ME-Proxy: <xmx:1fSBXt-S6NlhkIghtpkfL0MsVjrSSrR6upZ8U_85MN_zpTKF45eLEg>
+    <xmx:1fSBXk_De7h9YHLJNnOdgtlKYw2wTEIcMo0PoywkBHiHpstocK9syg>
+    <xmx:1fSBXhoZQZXRW2Z0r8pbwAmPGlaM6E2ANfc3ky-ecc2rMZ0-22Zfvg>
+    <xmx:1fSBXhfZElEE7lLyxK5lAR8KUyel9hnrK9o7Tr0PQGiOp52On53EDQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CBB5E306C9EB;
-        Mon, 30 Mar 2020 09:31:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] afs: Fix client call Rx-phase signal handling" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7059A3280066;
+        Mon, 30 Mar 2020 09:32:05 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] afs: Fix some tracing details" failed to apply to 4.14-stable tree
 To:     dhowells@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 30 Mar 2020 15:31:38 +0200
-Message-ID: <158557509811230@kroah.com>
+Date:   Mon, 30 Mar 2020 15:32:02 +0200
+Message-ID: <1585575122165119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,183 +67,54 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7d7587db0d7fd1138f2afcffdc46a8e15630b944 Mon Sep 17 00:00:00 2001
+From 4636cf184d6d9a92a56c2554681ea520dd4fe49a Mon Sep 17 00:00:00 2001
 From: David Howells <dhowells@redhat.com>
-Date: Thu, 12 Mar 2020 21:40:06 +0000
-Subject: [PATCH] afs: Fix client call Rx-phase signal handling
+Date: Fri, 13 Mar 2020 13:36:01 +0000
+Subject: [PATCH] afs: Fix some tracing details
 
-Fix the handling of signals in client rxrpc calls made by the afs
-filesystem.  Ignore signals completely, leaving call abandonment or
-connection loss to be detected by timeouts inside AF_RXRPC.
+Fix a couple of tracelines to indicate the usage count after the atomic op,
+not the usage count before it to be consistent with other afs and rxrpc
+trace lines.
 
-Allowing a filesystem call to be interrupted after the entire request has
-been transmitted and an abort sent means that the server may or may not
-have done the action - and we don't know.  It may even be worse than that
-for older servers.
+Change the wording of the afs_call_trace_work trace ID label from "WORK" to
+"QUEUE" to reflect the fact that it's queueing work, not doing work.
 
-Fixes: bc5e3a546d55 ("rxrpc: Use MSG_WAITALL to tell sendmsg() to temporarily ignore signals")
+Fixes: 341f741f04be ("afs: Refcount the afs_call struct")
 Signed-off-by: David Howells <dhowells@redhat.com>
 
 diff --git a/fs/afs/rxrpc.c b/fs/afs/rxrpc.c
-index 972e3aafa361..1ecc67da6c1a 100644
+index 4c28712bb7f6..907d5948564a 100644
 --- a/fs/afs/rxrpc.c
 +++ b/fs/afs/rxrpc.c
-@@ -604,11 +604,7 @@ static void afs_deliver_to_call(struct afs_call *call)
- long afs_wait_for_call_to_complete(struct afs_call *call,
- 				   struct afs_addr_cursor *ac)
- {
--	signed long rtt2, timeout;
- 	long ret;
--	bool stalled = false;
--	u64 rtt;
--	u32 life, last_life;
- 	bool rxrpc_complete = false;
+@@ -169,7 +169,7 @@ void afs_put_call(struct afs_call *call)
+ 	int n = atomic_dec_return(&call->usage);
+ 	int o = atomic_read(&net->nr_outstanding_calls);
  
- 	DECLARE_WAITQUEUE(myself, current);
-@@ -619,14 +615,6 @@ long afs_wait_for_call_to_complete(struct afs_call *call,
- 	if (ret < 0)
- 		goto out;
+-	trace_afs_call(call, afs_call_trace_put, n + 1, o,
++	trace_afs_call(call, afs_call_trace_put, n, o,
+ 		       __builtin_return_address(0));
  
--	rtt = rxrpc_kernel_get_rtt(call->net->socket, call->rxcall);
--	rtt2 = nsecs_to_jiffies64(rtt) * 2;
--	if (rtt2 < 2)
--		rtt2 = 2;
--
--	timeout = rtt2;
--	rxrpc_kernel_check_life(call->net->socket, call->rxcall, &last_life);
--
- 	add_wait_queue(&call->waitq, &myself);
- 	for (;;) {
- 		set_current_state(TASK_UNINTERRUPTIBLE);
-@@ -637,37 +625,19 @@ long afs_wait_for_call_to_complete(struct afs_call *call,
- 			call->need_attention = false;
- 			__set_current_state(TASK_RUNNING);
- 			afs_deliver_to_call(call);
--			timeout = rtt2;
- 			continue;
- 		}
+ 	ASSERTCMP(n, >=, 0);
+@@ -736,7 +736,7 @@ static void afs_wake_up_async_call(struct sock *sk, struct rxrpc_call *rxcall,
  
- 		if (afs_check_call_state(call, AFS_CALL_COMPLETE))
- 			break;
+ 	u = atomic_fetch_add_unless(&call->usage, 1, 0);
+ 	if (u != 0) {
+-		trace_afs_call(call, afs_call_trace_wake, u,
++		trace_afs_call(call, afs_call_trace_wake, u + 1,
+ 			       atomic_read(&call->net->nr_outstanding_calls),
+ 			       __builtin_return_address(0));
  
--		if (!rxrpc_kernel_check_life(call->net->socket, call->rxcall, &life)) {
-+		if (!rxrpc_kernel_check_life(call->net->socket, call->rxcall)) {
- 			/* rxrpc terminated the call. */
- 			rxrpc_complete = true;
- 			break;
- 		}
+diff --git a/include/trace/events/afs.h b/include/trace/events/afs.h
+index 564ba1b5cf57..c612cabbc378 100644
+--- a/include/trace/events/afs.h
++++ b/include/trace/events/afs.h
+@@ -233,7 +233,7 @@ enum afs_cb_break_reason {
+ 	EM(afs_call_trace_get,			"GET  ") \
+ 	EM(afs_call_trace_put,			"PUT  ") \
+ 	EM(afs_call_trace_wake,			"WAKE ") \
+-	E_(afs_call_trace_work,			"WORK ")
++	E_(afs_call_trace_work,			"QUEUE")
  
--		if (call->intr && timeout == 0 &&
--		    life == last_life && signal_pending(current)) {
--			if (stalled)
--				break;
--			__set_current_state(TASK_RUNNING);
--			rxrpc_kernel_probe_life(call->net->socket, call->rxcall);
--			timeout = rtt2;
--			stalled = true;
--			continue;
--		}
--
--		if (life != last_life) {
--			timeout = rtt2;
--			last_life = life;
--			stalled = false;
--		}
--
--		timeout = schedule_timeout(timeout);
-+		schedule();
- 	}
- 
- 	remove_wait_queue(&call->waitq, &myself);
-diff --git a/include/net/af_rxrpc.h b/include/net/af_rxrpc.h
-index 8e547b4d88c8..04e97bab6f28 100644
---- a/include/net/af_rxrpc.h
-+++ b/include/net/af_rxrpc.h
-@@ -64,9 +64,7 @@ int rxrpc_kernel_charge_accept(struct socket *, rxrpc_notify_rx_t,
- 			       rxrpc_user_attach_call_t, unsigned long, gfp_t,
- 			       unsigned int);
- void rxrpc_kernel_set_tx_length(struct socket *, struct rxrpc_call *, s64);
--bool rxrpc_kernel_check_life(const struct socket *, const struct rxrpc_call *,
--			     u32 *);
--void rxrpc_kernel_probe_life(struct socket *, struct rxrpc_call *);
-+bool rxrpc_kernel_check_life(const struct socket *, const struct rxrpc_call *);
- u32 rxrpc_kernel_get_epoch(struct socket *, struct rxrpc_call *);
- bool rxrpc_kernel_get_reply_time(struct socket *, struct rxrpc_call *,
- 				 ktime_t *);
-diff --git a/net/rxrpc/af_rxrpc.c b/net/rxrpc/af_rxrpc.c
-index 7603cf811f75..15ee92d79581 100644
---- a/net/rxrpc/af_rxrpc.c
-+++ b/net/rxrpc/af_rxrpc.c
-@@ -371,44 +371,17 @@ EXPORT_SYMBOL(rxrpc_kernel_end_call);
-  * rxrpc_kernel_check_life - Check to see whether a call is still alive
-  * @sock: The socket the call is on
-  * @call: The call to check
-- * @_life: Where to store the life value
-  *
-- * Allow a kernel service to find out whether a call is still alive - ie. we're
-- * getting ACKs from the server.  Passes back in *_life a number representing
-- * the life state which can be compared to that returned by a previous call and
-- * return true if the call is still alive.
-- *
-- * If the life state stalls, rxrpc_kernel_probe_life() should be called and
-- * then 2RTT waited.
-+ * Allow a kernel service to find out whether a call is still alive -
-+ * ie. whether it has completed.
-  */
- bool rxrpc_kernel_check_life(const struct socket *sock,
--			     const struct rxrpc_call *call,
--			     u32 *_life)
-+			     const struct rxrpc_call *call)
- {
--	*_life = call->acks_latest;
- 	return call->state != RXRPC_CALL_COMPLETE;
- }
- EXPORT_SYMBOL(rxrpc_kernel_check_life);
- 
--/**
-- * rxrpc_kernel_probe_life - Poke the peer to see if it's still alive
-- * @sock: The socket the call is on
-- * @call: The call to check
-- *
-- * In conjunction with rxrpc_kernel_check_life(), allow a kernel service to
-- * find out whether a call is still alive by pinging it.  This should cause the
-- * life state to be bumped in about 2*RTT.
-- *
-- * The must be called in TASK_RUNNING state on pain of might_sleep() objecting.
-- */
--void rxrpc_kernel_probe_life(struct socket *sock, struct rxrpc_call *call)
--{
--	rxrpc_propose_ACK(call, RXRPC_ACK_PING, 0, true, false,
--			  rxrpc_propose_ack_ping_for_check_life);
--	rxrpc_send_ack_packet(call, true, NULL);
--}
--EXPORT_SYMBOL(rxrpc_kernel_probe_life);
--
- /**
-  * rxrpc_kernel_get_epoch - Retrieve the epoch value from a call.
-  * @sock: The socket the call is on
-diff --git a/net/rxrpc/ar-internal.h b/net/rxrpc/ar-internal.h
-index 1f72f43b082d..3eb1ab40ca5c 100644
---- a/net/rxrpc/ar-internal.h
-+++ b/net/rxrpc/ar-internal.h
-@@ -675,7 +675,6 @@ struct rxrpc_call {
- 
- 	/* transmission-phase ACK management */
- 	ktime_t			acks_latest_ts;	/* Timestamp of latest ACK received */
--	rxrpc_serial_t		acks_latest;	/* serial number of latest ACK received */
- 	rxrpc_seq_t		acks_lowest_nak; /* Lowest NACK in the buffer (or ==tx_hard_ack) */
- 	rxrpc_seq_t		acks_lost_top;	/* tx_top at the time lost-ack ping sent */
- 	rxrpc_serial_t		acks_lost_ping;	/* Serial number of probe ACK */
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index ef10fbf71b15..69e09d69c896 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -882,7 +882,6 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 	    before(prev_pkt, call->ackr_prev_seq))
- 		goto out;
- 	call->acks_latest_ts = skb->tstamp;
--	call->acks_latest = sp->hdr.serial;
- 
- 	call->ackr_first_seq = first_soft_ack;
- 	call->ackr_prev_seq = prev_pkt;
+ #define afs_server_traces \
+ 	EM(afs_server_trace_alloc,		"ALLOC    ") \
 
