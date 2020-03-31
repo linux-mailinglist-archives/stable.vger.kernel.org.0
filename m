@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7281199167
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2CA19901F
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:09:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731952AbgCaJRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:17:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38390 "EHLO mail.kernel.org"
+        id S1731313AbgCaJJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:09:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731897AbgCaJRT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:17:19 -0400
+        id S1731202AbgCaJJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:09:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9217F20675;
-        Tue, 31 Mar 2020 09:17:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 601AF20675;
+        Tue, 31 Mar 2020 09:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646239;
-        bh=LUr+Qy3SYx/y4w3WfYIPeBIObF+JeJjDiX67mmvdWiM=;
+        s=default; t=1585645751;
+        bh=Ne9+LlSQFMWHN1DGAzP8M7ivWUlamrWM9ZR/Ae2AiRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AU+VqdjCxg1lHjSr9bCdhV7ZwkzNg5sApLy0vfJziKvHP4DRlJP1HjgG2oPpGaSxr
-         0q4CxseznnZhcWj/yUyNQeNDm0FUsO9Dv0rI209jtdUFsugOY8Bgs0MtW2r4eCIoQ8
-         Jf9Zm7AsF8HcKtYMSTDidJc7B41tTC+JPLX6xOb0=
+        b=RZl/TOb0Ohz9+cv7C7LtfXVOZV8lr1z0PMoJuKiJP6/DyKDyIwXP7RUu2pxXZ8L0q
+         4SV6hhkTBUPb4YMMfbmg2mvy/45dUFq04/BAiNn2BPjRQdSgVLjTmlfB0Vvw3Ie80t
+         u6UAoc2nV58O+N/UlWnfUyg4WHdWHalgcV8C2THg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 126/155] netfilter: nft_fwd_netdev: allow to redirect to ifb via ingress
+        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>,
+        Oliver Neukum <oneukum@suse.com>,
+        Matthias Reichl <hias@horus.com>
+Subject: [PATCH 5.5 152/170] USB: cdc-acm: restore capability check order
 Date:   Tue, 31 Mar 2020 10:59:26 +0200
-Message-Id: <20200331085432.460087902@linuxfoundation.org>
+Message-Id: <20200331085439.279687524@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Matthias Reichl <hias@horus.com>
 
-commit bcfabee1afd99484b6ba067361b8678e28bbc065 upstream.
+commit 62d65bdd9d05158aa2547f8ef72375535f3bc6e3 upstream.
 
-Set skb->tc_redirected to 1, otherwise the ifb driver drops the packet.
-Set skb->tc_from_ingress to 1 to reinject the packet back to the ingress
-path after leaving the ifb egress path.
+commit b401f8c4f492c ("USB: cdc-acm: fix rounding error in TIOCSSERIAL")
+introduced a regression by changing the order of capability and close
+settings change checks. When running with CAP_SYS_ADMIN setting the
+close settings to the values already set resulted in -EOPNOTSUPP.
 
-This patch inconditionally sets on these two skb fields that are
-meaningful to the ifb driver. The existing forward action is guaranteed
-to run from ingress path.
+Fix this by changing the check order back to how it was before.
 
-Fixes: 39e6dea28adc ("netfilter: nf_tables: add forward expression to the netdev family")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: b401f8c4f492c ("USB: cdc-acm: fix rounding error in TIOCSSERIAL")
+Cc: Anthony Mallet <anthony.mallet@laas.fr>
+Cc: stable <stable@vger.kernel.org>
+Cc: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Matthias Reichl <hias@horus.com>
+Link: https://lore.kernel.org/r/20200327150350.3657-1-hias@horus.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_fwd_netdev.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/class/cdc-acm.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/net/netfilter/nft_fwd_netdev.c
-+++ b/net/netfilter/nft_fwd_netdev.c
-@@ -28,6 +28,10 @@ static void nft_fwd_netdev_eval(const st
- 	struct nft_fwd_netdev *priv = nft_expr_priv(expr);
- 	int oif = regs->data[priv->sreg_dev];
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -923,16 +923,16 @@ static int set_serial_info(struct tty_st
  
-+	/* These are used by ifb only. */
-+	pkt->skb->tc_redirected = 1;
-+	pkt->skb->tc_from_ingress = 1;
-+
- 	nf_fwd_netdev_egress(pkt, oif);
- 	regs->verdict.code = NF_STOLEN;
- }
+ 	mutex_lock(&acm->port.mutex);
+ 
+-	if ((ss->close_delay != old_close_delay) ||
+-            (ss->closing_wait != old_closing_wait)) {
+-		if (!capable(CAP_SYS_ADMIN))
++	if (!capable(CAP_SYS_ADMIN)) {
++		if ((ss->close_delay != old_close_delay) ||
++		    (ss->closing_wait != old_closing_wait))
+ 			retval = -EPERM;
+-		else {
+-			acm->port.close_delay  = close_delay;
+-			acm->port.closing_wait = closing_wait;
+-		}
+-	} else
+-		retval = -EOPNOTSUPP;
++		else
++			retval = -EOPNOTSUPP;
++	} else {
++		acm->port.close_delay  = close_delay;
++		acm->port.closing_wait = closing_wait;
++	}
+ 
+ 	mutex_unlock(&acm->port.mutex);
+ 	return retval;
 
 
