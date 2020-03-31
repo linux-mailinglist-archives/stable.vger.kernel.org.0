@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87BB91990A2
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:13:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A60E1198FE6
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730748AbgCaJNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:13:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60746 "EHLO mail.kernel.org"
+        id S1731227AbgCaJHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:07:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730519AbgCaJNU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:13:20 -0400
+        id S1731205AbgCaJHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:07:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0C2A2072E;
-        Tue, 31 Mar 2020 09:13:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A345520675;
+        Tue, 31 Mar 2020 09:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646000;
-        bh=NI9q/u06v9kRVfhBuo9S//WaNuaO7x3/q8Qyv348ZwE=;
+        s=default; t=1585645639;
+        bh=fonGa2Jo6J/Aqu3Gec9US4klKsW7E93xxowFHt7fUKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTFwBcCaAVL84Jdzp3p01jSX6D8DTAPSwT4mACo6r2TkSLus3C7kHEpdmy0BuHHFM
-         aS/PDkY7D6FeaRTBxoT75/Otz1q03qiwBIz17oMilxoXyR2m21XEh17a/plInFJieO
-         kqdI3YZDwiHja+44pJX/2wNiV3ILJlQ57fUl00f4=
+        b=QQKRZXeqOzJuYjZAzQcqeB0Wi0PYCouLyrpDxhcbAFbl50hz7Qozp0rzsmvdxAOqc
+         ynk9UZ54QKLhmw6zINOhxevlBeqR/O/g5hT60dNUtTt8CyMrygGHohC6SUJpL/Rage
+         oxIglGeTxk5xECxz4DQu6jJ22vZWXt1T4KJY1GlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 051/155] net/mlx5e: Fix missing reset of SW metadata in Striding RQ reset
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Madalin Bucur <madalin.bucur@oss.nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 077/170] dpaa_eth: Remove unnecessary boolean expression in dpaa_get_headroom
 Date:   Tue, 31 Mar 2020 10:58:11 +0200
-Message-Id: <20200331085424.233418335@linuxfoundation.org>
+Message-Id: <20200331085432.504560513@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@mellanox.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 39369fd536d485a99a59d8e357c0d4d3ce19a3b8 ]
+[ Upstream commit 7395f62d95aafacdb9bd4996ec2f95b4a655d7e6 ]
 
-When resetting the RQ (moving RQ state from RST to RDY), the driver
-resets the WQ's SW metadata.
-In striding RQ mode, we maintain a field that reflects the actual
-expected WQ head (including in progress WQEs posted to the ICOSQ).
-It was mistakenly not reset together with the WQ. Fix this here.
+Clang warns:
 
-Fixes: 8276ea1353a4 ("net/mlx5e: Report and recover from CQE with error on RQ")
-Signed-off-by: Aya Levin <ayal@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/net/ethernet/freescale/dpaa/dpaa_eth.c:2860:9: warning:
+converting the result of '?:' with integer constants to a boolean always
+evaluates to 'true' [-Wtautological-constant-compare]
+        return DPAA_FD_DATA_ALIGNMENT ? ALIGN(headroom,
+               ^
+drivers/net/ethernet/freescale/dpaa/dpaa_eth.c:131:34: note: expanded
+from macro 'DPAA_FD_DATA_ALIGNMENT'
+\#define DPAA_FD_DATA_ALIGNMENT  (fman_has_errata_a050385() ? 64 : 16)
+                                 ^
+1 warning generated.
+
+This was exposed by commit 3c68b8fffb48 ("dpaa_eth: FMan erratum A050385
+workaround") even though it appears to have been an issue since the
+introductory commit 9ad1a3749333 ("dpaa_eth: add support for DPAA
+Ethernet") since DPAA_FD_DATA_ALIGNMENT has never been able to be zero.
+
+Just replace the whole boolean expression with the true branch, as it is
+always been true.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/928
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h
-@@ -181,10 +181,12 @@ mlx5e_tx_dma_unmap(struct device *pdev,
+diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+index 36e2e28fa6e38..1e8dcae5f4b40 100644
+--- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
++++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+@@ -2845,9 +2845,7 @@ static inline u16 dpaa_get_headroom(struct dpaa_buffer_layout *bl)
+ 	headroom = (u16)(bl->priv_data_size + DPAA_PARSE_RESULTS_SIZE +
+ 		DPAA_TIME_STAMP_SIZE + DPAA_HASH_RESULTS_SIZE);
  
- static inline void mlx5e_rqwq_reset(struct mlx5e_rq *rq)
- {
--	if (rq->wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ)
-+	if (rq->wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ) {
- 		mlx5_wq_ll_reset(&rq->mpwqe.wq);
--	else
-+		rq->mpwqe.actual_wq_head = 0;
-+	} else {
- 		mlx5_wq_cyc_reset(&rq->wqe.wq);
-+	}
+-	return DPAA_FD_DATA_ALIGNMENT ? ALIGN(headroom,
+-					      DPAA_FD_DATA_ALIGNMENT) :
+-					headroom;
++	return ALIGN(headroom, DPAA_FD_DATA_ALIGNMENT);
  }
  
- /* SW parser related functions */
+ static int dpaa_eth_probe(struct platform_device *pdev)
+-- 
+2.20.1
+
 
 
