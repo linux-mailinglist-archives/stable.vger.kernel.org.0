@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB815199713
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 15:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D9E199714
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 15:11:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730972AbgCaNLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 09:11:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40116 "EHLO mail.kernel.org"
+        id S1730905AbgCaNLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 09:11:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730961AbgCaNLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 09:11:30 -0400
+        id S1730974AbgCaNLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 09:11:32 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A72620757;
-        Tue, 31 Mar 2020 13:11:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A2BE21924;
+        Tue, 31 Mar 2020 13:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585660290;
-        bh=BTbc/zwckK+KsTeoNdCpv3xhH2SfMEDaz/AD3AvHqSc=;
+        s=default; t=1585660291;
+        bh=uvJBXe/1fKLbNAJZnngR2H1ble9LkRNQIerQekqdres=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=HzzVGoQpJDvLZhoWMkJ2CTv9N/KBsUg5DeXP20OgQ6Rm47Ut4RTCeGnRPZtn5nnsN
-         FPvsyJRxTYsl2f6Dm8BupaL3QpHV9g1aOILBFY2yqepBDGLVMoq+9fSJvBaBe6Z9vr
-         C1TN4N+Uo35saz9T48ZaFgUdr7F5ZiMkAyWMELzA=
-Date:   Tue, 31 Mar 2020 13:11:29 +0000
+        b=Efu5PD2A/fHEQkGebgGpQkhqXpVs2Doj2VEKECAFDnm9/6k0C+AIn3YMnfZg5C8t4
+         cjs5FlNfJxU+86lND5K8kLa46ZgPQ2zAdobvj7cYvP2xu8sfPOOKTCL43KKvB/3KMb
+         0DMZSO1S7Np4X+Qxhsx1ppqJ10nMLn5lFZHMWYvQ=
+Date:   Tue, 31 Mar 2020 13:11:30 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Hui Wang <hui.wang@canonical.com>
-To:     alsa-devel@alsa-project.org, tiwai@suse.de, stable@vger.kernel.org
+To:     Thomas Hebb <tommyhebb@gmail.com>
+To:     alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
 Cc:     Kailang Yang <kailang@realtek.com>
-Cc:     <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] ALSA: hda/realtek - a fake key event is triggered by running shutup
-In-Reply-To: <20200329080642.20287-1-hui.wang@canonical.com>
-References: <20200329080642.20287-1-hui.wang@canonical.com>
-Message-Id: <20200331131130.0A72620757@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 3/3] ALSA: hda/realtek - Remove now-unnecessary XPS 13 headphone noise fixups
+In-Reply-To: <028b0c410238090546cf80ef6075b3b9139986a7.1585553414.git.tommyhebb@gmail.com>
+References: <028b0c410238090546cf80ef6075b3b9139986a7.1585553414.git.tommyhebb@gmail.com>
+Message-Id: <20200331131131.2A2BE21924@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,19 +45,41 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 78def224f59c ("ALSA: hda/realtek - Add Headset Mic supported").
+fixing commit: 8c69729b4439 ("ALSA: hda - Fix headphone noise after Dell XPS 13 resume back from S3").
 
-The bot has tested the following trees: v5.5.13, v5.4.28, v4.19.113.
+The bot has tested the following trees: v5.5.13, v5.4.28, v4.19.113, v4.14.174, v4.9.217, v4.4.217.
 
 v5.5.13: Build OK!
 v5.4.28: Build OK!
-v4.19.113: Failed to apply! Possible dependencies:
-    10f5b1b85ed1 ("ALSA: hda/realtek - Fixed Headset Mic JD not stable")
-    2b3b6497c38d ("ALSA: hda/realtek - Add more codec supported Headset Button")
-    8983eb602af5 ("ALSA: hda/realtek - Move to ACT_INIT state")
-    c8a9afa632f0 ("ALSA: hda/realtek: merge alc_fixup_headset_jack to alc295_fixup_chromebook")
-    d3ba58bb8959 ("ALSA: hda/realtek - Support low power consumption for ALC295")
-    e854747d7593 ("ALSA: hda/realtek - Enable headset button support for new codec")
+v4.19.113: Build OK!
+v4.14.174: Failed to apply! Possible dependencies:
+    1099f48457d0 ("ALSA: hda/realtek: Reduce the Headphone static noise on XPS 9350/9360")
+    28d1d6d2f314 ("ALSA: hda - Add model string for Intel reference board quirk")
+    a26d96c7802e ("ALSA: hda/realtek - Comprehensive model list for ALC259 & co")
+    c0ca5eced222 ("ALSA: hda/realtek - Reduce click noise on Dell Precision 5820 headphone")
+    c1350bff69d1 ("ALSA: hda - Clean up ALC299 init code")
+    da911b1f5e98 ("ALSA: hda/realtek - update ALC225 depop optimize")
+
+v4.9.217: Failed to apply! Possible dependencies:
+    8551914a5e19 ("ALSA: doc: ReSTize alsa-driver-api document")
+    9000d69925ac ("ALSA: doc: ReSTize HD-Audio document")
+    a26d96c7802e ("ALSA: hda/realtek - Comprehensive model list for ALC259 & co")
+    a4caad753f0c ("ALSA: doc: ReSTize HD-Audio-Models document")
+    a79e7df97592 ("ALSA: hda - Update the list of quirk models")
+
+v4.4.217: Failed to apply! Possible dependencies:
+    34d505193bd1 ("cfg80211: basic support for PBSS network type")
+    35eb8f7b1a37 ("cfg80211: Improve Connect/Associate command documentation")
+    38de03d2a289 ("nl80211: add feature for BSS selection support")
+    819bf593767c ("docs-rst: sphinxify 802.11 documentation")
+    8551914a5e19 ("ALSA: doc: ReSTize alsa-driver-api document")
+    9000d69925ac ("ALSA: doc: ReSTize HD-Audio document")
+    a26d96c7802e ("ALSA: hda/realtek - Comprehensive model list for ALC259 & co")
+    a4caad753f0c ("ALSA: doc: ReSTize HD-Audio-Models document")
+    ba6fbacf9c07 ("cfg80211: Add option to specify previous BSSID for Connect command")
+    bf1ecd210541 ("cfg80211: Allow cfg80211_connect_result() errors to be distinguished")
+    e705498945ad ("cfg80211: Add option to report the bss entry in connect result")
+    fa44b7ec9bc4 ("ALSA: hda - Update documentation")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
