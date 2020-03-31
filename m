@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C7B3198F2E
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D156199123
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:18:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730532AbgCaJBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:01:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40370 "EHLO mail.kernel.org"
+        id S1731819AbgCaJRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:17:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730529AbgCaJBQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:01:16 -0400
+        id S1732062AbgCaJRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:17:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3819420848;
-        Tue, 31 Mar 2020 09:01:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C0FF20772;
+        Tue, 31 Mar 2020 09:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645275;
-        bh=KvzhaAcLy43FUwrIjwAkHeCXYc3rw3M7R9H8+Ql4ais=;
+        s=default; t=1585646249;
+        bh=kdFz8qo7QSZ0eaaRBaUvwnOGED9tNdNhPXMmLES0Pvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bKvV6ihgVF6p/GHTBXhoACaa6oY2O4W8iIHtWoSSmet1/V6S7xPhFXjgwBUjc7Tp9
-         WfBqRWKjiz/ig1w9CYDKEtFA4nBD5bTIsvA3V2YBEQtPRJa6Tas7OwRUR+g+ptldKU
-         ra9zKmZvDzuIE/jDR7U65r1tQypvZZQ32UQs2pIY=
+        b=pZns82jaKTT6uRbrrxF1MbS0xShy4nJTw4QyaEYzB9Kti2+eQptR1siyawKyMn8U9
+         y3BO1GPGRmG+LGpklTcLcOiP05uuErUkgl+DTIC8zUDOrAUf7rMdwWWWK+N7Ew4riM
+         EyluqiL11fbEZV7oWitr2A4kHHcWAYn+AdV8BhUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+fcab69d1ada3e8d6f06b@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.6 18/23] libfs: fix infoleak in simple_attr_read()
+        Yoshiki Komachi <komachi.yoshiki@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.4 130/155] bpf/btf: Fix BTF verification of enum members in struct/union
 Date:   Tue, 31 Mar 2020 10:59:30 +0200
-Message-Id: <20200331085316.284532826@linuxfoundation.org>
+Message-Id: <20200331085432.883481541@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085308.098696461@linuxfoundation.org>
-References: <20200331085308.098696461@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,79 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Yoshiki Komachi <komachi.yoshiki@gmail.com>
 
-commit a65cab7d7f05c2061a3e2490257d3086ff3202c6 upstream.
+commit da6c7faeb103c493e505e87643272f70be586635 upstream.
 
-Reading from a debugfs file at a nonzero position, without first reading
-at position 0, leaks uninitialized memory to userspace.
+btf_enum_check_member() was currently sure to recognize the size of
+"enum" type members in struct/union as the size of "int" even if
+its size was packed.
 
-It's a bit tricky to do this, since lseek() and pread() aren't allowed
-on these files, and write() doesn't update the position on them.  But
-writing to them with splice() *does* update the position:
+This patch fixes BTF enum verification to use the correct size
+of member in BPF programs.
 
-	#define _GNU_SOURCE 1
-	#include <fcntl.h>
-	#include <stdio.h>
-	#include <unistd.h>
-	int main()
-	{
-		int pipes[2], fd, n, i;
-		char buf[32];
-
-		pipe(pipes);
-		write(pipes[1], "0", 1);
-		fd = open("/sys/kernel/debug/fault_around_bytes", O_RDWR);
-		splice(pipes[0], NULL, fd, NULL, 1, 0);
-		n = read(fd, buf, sizeof(buf));
-		for (i = 0; i < n; i++)
-			printf("%02x", buf[i]);
-		printf("\n");
-	}
-
-Output:
-	5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a30
-
-Fix the infoleak by making simple_attr_read() always fill
-simple_attr::get_buf if it hasn't been filled yet.
-
-Reported-by: syzbot+fcab69d1ada3e8d6f06b@syzkaller.appspotmail.com
-Reported-by: Alexander Potapenko <glider@google.com>
-Fixes: acaefc25d21f ("[PATCH] libfs: add simple attribute files")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200308023849.988264-1-ebiggers@kernel.org
+Fixes: 179cde8cef7e ("bpf: btf: Check members of struct/union")
+Signed-off-by: Yoshiki Komachi <komachi.yoshiki@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/1583825550-18606-2-git-send-email-komachi.yoshiki@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/libfs.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ kernel/bpf/btf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/libfs.c
-+++ b/fs/libfs.c
-@@ -891,7 +891,7 @@ int simple_attr_open(struct inode *inode
- {
- 	struct simple_attr *attr;
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -2309,7 +2309,7 @@ static int btf_enum_check_member(struct
  
--	attr = kmalloc(sizeof(*attr), GFP_KERNEL);
-+	attr = kzalloc(sizeof(*attr), GFP_KERNEL);
- 	if (!attr)
- 		return -ENOMEM;
- 
-@@ -931,9 +931,11 @@ ssize_t simple_attr_read(struct file *fi
- 	if (ret)
- 		return ret;
- 
--	if (*ppos) {		/* continued read */
-+	if (*ppos && attr->get_buf[0]) {
-+		/* continued read */
- 		size = strlen(attr->get_buf);
--	} else {		/* first read */
-+	} else {
-+		/* first read */
- 		u64 val;
- 		ret = attr->get(attr->data, &val);
- 		if (ret)
+ 	struct_size = struct_type->size;
+ 	bytes_offset = BITS_ROUNDDOWN_BYTES(struct_bits_off);
+-	if (struct_size - bytes_offset < sizeof(int)) {
++	if (struct_size - bytes_offset < member_type->size) {
+ 		btf_verifier_log_member(env, struct_type, member,
+ 					"Member exceeds struct_size");
+ 		return -EINVAL;
 
 
