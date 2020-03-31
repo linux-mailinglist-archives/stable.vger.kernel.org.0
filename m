@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4E21990AB
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:13:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65DA41991F1
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730454AbgCaJNT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:13:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60646 "EHLO mail.kernel.org"
+        id S1731079AbgCaJHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:07:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730675AbgCaJNT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:13:19 -0400
+        id S1731219AbgCaJHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:07:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7867420675;
-        Tue, 31 Mar 2020 09:13:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7816020675;
+        Tue, 31 Mar 2020 09:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645997;
-        bh=f98q2bHOB/Zv/40H9W+WM3nJadh8ZSBI7JD+eH8uzwQ=;
+        s=default; t=1585645635;
+        bh=CamO4UEFcXfw9TeICbbmIbQ1M6RNs/sXyPRb67bcy08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MhZXF/lR5oE4SU9j+svd+PpxKAK3ezAnPquQmdd/QJU40c5bjFHs1zeef89BEfQpM
-         XujkgCqLkk6wcwUDvV34z8ijCkp/dIUPlyelyTdrsjxO1jX+H1Npan3fIgsPnU9ooJ
-         b9k36TkhRYSikm8GHGE3jY3qypw6TYIL8s3Lubow=
+        b=FPV5FsvTUUGEooexGkto0tOBE5AZlOk4TMHmKPXJMcDM10psEF9pgrqmW9hQ7YkWd
+         umAcSjzRk1mpRLC0wMJxVZfQs5w1fILIkr7ikxGJZfGccEufkeJCP2w0VaBRRre4aV
+         enaZ6o+ch+CULKfqRslrsbNbkKiAoe7vXQ9qJYG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 050/155] net/mlx5e: Enhance ICOSQ WQE info fields
+        stable@vger.kernel.org,
+        Nicolas Cavallari <nicolas.cavallari@green-communications.fr>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 076/170] mac80211: Do not send mesh HWMP PREQ if HWMP is disabled
 Date:   Tue, 31 Mar 2020 10:58:10 +0200
-Message-Id: <20200331085424.115467794@linuxfoundation.org>
+Message-Id: <20200331085432.419679919@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@mellanox.com>
+From: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
 
-[ Upstream commit 1de0306c3a05d305e45b1f1fabe2f4e94222eb6b ]
+[ Upstream commit ba32679cac50c38fdf488296f96b1f3175532b8e ]
 
-Add number of WQEBBs (WQE's Basic Block) to WQE info struct. Set the
-number of WQEBBs on WQE post, and increment the consumer counter (cc)
-on completion.
+When trying to transmit to an unknown destination, the mesh code would
+unconditionally transmit a HWMP PREQ even if HWMP is not the current
+path selection algorithm.
 
-In case of error completions, the cc was mistakenly not incremented,
-keeping a gap between cc and pc (producer counter). This failed the
-recovery flow on the ICOSQ from a CQE error which timed-out waiting for
-the cc and pc to meet.
-
-Fixes: be5323c8379f ("net/mlx5e: Report and recover from CQE error on ICOSQ")
-Signed-off-by: Aya Levin <ayal@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
+Link: https://lore.kernel.org/r/20200305140409.12204-1-cavallar@lri.fr
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h      |    1 +
- drivers/net/ethernet/mellanox/mlx5/core/en_rx.c   |   11 +++++------
- drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c |    1 +
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ net/mac80211/mesh_hwmp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -371,6 +371,7 @@ enum {
- 
- struct mlx5e_sq_wqe_info {
- 	u8  opcode;
-+	u8 num_wqebbs;
- 
- 	/* Auxiliary data for different opcodes. */
- 	union {
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
-@@ -477,6 +477,7 @@ static inline void mlx5e_fill_icosq_frag
- 	/* fill sq frag edge with nops to avoid wqe wrapping two pages */
- 	for (; wi < edge_wi; wi++) {
- 		wi->opcode = MLX5_OPCODE_NOP;
-+		wi->num_wqebbs = 1;
- 		mlx5e_post_nop(wq, sq->sqn, &sq->pc);
+diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
+index d699833703819..38a0383dfbcfa 100644
+--- a/net/mac80211/mesh_hwmp.c
++++ b/net/mac80211/mesh_hwmp.c
+@@ -1152,7 +1152,8 @@ int mesh_nexthop_resolve(struct ieee80211_sub_if_data *sdata,
+ 		}
  	}
- }
-@@ -525,6 +526,7 @@ static int mlx5e_alloc_rx_mpwqe(struct m
- 	umr_wqe->uctrl.xlt_offset = cpu_to_be16(xlt_offset);
  
- 	sq->db.ico_wqe[pi].opcode = MLX5_OPCODE_UMR;
-+	sq->db.ico_wqe[pi].num_wqebbs = MLX5E_UMR_WQEBBS;
- 	sq->db.ico_wqe[pi].umr.rq = rq;
- 	sq->pc += MLX5E_UMR_WQEBBS;
+-	if (!(mpath->flags & MESH_PATH_RESOLVING))
++	if (!(mpath->flags & MESH_PATH_RESOLVING) &&
++	    mesh_path_sel_is_hwmp(sdata))
+ 		mesh_queue_preq(mpath, PREQ_Q_F_START);
  
-@@ -628,17 +630,14 @@ void mlx5e_poll_ico_cq(struct mlx5e_cq *
- 
- 			ci = mlx5_wq_cyc_ctr2ix(&sq->wq, sqcc);
- 			wi = &sq->db.ico_wqe[ci];
-+			sqcc += wi->num_wqebbs;
- 
--			if (likely(wi->opcode == MLX5_OPCODE_UMR)) {
--				sqcc += MLX5E_UMR_WQEBBS;
-+			if (likely(wi->opcode == MLX5_OPCODE_UMR))
- 				wi->umr.rq->mpwqe.umr_completed++;
--			} else if (likely(wi->opcode == MLX5_OPCODE_NOP)) {
--				sqcc++;
--			} else {
-+			else if (unlikely(wi->opcode != MLX5_OPCODE_NOP))
- 				netdev_WARN_ONCE(cq->channel->netdev,
- 						 "Bad OPCODE in ICOSQ WQE info: 0x%x\n",
- 						 wi->opcode);
--			}
- 
- 		} while (!last_wqe);
- 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
-@@ -78,6 +78,7 @@ void mlx5e_trigger_irq(struct mlx5e_icos
- 	u16 pi = mlx5_wq_cyc_ctr2ix(wq, sq->pc);
- 
- 	sq->db.ico_wqe[pi].opcode = MLX5_OPCODE_NOP;
-+	sq->db.ico_wqe[pi].num_wqebbs = 1;
- 	nopwqe = mlx5e_post_nop(wq, sq->sqn, &sq->pc);
- 	mlx5e_notify_hw(wq, sq->pc, sq->uar_map, &nopwqe->ctrl);
- }
+ 	if (skb_queue_len(&mpath->frame_queue) >= MESH_FRAME_QUEUE_LEN)
+-- 
+2.20.1
+
 
 
