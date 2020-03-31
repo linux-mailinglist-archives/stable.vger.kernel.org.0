@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0751991F4
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FC2198FCF
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731153AbgCaJGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:06:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47936 "EHLO mail.kernel.org"
+        id S1731166AbgCaJGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:06:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730888AbgCaJGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:06:30 -0400
+        id S1731163AbgCaJGe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:06:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B93E212CC;
-        Tue, 31 Mar 2020 09:06:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 660EE20787;
+        Tue, 31 Mar 2020 09:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645590;
-        bh=HZ7GlHyZB6RnMvGr6cMq3mUlllhIUvbAbbr628e4hBk=;
+        s=default; t=1585645593;
+        bh=orhVSCEBXcC5KwzEYYjTBBxBvxGMor1crpLbKes0erU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFwitTFHPJ+KlgMRhqfMTsN3bX6pet9TS34uw1S8f/mC5tKg73owSWtO7LIz7v/V2
-         zWZiV7poqsXs2eITRtJZU3hU0Q2nhfw+rigMq9NeZdeBV3DzJooDff1Cp5wV3DPfLm
-         VhWTR2id6So6R82pDyfKgPQfzXtPToKA+wDdzG+M=
+        b=1W+vn6l/Qz4DRY3B/KCaO1kIK2OPxRQxyDomyfEC7A93uKkO06psFS/1VyfNcdGl3
+         bgnmbrR9H6+z0UrnGHzRTMmtnZdd8676yFK3h1JegrP3Zf3J+Gb9MMvfhmzg/ugS2Z
+         izvPApkmJW+UTw1O3U6ER4ekX/oTeOCec/tNhkY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.5 099/170] perf probe: Do not depend on dwfl_module_addrsym()
-Date:   Tue, 31 Mar 2020 10:58:33 +0200
-Message-Id: <20200331085434.761153477@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ashish <ashishkumar.yadav@students.iiserpune.ac.in>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.5 100/170] rtlwifi: rtl8188ee: Fix regression due to commit d1d1a96bdb44
+Date:   Tue, 31 Mar 2020 10:58:34 +0200
+Message-Id: <20200331085434.862354516@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
 References: <20200331085423.990189598@linuxfoundation.org>
@@ -49,63 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 1efde2754275dbd9d11c6e0132a4f09facf297ab upstream.
+commit c80b18cbb04b7b101af9bd14550f13d9866c646a upstream.
 
-Do not depend on dwfl_module_addrsym() because it can fail on user-space
-shared libraries.
+For some unexplained reason, commit d1d1a96bdb44 ("rtlwifi: rtl8188ee:
+Remove local configuration variable") broke at least one system. As
+the only net effect of the change was to remove 2 bytes from the start
+of struct phy_status_rpt, this patch adds 2 bytes of padding at the
+beginning of the struct.
 
-Actually, same bug was fixed by commit 664fee3dc379 ("perf probe: Do not
-use dwfl_module_addrsym if dwarf_diename finds symbol name"), but commit
-07d369857808 ("perf probe: Fix wrong address verification) reverted to
-get actual symbol address from symtab.
-
-This fixes it again by getting symbol address from DIE, and only if the
-DIE has only address range, it uses dwfl_module_addrsym().
-
-Fixes: 07d369857808 ("perf probe: Fix wrong address verification)
-Reported-by: Alexandre Ghiti <alex@ghiti.fr>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Alexandre Ghiti <alex@ghiti.fr>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Link: http://lore.kernel.org/lkml/158281812176.476.14164573830975116234.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: d1d1a96bdb44 ("rtlwifi: rtl8188ee: Remove local configuration variable")
+Cc: Stable <stable@vger.kernel.org>  # V5.4+
+Reported-by: Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
+Tested-by: Ashish <ashishkumar.yadav@students.iiserpune.ac.in>
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/probe-finder.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8188ee/trx.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -636,14 +636,19 @@ static int convert_to_trace_point(Dwarf_
- 		return -EINVAL;
- 	}
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/trx.h
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/trx.h
+@@ -561,6 +561,7 @@ static inline void clear_pci_tx_desc_con
+ 	 rxmcs == DESC92C_RATE11M)
  
--	/* Try to get actual symbol name from symtab */
--	symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
-+	if (dwarf_entrypc(sp_die, &eaddr) == 0) {
-+		/* If the DIE has entrypc, use it. */
-+		symbol = dwarf_diename(sp_die);
-+	} else {
-+		/* Try to get actual symbol name and address from symtab */
-+		symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
-+		eaddr = sym.st_value;
-+	}
- 	if (!symbol) {
- 		pr_warning("Failed to find symbol at 0x%lx\n",
- 			   (unsigned long)paddr);
- 		return -ENOENT;
- 	}
--	eaddr = sym.st_value;
- 
- 	tp->offset = (unsigned long)(paddr - eaddr);
- 	tp->address = (unsigned long)paddr;
+ struct phy_status_rpt {
++	u8	padding[2];
+ 	u8	ch_corr[2];
+ 	u8	cck_sig_qual_ofdm_pwdb_all;
+ 	u8	cck_agc_rpt_ofdm_cfosho_a;
 
 
