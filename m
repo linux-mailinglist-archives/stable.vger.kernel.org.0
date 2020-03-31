@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DA68199150
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D373199171
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732170AbgCaJS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:18:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40764 "EHLO mail.kernel.org"
+        id S1731367AbgCaJTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:19:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731957AbgCaJS4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:18:56 -0400
+        id S1732176AbgCaJS6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:18:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51DA1208E0;
-        Tue, 31 Mar 2020 09:18:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB02720772;
+        Tue, 31 Mar 2020 09:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646335;
-        bh=7GkF9U1QC4/acQ/zYteAI1o0BdFXo/0FC7l9Hnlp3EQ=;
+        s=default; t=1585646338;
+        bh=rAT7k9QfL/uRKMskwddcHA1BKZ5ENz8y42pgaEwLH+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1eo9nDXHPjAyisca7cnijgVop/QVVHm2b9tYS0Pp6Dh97yq7ystKpL+h40hi+STcZ
-         JrfslD0GpUJ/dUELRv1x+e9guhrzuvLm8XpR/FDYaL5339wQ1XdyyZZQj5F9SueRzd
-         7R/U2SqufRv1gRtJHn7Cb/1IdT1WFsz7pK5tIoYs=
+        b=2wDzUSosVxmGkMB/GmUWlKkXZghOk3iO8V9f5m/GapAmJUSOCKohO68cgwHNK0o1/
+         5mm7zrJyIQVxlk6kHJ4uAjM8Yv6JmUgKcz6CS4FppAZh3Ym3aQNG4VLwVm0pE5H+o/
+         eUz4mxCXrabKT7b8F9HixGePiXIhL4A3hE9UPuXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 144/155] media: usbtv: fix control-message timeouts
-Date:   Tue, 31 Mar 2020 10:59:44 +0200
-Message-Id: <20200331085434.288946133@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.4 145/155] staging: kpc2000: prevent underflow in cpld_reconfigure()
+Date:   Tue, 31 Mar 2020 10:59:45 +0200
+Message-Id: <20200331085434.378979716@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
 References: <20200331085418.274292403@linuxfoundation.org>
@@ -45,64 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 536f561d871c5781bc33d26d415685211b94032e upstream.
+commit 72db61d7d17a475d3cc9de1a7c871d518fcd82f0 upstream.
 
-The driver was issuing synchronous uninterruptible control requests
-without using a timeout. This could lead to the driver hanging on
-various user requests due to a malfunctioning (or malicious) device
-until the device is physically disconnected.
+This function should not allow negative values of "wr_val".  If
+negatives are allowed then capping the upper bound at 7 is
+meaningless.  Let's make it unsigned.
 
-The USB upper limit of five seconds per request should be more than
-enough.
-
-Fixes: f3d27f34fdd7 ("[media] usbtv: Add driver for Fushicai USBTV007 video frame grabber")
-Fixes: c53a846c48f2 ("[media] usbtv: add video controls")
-Cc: stable <stable@vger.kernel.org>     # 3.11
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Acked-by: Lubomir Rintel <lkundrak@v3.sk>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 7dc7967fc39a ("staging: kpc2000: add initial set of Daktronics drivers")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200224103325.hrxdnaeqsthplu42@kili.mountain
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/usbtv/usbtv-core.c  |    2 +-
- drivers/media/usb/usbtv/usbtv-video.c |    5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/staging/kpc2000/kpc2000/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/media/usb/usbtv/usbtv-core.c
-+++ b/drivers/media/usb/usbtv/usbtv-core.c
-@@ -56,7 +56,7 @@ int usbtv_set_regs(struct usbtv *usbtv,
+--- a/drivers/staging/kpc2000/kpc2000/core.c
++++ b/drivers/staging/kpc2000/kpc2000/core.c
+@@ -110,10 +110,10 @@ static ssize_t cpld_reconfigure(struct d
+ 				const char *buf, size_t count)
+ {
+ 	struct kp2000_device *pcard = dev_get_drvdata(dev);
+-	long wr_val;
++	unsigned long wr_val;
+ 	int rv;
  
- 		ret = usb_control_msg(usbtv->udev, pipe, USBTV_REQUEST_REG,
- 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			value, index, NULL, 0, 0);
-+			value, index, NULL, 0, USB_CTRL_GET_TIMEOUT);
- 		if (ret < 0)
- 			return ret;
- 	}
---- a/drivers/media/usb/usbtv/usbtv-video.c
-+++ b/drivers/media/usb/usbtv/usbtv-video.c
-@@ -800,7 +800,8 @@ static int usbtv_s_ctrl(struct v4l2_ctrl
- 		ret = usb_control_msg(usbtv->udev,
- 			usb_rcvctrlpipe(usbtv->udev, 0), USBTV_CONTROL_REG,
- 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			0, USBTV_BASE + 0x0244, (void *)data, 3, 0);
-+			0, USBTV_BASE + 0x0244, (void *)data, 3,
-+			USB_CTRL_GET_TIMEOUT);
- 		if (ret < 0)
- 			goto error;
- 	}
-@@ -851,7 +852,7 @@ static int usbtv_s_ctrl(struct v4l2_ctrl
- 	ret = usb_control_msg(usbtv->udev, usb_sndctrlpipe(usbtv->udev, 0),
- 			USBTV_CONTROL_REG,
- 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			0, index, (void *)data, size, 0);
-+			0, index, (void *)data, size, USB_CTRL_SET_TIMEOUT);
- 
- error:
- 	if (ret < 0)
+-	rv = kstrtol(buf, 0, &wr_val);
++	rv = kstrtoul(buf, 0, &wr_val);
+ 	if (rv < 0)
+ 		return rv;
+ 	if (wr_val > 7)
 
 
