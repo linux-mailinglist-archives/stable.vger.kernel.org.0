@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C0B198F8E
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA24199202
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:23:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730928AbgCaJEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:04:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44548 "EHLO mail.kernel.org"
+        id S1730940AbgCaJE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:04:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730403AbgCaJEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:04:24 -0400
+        id S1730662AbgCaJE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:04:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D66D20675;
-        Tue, 31 Mar 2020 09:04:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16CAF208E0;
+        Tue, 31 Mar 2020 09:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645464;
-        bh=DPpZNpF3Vu+vM8Zu77MZehGo4UXKVkDd1qqj75mah7c=;
+        s=default; t=1585645466;
+        bh=av6Q11LrCmng11HhAnFQiGI6yq6s3dI1mlFBfB9NFtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Re/QmIzx1HW4DChMRJKDKwjs3ee59BdL+M2Xn/GmPCnOnkGrzFkJiNVLuazL5E418
-         ivGQ9J4fs/P+cgva4hhJQVmkDKbgLXP6J90880K89ZvNjeHswKRemdW1BSRuLdafZQ
-         x7agaZ+wG5TQR5VZd7bnqTEr4oLSD12zTVMNytYM=
+        b=sptUVzw01LYuca/eFpwuMVbR3Hdad3eUc5UzuzrGayX7uR0Ekk8orxxe86jmbE9Zs
+         F3F5C0SHzojmJFp/5ElhZbXx1Ok/ZXVGXVjzeiYkSoEo4Dfzx1AT1i4AfHaqNfgnV1
+         g9nqVZq3vsIuxOSvIJcuDxH2R0wlhUZjbOxjIg2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
+        stable@vger.kernel.org, Tariq Toukan <tariqt@mellanox.com>,
+        Boris Pismenny <borisp@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 061/170] net/mlx5_core: Set IB capability mask1 to fix ib_srpt connection failure
-Date:   Tue, 31 Mar 2020 10:57:55 +0200
-Message-Id: <20200331085431.001143650@linuxfoundation.org>
+Subject: [PATCH 5.5 062/170] net/mlx5e: kTLS, Fix TCP seq off-by-1 issue in TX resync flow
+Date:   Tue, 31 Mar 2020 10:57:56 +0200
+Message-Id: <20200331085431.087051249@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
 References: <20200331085423.990189598@linuxfoundation.org>
@@ -44,35 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Tariq Toukan <tariqt@mellanox.com>
 
-[ Upstream commit 306f354c67397b3138300cde875c5cab45b857f7 ]
+[ Upstream commit 56917766def72f5afdf4235adb91b6897ff26d9d ]
 
-The cap_mask1 isn't protected by field_select and not listed among RW
-fields, but it is required to be written to properly initialize ports
-in IB virtualization mode.
+We have an off-by-1 issue in the TCP seq comparison.
+The last sequence number that belongs to the TCP packet's payload
+is not "start_seq + len", but one byte before it.
+Fix it so the 'ends_before' is evaluated properly.
 
-Link: https://lore.kernel.org/linux-rdma/88bab94d2fd72f3145835b4518bc63dda587add6.camel@redhat.com
-Fixes: ab118da4c10a ("net/mlx5: Don't write read-only fields in MODIFY_HCA_VPORT_CONTEXT command")
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+This fixes a bug that results in error completions in the
+kTLS HW offload flows.
+
+Fixes: ffbd9ca94e2e ("net/mlx5e: kTLS, Fix corner-case checks in TX resync flow")
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Reviewed-by: Boris Pismenny <borisp@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/vport.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/vport.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/vport.c
-@@ -1071,6 +1071,9 @@ int mlx5_core_modify_hca_vport_context(s
- 		MLX5_SET64(hca_vport_context, ctx, port_guid, req->port_guid);
- 	if (req->field_select & MLX5_HCA_VPORT_SEL_NODE_GUID)
- 		MLX5_SET64(hca_vport_context, ctx, node_guid, req->node_guid);
-+	MLX5_SET(hca_vport_context, ctx, cap_mask1, req->cap_mask1);
-+	MLX5_SET(hca_vport_context, ctx, cap_mask1_field_select,
-+		 req->cap_mask1_perm);
- 	err = mlx5_cmd_exec(dev, in, in_sz, out, sizeof(out));
- ex:
- 	kfree(in);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c
+@@ -218,7 +218,7 @@ tx_sync_info_get(struct mlx5e_ktls_offlo
+ 	 *    this packet was already acknowledged and its record info
+ 	 *    was released.
+ 	 */
+-	ends_before = before(tcp_seq + datalen, tls_record_start_seq(record));
++	ends_before = before(tcp_seq + datalen - 1, tls_record_start_seq(record));
+ 
+ 	if (unlikely(tls_record_is_start_marker(record))) {
+ 		ret = ends_before ? MLX5E_KTLS_SYNC_SKIP_NO_DATA : MLX5E_KTLS_SYNC_FAIL;
 
 
