@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 210E3199183
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16359199186
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731783AbgCaJPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:15:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35420 "EHLO mail.kernel.org"
+        id S1731398AbgCaJUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:20:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730701AbgCaJPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:15:17 -0400
+        id S1731881AbgCaJPY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:15:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53F5220675;
-        Tue, 31 Mar 2020 09:15:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E8CA20675;
+        Tue, 31 Mar 2020 09:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646116;
-        bh=bDOyWPwtHpt7ua7OxR166RVFsXRO6Ja9g+epQkrZGuk=;
+        s=default; t=1585646123;
+        bh=PVwq12ikNVjYzL7dLyszQb2N26rWLUYHtiw4e8tlS6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHkSEBzg7RqRlbxJ5uLiuFxma20Ag0dJzsLVQwW5dM1o13StJH9q7+0pRu780Riai
-         4l5Sw5g8ZPERuN4wGblMnqwiG5XXpLKafb4/W8ZxAZMqXzADJGHB48g/d+EkTueF0f
-         x3OzkjfdBizr+WRZnoRA4rxFQIemFG9xciebWYlM=
+        b=o8Q3OArrffZllIvUD5o1dVpOn5EK/rD2QRrjwTWTdXPCnZKngzXNRvTaWI+i16ghZ
+         pjPUDtNPP2ZasIdmEUr+mBLV0M8D8DRpzfu3Aaxs8MsFiqz8uBIL+4HY8dY5KxJocQ
+         mobAzy1yqfe5ZAZyV74hUcZVd2m9vctu5hfKx27o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Roger Quadros <rogerq@ti.com>, Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.4 089/155] ARM: dts: omap5: Add bus_dma_limit for L3 bus
-Date:   Tue, 31 Mar 2020 10:58:49 +0200
-Message-Id: <20200331085428.309556173@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 5.4 090/155] x86/ioremap: Fix CONFIG_EFI=n build
+Date:   Tue, 31 Mar 2020 10:58:50 +0200
+Message-Id: <20200331085428.515591878@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
 References: <20200331085418.274292403@linuxfoundation.org>
@@ -43,38 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit dfa7ea303f56a3a8b1ed3b91ef35af2da67ca4ee upstream.
+commit 870b4333a62e45b0b2000d14b301b7b8b8cad9da upstream.
 
-The L3 interconnect's memory map is from 0x0 to
-0xffffffff. Out of this, System memory (SDRAM) can be
-accessed from 0x80000000 to 0xffffffff (2GB)
+In order to use efi_mem_type(), one needs CONFIG_EFI enabled. Otherwise
+that function is undefined. Use IS_ENABLED() to check and avoid the
+ifdeffery as the compiler optimizes away the following unreachable code
+then.
 
-OMAP5 does support 4GB of SDRAM but upper 2GB can only be
-accessed by the MPU subsystem.
-
-Add the dma-ranges property to reflect the physical address limit
-of the L3 bus.
-
-Cc: stable@kernel.org
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 985e537a4082 ("x86/ioremap: Map EFI runtime services data as encrypted for SEV")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/7561e981-0d9b-d62c-0ef2-ce6007aff1ab@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/omap5.dtsi |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/mm/ioremap.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/boot/dts/omap5.dtsi
-+++ b/arch/arm/boot/dts/omap5.dtsi
-@@ -143,6 +143,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		ranges = <0 0 0 0xc0000000>;
-+		dma-ranges = <0x80000000 0x0 0x80000000 0x80000000>;
- 		ti,hwmods = "l3_main_1", "l3_main_2", "l3_main_3";
- 		reg = <0 0x44000000 0 0x2000>,
- 		      <0 0x44800000 0 0x3000>,
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -115,6 +115,9 @@ static void __ioremap_check_other(resour
+ 	if (!sev_active())
+ 		return;
+ 
++	if (!IS_ENABLED(CONFIG_EFI))
++		return;
++
+ 	if (efi_mem_type(addr) == EFI_RUNTIME_SERVICES_DATA)
+ 		desc->flags |= IORES_MAP_ENCRYPTED;
+ }
 
 
