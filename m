@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 229E61999B7
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 17:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 135781999BB
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 17:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730528AbgCaPcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 11:32:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41288 "EHLO mail.kernel.org"
+        id S1730858AbgCaPcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 11:32:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730464AbgCaPcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 11:32:09 -0400
+        id S1730974AbgCaPcS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 11:32:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66C2E20848;
-        Tue, 31 Mar 2020 15:32:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A0FE208E0;
+        Tue, 31 Mar 2020 15:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585668727;
-        bh=JpSRbR33AoPYM1rJPSTRxTXcpbqjvYPpLkaTKNcZyX8=;
+        s=default; t=1585668738;
+        bh=2dug01Mmd9OLde2/WYvsH0kx1qizVb0ForkovG5ErfI=;
         h=From:To:Cc:Subject:Date:From;
-        b=BPxIznXsjKJUrqhETegLXDaasps4uamWKha1MTHfhvFInZQJ6fNdLhFjECsPNGKta
-         /M0JC+3ZIMTHc53LgU8WuEUcCineaYO1Sw/xKZ7iGpSH7XBMDR+UuF92bov7VSH0nM
-         A6Y8avjSS0qcJ4WP9TQvoCqEQtNGxskgmREmzPKo=
+        b=hdHcfqgvjOxK978Vk4yXewVUV+rDajgFjHGBG601hBph5Xwz51X/ag9qhGzdSLySg
+         5CNIln1BWz8brMbkR+CVA5FYLVT5/J0jjL0n0PJAZncMYOE2r7OXlsM8rt85NMIDs/
+         wyviQ4EIqJ93GDlz5hgAnkYf1pCCtfAO1XxeSP3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,19 +30,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH 5.4 000/156] 5.4.29-rc2 review
-Date:   Tue, 31 Mar 2020 17:32:02 +0200
-Message-Id: <20200331141448.508518662@linuxfoundation.org>
+Subject: [PATCH 5.5 000/171] 5.5.14-rc2 review
+Date:   Tue, 31 Mar 2020 17:32:15 +0200
+Message-Id: <20200331141450.035873853@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.29-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.5.14-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Branch: linux-5.5.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.29-rc2
+X-KernelTest-Version: 5.5.14-rc2
 X-KernelTest-Deadline: 2020-04-02T14:15+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,18 +51,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.29 release.
-There are 156 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 5.5.14 release.
+There are 171 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
-Responses should be made by Thu, 02 Apr 2020 14:12:16 +0000.
+Responses should be made by Thu, 02 Apr 2020 14:12:02 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.29-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.14-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
 and the diffstat can be found below.
 
 thanks,
@@ -73,7 +73,7 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.29-rc2
+    Linux 5.5.14-rc2
 
 Pablo Neira Ayuso <pablo@netfilter.org>
     net: Fix CONFIG_NET_CLS_ACT=n and CONFIG_NFT_FWD_NETDEV={y, m} build
@@ -98,6 +98,15 @@ Eric Biggers <ebiggers@google.com>
 
 Kai-Heng Feng <kai.heng.feng@canonical.com>
     ahci: Add Intel Comet Lake H RAID PCI ID
+
+Michał Mirosław <mirq-linux@rere.qmqm.pl>
+    staging: wfx: annotate nested gc_list vs tx queue locking
+
+Michał Mirosław <mirq-linux@rere.qmqm.pl>
+    staging: wfx: fix init/remove vs IRQ race
+
+Michał Mirosław <mirq-linux@rere.qmqm.pl>
+    staging: wfx: add proper "compatible" string
 
 Qiujun Huang <hqjagain@gmail.com>
     staging: wlan-ng: fix use-after-free Read in hfa384x_usbin_callback
@@ -170,6 +179,9 @@ Pablo Neira Ayuso <pablo@netfilter.org>
 
 Pablo Neira Ayuso <pablo@netfilter.org>
     netfilter: nft_fwd_netdev: validate family and chain type
+
+Edward Cree <ecree@solarflare.com>
+    netfilter: flowtable: populate addr_type mask
 
 Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
     netfilter: flowtable: reload ip{v6}h in nf_flow_tuple_ip{v6}
@@ -258,6 +270,18 @@ Johannes Berg <johannes.berg@intel.com>
 Martin K. Petersen <martin.petersen@oracle.com>
     scsi: sd: Fix optimal I/O size for devices that change reported values
 
+Marek Szyprowski <m.szyprowski@samsung.com>
+    soc: samsung: chipid: Fix return value on non-Exynos platforms
+
+Shane Francis <bigbeeshane@gmail.com>
+    drm/radeon: fix scatter-gather mapping with user pages
+
+Shane Francis <bigbeeshane@gmail.com>
+    drm/amdgpu: fix scatter-gather mapping with user pages
+
+Shane Francis <bigbeeshane@gmail.com>
+    drm/prime: use dma length macro when mapping sg
+
 Dirk Mueller <dmueller@suse.com>
     scripts/dtc: Remove redundant YYLOC global declaration
 
@@ -282,6 +306,9 @@ Roger Quadros <rogerq@ti.com>
 Roger Quadros <rogerq@ti.com>
     ARM: dts: dra7: Add bus_dma_limit for L3 bus
 
+Tom Lendacky <thomas.lendacky@amd.com>
+    KVM: SVM: Issue WBINVD after deactivating an SEV guest
+
 Luis Henriques <lhenriques@suse.com>
     ceph: fix memory leak in ceph_cleanup_snapid_map()
 
@@ -296,6 +323,9 @@ Jason Gunthorpe <jgg@ziepe.ca>
 
 Linus Walleij <linus.walleij@linaro.org>
     gpiolib: Fix irq_disable() semantics
+
+Jason Gunthorpe <jgg@ziepe.ca>
+    RDMA/odp: Fix leaking the tgid for implicit ODP
 
 Jason Gunthorpe <jgg@ziepe.ca>
     RDMA/core: Fix missing error check on dev_set_name()
@@ -318,17 +348,11 @@ Dan Carpenter <dan.carpenter@oracle.com>
 Chuhong Yuan <hslester96@gmail.com>
     i2c: hix5hd2: add missed clk_disable_unprepare in remove
 
-Johannes Berg <johannes.berg@intel.com>
-    iwlwifi: mvm: fix non-ACPI function
-
 Megha Dey <megha.dey@linux.intel.com>
     iommu/vt-d: Populate debugfs if IOMMUs are detected
 
 Megha Dey <megha.dey@linux.intel.com>
     iommu/vt-d: Fix debugfs register reads
-
-Yonglong Liu <liuyonglong@huawei.com>
-    net: hns3: fix "tc qdisc del" failed issue
 
 Dominik Czarnota <dominik.b.czarnota@gmail.com>
     sxgbe: Fix off by one in samsung driver strncpy size arg
@@ -342,11 +366,8 @@ Nicolas Cavallari <nicolas.cavallari@green-communications.fr>
 Wen Xiong <wenxiong@linux.vnet.ibm.com>
     scsi: ipr: Fix softlockup when rescanning devices in petitboot
 
-Julian Wiedmann <jwi@linux.ibm.com>
-    s390/qeth: handle error when backing RX buffer
-
-Julian Wiedmann <jwi@linux.ibm.com>
-    s390/qeth: don't reset default_out_queue
+Juliet Kim <julietk@linux.vnet.ibm.com>
+    ibmvnic: Do not process device remove during device reset
 
 Qian Cai <cai@lca.pw>
     iommu/vt-d: Silence RCU-list debugging warnings
@@ -360,14 +381,8 @@ Hawking Zhang <Hawking.Zhang@amd.com>
 Martin Leung <martin.leung@amd.com>
     drm/amd/display: update soc bb for nv14
 
-Madalin Bucur <madalin.bucur@nxp.com>
-    fsl/fman: detect FMan erratum A050385
-
-Madalin Bucur <madalin.bucur@nxp.com>
-    arm64: dts: ls1043a: FMan erratum A050385
-
-Madalin Bucur <madalin.bucur@nxp.com>
-    dt-bindings: net: FMan erratum A050385
+Jiang Lidong <jianglidong3@jd.com>
+    veth: ignore peer tx_dropped when counting local rx_dropped
 
 Tycho Andersen <tycho@tycho.ws>
     cgroup1: don't call release_agent when it is ""
@@ -383,6 +398,15 @@ Scott Mayhew <smayhew@redhat.com>
 
 Vasily Averin <vvs@virtuozzo.com>
     cgroup-v1: cgroup_pidlist_next should update position index
+
+Sebastian Hense <sebastian.hense1@ibm.com>
+    net/mlx5e: Fix endianness handling in pedit mask
+
+Tariq Toukan <tariqt@mellanox.com>
+    net/mlx5e: kTLS, Fix TCP seq off-by-1 issue in TX resync flow
+
+Leon Romanovsky <leon@kernel.org>
+    net/mlx5_core: Set IB capability mask1 to fix ib_srpt connection failure
 
 Aya Levin <ayal@mellanox.com>
     net/mlx5e: Do not recover from a non-fatal syndrome
@@ -414,6 +438,18 @@ Petr Machata <petrm@mellanox.com>
 Petr Machata <petrm@mellanox.com>
     net: ip_gre: Separate ERSPAN newlink / changelink callbacks
 
+Arthur Kiyanovski <akiyano@amazon.com>
+    net: ena: fix continuous keep-alive resets
+
+Arthur Kiyanovski <akiyano@amazon.com>
+    net: ena: avoid memory access violation by validating req_id properly
+
+Arthur Kiyanovski <akiyano@amazon.com>
+    net: ena: fix request of incorrect number of IRQ vectors
+
+Arthur Kiyanovski <akiyano@amazon.com>
+    net: ena: fix incorrect setting of the number of msix vectors
+
 Vasundhara Volam <vasundhara-v.volam@broadcom.com>
     bnxt_en: Reset rings if ring reservation fails during open()
 
@@ -428,6 +464,12 @@ Edwin Peer <edwin.peer@broadcom.com>
 
 Michael Chan <michael.chan@broadcom.com>
     bnxt_en: Fix Priority Bytes and Packets counters in ethtool -S.
+
+Doug Berger <opendmb@gmail.com>
+    net: bcmgenet: keep MAC in reset until PHY is up
+
+Doug Berger <opendmb@gmail.com>
+    Revert "net: bcmgenet: use RGMII loopback for MAC reset"
 
 Taehee Yoo <ap420073@gmail.com>
     vxlan: check return value of gro_cells_init()
@@ -525,8 +567,11 @@ Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
     cxgb4: fix throughput drop during Tx backpressure
 
-Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-    ACPI: PM: s2idle: Rework ACPI events synchronization
+Jason A. Donenfeld <Jason@zx2c4.com>
+    crypto: arm64/chacha - correctly walk through blocks
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    crypto: chacha20poly1305 - add back missing test vectors and test chunking
 
 Ulf Hansson <ulf.hansson@linaro.org>
     mmc: sdhci-tegra: Fix busy detection by enabling MMC_CAP_NEED_RSP_BUSY
@@ -548,199 +593,214 @@ Ulf Hansson <ulf.hansson@linaro.org>
 
 Diffstat:
 
- Documentation/devicetree/bindings/net/fsl-fman.txt |   7 ++
- Makefile                                           |   4 +-
- arch/arm/boot/dts/dra7.dtsi                        |   1 +
- arch/arm/boot/dts/omap5.dtsi                       |   1 +
- arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts          |   3 +-
- arch/arm64/boot/dts/freescale/fsl-ls1043-post.dtsi |   2 +
- arch/x86/mm/ioremap.c                              |   3 +
- arch/x86/net/bpf_jit_comp32.c                      |  10 +-
- drivers/acpi/sleep.c                               |  26 +++--
- drivers/ata/ahci.c                                 |   1 +
- drivers/base/memory.c                              |  23 +---
- drivers/clocksource/hyperv_timer.c                 |   6 +-
- drivers/gpio/gpiolib-acpi.c                        | 125 ++++++++++++++++-----
- drivers/gpio/gpiolib.c                             |   9 +-
- drivers/gpu/drm/amd/amdgpu/soc15.c                 |  25 ++++-
- .../gpu/drm/amd/display/dc/dcn20/dcn20_resource.c  | 114 +++++++++++++++++++
- drivers/gpu/drm/exynos/exynos5433_drm_decon.c      |   5 +-
- drivers/gpu/drm/exynos/exynos7_drm_decon.c         |   5 +-
- drivers/gpu/drm/exynos/exynos_drm_dma.c            |  28 +++--
- drivers/gpu/drm/exynos/exynos_drm_drv.h            |   6 +-
- drivers/gpu/drm/exynos/exynos_drm_fimc.c           |   5 +-
- drivers/gpu/drm/exynos/exynos_drm_fimd.c           |   5 +-
- drivers/gpu/drm/exynos/exynos_drm_g2d.c            |   5 +-
- drivers/gpu/drm/exynos/exynos_drm_gsc.c            |   5 +-
- drivers/gpu/drm/exynos/exynos_drm_rotator.c        |   5 +-
- drivers/gpu/drm/exynos/exynos_drm_scaler.c         |   6 +-
- drivers/gpu/drm/exynos/exynos_mixer.c              |   7 +-
- drivers/i2c/busses/i2c-hix5hd2.c                   |   1 +
- drivers/i2c/busses/i2c-nvidia-gpu.c                |  20 ++--
- drivers/infiniband/core/device.c                   |   4 +-
- drivers/infiniband/core/nldev.c                    |   6 +-
- drivers/infiniband/core/security.c                 |  11 +-
- drivers/infiniband/core/user_mad.c                 |  33 ++++--
- drivers/infiniband/hw/mlx5/cq.c                    |  27 ++++-
- drivers/infiniband/hw/mlx5/main.c                  |   5 +-
- drivers/infiniband/hw/mlx5/mlx5_ib.h               |   1 +
- drivers/infiniband/hw/mlx5/qp.c                    |   5 +
- drivers/infiniband/sw/rdmavt/cq.c                  |   2 +-
- drivers/input/input.c                              |   1 +
- drivers/input/mouse/synaptics.c                    |   1 +
- drivers/input/touchscreen/raydium_i2c_ts.c         |   8 +-
- drivers/iommu/dmar.c                               |   3 +-
- drivers/iommu/intel-iommu-debugfs.c                |  51 ++++++---
- drivers/iommu/intel-iommu.c                        |   4 +-
- drivers/media/usb/b2c2/flexcop-usb.c               |   6 +-
- drivers/media/usb/dvb-usb/dib0700_core.c           |   4 +-
- drivers/media/usb/gspca/ov519.c                    |  10 ++
- drivers/media/usb/gspca/stv06xx/stv06xx.c          |  19 +++-
- drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c   |   4 +
- drivers/media/usb/gspca/xirlink_cit.c              |  18 ++-
- drivers/media/usb/usbtv/usbtv-core.c               |   2 +-
- drivers/media/usb/usbtv/usbtv-video.c              |   5 +-
- drivers/media/v4l2-core/v4l2-device.c              |   1 +
- drivers/mmc/core/core.c                            |   5 +-
- drivers/mmc/core/mmc.c                             |   7 +-
- drivers/mmc/core/mmc_ops.c                         |   8 +-
- drivers/mmc/host/sdhci-omap.c                      |   3 +
- drivers/mmc/host/sdhci-tegra.c                     |   3 +
- drivers/net/Kconfig                                |   1 +
- drivers/net/can/slcan.c                            |   3 +
- drivers/net/dsa/mt7530.c                           |   4 +-
- drivers/net/ethernet/amazon/ena/ena_netdev.c       |  51 +++++++--
- drivers/net/ethernet/broadcom/bnxt/bnxt.c          |  28 +++--
- drivers/net/ethernet/broadcom/bnxt/bnxt.h          |   2 +-
- drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c      |  15 ++-
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c  |   8 +-
- drivers/net/ethernet/chelsio/cxgb4/sge.c           |  52 ++-------
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c     |   4 +-
- drivers/net/ethernet/freescale/fman/Kconfig        |  28 +++++
- drivers/net/ethernet/freescale/fman/fman.c         |  18 +++
- drivers/net/ethernet/freescale/fman/fman.h         |   5 +
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c    |   2 +-
- drivers/net/ethernet/marvell/mvneta.c              |   3 +-
- drivers/net/ethernet/mellanox/mlx5/core/en.h       |   2 +
- .../net/ethernet/mellanox/mlx5/core/en/health.h    |   3 +-
- .../ethernet/mellanox/mlx5/core/en/reporter_rx.c   |   2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h  |   6 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |  31 +++--
- drivers/net/ethernet/mellanox/mlx5/core/en_rx.c    |  11 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c  |   1 +
- .../mellanox/mlx5/core/steering/dr_action.c        |   1 -
- .../ethernet/mellanox/mlx5/core/steering/dr_send.c |   3 +-
- drivers/net/ethernet/mellanox/mlxsw/pci.c          |  50 +++++++--
- drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c  |   8 +-
- drivers/net/ethernet/realtek/r8169_main.c          |  18 ++-
- drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c    |   2 +-
- drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c     |   2 +-
- drivers/net/geneve.c                               |   8 +-
- drivers/net/ifb.c                                  |   6 +-
- drivers/net/macsec.c                               |   3 +
- drivers/net/phy/dp83867.c                          |  21 +++-
- drivers/net/phy/mdio-bcm-unimac.c                  |   6 +-
- drivers/net/phy/mdio-mux-bcm-iproc.c               |   7 +-
- drivers/net/usb/qmi_wwan.c                         |   1 +
- drivers/net/vxlan.c                                |  11 +-
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c        |   2 +-
- .../net/wireless/realtek/rtlwifi/rtl8188ee/trx.h   |   1 +
- drivers/nfc/fdp/fdp.c                              |   5 +-
- drivers/of/of_mdio.c                               |   1 +
- drivers/s390/net/qeth_core_main.c                  |  14 ++-
- drivers/scsi/ipr.c                                 |   3 +-
- drivers/scsi/ipr.h                                 |   1 +
- drivers/scsi/sd.c                                  |   4 +-
- drivers/staging/kpc2000/kpc2000/core.c             |   4 +-
- drivers/staging/rtl8188eu/os_dep/usb_intf.c        |   1 +
- drivers/staging/wlan-ng/hfa384x_usb.c              |   2 +
- drivers/staging/wlan-ng/prism2usb.c                |   1 +
- drivers/usb/class/cdc-acm.c                        |  18 +--
- drivers/usb/musb/musb_host.c                       |  17 +--
- drivers/usb/serial/io_edgeport.c                   |   2 +-
- drivers/usb/serial/option.c                        |   6 +
- fs/afs/cmservice.c                                 |  14 ++-
- fs/afs/fs_probe.c                                  |   2 +
- fs/afs/internal.h                                  |  12 +-
- fs/afs/rxrpc.c                                     |  71 ++----------
- fs/ceph/file.c                                     |  14 ++-
- fs/ceph/snap.c                                     |   1 +
- fs/libfs.c                                         |   8 +-
- fs/nfs/client.c                                    |   1 +
- fs/nfs/fscache.c                                   |   2 +
- fs/nfs/nfs4client.c                                |   1 -
- include/linux/ceph/osdmap.h                        |   4 +
- include/linux/ceph/rados.h                         |   6 +-
- include/linux/dmar.h                               |   6 +-
- include/linux/dsa/8021q.h                          |   7 --
- include/linux/ieee80211.h                          |   4 +-
- include/linux/intel-iommu.h                        |   2 +
- include/linux/memcontrol.h                         |  12 ++
- include/linux/mmc/host.h                           |   1 +
- include/linux/skbuff.h                             |  36 +++++-
- include/net/af_rxrpc.h                             |   4 +-
- include/net/sch_generic.h                          |  16 ---
- include/trace/events/afs.h                         |   2 +-
- include/uapi/linux/serio.h                         |  10 +-
- kernel/bpf/btf.c                                   |   2 +-
- kernel/bpf/cgroup.c                                |   7 +-
- kernel/bpf/verifier.c                              |  19 ----
- kernel/cgroup/cgroup-v1.c                          |   3 +-
- kernel/fork.c                                      |   4 +-
- kernel/irq/manage.c                                |  11 +-
- mm/memcontrol.c                                    |  38 +++++++
- mm/sparse.c                                        |   6 +
- mm/swapfile.c                                      |  39 ++++---
- net/Kconfig                                        |   3 +
- net/bpfilter/main.c                                |  14 ++-
- net/ceph/osdmap.c                                  |   9 ++
- net/core/dev.c                                     |   4 +-
- net/core/pktgen.c                                  |   2 +-
- net/core/sock_map.c                                |  12 +-
- net/dsa/tag_8021q.c                                |  43 -------
- net/dsa/tag_brcm.c                                 |   2 +
- net/dsa/tag_sja1105.c                              |  19 ++--
- net/hsr/hsr_framereg.c                             |   9 +-
- net/hsr/hsr_netlink.c                              |  70 +++++++-----
- net/hsr/hsr_slave.c                                |   8 +-
- net/ipv4/Kconfig                                   |   1 +
- net/ipv4/fib_frontend.c                            |   2 +
- net/ipv4/ip_gre.c                                  | 105 ++++++++++++++---
- net/ipv4/ip_vti.c                                  |  38 +++++--
- net/ipv4/tcp.c                                     |   4 +-
- net/ipv4/tcp_output.c                              |  12 +-
- net/ipv6/ip6_vti.c                                 |  34 ++++--
- net/mac80211/debugfs_sta.c                         |   3 +-
- net/mac80211/key.c                                 |  20 ++--
- net/mac80211/mesh_hwmp.c                           |   3 +-
- net/mac80211/sta_info.c                            |   7 +-
- net/mac80211/sta_info.h                            |   1 +
- net/mac80211/tx.c                                  |  20 +++-
- net/netfilter/nf_flow_table_ip.c                   |   2 +
- net/netfilter/nft_fwd_netdev.c                     |  12 ++
- net/packet/af_packet.c                             |  21 ++++
- net/packet/internal.h                              |   5 +-
- net/rxrpc/af_rxrpc.c                               |  33 +-----
- net/rxrpc/ar-internal.h                            |   1 -
- net/rxrpc/input.c                                  |   1 -
- net/sched/act_ct.c                                 |   2 +-
- net/sched/act_mirred.c                             |   6 +-
- net/sched/cls_route.c                              |   4 +-
- net/sched/cls_tcindex.c                            |   3 +
- net/sched/sch_cbs.c                                |  12 +-
- net/wireless/nl80211.c                             |   2 +-
- net/xfrm/xfrm_device.c                             |   1 +
- net/xfrm/xfrm_policy.c                             |   2 +
- net/xfrm/xfrm_user.c                               |   6 +-
- scripts/dtc/dtc-lexer.l                            |   1 -
- tools/perf/Makefile                                |   2 +-
- tools/perf/util/probe-file.c                       |   3 +
- tools/perf/util/probe-finder.c                     |  11 +-
- .../cpupower/utils/idle_monitor/amd_fam14h_idle.c  |   2 +-
- .../cpupower/utils/idle_monitor/cpuidle_sysfs.c    |   2 +-
- .../cpupower/utils/idle_monitor/cpupower-monitor.c |   2 +
- .../cpupower/utils/idle_monitor/cpupower-monitor.h |   2 +-
- tools/scripts/Makefile.include                     |   4 +-
- 193 files changed, 1464 insertions(+), 717 deletions(-)
+ Makefile                                           |    4 +-
+ arch/arm/boot/dts/dra7.dtsi                        |    1 +
+ arch/arm/boot/dts/omap5.dtsi                       |    1 +
+ arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts          |    3 +-
+ arch/arm64/crypto/chacha-neon-glue.c               |    8 +-
+ arch/x86/kvm/svm.c                                 |   22 +-
+ arch/x86/mm/ioremap.c                              |    3 +
+ arch/x86/net/bpf_jit_comp32.c                      |   10 +-
+ drivers/ata/ahci.c                                 |    1 +
+ drivers/base/memory.c                              |   23 +-
+ drivers/clocksource/hyperv_timer.c                 |    6 +-
+ drivers/gpio/gpiolib-acpi.c                        |  125 +-
+ drivers/gpio/gpiolib.c                             |    9 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c            |    2 +-
+ drivers/gpu/drm/amd/amdgpu/soc15.c                 |   25 +-
+ .../gpu/drm/amd/display/dc/dcn20/dcn20_resource.c  |  114 ++
+ drivers/gpu/drm/drm_prime.c                        |    2 +-
+ drivers/gpu/drm/exynos/exynos5433_drm_decon.c      |    5 +-
+ drivers/gpu/drm/exynos/exynos7_drm_decon.c         |    5 +-
+ drivers/gpu/drm/exynos/exynos_drm_dma.c            |   28 +-
+ drivers/gpu/drm/exynos/exynos_drm_drv.h            |    6 +-
+ drivers/gpu/drm/exynos/exynos_drm_fimc.c           |    5 +-
+ drivers/gpu/drm/exynos/exynos_drm_fimd.c           |    5 +-
+ drivers/gpu/drm/exynos/exynos_drm_g2d.c            |    5 +-
+ drivers/gpu/drm/exynos/exynos_drm_gsc.c            |    5 +-
+ drivers/gpu/drm/exynos/exynos_drm_rotator.c        |    5 +-
+ drivers/gpu/drm/exynos/exynos_drm_scaler.c         |    6 +-
+ drivers/gpu/drm/exynos/exynos_mixer.c              |    7 +-
+ drivers/gpu/drm/radeon/radeon_ttm.c                |    2 +-
+ drivers/i2c/busses/i2c-hix5hd2.c                   |    1 +
+ drivers/i2c/busses/i2c-nvidia-gpu.c                |   20 +-
+ drivers/infiniband/core/device.c                   |    4 +-
+ drivers/infiniband/core/nldev.c                    |    6 +-
+ drivers/infiniband/core/security.c                 |   11 +-
+ drivers/infiniband/core/umem_odp.c                 |    2 +-
+ drivers/infiniband/core/user_mad.c                 |   33 +-
+ drivers/infiniband/hw/mlx5/cq.c                    |   27 +-
+ drivers/infiniband/hw/mlx5/main.c                  |    5 +-
+ drivers/infiniband/hw/mlx5/mlx5_ib.h               |    1 +
+ drivers/infiniband/hw/mlx5/qp.c                    |    5 +
+ drivers/infiniband/sw/rdmavt/cq.c                  |    2 +-
+ drivers/input/input.c                              |    1 +
+ drivers/input/mouse/synaptics.c                    |    1 +
+ drivers/input/touchscreen/raydium_i2c_ts.c         |    8 +-
+ drivers/iommu/dmar.c                               |    3 +-
+ drivers/iommu/intel-iommu-debugfs.c                |   51 +-
+ drivers/iommu/intel-iommu.c                        |    4 +-
+ drivers/media/usb/b2c2/flexcop-usb.c               |    6 +-
+ drivers/media/usb/dvb-usb/dib0700_core.c           |    4 +-
+ drivers/media/usb/gspca/ov519.c                    |   10 +
+ drivers/media/usb/gspca/stv06xx/stv06xx.c          |   19 +-
+ drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c   |    4 +
+ drivers/media/usb/gspca/xirlink_cit.c              |   18 +-
+ drivers/media/usb/usbtv/usbtv-core.c               |    2 +-
+ drivers/media/usb/usbtv/usbtv-video.c              |    5 +-
+ drivers/media/v4l2-core/v4l2-device.c              |    1 +
+ drivers/mmc/core/core.c                            |    5 +-
+ drivers/mmc/core/mmc.c                             |    7 +-
+ drivers/mmc/core/mmc_ops.c                         |    8 +-
+ drivers/mmc/host/sdhci-omap.c                      |    3 +
+ drivers/mmc/host/sdhci-tegra.c                     |    3 +
+ drivers/net/Kconfig                                |    1 +
+ drivers/net/can/slcan.c                            |    3 +
+ drivers/net/dsa/mt7530.c                           |    4 +-
+ drivers/net/ethernet/amazon/ena/ena_netdev.c       |   78 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c          |   28 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h          |    2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c      |   15 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c  |    8 +-
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c     |   10 +-
+ drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c |    6 +-
+ drivers/net/ethernet/broadcom/genet/bcmmii.c       |   40 +-
+ drivers/net/ethernet/chelsio/cxgb4/sge.c           |   52 +-
+ drivers/net/ethernet/freescale/dpaa/dpaa_eth.c     |    4 +-
+ drivers/net/ethernet/ibm/ibmvnic.c                 |   24 +-
+ drivers/net/ethernet/ibm/ibmvnic.h                 |    6 +-
+ drivers/net/ethernet/marvell/mvneta.c              |    3 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en.h       |    2 +
+ .../net/ethernet/mellanox/mlx5/core/en/health.h    |    3 +-
+ .../ethernet/mellanox/mlx5/core/en/reporter_rx.c   |    2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en/txrx.h  |    6 +-
+ .../ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c |    2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |   31 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_rx.c    |   11 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c    |    5 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c  |    1 +
+ .../mellanox/mlx5/core/steering/dr_action.c        |    1 -
+ .../ethernet/mellanox/mlx5/core/steering/dr_send.c |    3 +-
+ drivers/net/ethernet/mellanox/mlx5/core/vport.c    |    3 +
+ drivers/net/ethernet/mellanox/mlxsw/pci.c          |   50 +-
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c  |    8 +-
+ drivers/net/ethernet/realtek/r8169_main.c          |   18 +-
+ drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c    |    2 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c     |    2 +-
+ drivers/net/geneve.c                               |    8 +-
+ drivers/net/ifb.c                                  |    6 +-
+ drivers/net/macsec.c                               |    3 +
+ drivers/net/phy/dp83867.c                          |   21 +-
+ drivers/net/phy/mdio-bcm-unimac.c                  |    6 +-
+ drivers/net/phy/mdio-mux-bcm-iproc.c               |    7 +-
+ drivers/net/usb/qmi_wwan.c                         |    1 +
+ drivers/net/veth.c                                 |    2 +-
+ drivers/net/vxlan.c                                |   11 +-
+ .../net/wireless/realtek/rtlwifi/rtl8188ee/trx.h   |    1 +
+ drivers/nfc/fdp/fdp.c                              |    5 +-
+ drivers/of/of_mdio.c                               |    1 +
+ drivers/scsi/ipr.c                                 |    3 +-
+ drivers/scsi/ipr.h                                 |    1 +
+ drivers/scsi/sd.c                                  |    4 +-
+ drivers/soc/samsung/exynos-chipid.c                |    2 +-
+ drivers/staging/kpc2000/kpc2000/core.c             |    4 +-
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c        |    1 +
+ .../bindings/net/wireless/siliabs,wfx.txt          |    7 +-
+ drivers/staging/wfx/bus_sdio.c                     |   15 +-
+ drivers/staging/wfx/bus_spi.c                      |   41 +-
+ drivers/staging/wfx/main.c                         |   21 +-
+ drivers/staging/wfx/main.h                         |    1 -
+ drivers/staging/wfx/queue.c                        |   16 +-
+ drivers/staging/wlan-ng/hfa384x_usb.c              |    2 +
+ drivers/staging/wlan-ng/prism2usb.c                |    1 +
+ drivers/usb/class/cdc-acm.c                        |   18 +-
+ drivers/usb/musb/musb_host.c                       |   17 +-
+ drivers/usb/serial/io_edgeport.c                   |    2 +-
+ drivers/usb/serial/option.c                        |    6 +
+ fs/afs/cmservice.c                                 |   14 +-
+ fs/afs/fs_probe.c                                  |    2 +
+ fs/afs/internal.h                                  |   12 +-
+ fs/afs/rxrpc.c                                     |   71 +-
+ fs/ceph/file.c                                     |   14 +-
+ fs/ceph/snap.c                                     |    1 +
+ fs/libfs.c                                         |    8 +-
+ fs/nfs/client.c                                    |    1 +
+ fs/nfs/fscache.c                                   |    2 +
+ fs/nfs/nfs4client.c                                |    1 -
+ include/linux/ceph/osdmap.h                        |    4 +
+ include/linux/ceph/rados.h                         |    6 +-
+ include/linux/dmar.h                               |    6 +-
+ include/linux/dsa/8021q.h                          |    7 -
+ include/linux/ieee80211.h                          |    4 +-
+ include/linux/intel-iommu.h                        |    2 +
+ include/linux/memcontrol.h                         |   12 +
+ include/linux/mmc/host.h                           |    1 +
+ include/linux/skbuff.h                             |   36 +-
+ include/net/af_rxrpc.h                             |    4 +-
+ include/net/sch_generic.h                          |   16 -
+ include/trace/events/afs.h                         |    2 +-
+ include/uapi/linux/serio.h                         |   10 +-
+ kernel/bpf/btf.c                                   |    2 +-
+ kernel/bpf/cgroup.c                                |    7 +-
+ kernel/bpf/verifier.c                              |   19 -
+ kernel/cgroup/cgroup-v1.c                          |    3 +-
+ kernel/fork.c                                      |    4 +-
+ kernel/irq/manage.c                                |   11 +-
+ lib/crypto/chacha20poly1305-selftest.c             | 1717 +++++++++++++++++++-
+ mm/memcontrol.c                                    |   38 +
+ mm/sparse.c                                        |    6 +
+ mm/swapfile.c                                      |   39 +-
+ net/Kconfig                                        |    3 +
+ net/bpfilter/main.c                                |   14 +-
+ net/ceph/osdmap.c                                  |    9 +
+ net/core/dev.c                                     |    4 +-
+ net/core/pktgen.c                                  |    2 +-
+ net/core/sock_map.c                                |   12 +-
+ net/dsa/tag_8021q.c                                |   43 -
+ net/dsa/tag_brcm.c                                 |    2 +
+ net/dsa/tag_sja1105.c                              |   19 +-
+ net/hsr/hsr_framereg.c                             |    9 +-
+ net/hsr/hsr_netlink.c                              |   70 +-
+ net/hsr/hsr_slave.c                                |    8 +-
+ net/ipv4/Kconfig                                   |    1 +
+ net/ipv4/fib_frontend.c                            |    2 +
+ net/ipv4/ip_gre.c                                  |  105 +-
+ net/ipv4/ip_vti.c                                  |   38 +-
+ net/ipv4/tcp.c                                     |    4 +-
+ net/ipv4/tcp_output.c                              |   12 +-
+ net/ipv6/ip6_vti.c                                 |   34 +-
+ net/mac80211/debugfs_sta.c                         |    3 +-
+ net/mac80211/key.c                                 |   20 +-
+ net/mac80211/mesh_hwmp.c                           |    3 +-
+ net/mac80211/sta_info.c                            |    7 +-
+ net/mac80211/sta_info.h                            |    1 +
+ net/mac80211/tx.c                                  |   20 +-
+ net/netfilter/nf_flow_table_ip.c                   |    2 +
+ net/netfilter/nf_flow_table_offload.c              |    1 +
+ net/netfilter/nft_fwd_netdev.c                     |   12 +
+ net/packet/af_packet.c                             |   21 +
+ net/packet/internal.h                              |    5 +-
+ net/rxrpc/af_rxrpc.c                               |   33 +-
+ net/rxrpc/ar-internal.h                            |    1 -
+ net/rxrpc/input.c                                  |    1 -
+ net/sched/act_ct.c                                 |    2 +-
+ net/sched/act_mirred.c                             |    6 +-
+ net/sched/cls_route.c                              |    4 +-
+ net/sched/cls_tcindex.c                            |    3 +
+ net/sched/sch_cbs.c                                |   12 +-
+ net/wireless/nl80211.c                             |    2 +-
+ net/xfrm/xfrm_device.c                             |    1 +
+ net/xfrm/xfrm_policy.c                             |    2 +
+ net/xfrm/xfrm_user.c                               |    6 +-
+ scripts/dtc/dtc-lexer.l                            |    1 -
+ tools/perf/Makefile                                |    2 +-
+ tools/perf/util/probe-file.c                       |    3 +
+ tools/perf/util/probe-finder.c                     |   11 +-
+ .../cpupower/utils/idle_monitor/amd_fam14h_idle.c  |    2 +-
+ .../cpupower/utils/idle_monitor/cpuidle_sysfs.c    |    2 +-
+ .../cpupower/utils/idle_monitor/cpupower-monitor.c |    2 +
+ .../cpupower/utils/idle_monitor/cpupower-monitor.h |    2 +-
+ tools/scripts/Makefile.include                     |    4 +-
+ 208 files changed, 3226 insertions(+), 835 deletions(-)
 
 
