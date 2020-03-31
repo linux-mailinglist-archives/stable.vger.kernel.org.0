@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3954F199197
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF0751991F4
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730789AbgCaJO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:14:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34218 "EHLO mail.kernel.org"
+        id S1731153AbgCaJGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:06:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730391AbgCaJO0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:14:26 -0400
+        id S1730888AbgCaJGa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:06:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 999122072E;
-        Tue, 31 Mar 2020 09:14:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B93E212CC;
+        Tue, 31 Mar 2020 09:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646065;
-        bh=l6DvBGw4cKYvjyvNNBYmUeY/T80hQ8zM0ealCYAMkT8=;
+        s=default; t=1585645590;
+        bh=HZ7GlHyZB6RnMvGr6cMq3mUlllhIUvbAbbr628e4hBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxp7pjgC4getO6scqwh7xv0DHIzLD/oKR798saECooSPCeuP8t34HmRqIN4OzKRjM
-         AfuR8LnmHSP2EuZ55oSnucpoDYewIgV09qmdv+jR4g4sGwT7YITVwE9ceH4+dwu0d4
-         3/rZttJFs2gZHd9H02lXchVMQF64nhfWaY8gfjuA=
+        b=DFwitTFHPJ+KlgMRhqfMTsN3bX6pet9TS34uw1S8f/mC5tKg73owSWtO7LIz7v/V2
+         zWZiV7poqsXs2eITRtJZU3hU0Q2nhfw+rigMq9NeZdeBV3DzJooDff1Cp5wV3DPfLm
+         VhWTR2id6So6R82pDyfKgPQfzXtPToKA+wDdzG+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Megha Dey <megha.dey@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/155] iommu/vt-d: Fix debugfs register reads
+        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.5 099/170] perf probe: Do not depend on dwfl_module_addrsym()
 Date:   Tue, 31 Mar 2020 10:58:33 +0200
-Message-Id: <20200331085426.574364408@linuxfoundation.org>
+Message-Id: <20200331085434.761153477@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,123 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Megha Dey <megha.dey@linux.intel.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit ba3b01d7a6f4ab9f8a0557044c9a7678f64ae070 ]
+commit 1efde2754275dbd9d11c6e0132a4f09facf297ab upstream.
 
-Commit 6825d3ea6cde ("iommu/vt-d: Add debugfs support to show register
-contents") dumps the register contents for all IOMMU devices.
+Do not depend on dwfl_module_addrsym() because it can fail on user-space
+shared libraries.
 
-Currently, a 64 bit read(dmar_readq) is done for all the IOMMU registers,
-even though some of the registers are 32 bits, which is incorrect.
+Actually, same bug was fixed by commit 664fee3dc379 ("perf probe: Do not
+use dwfl_module_addrsym if dwarf_diename finds symbol name"), but commit
+07d369857808 ("perf probe: Fix wrong address verification) reverted to
+get actual symbol address from symtab.
 
-Use the correct read function variant (dmar_readl/dmar_readq) while
-reading the contents of 32/64 bit registers respectively.
+This fixes it again by getting symbol address from DIE, and only if the
+DIE has only address range, it uses dwfl_module_addrsym().
 
-Signed-off-by: Megha Dey <megha.dey@linux.intel.com>
-Link: https://lore.kernel.org/r/1583784587-26126-2-git-send-email-megha.dey@linux.intel.com
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 07d369857808 ("perf probe: Fix wrong address verification)
+Reported-by: Alexandre Ghiti <alex@ghiti.fr>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Alexandre Ghiti <alex@ghiti.fr>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Link: http://lore.kernel.org/lkml/158281812176.476.14164573830975116234.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iommu/intel-iommu-debugfs.c | 40 ++++++++++++++++++-----------
- include/linux/intel-iommu.h         |  2 ++
- 2 files changed, 27 insertions(+), 15 deletions(-)
+ tools/perf/util/probe-finder.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu-debugfs.c b/drivers/iommu/intel-iommu-debugfs.c
-index 471f05d452e01..80378c10dd77a 100644
---- a/drivers/iommu/intel-iommu-debugfs.c
-+++ b/drivers/iommu/intel-iommu-debugfs.c
-@@ -32,38 +32,42 @@ struct iommu_regset {
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -636,14 +636,19 @@ static int convert_to_trace_point(Dwarf_
+ 		return -EINVAL;
+ 	}
  
- #define IOMMU_REGSET_ENTRY(_reg_)					\
- 	{ DMAR_##_reg_##_REG, __stringify(_reg_) }
--static const struct iommu_regset iommu_regs[] = {
-+
-+static const struct iommu_regset iommu_regs_32[] = {
- 	IOMMU_REGSET_ENTRY(VER),
--	IOMMU_REGSET_ENTRY(CAP),
--	IOMMU_REGSET_ENTRY(ECAP),
- 	IOMMU_REGSET_ENTRY(GCMD),
- 	IOMMU_REGSET_ENTRY(GSTS),
--	IOMMU_REGSET_ENTRY(RTADDR),
--	IOMMU_REGSET_ENTRY(CCMD),
- 	IOMMU_REGSET_ENTRY(FSTS),
- 	IOMMU_REGSET_ENTRY(FECTL),
- 	IOMMU_REGSET_ENTRY(FEDATA),
- 	IOMMU_REGSET_ENTRY(FEADDR),
- 	IOMMU_REGSET_ENTRY(FEUADDR),
--	IOMMU_REGSET_ENTRY(AFLOG),
- 	IOMMU_REGSET_ENTRY(PMEN),
- 	IOMMU_REGSET_ENTRY(PLMBASE),
- 	IOMMU_REGSET_ENTRY(PLMLIMIT),
-+	IOMMU_REGSET_ENTRY(ICS),
-+	IOMMU_REGSET_ENTRY(PRS),
-+	IOMMU_REGSET_ENTRY(PECTL),
-+	IOMMU_REGSET_ENTRY(PEDATA),
-+	IOMMU_REGSET_ENTRY(PEADDR),
-+	IOMMU_REGSET_ENTRY(PEUADDR),
-+};
-+
-+static const struct iommu_regset iommu_regs_64[] = {
-+	IOMMU_REGSET_ENTRY(CAP),
-+	IOMMU_REGSET_ENTRY(ECAP),
-+	IOMMU_REGSET_ENTRY(RTADDR),
-+	IOMMU_REGSET_ENTRY(CCMD),
-+	IOMMU_REGSET_ENTRY(AFLOG),
- 	IOMMU_REGSET_ENTRY(PHMBASE),
- 	IOMMU_REGSET_ENTRY(PHMLIMIT),
- 	IOMMU_REGSET_ENTRY(IQH),
- 	IOMMU_REGSET_ENTRY(IQT),
- 	IOMMU_REGSET_ENTRY(IQA),
--	IOMMU_REGSET_ENTRY(ICS),
- 	IOMMU_REGSET_ENTRY(IRTA),
- 	IOMMU_REGSET_ENTRY(PQH),
- 	IOMMU_REGSET_ENTRY(PQT),
- 	IOMMU_REGSET_ENTRY(PQA),
--	IOMMU_REGSET_ENTRY(PRS),
--	IOMMU_REGSET_ENTRY(PECTL),
--	IOMMU_REGSET_ENTRY(PEDATA),
--	IOMMU_REGSET_ENTRY(PEADDR),
--	IOMMU_REGSET_ENTRY(PEUADDR),
- 	IOMMU_REGSET_ENTRY(MTRRCAP),
- 	IOMMU_REGSET_ENTRY(MTRRDEF),
- 	IOMMU_REGSET_ENTRY(MTRR_FIX64K_00000),
-@@ -126,10 +130,16 @@ static int iommu_regset_show(struct seq_file *m, void *unused)
- 		 * by adding the offset to the pointer (virtual address).
- 		 */
- 		raw_spin_lock_irqsave(&iommu->register_lock, flag);
--		for (i = 0 ; i < ARRAY_SIZE(iommu_regs); i++) {
--			value = dmar_readq(iommu->reg + iommu_regs[i].offset);
-+		for (i = 0 ; i < ARRAY_SIZE(iommu_regs_32); i++) {
-+			value = dmar_readl(iommu->reg + iommu_regs_32[i].offset);
-+			seq_printf(m, "%-16s\t0x%02x\t\t0x%016llx\n",
-+				   iommu_regs_32[i].regs, iommu_regs_32[i].offset,
-+				   value);
-+		}
-+		for (i = 0 ; i < ARRAY_SIZE(iommu_regs_64); i++) {
-+			value = dmar_readq(iommu->reg + iommu_regs_64[i].offset);
- 			seq_printf(m, "%-16s\t0x%02x\t\t0x%016llx\n",
--				   iommu_regs[i].regs, iommu_regs[i].offset,
-+				   iommu_regs_64[i].regs, iommu_regs_64[i].offset,
- 				   value);
- 		}
- 		raw_spin_unlock_irqrestore(&iommu->register_lock, flag);
-diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
-index 6d8bf4bdf240d..1e5dad8b8e59b 100644
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -120,6 +120,8 @@
+-	/* Try to get actual symbol name from symtab */
+-	symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
++	if (dwarf_entrypc(sp_die, &eaddr) == 0) {
++		/* If the DIE has entrypc, use it. */
++		symbol = dwarf_diename(sp_die);
++	} else {
++		/* Try to get actual symbol name and address from symtab */
++		symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
++		eaddr = sym.st_value;
++	}
+ 	if (!symbol) {
+ 		pr_warning("Failed to find symbol at 0x%lx\n",
+ 			   (unsigned long)paddr);
+ 		return -ENOENT;
+ 	}
+-	eaddr = sym.st_value;
  
- #define dmar_readq(a) readq(a)
- #define dmar_writeq(a,v) writeq(v,a)
-+#define dmar_readl(a) readl(a)
-+#define dmar_writel(a, v) writel(v, a)
- 
- #define DMAR_VER_MAJOR(v)		(((v) & 0xf0) >> 4)
- #define DMAR_VER_MINOR(v)		((v) & 0x0f)
--- 
-2.20.1
-
+ 	tp->offset = (unsigned long)(paddr - eaddr);
+ 	tp->address = (unsigned long)paddr;
 
 
