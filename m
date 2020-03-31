@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D91E199000
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7366199139
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731148AbgCaJIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:08:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50212 "EHLO mail.kernel.org"
+        id S1731743AbgCaJSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:18:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730720AbgCaJIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:08:04 -0400
+        id S1731943AbgCaJSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:18:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2611A20675;
-        Tue, 31 Mar 2020 09:08:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F076120787;
+        Tue, 31 Mar 2020 09:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645683;
-        bh=obGgSUtZiDNXWWw0omhi8ISrvD7pcYvAEGbVEz9SNiw=;
+        s=default; t=1585646294;
+        bh=DiKjakjlSlhhzjxZexsfkRVN81uoauPm3MJYZ4LEt9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DXVDXNLmLkJMWhmaUCGPQXl7LCJUD+mNnu85E0zd944smsSSeyQuqN9kBA2BJLXYk
-         gtjNJp9uX5WV+JEGJgYMNYOjdPIuU5SfT82W7WIX4gZBzu70ivQ3Qub9u7VMiUsdUU
-         Azj/sYFovy2Ja8HItThjZ1O7jIeWQQiA0GCM4T/w=
+        b=CY57Saus382Wt6PUZS+LLYCfCQHy04WNBKqnmEC0jmIaMWJPXkUrDS3HQgMQxzR9W
+         K/BrCNiXIGWbaDgrv2IYdYVd0lCzRyWslHDtuy8fQTTvUgc+Vj8SsnCpV2SqntHA4b
+         Ss8rfQ7CokeFxqDaJKutakIAEf9R3viZmZVbELLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.5 131/170] afs: Fix some tracing details
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 105/155] gpiolib: acpi: Rework honor_wakeup option into an ignore_wake option
 Date:   Tue, 31 Mar 2020 10:59:05 +0200
-Message-Id: <20200331085437.601006118@linuxfoundation.org>
+Message-Id: <20200331085430.449948624@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +45,215 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 4636cf184d6d9a92a56c2554681ea520dd4fe49a upstream.
+commit 2ccb21f5516afef5e251184eeefbf36db90206d7 upstream.
 
-Fix a couple of tracelines to indicate the usage count after the atomic op,
-not the usage count before it to be consistent with other afs and rxrpc
-trace lines.
+Commit aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option +
+quirk mechanism") was added to deal with spurious wakeups on one specific
+model of the HP x2 10 series.
 
-Change the wording of the afs_call_trace_work trace ID label from "WORK" to
-"QUEUE" to reflect the fact that it's queueing work, not doing work.
+The approach taken there was to add a bool controlling wakeup support for
+all ACPI GPIO events. This was sufficient for the specific HP x2 10 model
+the commit was trying to fix, but in the mean time other models have
+turned up which need a similar workaround to avoid spurious wakeups from
+suspend, but only for one of the pins on which the ACPI tables request
+ACPI GPIO events.
 
-Fixes: 341f741f04be ("afs: Refcount the afs_call struct")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Since the honor_wakeup option was added to be able to ignore wake events,
+the name was perhaps not the best, this commit renames it to ignore_wake
+and changes it to a string with the following format:
+gpiolib_acpi.ignore_wake=controller@pin[,controller@pin[,...]]
+
+This allows working around spurious wakeup issues on a per pin basis.
+
+This commit also reworks the existing quirk for the HP x2 10 so that
+it functions as before.
+
+Note:
+-This removes the honor_wakeup parameter. This has only been upstream for
+ a short time and to the best of my knowledge there are no users using
+ this module parameter.
+
+-The controller@pin[,controller@pin[,...]] syntax is based on an existing
+ kernel module parameter using the same controller@pin format. That version
+ uses ';' as separator, but in practice that is problematic because grub2
+ cannot handle this without taking special care to escape the ';', so here
+ we are using a ',' as separator instead which does not have this issue.
+
+Fixes: aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option + quirk mechanism")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200302111225.6641-2-hdegoede@redhat.com
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/afs/rxrpc.c             |    4 ++--
- include/trace/events/afs.h |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpio/gpiolib-acpi.c |   96 ++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 76 insertions(+), 20 deletions(-)
 
---- a/fs/afs/rxrpc.c
-+++ b/fs/afs/rxrpc.c
-@@ -168,7 +168,7 @@ void afs_put_call(struct afs_call *call)
- 	int n = atomic_dec_return(&call->usage);
- 	int o = atomic_read(&net->nr_outstanding_calls);
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -21,18 +21,21 @@
+ #include "gpiolib.h"
+ #include "gpiolib-acpi.h"
  
--	trace_afs_call(call, afs_call_trace_put, n + 1, o,
-+	trace_afs_call(call, afs_call_trace_put, n, o,
- 		       __builtin_return_address(0));
+-#define QUIRK_NO_EDGE_EVENTS_ON_BOOT		0x01l
+-#define QUIRK_NO_WAKEUP				0x02l
+-
+ static int run_edge_events_on_boot = -1;
+ module_param(run_edge_events_on_boot, int, 0444);
+ MODULE_PARM_DESC(run_edge_events_on_boot,
+ 		 "Run edge _AEI event-handlers at boot: 0=no, 1=yes, -1=auto");
  
- 	ASSERTCMP(n, >=, 0);
-@@ -704,7 +704,7 @@ static void afs_wake_up_async_call(struc
+-static int honor_wakeup = -1;
+-module_param(honor_wakeup, int, 0444);
+-MODULE_PARM_DESC(honor_wakeup,
+-		 "Honor the ACPI wake-capable flag: 0=no, 1=yes, -1=auto");
++static char *ignore_wake;
++module_param(ignore_wake, charp, 0444);
++MODULE_PARM_DESC(ignore_wake,
++		 "controller@pin combos on which to ignore the ACPI wake flag "
++		 "ignore_wake=controller@pin[,controller@pin[,...]]");
++
++struct acpi_gpiolib_dmi_quirk {
++	bool no_edge_events_on_boot;
++	char *ignore_wake;
++};
  
- 	u = atomic_fetch_add_unless(&call->usage, 1, 0);
- 	if (u != 0) {
--		trace_afs_call(call, afs_call_trace_wake, u,
-+		trace_afs_call(call, afs_call_trace_wake, u + 1,
- 			       atomic_read(&call->net->nr_outstanding_calls),
- 			       __builtin_return_address(0));
+ /**
+  * struct acpi_gpio_event - ACPI GPIO event handler data
+@@ -202,6 +205,57 @@ static void acpi_gpiochip_request_irqs(s
+ 		acpi_gpiochip_request_irq(acpi_gpio, event);
+ }
  
---- a/include/trace/events/afs.h
-+++ b/include/trace/events/afs.h
-@@ -233,7 +233,7 @@ enum afs_cb_break_reason {
- 	EM(afs_call_trace_get,			"GET  ") \
- 	EM(afs_call_trace_put,			"PUT  ") \
- 	EM(afs_call_trace_wake,			"WAKE ") \
--	E_(afs_call_trace_work,			"WORK ")
-+	E_(afs_call_trace_work,			"QUEUE")
++static bool acpi_gpio_in_ignore_list(const char *controller_in, int pin_in)
++{
++	const char *controller, *pin_str;
++	int len, pin;
++	char *endp;
++
++	controller = ignore_wake;
++	while (controller) {
++		pin_str = strchr(controller, '@');
++		if (!pin_str)
++			goto err;
++
++		len = pin_str - controller;
++		if (len == strlen(controller_in) &&
++		    strncmp(controller, controller_in, len) == 0) {
++			pin = simple_strtoul(pin_str + 1, &endp, 10);
++			if (*endp != 0 && *endp != ',')
++				goto err;
++
++			if (pin == pin_in)
++				return true;
++		}
++
++		controller = strchr(controller, ',');
++		if (controller)
++			controller++;
++	}
++
++	return false;
++err:
++	pr_err_once("Error invalid value for gpiolib_acpi.ignore_wake: %s\n",
++		    ignore_wake);
++	return false;
++}
++
++static bool acpi_gpio_irq_is_wake(struct device *parent,
++				  struct acpi_resource_gpio *agpio)
++{
++	int pin = agpio->pin_table[0];
++
++	if (agpio->wake_capable != ACPI_WAKE_CAPABLE)
++		return false;
++
++	if (acpi_gpio_in_ignore_list(dev_name(parent), pin)) {
++		dev_info(parent, "Ignoring wakeup on pin %d\n", pin);
++		return false;
++	}
++
++	return true;
++}
++
+ static acpi_status acpi_gpiochip_alloc_event(struct acpi_resource *ares,
+ 					     void *context)
+ {
+@@ -282,7 +336,7 @@ static acpi_status acpi_gpiochip_alloc_e
+ 	event->handle = evt_handle;
+ 	event->handler = handler;
+ 	event->irq = irq;
+-	event->irq_is_wake = honor_wakeup && agpio->wake_capable == ACPI_WAKE_CAPABLE;
++	event->irq_is_wake = acpi_gpio_irq_is_wake(chip->parent, agpio);
+ 	event->pin = pin;
+ 	event->desc = desc;
  
- #define afs_server_traces \
- 	EM(afs_server_trace_alloc,		"ALLOC    ") \
+@@ -1321,7 +1375,9 @@ static const struct dmi_system_id gpioli
+ 			DMI_MATCH(DMI_SYS_VENDOR, "MINIX"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
+ 		},
+-		.driver_data = (void *)QUIRK_NO_EDGE_EVENTS_ON_BOOT,
++		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
++			.no_edge_events_on_boot = true,
++		},
+ 	},
+ 	{
+ 		/*
+@@ -1334,7 +1390,9 @@ static const struct dmi_system_id gpioli
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Wortmann_AG"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "TERRA_PAD_1061"),
+ 		},
+-		.driver_data = (void *)QUIRK_NO_EDGE_EVENTS_ON_BOOT,
++		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
++			.no_edge_events_on_boot = true,
++		},
+ 	},
+ 	{
+ 		/*
+@@ -1353,33 +1411,31 @@ static const struct dmi_system_id gpioli
+ 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "HP x2 Detachable 10-p0XX"),
+ 		},
+-		.driver_data = (void *)QUIRK_NO_WAKEUP,
++		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
++			.ignore_wake = "INT33FF:01@0,INT0002:00@2",
++		},
+ 	},
+ 	{} /* Terminating entry */
+ };
+ 
+ static int acpi_gpio_setup_params(void)
+ {
++	const struct acpi_gpiolib_dmi_quirk *quirk = NULL;
+ 	const struct dmi_system_id *id;
+-	long quirks = 0;
+ 
+ 	id = dmi_first_match(gpiolib_acpi_quirks);
+ 	if (id)
+-		quirks = (long)id->driver_data;
++		quirk = id->driver_data;
+ 
+ 	if (run_edge_events_on_boot < 0) {
+-		if (quirks & QUIRK_NO_EDGE_EVENTS_ON_BOOT)
++		if (quirk && quirk->no_edge_events_on_boot)
+ 			run_edge_events_on_boot = 0;
+ 		else
+ 			run_edge_events_on_boot = 1;
+ 	}
+ 
+-	if (honor_wakeup < 0) {
+-		if (quirks & QUIRK_NO_WAKEUP)
+-			honor_wakeup = 0;
+-		else
+-			honor_wakeup = 1;
+-	}
++	if (ignore_wake == NULL && quirk && quirk->ignore_wake)
++		ignore_wake = quirk->ignore_wake;
+ 
+ 	return 0;
+ }
 
 
