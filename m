@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2FE19903C
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:10:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C05D199222
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:24:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731239AbgCaJKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53972 "EHLO mail.kernel.org"
+        id S1730334AbgCaJBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:01:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731169AbgCaJKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:10:15 -0400
+        id S1730547AbgCaJBV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:01:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08B50208E0;
-        Tue, 31 Mar 2020 09:10:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9648A20787;
+        Tue, 31 Mar 2020 09:01:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645815;
-        bh=ZmACsDQQqEmFzphVKiN3V7EO4QhkgJNKRbxPkL6TpN8=;
+        s=default; t=1585645281;
+        bh=xvffDx0hCiYBgpQXCUZCW3SlnbePQdBwZt9YeMDHd/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y4LA9FxPOhsoF9Yhdz8i5rGtydZa6dxgH8ojnsmantqlG/s9rAUakhO0C/DtBro9d
-         5emX7oDw5A2k9LFXhIRZuW2U1KRz/TopGQOEMxm4lBrJvg1oZFpeP18q/mdDESE3Hw
-         b2tXqyW4T/Ad1I/t5N1OdySbgDmvlgOsP+8V/7mk=
+        b=Uh14wuXsj2nXglUUwk2YbXzw++gan02Huraru8NNY8YoIbRwc+bLGhDcG0BLA7mEQ
+         8AKNawFOuoSpRnOEz/7aWBZPfwFyFDHE5A9aKHfeLMjP5snq/e9qKZ4nemeQU6If11
+         grLdaU/VO+VBzxD5ANP1qDrqfNioQ3H2BNmmetM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        kovi <zraetn@gmail.com>
-Subject: [PATCH 5.5 158/170] staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.6 20/23] media: dib0700: fix rc endpoint lookup
 Date:   Tue, 31 Mar 2020 10:59:32 +0200
-Message-Id: <20200331085439.707728115@linuxfoundation.org>
+Message-Id: <20200331085316.822212190@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085308.098696461@linuxfoundation.org>
+References: <20200331085308.098696461@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Johan Hovold <johan@kernel.org>
 
-commit 38ef48f7d4b7342f145a1b4f96023bde99aeb245 upstream.
+commit f52981019ad8d6718de79b425a574c6bddf81f7c upstream.
 
-The ASUS USB-N10 Nano B1 has been reported as a new RTL8188EU device.
-Add it to the device tables.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid submitting an URB to an invalid endpoint.
 
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Reported-by: kovi <zraetn@gmail.com>
-Cc: Stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200321180011.26153-1-Larry.Finger@lwfinger.net
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+
+Fixes: c4018fa2e4c0 ("[media] dib0700: fix RC support on Hauppauge Nova-TD")
+Cc: stable <stable@vger.kernel.org>     # 3.16
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/dvb-usb/dib0700_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -32,6 +32,7 @@ static const struct usb_device_id rtw_us
- 	/****** 8188EUS ********/
- 	{USB_DEVICE(0x056e, 0x4008)}, /* Elecom WDC-150SU2M */
- 	{USB_DEVICE(0x07b8, 0x8179)}, /* Abocom - Abocom */
-+	{USB_DEVICE(0x0B05, 0x18F0)}, /* ASUS USB-N10 Nano B1 */
- 	{USB_DEVICE(0x2001, 0x330F)}, /* DLink DWA-125 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3310)}, /* Dlink DWA-123 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
+--- a/drivers/media/usb/dvb-usb/dib0700_core.c
++++ b/drivers/media/usb/dvb-usb/dib0700_core.c
+@@ -818,7 +818,7 @@ int dib0700_rc_setup(struct dvb_usb_devi
+ 
+ 	/* Starting in firmware 1.20, the RC info is provided on a bulk pipe */
+ 
+-	if (intf->altsetting[0].desc.bNumEndpoints < rc_ep + 1)
++	if (intf->cur_altsetting->desc.bNumEndpoints < rc_ep + 1)
+ 		return -ENODEV;
+ 
+ 	purb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -838,7 +838,7 @@ int dib0700_rc_setup(struct dvb_usb_devi
+ 	 * Some devices like the Hauppauge NovaTD model 52009 use an interrupt
+ 	 * endpoint, while others use a bulk one.
+ 	 */
+-	e = &intf->altsetting[0].endpoint[rc_ep].desc;
++	e = &intf->cur_altsetting->endpoint[rc_ep].desc;
+ 	if (usb_endpoint_dir_in(e)) {
+ 		if (usb_endpoint_xfer_bulk(e)) {
+ 			pipe = usb_rcvbulkpipe(d->udev, rc_ep);
 
 
