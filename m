@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A7AF1991F6
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E161F199026
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:09:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731016AbgCaJHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:07:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48712 "EHLO mail.kernel.org"
+        id S1731156AbgCaJJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:09:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730732AbgCaJHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:07:05 -0400
+        id S1731479AbgCaJJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:09:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFC6620675;
-        Tue, 31 Mar 2020 09:07:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C87CF2072E;
+        Tue, 31 Mar 2020 09:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645624;
-        bh=LO6+gl4fRQ+CxZBnI0a3blprYN0P7Vg0OaMiOyCbBWc=;
+        s=default; t=1585645775;
+        bh=mZN6uiwiuaobsbLUSA3uRQG07YXcU8jDnZ0rgAkJwlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxZTUOZGq6NG3CwqJUOmfhWwsnshlzOQ1F06w+fx2DIybiGEK6OGfP8AmxX0BQG04
-         Vb1XTsP/+LoT+U1fYop7So8A7X1VNS48Ka5greZrLJ6W6dAdGT87fysMM8FKj5Czef
-         rlFotbeT42p1KtRUBvoUwwPpMfAj5W9TqyIAgwlw=
+        b=c3FjYtHtBLPQ3HWZyiJQjILqT6ynE0BkNYk7V2YYBk2Tb3mcyCz2jFiPjNgAFazgW
+         2xvVJ9U/Gl2PXz+3ef+v2rtLS5+fWQG88ArObKcC/ElWQDgozdsaTxxYohIlnqNtdS
+         O/U9nOBVQxZ6PEVKIHMvVcsqgvZOXfRvlvUL8jLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.5 109/170] mac80211: drop data frames without key on encrypted links
-Date:   Tue, 31 Mar 2020 10:58:43 +0200
-Message-Id: <20200331085435.762508847@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.5 110/170] mac80211: mark station unauthorized before key removal
+Date:   Tue, 31 Mar 2020 10:58:44 +0200
+Message-Id: <20200331085435.872068772@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
 References: <20200331085423.990189598@linuxfoundation.org>
@@ -46,154 +44,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-commit a0761a301746ec2d92d7fcb82af69c0a6a4339aa upstream.
+commit b16798f5b907733966fd1a558fca823b3c67e4a1 upstream.
 
-If we know that we have an encrypted link (based on having had
-a key configured for TX in the past) then drop all data frames
-in the key selection handler if there's no key anymore.
-
-This fixes an issue with mac80211 internal TXQs - there we can
-buffer frames for an encrypted link, but then if the key is no
-longer there when they're dequeued, the frames are sent without
-encryption. This happens if a station is disconnected while the
-frames are still on the TXQ.
-
-Detecting that a link should be encrypted based on a first key
-having been configured for TX is fine as there are no use cases
-for a connection going from with encryption to no encryption.
-With extended key IDs, however, there is a case of having a key
-configured for only decryption, so we can't just trigger this
-behaviour on a key being configured.
+If a station is still marked as authorized, mark it as no longer
+so before removing its keys. This allows frames transmitted to it
+to be rejected, providing additional protection against leaking
+plain text data during the disconnection flow.
 
 Cc: stable@vger.kernel.org
-Reported-by: Jouni Malinen <j@w1.fi>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200326150855.6865c7f28a14.I9fb1d911b064262d33e33dfba730cdeef83926ca@changeid
+Link: https://lore.kernel.org/r/20200326155133.ccb4fb0bb356.If48f0f0504efdcf16b8921f48c6d3bb2cb763c99@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/debugfs_sta.c |    3 ++-
- net/mac80211/key.c         |   20 ++++++++++++--------
- net/mac80211/sta_info.h    |    1 +
- net/mac80211/tx.c          |   12 +++++++++---
- 4 files changed, 24 insertions(+), 12 deletions(-)
+ net/mac80211/sta_info.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/debugfs_sta.c
-+++ b/net/mac80211/debugfs_sta.c
-@@ -5,7 +5,7 @@
-  * Copyright 2007	Johannes Berg <johannes@sipsolutions.net>
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -4,7 +4,7 @@
+  * Copyright 2006-2007	Jiri Benc <jbenc@suse.cz>
   * Copyright 2013-2014  Intel Mobile Communications GmbH
-  * Copyright(c) 2016 Intel Deutschland GmbH
-- * Copyright (C) 2018 - 2019 Intel Corporation
-+ * Copyright (C) 2018 - 2020 Intel Corporation
+  * Copyright (C) 2015 - 2017 Intel Deutschland GmbH
+- * Copyright (C) 2018-2019 Intel Corporation
++ * Copyright (C) 2018-2020 Intel Corporation
   */
  
- #include <linux/debugfs.h>
-@@ -78,6 +78,7 @@ static const char * const sta_flag_names
- 	FLAG(MPSP_OWNER),
- 	FLAG(MPSP_RECIPIENT),
- 	FLAG(PS_DELIVER),
-+	FLAG(USES_ENCRYPTION),
- #undef FLAG
- };
+ #include <linux/module.h>
+@@ -1049,6 +1049,11 @@ static void __sta_info_destroy_part2(str
+ 	might_sleep();
+ 	lockdep_assert_held(&local->sta_mtx);
  
---- a/net/mac80211/key.c
-+++ b/net/mac80211/key.c
-@@ -6,7 +6,7 @@
-  * Copyright 2007-2008	Johannes Berg <johannes@sipsolutions.net>
-  * Copyright 2013-2014  Intel Mobile Communications GmbH
-  * Copyright 2015-2017	Intel Deutschland GmbH
-- * Copyright 2018-2019  Intel Corporation
-+ * Copyright 2018-2020  Intel Corporation
-  */
- 
- #include <linux/if_ether.h>
-@@ -262,22 +262,29 @@ static void ieee80211_key_disable_hw_acc
- 			  sta ? sta->sta.addr : bcast_addr, ret);
- }
- 
--int ieee80211_set_tx_key(struct ieee80211_key *key)
-+static int _ieee80211_set_tx_key(struct ieee80211_key *key, bool force)
- {
- 	struct sta_info *sta = key->sta;
- 	struct ieee80211_local *local = key->local;
- 
- 	assert_key_lock(local);
- 
-+	set_sta_flag(sta, WLAN_STA_USES_ENCRYPTION);
-+
- 	sta->ptk_idx = key->conf.keyidx;
- 
--	if (!ieee80211_hw_check(&local->hw, AMPDU_KEYBORDER_SUPPORT))
-+	if (force || !ieee80211_hw_check(&local->hw, AMPDU_KEYBORDER_SUPPORT))
- 		clear_sta_flag(sta, WLAN_STA_BLOCK_BA);
- 	ieee80211_check_fast_xmit(sta);
- 
- 	return 0;
- }
- 
-+int ieee80211_set_tx_key(struct ieee80211_key *key)
-+{
-+	return _ieee80211_set_tx_key(key, false);
-+}
-+
- static void ieee80211_pairwise_rekey(struct ieee80211_key *old,
- 				     struct ieee80211_key *new)
- {
-@@ -441,11 +448,8 @@ static int ieee80211_key_replace(struct
- 		if (pairwise) {
- 			rcu_assign_pointer(sta->ptk[idx], new);
- 			if (new &&
--			    !(new->conf.flags & IEEE80211_KEY_FLAG_NO_AUTO_TX)) {
--				sta->ptk_idx = idx;
--				clear_sta_flag(sta, WLAN_STA_BLOCK_BA);
--				ieee80211_check_fast_xmit(sta);
--			}
-+			    !(new->conf.flags & IEEE80211_KEY_FLAG_NO_AUTO_TX))
-+				_ieee80211_set_tx_key(new, true);
- 		} else {
- 			rcu_assign_pointer(sta->gtk[idx], new);
- 		}
---- a/net/mac80211/sta_info.h
-+++ b/net/mac80211/sta_info.h
-@@ -98,6 +98,7 @@ enum ieee80211_sta_info_flags {
- 	WLAN_STA_MPSP_OWNER,
- 	WLAN_STA_MPSP_RECIPIENT,
- 	WLAN_STA_PS_DELIVER,
-+	WLAN_STA_USES_ENCRYPTION,
- 
- 	NUM_WLAN_STA_FLAGS,
- };
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -590,10 +590,13 @@ ieee80211_tx_h_select_key(struct ieee802
- 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx->skb);
- 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)tx->skb->data;
- 
--	if (unlikely(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT))
-+	if (unlikely(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)) {
- 		tx->key = NULL;
--	else if (tx->sta &&
--		 (key = rcu_dereference(tx->sta->ptk[tx->sta->ptk_idx])))
-+		return TX_CONTINUE;
++	while (sta->sta_state == IEEE80211_STA_AUTHORIZED) {
++		ret = sta_info_move_state(sta, IEEE80211_STA_ASSOC);
++		WARN_ON_ONCE(ret);
 +	}
 +
-+	if (tx->sta &&
-+	    (key = rcu_dereference(tx->sta->ptk[tx->sta->ptk_idx])))
- 		tx->key = key;
- 	else if (ieee80211_is_group_privacy_action(tx->skb) &&
- 		(key = rcu_dereference(tx->sdata->default_multicast_key)))
-@@ -654,6 +657,9 @@ ieee80211_tx_h_select_key(struct ieee802
- 		if (!skip_hw && tx->key &&
- 		    tx->key->flags & KEY_FLAG_UPLOADED_TO_HARDWARE)
- 			info->control.hw_key = &tx->key->conf;
-+	} else if (!ieee80211_is_mgmt(hdr->frame_control) && tx->sta &&
-+		   test_sta_flag(tx->sta, WLAN_STA_USES_ENCRYPTION)) {
-+		return TX_DROP;
- 	}
+ 	/* now keys can no longer be reached */
+ 	ieee80211_free_sta_keys(local, sta);
  
- 	return TX_CONTINUE;
 
 
