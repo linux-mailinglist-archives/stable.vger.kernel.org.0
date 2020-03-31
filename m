@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D725198F9E
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:05:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55274199062
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:11:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731019AbgCaJFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45834 "EHLO mail.kernel.org"
+        id S1731702AbgCaJL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:11:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730998AbgCaJFB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:05:01 -0400
+        id S1731430AbgCaJL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:11:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AA5321841;
-        Tue, 31 Mar 2020 09:05:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8F7620675;
+        Tue, 31 Mar 2020 09:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645501;
-        bh=7TXbjtTlyiw/EJVmNSsIzVxQlvg19KzvZcYvQzCfOQI=;
+        s=default; t=1585645886;
+        bh=O3FDISHoAiPz15RmgglneoLtgMFI0IG2j0nxtYl0R+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LpgQOz4VSH4SWh2vMObKI4jBtDTeEJv26hLan5NtB37Yl5RFM3Dw3QRoxYUQ52D45
-         gPoAbytHFT5bdGHmJhKgr7r7+u8re+mndblk0n07YxSoOXmB1k3bUp1+bB42MJLInF
-         pyhzBtNfvWjYcu9UbFE9o50op9KrROS3M1H87IuU=
+        b=ISNcEtL66sClbH2l5CBysWqkqswo7Wps2MGoE5ortdnEQvqwINzv8WNH/1cK3mcAD
+         z/WGS2ILoTWb54tUeyv8/t02wM6sQ9IEW9Z83rHi/bDHvsUekiW2MrwSBALjcY137p
+         Y1RvrUEvSdxs0d/YowZBxz/5DkD2KKRzvbjm9N2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        stable@vger.kernel.org,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 034/170] r8169: re-enable MSI on RTL8168c
+Subject: [PATCH 5.4 008/155] cxgb4: fix Txq restart check during backpressure
 Date:   Tue, 31 Mar 2020 10:57:28 +0200
-Message-Id: <20200331085427.667281606@linuxfoundation.org>
+Message-Id: <20200331085419.325664975@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit f13bc68131b0c0d67a77fb43444e109828a983bf ]
+[ Upstream commit f1f20a8666c55cb534b8f3fc1130eebf01a06155 ]
 
-The original change fixed an issue on RTL8168b by mimicking the vendor
-driver behavior to disable MSI on chip versions before RTL8168d.
-This however now caused an issue on a system with RTL8168c, see [0].
-Therefore leave MSI disabled on RTL8168b, but re-enable it on RTL8168c.
+Driver reclaims descriptors in much smaller batches, even if hardware
+indicates more to reclaim, during backpressure. So, fix the check to
+restart the Txq during backpressure, by looking at how many
+descriptors hardware had indicated to reclaim, and not on how many
+descriptors that driver had actually reclaimed. Once the Txq is
+restarted, driver will reclaim even more descriptors when Tx path
+is entered again.
 
-[0] https://bugzilla.redhat.com/show_bug.cgi?id=1792839
-
-Fixes: 003bd5b4a7b4 ("r8169: don't use MSI before RTL8168d")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: d429005fdf2c ("cxgb4/cxgb4vf: Add support for SGE doorbell queue timer")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4/sge.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -6579,7 +6579,7 @@ static int rtl_alloc_irq(struct rtl8169_
- 		RTL_W8(tp, Config2, RTL_R8(tp, Config2) & ~MSIEnable);
- 		rtl_lock_config_regs(tp);
- 		/* fall through */
--	case RTL_GIGA_MAC_VER_07 ... RTL_GIGA_MAC_VER_24:
-+	case RTL_GIGA_MAC_VER_07 ... RTL_GIGA_MAC_VER_17:
- 		flags = PCI_IRQ_LEGACY;
- 		break;
- 	default:
+--- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
+@@ -1324,8 +1324,9 @@ static inline void t6_fill_tnl_lso(struc
+ int t4_sge_eth_txq_egress_update(struct adapter *adap, struct sge_eth_txq *eq,
+ 				 int maxreclaim)
+ {
++	unsigned int reclaimed, hw_cidx;
+ 	struct sge_txq *q = &eq->q;
+-	unsigned int reclaimed;
++	int hw_in_use;
+ 
+ 	if (!q->in_use || !__netif_tx_trylock(eq->txq))
+ 		return 0;
+@@ -1333,12 +1334,17 @@ int t4_sge_eth_txq_egress_update(struct
+ 	/* Reclaim pending completed TX Descriptors. */
+ 	reclaimed = reclaim_completed_tx(adap, &eq->q, maxreclaim, true);
+ 
++	hw_cidx = ntohs(READ_ONCE(q->stat->cidx));
++	hw_in_use = q->pidx - hw_cidx;
++	if (hw_in_use < 0)
++		hw_in_use += q->size;
++
+ 	/* If the TX Queue is currently stopped and there's now more than half
+ 	 * the queue available, restart it.  Otherwise bail out since the rest
+ 	 * of what we want do here is with the possibility of shipping any
+ 	 * currently buffered Coalesced TX Work Request.
+ 	 */
+-	if (netif_tx_queue_stopped(eq->txq) && txq_avail(q) > (q->size / 2)) {
++	if (netif_tx_queue_stopped(eq->txq) && hw_in_use < (q->size / 2)) {
+ 		netif_tx_wake_queue(eq->txq);
+ 		eq->q.restarts++;
+ 	}
 
 
