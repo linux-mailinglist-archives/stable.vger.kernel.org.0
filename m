@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25B971991F5
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E71251990CB
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:14:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730870AbgCaJGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:06:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48374 "EHLO mail.kernel.org"
+        id S1731765AbgCaJOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:14:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730763AbgCaJGu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:06:50 -0400
+        id S1730662AbgCaJOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:14:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0655B20675;
-        Tue, 31 Mar 2020 09:06:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9399C20675;
+        Tue, 31 Mar 2020 09:14:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645609;
-        bh=OAysM2RXWC2WsCwakJq2FQM7u+XDvtE4gRUhwGYw+yU=;
+        s=default; t=1585646083;
+        bh=6+miePqbsWnqPWj5QsrnY3qI0o3oL7KNQ57soRmKgJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zd17KOK+B569+OgM59Ir+7HO8lyXMy6ZUCXx7tZ+knpxy6nYd7BXiProEePfUffmd
-         wwyAmxhl6+63qDk6TnTaNSHwBYHv9zG7kjVMBxFeyHzSRa5jnaUDZ1aYRLr1iK/LmL
-         85cDL/F5R31Y3owiAulbpQd5SdYzOCQ4e0GUnXyg=
+        b=e1I5pIPT1mdLgh6Y5bjgot9EjYi4pmwU8GFxcmNtJWAflsh1HzW0ZpG/cBEMLTAFA
+         XX1pPPpxAV6FOUDteDHhRZi4EbvlW6xzTPTUrkyZr6dVgJPlS/TaOhMJZfYn9iXhm9
+         VQxP7t4Btgwefj8vFVxj2+zu/v53z4hTjAQT4WIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shane Francis <bigbeeshane@gmail.com>,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.5 105/170] drm/radeon: fix scatter-gather mapping with user pages
+        stable@vger.kernel.org, Yussuf Khalil <dev@pp3345.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 079/155] Input: synaptics - enable RMI on HP Envy 13-ad105ng
 Date:   Tue, 31 Mar 2020 10:58:39 +0200
-Message-Id: <20200331085435.340112787@linuxfoundation.org>
+Message-Id: <20200331085427.207521769@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shane Francis <bigbeeshane@gmail.com>
+From: Yussuf Khalil <dev@pp3345.net>
 
-commit 47f7826c520ecd92ffbffe59ecaa2fe61e42ec70 upstream.
+commit 1369d0abe469fb4cdea8a5bce219d38cb857a658 upstream.
 
-Calls to dma_map_sg may return less segments / entries than requested
-if they fall on page bounderies. The old implementation did not
-support this use case.
+This laptop (and perhaps other variants of the same model) reports an
+SMBus-capable Synaptics touchpad. Everything (including suspend and
+resume) works fine when RMI is enabled via the kernel command line, so
+let's add it to the whitelist.
 
-Fixes: be62dbf554c5 ("iommu/amd: Convert AMD iommu driver to the dma-iommu api")
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=206461
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=206895
-Bug: https://gitlab.freedesktop.org/drm/amd/issues/1056
-Signed-off-by: Shane Francis <bigbeeshane@gmail.com>
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200325090741.21957-4-bigbeeshane@gmail.com
+Signed-off-by: Yussuf Khalil <dev@pp3345.net>
+Link: https://lore.kernel.org/r/20200307213508.267187-1-dev@pp3345.net
 Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/radeon/radeon_ttm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/synaptics.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/radeon/radeon_ttm.c
-+++ b/drivers/gpu/drm/radeon/radeon_ttm.c
-@@ -528,7 +528,7 @@ static int radeon_ttm_tt_pin_userptr(str
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -186,6 +186,7 @@ static const char * const smbus_pnp_ids[
+ 	"SYN3052", /* HP EliteBook 840 G4 */
+ 	"SYN3221", /* HP 15-ay000 */
+ 	"SYN323d", /* HP Spectre X360 13-w013dx */
++	"SYN3257", /* HP Envy 13-ad105ng */
+ 	NULL
+ };
  
- 	r = -ENOMEM;
- 	nents = dma_map_sg(rdev->dev, ttm->sg->sgl, ttm->sg->nents, direction);
--	if (nents != ttm->sg->nents)
-+	if (nents == 0)
- 		goto release_sg;
- 
- 	drm_prime_sg_to_page_addr_arrays(ttm->sg, ttm->pages,
 
 
