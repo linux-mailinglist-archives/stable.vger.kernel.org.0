@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49FB219917B
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48AD3198F10
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730372AbgCaJTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37508 "EHLO mail.kernel.org"
+        id S1730381AbgCaJAV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:00:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731912AbgCaJQk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:16:40 -0400
+        id S1729425AbgCaJAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:00:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 846BB2072E;
-        Tue, 31 Mar 2020 09:16:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DFD7212CC;
+        Tue, 31 Mar 2020 09:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646200;
-        bh=HEHl3q3cX2YaDPjvgyl0N39j17pX4aLp1qHl4oPNu6s=;
+        s=default; t=1585645218;
+        bh=S0cU9DDYvyVnOlgsVaMqyTWdnfL+vSj4C8Kbg/3E/6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmMNIKfMdBdjY69a5MDHGKRj43gswb5NwpV5gnQTq4PTQHUYUgnX4KlJi8ZqPPG5h
-         KRnIZAIAO5BlzouP9lYqrj2FmxY4exrlYPFaIsie4GXrVTxjww2s4y/SNa/91H2lTY
-         tV/6CL3nY7r690e2QJNIxubhtDzTNSZKawFgfp0c=
+        b=B2VYqskXLlbDWOJFP7+Whs8mFBjd3L76x4wrRQ1XfMtSJNfOzecR1elwcAq/Aki2Q
+         YLjysxluEPJ4CFXAKISjMH/V57ATt1wuEZNwlgrsdATejv0Rb792xBzj4QtyX5ypAZ
+         gmQJSjKD4dzbpSmbJVHo8NChAmXtK+TP8WrrpWmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 114/155] RDMA/mlx5: Fix access to wrong pointer while performing flush due to error
+        stable@vger.kernel.org, Cezary Jackiewicz <cezary@eko.one.pl>,
+        Pawel Dembicki <paweldembicki@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.6 02/23] USB: serial: option: add support for ASKEY WWHC050
 Date:   Tue, 31 Mar 2020 10:59:14 +0200
-Message-Id: <20200331085431.315610720@linuxfoundation.org>
+Message-Id: <20200331085310.008932600@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085308.098696461@linuxfoundation.org>
+References: <20200331085308.098696461@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,130 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Pawel Dembicki <paweldembicki@gmail.com>
 
-commit 950bf4f17725556bbc773a5b71e88a6c14c9ff25 upstream.
+commit 007d20dca2376a751b1dad03442f118438b7e65e upstream.
 
-The main difference between send and receive SW completions is related to
-separate treatment of WQ queue. For receive completions, the initial index
-to be flushed is stored in "tail", while for send completions, it is in
-deleted "last_poll".
+ASKEY WWHC050 is a mcie LTE modem.
+The oem configuration states:
 
-  CPU: 54 PID: 53405 Comm: kworker/u161:0 Kdump: loaded Tainted: G           OE    --------- -t - 4.18.0-147.el8.ppc64le #1
-  Workqueue: ib-comp-unb-wq ib_cq_poll_work [ib_core]
-  NIP:  c000003c7c00a000 LR: c00800000e586af4 CTR: c000003c7c00a000
-  REGS: c0000036cc9db940 TRAP: 0400   Tainted: G           OE    --------- -t -  (4.18.0-147.el8.ppc64le)
-  MSR:  9000000010009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 24004488  XER: 20040000
-  CFAR: c00800000e586af0 IRQMASK: 0
-  GPR00: c00800000e586ab4 c0000036cc9dbbc0 c00800000e5f1a00 c0000037d8433800
-  GPR04: c000003895a26800 c0000037293f2000 0000000000000201 0000000000000011
-  GPR08: c000003895a26c80 c000003c7c00a000 0000000000000000 c00800000ed30438
-  GPR12: c000003c7c00a000 c000003fff684b80 c00000000017c388 c00000396ec4be40
-  GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-  GPR20: c00000000151e498 0000000000000010 c000003895a26848 0000000000000010
-  GPR24: 0000000000000010 0000000000010000 c000003895a26800 0000000000000000
-  GPR28: 0000000000000010 c0000037d8433800 c000003895a26c80 c000003895a26800
-  NIP [c000003c7c00a000] 0xc000003c7c00a000
-  LR [c00800000e586af4] __ib_process_cq+0xec/0x1b0 [ib_core]
-  Call Trace:
-  [c0000036cc9dbbc0] [c00800000e586ab4] __ib_process_cq+0xac/0x1b0 [ib_core] (unreliable)
-  [c0000036cc9dbc40] [c00800000e586c88] ib_cq_poll_work+0x40/0xb0 [ib_core]
-  [c0000036cc9dbc70] [c000000000171f44] process_one_work+0x2f4/0x5c0
-  [c0000036cc9dbd10] [c000000000172a0c] worker_thread+0xcc/0x760
-  [c0000036cc9dbdc0] [c00000000017c52c] kthread+0x1ac/0x1c0
-  [c0000036cc9dbe30] [c00000000000b75c] ret_from_kernel_thread+0x5c/0x80
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1690 ProdID=7588 Rev=ff.ff
+S:  Manufacturer=Android
+S:  Product=Android
+S:  SerialNumber=813f0eef6e6e
+C:* #Ifs= 6 Cfg#= 1 Atr=80 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50 Driver=(none)
+E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=125us
 
-Fixes: 8e3b68830186 ("RDMA/mlx5: Delete unreachable handle_atomic code by simplifying SW completion")
-Link: https://lore.kernel.org/r/20200318091640.44069-1-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Tested on openwrt distribution.
+
+Co-developed-by: Cezary Jackiewicz <cezary@eko.one.pl>
+Signed-off-by: Cezary Jackiewicz <cezary@eko.one.pl>
+Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/cq.c      |   27 +++++++++++++++++++++++++--
- drivers/infiniband/hw/mlx5/mlx5_ib.h |    1 +
- drivers/infiniband/hw/mlx5/qp.c      |    1 +
- 3 files changed, 27 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/infiniband/hw/mlx5/cq.c
-+++ b/drivers/infiniband/hw/mlx5/cq.c
-@@ -330,6 +330,22 @@ static void mlx5_handle_error_cqe(struct
- 		dump_cqe(dev, cqe);
- }
- 
-+static void handle_atomics(struct mlx5_ib_qp *qp, struct mlx5_cqe64 *cqe64,
-+			   u16 tail, u16 head)
-+{
-+	u16 idx;
-+
-+	do {
-+		idx = tail & (qp->sq.wqe_cnt - 1);
-+		if (idx == head)
-+			break;
-+
-+		tail = qp->sq.w_list[idx].next;
-+	} while (1);
-+	tail = qp->sq.w_list[idx].next;
-+	qp->sq.last_poll = tail;
-+}
-+
- static void free_cq_buf(struct mlx5_ib_dev *dev, struct mlx5_ib_cq_buf *buf)
- {
- 	mlx5_frag_buf_free(dev->mdev, &buf->frag_buf);
-@@ -368,7 +384,7 @@ static void get_sig_err_item(struct mlx5
- }
- 
- static void sw_comp(struct mlx5_ib_qp *qp, int num_entries, struct ib_wc *wc,
--		    int *npolled, int is_send)
-+		    int *npolled, bool is_send)
- {
- 	struct mlx5_ib_wq *wq;
- 	unsigned int cur;
-@@ -383,10 +399,16 @@ static void sw_comp(struct mlx5_ib_qp *q
- 		return;
- 
- 	for (i = 0;  i < cur && np < num_entries; i++) {
--		wc->wr_id = wq->wrid[wq->tail & (wq->wqe_cnt - 1)];
-+		unsigned int idx;
-+
-+		idx = (is_send) ? wq->last_poll : wq->tail;
-+		idx &= (wq->wqe_cnt - 1);
-+		wc->wr_id = wq->wrid[idx];
- 		wc->status = IB_WC_WR_FLUSH_ERR;
- 		wc->vendor_err = MLX5_CQE_SYNDROME_WR_FLUSH_ERR;
- 		wq->tail++;
-+		if (is_send)
-+			wq->last_poll = wq->w_list[idx].next;
- 		np++;
- 		wc->qp = &qp->ibqp;
- 		wc++;
-@@ -476,6 +498,7 @@ repoll:
- 		wqe_ctr = be16_to_cpu(cqe64->wqe_counter);
- 		idx = wqe_ctr & (wq->wqe_cnt - 1);
- 		handle_good_req(wc, cqe64, wq, idx);
-+		handle_atomics(*cur_qp, cqe64, wq->last_poll, idx);
- 		wc->wr_id = wq->wrid[idx];
- 		wq->tail = wq->wqe_head[idx] + 1;
- 		wc->status = IB_WC_SUCCESS;
---- a/drivers/infiniband/hw/mlx5/mlx5_ib.h
-+++ b/drivers/infiniband/hw/mlx5/mlx5_ib.h
-@@ -283,6 +283,7 @@ struct mlx5_ib_wq {
- 	unsigned		head;
- 	unsigned		tail;
- 	u16			cur_post;
-+	u16			last_poll;
- 	void			*cur_edge;
- };
- 
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -3725,6 +3725,7 @@ static int __mlx5_ib_modify_qp(struct ib
- 		qp->sq.cur_post = 0;
- 		if (qp->sq.wqe_cnt)
- 			qp->sq.cur_edge = get_sq_edge(&qp->sq, 0);
-+		qp->sq.last_poll = 0;
- 		qp->db.db[MLX5_RCV_DBR] = 0;
- 		qp->db.db[MLX5_SND_DBR] = 0;
- 	}
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1992,6 +1992,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e01, 0xff, 0xff, 0xff) },	/* D-Link DWM-152/C1 */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e02, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/C1 */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x7e11, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/A3 */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1690, 0x7588, 0xff),			/* ASKEY WWHC050 */
++	  .driver_info = RSVD(1) | RSVD(4) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2031, 0xff),			/* Olicard 600 */
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2060, 0xff),			/* BroadMobi BM818 */
 
 
