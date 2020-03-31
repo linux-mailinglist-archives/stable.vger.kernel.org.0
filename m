@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 020DA1991BA
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8437C199136
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731482AbgCaJJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:09:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
+        id S1730982AbgCaJSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:18:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731524AbgCaJJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:09:48 -0400
+        id S1730458AbgCaJSH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:18:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79A2F208E0;
-        Tue, 31 Mar 2020 09:09:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C92A621582;
+        Tue, 31 Mar 2020 09:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645787;
-        bh=LTWg13/c2mtDBsqXDHT15ekp/aG+3/g8YDCRwjATuFI=;
+        s=default; t=1585646287;
+        bh=zKvuJkpvTrMV1DlA6p6mT9CYfcRYC1VBuACGXS7i5uE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTmfhBoox1VUESmGPUyUuv1uEH2KfAWLBQVN/+4Km0D0chgR1H9GI/xCRKIYInOzp
-         gEAYVweTUy8E2u9QFqedYC6yQ64HtCLjWet0es/J1z9oJOYceO2N4EG7ZuaMr1YcD+
-         YRbP1RX5Gu6cUXeuk9u4f3Mr23BY51Z2KR+FLtqs=
+        b=nOwXbRJRRrIHQn4AceL+SuBogbN6j5hWyIFu6qvdPcDfmkHPLVRsq92Gyjgps1hAQ
+         0WgjaQJ4eFujSWv6eLhdWrmzfCkgCVGb4GeHieyigXgy3KRdhLtwfzOZ8nKw9O9FQc
+         nh5OmTTZL4cM5aQIBrT229httHgHsOXa+4tdYCFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+fcab69d1ada3e8d6f06b@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.5 165/170] libfs: fix infoleak in simple_attr_read()
+        stable@vger.kernel.org, Pawel Dembicki <paweldembicki@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 139/155] USB: serial: option: add Wistron Neweb D19Q1
 Date:   Tue, 31 Mar 2020 10:59:39 +0200
-Message-Id: <20200331085440.233768523@linuxfoundation.org>
+Message-Id: <20200331085433.780750008@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,79 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Pawel Dembicki <paweldembicki@gmail.com>
 
-commit a65cab7d7f05c2061a3e2490257d3086ff3202c6 upstream.
+commit dfee7e2f478346b12ea651d5c28b069f6a4af563 upstream.
 
-Reading from a debugfs file at a nonzero position, without first reading
-at position 0, leaks uninitialized memory to userspace.
+This modem is embedded on dlink dwr-960 router.
+The oem configuration states:
 
-It's a bit tricky to do this, since lseek() and pread() aren't allowed
-on these files, and write() doesn't update the position on them.  But
-writing to them with splice() *does* update the position:
+T: Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 2 Spd=480 MxCh= 0
+D: Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs= 1
+P: Vendor=1435 ProdID=d191 Rev=ff.ff
+S: Manufacturer=Android
+S: Product=Android
+S: SerialNumber=0123456789ABCDEF
+C:* #Ifs= 6 Cfg#= 1 Atr=80 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E: Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+E: Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=84(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+E: Ad=86(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
+E: Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E: Ad=88(I) Atr=03(Int.) MxPS= 8 Ivl=32ms
+E: Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50 Driver=(none)
+E: Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=125us
 
-	#define _GNU_SOURCE 1
-	#include <fcntl.h>
-	#include <stdio.h>
-	#include <unistd.h>
-	int main()
-	{
-		int pipes[2], fd, n, i;
-		char buf[32];
+Tested on openwrt distribution
 
-		pipe(pipes);
-		write(pipes[1], "0", 1);
-		fd = open("/sys/kernel/debug/fault_around_bytes", O_RDWR);
-		splice(pipes[0], NULL, fd, NULL, 1, 0);
-		n = read(fd, buf, sizeof(buf));
-		for (i = 0; i < n; i++)
-			printf("%02x", buf[i]);
-		printf("\n");
-	}
-
-Output:
-	5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a30
-
-Fix the infoleak by making simple_attr_read() always fill
-simple_attr::get_buf if it hasn't been filled yet.
-
-Reported-by: syzbot+fcab69d1ada3e8d6f06b@syzkaller.appspotmail.com
-Reported-by: Alexander Potapenko <glider@google.com>
-Fixes: acaefc25d21f ("[PATCH] libfs: add simple attribute files")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200308023849.988264-1-ebiggers@kernel.org
+Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/libfs.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/libfs.c
-+++ b/fs/libfs.c
-@@ -821,7 +821,7 @@ int simple_attr_open(struct inode *inode
- {
- 	struct simple_attr *attr;
- 
--	attr = kmalloc(sizeof(*attr), GFP_KERNEL);
-+	attr = kzalloc(sizeof(*attr), GFP_KERNEL);
- 	if (!attr)
- 		return -ENOMEM;
- 
-@@ -861,9 +861,11 @@ ssize_t simple_attr_read(struct file *fi
- 	if (ret)
- 		return ret;
- 
--	if (*ppos) {		/* continued read */
-+	if (*ppos && attr->get_buf[0]) {
-+		/* continued read */
- 		size = strlen(attr->get_buf);
--	} else {		/* first read */
-+	} else {
-+		/* first read */
- 		u64 val;
- 		ret = attr->get(attr->data, &val);
- 		if (ret)
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1992,6 +1992,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e01, 0xff, 0xff, 0xff) },	/* D-Link DWM-152/C1 */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e02, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/C1 */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x7e11, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/A3 */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1435, 0xd191, 0xff),			/* Wistron Neweb D19Q1 */
++	  .driver_info = RSVD(1) | RSVD(4) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x1690, 0x7588, 0xff),			/* ASKEY WWHC050 */
+ 	  .driver_info = RSVD(1) | RSVD(4) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2031, 0xff),			/* Olicard 600 */
 
 
