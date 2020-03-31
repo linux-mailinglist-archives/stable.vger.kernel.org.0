@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 331AC199064
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:11:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D3E198FA0
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731441AbgCaJLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56426 "EHLO mail.kernel.org"
+        id S1730695AbgCaJFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:05:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731706AbgCaJL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:11:29 -0400
+        id S1730570AbgCaJFE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:05:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71D4E20675;
-        Tue, 31 Mar 2020 09:11:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FC4520787;
+        Tue, 31 Mar 2020 09:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645888;
-        bh=/2QCD0+YgDM7AxEBlkjagHGL94R+lRcfpdpM227IqLA=;
+        s=default; t=1585645503;
+        bh=NeubGs2Kg9duRgrqga3UHI//e9k9vjc8bZ8Y4TZt8vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aMqDs56S9GD565UEESXy4SP6rVnLEkq2b9T4ZuDiTxKDe4CEwBej1mnmhQV1TUqFZ
-         WSgdnon9DyAjEkIiiqcbzIEO0lw3Kz8gx/iAwGmTxK1pp4XrqEStI1/3FlW08B1iVy
-         5x3TRcUWa1QhGJlBHCysxb/gASWvVbX6fsvANCTo=
+        b=B8evKuMfHDfYTI4vEb+aYjvj8eh/4lV8iZQ6kTq+e3PX89r8RC9aQRrSMPCZXUtIS
+         V+JKaZVREoCVlIdC8Fcp7UaRcjZE4Jy+1Y6rUHkiDxhi5RSAAd43+ntURO64QmtdMa
+         LSaxmKr8O0WYvcYMUykyIuR82KWX26Wg+PyxbovY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
-        Florian Westphal <fw@strlen.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+68a8ed58e3d17c700de5@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 009/155] geneve: move debug check after netdev unregister
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 035/170] slcan: not call free_netdev before rtnl_unlock in slcan_open
 Date:   Tue, 31 Mar 2020 10:57:29 +0200
-Message-Id: <20200331085419.423342022@linuxfoundation.org>
+Message-Id: <20200331085427.768203682@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit 0fda7600c2e174fe27e9cf02e78e345226e441fa ]
+[ Upstream commit 2091a3d42b4f339eaeed11228e0cbe9d4f92f558 ]
 
-The debug check must be done after unregister_netdevice_many() call --
-the list_del() for this is done inside .ndo_stop.
+As the description before netdev_run_todo, we cannot call free_netdev
+before rtnl_unlock, fix it by reorder the code.
 
-Fixes: 2843a25348f8 ("geneve: speedup geneve tunnels dismantle")
-Reported-and-tested-by: <syzbot+68a8ed58e3d17c700de5@syzkaller.appspotmail.com>
-Cc: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+This patch is a 1:1 copy of upstream slip.c commit f596c87005f7
+("slip: not call free_netdev before rtnl_unlock in slip_open").
+
+Reported-by: yangerkun <yangerkun@huawei.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/can/slcan.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -1845,8 +1845,6 @@ static void geneve_destroy_tunnels(struc
- 		if (!net_eq(dev_net(geneve->dev), net))
- 			unregister_netdevice_queue(geneve->dev, head);
- 	}
--
--	WARN_ON_ONCE(!list_empty(&gn->sock_list));
- }
+--- a/drivers/net/can/slcan.c
++++ b/drivers/net/can/slcan.c
+@@ -625,7 +625,10 @@ err_free_chan:
+ 	tty->disc_data = NULL;
+ 	clear_bit(SLF_INUSE, &sl->flags);
+ 	slc_free_netdev(sl->dev);
++	/* do not call free_netdev before rtnl_unlock */
++	rtnl_unlock();
+ 	free_netdev(sl->dev);
++	return err;
  
- static void __net_exit geneve_exit_batch_net(struct list_head *net_list)
-@@ -1861,6 +1859,12 @@ static void __net_exit geneve_exit_batch
- 	/* unregister the devices gathered above */
- 	unregister_netdevice_many(&list);
+ err_exit:
  	rtnl_unlock();
-+
-+	list_for_each_entry(net, net_list, exit_list) {
-+		const struct geneve_net *gn = net_generic(net, geneve_net_id);
-+
-+		WARN_ON_ONCE(!list_empty(&gn->sock_list));
-+	}
- }
- 
- static struct pernet_operations geneve_net_ops = {
 
 
