@@ -2,125 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C709B1993A6
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 12:42:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BCF5199343
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 12:16:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730363AbgCaKmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 06:42:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41268 "EHLO mail.kernel.org"
+        id S1730235AbgCaKQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 06:16:08 -0400
+Received: from correo.us.es ([193.147.175.20]:33632 "EHLO mail.us.es"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729925AbgCaKmF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 06:42:05 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1730053AbgCaKQI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 06:16:08 -0400
+Received: from antivirus1-rhel7.int (unknown [192.168.2.11])
+        by mail.us.es (Postfix) with ESMTP id 08D29DA3DE
+        for <stable@vger.kernel.org>; Tue, 31 Mar 2020 12:16:06 +0200 (CEST)
+Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
+        by antivirus1-rhel7.int (Postfix) with ESMTP id EF989100A60
+        for <stable@vger.kernel.org>; Tue, 31 Mar 2020 12:16:05 +0200 (CEST)
+Received: by antivirus1-rhel7.int (Postfix, from userid 99)
+        id E4892100A45; Tue, 31 Mar 2020 12:16:05 +0200 (CEST)
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on antivirus1-rhel7.int
+X-Spam-Level: 
+X-Spam-Status: No, score=-108.2 required=7.5 tests=ALL_TRUSTED,BAYES_50,
+        SMTPAUTH_US2,URIBL_BLOCKED,USER_IN_WHITELIST autolearn=disabled version=3.4.1
+Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
+        by antivirus1-rhel7.int (Postfix) with ESMTP id E261C100A47;
+        Tue, 31 Mar 2020 12:16:03 +0200 (CEST)
+Received: from 192.168.1.97 (192.168.1.97)
+ by antivirus1-rhel7.int (F-Secure/fsigk_smtp/550/antivirus1-rhel7.int);
+ Tue, 31 Mar 2020 12:16:03 +0200 (CEST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/antivirus1-rhel7.int)
+Received: from us.es (unknown [90.77.255.23])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35DC9208E0;
-        Tue, 31 Mar 2020 10:42:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585651322;
-        bh=IMaARxto1wU2KuadB9baG/GU1gTRr4yDXBIObte9rUE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QVDUBY08T61oYJnGnL0TYd5PkxZhrsSrplWX1MhZo7JJEuh9dJxaOImZkAvEbAI5J
-         hqGnj93Lfu+MKj1InKmcNS983cH/JEzFzymScBkzf5emnjN9TzSFzc9FPYu+7zIxDs
-         YVtxYf1hxh5Rs16+hwNcZLrkddy47YtFvM+xcMD8=
-Date:   Tue, 31 Mar 2020 12:02:38 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nathan Chancellor <natechancellor@gmail.com>
+        (Authenticated sender: 1984lsi)
+        by entrada.int (Postfix) with ESMTPSA id BE18342EF4E0;
+        Tue, 31 Mar 2020 12:16:03 +0200 (CEST)
+Date:   Tue, 31 Mar 2020 12:16:03 +0200
+X-SMTPAUTHUS: auth mail.us.es
+From:   Pablo Neira Ayuso <pablo@netfilter.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dirk Mueller <dmueller@suse.com>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 5.5 102/170] scripts/dtc: Remove redundant YYLOC global
- declaration
-Message-ID: <20200331100238.GA1204199@kroah.com>
+        netfilter-devel@vger.kernel.org
+Subject: Re: [PATCH 5.5 138/170] netfilter: nft_fwd_netdev: allow to redirect
+ to ifb via ingress
+Message-ID: <20200331101603.wmsbhgmjc6vf4esk@salvia>
 References: <20200331085423.990189598@linuxfoundation.org>
- <20200331085435.053942582@linuxfoundation.org>
- <20200331095323.GA32667@ubuntu-m2-xlarge-x86>
+ <20200331085438.148415210@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200331095323.GA32667@ubuntu-m2-xlarge-x86>
+In-Reply-To: <20200331085438.148415210@linuxfoundation.org>
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 31, 2020 at 02:53:23AM -0700, Nathan Chancellor wrote:
-> On Tue, Mar 31, 2020 at 10:58:36AM +0200, Greg Kroah-Hartman wrote:
-> > From: Dirk Mueller <dmueller@suse.com>
-> > 
-> > commit e33a814e772cdc36436c8c188d8c42d019fda639 upstream.
-> > 
-> > gcc 10 will default to -fno-common, which causes this error at link
-> > time:
-> > 
-> >   (.text+0x0): multiple definition of `yylloc'; dtc-lexer.lex.o (symbol from plugin):(.text+0x0): first defined here
-> > 
-> > This is because both dtc-lexer as well as dtc-parser define the same
-> > global symbol yyloc. Before with -fcommon those were merged into one
-> > defintion. The proper solution would be to to mark this as "extern",
-> > however that leads to:
-> > 
-> >   dtc-lexer.l:26:16: error: redundant redeclaration of 'yylloc' [-Werror=redundant-decls]
-> >    26 | extern YYLTYPE yylloc;
-> >       |                ^~~~~~
-> > In file included from dtc-lexer.l:24:
-> > dtc-parser.tab.h:127:16: note: previous declaration of 'yylloc' was here
-> >   127 | extern YYLTYPE yylloc;
-> >       |                ^~~~~~
-> > cc1: all warnings being treated as errors
-> > 
-> > which means the declaration is completely redundant and can just be
-> > dropped.
-> > 
-> > Signed-off-by: Dirk Mueller <dmueller@suse.com>
-> > Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-> > [robh: cherry-pick from upstream]
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Rob Herring <robh@kernel.org>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > 
-> > ---
-> >  scripts/dtc/dtc-lexer.l |    1 -
-> >  1 file changed, 1 deletion(-)
-> > 
-> > --- a/scripts/dtc/dtc-lexer.l
-> > +++ b/scripts/dtc/dtc-lexer.l
-> > @@ -23,7 +23,6 @@ LINECOMMENT	"//".*\n
-> >  #include "srcpos.h"
-> >  #include "dtc-parser.tab.h"
-> >  
-> > -YYLTYPE yylloc;
-> >  extern bool treesource_error;
-> >  
-> >  /* CAUTION: this will stop working if we ever use yyless() or yyunput() */
-> > 
-> > 
+On Tue, Mar 31, 2020 at 10:59:12AM +0200, Greg Kroah-Hartman wrote:
+> From: Pablo Neira Ayuso <pablo@netfilter.org>
 > 
-> Hi Greg,
+> commit bcfabee1afd99484b6ba067361b8678e28bbc065 upstream.
 > 
-> Replying here simply because I am not subscribed to the stable-commits
-> mailing list and there does not appear to be an easy way to reply to one
-> of those emails through the existing archives because they are not as
-> nice as lore.kernel.org.
+> Set skb->tc_redirected to 1, otherwise the ifb driver drops the packet.
+> Set skb->tc_from_ingress to 1 to reinject the packet back to the ingress
+> path after leaving the ifb egress path.
 > 
-> This patch is fine for the current releases in review but 4.4, 4.9, and
-> 4.14 need to have the patch applied to scripts/dtc/dtc-lexer.lex.c_shipped
-> because prior to commit e039139be8c2 ("scripts/dtc: generate lexer and
-> parser during build instead of shipping"), that was the file that was
-> being built. Running the command below in the stable-queue repo works
-> for me and I have tested all of the patches to make sure they still
-> apply (albeit with some fuzz).
+> This patch inconditionally sets on these two skb fields that are
+> meaningful to the ifb driver. The existing forward action is guaranteed
+> to run from ingress path.
 > 
-> $ sed -i 's;scripts/dtc/dtc-lexer.l;scripts/dtc/dtc-lexer.lex.c_shipped;g' \
-> queue-{4.4,4.9,4.14}/scripts-dtc-remove-redundant-yyloc-global-declaration.patch
+> Fixes: 39e6dea28adc ("netfilter: nf_tables: add forward expression to the netdev family")
+> Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > 
-> If you would prefer a set of patches, let me know.
+> ---
+>  net/netfilter/nft_fwd_netdev.c |    4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> --- a/net/netfilter/nft_fwd_netdev.c
+> +++ b/net/netfilter/nft_fwd_netdev.c
+> @@ -28,6 +28,10 @@ static void nft_fwd_netdev_eval(const st
+>  	struct nft_fwd_netdev *priv = nft_expr_priv(expr);
+>  	int oif = regs->data[priv->sreg_dev];
+>  
+> +	/* These are used by ifb only. */
+> +	pkt->skb->tc_redirected = 1;
+> +	pkt->skb->tc_from_ingress = 1;
 
-Should I just drop the patch from 4.4, 4.9, and 4.14 instead?
+This patch also requires:
 
-If not, yes, I can run the above script on the patches.
+2c64605b590e net: Fix CONFIG_NET_CLS_ACT=n and CONFIG_NFT_FWD_NETDEV={y, m} build
 
-thanks,
+Otherwise build breaks with CONFIG_NET_CLS_ACT=n.
 
-greg k-h
+Thanks.
