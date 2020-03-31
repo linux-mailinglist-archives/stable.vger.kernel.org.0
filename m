@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E2B198F37
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:01:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD455198F39
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730192AbgCaJBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:01:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40852 "EHLO mail.kernel.org"
+        id S1730294AbgCaJBk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:01:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730294AbgCaJBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:01:36 -0400
+        id S1730273AbgCaJBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:01:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 397A820848;
-        Tue, 31 Mar 2020 09:01:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2F022137B;
+        Tue, 31 Mar 2020 09:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645295;
-        bh=/2QCD0+YgDM7AxEBlkjagHGL94R+lRcfpdpM227IqLA=;
+        s=default; t=1585645298;
+        bh=sSejE0Y20tuTnnghbdOPuBx3OjhIeYEeGSRJ41osggI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpFm+mTQTvkhDiSpQbqWsRLMLr41fdSBNsoCzxU85dNp2BTDgvZIbG+T4GYA7PRAN
-         omrlgqBZPFTYsn+7N/DY5kyAxQtWnrOZHY/i1wiD7pp5w6/nEOKvM1qOL5XIjuxesl
-         qROTF27haODC+xIQ9bei8JdfZL/Sml6Qz7F6rYXw=
+        b=cwwOBZb1UhRWPG6kOyYf4/9qV2S/NsOUSViAbO0hGqOOh5F2XLVM2q80HRJIa1Vrj
+         yNQ5gGCUVQqmBG9UQ+XaLJjhTnxzjG9t54Dm4GDUA9xoK+DwDNubl7QybEzVRm1qW/
+         W8KQVmF2rg/OL9pV4mpC/kzzBNUxD5xVv53+V5Mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
-        Florian Westphal <fw@strlen.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+68a8ed58e3d17c700de5@syzkaller.appspotmail.com
-Subject: [PATCH 5.5 010/170] geneve: move debug check after netdev unregister
-Date:   Tue, 31 Mar 2020 10:57:04 +0200
-Message-Id: <20200331085425.244338540@linuxfoundation.org>
+        syzbot+fcf5dd39282ceb27108d@syzkaller.appspotmail.com,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 011/170] hsr: fix general protection fault in hsr_addr_is_self()
+Date:   Tue, 31 Mar 2020 10:57:05 +0200
+Message-Id: <20200331085425.338157402@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
 References: <20200331085423.990189598@linuxfoundation.org>
@@ -46,46 +45,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 0fda7600c2e174fe27e9cf02e78e345226e441fa ]
+[ Upstream commit 3a303cfdd28d5f930a307c82e8a9d996394d5ebd ]
 
-The debug check must be done after unregister_netdevice_many() call --
-the list_del() for this is done inside .ndo_stop.
+The port->hsr is used in the hsr_handle_frame(), which is a
+callback of rx_handler.
+hsr master and slaves are initialized in hsr_add_port().
+This function initializes several pointers, which includes port->hsr after
+registering rx_handler.
+So, in the rx_handler routine, un-initialized pointer would be used.
+In order to fix this, pointers should be initialized before
+registering rx_handler.
 
-Fixes: 2843a25348f8 ("geneve: speedup geneve tunnels dismantle")
-Reported-and-tested-by: <syzbot+68a8ed58e3d17c700de5@syzkaller.appspotmail.com>
-Cc: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Test commands:
+    ip netns del left
+    ip netns del right
+    modprobe -rv veth
+    modprobe -rv hsr
+    killall ping
+    modprobe hsr
+    ip netns add left
+    ip netns add right
+    ip link add veth0 type veth peer name veth1
+    ip link add veth2 type veth peer name veth3
+    ip link add veth4 type veth peer name veth5
+    ip link set veth1 netns left
+    ip link set veth3 netns right
+    ip link set veth4 netns left
+    ip link set veth5 netns right
+    ip link set veth0 up
+    ip link set veth2 up
+    ip link set veth0 address fc:00:00:00:00:01
+    ip link set veth2 address fc:00:00:00:00:02
+    ip netns exec left ip link set veth1 up
+    ip netns exec left ip link set veth4 up
+    ip netns exec right ip link set veth3 up
+    ip netns exec right ip link set veth5 up
+    ip link add hsr0 type hsr slave1 veth0 slave2 veth2
+    ip a a 192.168.100.1/24 dev hsr0
+    ip link set hsr0 up
+    ip netns exec left ip link add hsr1 type hsr slave1 veth1 slave2 veth4
+    ip netns exec left ip a a 192.168.100.2/24 dev hsr1
+    ip netns exec left ip link set hsr1 up
+    ip netns exec left ip n a 192.168.100.1 dev hsr1 lladdr \
+	    fc:00:00:00:00:01 nud permanent
+    ip netns exec left ip n r 192.168.100.1 dev hsr1 lladdr \
+	    fc:00:00:00:00:01 nud permanent
+    for i in {1..100}
+    do
+        ip netns exec left ping 192.168.100.1 &
+    done
+    ip netns exec left hping3 192.168.100.1 -2 --flood &
+    ip netns exec right ip link add hsr2 type hsr slave1 veth3 slave2 veth5
+    ip netns exec right ip a a 192.168.100.3/24 dev hsr2
+    ip netns exec right ip link set hsr2 up
+    ip netns exec right ip n a 192.168.100.1 dev hsr2 lladdr \
+	    fc:00:00:00:00:02 nud permanent
+    ip netns exec right ip n r 192.168.100.1 dev hsr2 lladdr \
+	    fc:00:00:00:00:02 nud permanent
+    for i in {1..100}
+    do
+        ip netns exec right ping 192.168.100.1 &
+    done
+    ip netns exec right hping3 192.168.100.1 -2 --flood &
+    while :
+    do
+        ip link add hsr0 type hsr slave1 veth0 slave2 veth2
+	ip a a 192.168.100.1/24 dev hsr0
+	ip link set hsr0 up
+	ip link del hsr0
+    done
+
+Splat looks like:
+[  120.954938][    C0] general protection fault, probably for non-canonical address 0xdffffc0000000006: 0000 [#1]I
+[  120.957761][    C0] KASAN: null-ptr-deref in range [0x0000000000000030-0x0000000000000037]
+[  120.959064][    C0] CPU: 0 PID: 1511 Comm: hping3 Not tainted 5.6.0-rc5+ #460
+[  120.960054][    C0] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[  120.962261][    C0] RIP: 0010:hsr_addr_is_self+0x65/0x2a0 [hsr]
+[  120.963149][    C0] Code: 44 24 18 70 73 2f c0 48 c1 eb 03 48 8d 04 13 c7 00 f1 f1 f1 f1 c7 40 04 00 f2 f2 f2 4
+[  120.966277][    C0] RSP: 0018:ffff8880d9c09af0 EFLAGS: 00010206
+[  120.967293][    C0] RAX: 0000000000000006 RBX: 1ffff1101b38135f RCX: 0000000000000000
+[  120.968516][    C0] RDX: dffffc0000000000 RSI: ffff8880d17cb208 RDI: 0000000000000000
+[  120.969718][    C0] RBP: 0000000000000030 R08: ffffed101b3c0e3c R09: 0000000000000001
+[  120.972203][    C0] R10: 0000000000000001 R11: ffffed101b3c0e3b R12: 0000000000000000
+[  120.973379][    C0] R13: ffff8880aaf80100 R14: ffff8880aaf800f2 R15: ffff8880aaf80040
+[  120.974410][    C0] FS:  00007f58e693f740(0000) GS:ffff8880d9c00000(0000) knlGS:0000000000000000
+[  120.979794][    C0] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  120.980773][    C0] CR2: 00007ffcb8b38f29 CR3: 00000000afe8e001 CR4: 00000000000606f0
+[  120.981945][    C0] Call Trace:
+[  120.982411][    C0]  <IRQ>
+[  120.982848][    C0]  ? hsr_add_node+0x8c0/0x8c0 [hsr]
+[  120.983522][    C0]  ? rcu_read_lock_held+0x90/0xa0
+[  120.984159][    C0]  ? rcu_read_lock_sched_held+0xc0/0xc0
+[  120.984944][    C0]  hsr_handle_frame+0x1db/0x4e0 [hsr]
+[  120.985597][    C0]  ? hsr_nl_nodedown+0x2b0/0x2b0 [hsr]
+[  120.986289][    C0]  __netif_receive_skb_core+0x6bf/0x3170
+[  120.992513][    C0]  ? check_chain_key+0x236/0x5d0
+[  120.993223][    C0]  ? do_xdp_generic+0x1460/0x1460
+[  120.993875][    C0]  ? register_lock_class+0x14d0/0x14d0
+[  120.994609][    C0]  ? __netif_receive_skb_one_core+0x8d/0x160
+[  120.995377][    C0]  __netif_receive_skb_one_core+0x8d/0x160
+[  120.996204][    C0]  ? __netif_receive_skb_core+0x3170/0x3170
+[ ... ]
+
+Reported-by: syzbot+fcf5dd39282ceb27108d@syzkaller.appspotmail.com
+Fixes: c5a759117210 ("net/hsr: Use list_head (and rcu) instead of array for slave devices.")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/hsr/hsr_slave.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -1845,8 +1845,6 @@ static void geneve_destroy_tunnels(struc
- 		if (!net_eq(dev_net(geneve->dev), net))
- 			unregister_netdevice_queue(geneve->dev, head);
+--- a/net/hsr/hsr_slave.c
++++ b/net/hsr/hsr_slave.c
+@@ -145,16 +145,16 @@ int hsr_add_port(struct hsr_priv *hsr, s
+ 	if (!port)
+ 		return -ENOMEM;
+ 
++	port->hsr = hsr;
++	port->dev = dev;
++	port->type = type;
++
+ 	if (type != HSR_PT_MASTER) {
+ 		res = hsr_portdev_setup(dev, port);
+ 		if (res)
+ 			goto fail_dev_setup;
  	}
+ 
+-	port->hsr = hsr;
+-	port->dev = dev;
+-	port->type = type;
 -
--	WARN_ON_ONCE(!list_empty(&gn->sock_list));
- }
+ 	list_add_tail_rcu(&port->port_list, &hsr->ports);
+ 	synchronize_rcu();
  
- static void __net_exit geneve_exit_batch_net(struct list_head *net_list)
-@@ -1861,6 +1859,12 @@ static void __net_exit geneve_exit_batch
- 	/* unregister the devices gathered above */
- 	unregister_netdevice_many(&list);
- 	rtnl_unlock();
-+
-+	list_for_each_entry(net, net_list, exit_list) {
-+		const struct geneve_net *gn = net_generic(net, geneve_net_id);
-+
-+		WARN_ON_ONCE(!list_empty(&gn->sock_list));
-+	}
- }
- 
- static struct pernet_operations geneve_net_ops = {
 
 
