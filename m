@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEC66198F82
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:04:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D216F198F8A
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:04:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730672AbgCaJEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:04:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43888 "EHLO mail.kernel.org"
+        id S1730703AbgCaJET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:04:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730697AbgCaJEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:04:04 -0400
+        id S1730711AbgCaJEJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:04:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B4A120848;
-        Tue, 31 Mar 2020 09:04:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F6DE20848;
+        Tue, 31 Mar 2020 09:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645443;
-        bh=lPv5/SVxRUsJE9C6iPhlGEWnmckp85fixzSHFBBxPAU=;
+        s=default; t=1585645448;
+        bh=ekxXhCUKXOs9ws/GijlIMZQF0eVgK3d5d0v5/txDExY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIrc1RNQWaz6rSTlT1e1wIQPwH5IQqtp15OSz53mZofw2MQnG3enHj1aVZ+O/oDDE
-         kM/HsoThHJlpALXs/eOFK62ENcMrzBVLLPliRDO5p9CmrVwXElVJu5LifwZb64ExP6
-         9LU7/JytBeE11mECkbcz2BcNP0i7/octK1SvAFxA=
+        b=obWwzDJJ6nihqtnGHIBsxdxK9rNkIKvY14trILLrNw570ou6Z4iNQaGQW/9i3LM7n
+         njMRHA8WgT8hN+ohlGexPWdXjh3KvBJ62gpXADXdB1jTo9Z05lAnd+rNUt+BC+ta+t
+         ddN3b86zEEzgHp0HVGkIkhSvS6Rw7szYeX9jnRHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, Hamdan Igbaria <hamdani@mellanox.com>,
+        Alex Vesker <valex@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 055/170] hsr: set .netnsok flag
-Date:   Tue, 31 Mar 2020 10:57:49 +0200
-Message-Id: <20200331085430.483056576@linuxfoundation.org>
+Subject: [PATCH 5.5 056/170] net/mlx5: DR, Fix postsend actions write length
+Date:   Tue, 31 Mar 2020 10:57:50 +0200
+Message-Id: <20200331085430.556499638@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
 References: <20200331085423.990189598@linuxfoundation.org>
@@ -43,34 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Hamdan Igbaria <hamdani@mellanox.com>
 
-[ Upstream commit 09e91dbea0aa32be02d8877bd50490813de56b9a ]
+[ Upstream commit 692b0399a22530b2de8490bea75a7d20d59391d0 ]
 
-The hsr module has been supporting the list and status command.
-(HSR_C_GET_NODE_LIST and HSR_C_GET_NODE_STATUS)
-These commands send node information to the user-space via generic netlink.
-But, in the non-init_net namespace, these commands are not allowed
-because .netnsok flag is false.
-So, there is no way to get node information in the non-init_net namespace.
+Fix the send info write length to be (actions x action) size in bytes.
 
-Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Fixes: 297cccebdc5a ("net/mlx5: DR, Expose an internal API to issue RDMA operations")
+Signed-off-by: Hamdan Igbaria <hamdani@mellanox.com>
+Reviewed-by: Alex Vesker <valex@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/hsr/hsr_netlink.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_action.c |    1 -
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c   |    3 ++-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/hsr/hsr_netlink.c
-+++ b/net/hsr/hsr_netlink.c
-@@ -470,6 +470,7 @@ static struct genl_family hsr_genl_famil
- 	.version = 1,
- 	.maxattr = HSR_A_MAX,
- 	.policy = hsr_genl_policy,
-+	.netnsok = true,
- 	.module = THIS_MODULE,
- 	.ops = hsr_ops,
- 	.n_ops = ARRAY_SIZE(hsr_ops),
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_action.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_action.c
+@@ -930,7 +930,6 @@ static int dr_actions_l2_rewrite(struct
+ 
+ 	action->rewrite.data = (void *)ops;
+ 	action->rewrite.num_of_actions = i;
+-	action->rewrite.chunk->byte_size = i * sizeof(*ops);
+ 
+ 	ret = mlx5dr_send_postsend_action(dmn, action);
+ 	if (ret) {
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
+@@ -558,7 +558,8 @@ int mlx5dr_send_postsend_action(struct m
+ 	int ret;
+ 
+ 	send_info.write.addr = (uintptr_t)action->rewrite.data;
+-	send_info.write.length = action->rewrite.chunk->byte_size;
++	send_info.write.length = action->rewrite.num_of_actions *
++				 DR_MODIFY_ACTION_SIZE;
+ 	send_info.write.lkey = 0;
+ 	send_info.remote_addr = action->rewrite.chunk->mr_addr;
+ 	send_info.rkey = action->rewrite.chunk->rkey;
 
 
