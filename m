@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEFFB199023
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:09:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 210E3199183
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731031AbgCaJJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:09:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52386 "EHLO mail.kernel.org"
+        id S1731783AbgCaJPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:15:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730948AbgCaJJU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:09:20 -0400
+        id S1730701AbgCaJPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:15:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 058BA214D8;
-        Tue, 31 Mar 2020 09:09:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53F5220675;
+        Tue, 31 Mar 2020 09:15:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645759;
-        bh=QQ8uxzE0m3Qe632C1J+UGb4+Do/hmYs1d9rsBwK0nvU=;
+        s=default; t=1585646116;
+        bh=bDOyWPwtHpt7ua7OxR166RVFsXRO6Ja9g+epQkrZGuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jcex5ILPUNbNJYsZIcNZoFz/k0uw2Zln/ieQ8ZgrbOTR7JRLGja3QYt528Ku3Ycrj
-         VtY4S4zPHRxyEuoYZEYcjy0hsdZ0bFzGqSn8C+LlRhys+QFx6CIugfG1TBkN8CcoWL
-         rKszGxwQl0F6b1ij8k9JIMMUz0xh5/TxVtIUC/lk=
+        b=mHkSEBzg7RqRlbxJ5uLiuFxma20Ag0dJzsLVQwW5dM1o13StJH9q7+0pRu780Riai
+         4l5Sw5g8ZPERuN4wGblMnqwiG5XXpLKafb4/W8ZxAZMqXzADJGHB48g/d+EkTueF0f
+         x3OzkjfdBizr+WRZnoRA4rxFQIemFG9xciebWYlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.5 115/170] gpiolib: acpi: Correct comment for HP x2 10 honor_wakeup quirk
+        stable@vger.kernel.org, stable@kernel.org,
+        Roger Quadros <rogerq@ti.com>, Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.4 089/155] ARM: dts: omap5: Add bus_dma_limit for L3 bus
 Date:   Tue, 31 Mar 2020 10:58:49 +0200
-Message-Id: <20200331085436.389224130@linuxfoundation.org>
+Message-Id: <20200331085428.309556173@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Roger Quadros <rogerq@ti.com>
 
-commit efaa87fa0947d525cf7c075316adde4e3ac7720b upstream.
+commit dfa7ea303f56a3a8b1ed3b91ef35af2da67ca4ee upstream.
 
-Commit aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option +
-quirk mechanism") added a quirk for some models of the HP x2 10 series.
+The L3 interconnect's memory map is from 0x0 to
+0xffffffff. Out of this, System memory (SDRAM) can be
+accessed from 0x80000000 to 0xffffffff (2GB)
 
-There are 2 issues with the comment describing the quirk:
-1) The comment claims the DMI quirk applies to all Cherry Trail based HP x2
-   10 models. In the mean time I have learned that there are at least 3
-   models of the HP x2 10 models:
+OMAP5 does support 4GB of SDRAM but upper 2GB can only be
+accessed by the MPU subsystem.
 
-   Bay Trail SoC + AXP288 PMIC
-   Cherry Trail SoC + AXP288 PMIC
-   Cherry Trail SoC + TI PMIC
+Add the dma-ranges property to reflect the physical address limit
+of the L3 bus.
 
-   And this quirk's DMI matches only match the Cherry Trail SoC + TI PMIC
-   SoC, which is good because we want a slightly different quirk for the
-   others. This commit updates the comment to make it clear that the quirk
-   is only for the Cherry Trail SoC + TI PMIC models.
-
-2) The comment says that it is ok to disable wakeup on all ACPI GPIO event
-   handlers, because there is only the one for the embedded-controller
-   events. This is not true, there also is a handler for the special
-   INT0002 device which is related to USB wakeups. We need to also disable
-   wakeups on that one because the device turns of the USB-keyboard built
-   into the dock when closing the lid. The XHCI controller takes a while
-   to notice this, so it only notices it when already suspended, causing
-   a spurious wakeup because of this. So disabling wakeup on all handlers
-   is the right thing to do, but not because there only is the one handler
-   for the EC events. This commit updates the comment to correctly reflect
-   this.
-
-Fixes: aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option + quirk mechanism")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200302111225.6641-1-hdegoede@redhat.com
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: stable@kernel.org
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib-acpi.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/omap5.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -1345,12 +1345,14 @@ static const struct dmi_system_id gpioli
- 	},
- 	{
- 		/*
--		 * Various HP X2 10 Cherry Trail models use an external
--		 * embedded-controller connected via I2C + an ACPI GPIO
--		 * event handler. The embedded controller generates various
--		 * spurious wakeup events when suspended. So disable wakeup
--		 * for its handler (it uses the only ACPI GPIO event handler).
--		 * This breaks wakeup when opening the lid, the user needs
-+		 * HP X2 10 models with Cherry Trail SoC + TI PMIC use an
-+		 * external embedded-controller connected via I2C + an ACPI GPIO
-+		 * event handler on INT33FF:01 pin 0, causing spurious wakeups.
-+		 * When suspending by closing the LID, the power to the USB
-+		 * keyboard is turned off, causing INT0002 ACPI events to
-+		 * trigger once the XHCI controller notices the keyboard is
-+		 * gone. So INT0002 events cause spurious wakeups too. Ignoring
-+		 * EC wakes breaks wakeup when opening the lid, the user needs
- 		 * to press the power-button to wakeup the system. The
- 		 * alternative is suspend simply not working, which is worse.
- 		 */
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -143,6 +143,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 		ranges = <0 0 0 0xc0000000>;
++		dma-ranges = <0x80000000 0x0 0x80000000 0x80000000>;
+ 		ti,hwmods = "l3_main_1", "l3_main_2", "l3_main_3";
+ 		reg = <0 0x44000000 0 0x2000>,
+ 		      <0 0x44800000 0 0x3000>,
 
 
