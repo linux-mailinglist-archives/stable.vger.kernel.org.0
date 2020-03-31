@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57A67199058
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:11:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D68D198F85
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:04:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731674AbgCaJLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:11:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55688 "EHLO mail.kernel.org"
+        id S1730915AbgCaJEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:04:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731456AbgCaJLK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:11:10 -0400
+        id S1730469AbgCaJEG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:04:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BB09217D8;
-        Tue, 31 Mar 2020 09:11:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DEFF2137B;
+        Tue, 31 Mar 2020 09:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645869;
-        bh=o6I1deaHSF79AvmALkGyrIcRGVQXhdFIC8H98FU19rc=;
+        s=default; t=1585645446;
+        bh=S092gFVFtOYE7P8NHrfnFQpRTJsmjesAJzX7X3rp8K8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNdlutahkDQEM33TVmrjMavmMCUqRzUhuPuNEWmALCH4cFs0Ka0vvO3sPTrTaU+u6
-         3ghqLx3ivi6buJewz1+YufZDbLY2DovOArf5LbWsA0MPYxqJnSUyydNpg0TutWrzKW
-         MuYOeALMtM5cH3sMGF5LicX4n3fQTxds/yaNJ07Y=
+        b=weBqK/1fkHR8YVO8E24wCdqszMZhxC0iMyXRpoQPdaYp+gAAHBYjEaPPx5PBQ6XYs
+         MALcvqCEMsKylB71RyNDv5P7U4LJpdR7q0eoXjb/UFiZ6ovAtFEZOhctyNbykWCwvk
+         LNrDhm+xPot/2+sOTc8GjyEiOb33FfH48EUNtvIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 003/155] mmc: core: Respect MMC_CAP_NEED_RSP_BUSY for eMMC sleep command
+        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+f9b32aaacd60305d9687@syzkaller.appspotmail.com,
+        syzbot+2f8c233f131943d6056d@syzkaller.appspotmail.com,
+        syzbot+9c2df9fd5e9445b74e01@syzkaller.appspotmail.com
+Subject: [PATCH 5.5 029/170] net_sched: cls_route: remove the right filter from hashtable
 Date:   Tue, 31 Mar 2020 10:57:23 +0200
-Message-Id: <20200331085418.610110562@linuxfoundation.org>
+Message-Id: <20200331085427.181960701@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +49,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 18d200460cd73636d4f20674085c39e32b4e0097 ]
+[ Upstream commit ef299cc3fa1a9e1288665a9fdc8bff55629fd359 ]
 
-The busy timeout for the CMD5 to put the eMMC into sleep state, is specific
-to the card. Potentially the timeout may exceed the host->max_busy_timeout.
-If that becomes the case, mmc_sleep() converts from using an R1B response
-to an R1 response, as to prevent the host from doing HW busy detection.
+route4_change() allocates a new filter and copies values from
+the old one. After the new filter is inserted into the hash
+table, the old filter should be removed and freed, as the final
+step of the update.
 
-However, it has turned out that some hosts requires an R1B response no
-matter what, so let's respect that via checking MMC_CAP_NEED_RSP_BUSY. Note
-that, if the R1B gets enforced, the host becomes fully responsible of
-managing the needed busy timeout, in one way or the other.
+However, the current code mistakenly removes the new one. This
+looks apparently wrong to me, and it causes double "free" and
+use-after-free too, as reported by syzbot.
 
-Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200311092036.16084-1-ulf.hansson@linaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by: syzbot+f9b32aaacd60305d9687@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+2f8c233f131943d6056d@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+9c2df9fd5e9445b74e01@syzkaller.appspotmail.com
+Fixes: 1109c00547fc ("net: sched: RCU cls_route")
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/mmc.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/sched/cls_route.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index c8804895595f4..b7159e243323b 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -1911,9 +1911,12 @@ static int mmc_sleep(struct mmc_host *host)
- 	 * If the max_busy_timeout of the host is specified, validate it against
- 	 * the sleep cmd timeout. A failure means we need to prevent the host
- 	 * from doing hw busy detection, which is done by converting to a R1
--	 * response instead of a R1B.
-+	 * response instead of a R1B. Note, some hosts requires R1B, which also
-+	 * means they are on their own when it comes to deal with the busy
-+	 * timeout.
- 	 */
--	if (host->max_busy_timeout && (timeout_ms > host->max_busy_timeout)) {
-+	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && host->max_busy_timeout &&
-+	    (timeout_ms > host->max_busy_timeout)) {
- 		cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
- 	} else {
- 		cmd.flags = MMC_RSP_R1B | MMC_CMD_AC;
--- 
-2.20.1
-
+--- a/net/sched/cls_route.c
++++ b/net/sched/cls_route.c
+@@ -534,8 +534,8 @@ static int route4_change(struct net *net
+ 			fp = &b->ht[h];
+ 			for (pfp = rtnl_dereference(*fp); pfp;
+ 			     fp = &pfp->next, pfp = rtnl_dereference(*fp)) {
+-				if (pfp == f) {
+-					*fp = f->next;
++				if (pfp == fold) {
++					rcu_assign_pointer(*fp, fold->next);
+ 					break;
+ 				}
+ 			}
 
 
