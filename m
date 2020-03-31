@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD07C198F64
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:03:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6E9F1991AD
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730770AbgCaJC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:02:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42614 "EHLO mail.kernel.org"
+        id S1731254AbgCaJKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:10:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730769AbgCaJC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:02:59 -0400
+        id S1731319AbgCaJKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:10:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D1B520787;
-        Tue, 31 Mar 2020 09:02:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1611420772;
+        Tue, 31 Mar 2020 09:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645378;
-        bh=SgjzowQaTkWqrRUAZSl+8DClTAw+pzxwifTkKUtxYts=;
+        s=default; t=1585645835;
+        bh=Z8CeZZwmgXapYZDYq5qlyCvFTkEB2fcRKd/gMZYTj+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n83Mt2qwa+SKULverL5kDQtHYTf+6FwNFqOh2Z0r6V1Y5lp/Na7a/wNICWO23JHIc
-         O+lwvEwqvU3MyambrRlg9CJaSSDeGdbuBqv8Vc0NGJdEzCvSe8lLbYOgdk5Rt97ybX
-         7o1SOQr8xTj+VBLjHth19I+lUKKQSDA4uXUzHoTA=
+        b=qHm1EO8kAAnsOP5DpPpGi665Y9FY16NO3O0hX33bCqdGN/q3Nc2CTJdoqGh5A6aIK
+         xZVMHdTvWK4DyHzmHn/pTLVWAwjSTxIhsTZZXmc0A9CeHi1ewSoYdpGS0kVacv8Hka
+         ApMi49zC16aAimgZO+uitVyXHyB3PmUBRnlHzXG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cezary Jackiewicz <cezary@eko.one.pl>,
-        Pawel Dembicki <paweldembicki@gmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 027/170] net: qmi_wwan: add support for ASKEY WWHC050
+        stable@vger.kernel.org,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Faiz Abbas <faiz_abbas@ti.com>,
+        Peter Geis <pgwipeout@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 001/155] mmc: core: Allow host controllers to require R1B for CMD6
 Date:   Tue, 31 Mar 2020 10:57:21 +0200
-Message-Id: <20200331085426.977256453@linuxfoundation.org>
+Message-Id: <20200331085418.398117916@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,62 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Dembicki <paweldembicki@gmail.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 12a5ba5a1994568d4ceaff9e78c6b0329d953386 ]
+[ Upstream commit 1292e3efb149ee21d8d33d725eeed4e6b1ade963 ]
 
-ASKEY WWHC050 is a mcie LTE modem.
-The oem configuration states:
+It has turned out that some host controllers can't use R1B for CMD6 and
+other commands that have R1B associated with them. Therefore invent a new
+host cap, MMC_CAP_NEED_RSP_BUSY to let them specify this.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
-D:  Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=1690 ProdID=7588 Rev=ff.ff
-S:  Manufacturer=Android
-S:  Product=Android
-S:  SerialNumber=813f0eef6e6e
-C:* #Ifs= 6 Cfg#= 1 Atr=80 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=84(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=86(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=88(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50 Driver=(none)
-E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=125us
+In __mmc_switch(), let's check the flag and use it to prevent R1B responses
+from being converted into R1. Note that, this also means that the host are
+on its own, when it comes to manage the busy timeout.
 
-Tested on openwrt distribution.
-
-Signed-off-by: Cezary Jackiewicz <cezary@eko.one.pl>
-Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Tested-by: Faiz Abbas <faiz_abbas@ti.com>
+Tested-By: Peter Geis <pgwipeout@gmail.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/core/mmc_ops.c | 8 +++++---
+ include/linux/mmc/host.h   | 1 +
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1210,6 +1210,7 @@ static const struct usb_device_id produc
- 	{QMI_FIXED_INTF(0x1435, 0xd182, 5)},	/* Wistron NeWeb D18 */
- 	{QMI_FIXED_INTF(0x1435, 0xd191, 4)},	/* Wistron NeWeb D19Q1 */
- 	{QMI_QUIRK_SET_DTR(0x1508, 0x1001, 4)},	/* Fibocom NL668 series */
-+	{QMI_FIXED_INTF(0x1690, 0x7588, 4)},    /* ASKEY WWHC050 */
- 	{QMI_FIXED_INTF(0x16d8, 0x6003, 0)},	/* CMOTech 6003 */
- 	{QMI_FIXED_INTF(0x16d8, 0x6007, 0)},	/* CMOTech CHE-628S */
- 	{QMI_FIXED_INTF(0x16d8, 0x6008, 0)},	/* CMOTech CMU-301 */
+diff --git a/drivers/mmc/core/mmc_ops.c b/drivers/mmc/core/mmc_ops.c
+index 09113b9ad6790..18a7afb2a5b23 100644
+--- a/drivers/mmc/core/mmc_ops.c
++++ b/drivers/mmc/core/mmc_ops.c
+@@ -538,10 +538,12 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
+ 	 * If the cmd timeout and the max_busy_timeout of the host are both
+ 	 * specified, let's validate them. A failure means we need to prevent
+ 	 * the host from doing hw busy detection, which is done by converting
+-	 * to a R1 response instead of a R1B.
++	 * to a R1 response instead of a R1B. Note, some hosts requires R1B,
++	 * which also means they are on their own when it comes to deal with the
++	 * busy timeout.
+ 	 */
+-	if (timeout_ms && host->max_busy_timeout &&
+-		(timeout_ms > host->max_busy_timeout))
++	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && timeout_ms &&
++	    host->max_busy_timeout && (timeout_ms > host->max_busy_timeout))
+ 		use_r1b_resp = false;
+ 
+ 	cmd.opcode = MMC_SWITCH;
+diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
+index ba703384bea0c..4c5eb3aa8e723 100644
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -333,6 +333,7 @@ struct mmc_host {
+ 				 MMC_CAP_UHS_SDR50 | MMC_CAP_UHS_SDR104 | \
+ 				 MMC_CAP_UHS_DDR50)
+ #define MMC_CAP_SYNC_RUNTIME_PM	(1 << 21)	/* Synced runtime PM suspends. */
++#define MMC_CAP_NEED_RSP_BUSY	(1 << 22)	/* Commands with R1B can't use R1. */
+ #define MMC_CAP_DRIVER_TYPE_A	(1 << 23)	/* Host supports Driver Type A */
+ #define MMC_CAP_DRIVER_TYPE_C	(1 << 24)	/* Host supports Driver Type C */
+ #define MMC_CAP_DRIVER_TYPE_D	(1 << 25)	/* Host supports Driver Type D */
+-- 
+2.20.1
+
 
 
