@@ -2,113 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BAD6198C31
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 08:19:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58752198C45
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 08:26:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726488AbgCaGTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 02:19:41 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:34075 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726060AbgCaGTl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 02:19:41 -0400
-Received: by mail-ot1-f68.google.com with SMTP id m2so6176307otr.1;
-        Mon, 30 Mar 2020 23:19:41 -0700 (PDT)
+        id S1726865AbgCaGZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 02:25:57 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:50291 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726681AbgCaGZ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 02:25:57 -0400
+Received: by mail-wm1-f65.google.com with SMTP id t128so1181613wma.0;
+        Mon, 30 Mar 2020 23:25:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ArVsRQLEDczzNKjhr+jbvPA9gOP9bTXo6z6wbtdEl10=;
+        b=jns4IRlGX9ipfTr9QrAL9MdEaWIkQoFyIooKuQipIVNBQSVtUMw3vCCJFj+PSX0izw
+         +M5IjJagxyUJYuSRRESQduiYnQMChrwqRwRMmueI54Njg2kqSOmeHR8E86vStL93enHf
+         nNtb1uAil9EIpv0yMCIXp5n/QJU5ZfiZSTvwzVXvhrNq6eNYO5ZvtnbQK4Y50Rg/zc2P
+         vtaXcjP2CslaNNrPwMndOFVXGoN98KaJHSKPngCN4govHd8pn3IpY6rqOFMWrPa7FGgh
+         UUbwFPoeMF2tJKPSKIH/BsQDIuuqiToYHF5QTvAkoFHKWjTbqm3fRkmDCCZF8ztugo5+
+         s2kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=XCdJCbcFAqKbu5o4UMmbzXHaFPJd9Ik8M7QfW5a9gSE=;
-        b=fAdt+P+TSKsLmQG16uvwEgJI6R2W8qSmVKlRVlUuSaL6tK94YZbiGI8cxjtAVgKekF
-         gBo2sOAB/Nmbz1tKSWemDsaDaneA3UEcIfXQTEJu4x9StbilSAnYbevMr02IFJ+u8mcp
-         Vu0NGrTdWmK3DQsuxdz3tDdUOvhvgm+SKS8nZty0ikhxLU/IUU3ZKHCSGqfHgpmRXpYi
-         EcNdnW9kmkFnpB1tKvYNmxVoseeFi/qY731g9G+7d+BtpZKCzNZcslxYjMK1NpnQ5AM+
-         oI0OLSs9osopGxohIgF9OfD3N1XEgCd9nVV7tr+3r5rZiF8VybiKpmsSMfvEc0AgfvEu
-         xOVA==
-X-Gm-Message-State: ANhLgQ3j/2txs4XNjaaDyBFY8lmcGOsC/eDVz9cKYTl7mj9rxLUeN/yD
-        sGDZYN1FMvTp+NI4bckfBrWArAsuRSwSL3BDVlw=
-X-Google-Smtp-Source: ADFU+vsLlPUWVwHlm1MZohs4ZiijuCiA9dRuDMtpcpQVflJWE1hgPv4eVishiq59gAA1qUXFEEGgkbR2+8SmWFBYtRo=
-X-Received: by 2002:a9d:7402:: with SMTP id n2mr12255889otk.262.1585635580865;
- Mon, 30 Mar 2020 23:19:40 -0700 (PDT)
+        bh=ArVsRQLEDczzNKjhr+jbvPA9gOP9bTXo6z6wbtdEl10=;
+        b=iqVVlfGbYviLsn3xoqgqTJNMTTTk3VnugEF57SdZWxjNJmB/fnNKYcA1vfDRTrTsqi
+         7xFoMF2pt972o/yRh38K+9YLrN11F47XcCFMWfRiB2AiPomw35I3lVlB3rwQZzUjl+RL
+         WpxDd8f0Nb7EWG8wBKH0l9vrTYS1Hlfg+JOqlKiX+ZREJoKd+hCdDaE3JX8W5nt/qX4z
+         EF9ZfAiuOctx5iZjJikeuUkr0uKKwArXdK88WgQOl5Eyn35J5s+Xn2Gdr/0+t2zQCiaq
+         PNYAkrUObIEcO7e/VZzxJi19+kPaBrttT5LlhJXtuBCqQKQEOTZ0VfdOcqMVPUoL9ZdT
+         oaHg==
+X-Gm-Message-State: ANhLgQ26ql4+ZwL3tZobFiQjhNL4/pAlppcrwjsYec2fLe1Brjjly8xB
+        rIzZUenudFmULWuECGLfWU27Qrdaz1AhbUeaVGk=
+X-Google-Smtp-Source: ADFU+vsfDb61Ldk0iX/IBTCWS+t2mAybXufGyG8yv092g0wKK9uHiwzveQnqojQSYrvCusFMdLqY+42vSuKTVOjtWOA=
+X-Received: by 2002:a1c:9c85:: with SMTP id f127mr1820416wme.91.1585635955410;
+ Mon, 30 Mar 2020 23:25:55 -0700 (PDT)
 MIME-Version: 1.0
-References: <cover.1585343507.git.gayatri.kammela@intel.com>
- <9359b8e261d69983b1eed2b8e53ef9eabfdfdd51.1585343507.git.gayatri.kammela@intel.com>
- <CAJZ5v0j8OaqM6k52Ar9sYn0Ea_u9+MBB0rcMWv6vGBt5jXCQBQ@mail.gmail.com>
- <20200330172439.GB1922688@smile.fi.intel.com> <BYAPR11MB362459660B914BEF1526AD8DF2CB0@BYAPR11MB3624.namprd11.prod.outlook.com>
-In-Reply-To: <BYAPR11MB362459660B914BEF1526AD8DF2CB0@BYAPR11MB3624.namprd11.prod.outlook.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Tue, 31 Mar 2020 08:19:29 +0200
-Message-ID: <CAJZ5v0inmWu6_ZYLCKart6F873SqK5AyvVXOCS83Yr=KQAQV_Q@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] ACPI: fix: Update Tiger Lake ACPI device IDs
-To:     "Kammela, Gayatri" <gayatri.kammela@intel.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Zhang, Rui" <rui.zhang@intel.com>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Len Brown <lenb@kernel.org>,
-        Darren Hart <dvhart@infradead.org>,
-        Alex Hung <alex.hung@canonical.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Amit Kucheria <amit.kucheria@verdurent.com>,
-        "Westerberg, Mika" <mika.westerberg@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Prestopine, Charles D" <charles.d.prestopine@intel.com>,
-        "5 . 6+" <stable@vger.kernel.org>,
-        "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>,
-        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>
+References: <20200311170120.12641-1-jeyu@kernel.org> <CANcMJZDhSUV8CU_ixOSxstVVBMW3rVrrQVYMmy1fz=OdhxA_GQ@mail.gmail.com>
+In-Reply-To: <CANcMJZDhSUV8CU_ixOSxstVVBMW3rVrrQVYMmy1fz=OdhxA_GQ@mail.gmail.com>
+From:   John Stultz <john.stultz@linaro.org>
+Date:   Mon, 30 Mar 2020 23:25:44 -0700
+Message-ID: <CANcMJZD9Lz-J_idL5i225VR_3Mo6PcTRsYBBrGsMByX6W4jepQ@mail.gmail.com>
+Subject: Re: [PATCH v2] modpost: move the namespace field in Module.symvers last
+To:     Jessica Yu <jeyu@kernel.org>
+Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Matthias Maennich <maennich@google.com>,
+        Lucas De Marchi <lucas.de.marchi@gmail.com>,
+        stable@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 31, 2020 at 1:22 AM Kammela, Gayatri
-<gayatri.kammela@intel.com> wrote:
+On Mon, Mar 30, 2020 at 10:49 PM John Stultz <john.stultz@linaro.org> wrote:
+> On Wed, Mar 11, 2020 at 10:03 AM Jessica Yu <jeyu@kernel.org> wrote:
+> >
+> > In order to preserve backwards compatability with kmod tools, we have to
+> > move the namespace field in Module.symvers last, as the depmod -e -E
+> > option looks at the first three fields in Module.symvers to check symbol
+> > versions (and it's expected they stay in the original order of crc,
+> > symbol, module).
+> >
+> > In addition, update an ancient comment above read_dump() in modpost that
+> > suggested that the export type field in Module.symvers was optional. I
+> > suspect that there were historical reasons behind that comment that are
+> > no longer accurate. We have been unconditionally printing the export
+> > type since 2.6.18 (commit bd5cbcedf44), which is over a decade ago now.
+> >
+> > Fix up read_dump() to treat each field as non-optional. I suspect the
+> > original read_dump() code treated the export field as optional in order
+> > to support pre <= 2.6.18 Module.symvers (which did not have the export
+> > type field). Note that although symbol namespaces are optional, the
+> > field will not be omitted from Module.symvers if a symbol does not have
+> > a namespace. In this case, the field will simply be empty and the next
+> > delimiter or end of line will follow.
+> >
+> > Cc: stable@vger.kernel.org
+> > Fixes: cb9b55d21fe0 ("modpost: add support for symbol namespaces")
+> > Tested-by: Matthias Maennich <maennich@google.com>
+> > Reviewed-by: Matthias Maennich <maennich@google.com>
+> > Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
+> > Signed-off-by: Jessica Yu <jeyu@kernel.org>
+> > ---
+> > v2:
+> >
+> >   - Explain the changes to read_dump() and the comment (and provide
+> >     historical context) in the commit message. (Lucas De Marchi)
+> >
+> >  Documentation/kbuild/modules.rst |  4 ++--
+> >  scripts/export_report.pl         |  2 +-
+> >  scripts/mod/modpost.c            | 24 ++++++++++++------------
+> >  3 files changed, 15 insertions(+), 15 deletions(-)
+> >
+> > diff --git a/Documentation/kbuild/modules.rst b/Documentation/kbuild/modules.rst
+> > index 69fa48ee93d6..e0b45a257f21 100644
+> > --- a/Documentation/kbuild/modules.rst
+> > +++ b/Documentation/kbuild/modules.rst
+> > @@ -470,9 +470,9 @@ build.
+> >
+> >         The syntax of the Module.symvers file is::
+> >
+> > -       <CRC>       <Symbol>          <Namespace>  <Module>                         <Export Type>
+> > +       <CRC>       <Symbol>         <Module>                         <Export Type>     <Namespace>
+> >
+> > -       0xe1cc2a05  usb_stor_suspend  USB_STORAGE  drivers/usb/storage/usb-storage  EXPORT_SYMBOL_GPL
+> > +       0xe1cc2a05  usb_stor_suspend drivers/usb/storage/usb-storage  EXPORT_SYMBOL_GPL USB_STORAGE
+> >
+> >         The fields are separated by tabs and values may be empty (e.g.
+> >         if no namespace is defined for an exported symbol).
 >
-> > -----Original Message-----
-> > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Sent: Monday, March 30, 2020 10:25 AM
-> > To: Rafael J. Wysocki <rafael@kernel.org>
-> > Cc: Kammela, Gayatri <gayatri.kammela@intel.com>; Zhang, Rui
-> > <rui.zhang@intel.com>; Linux PM <linux-pm@vger.kernel.org>; Platform
-> > Driver <platform-driver-x86@vger.kernel.org>; Linux Kernel Mailing List
-> > <linux-kernel@vger.kernel.org>; Len Brown <lenb@kernel.org>; Darren Hart
-> > <dvhart@infradead.org>; Alex Hung <alex.hung@canonical.com>; Daniel
-> > Lezcano <daniel.lezcano@linaro.org>; Amit Kucheria
-> > <amit.kucheria@verdurent.com>; Westerberg, Mika
-> > <mika.westerberg@intel.com>; Peter Zijlstra <peterz@infradead.org>;
-> > Prestopine, Charles D <charles.d.prestopine@intel.com>; 5 . 6+
-> > <stable@vger.kernel.org>; Pandruvada, Srinivas
-> > <srinivas.pandruvada@intel.com>; Wysocki, Rafael J
-> > <rafael.j.wysocki@intel.com>
-> > Subject: Re: [PATCH v2 1/3] ACPI: fix: Update Tiger Lake ACPI device IDs
-> >
-> > On Mon, Mar 30, 2020 at 06:43:35PM +0200, Rafael J. Wysocki wrote:
-> > > On Fri, Mar 27, 2020 at 10:34 PM Gayatri Kammela
-> > > <gayatri.kammela@intel.com> wrote:
-> >
-> > > > -       {"INT1044"},
-> > > > -       {"INT1047"},
-> > > > +       {"INTC1040"},
-> > > > +       {"INTC1043"},
-> > > > +       {"INTC1044"},
-> > > > +       {"INTC1047"},
-> > > >         {"INT3400"},
-> > > >         {"INT3401", INT3401_DEVICE},
-> > > >         {"INT3402"},
-> > > > --
-> > >
-> > > I can take this along with the other two patches in the series if that
-> > > is fine by Andy and Rui.
-> >
-> > One nit is to fix the ordering to be alphanumeric or close enough (I admit in
-> > some cases it might require unneeded churn) to that.
-> Thanks Andy and Rafael! Should I send v3 for this series with right ordering this time?
+> Despite the documentation here claiming the namespace field can be
+> empty, I'm seeing some trouble with this patch when building external
+> modules:
+>   FATAL: parse error in symbol dump file
+>
+> I've confirmed reverting it make things work again, but its not clear
+> to me quite yet why.
+>
+> The only difference I can find is that the Module.symvers in the
+> external module project doesn't seem to have a tab at the end of each
+> line (where as Module.symvers for the kernel - which doesn't seem to
+> have any namespace names - does).
+>
+> Is there something I need to tweak on the external Kbuild to get
+> Module.symvers to be generated properly (with the empty tab at the
+> end) for this new change?
+> Or does the parser need to be a bit more flexible?
+>
 
-No need, I can fix up the ordering just fine.
+One extra clue on this: I noticed the external module Makefile had
+KBUILD_EXTRA_SYMBOLS="$(EXTRA_SYMBOLS)"  in the $(MAKE) string, where
+EXTRA_SYMBOLS pointed to some files that no longer exist.  I removed
+the KBUILD_EXTRA_SYMBOLS= argument, and magically, the generated
+Module.symvers now had tabs at the end of each line.
 
-> > Otherwise,
-> > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+I wonder if there some path in the KBUILD_EXTRA_SYMBOLS= handling that
+isn't generating the output in the same way?
 
-Thanks!
+thanks
+-john
