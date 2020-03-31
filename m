@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DBB319914B
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 039AC19914C
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730285AbgCaJSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:18:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
+        id S1731964AbgCaJSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:18:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731975AbgCaJSs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:18:48 -0400
+        id S1731984AbgCaJSv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:18:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A7782072E;
-        Tue, 31 Mar 2020 09:18:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C434F20772;
+        Tue, 31 Mar 2020 09:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646327;
-        bh=TIixybRB4YOuIydEg4jkisdfemupE0rM2og/2zbTMQ0=;
+        s=default; t=1585646330;
+        bh=M2XYznMyPl5ilmTJqLhupO6Wszm9njVFjh1r0tDOHOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FXJIFZei31Q1SBZCm33+rb8DQKY/d6Ege/oQ1o2l4LmkKhZBubpl6TPWGV0eNp/J/
-         UMkJc8duVGtx/OI1DJqEnGCxmdUz/ux/zSUF+AH7TkKcdIMFHBrpsToWb+U/0qNUEn
-         jrKGlSLcwevu083QH60jrJm4rYHHNZh+8JlLdgCo=
+        b=Q/efSCVQBMx0hYIXhRpoHbuMlpVvKi+Yu9pN5v8V8UFX9Cxe5V8jPf0sYVrcaMWXp
+         OfMZzgDyxC730RDlS1ys/ithOB/0STxLxNPsgjpyQ+EmytnRFfWorEi0iuLXnQrYnL
+         B/7uiXB5Vx9UKIw1Mv9+rcXGPg7M0Bp+psnXju0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Johan Hovold <johan@kernel.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 153/155] media: stv06xx: add missing descriptor sanity checks
-Date:   Tue, 31 Mar 2020 10:59:53 +0200
-Message-Id: <20200331085435.185157100@linuxfoundation.org>
+Subject: [PATCH 5.4 154/155] media: xirlink_cit: add missing descriptor sanity checks
+Date:   Tue, 31 Mar 2020 10:59:54 +0200
+Message-Id: <20200331085435.280363980@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
 References: <20200331085418.274292403@linuxfoundation.org>
@@ -47,7 +47,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 485b06aadb933190f4bc44e006076bc27a23f205 upstream.
+commit a246b4d547708f33ff4d4b9a7a5dbac741dc89d8 upstream.
 
 Make sure to check that we have two alternate settings and at least one
 endpoint before accessing the second altsetting structure and
@@ -56,13 +56,13 @@ dereferencing the endpoint arrays.
 This specifically avoids dereferencing NULL-pointers or corrupting
 memory when a device does not have the expected descriptors.
 
-Note that the sanity checks in stv06xx_start() and pb0100_start() are
-not redundant as the driver is mixing looking up altsettings by index
-and by number, which may not coincide.
+Note that the sanity check in cit_get_packet_size() is not redundant as
+the driver is mixing looking up altsettings by index and by number,
+which may not coincide.
 
-Fixes: 8668d504d72c ("V4L/DVB (12082): gspca_stv06xx: Add support for st6422 bridge and sensor")
-Fixes: c0b33bdc5b8d ("[media] gspca-stv06xx: support bandwidth changing")
-Cc: stable <stable@vger.kernel.org>     # 2.6.31
+Fixes: 659fefa0eb17 ("V4L/DVB: gspca_xirlink_cit: Add support for camera with a bcd version of 0.01")
+Fixes: 59f8b0bf3c12 ("V4L/DVB: gspca_xirlink_cit: support bandwidth changing for devices with 1 alt setting")
+Cc: stable <stable@vger.kernel.org>     # 2.6.37
 Cc: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
@@ -70,29 +70,32 @@ Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/stv06xx/stv06xx.c        |   19 ++++++++++++++++++-
- drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c |    4 ++++
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ drivers/media/usb/gspca/xirlink_cit.c |   18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
---- a/drivers/media/usb/gspca/stv06xx/stv06xx.c
-+++ b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-@@ -282,6 +282,9 @@ static int stv06xx_start(struct gspca_de
+--- a/drivers/media/usb/gspca/xirlink_cit.c
++++ b/drivers/media/usb/gspca/xirlink_cit.c
+@@ -1442,6 +1442,9 @@ static int cit_get_packet_size(struct gs
  		return -EIO;
  	}
  
 +	if (alt->desc.bNumEndpoints < 1)
 +		return -ENODEV;
 +
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	err = stv06xx_write_bridge(sd, STV_ISO_SIZE_L, packet_size);
- 	if (err < 0)
-@@ -306,11 +309,21 @@ out:
+ 	return le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ }
  
- static int stv06xx_isoc_init(struct gspca_dev *gspca_dev)
+@@ -2626,6 +2629,7 @@ static int sd_start(struct gspca_dev *gs
+ 
+ static int sd_isoc_init(struct gspca_dev *gspca_dev)
  {
 +	struct usb_interface_cache *intfc;
  	struct usb_host_interface *alt;
- 	struct sd *sd = (struct sd *) gspca_dev;
+ 	int max_packet_size;
+ 
+@@ -2641,8 +2645,17 @@ static int sd_isoc_init(struct gspca_dev
+ 		break;
+ 	}
  
 +	intfc = gspca_dev->dev->actconfig->intf_cache[0];
 +
@@ -106,32 +109,18 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +
  	/* Start isoc bandwidth "negotiation" at max isoc bandwidth */
 -	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
- 	alt->endpoint[0].desc.wMaxPacketSize =
- 		cpu_to_le16(sd->sensor->max_packet_size[gspca_dev->curr_mode]);
+ 	alt->endpoint[0].desc.wMaxPacketSize = cpu_to_le16(max_packet_size);
  
-@@ -323,6 +336,10 @@ static int stv06xx_isoc_nego(struct gspc
- 	struct usb_host_interface *alt;
- 	struct sd *sd = (struct sd *) gspca_dev;
+ 	return 0;
+@@ -2665,6 +2678,9 @@ static int sd_isoc_nego(struct gspca_dev
+ 		break;
+ 	}
  
 +	/*
-+	 * Existence of altsetting and endpoint was verified in
-+	 * stv06xx_isoc_init()
++	 * Existence of altsetting and endpoint was verified in sd_isoc_init()
 +	 */
  	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
  	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	min_packet_size = sd->sensor->min_packet_size[gspca_dev->curr_mode];
---- a/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c
-+++ b/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c
-@@ -185,6 +185,10 @@ static int pb0100_start(struct sd *sd)
- 	alt = usb_altnum_to_altsetting(intf, sd->gspca_dev.alt);
- 	if (!alt)
- 		return -ENODEV;
-+
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 
- 	/* If we don't have enough bandwidth use a lower framerate */
+ 	if (packet_size <= min_packet_size)
 
 
