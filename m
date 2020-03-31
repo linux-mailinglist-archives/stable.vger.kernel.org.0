@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A08E9199182
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26043198FBD
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:06:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730853AbgCaJPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:15:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35522 "EHLO mail.kernel.org"
+        id S1730818AbgCaJF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:05:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730547AbgCaJPU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:15:20 -0400
+        id S1730053AbgCaJFz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:05:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0260220675;
-        Tue, 31 Mar 2020 09:15:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EC9E20B1F;
+        Tue, 31 Mar 2020 09:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646119;
-        bh=+qQRse8RqlkU/6s73AD5+3QBNHW78pnuLWsIUtuDqKs=;
+        s=default; t=1585645555;
+        bh=UNYn8Ftm2U+xuoqzdwgc59OmLPnfj1sfx624GvHCahU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dkafwPa6DGLJBnA4PnHYI0YIMULJhsN8pgSDp6yREaHKYpp2flOyM/Yx9M9K3NBgL
-         8eaMwLGjiTeGVMEiycnMrNv5ZVgd0J9tN7wnqUmf3w/LHonJswkU5lpuFPVC8mptGq
-         OxD8cxijCp5UDmQGBRRrQGAWiuXzVjdCyO1ADO5s=
+        b=gjTReSPt/sUvnHZtOdNjmaOuCjdb8OVnPebpuNSnW3Ugjpu8SRKY8plQjapmlqu95
+         Vs0m1GX8lbRnr5hqiWiC9xE7HSY+j02jTZrRc2tSyrSEWEqg4un/aIZ31KYM5TOItS
+         l4ZR3ogTUbpKp53T4LBS7Q59WKw+lwjkpW4cuWuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
-        Candice Li <Candice.Li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/155] drm/amdgpu: correct ROM_INDEX/DATA offset for VEGA20
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.5 089/170] gpiolib: Fix irq_disable() semantics
 Date:   Tue, 31 Mar 2020 10:58:23 +0200
-Message-Id: <20200331085425.576534719@linuxfoundation.org>
+Message-Id: <20200331085433.743228689@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hawking Zhang <Hawking.Zhang@amd.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit f1c2cd3f8fb959123a9beba18c0e8112dcb2e137 ]
+commit 8959b304c7062889b1276092cc8590dc1ba98f65 upstream.
 
-The ROMC_INDEX/DATA offset was changed to e4/e5 since
-from smuio_v11 (vega20/arcturus).
+The implementation if .irq_disable() which kicks in between
+the gpiolib and the driver is not properly mimicking the
+expected semantics of the irqchip core: the irqchip will
+call .irq_disable() if that exists, else it will call
+mask_irq() which first checks if .irq_mask() is defined
+before calling it.
 
-Signed-off-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Tested-by: Candice Li <Candice.Li@amd.com>
-Reviewed-by: Candice Li <Candice.Li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Since we are calling it unconditionally, we get this bug
+from drivers/pinctrl/qcom/pinctrl-ssbi-gpio.c, as it only
+defines .irq_mask_ack and not .irq_mask:
+
+  Unable to handle kernel NULL pointer dereference at virtual address 00000000
+  pgd = (ptrval)
+  (...)
+  PC is at 0x0
+  LR is at gpiochip_irq_disable+0x20/0x30
+
+Fix this by only calling .irq_mask() if it exists.
+
+Cc: Brian Masney <masneyb@onstation.org>
+Cc: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: 461c1a7d4733 ("gpiolib: override irq_enable/disable")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20200306132326.1329640-1-linus.walleij@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/amdgpu/soc15.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/gpio/gpiolib.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/soc15.c b/drivers/gpu/drm/amd/amdgpu/soc15.c
-index 80934ca172607..c086262cc181d 100644
---- a/drivers/gpu/drm/amd/amdgpu/soc15.c
-+++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
-@@ -84,6 +84,13 @@
- #define HDP_MEM_POWER_CTRL__RC_MEM_POWER_CTRL_EN_MASK	0x00010000L
- #define HDP_MEM_POWER_CTRL__RC_MEM_POWER_LS_EN_MASK		0x00020000L
- #define mmHDP_MEM_POWER_CTRL_BASE_IDX	0
-+
-+/* for Vega20/arcturus regiter offset change */
-+#define	mmROM_INDEX_VG20				0x00e4
-+#define	mmROM_INDEX_VG20_BASE_IDX			0
-+#define	mmROM_DATA_VG20					0x00e5
-+#define	mmROM_DATA_VG20_BASE_IDX			0
-+
- /*
-  * Indirect registers accessor
-  */
-@@ -304,6 +311,8 @@ static bool soc15_read_bios_from_rom(struct amdgpu_device *adev,
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -2323,9 +2323,16 @@ static void gpiochip_irq_disable(struct
  {
- 	u32 *dw_ptr;
- 	u32 i, length_dw;
-+	uint32_t rom_index_offset;
-+	uint32_t rom_data_offset;
+ 	struct gpio_chip *chip = irq_data_get_irq_chip_data(d);
  
- 	if (bios == NULL)
- 		return false;
-@@ -316,11 +325,23 @@ static bool soc15_read_bios_from_rom(struct amdgpu_device *adev,
- 	dw_ptr = (u32 *)bios;
- 	length_dw = ALIGN(length_bytes, 4) / 4;
- 
-+	switch (adev->asic_type) {
-+	case CHIP_VEGA20:
-+	case CHIP_ARCTURUS:
-+		rom_index_offset = SOC15_REG_OFFSET(SMUIO, 0, mmROM_INDEX_VG20);
-+		rom_data_offset = SOC15_REG_OFFSET(SMUIO, 0, mmROM_DATA_VG20);
-+		break;
-+	default:
-+		rom_index_offset = SOC15_REG_OFFSET(SMUIO, 0, mmROM_INDEX);
-+		rom_data_offset = SOC15_REG_OFFSET(SMUIO, 0, mmROM_DATA);
-+		break;
-+	}
-+
- 	/* set rom index to 0 */
--	WREG32(SOC15_REG_OFFSET(SMUIO, 0, mmROM_INDEX), 0);
-+	WREG32(rom_index_offset, 0);
- 	/* read out the rom data */
- 	for (i = 0; i < length_dw; i++)
--		dw_ptr[i] = RREG32(SOC15_REG_OFFSET(SMUIO, 0, mmROM_DATA));
-+		dw_ptr[i] = RREG32(rom_data_offset);
- 
- 	return true;
++	/*
++	 * Since we override .irq_disable() we need to mimic the
++	 * behaviour of __irq_disable() in irq/chip.c.
++	 * First call .irq_disable() if it exists, else mimic the
++	 * behaviour of mask_irq() which calls .irq_mask() if
++	 * it exists.
++	 */
+ 	if (chip->irq.irq_disable)
+ 		chip->irq.irq_disable(d);
+-	else
++	else if (chip->irq.chip->irq_mask)
+ 		chip->irq.chip->irq_mask(d);
+ 	gpiochip_disable_irq(chip, d->hwirq);
  }
--- 
-2.20.1
-
 
 
