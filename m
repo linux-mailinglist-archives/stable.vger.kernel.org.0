@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC6B198FA9
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B99A519908F
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:12:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730981AbgCaJEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:04:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
+        id S1731655AbgCaJMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:12:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730648AbgCaJEt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:04:49 -0400
+        id S1731129AbgCaJMd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:12:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BE6520787;
-        Tue, 31 Mar 2020 09:04:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E6DA20675;
+        Tue, 31 Mar 2020 09:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645488;
-        bh=PndM6PtHusE/G30Hx9O5MCKkXCtbBUHeBRG+pkQeq0c=;
+        s=default; t=1585645952;
+        bh=YY8lLrOB4duBAq0wkTfQHeNzcmgnD93oEjkB30RPVlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vr34luBDrXgFBoxxBigBQQyWcKDumzUXn6wpNFD117+aP1p0PqbG/wFhooeTZbmFv
-         hpslo8XIxCp0a7d7M+WD5jc5UzDWTURwbF/b7iur59rbKB91zYeNPToGwiBwyB3vlC
-         Lx7wXZqXCTKMz35Ct+HCico4KeJfjgvkqma8I58g=
+        b=J3ENi2dokuQ+cZClb/z3N0AKpysqJXwhOHUAPx907HHbL0OsyK31++cTlcZh/kYDa
+         +PODuCdHSNvhM+XMAizeWXEJLT8ZVBfkiTLxXpRk94G5+sr0evUKhP92KS9GakRZKy
+         vdyNZ4SDt/yIbM6u89HusUhtW4UQjrg4gqWwwJHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dajun Jin <adajunjin@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 067/170] drivers/of/of_mdio.c:fix of_mdiobus_register()
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 041/155] bnxt_en: Return error if bnxt_alloc_ctx_mem() fails.
 Date:   Tue, 31 Mar 2020 10:58:01 +0200
-Message-Id: <20200331085431.560157794@linuxfoundation.org>
+Message-Id: <20200331085423.020114735@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dajun Jin <adajunjin@gmail.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 209c65b61d94344522c41a83cd6ce51aac5fd0a4 ]
+[ Upstream commit 0b5b561cea32d5bb1e0a82d65b755a3cb5212141 ]
 
-When registers a phy_device successful, should terminate the loop
-or the phy_device would be registered in other addr. If there are
-multiple PHYs without reg properties, it will go wrong.
+The current code ignores the return value from
+bnxt_hwrm_func_backing_store_cfg(), causing the driver to proceed in
+the init path even when this vital firmware call has failed.  Fix it
+by propagating the error code to the caller.
 
-Signed-off-by: Dajun Jin <adajunjin@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: 1b9394e5a2ad ("bnxt_en: Configure context memory on new devices.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/of/of_mdio.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
-index fc757ef6eadc5..a27234c58ec56 100644
---- a/drivers/of/of_mdio.c
-+++ b/drivers/of/of_mdio.c
-@@ -269,6 +269,7 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
- 				rc = of_mdiobus_register_phy(mdio, child, addr);
- 				if (rc && rc != -ENODEV)
- 					goto unregister;
-+				break;
- 			}
- 		}
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -6863,12 +6863,12 @@ skip_rdma:
  	}
--- 
-2.20.1
-
+ 	ena |= FUNC_BACKING_STORE_CFG_REQ_DFLT_ENABLES;
+ 	rc = bnxt_hwrm_func_backing_store_cfg(bp, ena);
+-	if (rc)
++	if (rc) {
+ 		netdev_err(bp->dev, "Failed configuring context mem, rc = %d.\n",
+ 			   rc);
+-	else
+-		ctx->flags |= BNXT_CTX_FLAG_INITED;
+-
++		return rc;
++	}
++	ctx->flags |= BNXT_CTX_FLAG_INITED;
+ 	return 0;
+ }
+ 
 
 
