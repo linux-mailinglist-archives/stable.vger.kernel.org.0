@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4427E198F78
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:03:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2586419907E
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730567AbgCaJDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:03:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43426 "EHLO mail.kernel.org"
+        id S1730660AbgCaJMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:12:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730616AbgCaJDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:03:40 -0400
+        id S1731784AbgCaJMS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:12:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28A6220787;
-        Tue, 31 Mar 2020 09:03:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFF5920675;
+        Tue, 31 Mar 2020 09:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645419;
-        bh=Zf31paX7k2ZkrtIcuW+qjbnpvFLPskIxAlURiEL6dX4=;
+        s=default; t=1585645938;
+        bh=+SWvVj50SI0AtMxhq+kMQlX5o5yQc3CcDBwhaRxOaBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgkYENoCXgtCMTaClTb9z/G6PHFkGIvhRSpJgoheJYb11J7vo64W1cYIZpi+2KzBy
-         rbSu4PDifiifQfyrDEUUwdKMiUD+p2QuaL/ZVL8y20Z5nCoT8tKrZ4l2SYeti0TcHe
-         uCoMCYuKAKt7wjId3hf4CXROwvoxozXfkMdVSSzE=
+        b=tfMeAJzxcWRa4wCP/Us69ORqmjd7exezEnU7CUuetde+vl32oSDNBbeeBPN/T1YGK
+         Zu/D2JC1nUCjlE+JGohwwfvvt+OM6NxoMK48175gTFMFFnS//kw9BEX98Yl85nwJOQ
+         8+sfcmUZap1Oe5AVuf4yD6oLyppESB5hQOHP0nYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
+        stable@vger.kernel.org,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 047/170] net: ena: fix incorrect setting of the number of msix vectors
+Subject: [PATCH 5.4 021/155] net: mvneta: Fix the case where the last poll did not process all rx
 Date:   Tue, 31 Mar 2020 10:57:41 +0200
-Message-Id: <20200331085429.420618706@linuxfoundation.org>
+Message-Id: <20200331085420.763973822@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arthur Kiyanovski <akiyano@amazon.com>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-[ Upstream commit ce1f352162828ba07470328828a32f47aa759020 ]
+[ Upstream commit 065fd83e1be2e1ba0d446a257fd86a3cc7bddb51 ]
 
-Overview:
-We don't frequently change the msix vectors throughout the life cycle of
-the driver. We do so in two functions: ena_probe() and ena_restore().
-ena_probe() is only called when the driver is loaded. ena_restore() on the
-other hand is called during device reset / resume operations.
+For the case where the last mvneta_poll did not process all
+RX packets, we need to xor the pp->cause_rx_tx or port->cause_rx_tx
+before claculating the rx_queue.
 
-We use num_io_queues for calculating and allocating the number of msix
-vectors. At ena_probe() this value is equal to max_num_io_queues and thus
-this is not an issue, however ena_restore() might be called after the
-number of io queues has changed.
-
-A possible bug scenario is as follows:
-
-* Change number of queues from 8 to 4.
-  (num_io_queues = 4, max_num_io_queues = 8, msix_vecs = 9,)
-* Trigger reset occurs -> ena_restore is called.
-  (num_io_queues = 4, max_num_io_queues =8 , msix_vecs = 5)
-* Change number of queues from 4 to 6.
-  (num_io_queues = 6, max_num_io_queues = 8, msix_vecs = 5)
-* The driver will reset due to failure of check_for_rx_interrupt_queue()
-
-Fix:
-This can be easily fixed by always using max_num_io_queues to init the
-msix_vecs, since this number won't change as opposed to num_io_queues.
-
-Fixes: 4d19266022ec ("net: ena: multiple queue creation related cleanups")
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Fixes: 2dcf75e2793c ("net: mvneta: Associate RX queues with each CPU")
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvneta.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -1346,7 +1346,7 @@ static int ena_enable_msix(struct ena_ad
- 	}
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -2804,11 +2804,10 @@ static int mvneta_poll(struct napi_struc
+ 	/* For the case where the last mvneta_poll did not process all
+ 	 * RX packets
+ 	 */
+-	rx_queue = fls(((cause_rx_tx >> 8) & 0xff));
+-
+ 	cause_rx_tx |= pp->neta_armada3700 ? pp->cause_rx_tx :
+ 		port->cause_rx_tx;
  
- 	/* Reserved the max msix vectors we might need */
--	msix_vecs = ENA_MAX_MSIX_VEC(adapter->num_io_queues);
-+	msix_vecs = ENA_MAX_MSIX_VEC(adapter->max_num_io_queues);
- 	netif_dbg(adapter, probe, adapter->netdev,
- 		  "trying to enable MSI-X, vectors %d\n", msix_vecs);
- 
++	rx_queue = fls(((cause_rx_tx >> 8) & 0xff));
+ 	if (rx_queue) {
+ 		rx_queue = rx_queue - 1;
+ 		if (pp->bm_priv)
 
 
