@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17472198FF2
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:08:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 020F3198FF4
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731255AbgCaJHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:07:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49550 "EHLO mail.kernel.org"
+        id S1730930AbgCaJHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:07:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731253AbgCaJHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:07:41 -0400
+        id S1731260AbgCaJHp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:07:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AF6C20675;
-        Tue, 31 Mar 2020 09:07:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0F7F20787;
+        Tue, 31 Mar 2020 09:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645660;
-        bh=IBrtUwAj/kudXzIhfRRZJyZCAvHi7O3Iql1xDAT/T4M=;
+        s=default; t=1585645663;
+        bh=rUDUpY2Txznbct4V9HrwCS59gMaGOM3rsv9wSGfG2/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LBuHdiB0m2qNezTdFzUNNhn4+eX8q0bXJz4ojlTD7NovclX2XPG7PBB4x+54RZNOv
-         j8Y5YLc4FpjugyYxKIUzaSXxQyYHAGbzw5sdTfYWdkWqhZXPfC13sR2jD27dU+5eEV
-         NI+wMeELfM+8BY0pWWe2gIzyohqrGnnvfGYPvKRA=
+        b=gI7XdDrbTYx/FRZcdyqu3NWnEhU6pgMTDGrlcaIRIJZ2SYouaIETzg7jQ9Yr48+TI
+         7Ve/fckSApcKbgcBywVfsMtGC2+/MyhldUjK993awYiK/YTAqZ1Runlu1RdbJI3Bqz
+         QhcE8dSDmTsSkeKQI9J4BL8Fs6mg5xe7tp6dsy6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Zhang <markz@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 124/170] RDMA/mlx5: Fix the number of hwcounters of a dynamic counter
-Date:   Tue, 31 Mar 2020 10:58:58 +0200
-Message-Id: <20200331085437.118041944@linuxfoundation.org>
+Subject: [PATCH 5.5 125/170] RDMA/mlx5: Fix access to wrong pointer while performing flush due to error
+Date:   Tue, 31 Mar 2020 10:58:59 +0200
+Message-Id: <20200331085437.186233743@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
 References: <20200331085423.990189598@linuxfoundation.org>
@@ -44,90 +43,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markz@mellanox.com>
+From: Leon Romanovsky <leonro@mellanox.com>
 
-commit ec16b6bbdab1ce2b03f46271460efc7f450658cd upstream.
+commit 950bf4f17725556bbc773a5b71e88a6c14c9ff25 upstream.
 
-When we read the global counter and there's any dynamic counter allocated,
-the value of a hwcounter is the sum of the default counter and all dynamic
-counters. So the number of hwcounters of a dynamically allocated counter
-must be same as of the default counter, otherwise there will be read
-violations.
+The main difference between send and receive SW completions is related to
+separate treatment of WQ queue. For receive completions, the initial index
+to be flushed is stored in "tail", while for send completions, it is in
+deleted "last_poll".
 
-This fixes the KASAN slab-out-of-bounds bug:
-
-  BUG: KASAN: slab-out-of-bounds in rdma_counter_get_hwstat_value+0x36d/0x390 [ib_core]
-  Read of size 8 at addr ffff8884192a5778 by task rdma/10138
-
-  CPU: 7 PID: 10138 Comm: rdma Not tainted 5.5.0-for-upstream-dbg-2020-02-06_18-30-19-27 #1
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+  CPU: 54 PID: 53405 Comm: kworker/u161:0 Kdump: loaded Tainted: G           OE    --------- -t - 4.18.0-147.el8.ppc64le #1
+  Workqueue: ib-comp-unb-wq ib_cq_poll_work [ib_core]
+  NIP:  c000003c7c00a000 LR: c00800000e586af4 CTR: c000003c7c00a000
+  REGS: c0000036cc9db940 TRAP: 0400   Tainted: G           OE    --------- -t -  (4.18.0-147.el8.ppc64le)
+  MSR:  9000000010009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 24004488  XER: 20040000
+  CFAR: c00800000e586af0 IRQMASK: 0
+  GPR00: c00800000e586ab4 c0000036cc9dbbc0 c00800000e5f1a00 c0000037d8433800
+  GPR04: c000003895a26800 c0000037293f2000 0000000000000201 0000000000000011
+  GPR08: c000003895a26c80 c000003c7c00a000 0000000000000000 c00800000ed30438
+  GPR12: c000003c7c00a000 c000003fff684b80 c00000000017c388 c00000396ec4be40
+  GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+  GPR20: c00000000151e498 0000000000000010 c000003895a26848 0000000000000010
+  GPR24: 0000000000000010 0000000000010000 c000003895a26800 0000000000000000
+  GPR28: 0000000000000010 c0000037d8433800 c000003895a26c80 c000003895a26800
+  NIP [c000003c7c00a000] 0xc000003c7c00a000
+  LR [c00800000e586af4] __ib_process_cq+0xec/0x1b0 [ib_core]
   Call Trace:
-   dump_stack+0xb7/0x10b
-   print_address_description.constprop.4+0x1e2/0x400
-   ? rdma_counter_get_hwstat_value+0x36d/0x390 [ib_core]
-   __kasan_report+0x15c/0x1e0
-   ? mlx5_ib_query_q_counters+0x13f/0x270 [mlx5_ib]
-   ? rdma_counter_get_hwstat_value+0x36d/0x390 [ib_core]
-   kasan_report+0xe/0x20
-   rdma_counter_get_hwstat_value+0x36d/0x390 [ib_core]
-   ? rdma_counter_query_stats+0xd0/0xd0 [ib_core]
-   ? memcpy+0x34/0x50
-   ? nla_put+0xe2/0x170
-   nldev_stat_get_doit+0x9c7/0x14f0 [ib_core]
-   ...
-   do_syscall_64+0x95/0x490
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7fcc457fe65a
-  Code: bb 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 8b 05 fa f1 2b 00 45 89 c9 4c 63 d1 48 63 ff 85 c0 75 15 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 76 f3 c3 0f 1f 40 00 41 55 41 54 4d 89 c5 55
-  RSP: 002b:00007ffc0586f868 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fcc457fe65a
-  RDX: 0000000000000020 RSI: 00000000013db920 RDI: 0000000000000003
-  RBP: 00007ffc0586fa90 R08: 00007fcc45ac10e0 R09: 000000000000000c
-  R10: 0000000000000000 R11: 0000000000000246 R12: 00000000004089c0
-  R13: 0000000000000000 R14: 00007ffc0586fab0 R15: 00000000013dc9a0
+  [c0000036cc9dbbc0] [c00800000e586ab4] __ib_process_cq+0xac/0x1b0 [ib_core] (unreliable)
+  [c0000036cc9dbc40] [c00800000e586c88] ib_cq_poll_work+0x40/0xb0 [ib_core]
+  [c0000036cc9dbc70] [c000000000171f44] process_one_work+0x2f4/0x5c0
+  [c0000036cc9dbd10] [c000000000172a0c] worker_thread+0xcc/0x760
+  [c0000036cc9dbdc0] [c00000000017c52c] kthread+0x1ac/0x1c0
+  [c0000036cc9dbe30] [c00000000000b75c] ret_from_kernel_thread+0x5c/0x80
 
-  Allocated by task 9700:
-   save_stack+0x19/0x80
-   __kasan_kmalloc.constprop.7+0xa0/0xd0
-   mlx5_ib_counter_alloc_stats+0xd1/0x1d0 [mlx5_ib]
-   rdma_counter_alloc+0x16d/0x3f0 [ib_core]
-   rdma_counter_bind_qpn_alloc+0x216/0x4e0 [ib_core]
-   nldev_stat_set_doit+0x8c2/0xb10 [ib_core]
-   rdma_nl_rcv_msg+0x3d2/0x730 [ib_core]
-   rdma_nl_rcv+0x2a8/0x400 [ib_core]
-   netlink_unicast+0x448/0x620
-   netlink_sendmsg+0x731/0xd10
-   sock_sendmsg+0xb1/0xf0
-   __sys_sendto+0x25d/0x2c0
-   __x64_sys_sendto+0xdd/0x1b0
-   do_syscall_64+0x95/0x490
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fixes: 18d422ce8ccf ("IB/mlx5: Add counter_alloc_stats() and counter_update_stats() support")
-Link: https://lore.kernel.org/r/20200305124052.196688-1-leon@kernel.org
-Signed-off-by: Mark Zhang <markz@mellanox.com>
+Fixes: 8e3b68830186 ("RDMA/mlx5: Delete unreachable handle_atomic code by simplifying SW completion")
+Link: https://lore.kernel.org/r/20200318091640.44069-1-leon@kernel.org
 Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/main.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/mlx5/cq.c      |   27 +++++++++++++++++++++++++--
+ drivers/infiniband/hw/mlx5/mlx5_ib.h |    1 +
+ drivers/infiniband/hw/mlx5/qp.c      |    1 +
+ 3 files changed, 27 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -5666,9 +5666,10 @@ mlx5_ib_counter_alloc_stats(struct rdma_
- 	const struct mlx5_ib_counters *cnts =
- 		get_counters(dev, counter->port - 1);
- 
--	/* Q counters are in the beginning of all counters */
- 	return rdma_alloc_hw_stats_struct(cnts->names,
--					  cnts->num_q_counters,
-+					  cnts->num_q_counters +
-+					  cnts->num_cong_counters +
-+					  cnts->num_ext_ppcnt_counters,
- 					  RDMA_HW_STATS_DEFAULT_LIFESPAN);
+--- a/drivers/infiniband/hw/mlx5/cq.c
++++ b/drivers/infiniband/hw/mlx5/cq.c
+@@ -330,6 +330,22 @@ static void mlx5_handle_error_cqe(struct
+ 		dump_cqe(dev, cqe);
  }
  
++static void handle_atomics(struct mlx5_ib_qp *qp, struct mlx5_cqe64 *cqe64,
++			   u16 tail, u16 head)
++{
++	u16 idx;
++
++	do {
++		idx = tail & (qp->sq.wqe_cnt - 1);
++		if (idx == head)
++			break;
++
++		tail = qp->sq.w_list[idx].next;
++	} while (1);
++	tail = qp->sq.w_list[idx].next;
++	qp->sq.last_poll = tail;
++}
++
+ static void free_cq_buf(struct mlx5_ib_dev *dev, struct mlx5_ib_cq_buf *buf)
+ {
+ 	mlx5_frag_buf_free(dev->mdev, &buf->frag_buf);
+@@ -368,7 +384,7 @@ static void get_sig_err_item(struct mlx5
+ }
+ 
+ static void sw_comp(struct mlx5_ib_qp *qp, int num_entries, struct ib_wc *wc,
+-		    int *npolled, int is_send)
++		    int *npolled, bool is_send)
+ {
+ 	struct mlx5_ib_wq *wq;
+ 	unsigned int cur;
+@@ -383,10 +399,16 @@ static void sw_comp(struct mlx5_ib_qp *q
+ 		return;
+ 
+ 	for (i = 0;  i < cur && np < num_entries; i++) {
+-		wc->wr_id = wq->wrid[wq->tail & (wq->wqe_cnt - 1)];
++		unsigned int idx;
++
++		idx = (is_send) ? wq->last_poll : wq->tail;
++		idx &= (wq->wqe_cnt - 1);
++		wc->wr_id = wq->wrid[idx];
+ 		wc->status = IB_WC_WR_FLUSH_ERR;
+ 		wc->vendor_err = MLX5_CQE_SYNDROME_WR_FLUSH_ERR;
+ 		wq->tail++;
++		if (is_send)
++			wq->last_poll = wq->w_list[idx].next;
+ 		np++;
+ 		wc->qp = &qp->ibqp;
+ 		wc++;
+@@ -473,6 +495,7 @@ repoll:
+ 		wqe_ctr = be16_to_cpu(cqe64->wqe_counter);
+ 		idx = wqe_ctr & (wq->wqe_cnt - 1);
+ 		handle_good_req(wc, cqe64, wq, idx);
++		handle_atomics(*cur_qp, cqe64, wq->last_poll, idx);
+ 		wc->wr_id = wq->wrid[idx];
+ 		wq->tail = wq->wqe_head[idx] + 1;
+ 		wc->status = IB_WC_SUCCESS;
+--- a/drivers/infiniband/hw/mlx5/mlx5_ib.h
++++ b/drivers/infiniband/hw/mlx5/mlx5_ib.h
+@@ -282,6 +282,7 @@ struct mlx5_ib_wq {
+ 	unsigned		head;
+ 	unsigned		tail;
+ 	u16			cur_post;
++	u16			last_poll;
+ 	void			*cur_edge;
+ };
+ 
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -3728,6 +3728,7 @@ static int __mlx5_ib_modify_qp(struct ib
+ 		qp->sq.cur_post = 0;
+ 		if (qp->sq.wqe_cnt)
+ 			qp->sq.cur_edge = get_sq_edge(&qp->sq, 0);
++		qp->sq.last_poll = 0;
+ 		qp->db.db[MLX5_RCV_DBR] = 0;
+ 		qp->db.db[MLX5_SND_DBR] = 0;
+ 	}
 
 
