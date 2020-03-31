@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66EEC199193
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F177B198F80
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730516AbgCaJOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:14:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33842 "EHLO mail.kernel.org"
+        id S1730903AbgCaJEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:04:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731796AbgCaJOG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:14:06 -0400
+        id S1730691AbgCaJEB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:04:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BA852145D;
-        Tue, 31 Mar 2020 09:14:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D93F20848;
+        Tue, 31 Mar 2020 09:04:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646045;
-        bh=S092gFVFtOYE7P8NHrfnFQpRTJsmjesAJzX7X3rp8K8=;
+        s=default; t=1585645441;
+        bh=Oz0qI06ehZL1R8FnE8z2ekkD37JMOBJNah1EdjcNgbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYDC90zS+6P0C0nG1LwvAI1feSo2DOVVcYe1LQpbLseulF/8uMsXQPxSdBNJ4QtI5
-         Q99roJvpDQcHQY8YLkmfdBlOXZFnviI3bkhC5kQFer4sEoYqnae/tY+kzSAyCKS9MK
-         qydAeOYCeYESd/BuH9b1qG3Nv/apPSguUaIIZmDs=
+        b=XgEJA1+n/Tg5P0P4yiTOCw/TEl7iaktdGZ/1YL/5U1cWF+S0I5ILmghP86VcNDpcn
+         lwMXBY5sgzeqrrWf/aosnL85CpZdZdzdyg2qH8Tnb78YrxJv02EkyVFPkZ6sO9fpY1
+         FPQn+AoUBfYa+T51EhYP2opn+YtSJSQzSvN9oP3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+f9b32aaacd60305d9687@syzkaller.appspotmail.com,
-        syzbot+2f8c233f131943d6056d@syzkaller.appspotmail.com,
-        syzbot+9c2df9fd5e9445b74e01@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 028/155] net_sched: cls_route: remove the right filter from hashtable
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 054/170] hsr: add restart routine into hsr_get_node_list()
 Date:   Tue, 31 Mar 2020 10:57:48 +0200
-Message-Id: <20200331085421.551530550@linuxfoundation.org>
+Message-Id: <20200331085430.189432340@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,45 +43,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit ef299cc3fa1a9e1288665a9fdc8bff55629fd359 ]
+[ Upstream commit ca19c70f5225771c05bcdcb832b4eb84d7271c5e ]
 
-route4_change() allocates a new filter and copies values from
-the old one. After the new filter is inserted into the hash
-table, the old filter should be removed and freed, as the final
-step of the update.
+The hsr_get_node_list() is to send node addresses to the userspace.
+If there are so many nodes, it could fail because of buffer size.
+In order to avoid this failure, the restart routine is added.
 
-However, the current code mistakenly removes the new one. This
-looks apparently wrong to me, and it causes double "free" and
-use-after-free too, as reported by syzbot.
-
-Reported-and-tested-by: syzbot+f9b32aaacd60305d9687@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+2f8c233f131943d6056d@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+9c2df9fd5e9445b74e01@syzkaller.appspotmail.com
-Fixes: 1109c00547fc ("net: sched: RCU cls_route")
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_route.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/hsr/hsr_netlink.c |   38 ++++++++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
 
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -534,8 +534,8 @@ static int route4_change(struct net *net
- 			fp = &b->ht[h];
- 			for (pfp = rtnl_dereference(*fp); pfp;
- 			     fp = &pfp->next, pfp = rtnl_dereference(*fp)) {
--				if (pfp == f) {
--					*fp = f->next;
-+				if (pfp == fold) {
-+					rcu_assign_pointer(*fp, fold->next);
- 					break;
- 				}
- 			}
+--- a/net/hsr/hsr_netlink.c
++++ b/net/hsr/hsr_netlink.c
+@@ -360,16 +360,14 @@ fail:
+  */
+ static int hsr_get_node_list(struct sk_buff *skb_in, struct genl_info *info)
+ {
+-	/* For receiving */
+-	struct nlattr *na;
++	unsigned char addr[ETH_ALEN];
+ 	struct net_device *hsr_dev;
+-
+-	/* For sending */
+ 	struct sk_buff *skb_out;
+-	void *msg_head;
+ 	struct hsr_priv *hsr;
+-	void *pos;
+-	unsigned char addr[ETH_ALEN];
++	bool restart = false;
++	struct nlattr *na;
++	void *pos = NULL;
++	void *msg_head;
+ 	int res;
+ 
+ 	if (!info)
+@@ -387,8 +385,9 @@ static int hsr_get_node_list(struct sk_b
+ 	if (!is_hsr_master(hsr_dev))
+ 		goto rcu_unlock;
+ 
++restart:
+ 	/* Send reply */
+-	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_ATOMIC);
++	skb_out = genlmsg_new(GENLMSG_DEFAULT_SIZE, GFP_ATOMIC);
+ 	if (!skb_out) {
+ 		res = -ENOMEM;
+ 		goto fail;
+@@ -402,17 +401,28 @@ static int hsr_get_node_list(struct sk_b
+ 		goto nla_put_failure;
+ 	}
+ 
+-	res = nla_put_u32(skb_out, HSR_A_IFINDEX, hsr_dev->ifindex);
+-	if (res < 0)
+-		goto nla_put_failure;
++	if (!restart) {
++		res = nla_put_u32(skb_out, HSR_A_IFINDEX, hsr_dev->ifindex);
++		if (res < 0)
++			goto nla_put_failure;
++	}
+ 
+ 	hsr = netdev_priv(hsr_dev);
+ 
+-	pos = hsr_get_next_node(hsr, NULL, addr);
++	if (!pos)
++		pos = hsr_get_next_node(hsr, NULL, addr);
+ 	while (pos) {
+ 		res = nla_put(skb_out, HSR_A_NODE_ADDR, ETH_ALEN, addr);
+-		if (res < 0)
++		if (res < 0) {
++			if (res == -EMSGSIZE) {
++				genlmsg_end(skb_out, msg_head);
++				genlmsg_unicast(genl_info_net(info), skb_out,
++						info->snd_portid);
++				restart = true;
++				goto restart;
++			}
+ 			goto nla_put_failure;
++		}
+ 		pos = hsr_get_next_node(hsr, pos, addr);
+ 	}
+ 	rcu_read_unlock();
+@@ -429,7 +439,7 @@ invalid:
+ 	return 0;
+ 
+ nla_put_failure:
+-	kfree_skb(skb_out);
++	nlmsg_free(skb_out);
+ 	/* Fall through */
+ 
+ fail:
 
 
