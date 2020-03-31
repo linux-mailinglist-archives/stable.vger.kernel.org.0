@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72667199228
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3CCD198F4F
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:02:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730671AbgCaJCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:02:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41674 "EHLO mail.kernel.org"
+        id S1730438AbgCaJCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:02:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730400AbgCaJCN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:02:13 -0400
+        id S1730681AbgCaJCP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:02:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50256208E0;
-        Tue, 31 Mar 2020 09:02:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC4D620787;
+        Tue, 31 Mar 2020 09:02:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645331;
-        bh=IkO+1iX+k6BkIxwiD7WmKCD2GvYK8M10BOXGLCCFSd8=;
+        s=default; t=1585645334;
+        bh=3H6k1wjVqfa9JIOqEprW66a4+Ddv97Y372AhUSotXHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pN2iOIeyRopDGuPssSy7q2z+9OFr9zwPQIa+SIzfuT5icgfHzKzoX22b4c1qMQLvx
-         3eLXu9wUPSu8rhzzi1evz5z6+moKGLFWmW0cFMgBYnFBdwtfbdtqWKcNu3Yc6iKFwJ
-         eWFNfiBALe3e+/0VahPYECFrOeuXfPTgdNp7wM4Q=
+        b=fLLQc791lhmT+zxJfC4GSlerHu7uL166SOCOpY2uan3mOo7wXKuLFCpx5iNU5eem/
+         W5yYumj43e68REh89FJPxKN0O/LRiheCAq2BdM7NRGIEZ5f2HJdXdUS1bNJ9NdaGZ8
+         u7U6RCSvaGPUIHS2wZm/iGKJ/WjknevnS3SXPUh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
+        "Guilherme G. Piccoli" <gpiccoli@canonical.com>,
+        Sameeh Jubran <sameehj@amazon.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 020/170] net: dsa: tag_8021q: replace dsa_8021q_remove_header with __skb_vlan_pop
-Date:   Tue, 31 Mar 2020 10:57:14 +0200
-Message-Id: <20200331085426.201808009@linuxfoundation.org>
+Subject: [PATCH 5.5 021/170] net: ena: Add PCI shutdown handler to allow safe kexec
+Date:   Tue, 31 Mar 2020 10:57:15 +0200
+Message-Id: <20200331085426.295622266@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
 References: <20200331085423.990189598@linuxfoundation.org>
@@ -43,152 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: "Guilherme G. Piccoli" <gpiccoli@canonical.com>
 
-[ Upstream commit e80f40cbe4dd51371818e967d40da8fe305db5e4 ]
+[ Upstream commit 428c491332bca498c8eb2127669af51506c346c7 ]
 
-Not only did this wheel did not need reinventing, but there is also
-an issue with it: It doesn't remove the VLAN header in a way that
-preserves the L2 payload checksum when that is being provided by the DSA
-master hw.  It should recalculate checksum both for the push, before
-removing the header, and for the pull afterwards. But the current
-implementation is quite dizzying, with pulls followed immediately
-afterwards by pushes, the memmove is done before the push, etc.  This
-makes a DSA master with RX checksumming offload to print stack traces
-with the infamous 'hw csum failure' message.
+Currently ENA only provides the PCI remove() handler, used during rmmod
+for example. This is not called on shutdown/kexec path; we are potentially
+creating a failure scenario on kexec:
 
-So remove the dsa_8021q_remove_header function and replace it with
-something that actually works with inet checksumming.
+(a) Kexec is triggered, no shutdown() / remove() handler is called for ENA;
+instead pci_device_shutdown() clears the master bit of the PCI device,
+stopping all DMA transactions;
 
-Fixes: d461933638ae ("net: dsa: tag_8021q: Create helper function for removing VLAN header")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+(b) Kexec reboot happens and the device gets enabled again, likely having
+its FW with that DMA transaction buffered; then it may trigger the (now
+invalid) memory operation in the new kernel, corrupting kernel memory area.
+
+This patch aims to prevent this, by implementing a shutdown() handler
+quite similar to the remove() one - the difference being the handling
+of the netdev, which is unregistered on remove(), but following the
+convention observed in other drivers, it's only detached on shutdown().
+
+This prevents an odd issue in AWS Nitro instances, in which after the 2nd
+kexec the next one will fail with an initrd corruption, caused by a wild
+DMA write to invalid kernel memory. The lspci output for the adapter
+present in my instance is:
+
+00:05.0 Ethernet controller [0200]: Amazon.com, Inc. Elastic Network
+Adapter (ENA) [1d0f:ec20]
+
+Suggested-by: Gavin Shan <gshan@redhat.com>
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
+Acked-by: Sameeh Jubran <sameehj@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/dsa/8021q.h |    7 -------
- net/dsa/tag_8021q.c       |   43 -------------------------------------------
- net/dsa/tag_sja1105.c     |   19 +++++++++----------
- 3 files changed, 9 insertions(+), 60 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c |   51 +++++++++++++++++++++------
+ 1 file changed, 41 insertions(+), 10 deletions(-)
 
---- a/include/linux/dsa/8021q.h
-+++ b/include/linux/dsa/8021q.h
-@@ -28,8 +28,6 @@ int dsa_8021q_rx_switch_id(u16 vid);
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -3662,13 +3662,15 @@ err_disable_device:
  
- int dsa_8021q_rx_source_port(u16 vid);
+ /*****************************************************************************/
  
--struct sk_buff *dsa_8021q_remove_header(struct sk_buff *skb);
--
- #else
- 
- int dsa_port_setup_8021q_tagging(struct dsa_switch *ds, int index,
-@@ -64,11 +62,6 @@ int dsa_8021q_rx_source_port(u16 vid)
- 	return 0;
- }
- 
--struct sk_buff *dsa_8021q_remove_header(struct sk_buff *skb)
--{
--	return NULL;
--}
--
- #endif /* IS_ENABLED(CONFIG_NET_DSA_TAG_8021Q) */
- 
- #endif /* _NET_DSA_8021Q_H */
---- a/net/dsa/tag_8021q.c
-+++ b/net/dsa/tag_8021q.c
-@@ -298,47 +298,4 @@ struct sk_buff *dsa_8021q_xmit(struct sk
- }
- EXPORT_SYMBOL_GPL(dsa_8021q_xmit);
- 
--/* In the DSA packet_type handler, skb->data points in the middle of the VLAN
-- * tag, after tpid and before tci. This is because so far, ETH_HLEN
-- * (DMAC, SMAC, EtherType) bytes were pulled.
-- * There are 2 bytes of VLAN tag left in skb->data, and upper
-- * layers expect the 'real' EtherType to be consumed as well.
-- * Coincidentally, a VLAN header is also of the same size as
-- * the number of bytes that need to be pulled.
-- *
-- * skb_mac_header                                      skb->data
-- * |                                                       |
-- * v                                                       v
-- * |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-- * +-----------------------+-----------------------+-------+-------+-------+
-- * |    Destination MAC    |      Source MAC       |  TPID |  TCI  | EType |
-- * +-----------------------+-----------------------+-------+-------+-------+
-- * ^                                               |               |
-- * |<--VLAN_HLEN-->to                              <---VLAN_HLEN--->
-- * from            |
-- *       >>>>>>>   v
-- *       >>>>>>>   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-- *       >>>>>>>   +-----------------------+-----------------------+-------+
-- *       >>>>>>>   |    Destination MAC    |      Source MAC       | EType |
-- *                 +-----------------------+-----------------------+-------+
-- *                 ^                                                       ^
-- * (now part of    |                                                       |
-- *  skb->head)     skb_mac_header                                  skb->data
-- */
--struct sk_buff *dsa_8021q_remove_header(struct sk_buff *skb)
--{
--	u8 *from = skb_mac_header(skb);
--	u8 *dest = from + VLAN_HLEN;
--
--	memmove(dest, from, ETH_HLEN - VLAN_HLEN);
--	skb_pull(skb, VLAN_HLEN);
--	skb_push(skb, ETH_HLEN);
--	skb_reset_mac_header(skb);
--	skb_reset_mac_len(skb);
--	skb_pull_rcsum(skb, ETH_HLEN);
--
--	return skb;
--}
--EXPORT_SYMBOL_GPL(dsa_8021q_remove_header);
--
- MODULE_LICENSE("GPL v2");
---- a/net/dsa/tag_sja1105.c
-+++ b/net/dsa/tag_sja1105.c
-@@ -238,14 +238,14 @@ static struct sk_buff *sja1105_rcv(struc
+-/* ena_remove - Device Removal Routine
++/* __ena_shutoff - Helper used in both PCI remove/shutdown routines
+  * @pdev: PCI device information struct
++ * @shutdown: Is it a shutdown operation? If false, means it is a removal
+  *
+- * ena_remove is called by the PCI subsystem to alert the driver
+- * that it should release a PCI device.
++ * __ena_shutoff is a helper routine that does the real work on shutdown and
++ * removal paths; the difference between those paths is with regards to whether
++ * dettach or unregister the netdevice.
+  */
+-static void ena_remove(struct pci_dev *pdev)
++static void __ena_shutoff(struct pci_dev *pdev, bool shutdown)
  {
- 	struct sja1105_meta meta = {0};
- 	int source_port, switch_id;
--	struct vlan_ethhdr *hdr;
-+	struct ethhdr *hdr;
- 	u16 tpid, vid, tci;
- 	bool is_link_local;
- 	bool is_tagged;
- 	bool is_meta;
+ 	struct ena_adapter *adapter = pci_get_drvdata(pdev);
+ 	struct ena_com_dev *ena_dev;
+@@ -3687,13 +3689,17 @@ static void ena_remove(struct pci_dev *p
  
--	hdr = vlan_eth_hdr(skb);
--	tpid = ntohs(hdr->h_vlan_proto);
-+	hdr = eth_hdr(skb);
-+	tpid = ntohs(hdr->h_proto);
- 	is_tagged = (tpid == ETH_P_SJA1105);
- 	is_link_local = sja1105_is_link_local(skb);
- 	is_meta = sja1105_is_meta_frame(skb);
-@@ -254,7 +254,12 @@ static struct sk_buff *sja1105_rcv(struc
+ 	cancel_work_sync(&adapter->reset_task);
  
- 	if (is_tagged) {
- 		/* Normal traffic path. */
--		tci = ntohs(hdr->h_vlan_TCI);
-+		skb_push_rcsum(skb, ETH_HLEN);
-+		__skb_vlan_pop(skb, &tci);
-+		skb_pull_rcsum(skb, ETH_HLEN);
-+		skb_reset_network_header(skb);
-+		skb_reset_transport_header(skb);
-+
- 		vid = tci & VLAN_VID_MASK;
- 		source_port = dsa_8021q_rx_source_port(vid);
- 		switch_id = dsa_8021q_rx_switch_id(vid);
-@@ -283,12 +288,6 @@ static struct sk_buff *sja1105_rcv(struc
- 		return NULL;
- 	}
- 
--	/* Delete/overwrite fake VLAN header, DSA expects to not find
--	 * it there, see dsa_switch_rcv: skb_push(skb, ETH_HLEN).
--	 */
--	if (is_tagged)
--		skb = dsa_8021q_remove_header(skb);
+-	rtnl_lock();
++	rtnl_lock(); /* lock released inside the below if-else block */
+ 	ena_destroy_device(adapter, true);
+-	rtnl_unlock();
 -
- 	return sja1105_rcv_meta_state_machine(skb, &meta, is_link_local,
- 					      is_meta);
+-	unregister_netdev(netdev);
+-
+-	free_netdev(netdev);
++	if (shutdown) {
++		netif_device_detach(netdev);
++		dev_close(netdev);
++		rtnl_unlock();
++	} else {
++		rtnl_unlock();
++		unregister_netdev(netdev);
++		free_netdev(netdev);
++	}
+ 
+ 	ena_com_rss_destroy(ena_dev);
+ 
+@@ -3708,6 +3714,30 @@ static void ena_remove(struct pci_dev *p
+ 	vfree(ena_dev);
  }
+ 
++/* ena_remove - Device Removal Routine
++ * @pdev: PCI device information struct
++ *
++ * ena_remove is called by the PCI subsystem to alert the driver
++ * that it should release a PCI device.
++ */
++
++static void ena_remove(struct pci_dev *pdev)
++{
++	__ena_shutoff(pdev, false);
++}
++
++/* ena_shutdown - Device Shutdown Routine
++ * @pdev: PCI device information struct
++ *
++ * ena_shutdown is called by the PCI subsystem to alert the driver that
++ * a shutdown/reboot (or kexec) is happening and device must be disabled.
++ */
++
++static void ena_shutdown(struct pci_dev *pdev)
++{
++	__ena_shutoff(pdev, true);
++}
++
+ #ifdef CONFIG_PM
+ /* ena_suspend - PM suspend callback
+  * @pdev: PCI device information struct
+@@ -3757,6 +3787,7 @@ static struct pci_driver ena_pci_driver
+ 	.id_table	= ena_pci_tbl,
+ 	.probe		= ena_probe,
+ 	.remove		= ena_remove,
++	.shutdown	= ena_shutdown,
+ #ifdef CONFIG_PM
+ 	.suspend    = ena_suspend,
+ 	.resume     = ena_resume,
 
 
