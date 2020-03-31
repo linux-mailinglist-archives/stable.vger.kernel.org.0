@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2080D1990F2
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5A01991DD
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731544AbgCaJPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:15:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36448 "EHLO mail.kernel.org"
+        id S1731176AbgCaJHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:07:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726299AbgCaJPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:15:53 -0400
+        id S1731175AbgCaJHs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:07:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 289D0208E0;
-        Tue, 31 Mar 2020 09:15:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B5D7208E0;
+        Tue, 31 Mar 2020 09:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646152;
-        bh=vyN0q/Mby/jKTZE4uf+PFH1Dn406yt9qQeu/2DXlDMI=;
+        s=default; t=1585645667;
+        bh=md3ySTDtGCsK9lPvdz028XzOJvftd8AboUOMc0WB+Ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4P7QpLzg8LFnW6zX5fydpsFY9zb3Rr9ApKDViSWdTPAzdjUGtFPnfHF0oS9GX7Zu
-         weHiyK/mFFOm3dJSL3Wn0uONfVYcvdkWDJzlHGAe5y2h+RZxhxM4LxW7AnbfNjKz5y
-         o/umQMoaTY/i5oECv9sSysch8V04DFcP3rjIVsWA=
+        b=rWerTadgxieCrVlTDkANXXs2it5mHygfBnhTPc8Oh5oZbK6r/QfXHfhxtTX/9fOuK
+         gyF68qv5CS3rPszqd4WozsqkF4gpLA4Vt/KupOaQFAGlPL3cPWVE2gRx5sY42yvS5X
+         9SkwPSQJBY8i1frs5iwtlwWuHQzmRU4OgmWoS/Gk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 099/155] mac80211: mark station unauthorized before key removal
-Date:   Tue, 31 Mar 2020 10:58:59 +0200
-Message-Id: <20200331085429.618753498@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.5 126/170] RDMA/mlx5: Block delay drop to unprivileged users
+Date:   Tue, 31 Mar 2020 10:59:00 +0200
+Message-Id: <20200331085437.253703462@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Maor Gottlieb <maorg@mellanox.com>
 
-commit b16798f5b907733966fd1a558fca823b3c67e4a1 upstream.
+commit ba80013fba656b9830ef45cd40a6a1e44707f47a upstream.
 
-If a station is still marked as authorized, mark it as no longer
-so before removing its keys. This allows frames transmitted to it
-to be rejected, providing additional protection against leaking
-plain text data during the disconnection flow.
+It has been discovered that this feature can globally block the RX port,
+so it should be allowed for highly privileged users only.
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200326155133.ccb4fb0bb356.If48f0f0504efdcf16b8921f48c6d3bb2cb763c99@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 03404e8ae652("IB/mlx5: Add support to dropless RQ")
+Link: https://lore.kernel.org/r/20200322124906.1173790-1-leon@kernel.org
+Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/sta_info.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/qp.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -4,7 +4,7 @@
-  * Copyright 2006-2007	Jiri Benc <jbenc@suse.cz>
-  * Copyright 2013-2014  Intel Mobile Communications GmbH
-  * Copyright (C) 2015 - 2017 Intel Deutschland GmbH
-- * Copyright (C) 2018-2019 Intel Corporation
-+ * Copyright (C) 2018-2020 Intel Corporation
-  */
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -6158,6 +6158,10 @@ struct ib_wq *mlx5_ib_create_wq(struct i
+ 	if (udata->outlen && udata->outlen < min_resp_len)
+ 		return ERR_PTR(-EINVAL);
  
- #include <linux/module.h>
-@@ -1032,6 +1032,11 @@ static void __sta_info_destroy_part2(str
- 	might_sleep();
- 	lockdep_assert_held(&local->sta_mtx);
- 
-+	while (sta->sta_state == IEEE80211_STA_AUTHORIZED) {
-+		ret = sta_info_move_state(sta, IEEE80211_STA_ASSOC);
-+		WARN_ON_ONCE(ret);
-+	}
++	if (!capable(CAP_SYS_RAWIO) &&
++	    init_attr->create_flags & IB_WQ_FLAGS_DELAY_DROP)
++		return ERR_PTR(-EPERM);
 +
- 	/* now keys can no longer be reached */
- 	ieee80211_free_sta_keys(local, sta);
- 
+ 	dev = to_mdev(pd->device);
+ 	switch (init_attr->wq_type) {
+ 	case IB_WQT_RQ:
 
 
