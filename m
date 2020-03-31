@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 286E21990D0
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:14:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF5CE198FD9
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:07:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730846AbgCaJOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:14:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34770 "EHLO mail.kernel.org"
+        id S1730682AbgCaJGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:06:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730619AbgCaJOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:14:50 -0400
+        id S1731185AbgCaJGx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:06:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1348C2072E;
-        Tue, 31 Mar 2020 09:14:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99A5E20787;
+        Tue, 31 Mar 2020 09:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646089;
-        bh=P7eaBlYz4GzVkyvhowH9g6w/cqbHD7kEmXW8Sh3FLOs=;
+        s=default; t=1585645612;
+        bh=BJdtZt8wNQKTcjtxEhtdcuqLz5fEjrH+VTKBedAi40c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pcs/s6tLeeUpj3VLaJgDn+klo21j8vLpTRwj672manO7US+4X6IoYOb6bWatBSECe
-         yjSl+jBCOWOgtz6lQIMYtEI/eKH+E3DSjc3oNoef7Lu2IWNYj851j+nDtf+7bQmKXA
-         mHz/OrSsFl/o8MTfDzKP2MbcDffkvVTGVbvew7cU=
+        b=zA7fw+pfIYuESv0neQ/wpCQ8odu7WL7WX3xganga0A7fnLHWOJDvPPItfP3PxzxgC
+         6G6NyGzyOukNbr7PRRXqSRHFeQTz/W1tS1w7cythV6FWPYvc2O98t0UokUpH1rpZbk
+         /wmTvm4fNJQoQAgLdmhIadhkYp9rUO8Piqn7AfXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.4 080/155] Input: avoid BIT() macro usage in the serio.h UAPI header
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.5 106/170] soc: samsung: chipid: Fix return value on non-Exynos platforms
 Date:   Tue, 31 Mar 2020 10:58:40 +0200
-Message-Id: <20200331085427.301306268@linuxfoundation.org>
+Message-Id: <20200331085435.452193790@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Syromiatnikov <esyr@redhat.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit 52afa505a03d914081f40cb869a3248567a57573 upstream.
+commit c8042d1e5cb3e654b47447229ace3cd092a8fc27 upstream.
 
-The commit 19ba1eb15a2a ("Input: psmouse - add a custom serio protocol
-to send extra information") introduced usage of the BIT() macro
-for SERIO_* flags; this macro is not provided in UAPI headers.
-Replace if with similarly defined _BITUL() macro defined
-in <linux/const.h>.
+Correct the probe return value to -ENODEV on non-Exynos platforms.
 
-Fixes: 19ba1eb15a2a ("Input: psmouse - add a custom serio protocol to send extra information")
-Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
-Cc: <stable@vger.kernel.org> # v5.0+
-Link: https://lore.kernel.org/r/20200324041341.GA32335@asgard.redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20200316175652.5604-4-krzk@kernel.org
+Fixes: 02fb29882d5c ("soc: samsung: chipid: Drop "syscon" compatible requirement")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/linux/serio.h |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/soc/samsung/exynos-chipid.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/uapi/linux/serio.h
-+++ b/include/uapi/linux/serio.h
-@@ -9,7 +9,7 @@
- #ifndef _UAPI_SERIO_H
- #define _UAPI_SERIO_H
+--- a/drivers/soc/samsung/exynos-chipid.c
++++ b/drivers/soc/samsung/exynos-chipid.c
+@@ -59,7 +59,7 @@ static int __init exynos_chipid_early_in
+ 	syscon = of_find_compatible_node(NULL, NULL,
+ 					 "samsung,exynos4210-chipid");
+ 	if (!syscon)
+-		return ENODEV;
++		return -ENODEV;
  
--
-+#include <linux/const.h>
- #include <linux/ioctl.h>
- 
- #define SPIOCSTYPE	_IOW('q', 0x01, unsigned long)
-@@ -18,10 +18,10 @@
- /*
-  * bit masks for use in "interrupt" flags (3rd argument)
-  */
--#define SERIO_TIMEOUT	BIT(0)
--#define SERIO_PARITY	BIT(1)
--#define SERIO_FRAME	BIT(2)
--#define SERIO_OOB_DATA	BIT(3)
-+#define SERIO_TIMEOUT	_BITUL(0)
-+#define SERIO_PARITY	_BITUL(1)
-+#define SERIO_FRAME	_BITUL(2)
-+#define SERIO_OOB_DATA	_BITUL(3)
- 
- /*
-  * Serio types
+ 	regmap = device_node_to_regmap(syscon);
+ 	of_node_put(syscon);
 
 
