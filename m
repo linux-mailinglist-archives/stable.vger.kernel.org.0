@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D373199171
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CC55199153
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731367AbgCaJTA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:19:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40832 "EHLO mail.kernel.org"
+        id S1730395AbgCaJTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:19:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732176AbgCaJS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:18:58 -0400
+        id S1732181AbgCaJTC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:19:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB02720772;
-        Tue, 31 Mar 2020 09:18:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7D2220787;
+        Tue, 31 Mar 2020 09:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646338;
-        bh=rAT7k9QfL/uRKMskwddcHA1BKZ5ENz8y42pgaEwLH+I=;
+        s=default; t=1585646342;
+        bh=ZmACsDQQqEmFzphVKiN3V7EO4QhkgJNKRbxPkL6TpN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wDzUSosVxmGkMB/GmUWlKkXZghOk3iO8V9f5m/GapAmJUSOCKohO68cgwHNK0o1/
-         5mm7zrJyIQVxlk6kHJ4uAjM8Yv6JmUgKcz6CS4FppAZh3Ym3aQNG4VLwVm0pE5H+o/
-         eUz4mxCXrabKT7b8F9HixGePiXIhL4A3hE9UPuXI=
+        b=gFa1atOa+HdKerjXMFUbeRNWIsPwLNd8Ft+/ZMkvSukTOCS+VxzFifXuRLZP8SMNq
+         b5VJnHTOr6aIE/HxIsZS9XoBTG+tX0moSpZcpzcswRA5kxcPb1wmgi0m/ZWDlCYw/5
+         8j84epQClhhboVPIo2+uFHBo2KDCTm8oWbOVaOwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.4 145/155] staging: kpc2000: prevent underflow in cpld_reconfigure()
-Date:   Tue, 31 Mar 2020 10:59:45 +0200
-Message-Id: <20200331085434.378979716@linuxfoundation.org>
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        kovi <zraetn@gmail.com>
+Subject: [PATCH 5.4 146/155] staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
+Date:   Tue, 31 Mar 2020 10:59:46 +0200
+Message-Id: <20200331085434.506655469@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
 References: <20200331085418.274292403@linuxfoundation.org>
@@ -42,38 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 72db61d7d17a475d3cc9de1a7c871d518fcd82f0 upstream.
+commit 38ef48f7d4b7342f145a1b4f96023bde99aeb245 upstream.
 
-This function should not allow negative values of "wr_val".  If
-negatives are allowed then capping the upper bound at 7 is
-meaningless.  Let's make it unsigned.
+The ASUS USB-N10 Nano B1 has been reported as a new RTL8188EU device.
+Add it to the device tables.
 
-Fixes: 7dc7967fc39a ("staging: kpc2000: add initial set of Daktronics drivers")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200224103325.hrxdnaeqsthplu42@kili.mountain
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Reported-by: kovi <zraetn@gmail.com>
+Cc: Stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200321180011.26153-1-Larry.Finger@lwfinger.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/kpc2000/kpc2000/core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/kpc2000/kpc2000/core.c
-+++ b/drivers/staging/kpc2000/kpc2000/core.c
-@@ -110,10 +110,10 @@ static ssize_t cpld_reconfigure(struct d
- 				const char *buf, size_t count)
- {
- 	struct kp2000_device *pcard = dev_get_drvdata(dev);
--	long wr_val;
-+	unsigned long wr_val;
- 	int rv;
- 
--	rv = kstrtol(buf, 0, &wr_val);
-+	rv = kstrtoul(buf, 0, &wr_val);
- 	if (rv < 0)
- 		return rv;
- 	if (wr_val > 7)
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -32,6 +32,7 @@ static const struct usb_device_id rtw_us
+ 	/****** 8188EUS ********/
+ 	{USB_DEVICE(0x056e, 0x4008)}, /* Elecom WDC-150SU2M */
+ 	{USB_DEVICE(0x07b8, 0x8179)}, /* Abocom - Abocom */
++	{USB_DEVICE(0x0B05, 0x18F0)}, /* ASUS USB-N10 Nano B1 */
+ 	{USB_DEVICE(0x2001, 0x330F)}, /* DLink DWA-125 REV D1 */
+ 	{USB_DEVICE(0x2001, 0x3310)}, /* Dlink DWA-123 REV D1 */
+ 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
 
 
