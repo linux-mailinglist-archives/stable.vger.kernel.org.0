@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F976198FB0
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74D8619919C
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730604AbgCaJFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:05:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46560 "EHLO mail.kernel.org"
+        id S1731070AbgCaJUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:20:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730541AbgCaJFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:05:30 -0400
+        id S1730638AbgCaJNk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:13:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C735720B1F;
-        Tue, 31 Mar 2020 09:05:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6470420772;
+        Tue, 31 Mar 2020 09:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645530;
-        bh=R4Lc+71PGFMVycjmavRdG/jAUNmy4bDOa660TR9oaVA=;
+        s=default; t=1585646019;
+        bh=QJg5dbPMMfu3F11UcTFkO03F2cyBYQMHfMbgC//ejzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oohEHjE1Tvrb4g4CU4cnzkq8pR/araSZlkWv2AZtnB0U0gk5xXi+MW30/1z44T1mG
-         2b3Ata4Bpf0K6cmgUg1w9UtHCduWaCLHGkvOGGRJrWJLR82WnlrRaKUZ+oFUfB6wAR
-         /sjIjMG4vzQEykXTEfPSIVlzffc5794BCImzHygo=
+        b=LUHE/NjhcLah79x2KTUYRmnVx3EFdjdvRKxG1cH2znbcsluvTxFzBZwxcth6cTdQa
+         LIzmr/8/r4fpRkJAYaP5107dH3xj4Y2TDpw57BBTxC8TcyemrEgO4o0KOBj8CxF59u
+         FH0DbVV9UHFaKFknlcfBl4ydvfyDs4WLOL3vH5aE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.5 082/170] Input: raydium_i2c_ts - fix error codes in raydium_i2c_boot_trigger()
-Date:   Tue, 31 Mar 2020 10:58:16 +0200
-Message-Id: <20200331085433.024107683@linuxfoundation.org>
+        stable@vger.kernel.org, Dajun Jin <adajunjin@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 057/155] drivers/of/of_mdio.c:fix of_mdiobus_register()
+Date:   Tue, 31 Mar 2020 10:58:17 +0200
+Message-Id: <20200331085424.967560333@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dajun Jin <adajunjin@gmail.com>
 
-commit 32cf3a610c35cb21e3157f4bbf29d89960e30a36 upstream.
+[ Upstream commit 209c65b61d94344522c41a83cd6ce51aac5fd0a4 ]
 
-These functions are supposed to return negative error codes but instead
-it returns true on failure and false on success.  The error codes are
-eventually propagated back to user space.
+When registers a phy_device successful, should terminate the loop
+or the phy_device would be registered in other addr. If there are
+multiple PHYs without reg properties, it will go wrong.
 
-Fixes: 48a2b783483b ("Input: add Raydium I2C touchscreen driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200303101306.4potflz7na2nn3od@kili.mountain
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dajun Jin <adajunjin@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/raydium_i2c_ts.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/of/of_mdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -432,7 +432,7 @@ static int raydium_i2c_write_object(stru
- 	return 0;
- }
- 
--static bool raydium_i2c_boot_trigger(struct i2c_client *client)
-+static int raydium_i2c_boot_trigger(struct i2c_client *client)
- {
- 	static const u8 cmd[7][6] = {
- 		{ 0x08, 0x0C, 0x09, 0x00, 0x50, 0xD7 },
-@@ -457,10 +457,10 @@ static bool raydium_i2c_boot_trigger(str
+diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
+index bd6129db64178..c34a6df712adb 100644
+--- a/drivers/of/of_mdio.c
++++ b/drivers/of/of_mdio.c
+@@ -268,6 +268,7 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
+ 				rc = of_mdiobus_register_phy(mdio, child, addr);
+ 				if (rc && rc != -ENODEV)
+ 					goto unregister;
++				break;
+ 			}
  		}
  	}
- 
--	return false;
-+	return 0;
- }
- 
--static bool raydium_i2c_fw_trigger(struct i2c_client *client)
-+static int raydium_i2c_fw_trigger(struct i2c_client *client)
- {
- 	static const u8 cmd[5][11] = {
- 		{ 0, 0x09, 0x71, 0x0C, 0x09, 0x00, 0x50, 0xD7, 0, 0, 0 },
-@@ -483,7 +483,7 @@ static bool raydium_i2c_fw_trigger(struc
- 		}
- 	}
- 
--	return false;
-+	return 0;
- }
- 
- static int raydium_i2c_check_path(struct i2c_client *client)
+-- 
+2.20.1
+
 
 
