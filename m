@@ -2,112 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1099F198B65
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 06:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F749198BEF
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 07:49:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726001AbgCaEoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 00:44:08 -0400
-Received: from mga14.intel.com ([192.55.52.115]:37576 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725792AbgCaEoI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 00:44:08 -0400
-IronPort-SDR: 2Jj4mYTuKR1IKYZo/mSbhlfoNPXSP+OwO6Vijveof4BohgpdDN8ZYUdF364C0Ud0NSU9wDc+yY
- lH+8SzoiarsQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2020 21:44:08 -0700
-IronPort-SDR: U35DPnDdXQC0+U8wOsG0mql8zgaoob+DoFc2SFAMgXkPC8HCw4lOq5EaV46mmGVhw9OJZKfUGF
- DdMth3AxoPsw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,327,1580803200"; 
-   d="scan'208";a="248933070"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.202])
-  by orsmga003.jf.intel.com with ESMTP; 30 Mar 2020 21:44:08 -0700
-Date:   Mon, 30 Mar 2020 21:44:08 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     akpm@linux-foundation.org, jgg@ziepe.ca, longpeng2@huawei.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        willy@infradead.org, Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: Re: +
- mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch added
- to -mm tree
-Message-ID: <20200331044408.GW24988@linux.intel.com>
-References: <20200328221008.c6KdUoTLQ%akpm@linux-foundation.org>
- <eea7c1f8-a2e4-5af1-acc4-3eb21a076d37@oracle.com>
+        id S1726236AbgCaFta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 01:49:30 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:54527 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726001AbgCaFta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 01:49:30 -0400
+Received: by mail-wm1-f65.google.com with SMTP id c81so1097294wmd.4;
+        Mon, 30 Mar 2020 22:49:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=akp0u+2EZyjkXRTktFBRie6W2QUhVt5xzpZQY3EmKZ4=;
+        b=n3k/+bcR5fXnorrLNk9E9DgQ9LST30+ImuiExFAaJZBkpD65aZaGCJMrZVSaa/6hrR
+         jm91dr/6lOj2gyRE8dKFzd1Xn0Ti0ROG+3FdmgvIYCY0m1l11//MUz4ucSM6WySg7TsV
+         kqkNfR9RE/IPcsMEXzB4BCnlvW7+ZpjMZRT1yrfQ1qMi2Se7hwtR9YFxizmjQHtfVvop
+         lwNQSoDSVjnALkt29L5ylyHnLukf9jvMRKPfkgUoF4ArfDZ9E7pHTF6NcnSCEjspwn0l
+         ftYf/oBaVvX6yDJAy0yuB0Kq3q3jBuEyv6Q7F2O7OQdsxr7jgLLB+bKilbcOZ+KdwWTq
+         ZbEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=akp0u+2EZyjkXRTktFBRie6W2QUhVt5xzpZQY3EmKZ4=;
+        b=idMkB8KgVnCCeBdKndc89dN6/Nm28FUE2/NSIryAqVCVMWhPHGT9lHf++Hs3p1SfkM
+         zuQupnlNbAwNXuU+9fmWweFpBFu+u6vJZnAlhnuJJqB8hzcXzMUaMJW07xjg6o5KZprF
+         nAh2SxwycwST3zAlELslC+Ulq13l4BZt9YPD5RMfCimfRKTZu/crwYJ5jszZiXWdxJDp
+         eQJv+OFmIx4yxtzMh2JrndWKqdeggaJpiY6eSkeRgiBVdxmg1L4VU0Wu2yL9Y8ygihzL
+         lYSYON5yDlvPiNX0jQaqgQvnhbrChjMzDdfnEvuj7Bmi2hJmaLx+YYwenAFBQy0kPM/C
+         fxpg==
+X-Gm-Message-State: ANhLgQ06vlCVG0QFDeqlRbg2g+0JmVeNA3411aeFPNMcm2YpHjo7XDTO
+        nDDsrNs2dTVoXkP4K/wRY7kuGgRQn7O9foYjtGM=
+X-Google-Smtp-Source: ADFU+vsPPBv4f6I083Yyts7nUfgkFzoUhNZuiaOjBTjlUJOP4wyhd8d9kI7/WifpTUwypco1pr5vwCTfHvkL8Ae5PQc=
+X-Received: by 2002:a1c:b642:: with SMTP id g63mr1552422wmf.108.1585633768060;
+ Mon, 30 Mar 2020 22:49:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <eea7c1f8-a2e4-5af1-acc4-3eb21a076d37@oracle.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+References: <20200311170120.12641-1-jeyu@kernel.org>
+In-Reply-To: <20200311170120.12641-1-jeyu@kernel.org>
+From:   John Stultz <john.stultz@linaro.org>
+Date:   Mon, 30 Mar 2020 22:49:17 -0700
+Message-ID: <CANcMJZDhSUV8CU_ixOSxstVVBMW3rVrrQVYMmy1fz=OdhxA_GQ@mail.gmail.com>
+Subject: Re: [PATCH v2] modpost: move the namespace field in Module.symvers last
+To:     Jessica Yu <jeyu@kernel.org>
+Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Matthias Maennich <maennich@google.com>,
+        Lucas De Marchi <lucas.de.marchi@gmail.com>,
+        stable@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 30, 2020 at 08:35:29PM -0700, Mike Kravetz wrote:
-> On 3/28/20 3:10 PM, akpm@linux-foundation.org wrote:
-> > The patch titled
-> >      Subject: mm/hugetlb: fix a addressing exception caused by huge_pte_offset
-> > has been added to the -mm tree.  Its filename is
-> >      mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch
-> > 
-> > This patch should soon appear at
-> >     http://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch
-> > and later at
-> >     http://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch
-> > 
-> > Before you just go and hit "reply", please:
-> >    a) Consider who else should be cc'ed
-> >    b) Prefer to cc a suitable mailing list as well
-> >    c) Ideally: find the original patch on the mailing list and do a
-> >       reply-to-all to that, adding suitable additional cc's
-> > 
-> > *** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-> > 
-> > The -mm tree is included into linux-next and is updated
-> > there every 3-4 working days
-> > 
-> > ------------------------------------------------------
-> > From: Longpeng <longpeng2@huawei.com>
-> > Subject: mm/hugetlb: fix a addressing exception caused by huge_pte_offset
-> 
-> This patch is what caused the BUG reported on i386 non-PAE kernel here:
-> 
-> https://lore.kernel.org/linux-mm/CA+G9fYsJgZhhWLMzUxu_ZQ+THdCcJmFbHQ2ETA_YPP8M6yxOYA@mail.gmail.com/
-> 
-> As a clue, when building in this environment I get:
-> 
->   CC      mm/hugetlb.o
-> mm/hugetlb.c: In function ‘huge_pte_offset’:
-> cc1: warning: function may return address of local variable [-Wreturn-local-addr]
-> mm/hugetlb.c:5361:14: note: declared here
->   pud_t *pud, pud_entry;
->               ^~~~~~~~~
-> cc1: warning: function may return address of local variable [-Wreturn-local-addr]
-> mm/hugetlb.c:5361:14: note: declared here
-> cc1: warning: function may return address of local variable [-Wreturn-local-addr]
-> mm/hugetlb.c:5360:14: note: declared here
->   p4d_t *p4d, p4d_entry;
->               ^~~~~~~~~
-> 
-> I'm shutting down for the night and will look into it more tomorrow if
-> someone else does not beat me to it.
+On Wed, Mar 11, 2020 at 10:03 AM Jessica Yu <jeyu@kernel.org> wrote:
+>
+> In order to preserve backwards compatability with kmod tools, we have to
+> move the namespace field in Module.symvers last, as the depmod -e -E
+> option looks at the first three fields in Module.symvers to check symbol
+> versions (and it's expected they stay in the original order of crc,
+> symbol, module).
+>
+> In addition, update an ancient comment above read_dump() in modpost that
+> suggested that the export type field in Module.symvers was optional. I
+> suspect that there were historical reasons behind that comment that are
+> no longer accurate. We have been unconditionally printing the export
+> type since 2.6.18 (commit bd5cbcedf44), which is over a decade ago now.
+>
+> Fix up read_dump() to treat each field as non-optional. I suspect the
+> original read_dump() code treated the export field as optional in order
+> to support pre <= 2.6.18 Module.symvers (which did not have the export
+> type field). Note that although symbol namespaces are optional, the
+> field will not be omitted from Module.symvers if a symbol does not have
+> a namespace. In this case, the field will simply be empty and the next
+> delimiter or end of line will follow.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: cb9b55d21fe0 ("modpost: add support for symbol namespaces")
+> Tested-by: Matthias Maennich <maennich@google.com>
+> Reviewed-by: Matthias Maennich <maennich@google.com>
+> Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
+> Signed-off-by: Jessica Yu <jeyu@kernel.org>
+> ---
+> v2:
+>
+>   - Explain the changes to read_dump() and the comment (and provide
+>     historical context) in the commit message. (Lucas De Marchi)
+>
+>  Documentation/kbuild/modules.rst |  4 ++--
+>  scripts/export_report.pl         |  2 +-
+>  scripts/mod/modpost.c            | 24 ++++++++++++------------
+>  3 files changed, 15 insertions(+), 15 deletions(-)
+>
+> diff --git a/Documentation/kbuild/modules.rst b/Documentation/kbuild/modules.rst
+> index 69fa48ee93d6..e0b45a257f21 100644
+> --- a/Documentation/kbuild/modules.rst
+> +++ b/Documentation/kbuild/modules.rst
+> @@ -470,9 +470,9 @@ build.
+>
+>         The syntax of the Module.symvers file is::
+>
+> -       <CRC>       <Symbol>          <Namespace>  <Module>                         <Export Type>
+> +       <CRC>       <Symbol>         <Module>                         <Export Type>     <Namespace>
+>
+> -       0xe1cc2a05  usb_stor_suspend  USB_STORAGE  drivers/usb/storage/usb-storage  EXPORT_SYMBOL_GPL
+> +       0xe1cc2a05  usb_stor_suspend drivers/usb/storage/usb-storage  EXPORT_SYMBOL_GPL USB_STORAGE
+>
+>         The fields are separated by tabs and values may be empty (e.g.
+>         if no namespace is defined for an exported symbol).
 
-Non-PAE uses ModeB / PSE paging, which only has 2-level page tables.  The
-non-existent levels get folded in and pmd_offset/pud_offset() return the
-passed in pointer instead of accessing a table, e.g.:
+Despite the documentation here claiming the namespace field can be
+empty, I'm seeing some trouble with this patch when building external
+modules:
+  FATAL: parse error in symbol dump file
 
-static inline pmd_t * pmd_offset(pud_t * pud, unsigned long address)
-{
-	return (pmd_t *)pud;
-}
+I've confirmed reverting it make things work again, but its not clear
+to me quite yet why.
 
-The bug probably only manifests with PSE paging because it can have huge
-pages in the top-level table, i.e. is the only mode that can get a false
-positive.
+The only difference I can find is that the Module.symvers in the
+external module project doesn't seem to have a tab at the end of each
+line (where as Module.symvers for the kernel - which doesn't seem to
+have any namespace names - does).
 
-This is arguably a bug in pmd_huge/pud_hug(), seems like they should
-unconditionally return false if the relevant level doesn't exist.
+Is there something I need to tweak on the external Kbuild to get
+Module.symvers to be generated properly (with the empty tab at the
+end) for this new change?
+Or does the parser need to be a bit more flexible?
+
+thanks
+-john
