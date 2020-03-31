@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC448199719
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 15:11:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7CB19971A
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 15:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730934AbgCaNL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 09:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40046 "EHLO mail.kernel.org"
+        id S1730975AbgCaNLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 09:11:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730906AbgCaNL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 09:11:27 -0400
+        id S1730939AbgCaNL2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 09:11:28 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 947B72145D;
-        Tue, 31 Mar 2020 13:11:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B95B220786;
+        Tue, 31 Mar 2020 13:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585660286;
+        s=default; t=1585660288;
         bh=E0ZiGGpWnxZaGahYOcWQMjN9JjsdC0P9wppib5vRFlY=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=uDg/bYpMnSx/D467AXVfBvCoq4T6X5uiJunjmfHrl6y5vi4HI15U9yZ1BGOEQdekd
-         ww7iEi9+xowNeAStUL1fvqfU7W2KM8EmmM8EaLyCK1hG5BILztVF34k7QVjrqoRE5l
-         uBuhtTztRqTlullZguYvL0mawDfTup5hDModlqqQ=
-Date:   Tue, 31 Mar 2020 13:11:25 +0000
+        b=jFM65O2qJCku15188+q3R7FmKYdvYYfHuOq7pF6KY27kuf7S8JnBMGUh8chTmiTRB
+         Ppm/tLE6q0yURG63lG/up/BxnaGVciuAEh0L4x7Fq04+1ciYFrb1Ha9R4gkQZw7UYb
+         ZUt3/QULxz8ARVvTnt96ljyipqTUXLwcCEvvlDBM=
+Date:   Tue, 31 Mar 2020 13:11:27 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
 To:     Thomas Hebb <tommyhebb@gmail.com>
-To:     alsa-devel@alsa-project.org
-Cc:     linux-kernel@vger.kernel.org, Kailang Yang <kailang@realtek.com>
+To:     alsa-devel@alsa-project.org, linux-kernel@vger.kernel.or
+Cc:     Kailang Yang <kailang@realtek.com>
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] ALSA: doc: Document PC Beep Hidden Register on Realtek ALC256
-In-Reply-To: <bd69dfdeaf40ff31c4b7b797c829bb320031739c.1585584498.git.tommyhebb@gmail.com>
-References: <bd69dfdeaf40ff31c4b7b797c829bb320031739c.1585584498.git.tommyhebb@gmail.com>
-Message-Id: <20200331131126.947B72145D@mail.kernel.org>
+Subject: Re: [PATCH 1/3] ALSA: doc: Document PC Beep Hidden Register on Realtek ALC256
+In-Reply-To: <bd69dfdeaf40ff31c4b7b797c829bb320031739c.1585553414.git.tommyhebb@gmail.com>
+References: <bd69dfdeaf40ff31c4b7b797c829bb320031739c.1585553414.git.tommyhebb@gmail.com>
+Message-Id: <20200331131127.B95B220786@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
