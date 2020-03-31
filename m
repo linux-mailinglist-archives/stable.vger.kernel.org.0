@@ -2,236 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDBB319957B
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 13:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9441995C5
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 13:51:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730436AbgCaLnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 07:43:25 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:46710 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730426AbgCaLnY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 07:43:24 -0400
-Received: by mail-pl1-f196.google.com with SMTP id s23so8014584plq.13
-        for <stable@vger.kernel.org>; Tue, 31 Mar 2020 04:43:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1ceZImnA7PmjDH5wTHc38uUFXKmMP+RjG4SiQDsZpoU=;
-        b=YMNJsa2O8ICQrN+izyF9bNKfCvTSol2hjKGUyGLo8b98KNnm3TQp8gWgy9ySVStbUr
-         HmRPq8FDfx2WjXj8qGisB+r81QS5fnO7izjmWX0zW4SUA0m5Ai09+VWU/Q11s3AdvBW1
-         S2o/h6HMGmKgCI4Npb4vZBDNhxBeHOrOvfrzHkTuZ1Sg9pNgh5Cwk4pIrxbHT+8DlK9f
-         Fcqd/UcfpjdeOp6z6xn0lUKm3sP9Qy7dtiaaQJCroFvRoYgq2D55z5FpKGrkuaKjgBhG
-         NxcxCzu39mYFaONv/UQwyT9oC5efwC9Am4Z9nDQZbzIBLd2KfdTXZTgi+cq8uxpIz1/N
-         s2Lw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1ceZImnA7PmjDH5wTHc38uUFXKmMP+RjG4SiQDsZpoU=;
-        b=Ve2bulGFSzf3IC/oA8SDxZdwBmrQZCLwvdKpuNvd1RIHfGg6tjj4bJQESD9fSHUiJH
-         pCSHGL0gcTCk0yrZI1RFaH7SrcEEChTMp5hgdrUa4SBOOoBOy+PMNcoDSAcKo/rslIA3
-         7yjTFRxNc0YPKCYvP4o0CvrZmeSpJgkLPhwMNoLSJvAE9+DGZJkMubUKOBgc1fA+3yB/
-         Ux30cL2sSU2dc4lojLcL4Zdz58y1niidFOaZNviQKaC3+0gpXLV/xs0Mod9eE4VORjAm
-         /+zZJnfdGj7Ip9uQQ4WQtTNPlLwjb1DlEsEt9yDtvda1fC+JbnDofPO8WEsbhqdH9KgF
-         I0sw==
-X-Gm-Message-State: AGi0PuZrbg2HwNtu2+lQl9grLmHLFczR/puTf9DO353sAFwI/VPJLIs+
-        hUtP3CFSjaBlyelk3ZvBmvEToqQ4+x8=
-X-Google-Smtp-Source: APiQypKzQgjRWkP7H0aWjw3MS3LA+mmKFHgQaBrAFo3y+Iz4c1VhCfYojrqwzE4ADbzKkdnZRNdPfA==
-X-Received: by 2002:a17:90a:208:: with SMTP id c8mr3459975pjc.153.1585655002920;
-        Tue, 31 Mar 2020 04:43:22 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i17sm12442817pfo.103.2020.03.31.04.43.22
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 31 Mar 2020 04:43:22 -0700 (PDT)
-Message-ID: <5e832cda.1c69fb81.384fa.7eb5@mx.google.com>
-Date:   Tue, 31 Mar 2020 04:43:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1730334AbgCaLvX convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 31 Mar 2020 07:51:23 -0400
+Received: from m4a0072g.houston.softwaregrp.com ([15.124.2.130]:48902 "EHLO
+        m4a0072g.houston.softwaregrp.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730426AbgCaLvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 07:51:23 -0400
+Received: FROM m4a0072g.houston.softwaregrp.com (15.120.17.147) BY m4a0072g.houston.softwaregrp.com WITH ESMTP;
+ Tue, 31 Mar 2020 11:49:58 +0000
+Received: from M4W0334.microfocus.com (2002:f78:1192::f78:1192) by
+ M4W0335.microfocus.com (2002:f78:1193::f78:1193) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1591.10; Tue, 31 Mar 2020 11:45:17 +0000
+Received: from NAM04-BN3-obe.outbound.protection.outlook.com (15.124.8.14) by
+ M4W0334.microfocus.com (15.120.17.146) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1591.10 via Frontend Transport; Tue, 31 Mar 2020 11:45:17 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=LpNXfnxrzoIfviDdvcAgSpF/27SAhtE/MyyKyMLq2f9r9zhzh21ghBYT1fjkrwcxAwgcU9ceBgSA2QgpwxlYBUWFfMWnVRLrjawwLotYcSBHFBAV5spQ6aXFd8+yjByX4rQxTB4FSfJv1xWxfzSCzqKS/c8juHVu+wsJEzSnAldzQBqkYWMYVyJCx99fpisMghSuznzMPGLabFpa9Bs6QPWfQti4fymT0PXJB74vkNm/lyleqU7S2Rcpxy1mpRGhgNBIohE2eyKq6+TJeErjr50BE9Vyl1/4FQ0kT7Pfwqlhj3yEJNGjvN7ZW2IqQQqg+iFwF630s4uV+Yurwn8sng==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=yYFzI/P0Zi6C+qTCWxJ/YmZHIyiCzzLw9OGlec9HjAs=;
+ b=j42nqKdhSdD6cXgvlr5k0xLXMjbjGEKJFwaNc2db+YtDDRoVQ3qj/HRpm3ji+NrNM4RDWnwgezrHmugqLzJlNnkKw1hnmefxjoH27N6UHQm1AUII1gFAsquJ0Im4clayZfNsq/SK1g1lKgKo6A7klwo3NZGARTFTfS/6YtCb9nqellYLlHOZbYTElNfNuMyjyqsgYiFaPKuyvRW6MR500u561oGp3guq0Go5E/1176gnuQDyoigF4FyxD4vzgqvXG6WvYSXX9PxzaVWpl+Z2nfsIxr+83lV2aDGFoL2KKc04E7SvgszwKAVxCudK8R2rnf3s4hgbCbIymnow/J4O2g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
+ dkim=pass header.d=suse.com; arc=none
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=DMueller@suse.com; 
+Received: from DM6PR18MB2458.namprd18.prod.outlook.com (2603:10b6:5:188::18)
+ by DM6PR18MB3522.namprd18.prod.outlook.com (2603:10b6:5:28e::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2856.19; Tue, 31 Mar
+ 2020 11:45:16 +0000
+Received: from DM6PR18MB2458.namprd18.prod.outlook.com
+ ([fe80::f874:3829:ad75:5777]) by DM6PR18MB2458.namprd18.prod.outlook.com
+ ([fe80::f874:3829:ad75:5777%3]) with mapi id 15.20.2856.019; Tue, 31 Mar 2020
+ 11:45:16 +0000
+Content-Type: text/plain; charset="us-ascii"
+Subject: Re: [PATCH 5.5 102/170] scripts/dtc: Remove redundant YYLOC global
+ declaration
+From:   =?utf-8?Q?Dirk_M=C3=BCller?= <dmueller@suse.com>
+In-Reply-To: <20200331100238.GA1204199@kroah.com>
+Date:   Tue, 31 Mar 2020 13:45:09 +0200
+CC:     Nathan Chancellor <natechancellor@gmail.com>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        David Gibson <david@gibson.dropbear.id.au>,
+        Rob Herring <robh@kernel.org>
+Content-Transfer-Encoding: 8BIT
+Message-ID: <5B6493BE-F9FE-41A4-A88A-5E4DF5BCE098@suse.com>
+References: <20200331085423.990189598@linuxfoundation.org>
+ <20200331085435.053942582@linuxfoundation.org>
+ <20200331095323.GA32667@ubuntu-m2-xlarge-x86>
+ <20200331100238.GA1204199@kroah.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+X-Mailer: Apple Mail (2.3608.80.23.2.2)
+X-ClientProxiedBy: CWXP123CA0024.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:401:73::36) To DM6PR18MB2458.namprd18.prod.outlook.com
+ (2603:10b6:5:188::18)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.28-156-gad8c851af8dd
-X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.4.y build: 200 builds: 1 failed, 199 passed, 1 error,
- 107 warnings (v5.4.28-156-gad8c851af8dd)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [172.22.222.25] (95.118.34.218) by CWXP123CA0024.GBRP123.PROD.OUTLOOK.COM (2603:10a6:401:73::36) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2856.19 via Frontend Transport; Tue, 31 Mar 2020 11:45:14 +0000
+X-Mailer: Apple Mail (2.3608.80.23.2.2)
+X-Originating-IP: [95.118.34.218]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 2bb521a2-f4a3-4ee0-609d-08d7d568fad6
+X-MS-TrafficTypeDiagnostic: DM6PR18MB3522:
+X-Microsoft-Antispam-PRVS: <DM6PR18MB352287F8171BF3FC1708DAA2ABC80@DM6PR18MB3522.namprd18.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Forefront-PRVS: 0359162B6D
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR18MB2458.namprd18.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10019020)(4636009)(396003)(376002)(39860400002)(346002)(136003)(366004)(81166006)(81156014)(186003)(52116002)(36756003)(66946007)(8676002)(66556008)(66476007)(16526019)(2906002)(54906003)(478600001)(956004)(316002)(26005)(2616005)(5660300002)(4744005)(16576012)(6916009)(33656002)(86362001)(4326008)(8936002)(6666004)(6486002);DIR:OUT;SFP:1102;
+Received-SPF: None (protection.outlook.com: suse.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: FKsNoZa0ez/sGtsZMGlSC0QmQ4czNh//o3ku2ftuhrsxo5qraHudiwo6Se1qubEkaCTe5ptliGmCkUgmF/+EEP/j7wGXO21IBWLQRSXZzncJ+8D8fsng/RevIvSF2ZqLCdv/4t9Hv0nlG8K3LUEJvY1CEQyI7jL/Bt8JsxaxAnON6jckcHp0fK3TPxsJQv52YT5uTe3nROQY/TDuUXgk9PwZUiUuYR03sSMRlTTndwo7chZVoH2nTtCEg34ZT31LaF6ku1h1i2HtVxOqrdx7R90/s+88QxboXNBzWujK1qQXKwmRoIEsRAZHG8dgHbFOK5S+sNYyfS/XGX/iudF0dtRx7qSqGHoQEYMkFqGnOzSdf5dlSxZ4RCuEIfzwMbggaUhL2DTY6vtxqbPi2Cm491KoXusX8PA+fiDrSlR8N/HJjukqunhhgTdUimwdzRi3
+X-MS-Exchange-AntiSpam-MessageData: a7w0j/RBulvroFSHDPU1DMIS/5xz//BdfEgB4Gtomog+IGtaY27Udc+MVK515mFVGu/gNLQB+weUaUzusOYAA+I0J8fgzDKTgJ8/GAjow0d2rpXQGU4oK6YF/+C8OFpMoZjVaV9UzYezG+y7wXxo4A==
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2bb521a2-f4a3-4ee0-609d-08d7d568fad6
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Mar 2020 11:45:15.9152
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 856b813c-16e5-49a5-85ec-6f081e13b527
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: n94kng65UJSdc4bmr9SLVeDdfV3kwRVxwfzzvTDkti+rd7idLxPeJ0huumz3ttHKV1TKhVc9JFnh8OCTf35oSQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR18MB3522
+X-OriginatorOrg: suse.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y build: 200 builds: 1 failed, 199 passed, 1 error, 107=
- warnings (v5.4.28-156-gad8c851af8dd)
+Hi Greg,
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.28-156-gad8c851af8dd/
+>> $ sed -i 's;scripts/dtc/dtc-lexer.l;scripts/dtc/dtc-lexer.lex.c_shipped;g' \
+>> queue-{4.4,4.9,4.14}/scripts-dtc-remove-redundant-yyloc-global-declaration.patch
+>> If you would prefer a set of patches, let me know.
+> Should I just drop the patch from 4.4, 4.9, and 4.14 instead?
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.28-156-gad8c851af8dd
-Git Commit: ad8c851af8dd71602e714ada9fd2bb8526ef36b1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
+as the original author of the patch, I am not sure why it was backported to the LTS releases (unless enablement for gcc 10.x or
+other new toolchains is a requirement, which I'm not aware of). 
 
-Build Failure Detected:
+However I think the sed above on the *patch* means that the patch will *only* modify the generated sources, not the input sources. I think
+it would be better to patch both *input* and *generated* sources, or backport the generate-at-runtime patch as well (which might be
+even further outside the stable policy). 
 
-mips:
-    ip27_defconfig: (gcc-8) FAIL
+Not knowing why it was backported, I would suggest to just dequeue the patch from the older trees. 
 
-Errors and Warnings Detected:
+Greetings,
+Dirk
 
-arc:
-    allnoconfig (gcc-8): 1 warning
-    axs103_defconfig (gcc-8): 2 warnings
-    axs103_smp_defconfig (gcc-8): 2 warnings
-    haps_hs_defconfig (gcc-8): 2 warnings
-    haps_hs_smp_defconfig (gcc-8): 2 warnings
-    hsdk_defconfig (gcc-8): 2 warnings
-    nsim_hs_defconfig (gcc-8): 2 warnings
-    nsim_hs_smp_defconfig (gcc-8): 2 warnings
-    nsimosci_hs_defconfig (gcc-8): 2 warnings
-    nsimosci_hs_smp_defconfig (gcc-8): 2 warnings
-    tinyconfig (gcc-8): 1 warning
-    vdk_hs38_defconfig (gcc-8): 1 warning
-    vdk_hs38_smp_defconfig (gcc-8): 1 warning
-
-arm64:
-    defconfig (gcc-8): 12 warnings
-
-arm:
-    am200epdkit_defconfig (gcc-8): 1 warning
-    assabet_defconfig (gcc-8): 1 warning
-    at91_dt_defconfig (gcc-8): 1 warning
-    axm55xx_defconfig (gcc-8): 1 warning
-    cm_x2xx_defconfig (gcc-8): 1 warning
-    cm_x300_defconfig (gcc-8): 1 warning
-    cns3420vb_defconfig (gcc-8): 1 warning
-    colibri_pxa270_defconfig (gcc-8): 1 warning
-    colibri_pxa300_defconfig (gcc-8): 1 warning
-    collie_defconfig (gcc-8): 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
-    dove_defconfig (gcc-8): 1 warning
-    em_x270_defconfig (gcc-8): 1 warning
-    ep93xx_defconfig (gcc-8): 1 warning
-    eseries_pxa_defconfig (gcc-8): 1 warning
-    exynos_defconfig (gcc-8): 1 warning
-    ezx_defconfig (gcc-8): 1 warning
-    h3600_defconfig (gcc-8): 1 warning
-    h5000_defconfig (gcc-8): 1 warning
-    imote2_defconfig (gcc-8): 1 warning
-    imx_v4_v5_defconfig (gcc-8): 1 warning
-    imx_v6_v7_defconfig (gcc-8): 1 warning
-    integrator_defconfig (gcc-8): 1 warning
-    ixp4xx_defconfig (gcc-8): 1 warning
-    keystone_defconfig (gcc-8): 1 warning
-    lpc32xx_defconfig (gcc-8): 1 warning
-    magician_defconfig (gcc-8): 1 warning
-    milbeaut_m10v_defconfig (gcc-8): 1 warning
-    mini2440_defconfig (gcc-8): 1 warning
-    mmp2_defconfig (gcc-8): 1 warning
-    multi_v5_defconfig (gcc-8): 1 warning
-    multi_v7_defconfig (gcc-8): 1 warning
-    mv78xx0_defconfig (gcc-8): 1 warning
-    mvebu_v5_defconfig (gcc-8): 1 warning
-    mvebu_v7_defconfig (gcc-8): 1 warning
-    mxs_defconfig (gcc-8): 1 warning
-    neponset_defconfig (gcc-8): 1 warning
-    nhk8815_defconfig (gcc-8): 1 warning
-    omap1_defconfig (gcc-8): 1 warning
-    omap2plus_defconfig (gcc-8): 1 warning
-    orion5x_defconfig (gcc-8): 1 warning
-    oxnas_v6_defconfig (gcc-8): 1 warning
-    palmz72_defconfig (gcc-8): 1 warning
-    pcm027_defconfig (gcc-8): 1 warning
-    prima2_defconfig (gcc-8): 1 warning
-    pxa168_defconfig (gcc-8): 1 warning
-    pxa3xx_defconfig (gcc-8): 1 warning
-    pxa910_defconfig (gcc-8): 1 warning
-    qcom_defconfig (gcc-8): 1 warning
-    realview_defconfig (gcc-8): 1 warning
-    s3c6400_defconfig (gcc-8): 1 warning
-    s5pv210_defconfig (gcc-8): 1 warning
-    sama5_defconfig (gcc-8): 1 warning
-    shannon_defconfig (gcc-8): 1 warning
-    spear13xx_defconfig (gcc-8): 1 warning
-    sunxi_defconfig (gcc-8): 1 warning
-    tango4_defconfig (gcc-8): 1 warning
-    tegra_defconfig (gcc-8): 1 warning
-    trizeps4_defconfig (gcc-8): 1 warning
-    u300_defconfig (gcc-8): 1 warning
-    u8500_defconfig (gcc-8): 1 warning
-    versatile_defconfig (gcc-8): 1 warning
-    vexpress_defconfig (gcc-8): 1 warning
-    viper_defconfig (gcc-8): 1 warning
-    xcep_defconfig (gcc-8): 1 warning
-    zeus_defconfig (gcc-8): 1 warning
-
-i386:
-
-mips:
-    ip27_defconfig (gcc-8): 1 error
-
-riscv:
-    rv32_defconfig (gcc-8): 6 warnings
-
-x86_64:
-    tinyconfig (gcc-8): 1 warning
-
-Errors summary:
-
-    1    arch/mips/pci/pci-xtalk-bridge.c:287:9: error: =E2=80=98struct bri=
-dge_irq_chip_data=E2=80=99 has no member named =E2=80=98nnasid=E2=80=99; di=
-d you mean =E2=80=98nasid=E2=80=99?
-
-Warnings summary:
-
-    61   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-    24   <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
--Wcpp]
-    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
-min_dma_period=E2=80=99 defined but not used [-Wunused-function]
-    2    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_=
-format): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address=
--cells =3D=3D 2, #size-cells =3D=3D 2)
-    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
--Wcpp]
-    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
-d [-Wcpp]
-    1    arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning (reg_form=
-at): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cel=
-ls =3D=3D 2, #size-cells =3D=3D 2)
-    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_=
-reg): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_devi=
-ce_bus_num): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_=
-reg): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_r=
-eg): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_devic=
-e_bus_num): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_r=
-eg): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_re=
-g): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device=
-_bus_num): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_re=
-g): Failed prerequisite 'reg_format'
-    1    .config:1157:warning: override: UNWINDER_GUESS changes choice state
-
-Section mismatches summary:
-
-    1    WARNING: vmlinux.o(.text.unlikely+0x3598): Section mismatch in ref=
-erence from the function pmax_setup_memory_region() to the function .init.t=
-ext:add_memory_region()
-    1    WARNING: vmlinux.o(.text.unlikely+0x321c): Section mismatch in ref=
-erence from the function pmax_setup_memory_region() to the function .init.t=
-ext:add_memory_region()
-
----
-For more info write to <info@kernelci.org>
