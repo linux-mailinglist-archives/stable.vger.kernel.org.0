@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E112E19912F
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:18:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9839198F23
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730948AbgCaJRy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:17:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39130 "EHLO mail.kernel.org"
+        id S1730485AbgCaJA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:00:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731899AbgCaJRw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:17:52 -0400
+        id S1730480AbgCaJA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:00:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B453320772;
-        Tue, 31 Mar 2020 09:17:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFF6C20B1F;
+        Tue, 31 Mar 2020 09:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646272;
-        bh=TeARL0MEysMl1kXo3PO6VsWf6KiLr0xQ30CuSJnkSGo=;
+        s=default; t=1585645255;
+        bh=M2XYznMyPl5ilmTJqLhupO6Wszm9njVFjh1r0tDOHOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K2ytdZTf00jtoSGJFZa634uwCr/hpj3IdPLhr3rA0wxxthvoYSSxeyuhb/EJ02szk
-         qLF6yeq9DqfX002mPJfCwLHulN3EyEe5k9xGBWJWKBuPqEmp03tEqYfjLqsM+1cUeG
-         dGdXZ3Bsm3bUOXQx8bbBCRALTbluTdV12Aniq0jU=
+        b=PwWhWQmTYj+IlrOgx2+RFt0/60tJG9ACvVRD5/EI9pntZfwZztHYQX5NG6REr9cxF
+         nU2IW9bsfO9ZB9tP96TT4FRF/2mQTUZX9VKyQR9J6SVJ7cgG91TGCR7bs9kwI79CVj
+         r2Uq7dCx7KsaI2fhyy40QnOJUiWzKOXAqphd7sOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chih-Wei Huang <cwhuang@android-x86.org>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 134/155] r8169: fix PHY driver check on platforms w/o module softdeps
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.6 22/23] media: xirlink_cit: add missing descriptor sanity checks
 Date:   Tue, 31 Mar 2020 10:59:34 +0200
-Message-Id: <20200331085433.273204395@linuxfoundation.org>
+Message-Id: <20200331085317.512897637@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085308.098696461@linuxfoundation.org>
+References: <20200331085308.098696461@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 2e8c339b4946490a922a21aa8cd869c6cfad2023 upstream.
+commit a246b4d547708f33ff4d4b9a7a5dbac741dc89d8 upstream.
 
-On Android/x86 the module loading infrastructure can't deal with
-softdeps. Therefore the check for presence of the Realtek PHY driver
-module fails. mdiobus_register() will try to load the PHY driver
-module, therefore move the check to after this call and explicitly
-check that a dedicated PHY driver is bound to the PHY device.
+Make sure to check that we have two alternate settings and at least one
+endpoint before accessing the second altsetting structure and
+dereferencing the endpoint arrays.
 
-Fixes: f32593773549 ("r8169: check that Realtek PHY driver module is loaded")
-Reported-by: Chih-Wei Huang <cwhuang@android-x86.org>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This specifically avoids dereferencing NULL-pointers or corrupting
+memory when a device does not have the expected descriptors.
+
+Note that the sanity check in cit_get_packet_size() is not redundant as
+the driver is mixing looking up altsettings by index and by number,
+which may not coincide.
+
+Fixes: 659fefa0eb17 ("V4L/DVB: gspca_xirlink_cit: Add support for camera with a bcd version of 0.01")
+Fixes: 59f8b0bf3c12 ("V4L/DVB: gspca_xirlink_cit: support bandwidth changing for devices with 1 alt setting")
+Cc: stable <stable@vger.kernel.org>     # 2.6.37
+Cc: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/realtek/r8169_main.c |   16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/media/usb/gspca/xirlink_cit.c |   18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -6903,6 +6903,13 @@ static int r8169_mdio_register(struct rt
- 	if (!tp->phydev) {
- 		mdiobus_unregister(new_bus);
- 		return -ENODEV;
-+	} else if (!tp->phydev->drv) {
-+		/* Most chip versions fail with the genphy driver.
-+		 * Therefore ensure that the dedicated PHY driver is loaded.
-+		 */
-+		dev_err(&pdev->dev, "realtek.ko not loaded, maybe it needs to be added to initramfs?\n");
-+		mdiobus_unregister(new_bus);
-+		return -EUNATCH;
+--- a/drivers/media/usb/gspca/xirlink_cit.c
++++ b/drivers/media/usb/gspca/xirlink_cit.c
+@@ -1442,6 +1442,9 @@ static int cit_get_packet_size(struct gs
+ 		return -EIO;
  	}
  
- 	/* PHY will be woken up in rtl_open() */
-@@ -7064,15 +7071,6 @@ static int rtl_init_one(struct pci_dev *
- 	int chipset, region;
- 	int jumbo_max, rc;
++	if (alt->desc.bNumEndpoints < 1)
++		return -ENODEV;
++
+ 	return le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ }
  
--	/* Some tools for creating an initramfs don't consider softdeps, then
--	 * r8169.ko may be in initramfs, but realtek.ko not. Then the generic
--	 * PHY driver is used that doesn't work with most chip versions.
--	 */
--	if (!driver_find("RTL8201CP Ethernet", &mdio_bus_type)) {
--		dev_err(&pdev->dev, "realtek.ko not loaded, maybe it needs to be added to initramfs?\n");
--		return -ENOENT;
--	}
--
- 	dev = devm_alloc_etherdev(&pdev->dev, sizeof (*tp));
- 	if (!dev)
- 		return -ENOMEM;
+@@ -2626,6 +2629,7 @@ static int sd_start(struct gspca_dev *gs
+ 
+ static int sd_isoc_init(struct gspca_dev *gspca_dev)
+ {
++	struct usb_interface_cache *intfc;
+ 	struct usb_host_interface *alt;
+ 	int max_packet_size;
+ 
+@@ -2641,8 +2645,17 @@ static int sd_isoc_init(struct gspca_dev
+ 		break;
+ 	}
+ 
++	intfc = gspca_dev->dev->actconfig->intf_cache[0];
++
++	if (intfc->num_altsetting < 2)
++		return -ENODEV;
++
++	alt = &intfc->altsetting[1];
++
++	if (alt->desc.bNumEndpoints < 1)
++		return -ENODEV;
++
+ 	/* Start isoc bandwidth "negotiation" at max isoc bandwidth */
+-	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
+ 	alt->endpoint[0].desc.wMaxPacketSize = cpu_to_le16(max_packet_size);
+ 
+ 	return 0;
+@@ -2665,6 +2678,9 @@ static int sd_isoc_nego(struct gspca_dev
+ 		break;
+ 	}
+ 
++	/*
++	 * Existence of altsetting and endpoint was verified in sd_isoc_init()
++	 */
+ 	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 	if (packet_size <= min_packet_size)
 
 
