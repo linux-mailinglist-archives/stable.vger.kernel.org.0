@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79774198F2F
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2222B199127
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730341AbgCaJBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:01:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40460 "EHLO mail.kernel.org"
+        id S1731540AbgCaJRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:17:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730541AbgCaJBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:01:19 -0400
+        id S1730666AbgCaJRn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:17:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA82420B1F;
-        Tue, 31 Mar 2020 09:01:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BBFE20675;
+        Tue, 31 Mar 2020 09:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645278;
-        bh=vhGI45rn2Ty8tXWcSB2nbLy+mTD6PsHxSUVxyGrjF3c=;
+        s=default; t=1585646262;
+        bh=1V9krcCmZuB1V+rTsau6j1FmzkI174XQlHz6yYPQc34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fltoT55GJNsZfsyN6kV92NsZzltQVtaMKYmxNgIq1R+N//ThBirsSGCyGJohl8Oas
-         wgVG8hJo4TlliqlPRe2gX3vv5cbWhTbdgO04y4qQhyOF53+tVio154OLyfQTyRM/kt
-         jHlTp/7eqNtkrYRKobMODmed9HO+t8OESmcdc7wU=
+        b=rRvwvziTubwyu7W78weiX6AWAru0GEDSQw/PVZ/s1t9fyZPBIlGQmIUWBmDNrqNLP
+         eoNmx6lML2j0JqH3aUVzpl/fBMJOoJNJAkAsYL04cJdOxbjFNJSF/MXUJiFVLj21i5
+         WeyPUSZnfmmWOabcHLxeTWJXRmtiYlc1JqAQ/A/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.6 19/23] media: ov519: add missing endpoint sanity checks
+        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.4 131/155] bpf, sockmap: Remove bucket->lock from sock_{hash|map}_free
 Date:   Tue, 31 Mar 2020 10:59:31 +0200
-Message-Id: <20200331085316.636106929@linuxfoundation.org>
+Message-Id: <20200331085432.965935873@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085308.098696461@linuxfoundation.org>
-References: <20200331085308.098696461@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: John Fastabend <john.fastabend@gmail.com>
 
-commit 998912346c0da53a6dbb71fab3a138586b596b30 upstream.
+commit 90db6d772f749e38171d04619a5e3cd8804a6d02 upstream.
 
-Make sure to check that we have at least one endpoint before accessing
-the endpoint array to avoid dereferencing a NULL-pointer on stream
-start.
+The bucket->lock is not needed in the sock_hash_free and sock_map_free
+calls, in fact it is causing a splat due to being inside rcu block.
 
-Note that these sanity checks are not redundant as the driver is mixing
-looking up altsettings by index and by number, which need not coincide.
+| BUG: sleeping function called from invalid context at net/core/sock.c:2935
+| in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 62, name: kworker/0:1
+| 3 locks held by kworker/0:1/62:
+|  #0: ffff88813b019748 ((wq_completion)events){+.+.}, at: process_one_work+0x1d7/0x5e0
+|  #1: ffffc900000abe50 ((work_completion)(&map->work)){+.+.}, at: process_one_work+0x1d7/0x5e0
+|  #2: ffff8881381f6df8 (&stab->lock){+...}, at: sock_map_free+0x26/0x180
+| CPU: 0 PID: 62 Comm: kworker/0:1 Not tainted 5.5.0-04008-g7b083332376e #454
+| Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
+| Workqueue: events bpf_map_free_deferred
+| Call Trace:
+|  dump_stack+0x71/0xa0
+|  ___might_sleep.cold+0xa6/0xb6
+|  lock_sock_nested+0x28/0x90
+|  sock_map_free+0x5f/0x180
+|  bpf_map_free_deferred+0x58/0x80
+|  process_one_work+0x260/0x5e0
+|  worker_thread+0x4d/0x3e0
+|  kthread+0x108/0x140
+|  ? process_one_work+0x5e0/0x5e0
+|  ? kthread_park+0x90/0x90
+|  ret_from_fork+0x3a/0x50
 
-Fixes: 1876bb923c98 ("V4L/DVB (12079): gspca_ov519: add support for the ov511 bridge")
-Fixes: b282d87332f5 ("V4L/DVB (12080): gspca_ov519: Fix ov518+ with OV7620AE (Trust spacecam 320)")
-Cc: stable <stable@vger.kernel.org>     # 2.6.31
-Cc: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The reason we have stab->lock and bucket->locks in sockmap code is to
+handle checking EEXIST in update/delete cases. We need to be careful during
+an update operation that we check for EEXIST and we need to ensure that the
+psock object is not in some partial state of removal/insertion while we do
+this. So both map_update_common and sock_map_delete need to guard from being
+run together potentially deleting an entry we are checking, etc. But by the
+time we get to the tear-down code in sock_{ma[|hash}_free we have already
+disconnected the map and we just did synchronize_rcu() in the line above so
+no updates/deletes should be in flight. Because of this we can drop the
+bucket locks from the map free'ing code, noting no update/deletes can be
+in-flight.
+
+Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
+Reported-by: Jakub Sitnicki <jakub@cloudflare.com>
+Suggested-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/158385850787.30597.8346421465837046618.stgit@john-Precision-5820-Tower
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/ov519.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/core/sock_map.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/media/usb/gspca/ov519.c
-+++ b/drivers/media/usb/gspca/ov519.c
-@@ -3477,6 +3477,11 @@ static void ov511_mode_init_regs(struct
- 		return;
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -233,8 +233,11 @@ static void sock_map_free(struct bpf_map
+ 	struct bpf_stab *stab = container_of(map, struct bpf_stab, map);
+ 	int i;
+ 
++	/* After the sync no updates or deletes will be in-flight so it
++	 * is safe to walk map and remove entries without risking a race
++	 * in EEXIST update case.
++	 */
+ 	synchronize_rcu();
+-	raw_spin_lock_bh(&stab->lock);
+ 	for (i = 0; i < stab->map.max_entries; i++) {
+ 		struct sock **psk = &stab->sks[i];
+ 		struct sock *sk;
+@@ -248,7 +251,6 @@ static void sock_map_free(struct bpf_map
+ 			release_sock(sk);
+ 		}
+ 	}
+-	raw_spin_unlock_bh(&stab->lock);
+ 
+ 	/* wait for psock readers accessing its map link */
+ 	synchronize_rcu();
+@@ -863,10 +865,13 @@ static void sock_hash_free(struct bpf_ma
+ 	struct hlist_node *node;
+ 	int i;
+ 
++	/* After the sync no updates or deletes will be in-flight so it
++	 * is safe to walk map and remove entries without risking a race
++	 * in EEXIST update case.
++	 */
+ 	synchronize_rcu();
+ 	for (i = 0; i < htab->buckets_num; i++) {
+ 		bucket = sock_hash_select_bucket(htab, i);
+-		raw_spin_lock_bh(&bucket->lock);
+ 		hlist_for_each_entry_safe(elem, node, &bucket->head, node) {
+ 			hlist_del_rcu(&elem->node);
+ 			lock_sock(elem->sk);
+@@ -875,7 +880,6 @@ static void sock_hash_free(struct bpf_ma
+ 			rcu_read_unlock();
+ 			release_sock(elem->sk);
+ 		}
+-		raw_spin_unlock_bh(&bucket->lock);
  	}
  
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	reg_w(sd, R51x_FIFO_PSIZE, packet_size >> 5);
- 
-@@ -3603,6 +3608,11 @@ static void ov518_mode_init_regs(struct
- 		return;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	ov518_reg_w32(sd, R51x_FIFO_PSIZE, packet_size & ~7, 2);
- 
+ 	/* wait for psock readers accessing its map link */
 
 
