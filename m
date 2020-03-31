@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E575719900B
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6B7199019
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731000AbgCaJIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:08:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51022 "EHLO mail.kernel.org"
+        id S1731416AbgCaJJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:09:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730570AbgCaJIc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:08:32 -0400
+        id S1731423AbgCaJJE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:09:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AB4620787;
-        Tue, 31 Mar 2020 09:08:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D394C20B1F;
+        Tue, 31 Mar 2020 09:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645711;
-        bh=0YWN7uw21TRiOC+QdCdepE6qoKwvoYs7NgnThVS7TJk=;
+        s=default; t=1585645743;
+        bh=gJXCPdAm6kytCWXBKwOUdWR72qRSaKL9kkbp0X+2k2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikkR2CbCmz25jxnslqQraa/S+8H+9Co9d68kJCFlII/SabMcbt/NNaqwksfcA8CR+
-         FtxSg2gDshXMtHdE9/J6MDVTfKVsCpkGLDvK24mqjB+R3X/xN8DPIYMv3FZWOt14y9
-         5EPXNaVkaFwhIcVFRCvzl04cOmx2HRx5I6xHBXdg=
+        b=mzjvFqHM5HybEgcqsgn+DPNr+BbnIonzz+VfhFC3rcDlv6akwMS+Ws7yH339vu9Qo
+         Wpw6SsyDcpDtrx+Yr/h0m5RTXhw607cwvE9iYo3xbFrM/tCgFdfHz3mBjeb45NCcWD
+         dRmdXlXS41DYcdVDkQrEeuMCu3iDphcuYzziuU8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Baoquan He <bhe@redhat.com>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Dan Williams <dan.j.williams@intel.com>,
-        David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Mike Rapoport <rppt@linux.ibm.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Bharata B Rao <bharata@linux.ibm.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 113/170] mm/sparse: fix kernel crash with pfn_section_valid check
-Date:   Tue, 31 Mar 2020 10:58:47 +0200
-Message-Id: <20200331085436.185695146@linuxfoundation.org>
+Subject: [PATCH 5.5 114/170] mm: fork: fix kernel_stack memcg stats for various stack implementations
+Date:   Tue, 31 Mar 2020 10:58:48 +0200
+Message-Id: <20200331085436.270978792@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
 References: <20200331085423.990189598@linuxfoundation.org>
@@ -54,126 +48,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Roman Gushchin <guro@fb.com>
 
-commit b943f045a9af9fd02f923e43fe8d7517e9961701 upstream.
+commit 8380ce479010f2f779587b462a9b4681934297c3 upstream.
 
-Fix the crash like this:
+Depending on CONFIG_VMAP_STACK and the THREAD_SIZE / PAGE_SIZE ratio the
+space for task stacks can be allocated using __vmalloc_node_range(),
+alloc_pages_node() and kmem_cache_alloc_node().
 
-    BUG: Kernel NULL pointer dereference on read at 0x00000000
-    Faulting instruction address: 0xc000000000c3447c
-    Oops: Kernel access of bad area, sig: 11 [#1]
-    LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-    CPU: 11 PID: 7519 Comm: lt-ndctl Not tainted 5.6.0-rc7-autotest #1
-    ...
-    NIP [c000000000c3447c] vmemmap_populated+0x98/0xc0
-    LR [c000000000088354] vmemmap_free+0x144/0x320
-    Call Trace:
-       section_deactivate+0x220/0x240
-       __remove_pages+0x118/0x170
-       arch_remove_memory+0x3c/0x150
-       memunmap_pages+0x1cc/0x2f0
-       devm_action_release+0x30/0x50
-       release_nodes+0x2f8/0x3e0
-       device_release_driver_internal+0x168/0x270
-       unbind_store+0x130/0x170
-       drv_attr_store+0x44/0x60
-       sysfs_kf_write+0x68/0x80
-       kernfs_fop_write+0x100/0x290
-       __vfs_write+0x3c/0x70
-       vfs_write+0xcc/0x240
-       ksys_write+0x7c/0x140
-       system_call+0x5c/0x68
+In the first and the second cases page->mem_cgroup pointer is set, but
+in the third it's not: memcg membership of a slab page should be
+determined using the memcg_from_slab_page() function, which looks at
+page->slab_cache->memcg_params.memcg .  In this case, using
+mod_memcg_page_state() (as in account_kernel_stack()) is incorrect:
+page->mem_cgroup pointer is NULL even for pages charged to a non-root
+memory cgroup.
 
-The crash is due to NULL dereference at
+It can lead to kernel_stack per-memcg counters permanently showing 0 on
+some architectures (depending on the configuration).
 
-	test_bit(idx, ms->usage->subsection_map);
+In order to fix it, let's introduce a mod_memcg_obj_state() helper,
+which takes a pointer to a kernel object as a first argument, uses
+mem_cgroup_from_obj() to get a RCU-protected memcg pointer and calls
+mod_memcg_state().  It allows to handle all possible configurations
+(CONFIG_VMAP_STACK and various THREAD_SIZE/PAGE_SIZE values) without
+spilling any memcg/kmem specifics into fork.c .
 
-due to ms->usage = NULL in pfn_section_valid()
+Note: This is a special version of the patch created for stable
+backports.  It contains code from the following two patches:
+  - mm: memcg/slab: introduce mem_cgroup_from_obj()
+  - mm: fork: fix kernel_stack memcg stats for various stack implementations
 
-With commit d41e2f3bd546 ("mm/hotplug: fix hot remove failure in
-SPARSEMEM|!VMEMMAP case") section_mem_map is set to NULL after
-depopulate_section_mem().  This was done so that pfn_page() can work
-correctly with kernel config that disables SPARSEMEM_VMEMMAP.  With that
-config pfn_to_page does
-
-	__section_mem_map_addr(__sec) + __pfn;
-
-where
-
-  static inline struct page *__section_mem_map_addr(struct mem_section *section)
-  {
-	unsigned long map = section->section_mem_map;
-	map &= SECTION_MAP_MASK;
-	return (struct page *)map;
-  }
-
-Now with SPASEMEM_VMEMAP enabled, mem_section->usage->subsection_map is
-used to check the pfn validity (pfn_valid()).  Since section_deactivate
-release mem_section->usage if a section is fully deactivated,
-pfn_valid() check after a subsection_deactivate cause a kernel crash.
-
-  static inline int pfn_valid(unsigned long pfn)
-  {
-  ...
-	return early_section(ms) || pfn_section_valid(ms, pfn);
-  }
-
-where
-
-  static inline int pfn_section_valid(struct mem_section *ms, unsigned long pfn)
-  {
-	int idx = subsection_map_index(pfn);
-
-	return test_bit(idx, ms->usage->subsection_map);
-  }
-
-Avoid this by clearing SECTION_HAS_MEM_MAP when mem_section->usage is
-freed.  For architectures like ppc64 where large pages are used for
-vmmemap mapping (16MB), a specific vmemmap mapping can cover multiple
-sections.  Hence before a vmemmap mapping page can be freed, the kernel
-needs to make sure there are no valid sections within that mapping.
-Clearing the section valid bit before depopulate_section_memap enables
-this.
-
-[aneesh.kumar@linux.ibm.com: add comment]
-  Link: http://lkml.kernel.org/r/20200326133235.343616-1-aneesh.kumar@linux.ibm.comLink: http://lkml.kernel.org/r/20200325031914.107660-1-aneesh.kumar@linux.ibm.com
-Fixes: d41e2f3bd546 ("mm/hotplug: fix hot remove failure in SPARSEMEM|!VMEMMAP case")
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+[guro@fb.com: introduce mem_cgroup_from_obj()]
+  Link: http://lkml.kernel.org/r/20200324004221.GA36662@carbon.dhcp.thefacebook.com
+Fixes: 4d96ba353075 ("mm: memcg/slab: stop setting page->mem_cgroup pointer for slab pages")
+Signed-off-by: Roman Gushchin <guro@fb.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Bharata B Rao <bharata@linux.ibm.com>
+Cc: Shakeel Butt <shakeelb@google.com>
 Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200303233550.251375-1-guro@fb.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/sparse.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ include/linux/memcontrol.h |   12 ++++++++++++
+ kernel/fork.c              |    4 ++--
+ mm/memcontrol.c            |   38 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 52 insertions(+), 2 deletions(-)
 
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -791,6 +791,12 @@ static void section_deactivate(unsigned
- 			ms->usage = NULL;
- 		}
- 		memmap = sparse_decode_mem_map(ms->section_mem_map, section_nr);
-+		/*
-+		 * Mark the section invalid so that valid_section()
-+		 * return false. This prevents code from dereferencing
-+		 * ms->usage array.
-+		 */
-+		ms->section_mem_map &= ~SECTION_HAS_MEM_MAP;
- 	}
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -695,6 +695,7 @@ static inline unsigned long lruvec_page_
+ void __mod_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+ 			int val);
+ void __mod_lruvec_slab_state(void *p, enum node_stat_item idx, int val);
++void mod_memcg_obj_state(void *p, int idx, int val);
  
- 	if (section_is_early && memmap)
+ static inline void mod_lruvec_state(struct lruvec *lruvec,
+ 				    enum node_stat_item idx, int val)
+@@ -1123,6 +1124,10 @@ static inline void __mod_lruvec_slab_sta
+ 	__mod_node_page_state(page_pgdat(page), idx, val);
+ }
+ 
++static inline void mod_memcg_obj_state(void *p, int idx, int val)
++{
++}
++
+ static inline
+ unsigned long mem_cgroup_soft_limit_reclaim(pg_data_t *pgdat, int order,
+ 					    gfp_t gfp_mask,
+@@ -1427,6 +1432,8 @@ static inline int memcg_cache_id(struct
+ 	return memcg ? memcg->kmemcg_id : -1;
+ }
+ 
++struct mem_cgroup *mem_cgroup_from_obj(void *p);
++
+ #else
+ 
+ static inline int memcg_kmem_charge(struct page *page, gfp_t gfp, int order)
+@@ -1468,6 +1475,11 @@ static inline void memcg_put_cache_ids(v
+ {
+ }
+ 
++static inline struct mem_cgroup *mem_cgroup_from_obj(void *p)
++{
++       return NULL;
++}
++
+ #endif /* CONFIG_MEMCG_KMEM */
+ 
+ #endif /* _LINUX_MEMCONTROL_H */
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -397,8 +397,8 @@ static void account_kernel_stack(struct
+ 		mod_zone_page_state(page_zone(first_page), NR_KERNEL_STACK_KB,
+ 				    THREAD_SIZE / 1024 * account);
+ 
+-		mod_memcg_page_state(first_page, MEMCG_KERNEL_STACK_KB,
+-				     account * (THREAD_SIZE / 1024));
++		mod_memcg_obj_state(stack, MEMCG_KERNEL_STACK_KB,
++				    account * (THREAD_SIZE / 1024));
+ 	}
+ }
+ 
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -777,6 +777,17 @@ void __mod_lruvec_slab_state(void *p, en
+ 	rcu_read_unlock();
+ }
+ 
++void mod_memcg_obj_state(void *p, int idx, int val)
++{
++	struct mem_cgroup *memcg;
++
++	rcu_read_lock();
++	memcg = mem_cgroup_from_obj(p);
++	if (memcg)
++		mod_memcg_state(memcg, idx, val);
++	rcu_read_unlock();
++}
++
+ /**
+  * __count_memcg_events - account VM events in a cgroup
+  * @memcg: the memory cgroup
+@@ -2661,6 +2672,33 @@ static void commit_charge(struct page *p
+ }
+ 
+ #ifdef CONFIG_MEMCG_KMEM
++/*
++ * Returns a pointer to the memory cgroup to which the kernel object is charged.
++ *
++ * The caller must ensure the memcg lifetime, e.g. by taking rcu_read_lock(),
++ * cgroup_mutex, etc.
++ */
++struct mem_cgroup *mem_cgroup_from_obj(void *p)
++{
++	struct page *page;
++
++	if (mem_cgroup_disabled())
++		return NULL;
++
++	page = virt_to_head_page(p);
++
++	/*
++	 * Slab pages don't have page->mem_cgroup set because corresponding
++	 * kmem caches can be reparented during the lifetime. That's why
++	 * memcg_from_slab_page() should be used instead.
++	 */
++	if (PageSlab(page))
++		return memcg_from_slab_page(page);
++
++	/* All other pages use page->mem_cgroup */
++	return page->mem_cgroup;
++}
++
+ static int memcg_alloc_cache_id(void)
+ {
+ 	int id, size;
 
 
