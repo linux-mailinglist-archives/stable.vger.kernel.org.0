@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 155B1198FB6
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD8F199190
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730794AbgCaJFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:05:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46810 "EHLO mail.kernel.org"
+        id S1730704AbgCaJNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:13:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730541AbgCaJFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:05:40 -0400
+        id S1731345AbgCaJNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:13:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E35E20B1F;
-        Tue, 31 Mar 2020 09:05:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71A0D2072E;
+        Tue, 31 Mar 2020 09:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645539;
-        bh=P7eaBlYz4GzVkyvhowH9g6w/cqbHD7kEmXW8Sh3FLOs=;
+        s=default; t=1585646029;
+        bh=QaVZu7oeE9kvody+R9vApzpKSF+e7ayYBfps5bhprrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RGjjvGrKqah8X/YblHRxr+bpBJcl+F687rsjGhJUTwsee/hfdaG8cwJGtCadSM/7
-         kWL8QdUkulOYDPWI4vJluWj0BSlsInopwG3oAwWd7UoDkR9qBrKYAg5d6B/BkwhnBD
-         ebwtGFFt0pUDsxqBlb4ZL2DrmkmuWY93AsGJzhAE=
+        b=I3sqFM0LjudA3VLCqPKNkq7ExUxghoXTyLznKkAvnn38FUobmHWWkUefxDr8PtIai
+         fCdAM7o/K/n30C2IhvCBy1BCaZS/GcR+PyaouXR9Kn1bbvv3dCMtjJuuj9UGhzfR+j
+         /XlBSFYGdf36HWinvMloPuJzNuvgNPRRHX5vQvo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.5 085/170] Input: avoid BIT() macro usage in the serio.h UAPI header
+        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 059/155] dt-bindings: net: FMan erratum A050385
 Date:   Tue, 31 Mar 2020 10:58:19 +0200
-Message-Id: <20200331085433.312691286@linuxfoundation.org>
+Message-Id: <20200331085425.175656389@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Syromiatnikov <esyr@redhat.com>
+From: Madalin Bucur <madalin.bucur@nxp.com>
 
-commit 52afa505a03d914081f40cb869a3248567a57573 upstream.
+[ Upstream commit 26d5bb9e4c4b541c475751e015072eb2cbf70d15 ]
 
-The commit 19ba1eb15a2a ("Input: psmouse - add a custom serio protocol
-to send extra information") introduced usage of the BIT() macro
-for SERIO_* flags; this macro is not provided in UAPI headers.
-Replace if with similarly defined _BITUL() macro defined
-in <linux/const.h>.
+FMAN DMA read or writes under heavy traffic load may cause FMAN
+internal resource leak; thus stopping further packet processing.
 
-Fixes: 19ba1eb15a2a ("Input: psmouse - add a custom serio protocol to send extra information")
-Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
-Cc: <stable@vger.kernel.org> # v5.0+
-Link: https://lore.kernel.org/r/20200324041341.GA32335@asgard.redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The FMAN internal queue can overflow when FMAN splits single
+read or write transactions into multiple smaller transactions
+such that more than 17 AXI transactions are in flight from FMAN
+to interconnect. When the FMAN internal queue overflows, it can
+stall further packet processing. The issue can occur with any one
+of the following three conditions:
 
+  1. FMAN AXI transaction crosses 4K address boundary (Errata
+     A010022)
+  2. FMAN DMA address for an AXI transaction is not 16 byte
+     aligned, i.e. the last 4 bits of an address are non-zero
+  3. Scatter Gather (SG) frames have more than one SG buffer in
+     the SG list and any one of the buffers, except the last
+     buffer in the SG list has data size that is not a multiple
+     of 16 bytes, i.e., other than 16, 32, 48, 64, etc.
+
+With any one of the above three conditions present, there is
+likelihood of stalled FMAN packet processing, especially under
+stress with multiple ports injecting line-rate traffic.
+
+To avoid situations that stall FMAN packet processing, all of the
+above three conditions must be avoided; therefore, configure the
+system with the following rules:
+
+  1. Frame buffers must not span a 4KB address boundary, unless
+     the frame start address is 256 byte aligned
+  2. All FMAN DMA start addresses (for example, BMAN buffer
+     address, FD[address] + FD[offset]) are 16B aligned
+  3. SG table and buffer addresses are 16B aligned and the size
+     of SG buffers are multiple of 16 bytes, except for the last
+     SG buffer that can be of any size.
+
+Additional workaround notes:
+- Address alignment of 64 bytes is recommended for maximally
+efficient system bus transactions (although 16 byte alignment is
+sufficient to avoid the stall condition)
+- To support frame sizes that are larger than 4K bytes, there are
+two options:
+  1. Large single buffer frames that span a 4KB page boundary can
+     be converted into SG frames to avoid transaction splits at
+     the 4KB boundary,
+  2. Align the large single buffer to 256B address boundaries,
+     ensure that the frame address plus offset is 256B aligned.
+- If software generated SG frames have buffers that are unaligned
+and with random non-multiple of 16 byte lengths, before
+transmitting such frames via FMAN, frames will need to be copied
+into a new single buffer or multiple buffer SG frame that is
+compliant with the three rules listed above.
+
+Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/serio.h |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ Documentation/devicetree/bindings/net/fsl-fman.txt | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/include/uapi/linux/serio.h
-+++ b/include/uapi/linux/serio.h
-@@ -9,7 +9,7 @@
- #ifndef _UAPI_SERIO_H
- #define _UAPI_SERIO_H
+diff --git a/Documentation/devicetree/bindings/net/fsl-fman.txt b/Documentation/devicetree/bindings/net/fsl-fman.txt
+index 299c0dcd67db4..1316f0aec0cf3 100644
+--- a/Documentation/devicetree/bindings/net/fsl-fman.txt
++++ b/Documentation/devicetree/bindings/net/fsl-fman.txt
+@@ -110,6 +110,13 @@ PROPERTIES
+ 		Usage: required
+ 		Definition: See soc/fsl/qman.txt and soc/fsl/bman.txt
  
--
-+#include <linux/const.h>
- #include <linux/ioctl.h>
++- fsl,erratum-a050385
++		Usage: optional
++		Value type: boolean
++		Definition: A boolean property. Indicates the presence of the
++		erratum A050385 which indicates that DMA transactions that are
++		split can result in a FMan lock.
++
+ =============================================================================
+ FMan MURAM Node
  
- #define SPIOCSTYPE	_IOW('q', 0x01, unsigned long)
-@@ -18,10 +18,10 @@
- /*
-  * bit masks for use in "interrupt" flags (3rd argument)
-  */
--#define SERIO_TIMEOUT	BIT(0)
--#define SERIO_PARITY	BIT(1)
--#define SERIO_FRAME	BIT(2)
--#define SERIO_OOB_DATA	BIT(3)
-+#define SERIO_TIMEOUT	_BITUL(0)
-+#define SERIO_PARITY	_BITUL(1)
-+#define SERIO_FRAME	_BITUL(2)
-+#define SERIO_OOB_DATA	_BITUL(3)
- 
- /*
-  * Serio types
+-- 
+2.20.1
+
 
 
