@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26512199085
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFC6B198FA9
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730306AbgCaJM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58996 "EHLO mail.kernel.org"
+        id S1730981AbgCaJEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:04:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731129AbgCaJM3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:12:29 -0400
+        id S1730648AbgCaJEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:04:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 266A4208FE;
-        Tue, 31 Mar 2020 09:12:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BE6520787;
+        Tue, 31 Mar 2020 09:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645948;
-        bh=PFJ61hZlXewm98PbidinrVr4O2dRVdQs+bRrFd1QcbI=;
+        s=default; t=1585645488;
+        bh=PndM6PtHusE/G30Hx9O5MCKkXCtbBUHeBRG+pkQeq0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODjVxOFuiXpfkKNXJq/CbnYm7Egq3yJU2n83IEN/y2K4pW641kfN7gtmR97cyzVRz
-         KlqZLPMmap5B1IVnA6ds+qJ/FdPx3dxS4tBeIauuSBiLR0DxPUO4LfKiDYE8kSMUDq
-         X0OlZt5rcYalrEjiW/cVlKyY6Q+/40l25UbFd5j8=
+        b=Vr34luBDrXgFBoxxBigBQQyWcKDumzUXn6wpNFD117+aP1p0PqbG/wFhooeTZbmFv
+         hpslo8XIxCp0a7d7M+WD5jc5UzDWTURwbF/b7iur59rbKB91zYeNPToGwiBwyB3vlC
+         Lx7wXZqXCTKMz35Ct+HCico4KeJfjgvkqma8I58g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 040/155] bnxt_en: fix memory leaks in bnxt_dcbnl_ieee_getets()
-Date:   Tue, 31 Mar 2020 10:58:00 +0200
-Message-Id: <20200331085422.897153000@linuxfoundation.org>
+        stable@vger.kernel.org, Dajun Jin <adajunjin@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 067/170] drivers/of/of_mdio.c:fix of_mdiobus_register()
+Date:   Tue, 31 Mar 2020 10:58:01 +0200
+Message-Id: <20200331085431.560157794@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Dajun Jin <adajunjin@gmail.com>
 
-[ Upstream commit 62d4073e86e62e316bea2c53e77db10418fd5dd7 ]
+[ Upstream commit 209c65b61d94344522c41a83cd6ce51aac5fd0a4 ]
 
-The allocated ieee_ets structure goes out of scope without being freed,
-leaking memory. Appropriate result codes should be returned so that
-callers do not rely on invalid data passed by reference.
+When registers a phy_device successful, should terminate the loop
+or the phy_device would be registered in other addr. If there are
+multiple PHYs without reg properties, it will go wrong.
 
-Also cache the ETS config retrieved from the device so that it doesn't
-need to be freed. The balance of the code was clearly written with the
-intent of having the results of querying the hardware cached in the
-device structure. The commensurate store was evidently missed though.
-
-Fixes: 7df4ae9fe855 ("bnxt_en: Implement DCBNL to support host-based DCBX.")
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Dajun Jin <adajunjin@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/of/of_mdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c
-@@ -479,24 +479,26 @@ static int bnxt_dcbnl_ieee_getets(struct
- {
- 	struct bnxt *bp = netdev_priv(dev);
- 	struct ieee_ets *my_ets = bp->ieee_ets;
-+	int rc;
- 
- 	ets->ets_cap = bp->max_tc;
- 
- 	if (!my_ets) {
--		int rc;
--
- 		if (bp->dcbx_cap & DCB_CAP_DCBX_HOST)
- 			return 0;
- 
- 		my_ets = kzalloc(sizeof(*my_ets), GFP_KERNEL);
- 		if (!my_ets)
--			return 0;
-+			return -ENOMEM;
- 		rc = bnxt_hwrm_queue_cos2bw_qcfg(bp, my_ets);
- 		if (rc)
--			return 0;
-+			goto error;
- 		rc = bnxt_hwrm_queue_pri2cos_qcfg(bp, my_ets);
- 		if (rc)
--			return 0;
-+			goto error;
-+
-+		/* cache result */
-+		bp->ieee_ets = my_ets;
+diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
+index fc757ef6eadc5..a27234c58ec56 100644
+--- a/drivers/of/of_mdio.c
++++ b/drivers/of/of_mdio.c
+@@ -269,6 +269,7 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
+ 				rc = of_mdiobus_register_phy(mdio, child, addr);
+ 				if (rc && rc != -ENODEV)
+ 					goto unregister;
++				break;
+ 			}
+ 		}
  	}
- 
- 	ets->cbs = my_ets->cbs;
-@@ -505,6 +507,9 @@ static int bnxt_dcbnl_ieee_getets(struct
- 	memcpy(ets->tc_tsa, my_ets->tc_tsa, sizeof(ets->tc_tsa));
- 	memcpy(ets->prio_tc, my_ets->prio_tc, sizeof(ets->prio_tc));
- 	return 0;
-+error:
-+	kfree(my_ets);
-+	return rc;
- }
- 
- static int bnxt_dcbnl_ieee_setets(struct net_device *dev, struct ieee_ets *ets)
+-- 
+2.20.1
+
 
 
