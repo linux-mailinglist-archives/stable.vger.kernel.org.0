@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28348199166
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E41C719921F
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:24:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731602AbgCaJRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:17:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38352 "EHLO mail.kernel.org"
+        id S1730300AbgCaJAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:00:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731537AbgCaJRQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:17:16 -0400
+        id S1730285AbgCaJAw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:00:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 717D4208E0;
-        Tue, 31 Mar 2020 09:17:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11BF820B1F;
+        Tue, 31 Mar 2020 09:00:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646235;
-        bh=mga9ZlB7EBqybPtMS1PRXb7f40tCX4Df5PKMdx1hR/E=;
+        s=default; t=1585645252;
+        bh=ho35sVTquqF+nMCh8sjY2bccs/JY5rCm7rSUWaXHH/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jnxzxCBp64hyXARPcgEq+2Pky0OxsgncMO3UPJ1oRO+t0Hna+LBmSPuikPNWxhcZN
-         8z7eiegExZAB3QhWFK5Q6nwy2dU/aWugv60KXUcp2MCbpptZ1yMaL2oeBF+vKyi282
-         k4EkjsRFGYk8jEEuQkxTVi8umRls4cchHhXG4ZkI=
+        b=GKun6qYpPzAbtYm3X9Xcdz/ORnTYin8I40yoHlLSwVbI6XwMethJw50eCplNlS5HO
+         CcC/m/Qa3yeLHfSIfFmXWkF51E83+uw5fh54AvfWURlGxlHjpXLZe4vZPA5/1JlWmp
+         zNt5pN8uuulsYkc3YgQnqsflcjRbJatKAPAJgLAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 125/155] netfilter: nft_fwd_netdev: validate family and chain type
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        syzbot+7d42d68643a35f71ac8a@syzkaller.appspotmail.com
+Subject: [PATCH 5.6 13/23] staging: wlan-ng: fix use-after-free Read in hfa384x_usbin_callback
 Date:   Tue, 31 Mar 2020 10:59:25 +0200
-Message-Id: <20200331085432.363210376@linuxfoundation.org>
+Message-Id: <20200331085314.292545907@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085308.098696461@linuxfoundation.org>
+References: <20200331085308.098696461@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit 76a109fac206e158eb3c967af98c178cff738e6a upstream.
+commit 1165dd73e811a07d947aee218510571f516081f6 upstream.
 
-Make sure the forward action is only used from ingress.
+We can't handle the case length > WLAN_DATA_MAXLEN.
+Because the size of rxfrm->data is WLAN_DATA_MAXLEN(2312), and we can't
+read more than that.
 
-Fixes: 39e6dea28adc ("netfilter: nf_tables: add forward expression to the netdev family")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Thanks-to: Hillf Danton <hdanton@sina.com>
+Reported-and-tested-by: syzbot+7d42d68643a35f71ac8a@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200326131850.17711-1-hqjagain@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_fwd_netdev.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/staging/wlan-ng/hfa384x_usb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/netfilter/nft_fwd_netdev.c
-+++ b/net/netfilter/nft_fwd_netdev.c
-@@ -190,6 +190,13 @@ nla_put_failure:
- 	return -1;
- }
- 
-+static int nft_fwd_validate(const struct nft_ctx *ctx,
-+			    const struct nft_expr *expr,
-+			    const struct nft_data **data)
-+{
-+	return nft_chain_validate_hooks(ctx->chain, (1 << NF_NETDEV_INGRESS));
-+}
+--- a/drivers/staging/wlan-ng/hfa384x_usb.c
++++ b/drivers/staging/wlan-ng/hfa384x_usb.c
+@@ -3372,6 +3372,8 @@ static void hfa384x_int_rxmonitor(struct
+ 	     WLAN_HDR_A4_LEN + WLAN_DATA_MAXLEN + WLAN_CRC_LEN)) {
+ 		pr_debug("overlen frm: len=%zd\n",
+ 			 skblen - sizeof(struct p80211_caphdr));
 +
- static struct nft_expr_type nft_fwd_netdev_type;
- static const struct nft_expr_ops nft_fwd_neigh_netdev_ops = {
- 	.type		= &nft_fwd_netdev_type,
-@@ -197,6 +204,7 @@ static const struct nft_expr_ops nft_fwd
- 	.eval		= nft_fwd_neigh_eval,
- 	.init		= nft_fwd_neigh_init,
- 	.dump		= nft_fwd_neigh_dump,
-+	.validate	= nft_fwd_validate,
- };
++		return;
+ 	}
  
- static const struct nft_expr_ops nft_fwd_netdev_ops = {
-@@ -205,6 +213,7 @@ static const struct nft_expr_ops nft_fwd
- 	.eval		= nft_fwd_netdev_eval,
- 	.init		= nft_fwd_netdev_init,
- 	.dump		= nft_fwd_netdev_dump,
-+	.validate	= nft_fwd_validate,
- 	.offload	= nft_fwd_netdev_offload,
- };
- 
+ 	skb = dev_alloc_skb(skblen);
 
 
