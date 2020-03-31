@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5A01991DD
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BF1E1990F7
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731176AbgCaJHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:07:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49744 "EHLO mail.kernel.org"
+        id S1730706AbgCaJQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:16:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731175AbgCaJHs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:07:48 -0400
+        id S1730302AbgCaJQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:16:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B5D7208E0;
-        Tue, 31 Mar 2020 09:07:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7948F20772;
+        Tue, 31 Mar 2020 09:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645667;
-        bh=md3ySTDtGCsK9lPvdz028XzOJvftd8AboUOMc0WB+Ug=;
+        s=default; t=1585646162;
+        bh=QFo3f5dKw0ML/cGTIFXx6DLG5G17WknWZvb9oUuvWnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWerTadgxieCrVlTDkANXXs2it5mHygfBnhTPc8Oh5oZbK6r/QfXHfhxtTX/9fOuK
-         gyF68qv5CS3rPszqd4WozsqkF4gpLA4Vt/KupOaQFAGlPL3cPWVE2gRx5sY42yvS5X
-         9SkwPSQJBY8i1frs5iwtlwWuHQzmRU4OgmWoS/Gk=
+        b=r/QMxHUXrlOSP70qr8N0kcsQQX7EW8R5+JabZIK77fdxkYq6egBtxVmbeCzfo7Fj6
+         KN7D8Tpzy8KBmbXMFIyZitjZI30+lmpKwBtSnmeZyi3Dzlf9dM3OE7Q+Lu5T6ZM5oH
+         euUb+OYD+5VVGYfuGJ/sLR74XO7vs5Ah/ExxBm/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 126/170] RDMA/mlx5: Block delay drop to unprivileged users
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Qais Youef <qais.yousef@arm.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 100/155] mm/swapfile.c: move inode_lock out of claim_swapfile
 Date:   Tue, 31 Mar 2020 10:59:00 +0200
-Message-Id: <20200331085437.253703462@linuxfoundation.org>
+Message-Id: <20200331085429.725748904@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +47,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@mellanox.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit ba80013fba656b9830ef45cd40a6a1e44707f47a upstream.
+commit d795a90e2ba024dbf2f22107ae89c210b98b08b8 upstream.
 
-It has been discovered that this feature can globally block the RX port,
-so it should be allowed for highly privileged users only.
+claim_swapfile() currently keeps the inode locked when it is successful,
+or the file is already swapfile (with -EBUSY).  And, on the other error
+cases, it does not lock the inode.
 
-Fixes: 03404e8ae652("IB/mlx5: Add support to dropless RQ")
-Link: https://lore.kernel.org/r/20200322124906.1173790-1-leon@kernel.org
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+This inconsistency of the lock state and return value is quite confusing
+and actually causing a bad unlock balance as below in the "bad_swap"
+section of __do_sys_swapon().
+
+This commit fixes this issue by moving the inode_lock() and IS_SWAPFILE
+check out of claim_swapfile().  The inode is unlocked in
+"bad_swap_unlock_inode" section, so that the inode is ensured to be
+unlocked at "bad_swap".  Thus, error handling codes after the locking now
+jumps to "bad_swap_unlock_inode" instead of "bad_swap".
+
+    =====================================
+    WARNING: bad unlock balance detected!
+    5.5.0-rc7+ #176 Not tainted
+    -------------------------------------
+    swapon/4294 is trying to release lock (&sb->s_type->i_mutex_key) at: __do_sys_swapon+0x94b/0x3550
+    but there are no more locks to release!
+
+    other info that might help us debug this:
+    no locks held by swapon/4294.
+
+    stack backtrace:
+    CPU: 5 PID: 4294 Comm: swapon Not tainted 5.5.0-rc7-BTRFS-ZNS+ #176
+    Hardware name: ASUS All Series/H87-PRO, BIOS 2102 07/29/2014
+    Call Trace:
+     dump_stack+0xa1/0xea
+     print_unlock_imbalance_bug.cold+0x114/0x123
+     lock_release+0x562/0xed0
+     up_write+0x2d/0x490
+     __do_sys_swapon+0x94b/0x3550
+     __x64_sys_swapon+0x54/0x80
+     do_syscall_64+0xa4/0x4b0
+     entry_SYSCALL_64_after_hwframe+0x49/0xbe
+    RIP: 0033:0x7f15da0a0dc7
+
+Fixes: 1638045c3677 ("mm: set S_SWAPFILE on blockdev swap devices")
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Qais Youef <qais.yousef@arm.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200206090132.154869-1-naohiro.aota@wdc.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/qp.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ mm/swapfile.c |   39 +++++++++++++++++++--------------------
+ 1 file changed, 19 insertions(+), 20 deletions(-)
 
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -6158,6 +6158,10 @@ struct ib_wq *mlx5_ib_create_wq(struct i
- 	if (udata->outlen && udata->outlen < min_resp_len)
- 		return ERR_PTR(-EINVAL);
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -2892,10 +2892,6 @@ static int claim_swapfile(struct swap_in
+ 		p->bdev = inode->i_sb->s_bdev;
+ 	}
  
-+	if (!capable(CAP_SYS_RAWIO) &&
-+	    init_attr->create_flags & IB_WQ_FLAGS_DELAY_DROP)
-+		return ERR_PTR(-EPERM);
+-	inode_lock(inode);
+-	if (IS_SWAPFILE(inode))
+-		return -EBUSY;
+-
+ 	return 0;
+ }
+ 
+@@ -3150,17 +3146,22 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 	mapping = swap_file->f_mapping;
+ 	inode = mapping->host;
+ 
+-	/* If S_ISREG(inode->i_mode) will do inode_lock(inode); */
+ 	error = claim_swapfile(p, inode);
+ 	if (unlikely(error))
+ 		goto bad_swap;
+ 
++	inode_lock(inode);
++	if (IS_SWAPFILE(inode)) {
++		error = -EBUSY;
++		goto bad_swap_unlock_inode;
++	}
 +
- 	dev = to_mdev(pd->device);
- 	switch (init_attr->wq_type) {
- 	case IB_WQT_RQ:
+ 	/*
+ 	 * Read the swap header.
+ 	 */
+ 	if (!mapping->a_ops->readpage) {
+ 		error = -EINVAL;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 	page = read_mapping_page(mapping, 0, swap_file);
+ 	if (IS_ERR(page)) {
+@@ -3172,14 +3173,14 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 	maxpages = read_swap_header(p, swap_header, inode);
+ 	if (unlikely(!maxpages)) {
+ 		error = -EINVAL;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 
+ 	/* OK, set up the swap map and apply the bad block list */
+ 	swap_map = vzalloc(maxpages);
+ 	if (!swap_map) {
+ 		error = -ENOMEM;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 
+ 	if (bdi_cap_stable_pages_required(inode_to_bdi(inode)))
+@@ -3204,7 +3205,7 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 					GFP_KERNEL);
+ 		if (!cluster_info) {
+ 			error = -ENOMEM;
+-			goto bad_swap;
++			goto bad_swap_unlock_inode;
+ 		}
+ 
+ 		for (ci = 0; ci < nr_cluster; ci++)
+@@ -3213,7 +3214,7 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 		p->percpu_cluster = alloc_percpu(struct percpu_cluster);
+ 		if (!p->percpu_cluster) {
+ 			error = -ENOMEM;
+-			goto bad_swap;
++			goto bad_swap_unlock_inode;
+ 		}
+ 		for_each_possible_cpu(cpu) {
+ 			struct percpu_cluster *cluster;
+@@ -3227,13 +3228,13 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 
+ 	error = swap_cgroup_swapon(p->type, maxpages);
+ 	if (error)
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 
+ 	nr_extents = setup_swap_map_and_extents(p, swap_header, swap_map,
+ 		cluster_info, maxpages, &span);
+ 	if (unlikely(nr_extents < 0)) {
+ 		error = nr_extents;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 	/* frontswap enabled? set up bit-per-page map for frontswap */
+ 	if (IS_ENABLED(CONFIG_FRONTSWAP))
+@@ -3273,7 +3274,7 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 
+ 	error = init_swap_address_space(p->type, maxpages);
+ 	if (error)
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 
+ 	/*
+ 	 * Flush any pending IO and dirty mappings before we start using this
+@@ -3283,7 +3284,7 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 	error = inode_drain_writes(inode);
+ 	if (error) {
+ 		inode->i_flags &= ~S_SWAPFILE;
+-		goto bad_swap;
++		goto bad_swap_unlock_inode;
+ 	}
+ 
+ 	mutex_lock(&swapon_mutex);
+@@ -3308,6 +3309,8 @@ SYSCALL_DEFINE2(swapon, const char __use
+ 
+ 	error = 0;
+ 	goto out;
++bad_swap_unlock_inode:
++	inode_unlock(inode);
+ bad_swap:
+ 	free_percpu(p->percpu_cluster);
+ 	p->percpu_cluster = NULL;
+@@ -3315,6 +3318,7 @@ bad_swap:
+ 		set_blocksize(p->bdev, p->old_block_size);
+ 		blkdev_put(p->bdev, FMODE_READ | FMODE_WRITE | FMODE_EXCL);
+ 	}
++	inode = NULL;
+ 	destroy_swap_extents(p);
+ 	swap_cgroup_swapoff(p->type);
+ 	spin_lock(&swap_lock);
+@@ -3326,13 +3330,8 @@ bad_swap:
+ 	kvfree(frontswap_map);
+ 	if (inced_nr_rotate_swap)
+ 		atomic_dec(&nr_rotate_swap);
+-	if (swap_file) {
+-		if (inode) {
+-			inode_unlock(inode);
+-			inode = NULL;
+-		}
++	if (swap_file)
+ 		filp_close(swap_file, NULL);
+-	}
+ out:
+ 	if (page && !IS_ERR(page)) {
+ 		kunmap(page);
 
 
