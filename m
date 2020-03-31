@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9622619919A
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B72819919B
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730761AbgCaJNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:13:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32862 "EHLO mail.kernel.org"
+        id S1730633AbgCaJNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:13:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731560AbgCaJNe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:13:34 -0400
+        id S1730385AbgCaJNh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:13:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1FE520787;
-        Tue, 31 Mar 2020 09:13:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 882222072E;
+        Tue, 31 Mar 2020 09:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646013;
-        bh=ePVB3mhFEyRGGn0YVF44FQkofOhQSp5ciqnPPMTYVzk=;
+        s=default; t=1585646016;
+        bh=aajlEBPgsF9TWsTs1qzScjchYnUPHpC5ectjpFA3GQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3keWl6YnAxdU4QBg50QtUfJOgSQhF623DIISTaqpJj28hisAAVxC9TybIMrQreGZ
-         3NywkSm4n+veWsdbQd9DZho8Y7R0m/t2wThKe3VOueBz/8H39ihPyqv/uJ3G2clyO9
-         unhkxEMcAcSBnKvMw4pV8BZZ4OVQdly9ru/OHLJA=
+        b=Spe4zpPvTB9DHAb8oh1OT31ul677tt4+31g1/X718IXOEU77MrOUA3IcxzZT/XBBp
+         Z4T12+EY8RahL6NCaCBTvIVjheRchenb+gXTrUTMilxy7z6uZbIazoRHU+FBhI6A1K
+         uEKRTHJ0vil5QlzSGLkQIiTR3Afefk+OnM+bySpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        Dave Wysochanski <dwysocha@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Mike Gilbert <floppym@gentoo.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/155] nfs: add minor version to nfs_server_key for fscache
-Date:   Tue, 31 Mar 2020 10:58:15 +0200
-Message-Id: <20200331085424.740778825@linuxfoundation.org>
+Subject: [PATCH 5.4 056/155] cpupower: avoid multiple definition with gcc -fno-common
+Date:   Tue, 31 Mar 2020 10:58:16 +0200
+Message-Id: <20200331085424.859303320@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
 References: <20200331085418.274292403@linuxfoundation.org>
@@ -45,74 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Mike Gilbert <floppym@gentoo.org>
 
-[ Upstream commit 55dee1bc0d72877b99805e42e0205087e98b9edd ]
+[ Upstream commit 2de7fb60a4740135e03cf55c1982e393ccb87b6b ]
 
-An NFS client that mounts multiple exports from the same NFS
-server with higher NFSv4 versions disabled (i.e. 4.2) and without
-forcing a specific NFS version results in fscache index cookie
-collisions and the following messages:
-[  570.004348] FS-Cache: Duplicate cookie detected
+Building cpupower with -fno-common in CFLAGS results in errors due to
+multiple definitions of the 'cpu_count' and 'start_time' variables.
 
-Each nfs_client structure should have its own fscache index cookie,
-so add the minorversion to nfs_server_key.
+./utils/idle_monitor/snb_idle.o:./utils/idle_monitor/cpupower-monitor.h:28:
+multiple definition of `cpu_count';
+./utils/idle_monitor/nhm_idle.o:./utils/idle_monitor/cpupower-monitor.h:28:
+first defined here
+...
+./utils/idle_monitor/cpuidle_sysfs.o:./utils/idle_monitor/cpuidle_sysfs.c:22:
+multiple definition of `start_time';
+./utils/idle_monitor/amd_fam14h_idle.o:./utils/idle_monitor/amd_fam14h_idle.c:85:
+first defined here
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=200145
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+The -fno-common option will be enabled by default in GCC 10.
+
+Bug: https://bugs.gentoo.org/707462
+Signed-off-by: Mike Gilbert <floppym@gentoo.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/client.c     | 1 +
- fs/nfs/fscache.c    | 2 ++
- fs/nfs/nfs4client.c | 1 -
- 3 files changed, 3 insertions(+), 1 deletion(-)
+ tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c  | 2 +-
+ tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c    | 2 +-
+ tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c | 2 ++
+ tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h | 2 +-
+ 4 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index 30838304a0bf2..a05f77f9c21ed 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -153,6 +153,7 @@ struct nfs_client *nfs_alloc_client(const struct nfs_client_initdata *cl_init)
- 	if ((clp = kzalloc(sizeof(*clp), GFP_KERNEL)) == NULL)
- 		goto error_0;
+diff --git a/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c b/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c
+index 3f893b99b337c..555cb338a71a4 100644
+--- a/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c
++++ b/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c
+@@ -82,7 +82,7 @@ static struct pci_access *pci_acc;
+ static struct pci_dev *amd_fam14h_pci_dev;
+ static int nbp1_entered;
  
-+	clp->cl_minorversion = cl_init->minorversion;
- 	clp->cl_nfs_mod = cl_init->nfs_mod;
- 	if (!try_module_get(clp->cl_nfs_mod->owner))
- 		goto error_dealloc;
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index 3800ab6f08fa8..a6dcc2151e779 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -31,6 +31,7 @@ static DEFINE_SPINLOCK(nfs_fscache_keys_lock);
- struct nfs_server_key {
- 	struct {
- 		uint16_t	nfsversion;		/* NFS protocol version */
-+		uint32_t	minorversion;		/* NFSv4 minor version */
- 		uint16_t	family;			/* address family */
- 		__be16		port;			/* IP port */
- 	} hdr;
-@@ -55,6 +56,7 @@ void nfs_fscache_get_client_cookie(struct nfs_client *clp)
+-struct timespec start_time;
++static struct timespec start_time;
+ static unsigned long long timediff;
  
- 	memset(&key, 0, sizeof(key));
- 	key.hdr.nfsversion = clp->rpc_ops->version;
-+	key.hdr.minorversion = clp->cl_minorversion;
- 	key.hdr.family = clp->cl_addr.ss_family;
+ #ifdef DEBUG
+diff --git a/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c b/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c
+index f634aeb65c5f6..7fb4f7a291ad5 100644
+--- a/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c
++++ b/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c
+@@ -19,7 +19,7 @@ struct cpuidle_monitor cpuidle_sysfs_monitor;
  
- 	switch (clp->cl_addr.ss_family) {
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index da6204025a2db..914feab64702c 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -216,7 +216,6 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
- 	INIT_LIST_HEAD(&clp->cl_ds_clients);
- 	rpc_init_wait_queue(&clp->cl_rpcwaitq, "NFS client");
- 	clp->cl_state = 1 << NFS4CLNT_LEASE_EXPIRED;
--	clp->cl_minorversion = cl_init->minorversion;
- 	clp->cl_mvops = nfs_v4_minor_ops[cl_init->minorversion];
- 	clp->cl_mig_gen = 1;
- #if IS_ENABLED(CONFIG_NFS_V4_1)
+ static unsigned long long **previous_count;
+ static unsigned long long **current_count;
+-struct timespec start_time;
++static struct timespec start_time;
+ static unsigned long long timediff;
+ 
+ static int cpuidle_get_count_percent(unsigned int id, double *percent,
+diff --git a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c
+index d3c3e6e7aa26c..3d54fd4336261 100644
+--- a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c
++++ b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c
+@@ -27,6 +27,8 @@ struct cpuidle_monitor *all_monitors[] = {
+ 0
+ };
+ 
++int cpu_count;
++
+ static struct cpuidle_monitor *monitors[MONITORS_MAX];
+ static unsigned int avail_monitors;
+ 
+diff --git a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h
+index a2d901d3bfaf9..eafef38f1982e 100644
+--- a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h
++++ b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h
+@@ -25,7 +25,7 @@
+ #endif
+ #define CSTATE_DESC_LEN 60
+ 
+-int cpu_count;
++extern int cpu_count;
+ 
+ /* Hard to define the right names ...: */
+ enum power_range_e {
 -- 
 2.20.1
 
