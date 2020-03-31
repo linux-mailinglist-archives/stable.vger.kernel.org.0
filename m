@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 042EE198F6D
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA98199050
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:11:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730410AbgCaJDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:03:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42998 "EHLO mail.kernel.org"
+        id S1731624AbgCaJK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:10:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730180AbgCaJDR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:03:17 -0400
+        id S1731642AbgCaJKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:10:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5ACC5208E0;
-        Tue, 31 Mar 2020 09:03:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1D6120787;
+        Tue, 31 Mar 2020 09:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645396;
-        bh=oaAtHJtM84W+1ON8Z6ZB0S+/6Uf0penKkZJl/ZES+/8=;
+        s=default; t=1585645854;
+        bh=QBRWgqCrNTqkqSiXzSZqGwRGdI6o65xRYc1R9QeALGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GKhBDFU53gz0bqGHRvaIO3Bu44ZG8Ct10n2Q3acSPNy6LwoSWwuKLX4voOvkTLK9E
-         RAn8psVRNShRRWAG1Eku08h7IPFlp3nnGRhraDcvu2ZvsNjnRYRcX3ot2YOzZJQcRr
-         UEsuELFDPJq7Ywj3HOjQiCPZML/bYgJv2qbBmRHA=
+        b=0Yen5+R9wykkufjX6Fmmisstmh1HrxhyclnRV0QgJJCTYmgwIav+GhV1/9tg+cD0r
+         k+z4hhy8nQkRdlWVQjz612bcP24fY8EEGKJ53TuPJ2PXaUO0FYag+9j26fiNOZozvd
+         WwiINhGtYwJX5cnvyzkz7z4bCPiSxeuDF9w9HNPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Bruno Meneguele <bmeneg@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 041/170] net: bcmgenet: keep MAC in reset until PHY is up
+Subject: [PATCH 5.4 015/155] net/bpfilter: fix dprintf usage for /dev/kmsg
 Date:   Tue, 31 Mar 2020 10:57:35 +0200
-Message-Id: <20200331085428.748528317@linuxfoundation.org>
+Message-Id: <20200331085420.091785566@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Bruno Meneguele <bmeneg@redhat.com>
 
-[ Upstream commit 88f6c8bf1aaed5039923fb4c701cab4d42176275 ]
+[ Upstream commit 13d0f7b814d9b4c67e60d8c2820c86ea181e7d99 ]
 
-As noted in commit 28c2d1a7a0bf ("net: bcmgenet: enable loopback
-during UniMAC sw_reset") the UniMAC must be clocked at least 5
-cycles while the sw_reset is asserted to ensure a clean reset.
+The bpfilter UMH code was recently changed to log its informative messages to
+/dev/kmsg, however this interface doesn't support SEEK_CUR yet, used by
+dprintf(). As result dprintf() returns -EINVAL and doesn't log anything.
 
-That commit enabled local loopback to provide an Rx clock from the
-GENET sourced Tx clk. However, when connected in MII mode the Tx
-clk is sourced by the PHY so if an EPHY is not supplying clocks
-(e.g. when the link is down) the UniMAC does not receive the
-necessary clocks.
+However there already had some discussions about supporting SEEK_CUR into
+/dev/kmsg interface in the past it wasn't concluded. Since the only user of
+that from userspace perspective inside the kernel is the bpfilter UMH
+(userspace) module it's better to correct it here instead waiting a conclusion
+on the interface.
 
-This commit extends the sw_reset window until the PHY reports that
-the link is up thereby ensuring that the clocks are being provided
-to the MAC to produce a clean reset.
-
-One consequence is that if the system attempts to enter a Wake on
-LAN suspend state when the PHY link has not been active the MAC
-may not have had a chance to initialize cleanly. In this case, we
-remove the sw_reset and enable the WoL reception path as normal
-with the hope that the PHY will provide the necessary clocks to
-drive the WoL blocks if the link becomes active after the system
-has entered suspend.
-
-Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 36c4357c63f3 ("net: bpfilter: print umh messages to /dev/kmsg")
+Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c     |   10 ++++------
- drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c |    6 +++++-
- drivers/net/ethernet/broadcom/genet/bcmmii.c       |    6 ++++++
- 3 files changed, 15 insertions(+), 7 deletions(-)
+ net/bpfilter/main.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1972,6 +1972,8 @@ static void umac_enable_set(struct bcmge
- 	u32 reg;
+--- a/net/bpfilter/main.c
++++ b/net/bpfilter/main.c
+@@ -10,7 +10,7 @@
+ #include <asm/unistd.h>
+ #include "msgfmt.h"
  
- 	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
-+	if (reg & CMD_SW_RESET)
-+		return;
- 	if (enable)
- 		reg |= mask;
- 	else
-@@ -1991,13 +1993,9 @@ static void reset_umac(struct bcmgenet_p
- 	bcmgenet_rbuf_ctrl_set(priv, 0);
- 	udelay(10);
+-int debug_fd;
++FILE *debug_f;
  
--	/* disable MAC while updating its registers */
--	bcmgenet_umac_writel(priv, 0, UMAC_CMD);
--
--	/* issue soft reset with (rg)mii loopback to ensure a stable rxclk */
--	bcmgenet_umac_writel(priv, CMD_SW_RESET | CMD_LCL_LOOP_EN, UMAC_CMD);
-+	/* issue soft reset and disable MAC while updating its registers */
-+	bcmgenet_umac_writel(priv, CMD_SW_RESET, UMAC_CMD);
- 	udelay(2);
--	bcmgenet_umac_writel(priv, 0, UMAC_CMD);
- }
+ static int handle_get_cmd(struct mbox_request *cmd)
+ {
+@@ -35,9 +35,10 @@ static void loop(void)
+ 		struct mbox_reply reply;
+ 		int n;
  
- static void bcmgenet_intr_disable(struct bcmgenet_priv *priv)
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-@@ -132,8 +132,12 @@ int bcmgenet_wol_power_down_cfg(struct b
- 		return -EINVAL;
++		fprintf(debug_f, "testing the buffer\n");
+ 		n = read(0, &req, sizeof(req));
+ 		if (n != sizeof(req)) {
+-			dprintf(debug_fd, "invalid request %d\n", n);
++			fprintf(debug_f, "invalid request %d\n", n);
+ 			return;
+ 		}
+ 
+@@ -47,7 +48,7 @@ static void loop(void)
+ 
+ 		n = write(1, &reply, sizeof(reply));
+ 		if (n != sizeof(reply)) {
+-			dprintf(debug_fd, "reply failed %d\n", n);
++			fprintf(debug_f, "reply failed %d\n", n);
+ 			return;
+ 		}
  	}
+@@ -55,9 +56,10 @@ static void loop(void)
  
--	/* disable RX */
-+	/* Can't suspend with WoL if MAC is still in reset */
- 	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
-+	if (reg & CMD_SW_RESET)
-+		reg &= ~CMD_SW_RESET;
-+
-+	/* disable RX */
- 	reg &= ~CMD_RX_EN;
- 	bcmgenet_umac_writel(priv, reg, UMAC_CMD);
- 	mdelay(10);
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -95,6 +95,12 @@ void bcmgenet_mii_setup(struct net_devic
- 			       CMD_HD_EN |
- 			       CMD_RX_PAUSE_IGNORE | CMD_TX_PAUSE_IGNORE);
- 		reg |= cmd_bits;
-+		if (reg & CMD_SW_RESET) {
-+			reg &= ~CMD_SW_RESET;
-+			bcmgenet_umac_writel(priv, reg, UMAC_CMD);
-+			udelay(2);
-+			reg |= CMD_TX_EN | CMD_RX_EN;
-+		}
- 		bcmgenet_umac_writel(priv, reg, UMAC_CMD);
- 	} else {
- 		/* done if nothing has changed */
+ int main(void)
+ {
+-	debug_fd = open("/dev/kmsg", 00000002);
+-	dprintf(debug_fd, "Started bpfilter\n");
++	debug_f = fopen("/dev/kmsg", "w");
++	setvbuf(debug_f, 0, _IOLBF, 0);
++	fprintf(debug_f, "Started bpfilter\n");
+ 	loop();
+-	close(debug_fd);
++	fclose(debug_f);
+ 	return 0;
+ }
 
 
