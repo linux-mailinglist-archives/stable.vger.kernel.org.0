@@ -2,127 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C262199E2F
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 20:39:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 226EE199E49
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 20:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727932AbgCaSi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 14:38:56 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:33611 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727913AbgCaSiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 14:38:55 -0400
-Received: by mail-lf1-f66.google.com with SMTP id x200so11040990lff.0
-        for <stable@vger.kernel.org>; Tue, 31 Mar 2020 11:38:53 -0700 (PDT)
+        id S1726295AbgCaSoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 14:44:02 -0400
+Received: from mail-ua1-f65.google.com ([209.85.222.65]:39916 "EHLO
+        mail-ua1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726194AbgCaSoC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 14:44:02 -0400
+Received: by mail-ua1-f65.google.com with SMTP id z7so3696521uai.6
+        for <stable@vger.kernel.org>; Tue, 31 Mar 2020 11:44:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=KW3Lbde0NrLlMFOPBVL9VFr/xqlRRv5C9s8T2uV/EC8=;
-        b=YAzpmToCHjPKwhVBcWenpASCnFKvzdesYgGqqYMRCP6llJmlm7Y0lj5BXG7cxcVRIl
-         1fQhsBHrIpdVSutqQJVbpCEti0sA06lsT2dwQTcMRT/nIwMMC4O94hZhauz+WI9GJO6p
-         12WAtAAApshg2SASKYHsA3S/db71nblcaq3R52IYHCxiGj7rIDzrt1M+tKgLtq7iTSFU
-         aODeaHftNj89LL0xeI0W+Hei2+iJIAT2joCgO2P38SQDfWP6+Ktk5uEgbg+CJVvx4E49
-         ZrGqhnUVONAeEWgjWrVaZ3BhXiqrh+R/IFaUyAlqH2Zjkgh2qY9Z0AkIAL6AblS6MrhU
-         Y3sQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=iDu66r+bFfQv6BzOxzfeQ3KmMr4ATT20JEufu/QQzgY=;
+        b=FFYQDTnXtUfJbiaOkhxPP0HStX682l+8oUeau/hKtssU5vruS5BWKqGIfeBv2ugyJ9
+         o3nE3ydeoOyYjG4+dNHNifg8sTSVKTadXee7gQKc1gma7Zmb4y+4W26JTMxNS8vQiIse
+         1T1UPDb3VKIOvku5vkqAPvUmItYxTcfqw19AUpKRM31Dv/xQj3V9bgIr0JWq3BF0QS/7
+         LKc2L2Sr5Fo4KZwcihKQODFvK4fbktem0AMzHxL0EeD3E3afZsELBrzhh/WwpLcZ5VL4
+         oNf1DMJGHSvYH5yriXeNwycvr8MjiSC+SJ+8qiI3ZP8lh+NXfXPdSC2L5TaBcbBkpN16
+         Ggrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=KW3Lbde0NrLlMFOPBVL9VFr/xqlRRv5C9s8T2uV/EC8=;
-        b=etLSRzyL+VR25pB26ZAym4W8f+0NYzT+99naJepYhTXuytWtoK8sxPlMXQgCI2t9nS
-         cBbg/i9wvVsAHqM16ACg56a4YEI6w5rbojBarU7xlycY4POwukuWRa94zhwWg60tJWD0
-         FOAAnjyz1sWoz7Cw55Lerj2qgrum22zqHIMqxRTSMPTfez67qSuKgwtIrXqWtVZlVfPZ
-         yn1R5eo5T3DjaPExRB217yz/GvE6w4w/Z1VKMNkHBSsazc2M3vLViZOz8m+6QDgnXLF+
-         4DdaxZlghjZNe2R6iHaKI1Q5KEO6TCoStv95pYQOTVfafdjGeKlHAsvjbKIqO9fJdbO1
-         gxKA==
-X-Gm-Message-State: AGi0PuZDpb+f8tDfYCE3mnFzQy2S1zAfYhS0dvMN/kq3dh7hYHdJ9yWT
-        hUPJzYcpdBixs8slBB/HbMmrnw==
-X-Google-Smtp-Source: APiQypJ8E6I5iZxeoPH0TWIB8ALP7NCLvCUGTgJRpQtCJG/xvf6AdHVA3ceds7R25cl2FPBp6aBIHA==
-X-Received: by 2002:a05:6512:3091:: with SMTP id z17mr12711035lfd.42.1585679932325;
-        Tue, 31 Mar 2020 11:38:52 -0700 (PDT)
-Received: from localhost.localdomain (h-158-174-22-210.NA.cust.bahnhof.se. [158.174.22.210])
-        by smtp.gmail.com with ESMTPSA id b28sm10331849ljp.90.2020.03.31.11.38.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 31 Mar 2020 11:38:51 -0700 (PDT)
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        linux-kernel@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
-        Russell King <linux@armlinux.org.uk>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Vinod Koul <vkoul@kernel.org>, Haibo Chen <haibo.chen@nxp.com>,
-        Ludovic Barre <ludovic.barre@st.com>,
-        linux-arm-kernel@lists.infradead.org, dmaengine@vger.kernel.org,
-        Ulf Hansson <ulf.hansson@linaro.org>, stable@vger.kernel.org
-Subject: [PATCH v2 2/2] amba: Initialize dma_parms for amba devices
-Date:   Tue, 31 Mar 2020 20:38:44 +0200
-Message-Id: <20200331183844.30488-3-ulf.hansson@linaro.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200331183844.30488-1-ulf.hansson@linaro.org>
-References: <20200331183844.30488-1-ulf.hansson@linaro.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iDu66r+bFfQv6BzOxzfeQ3KmMr4ATT20JEufu/QQzgY=;
+        b=SFicS56E+ZfNIDSV+HFFkRgjei0+wokeiCTSDWnfMFPxD0vHuRtnm8ULbCM6B8aT1U
+         bi1JP6ff45SuVPEDCY1sz9kavhxONaGF46Eq2mc2kWWLByMMaF8doARNFGYq9lvGkxGv
+         bSfmXxfvYs+D9cUH67iBwU9yVJwtSNLBEg1wOplgPLIwlj86dtt6vdd81NYAQTn0H7Aw
+         7bTN6spVjnlInUixy3T5+CQMPbs75mCrbVqAZ71Yj7bhsL3iBb6hJSNVtTfXwM3ia01n
+         pFWROenQLQcL2rGt32e4ttNBxqgfsjj1TzxH8hbfxHY23NSCuI3UcC+6b+YAaF84jLNA
+         HByw==
+X-Gm-Message-State: AGi0PuagLnuzxZ2s8NhzeFUfLTdebKFvWs3Y5dkM4D4Y0fETxXelvYYW
+        WXQR6+wZ+fsg1h9wJYnSZCzRn09XpSb2iE2KPAypTPDr
+X-Google-Smtp-Source: APiQypLfDqi2Q6+gYXMm4hqkY2s19bcLgtHqU44KC9Nv2fGNaEX56mLLADoGMSkl6WDZ3jMdPP/9kmzpfqBzxWH6dsA=
+X-Received: by 2002:ab0:6204:: with SMTP id m4mr13326224uao.15.1585680241018;
+ Tue, 31 Mar 2020 11:44:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <158523473532132@kroah.com>
+In-Reply-To: <158523473532132@kroah.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Tue, 31 Mar 2020 20:43:25 +0200
+Message-ID: <CAPDyKFr0Em0-8RX3TnuRTiEEX6qs3Lu+SxFufmv5Mx6_6606=g@mail.gmail.com>
+Subject: Re: patch "driver core: platform: Initialize dma_parms for platform
+ devices" added to char-misc-testing
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ludovic Barre <ludovic.barre@st.com>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It's currently the amba driver's responsibility to initialize the pointer,
-dma_parms, for its corresponding struct device. The benefit with this
-approach allows us to avoid the initialization and to not waste memory for
-the struct device_dma_parameters, as this can be decided on a case by case
-basis.
+On Thu, 26 Mar 2020 at 15:58, <gregkh@linuxfoundation.org> wrote:
+>
+>
+> This is a note to let you know that I've just added the patch titled
+>
+>     driver core: platform: Initialize dma_parms for platform devices
+>
+> to my char-misc git tree which can be found at
+>     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+> in the char-misc-testing branch.
+>
+> The patch will show up in the next release of the linux-next tree
+> (usually sometime within the next 24 hours during the week.)
+>
+> The patch will be merged to the char-misc-next branch sometime soon,
+> after it passes testing, and the merge window is open.
+>
+> If you have any questions about this process, please let me know.
 
-However, it has turned out that this approach is not very practical. Not
-only does it lead to open coding, but also to real errors. In principle
-callers of dma_set_max_seg_size() doesn't check the error code, but just
-assumes it succeeds.
+Greg, would you mind dropping this one and the other patch for the amba bus?
 
-For these reasons, let's do the initialization from the common amba bus at
-the device registration point. This also follows the way the PCI devices
-are being managed, see pci_device_add().
+I just sent out a new version (v2), addressing an issue for the
+platform device when used for OF based platforms.
 
-Suggested-by: Christoph Hellwig <hch@lst.de>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
----
+If you prefer to not rebase/drop patches from your branch, I can send
+an incremental change on top instead, whatever you prefer.
 
-Changes in v2:
-	- Move initialization to amba_device_initialize() to be more consistent
-	with how we manage platform devices.
+Kind regards
+Uffe
 
----
- drivers/amba/bus.c       | 1 +
- include/linux/amba/bus.h | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
-index fe1523664816..8558b629880b 100644
---- a/drivers/amba/bus.c
-+++ b/drivers/amba/bus.c
-@@ -645,6 +645,7 @@ static void amba_device_initialize(struct amba_device *dev, const char *name)
- 	dev->dev.release = amba_device_release;
- 	dev->dev.bus = &amba_bustype;
- 	dev->dev.dma_mask = &dev->dev.coherent_dma_mask;
-+	dev->dev.dma_parms = &dev->dma_parms;
- 	dev->res.name = dev_name(&dev->dev);
- }
- 
-diff --git a/include/linux/amba/bus.h b/include/linux/amba/bus.h
-index 26f0ecf401ea..0bbfd647f5c6 100644
---- a/include/linux/amba/bus.h
-+++ b/include/linux/amba/bus.h
-@@ -65,6 +65,7 @@ struct amba_device {
- 	struct device		dev;
- 	struct resource		res;
- 	struct clk		*pclk;
-+	struct device_dma_parameters dma_parms;
- 	unsigned int		periphid;
- 	unsigned int		cid;
- 	struct amba_cs_uci_id	uci;
--- 
-2.20.1
-
+>
+>
+> From 7c8978c0837d40c302f5e90d24c298d9ca9fc097 Mon Sep 17 00:00:00 2001
+> From: Ulf Hansson <ulf.hansson@linaro.org>
+> Date: Wed, 25 Mar 2020 12:34:06 +0100
+> Subject: driver core: platform: Initialize dma_parms for platform devices
+>
+> It's currently the platform driver's responsibility to initialize the
+> pointer, dma_parms, for its corresponding struct device. The benefit with
+> this approach allows us to avoid the initialization and to not waste memory
+> for the struct device_dma_parameters, as this can be decided on a case by
+> case basis.
+>
+> However, it has turned out that this approach is not very practical.  Not
+> only does it lead to open coding, but also to real errors. In principle
+> callers of dma_set_max_seg_size() doesn't check the error code, but just
+> assumes it succeeds.
+>
+> For these reasons, let's do the initialization from the common platform bus
+> at the device registration point. This also follows the way the PCI devices
+> are being managed, see pci_device_add().
+>
+> Cc: <stable@vger.kernel.org>
+> Suggested-by: Christoph Hellwig <hch@lst.de>
+> Tested-by: Ludovic Barre <ludovic.barre@st.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> Link: https://lore.kernel.org/r/20200325113407.26996-2-ulf.hansson@linaro.org
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  drivers/base/platform.c         | 1 +
+>  include/linux/platform_device.h | 1 +
+>  2 files changed, 2 insertions(+)
+>
+> diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+> index b5ce7b085795..46abbfb52655 100644
+> --- a/drivers/base/platform.c
+> +++ b/drivers/base/platform.c
+> @@ -512,6 +512,7 @@ int platform_device_add(struct platform_device *pdev)
+>                 pdev->dev.parent = &platform_bus;
+>
+>         pdev->dev.bus = &platform_bus_type;
+> +       pdev->dev.dma_parms = &pdev->dma_parms;
+>
+>         switch (pdev->id) {
+>         default:
+> diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
+> index 041bfa412aa0..81900b3cbe37 100644
+> --- a/include/linux/platform_device.h
+> +++ b/include/linux/platform_device.h
+> @@ -25,6 +25,7 @@ struct platform_device {
+>         bool            id_auto;
+>         struct device   dev;
+>         u64             platform_dma_mask;
+> +       struct device_dma_parameters dma_parms;
+>         u32             num_resources;
+>         struct resource *resource;
+>
+> --
+> 2.26.0
+>
+>
