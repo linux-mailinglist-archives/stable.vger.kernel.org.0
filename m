@@ -2,76 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD70C1998FA
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 16:53:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40041199934
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 17:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730153AbgCaOxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 10:53:39 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:45184 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730149AbgCaOxi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 10:53:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585666418;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=nDs6T+KryTBsmRrAElzm+mnqqyDifHGjX0HWIx3qyik=;
-        b=HXPQs9tF+OJ+gaQdMskQsywqT9S7y9yckCn9cAIqxIIwH2dSzr6DzKKSNFv1nRrULMAB7X
-        0ogXm8JzFqMGLb9v5xRKYJ/DlWz9vtaqBCHQ63HPt/vYuZ6pZTeomiDgb5fJfh5zbo96vl
-        pwzTIug7gAtPihk9g+ugtsXh6wEecdk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-127-hpUKDwKsMFGSk8FPm3Jkhg-1; Tue, 31 Mar 2020 10:53:30 -0400
-X-MC-Unique: hpUKDwKsMFGSk8FPm3Jkhg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CB7251005509;
-        Tue, 31 Mar 2020 14:53:28 +0000 (UTC)
-Received: from sirius.home.kraxel.org (ovpn-112-49.ams2.redhat.com [10.36.112.49])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E4BC41001B2B;
-        Tue, 31 Mar 2020 14:53:26 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
-        id F1E3D31F24; Tue, 31 Mar 2020 16:53:25 +0200 (CEST)
-Date:   Tue, 31 Mar 2020 16:53:25 +0200
-From:   Gerd Hoffmann <kraxel@redhat.com>
-To:     Huacai Chen <chenhc@lemote.com>
-Cc:     Dave Airlie <airlied@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        spice-devel@lists.freedesktop.org,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH Resend] drm/qxl: Use correct notify port address when
- creating cursor ring
-Message-ID: <20200331145325.f6j2jjczlz33xuyi@sirius.home.kraxel.org>
-References: <1585635488-17507-1-git-send-email-chenhc@lemote.com>
+        id S1730615AbgCaPHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 11:07:50 -0400
+Received: from mail-ua1-f68.google.com ([209.85.222.68]:38885 "EHLO
+        mail-ua1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730528AbgCaPHu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 11:07:50 -0400
+Received: by mail-ua1-f68.google.com with SMTP id g10so1933873uae.5
+        for <stable@vger.kernel.org>; Tue, 31 Mar 2020 08:07:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=VEnIRN7gs5winkgBmG4qJkOevSACutGdIkW1fdG63F8=;
+        b=at0tpdqyNOMKLLAgdbB721uamkoaTjrVaOtlLjFfCFpU6/eJ3EwNFb2dYeWDbvgAyP
+         ERsJXqZtpvKqpoyEWKoItRKTohB8NwYPOdu9ATwKiOWcCpxFQlkKDy4j56bXm5xuxw4I
+         3S6f4xEMXBlPuomTDSquQ7pco1n0xXPkvn0cezogPBkhZ0uGbgtCpVvizGlNgYp+zEYo
+         mAnUCNKN6VRhDbqDojBXYczPt5SlI6DcxjTK53vP7PI+L30owlq6aZmveV+sUJhZYRdq
+         D89w+IXm76aAIOf/JZH0bu0RHJMD+Gixh+oQroTuukO+LjJYgLb0c6syR26TLOn1zSLJ
+         9RVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=VEnIRN7gs5winkgBmG4qJkOevSACutGdIkW1fdG63F8=;
+        b=k4tUvJ8N1imFH9hq7kcySfOJ1rTA9gQ1snSmIFUhSAsQcfzMld5ZPqWBzPvR5b022b
+         kMv5ub8s2cNq4qHCkd9zDbraq3Tai5yfssm0OuApV/TRjK91p+mGmKLRidwcTGGTrWIF
+         t+AGSYthkuz/rdHWYMEO7wcAxsD6VHzXyDOKQmF/tVbeTIeOMbzg1JlJN1vVVr483g/Q
+         kXVeZOeWCyGShVBCT36rXHkbpEdg18HQhnSdZMpKyz3bLr1qPkNMChtaIPFJbCZSuUyF
+         PIjvWLaBGkosRDBCZIcdEiRaO2oonWVmiExrKQkhjERglUNdz523ZPgEHJYZ9JBSwYu+
+         M9+A==
+X-Gm-Message-State: AGi0Pub3qw0P0gjww5ElhcAhGsWD+yUtbDSnedi4RfjzXOFu8vmlj97b
+        uWV66U6kbr6JfMxCMTshRLdDOlyCtkhTtm8vT7Y=
+X-Google-Smtp-Source: APiQypLIBkM7sUv/g3FHK9Oj6OA0PuadczzwZDyh5gsNmWlTHJ3APUj0tNFmtEb3FoYLBjHDquAEVL7zpJUkXi6Dymo=
+X-Received: by 2002:ab0:2085:: with SMTP id r5mr12497147uak.95.1585667269071;
+ Tue, 31 Mar 2020 08:07:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1585635488-17507-1-git-send-email-chenhc@lemote.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+References: <20200331124202.4497-1-chris@chris-wilson.co.uk>
+In-Reply-To: <20200331124202.4497-1-chris@chris-wilson.co.uk>
+From:   Matthew Auld <matthew.william.auld@gmail.com>
+Date:   Tue, 31 Mar 2020 16:07:21 +0100
+Message-ID: <CAM0jSHPOY4So442J1O0zW75cBwM4rCPm1CN0YVOMLMJhU=uhfw@mail.gmail.com>
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/gt: Fill all the unused space in the GGTT
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Matthew Auld <matthew.auld@intel.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 31, 2020 at 02:18:08PM +0800, Huacai Chen wrote:
-> The command ring and cursor ring use different notify port addresses
-> definition: QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR. However, in
-> qxl_device_init() we use QXL_IO_NOTIFY_CMD to create both command ring
-> and cursor ring. This doesn't cause any problems now, because QEMU's
-> behaviors on QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR are the same.
-> However, QEMU's behavior may be change in future, so let's fix it.
-> 
-> P.S.: In the X.org QXL driver, the notify port address of cursor ring
->       is correct.
-> 
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Huacai Chen <chenhc@lemote.com>
+On Tue, 31 Mar 2020 at 13:42, Chris Wilson <chris@chris-wilson.co.uk> wrote:
+>
+> When we allocate space in the GGTT we may have to allocate a larger
+> region than will be populated by the object to accommodate fencing. Make
+> sure that this space beyond the end of the buffer points safely into
+> scratch space, in case the HW tries to access it anyway (e.g. fenced
+> access to the last tile row).
+>
+> Reported-by: Imre Deak <imre.deak@intel.com>
+> References: https://gitlab.freedesktop.org/drm/intel/-/issues/1554
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Matthew Auld <matthew.auld@intel.com>
+> Cc: Imre Deak <imre.deak@intel.com>
+> Cc: stable@vger.kernel.org
 
-Pushed to drm-misc-next.
+Do we not need similar treatment for gen6? It seems to also play
+tricks with the nop clear range, or did we disable gen7 ppgtt in the
+end?
 
-thanks,
-  Gerd
-
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
