@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FA98199050
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF60198F6F
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:03:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731624AbgCaJK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:10:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54918 "EHLO mail.kernel.org"
+        id S1730819AbgCaJDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:03:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731642AbgCaJKy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:10:54 -0400
+        id S1730768AbgCaJDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:03:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1D6120787;
-        Tue, 31 Mar 2020 09:10:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC71D208E0;
+        Tue, 31 Mar 2020 09:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645854;
-        bh=QBRWgqCrNTqkqSiXzSZqGwRGdI6o65xRYc1R9QeALGM=;
+        s=default; t=1585645399;
+        bh=N4lza5PsPJ6ir0AzvN2vRfEMehU1QEbwTNi/AXOw9us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Yen5+R9wykkufjX6Fmmisstmh1HrxhyclnRV0QgJJCTYmgwIav+GhV1/9tg+cD0r
-         k+z4hhy8nQkRdlWVQjz612bcP24fY8EEGKJ53TuPJ2PXaUO0FYag+9j26fiNOZozvd
-         WwiINhGtYwJX5cnvyzkz7z4bCPiSxeuDF9w9HNPY=
+        b=ZXNBVGRNRX7/wXQmcfXPbK3wo5GoaDOHaDf3LQGtO3tl3fmONM8uvy1JNjZlVr7uD
+         3zhoEkTD81ztfmkxGm1L4QtZuFb1t7V+AQulQyzZ1mDD3CXnmzd6KSQ5w0NFt/Vzwf
+         m5mMfDliBILLpzkI3Po/f+FbxShsnCUMGQIwX7rA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruno Meneguele <bmeneg@redhat.com>,
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 015/155] net/bpfilter: fix dprintf usage for /dev/kmsg
-Date:   Tue, 31 Mar 2020 10:57:35 +0200
-Message-Id: <20200331085420.091785566@linuxfoundation.org>
+Subject: [PATCH 5.5 042/170] bnxt_en: Fix Priority Bytes and Packets counters in ethtool -S.
+Date:   Tue, 31 Mar 2020 10:57:36 +0200
+Message-Id: <20200331085428.908015722@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bruno Meneguele <bmeneg@redhat.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 13d0f7b814d9b4c67e60d8c2820c86ea181e7d99 ]
+[ Upstream commit a24ec3220f369aa0b94c863b6b310685a727151c ]
 
-The bpfilter UMH code was recently changed to log its informative messages to
-/dev/kmsg, however this interface doesn't support SEEK_CUR yet, used by
-dprintf(). As result dprintf() returns -EINVAL and doesn't log anything.
+There is an indexing bug in determining these ethtool priority
+counters.  Instead of using the queue ID to index, we need to
+normalize by modulo 10 to get the index.  This index is then used
+to obtain the proper CoS queue counter.  Rename bp->pri2cos to
+bp->pri2cos_idx to make this more clear.
 
-However there already had some discussions about supporting SEEK_CUR into
-/dev/kmsg interface in the past it wasn't concluded. Since the only user of
-that from userspace perspective inside the kernel is the bpfilter UMH
-(userspace) module it's better to correct it here instead waiting a conclusion
-on the interface.
-
-Fixes: 36c4357c63f3 ("net: bpfilter: print umh messages to /dev/kmsg")
-Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
+Fixes: e37fed790335 ("bnxt_en: Add ethtool -S priority counters.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bpfilter/main.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c         |   10 +++++++++-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h         |    2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |    8 ++++----
+ 3 files changed, 14 insertions(+), 6 deletions(-)
 
---- a/net/bpfilter/main.c
-+++ b/net/bpfilter/main.c
-@@ -10,7 +10,7 @@
- #include <asm/unistd.h>
- #include "msgfmt.h"
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -7406,14 +7406,22 @@ static int bnxt_hwrm_port_qstats_ext(str
+ 		pri2cos = &resp2->pri0_cos_queue_id;
+ 		for (i = 0; i < 8; i++) {
+ 			u8 queue_id = pri2cos[i];
++			u8 queue_idx;
  
--int debug_fd;
-+FILE *debug_f;
- 
- static int handle_get_cmd(struct mbox_request *cmd)
- {
-@@ -35,9 +35,10 @@ static void loop(void)
- 		struct mbox_reply reply;
- 		int n;
- 
-+		fprintf(debug_f, "testing the buffer\n");
- 		n = read(0, &req, sizeof(req));
- 		if (n != sizeof(req)) {
--			dprintf(debug_fd, "invalid request %d\n", n);
-+			fprintf(debug_f, "invalid request %d\n", n);
- 			return;
++			/* Per port queue IDs start from 0, 10, 20, etc */
++			queue_idx = queue_id % 10;
++			if (queue_idx > BNXT_MAX_QUEUE) {
++				bp->pri2cos_valid = false;
++				goto qstats_done;
++			}
+ 			for (j = 0; j < bp->max_q; j++) {
+ 				if (bp->q_ids[j] == queue_id)
+-					bp->pri2cos[i] = j;
++					bp->pri2cos_idx[i] = queue_idx;
+ 			}
  		}
- 
-@@ -47,7 +48,7 @@ static void loop(void)
- 
- 		n = write(1, &reply, sizeof(reply));
- 		if (n != sizeof(reply)) {
--			dprintf(debug_fd, "reply failed %d\n", n);
-+			fprintf(debug_f, "reply failed %d\n", n);
- 			return;
- 		}
+ 		bp->pri2cos_valid = 1;
  	}
-@@ -55,9 +56,10 @@ static void loop(void)
- 
- int main(void)
- {
--	debug_fd = open("/dev/kmsg", 00000002);
--	dprintf(debug_fd, "Started bpfilter\n");
-+	debug_f = fopen("/dev/kmsg", "w");
-+	setvbuf(debug_f, 0, _IOLBF, 0);
-+	fprintf(debug_f, "Started bpfilter\n");
- 	loop();
--	close(debug_fd);
-+	fclose(debug_f);
- 	return 0;
++qstats_done:
+ 	mutex_unlock(&bp->hwrm_cmd_lock);
+ 	return rc;
  }
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -1714,7 +1714,7 @@ struct bnxt {
+ 	u16			fw_rx_stats_ext_size;
+ 	u16			fw_tx_stats_ext_size;
+ 	u16			hw_ring_stats_size;
+-	u8			pri2cos[8];
++	u8			pri2cos_idx[8];
+ 	u8			pri2cos_valid;
+ 
+ 	u16			hwrm_max_req_len;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -589,25 +589,25 @@ skip_ring_stats:
+ 		if (bp->pri2cos_valid) {
+ 			for (i = 0; i < 8; i++, j++) {
+ 				long n = bnxt_rx_bytes_pri_arr[i].base_off +
+-					 bp->pri2cos[i];
++					 bp->pri2cos_idx[i];
+ 
+ 				buf[j] = le64_to_cpu(*(rx_port_stats_ext + n));
+ 			}
+ 			for (i = 0; i < 8; i++, j++) {
+ 				long n = bnxt_rx_pkts_pri_arr[i].base_off +
+-					 bp->pri2cos[i];
++					 bp->pri2cos_idx[i];
+ 
+ 				buf[j] = le64_to_cpu(*(rx_port_stats_ext + n));
+ 			}
+ 			for (i = 0; i < 8; i++, j++) {
+ 				long n = bnxt_tx_bytes_pri_arr[i].base_off +
+-					 bp->pri2cos[i];
++					 bp->pri2cos_idx[i];
+ 
+ 				buf[j] = le64_to_cpu(*(tx_port_stats_ext + n));
+ 			}
+ 			for (i = 0; i < 8; i++, j++) {
+ 				long n = bnxt_tx_pkts_pri_arr[i].base_off +
+-					 bp->pri2cos[i];
++					 bp->pri2cos_idx[i];
+ 
+ 				buf[j] = le64_to_cpu(*(tx_port_stats_ext + n));
+ 			}
 
 
