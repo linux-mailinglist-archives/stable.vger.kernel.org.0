@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B0A1199121
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A848A19903B
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:10:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731875AbgCaJR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:17:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38548 "EHLO mail.kernel.org"
+        id S1731311AbgCaJKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:10:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731616AbgCaJR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:17:27 -0400
+        id S1731285AbgCaJKJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:10:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF3F5208FE;
-        Tue, 31 Mar 2020 09:17:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA312208E0;
+        Tue, 31 Mar 2020 09:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646247;
-        bh=yOKg1tKJy2bt2wOT/yU5kFgS1IBYg+vcjwOpadC+8l0=;
+        s=default; t=1585645809;
+        bh=7GkF9U1QC4/acQ/zYteAI1o0BdFXo/0FC7l9Hnlp3EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7DN2Ijcg/RB5J894pwwnAgXalzy0Ct6M0FSSSSLnQKFfhL/V7S+1myv8vAZc/iUN
-         UMIPZLbRRhu/71jhvnfLGenBv7YFzuYSFWm9l2H21+WS+2qWd9dJVRGdSpzDTDsrBC
-         D5efQhn99SjqRdAM4zUONVCzSZiDFs/KF9+xtrfc=
+        b=Xq7rWRkVh3kdliAc8aBd8UHJUpO9iJKbp+MTUz7PX6AA8GOSnbu55NjmMfAW7QgXd
+         KlvYd5YX6d/PKC1qx0P979dmm9hdSOr0mdwnMetH4dutamUIYqUscxvtJ+pHHwR4os
+         dUxzngef5sOzsElj1kgdX2D6Ezyebuf5Xamir9ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.4 129/155] bpf: Initialize storage pointers to NULL to prevent freeing garbage pointer
-Date:   Tue, 31 Mar 2020 10:59:29 +0200
-Message-Id: <20200331085432.766853128@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.5 156/170] media: usbtv: fix control-message timeouts
+Date:   Tue, 31 Mar 2020 10:59:30 +0200
+Message-Id: <20200331085439.555963175@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 62039c30c19dcab96621e074aeeb90da7100def7 upstream.
+commit 536f561d871c5781bc33d26d415685211b94032e upstream.
 
-Local storage array isn't initialized, so if cgroup storage allocation fails
-for BPF_CGROUP_STORAGE_SHARED, error handling code will attempt to free
-uninitialized pointer for BPF_CGROUP_STORAGE_PERCPU storage type. Avoid this
-by always initializing storage pointers to NULLs.
+The driver was issuing synchronous uninterruptible control requests
+without using a timeout. This could lead to the driver hanging on
+various user requests due to a malfunctioning (or malicious) device
+until the device is physically disconnected.
 
-Fixes: 8bad74f9840f ("bpf: extend cgroup bpf core to allow multiple cgroup storage types")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200309222756.1018737-1-andriin@fb.com
+The USB upper limit of five seconds per request should be more than
+enough.
+
+Fixes: f3d27f34fdd7 ("[media] usbtv: Add driver for Fushicai USBTV007 video frame grabber")
+Fixes: c53a846c48f2 ("[media] usbtv: add video controls")
+Cc: stable <stable@vger.kernel.org>     # 3.11
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Lubomir Rintel <lkundrak@v3.sk>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/cgroup.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/usbtv/usbtv-core.c  |    2 +-
+ drivers/media/usb/usbtv/usbtv-video.c |    5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/kernel/bpf/cgroup.c
-+++ b/kernel/bpf/cgroup.c
-@@ -303,8 +303,8 @@ int __cgroup_bpf_attach(struct cgroup *c
- {
- 	struct list_head *progs = &cgrp->bpf.progs[type];
- 	struct bpf_prog *old_prog = NULL;
--	struct bpf_cgroup_storage *storage[MAX_BPF_CGROUP_STORAGE_TYPE],
--		*old_storage[MAX_BPF_CGROUP_STORAGE_TYPE] = {NULL};
-+	struct bpf_cgroup_storage *storage[MAX_BPF_CGROUP_STORAGE_TYPE] = {};
-+	struct bpf_cgroup_storage *old_storage[MAX_BPF_CGROUP_STORAGE_TYPE] = {};
- 	enum bpf_cgroup_storage_type stype;
- 	struct bpf_prog_list *pl;
- 	bool pl_was_allocated;
+--- a/drivers/media/usb/usbtv/usbtv-core.c
++++ b/drivers/media/usb/usbtv/usbtv-core.c
+@@ -56,7 +56,7 @@ int usbtv_set_regs(struct usbtv *usbtv,
+ 
+ 		ret = usb_control_msg(usbtv->udev, pipe, USBTV_REQUEST_REG,
+ 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			value, index, NULL, 0, 0);
++			value, index, NULL, 0, USB_CTRL_GET_TIMEOUT);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+--- a/drivers/media/usb/usbtv/usbtv-video.c
++++ b/drivers/media/usb/usbtv/usbtv-video.c
+@@ -800,7 +800,8 @@ static int usbtv_s_ctrl(struct v4l2_ctrl
+ 		ret = usb_control_msg(usbtv->udev,
+ 			usb_rcvctrlpipe(usbtv->udev, 0), USBTV_CONTROL_REG,
+ 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			0, USBTV_BASE + 0x0244, (void *)data, 3, 0);
++			0, USBTV_BASE + 0x0244, (void *)data, 3,
++			USB_CTRL_GET_TIMEOUT);
+ 		if (ret < 0)
+ 			goto error;
+ 	}
+@@ -851,7 +852,7 @@ static int usbtv_s_ctrl(struct v4l2_ctrl
+ 	ret = usb_control_msg(usbtv->udev, usb_sndctrlpipe(usbtv->udev, 0),
+ 			USBTV_CONTROL_REG,
+ 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			0, index, (void *)data, size, 0);
++			0, index, (void *)data, size, USB_CTRL_SET_TIMEOUT);
+ 
+ error:
+ 	if (ret < 0)
 
 
