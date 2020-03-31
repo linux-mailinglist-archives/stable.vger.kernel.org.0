@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 235CA198FF0
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99FF91990EA
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:15:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731138AbgCaJHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:07:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49468 "EHLO mail.kernel.org"
+        id S1731046AbgCaJPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:15:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731253AbgCaJHh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:07:37 -0400
+        id S1726299AbgCaJPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:15:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 234EC2137B;
-        Tue, 31 Mar 2020 09:07:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C763208E0;
+        Tue, 31 Mar 2020 09:15:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645656;
-        bh=NIxqvIwYmSHXNc7yYh3cDSevwbxvddLQ+0ZJPC75KYQ=;
+        s=default; t=1585646146;
+        bh=t4fDSHC9Vo7tWKfxMQCIigCearlKnvxQUe+quo/ArlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VO3f8AN96FE8nlrKiwYLhyXfGJW/CMrnSJCjAdklj8ol7KUmvfRVDZgoV9k6ao4Pa
-         Fz6eiquMo9mWiuslSjG66kCe+QPh/ly6zMbZyAVMlTLtRWGGIhE9od7eyOQemA4NC9
-         MFEf1/D5rPFb0MszcRIp6VOrxLunKFizFARvPwf8=
+        b=P/XcJu3Ij+9nvcXUwJ/bwMITFwXXQldQA1j6vyBX8QkZyXlOhj4l1jsyHEMtUAYUn
+         x9uLSjsWkQsLJncqkEBB2daZqHXc5x92whvuuj1so/ii45PdpYM3Z/VklA3DqpmFwk
+         Fn4ebYBtGk09YzdZ49/DmIDMl7Awwrirop0M4HBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 5.5 123/170] vti[6]: fix packet tx through bpf_redirect() in XinY cases
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 097/155] nl80211: fix NL80211_ATTR_CHANNEL_WIDTH attribute type
 Date:   Tue, 31 Mar 2020 10:58:57 +0200
-Message-Id: <20200331085437.049155458@linuxfoundation.org>
+Message-Id: <20200331085429.444477280@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,124 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit f1ed10264ed6b66b9cd5e8461cffce69be482356 upstream.
+commit 0016d3201753b59f3ae84b868fe66c86ad256f19 upstream.
 
-I forgot the 4in6/6in4 cases in my previous patch. Let's fix them.
+The new opmode notification used this attribute with a u8, when
+it's documented as a u32 and indeed used in userspace as such,
+it just happens to work on little-endian systems since userspace
+isn't doing any strict size validation, and the u8 goes into the
+lower byte. Fix this.
 
-Fixes: 95224166a903 ("vti[6]: fix packet tx through bpf_redirect()")
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: stable@vger.kernel.org
+Fixes: 466b9936bf93 ("cfg80211: Add support to notify station's opmode change to userspace")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20200325090531.be124f0a11c7.Iedbf4e197a85471ebd729b186d5365c0343bf7a8@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/Kconfig   |    1 +
- net/ipv4/ip_vti.c  |   36 +++++++++++++++++++++++++++++-------
- net/ipv6/ip6_vti.c |   32 +++++++++++++++++++++++++-------
- 3 files changed, 55 insertions(+), 14 deletions(-)
+ net/wireless/nl80211.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/Kconfig
-+++ b/net/ipv4/Kconfig
-@@ -303,6 +303,7 @@ config SYN_COOKIES
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -16407,7 +16407,7 @@ void cfg80211_sta_opmode_change_notify(s
+ 		goto nla_put_failure;
  
- config NET_IPVTI
- 	tristate "Virtual (secure) IP: tunneling"
-+	depends on IPV6 || IPV6=n
- 	select INET_TUNNEL
- 	select NET_IP_TUNNEL
- 	select XFRM
---- a/net/ipv4/ip_vti.c
-+++ b/net/ipv4/ip_vti.c
-@@ -187,17 +187,39 @@ static netdev_tx_t vti_xmit(struct sk_bu
- 	int mtu;
+ 	if ((sta_opmode->changed & STA_OPMODE_MAX_BW_CHANGED) &&
+-	    nla_put_u8(msg, NL80211_ATTR_CHANNEL_WIDTH, sta_opmode->bw))
++	    nla_put_u32(msg, NL80211_ATTR_CHANNEL_WIDTH, sta_opmode->bw))
+ 		goto nla_put_failure;
  
- 	if (!dst) {
--		struct rtable *rt;
-+		switch (skb->protocol) {
-+		case htons(ETH_P_IP): {
-+			struct rtable *rt;
- 
--		fl->u.ip4.flowi4_oif = dev->ifindex;
--		fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
--		rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
--		if (IS_ERR(rt)) {
-+			fl->u.ip4.flowi4_oif = dev->ifindex;
-+			fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
-+			rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
-+			if (IS_ERR(rt)) {
-+				dev->stats.tx_carrier_errors++;
-+				goto tx_error_icmp;
-+			}
-+			dst = &rt->dst;
-+			skb_dst_set(skb, dst);
-+			break;
-+		}
-+#if IS_ENABLED(CONFIG_IPV6)
-+		case htons(ETH_P_IPV6):
-+			fl->u.ip6.flowi6_oif = dev->ifindex;
-+			fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
-+			dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
-+			if (dst->error) {
-+				dst_release(dst);
-+				dst = NULL;
-+				dev->stats.tx_carrier_errors++;
-+				goto tx_error_icmp;
-+			}
-+			skb_dst_set(skb, dst);
-+			break;
-+#endif
-+		default:
- 			dev->stats.tx_carrier_errors++;
- 			goto tx_error_icmp;
- 		}
--		dst = &rt->dst;
--		skb_dst_set(skb, dst);
- 	}
- 
- 	dst_hold(dst);
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -450,15 +450,33 @@ vti6_xmit(struct sk_buff *skb, struct ne
- 	int mtu;
- 
- 	if (!dst) {
--		fl->u.ip6.flowi6_oif = dev->ifindex;
--		fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
--		dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
--		if (dst->error) {
--			dst_release(dst);
--			dst = NULL;
-+		switch (skb->protocol) {
-+		case htons(ETH_P_IP): {
-+			struct rtable *rt;
-+
-+			fl->u.ip4.flowi4_oif = dev->ifindex;
-+			fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
-+			rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
-+			if (IS_ERR(rt))
-+				goto tx_err_link_failure;
-+			dst = &rt->dst;
-+			skb_dst_set(skb, dst);
-+			break;
-+		}
-+		case htons(ETH_P_IPV6):
-+			fl->u.ip6.flowi6_oif = dev->ifindex;
-+			fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
-+			dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
-+			if (dst->error) {
-+				dst_release(dst);
-+				dst = NULL;
-+				goto tx_err_link_failure;
-+			}
-+			skb_dst_set(skb, dst);
-+			break;
-+		default:
- 			goto tx_err_link_failure;
- 		}
--		skb_dst_set(skb, dst);
- 	}
- 
- 	dst_hold(dst);
+ 	if ((sta_opmode->changed & STA_OPMODE_N_SS_CHANGED) &&
 
 
