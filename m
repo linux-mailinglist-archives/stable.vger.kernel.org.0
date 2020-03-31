@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6E9F1991AD
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A503198F74
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:03:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731254AbgCaJKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:10:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54428 "EHLO mail.kernel.org"
+        id S1730841AbgCaJDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731319AbgCaJKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:10:36 -0400
+        id S1730834AbgCaJDc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:03:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1611420772;
-        Tue, 31 Mar 2020 09:10:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C7D820787;
+        Tue, 31 Mar 2020 09:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645835;
-        bh=Z8CeZZwmgXapYZDYq5qlyCvFTkEB2fcRKd/gMZYTj+Q=;
+        s=default; t=1585645412;
+        bh=JspOp3JCato+Ngd4oQfQrfM4XN3jMP+GM9OQRSWLRW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHm1EO8kAAnsOP5DpPpGi665Y9FY16NO3O0hX33bCqdGN/q3Nc2CTJdoqGh5A6aIK
-         xZVMHdTvWK4DyHzmHn/pTLVWAwjSTxIhsTZZXmc0A9CeHi1ewSoYdpGS0kVacv8Hka
-         ApMi49zC16aAimgZO+uitVyXHyB3PmUBRnlHzXG8=
+        b=W17CFuEIa0l2m2Zo0EYYtQL03G54w6MM2IIrBD9z4bthJC6gvx8n9DKqSBE/6C/Rk
+         j0u3+Jrh21V3PnVt3dd+TtpIFWZ6Loi80IQcHZ60CQeMPNU/4Tv4BvcaYB7ZN7kHn0
+         W/fb+2A+QASaktY1b+0lPdxP5b6gyH0deYVzmg9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Faiz Abbas <faiz_abbas@ti.com>,
-        Peter Geis <pgwipeout@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 001/155] mmc: core: Allow host controllers to require R1B for CMD6
-Date:   Tue, 31 Mar 2020 10:57:21 +0200
-Message-Id: <20200331085418.398117916@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Blakey <paulb@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 028/170] net/sched: act_ct: Fix leak of ct zone template on replace
+Date:   Tue, 31 Mar 2020 10:57:22 +0200
+Message-Id: <20200331085427.087743003@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,65 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Paul Blakey <paulb@mellanox.com>
 
-[ Upstream commit 1292e3efb149ee21d8d33d725eeed4e6b1ade963 ]
+[ Upstream commit dd2af10402684cb5840a127caec9e7cdcff6d167 ]
 
-It has turned out that some host controllers can't use R1B for CMD6 and
-other commands that have R1B associated with them. Therefore invent a new
-host cap, MMC_CAP_NEED_RSP_BUSY to let them specify this.
+Currently, on replace, the previous action instance params
+is swapped with a newly allocated params. The old params is
+only freed (via kfree_rcu), without releasing the allocated
+ct zone template related to it.
 
-In __mmc_switch(), let's check the flag and use it to prevent R1B responses
-from being converted into R1. Note that, this also means that the host are
-on its own, when it comes to manage the busy timeout.
+Call tcf_ct_params_free (via call_rcu) for the old params,
+so it will release it.
 
-Suggested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Tested-by: Anders Roxell <anders.roxell@linaro.org>
-Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Tested-by: Faiz Abbas <faiz_abbas@ti.com>
-Tested-By: Peter Geis <pgwipeout@gmail.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b57dc7c13ea9 ("net/sched: Introduce action ct")
+Signed-off-by: Paul Blakey <paulb@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/mmc_ops.c | 8 +++++---
- include/linux/mmc/host.h   | 1 +
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ net/sched/act_ct.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/core/mmc_ops.c b/drivers/mmc/core/mmc_ops.c
-index 09113b9ad6790..18a7afb2a5b23 100644
---- a/drivers/mmc/core/mmc_ops.c
-+++ b/drivers/mmc/core/mmc_ops.c
-@@ -538,10 +538,12 @@ int __mmc_switch(struct mmc_card *card, u8 set, u8 index, u8 value,
- 	 * If the cmd timeout and the max_busy_timeout of the host are both
- 	 * specified, let's validate them. A failure means we need to prevent
- 	 * the host from doing hw busy detection, which is done by converting
--	 * to a R1 response instead of a R1B.
-+	 * to a R1 response instead of a R1B. Note, some hosts requires R1B,
-+	 * which also means they are on their own when it comes to deal with the
-+	 * busy timeout.
- 	 */
--	if (timeout_ms && host->max_busy_timeout &&
--		(timeout_ms > host->max_busy_timeout))
-+	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && timeout_ms &&
-+	    host->max_busy_timeout && (timeout_ms > host->max_busy_timeout))
- 		use_r1b_resp = false;
+--- a/net/sched/act_ct.c
++++ b/net/sched/act_ct.c
+@@ -739,7 +739,7 @@ static int tcf_ct_init(struct net *net,
+ 	if (goto_ch)
+ 		tcf_chain_put_by_act(goto_ch);
+ 	if (params)
+-		kfree_rcu(params, rcu);
++		call_rcu(&params->rcu, tcf_ct_params_free);
+ 	if (res == ACT_P_CREATED)
+ 		tcf_idr_insert(tn, *a);
  
- 	cmd.opcode = MMC_SWITCH;
-diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
-index ba703384bea0c..4c5eb3aa8e723 100644
---- a/include/linux/mmc/host.h
-+++ b/include/linux/mmc/host.h
-@@ -333,6 +333,7 @@ struct mmc_host {
- 				 MMC_CAP_UHS_SDR50 | MMC_CAP_UHS_SDR104 | \
- 				 MMC_CAP_UHS_DDR50)
- #define MMC_CAP_SYNC_RUNTIME_PM	(1 << 21)	/* Synced runtime PM suspends. */
-+#define MMC_CAP_NEED_RSP_BUSY	(1 << 22)	/* Commands with R1B can't use R1. */
- #define MMC_CAP_DRIVER_TYPE_A	(1 << 23)	/* Host supports Driver Type A */
- #define MMC_CAP_DRIVER_TYPE_C	(1 << 24)	/* Host supports Driver Type C */
- #define MMC_CAP_DRIVER_TYPE_D	(1 << 25)	/* Host supports Driver Type D */
--- 
-2.20.1
-
 
 
