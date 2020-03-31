@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1D4199195
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1FA4198FBA
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:06:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731814AbgCaJON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:14:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33990 "EHLO mail.kernel.org"
+        id S1730697AbgCaJFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:05:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731056AbgCaJOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:14:12 -0400
+        id S1730053AbgCaJFr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:05:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F9C120675;
-        Tue, 31 Mar 2020 09:14:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E3C821744;
+        Tue, 31 Mar 2020 09:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646051;
-        bh=qVjoLHhaWei+kQZu9/OxgcFz2dT0HIX9Y4RCzcxpQQw=;
+        s=default; t=1585645546;
+        bh=AmV39TMQGWsiI2F+39TlEpVOQx8ahhIop5s/WGgN9jU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BP6SJSXj3LicyYqctvzfnXVvtPRhdw/wcJ2TsjbAPM8wprXbuY1bAJRVZa82aPxAP
-         a4918nsZyp2c/CEp8wZw+wBcLhgnt/YsXfA9nGBx463qH1EYT2Y9u9xzmFeMzuR6R6
-         HmiueiWCEBoSxboOcuFEszv/mWTiSr5d/v64UKzc=
+        b=YPCLK1VwyOaELUFdmj3jSjL2lXjXjeOErsK5llDFE9GtTgFkvORPXtPJrpb9vwMZD
+         v2BFn6E6RfKbE4rfWJoj+tpOczwAE9DtJSizco0BOQ0S+CarIyf0o6Zd3FHmTXS4SW
+         aarRkGNmd3mVXNtqNH8s7umLVuLBe2UGvf0uTgmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/155] fsl/fman: detect FMan erratum A050385
+        stable@vger.kernel.org, stable@kernel.org,
+        syzbot+ab4dae63f7d310641ded@syzkaller.appspotmail.com,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.5 087/170] RDMA/core: Fix missing error check on dev_set_name()
 Date:   Tue, 31 Mar 2020 10:58:21 +0200
-Message-Id: <20200331085425.380272661@linuxfoundation.org>
+Message-Id: <20200331085433.531541289@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,130 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madalin Bucur <madalin.bucur@nxp.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit b281f7b93b258ce1419043bbd898a29254d5c9c7 ]
+commit f2f2b3bbf0d9f8d090b9a019679223b2bd1c66c4 upstream.
 
-Detect the presence of the A050385 erratum.
+If name memory allocation fails the name will be left empty and
+device_add_one() will crash:
 
-Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  kobject: (0000000004952746): attempted to be registered with empty name!
+  WARNING: CPU: 0 PID: 329 at lib/kobject.c:234 kobject_add_internal+0x7ac/0x9a0 lib/kobject.c:234
+  Kernel panic - not syncing: panic_on_warn set ...
+  CPU: 0 PID: 329 Comm: syz-executor.5 Not tainted 5.6.0-rc2-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+   __dump_stack lib/dump_stack.c:77 [inline]
+   dump_stack+0x197/0x210 lib/dump_stack.c:118
+   panic+0x2e3/0x75c kernel/panic.c:221
+   __warn.cold+0x2f/0x3e kernel/panic.c:582
+   report_bug+0x289/0x300 lib/bug.c:195
+   fixup_bug arch/x86/kernel/traps.c:174 [inline]
+   fixup_bug arch/x86/kernel/traps.c:169 [inline]
+   do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
+   do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
+   invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
+  RIP: 0010:kobject_add_internal+0x7ac/0x9a0 lib/kobject.c:234
+  Code: 1a 98 ca f9 e9 f0 f8 ff ff 4c 89 f7 e8 6d 98 ca f9 e9 95 f9 ff ff e8 c3 f0 8b f9 4c 89 e6 48 c7 c7 a0 0e 1a 89 e8 e3 41 5c f9 <0f> 0b 41 bd ea ff ff ff e9 52 ff ff ff e8 a2 f0 8b f9 0f 0b e8 9b
+  RSP: 0018:ffffc90005b27908 EFLAGS: 00010286
+  RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+  RDX: 0000000000040000 RSI: ffffffff815eae46 RDI: fffff52000b64f13
+  RBP: ffffc90005b27960 R08: ffff88805aeba480 R09: ffffed1015d06659
+  R10: ffffed1015d06658 R11: ffff8880ae8332c7 R12: ffff8880a37fd000
+  R13: 0000000000000000 R14: ffff888096691780 R15: 0000000000000001
+   kobject_add_varg lib/kobject.c:390 [inline]
+   kobject_add+0x150/0x1c0 lib/kobject.c:442
+   device_add+0x3be/0x1d00 drivers/base/core.c:2412
+   add_one_compat_dev drivers/infiniband/core/device.c:901 [inline]
+   add_one_compat_dev+0x46a/0x7e0 drivers/infiniband/core/device.c:857
+   rdma_dev_init_net+0x2eb/0x490 drivers/infiniband/core/device.c:1120
+   ops_init+0xb3/0x420 net/core/net_namespace.c:137
+   setup_net+0x2d5/0x8b0 net/core/net_namespace.c:327
+   copy_net_ns+0x29e/0x5a0 net/core/net_namespace.c:468
+   create_new_namespaces+0x403/0xb50 kernel/nsproxy.c:108
+   unshare_nsproxy_namespaces+0xc2/0x200 kernel/nsproxy.c:229
+   ksys_unshare+0x444/0x980 kernel/fork.c:2955
+   __do_sys_unshare kernel/fork.c:3023 [inline]
+   __se_sys_unshare kernel/fork.c:3021 [inline]
+   __x64_sys_unshare+0x31/0x40 kernel/fork.c:3021
+   do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Link: https://lore.kernel.org/r/20200309193200.GA10633@ziepe.ca
+Cc: stable@kernel.org
+Fixes: 4e0f7b907072 ("RDMA/core: Implement compat device/sysfs tree in net namespace")
+Reported-by: syzbot+ab4dae63f7d310641ded@syzkaller.appspotmail.com
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/freescale/fman/Kconfig | 28 +++++++++++++++++++++
- drivers/net/ethernet/freescale/fman/fman.c  | 18 +++++++++++++
- drivers/net/ethernet/freescale/fman/fman.h  |  5 ++++
- 3 files changed, 51 insertions(+)
+ drivers/infiniband/core/device.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fman/Kconfig b/drivers/net/ethernet/freescale/fman/Kconfig
-index 0139cb9042ec7..34150182cc35c 100644
---- a/drivers/net/ethernet/freescale/fman/Kconfig
-+++ b/drivers/net/ethernet/freescale/fman/Kconfig
-@@ -8,3 +8,31 @@ config FSL_FMAN
- 	help
- 		Freescale Data-Path Acceleration Architecture Frame Manager
- 		(FMan) support
-+
-+config DPAA_ERRATUM_A050385
-+	bool
-+	depends on ARM64 && FSL_DPAA
-+	default y
-+	help
-+		DPAA FMan erratum A050385 software workaround implementation:
-+		align buffers, data start, SG fragment length to avoid FMan DMA
-+		splits.
-+		FMAN DMA read or writes under heavy traffic load may cause FMAN
-+		internal resource leak thus stopping further packet processing.
-+		The FMAN internal queue can overflow when FMAN splits single
-+		read or write transactions into multiple smaller transactions
-+		such that more than 17 AXI transactions are in flight from FMAN
-+		to interconnect. When the FMAN internal queue overflows, it can
-+		stall further packet processing. The issue can occur with any
-+		one of the following three conditions:
-+		1. FMAN AXI transaction crosses 4K address boundary (Errata
-+		A010022)
-+		2. FMAN DMA address for an AXI transaction is not 16 byte
-+		aligned, i.e. the last 4 bits of an address are non-zero
-+		3. Scatter Gather (SG) frames have more than one SG buffer in
-+		the SG list and any one of the buffers, except the last
-+		buffer in the SG list has data size that is not a multiple
-+		of 16 bytes, i.e., other than 16, 32, 48, 64, etc.
-+		With any one of the above three conditions present, there is
-+		likelihood of stalled FMAN packet processing, especially under
-+		stress with multiple ports injecting line-rate traffic.
-diff --git a/drivers/net/ethernet/freescale/fman/fman.c b/drivers/net/ethernet/freescale/fman/fman.c
-index 210749bf1eac1..4c2fa13a7dd7b 100644
---- a/drivers/net/ethernet/freescale/fman/fman.c
-+++ b/drivers/net/ethernet/freescale/fman/fman.c
-@@ -1,5 +1,6 @@
- /*
-  * Copyright 2008-2015 Freescale Semiconductor Inc.
-+ * Copyright 2020 NXP
-  *
-  * Redistribution and use in source and binary forms, with or without
-  * modification, are permitted provided that the following conditions are met:
-@@ -566,6 +567,10 @@ struct fman_cfg {
- 	u32 qmi_def_tnums_thresh;
- };
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -896,7 +896,9 @@ static int add_one_compat_dev(struct ib_
+ 	cdev->dev.parent = device->dev.parent;
+ 	rdma_init_coredev(cdev, device, read_pnet(&rnet->net));
+ 	cdev->dev.release = compatdev_release;
+-	dev_set_name(&cdev->dev, "%s", dev_name(&device->dev));
++	ret = dev_set_name(&cdev->dev, "%s", dev_name(&device->dev));
++	if (ret)
++		goto add_err;
  
-+#ifdef CONFIG_DPAA_ERRATUM_A050385
-+static bool fman_has_err_a050385;
-+#endif
-+
- static irqreturn_t fman_exceptions(struct fman *fman,
- 				   enum fman_exceptions exception)
- {
-@@ -2514,6 +2519,14 @@ struct fman *fman_bind(struct device *fm_dev)
- }
- EXPORT_SYMBOL(fman_bind);
- 
-+#ifdef CONFIG_DPAA_ERRATUM_A050385
-+bool fman_has_errata_a050385(void)
-+{
-+	return fman_has_err_a050385;
-+}
-+EXPORT_SYMBOL(fman_has_errata_a050385);
-+#endif
-+
- static irqreturn_t fman_err_irq(int irq, void *handle)
- {
- 	struct fman *fman = (struct fman *)handle;
-@@ -2841,6 +2854,11 @@ static struct fman *read_dts_node(struct platform_device *of_dev)
- 		goto fman_free;
- 	}
- 
-+#ifdef CONFIG_DPAA_ERRATUM_A050385
-+	fman_has_err_a050385 =
-+		of_property_read_bool(fm_node, "fsl,erratum-a050385");
-+#endif
-+
- 	return fman;
- 
- fman_node_put:
-diff --git a/drivers/net/ethernet/freescale/fman/fman.h b/drivers/net/ethernet/freescale/fman/fman.h
-index 935c317fa6964..f2ede1360f03a 100644
---- a/drivers/net/ethernet/freescale/fman/fman.h
-+++ b/drivers/net/ethernet/freescale/fman/fman.h
-@@ -1,5 +1,6 @@
- /*
-  * Copyright 2008-2015 Freescale Semiconductor Inc.
-+ * Copyright 2020 NXP
-  *
-  * Redistribution and use in source and binary forms, with or without
-  * modification, are permitted provided that the following conditions are met:
-@@ -398,6 +399,10 @@ u16 fman_get_max_frm(void);
- 
- int fman_get_rx_extra_headroom(void);
- 
-+#ifdef CONFIG_DPAA_ERRATUM_A050385
-+bool fman_has_errata_a050385(void);
-+#endif
-+
- struct fman *fman_bind(struct device *dev);
- 
- #endif /* __FM_H */
--- 
-2.20.1
-
+ 	ret = device_add(&cdev->dev);
+ 	if (ret)
 
 
