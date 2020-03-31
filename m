@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AF37199721
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 15:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04D0119971C
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 15:11:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730916AbgCaNLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 09:11:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39698 "EHLO mail.kernel.org"
+        id S1730892AbgCaNLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 09:11:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730876AbgCaNLV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 09:11:21 -0400
+        id S1730890AbgCaNLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 09:11:22 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4A2120784;
-        Tue, 31 Mar 2020 13:11:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7C2F2137B;
+        Tue, 31 Mar 2020 13:11:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585660281;
-        bh=PJjRpgSRAbKNR3vA/VLgtYNrcsUaXX7nSe+2cX8sgQ8=;
+        s=default; t=1585660282;
+        bh=OhFU4+o8C7hCBJA9nbYTcOIT+h9v/7RYJl9h1vT7/w4=;
         h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=rgrivWVMjpzpcdTDMlh8J7vky5fnuGobTUGBJd3HNSMKxqFkxuoIOT0mCgnvLBNEV
-         X2GmUmTKJLBGiyagcQ+BoaE1fwVUXBhwTogfC5nSf0ASurYivRipJFA1lAI1MHWkcs
-         xoWLvwn+GHNUZbBCs6YKD5QXFX2sXQP1Z8kdSBrw=
-Date:   Tue, 31 Mar 2020 13:11:20 +0000
+        b=IlyMNwAH48OmXLiYebt68G6rl07+Xwvs++/KHkLUtDYs5reZ4tu4yzmRuwcTnPpl7
+         r7ca9fmSunaDqB7qKWJIniHYZPhuujSvHDwa/1oeGuUpiR4otlzGt6aZONyVskhmWB
+         ang/UVbt9fplbzTEeK/OdkcaFusA75kv07a5b/RM=
+Date:   Tue, 31 Mar 2020 13:11:21 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Clement Courbet <courbet@google.com>
-To:     unlisted-recipients:; (no To-header on input)
-Cc:     Nick Desaulniers <ndesaulniers@google.com>
+To:     Imre Deak <imre.deak@intel.com>
+To:     intel-gfx@lists.freedesktop.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3] powerpc: Make setjmp/longjmp signature standard
-In-Reply-To: <20200330080400.124803-1-courbet@google.com>
-References: <20200330080400.124803-1-courbet@google.com>
-Message-Id: <20200331131120.C4A2120784@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH] drm/i915/icl+: Don't enable DDI IO power on a TypeC port in TBT mode
+In-Reply-To: <20200330152244.11316-1-imre.deak@intel.com>
+References: <20200330152244.11316-1-imre.deak@intel.com>
+Message-Id: <20200331131121.E7C2F2137B@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -43,43 +43,31 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp and longjmp").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: 5.4+
 
-The bot has tested the following trees: v5.5.13, v5.4.28, v4.19.113, v4.14.174.
+The bot has tested the following trees: v5.5.13, v5.4.28.
 
-v5.5.13: Build OK!
+v5.5.13: Failed to apply! Possible dependencies:
+    1326a92c3466 ("drm/i915: Perform automated conversions for crtc uapi/hw split, base -> hw.")
+    2225f3c6f1d7 ("drm/i915: Perform automated conversions for crtc uapi/hw split, base -> uapi.")
+    2b808b3a27d1 ("drm/i915: Add aliases for uapi and hw to crtc_state")
+    54ed6902cabc ("drm/i915/dsi: abstract afe_clk calculation")
+    b7d02c3a124d ("drm/i915: Pass intel_encoder to enc_to_*()")
+
 v5.4.28: Failed to apply! Possible dependencies:
-    74277f00b232 ("powerpc/fsl_booke/kaslr: export offset in VMCOREINFO ELF notes")
-    793b08e2efff ("powerpc/kexec: Move kexec files into a dedicated subdir.")
-    9f7bd9201521 ("powerpc/32: Split kexec low level code out of misc_32.S")
-
-v4.19.113: Failed to apply! Possible dependencies:
-    2874c5fd2842 ("treewide: Replace GPLv2 boilerplate/reference with SPDX - rule 152")
-    40b0b3f8fb2d ("treewide: Replace GPLv2 boilerplate/reference with SPDX - rule 230")
-    793b08e2efff ("powerpc/kexec: Move kexec files into a dedicated subdir.")
-    9f7bd9201521 ("powerpc/32: Split kexec low level code out of misc_32.S")
-    aa497d435241 ("powerpc: Add attributes for setjmp/longjmp")
-    c47ca98d32a2 ("powerpc: Move core kernel logic into arch/powerpc/Kbuild")
-    fb0b0a73b223 ("powerpc: Enable kcov")
-
-v4.14.174: Failed to apply! Possible dependencies:
-    06bb53b33804 ("powerpc: store and restore the pkey state across context switches")
-    1421dc6d4829 ("powerpc/kbuild: Use flags variables rather than overriding LD/CC/AS")
-    1b4037deadb6 ("powerpc: helper function to read, write AMR, IAMR, UAMOR registers")
-    2ddc53f3a751 ("powerpc: implementation for arch_set_user_pkey_access()")
-    471d7ff8b51b ("powerpc/64s: Remove POWER4 support")
-    4d70b698f957 ("powerpc: helper functions to initialize AMR, IAMR and UAMOR registers")
-    4fb158f65ac5 ("powerpc: track allocation status of all pkeys")
-    793b08e2efff ("powerpc/kexec: Move kexec files into a dedicated subdir.")
-    92e3da3cf193 ("powerpc: initial pkey plumbing")
-    a73657ea19ae ("powerpc/64: Add GENERIC_CPU support for little endian")
-    aa497d435241 ("powerpc: Add attributes for setjmp/longjmp")
-    badf436f6fa5 ("powerpc/Makefiles: Convert ifeq to ifdef where possible")
-    c0d64cf9fefd ("powerpc: Use feature bit for RTC presence rather than timebase presence")
-    c1807e3f8466 ("powerpc/64: Free up CPU_FTR_ICSWX")
-    c47ca98d32a2 ("powerpc: Move core kernel logic into arch/powerpc/Kbuild")
-    cf43d3b26452 ("powerpc: Enable pkey subsystem")
+    0456417ef680 ("drm: Add for_each_oldnew_intel_crtc_in_state_reverse()")
+    131d3b1af105 ("drm/i915: Stop using drm_atomic_helper_check_planes()")
+    2225f3c6f1d7 ("drm/i915: Perform automated conversions for crtc uapi/hw split, base -> uapi.")
+    2b808b3a27d1 ("drm/i915: Add aliases for uapi and hw to crtc_state")
+    2e7f76c1e4b6 ("drm/i915: s/pipe_config/crtc_state/ in intel_crtc_atomic_check()")
+    3e30d70805d5 ("drm/i915: Make .modeset_calc_cdclk() mandatory")
+    54ed6902cabc ("drm/i915/dsi: abstract afe_clk calculation")
+    af9fbfa657c8 ("drm/i915: Introduce and use intel_atomic_crtc_state_for_each_plane_state.")
+    b7d02c3a124d ("drm/i915: Pass intel_encoder to enc_to_*()")
+    bb6ae9e653dc ("drm/i915: Allow planes to declare their minimum acceptable cdclk")
+    d06a79d33e0f ("drm/i915: Use enum pipe instead of crtc index to track active pipes")
+    fe4709a8d033 ("drm/i915: Extract intel_modeset_calc_cdclk()")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
