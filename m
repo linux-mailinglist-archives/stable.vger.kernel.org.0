@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F5519917F
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B4051991C7
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731903AbgCaJPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:15:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35820 "EHLO mail.kernel.org"
+        id S1730966AbgCaJJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:09:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730776AbgCaJPc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:15:32 -0400
+        id S1731473AbgCaJJa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:09:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A76A720675;
-        Tue, 31 Mar 2020 09:15:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C319D20675;
+        Tue, 31 Mar 2020 09:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646131;
-        bh=gkxIIEX7CD1eyF80K+O60ekMNb7YXPNTnmAMQ7qvIas=;
+        s=default; t=1585645770;
+        bh=AWCdgu6dNEmRTTcrueFTFFBMA8I6/uWJz3XKank3eVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLgrc3m01cov7p82pZg06buVGHXlmXfy39ruXUxBqgvGBspDZOSxguRZiKaxncDJS
-         rOzJ6roM6pNA6PWjeif4JZce7Y8mjS197oZi5ac4pXFJYI/Wfkjg0HxvlRzt4vvw1s
-         ntsuYIlHZNH1YQ19EqBqzA3fmEbtusymg+DmjBMQ=
+        b=gYvqBUCXc7upa2WEce+8k36V3/1VDsS7zi/6b1jCBuEuCC6Kt36MFO8Hbd+cmLxV5
+         eFUjlHjtD/uLdxPEb3V23H9dsY6AJc0J/3jXDTMVY/bvOx5Pl1QG0ZMUrCK9AL32bt
+         CxGCVkPFhRrF0lr+o1/X4pCJjd6YZyG+cretx2mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 092/155] perf probe: Do not depend on dwfl_module_addrsym()
+        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Roman Gushchin <guro@fb.com>
+Subject: [PATCH 5.5 118/170] bpf: Fix cgroup ref leak in cgroup_bpf_inherit on out-of-memory
 Date:   Tue, 31 Mar 2020 10:58:52 +0200
-Message-Id: <20200331085428.794671717@linuxfoundation.org>
+Message-Id: <20200331085436.664958401@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,63 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Andrii Nakryiko <andriin@fb.com>
 
-commit 1efde2754275dbd9d11c6e0132a4f09facf297ab upstream.
+commit 1d8006abaab4cb90f81add86e8d1bf9411add05a upstream.
 
-Do not depend on dwfl_module_addrsym() because it can fail on user-space
-shared libraries.
+There is no compensating cgroup_bpf_put() for each ancestor cgroup in
+cgroup_bpf_inherit(). If compute_effective_progs returns error, those cgroups
+won't be freed ever. Fix it by putting them in cleanup code path.
 
-Actually, same bug was fixed by commit 664fee3dc379 ("perf probe: Do not
-use dwfl_module_addrsym if dwarf_diename finds symbol name"), but commit
-07d369857808 ("perf probe: Fix wrong address verification) reverted to
-get actual symbol address from symtab.
-
-This fixes it again by getting symbol address from DIE, and only if the
-DIE has only address range, it uses dwfl_module_addrsym().
-
-Fixes: 07d369857808 ("perf probe: Fix wrong address verification)
-Reported-by: Alexandre Ghiti <alex@ghiti.fr>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Alexandre Ghiti <alex@ghiti.fr>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Link: http://lore.kernel.org/lkml/158281812176.476.14164573830975116234.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: e10360f815ca ("bpf: cgroup: prevent out-of-order release of cgroup bpf")
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Roman Gushchin <guro@fb.com>
+Link: https://lore.kernel.org/bpf/20200309224017.1063297-1-andriin@fb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/probe-finder.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ kernel/bpf/cgroup.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -615,14 +615,19 @@ static int convert_to_trace_point(Dwarf_
- 		return -EINVAL;
- 	}
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -228,6 +228,9 @@ cleanup:
+ 	for (i = 0; i < NR; i++)
+ 		bpf_prog_array_free(arrays[i]);
  
--	/* Try to get actual symbol name from symtab */
--	symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
-+	if (dwarf_entrypc(sp_die, &eaddr) == 0) {
-+		/* If the DIE has entrypc, use it. */
-+		symbol = dwarf_diename(sp_die);
-+	} else {
-+		/* Try to get actual symbol name and address from symtab */
-+		symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
-+		eaddr = sym.st_value;
-+	}
- 	if (!symbol) {
- 		pr_warning("Failed to find symbol at 0x%lx\n",
- 			   (unsigned long)paddr);
- 		return -ENOENT;
- 	}
--	eaddr = sym.st_value;
++	for (p = cgroup_parent(cgrp); p; p = cgroup_parent(p))
++		cgroup_bpf_put(p);
++
+ 	percpu_ref_exit(&cgrp->bpf.refcnt);
  
- 	tp->offset = (unsigned long)(paddr - eaddr);
- 	tp->address = (unsigned long)paddr;
+ 	return -ENOMEM;
 
 
