@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2789D19916A
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3EB1991BB
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732000AbgCaJSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:18:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39446 "EHLO mail.kernel.org"
+        id S1731369AbgCaJJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:09:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730577AbgCaJSF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:18:05 -0400
+        id S1730995AbgCaJJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:09:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3219621556;
-        Tue, 31 Mar 2020 09:18:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 033502072E;
+        Tue, 31 Mar 2020 09:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646284;
-        bh=SFOWE/27zqtS1mso7mCUfh5jR+5ME//znMimyV2p3wE=;
+        s=default; t=1585645785;
+        bh=h/JNQ+2tDnREXItSe9CGEeJX602SDVdH+hs3zHL9yF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4swFZksDfsfEAy+6FGguXUYW2mFXdES1vpod3bLvdP/1PS9bzpl7FyF9lna45tEd
-         5paip4OFze0St1K2Zjbnx1qKQiCIIyGG0z4GUDDmEAwZrj/lhZyCTtLeR5+Zc3ZfCN
-         HY4/xwYIGTwMlCo7gU9CQtvLAxoa6mPgiWoufOys=
+        b=ZfkjMkCJlYRB4izD3/9hOt+qMHUSTWBwJ7gOT1xphmJHRsq9bE+ynW359p4Rid+F/
+         OBbybvtBbWmtR3ZJl4Uo7mHy8GhSEKxL2lF2i2DzJYFnoYmYJPdtAUjtbZnOTnwEP/
+         HrfJyVI73xPdfmuTbacdVKR2u7lsjEthEDKtnEvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cezary Jackiewicz <cezary@eko.one.pl>,
-        Pawel Dembicki <paweldembicki@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 138/155] USB: serial: option: add BroadMobi BM806U
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.5 164/170] ahci: Add Intel Comet Lake H RAID PCI ID
 Date:   Tue, 31 Mar 2020 10:59:38 +0200
-Message-Id: <20200331085433.684543481@linuxfoundation.org>
+Message-Id: <20200331085440.150584808@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Dembicki <paweldembicki@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 6cb2669cb97fc4fdf526127159ac59caae052247 upstream.
+commit 32d2545462c6cede998267b86e57cda5d1dc2225 upstream.
 
-BroadMobi BM806U is an Qualcomm MDM9225 based 3G/4G modem.
-Tested hardware BM806U is mounted on D-Link DWR-921-C3 router.
+Add the PCI ID to the driver list to support this new device.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
-D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2020 ProdID=2033 Rev= 2.28
-S:  Manufacturer=Mobile Connect
-S:  Product=Mobile Connect
-S:  SerialNumber=f842866cfd5a
-C:* #Ifs= 5 Cfg#= 1 Atr=80 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Co-developed-by: Cezary Jackiewicz <cezary@eko.one.pl>
-Signed-off-by: Cezary Jackiewicz <cezary@eko.one.pl>
-Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/ata/ahci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1996,6 +1996,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(1) | RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2031, 0xff),			/* Olicard 600 */
- 	  .driver_info = RSVD(4) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2033, 0xff),			/* BroadMobi BM806U */
-+	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2060, 0xff),			/* BroadMobi BM818 */
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x4000, 0xff) },			/* OLICARD300 - MT6225 */
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -401,6 +401,7 @@ static const struct pci_device_id ahci_p
+ 	{ PCI_VDEVICE(INTEL, 0xa252), board_ahci }, /* Lewisburg RAID*/
+ 	{ PCI_VDEVICE(INTEL, 0xa256), board_ahci }, /* Lewisburg RAID*/
+ 	{ PCI_VDEVICE(INTEL, 0xa356), board_ahci }, /* Cannon Lake PCH-H RAID */
++	{ PCI_VDEVICE(INTEL, 0x06d7), board_ahci }, /* Comet Lake-H RAID */
+ 	{ PCI_VDEVICE(INTEL, 0x0f22), board_ahci_mobile }, /* Bay Trail AHCI */
+ 	{ PCI_VDEVICE(INTEL, 0x0f23), board_ahci_mobile }, /* Bay Trail AHCI */
+ 	{ PCI_VDEVICE(INTEL, 0x22a3), board_ahci_mobile }, /* Cherry Tr. AHCI */
 
 
