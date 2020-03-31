@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C05D199222
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 161D6199129
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:18:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730334AbgCaJBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:01:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40522 "EHLO mail.kernel.org"
+        id S1730666AbgCaJRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:17:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730547AbgCaJBV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:01:21 -0400
+        id S1731905AbgCaJRp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:17:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9648A20787;
-        Tue, 31 Mar 2020 09:01:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29BDA20772;
+        Tue, 31 Mar 2020 09:17:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645281;
-        bh=xvffDx0hCiYBgpQXCUZCW3SlnbePQdBwZt9YeMDHd/U=;
+        s=default; t=1585646264;
+        bh=5w5sevNTNr86mBLCTM0fpE8hoT9scPHTJ9S4JvYEowQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uh14wuXsj2nXglUUwk2YbXzw++gan02Huraru8NNY8YoIbRwc+bLGhDcG0BLA7mEQ
-         8AKNawFOuoSpRnOEz/7aWBZPfwFyFDHE5A9aKHfeLMjP5snq/e9qKZ4nemeQU6If11
-         grLdaU/VO+VBzxD5ANP1qDrqfNioQ3H2BNmmetM4=
+        b=FtR1zbAg+DubYMeRZv6veO4I5IpoP45WHbAyoAfoIvSch3DC6w4fgw5mIKwvIktnU
+         ke7MEdTqIOKgeg6/5eKnNXIxtkU6AAIhZsKDjcT+cUAhOj/CuMrkNHWTRoLdppDhVQ
+         uxtXU5g5CDqP4t1MIEs596Xw2XcmpF42YCSBYdg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.6 20/23] media: dib0700: fix rc endpoint lookup
+        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.4 132/155] ARM: dts: sun8i-a83t-tbs-a711: Fix USB OTG mode detection
 Date:   Tue, 31 Mar 2020 10:59:32 +0200
-Message-Id: <20200331085316.822212190@linuxfoundation.org>
+Message-Id: <20200331085433.075509569@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085308.098696461@linuxfoundation.org>
-References: <20200331085308.098696461@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Ondrej Jirman <megous@megous.com>
 
-commit f52981019ad8d6718de79b425a574c6bddf81f7c upstream.
+commit b642d4825441bf30c72b72deb739bd2d5f53af08 upstream.
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid submitting an URB to an invalid endpoint.
+USB-ID signal has a pullup on the schematic, but in reality it's not
+pulled up, so add a GPIO pullup. And we also need a usb0_vbus_power-supply
+for VBUS detection.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+This fixes OTG mode detection and charging issues on TBS A711 tablet.
+The issues came from ID pin reading 0, causing host mode to be enabled,
+when it should not be, leading to DRVVBUS being enabled, which disabled
+the charger.
 
-Fixes: c4018fa2e4c0 ("[media] dib0700: fix RC support on Hauppauge Nova-TD")
-Cc: stable <stable@vger.kernel.org>     # 3.16
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: f2f221c7810b824e ("ARM: dts: sun8i: a711: Enable USB OTG")
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/dvb-usb/dib0700_core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/media/usb/dvb-usb/dib0700_core.c
-+++ b/drivers/media/usb/dvb-usb/dib0700_core.c
-@@ -818,7 +818,7 @@ int dib0700_rc_setup(struct dvb_usb_devi
+--- a/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts
++++ b/arch/arm/boot/dts/sun8i-a83t-tbs-a711.dts
+@@ -482,7 +482,8 @@
+ };
  
- 	/* Starting in firmware 1.20, the RC info is provided on a bulk pipe */
- 
--	if (intf->altsetting[0].desc.bNumEndpoints < rc_ep + 1)
-+	if (intf->cur_altsetting->desc.bNumEndpoints < rc_ep + 1)
- 		return -ENODEV;
- 
- 	purb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -838,7 +838,7 @@ int dib0700_rc_setup(struct dvb_usb_devi
- 	 * Some devices like the Hauppauge NovaTD model 52009 use an interrupt
- 	 * endpoint, while others use a bulk one.
- 	 */
--	e = &intf->altsetting[0].endpoint[rc_ep].desc;
-+	e = &intf->cur_altsetting->endpoint[rc_ep].desc;
- 	if (usb_endpoint_dir_in(e)) {
- 		if (usb_endpoint_xfer_bulk(e)) {
- 			pipe = usb_rcvbulkpipe(d->udev, rc_ep);
+ &usbphy {
+-	usb0_id_det-gpios = <&pio 7 11 GPIO_ACTIVE_HIGH>; /* PH11 */
++	usb0_id_det-gpios = <&pio 7 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* PH11 */
++	usb0_vbus_power-supply = <&usb_power_supply>;
+ 	usb0_vbus-supply = <&reg_drivevbus>;
+ 	usb1_vbus-supply = <&reg_vmain>;
+ 	usb2_vbus-supply = <&reg_vmain>;
 
 
