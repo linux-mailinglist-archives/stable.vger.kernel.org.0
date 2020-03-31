@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5401B199179
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAAD31991CA
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727655AbgCaJTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:19:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37924 "EHLO mail.kernel.org"
+        id S1731182AbgCaJIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:08:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731927AbgCaJQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:16:58 -0400
+        id S1730956AbgCaJIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:08:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94DDB208E0;
-        Tue, 31 Mar 2020 09:16:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1619208E0;
+        Tue, 31 Mar 2020 09:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646218;
-        bh=obGgSUtZiDNXWWw0omhi8ISrvD7pcYvAEGbVEz9SNiw=;
+        s=default; t=1585645731;
+        bh=e4gP1AzGAjExssar5Y8zyS0WgVBcnkIz92jxOIUyN20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWETTxgBTr7FZTwBkQNtDS8RkaQCa/p3nddIy5s1f6Zk4HZd1T4nqYBnge/s2SBlK
-         fQxaf9Y08q6RteAkzGGWGzlIHTJZYB3NaMGEfP8JSICcsXoCv5tCPKNCVMe0akEPHX
-         Vb3QNgHKDqoXJLetvMDt71SVo+DzXsFKExIojok0=
+        b=vcjhbqs9CLci06eu3pdlDcwA552Qzh+SLUJqpd4NBd76xEVPV0ZrkzKeCcOFTkJcV
+         8RRkxYstgLV5lk35HjWAfOvih+yAN3CssaF0kh5RHz68N/BimCnGmTEuykt1A/r//N
+         iophog/Sy30VFzqg8Q+OAunv9Pi0y8vMDsRBejUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.4 120/155] afs: Fix some tracing details
+        stable@vger.kernel.org, Chih-Wei Huang <cwhuang@android-x86.org>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 146/170] r8169: fix PHY driver check on platforms w/o module softdeps
 Date:   Tue, 31 Mar 2020 10:59:20 +0200
-Message-Id: <20200331085431.875178989@linuxfoundation.org>
+Message-Id: <20200331085438.836502509@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 4636cf184d6d9a92a56c2554681ea520dd4fe49a upstream.
+commit 2e8c339b4946490a922a21aa8cd869c6cfad2023 upstream.
 
-Fix a couple of tracelines to indicate the usage count after the atomic op,
-not the usage count before it to be consistent with other afs and rxrpc
-trace lines.
+On Android/x86 the module loading infrastructure can't deal with
+softdeps. Therefore the check for presence of the Realtek PHY driver
+module fails. mdiobus_register() will try to load the PHY driver
+module, therefore move the check to after this call and explicitly
+check that a dedicated PHY driver is bound to the PHY device.
 
-Change the wording of the afs_call_trace_work trace ID label from "WORK" to
-"QUEUE" to reflect the fact that it's queueing work, not doing work.
-
-Fixes: 341f741f04be ("afs: Refcount the afs_call struct")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: f32593773549 ("r8169: check that Realtek PHY driver module is loaded")
+Reported-by: Chih-Wei Huang <cwhuang@android-x86.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/afs/rxrpc.c             |    4 ++--
- include/trace/events/afs.h |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/realtek/r8169_main.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
---- a/fs/afs/rxrpc.c
-+++ b/fs/afs/rxrpc.c
-@@ -168,7 +168,7 @@ void afs_put_call(struct afs_call *call)
- 	int n = atomic_dec_return(&call->usage);
- 	int o = atomic_read(&net->nr_outstanding_calls);
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -6670,6 +6670,13 @@ static int r8169_mdio_register(struct rt
+ 	if (!tp->phydev) {
+ 		mdiobus_unregister(new_bus);
+ 		return -ENODEV;
++	} else if (!tp->phydev->drv) {
++		/* Most chip versions fail with the genphy driver.
++		 * Therefore ensure that the dedicated PHY driver is loaded.
++		 */
++		dev_err(&pdev->dev, "realtek.ko not loaded, maybe it needs to be added to initramfs?\n");
++		mdiobus_unregister(new_bus);
++		return -EUNATCH;
+ 	}
  
--	trace_afs_call(call, afs_call_trace_put, n + 1, o,
-+	trace_afs_call(call, afs_call_trace_put, n, o,
- 		       __builtin_return_address(0));
+ 	/* PHY will be woken up in rtl_open() */
+@@ -6831,15 +6838,6 @@ static int rtl_init_one(struct pci_dev *
+ 	int chipset, region;
+ 	int jumbo_max, rc;
  
- 	ASSERTCMP(n, >=, 0);
-@@ -704,7 +704,7 @@ static void afs_wake_up_async_call(struc
- 
- 	u = atomic_fetch_add_unless(&call->usage, 1, 0);
- 	if (u != 0) {
--		trace_afs_call(call, afs_call_trace_wake, u,
-+		trace_afs_call(call, afs_call_trace_wake, u + 1,
- 			       atomic_read(&call->net->nr_outstanding_calls),
- 			       __builtin_return_address(0));
- 
---- a/include/trace/events/afs.h
-+++ b/include/trace/events/afs.h
-@@ -233,7 +233,7 @@ enum afs_cb_break_reason {
- 	EM(afs_call_trace_get,			"GET  ") \
- 	EM(afs_call_trace_put,			"PUT  ") \
- 	EM(afs_call_trace_wake,			"WAKE ") \
--	E_(afs_call_trace_work,			"WORK ")
-+	E_(afs_call_trace_work,			"QUEUE")
- 
- #define afs_server_traces \
- 	EM(afs_server_trace_alloc,		"ALLOC    ") \
+-	/* Some tools for creating an initramfs don't consider softdeps, then
+-	 * r8169.ko may be in initramfs, but realtek.ko not. Then the generic
+-	 * PHY driver is used that doesn't work with most chip versions.
+-	 */
+-	if (!driver_find("RTL8201CP Ethernet", &mdio_bus_type)) {
+-		dev_err(&pdev->dev, "realtek.ko not loaded, maybe it needs to be added to initramfs?\n");
+-		return -ENOENT;
+-	}
+-
+ 	dev = devm_alloc_etherdev(&pdev->dev, sizeof (*tp));
+ 	if (!dev)
+ 		return -ENOMEM;
 
 
