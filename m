@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7010E19921E
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E622198F0B
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730466AbgCaJAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:00:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39748 "EHLO mail.kernel.org"
+        id S1729624AbgCaJAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:00:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730031AbgCaJAt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:00:49 -0400
+        id S1729425AbgCaJAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:00:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C99D8214D8;
-        Tue, 31 Mar 2020 09:00:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0FB020787;
+        Tue, 31 Mar 2020 09:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645248;
-        bh=dfqYNWtV6N2QvxTrhWoNvRT2A8B0C2lVe/1IAFnNmJI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=pOkCmZ6wMgVJPwjg/NvOyORhugA4pPcaQkEiACLEi0N8+/lY2uHi7CPjLDaDtW8zh
-         yP4buFMJonydxUO19317n2mwkmgqNK+N4DkBmP+nb36Ym0lmxU1M/hDHAQKuz5UhbX
-         QlrqVpVHDDFpPYYrxKJHDnHZO9YNPshzW7XtQ44c=
+        s=default; t=1585645210;
+        bh=AxIrF3kgK4JwwcHO8jvsQU0hqWp4hCpZXcgVFixo5kg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=0BbejF2+HFM2hh1XXr7WToo8YVpgI+hbpVVxRQaqZPyu9v9ys3M0bF+ce7yRaxThl
+         KSvQqsGpzzYrX1PWOdG40oJwDSYVf0rSZEPLfTZV0td31CBOForfERl441sduQ0c4F
+         ui+Ay0cFJLAAe0ADnrcVwBhm+fP3nmCWg0yzFGU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.6 00/23] 5.6.1-rc1 review
-Date:   Tue, 31 Mar 2020 10:59:12 +0200
-Message-Id: <20200331085308.098696461@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.6 01/23] bpf: Undo incorrect __reg_bound_offset32 handling
+Date:   Tue, 31 Mar 2020 10:59:13 +0200
+Message-Id: <20200331085309.603761475@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-MIME-Version: 1.0
+In-Reply-To: <20200331085308.098696461@linuxfoundation.org>
+References: <20200331085308.098696461@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.6.1-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.6.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.6.1-rc1
-X-KernelTest-Deadline: 2020-04-02T08:53+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,131 +47,276 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.6.1 release.
-There are 23 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-Responses should be made by Thu, 02 Apr 2020 08:50:37 +0000.
-Anything received after that time might be too late.
+commit f2d67fec0b43edce8c416101cdc52e71145b5fef upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.1-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-and the diffstat can be found below.
+Anatoly has been fuzzing with kBdysch harness and reported a hang in
+one of the outcomes:
 
-thanks,
+  0: (b7) r0 = 808464432
+  1: (7f) r0 >>= r0
+  2: (14) w0 -= 808464432
+  3: (07) r0 += 808464432
+  4: (b7) r1 = 808464432
+  5: (de) if w1 s<= w0 goto pc+0
+   R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x30303020;0x10000001f)) R1_w=invP808464432 R10=fp0
+  6: (07) r0 += -2144337872
+  7: (14) w0 -= -1607454672
+  8: (25) if r0 > 0x30303030 goto pc+0
+   R0_w=invP(id=0,umin_value=271581184,umax_value=271581311,var_off=(0x10300000;0x7f)) R1_w=invP808464432 R10=fp0
+  9: (76) if w0 s>= 0x303030 goto pc+2
+  12: (95) exit
 
-greg k-h
+  from 8 to 9: safe
 
--------------
-Pseudo-Shortlog of commits:
+  from 5 to 6: R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x30303020;0x10000001f)) R1_w=invP808464432 R10=fp0
+  6: (07) r0 += -2144337872
+  7: (14) w0 -= -1607454672
+  8: (25) if r0 > 0x30303030 goto pc+0
+   R0_w=invP(id=0,umin_value=271581184,umax_value=271581311,var_off=(0x10300000;0x7f)) R1_w=invP808464432 R10=fp0
+  9: safe
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.6.1-rc1
+  from 8 to 9: safe
+  verification time 589 usec
+  stack depth 0
+  processed 17 insns (limit 1000000) [...]
 
-Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-    media: v4l2-core: fix a use-after-free bug of sd->devnode
+The underlying program was xlated as follows:
 
-Johan Hovold <johan@kernel.org>
-    media: xirlink_cit: add missing descriptor sanity checks
+  # bpftool p d x i 9
+   0: (b7) r0 = 808464432
+   1: (7f) r0 >>= r0
+   2: (14) w0 -= 808464432
+   3: (07) r0 += 808464432
+   4: (b7) r1 = 808464432
+   5: (de) if w1 s<= w0 goto pc+0
+   6: (07) r0 += -2144337872
+   7: (14) w0 -= -1607454672
+   8: (25) if r0 > 0x30303030 goto pc+0
+   9: (76) if w0 s>= 0x303030 goto pc+2
+  10: (05) goto pc-1
+  11: (05) goto pc-1
+  12: (95) exit
 
-Johan Hovold <johan@kernel.org>
-    media: stv06xx: add missing descriptor sanity checks
+The verifier rewrote original instructions it recognized as dead code with
+'goto pc-1', but reality differs from verifier simulation in that we're
+actually able to trigger a hang due to hitting the 'goto pc-1' instructions.
 
-Johan Hovold <johan@kernel.org>
-    media: dib0700: fix rc endpoint lookup
+Taking different examples to make the issue more obvious: in this example
+we're probing bounds on a completely unknown scalar variable in r1:
 
-Johan Hovold <johan@kernel.org>
-    media: ov519: add missing endpoint sanity checks
+  [...]
+  5: R0_w=inv1 R1_w=inv(id=0) R10=fp0
+  5: (18) r2 = 0x4000000000
+  7: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R10=fp0
+  7: (18) r3 = 0x2000000000
+  9: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R3_w=inv137438953472 R10=fp0
+  9: (18) r4 = 0x400
+  11: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R10=fp0
+  11: (18) r5 = 0x200
+  13: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
+  13: (2d) if r1 > r2 goto pc+4
+   R0_w=inv1 R1_w=inv(id=0,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
+  14: R0_w=inv1 R1_w=inv(id=0,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
+  14: (ad) if r1 < r3 goto pc+3
+   R0_w=inv1 R1_w=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
+  15: R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
+  15: (2e) if w1 > w4 goto pc+2
+   R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7f00000000)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
+  16: R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7f00000000)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
+  16: (ae) if w1 < w5 goto pc+1
+   R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7f00000000)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
+  [...]
 
-Eric Biggers <ebiggers@google.com>
-    libfs: fix infoleak in simple_attr_read()
+We're first probing lower/upper bounds via jmp64, later we do a similar
+check via jmp32 and examine the resulting var_off there. After fall-through
+in insn 14, we get the following bounded r1 with 0x7fffffffff unknown marked
+bits in the variable section.
 
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    ahci: Add Intel Comet Lake H RAID PCI ID
+Thus, after knowing r1 <= 0x4000000000 and r1 >= 0x2000000000:
 
-Michał Mirosław <mirq-linux@rere.qmqm.pl>
-    staging: wfx: annotate nested gc_list vs tx queue locking
+  max: 0b100000000000000000000000000000000000000 / 0x4000000000
+  var: 0b111111111111111111111111111111111111111 / 0x7fffffffff
+  min: 0b010000000000000000000000000000000000000 / 0x2000000000
 
-Michał Mirosław <mirq-linux@rere.qmqm.pl>
-    staging: wfx: fix init/remove vs IRQ race
+Now, in insn 15 and 16, we perform a similar probe with lower/upper bounds
+in jmp32.
 
-Michał Mirosław <mirq-linux@rere.qmqm.pl>
-    staging: wfx: add proper "compatible" string
+Thus, after knowing r1 <= 0x4000000000 and r1 >= 0x2000000000 and
+                    w1 <= 0x400        and w1 >= 0x200:
 
-Qiujun Huang <hqjagain@gmail.com>
-    staging: wlan-ng: fix use-after-free Read in hfa384x_usbin_callback
+  max: 0b100000000000000000000000000000000000000 / 0x4000000000
+  var: 0b111111100000000000000000000000000000000 / 0x7f00000000
+  min: 0b010000000000000000000000000000000000000 / 0x2000000000
 
-Qiujun Huang <hqjagain@gmail.com>
-    staging: wlan-ng: fix ODEBUG bug in prism2sta_disconnect_usb
+The lower/upper bounds haven't changed since they have high bits set in
+u64 space and the jmp32 tests can only refine bounds in the low bits.
 
-Larry Finger <Larry.Finger@lwfinger.net>
-    staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
+However, for the var part the expectation would have been 0x7f000007ff
+or something less precise up to 0x7fffffffff. A outcome of 0x7f00000000
+is not correct since it would contradict the earlier probed bounds
+where we know that the result should have been in [0x200,0x400] in u32
+space. Therefore, tests with such info will lead to wrong verifier
+assumptions later on like falsely predicting conditional jumps to be
+always taken, etc.
 
-Dan Carpenter <dan.carpenter@oracle.com>
-    staging: kpc2000: prevent underflow in cpld_reconfigure()
+The issue here is that __reg_bound_offset32()'s implementation from
+commit 581738a681b6 ("bpf: Provide better register bounds after jmp32
+instructions") makes an incorrect range assumption:
 
-Johan Hovold <johan@kernel.org>
-    media: usbtv: fix control-message timeouts
+  static void __reg_bound_offset32(struct bpf_reg_state *reg)
+  {
+        u64 mask = 0xffffFFFF;
+        struct tnum range = tnum_range(reg->umin_value & mask,
+                                       reg->umax_value & mask);
+        struct tnum lo32 = tnum_cast(reg->var_off, 4);
+        struct tnum hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
 
-Johan Hovold <johan@kernel.org>
-    media: flexcop-usb: fix endpoint sanity check
+        reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
+  }
 
-Mans Rullgard <mans@mansr.com>
-    usb: musb: fix crash with highmen PIO and usbmon
+In the above walk-through example, __reg_bound_offset32() as-is chose
+a range after masking with 0xffffffff of [0x0,0x0] since umin:0x2000000000
+and umax:0x4000000000 and therefore the lo32 part was clamped to 0x0 as
+well. However, in the umin:0x2000000000 and umax:0x4000000000 range above
+we'd end up with an actual possible interval of [0x0,0xffffffff] for u32
+space instead.
 
-Qiujun Huang <hqjagain@gmail.com>
-    USB: serial: io_edgeport: fix slab-out-of-bounds read in edge_interrupt_callback
+In case of the original reproducer, the situation looked as follows at
+insn 5 for r0:
 
-Matthias Reichl <hias@horus.com>
-    USB: cdc-acm: restore capability check order
+  [...]
+  5: R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x0; 0x1ffffffff)) R1_w=invP808464432 R10=fp0
+                               0x30303030           0x13030302f
+  5: (de) if w1 s<= w0 goto pc+0
+   R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x30303020; 0x10000001f)) R1_w=invP808464432 R10=fp0
+                             0x30303030           0x13030302f
+  [...]
 
-Pawel Dembicki <paweldembicki@gmail.com>
-    USB: serial: option: add Wistron Neweb D19Q1
+After the fall-through, we similarly forced the var_off result into
+the wrong range [0x30303030,0x3030302f] suggesting later on that fixed
+bits must only be of 0x30303020 with 0x10000001f unknowns whereas such
+assumption can only be made when both bounds in hi32 range match.
 
-Pawel Dembicki <paweldembicki@gmail.com>
-    USB: serial: option: add BroadMobi BM806U
+Originally, I was thinking to fix this by moving reg into a temp reg and
+use proper coerce_reg_to_size() helper on the temp reg where we can then
+based on that define the range tnum for later intersection:
 
-Pawel Dembicki <paweldembicki@gmail.com>
-    USB: serial: option: add support for ASKEY WWHC050
+  static void __reg_bound_offset32(struct bpf_reg_state *reg)
+  {
+        struct bpf_reg_state tmp = *reg;
+        struct tnum lo32, hi32, range;
 
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Undo incorrect __reg_bound_offset32 handling
+        coerce_reg_to_size(&tmp, 4);
+        range = tnum_range(tmp.umin_value, tmp.umax_value);
+        lo32 = tnum_cast(reg->var_off, 4);
+        hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
+        reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
+  }
+
+In the case of the concrete example, this gives us a more conservative unknown
+section. Thus, after knowing r1 <= 0x4000000000 and r1 >= 0x2000000000 and
+                             w1 <= 0x400        and w1 >= 0x200:
+
+  max: 0b100000000000000000000000000000000000000 / 0x4000000000
+  var: 0b111111111111111111111111111111111111111 / 0x7fffffffff
+  min: 0b010000000000000000000000000000000000000 / 0x2000000000
+
+However, above new __reg_bound_offset32() has no effect on refining the
+knowledge of the register contents. Meaning, if the bounds in hi32 range
+mismatch we'll get the identity function given the range reg spans
+[0x0,0xffffffff] and we cast var_off into lo32 only to later on binary
+or it again with the hi32.
+
+Likewise, if the bounds in hi32 range match, then we mask both bounds
+with 0xffffffff, use the resulting umin/umax for the range to later
+intersect the lo32 with it. However, _prior_ called __reg_bound_offset()
+did already such intersection on the full reg and we therefore would only
+repeat the same operation on the lo32 part twice.
+
+Given this has no effect and the original commit had false assumptions,
+this patch reverts the code entirely which is also more straight forward
+for stable trees: apparently 581738a681b6 got auto-selected by Sasha's
+ML system and misclassified as a fix, so it got sucked into v5.4 where
+it should never have landed. A revert is low-risk also from a user PoV
+since it requires a recent kernel and llc to opt-into -mcpu=v3 BPF CPU
+to generate jmp32 instructions. A proper bounds refinement would need a
+significantly more complex approach which is currently being worked, but
+no stable material [0]. Hence revert is best option for stable. After the
+revert, the original reported program gets rejected as follows:
+
+  1: (7f) r0 >>= r0
+  2: (14) w0 -= 808464432
+  3: (07) r0 += 808464432
+  4: (b7) r1 = 808464432
+  5: (de) if w1 s<= w0 goto pc+0
+   R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x0; 0x1ffffffff)) R1_w=invP808464432 R10=fp0
+  6: (07) r0 += -2144337872
+  7: (14) w0 -= -1607454672
+  8: (25) if r0 > 0x30303030 goto pc+0
+   R0_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x3fffffff)) R1_w=invP808464432 R10=fp0
+  9: (76) if w0 s>= 0x303030 goto pc+2
+   R0=invP(id=0,umax_value=3158063,var_off=(0x0; 0x3fffff)) R1=invP808464432 R10=fp0
+  10: (30) r0 = *(u8 *)skb[808464432]
+  BPF_LD_[ABS|IND] uses reserved fields
+  processed 11 insns (limit 1000000) [...]
+
+  [0] https://lore.kernel.org/bpf/158507130343.15666.8018068546764556975.stgit@john-Precision-5820-Tower/T/
+
+Fixes: 581738a681b6 ("bpf: Provide better register bounds after jmp32 instructions")
+Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200330160324.15259-2-daniel@iogearbox.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 
--------------
+---
+ kernel/bpf/verifier.c |   19 -------------------
+ 1 file changed, 19 deletions(-)
 
-Diffstat:
-
- Makefile                                           |  4 +--
- drivers/ata/ahci.c                                 |  1 +
- drivers/media/usb/b2c2/flexcop-usb.c               |  6 ++--
- drivers/media/usb/dvb-usb/dib0700_core.c           |  4 +--
- drivers/media/usb/gspca/ov519.c                    | 10 ++++++
- drivers/media/usb/gspca/stv06xx/stv06xx.c          | 19 +++++++++-
- drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c   |  4 +++
- drivers/media/usb/gspca/xirlink_cit.c              | 18 +++++++++-
- drivers/media/usb/usbtv/usbtv-core.c               |  2 +-
- drivers/media/usb/usbtv/usbtv-video.c              |  5 +--
- drivers/media/v4l2-core/v4l2-device.c              |  1 +
- drivers/staging/kpc2000/kpc2000/core.c             |  4 +--
- drivers/staging/rtl8188eu/os_dep/usb_intf.c        |  1 +
- .../bindings/net/wireless/siliabs,wfx.txt          |  7 ++--
- drivers/staging/wfx/bus_sdio.c                     | 15 ++++----
- drivers/staging/wfx/bus_spi.c                      | 41 +++++++++++++---------
- drivers/staging/wfx/main.c                         | 21 ++++++-----
- drivers/staging/wfx/main.h                         |  1 -
- drivers/staging/wfx/queue.c                        | 16 ++++-----
- drivers/staging/wlan-ng/hfa384x_usb.c              |  2 ++
- drivers/staging/wlan-ng/prism2usb.c                |  1 +
- drivers/usb/class/cdc-acm.c                        | 18 +++++-----
- drivers/usb/musb/musb_host.c                       | 17 +++------
- drivers/usb/serial/io_edgeport.c                   |  2 +-
- drivers/usb/serial/option.c                        |  6 ++++
- fs/libfs.c                                         |  8 +++--
- kernel/bpf/verifier.c                              | 19 ----------
- 27 files changed, 149 insertions(+), 104 deletions(-)
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1034,17 +1034,6 @@ static void __reg_bound_offset(struct bp
+ 						 reg->umax_value));
+ }
+ 
+-static void __reg_bound_offset32(struct bpf_reg_state *reg)
+-{
+-	u64 mask = 0xffffFFFF;
+-	struct tnum range = tnum_range(reg->umin_value & mask,
+-				       reg->umax_value & mask);
+-	struct tnum lo32 = tnum_cast(reg->var_off, 4);
+-	struct tnum hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
+-
+-	reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
+-}
+-
+ /* Reset the min/max bounds of a register */
+ static void __mark_reg_unbounded(struct bpf_reg_state *reg)
+ {
+@@ -5717,10 +5706,6 @@ static void reg_set_min_max(struct bpf_r
+ 	/* We might have learned some bits from the bounds. */
+ 	__reg_bound_offset(false_reg);
+ 	__reg_bound_offset(true_reg);
+-	if (is_jmp32) {
+-		__reg_bound_offset32(false_reg);
+-		__reg_bound_offset32(true_reg);
+-	}
+ 	/* Intersecting with the old var_off might have improved our bounds
+ 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+ 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
+@@ -5830,10 +5815,6 @@ static void reg_set_min_max_inv(struct b
+ 	/* We might have learned some bits from the bounds. */
+ 	__reg_bound_offset(false_reg);
+ 	__reg_bound_offset(true_reg);
+-	if (is_jmp32) {
+-		__reg_bound_offset32(false_reg);
+-		__reg_bound_offset32(true_reg);
+-	}
+ 	/* Intersecting with the old var_off might have improved our bounds
+ 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+ 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
 
 
