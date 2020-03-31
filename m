@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7E619909A
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 109A21991F7
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730508AbgCaJNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:13:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60132 "EHLO mail.kernel.org"
+        id S1730782AbgCaJWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:22:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730502AbgCaJNA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:13:00 -0400
+        id S1731195AbgCaJHH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:07:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65CFA20675;
-        Tue, 31 Mar 2020 09:12:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 665B820B1F;
+        Tue, 31 Mar 2020 09:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645979;
-        bh=Oz0qI06ehZL1R8FnE8z2ekkD37JMOBJNah1EdjcNgbY=;
+        s=default; t=1585645626;
+        bh=a6j/XWE8nTq+3h5O4aoFe2okcRGUNuXiPGmpylvwukc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0xR6xBZslYrRXnLqVuyHyRnkiWUiKOwTuwM6t15xBDGsKd8h0A1WNGQIF5LjCoZ3J
-         OkpQZRcqj2c3ZeKVWmfyqtzeLKn7Xh6F/r8Nh6bCIaOGABzQF8YUfp5n9qj/fqKsEH
-         of4VhtYN/WTbAeQSwmLIn7NAm1Nd9BtmQmS3p/vw=
+        b=IV/Wphggwh2/Xvb7K9oYymIhdblZRrO1uXYdEm7qtHx8ULM12wmaIXi662CofVm/s
+         8hm6zq4ckSSYd1t8neE5wB55CVHFUofNZFvmp9wI8WtfcWRzgHiJIrC0rXIIqkwe1d
+         p1g472+rHPjdoMw2Hk9l5BZKKRaz2/WepGVBuz8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 047/155] hsr: add restart routine into hsr_get_node_list()
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 073/170] iommu/vt-d: Silence RCU-list debugging warnings
 Date:   Tue, 31 Mar 2020 10:58:07 +0200
-Message-Id: <20200331085423.735966261@linuxfoundation.org>
+Message-Id: <20200331085432.115748881@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,99 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit ca19c70f5225771c05bcdcb832b4eb84d7271c5e ]
+[ Upstream commit f5152416528c2295f35dd9c9bd4fb27c4032413d ]
 
-The hsr_get_node_list() is to send node addresses to the userspace.
-If there are so many nodes, it could fail because of buffer size.
-In order to avoid this failure, the restart routine is added.
+Similar to the commit 02d715b4a818 ("iommu/vt-d: Fix RCU list debugging
+warnings"), there are several other places that call
+list_for_each_entry_rcu() outside of an RCU read side critical section
+but with dmar_global_lock held. Silence those false positives as well.
 
-Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ drivers/iommu/intel-iommu.c:4288 RCU-list traversed in non-reader section!!
+ 1 lock held by swapper/0/1:
+  #0: ffffffff935892c8 (dmar_global_lock){+.+.}, at: intel_iommu_init+0x1ad/0xb97
+
+ drivers/iommu/dmar.c:366 RCU-list traversed in non-reader section!!
+ 1 lock held by swapper/0/1:
+  #0: ffffffff935892c8 (dmar_global_lock){+.+.}, at: intel_iommu_init+0x125/0xb97
+
+ drivers/iommu/intel-iommu.c:5057 RCU-list traversed in non-reader section!!
+ 1 lock held by swapper/0/1:
+  #0: ffffffffa71892c8 (dmar_global_lock){++++}, at: intel_iommu_init+0x61a/0xb13
+
+Signed-off-by: Qian Cai <cai@lca.pw>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_netlink.c |   38 ++++++++++++++++++++++++--------------
- 1 file changed, 24 insertions(+), 14 deletions(-)
+ drivers/iommu/dmar.c | 3 ++-
+ include/linux/dmar.h | 6 ++++--
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
---- a/net/hsr/hsr_netlink.c
-+++ b/net/hsr/hsr_netlink.c
-@@ -360,16 +360,14 @@ fail:
-  */
- static int hsr_get_node_list(struct sk_buff *skb_in, struct genl_info *info)
+diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
+index 93f8e646cb0b0..f7a86652a9841 100644
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -371,7 +371,8 @@ dmar_find_dmaru(struct acpi_dmar_hardware_unit *drhd)
  {
--	/* For receiving */
--	struct nlattr *na;
-+	unsigned char addr[ETH_ALEN];
- 	struct net_device *hsr_dev;
--
--	/* For sending */
- 	struct sk_buff *skb_out;
--	void *msg_head;
- 	struct hsr_priv *hsr;
--	void *pos;
--	unsigned char addr[ETH_ALEN];
-+	bool restart = false;
-+	struct nlattr *na;
-+	void *pos = NULL;
-+	void *msg_head;
- 	int res;
+ 	struct dmar_drhd_unit *dmaru;
  
- 	if (!info)
-@@ -387,8 +385,9 @@ static int hsr_get_node_list(struct sk_b
- 	if (!is_hsr_master(hsr_dev))
- 		goto rcu_unlock;
+-	list_for_each_entry_rcu(dmaru, &dmar_drhd_units, list)
++	list_for_each_entry_rcu(dmaru, &dmar_drhd_units, list,
++				dmar_rcu_check())
+ 		if (dmaru->segment == drhd->segment &&
+ 		    dmaru->reg_base_addr == drhd->address)
+ 			return dmaru;
+diff --git a/include/linux/dmar.h b/include/linux/dmar.h
+index 712be8bc6a7c8..d7bf029df737d 100644
+--- a/include/linux/dmar.h
++++ b/include/linux/dmar.h
+@@ -74,11 +74,13 @@ extern struct list_head dmar_drhd_units;
+ 				dmar_rcu_check())
  
-+restart:
- 	/* Send reply */
--	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_ATOMIC);
-+	skb_out = genlmsg_new(GENLMSG_DEFAULT_SIZE, GFP_ATOMIC);
- 	if (!skb_out) {
- 		res = -ENOMEM;
- 		goto fail;
-@@ -402,17 +401,28 @@ static int hsr_get_node_list(struct sk_b
- 		goto nla_put_failure;
- 	}
+ #define for_each_active_drhd_unit(drhd)					\
+-	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)		\
++	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list,		\
++				dmar_rcu_check())			\
+ 		if (drhd->ignored) {} else
  
--	res = nla_put_u32(skb_out, HSR_A_IFINDEX, hsr_dev->ifindex);
--	if (res < 0)
--		goto nla_put_failure;
-+	if (!restart) {
-+		res = nla_put_u32(skb_out, HSR_A_IFINDEX, hsr_dev->ifindex);
-+		if (res < 0)
-+			goto nla_put_failure;
-+	}
+ #define for_each_active_iommu(i, drhd)					\
+-	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list)		\
++	list_for_each_entry_rcu(drhd, &dmar_drhd_units, list,		\
++				dmar_rcu_check())			\
+ 		if (i=drhd->iommu, drhd->ignored) {} else
  
- 	hsr = netdev_priv(hsr_dev);
- 
--	pos = hsr_get_next_node(hsr, NULL, addr);
-+	if (!pos)
-+		pos = hsr_get_next_node(hsr, NULL, addr);
- 	while (pos) {
- 		res = nla_put(skb_out, HSR_A_NODE_ADDR, ETH_ALEN, addr);
--		if (res < 0)
-+		if (res < 0) {
-+			if (res == -EMSGSIZE) {
-+				genlmsg_end(skb_out, msg_head);
-+				genlmsg_unicast(genl_info_net(info), skb_out,
-+						info->snd_portid);
-+				restart = true;
-+				goto restart;
-+			}
- 			goto nla_put_failure;
-+		}
- 		pos = hsr_get_next_node(hsr, pos, addr);
- 	}
- 	rcu_read_unlock();
-@@ -429,7 +439,7 @@ invalid:
- 	return 0;
- 
- nla_put_failure:
--	kfree_skb(skb_out);
-+	nlmsg_free(skb_out);
- 	/* Fall through */
- 
- fail:
+ #define for_each_iommu(i, drhd)						\
+-- 
+2.20.1
+
 
 
