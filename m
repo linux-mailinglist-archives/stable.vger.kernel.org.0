@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE8A19917C
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD9E1991EC
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730778AbgCaJUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:20:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36010 "EHLO mail.kernel.org"
+        id S1730469AbgCaJWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:22:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731917AbgCaJPi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:15:38 -0400
+        id S1730815AbgCaJHc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:07:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6FDA20675;
-        Tue, 31 Mar 2020 09:15:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC0FE20675;
+        Tue, 31 Mar 2020 09:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646137;
-        bh=njbwwtwH2gQSrWyiV6cvvDdtJ368sq8JCDsnpEetON0=;
+        s=default; t=1585645651;
+        bh=WGcRl9tUeiwf5FbfD7zo7anXQ38rjxdvVZUihUxkEjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYUQ6ipTvNqS2nYDgh8MOLK9ytRT+xli6J2IkZ3RZyTAMO44Wew3wzqfudniq9kog
-         xknCE1KUMpH2oMWRok6wKsPlqnCPQwut5flKcWfgFxZ3OqFh+QUyW/pMTU44DzuQ5+
-         eGHVymvV9/ohMmUEuQiTXYXYDnMwU/2qacqTGJQY=
+        b=AiAEzBYSMyN9cmnmw/hD7DZ2BzSNKyQPCmrz/neHmhnG3nMWadOM2dEwbG+yqGSEe
+         wfgEH/WW/9+zQWtCjCpM3GVPxyUSgU3aZbQzm5IATPyB2jZ3eZwfyW/1fXLVho461J
+         xz45KSPnMeVh7kfg2x93iBTSpUaeYaaVCIQQBf/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 094/155] tools: Let O= makes handle a relative path with -C option
-Date:   Tue, 31 Mar 2020 10:58:54 +0200
-Message-Id: <20200331085429.173562151@linuxfoundation.org>
+        stable@vger.kernel.org, Edward Cree <ecree@solarflare.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 5.5 121/170] genirq: Fix reference leaks on irq affinity notifiers
+Date:   Tue, 31 Mar 2020 10:58:55 +0200
+Message-Id: <20200331085436.904980426@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Edward Cree <ecree@solarflare.com>
 
-commit be40920fbf1003c38ccdc02b571e01a75d890c82 upstream.
+commit df81dfcfd6991d547653d46c051bac195cd182c1 upstream.
 
-When I tried to compile tools/perf from the top directory with the -C
-option, the O= option didn't work correctly if I passed a relative path:
+The handling of notify->work did not properly maintain notify->kref in two
+ cases:
+1) where the work was already scheduled, another irq_set_affinity_locked()
+   would get the ref and (no-op-ly) schedule the work.  Thus when
+   irq_affinity_notify() ran, it would drop the original ref but not the
+   additional one.
+2) when cancelling the (old) work in irq_set_affinity_notifier(), if there
+   was outstanding work a ref had been got for it but was never put.
+Fix both by checking the return values of the work handling functions
+ (schedule_work() for (1) and cancel_work_sync() for (2)) and put the
+ extra ref if the return value indicates preexisting work.
 
-  $ make O=BUILD -C tools/perf/
-  make: Entering directory '/home/mhiramat/ksrc/linux/tools/perf'
-    BUILD:   Doing 'make -j8' parallel build
-  ../scripts/Makefile.include:4: *** O=/home/mhiramat/ksrc/linux/tools/perf/BUILD does not exist.  Stop.
-  make: *** [Makefile:70: all] Error 2
-  make: Leaving directory '/home/mhiramat/ksrc/linux/tools/perf'
-
-The O= directory existence check failed because the check script ran in
-the build target directory instead of the directory where I ran the make
-command.
-
-To fix that, once change directory to $(PWD) and check O= directory,
-since the PWD is set to where the make command runs.
-
-Fixes: c883122acc0d ("perf tools: Let O= makes handle relative paths")
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Michal Marek <michal.lkml@markovi.net>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/158351957799.3363.15269768530697526765.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: cd7eab44e994 ("genirq: Add IRQ affinity notifiers")
+Fixes: 59c39840f5ab ("genirq: Prevent use-after-free and work list corruption")
+Signed-off-by: Edward Cree <ecree@solarflare.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Ben Hutchings <ben@decadent.org.uk>
+Link: https://lkml.kernel.org/r/24f5983f-2ab5-e83a-44ee-a45b5f9300f5@solarflare.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/Makefile            |    2 +-
- tools/scripts/Makefile.include |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ kernel/irq/manage.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/tools/perf/Makefile
-+++ b/tools/perf/Makefile
-@@ -35,7 +35,7 @@ endif
- # Only pass canonical directory names as the output directory:
- #
- ifneq ($(O),)
--  FULL_O := $(shell readlink -f $(O) || echo $(O))
-+  FULL_O := $(shell cd $(PWD); readlink -f $(O) || echo $(O))
- endif
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -284,7 +284,11 @@ int irq_set_affinity_locked(struct irq_d
  
- #
---- a/tools/scripts/Makefile.include
-+++ b/tools/scripts/Makefile.include
-@@ -1,8 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0
- ifneq ($(O),)
- ifeq ($(origin O), command line)
--	dummy := $(if $(shell test -d $(O) || echo $(O)),$(error O=$(O) does not exist),)
--	ABSOLUTE_O := $(shell cd $(O) ; pwd)
-+	dummy := $(if $(shell cd $(PWD); test -d $(O) || echo $(O)),$(error O=$(O) does not exist),)
-+	ABSOLUTE_O := $(shell cd $(PWD); cd $(O) ; pwd)
- 	OUTPUT := $(ABSOLUTE_O)/$(if $(subdir),$(subdir)/)
- 	COMMAND_O := O=$(ABSOLUTE_O)
- ifeq ($(objtree),)
+ 	if (desc->affinity_notify) {
+ 		kref_get(&desc->affinity_notify->kref);
+-		schedule_work(&desc->affinity_notify->work);
++		if (!schedule_work(&desc->affinity_notify->work)) {
++			/* Work was already scheduled, drop our extra ref */
++			kref_put(&desc->affinity_notify->kref,
++				 desc->affinity_notify->release);
++		}
+ 	}
+ 	irqd_set(data, IRQD_AFFINITY_SET);
+ 
+@@ -384,7 +388,10 @@ irq_set_affinity_notifier(unsigned int i
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+ 
+ 	if (old_notify) {
+-		cancel_work_sync(&old_notify->work);
++		if (cancel_work_sync(&old_notify->work)) {
++			/* Pending work had a ref, put that one too */
++			kref_put(&old_notify->kref, old_notify->release);
++		}
+ 		kref_put(&old_notify->kref, old_notify->release);
+ 	}
+ 
 
 
