@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B3EB1991BB
+	by mail.lfdr.de (Postfix) with ESMTP id 020DA1991BA
 	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731369AbgCaJJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:09:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53126 "EHLO mail.kernel.org"
+        id S1731482AbgCaJJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:09:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730995AbgCaJJp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:09:45 -0400
+        id S1731524AbgCaJJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:09:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 033502072E;
-        Tue, 31 Mar 2020 09:09:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79A2F208E0;
+        Tue, 31 Mar 2020 09:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645785;
-        bh=h/JNQ+2tDnREXItSe9CGEeJX602SDVdH+hs3zHL9yF4=;
+        s=default; t=1585645787;
+        bh=LTWg13/c2mtDBsqXDHT15ekp/aG+3/g8YDCRwjATuFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZfkjMkCJlYRB4izD3/9hOt+qMHUSTWBwJ7gOT1xphmJHRsq9bE+ynW359p4Rid+F/
-         OBbybvtBbWmtR3ZJl4Uo7mHy8GhSEKxL2lF2i2DzJYFnoYmYJPdtAUjtbZnOTnwEP/
-         HrfJyVI73xPdfmuTbacdVKR2u7lsjEthEDKtnEvg=
+        b=lTmfhBoox1VUESmGPUyUuv1uEH2KfAWLBQVN/+4Km0D0chgR1H9GI/xCRKIYInOzp
+         gEAYVweTUy8E2u9QFqedYC6yQ64HtCLjWet0es/J1z9oJOYceO2N4EG7ZuaMr1YcD+
+         YRbP1RX5Gu6cUXeuk9u4f3Mr23BY51Z2KR+FLtqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.5 164/170] ahci: Add Intel Comet Lake H RAID PCI ID
-Date:   Tue, 31 Mar 2020 10:59:38 +0200
-Message-Id: <20200331085440.150584808@linuxfoundation.org>
+        syzbot+fcab69d1ada3e8d6f06b@syzkaller.appspotmail.com,
+        Alexander Potapenko <glider@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.5 165/170] libfs: fix infoleak in simple_attr_read()
+Date:   Tue, 31 Mar 2020 10:59:39 +0200
+Message-Id: <20200331085440.233768523@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
 References: <20200331085423.990189598@linuxfoundation.org>
@@ -44,30 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 32d2545462c6cede998267b86e57cda5d1dc2225 upstream.
+commit a65cab7d7f05c2061a3e2490257d3086ff3202c6 upstream.
 
-Add the PCI ID to the driver list to support this new device.
+Reading from a debugfs file at a nonzero position, without first reading
+at position 0, leaks uninitialized memory to userspace.
 
+It's a bit tricky to do this, since lseek() and pread() aren't allowed
+on these files, and write() doesn't update the position on them.  But
+writing to them with splice() *does* update the position:
+
+	#define _GNU_SOURCE 1
+	#include <fcntl.h>
+	#include <stdio.h>
+	#include <unistd.h>
+	int main()
+	{
+		int pipes[2], fd, n, i;
+		char buf[32];
+
+		pipe(pipes);
+		write(pipes[1], "0", 1);
+		fd = open("/sys/kernel/debug/fault_around_bytes", O_RDWR);
+		splice(pipes[0], NULL, fd, NULL, 1, 0);
+		n = read(fd, buf, sizeof(buf));
+		for (i = 0; i < n; i++)
+			printf("%02x", buf[i]);
+		printf("\n");
+	}
+
+Output:
+	5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a30
+
+Fix the infoleak by making simple_attr_read() always fill
+simple_attr::get_buf if it hasn't been filled yet.
+
+Reported-by: syzbot+fcab69d1ada3e8d6f06b@syzkaller.appspotmail.com
+Reported-by: Alexander Potapenko <glider@google.com>
+Fixes: acaefc25d21f ("[PATCH] libfs: add simple attribute files")
 Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20200308023849.988264-1-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ata/ahci.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/libfs.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -401,6 +401,7 @@ static const struct pci_device_id ahci_p
- 	{ PCI_VDEVICE(INTEL, 0xa252), board_ahci }, /* Lewisburg RAID*/
- 	{ PCI_VDEVICE(INTEL, 0xa256), board_ahci }, /* Lewisburg RAID*/
- 	{ PCI_VDEVICE(INTEL, 0xa356), board_ahci }, /* Cannon Lake PCH-H RAID */
-+	{ PCI_VDEVICE(INTEL, 0x06d7), board_ahci }, /* Comet Lake-H RAID */
- 	{ PCI_VDEVICE(INTEL, 0x0f22), board_ahci_mobile }, /* Bay Trail AHCI */
- 	{ PCI_VDEVICE(INTEL, 0x0f23), board_ahci_mobile }, /* Bay Trail AHCI */
- 	{ PCI_VDEVICE(INTEL, 0x22a3), board_ahci_mobile }, /* Cherry Tr. AHCI */
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -821,7 +821,7 @@ int simple_attr_open(struct inode *inode
+ {
+ 	struct simple_attr *attr;
+ 
+-	attr = kmalloc(sizeof(*attr), GFP_KERNEL);
++	attr = kzalloc(sizeof(*attr), GFP_KERNEL);
+ 	if (!attr)
+ 		return -ENOMEM;
+ 
+@@ -861,9 +861,11 @@ ssize_t simple_attr_read(struct file *fi
+ 	if (ret)
+ 		return ret;
+ 
+-	if (*ppos) {		/* continued read */
++	if (*ppos && attr->get_buf[0]) {
++		/* continued read */
+ 		size = strlen(attr->get_buf);
+-	} else {		/* first read */
++	} else {
++		/* first read */
+ 		u64 val;
+ 		ret = attr->get(attr->data, &val);
+ 		if (ret)
 
 
