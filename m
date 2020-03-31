@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04D0119971C
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 15:11:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFA8C19970B
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 15:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730892AbgCaNLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 09:11:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39794 "EHLO mail.kernel.org"
+        id S1730913AbgCaNLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 09:11:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730890AbgCaNLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 09:11:22 -0400
+        id S1730905AbgCaNLY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 09:11:24 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7C2F2137B;
-        Tue, 31 Mar 2020 13:11:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CF8720786;
+        Tue, 31 Mar 2020 13:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585660282;
-        bh=OhFU4+o8C7hCBJA9nbYTcOIT+h9v/7RYJl9h1vT7/w4=;
-        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=IlyMNwAH48OmXLiYebt68G6rl07+Xwvs++/KHkLUtDYs5reZ4tu4yzmRuwcTnPpl7
-         r7ca9fmSunaDqB7qKWJIniHYZPhuujSvHDwa/1oeGuUpiR4otlzGt6aZONyVskhmWB
-         ang/UVbt9fplbzTEeK/OdkcaFusA75kv07a5b/RM=
-Date:   Tue, 31 Mar 2020 13:11:21 +0000
+        s=default; t=1585660283;
+        bh=1xtFAKXGm+X1qtcHwxiBg5ZrZy/4PYKqBeAGcz/qET8=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=tXt4LeGnhP9krLmXqluqzBjodEfN0liFBtRkGaWgfGtdS6tS00UKfambIvVTpYSOl
+         gnvaWY65JfvQyzfwLxheA5TPNtdFYVBxiwFCGMcmaXAdqEHu7qcZBv4n3Csnu8QGd4
+         XkhOKUzJvsOln2QhyzBgwdHipWaG+LuRUlaQx/qE=
+Date:   Tue, 31 Mar 2020 13:11:22 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Imre Deak <imre.deak@intel.com>
-To:     intel-gfx@lists.freedesktop.org
+To:     Kazuhiro Fujita <kazuhiro.fujita.jg@renesas.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-serial@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915/icl+: Don't enable DDI IO power on a TypeC port in TBT mode
-In-Reply-To: <20200330152244.11316-1-imre.deak@intel.com>
-References: <20200330152244.11316-1-imre.deak@intel.com>
-Message-Id: <20200331131121.E7C2F2137B@mail.kernel.org>
+Subject: Re: [PATCH] serial: sh-sci: Make sure status register SCxSR is read in correct sequence
+In-Reply-To: <1585333048-31828-1-git-send-email-kazuhiro.fujita.jg@renesas.com>
+References: <1585333048-31828-1-git-send-email-kazuhiro.fujita.jg@renesas.com>
+Message-Id: <20200331131123.2CF8720786@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,30 +45,19 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: 5.4+
+The stable tag indicates that it's relevant for the following trees: all
 
-The bot has tested the following trees: v5.5.13, v5.4.28.
+The bot has tested the following trees: v5.5.13, v5.4.28, v4.19.113, v4.14.174, v4.9.217, v4.4.217.
 
-v5.5.13: Failed to apply! Possible dependencies:
-    1326a92c3466 ("drm/i915: Perform automated conversions for crtc uapi/hw split, base -> hw.")
-    2225f3c6f1d7 ("drm/i915: Perform automated conversions for crtc uapi/hw split, base -> uapi.")
-    2b808b3a27d1 ("drm/i915: Add aliases for uapi and hw to crtc_state")
-    54ed6902cabc ("drm/i915/dsi: abstract afe_clk calculation")
-    b7d02c3a124d ("drm/i915: Pass intel_encoder to enc_to_*()")
+v5.5.13: Build OK!
+v5.4.28: Build OK!
+v4.19.113: Build OK!
+v4.14.174: Build OK!
+v4.9.217: Failed to apply! Possible dependencies:
+    Unable to calculate
 
-v5.4.28: Failed to apply! Possible dependencies:
-    0456417ef680 ("drm: Add for_each_oldnew_intel_crtc_in_state_reverse()")
-    131d3b1af105 ("drm/i915: Stop using drm_atomic_helper_check_planes()")
-    2225f3c6f1d7 ("drm/i915: Perform automated conversions for crtc uapi/hw split, base -> uapi.")
-    2b808b3a27d1 ("drm/i915: Add aliases for uapi and hw to crtc_state")
-    2e7f76c1e4b6 ("drm/i915: s/pipe_config/crtc_state/ in intel_crtc_atomic_check()")
-    3e30d70805d5 ("drm/i915: Make .modeset_calc_cdclk() mandatory")
-    54ed6902cabc ("drm/i915/dsi: abstract afe_clk calculation")
-    af9fbfa657c8 ("drm/i915: Introduce and use intel_atomic_crtc_state_for_each_plane_state.")
-    b7d02c3a124d ("drm/i915: Pass intel_encoder to enc_to_*()")
-    bb6ae9e653dc ("drm/i915: Allow planes to declare their minimum acceptable cdclk")
-    d06a79d33e0f ("drm/i915: Use enum pipe instead of crtc index to track active pipes")
-    fe4709a8d033 ("drm/i915: Extract intel_modeset_calc_cdclk()")
+v4.4.217: Failed to apply! Possible dependencies:
+    Unable to calculate
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
