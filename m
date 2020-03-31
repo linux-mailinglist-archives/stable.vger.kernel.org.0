@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2B3E198FAB
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:05:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B51019908A
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730723AbgCaJEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:04:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45030 "EHLO mail.kernel.org"
+        id S1731669AbgCaJMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:12:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730965AbgCaJEa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:04:30 -0400
+        id S1731743AbgCaJMN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:12:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C67EB20675;
-        Tue, 31 Mar 2020 09:04:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EEAA20675;
+        Tue, 31 Mar 2020 09:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645470;
-        bh=8eomCZrlpS/TCs3dRXpFrmJQOARXZnLrGcwtpcnyBwg=;
+        s=default; t=1585645932;
+        bh=Nbdn0VnjUKHM3PD1djuyTMlXEK3OXqVI5YgI5qyri6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SubkYtWUuVg/ndKFzhUi/iUQb3CyjMIby45qow77tLoqatZpgYFvRf0OCoVmc+gQC
-         BjyZbuUW9WbXQOtOW+ChvL42y3YMGCWpT1ZQeTJBrTU0PSV+Rxz/+ytBWVchP9FTid
-         4kOOtNfTO1AoCx3b376zvIAYO2yO0RDwne8rFNg0=
+        b=YGyBbJGuFGYIbmjkcAK43gAThoDCKc9ze994JCljfIIaheSLrs0W9br9OAdAOiI5D
+         y3iUwg554nAVOn50hzcJCwBsyP6kqpFTP6TCjNoG6hQuv4WMHMVJIPsia1kgBrFYLi
+         FashgeSbptZYcEsEi28CgsdhysEcnxvmY43JzaR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Hense <sebastian.hense1@ibm.com>,
-        Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 063/170] net/mlx5e: Fix endianness handling in pedit mask
+Subject: [PATCH 5.4 037/155] tcp: repair: fix TCP_QUEUE_SEQ implementation
 Date:   Tue, 31 Mar 2020 10:57:57 +0200
-Message-Id: <20200331085431.190535282@linuxfoundation.org>
+Message-Id: <20200331085422.558902141@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Hense <sebastian.hense1@ibm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 404402abd5f90aa90a134eb9604b1750c1941529 ]
+[ Upstream commit 6cd6cbf593bfa3ae6fc3ed34ac21da4d35045425 ]
 
-The mask value is provided as 64 bit and has to be casted in
-either 32 or 16 bit. On big endian systems the wrong half was
-casted which resulted in an all zero mask.
+When application uses TCP_QUEUE_SEQ socket option to
+change tp->rcv_next, we must also update tp->copied_seq.
 
-Fixes: 2b64beba0251 ("net/mlx5e: Support header re-write of partial fields in TC pedit offload")
-Signed-off-by: Sebastian Hense <sebastian.hense1@ibm.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Otherwise, stuff relying on tcp_inq() being precise can
+eventually be confused.
+
+For example, tcp_zerocopy_receive() might crash because
+it does not expect tcp_recv_skb() to return NULL.
+
+We could add tests in various places to fix the issue,
+or simply make sure tcp_inq() wont return a random value,
+and leave fast path as it is.
+
+Note that this fixes ioctl(fd, SIOCINQ, &val) at the same
+time.
+
+Fixes: ee9952831cfd ("tcp: Initial repair mode")
+Fixes: 05255b823a61 ("tcp: add TCP_ZEROCOPY_RECEIVE support for zerocopy receive")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/ipv4/tcp.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -2432,10 +2432,11 @@ static int offload_pedit_fields(struct p
- 			continue;
- 
- 		if (f->field_bsize == 32) {
--			mask_be32 = *(__be32 *)&mask;
-+			mask_be32 = (__be32)mask;
- 			mask = (__force unsigned long)cpu_to_le32(be32_to_cpu(mask_be32));
- 		} else if (f->field_bsize == 16) {
--			mask_be16 = *(__be16 *)&mask;
-+			mask_be32 = (__be32)mask;
-+			mask_be16 = *(__be16 *)&mask_be32;
- 			mask = (__force unsigned long)cpu_to_le16(be16_to_cpu(mask_be16));
- 		}
- 
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2943,8 +2943,10 @@ static int do_tcp_setsockopt(struct sock
+ 			err = -EPERM;
+ 		else if (tp->repair_queue == TCP_SEND_QUEUE)
+ 			WRITE_ONCE(tp->write_seq, val);
+-		else if (tp->repair_queue == TCP_RECV_QUEUE)
++		else if (tp->repair_queue == TCP_RECV_QUEUE) {
+ 			WRITE_ONCE(tp->rcv_nxt, val);
++			WRITE_ONCE(tp->copied_seq, val);
++		}
+ 		else
+ 			err = -EINVAL;
+ 		break;
 
 
