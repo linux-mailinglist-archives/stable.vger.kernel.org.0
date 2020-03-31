@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AA24199202
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:23:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D623D199089
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730940AbgCaJE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44752 "EHLO mail.kernel.org"
+        id S1731556AbgCaJML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:12:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730662AbgCaJE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:04:27 -0400
+        id S1731532AbgCaJMK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:12:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16CAF208E0;
-        Tue, 31 Mar 2020 09:04:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFEF320772;
+        Tue, 31 Mar 2020 09:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645466;
-        bh=av6Q11LrCmng11HhAnFQiGI6yq6s3dI1mlFBfB9NFtM=;
+        s=default; t=1585645930;
+        bh=WEq957zAfjyZHs7RPLZbxFpac6ucSHDGcB02beUwI1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sptUVzw01LYuca/eFpwuMVbR3Hdad3eUc5UzuzrGayX7uR0Ekk8orxxe86jmbE9Zs
-         F3F5C0SHzojmJFp/5ElhZbXx1Ok/ZXVGXVjzeiYkSoEo4Dfzx1AT1i4AfHaqNfgnV1
-         g9nqVZq3vsIuxOSvIJcuDxH2R0wlhUZjbOxjIg2Q=
+        b=We9akCHw6bBN5mrCwKppS28p1+4cqIEmDTqgeeYWOx27KIXK+XqY+OocWxXUxItlW
+         zcntXz/6c4n4y7dz8Cjwngop/Bl56vn1GlClPC5WZFzdLzeTF6+AdODO8AKLmvcU8J
+         kxScNZET6qzNgouJOS2kilwE9QZ8b34ip/L88Z2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tariq Toukan <tariqt@mellanox.com>,
-        Boris Pismenny <borisp@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Martin Zaharinov <micron10@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 062/170] net/mlx5e: kTLS, Fix TCP seq off-by-1 issue in TX resync flow
+Subject: [PATCH 5.4 036/155] tcp: ensure skb->dev is NULL before leaving TCP stack
 Date:   Tue, 31 Mar 2020 10:57:56 +0200
-Message-Id: <20200331085431.087051249@linuxfoundation.org>
+Message-Id: <20200331085422.435199048@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 56917766def72f5afdf4235adb91b6897ff26d9d ]
+[ Upstream commit b738a185beaab8728943acdb3e67371b8a88185e ]
 
-We have an off-by-1 issue in the TCP seq comparison.
-The last sequence number that belongs to the TCP packet's payload
-is not "start_seq + len", but one byte before it.
-Fix it so the 'ends_before' is evaluated properly.
+skb->rbnode is sharing three skb fields : next, prev, dev
 
-This fixes a bug that results in error completions in the
-kTLS HW offload flows.
+When a packet is sent, TCP keeps the original skb (master)
+in a rtx queue, which was converted to rbtree a while back.
 
-Fixes: ffbd9ca94e2e ("net/mlx5e: kTLS, Fix corner-case checks in TX resync flow")
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Reviewed-by: Boris Pismenny <borisp@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+__tcp_transmit_skb() is responsible to clone the master skb,
+and add the TCP header to the clone before sending it
+to network layer.
+
+skb_clone() already clears skb->next and skb->prev, but copies
+the master oskb->dev into the clone.
+
+We need to clear skb->dev, otherwise lower layers could interpret
+the value as a pointer to a netdev.
+
+This old bug surfaced recently when commit 28f8bfd1ac94
+("netfilter: Support iif matches in POSTROUTING") was merged.
+
+Before this netfilter commit, skb->dev value was ignored and
+changed before reaching dev_queue_xmit()
+
+Fixes: 75c119afe14f ("tcp: implement rb-tree based retransmit queue")
+Fixes: 28f8bfd1ac94 ("netfilter: Support iif matches in POSTROUTING")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Martin Zaharinov <micron10@gmail.com>
+Cc: Florian Westphal <fw@strlen.de>
+Cc: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_output.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c
-@@ -218,7 +218,7 @@ tx_sync_info_get(struct mlx5e_ktls_offlo
- 	 *    this packet was already acknowledged and its record info
- 	 *    was released.
- 	 */
--	ends_before = before(tcp_seq + datalen, tls_record_start_seq(record));
-+	ends_before = before(tcp_seq + datalen - 1, tls_record_start_seq(record));
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -1048,6 +1048,10 @@ static int __tcp_transmit_skb(struct soc
  
- 	if (unlikely(tls_record_is_start_marker(record))) {
- 		ret = ends_before ? MLX5E_KTLS_SYNC_SKIP_NO_DATA : MLX5E_KTLS_SYNC_FAIL;
+ 		if (unlikely(!skb))
+ 			return -ENOBUFS;
++		/* retransmit skbs might have a non zero value in skb->dev
++		 * because skb->dev is aliased with skb->rbnode.rb_left
++		 */
++		skb->dev = NULL;
+ 	}
+ 
+ 	inet = inet_sk(sk);
 
 
