@@ -2,89 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFCB1996B5
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 14:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1946C1996C5
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 14:47:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730646AbgCaMmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 08:42:11 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:64603 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730436AbgCaMmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 08:42:11 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20751955-1500050 
-        for multiple; Tue, 31 Mar 2020 13:42:03 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Imre Deak <imre.deak@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>, stable@vger.kernel.org
-Subject: [PATCH] drm/i915/gt: Fill all the unused space in the GGTT
-Date:   Tue, 31 Mar 2020 13:42:02 +0100
-Message-Id: <20200331124202.4497-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1730758AbgCaMrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 08:47:42 -0400
+Received: from mail-qt1-f196.google.com ([209.85.160.196]:38511 "EHLO
+        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730671AbgCaMrm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 08:47:42 -0400
+Received: by mail-qt1-f196.google.com with SMTP id z12so18130796qtq.5
+        for <stable@vger.kernel.org>; Tue, 31 Mar 2020 05:47:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=9E/JK7BFrM9TzhoY2e9UUzH8ocMxfAHE2YSIZoHPHkw=;
+        b=N2jKoO7oXVrCu8oXGW3fMFweSttituFTp3hmDrzeEGCPcMXUhpJb91cYTuCCKMGM8G
+         2Mf5BVy6Feadfnzge5aG0vfc6YMKIKHb2wtHmt6uImCLD0NMa1eT08rKaR9DO26C04HI
+         cYRFJqdnkdtlcAiCLqfYvLmDUEu8GC+xOdgBBW0tsTg3UuJ0t7Fx/lk02gVylS8NUUyW
+         JD2FRCgRixTjfckMQjjG0JR6C3NTlmhjWEW8WHdOmbQ9jTqS92go1pBX/axP3qEbxWAL
+         5tvNALZwmyoFhSj+lrutd2MngVdAeNKn3hJMLrWB4z06Ik2YkUJkgB/chsiwCqjTrbvK
+         sxrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=9E/JK7BFrM9TzhoY2e9UUzH8ocMxfAHE2YSIZoHPHkw=;
+        b=PN98LlRo5O9BtqLM2TPjC341FS/5NFOBVsK9CZQQbHatisrk949pL7BLNoc53wzBA1
+         BFgSa5W+abAVKNldiXFA1h5XOEeyUF8A393L/Yg/910c6XKTEd/f6Fyc+faQ5hYyiJIc
+         +8/ZBpG7gqVUBx8mTNo7A96jkC/vVKR50Dr6t8xEqoLOomWvmgacr7RE3lqLXrfTf9uK
+         2yBY921h5GxLRH3HjU2HLtaN4xIJgdegHm2wHdOMKEjaFNa7CepuuCiy/b7zUIRUFE55
+         bW5ReZ2BTvWeBXF4MklTWRU9geTxdhVzpZHK0NMNHFAodMqK1wws7n+5sVaPu3j+3uD4
+         I81g==
+X-Gm-Message-State: ANhLgQ3O6OUseXAXeopkl1wvIo+qzduqKuMUqgBzsUVsJisJ8JWAxoL2
+        7ObA5fY8hy2+8kmxFfSnVOwPwJj3boR1n9exj3w=
+X-Google-Smtp-Source: ADFU+vtPA23CJyuGmAf1eUxth8V9Dl32kVSm+FBrptnV7vwe0c5YE0bX8J/AoPq1TvW+zT21iVjejBLB3fYWdPRcR60=
+X-Received: by 2002:aed:3c10:: with SMTP id t16mr4777527qte.45.1585658861108;
+ Tue, 31 Mar 2020 05:47:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:ac8:1736:0:0:0:0:0 with HTTP; Tue, 31 Mar 2020 05:47:40
+ -0700 (PDT)
+Reply-To: lawsonamegan343@gmail.com
+From:   "Mr. Lawson Amegan." <latifat.abdallah45@gmail.com>
+Date:   Tue, 31 Mar 2020 14:47:40 +0200
+Message-ID: <CAB711FkE-ZsLxOasAo8TC0-RaS1Ej-bTkPG6g1x_XX5k6KL-Sg@mail.gmail.com>
+Subject: Good Morning.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When we allocate space in the GGTT we may have to allocate a larger
-region than will be populated by the object to accommodate fencing. Make
-sure that this space beyond the end of the buffer points safely into
-scratch space, in case the HW tries to access it anyway (e.g. fenced
-access to the last tile row).
+Good Morning.
 
-Reported-by: Imre Deak <imre.deak@intel.com>
-References: https://gitlab.freedesktop.org/drm/intel/-/issues/1554
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Matthew Auld <matthew.auld@intel.com>
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: stable@vger.kernel.org
----
- drivers/gpu/drm/i915/gt/intel_ggtt.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+I am Mr. Lawson Amegan, a UK citizen lived in Syrian Aleppo, I humbly
+want to Invest in your country with your help. Please contact me for
+more information.
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt.c b/drivers/gpu/drm/i915/gt/intel_ggtt.c
-index d8944dabed55..ad56059651b8 100644
---- a/drivers/gpu/drm/i915/gt/intel_ggtt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ggtt.c
-@@ -191,10 +191,11 @@ static void gen8_ggtt_insert_entries(struct i915_address_space *vm,
- 				     enum i915_cache_level level,
- 				     u32 flags)
- {
-+	const gen8_pte_t pte_encode = gen8_ggtt_pte_encode(0, level, 0);
- 	struct i915_ggtt *ggtt = i915_vm_to_ggtt(vm);
- 	struct sgt_iter sgt_iter;
--	gen8_pte_t __iomem *gtt_entries;
--	const gen8_pte_t pte_encode = gen8_ggtt_pte_encode(0, level, 0);
-+	gen8_pte_t __iomem *gte;
-+	gen8_pte_t __iomem *end;
- 	dma_addr_t addr;
- 
- 	/*
-@@ -202,10 +203,16 @@ static void gen8_ggtt_insert_entries(struct i915_address_space *vm,
- 	 * not to allow the user to override access to a read only page.
- 	 */
- 
--	gtt_entries = (gen8_pte_t __iomem *)ggtt->gsm;
--	gtt_entries += vma->node.start / I915_GTT_PAGE_SIZE;
-+	gte = (gen8_pte_t __iomem *)ggtt->gsm;
-+	gte += vma->node.start / I915_GTT_PAGE_SIZE;
-+	end = gte + vma->node.size / I915_GTT_PAGE_SIZE;
- 	for_each_sgt_daddr(addr, sgt_iter, vma->pages)
--		gen8_set_pte(gtt_entries++, pte_encode | addr);
-+		gen8_set_pte(gte++, pte_encode | addr);
-+	GEM_BUG_ON(gte > end);
-+
-+	/* Fill the allocated but "unused" space beyond the end of the buffer */
-+	while (gte < end)
-+		gen8_set_pte(gte++, vm->scratch[0].encode);
- 
- 	/*
- 	 * We want to flush the TLBs only after we're certain all the PTE
--- 
-2.20.1
-
+Best Regards,
+Lawson Amegan.
