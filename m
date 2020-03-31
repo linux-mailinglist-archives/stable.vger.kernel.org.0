@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D156199123
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:18:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A76281991B2
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731819AbgCaJRb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:17:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38620 "EHLO mail.kernel.org"
+        id S1731169AbgCaJKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732062AbgCaJRa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:17:30 -0400
+        id S1731147AbgCaJKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:10:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C0FF20772;
-        Tue, 31 Mar 2020 09:17:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A34A2072E;
+        Tue, 31 Mar 2020 09:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646249;
-        bh=kdFz8qo7QSZ0eaaRBaUvwnOGED9tNdNhPXMmLES0Pvo=;
+        s=default; t=1585645812;
+        bh=rAT7k9QfL/uRKMskwddcHA1BKZ5ENz8y42pgaEwLH+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZns82jaKTT6uRbrrxF1MbS0xShy4nJTw4QyaEYzB9Kti2+eQptR1siyawKyMn8U9
-         y3BO1GPGRmG+LGpklTcLcOiP05uuErUkgl+DTIC8zUDOrAUf7rMdwWWWK+N7Ew4riM
-         EyluqiL11fbEZV7oWitr2A4kHHcWAYn+AdV8BhUQ=
+        b=Z09UONIayBqSaGIQp91fFrgOridDgs+gBP12ULhbczpzOXhId9dKt7KXJ7e7tz2ko
+         3oyS466P7VqXk0Zyn+Rdh8xsGqCmVj5uqdQO720zdTezbqUWEfgvS3bxlVyB6WEjjU
+         5KuXy7SAqjsnuhxrP0WeRzpOgQpqyfdTEFL/XCVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshiki Komachi <komachi.yoshiki@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.4 130/155] bpf/btf: Fix BTF verification of enum members in struct/union
-Date:   Tue, 31 Mar 2020 10:59:30 +0200
-Message-Id: <20200331085432.883481541@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.5 157/170] staging: kpc2000: prevent underflow in cpld_reconfigure()
+Date:   Tue, 31 Mar 2020 10:59:31 +0200
+Message-Id: <20200331085439.631756439@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshiki Komachi <komachi.yoshiki@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit da6c7faeb103c493e505e87643272f70be586635 upstream.
+commit 72db61d7d17a475d3cc9de1a7c871d518fcd82f0 upstream.
 
-btf_enum_check_member() was currently sure to recognize the size of
-"enum" type members in struct/union as the size of "int" even if
-its size was packed.
+This function should not allow negative values of "wr_val".  If
+negatives are allowed then capping the upper bound at 7 is
+meaningless.  Let's make it unsigned.
 
-This patch fixes BTF enum verification to use the correct size
-of member in BPF programs.
-
-Fixes: 179cde8cef7e ("bpf: btf: Check members of struct/union")
-Signed-off-by: Yoshiki Komachi <komachi.yoshiki@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/1583825550-18606-2-git-send-email-komachi.yoshiki@gmail.com
+Fixes: 7dc7967fc39a ("staging: kpc2000: add initial set of Daktronics drivers")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200224103325.hrxdnaeqsthplu42@kili.mountain
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/btf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/kpc2000/kpc2000/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -2309,7 +2309,7 @@ static int btf_enum_check_member(struct
+--- a/drivers/staging/kpc2000/kpc2000/core.c
++++ b/drivers/staging/kpc2000/kpc2000/core.c
+@@ -110,10 +110,10 @@ static ssize_t cpld_reconfigure(struct d
+ 				const char *buf, size_t count)
+ {
+ 	struct kp2000_device *pcard = dev_get_drvdata(dev);
+-	long wr_val;
++	unsigned long wr_val;
+ 	int rv;
  
- 	struct_size = struct_type->size;
- 	bytes_offset = BITS_ROUNDDOWN_BYTES(struct_bits_off);
--	if (struct_size - bytes_offset < sizeof(int)) {
-+	if (struct_size - bytes_offset < member_type->size) {
- 		btf_verifier_log_member(env, struct_type, member,
- 					"Member exceeds struct_size");
- 		return -EINVAL;
+-	rv = kstrtol(buf, 0, &wr_val);
++	rv = kstrtoul(buf, 0, &wr_val);
+ 	if (rv < 0)
+ 		return rv;
+ 	if (wr_val > 7)
 
 
