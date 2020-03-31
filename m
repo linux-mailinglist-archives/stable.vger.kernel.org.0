@@ -2,91 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DBB7198C19
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 08:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BAD6198C31
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 08:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726327AbgCaGKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 02:10:07 -0400
-Received: from mail-pj1-f65.google.com ([209.85.216.65]:39080 "EHLO
-        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726299AbgCaGKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 02:10:07 -0400
-Received: by mail-pj1-f65.google.com with SMTP id z3so625213pjr.4
-        for <stable@vger.kernel.org>; Mon, 30 Mar 2020 23:10:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=7gDKMMIuCNqmz3/gFIq4MvPM1PkZWROW621H1HN1ayU=;
-        b=YdSZ586ZUgz6lb4fgc0t9r8Jxl0i7MDKTTdEubCA94y0Y/lSiz3Igp2J+b73rVmKAp
-         WU5NfS0PX4wBSXBJk49GmGvWvyzeX1+2oXcj601lkxqxAwSLXZwc2ZxYvg9rLZEqFt68
-         c6ZAA6t2W27i28NDM7MwgTJV8E87k8vbH7JbSxgcD0R0DmvdjAV/f+dkkreNKkKNCUDO
-         agfbOP28/ysqeYtE1zEppqKFhKQwjriGlxxqHONzXUmYrMliTMvw37yy5GCh080ZWeIz
-         WJbPZCgAmk0nHSI1jC8MXbU6ycoq8bTgV9T5+NOjOxokdpHmI7rfnPISmJXhrxB2XAsH
-         AVjQ==
+        id S1726488AbgCaGTl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 02:19:41 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:34075 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726060AbgCaGTl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 02:19:41 -0400
+Received: by mail-ot1-f68.google.com with SMTP id m2so6176307otr.1;
+        Mon, 30 Mar 2020 23:19:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=7gDKMMIuCNqmz3/gFIq4MvPM1PkZWROW621H1HN1ayU=;
-        b=kM3AelIbaQHAlz5mfoN5MuAWoS2ChhMtMDOZjE5af4WVftb05RkRhq1133Bzh3llje
-         EZGbjX/4kWnEhdfKR9gyGBFhH8xb2am14qfA9nltXOa5zhRY6e++kOWgtcho1YN0h2Uo
-         YyAHAfA/E/2/rLyQJMKA0SPouh9ctWXoGYL7XcQe1CfWdp6N0asypNy8y21SW9c8J2Ch
-         1Htu0CrJRagtdEYL7+k1kHHay850Bw86yzdfKQFW+Bv6GQO4Fvx+zI57yY5B2qy18Fxi
-         QPQYPyvhYgzNWzvSIQIAqlXggGHd7S48mcZRFdd9nnHbIe7NctUGE+QIeo2EchxeLijN
-         KijQ==
-X-Gm-Message-State: AGi0PubsrP/u7A8KprsqRFZPw6s3jGYSLxLg4rHwB3DXgCbpcyohdeLx
-        go1AitfXxfOLIP2kM0C++Pc=
-X-Google-Smtp-Source: APiQypL6SM9R3Junk6mCmNdTFwzDZbZ4pRbnQMT67D/+476FqoDC4YGt7uTmufgFNPymKZG+5jOt3w==
-X-Received: by 2002:a17:90a:3606:: with SMTP id s6mr2035567pjb.195.1585635006492;
-        Mon, 30 Mar 2020 23:10:06 -0700 (PDT)
-Received: from software.domain.org ([104.207.149.93])
-        by smtp.gmail.com with ESMTPSA id r29sm10890190pgm.17.2020.03.30.23.10.00
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 30 Mar 2020 23:10:05 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>
-Cc:     virtualization@lists.linux-foundation.org,
-        spice-devel@lists.freedesktop.org,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org
-Subject: [PATCH Resend] drm/qxl: Use correct notify port address when creating cursor ring
-Date:   Tue, 31 Mar 2020 14:18:08 +0800
-Message-Id: <1585635488-17507-1-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=XCdJCbcFAqKbu5o4UMmbzXHaFPJd9Ik8M7QfW5a9gSE=;
+        b=fAdt+P+TSKsLmQG16uvwEgJI6R2W8qSmVKlRVlUuSaL6tK94YZbiGI8cxjtAVgKekF
+         gBo2sOAB/Nmbz1tKSWemDsaDaneA3UEcIfXQTEJu4x9StbilSAnYbevMr02IFJ+u8mcp
+         Vu0NGrTdWmK3DQsuxdz3tDdUOvhvgm+SKS8nZty0ikhxLU/IUU3ZKHCSGqfHgpmRXpYi
+         EcNdnW9kmkFnpB1tKvYNmxVoseeFi/qY731g9G+7d+BtpZKCzNZcslxYjMK1NpnQ5AM+
+         oI0OLSs9osopGxohIgF9OfD3N1XEgCd9nVV7tr+3r5rZiF8VybiKpmsSMfvEc0AgfvEu
+         xOVA==
+X-Gm-Message-State: ANhLgQ3j/2txs4XNjaaDyBFY8lmcGOsC/eDVz9cKYTl7mj9rxLUeN/yD
+        sGDZYN1FMvTp+NI4bckfBrWArAsuRSwSL3BDVlw=
+X-Google-Smtp-Source: ADFU+vsLlPUWVwHlm1MZohs4ZiijuCiA9dRuDMtpcpQVflJWE1hgPv4eVishiq59gAA1qUXFEEGgkbR2+8SmWFBYtRo=
+X-Received: by 2002:a9d:7402:: with SMTP id n2mr12255889otk.262.1585635580865;
+ Mon, 30 Mar 2020 23:19:40 -0700 (PDT)
+MIME-Version: 1.0
+References: <cover.1585343507.git.gayatri.kammela@intel.com>
+ <9359b8e261d69983b1eed2b8e53ef9eabfdfdd51.1585343507.git.gayatri.kammela@intel.com>
+ <CAJZ5v0j8OaqM6k52Ar9sYn0Ea_u9+MBB0rcMWv6vGBt5jXCQBQ@mail.gmail.com>
+ <20200330172439.GB1922688@smile.fi.intel.com> <BYAPR11MB362459660B914BEF1526AD8DF2CB0@BYAPR11MB3624.namprd11.prod.outlook.com>
+In-Reply-To: <BYAPR11MB362459660B914BEF1526AD8DF2CB0@BYAPR11MB3624.namprd11.prod.outlook.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 31 Mar 2020 08:19:29 +0200
+Message-ID: <CAJZ5v0inmWu6_ZYLCKart6F873SqK5AyvVXOCS83Yr=KQAQV_Q@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] ACPI: fix: Update Tiger Lake ACPI device IDs
+To:     "Kammela, Gayatri" <gayatri.kammela@intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        "Zhang, Rui" <rui.zhang@intel.com>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Len Brown <lenb@kernel.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Alex Hung <alex.hung@canonical.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amit.kucheria@verdurent.com>,
+        "Westerberg, Mika" <mika.westerberg@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Prestopine, Charles D" <charles.d.prestopine@intel.com>,
+        "5 . 6+" <stable@vger.kernel.org>,
+        "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>,
+        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The command ring and cursor ring use different notify port addresses
-definition: QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR. However, in
-qxl_device_init() we use QXL_IO_NOTIFY_CMD to create both command ring
-and cursor ring. This doesn't cause any problems now, because QEMU's
-behaviors on QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR are the same.
-However, QEMU's behavior may be change in future, so let's fix it.
+On Tue, Mar 31, 2020 at 1:22 AM Kammela, Gayatri
+<gayatri.kammela@intel.com> wrote:
+>
+> > -----Original Message-----
+> > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > Sent: Monday, March 30, 2020 10:25 AM
+> > To: Rafael J. Wysocki <rafael@kernel.org>
+> > Cc: Kammela, Gayatri <gayatri.kammela@intel.com>; Zhang, Rui
+> > <rui.zhang@intel.com>; Linux PM <linux-pm@vger.kernel.org>; Platform
+> > Driver <platform-driver-x86@vger.kernel.org>; Linux Kernel Mailing List
+> > <linux-kernel@vger.kernel.org>; Len Brown <lenb@kernel.org>; Darren Hart
+> > <dvhart@infradead.org>; Alex Hung <alex.hung@canonical.com>; Daniel
+> > Lezcano <daniel.lezcano@linaro.org>; Amit Kucheria
+> > <amit.kucheria@verdurent.com>; Westerberg, Mika
+> > <mika.westerberg@intel.com>; Peter Zijlstra <peterz@infradead.org>;
+> > Prestopine, Charles D <charles.d.prestopine@intel.com>; 5 . 6+
+> > <stable@vger.kernel.org>; Pandruvada, Srinivas
+> > <srinivas.pandruvada@intel.com>; Wysocki, Rafael J
+> > <rafael.j.wysocki@intel.com>
+> > Subject: Re: [PATCH v2 1/3] ACPI: fix: Update Tiger Lake ACPI device IDs
+> >
+> > On Mon, Mar 30, 2020 at 06:43:35PM +0200, Rafael J. Wysocki wrote:
+> > > On Fri, Mar 27, 2020 at 10:34 PM Gayatri Kammela
+> > > <gayatri.kammela@intel.com> wrote:
+> >
+> > > > -       {"INT1044"},
+> > > > -       {"INT1047"},
+> > > > +       {"INTC1040"},
+> > > > +       {"INTC1043"},
+> > > > +       {"INTC1044"},
+> > > > +       {"INTC1047"},
+> > > >         {"INT3400"},
+> > > >         {"INT3401", INT3401_DEVICE},
+> > > >         {"INT3402"},
+> > > > --
+> > >
+> > > I can take this along with the other two patches in the series if that
+> > > is fine by Andy and Rui.
+> >
+> > One nit is to fix the ordering to be alphanumeric or close enough (I admit in
+> > some cases it might require unneeded churn) to that.
+> Thanks Andy and Rafael! Should I send v3 for this series with right ordering this time?
 
-P.S.: In the X.org QXL driver, the notify port address of cursor ring
-      is correct.
+No need, I can fix up the ordering just fine.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- drivers/gpu/drm/qxl/qxl_kms.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > Otherwise,
+> > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-index bfc1631..9bdbe0d 100644
---- a/drivers/gpu/drm/qxl/qxl_kms.c
-+++ b/drivers/gpu/drm/qxl/qxl_kms.c
-@@ -218,7 +218,7 @@ int qxl_device_init(struct qxl_device *qdev,
- 				&(qdev->ram_header->cursor_ring_hdr),
- 				sizeof(struct qxl_command),
- 				QXL_CURSOR_RING_SIZE,
--				qdev->io_base + QXL_IO_NOTIFY_CMD,
-+				qdev->io_base + QXL_IO_NOTIFY_CURSOR,
- 				false,
- 				&qdev->cursor_event);
- 
--- 
-2.7.0
-
+Thanks!
