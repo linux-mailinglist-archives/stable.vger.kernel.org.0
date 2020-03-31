@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B143198FE7
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E2419908C
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731232AbgCaJHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:07:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49128 "EHLO mail.kernel.org"
+        id S1731777AbgCaJMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:12:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731037AbgCaJHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:07:22 -0400
+        id S1731249AbgCaJMf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:12:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A8DE20675;
-        Tue, 31 Mar 2020 09:07:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0BB520772;
+        Tue, 31 Mar 2020 09:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645641;
-        bh=8HWl7opAVhbfm8fIWKWNIwlkSWCpWGoZz0bx3PKtFJ0=;
+        s=default; t=1585645955;
+        bh=O5xXngZRzBqwgoGToi4jFN4iln4s0ii6lgq5QChT0rQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zFbfKBIewIkZ02UZsS3Sjp4EDGZwmetXnFuab+Sbn5bodh7eNL8j8MBCmedsGNOZT
-         vLFV3VkdI1IAkG52/qRXGE7BYby2b9aXrfNhCCL2MKKB2TWAwQSZGBIJLKpRo2pXin
-         JZdYIQHbzZvJyai46gV5oFdN8H4Nfp78fBz/DcIc=
+        b=iOppGD/NqGiz0v35RlPr0A0qQ8csWhUdgb538ubyxu1IjllcQC25v7M9PP/V9A9bo
+         0XKWcabWsNzqRR5XOhk20hdyMSmV/4dOSY954en6z/9i9E2Hx4h8MlIT1PuvXv2Ayk
+         kqpBNaGBKmOkS83Hy4v6/ZmPP4W0Wiq1hW8btTGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 068/170] cgroup1: dont call release_agent when it is ""
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 042/155] bnxt_en: Free context memory after disabling PCI in probe error path.
 Date:   Tue, 31 Mar 2020 10:58:02 +0200
-Message-Id: <20200331085431.650236415@linuxfoundation.org>
+Message-Id: <20200331085423.126844947@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tycho Andersen <tycho@tycho.ws>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 2e5383d7904e60529136727e49629a82058a5607 ]
+[ Upstream commit 62bfb932a51f6d08eb409248e69f8d6428c2cabd ]
 
-Older (and maybe current) versions of systemd set release_agent to "" when
-shutting down, but do not set notify_on_release to 0.
+Other shutdown code paths will always disable PCI first to shutdown DMA
+before freeing context memory.  Do the same sequence in the error path
+of probe to be safe and consistent.
 
-Since 64e90a8acb85 ("Introduce STATIC_USERMODEHELPER to mediate
-call_usermodehelper()"), we filter out such calls when the user mode helper
-path is "". However, when used in conjunction with an actual (i.e. non "")
-STATIC_USERMODEHELPER, the path is never "", so the real usermode helper
-will be called with argv[0] == "".
-
-Let's avoid this by not invoking the release_agent when it is "".
-
-Signed-off-by: Tycho Andersen <tycho@tycho.ws>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c20dc142dd7b ("bnxt_en: Disable bus master during PCI shutdown and driver unload.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup-v1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index 84bedb87ae137..a1fbf500d0af7 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -785,7 +785,7 @@ void cgroup1_release_agent(struct work_struct *work)
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -11895,12 +11895,12 @@ init_err_cleanup:
+ init_err_pci_clean:
+ 	bnxt_free_hwrm_short_cmd_req(bp);
+ 	bnxt_free_hwrm_resources(bp);
+-	bnxt_free_ctx_mem(bp);
+-	kfree(bp->ctx);
+-	bp->ctx = NULL;
+ 	kfree(bp->fw_health);
+ 	bp->fw_health = NULL;
+ 	bnxt_cleanup_pci(bp);
++	bnxt_free_ctx_mem(bp);
++	kfree(bp->ctx);
++	bp->ctx = NULL;
  
- 	pathbuf = kmalloc(PATH_MAX, GFP_KERNEL);
- 	agentbuf = kstrdup(cgrp->root->release_agent_path, GFP_KERNEL);
--	if (!pathbuf || !agentbuf)
-+	if (!pathbuf || !agentbuf || !strlen(agentbuf))
- 		goto out;
- 
- 	spin_lock_irq(&css_set_lock);
--- 
-2.20.1
-
+ init_err_free:
+ 	free_netdev(dev);
 
 
