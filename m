@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF60198F6F
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9AB21991A1
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:20:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730819AbgCaJDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:03:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43062 "EHLO mail.kernel.org"
+        id S1731650AbgCaJK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:10:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730768AbgCaJDU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:03:20 -0400
+        id S1731646AbgCaJK6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:10:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC71D208E0;
-        Tue, 31 Mar 2020 09:03:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55FCC20675;
+        Tue, 31 Mar 2020 09:10:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645399;
-        bh=N4lza5PsPJ6ir0AzvN2vRfEMehU1QEbwTNi/AXOw9us=;
+        s=default; t=1585645857;
+        bh=Z2eQWQQd09Y24ml54/ptlmTqM1M5MaTLo8/U7dsFmKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZXNBVGRNRX7/wXQmcfXPbK3wo5GoaDOHaDf3LQGtO3tl3fmONM8uvy1JNjZlVr7uD
-         3zhoEkTD81ztfmkxGm1L4QtZuFb1t7V+AQulQyzZ1mDD3CXnmzd6KSQ5w0NFt/Vzwf
-         m5mMfDliBILLpzkI3Po/f+FbxShsnCUMGQIwX7rA=
+        b=1u7KMtgsJdyjQzIV2QqJPGeSjrO0GTi7bosplU+PqykaP1WP+679Lp7ShqrejcJVl
+         t55QGItixsI7NrrZmqNfXmgPxQ/4ys0tYR+tC/m10LFtmCYB+O8p3Esnl8PRCOJebY
+         5RSJLsO1wMY6TvJi1PBb7/QMb1vTi0xWWV8M/Vk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Zh-yuan Ye <ye.zh-yuan@socionext.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 042/170] bnxt_en: Fix Priority Bytes and Packets counters in ethtool -S.
+Subject: [PATCH 5.4 016/155] net: cbs: Fix software cbs to consider packet sending time
 Date:   Tue, 31 Mar 2020 10:57:36 +0200
-Message-Id: <20200331085428.908015722@linuxfoundation.org>
+Message-Id: <20200331085420.200939990@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,94 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Zh-yuan Ye <ye.zh-yuan@socionext.com>
 
-[ Upstream commit a24ec3220f369aa0b94c863b6b310685a727151c ]
+[ Upstream commit 961d0e5b32946703125964f9f5b6321d60f4d706 ]
 
-There is an indexing bug in determining these ethtool priority
-counters.  Instead of using the queue ID to index, we need to
-normalize by modulo 10 to get the index.  This index is then used
-to obtain the proper CoS queue counter.  Rename bp->pri2cos to
-bp->pri2cos_idx to make this more clear.
+Currently the software CBS does not consider the packet sending time
+when depleting the credits. It caused the throughput to be
+Idleslope[kbps] * (Port transmit rate[kbps] / |Sendslope[kbps]|) where
+Idleslope * (Port transmit rate / (Idleslope + |Sendslope|)) = Idleslope
+is expected. In order to fix the issue above, this patch takes the time
+when the packet sending completes into account by moving the anchor time
+variable "last" ahead to the send completion time upon transmission and
+adding wait when the next dequeue request comes before the send
+completion time of the previous packet.
 
-Fixes: e37fed790335 ("bnxt_en: Add ethtool -S priority counters.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+changelog:
+V2->V3:
+ - remove unnecessary whitespace cleanup
+ - add the checks if port_rate is 0 before division
+
+V1->V2:
+ - combine variable "send_completed" into "last"
+ - add the comment for estimate of the packet sending
+
+Fixes: 585d763af09c ("net/sched: Introduce Credit Based Shaper (CBS) qdisc")
+Signed-off-by: Zh-yuan Ye <ye.zh-yuan@socionext.com>
+Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c         |   10 +++++++++-
- drivers/net/ethernet/broadcom/bnxt/bnxt.h         |    2 +-
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |    8 ++++----
- 3 files changed, 14 insertions(+), 6 deletions(-)
+ net/sched/sch_cbs.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -7406,14 +7406,22 @@ static int bnxt_hwrm_port_qstats_ext(str
- 		pri2cos = &resp2->pri0_cos_queue_id;
- 		for (i = 0; i < 8; i++) {
- 			u8 queue_id = pri2cos[i];
-+			u8 queue_idx;
+--- a/net/sched/sch_cbs.c
++++ b/net/sched/sch_cbs.c
+@@ -181,6 +181,11 @@ static struct sk_buff *cbs_dequeue_soft(
+ 	s64 credits;
+ 	int len;
  
-+			/* Per port queue IDs start from 0, 10, 20, etc */
-+			queue_idx = queue_id % 10;
-+			if (queue_idx > BNXT_MAX_QUEUE) {
-+				bp->pri2cos_valid = false;
-+				goto qstats_done;
-+			}
- 			for (j = 0; j < bp->max_q; j++) {
- 				if (bp->q_ids[j] == queue_id)
--					bp->pri2cos[i] = j;
-+					bp->pri2cos_idx[i] = queue_idx;
- 			}
- 		}
- 		bp->pri2cos_valid = 1;
- 	}
-+qstats_done:
- 	mutex_unlock(&bp->hwrm_cmd_lock);
- 	return rc;
++	/* The previous packet is still being sent */
++	if (now < q->last) {
++		qdisc_watchdog_schedule_ns(&q->watchdog, q->last);
++		return NULL;
++	}
+ 	if (q->credits < 0) {
+ 		credits = timediff_to_credits(now - q->last, q->idleslope);
+ 
+@@ -212,7 +217,12 @@ static struct sk_buff *cbs_dequeue_soft(
+ 	credits += q->credits;
+ 
+ 	q->credits = max_t(s64, credits, q->locredit);
+-	q->last = now;
++	/* Estimate of the transmission of the last byte of the packet in ns */
++	if (unlikely(atomic64_read(&q->port_rate) == 0))
++		q->last = now;
++	else
++		q->last = now + div64_s64(len * NSEC_PER_SEC,
++					  atomic64_read(&q->port_rate));
+ 
+ 	return skb;
  }
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -1714,7 +1714,7 @@ struct bnxt {
- 	u16			fw_rx_stats_ext_size;
- 	u16			fw_tx_stats_ext_size;
- 	u16			hw_ring_stats_size;
--	u8			pri2cos[8];
-+	u8			pri2cos_idx[8];
- 	u8			pri2cos_valid;
- 
- 	u16			hwrm_max_req_len;
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -589,25 +589,25 @@ skip_ring_stats:
- 		if (bp->pri2cos_valid) {
- 			for (i = 0; i < 8; i++, j++) {
- 				long n = bnxt_rx_bytes_pri_arr[i].base_off +
--					 bp->pri2cos[i];
-+					 bp->pri2cos_idx[i];
- 
- 				buf[j] = le64_to_cpu(*(rx_port_stats_ext + n));
- 			}
- 			for (i = 0; i < 8; i++, j++) {
- 				long n = bnxt_rx_pkts_pri_arr[i].base_off +
--					 bp->pri2cos[i];
-+					 bp->pri2cos_idx[i];
- 
- 				buf[j] = le64_to_cpu(*(rx_port_stats_ext + n));
- 			}
- 			for (i = 0; i < 8; i++, j++) {
- 				long n = bnxt_tx_bytes_pri_arr[i].base_off +
--					 bp->pri2cos[i];
-+					 bp->pri2cos_idx[i];
- 
- 				buf[j] = le64_to_cpu(*(tx_port_stats_ext + n));
- 			}
- 			for (i = 0; i < 8; i++, j++) {
- 				long n = bnxt_tx_pkts_pri_arr[i].base_off +
--					 bp->pri2cos[i];
-+					 bp->pri2cos_idx[i];
- 
- 				buf[j] = le64_to_cpu(*(tx_port_stats_ext + n));
- 			}
 
 
