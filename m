@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 811A7199117
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:18:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA34E199016
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:09:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731872AbgCaJRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:17:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38156 "EHLO mail.kernel.org"
+        id S1731410AbgCaJI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:08:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732012AbgCaJRH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:17:07 -0400
+        id S1730439AbgCaJI6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:08:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84B8E208E0;
-        Tue, 31 Mar 2020 09:17:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F73220787;
+        Tue, 31 Mar 2020 09:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646227;
-        bh=+1xLu4UM8eC0DtDYdw0C89iwUWF2tSN4pL1u48vjWDk=;
+        s=default; t=1585645736;
+        bh=a4JaDW3q2t96QarmyP+rtPi5S08CkjaYcdVsPP2hl2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7sGWK+vEzhr74ST8CJw8vY76bQETDH4gJfjAnTok/FTgeFoDO97tKHjXZeE3kxp0
-         IXyUzkxvwkVYciZnwQZAHqGkcCD5bGw2Qh7+JYLWhCD7eFrCYn5nplVlQ3R0ua+hTV
-         WVojnp5608N0oDB2bqQat7hQ1q7/4YbRa3rOsGGI=
+        b=EjkwAp5NtaZSubvho+/tWpW/+0ooj2r7wQ5K9FoQ+t1m1Jv1tCb1ZJg9O6bUDvXNF
+         uCsDehS0emlIf+mtNeaROio22oDK+VcotZ1T+1GtmWLuneSBMeUf499/rMcrL/0gFi
+         dyVDkO95Nc5fVsD6L2/g4WQ8avJ3B37Q33zlfDdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 122/155] ieee80211: fix HE SPR size calculation
+        stable@vger.kernel.org,
+        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.5 148/170] bpf: Undo incorrect __reg_bound_offset32 handling
 Date:   Tue, 31 Mar 2020 10:59:22 +0200
-Message-Id: <20200331085432.059735760@linuxfoundation.org>
+Message-Id: <20200331085438.993021461@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +45,276 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 575a97acc3b7446094b0dcaf6285c7c6934c2477 upstream.
+commit f2d67fec0b43edce8c416101cdc52e71145b5fef upstream.
 
-The he_sr_control field is just a u8, so le32_to_cpu()
-shouldn't be applied to it; this was evidently copied
-from ieee80211_he_oper_size(). Fix it, and also adjust
-the type of the local variable.
+Anatoly has been fuzzing with kBdysch harness and reported a hang in
+one of the outcomes:
 
-Fixes: ef11a931bd1c ("mac80211: HE: add Spatial Reuse element parsing support")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200325090918.dfe483b49e06.Ia53622f23b2610a2ae6ea39a199866196fe946c1@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+  0: (b7) r0 = 808464432
+  1: (7f) r0 >>= r0
+  2: (14) w0 -= 808464432
+  3: (07) r0 += 808464432
+  4: (b7) r1 = 808464432
+  5: (de) if w1 s<= w0 goto pc+0
+   R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x30303020;0x10000001f)) R1_w=invP808464432 R10=fp0
+  6: (07) r0 += -2144337872
+  7: (14) w0 -= -1607454672
+  8: (25) if r0 > 0x30303030 goto pc+0
+   R0_w=invP(id=0,umin_value=271581184,umax_value=271581311,var_off=(0x10300000;0x7f)) R1_w=invP808464432 R10=fp0
+  9: (76) if w0 s>= 0x303030 goto pc+2
+  12: (95) exit
+
+  from 8 to 9: safe
+
+  from 5 to 6: R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x30303020;0x10000001f)) R1_w=invP808464432 R10=fp0
+  6: (07) r0 += -2144337872
+  7: (14) w0 -= -1607454672
+  8: (25) if r0 > 0x30303030 goto pc+0
+   R0_w=invP(id=0,umin_value=271581184,umax_value=271581311,var_off=(0x10300000;0x7f)) R1_w=invP808464432 R10=fp0
+  9: safe
+
+  from 8 to 9: safe
+  verification time 589 usec
+  stack depth 0
+  processed 17 insns (limit 1000000) [...]
+
+The underlying program was xlated as follows:
+
+  # bpftool p d x i 9
+   0: (b7) r0 = 808464432
+   1: (7f) r0 >>= r0
+   2: (14) w0 -= 808464432
+   3: (07) r0 += 808464432
+   4: (b7) r1 = 808464432
+   5: (de) if w1 s<= w0 goto pc+0
+   6: (07) r0 += -2144337872
+   7: (14) w0 -= -1607454672
+   8: (25) if r0 > 0x30303030 goto pc+0
+   9: (76) if w0 s>= 0x303030 goto pc+2
+  10: (05) goto pc-1
+  11: (05) goto pc-1
+  12: (95) exit
+
+The verifier rewrote original instructions it recognized as dead code with
+'goto pc-1', but reality differs from verifier simulation in that we're
+actually able to trigger a hang due to hitting the 'goto pc-1' instructions.
+
+Taking different examples to make the issue more obvious: in this example
+we're probing bounds on a completely unknown scalar variable in r1:
+
+  [...]
+  5: R0_w=inv1 R1_w=inv(id=0) R10=fp0
+  5: (18) r2 = 0x4000000000
+  7: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R10=fp0
+  7: (18) r3 = 0x2000000000
+  9: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R3_w=inv137438953472 R10=fp0
+  9: (18) r4 = 0x400
+  11: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R10=fp0
+  11: (18) r5 = 0x200
+  13: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
+  13: (2d) if r1 > r2 goto pc+4
+   R0_w=inv1 R1_w=inv(id=0,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
+  14: R0_w=inv1 R1_w=inv(id=0,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
+  14: (ad) if r1 < r3 goto pc+3
+   R0_w=inv1 R1_w=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
+  15: R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
+  15: (2e) if w1 > w4 goto pc+2
+   R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7f00000000)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
+  16: R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7f00000000)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
+  16: (ae) if w1 < w5 goto pc+1
+   R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7f00000000)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
+  [...]
+
+We're first probing lower/upper bounds via jmp64, later we do a similar
+check via jmp32 and examine the resulting var_off there. After fall-through
+in insn 14, we get the following bounded r1 with 0x7fffffffff unknown marked
+bits in the variable section.
+
+Thus, after knowing r1 <= 0x4000000000 and r1 >= 0x2000000000:
+
+  max: 0b100000000000000000000000000000000000000 / 0x4000000000
+  var: 0b111111111111111111111111111111111111111 / 0x7fffffffff
+  min: 0b010000000000000000000000000000000000000 / 0x2000000000
+
+Now, in insn 15 and 16, we perform a similar probe with lower/upper bounds
+in jmp32.
+
+Thus, after knowing r1 <= 0x4000000000 and r1 >= 0x2000000000 and
+                    w1 <= 0x400        and w1 >= 0x200:
+
+  max: 0b100000000000000000000000000000000000000 / 0x4000000000
+  var: 0b111111100000000000000000000000000000000 / 0x7f00000000
+  min: 0b010000000000000000000000000000000000000 / 0x2000000000
+
+The lower/upper bounds haven't changed since they have high bits set in
+u64 space and the jmp32 tests can only refine bounds in the low bits.
+
+However, for the var part the expectation would have been 0x7f000007ff
+or something less precise up to 0x7fffffffff. A outcome of 0x7f00000000
+is not correct since it would contradict the earlier probed bounds
+where we know that the result should have been in [0x200,0x400] in u32
+space. Therefore, tests with such info will lead to wrong verifier
+assumptions later on like falsely predicting conditional jumps to be
+always taken, etc.
+
+The issue here is that __reg_bound_offset32()'s implementation from
+commit 581738a681b6 ("bpf: Provide better register bounds after jmp32
+instructions") makes an incorrect range assumption:
+
+  static void __reg_bound_offset32(struct bpf_reg_state *reg)
+  {
+        u64 mask = 0xffffFFFF;
+        struct tnum range = tnum_range(reg->umin_value & mask,
+                                       reg->umax_value & mask);
+        struct tnum lo32 = tnum_cast(reg->var_off, 4);
+        struct tnum hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
+
+        reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
+  }
+
+In the above walk-through example, __reg_bound_offset32() as-is chose
+a range after masking with 0xffffffff of [0x0,0x0] since umin:0x2000000000
+and umax:0x4000000000 and therefore the lo32 part was clamped to 0x0 as
+well. However, in the umin:0x2000000000 and umax:0x4000000000 range above
+we'd end up with an actual possible interval of [0x0,0xffffffff] for u32
+space instead.
+
+In case of the original reproducer, the situation looked as follows at
+insn 5 for r0:
+
+  [...]
+  5: R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x0; 0x1ffffffff)) R1_w=invP808464432 R10=fp0
+                               0x30303030           0x13030302f
+  5: (de) if w1 s<= w0 goto pc+0
+   R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x30303020; 0x10000001f)) R1_w=invP808464432 R10=fp0
+                             0x30303030           0x13030302f
+  [...]
+
+After the fall-through, we similarly forced the var_off result into
+the wrong range [0x30303030,0x3030302f] suggesting later on that fixed
+bits must only be of 0x30303020 with 0x10000001f unknowns whereas such
+assumption can only be made when both bounds in hi32 range match.
+
+Originally, I was thinking to fix this by moving reg into a temp reg and
+use proper coerce_reg_to_size() helper on the temp reg where we can then
+based on that define the range tnum for later intersection:
+
+  static void __reg_bound_offset32(struct bpf_reg_state *reg)
+  {
+        struct bpf_reg_state tmp = *reg;
+        struct tnum lo32, hi32, range;
+
+        coerce_reg_to_size(&tmp, 4);
+        range = tnum_range(tmp.umin_value, tmp.umax_value);
+        lo32 = tnum_cast(reg->var_off, 4);
+        hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
+        reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
+  }
+
+In the case of the concrete example, this gives us a more conservative unknown
+section. Thus, after knowing r1 <= 0x4000000000 and r1 >= 0x2000000000 and
+                             w1 <= 0x400        and w1 >= 0x200:
+
+  max: 0b100000000000000000000000000000000000000 / 0x4000000000
+  var: 0b111111111111111111111111111111111111111 / 0x7fffffffff
+  min: 0b010000000000000000000000000000000000000 / 0x2000000000
+
+However, above new __reg_bound_offset32() has no effect on refining the
+knowledge of the register contents. Meaning, if the bounds in hi32 range
+mismatch we'll get the identity function given the range reg spans
+[0x0,0xffffffff] and we cast var_off into lo32 only to later on binary
+or it again with the hi32.
+
+Likewise, if the bounds in hi32 range match, then we mask both bounds
+with 0xffffffff, use the resulting umin/umax for the range to later
+intersect the lo32 with it. However, _prior_ called __reg_bound_offset()
+did already such intersection on the full reg and we therefore would only
+repeat the same operation on the lo32 part twice.
+
+Given this has no effect and the original commit had false assumptions,
+this patch reverts the code entirely which is also more straight forward
+for stable trees: apparently 581738a681b6 got auto-selected by Sasha's
+ML system and misclassified as a fix, so it got sucked into v5.4 where
+it should never have landed. A revert is low-risk also from a user PoV
+since it requires a recent kernel and llc to opt-into -mcpu=v3 BPF CPU
+to generate jmp32 instructions. A proper bounds refinement would need a
+significantly more complex approach which is currently being worked, but
+no stable material [0]. Hence revert is best option for stable. After the
+revert, the original reported program gets rejected as follows:
+
+  1: (7f) r0 >>= r0
+  2: (14) w0 -= 808464432
+  3: (07) r0 += 808464432
+  4: (b7) r1 = 808464432
+  5: (de) if w1 s<= w0 goto pc+0
+   R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x0; 0x1ffffffff)) R1_w=invP808464432 R10=fp0
+  6: (07) r0 += -2144337872
+  7: (14) w0 -= -1607454672
+  8: (25) if r0 > 0x30303030 goto pc+0
+   R0_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x3fffffff)) R1_w=invP808464432 R10=fp0
+  9: (76) if w0 s>= 0x303030 goto pc+2
+   R0=invP(id=0,umax_value=3158063,var_off=(0x0; 0x3fffff)) R1=invP808464432 R10=fp0
+  10: (30) r0 = *(u8 *)skb[808464432]
+  BPF_LD_[ABS|IND] uses reserved fields
+  processed 11 insns (limit 1000000) [...]
+
+  [0] https://lore.kernel.org/bpf/158507130343.15666.8018068546764556975.stgit@john-Precision-5820-Tower/T/
+
+Fixes: 581738a681b6 ("bpf: Provide better register bounds after jmp32 instructions")
+Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200330160324.15259-2-daniel@iogearbox.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- include/linux/ieee80211.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/ieee80211.h
-+++ b/include/linux/ieee80211.h
-@@ -2102,14 +2102,14 @@ ieee80211_he_spr_size(const u8 *he_spr_i
+---
+ kernel/bpf/verifier.c |   19 -------------------
+ 1 file changed, 19 deletions(-)
+
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1034,17 +1034,6 @@ static void __reg_bound_offset(struct bp
+ 						 reg->umax_value));
+ }
+ 
+-static void __reg_bound_offset32(struct bpf_reg_state *reg)
+-{
+-	u64 mask = 0xffffFFFF;
+-	struct tnum range = tnum_range(reg->umin_value & mask,
+-				       reg->umax_value & mask);
+-	struct tnum lo32 = tnum_cast(reg->var_off, 4);
+-	struct tnum hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
+-
+-	reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
+-}
+-
+ /* Reset the min/max bounds of a register */
+ static void __mark_reg_unbounded(struct bpf_reg_state *reg)
  {
- 	struct ieee80211_he_spr *he_spr = (void *)he_spr_ie;
- 	u8 spr_len = sizeof(struct ieee80211_he_spr);
--	u32 he_spr_params;
-+	u8 he_spr_params;
- 
- 	/* Make sure the input is not NULL */
- 	if (!he_spr_ie)
- 		return 0;
- 
- 	/* Calc required length */
--	he_spr_params = le32_to_cpu(he_spr->he_sr_control);
-+	he_spr_params = he_spr->he_sr_control;
- 	if (he_spr_params & IEEE80211_HE_SPR_NON_SRG_OFFSET_PRESENT)
- 		spr_len++;
- 	if (he_spr_params & IEEE80211_HE_SPR_SRG_INFORMATION_PRESENT)
+@@ -5677,10 +5666,6 @@ static void reg_set_min_max(struct bpf_r
+ 	/* We might have learned some bits from the bounds. */
+ 	__reg_bound_offset(false_reg);
+ 	__reg_bound_offset(true_reg);
+-	if (is_jmp32) {
+-		__reg_bound_offset32(false_reg);
+-		__reg_bound_offset32(true_reg);
+-	}
+ 	/* Intersecting with the old var_off might have improved our bounds
+ 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+ 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
+@@ -5790,10 +5775,6 @@ static void reg_set_min_max_inv(struct b
+ 	/* We might have learned some bits from the bounds. */
+ 	__reg_bound_offset(false_reg);
+ 	__reg_bound_offset(true_reg);
+-	if (is_jmp32) {
+-		__reg_bound_offset32(false_reg);
+-		__reg_bound_offset32(true_reg);
+-	}
+ 	/* Intersecting with the old var_off might have improved our bounds
+ 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
+ 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
 
 
