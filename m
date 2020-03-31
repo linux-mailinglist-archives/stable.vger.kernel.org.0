@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0336119902F
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:10:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3C1819913B
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731286AbgCaJJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:09:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53390 "EHLO mail.kernel.org"
+        id S1732025AbgCaJST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:18:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731288AbgCaJJy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:09:54 -0400
+        id S1731943AbgCaJST (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:18:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F218220787;
-        Tue, 31 Mar 2020 09:09:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69AA72072E;
+        Tue, 31 Mar 2020 09:18:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645794;
-        bh=xvffDx0hCiYBgpQXCUZCW3SlnbePQdBwZt9YeMDHd/U=;
+        s=default; t=1585646298;
+        bh=Gyq5CPIWhGyETl7u146YtvZnj20MLETTWKjndr0vl/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQBuEcrjKDaNQui9/bTd07Xh2mUzFo4z+rm21kpT17L4mkbmfXWQRNbN6QHOgUqwS
-         JC2Xvl+XbpHllNwgysuXJnazl2MwuI4kWeliHsSEb7Sk7V/ps6BylNT+KGoN+u705u
-         h3/0I2/4opN5qpcfgwsIRmWCYg1gKHJ9HnKTqhQU=
+        b=PogRL7ioJUKIjDCCSRflE8Vyyqp3ZfR0h51qzeJ/OB0v0inIHT5kv/xYQLMHe8AyO
+         trj1BvWZ5nbTPkmGa5iyJGv86lDsHIsVUJTDp9hZPYMpvKjjzale+1cl9dgoSY22j1
+         1X4w61ik1cuvzMeV9HYD6+mBxr3ivKvBSwVwYLtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.5 167/170] media: dib0700: fix rc endpoint lookup
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+37ba33391ad5f3935bbd@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 141/155] USB: serial: io_edgeport: fix slab-out-of-bounds read in edge_interrupt_callback
 Date:   Tue, 31 Mar 2020 10:59:41 +0200
-Message-Id: <20200331085440.398721313@linuxfoundation.org>
+Message-Id: <20200331085433.979518825@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit f52981019ad8d6718de79b425a574c6bddf81f7c upstream.
+commit 57aa9f294b09463492f604feaa5cc719beaace32 upstream.
 
-Make sure to use the current alternate setting when verifying the
-interface descriptors to avoid submitting an URB to an invalid endpoint.
+Fix slab-out-of-bounds read in the interrupt-URB completion handler.
 
-Failing to do so could cause the driver to misbehave or trigger a WARN()
-in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+The boundary condition should be (length - 1) as we access
+data[position + 1].
 
-Fixes: c4018fa2e4c0 ("[media] dib0700: fix RC support on Hauppauge Nova-TD")
-Cc: stable <stable@vger.kernel.org>     # 3.16
+Reported-and-tested-by: syzbot+37ba33391ad5f3935bbd@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/dvb-usb/dib0700_core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/io_edgeport.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/dvb-usb/dib0700_core.c
-+++ b/drivers/media/usb/dvb-usb/dib0700_core.c
-@@ -818,7 +818,7 @@ int dib0700_rc_setup(struct dvb_usb_devi
- 
- 	/* Starting in firmware 1.20, the RC info is provided on a bulk pipe */
- 
--	if (intf->altsetting[0].desc.bNumEndpoints < rc_ep + 1)
-+	if (intf->cur_altsetting->desc.bNumEndpoints < rc_ep + 1)
- 		return -ENODEV;
- 
- 	purb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -838,7 +838,7 @@ int dib0700_rc_setup(struct dvb_usb_devi
- 	 * Some devices like the Hauppauge NovaTD model 52009 use an interrupt
- 	 * endpoint, while others use a bulk one.
- 	 */
--	e = &intf->altsetting[0].endpoint[rc_ep].desc;
-+	e = &intf->cur_altsetting->endpoint[rc_ep].desc;
- 	if (usb_endpoint_dir_in(e)) {
- 		if (usb_endpoint_xfer_bulk(e)) {
- 			pipe = usb_rcvbulkpipe(d->udev, rc_ep);
+--- a/drivers/usb/serial/io_edgeport.c
++++ b/drivers/usb/serial/io_edgeport.c
+@@ -710,7 +710,7 @@ static void edge_interrupt_callback(stru
+ 		/* grab the txcredits for the ports if available */
+ 		position = 2;
+ 		portNumber = 0;
+-		while ((position < length) &&
++		while ((position < length - 1) &&
+ 				(portNumber < edge_serial->serial->num_ports)) {
+ 			txCredits = data[position] | (data[position+1] << 8);
+ 			if (txCredits) {
 
 
