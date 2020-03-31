@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FBCF1991E2
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B36FA19913F
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731317AbgCaJIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:08:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50404 "EHLO mail.kernel.org"
+        id S1732123AbgCaJS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:18:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731314AbgCaJIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:08:10 -0400
+        id S1732106AbgCaJS3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:18:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C58EF20675;
-        Tue, 31 Mar 2020 09:08:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D81482072E;
+        Tue, 31 Mar 2020 09:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645690;
-        bh=+1xLu4UM8eC0DtDYdw0C89iwUWF2tSN4pL1u48vjWDk=;
+        s=default; t=1585646308;
+        bh=MuJR827GwbcbpjRRdpPKWhk51Tk5Sf/7WcpNL6TTU6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCIcDXXMaeHxhTFL6TW6le+adUKW6OKRuC5p6Y2gS1EGMbShDw0wcuFmhu7QPcn5t
-         3gkyeKQpdw1gm4WX308FKVaexH8jUmYI67uzipsUTrPYm0Py/yWv/PtX1DSZkjvUoY
-         yw+ikrXbMuF6rh794GCO82We2K7FEckknxOEq3N8=
+        b=GGAOBhfLRxsNxtQwISV3Mw/OZaIdoAS+PpPCCKArv5z5kFCBq4v2EDW5NL/bQ5Umt
+         Ek57wYIFmbJu+z9qkIwLFfccmtw43bpXWyRWit/26bOF0katxb+RvHMyHtIaKE8JWq
+         Z12T3mfccOxgjRQ21Jq+F3/pYS9wCueFFeCfESpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.5 133/170] ieee80211: fix HE SPR size calculation
-Date:   Tue, 31 Mar 2020 10:59:07 +0200
-Message-Id: <20200331085437.747111522@linuxfoundation.org>
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.4 108/155] RDMA/core: Ensure security pkey modify is not lost
+Date:   Tue, 31 Mar 2020 10:59:08 +0200
+Message-Id: <20200331085430.743868483@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-commit 575a97acc3b7446094b0dcaf6285c7c6934c2477 upstream.
+commit 2d47fbacf2725a67869f4d3634c2415e7dfab2f4 upstream.
 
-The he_sr_control field is just a u8, so le32_to_cpu()
-shouldn't be applied to it; this was evidently copied
-from ieee80211_he_oper_size(). Fix it, and also adjust
-the type of the local variable.
+The following modify sequence (loosely based on ipoib) will lose a pkey
+modifcation:
 
-Fixes: ef11a931bd1c ("mac80211: HE: add Spatial Reuse element parsing support")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20200325090918.dfe483b49e06.Ia53622f23b2610a2ae6ea39a199866196fe946c1@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+- Modify (pkey index, port)
+- Modify (new pkey index, NO port)
+
+After the first modify, the qp_pps list will have saved the pkey and the
+unit on the main list.
+
+During the second modify, get_new_pps() will fetch the port from qp_pps
+and read the new pkey index from qp_attr->pkey_index.  The state will
+still be zero, or IB_PORT_PKEY_NOT_VALID. Because of the invalid state,
+the new values will never replace the one in the qp pps list, losing the
+new pkey.
+
+This happens because the following if statements will never correct the
+state because the first term will be false. If the code had been executed,
+it would incorrectly overwrite valid values.
+
+  if ((qp_attr_mask & IB_QP_PKEY_INDEX) && (qp_attr_mask & IB_QP_PORT))
+	  new_pps->main.state = IB_PORT_PKEY_VALID;
+
+  if (!(qp_attr_mask & (IB_QP_PKEY_INDEX | IB_QP_PORT)) && qp_pps) {
+	  new_pps->main.port_num = qp_pps->main.port_num;
+	  new_pps->main.pkey_index = qp_pps->main.pkey_index;
+	  if (qp_pps->main.state != IB_PORT_PKEY_NOT_VALID)
+		  new_pps->main.state = IB_PORT_PKEY_VALID;
+  }
+
+Fix by joining the two if statements with an or test to see if qp_pps is
+non-NULL and in the correct state.
+
+Fixes: 1dd017882e01 ("RDMA/core: Fix protection fault in get_pkey_idx_qp_list")
+Link: https://lore.kernel.org/r/20200313124704.14982.55907.stgit@awfm-01.aw.intel.com
+Reviewed-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/ieee80211.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/security.c |   11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
---- a/include/linux/ieee80211.h
-+++ b/include/linux/ieee80211.h
-@@ -2102,14 +2102,14 @@ ieee80211_he_spr_size(const u8 *he_spr_i
- {
- 	struct ieee80211_he_spr *he_spr = (void *)he_spr_ie;
- 	u8 spr_len = sizeof(struct ieee80211_he_spr);
--	u32 he_spr_params;
-+	u8 he_spr_params;
+--- a/drivers/infiniband/core/security.c
++++ b/drivers/infiniband/core/security.c
+@@ -349,16 +349,11 @@ static struct ib_ports_pkeys *get_new_pp
+ 	else if (qp_pps)
+ 		new_pps->main.pkey_index = qp_pps->main.pkey_index;
  
- 	/* Make sure the input is not NULL */
- 	if (!he_spr_ie)
- 		return 0;
+-	if ((qp_attr_mask & IB_QP_PKEY_INDEX) && (qp_attr_mask & IB_QP_PORT))
++	if (((qp_attr_mask & IB_QP_PKEY_INDEX) &&
++	     (qp_attr_mask & IB_QP_PORT)) ||
++	    (qp_pps && qp_pps->main.state != IB_PORT_PKEY_NOT_VALID))
+ 		new_pps->main.state = IB_PORT_PKEY_VALID;
  
- 	/* Calc required length */
--	he_spr_params = le32_to_cpu(he_spr->he_sr_control);
-+	he_spr_params = he_spr->he_sr_control;
- 	if (he_spr_params & IEEE80211_HE_SPR_NON_SRG_OFFSET_PRESENT)
- 		spr_len++;
- 	if (he_spr_params & IEEE80211_HE_SPR_SRG_INFORMATION_PRESENT)
+-	if (!(qp_attr_mask & (IB_QP_PKEY_INDEX | IB_QP_PORT)) && qp_pps) {
+-		new_pps->main.port_num = qp_pps->main.port_num;
+-		new_pps->main.pkey_index = qp_pps->main.pkey_index;
+-		if (qp_pps->main.state != IB_PORT_PKEY_NOT_VALID)
+-			new_pps->main.state = IB_PORT_PKEY_VALID;
+-	}
+-
+ 	if (qp_attr_mask & IB_QP_ALT_PATH) {
+ 		new_pps->alt.port_num = qp_attr->alt_port_num;
+ 		new_pps->alt.pkey_index = qp_attr->alt_pkey_index;
 
 
