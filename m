@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DD9E1991EC
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 528881990E7
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730469AbgCaJWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:22:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49354 "EHLO mail.kernel.org"
+        id S1730776AbgCaJPl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:15:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730815AbgCaJHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:07:32 -0400
+        id S1731535AbgCaJPk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:15:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC0FE20675;
-        Tue, 31 Mar 2020 09:07:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A64CE20787;
+        Tue, 31 Mar 2020 09:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645651;
-        bh=WGcRl9tUeiwf5FbfD7zo7anXQ38rjxdvVZUihUxkEjk=;
+        s=default; t=1585646140;
+        bh=4QJEQOKZynqx+5osBx7WAdPupqu0Gs4IifljY4vX/rU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AiAEzBYSMyN9cmnmw/hD7DZ2BzSNKyQPCmrz/neHmhnG3nMWadOM2dEwbG+yqGSEe
-         wfgEH/WW/9+zQWtCjCpM3GVPxyUSgU3aZbQzm5IATPyB2jZ3eZwfyW/1fXLVho461J
-         xz45KSPnMeVh7kfg2x93iBTSpUaeYaaVCIQQBf/4=
+        b=Gg9EtJr4ywHBIbMEZonoOaTpzhs/I/IyXYTaAJ2+6soWyknTtcY+O0WjzLpWemkcR
+         oevkOjqHlXxEi1tQ0uewt9z9TX/YyXraCSlpe/YQo/pnV/IHVWAvffgfbY2Crn00qU
+         koPBWdw6G278Xo1QI5VwvNQ+gYpK6rpHn9wtpk/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Cree <ecree@solarflare.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 5.5 121/170] genirq: Fix reference leaks on irq affinity notifiers
+        stable@vger.kernel.org, Dirk Mueller <dmueller@suse.com>,
+        David Gibson <david@gibson.dropbear.id.au>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.4 095/155] scripts/dtc: Remove redundant YYLOC global declaration
 Date:   Tue, 31 Mar 2020 10:58:55 +0200
-Message-Id: <20200331085436.904980426@linuxfoundation.org>
+Message-Id: <20200331085429.266293703@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Cree <ecree@solarflare.com>
+From: Dirk Mueller <dmueller@suse.com>
 
-commit df81dfcfd6991d547653d46c051bac195cd182c1 upstream.
+commit e33a814e772cdc36436c8c188d8c42d019fda639 upstream.
 
-The handling of notify->work did not properly maintain notify->kref in two
- cases:
-1) where the work was already scheduled, another irq_set_affinity_locked()
-   would get the ref and (no-op-ly) schedule the work.  Thus when
-   irq_affinity_notify() ran, it would drop the original ref but not the
-   additional one.
-2) when cancelling the (old) work in irq_set_affinity_notifier(), if there
-   was outstanding work a ref had been got for it but was never put.
-Fix both by checking the return values of the work handling functions
- (schedule_work() for (1) and cancel_work_sync() for (2)) and put the
- extra ref if the return value indicates preexisting work.
+gcc 10 will default to -fno-common, which causes this error at link
+time:
 
-Fixes: cd7eab44e994 ("genirq: Add IRQ affinity notifiers")
-Fixes: 59c39840f5ab ("genirq: Prevent use-after-free and work list corruption")
-Signed-off-by: Edward Cree <ecree@solarflare.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Ben Hutchings <ben@decadent.org.uk>
-Link: https://lkml.kernel.org/r/24f5983f-2ab5-e83a-44ee-a45b5f9300f5@solarflare.com
+  (.text+0x0): multiple definition of `yylloc'; dtc-lexer.lex.o (symbol from plugin):(.text+0x0): first defined here
+
+This is because both dtc-lexer as well as dtc-parser define the same
+global symbol yyloc. Before with -fcommon those were merged into one
+defintion. The proper solution would be to to mark this as "extern",
+however that leads to:
+
+  dtc-lexer.l:26:16: error: redundant redeclaration of 'yylloc' [-Werror=redundant-decls]
+   26 | extern YYLTYPE yylloc;
+      |                ^~~~~~
+In file included from dtc-lexer.l:24:
+dtc-parser.tab.h:127:16: note: previous declaration of 'yylloc' was here
+  127 | extern YYLTYPE yylloc;
+      |                ^~~~~~
+cc1: all warnings being treated as errors
+
+which means the declaration is completely redundant and can just be
+dropped.
+
+Signed-off-by: Dirk Mueller <dmueller@suse.com>
+Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+[robh: cherry-pick from upstream]
+Cc: stable@vger.kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/irq/manage.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ scripts/dtc/dtc-lexer.l |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -284,7 +284,11 @@ int irq_set_affinity_locked(struct irq_d
+--- a/scripts/dtc/dtc-lexer.l
++++ b/scripts/dtc/dtc-lexer.l
+@@ -23,7 +23,6 @@ LINECOMMENT	"//".*\n
+ #include "srcpos.h"
+ #include "dtc-parser.tab.h"
  
- 	if (desc->affinity_notify) {
- 		kref_get(&desc->affinity_notify->kref);
--		schedule_work(&desc->affinity_notify->work);
-+		if (!schedule_work(&desc->affinity_notify->work)) {
-+			/* Work was already scheduled, drop our extra ref */
-+			kref_put(&desc->affinity_notify->kref,
-+				 desc->affinity_notify->release);
-+		}
- 	}
- 	irqd_set(data, IRQD_AFFINITY_SET);
+-YYLTYPE yylloc;
+ extern bool treesource_error;
  
-@@ -384,7 +388,10 @@ irq_set_affinity_notifier(unsigned int i
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
- 
- 	if (old_notify) {
--		cancel_work_sync(&old_notify->work);
-+		if (cancel_work_sync(&old_notify->work)) {
-+			/* Pending work had a ref, put that one too */
-+			kref_put(&old_notify->kref, old_notify->release);
-+		}
- 		kref_put(&old_notify->kref, old_notify->release);
- 	}
- 
+ /* CAUTION: this will stop working if we ever use yyless() or yyunput() */
 
 
