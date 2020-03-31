@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7579B198FD2
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:07:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CD801990C8
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730382AbgCaJGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48150 "EHLO mail.kernel.org"
+        id S1731836AbgCaJOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:14:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730647AbgCaJGj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:06:39 -0400
+        id S1730648AbgCaJOg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:14:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57567208E0;
-        Tue, 31 Mar 2020 09:06:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 417012072E;
+        Tue, 31 Mar 2020 09:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645598;
-        bh=4QJEQOKZynqx+5osBx7WAdPupqu0Gs4IifljY4vX/rU=;
+        s=default; t=1585646075;
+        bh=R4Lc+71PGFMVycjmavRdG/jAUNmy4bDOa660TR9oaVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GnXFLPzZ/FxAU9orWWV7FaA97bvc/HbU+E0K+8mZzgRGRmVcgZCBXsElFd5CHKVjE
-         dvzUgxLq2TjNgV5SenjJ93h3iM4MBL+lYyD6a/12S6wqwjs74VpgFFQaJeSsd4US03
-         5/CX/qBmU2TCtefMKeQp2LrMIs8wAABYBKP/Y9dI=
+        b=nRbMr3R/mIPYAPm01IAMlR2YLyxE+K6svwkDxUMXmwN6gRlovWlM7lt4K5q/DVyUd
+         DqICTQ2A7Y87dURPXbe/gsN0dlArdttLAYyM55+5JneGmfvuT17TTgXueb01ig8WEQ
+         pdN+ya1+kVefMv7830kRjNnoR6RLeKLsz/N5CdM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Mueller <dmueller@suse.com>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.5 102/170] scripts/dtc: Remove redundant YYLOC global declaration
-Date:   Tue, 31 Mar 2020 10:58:36 +0200
-Message-Id: <20200331085435.053942582@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 077/155] Input: raydium_i2c_ts - fix error codes in raydium_i2c_boot_trigger()
+Date:   Tue, 31 Mar 2020 10:58:37 +0200
+Message-Id: <20200331085427.011328797@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
-References: <20200331085423.990189598@linuxfoundation.org>
+In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
+References: <20200331085418.274292403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Mueller <dmueller@suse.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit e33a814e772cdc36436c8c188d8c42d019fda639 upstream.
+commit 32cf3a610c35cb21e3157f4bbf29d89960e30a36 upstream.
 
-gcc 10 will default to -fno-common, which causes this error at link
-time:
+These functions are supposed to return negative error codes but instead
+it returns true on failure and false on success.  The error codes are
+eventually propagated back to user space.
 
-  (.text+0x0): multiple definition of `yylloc'; dtc-lexer.lex.o (symbol from plugin):(.text+0x0): first defined here
-
-This is because both dtc-lexer as well as dtc-parser define the same
-global symbol yyloc. Before with -fcommon those were merged into one
-defintion. The proper solution would be to to mark this as "extern",
-however that leads to:
-
-  dtc-lexer.l:26:16: error: redundant redeclaration of 'yylloc' [-Werror=redundant-decls]
-   26 | extern YYLTYPE yylloc;
-      |                ^~~~~~
-In file included from dtc-lexer.l:24:
-dtc-parser.tab.h:127:16: note: previous declaration of 'yylloc' was here
-  127 | extern YYLTYPE yylloc;
-      |                ^~~~~~
-cc1: all warnings being treated as errors
-
-which means the declaration is completely redundant and can just be
-dropped.
-
-Signed-off-by: Dirk Mueller <dmueller@suse.com>
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-[robh: cherry-pick from upstream]
+Fixes: 48a2b783483b ("Input: add Raydium I2C touchscreen driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200303101306.4potflz7na2nn3od@kili.mountain
 Cc: stable@vger.kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- scripts/dtc/dtc-lexer.l |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/touchscreen/raydium_i2c_ts.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/scripts/dtc/dtc-lexer.l
-+++ b/scripts/dtc/dtc-lexer.l
-@@ -23,7 +23,6 @@ LINECOMMENT	"//".*\n
- #include "srcpos.h"
- #include "dtc-parser.tab.h"
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -432,7 +432,7 @@ static int raydium_i2c_write_object(stru
+ 	return 0;
+ }
  
--YYLTYPE yylloc;
- extern bool treesource_error;
+-static bool raydium_i2c_boot_trigger(struct i2c_client *client)
++static int raydium_i2c_boot_trigger(struct i2c_client *client)
+ {
+ 	static const u8 cmd[7][6] = {
+ 		{ 0x08, 0x0C, 0x09, 0x00, 0x50, 0xD7 },
+@@ -457,10 +457,10 @@ static bool raydium_i2c_boot_trigger(str
+ 		}
+ 	}
  
- /* CAUTION: this will stop working if we ever use yyless() or yyunput() */
+-	return false;
++	return 0;
+ }
+ 
+-static bool raydium_i2c_fw_trigger(struct i2c_client *client)
++static int raydium_i2c_fw_trigger(struct i2c_client *client)
+ {
+ 	static const u8 cmd[5][11] = {
+ 		{ 0, 0x09, 0x71, 0x0C, 0x09, 0x00, 0x50, 0xD7, 0, 0, 0 },
+@@ -483,7 +483,7 @@ static bool raydium_i2c_fw_trigger(struc
+ 		}
+ 	}
+ 
+-	return false;
++	return 0;
+ }
+ 
+ static int raydium_i2c_check_path(struct i2c_client *client)
 
 
