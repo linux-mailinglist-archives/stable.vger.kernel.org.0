@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 817901990A6
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D82199205
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731448AbgCaJNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:13:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60998 "EHLO mail.kernel.org"
+        id S1730864AbgCaJFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:05:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730385AbgCaJNb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:13:31 -0400
+        id S1730799AbgCaJFY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:05:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C2B12072E;
-        Tue, 31 Mar 2020 09:13:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB93B20787;
+        Tue, 31 Mar 2020 09:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646010;
-        bh=nTxRlZrbXFqAbJBx9TxjT33/QaswKJOnZ4Fdd6jn2Cw=;
+        s=default; t=1585645524;
+        bh=TXg//bs+/ZskiFsmA2fT4UWOVj10ZmFUdDtwwCgJwgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R65iZIY3ipqzG4HwcpiJL1cZeIFEyvdd0H/dzZLOCt4lSHcXdqLo/u9fuI2zIhHel
-         Y46le8abIaeTrA2JiX6BuVLu/8P0SeuRABKLurRP1QBgTpscydgzwKGNIGvr6fCkeG
-         9cw35JgDIGP/onDQQ+K/LoamXr29GBoW4+GcMMyw=
+        b=kTTb6BUlXAqm5kAkyE/fyIy2vHyw+glFDi5t7FZv8Ih73nLvqR9U4rAjVOl5pwkP3
+         RrZzoxhbnKj7RSBpTceeKwMa+5QsSZwgBnfdz7vyimSc+cLjoe2t1JYyA6CatqLy9L
+         efhXIZxTyV7aYdWglvD0kGYgvEhyagN57w5hZG0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/155] cgroup-v1: cgroup_pidlist_next should update position index
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Megha Dey <megha.dey@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 080/170] iommu/vt-d: Populate debugfs if IOMMUs are detected
 Date:   Tue, 31 Mar 2020 10:58:14 +0200
-Message-Id: <20200331085424.594555371@linuxfoundation.org>
+Message-Id: <20200331085432.821179266@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Megha Dey <megha.dey@linux.intel.com>
 
-[ Upstream commit db8dd9697238be70a6b4f9d0284cd89f59c0e070 ]
+[ Upstream commit 1da8347d8505c137fb07ff06bbcd3f2bf37409bc ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+Currently, the intel iommu debugfs directory(/sys/kernel/debug/iommu/intel)
+gets populated only when DMA remapping is enabled (dmar_disabled = 0)
+irrespective of whether interrupt remapping is enabled or not.
 
- # mount | grep cgroup
- # dd if=/mnt/cgroup.procs bs=1  # normal output
-...
-1294
-1295
-1296
-1304
-1382
-584+0 records in
-584+0 records out
-584 bytes copied
+Instead, populate the intel iommu debugfs directory if any IOMMUs are
+detected.
 
-dd: /mnt/cgroup.procs: cannot skip to specified offset
-83  <<< generates end of last line
-1383  <<< ... and whole last line once again
-0+1 records in
-0+1 records out
-8 bytes copied
-
-dd: /mnt/cgroup.procs: cannot skip to specified offset
-1386  <<< generates last line anyway
-0+1 records in
-0+1 records out
-5 bytes copied
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: ee2636b8670b1 ("iommu/vt-d: Enable base Intel IOMMU debugfs support")
+Signed-off-by: Megha Dey <megha.dey@linux.intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup-v1.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/intel-iommu-debugfs.c | 11 ++++++++++-
+ drivers/iommu/intel-iommu.c         |  4 +++-
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index 7f83f4121d8d0..2db582706ec5c 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -473,6 +473,7 @@ static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
- 	 */
- 	p++;
- 	if (p >= end) {
-+		(*pos)++;
- 		return NULL;
- 	} else {
- 		*pos = *p;
+diff --git a/drivers/iommu/intel-iommu-debugfs.c b/drivers/iommu/intel-iommu-debugfs.c
+index 80378c10dd77a..bdf095e9dbe03 100644
+--- a/drivers/iommu/intel-iommu-debugfs.c
++++ b/drivers/iommu/intel-iommu-debugfs.c
+@@ -281,9 +281,16 @@ static int dmar_translation_struct_show(struct seq_file *m, void *unused)
+ {
+ 	struct dmar_drhd_unit *drhd;
+ 	struct intel_iommu *iommu;
++	u32 sts;
+ 
+ 	rcu_read_lock();
+ 	for_each_active_iommu(iommu, drhd) {
++		sts = dmar_readl(iommu->reg + DMAR_GSTS_REG);
++		if (!(sts & DMA_GSTS_TES)) {
++			seq_printf(m, "DMA Remapping is not enabled on %s\n",
++				   iommu->name);
++			continue;
++		}
+ 		root_tbl_walk(m, iommu);
+ 		seq_putc(m, '\n');
+ 	}
+@@ -353,6 +360,7 @@ static int ir_translation_struct_show(struct seq_file *m, void *unused)
+ 	struct dmar_drhd_unit *drhd;
+ 	struct intel_iommu *iommu;
+ 	u64 irta;
++	u32 sts;
+ 
+ 	rcu_read_lock();
+ 	for_each_active_iommu(iommu, drhd) {
+@@ -362,7 +370,8 @@ static int ir_translation_struct_show(struct seq_file *m, void *unused)
+ 		seq_printf(m, "Remapped Interrupt supported on IOMMU: %s\n",
+ 			   iommu->name);
+ 
+-		if (iommu->ir_table) {
++		sts = dmar_readl(iommu->reg + DMAR_GSTS_REG);
++		if (iommu->ir_table && (sts & DMA_GSTS_IRES)) {
+ 			irta = virt_to_phys(iommu->ir_table->base);
+ 			seq_printf(m, " IR table address:%llx\n", irta);
+ 			ir_tbl_remap_entry_show(m, iommu);
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 10176d8ea3e65..7f31775e9b554 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -5005,6 +5005,9 @@ int __init intel_iommu_init(void)
+ 
+ 	down_write(&dmar_global_lock);
+ 
++	if (!no_iommu)
++		intel_iommu_debugfs_init();
++
+ 	if (no_iommu || dmar_disabled) {
+ 		/*
+ 		 * We exit the function here to ensure IOMMU's remapping and
+@@ -5100,7 +5103,6 @@ int __init intel_iommu_init(void)
+ 	pr_info("Intel(R) Virtualization Technology for Directed I/O\n");
+ 
+ 	intel_iommu_enabled = 1;
+-	intel_iommu_debugfs_init();
+ 
+ 	return 0;
+ 
 -- 
 2.20.1
 
