@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C04BC1990C0
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:14:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 451701991F3
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730482AbgCaJOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:14:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34088 "EHLO mail.kernel.org"
+        id S1730099AbgCaJG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:06:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730452AbgCaJOS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:14:18 -0400
+        id S1730719AbgCaJG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:06:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D72420675;
-        Tue, 31 Mar 2020 09:14:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D94FE20787;
+        Tue, 31 Mar 2020 09:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646058;
-        bh=xluyj0zuzesqOXbJY4Nak2oA9OlTyRQhQwI56NsHeus=;
+        s=default; t=1585645587;
+        bh=hxaACYMgVkwhDkMiuBu1XAJBQziyl4HbwW2YSQDvWU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gd5Z1YNbP2eA30xgjvS3Z5EiBdXwVu+UrcDUCwHMWBUhf0K4brarQhJA1sXE3MPJC
-         Vy1M4f0kpSjsaEhQsKhWV8jCk/Kh+3znhh6v9pU1IzQ6IM+VXoms5cDokQx+6nf5br
-         y6P6WRJchxeYu0sVf9/o9FEGuSY5UakxPwUA21Ao=
+        b=qKlBB3ekxUptMDjgc23y2hFslpuQkRswsUkYBI6ZXkHKCH2GAfsSZWHIDQsA5pQRa
+         d5Am0GLBa6cy1XleF3MCaXnhyZcVioB+/hv58g4pZjxzb83gel+ZNeQL1f+8VBiMho
+         LhwM0QGpJemeJIiywb7qaaDKTh97doz/1RYuXCqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Czarnota <dominik.b.czarnota@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 071/155] sxgbe: Fix off by one in samsung driver strncpy size arg
-Date:   Tue, 31 Mar 2020 10:58:31 +0200
-Message-Id: <20200331085426.355997346@linuxfoundation.org>
+        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
+        He Zhe <zhe.he@windriver.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>
+Subject: [PATCH 5.5 098/170] perf probe: Fix to delete multiple probe event
+Date:   Tue, 31 Mar 2020 10:58:32 +0200
+Message-Id: <20200331085434.639847190@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Czarnota <dominik.b.czarnota@gmail.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit f3cc008bf6d59b8d93b4190e01d3e557b0040e15 ]
+commit 6b8d68f1ce9266b05a55e93c62923ff51daae4c1 upstream.
 
-This patch fixes an off-by-one error in strncpy size argument in
-drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c. The issue is that in:
+When we put an event with multiple probes, perf-probe fails to delete
+with filters. This comes from a failure to list up the event name
+because of overwrapping its name.
 
-        strncmp(opt, "eee_timer:", 6)
+To fix this issue, skip to list up the event which has same name.
 
-the passed string literal: "eee_timer:" has 10 bytes (without the NULL
-byte) and the passed size argument is 6. As a result, the logic will
-also accept other, malformed strings, e.g. "eee_tiXXX:".
+Without this patch:
 
-This bug doesn't seem to have any security impact since its present in
-module's cmdline parsing code.
+  # perf probe -l \*
+    probe_perf:map__map_ip (on perf_sample__fprintf_brstackoff:21@
+    probe_perf:map__map_ip (on perf_sample__fprintf_brstackoff:25@
+    probe_perf:map__map_ip (on append_inlines:12@util/machine.c in
+    probe_perf:map__map_ip (on unwind_entry:19@util/machine.c in /
+    probe_perf:map__map_ip (on map__map_ip@util/map.h in /home/mhi
+    probe_perf:map__map_ip (on map__map_ip@util/map.h in /home/mhi
+  # perf probe -d \*
+  "*" does not hit any event.
+    Error: Failed to delete events. Reason: No such file or directory (Code: -2)
 
-Signed-off-by: Dominik Czarnota <dominik.b.czarnota@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+With it:
+
+  # perf probe -d \*
+  Removed event: probe_perf:map__map_ip
+  #
+
+Fixes: 72363540c009 ("perf probe: Support multiprobe event")
+Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
+Reported-by: He Zhe <zhe.he@windriver.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/158287666197.16697.7514373548551863562.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/probe-file.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-index c56fcbb370665..38767d7979147 100644
---- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-+++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-@@ -2279,7 +2279,7 @@ static int __init sxgbe_cmdline_opt(char *str)
- 	if (!str || !*str)
- 		return -EINVAL;
- 	while ((opt = strsep(&str, ",")) != NULL) {
--		if (!strncmp(opt, "eee_timer:", 6)) {
-+		if (!strncmp(opt, "eee_timer:", 10)) {
- 			if (kstrtoint(opt + 10, 0, &eee_timer))
- 				goto err;
- 		}
--- 
-2.20.1
-
+--- a/tools/perf/util/probe-file.c
++++ b/tools/perf/util/probe-file.c
+@@ -206,6 +206,9 @@ static struct strlist *__probe_file__get
+ 		} else
+ 			ret = strlist__add(sl, tev.event);
+ 		clear_probe_trace_event(&tev);
++		/* Skip if there is same name multi-probe event in the list */
++		if (ret == -EEXIST)
++			ret = 0;
+ 		if (ret < 0)
+ 			break;
+ 	}
 
 
