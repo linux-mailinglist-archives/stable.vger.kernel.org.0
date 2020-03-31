@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4CF199133
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:18:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E1E0199043
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:10:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731862AbgCaJSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:18:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39300 "EHLO mail.kernel.org"
+        id S1731597AbgCaJKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:10:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731899AbgCaJSA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:18:00 -0400
+        id S1730673AbgCaJK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:10:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8596220772;
-        Tue, 31 Mar 2020 09:17:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 397D820772;
+        Tue, 31 Mar 2020 09:10:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646279;
-        bh=a3qysZfzaNTe24ocmgT0Il+6W8c9Sy691+p8IfF+a0E=;
+        s=default; t=1585645828;
+        bh=b6ZWle7ZBOYu+g9UPnLlqZP56bPCcSFMuarMPcHu99w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSfKULUavnLGkT4ixJELillSoQNDbe+xkOy7pxkduQ20CM9cpxA+/lwBAa7RhOIkU
-         fo329m+NMobDHtMt8H2js+zp7EFmYSWU6QUICS1AKS7CmnhqAKE51z5xaHmPjF4XCR
-         vys6KPqwcSKKdwEBPI5MbooxtN3J/qRjot/GsLDo=
+        b=i2AzQDw9PIyQBe+tnj0FvuPeeEuquV07YH+KrhIGga1wriKyBK0lF1jeOM4Yqq4XY
+         imwCAOrn+MTjdFXH4diKX0/4oAiTuuwZ37iVo4BsDnM1N5yYea0ZBS9ob64FcnazAj
+         gYDpzdumOJvDHA7RQZueLA0DotI6n+57oi0yguy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.4 136/155] bpf: Undo incorrect __reg_bound_offset32 handling
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>
+Subject: [PATCH 5.5 162/170] staging: wfx: fix init/remove vs IRQ race
 Date:   Tue, 31 Mar 2020 10:59:36 +0200
-Message-Id: <20200331085433.485619539@linuxfoundation.org>
+Message-Id: <20200331085439.998160230@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,277 +45,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit f2d67fec0b43edce8c416101cdc52e71145b5fef upstream.
+commit 4033714d6cbe04893aa0708d1fcaa45dd8eb3f53 upstream.
 
-Anatoly has been fuzzing with kBdysch harness and reported a hang in
-one of the outcomes:
+Current code races in init/exit with interrupt handlers. This is noticed
+by the warning below. Fix it by using devres for ordering allocations and
+IRQ de/registration.
 
-  0: (b7) r0 = 808464432
-  1: (7f) r0 >>= r0
-  2: (14) w0 -= 808464432
-  3: (07) r0 += 808464432
-  4: (b7) r1 = 808464432
-  5: (de) if w1 s<= w0 goto pc+0
-   R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x30303020;0x10000001f)) R1_w=invP808464432 R10=fp0
-  6: (07) r0 += -2144337872
-  7: (14) w0 -= -1607454672
-  8: (25) if r0 > 0x30303030 goto pc+0
-   R0_w=invP(id=0,umin_value=271581184,umax_value=271581311,var_off=(0x10300000;0x7f)) R1_w=invP808464432 R10=fp0
-  9: (76) if w0 s>= 0x303030 goto pc+2
-  12: (95) exit
+WARNING: CPU: 0 PID: 827 at drivers/staging/wfx/bus_spi.c:142 wfx_spi_irq_handler+0x5c/0x64 [wfx]
+race condition in driver init/deinit
 
-  from 8 to 9: safe
-
-  from 5 to 6: R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x30303020;0x10000001f)) R1_w=invP808464432 R10=fp0
-  6: (07) r0 += -2144337872
-  7: (14) w0 -= -1607454672
-  8: (25) if r0 > 0x30303030 goto pc+0
-   R0_w=invP(id=0,umin_value=271581184,umax_value=271581311,var_off=(0x10300000;0x7f)) R1_w=invP808464432 R10=fp0
-  9: safe
-
-  from 8 to 9: safe
-  verification time 589 usec
-  stack depth 0
-  processed 17 insns (limit 1000000) [...]
-
-The underlying program was xlated as follows:
-
-  # bpftool p d x i 9
-   0: (b7) r0 = 808464432
-   1: (7f) r0 >>= r0
-   2: (14) w0 -= 808464432
-   3: (07) r0 += 808464432
-   4: (b7) r1 = 808464432
-   5: (de) if w1 s<= w0 goto pc+0
-   6: (07) r0 += -2144337872
-   7: (14) w0 -= -1607454672
-   8: (25) if r0 > 0x30303030 goto pc+0
-   9: (76) if w0 s>= 0x303030 goto pc+2
-  10: (05) goto pc-1
-  11: (05) goto pc-1
-  12: (95) exit
-
-The verifier rewrote original instructions it recognized as dead code with
-'goto pc-1', but reality differs from verifier simulation in that we're
-actually able to trigger a hang due to hitting the 'goto pc-1' instructions.
-
-Taking different examples to make the issue more obvious: in this example
-we're probing bounds on a completely unknown scalar variable in r1:
-
-  [...]
-  5: R0_w=inv1 R1_w=inv(id=0) R10=fp0
-  5: (18) r2 = 0x4000000000
-  7: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R10=fp0
-  7: (18) r3 = 0x2000000000
-  9: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R3_w=inv137438953472 R10=fp0
-  9: (18) r4 = 0x400
-  11: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R10=fp0
-  11: (18) r5 = 0x200
-  13: R0_w=inv1 R1_w=inv(id=0) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
-  13: (2d) if r1 > r2 goto pc+4
-   R0_w=inv1 R1_w=inv(id=0,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
-  14: R0_w=inv1 R1_w=inv(id=0,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
-  14: (ad) if r1 < r3 goto pc+3
-   R0_w=inv1 R1_w=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2_w=inv274877906944 R3_w=inv137438953472 R4_w=inv1024 R5_w=inv512 R10=fp0
-  15: R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7fffffffff)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
-  15: (2e) if w1 > w4 goto pc+2
-   R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7f00000000)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
-  16: R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7f00000000)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
-  16: (ae) if w1 < w5 goto pc+1
-   R0=inv1 R1=inv(id=0,umin_value=137438953472,umax_value=274877906944,var_off=(0x0; 0x7f00000000)) R2=inv274877906944 R3=inv137438953472 R4=inv1024 R5=inv512 R10=fp0
-  [...]
-
-We're first probing lower/upper bounds via jmp64, later we do a similar
-check via jmp32 and examine the resulting var_off there. After fall-through
-in insn 14, we get the following bounded r1 with 0x7fffffffff unknown marked
-bits in the variable section.
-
-Thus, after knowing r1 <= 0x4000000000 and r1 >= 0x2000000000:
-
-  max: 0b100000000000000000000000000000000000000 / 0x4000000000
-  var: 0b111111111111111111111111111111111111111 / 0x7fffffffff
-  min: 0b010000000000000000000000000000000000000 / 0x2000000000
-
-Now, in insn 15 and 16, we perform a similar probe with lower/upper bounds
-in jmp32.
-
-Thus, after knowing r1 <= 0x4000000000 and r1 >= 0x2000000000 and
-                    w1 <= 0x400        and w1 >= 0x200:
-
-  max: 0b100000000000000000000000000000000000000 / 0x4000000000
-  var: 0b111111100000000000000000000000000000000 / 0x7f00000000
-  min: 0b010000000000000000000000000000000000000 / 0x2000000000
-
-The lower/upper bounds haven't changed since they have high bits set in
-u64 space and the jmp32 tests can only refine bounds in the low bits.
-
-However, for the var part the expectation would have been 0x7f000007ff
-or something less precise up to 0x7fffffffff. A outcome of 0x7f00000000
-is not correct since it would contradict the earlier probed bounds
-where we know that the result should have been in [0x200,0x400] in u32
-space. Therefore, tests with such info will lead to wrong verifier
-assumptions later on like falsely predicting conditional jumps to be
-always taken, etc.
-
-The issue here is that __reg_bound_offset32()'s implementation from
-commit 581738a681b6 ("bpf: Provide better register bounds after jmp32
-instructions") makes an incorrect range assumption:
-
-  static void __reg_bound_offset32(struct bpf_reg_state *reg)
-  {
-        u64 mask = 0xffffFFFF;
-        struct tnum range = tnum_range(reg->umin_value & mask,
-                                       reg->umax_value & mask);
-        struct tnum lo32 = tnum_cast(reg->var_off, 4);
-        struct tnum hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
-
-        reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
-  }
-
-In the above walk-through example, __reg_bound_offset32() as-is chose
-a range after masking with 0xffffffff of [0x0,0x0] since umin:0x2000000000
-and umax:0x4000000000 and therefore the lo32 part was clamped to 0x0 as
-well. However, in the umin:0x2000000000 and umax:0x4000000000 range above
-we'd end up with an actual possible interval of [0x0,0xffffffff] for u32
-space instead.
-
-In case of the original reproducer, the situation looked as follows at
-insn 5 for r0:
-
-  [...]
-  5: R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x0; 0x1ffffffff)) R1_w=invP808464432 R10=fp0
-                               0x30303030           0x13030302f
-  5: (de) if w1 s<= w0 goto pc+0
-   R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x30303020; 0x10000001f)) R1_w=invP808464432 R10=fp0
-                             0x30303030           0x13030302f
-  [...]
-
-After the fall-through, we similarly forced the var_off result into
-the wrong range [0x30303030,0x3030302f] suggesting later on that fixed
-bits must only be of 0x30303020 with 0x10000001f unknowns whereas such
-assumption can only be made when both bounds in hi32 range match.
-
-Originally, I was thinking to fix this by moving reg into a temp reg and
-use proper coerce_reg_to_size() helper on the temp reg where we can then
-based on that define the range tnum for later intersection:
-
-  static void __reg_bound_offset32(struct bpf_reg_state *reg)
-  {
-        struct bpf_reg_state tmp = *reg;
-        struct tnum lo32, hi32, range;
-
-        coerce_reg_to_size(&tmp, 4);
-        range = tnum_range(tmp.umin_value, tmp.umax_value);
-        lo32 = tnum_cast(reg->var_off, 4);
-        hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
-        reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
-  }
-
-In the case of the concrete example, this gives us a more conservative unknown
-section. Thus, after knowing r1 <= 0x4000000000 and r1 >= 0x2000000000 and
-                             w1 <= 0x400        and w1 >= 0x200:
-
-  max: 0b100000000000000000000000000000000000000 / 0x4000000000
-  var: 0b111111111111111111111111111111111111111 / 0x7fffffffff
-  min: 0b010000000000000000000000000000000000000 / 0x2000000000
-
-However, above new __reg_bound_offset32() has no effect on refining the
-knowledge of the register contents. Meaning, if the bounds in hi32 range
-mismatch we'll get the identity function given the range reg spans
-[0x0,0xffffffff] and we cast var_off into lo32 only to later on binary
-or it again with the hi32.
-
-Likewise, if the bounds in hi32 range match, then we mask both bounds
-with 0xffffffff, use the resulting umin/umax for the range to later
-intersect the lo32 with it. However, _prior_ called __reg_bound_offset()
-did already such intersection on the full reg and we therefore would only
-repeat the same operation on the lo32 part twice.
-
-Given this has no effect and the original commit had false assumptions,
-this patch reverts the code entirely which is also more straight forward
-for stable trees: apparently 581738a681b6 got auto-selected by Sasha's
-ML system and misclassified as a fix, so it got sucked into v5.4 where
-it should never have landed. A revert is low-risk also from a user PoV
-since it requires a recent kernel and llc to opt-into -mcpu=v3 BPF CPU
-to generate jmp32 instructions. A proper bounds refinement would need a
-significantly more complex approach which is currently being worked, but
-no stable material [0]. Hence revert is best option for stable. After the
-revert, the original reported program gets rejected as follows:
-
-  1: (7f) r0 >>= r0
-  2: (14) w0 -= 808464432
-  3: (07) r0 += 808464432
-  4: (b7) r1 = 808464432
-  5: (de) if w1 s<= w0 goto pc+0
-   R0_w=invP(id=0,umin_value=808464432,umax_value=5103431727,var_off=(0x0; 0x1ffffffff)) R1_w=invP808464432 R10=fp0
-  6: (07) r0 += -2144337872
-  7: (14) w0 -= -1607454672
-  8: (25) if r0 > 0x30303030 goto pc+0
-   R0_w=invP(id=0,umax_value=808464432,var_off=(0x0; 0x3fffffff)) R1_w=invP808464432 R10=fp0
-  9: (76) if w0 s>= 0x303030 goto pc+2
-   R0=invP(id=0,umax_value=3158063,var_off=(0x0; 0x3fffff)) R1=invP808464432 R10=fp0
-  10: (30) r0 = *(u8 *)skb[808464432]
-  BPF_LD_[ABS|IND] uses reserved fields
-  processed 11 insns (limit 1000000) [...]
-
-  [0] https://lore.kernel.org/bpf/158507130343.15666.8018068546764556975.stgit@john-Precision-5820-Tower/T/
-
-Fixes: 581738a681b6 ("bpf: Provide better register bounds after jmp32 instructions")
-Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200330160324.15259-2-daniel@iogearbox.net
+Cc: stable@vger.kernel.org
+Fixes: 0096214a59a7 ("staging: wfx: add support for I/O access")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Link: https://lore.kernel.org/r/f0c66cbb3110c2736cd4357c753fba8c14ee3aee.1581416843.git.mirq-linux@rere.qmqm.pl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
-
 ---
- kernel/bpf/verifier.c |   19 -------------------
- 1 file changed, 19 deletions(-)
+ drivers/staging/wfx/bus_sdio.c |   15 ++++++---------
+ drivers/staging/wfx/bus_spi.c  |   27 ++++++++++++++-------------
+ drivers/staging/wfx/main.c     |   21 +++++++++++++--------
+ drivers/staging/wfx/main.h     |    1 -
+ 4 files changed, 33 insertions(+), 31 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -979,17 +979,6 @@ static void __reg_bound_offset(struct bp
- 						 reg->umax_value));
+--- a/drivers/staging/wfx/bus_sdio.c
++++ b/drivers/staging/wfx/bus_sdio.c
+@@ -200,25 +200,23 @@ static int wfx_sdio_probe(struct sdio_fu
+ 	if (ret)
+ 		goto err0;
+ 
+-	ret = wfx_sdio_irq_subscribe(bus);
+-	if (ret)
+-		goto err1;
+-
+ 	bus->core = wfx_init_common(&func->dev, &wfx_sdio_pdata,
+ 				    &wfx_sdio_hwbus_ops, bus);
+ 	if (!bus->core) {
+ 		ret = -EIO;
+-		goto err2;
++		goto err1;
+ 	}
+ 
++	ret = wfx_sdio_irq_subscribe(bus);
++	if (ret)
++		goto err1;
++
+ 	ret = wfx_probe(bus->core);
+ 	if (ret)
+-		goto err3;
++		goto err2;
+ 
+ 	return 0;
+ 
+-err3:
+-	wfx_free_common(bus->core);
+ err2:
+ 	wfx_sdio_irq_unsubscribe(bus);
+ err1:
+@@ -234,7 +232,6 @@ static void wfx_sdio_remove(struct sdio_
+ 	struct wfx_sdio_priv *bus = sdio_get_drvdata(func);
+ 
+ 	wfx_release(bus->core);
+-	wfx_free_common(bus->core);
+ 	wfx_sdio_irq_unsubscribe(bus);
+ 	sdio_claim_host(func);
+ 	sdio_disable_func(func);
+--- a/drivers/staging/wfx/bus_spi.c
++++ b/drivers/staging/wfx/bus_spi.c
+@@ -154,6 +154,11 @@ static void wfx_spi_request_rx(struct wo
+ 	wfx_bh_request_rx(bus->core);
  }
  
--static void __reg_bound_offset32(struct bpf_reg_state *reg)
--{
--	u64 mask = 0xffffFFFF;
--	struct tnum range = tnum_range(reg->umin_value & mask,
--				       reg->umax_value & mask);
--	struct tnum lo32 = tnum_cast(reg->var_off, 4);
--	struct tnum hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
--
--	reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
--}
--
- /* Reset the min/max bounds of a register */
- static void __mark_reg_unbounded(struct bpf_reg_state *reg)
++static void wfx_flush_irq_work(void *w)
++{
++	flush_work(w);
++}
++
+ static size_t wfx_spi_align_size(void *priv, size_t size)
  {
-@@ -5452,10 +5441,6 @@ static void reg_set_min_max(struct bpf_r
- 	/* We might have learned some bits from the bounds. */
- 	__reg_bound_offset(false_reg);
- 	__reg_bound_offset(true_reg);
--	if (is_jmp32) {
--		__reg_bound_offset32(false_reg);
--		__reg_bound_offset32(true_reg);
--	}
- 	/* Intersecting with the old var_off might have improved our bounds
- 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
- 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
-@@ -5565,10 +5550,6 @@ static void reg_set_min_max_inv(struct b
- 	/* We might have learned some bits from the bounds. */
- 	__reg_bound_offset(false_reg);
- 	__reg_bound_offset(true_reg);
--	if (is_jmp32) {
--		__reg_bound_offset32(false_reg);
--		__reg_bound_offset32(true_reg);
--	}
- 	/* Intersecting with the old var_off might have improved our bounds
- 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
- 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
+ 	// Most of SPI controllers avoid DMA if buffer size is not 32bit aligned
+@@ -209,22 +214,23 @@ static int wfx_spi_probe(struct spi_devi
+ 		udelay(2000);
+ 	}
+ 
+-	ret = devm_request_irq(&func->dev, func->irq, wfx_spi_irq_handler,
+-			       IRQF_TRIGGER_RISING, "wfx", bus);
+-	if (ret)
+-		return ret;
+-
+ 	INIT_WORK(&bus->request_rx, wfx_spi_request_rx);
+ 	bus->core = wfx_init_common(&func->dev, &wfx_spi_pdata,
+ 				    &wfx_spi_hwbus_ops, bus);
+ 	if (!bus->core)
+ 		return -EIO;
+ 
+-	ret = wfx_probe(bus->core);
++	ret = devm_add_action_or_reset(&func->dev, wfx_flush_irq_work,
++				       &bus->request_rx);
+ 	if (ret)
+-		wfx_free_common(bus->core);
++		return ret;
++
++	ret = devm_request_irq(&func->dev, func->irq, wfx_spi_irq_handler,
++			       IRQF_TRIGGER_RISING, "wfx", bus);
++	if (ret)
++		return ret;
+ 
+-	return ret;
++	return wfx_probe(bus->core);
+ }
+ 
+ /* Disconnect Function to be called by SPI stack when device is disconnected */
+@@ -233,11 +239,6 @@ static int wfx_spi_disconnect(struct spi
+ 	struct wfx_spi_priv *bus = spi_get_drvdata(func);
+ 
+ 	wfx_release(bus->core);
+-	wfx_free_common(bus->core);
+-	// A few IRQ will be sent during device release. Hopefully, no IRQ
+-	// should happen after wdev/wvif are released.
+-	devm_free_irq(&func->dev, func->irq, bus);
+-	flush_work(&bus->request_rx);
+ 	return 0;
+ }
+ 
+--- a/drivers/staging/wfx/main.c
++++ b/drivers/staging/wfx/main.c
+@@ -261,6 +261,16 @@ static int wfx_send_pdata_pds(struct wfx
+ 	return ret;
+ }
+ 
++static void wfx_free_common(void *data)
++{
++	struct wfx_dev *wdev = data;
++
++	mutex_destroy(&wdev->rx_stats_lock);
++	mutex_destroy(&wdev->conf_mutex);
++	wfx_tx_queues_deinit(wdev);
++	ieee80211_free_hw(wdev->hw);
++}
++
+ struct wfx_dev *wfx_init_common(struct device *dev,
+ 				const struct wfx_platform_data *pdata,
+ 				const struct hwbus_ops *hwbus_ops,
+@@ -326,15 +336,10 @@ struct wfx_dev *wfx_init_common(struct d
+ 	wfx_init_hif_cmd(&wdev->hif_cmd);
+ 	wfx_tx_queues_init(wdev);
+ 
+-	return wdev;
+-}
++	if (devm_add_action_or_reset(dev, wfx_free_common, wdev))
++		return NULL;
+ 
+-void wfx_free_common(struct wfx_dev *wdev)
+-{
+-	mutex_destroy(&wdev->rx_stats_lock);
+-	mutex_destroy(&wdev->conf_mutex);
+-	wfx_tx_queues_deinit(wdev);
+-	ieee80211_free_hw(wdev->hw);
++	return wdev;
+ }
+ 
+ int wfx_probe(struct wfx_dev *wdev)
+--- a/drivers/staging/wfx/main.h
++++ b/drivers/staging/wfx/main.h
+@@ -34,7 +34,6 @@ struct wfx_dev *wfx_init_common(struct d
+ 				const struct wfx_platform_data *pdata,
+ 				const struct hwbus_ops *hwbus_ops,
+ 				void *hwbus_priv);
+-void wfx_free_common(struct wfx_dev *wdev);
+ 
+ int wfx_probe(struct wfx_dev *wdev);
+ void wfx_release(struct wfx_dev *wdev);
 
 
