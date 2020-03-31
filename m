@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC55199153
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CCED199155
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730395AbgCaJTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:19:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40938 "EHLO mail.kernel.org"
+        id S1732191AbgCaJTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:19:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732181AbgCaJTC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:19:02 -0400
+        id S1732186AbgCaJTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:19:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7D2220787;
-        Tue, 31 Mar 2020 09:19:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34F7F208E0;
+        Tue, 31 Mar 2020 09:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585646342;
-        bh=ZmACsDQQqEmFzphVKiN3V7EO4QhkgJNKRbxPkL6TpN8=;
+        s=default; t=1585646344;
+        bh=QQ6ebnUvoHQNHZ6qn9BQCIRm9XiS9wC5bt9itZPaTN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFa1atOa+HdKerjXMFUbeRNWIsPwLNd8Ft+/ZMkvSukTOCS+VxzFifXuRLZP8SMNq
-         b5VJnHTOr6aIE/HxIsZS9XoBTG+tX0moSpZcpzcswRA5kxcPb1wmgi0m/ZWDlCYw/5
-         8j84epQClhhboVPIo2+uFHBo2KDCTm8oWbOVaOwE=
+        b=s9BBP9AYAlNrcGWjIm3IZCmf2OARjCZHnz5iLjpE5xGJijAM62pnO26QIPkDwCv2o
+         +XXb22UjXW01kCk9X4wLVbz0gPQ9zVoh6tVte42sy0aDiRxw3SHTd+HH/Lu6t0Pa0e
+         a4Cpimf5ts3YIrNOL3qP/sv6dG7dhJuB7+ZCD8II=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        kovi <zraetn@gmail.com>
-Subject: [PATCH 5.4 146/155] staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
-Date:   Tue, 31 Mar 2020 10:59:46 +0200
-Message-Id: <20200331085434.506655469@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+6d2e7f6fa90e27be9d62@syzkaller.appspotmail.com,
+        Qiujun Huang <hqjagain@gmail.com>
+Subject: [PATCH 5.4 147/155] staging: wlan-ng: fix ODEBUG bug in prism2sta_disconnect_usb
+Date:   Tue, 31 Mar 2020 10:59:47 +0200
+Message-Id: <20200331085434.592717738@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
 References: <20200331085418.274292403@linuxfoundation.org>
@@ -43,32 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit 38ef48f7d4b7342f145a1b4f96023bde99aeb245 upstream.
+commit a1f165a6b738f0c9d744bad4af7a53909278f5fc upstream.
 
-The ASUS USB-N10 Nano B1 has been reported as a new RTL8188EU device.
-Add it to the device tables.
+We should cancel hw->usb_work before kfree(hw).
 
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Reported-by: kovi <zraetn@gmail.com>
-Cc: Stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200321180011.26153-1-Larry.Finger@lwfinger.net
+Reported-by: syzbot+6d2e7f6fa90e27be9d62@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1585120006-30042-1-git-send-email-hqjagain@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
+ drivers/staging/wlan-ng/prism2usb.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -32,6 +32,7 @@ static const struct usb_device_id rtw_us
- 	/****** 8188EUS ********/
- 	{USB_DEVICE(0x056e, 0x4008)}, /* Elecom WDC-150SU2M */
- 	{USB_DEVICE(0x07b8, 0x8179)}, /* Abocom - Abocom */
-+	{USB_DEVICE(0x0B05, 0x18F0)}, /* ASUS USB-N10 Nano B1 */
- 	{USB_DEVICE(0x2001, 0x330F)}, /* DLink DWA-125 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3310)}, /* Dlink DWA-123 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
+--- a/drivers/staging/wlan-ng/prism2usb.c
++++ b/drivers/staging/wlan-ng/prism2usb.c
+@@ -180,6 +180,7 @@ static void prism2sta_disconnect_usb(str
+ 
+ 		cancel_work_sync(&hw->link_bh);
+ 		cancel_work_sync(&hw->commsqual_bh);
++		cancel_work_sync(&hw->usb_work);
+ 
+ 		/* Now we complete any outstanding commands
+ 		 * and tell everyone who is waiting for their
 
 
