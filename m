@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2638A199083
-	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21AFA198F91
+	for <lists+stable@lfdr.de>; Tue, 31 Mar 2020 11:04:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731425AbgCaJMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 05:12:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58418 "EHLO mail.kernel.org"
+        id S1730974AbgCaJEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 05:04:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731775AbgCaJMQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Mar 2020 05:12:16 -0400
+        id S1730662AbgCaJEd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Mar 2020 05:04:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB69F20772;
-        Tue, 31 Mar 2020 09:12:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59F91208E0;
+        Tue, 31 Mar 2020 09:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585645935;
-        bh=CIZJFBOO/lyl3P9I6RSWVKhxjGF5Hijg738vQur+fLI=;
+        s=default; t=1585645472;
+        bh=rY05YLwtbtXzyT165RkLIipQqmrwA6WUFyYk2qA7868=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2ZOGvAurjT46eYhT1PZg0TO2ARKsvuidCWzbaN8edY+oT0qRq5Cwo6S5TLngZpIB
-         u2kCuhFuu8hPdCTQ7clW0kKeJMcyB5kZSX0pLzlF4KbX5RPc0G/KrsokZvy0tfcwjg
-         E+IorUEDMH4wm2aiWrBNmPRlQ2ctcc2avCe4du3A=
+        b=B3kVvNn7ga2laIjpS5HQazm1/aIOTv3BkgJ1fH9D3HXJ0zDFyDEZiRKtmMLehlFHf
+         nsBs0sHXjBgI6qJOcB0FRS7Z+jltbCsARxfixPDOCOLkWoMB9JJHNIRwKUn6gRA2SF
+         35Uq2oNCzhUTwN8G+4mA8Cw6x9+MCaC3RtaIHnUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 038/155] vxlan: check return value of gro_cells_init()
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 064/170] cgroup-v1: cgroup_pidlist_next should update position index
 Date:   Tue, 31 Mar 2020 10:57:58 +0200
-Message-Id: <20200331085422.679138868@linuxfoundation.org>
+Message-Id: <20200331085431.290036933@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200331085418.274292403@linuxfoundation.org>
-References: <20200331085418.274292403@linuxfoundation.org>
+In-Reply-To: <20200331085423.990189598@linuxfoundation.org>
+References: <20200331085423.990189598@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 384d91c267e621e0926062cfb3f20cb72dc16928 ]
+[ Upstream commit db8dd9697238be70a6b4f9d0284cd89f59c0e070 ]
 
-gro_cells_init() returns error if memory allocation is failed.
-But the vxlan module doesn't check the return value of gro_cells_init().
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Fixes: 58ce31cca1ff ("vxlan: GRO support at tunnel layer")`
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ # mount | grep cgroup
+ # dd if=/mnt/cgroup.procs bs=1  # normal output
+...
+1294
+1295
+1296
+1304
+1382
+584+0 records in
+584+0 records out
+584 bytes copied
+
+dd: /mnt/cgroup.procs: cannot skip to specified offset
+83  <<< generates end of last line
+1383  <<< ... and whole last line once again
+0+1 records in
+0+1 records out
+8 bytes copied
+
+dd: /mnt/cgroup.procs: cannot skip to specified offset
+1386  <<< generates last line anyway
+0+1 records in
+0+1 records out
+5 bytes copied
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ kernel/cgroup/cgroup-v1.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -2779,10 +2779,19 @@ static void vxlan_vs_add_dev(struct vxla
- /* Setup stats when device is created */
- static int vxlan_init(struct net_device *dev)
- {
-+	struct vxlan_dev *vxlan = netdev_priv(dev);
-+	int err;
-+
- 	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
- 	if (!dev->tstats)
- 		return -ENOMEM;
- 
-+	err = gro_cells_init(&vxlan->gro_cells, dev);
-+	if (err) {
-+		free_percpu(dev->tstats);
-+		return err;
-+	}
-+
- 	return 0;
- }
- 
-@@ -3043,8 +3052,6 @@ static void vxlan_setup(struct net_devic
- 
- 	vxlan->dev = dev;
- 
--	gro_cells_init(&vxlan->gro_cells, dev);
--
- 	for (h = 0; h < FDB_HASH_SIZE; ++h) {
- 		spin_lock_init(&vxlan->hash_lock[h]);
- 		INIT_HLIST_HEAD(&vxlan->fdb_head[h]);
+diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
+index 09f3a413f6f89..84bedb87ae137 100644
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -473,6 +473,7 @@ static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
+ 	 */
+ 	p++;
+ 	if (p >= end) {
++		(*pos)++;
+ 		return NULL;
+ 	} else {
+ 		*pos = *p;
+-- 
+2.20.1
+
 
 
