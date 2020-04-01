@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BB6019AFA0
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:19:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF36919B43D
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732511AbgDAQTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:19:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42108 "EHLO mail.kernel.org"
+        id S1732943AbgDAQUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:20:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732509AbgDAQTp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:19:45 -0400
+        id S1732973AbgDAQUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:20:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12BCD214D8;
-        Wed,  1 Apr 2020 16:19:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A52D20857;
+        Wed,  1 Apr 2020 16:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585757984;
-        bh=RDAjuBB4KW4yL7sP70yBhPT0EQ7PiWA5pPyjEhswzno=;
+        s=default; t=1585758028;
+        bh=FpWX8SHLlaQT86YJFerINs9rWgVAxYwa00BIgmCAzbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hm3EqzD5rUnMifxbPVL5CIyHCTkAxfvRPe9/Sx+LpJz8NsD1casWqPSjGzxyjqUss
-         BDHDMxRynor6mAMBB279NHEOZ1CZKfKx8q31JuQNkziNAgf0CuU6Jlu06/tiSPdKEQ
-         0g+gj3ACnDqgHmUW6yeMoHWlZ/uDbio9CkI9ipl8=
+        b=P0LP5V80pJA0/s1Lwc2WjuQQg7mFJWgYUGX3V1tedp47SDgSr1F/tDqecn7DNUJzU
+         PfaocjgfNXPtIdYtq0RnMRfuxovq5YDj5ny5yQIWs+WYgOtTBXu+vLW0ySGuOfp2t2
+         dAyoNz3S3c/GB+isAiQ0aPUWl7j6cN/ZwxQMoIa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+522643ab5729b0421998@syzkaller.appspotmail.com,
-        Jiri Slaby <jslaby@suse.cz>, Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.6 08/10] vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use virtual console
+        stable@vger.kernel.org, Roman Penyaev <rpenyaev@suse.de>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.5 20/30] libceph: fix alloc_msg_with_page_vector() memory leaks
 Date:   Wed,  1 Apr 2020 18:17:24 +0200
-Message-Id: <20200401161420.269513071@linuxfoundation.org>
+Message-Id: <20200401161431.088388652@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161413.974936041@linuxfoundation.org>
-References: <20200401161413.974936041@linuxfoundation.org>
+In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
+References: <20200401161414.345528747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,175 +43,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Ilya Dryomov <idryomov@gmail.com>
 
-commit ca4463bf8438b403596edd0ec961ca0d4fbe0220 upstream.
+commit e886274031200bb60965c1b9c49b7acda56a93bd upstream.
 
-The VT_DISALLOCATE ioctl can free a virtual console while tty_release()
-is still running, causing a use-after-free in con_shutdown().  This
-occurs because VT_DISALLOCATE considers a virtual console's
-'struct vc_data' to be unused as soon as the corresponding tty's
-refcount hits 0.  But actually it may be still being closed.
+Make it so that CEPH_MSG_DATA_PAGES data item can own pages,
+fixing a bunch of memory leaks for a page vector allocated in
+alloc_msg_with_page_vector().  Currently, only watch-notify
+messages trigger this allocation, and normally the page vector
+is freed either in handle_watch_notify() or by the caller of
+ceph_osdc_notify().  But if the message is freed before that
+(e.g. if the session faults while reading in the message or
+if the notify is stale), we leak the page vector.
 
-Fix this by making vc_data be reference-counted via the embedded
-'struct tty_port'.  A newly allocated virtual console has refcount 1.
-Opening it for the first time increments the refcount to 2.  Closing it
-for the last time decrements the refcount (in tty_operations::cleanup()
-so that it happens late enough), as does VT_DISALLOCATE.
+This was supposed to be fixed by switching to a message-owned
+pagelist, but that never happened.
 
-Reproducer:
-	#include <fcntl.h>
-	#include <linux/vt.h>
-	#include <sys/ioctl.h>
-	#include <unistd.h>
-
-	int main()
-	{
-		if (fork()) {
-			for (;;)
-				close(open("/dev/tty5", O_RDWR));
-		} else {
-			int fd = open("/dev/tty10", O_RDWR);
-
-			for (;;)
-				ioctl(fd, VT_DISALLOCATE, 5);
-		}
-	}
-
-KASAN report:
-	BUG: KASAN: use-after-free in con_shutdown+0x76/0x80 drivers/tty/vt/vt.c:3278
-	Write of size 8 at addr ffff88806a4ec108 by task syz_vt/129
-
-	CPU: 0 PID: 129 Comm: syz_vt Not tainted 5.6.0-rc2 #11
-	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20191223_100556-anatol 04/01/2014
-	Call Trace:
-	 [...]
-	 con_shutdown+0x76/0x80 drivers/tty/vt/vt.c:3278
-	 release_tty+0xa8/0x410 drivers/tty/tty_io.c:1514
-	 tty_release_struct+0x34/0x50 drivers/tty/tty_io.c:1629
-	 tty_release+0x984/0xed0 drivers/tty/tty_io.c:1789
-	 [...]
-
-	Allocated by task 129:
-	 [...]
-	 kzalloc include/linux/slab.h:669 [inline]
-	 vc_allocate drivers/tty/vt/vt.c:1085 [inline]
-	 vc_allocate+0x1ac/0x680 drivers/tty/vt/vt.c:1066
-	 con_install+0x4d/0x3f0 drivers/tty/vt/vt.c:3229
-	 tty_driver_install_tty drivers/tty/tty_io.c:1228 [inline]
-	 tty_init_dev+0x94/0x350 drivers/tty/tty_io.c:1341
-	 tty_open_by_driver drivers/tty/tty_io.c:1987 [inline]
-	 tty_open+0x3ca/0xb30 drivers/tty/tty_io.c:2035
-	 [...]
-
-	Freed by task 130:
-	 [...]
-	 kfree+0xbf/0x1e0 mm/slab.c:3757
-	 vt_disallocate drivers/tty/vt/vt_ioctl.c:300 [inline]
-	 vt_ioctl+0x16dc/0x1e30 drivers/tty/vt/vt_ioctl.c:818
-	 tty_ioctl+0x9db/0x11b0 drivers/tty/tty_io.c:2660
-	 [...]
-
-Fixes: 4001d7b7fc27 ("vt: push down the tty lock so we can see what is left to tackle")
-Cc: <stable@vger.kernel.org> # v3.4+
-Reported-by: syzbot+522643ab5729b0421998@syzkaller.appspotmail.com
-Acked-by: Jiri Slaby <jslaby@suse.cz>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20200322034305.210082-2-ebiggers@kernel.org
+Fixes: 1907920324f1 ("libceph: support for sending notifies")
+Reported-by: Roman Penyaev <rpenyaev@suse.de>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Roman Penyaev <rpenyaev@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt.c       |   23 ++++++++++++++++++++++-
- drivers/tty/vt/vt_ioctl.c |   12 ++++--------
- 2 files changed, 26 insertions(+), 9 deletions(-)
+ include/linux/ceph/messenger.h |    7 ++++---
+ net/ceph/messenger.c           |    9 +++++++--
+ net/ceph/osd_client.c          |   14 +++-----------
+ 3 files changed, 14 insertions(+), 16 deletions(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1075,6 +1075,17 @@ static void visual_deinit(struct vc_data
- 	module_put(vc->vc_sw->owner);
- }
+--- a/include/linux/ceph/messenger.h
++++ b/include/linux/ceph/messenger.h
+@@ -175,9 +175,10 @@ struct ceph_msg_data {
+ #endif /* CONFIG_BLOCK */
+ 		struct ceph_bvec_iter	bvec_pos;
+ 		struct {
+-			struct page	**pages;	/* NOT OWNER. */
++			struct page	**pages;
+ 			size_t		length;		/* total # bytes */
+ 			unsigned int	alignment;	/* first page */
++			bool		own_pages;
+ 		};
+ 		struct ceph_pagelist	*pagelist;
+ 	};
+@@ -356,8 +357,8 @@ extern void ceph_con_keepalive(struct ce
+ extern bool ceph_con_keepalive_expired(struct ceph_connection *con,
+ 				       unsigned long interval);
  
-+static void vc_port_destruct(struct tty_port *port)
-+{
-+	struct vc_data *vc = container_of(port, struct vc_data, port);
-+
-+	kfree(vc);
-+}
-+
-+static const struct tty_port_operations vc_port_ops = {
-+	.destruct = vc_port_destruct,
-+};
-+
- int vc_allocate(unsigned int currcons)	/* return 0 on success */
+-extern void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
+-				size_t length, size_t alignment);
++void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
++			     size_t length, size_t alignment, bool own_pages);
+ extern void ceph_msg_data_add_pagelist(struct ceph_msg *msg,
+ 				struct ceph_pagelist *pagelist);
+ #ifdef CONFIG_BLOCK
+--- a/net/ceph/messenger.c
++++ b/net/ceph/messenger.c
+@@ -3248,12 +3248,16 @@ static struct ceph_msg_data *ceph_msg_da
+ 
+ static void ceph_msg_data_destroy(struct ceph_msg_data *data)
  {
- 	struct vt_notifier_param param;
-@@ -1100,6 +1111,7 @@ int vc_allocate(unsigned int currcons)	/
- 
- 	vc_cons[currcons].d = vc;
- 	tty_port_init(&vc->port);
-+	vc->port.ops = &vc_port_ops;
- 	INIT_WORK(&vc_cons[currcons].SAK_work, vc_SAK);
- 
- 	visual_init(vc, currcons, 1);
-@@ -3254,6 +3266,7 @@ static int con_install(struct tty_driver
- 
- 	tty->driver_data = vc;
- 	vc->port.tty = tty;
-+	tty_port_get(&vc->port);
- 
- 	if (!tty->winsize.ws_row && !tty->winsize.ws_col) {
- 		tty->winsize.ws_row = vc_cons[currcons].d->vc_rows;
-@@ -3289,6 +3302,13 @@ static void con_shutdown(struct tty_stru
- 	console_unlock();
+-	if (data->type == CEPH_MSG_DATA_PAGELIST)
++	if (data->type == CEPH_MSG_DATA_PAGES && data->own_pages) {
++		int num_pages = calc_pages_for(data->alignment, data->length);
++		ceph_release_page_vector(data->pages, num_pages);
++	} else if (data->type == CEPH_MSG_DATA_PAGELIST) {
+ 		ceph_pagelist_release(data->pagelist);
++	}
  }
  
-+static void con_cleanup(struct tty_struct *tty)
-+{
-+	struct vc_data *vc = tty->driver_data;
-+
-+	tty_port_put(&vc->port);
-+}
-+
- static int default_color           = 7; /* white */
- static int default_italic_color    = 2; // green (ASCII)
- static int default_underline_color = 3; // cyan (ASCII)
-@@ -3414,7 +3434,8 @@ static const struct tty_operations con_o
- 	.throttle = con_throttle,
- 	.unthrottle = con_unthrottle,
- 	.resize = vt_resize,
--	.shutdown = con_shutdown
-+	.shutdown = con_shutdown,
-+	.cleanup = con_cleanup,
- };
+ void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
+-		size_t length, size_t alignment)
++			     size_t length, size_t alignment, bool own_pages)
+ {
+ 	struct ceph_msg_data *data;
  
- static struct cdev vc0_cdev;
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -310,10 +310,8 @@ static int vt_disallocate(unsigned int v
- 		vc = vc_deallocate(vc_num);
- 	console_unlock();
+@@ -3265,6 +3269,7 @@ void ceph_msg_data_add_pages(struct ceph
+ 	data->pages = pages;
+ 	data->length = length;
+ 	data->alignment = alignment & ~PAGE_MASK;
++	data->own_pages = own_pages;
  
--	if (vc && vc_num >= MIN_NR_CONSOLES) {
--		tty_port_destroy(&vc->port);
--		kfree(vc);
--	}
-+	if (vc && vc_num >= MIN_NR_CONSOLES)
-+		tty_port_put(&vc->port);
- 
- 	return ret;
+ 	msg->data_length += length;
  }
-@@ -333,10 +331,8 @@ static void vt_disallocate_all(void)
- 	console_unlock();
+--- a/net/ceph/osd_client.c
++++ b/net/ceph/osd_client.c
+@@ -962,7 +962,7 @@ static void ceph_osdc_msg_data_add(struc
+ 		BUG_ON(length > (u64) SIZE_MAX);
+ 		if (length)
+ 			ceph_msg_data_add_pages(msg, osd_data->pages,
+-					length, osd_data->alignment);
++					length, osd_data->alignment, false);
+ 	} else if (osd_data->type == CEPH_OSD_DATA_TYPE_PAGELIST) {
+ 		BUG_ON(!length);
+ 		ceph_msg_data_add_pagelist(msg, osd_data->pagelist);
+@@ -4436,9 +4436,7 @@ static void handle_watch_notify(struct c
+ 							CEPH_MSG_DATA_PAGES);
+ 					*lreq->preply_pages = data->pages;
+ 					*lreq->preply_len = data->length;
+-				} else {
+-					ceph_release_page_vector(data->pages,
+-					       calc_pages_for(0, data->length));
++					data->own_pages = false;
+ 				}
+ 			}
+ 			lreq->notify_finish_error = return_code;
+@@ -5500,9 +5498,6 @@ out_unlock_osdc:
+ 	return m;
+ }
  
- 	for (i = 1; i < MAX_NR_CONSOLES; i++) {
--		if (vc[i] && i >= MIN_NR_CONSOLES) {
--			tty_port_destroy(&vc[i]->port);
--			kfree(vc[i]);
--		}
-+		if (vc[i] && i >= MIN_NR_CONSOLES)
-+			tty_port_put(&vc[i]->port);
+-/*
+- * TODO: switch to a msg-owned pagelist
+- */
+ static struct ceph_msg *alloc_msg_with_page_vector(struct ceph_msg_header *hdr)
+ {
+ 	struct ceph_msg *m;
+@@ -5516,7 +5511,6 @@ static struct ceph_msg *alloc_msg_with_p
+ 
+ 	if (data_len) {
+ 		struct page **pages;
+-		struct ceph_osd_data osd_data;
+ 
+ 		pages = ceph_alloc_page_vector(calc_pages_for(0, data_len),
+ 					       GFP_NOIO);
+@@ -5525,9 +5519,7 @@ static struct ceph_msg *alloc_msg_with_p
+ 			return NULL;
+ 		}
+ 
+-		ceph_osd_data_pages_init(&osd_data, pages, data_len, 0, false,
+-					 false);
+-		ceph_osdc_msg_data_add(m, &osd_data);
++		ceph_msg_data_add_pages(m, pages, data_len, 0, true);
  	}
- }
  
+ 	return m;
 
 
