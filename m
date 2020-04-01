@@ -2,149 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15DD119ACF2
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 15:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDEA019ACFF
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 15:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732561AbgDANfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 09:35:14 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:54989 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732289AbgDANfO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 09:35:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585748113;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=XIz2ho7kIoYFj6kHnCtqWvrVWKEwd+7pTflChEDZah8=;
-        b=KnakDjsUGxRL42g+ib9OB+Txwe07PhE7M0wJwRy0L07o6oOzP1zCDc5Lbo404g7fSMKr+I
-        84Z51Xxo6RgGBs8PFO9P9hTCfQGghu0bFzRLcXRL845DAhUXmR3ZEJMKAcaPNDnqy+8ldZ
-        11f7eW7r+UGaKto/VHAdWfJMCDYs9LM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-9-MnUUBOTuMAimL40G301MqQ-1; Wed, 01 Apr 2020 09:35:09 -0400
-X-MC-Unique: MnUUBOTuMAimL40G301MqQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 20AAA8010CA;
-        Wed,  1 Apr 2020 13:35:06 +0000 (UTC)
-Received: from [10.36.114.59] (ovpn-114-59.ams2.redhat.com [10.36.114.59])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8D31D5C29A;
-        Wed,  1 Apr 2020 13:35:02 +0000 (UTC)
-Subject: Re: [patch 2/5] drivers/base/memory.c: indicate all memory blocks as
- removable
-From:   David Hildenbrand <david@redhat.com>
-To:     Konstantin Ryabitsev <konstantin@linuxfoundation.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Karel Zak <kzak@redhat.com>, Linux-MM <linux-mm@kvack.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Michal Hocko <mhocko@suse.com>, mm-commits@vger.kernel.org,
-        ndfont@gmail.com, pbadari@us.ibm.com,
-        Rafael Wysocki <rafael@kernel.org>, rcj@linux.vnet.ibm.com,
-        stable <stable@vger.kernel.org>, steve.scargall@intel.com
-References: <20200328191456.4fc0b9ca86780f26c122399e@linux-foundation.org>
- <20200329021719.MBKzW0xSl%akpm@linux-foundation.org>
- <CAHk-=wgs1mfvk8pwefSD2A4=RgH6td50x9D-yn3Axm7icp5Xag@mail.gmail.com>
- <b80d7cea-a8f7-11c9-66fa-bdc272bdf099@redhat.com>
- <20200329194354.xrbzlvlbjimy3pzz@chatter.i7.local>
- <bdab60f6-2755-3aff-49a0-86ffc7f79fb1@redhat.com>
-Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
- 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
-Organization: Red Hat GmbH
-Message-ID: <0c7d6011-714e-adb9-5826-4f3088a8826b@redhat.com>
-Date:   Wed, 1 Apr 2020 15:35:01 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        id S1732504AbgDANlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 09:41:23 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:48521 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732396AbgDANlW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 09:41:22 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 91C775C0144;
+        Wed,  1 Apr 2020 09:41:21 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 01 Apr 2020 09:41:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=+
+        BuUULcnxUlCQFPLf87vowvwLxnHlbdiC0PSt6LrNno=; b=HHY6ZsoBXXnvRUFJP
+        X44vr8yJAinlT80YE5KPrVj3FTPK+3HmOwiY4musdQkpQrDa1b07+i4RMF2M5HJ+
+        4PtjCahYt7eg8MI/p/H8Zs+/wiUo4a4SyAhoU6VAFsuzryTlA+0KBmFYypo3U7oK
+        G4OoDfGiejJ2zZrcOjh18x2GlD+2yrS/q/BSdawFQGxemHDu8fM/YIj100u3ofoW
+        mGMEG3ZMKUGXJTQxHolT6qtTR2BJpOzcAYwBuJ0fZHOABQSXJDQcxMBGy96uEqlG
+        Mmuw6i3L0C4FfZYAbPJdyXBnHzxTy1IPxUlu/cLqfEtwOkroytX95QHGGhEsykXO
+        Z6pcQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=+BuUULcnxUlCQFPLf87vowvwLxnHlbdiC0PSt6LrN
+        no=; b=mJ7EuDJmRbkxhTsMp7kmRb5IcRxnP6nRxitWgUQVdWu1PFMgKJn7CAD4O
+        aZzm1XRldKUMz7xLx5g3qy5VRFaLbsCIZIxrM2CD/X16pt8E2e42UhQtqSE1bdvK
+        m/6el0MiFXlDPydRmfGSoth/VBsn5jMW/jZ2kCb7ZFcqdMYA8pupYzLpx4vQ6cwe
+        chIwihRU16pK84IbytFQ5lMOjRiXNuZsjhjy4eHYV1/D77+w53v5y08mm7WVvn/6
+        CAvnyv0nS8DBhd8FBCOORxkiqDREGae18XE32XDGLFEZSfC3lV2gYfdimnz20WGa
+        NFw878Qhx4rqTsrMVfq3z+qaR4kSg==
+X-ME-Sender: <xms:AJqEXr8IE1xK8Jyoz4XAvImAyisTZUtOqm5w342Q7XFr1k5WomCMDw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrtddvgdeiiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhr
+    vghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:AZqEXr9IL6FsNOBpQmMxG4FJh-fobjv40dggGKNadcJMv4XYsOEh3A>
+    <xmx:AZqEXkCAPJCwA527JO_KbGgge-LYC4D9ehM2xiVKS7Ukky01Jz4ZPw>
+    <xmx:AZqEXrwk-45hcqlupyP0D6RoAbaFta63RjYOoYHuKKXeeFcbVpHKUg>
+    <xmx:AZqEXvt5XPx1t9ACCI_SUPOJiaoQMe69Aus69NhAT52htLpWYaZZRA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id AD052306CCA8;
+        Wed,  1 Apr 2020 09:41:20 -0400 (EDT)
+Date:   Wed, 1 Apr 2020 15:41:17 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Georg =?iso-8859-1?Q?M=FCller?= <georgmueller@gmx.net>
+Cc:     stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: Stable request: platform/x86: pmc_atom: Add Lex 2I385SW to
+ critclk_systems DMI table
+Message-ID: <20200401134117.GA2330532@kroah.com>
+References: <8bdec034-3be9-1b5f-ab09-dfdbe153acba@gmx.net>
 MIME-Version: 1.0
-In-Reply-To: <bdab60f6-2755-3aff-49a0-86ffc7f79fb1@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <8bdec034-3be9-1b5f-ab09-dfdbe153acba@gmx.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30.03.20 16:54, David Hildenbrand wrote:
->> It would appear that the workflow Andrew uses to queue up patches from=
-=20
->> you isn't expecting quoted-printable formatting, which is why when Lin=
-us=20
->> gets them, they are mangled.
->>
->> We would either need to switch Andrew to a set of tools that handle 7b=
-it=20
->> legacy formats better, or figure out how you can send things via MTAs=20
->> that won't convert from 8bit to quoted-printable. Maybe you can convin=
-ce=20
->> Red Hat to set up their relays to always preserve 8bit?
->=20
-> I'll give it a try, but I think it's rather unlikely ... :)
+On Wed, Apr 01, 2020 at 10:28:49AM +0200, Georg Müller wrote:
+> commit 95b31e35239e5e1689e3d965d692a313c71bd8ab upstream
+> 
+> This is a regression since linux v4.19, introduced with commit 648e921888ad96ea3dc922739e96716ad3225d7f.
+> 
+> Without this patch, one ethernet port of this board is not usable.
+> 
+> >From the currently maintained stable kernels, the patch 648e921888ad96ea3dc922739e96716ad3225d7f was also
+> backported to linux-4.14.y, so I suggest to backport the patch to v4.14 and v4.19+.
 
-So, people are looking into. Literally any mail that goes via Mimecast
-servers (at least sent by me!) is converted *for whatever reason* to
-quoted-printable.
+All now queued up, thanks.
 
-E.g., patches I punched out today via "git send-email" even have the
-line continuations thingy again (they disappeared for a while, maybe
-there are different MTAs involved and it's like playing the lottery)
-
-https://lore.kernel.org/linux-mm/20200401104156.11564-2-david@redhat.com/=
-raw
-
-From what I can tell the mail itself is fine once converted, it's just
-nasty that 8-bit is converted *for whatever reason*.
-
---=20
-Thanks,
-
-David / dhildenb
-
+greg k-h
