@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D00C19B32B
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A56419B34F
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:51:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389460AbgDAQoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:44:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45846 "EHLO mail.kernel.org"
+        id S2388924AbgDAQiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:38:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388037AbgDAQop (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:44:45 -0400
+        id S2388445AbgDAQiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:38:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1E62206E9;
-        Wed,  1 Apr 2020 16:44:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29D0D20772;
+        Wed,  1 Apr 2020 16:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759485;
-        bh=BEppHJSF0Q3dBGNXBQdv4LxwkkElFKHdTM/3CINeEuA=;
+        s=default; t=1585759129;
+        bh=9nHvcvoqUiKWJeWDOWu5BylYcXFsA0LaM6M0TJnmo6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jVcvjcogbiu63iggfkIesiT2VQG+h8y3SyZ4tqWlTPdsCIvO0lL5kR9PCvuv1wO/h
-         dT947KoB6/fcfuXUWFDTIiygktFs5e6feZdSawzuFg6ZGvqJjHUqwtsPjZQGdVF3XH
-         nBhph4BQWCJGwQGKIJnyLiBEO2Caedd+oy35gkqI=
+        b=xzLIuv9wzN4Iax1jGxfdbjBXfVOhvmmQ/kLMaXEiheZxeHHXyQNlr8i4mUmEVBYs+
+         2WRt/REIbyPzI19XoZw1BIzg1jGpiH6NQWKGXnbWisLsawhe8IkfUICZhoLR7MYu8R
+         SVc76r9KFoTsPxjxNazWI6UXSAOen1NjIsAznrGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 077/148] cgroup1: dont call release_agent when it is ""
+        stable@vger.kernel.org,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 046/102] net: mvneta: Fix the case where the last poll did not process all rx
 Date:   Wed,  1 Apr 2020 18:17:49 +0200
-Message-Id: <20200401161600.703386393@linuxfoundation.org>
+Message-Id: <20200401161541.515027954@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tycho Andersen <tycho@tycho.ws>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-[ Upstream commit 2e5383d7904e60529136727e49629a82058a5607 ]
+[ Upstream commit 065fd83e1be2e1ba0d446a257fd86a3cc7bddb51 ]
 
-Older (and maybe current) versions of systemd set release_agent to "" when
-shutting down, but do not set notify_on_release to 0.
+For the case where the last mvneta_poll did not process all
+RX packets, we need to xor the pp->cause_rx_tx or port->cause_rx_tx
+before claculating the rx_queue.
 
-Since 64e90a8acb85 ("Introduce STATIC_USERMODEHELPER to mediate
-call_usermodehelper()"), we filter out such calls when the user mode helper
-path is "". However, when used in conjunction with an actual (i.e. non "")
-STATIC_USERMODEHELPER, the path is never "", so the real usermode helper
-will be called with argv[0] == "".
-
-Let's avoid this by not invoking the release_agent when it is "".
-
-Signed-off-by: Tycho Andersen <tycho@tycho.ws>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2dcf75e2793c ("net: mvneta: Associate RX queues with each CPU")
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup-v1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvneta.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index d148965180893..545f29c5268d7 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -824,7 +824,7 @@ void cgroup1_release_agent(struct work_struct *work)
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -2690,10 +2690,9 @@ static int mvneta_poll(struct napi_struc
+ 	/* For the case where the last mvneta_poll did not process all
+ 	 * RX packets
+ 	 */
+-	rx_queue = fls(((cause_rx_tx >> 8) & 0xff));
+-
+ 	cause_rx_tx |= port->cause_rx_tx;
  
- 	pathbuf = kmalloc(PATH_MAX, GFP_KERNEL);
- 	agentbuf = kstrdup(cgrp->root->release_agent_path, GFP_KERNEL);
--	if (!pathbuf || !agentbuf)
-+	if (!pathbuf || !agentbuf || !strlen(agentbuf))
- 		goto out;
- 
- 	spin_lock_irq(&css_set_lock);
--- 
-2.20.1
-
++	rx_queue = fls(((cause_rx_tx >> 8) & 0xff));
+ 	if (rx_queue) {
+ 		rx_queue = rx_queue - 1;
+ 		if (pp->bm_priv)
 
 
