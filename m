@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39C5019B18F
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA3A19B3CF
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:54:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387597AbgDAQgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:36:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S2388277AbgDAQbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:31:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388647AbgDAQgD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:36:03 -0400
+        id S2388268AbgDAQbL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:31:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A97A1206F8;
-        Wed,  1 Apr 2020 16:36:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C1AD216FD;
+        Wed,  1 Apr 2020 16:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758962;
-        bh=6bZG9t/Umg2bZVxHj3BdmoBq4fLabhx5PbwTFoN6lMg=;
+        s=default; t=1585758670;
+        bh=nhJQxQCFLz20+3m0GlqbdNdv+16PiSrAntecgskSFgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ycup9IXmPgO6kLsBmljS98w+gaxPwFBstzark66flQWyyAhphIwNtAdv73q28Zq6y
-         h8SDP8qZViTuD43TN/hT9d3npEvC2Gw0QjvKm26AF3mpjCdoqD8/Vk7co1WnwjugWw
-         fT3l/JnltZsxSC417f5YKufw3XcINctcdg1Jq0KY=
+        b=lqPRpGiFVR2hZjSQES458URCHJt/W+tahCUn2kHm0BjFxEYdKn7FI6mv7iRFzDUuX
+         1O6ehckKVPyi/lxy10Xl/s+ePhPAaw2f+/Wq2uQSu+K7B1oopDxw4BX5SQCZVIaPiF
+         ufpdJBoYXYtEnU0BkO+kwTYWsUn4euWhErE2uoqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.9 031/102] futex: Fix inode life-time issue
-Date:   Wed,  1 Apr 2020 18:17:34 +0200
-Message-Id: <20200401161538.886483973@linuxfoundation.org>
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 39/91] slcan: not call free_netdev before rtnl_unlock in slcan_open
+Date:   Wed,  1 Apr 2020 18:17:35 +0200
+Message-Id: <20200401161527.443991002@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,222 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 8019ad13ef7f64be44d4f892af9c840179009254 upstream.
+[ Upstream commit 2091a3d42b4f339eaeed11228e0cbe9d4f92f558 ]
 
-As reported by Jann, ihold() does not in fact guarantee inode
-persistence. And instead of making it so, replace the usage of inode
-pointers with a per boot, machine wide, unique inode identifier.
+As the description before netdev_run_todo, we cannot call free_netdev
+before rtnl_unlock, fix it by reorder the code.
 
-This sequence number is global, but shared (file backed) futexes are
-rare enough that this should not become a performance issue.
+This patch is a 1:1 copy of upstream slip.c commit f596c87005f7
+("slip: not call free_netdev before rtnl_unlock in slip_open").
 
-Reported-by: Jann Horn <jannh@google.com>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reported-by: yangerkun <yangerkun@huawei.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/inode.c            |    1 
- include/linux/fs.h    |    1 
- include/linux/futex.h |   17 +++++----
- kernel/futex.c        |   89 +++++++++++++++++++++++++++++---------------------
- 4 files changed, 65 insertions(+), 43 deletions(-)
+ drivers/net/can/slcan.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -135,6 +135,7 @@ int inode_init_always(struct super_block
- 	inode->i_sb = sb;
- 	inode->i_blkbits = sb->s_blocksize_bits;
- 	inode->i_flags = 0;
-+	atomic64_set(&inode->i_sequence, 0);
- 	atomic_set(&inode->i_count, 1);
- 	inode->i_op = &empty_iops;
- 	inode->i_fop = &no_open_fops;
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -679,6 +679,7 @@ struct inode {
- 		struct rcu_head		i_rcu;
- 	};
- 	u64			i_version;
-+	atomic64_t		i_sequence; /* see futex */
- 	atomic_t		i_count;
- 	atomic_t		i_dio_count;
- 	atomic_t		i_writecount;
---- a/include/linux/futex.h
-+++ b/include/linux/futex.h
-@@ -34,23 +34,26 @@ handle_futex_death(u32 __user *uaddr, st
+--- a/drivers/net/can/slcan.c
++++ b/drivers/net/can/slcan.c
+@@ -621,7 +621,10 @@ err_free_chan:
+ 	tty->disc_data = NULL;
+ 	clear_bit(SLF_INUSE, &sl->flags);
+ 	slc_free_netdev(sl->dev);
++	/* do not call free_netdev before rtnl_unlock */
++	rtnl_unlock();
+ 	free_netdev(sl->dev);
++	return err;
  
- union futex_key {
- 	struct {
-+		u64 i_seq;
- 		unsigned long pgoff;
--		struct inode *inode;
--		int offset;
-+		unsigned int offset;
- 	} shared;
- 	struct {
-+		union {
-+			struct mm_struct *mm;
-+			u64 __tmp;
-+		};
- 		unsigned long address;
--		struct mm_struct *mm;
--		int offset;
-+		unsigned int offset;
- 	} private;
- 	struct {
-+		u64 ptr;
- 		unsigned long word;
--		void *ptr;
--		int offset;
-+		unsigned int offset;
- 	} both;
- };
- 
--#define FUTEX_KEY_INIT (union futex_key) { .both = { .ptr = NULL } }
-+#define FUTEX_KEY_INIT (union futex_key) { .both = { .ptr = 0ULL } }
- 
- #ifdef CONFIG_FUTEX
- extern void exit_robust_list(struct task_struct *curr);
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -434,7 +434,7 @@ static void get_futex_key_refs(union fut
- 
- 	switch (key->both.offset & (FUT_OFF_INODE|FUT_OFF_MMSHARED)) {
- 	case FUT_OFF_INODE:
--		ihold(key->shared.inode); /* implies smp_mb(); (B) */
-+		smp_mb();		/* explicit smp_mb(); (B) */
- 		break;
- 	case FUT_OFF_MMSHARED:
- 		futex_get_mm(key); /* implies smp_mb(); (B) */
-@@ -468,7 +468,6 @@ static void drop_futex_key_refs(union fu
- 
- 	switch (key->both.offset & (FUT_OFF_INODE|FUT_OFF_MMSHARED)) {
- 	case FUT_OFF_INODE:
--		iput(key->shared.inode);
- 		break;
- 	case FUT_OFF_MMSHARED:
- 		mmdrop(key->private.mm);
-@@ -476,6 +475,46 @@ static void drop_futex_key_refs(union fu
- 	}
- }
- 
-+/*
-+ * Generate a machine wide unique identifier for this inode.
-+ *
-+ * This relies on u64 not wrapping in the life-time of the machine; which with
-+ * 1ns resolution means almost 585 years.
-+ *
-+ * This further relies on the fact that a well formed program will not unmap
-+ * the file while it has a (shared) futex waiting on it. This mapping will have
-+ * a file reference which pins the mount and inode.
-+ *
-+ * If for some reason an inode gets evicted and read back in again, it will get
-+ * a new sequence number and will _NOT_ match, even though it is the exact same
-+ * file.
-+ *
-+ * It is important that match_futex() will never have a false-positive, esp.
-+ * for PI futexes that can mess up the state. The above argues that false-negatives
-+ * are only possible for malformed programs.
-+ */
-+static u64 get_inode_sequence_number(struct inode *inode)
-+{
-+	static atomic64_t i_seq;
-+	u64 old;
-+
-+	/* Does the inode already have a sequence number? */
-+	old = atomic64_read(&inode->i_sequence);
-+	if (likely(old))
-+		return old;
-+
-+	for (;;) {
-+		u64 new = atomic64_add_return(1, &i_seq);
-+		if (WARN_ON_ONCE(!new))
-+			continue;
-+
-+		old = atomic64_cmpxchg_relaxed(&inode->i_sequence, 0, new);
-+		if (old)
-+			return old;
-+		return new;
-+	}
-+}
-+
- /**
-  * get_futex_key() - Get parameters which are the keys for a futex
-  * @uaddr:	virtual address of the futex
-@@ -488,9 +527,15 @@ static void drop_futex_key_refs(union fu
-  *
-  * The key words are stored in *key on success.
-  *
-- * For shared mappings, it's (page->index, file_inode(vma->vm_file),
-- * offset_within_page).  For private mappings, it's (uaddr, current->mm).
-- * We can usually work out the index without swapping in the page.
-+ * For shared mappings (when @fshared), the key is:
-+ *   ( inode->i_sequence, page->index, offset_within_page )
-+ * [ also see get_inode_sequence_number() ]
-+ *
-+ * For private mappings (or when !@fshared), the key is:
-+ *   ( current->mm, address, 0 )
-+ *
-+ * This allows (cross process, where applicable) identification of the futex
-+ * without keeping the page pinned for the duration of the FUTEX_WAIT.
-  *
-  * lock_page() might sleep, the caller should not hold a spinlock.
-  */
-@@ -630,8 +675,6 @@ again:
- 		key->private.mm = mm;
- 		key->private.address = address;
- 
--		get_futex_key_refs(key); /* implies smp_mb(); (B) */
--
- 	} else {
- 		struct inode *inode;
- 
-@@ -663,40 +706,14 @@ again:
- 			goto again;
- 		}
- 
--		/*
--		 * Take a reference unless it is about to be freed. Previously
--		 * this reference was taken by ihold under the page lock
--		 * pinning the inode in place so i_lock was unnecessary. The
--		 * only way for this check to fail is if the inode was
--		 * truncated in parallel which is almost certainly an
--		 * application bug. In such a case, just retry.
--		 *
--		 * We are not calling into get_futex_key_refs() in file-backed
--		 * cases, therefore a successful atomic_inc return below will
--		 * guarantee that get_futex_key() will still imply smp_mb(); (B).
--		 */
--		if (!atomic_inc_not_zero(&inode->i_count)) {
--			rcu_read_unlock();
--			put_page(page);
--
--			goto again;
--		}
--
--		/* Should be impossible but lets be paranoid for now */
--		if (WARN_ON_ONCE(inode->i_mapping != mapping)) {
--			err = -EFAULT;
--			rcu_read_unlock();
--			iput(inode);
--
--			goto out;
--		}
--
- 		key->both.offset |= FUT_OFF_INODE; /* inode-based key */
--		key->shared.inode = inode;
-+		key->shared.i_seq = get_inode_sequence_number(inode);
- 		key->shared.pgoff = basepage_index(tail);
- 		rcu_read_unlock();
- 	}
- 
-+	get_futex_key_refs(key); /* implies smp_mb(); (B) */
-+
- out:
- 	put_page(page);
- 	return err;
+ err_exit:
+ 	rtnl_unlock();
 
 
