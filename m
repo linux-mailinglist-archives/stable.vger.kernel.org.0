@@ -2,113 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78EAE19A8F6
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 11:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE5E19A9B7
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 12:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726445AbgDAJzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 05:55:23 -0400
-Received: from foss.arm.com ([217.140.110.172]:47500 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726335AbgDAJzX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 05:55:23 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 748C61FB;
-        Wed,  1 Apr 2020 02:55:22 -0700 (PDT)
-Received: from C02TD0UTHF1T.local (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 90B583F52E;
-        Wed,  1 Apr 2020 02:55:19 -0700 (PDT)
-Date:   Wed, 1 Apr 2020 10:55:16 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Amit Daniel Kachhap <amit.kachhap@arm.com>,
-        Kees Cook <keescook@chromium.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Szabolcs Nagy <szabolcs.nagy@arm.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: Always force a branch protection mode when the
- compiler has one
-Message-ID: <20200401095516.GB17163@C02TD0UTHF1T.local>
-References: <20200331194459.54740-1-broonie@kernel.org>
+        id S1727386AbgDAKjz convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 1 Apr 2020 06:39:55 -0400
+Received: from esa1.mentor.iphmx.com ([68.232.129.153]:47385 "EHLO
+        esa1.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726974AbgDAKjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 06:39:55 -0400
+X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Wed, 01 Apr 2020 06:39:54 EDT
+IronPort-SDR: 2+Wnbrzbre05ppiOcIM3FCzHJ9OT9b+XKhX4TWmJIeOsqv/2JezaZyp035IvaF9m98dtudgyHn
+ 0XiosnMCSoN8ibuFiL+6E/lVdkoT7VBYxfWreAsRq8g356DTrD0AYl/CjEsBZxtZZDFRsdYNmL
+ sR4Hl8m7wgibm3YSWWX/OQ1P3f0N6OahDMeb4XDj7vE6t9kenZzDx271OSIn0i5fONkscrK6kt
+ ZVXTZgBAVGbmPQLSQr7D2DOiiFLRXWqcs7mepwBnUqA7mH8yvTgzcwwKOmbZo4KwPVFDkS1dxf
+ w+g=
+X-IronPort-AV: E=Sophos;i="5.72,331,1580803200"; 
+   d="scan'208";a="49302087"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa1.mentor.iphmx.com with ESMTP; 01 Apr 2020 02:32:46 -0800
+IronPort-SDR: qBqKXzkn/m1HeZfkHvFgbDaopD2oT3tRNBlgcPIbEbrhu9782Fu+/qaHj7fxhw7mCSEIVjzewi
+ zeB5LO+qyyUNmIe8KiryoGjKc9/2yiig77unsxiwlgxiZwWcQaNECuzDoWsQkr91PdojhyHKgU
+ uqMGXaSHl+kUce7rJy9TJNtTVbwVPXCUCwS5IjACstMYZk4+wfcHfQm+r02kNr6A7eqQfrh5Jh
+ X3J1WZkYJ0hfbWajGYQXWiwgbd7fsWgDtVWxatmLTMjsHZccUkQM6z25OHUr4r/FpqSn+4/DnS
+ nQc=
+From:   "Schmid, Carsten" <Carsten_Schmid@mentor.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        "sashal@kernel.org" <sashal@kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: AW: [PATCH Backport to stable/linux-4.14.y] make
+ 'user_access_begin()' do 'access_ok()'
+Thread-Topic: [PATCH Backport to stable/linux-4.14.y] make
+ 'user_access_begin()' do 'access_ok()'
+Thread-Index: AQHWCAJkVCaPiBB3fEi305LG7KYcnahj/f2V///yLoCAABfJKYAACXDf
+Date:   Wed, 1 Apr 2020 10:32:42 +0000
+Message-ID: <1585737161954.11435@mentor.com>
+References: <8a297704c58b4b4e867efecb08214040@SVR-IES-MBX-03.mgc.mentorg.com>
+ <1585733082992.99012@mentor.com>,<20200401093235.GB2055942@kroah.com>,<1585735684794.48644@mentor.com>
+In-Reply-To: <1585735684794.48644@mentor.com>
+Accept-Language: de-DE, en-IE, en-US
+Content-Language: de-DE
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [137.202.0.90]
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200331194459.54740-1-broonie@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 31, 2020 at 08:44:59PM +0100, Mark Brown wrote:
-> Compilers with branch protection support can be configured to enable it by
-> default, it is likely that distributions will do this as part of deploying
-> branch protection system wide. As well as the slight overhead from having
-> some extra NOPs for unused branch protection features this can cause more
-> serious problems when the kernel is providing pointer authentication to
-> userspace but not built for pointer authentication itself. In that case our
-> switching of keys for userspace can affect the kernel unexpectedly, causing
-> pointer authentication instructions in the kernel to corrupt addresses.
-> 
-> To ensure that we get consistent and reliable behaviour always explicitly
-> initialise the branch protection mode, ensuring that the kernel is built
-> the same way regardless of the compiler defaults.
-> 
-> Fixes: 7503197562567 (arm64: add basic pointer authentication support)
-> Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Cc: stable@vger.kernel.org
+>>
+>> Fixes CVE-2018-20669
+>> Backported from v5.0-rc1
+>> Patch 1/1
+>
+> Also, that cve was "supposed" to already be fixed in the 4.19.13 kernel
+> release for some reason, and it's a drm issue, not a core access_ok()
+> issue.
+>
+> So why is this needed for 4.14?
+>
+See https://access.redhat.com/security/cve/cve-2018-20669
+Looks like Linus' fix was attacking this at the root cause, not only for DRM.
 
-Acked-by: Mark Rutland <mark.rutland@arm.com>
+Also, i use https://www.linuxkernelcves.com/ as a research source,
+and they claim that CVE not fixed in 4.19.
+(and i'll check for the other LTS kernels as well)
 
-Mark.
+>>
+>> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+>
+> No s-o-by from you?
+Ops. Will add this in a resend.
 
-> ---
->  arch/arm64/Kconfig  | 4 ++++
->  arch/arm64/Makefile | 7 ++++++-
->  2 files changed, 10 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index d3efdc095a17..1e46746e8392 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -1537,6 +1537,10 @@ config ARM64_PTR_AUTH
->  	  This feature works with FUNCTION_GRAPH_TRACER option only if
->  	  DYNAMIC_FTRACE_WITH_REGS is enabled.
->  
-> +config CC_HAS_BRANCH_PROT_NONE
-> +	# GCC 9 or later, clang 8 or later
-> +	def_bool $(cc-option,-mbranch-protection=none)
-> +
->  config CC_HAS_BRANCH_PROT_PAC_RET
->  	# GCC 9 or later, clang 8 or later
->  	def_bool $(cc-option,-mbranch-protection=pac-ret+leaf)
-> diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-> index f15f92ba53e6..370fca6663c8 100644
-> --- a/arch/arm64/Makefile
-> +++ b/arch/arm64/Makefile
-> @@ -65,6 +65,10 @@ stack_protector_prepare: prepare0
->  					include/generated/asm-offsets.h))
->  endif
->  
-> +# Ensure that if the compiler supports branch protection we default it
-> +# off, this will be overridden if we are using branch protection.
-> +branch-prot-flags-$(CONFIG_CC_HAS_BRANCH_PROT_NONE) := -mbranch-protection=none
-> +
->  ifeq ($(CONFIG_ARM64_PTR_AUTH),y)
->  branch-prot-flags-$(CONFIG_CC_HAS_SIGN_RETURN_ADDRESS) := -msign-return-address=all
->  branch-prot-flags-$(CONFIG_CC_HAS_BRANCH_PROT_PAC_RET) := -mbranch-protection=pac-ret+leaf
-> @@ -73,9 +77,10 @@ branch-prot-flags-$(CONFIG_CC_HAS_BRANCH_PROT_PAC_RET) := -mbranch-protection=pa
->  # we pass it only to the assembler. This option is utilized only in case of non
->  # integrated assemblers.
->  branch-prot-flags-$(CONFIG_AS_HAS_PAC) += -Wa,-march=armv8.3-a
-> -KBUILD_CFLAGS += $(branch-prot-flags-y)
->  endif
->  
-> +KBUILD_CFLAGS += $(branch-prot-flags-y)
-> +
->  ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
->  KBUILD_CPPFLAGS	+= -mbig-endian
->  CHECKFLAGS	+= -D__AARCH64EB__
-> -- 
-> 2.20.1
-> 
+>> Want to give this work back to the community, as 4.14 is a SLTS.
+>
+> What is "SLTS"?
+Super Long Term Supported kernel - thanks to guys like you :-)
+4.14 really is that (Jan. 2024, as of https://www.kernel.org/category/releases.html)
+
+>
+> thanks,
+>
+> greg k-h
+
+Thanks, and i have some other patches backported to 4.14 as CVE fixes,
+which i'll propose in the next hours.
+
+BR
+Carsten
+-----------------
+Mentor Graphics (Deutschland) GmbH, Arnulfstraße 201, 80634 München / Germany
+Registergericht München HRB 106955, Geschäftsführer: Thomas Heurung, Alexander Walter
