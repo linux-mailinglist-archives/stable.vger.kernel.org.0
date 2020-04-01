@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22FDD19B0E5
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF5D19B332
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732917AbgDAQaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:30:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56060 "EHLO mail.kernel.org"
+        id S1733195AbgDAQtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:49:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388254AbgDAQaM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:30:12 -0400
+        id S2389447AbgDAQlt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:41:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7446420658;
-        Wed,  1 Apr 2020 16:30:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45CC520658;
+        Wed,  1 Apr 2020 16:41:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758611;
-        bh=1tX4S0+QPibSqEbZo24Qo6tnbpDV2afDLlug35vQ+dI=;
+        s=default; t=1585759308;
+        bh=ZCfgKqcp5k9H0mwLFlSfobUCxNr6mraV7kp7uz4Nar4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5yH9D76J/MzEYqkbUsF8bZHl2zYwmW3rk3Q6hdBo3sFwuKhUQ6FsQhdrXJsgk/20
-         elCGWDBz0WlrbSbYtTVxnXTnmzrM9y0DQJYCvsy6Khxr+ZIjUuOaNcKcM3MWj0QK+k
-         oBKa6JM1bHxSQColS6+b6wycnYZXPeyppkFc+rkw=
+        b=hCVeg2s0BO7kxrpmlNtJMpsdtWcXU/nwFmHm2fx5gFP0YHJaAv/YKaLkhsBeSiJgV
+         fDWBLV3tTZbpZDPerFcSWSsm8L/SZ4/UKjLIb0Gvy0QNxuMMAV+LMRdQTRDCi3IJU6
+         3OFvjKQ1MaIJmiuf7m9lYZiOBoIJEZQCTrFpbwKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, russianneuromancer@ya.ru,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4.4 09/91] usb: quirks: add NO_LPM quirk for RTL8153 based ethernet adapters
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 033/148] rtc: max8907: add missing select REGMAP_IRQ
 Date:   Wed,  1 Apr 2020 18:17:05 +0200
-Message-Id: <20200401161516.297886448@linuxfoundation.org>
+Message-Id: <20200401161555.808094271@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-commit 75d7676ead19b1fbb5e0ee934c9ccddcb666b68c upstream.
+commit 5d892919fdd0cefd361697472d4e1b174a594991 upstream.
 
-We have been receiving bug reports that ethernet connections over
-RTL8153 based ethernet adapters stops working after a while with
-errors like these showing up in dmesg when the ethernet stops working:
+I have hit the following build error:
 
-[12696.189484] r8152 6-1:1.0 enp10s0u1: Tx timeout
-[12702.333456] r8152 6-1:1.0 enp10s0u1: Tx timeout
-[12707.965422] r8152 6-1:1.0 enp10s0u1: Tx timeout
+  armv7a-hardfloat-linux-gnueabi-ld: drivers/rtc/rtc-max8907.o: in function `max8907_rtc_probe':
+  rtc-max8907.c:(.text+0x400): undefined reference to `regmap_irq_get_virq'
 
-This has been reported on Dell WD15 docks, Belkin USB-C Express Dock 3.1
-docks and with generic USB to ethernet dongles using the RTL8153
-chipsets. Some users have tried adding usbcore.quirks=0bda:8153:k to
-the kernel commandline and all users who have tried this report that
-this fixes this.
+max8907 should select REGMAP_IRQ
 
-Also note that we already have an existing NO_LPM quirk for the RTL8153
-used in the Microsoft Surface Dock (where it uses a different usb-id).
-
-This commit adds a NO_LPM quirk for the generic Realtek RTL8153
-0bda:8153 usb-id, fixing the Tx timeout errors on these devices.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=198931
-Cc: stable@vger.kernel.org
-Cc: russianneuromancer@ya.ru
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200313120708.100339-1-hdegoede@redhat.com
+Fixes: 94c01ab6d7544 ("rtc: add MAX8907 RTC driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/rtc/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -232,6 +232,9 @@ static const struct usb_device_id usb_qu
- 	/* Realtek hub in Dell WD19 (Type-C) */
- 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
- 
-+	/* Generic RTL8153 based ethernet adapters */
-+	{ USB_DEVICE(0x0bda, 0x8153), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* Action Semiconductor flash disk */
- 	{ USB_DEVICE(0x10d6, 0x2200), .driver_info =
- 			USB_QUIRK_STRING_FETCH_255 },
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -323,6 +323,7 @@ config RTC_DRV_MAX6900
+ config RTC_DRV_MAX8907
+ 	tristate "Maxim MAX8907"
+ 	depends on MFD_MAX8907 || COMPILE_TEST
++	select REGMAP_IRQ
+ 	help
+ 	  If you say yes here you will get support for the
+ 	  RTC of Maxim MAX8907 PMIC.
 
 
