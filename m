@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4992219B222
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A906119B00B
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:23:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388028AbgDAQlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41608 "EHLO mail.kernel.org"
+        id S1727620AbgDAQXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:23:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389403AbgDAQlT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:41:19 -0400
+        id S1733213AbgDAQXc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:23:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 773462063A;
-        Wed,  1 Apr 2020 16:41:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE6A6212CC;
+        Wed,  1 Apr 2020 16:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759278;
-        bh=bnIZ+VDJdYnoXNs28ppMqKW5Lgz6HtETtN+RlPx/diQ=;
+        s=default; t=1585758211;
+        bh=IAoZwNTw/LJYfeiRAw+x03kYdpq+o+xNOD7CYcRqTAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9GKFCGiu4QXL8Q2K0xL3AV0BdFLOi9AdY3BMs/UWj3O5rPBDk71F7yM8E4gnxG6E
-         KHahTOhlOWuQ5Pvo0p6xBbpc9zIuSsS2bgPft7YuSWFwXSgg4IucylES1xFf+zQiKj
-         SBBTsXkmpKbWuups7/sTiN5WzyH2sphoTt7QsxiE=
+        b=v0l2XCgeaypnrteW1ljHhFKYjbyKgTv7JtH31t0J1pBiaxN1ibv5fzkLbFgKKc4yx
+         DQ+K0gYMyWDlQ8aCqoZoyvku2UeHpOdqW2EJZy/5yjSikAxCFxJ6ONGdkZsx5e0IH5
+         wmgKue3APSWn3nkjMazR9b/lfhzNcVLBzkOCywpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 003/148] ARM: dts: dra7: Add "dma-ranges" property to PCIe RC DT nodes
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 019/116] NFC: fdp: Fix a signedness bug in fdp_nci_send_patch()
 Date:   Wed,  1 Apr 2020 18:16:35 +0200
-Message-Id: <20200401161552.548582755@linuxfoundation.org>
+Message-Id: <20200401161544.727136967@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 27f13774654ea6bd0b6fc9b97cce8d19e5735661 ]
+[ Upstream commit 0dcdf9f64028ec3b75db6b691560f8286f3898bf ]
 
-'dma-ranges' in a PCI bridge node does correctly set dma masks for PCI
-devices not described in the DT. Certain DRA7 platforms (e.g., DRA76)
-has RAM above 32-bit boundary (accessible with LPAE config) though the
-PCIe bridge will be able to access only 32-bits. Add 'dma-ranges'
-property in PCIe RC DT nodes to indicate the host bridge can access
-only 32 bits.
+The nci_conn_max_data_pkt_payload_size() function sometimes returns
+-EPROTO so "max_size" needs to be signed for the error handling to
+work.  We can make "payload_size" an int as well.
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a06347c04c13 ("NFC: Add Intel Fields Peak NFC solution driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/dra7.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nfc/fdp/fdp.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index fec965009b9fc..a40a7af85d020 100644
---- a/arch/arm/boot/dts/dra7.dtsi
-+++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -302,6 +302,7 @@
- 				device_type = "pci";
- 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
- 					  0x82000000 0 0x20013000 0x13000 0 0xffed000>;
-+				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
- 				bus-range = <0x00 0xff>;
- 				#interrupt-cells = <1>;
- 				num-lanes = <1>;
-@@ -356,6 +357,7 @@
- 				device_type = "pci";
- 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
- 					  0x82000000 0 0x30013000 0x13000 0 0xffed000>;
-+				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
- 				bus-range = <0x00 0xff>;
- 				#interrupt-cells = <1>;
- 				num-lanes = <1>;
--- 
-2.20.1
-
+--- a/drivers/nfc/fdp/fdp.c
++++ b/drivers/nfc/fdp/fdp.c
+@@ -192,7 +192,7 @@ static int fdp_nci_send_patch(struct nci
+ 	const struct firmware *fw;
+ 	struct sk_buff *skb;
+ 	unsigned long len;
+-	u8 max_size, payload_size;
++	int max_size, payload_size;
+ 	int rc = 0;
+ 
+ 	if ((type == NCI_PATCH_TYPE_OTP && !info->otp_patch) ||
+@@ -215,8 +215,7 @@ static int fdp_nci_send_patch(struct nci
+ 
+ 	while (len) {
+ 
+-		payload_size = min_t(unsigned long, (unsigned long) max_size,
+-				     len);
++		payload_size = min_t(unsigned long, max_size, len);
+ 
+ 		skb = nci_skb_alloc(ndev, (NCI_CTRL_HDR_SIZE + payload_size),
+ 				    GFP_KERNEL);
 
 
