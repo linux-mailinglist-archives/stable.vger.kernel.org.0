@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1D9719B0EA
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B2C419B049
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:26:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732854AbgDAQaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:30:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56256 "EHLO mail.kernel.org"
+        id S2387621AbgDAQZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:25:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732683AbgDAQaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:30:23 -0400
+        id S1732376AbgDAQZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:25:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 451472137B;
-        Wed,  1 Apr 2020 16:30:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B8F6215A4;
+        Wed,  1 Apr 2020 16:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758622;
-        bh=fTRyOl1Orx7e2ysLkp6Ucx/ayhAxV6Tul2irmgEtuWc=;
+        s=default; t=1585758334;
+        bh=BhT/D1kTWmqjXwICqOMiOAekpfWqzXWKo9gjIXo9JDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYGFDV3Peo4FE8F9agiEir3RbYJoUwoeBf7O+lePMVi2Ch3bl/uFHg+Ihswo3n9AD
-         eQ+qGWflWnZFfeHHBjTK8W0VzxltRaP1oZNkXogmMA39my+ARfgfPtjBYokGXyrJDZ
-         gVN84XX4gTY2livea4OvnFo9ZfQV1dM7oSUmWUag=
+        b=Q8MAGUi9RBA8cq1FEXhJv8/4nJIvb6zRFvcIi26HRk+YgxujZjoRHNsbmPo86Btyo
+         yBCsqn5Zb1n2aP1AdWjs3gDHcFAXNs9Y6gKqWHZyu8s+MwvcAtyLqb015ZP23q8f4J
+         jHfUhRODjwuFhPNCMpHx38nOaBo/ZSdXgZPn64XU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Straube <straube.linux@gmail.com>
-Subject: [PATCH 4.4 18/91] staging: rtl8188eu: Add device id for MERCUSYS MW150US v2
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 058/116] nl80211: fix NL80211_ATTR_CHANNEL_WIDTH attribute type
 Date:   Wed,  1 Apr 2020 18:17:14 +0200
-Message-Id: <20200401161519.229022998@linuxfoundation.org>
+Message-Id: <20200401161550.062191550@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Straube <straube.linux@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit bb5786b9286c253557a0115bc8d21879e61b7b94 upstream.
+commit 0016d3201753b59f3ae84b868fe66c86ad256f19 upstream.
 
-This device was added to the stand-alone driver on github.
-Add it to the staging driver as well.
+The new opmode notification used this attribute with a u8, when
+it's documented as a u32 and indeed used in userspace as such,
+it just happens to work on little-endian systems since userspace
+isn't doing any strict size validation, and the u8 goes into the
+lower byte. Fix this.
 
-Link: https://github.com/lwfinger/rtl8188eu/commit/2141f244c3e7
-Signed-off-by: Michael Straube <straube.linux@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200312093652.13918-1-straube.linux@gmail.com
+Cc: stable@vger.kernel.org
+Fixes: 466b9936bf93 ("cfg80211: Add support to notify station's opmode change to userspace")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20200325090531.be124f0a11c7.Iedbf4e197a85471ebd729b186d5365c0343bf7a8@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/wireless/nl80211.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -50,6 +50,7 @@ static struct usb_device_id rtw_usb_id_t
- 	{USB_DEVICE(0x2001, 0x331B)}, /* D-Link DWA-121 rev B1 */
- 	{USB_DEVICE(0x2357, 0x010c)}, /* TP-Link TL-WN722N v2 */
- 	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
-+	{USB_DEVICE(0x2C4E, 0x0102)}, /* MERCUSYS MW150US v2 */
- 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
- 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
- 	{}	/* Terminating entry */
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -15607,7 +15607,7 @@ void cfg80211_sta_opmode_change_notify(s
+ 		goto nla_put_failure;
+ 
+ 	if ((sta_opmode->changed & STA_OPMODE_MAX_BW_CHANGED) &&
+-	    nla_put_u8(msg, NL80211_ATTR_CHANNEL_WIDTH, sta_opmode->bw))
++	    nla_put_u32(msg, NL80211_ATTR_CHANNEL_WIDTH, sta_opmode->bw))
+ 		goto nla_put_failure;
+ 
+ 	if ((sta_opmode->changed & STA_OPMODE_N_SS_CHANGED) &&
 
 
