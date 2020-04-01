@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D63219B16B
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB28719AF90
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:19:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388695AbgDAQeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:34:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33488 "EHLO mail.kernel.org"
+        id S1732179AbgDAQTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:19:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387470AbgDAQes (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:34:48 -0400
+        id S1726205AbgDAQTT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:19:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA5A220772;
-        Wed,  1 Apr 2020 16:34:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F127A20658;
+        Wed,  1 Apr 2020 16:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758888;
-        bh=u0oxV+ZE30Cvfe5WC10gcHtQGNHrKMYUrIi5VvOstjo=;
+        s=default; t=1585757959;
+        bh=K8SpIw2adgr5Nz4CqNMwL+oky9vY+IXX71FWKu/zc4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B45Su2g70v1/QLDJlC4mKjHNh1uhagr+TrNU2Jkpxl0PQUpiOJfCAgVif+5Zp3LK+
-         7da1L9ZvzOE5u6S27Mla2BO+MoWoGyq85ePe2k9HX74hdOFwBMpj+UHq9pnAbmK/B3
-         64a6TL5ChKxzqeN9aLMWnZDhEG+IJMobM8pzaPEQ=
+        b=MuGbYTwdoXxnwFsq+udiotU60srb1u5399mmivzTCYrgBogtqqLHs9EbhkIhqR/ZI
+         TPoM3egTWONdFjgc7PcuLAnO9PZe8YTnsPat5umv2AeE6LaZElHxa8DPLUg2brL0Ez
+         VidKLvvwuNTVd8Xcb6WSif7rFCUFoiTe9hiz3ohI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Steinmetz <ast@domdv.de>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 014/102] ALSA: seq: virmidi: Fix running status after receiving sysex
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.6 01/10] bpf: update jmp32 test cases to fix range bound deduction
 Date:   Wed,  1 Apr 2020 18:17:17 +0200
-Message-Id: <20200401161534.606275488@linuxfoundation.org>
+Message-Id: <20200401161416.121489863@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161413.974936041@linuxfoundation.org>
+References: <20200401161413.974936041@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,39 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 4384f167ce5fa7241b61bb0984d651bc528ddebe upstream.
+[ no upstream commit ]
 
-The virmidi driver handles sysex event exceptionally in a short-cut
-snd_seq_dump_var_event() call, but this missed the reset of the
-running status.  As a result, it may lead to an incomplete command
-right after the sysex when an event with the same running status was
-queued.
+Since commit f2d67fec0b43 ("bpf: Undo incorrect __reg_bound_offset32 handling")
+has been backported to stable, we also need to update related test cases that
+started to (expectedly) fail on stable. Given the functionality has been reverted
+we need to move the result to REJECT.
 
-Fix it by clearing the running status properly via alling
-snd_midi_event_reset_decode() for that code path.
-
-Reported-by: Andreas Steinmetz <ast@domdv.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/3b4a4e0f232b7afbaf0a843f63d0e538e3029bfd.camel@domdv.de
-Link: https://lore.kernel.org/r/20200316090506.23966-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/seq/seq_virmidi.c |    1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/bpf/verifier/jmp32.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/sound/core/seq/seq_virmidi.c
-+++ b/sound/core/seq/seq_virmidi.c
-@@ -95,6 +95,7 @@ static int snd_virmidi_dev_receive_event
- 			if ((ev->flags & SNDRV_SEQ_EVENT_LENGTH_MASK) != SNDRV_SEQ_EVENT_LENGTH_VARIABLE)
- 				continue;
- 			snd_seq_dump_var_event(ev, (snd_seq_dump_func_t)snd_rawmidi_receive, vmidi->substream);
-+			snd_midi_event_reset_decode(vmidi->parser);
- 		} else {
- 			len = snd_midi_event_decode(vmidi->parser, msg, sizeof(msg), ev);
- 			if (len > 0)
+--- a/tools/testing/selftests/bpf/verifier/jmp32.c
++++ b/tools/testing/selftests/bpf/verifier/jmp32.c
+@@ -783,7 +783,8 @@
+ 	},
+ 	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
+ 	.fixup_map_hash_48b = { 4 },
+-	.result = ACCEPT,
++	.result = REJECT,
++	.errstr = "R8 unbounded memory access",
+ 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
+ },
+ {
+@@ -811,7 +812,8 @@
+ 	},
+ 	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
+ 	.fixup_map_hash_48b = { 4 },
+-	.result = ACCEPT,
++	.result = REJECT,
++	.errstr = "R8 unbounded memory access",
+ 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
+ },
+ {
+@@ -839,6 +841,7 @@
+ 	},
+ 	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
+ 	.fixup_map_hash_48b = { 4 },
+-	.result = ACCEPT,
++	.result = REJECT,
++	.errstr = "R8 unbounded memory access",
+ 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
+ },
 
 
