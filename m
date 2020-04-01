@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F2A19B081
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5585619B324
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387697AbgDAQ1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:27:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52106 "EHLO mail.kernel.org"
+        id S2389697AbgDAQoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:44:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388014AbgDAQ1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:27:20 -0400
+        id S2389690AbgDAQoL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:44:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 772A720BED;
-        Wed,  1 Apr 2020 16:27:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8B812063A;
+        Wed,  1 Apr 2020 16:44:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758440;
-        bh=BHMbDdgp7RbDFwD7URLVyuS3BFawG8VCdPBkWkNinL0=;
+        s=default; t=1585759450;
+        bh=r6mZS/jQtNDV6rtNX/kWpwXuUMyanIzXgkJvrL6OGnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aT0AKtmIpQtaRNpUcKXzaz+SvjLYowjYGGZb3cHCMXeLu9Vfy1wu33Cr7e8s1E1fG
-         1YMkHgWLT1k6BGzul8PGknk/Nvbwfjlg65H5qQejv89AgtPMiWVnxmL+ooekoiSb5q
-         7xKEbe5GGSEocB8NeoljnRVzK0xSBzlsb1+N67SQ=
+        b=d+pEHltABp/5rhQSoPF4Jm0K82zau8x97cwof1cGXf9LXjrA0KsYt8tvqo9Pvq7+Z
+         eu0770LA3Y0CaE5z/ZjZO1ZQWkXcqyZRp0rCyY7GR+ObA9PNKj86tSABKzarwo8bkh
+         gTN57Zd/INGCzR7HXGaEVpbcEFhH/EYaHQbaLQtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 092/116] media: ov519: add missing endpoint sanity checks
+        stable@vger.kernel.org, Dajun Jin <adajunjin@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 076/148] drivers/of/of_mdio.c:fix of_mdiobus_register()
 Date:   Wed,  1 Apr 2020 18:17:48 +0200
-Message-Id: <20200401161554.186885704@linuxfoundation.org>
+Message-Id: <20200401161600.621429294@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dajun Jin <adajunjin@gmail.com>
 
-commit 998912346c0da53a6dbb71fab3a138586b596b30 upstream.
+[ Upstream commit 209c65b61d94344522c41a83cd6ce51aac5fd0a4 ]
 
-Make sure to check that we have at least one endpoint before accessing
-the endpoint array to avoid dereferencing a NULL-pointer on stream
-start.
+When registers a phy_device successful, should terminate the loop
+or the phy_device would be registered in other addr. If there are
+multiple PHYs without reg properties, it will go wrong.
 
-Note that these sanity checks are not redundant as the driver is mixing
-looking up altsettings by index and by number, which need not coincide.
-
-Fixes: 1876bb923c98 ("V4L/DVB (12079): gspca_ov519: add support for the ov511 bridge")
-Fixes: b282d87332f5 ("V4L/DVB (12080): gspca_ov519: Fix ov518+ with OV7620AE (Trust spacecam 320)")
-Cc: stable <stable@vger.kernel.org>     # 2.6.31
-Cc: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dajun Jin <adajunjin@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/ov519.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/of/of_mdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/media/usb/gspca/ov519.c
-+++ b/drivers/media/usb/gspca/ov519.c
-@@ -3487,6 +3487,11 @@ static void ov511_mode_init_regs(struct
- 		return;
+diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
+index fe26697d3bd72..69da2f6896dae 100644
+--- a/drivers/of/of_mdio.c
++++ b/drivers/of/of_mdio.c
+@@ -259,6 +259,7 @@ int of_mdiobus_register(struct mii_bus *mdio, struct device_node *np)
+ 				rc = of_mdiobus_register_phy(mdio, child, addr);
+ 				if (rc && rc != -ENODEV)
+ 					goto unregister;
++				break;
+ 			}
+ 		}
  	}
- 
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	reg_w(sd, R51x_FIFO_PSIZE, packet_size >> 5);
- 
-@@ -3613,6 +3618,11 @@ static void ov518_mode_init_regs(struct
- 		return;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	ov518_reg_w32(sd, R51x_FIFO_PSIZE, packet_size & ~7, 2);
- 
+-- 
+2.20.1
+
 
 
