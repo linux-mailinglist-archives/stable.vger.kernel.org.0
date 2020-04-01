@@ -2,98 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 779A619A74E
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 10:29:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C90619A7F9
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 10:56:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727541AbgDAI3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 04:29:07 -0400
-Received: from mout.gmx.net ([212.227.17.20]:58715 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726368AbgDAI3H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 04:29:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1585729730;
-        bh=7ENC0WB0xNiXzg5pVa0oc4PrPawTdH18bOEIRwUdtlg=;
-        h=X-UI-Sender-Class:To:Cc:From:Subject:Date;
-        b=LwDmCBYH/MuT5vX7OAp7DHKPiHTqZxlG96u/lxfpLPKqBo3jCfhv/V0pLx7a3mKTJ
-         11ztkbL9UJGnxAjs8QfrKyWDvxwo65RGG7JDkNSbmZgb4/XGwWOP55At15mZAy/Hph
-         2r9CAtDVOYU8FoMIT+89+fnr1jXeZ/jskTC+ARSQ=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [10.54.0.101] ([87.167.90.34]) by mail.gmx.com (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MY68T-1jph8B19gr-00YUHC; Wed, 01
- Apr 2020 10:28:50 +0200
-To:     stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-From:   =?UTF-8?Q?Georg_M=c3=bcller?= <georgmueller@gmx.net>
-Subject: Stable request: platform/x86: pmc_atom: Add Lex 2I385SW to
- critclk_systems DMI table
-Autocrypt: addr=georgmueller@gmx.net; prefer-encrypt=mutual; keydata=
- mQGiBD1O6uYRBADzyVXlOCHhmtVG0ttc5ryyNkmTL1xkhuFxygpnAnGA3T1Me0xZ1792b5/l
- 1SkeB8VREGtxkpyjikmjPMlKVwDUAHAyNmVdUPUprNzxF/5YwFGyBADPlPoA0jjR7FJ8cSI+
- 1zPbRGRvXVcGeRkcabv30EjzL1IVrZaTBk4KBWDeewCg5SPnVc81nzfneYTvyCrIS0MCuNMD
- /1/FEQZa/O4YiPVGUGcumi3A26Albp9nTp4k4OcmRZSL9g6PT/YPKWOxj0ugJeSpVQ7opIct
- LcnHRXeakh0x6T7nrG03CBdK/M+EIKXdolX2dtyW380QT8fwzLjBVO0RefwygSu5Ha6XXRhg
- /K4rXvDCciI5T/cQnK5HQe0dVKGRBADd57A59PzxALhOyF7AgC4wq5m/9KbVgci2Yo4MeMFE
- uuESLYjPSSvHY/zBG6onevyYxuriSdbEgfXD10Gwvr8Exho8cX0Kg/AEDIj1zLBk3JxuTHQa
- 7Rxp565Ck6cHEwIAYoWek0LzEZdMtS8BStHABFMJtlCyWMVKGXqG7VlkdbQtR2VvcmcgTfxs
- bGVyIChHTVgtS2V5KSA8Z2VvcmdtdWVsbGVyQGdteC5uZXQ+iFwEExECABwCGwMECwcDAgMV
- AgMDFgIBAh4BAheABQJVNO78AAoJEIeZ9sDo/JvLn3kAn39yAfifTqrJNQ0d0qDs92oYptW3
- AJ0d2yfN4y0oG5HnoBRsGWLUO/1TibQuR2VvcmcgTcO8bGxlciAoR01YLUtleSkgPGdlb3Jn
- bXVlbGxlckBnbXgubmV0PohaBBMRAgAaBQsHCgMEAxUDAgMWAgECF4AFAlU07wACGQEACgkQ
- h5n2wOj8m8tXgACbB0On074qXrS3eWfhutFlH+6KmYIAoMgeY4C4cDk1/GbMBUlP2qo50EUp
- uQENBD1O6ucQBAD1Jah6AjT25zOL2HdzIx0f2Uyi9f+5rI2FmIq4v2GCuWzpapRMEGtvr23R
- XjV7HJsQs7jBVFi2Xda+WmZDlviPD/T/se0Htyq09qUDCI+/lTnSOruyIvSlR4hKML16m7Mv
- KwKOdU2NOkk/iCbTEoOQXM8sNKSkA14EpL7EhUCVnwADBQQAtDPJPZ6prjwEtbmFaz8Me3tP
- fpQItg7wveW+WLtqdsvIo0qmp0hWp47t1YEVXpQVmTnxkBgh+8RAhlHcB7cU2MnqLDmvTh0O
- In4DdusWIOfAxzv442hbFBrAA1r4xlnV2zq59E8w4hhBA8Tur4rfL69LfwEasPqugoI9v28E
- RvaIRgQYEQIABgUCPU7q5wAKCRCHmfbA6Pyby3sEAJ9HM3QGgjcPSRh8c7j8SN0auYvNmgCg
- 3TiiOylY6CaDzF8iI0M6ejP5dPc=
-Message-ID: <8bdec034-3be9-1b5f-ab09-dfdbe153acba@gmx.net>
-Date:   Wed, 1 Apr 2020 10:28:49 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        id S1726536AbgDAI4Q convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 1 Apr 2020 04:56:16 -0400
+Received: from esa2.mentor.iphmx.com ([68.232.141.98]:25323 "EHLO
+        esa2.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731770AbgDAI4Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 04:56:16 -0400
+X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Wed, 01 Apr 2020 04:56:15 EDT
+IronPort-SDR: fKPyCdollnuckSG8+2mhduPcNAtdLRd1Dy2hGZAT9WzNQaANRSdwhRCuzTdch33LMgoPxsVbUL
+ Iw5c6RYUcPbeIxhE9msnAP2Q6rc54+5iZE6KlYiVAEL1H4cyh1xrYx4ZqooC4m8GCRcV8WBfqm
+ HidkIMH1UMeBT13ghJDj/e1BgRSPUgkcT2ioJuqwef7JsK/cjtEArsQ9fTD3JRSyQSotxMqMV1
+ MBHHjE98A8yyYwyhItNGCDZSqrLeO2QKs9iD+SeOLhXqmUdWA3rikZTTxiogfI17pGSbX0uHz6
+ 9XI=
+X-IronPort-AV: E=Sophos;i="5.72,331,1580803200"; 
+   d="scan'208,223";a="47244867"
+Received: from orw-gwy-01-in.mentorg.com ([192.94.38.165])
+  by esa2.mentor.iphmx.com with ESMTP; 01 Apr 2020 00:49:08 -0800
+IronPort-SDR: 8qV8/t94cWOqHM04GzO+hOod1VC8YweGHU5gu//732v1F3J3XNhY0+LvgEGCmb+SZ/QzIK1Xyx
+ u0ZKiM5Ll/oAjGd2QrLOTMukR0f7xw9OESA/EzcrYvG2/x7pmJGbAJ28GWG+dikAfiGLrABF5b
+ VtEJzoaCpMfKqEuo8LgEM89Elil8OqWxKlu9ghMf/fp2QZZRlXzxrThOlI7Aa1uqpc3OeaSb+N
+ xPwW31vh9xjAGXcBAl92qOWxPy6rDztSKHXHteC8T0I62diEEQuWHssrPwFq6bKEtfkyl4wiS3
+ 9QU=
+From:   "Schmid, Carsten" <Carsten_Schmid@mentor.com>
+To:     "x86@vger.kernel.org" <x86@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: [PATCH Backport to stable/linux-4.14.y] make 'user_access_begin()' do
+ 'access_ok()'
+Thread-Topic: [PATCH Backport to stable/linux-4.14.y] make
+ 'user_access_begin()' do 'access_ok()'
+Thread-Index: AQHWCAJkVCaPiBB3fEi305LG7KYcnQ==
+Date:   Wed, 1 Apr 2020 08:49:03 +0000
+Message-ID: <8a297704c58b4b4e867efecb08214040@SVR-IES-MBX-03.mgc.mentorg.com>
+Accept-Language: de-DE, en-IE, en-US
+Content-Language: de-DE
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [137.202.0.90]
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:7moJ0YdZuBqrSQP0X6nc/YBU/ddE728vKZb9OoffVHBoFfLWz48
- eRSm9mcA6PNbhZ6ACFjvii2I82yFJYrZFvTUEQ+wve5/wRoPslhcjlZO2KiTyYyRqz3iPqD
- kr8elBZYaILCdGj0SFN/KPRzWJq2VhUuBzTFSHtLsMUcn2I5poggSNOkbiTh/gSOLbdjrXL
- Oh82yf9MXipI7PgKHvRKQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:PRiyFFz++Wo=:EuCzTvKCq+sZb2PuW9MVGT
- FqCkOMcRDEmUQPV7SJPX6UYzqU17bz5oIebqdOHYVhnPa7dUZAZfXpE4fK75WmsQlQGUcZiWw
- s8vrY3Ps1TW4RMhqNcNCIJJKJkLdgI8O/6GIiCi8SE/vUT/uDtKaayxuxmoy/G03CowhZ6ZgK
- fNLhUX4Rl7iCSukmrHR/nWofGeylZ6Zs+KAqruKb903v36dNHAOQpWY7l8bq6Qr2gRzv4+HpW
- mKjz2UP1FMsoP9t1ouBtVmMaidQpb5DIxJ0ydAJVBezDV51Ja3j2tU7vGAxBGq5QNBfIgtDo2
- JMSJki3HNDBbWd6g02bupinrAjxwo1vlkqVEbcOa2xNr8WZ6uhmKCxZgqTZkea64ZonRVI9bH
- XPNorfONkikk3OvUNjEmab8Dusei85tWIMpI4zRTbBa20r2xDhbQ7YAMe7z8AVrs692WFF4Nm
- nbxSyv7B1ryQVgQTVQFCLQcRtefYwihtF3VwKylytxvYbc8ikc0nnmFXbe8bFnRrZwY2LxR1S
- 4djNUBNBnmACsmrZx/5q5XIA7A1jmL2Gf9RO8PoCpJCRn4XVU7HAvr4e1hfjFEp5F/cmubi+o
- Qn5+k/3DeYW5Xfn1KnSq7fYD/41dyI1h2ncANEVRgRtnBlYOs2Zs0D2qCFGcYM91oXjE0pioS
- Wjj9Q04lrEnVmq21aIE62RG0/ZG6cSgwIyBsZg1aFbbsqVSWYV2ypgXSBl51U9nVHnTxVLMxW
- keJWFCvBsO5aFhdwx6L69hTmzZHcWfumTkL9S18oD6Ne5vKqSIW+BlQDqvHmD8nXuzwtIxwtV
- H6T5mWnoFSxeQc5jRh/Z0vr0L5Xjoaj1Og/TMWdU6gvf5skWDmzK26JJIsnLKH6WMihKQRIFE
- WsIg22I0HQh6JQ0pKS4sJ1LY/ePpmg9kFhAYQwH9AXPTz01gFGRZ+NBThQV0G4jy/bhDLwzxU
- og4ySajmRjaUykV04I1s0pjJpCajfuF1BUjPj5XO8AnHQWBaVJAbAk/pWhuTUKGpbotXgfTsk
- r0kn9fmGZQ+L4FvQORY7eZ26zSoIcqFcmXONFWjTaAHifmM9y6FfGlh62aLxRvql9S4DysfB+
- HIam9Y95ttgbENYob2PMcxKeX65Wij/8eRilm+n6K32UxYJlAfhWJaMDwPSY09tAf0Bo9n94T
- F22sjWpJJYISK8Jwmntij14yFRcCA/q3SG7UyKrSXFHKBkjLgm3y3dZeqnr5LfU4Yru4d05Ts
- pVKXX8IrXyaXu7Jm/
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 95b31e35239e5e1689e3d965d692a313c71bd8ab upstream
+From eb5a13ddc30824c20f1e2b662d2c821ad3808526 Mon Sep 17 00:00:00 2001
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 4 Jan 2019 12:56:09 -0800
+Subject: [PATCH] make 'user_access_begin()' do 'access_ok()'
 
-This is a regression since linux v4.19, introduced with commit 648e921888ad96ea3dc922739e96716ad3225d7f.
+[ Upstream commit 594cc251fdd0d231d342d88b2fdff4bc42fb0690 ]
 
-Without this patch, one ethernet port of this board is not usable.
+Fixes CVE-2018-20669
+Backported from v5.0-rc1
+Patch 1/1
 
-From the currently maintained stable kernels, the patch 648e921888ad96ea3dc922739e96716ad3225d7f was also
-backported to linux-4.14.y, so I suggest to backport the patch to v4.14 and v4.19+.
+Originally, the rule used to be that you'd have to do access_ok()
+separately, and then user_access_begin() before actually doing the
+direct (optimized) user access.
 
-Best regards,
-Georg
+But experience has shown that people then decide not to do access_ok()
+at all, and instead rely on it being implied by other operations or
+similar.  Which makes it very hard to verify that the access has
+actually been range-checked.
+
+If you use the unsafe direct user accesses, hardware features (either
+SMAP - Supervisor Mode Access Protection - on x86, or PAN - Privileged
+Access Never - on ARM) do force you to use user_access_begin().  But
+nothing really forces the range check.
+
+By putting the range check into user_access_begin(), we actually force
+people to do the right thing (tm), and the range check vill be visible
+near the actual accesses.  We have way too long a history of people
+trying to avoid them.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+---
+Rationale:
+When working on stability and security for a project with 4.14 kernel,
+i backported patches from upstream.
+Want to give this work back to the community, as 4.14 is a SLTS.
+---
+ arch/x86/include/asm/uaccess.h             |  9 ++++++++-
+ drivers/gpu/drm/i915/i915_gem_execbuffer.c | 15 +++++++++++++--
+ include/linux/uaccess.h                    |  2 +-
+ kernel/compat.c                            |  6 ++----
+ kernel/exit.c                              |  6 ++----
+ lib/strncpy_from_user.c                    |  9 +++++----
+ lib/strnlen_user.c                         |  9 +++++----
+ 7 files changed, 36 insertions(+), 20 deletions(-)
+
+diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
+index 971830341061..fd00c5fba059 100644
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -711,7 +711,14 @@ extern struct movsl_mask {
+  * checking before using them, but you have to surround them with the
+  * user_access_begin/end() pair.
+  */
+-#define user_access_begin()    __uaccess_begin()
++static __must_check inline bool user_access_begin(const void __user *ptr, size_t len)
++{
++       if (unlikely(!access_ok(VERIFY_READ,ptr,len)))
++               return 0;
++       __uaccess_begin();
++       return 1;
++}
++#define user_access_begin(a,b) user_access_begin(a,b)
+ #define user_access_end()       __uaccess_end()
+
+ #define unsafe_put_user(x, ptr, err_label)                                      \
+diff --git a/drivers/gpu/drm/i915/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/i915_gem_execbuffer.c
+index d99d05a91032..3a65a45184ad 100644
+--- a/drivers/gpu/drm/i915/i915_gem_execbuffer.c
++++ b/drivers/gpu/drm/i915/i915_gem_execbuffer.c
+@@ -1566,7 +1566,9 @@ static int eb_copy_relocations(const struct i915_execbuffer *eb)
+                  * happened we would make the mistake of assuming that the
+                  * relocations were valid.
+                  */
+-               user_access_begin();
++               if (!user_access_begin(urelocs, size))
++                       goto end_user;
++
+                 for (copied = 0; copied < nreloc; copied++)
+                         unsafe_put_user(-1,
+                                         &urelocs[copied].presumed_offset,
+@@ -2649,7 +2651,16 @@ i915_gem_execbuffer2(struct drm_device *dev, void *data,
+                 unsigned int i;
+
+                 /* Copy the new buffer offsets back to the user's exec list. */
+-               user_access_begin();
++               /*
++                * Note: args->buffer_count * sizeof(*user_exec_list) does not overflow,
++                * because we checked this on entry.
++                *
++                * And this range already got effectively checked earlier
++                * when we did the "copy_from_user()" above.
++                */
++               if (!user_access_begin(user_exec_list, args->buffer_count * sizeof(*user_exec_list)))
++                       goto end_user;
++
+                 for (i = 0; i < args->buffer_count; i++) {
+                         if (!(exec2_list[i].offset & UPDATE))
+                                 continue;
+diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
+index 251e655d407f..76407748701b 100644
+--- a/include/linux/uaccess.h
++++ b/include/linux/uaccess.h
+@@ -267,7 +267,7 @@ extern long strncpy_from_unsafe(char *dst, const void *unsafe_addr, long count);
+         probe_kernel_read(&retval, addr, sizeof(retval))
+
+ #ifndef user_access_begin
+-#define user_access_begin() do { } while (0)
++#define user_access_begin(ptr,len) access_ok(ptr, len)
+ #define user_access_end() do { } while (0)
+ #define unsafe_get_user(x, ptr, err) do { if (unlikely(__get_user(x, ptr))) goto err; } while (0)
+ #define unsafe_put_user(x, ptr, err) do { if (unlikely(__put_user(x, ptr))) goto err; } while (0)
+diff --git a/kernel/compat.c b/kernel/compat.c
+index 7e83733d4c95..a9f5de63dc90 100644
+--- a/kernel/compat.c
++++ b/kernel/compat.c
+@@ -437,10 +437,9 @@ long compat_get_bitmap(unsigned long *mask, const compat_ulong_t __user *umask,
+         bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
+         nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
+
+-       if (!access_ok(VERIFY_READ, umask, bitmap_size / 8))
++       if (!user_access_begin(umask, bitmap_size / 8))
+                 return -EFAULT;
+
+-       user_access_begin();
+         while (nr_compat_longs > 1) {
+                 compat_ulong_t l1, l2;
+                 unsafe_get_user(l1, umask++, Efault);
+@@ -467,10 +466,9 @@ long compat_put_bitmap(compat_ulong_t __user *umask, unsigned long *mask,
+         bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
+         nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
+
+-       if (!access_ok(VERIFY_WRITE, umask, bitmap_size / 8))
++       if (!user_access_begin(umask, bitmap_size / 8))
+                 return -EFAULT;
+
+-       user_access_begin();
+         while (nr_compat_longs > 1) {
+                 unsigned long m = *mask++;
+                 unsafe_put_user((compat_ulong_t)m, umask++, Efault);
+diff --git a/kernel/exit.c b/kernel/exit.c
+index d1baf9c96c3e..c3ad546ba7c2 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -1597,10 +1597,9 @@ SYSCALL_DEFINE5(waitid, int, which, pid_t, upid, struct siginfo __user *,
+         if (!infop)
+                 return err;
+
+-       if (!access_ok(VERIFY_WRITE, infop, sizeof(*infop)))
++       if (!user_access_begin(infop, sizeof(*infop)))
+                 return -EFAULT;
+
+-       user_access_begin();
+         unsafe_put_user(signo, &infop->si_signo, Efault);
+         unsafe_put_user(0, &infop->si_errno, Efault);
+         unsafe_put_user(info.cause, &infop->si_code, Efault);
+@@ -1725,10 +1724,9 @@ COMPAT_SYSCALL_DEFINE5(waitid,
+         if (!infop)
+                 return err;
+
+-       if (!access_ok(VERIFY_WRITE, infop, sizeof(*infop)))
++       if (!user_access_begin(infop, sizeof(*infop)))
+                 return -EFAULT;
+
+-       user_access_begin();
+         unsafe_put_user(signo, &infop->si_signo, Efault);
+         unsafe_put_user(0, &infop->si_errno, Efault);
+         unsafe_put_user(info.cause, &infop->si_code, Efault);
+diff --git a/lib/strncpy_from_user.c b/lib/strncpy_from_user.c
+index e304b54c9c7d..023ba9f3b99f 100644
+--- a/lib/strncpy_from_user.c
++++ b/lib/strncpy_from_user.c
+@@ -115,10 +115,11 @@ long strncpy_from_user(char *dst, const char __user *src, long count)
+
+                 kasan_check_write(dst, count);
+                 check_object_size(dst, count, false);
+-               user_access_begin();
+-               retval = do_strncpy_from_user(dst, src, count, max);
+-               user_access_end();
+-               return retval;
++               if (user_access_begin(src, max)) {
++                       retval = do_strncpy_from_user(dst, src, count, max);
++                       user_access_end();
++                       return retval;
++               }
+         }
+         return -EFAULT;
+ }
+diff --git a/lib/strnlen_user.c b/lib/strnlen_user.c
+index 184f80f7bacf..7f2db3fe311f 100644
+--- a/lib/strnlen_user.c
++++ b/lib/strnlen_user.c
+@@ -114,10 +114,11 @@ long strnlen_user(const char __user *str, long count)
+                 unsigned long max = max_addr - src_addr;
+                 long retval;
+
+-               user_access_begin();
+-               retval = do_strnlen_user(str, count, max);
+-               user_access_end();
+-               return retval;
++               if (user_access_begin(str, max)) {
++                       retval = do_strnlen_user(str, count, max);
++                       user_access_end();
++                       return retval;
++               }
+         }
+         return 0;
+ }
+--
+2.17.1
+-----------------
+Mentor Graphics (Deutschland) GmbH, Arnulfstraße 201, 80634 München / Germany
+Registergericht München HRB 106955, Geschäftsführer: Thomas Heurung, Alexander Walter
