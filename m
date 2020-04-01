@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A515B19B311
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DEC519B3D2
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:54:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389277AbgDAQl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:41:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41732 "EHLO mail.kernel.org"
+        id S2387814AbgDAQaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:30:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389417AbgDAQlY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:41:24 -0400
+        id S2388025AbgDAQaH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:30:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87CED20658;
-        Wed,  1 Apr 2020 16:41:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E01620658;
+        Wed,  1 Apr 2020 16:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759284;
-        bh=Z1w89FV4JZlPqLk2RgxsoXO5Gc+e9qwNFYqSxgTC6Gs=;
+        s=default; t=1585758605;
+        bh=Wk5vG2jvv3zKm1H8ZHIEKdgfGVZnA91k1WpdRvzFCCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OyzJY+qJwJ43YhTgaxNQC8IUo2YjtkoJfpvbLn8aIlKc8jqZ980R2BwFCPY4AuAcd
-         RyS7SrLGdaSC+FKb7LOnT1XOou9JAhqfyFj2zjwZL3dMY2GODoPyoXELHMHkspagjX
-         jBOpDyJ8omL0iQXPRBmkhaHS5aLXmtZ6M0mOJjVk=
+        b=y0vYRTiRMP4BbQHaS2ViCZvufIriHmEin7EG/zErwmRrtnH/GPq2sFOxKUcdFMGB9
+         9Eer9QfVzw0h9nDDxRLhRuWF4IuSjmxVl1ywFSdHz6g7CZgLU0Rwia1344yDQlK2gQ
+         A5EQaExO1jo6oucBVB7nsHZEqPwRMoJP/1X9odzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 031/148] intel_th: Fix user-visible error codes
+        stable@vger.kernel.org, "Igor M. Liplianin" <liplianin@netup.ru>,
+        Daniel Axtens <dja@axtens.net>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 07/91] altera-stapl: altera_get_note: prevent write beyond end of key
 Date:   Wed,  1 Apr 2020 18:17:03 +0200
-Message-Id: <20200401161555.582816530@linuxfoundation.org>
+Message-Id: <20200401161515.527566903@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Daniel Axtens <dja@axtens.net>
 
-commit ce666be89a8a09c5924ff08fc32e119f974bdab6 upstream.
+[ Upstream commit 3745488e9d599916a0b40d45d3f30e3d4720288e ]
 
-There are a few places in the driver that end up returning ENOTSUPP to
-the user, replace those with EINVAL.
+altera_get_note is called from altera_init, where key is kzalloc(33).
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Fixes: ba82664c134ef ("intel_th: Add Memory Storage Unit driver")
-Cc: stable@vger.kernel.org # v4.4+
-Link: https://lore.kernel.org/r/20200317062215.15598-6-alexander.shishkin@linux.intel.com
+When the allocation functions are annotated to allow the compiler to see
+the sizes of objects, and with FORTIFY_SOURCE, we see:
+
+In file included from drivers/misc/altera-stapl/altera.c:14:0:
+In function ‘strlcpy’,
+    inlined from ‘altera_init’ at drivers/misc/altera-stapl/altera.c:2189:5:
+include/linux/string.h:378:4: error: call to ‘__write_overflow’ declared with attribute error: detected write beyond size of object passed as 1st parameter
+    __write_overflow();
+    ^~~~~~~~~~~~~~~~~~
+
+That refers to this code in altera_get_note:
+
+    if (key != NULL)
+            strlcpy(key, &p[note_strings +
+                            get_unaligned_be32(
+                            &p[note_table + (8 * i)])],
+                    length);
+
+The error triggers because the length of 'key' is 33, but the copy
+uses length supplied as the 'length' parameter, which is always
+256. Split the size parameter into key_len and val_len, and use the
+appropriate length depending on what is being copied.
+
+Detected by compiler error, only compile-tested.
+
+Cc: "Igor M. Liplianin" <liplianin@netup.ru>
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Link: https://lore.kernel.org/r/20200120074344.504-2-dja@axtens.net
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/202002251042.D898E67AC@keescook
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/intel_th/msu.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/misc/altera-stapl/altera.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/hwtracing/intel_th/msu.c
-+++ b/drivers/hwtracing/intel_th/msu.c
-@@ -499,7 +499,7 @@ static int msc_configure(struct msc *msc
- 	lockdep_assert_held(&msc->buf_mutex);
+diff --git a/drivers/misc/altera-stapl/altera.c b/drivers/misc/altera-stapl/altera.c
+index 494e263daa748..b7ee8043a133e 100644
+--- a/drivers/misc/altera-stapl/altera.c
++++ b/drivers/misc/altera-stapl/altera.c
+@@ -2126,8 +2126,8 @@ static int altera_execute(struct altera_state *astate,
+ 	return status;
+ }
  
- 	if (msc->mode > MSC_MODE_MULTI)
--		return -ENOTSUPP;
-+		return -EINVAL;
+-static int altera_get_note(u8 *p, s32 program_size,
+-			s32 *offset, char *key, char *value, int length)
++static int altera_get_note(u8 *p, s32 program_size, s32 *offset,
++			   char *key, char *value, int keylen, int vallen)
+ /*
+  * Gets key and value of NOTE fields in the JBC file.
+  * Can be called in two modes:  if offset pointer is NULL,
+@@ -2184,7 +2184,7 @@ static int altera_get_note(u8 *p, s32 program_size,
+ 						&p[note_table + (8 * i) + 4])];
  
- 	if (msc->mode == MSC_MODE_MULTI)
- 		msc_buffer_clear_hw_header(msc);
-@@ -950,7 +950,7 @@ static int msc_buffer_alloc(struct msc *
- 	} else if (msc->mode == MSC_MODE_MULTI) {
- 		ret = msc_buffer_multi_alloc(msc, nr_pages, nr_wins);
- 	} else {
--		ret = -ENOTSUPP;
-+		ret = -EINVAL;
+ 				if (value != NULL)
+-					strlcpy(value, value_ptr, length);
++					strlcpy(value, value_ptr, vallen);
+ 
+ 			}
+ 		}
+@@ -2203,13 +2203,13 @@ static int altera_get_note(u8 *p, s32 program_size,
+ 				strlcpy(key, &p[note_strings +
+ 						get_unaligned_be32(
+ 						&p[note_table + (8 * i)])],
+-					length);
++					keylen);
+ 
+ 			if (value != NULL)
+ 				strlcpy(value, &p[note_strings +
+ 						get_unaligned_be32(
+ 						&p[note_table + (8 * i) + 4])],
+-					length);
++					vallen);
+ 
+ 			*offset = i + 1;
+ 		}
+@@ -2463,7 +2463,7 @@ int altera_init(struct altera_config *config, const struct firmware *fw)
+ 			__func__, (format_version == 2) ? "Jam STAPL" :
+ 						"pre-standardized Jam 1.1");
+ 		while (altera_get_note((u8 *)fw->data, fw->size,
+-					&offset, key, value, 256) == 0)
++					&offset, key, value, 32, 256) == 0)
+ 			printk(KERN_INFO "%s: NOTE \"%s\" = \"%s\"\n",
+ 					__func__, key, value);
  	}
- 
- 	if (!ret) {
-@@ -1173,7 +1173,7 @@ static ssize_t intel_th_msc_read(struct
- 		if (ret >= 0)
- 			*ppos = iter->offset;
- 	} else {
--		ret = -ENOTSUPP;
-+		ret = -EINVAL;
- 	}
- 
- put_count:
+-- 
+2.20.1
+
 
 
