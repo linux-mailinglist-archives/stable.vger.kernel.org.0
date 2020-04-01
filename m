@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 116CB19AFF8
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:23:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58E5A19B08D
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387526AbgDAQWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:22:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
+        id S2387737AbgDAQ1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:27:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387527AbgDAQWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:22:45 -0400
+        id S2387535AbgDAQ1m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:27:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F4952137B;
-        Wed,  1 Apr 2020 16:22:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E036212CC;
+        Wed,  1 Apr 2020 16:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758164;
-        bh=mPMg+GIZNgjPNi6MOWo6soVJy6BjBjhd20BrzjGqz2g=;
+        s=default; t=1585758462;
+        bh=1hbslwvl3HRHrAP4PNYJs+QN20wZAm7e0sZuj0tvEjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKJ0qQ1lb5JXgoRmvkfrwJl2xBQbElKnCUQuD/mNmw3tKOFYFkQp7Jg8UqSB9Eyab
-         ydybLfZacxrlu/7ZafjEogWbGX5odBskzX8VYDSyTrSzeecq1Xyf7U9j/7a/mZikMX
-         QIYq85NjFwv5/VsAWSvVWeL6Bm2ONws+SZmnKdHk=
+        b=jRHTFxKotOjNdc393SteRQwmueXX82anZihCmoJO6qR30QqSfq/JUgee4dnL6L4/B
+         yKgoP1aksFQz/u3ELaqhNp7EIZAryv/Fd+lM2t30alDBuL2NZZMPcVOiPzxWGeBLko
+         esI551D0pCRHURk3jhogXin7NemSbAdQBygbnP90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 5.4 25/27] ARM: dts: sun8i: r40: Move AHCI device node based on address order
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Woody Suwalski <terraluna977@gmail.com>
+Subject: [PATCH 4.19 097/116] mac80211: fix authentication with iwlwifi/mvm
 Date:   Wed,  1 Apr 2020 18:17:53 +0200
-Message-Id: <20200401161434.337279705@linuxfoundation.org>
+Message-Id: <20200401161554.757299208@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
-References: <20200401161414.352722470@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit fe3a04824f75786e39ed74e82fb6cb2534c95fe4 upstream.
+commit be8c827f50a0bcd56361b31ada11dc0a3c2fd240 upstream.
 
-When the AHCI device node was added, it was added in the wrong location
-in the device tree file. The device nodes should be sorted by register
-address.
+The original patch didn't copy the ieee80211_is_data() condition
+because on most drivers the management frames don't go through
+this path. However, they do on iwlwifi/mvm, so we do need to keep
+the condition here.
 
-Move the device node to before EHCI1, where it belongs.
-
-Fixes: 41c64d3318aa ("ARM: dts: sun8i: r40: add sata node")
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Cc: stable@vger.kernel.org
+Fixes: ce2e1ca70307 ("mac80211: Check port authorization in the ieee80211_tx_dequeue() case")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Woody Suwalski <terraluna977@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/sun8i-r40.dtsi |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ net/mac80211/tx.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/sun8i-r40.dtsi
-+++ b/arch/arm/boot/dts/sun8i-r40.dtsi
-@@ -266,6 +266,16 @@
- 			#phy-cells = <1>;
- 		};
- 
-+		ahci: sata@1c18000 {
-+			compatible = "allwinner,sun8i-r40-ahci";
-+			reg = <0x01c18000 0x1000>;
-+			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
-+			resets = <&ccu RST_BUS_SATA>;
-+			reset-names = "ahci";
-+			status = "disabled";
-+		};
-+
- 		ehci1: usb@1c19000 {
- 			compatible = "allwinner,sun8i-r40-ehci", "generic-ehci";
- 			reg = <0x01c19000 0x100>;
-@@ -557,17 +567,6 @@
- 			#size-cells = <0>;
- 		};
- 
--		ahci: sata@1c18000 {
--			compatible = "allwinner,sun8i-r40-ahci";
--			reg = <0x01c18000 0x1000>;
--			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
--			resets = <&ccu RST_BUS_SATA>;
--			reset-names = "ahci";
--			status = "disabled";
--
--		};
--
- 		gmac: ethernet@1c50000 {
- 			compatible = "allwinner,sun8i-r40-gmac";
- 			syscon = <&ccu>;
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -3519,7 +3519,8 @@ begin:
+ 		 * Drop unicast frames to unauthorised stations unless they are
+ 		 * EAPOL frames from the local station.
+ 		 */
+-		if (unlikely(!ieee80211_vif_is_mesh(&tx.sdata->vif) &&
++		if (unlikely(ieee80211_is_data(hdr->frame_control) &&
++			     !ieee80211_vif_is_mesh(&tx.sdata->vif) &&
+ 			     tx.sdata->vif.type != NL80211_IFTYPE_OCB &&
+ 			     !is_multicast_ether_addr(hdr->addr1) &&
+ 			     !test_sta_flag(tx.sta, WLAN_STA_AUTHORIZED) &&
 
 
