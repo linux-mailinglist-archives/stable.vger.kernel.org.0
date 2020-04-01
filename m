@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADB0A19B169
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0816F19B3C6
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388686AbgDAQeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:34:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33440 "EHLO mail.kernel.org"
+        id S2388323AbgDAQbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:31:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387470AbgDAQeq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:34:46 -0400
+        id S2388300AbgDAQbg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:31:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31BC620658;
-        Wed,  1 Apr 2020 16:34:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEFCB2063A;
+        Wed,  1 Apr 2020 16:31:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758885;
-        bh=BpWYZrwKdqfE+uexcPKn0ExxFg0Gix+xR4+7w2Z0C4U=;
+        s=default; t=1585758695;
+        bh=HyGQ6v8gAKW3CkXWuQUkHU+uBAL5bF2qT3VezlbZYDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAfyAd5WKwUFP4dW39zN+bTougxLKngCuM4Nd1qoP0MscvMiEd4eovRX0V4k8uuFy
-         IVxyKLLqy0ZgFnnMuiBMiNebIUEFBA2hdiDHQsfvWiWElZ8F/8irxfp2FP/4NipuPa
-         EzXO/+EbMrpuUSrJWkl0ECRVMYmSFEzTYhcteIi4=
+        b=Od+ZTbT/9jq49WRJmSyeulxQMczALDJHWpc70ELfqMCsi6O0CKuQDaeW8sJvHFh7/
+         xVxC03J3XMByGx0lj7n7CKJfMKe89Lra1JuE8Lvfrpt/QMXKNWRbjkiy/s+JlGSH6u
+         JLLxCTF9u3MacHYWF4lsMEb4NjuFHiJ5XuXo6410=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 013/102] ALSA: line6: Fix endless MIDI read loop
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.4 20/91] intel_th: Fix user-visible error codes
 Date:   Wed,  1 Apr 2020 18:17:16 +0200
-Message-Id: <20200401161534.366414610@linuxfoundation.org>
+Message-Id: <20200401161520.020908854@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit d683469b3c93d7e2afd39e6e1970f24700eb7a68 upstream.
+commit ce666be89a8a09c5924ff08fc32e119f974bdab6 upstream.
 
-The MIDI input event parser of the LINE6 driver may enter into an
-endless loop when the unexpected data sequence is given, as it tries
-to continue the secondary bytes without termination.  Also, when the
-input data is too short, the parser returns a negative error, while
-the caller doesn't handle it properly.  This would lead to the
-unexpected behavior as well.
+There are a few places in the driver that end up returning ENOTSUPP to
+the user, replace those with EINVAL.
 
-This patch addresses those issues by checking the return value
-correctly and handling the one-byte event in the parser properly.
-
-The bug was reported by syzkaller.
-
-Reported-by: syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/000000000000033087059f8f8fa3@google.com
-Link: https://lore.kernel.org/r/20200309095922.30269-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: ba82664c134ef ("intel_th: Add Memory Storage Unit driver")
+Cc: stable@vger.kernel.org # v4.4+
+Link: https://lore.kernel.org/r/20200317062215.15598-6-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/line6/driver.c  |    2 +-
- sound/usb/line6/midibuf.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/hwtracing/intel_th/msu.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -306,7 +306,7 @@ static void line6_data_received(struct u
- 				line6_midibuf_read(mb, line6->buffer_message,
- 						LINE6_MIDI_MESSAGE_MAXLEN);
+--- a/drivers/hwtracing/intel_th/msu.c
++++ b/drivers/hwtracing/intel_th/msu.c
+@@ -483,7 +483,7 @@ static int msc_configure(struct msc *msc
+ 	u32 reg;
  
--			if (done == 0)
-+			if (done <= 0)
- 				break;
+ 	if (msc->mode > MSC_MODE_MULTI)
+-		return -ENOTSUPP;
++		return -EINVAL;
  
- 			line6->message_length = done;
---- a/sound/usb/line6/midibuf.c
-+++ b/sound/usb/line6/midibuf.c
-@@ -163,7 +163,7 @@ int line6_midibuf_read(struct midi_buffe
- 			int midi_length_prev =
- 			    midibuf_message_length(this->command_prev);
+ 	if (msc->mode == MSC_MODE_MULTI)
+ 		msc_buffer_clear_hw_header(msc);
+@@ -935,7 +935,7 @@ static int msc_buffer_alloc(struct msc *
+ 	} else if (msc->mode == MSC_MODE_MULTI) {
+ 		ret = msc_buffer_multi_alloc(msc, nr_pages, nr_wins);
+ 	} else {
+-		ret = -ENOTSUPP;
++		ret = -EINVAL;
+ 	}
  
--			if (midi_length_prev > 0) {
-+			if (midi_length_prev > 1) {
- 				midi_length = midi_length_prev - 1;
- 				repeat = 1;
- 			} else
+ 	if (!ret) {
+@@ -1164,7 +1164,7 @@ static ssize_t intel_th_msc_read(struct
+ 		if (ret >= 0)
+ 			*ppos = iter->offset;
+ 	} else {
+-		ret = -ENOTSUPP;
++		ret = -EINVAL;
+ 	}
+ 
+ put_count:
 
 
