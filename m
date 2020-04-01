@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DEE519B133
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B06A019B1BE
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:38:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733000AbgDAQc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:32:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59414 "EHLO mail.kernel.org"
+        id S2389001AbgDAQho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:37:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388467AbgDAQcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:32:55 -0400
+        id S2388995AbgDAQho (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:37:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EBF02063A;
-        Wed,  1 Apr 2020 16:32:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00EC920BED;
+        Wed,  1 Apr 2020 16:37:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758774;
-        bh=/FJ+OntIpNIrVn8h35nKNUL5zTjcvplGpW6DiTgd9uw=;
+        s=default; t=1585759063;
+        bh=+JAAVEF8KYJY+js1qOPD/3WM6MFYxSxtSx/3r8F4uoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MRZGpSqA0IEdXDr73CtU2nH6eI0NbzI1qClHwXDyv1poihHEthWbnRy/jll7Q/L4D
-         p6T9gpSe+6nzroz2brMm2xOmQ3nlMBw0xDivDjMhuMvdG6GEqfLK+An2JQYK31dFwA
-         fCySrD8/uCnJghI9DMsJH4+73nHTCT2PHp8L/V5s=
+        b=Qwdm5gIFLzqBO2AGc0QWIfqejEGVY2+LmsTA9HeUE5SPmsFCTkOXmN4smQyN6++nQ
+         VqQV/BkVdXHBH8EMp4uHuDuSd3/XdNBjV9RR6UfwIdOUmhh0mgVoLlw+AZPhC33m3m
+         Kvjm2ZWZj8ZQ0ynAHUAzftDkYsMvyp5UIn/q2X2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
-        Bin Liu <b-liu@ti.com>
-Subject: [PATCH 4.4 72/91] usb: musb: fix crash with highmen PIO and usbmon
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.9 065/102] vti[6]: fix packet tx through bpf_redirect() in XinY cases
 Date:   Wed,  1 Apr 2020 18:18:08 +0200
-Message-Id: <20200401161536.923883042@linuxfoundation.org>
+Message-Id: <20200401161543.746725659@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mans Rullgard <mans@mansr.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit 52974d94a206ce428d9d9b6eaa208238024be82a upstream.
+commit f1ed10264ed6b66b9cd5e8461cffce69be482356 upstream.
 
-When handling a PIO bulk transfer with highmem buffer, a temporary
-mapping is assigned to urb->transfer_buffer.  After the transfer is
-complete, an invalid address is left behind in this pointer.  This is
-not ordinarily a problem since nothing touches that buffer before the
-urb is released.  However, when usbmon is active, usbmon_urb_complete()
-calls (indirectly) mon_bin_get_data() which does access the transfer
-buffer if it is set.  To prevent an invalid memory access here, reset
-urb->transfer_buffer to NULL when finished (musb_host_rx()), or do not
-set it at all (musb_host_tx()).
+I forgot the 4in6/6in4 cases in my previous patch. Let's fix them.
 
-Fixes: 8e8a55165469 ("usb: musb: host: Handle highmem in PIO mode")
-Signed-off-by: Mans Rullgard <mans@mansr.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20200316211136.2274-8-b-liu@ti.com
+Fixes: 95224166a903 ("vti[6]: fix packet tx through bpf_redirect()")
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/musb/musb_host.c |   17 +++++------------
- 1 file changed, 5 insertions(+), 12 deletions(-)
+ net/ipv4/Kconfig   |    1 +
+ net/ipv4/ip_vti.c  |   36 +++++++++++++++++++++++++++++-------
+ net/ipv6/ip6_vti.c |   32 +++++++++++++++++++++++++-------
+ 3 files changed, 55 insertions(+), 14 deletions(-)
 
---- a/drivers/usb/musb/musb_host.c
-+++ b/drivers/usb/musb/musb_host.c
-@@ -1519,10 +1519,7 @@ done:
- 	 * We need to map sg if the transfer_buffer is
- 	 * NULL.
- 	 */
--	if (!urb->transfer_buffer)
--		qh->use_sg = true;
--
--	if (qh->use_sg) {
-+	if (!urb->transfer_buffer) {
- 		/* sg_miter_start is already done in musb_ep_program */
- 		if (!sg_miter_next(&qh->sg_miter)) {
- 			dev_err(musb->controller, "error: sg list empty\n");
-@@ -1530,9 +1527,8 @@ done:
- 			status = -EINVAL;
- 			goto done;
- 		}
--		urb->transfer_buffer = qh->sg_miter.addr;
- 		length = min_t(u32, length, qh->sg_miter.length);
--		musb_write_fifo(hw_ep, length, urb->transfer_buffer);
-+		musb_write_fifo(hw_ep, length, qh->sg_miter.addr);
- 		qh->sg_miter.consumed = length;
- 		sg_miter_stop(&qh->sg_miter);
- 	} else {
-@@ -1541,11 +1537,6 @@ done:
+--- a/net/ipv4/Kconfig
++++ b/net/ipv4/Kconfig
+@@ -298,6 +298,7 @@ config SYN_COOKIES
  
- 	qh->segsize = length;
+ config NET_IPVTI
+ 	tristate "Virtual (secure) IP: tunneling"
++	depends on IPV6 || IPV6=n
+ 	select INET_TUNNEL
+ 	select NET_IP_TUNNEL
+ 	depends on INET_XFRM_MODE_TUNNEL
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -208,17 +208,39 @@ static netdev_tx_t vti_xmit(struct sk_bu
+ 	int mtu;
  
--	if (qh->use_sg) {
--		if (offset + length >= urb->transfer_buffer_length)
--			qh->use_sg = false;
--	}
--
- 	musb_ep_select(mbase, epnum);
- 	musb_writew(epio, MUSB_TXCSR,
- 			MUSB_TXCSR_H_WZC_BITS | MUSB_TXCSR_TXPKTRDY);
-@@ -2064,8 +2055,10 @@ finish:
- 	urb->actual_length += xfer_len;
- 	qh->offset += xfer_len;
- 	if (done) {
--		if (qh->use_sg)
-+		if (qh->use_sg) {
- 			qh->use_sg = false;
-+			urb->transfer_buffer = NULL;
+ 	if (!dst) {
+-		struct rtable *rt;
++		switch (skb->protocol) {
++		case htons(ETH_P_IP): {
++			struct rtable *rt;
+ 
+-		fl->u.ip4.flowi4_oif = dev->ifindex;
+-		fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
+-		rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
+-		if (IS_ERR(rt)) {
++			fl->u.ip4.flowi4_oif = dev->ifindex;
++			fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
++			rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
++			if (IS_ERR(rt)) {
++				dev->stats.tx_carrier_errors++;
++				goto tx_error_icmp;
++			}
++			dst = &rt->dst;
++			skb_dst_set(skb, dst);
++			break;
 +		}
++#if IS_ENABLED(CONFIG_IPV6)
++		case htons(ETH_P_IPV6):
++			fl->u.ip6.flowi6_oif = dev->ifindex;
++			fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
++			dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
++			if (dst->error) {
++				dst_release(dst);
++				dst = NULL;
++				dev->stats.tx_carrier_errors++;
++				goto tx_error_icmp;
++			}
++			skb_dst_set(skb, dst);
++			break;
++#endif
++		default:
+ 			dev->stats.tx_carrier_errors++;
+ 			goto tx_error_icmp;
+ 		}
+-		dst = &rt->dst;
+-		skb_dst_set(skb, dst);
+ 	}
  
- 		if (urb->status == -EINPROGRESS)
- 			urb->status = status;
+ 	dst_hold(dst);
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -454,15 +454,33 @@ vti6_xmit(struct sk_buff *skb, struct ne
+ 	int mtu;
+ 
+ 	if (!dst) {
+-		fl->u.ip6.flowi6_oif = dev->ifindex;
+-		fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
+-		dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
+-		if (dst->error) {
+-			dst_release(dst);
+-			dst = NULL;
++		switch (skb->protocol) {
++		case htons(ETH_P_IP): {
++			struct rtable *rt;
++
++			fl->u.ip4.flowi4_oif = dev->ifindex;
++			fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
++			rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
++			if (IS_ERR(rt))
++				goto tx_err_link_failure;
++			dst = &rt->dst;
++			skb_dst_set(skb, dst);
++			break;
++		}
++		case htons(ETH_P_IPV6):
++			fl->u.ip6.flowi6_oif = dev->ifindex;
++			fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
++			dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
++			if (dst->error) {
++				dst_release(dst);
++				dst = NULL;
++				goto tx_err_link_failure;
++			}
++			skb_dst_set(skb, dst);
++			break;
++		default:
+ 			goto tx_err_link_failure;
+ 		}
+-		skb_dst_set(skb, dst);
+ 	}
+ 
+ 	dst_hold(dst);
 
 
