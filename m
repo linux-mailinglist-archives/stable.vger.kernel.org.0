@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D81E19B110
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1CB319B1D4
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388340AbgDAQbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:31:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57958 "EHLO mail.kernel.org"
+        id S2387485AbgDAQi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:38:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388338AbgDAQbm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:31:42 -0400
+        id S1732169AbgDAQi1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:38:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 908D62137B;
-        Wed,  1 Apr 2020 16:31:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F424212CC;
+        Wed,  1 Apr 2020 16:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758701;
-        bh=gKGesIHjum9IG4MYIu7b8532lXP7SNN8UJqqO0x5J88=;
+        s=default; t=1585759106;
+        bh=zRZCiOpv/kmMlJxQeyRwH+7szgYRurWO+1olXjkYMTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKGp3H0Eyh8nz1EnXVOkb/FwFohr8x9RrxLOWxa1/GvnSboWzWVimocllxNfgG2lz
-         Z2kCNnHANVyaSYSdBrprnJkDKPRbO8/A+bpOJnd3tn9WradPwJDuktCl5m2wdnELSb
-         WJAfYqHHrMyXkGzHzhVpzgoEW8WaHF5AYc/yp6j4=
+        b=WF/3PfwFXtyRj3HIjx/p1YLDPRp/bfZREr4hTBdP/teyxweL46cTT9y9EP9OSywM2
+         m9qo9VQXBfQPU2Oh4LyLjJwLYiu3OOy6ShCtUsHpuO1HV6Vi/+V9QtgB2QrtaA6BZb
+         ufWj82AKbFX03jUKsaG1WrSskPMyQYvtAbVIhPKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@linux.intel.com>,
-        Konstantin Khlebnikov <koct9i@gmail.com>,
-        Kirill Shutemov <kirill.shutemov@linux.intel.com>,
-        Jan Kara <jack@suse.com>, Neil Brown <neilb@suse.de>,
-        Ross Zwisler <ross.zwisler@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 48/91] drivers/hwspinlock: use correct radix tree API
+        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+f9b32aaacd60305d9687@syzkaller.appspotmail.com,
+        syzbot+2f8c233f131943d6056d@syzkaller.appspotmail.com,
+        syzbot+9c2df9fd5e9445b74e01@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 041/102] net_sched: cls_route: remove the right filter from hashtable
 Date:   Wed,  1 Apr 2020 18:17:44 +0200
-Message-Id: <20200401161530.338453012@linuxfoundation.org>
+Message-Id: <20200401161540.504958837@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,43 +49,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox <willy@linux.intel.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit b76ba4af4ddd6a06f7f65769e7be1bc56556cdf5 ]
+[ Upstream commit ef299cc3fa1a9e1288665a9fdc8bff55629fd359 ]
 
-radix_tree_is_indirect_ptr() is an internal API.  The correct call to
-use is radix_tree_deref_retry() which has the appropriate unlikely()
-annotation.
+route4_change() allocates a new filter and copies values from
+the old one. After the new filter is inserted into the hash
+table, the old filter should be removed and freed, as the final
+step of the update.
 
-Fixes: c6400ba7e13a ("drivers/hwspinlock: fix race between radix tree insertion and lookup")
-Signed-off-by: Matthew Wilcox <willy@linux.intel.com>
-Cc: Konstantin Khlebnikov <koct9i@gmail.com>
-Cc: Kirill Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Jan Kara <jack@suse.com>
-Cc: Neil Brown <neilb@suse.de>
-Cc: Ross Zwisler <ross.zwisler@linux.intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, the current code mistakenly removes the new one. This
+looks apparently wrong to me, and it causes double "free" and
+use-after-free too, as reported by syzbot.
+
+Reported-and-tested-by: syzbot+f9b32aaacd60305d9687@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+2f8c233f131943d6056d@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+9c2df9fd5e9445b74e01@syzkaller.appspotmail.com
+Fixes: 1109c00547fc ("net: sched: RCU cls_route")
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwspinlock/hwspinlock_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/cls_route.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwspinlock/hwspinlock_core.c b/drivers/hwspinlock/hwspinlock_core.c
-index d50c701b19d67..4074441444fed 100644
---- a/drivers/hwspinlock/hwspinlock_core.c
-+++ b/drivers/hwspinlock/hwspinlock_core.c
-@@ -313,7 +313,7 @@ int of_hwspin_lock_get_id(struct device_node *np, int index)
- 		hwlock = radix_tree_deref_slot(slot);
- 		if (unlikely(!hwlock))
- 			continue;
--		if (radix_tree_is_indirect_ptr(hwlock)) {
-+		if (radix_tree_deref_retry(hwlock)) {
- 			slot = radix_tree_iter_retry(&iter);
- 			continue;
- 		}
--- 
-2.20.1
-
+--- a/net/sched/cls_route.c
++++ b/net/sched/cls_route.c
+@@ -542,8 +542,8 @@ static int route4_change(struct net *net
+ 			fp = &b->ht[h];
+ 			for (pfp = rtnl_dereference(*fp); pfp;
+ 			     fp = &pfp->next, pfp = rtnl_dereference(*fp)) {
+-				if (pfp == f) {
+-					*fp = f->next;
++				if (pfp == fold) {
++					rcu_assign_pointer(*fp, fold->next);
+ 					break;
+ 				}
+ 			}
 
 
