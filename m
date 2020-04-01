@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C539B19B43B
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C4219B128
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:33:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732885AbgDAQUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:20:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42928 "EHLO mail.kernel.org"
+        id S2388267AbgDAQcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:32:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732879AbgDAQUV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:20:21 -0400
+        id S2388431AbgDAQcc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:32:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D44120857;
-        Wed,  1 Apr 2020 16:20:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BF7E2137B;
+        Wed,  1 Apr 2020 16:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758020;
-        bh=nnRmublHebH8tVwLmAi+UQ/zgzXNjJ2XDyx3i9qUhW8=;
+        s=default; t=1585758751;
+        bh=27tOJ/fqaKJz1WNpw0k9xBEiOTjwYrhPMg+mkJLaie4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDz2gcUaFSYZI3eInFS7xdD0J4BDsGpZlfmmZNfVXcOEaPK2mVAJc0H6sZnD9lrvY
-         JvGycoBvfAAPZlYDTYW4RtJWX2m+jiXgbeLLm/JoF5frToc1E5kZeXj/3M81HpUpka
-         GQSjtaWwqJkcJVNz1jYNg21Egrx8Tp3TVkC8fGpo=
+        b=uvJYlnLZRn1ztY6YLOiD7GwsmHo1/AfEvhVNklzouoXkFGaybnD11ytInpvyKeqr9
+         0oSiZf4qkNDy6P4zv16y9O0XUT8T4LIdwnRjSSCeysasydRowV0yWREExfRrJgo9mD
+         yYH4eNdpmpId2l3b5dlYKdKoOGYeYcvI+S6IT6+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.5 18/30] clk: imx: Align imx sc clock parent msg structs to 4
+        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 26/91] USB: cdc-acm: fix close_delay and closing_wait units in TIOCSSERIAL
 Date:   Wed,  1 Apr 2020 18:17:22 +0200
-Message-Id: <20200401161429.561629963@linuxfoundation.org>
+Message-Id: <20200401161521.999221772@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
-References: <20200401161414.345528747@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leonard Crestez <leonard.crestez@nxp.com>
+From: Anthony Mallet <anthony.mallet@laas.fr>
 
-commit 8400ab8896324641243b57fc49b448023c07409a upstream.
+[ Upstream commit 633e2b2ded739a34bd0fb1d8b5b871f7e489ea29 ]
 
-The imx SC api strongly assumes that messages are composed out of
-4-bytes words but some of our message structs have odd sizeofs.
+close_delay and closing_wait are specified in hundredth of a second but stored
+internally in jiffies. Use the jiffies_to_msecs() and msecs_to_jiffies()
+functions to convert from each other.
 
-This produces many oopses with CONFIG_KASAN=y.
-
-Fix by marking with __aligned(4).
-
-Fixes: 666aed2d13ee ("clk: imx: scu: add set parent support")
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Link: https://lkml.kernel.org/r/aad021e432b3062c142973d09b766656eec18fde.1582216144.git.leonard.crestez@nxp.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Anthony Mallet <anthony.mallet@laas.fr>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200312133101.7096-1-anthony.mallet@laas.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-scu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/class/cdc-acm.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/clk/imx/clk-scu.c
-+++ b/drivers/clk/imx/clk-scu.c
-@@ -84,7 +84,7 @@ struct imx_sc_msg_get_clock_parent {
- 		struct req_get_clock_parent {
- 			__le16 resource;
- 			u8 clk;
--		} __packed req;
-+		} __packed __aligned(4) req;
- 		struct resp_get_clock_parent {
- 			u8 parent;
- 		} resp;
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 1930a8ec4b67d..3cb7a23e1253f 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -841,10 +841,10 @@ static int get_serial_info(struct acm *acm, struct serial_struct __user *info)
+ 	tmp.flags = ASYNC_LOW_LATENCY;
+ 	tmp.xmit_fifo_size = acm->writesize;
+ 	tmp.baud_base = le32_to_cpu(acm->line.dwDTERate);
+-	tmp.close_delay	= acm->port.close_delay / 10;
++	tmp.close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
+ 	tmp.closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
+ 				ASYNC_CLOSING_WAIT_NONE :
+-				acm->port.closing_wait / 10;
++				jiffies_to_msecs(acm->port.closing_wait) / 10;
+ 
+ 	if (copy_to_user(info, &tmp, sizeof(tmp)))
+ 		return -EFAULT;
+@@ -862,9 +862,10 @@ static int set_serial_info(struct acm *acm,
+ 	if (copy_from_user(&new_serial, newinfo, sizeof(new_serial)))
+ 		return -EFAULT;
+ 
+-	close_delay = new_serial.close_delay * 10;
++	close_delay = msecs_to_jiffies(new_serial.close_delay * 10);
+ 	closing_wait = new_serial.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
+-			ASYNC_CLOSING_WAIT_NONE : new_serial.closing_wait * 10;
++			ASYNC_CLOSING_WAIT_NONE :
++			msecs_to_jiffies(new_serial.closing_wait * 10);
+ 
+ 	mutex_lock(&acm->port.mutex);
+ 
+-- 
+2.20.1
+
 
 
