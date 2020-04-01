@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1CB319B1D4
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3824719B26A
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:44:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387485AbgDAQi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:38:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38170 "EHLO mail.kernel.org"
+        id S2389651AbgDAQnm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:43:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732169AbgDAQi1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:38:27 -0400
+        id S2389650AbgDAQnl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:43:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F424212CC;
-        Wed,  1 Apr 2020 16:38:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E81D62063A;
+        Wed,  1 Apr 2020 16:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759106;
-        bh=zRZCiOpv/kmMlJxQeyRwH+7szgYRurWO+1olXjkYMTU=;
+        s=default; t=1585759421;
+        bh=VqqyroAfWhyQOvnteSX/FAKaG6w+Qak3m5q11T6oLKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WF/3PfwFXtyRj3HIjx/p1YLDPRp/bfZREr4hTBdP/teyxweL46cTT9y9EP9OSywM2
-         m9qo9VQXBfQPU2Oh4LyLjJwLYiu3OOy6ShCtUsHpuO1HV6Vi/+V9QtgB2QrtaA6BZb
-         ufWj82AKbFX03jUKsaG1WrSskPMyQYvtAbVIhPKA=
+        b=fIfJYyBegzHN6gozLHT6GJPpg5IY/Gohq4OEXBjiSwPgUxV0TcBzC3a761FaNKrvi
+         dejak29f/cyzG/VjJJLw9bkUbYVwnqe5AesEHiNfx95ceWBJSQqg4yCF7oNYOgV4X1
+         4Rzi+/xbrG1g9h9VCk91Pge7KZFR6hmSO9MMMngo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Stefano Brivio <sbrivio@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
-        syzbot+f9b32aaacd60305d9687@syzkaller.appspotmail.com,
-        syzbot+2f8c233f131943d6056d@syzkaller.appspotmail.com,
-        syzbot+9c2df9fd5e9445b74e01@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 041/102] net_sched: cls_route: remove the right filter from hashtable
-Date:   Wed,  1 Apr 2020 18:17:44 +0200
-Message-Id: <20200401161540.504958837@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 073/148] net: ipv4: dont let PMTU updates increase route MTU
+Date:   Wed,  1 Apr 2020 18:17:45 +0200
+Message-Id: <20200401161600.427535721@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,45 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit ef299cc3fa1a9e1288665a9fdc8bff55629fd359 ]
+[ Upstream commit 28d35bcdd3925e7293408cdb8aa5f2aac5f0d6e3 ]
 
-route4_change() allocates a new filter and copies values from
-the old one. After the new filter is inserted into the hash
-table, the old filter should be removed and freed, as the final
-step of the update.
+When an MTU update with PMTU smaller than net.ipv4.route.min_pmtu is
+received, we must clamp its value. However, we can receive a PMTU
+exception with PMTU < old_mtu < ip_rt_min_pmtu, which would lead to an
+increase in PMTU.
 
-However, the current code mistakenly removes the new one. This
-looks apparently wrong to me, and it causes double "free" and
-use-after-free too, as reported by syzbot.
+To fix this, take the smallest of the old MTU and ip_rt_min_pmtu.
 
-Reported-and-tested-by: syzbot+f9b32aaacd60305d9687@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+2f8c233f131943d6056d@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+9c2df9fd5e9445b74e01@syzkaller.appspotmail.com
-Fixes: 1109c00547fc ("net: sched: RCU cls_route")
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Before this patch, in case of an update, the exception's MTU would
+always change. Now, an exception can have only its lock flag updated,
+but not the MTU, so we need to add a check on locking to the following
+"is this exception getting updated, or close to expiring?" test.
+
+Fixes: d52e5a7e7ca4 ("ipv4: lock mtu in fnhe when received PMTU < net.ipv4.route.min_pmtu")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_route.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/route.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/sched/cls_route.c
-+++ b/net/sched/cls_route.c
-@@ -542,8 +542,8 @@ static int route4_change(struct net *net
- 			fp = &b->ht[h];
- 			for (pfp = rtnl_dereference(*fp); pfp;
- 			     fp = &pfp->next, pfp = rtnl_dereference(*fp)) {
--				if (pfp == f) {
--					*fp = f->next;
-+				if (pfp == fold) {
-+					rcu_assign_pointer(*fp, fold->next);
- 					break;
- 				}
- 			}
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 8b855d3eec9e7..05fe1d0075444 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -1014,21 +1014,22 @@ out:	kfree_skb(skb);
+ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
+ {
+ 	struct dst_entry *dst = &rt->dst;
++	u32 old_mtu = ipv4_mtu(dst);
+ 	struct fib_result res;
+ 	bool lock = false;
+ 
+ 	if (ip_mtu_locked(dst))
+ 		return;
+ 
+-	if (ipv4_mtu(dst) < mtu)
++	if (old_mtu < mtu)
+ 		return;
+ 
+ 	if (mtu < ip_rt_min_pmtu) {
+ 		lock = true;
+-		mtu = ip_rt_min_pmtu;
++		mtu = min(old_mtu, ip_rt_min_pmtu);
+ 	}
+ 
+-	if (rt->rt_pmtu == mtu &&
++	if (rt->rt_pmtu == mtu && !lock &&
+ 	    time_before(jiffies, dst->expires - ip_rt_mtu_expires / 2))
+ 		return;
+ 
+-- 
+2.20.1
+
 
 
