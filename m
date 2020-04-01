@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6707C19B319
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EC5519AF98
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389348AbgDAQmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:42:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42748 "EHLO mail.kernel.org"
+        id S1732340AbgDAQTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:19:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388565AbgDAQmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:42:10 -0400
+        id S1726205AbgDAQTb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:19:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6AD8D206F8;
-        Wed,  1 Apr 2020 16:42:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90F7B20B1F;
+        Wed,  1 Apr 2020 16:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759329;
-        bh=I2x8+J3MZzR4qZRNlhzJ5TIhe/rgzKwxLo1kd3B50pA=;
+        s=default; t=1585757971;
+        bh=VnwcAXK+UHzOBiGQchBKglHd/sU6Gq8vZVgDLz7TTZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1NaXZMQDps52K9t4m5yjG8MCI4Cx5lTCQ775XkeSI/Rkzk0fNEyBAAfbsGbFysacF
-         tuqQEHFD1S3Ff3v3vKbniq818HTbYsWDnw9yp1TpZ3QWB/QU0OmlhDjc9l0FLRN5ac
-         RcYU5iXkuWsfWv+/Cy9+xVJMerdCmiLonv3RLcU0=
+        b=WaBWqGh4pWEygBRdauRHydJuJUZUmf/cfFtiPUPQ8YXqFzxW8n/QyDncyvp2KxxAN
+         AQ6jDAQhClzHQixsZR2n/8/EFPDYX0YmaZpy2QkOX7Dn4aGcj7QkOoABQmhjtBfh3e
+         kyZnxAih0YEWWPPtNHQs1m6WfRaeHf5SSU/ySozw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 048/148] Revert "ipv6: Fix handling of LLA with VRF and sockets bound to VRF"
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.6 04/10] vt: selection, introduce vc_is_sel
 Date:   Wed,  1 Apr 2020 18:17:20 +0200
-Message-Id: <20200401161557.592880291@linuxfoundation.org>
+Message-Id: <20200401161417.613630445@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161413.974936041@linuxfoundation.org>
+References: <20200401161413.974936041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +42,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 0293f8d1bdd21b3eb71032edb5832f9090dea48e.
+From: Jiri Slaby <jslaby@suse.cz>
 
-This patch shouldn't have been backported to 4.14.
+commit dce05aa6eec977f1472abed95ccd71276b9a3864 upstream.
 
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Avoid global variables (namely sel_cons) by introducing vc_is_sel. It
+checks whether the parameter is the current selection console. This will
+help putting sel_cons to a struct later.
+
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200219073951.16151-1-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/ipv6/tcp_ipv6.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/tty/vt/selection.c |    5 +++++
+ drivers/tty/vt/vt.c        |    7 ++++---
+ drivers/tty/vt/vt_ioctl.c  |    2 +-
+ include/linux/selection.h  |    4 +++-
+ 4 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index 5ec73cf386dfe..7b4ce3f9e2f4e 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -718,7 +718,6 @@ static void tcp_v6_init_req(struct request_sock *req,
- 			    const struct sock *sk_listener,
- 			    struct sk_buff *skb)
+--- a/drivers/tty/vt/selection.c
++++ b/drivers/tty/vt/selection.c
+@@ -88,6 +88,11 @@ void clear_selection(void)
+ }
+ EXPORT_SYMBOL_GPL(clear_selection);
+ 
++bool vc_is_sel(struct vc_data *vc)
++{
++	return vc == sel_cons;
++}
++
+ /*
+  * User settable table: what characters are to be considered alphabetic?
+  * 128 bits. Locked by the console lock.
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -890,8 +890,9 @@ static void hide_softcursor(struct vc_da
+ 
+ static void hide_cursor(struct vc_data *vc)
  {
--	bool l3_slave = ipv6_l3mdev_skb(TCP_SKB_CB(skb)->header.h6.flags);
- 	struct inet_request_sock *ireq = inet_rsk(req);
- 	const struct ipv6_pinfo *np = inet6_sk(sk_listener);
+-	if (vc == sel_cons)
++	if (vc_is_sel(vc))
+ 		clear_selection();
++
+ 	vc->vc_sw->con_cursor(vc, CM_ERASE);
+ 	hide_softcursor(vc);
+ }
+@@ -901,7 +902,7 @@ static void set_cursor(struct vc_data *v
+ 	if (!con_is_fg(vc) || console_blanked || vc->vc_mode == KD_GRAPHICS)
+ 		return;
+ 	if (vc->vc_deccm) {
+-		if (vc == sel_cons)
++		if (vc_is_sel(vc))
+ 			clear_selection();
+ 		add_softcursor(vc);
+ 		if ((vc->vc_cursor_type & 0x0f) != 1)
+@@ -1207,7 +1208,7 @@ static int vc_do_resize(struct tty_struc
+ 		}
+ 	}
  
-@@ -726,7 +725,7 @@ static void tcp_v6_init_req(struct request_sock *req,
- 	ireq->ir_v6_loc_addr = ipv6_hdr(skb)->daddr;
+-	if (vc == sel_cons)
++	if (vc_is_sel(vc))
+ 		clear_selection();
  
- 	/* So that link locals have meaning */
--	if ((!sk_listener->sk_bound_dev_if || l3_slave) &&
-+	if (!sk_listener->sk_bound_dev_if &&
- 	    ipv6_addr_type(&ireq->ir_v6_rmt_addr) & IPV6_ADDR_LINKLOCAL)
- 		ireq->ir_iif = tcp_v6_iif(skb);
+ 	old_rows = vc->vc_rows;
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -43,7 +43,7 @@ char vt_dont_switch;
+ extern struct tty_driver *console_driver;
  
--- 
-2.20.1
-
+ #define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
+-#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_cons[i].d == sel_cons)
++#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
+ 
+ /*
+  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
+--- a/include/linux/selection.h
++++ b/include/linux/selection.h
+@@ -11,8 +11,8 @@
+ #include <linux/tiocl.h>
+ #include <linux/vt_buffer.h>
+ 
+-extern struct vc_data *sel_cons;
+ struct tty_struct;
++struct vc_data;
+ 
+ extern void clear_selection(void);
+ extern int set_selection_user(const struct tiocl_selection __user *sel,
+@@ -24,6 +24,8 @@ extern int sel_loadlut(char __user *p);
+ extern int mouse_reporting(void);
+ extern void mouse_report(struct tty_struct * tty, int butt, int mrx, int mry);
+ 
++bool vc_is_sel(struct vc_data *vc);
++
+ extern int console_blanked;
+ 
+ extern const unsigned char color_table[];
 
 
