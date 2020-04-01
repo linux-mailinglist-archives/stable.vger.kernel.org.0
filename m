@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A6119B228
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F26DC19B00F
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:23:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389126AbgDAQld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:41:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41866 "EHLO mail.kernel.org"
+        id S1732575AbgDAQXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389417AbgDAQla (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:41:30 -0400
+        id S1733291AbgDAQXk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:23:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D354620658;
-        Wed,  1 Apr 2020 16:41:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26D49215A4;
+        Wed,  1 Apr 2020 16:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759289;
-        bh=T7EptmKtFcmwZNYtW2NJwIhPk4hbrAUxmdJ1+Wx/nAc=;
+        s=default; t=1585758219;
+        bh=PFJ61hZlXewm98PbidinrVr4O2dRVdQs+bRrFd1QcbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nbal/R2DtRiD6l6DD4ouYlztcL84y0lB4GjaWHnFYnx8rAY1bhaCiieEgiP00zNly
-         xXSYOyGSgFn/Gc/8ZL5402830cEA0xMk/DVNRy2rqmQfPclEspFmPVHpS/3kIMId43
-         G2Dq8pOdNmTwmkzAVKQoFMAui52RoFJl6JaRxjlk=
+        b=MmPNLuLoMoWbTxfhou54UMKRWF6pdKJUGOEu+lbKKzJvfpVNRY9XEIOxshXXmYt38
+         gaiN2MV4xSrYJiuWXQOd3YTkIsvvmECxOr5ny4GMyK/av0hZ00//5U2Lv+Q9kRnY08
+         EVdZeVr85TbnEqqryVgPn1gBfdCNjB3yq7lMHhHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thommy Jakobsson <thommyj@gmail.com>,
-        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 005/148] spi/zynqmp: remove entry that causes a cs glitch
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 021/116] bnxt_en: fix memory leaks in bnxt_dcbnl_ieee_getets()
 Date:   Wed,  1 Apr 2020 18:16:37 +0200
-Message-Id: <20200401161552.730250784@linuxfoundation.org>
+Message-Id: <20200401161544.905874112@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thommy Jakobsson <thommyj@gmail.com>
+From: Edwin Peer <edwin.peer@broadcom.com>
 
-[ Upstream commit 5dd8304981ecffa77bb72b1c57c4be5dfe6cfae9 ]
+[ Upstream commit 62d4073e86e62e316bea2c53e77db10418fd5dd7 ]
 
-In the public interface for chipselect, there is always an entry
-commented as "Dummy generic FIFO entry" pushed down to the fifo right
-after the activate/deactivate command. The dummy entry is 0x0,
-irregardless if the intention was to activate or deactive the cs. This
-causes the cs line to glitch rather than beeing activated in the case
-when there was an activate command.
+The allocated ieee_ets structure goes out of scope without being freed,
+leaking memory. Appropriate result codes should be returned so that
+callers do not rely on invalid data passed by reference.
 
-This has been observed on oscilloscope, and have caused problems for at
-least one specific flash device type connected to the qspi port. After
-the change the glitch is gone and cs goes active when intended.
+Also cache the ETS config retrieved from the device so that it doesn't
+need to be freed. The balance of the code was clearly written with the
+intent of having the results of querying the hardware cached in the
+device structure. The commensurate store was evidently missed though.
 
-The reason why this worked before (except for the glitch) was because
-when sending the actual data, the CS bits are once again set. Since
-most flashes uses mode 0, there is always a half clk period anyway for
-cs to clk active setup time. If someone would rely on timing from a
-chip_select call to a transfer_one, it would fail though.
-
-It is unknown why the dummy entry was there in the first place, git log
-seems to be of no help in this case. The reference manual gives no
-indication of the necessity of this. In fact the lower 8 bits are a
-setup (or hold in case of deactivate) time expressed in cycles. So this
-should not be needed to fulfill any setup/hold timings.
-
-Signed-off-by: Thommy Jakobsson <thommyj@gmail.com>
-Reviewed-by: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
-Link: https://lore.kernel.org/r/20200224162643.29102-1-thommyj@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7df4ae9fe855 ("bnxt_en: Implement DCBNL to support host-based DCBX.")
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-zynqmp-gqspi.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
-index 18aeaceee2862..d26c0eda2d9ea 100644
---- a/drivers/spi/spi-zynqmp-gqspi.c
-+++ b/drivers/spi/spi-zynqmp-gqspi.c
-@@ -415,9 +415,6 @@ static void zynqmp_qspi_chipselect(struct spi_device *qspi, bool is_high)
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c
+@@ -479,24 +479,26 @@ static int bnxt_dcbnl_ieee_getets(struct
+ {
+ 	struct bnxt *bp = netdev_priv(dev);
+ 	struct ieee_ets *my_ets = bp->ieee_ets;
++	int rc;
  
- 	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, genfifoentry);
+ 	ets->ets_cap = bp->max_tc;
  
--	/* Dummy generic FIFO entry */
--	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, 0x0);
+ 	if (!my_ets) {
+-		int rc;
 -
- 	/* Manually start the generic FIFO command */
- 	zynqmp_gqspi_write(xqspi, GQSPI_CONFIG_OFST,
- 			zynqmp_gqspi_read(xqspi, GQSPI_CONFIG_OFST) |
--- 
-2.20.1
-
+ 		if (bp->dcbx_cap & DCB_CAP_DCBX_HOST)
+ 			return 0;
+ 
+ 		my_ets = kzalloc(sizeof(*my_ets), GFP_KERNEL);
+ 		if (!my_ets)
+-			return 0;
++			return -ENOMEM;
+ 		rc = bnxt_hwrm_queue_cos2bw_qcfg(bp, my_ets);
+ 		if (rc)
+-			return 0;
++			goto error;
+ 		rc = bnxt_hwrm_queue_pri2cos_qcfg(bp, my_ets);
+ 		if (rc)
+-			return 0;
++			goto error;
++
++		/* cache result */
++		bp->ieee_ets = my_ets;
+ 	}
+ 
+ 	ets->cbs = my_ets->cbs;
+@@ -505,6 +507,9 @@ static int bnxt_dcbnl_ieee_getets(struct
+ 	memcpy(ets->tc_tsa, my_ets->tc_tsa, sizeof(ets->tc_tsa));
+ 	memcpy(ets->prio_tc, my_ets->prio_tc, sizeof(ets->prio_tc));
+ 	return 0;
++error:
++	kfree(my_ets);
++	return rc;
+ }
+ 
+ static int bnxt_dcbnl_ieee_setets(struct net_device *dev, struct ieee_ets *ets)
 
 
