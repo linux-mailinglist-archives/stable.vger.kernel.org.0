@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 419FB19B2F3
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:48:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6382219B1EB
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:40:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390093AbgDAQry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:47:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49818 "EHLO mail.kernel.org"
+        id S2389183AbgDAQjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:39:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389677AbgDAQry (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:47:54 -0400
+        id S2388964AbgDAQjT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:39:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 132522063A;
-        Wed,  1 Apr 2020 16:47:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8D4B20719;
+        Wed,  1 Apr 2020 16:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759673;
-        bh=2ylRiHjtK90gxi61cOd673GSv59weoK+DS/Xe0pyLX8=;
+        s=default; t=1585759158;
+        bh=PypZaYTitvy8LolVwS7vpU9UNlmKNFoE56b6Iu85KzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qnx09vuTLgJJ57e5NuFtc4Zs+VrQ4CAz2lM5gXosMp0MyVI235PH8apwUcE6wG7p7
-         D0y3uTBUm3pVAZvDTyETa/WRLB/k4iLtEGSDbarhIG8gyEUaiO/LL8FojBOGEbvUXy
-         MULABzy9PpOWcChlBhqAEKVXh5FKquBPvTGe6Rpw=
+        b=JjCmaOS3yMqg3ReQ09WE+TAlQ10YdNhjqkEwAqgAkNEzPgA908BlNcZNwJMbsSU1C
+         U7Imki1BQXcFccFyAweCGuk6oOFtHtmPQrvVZ3BgrRKsLSJJL4Gjz2WB4D3MBn3B0e
+         8w0W4vObLbmZKH7SVcPFqzyqO6YaQspHllq64SLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 126/148] media: ov519: add missing endpoint sanity checks
-Date:   Wed,  1 Apr 2020 18:18:38 +0200
-Message-Id: <20200401161604.489452271@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+522643ab5729b0421998@syzkaller.appspotmail.com,
+        Jiri Slaby <jslaby@suse.cz>, Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.9 096/102] vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use virtual console
+Date:   Wed,  1 Apr 2020 18:18:39 +0200
+Message-Id: <20200401161548.146147636@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +44,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 998912346c0da53a6dbb71fab3a138586b596b30 upstream.
+commit ca4463bf8438b403596edd0ec961ca0d4fbe0220 upstream.
 
-Make sure to check that we have at least one endpoint before accessing
-the endpoint array to avoid dereferencing a NULL-pointer on stream
-start.
+The VT_DISALLOCATE ioctl can free a virtual console while tty_release()
+is still running, causing a use-after-free in con_shutdown().  This
+occurs because VT_DISALLOCATE considers a virtual console's
+'struct vc_data' to be unused as soon as the corresponding tty's
+refcount hits 0.  But actually it may be still being closed.
 
-Note that these sanity checks are not redundant as the driver is mixing
-looking up altsettings by index and by number, which need not coincide.
+Fix this by making vc_data be reference-counted via the embedded
+'struct tty_port'.  A newly allocated virtual console has refcount 1.
+Opening it for the first time increments the refcount to 2.  Closing it
+for the last time decrements the refcount (in tty_operations::cleanup()
+so that it happens late enough), as does VT_DISALLOCATE.
 
-Fixes: 1876bb923c98 ("V4L/DVB (12079): gspca_ov519: add support for the ov511 bridge")
-Fixes: b282d87332f5 ("V4L/DVB (12080): gspca_ov519: Fix ov518+ with OV7620AE (Trust spacecam 320)")
-Cc: stable <stable@vger.kernel.org>     # 2.6.31
-Cc: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reproducer:
+	#include <fcntl.h>
+	#include <linux/vt.h>
+	#include <sys/ioctl.h>
+	#include <unistd.h>
+
+	int main()
+	{
+		if (fork()) {
+			for (;;)
+				close(open("/dev/tty5", O_RDWR));
+		} else {
+			int fd = open("/dev/tty10", O_RDWR);
+
+			for (;;)
+				ioctl(fd, VT_DISALLOCATE, 5);
+		}
+	}
+
+KASAN report:
+	BUG: KASAN: use-after-free in con_shutdown+0x76/0x80 drivers/tty/vt/vt.c:3278
+	Write of size 8 at addr ffff88806a4ec108 by task syz_vt/129
+
+	CPU: 0 PID: 129 Comm: syz_vt Not tainted 5.6.0-rc2 #11
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20191223_100556-anatol 04/01/2014
+	Call Trace:
+	 [...]
+	 con_shutdown+0x76/0x80 drivers/tty/vt/vt.c:3278
+	 release_tty+0xa8/0x410 drivers/tty/tty_io.c:1514
+	 tty_release_struct+0x34/0x50 drivers/tty/tty_io.c:1629
+	 tty_release+0x984/0xed0 drivers/tty/tty_io.c:1789
+	 [...]
+
+	Allocated by task 129:
+	 [...]
+	 kzalloc include/linux/slab.h:669 [inline]
+	 vc_allocate drivers/tty/vt/vt.c:1085 [inline]
+	 vc_allocate+0x1ac/0x680 drivers/tty/vt/vt.c:1066
+	 con_install+0x4d/0x3f0 drivers/tty/vt/vt.c:3229
+	 tty_driver_install_tty drivers/tty/tty_io.c:1228 [inline]
+	 tty_init_dev+0x94/0x350 drivers/tty/tty_io.c:1341
+	 tty_open_by_driver drivers/tty/tty_io.c:1987 [inline]
+	 tty_open+0x3ca/0xb30 drivers/tty/tty_io.c:2035
+	 [...]
+
+	Freed by task 130:
+	 [...]
+	 kfree+0xbf/0x1e0 mm/slab.c:3757
+	 vt_disallocate drivers/tty/vt/vt_ioctl.c:300 [inline]
+	 vt_ioctl+0x16dc/0x1e30 drivers/tty/vt/vt_ioctl.c:818
+	 tty_ioctl+0x9db/0x11b0 drivers/tty/tty_io.c:2660
+	 [...]
+
+Fixes: 4001d7b7fc27 ("vt: push down the tty lock so we can see what is left to tackle")
+Cc: <stable@vger.kernel.org> # v3.4+
+Reported-by: syzbot+522643ab5729b0421998@syzkaller.appspotmail.com
+Acked-by: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20200322034305.210082-2-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/ov519.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/tty/vt/vt.c       |   23 ++++++++++++++++++++++-
+ drivers/tty/vt/vt_ioctl.c |   12 ++++--------
+ 2 files changed, 26 insertions(+), 9 deletions(-)
 
---- a/drivers/media/usb/gspca/ov519.c
-+++ b/drivers/media/usb/gspca/ov519.c
-@@ -3478,6 +3478,11 @@ static void ov511_mode_init_regs(struct
- 		return;
- 	}
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -754,6 +754,17 @@ static void visual_init(struct vc_data *
+ 	vc->vc_screenbuf_size = vc->vc_rows * vc->vc_size_row;
+ }
  
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
++static void vc_port_destruct(struct tty_port *port)
++{
++	struct vc_data *vc = container_of(port, struct vc_data, port);
 +
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	reg_w(sd, R51x_FIFO_PSIZE, packet_size >> 5);
- 
-@@ -3604,6 +3609,11 @@ static void ov518_mode_init_regs(struct
- 		return;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
++	kfree(vc);
++}
 +
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	ov518_reg_w32(sd, R51x_FIFO_PSIZE, packet_size & ~7, 2);
++static const struct tty_port_operations vc_port_ops = {
++	.destruct = vc_port_destruct,
++};
++
+ int vc_allocate(unsigned int currcons)	/* return 0 on success */
+ {
+ 	struct vt_notifier_param param;
+@@ -779,6 +790,7 @@ int vc_allocate(unsigned int currcons)	/
+ 
+ 	vc_cons[currcons].d = vc;
+ 	tty_port_init(&vc->port);
++	vc->port.ops = &vc_port_ops;
+ 	INIT_WORK(&vc_cons[currcons].SAK_work, vc_SAK);
+ 
+ 	visual_init(vc, currcons, 1);
+@@ -2897,6 +2909,7 @@ static int con_install(struct tty_driver
+ 
+ 	tty->driver_data = vc;
+ 	vc->port.tty = tty;
++	tty_port_get(&vc->port);
+ 
+ 	if (!tty->winsize.ws_row && !tty->winsize.ws_col) {
+ 		tty->winsize.ws_row = vc_cons[currcons].d->vc_rows;
+@@ -2932,6 +2945,13 @@ static void con_shutdown(struct tty_stru
+ 	console_unlock();
+ }
+ 
++static void con_cleanup(struct tty_struct *tty)
++{
++	struct vc_data *vc = tty->driver_data;
++
++	tty_port_put(&vc->port);
++}
++
+ static int default_color           = 7; /* white */
+ static int default_italic_color    = 2; // green (ASCII)
+ static int default_underline_color = 3; // cyan (ASCII)
+@@ -3056,7 +3076,8 @@ static const struct tty_operations con_o
+ 	.throttle = con_throttle,
+ 	.unthrottle = con_unthrottle,
+ 	.resize = vt_resize,
+-	.shutdown = con_shutdown
++	.shutdown = con_shutdown,
++	.cleanup = con_cleanup,
+ };
+ 
+ static struct cdev vc0_cdev;
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -313,10 +313,8 @@ static int vt_disallocate(unsigned int v
+ 		vc = vc_deallocate(vc_num);
+ 	console_unlock();
+ 
+-	if (vc && vc_num >= MIN_NR_CONSOLES) {
+-		tty_port_destroy(&vc->port);
+-		kfree(vc);
+-	}
++	if (vc && vc_num >= MIN_NR_CONSOLES)
++		tty_port_put(&vc->port);
+ 
+ 	return ret;
+ }
+@@ -336,10 +334,8 @@ static void vt_disallocate_all(void)
+ 	console_unlock();
+ 
+ 	for (i = 1; i < MAX_NR_CONSOLES; i++) {
+-		if (vc[i] && i >= MIN_NR_CONSOLES) {
+-			tty_port_destroy(&vc[i]->port);
+-			kfree(vc[i]);
+-		}
++		if (vc[i] && i >= MIN_NR_CONSOLES)
++			tty_port_put(&vc[i]->port);
+ 	}
+ }
  
 
 
