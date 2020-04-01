@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1897F19B140
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BF0119B095
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388535AbgDAQdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:33:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59808 "EHLO mail.kernel.org"
+        id S2387514AbgDAQ16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:27:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388534AbgDAQdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:33:17 -0400
+        id S2388062AbgDAQ15 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:27:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A649720658;
-        Wed,  1 Apr 2020 16:33:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0DC820BED;
+        Wed,  1 Apr 2020 16:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758797;
-        bh=uhP+hck1hNEcRAscebSU3DBIGE7R1kqMaA2F1qX4I8w=;
+        s=default; t=1585758477;
+        bh=9/GVYEdPPBR2AV0UCFVKcd7QD1qTeXd0Zbj4nmO0Pls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCal2DKfLoy6lyOpmjs4CXoItAijudU3pDLri3SYCEIs64/PMPRaajQVt01UPRorK
-         sQ28j2GreIkjxw53y/WtLmv+iMuD0P4c5gMUSqKxxDsOYDq/dgdH7olC8jL5aHIsLA
-         tSHn1L+yt1wVfUFBKCPcqJsS1HoanlLl7NoZR3Kk=
+        b=2civH5oU96qNOqBZ7Yy4wrBu5xC3zLk17DdGdtWCRO5bUByZEn+EEqRt6nQ0o1PxX
+         NECz92sZCoRF2Bg3vTaZ6hbBmmJ2tFSjWrcTAl07e0iRXxilWZWboGucLCCShPRjlP
+         bwpQyXdDJsFEKucsBDAnIJKhbUdtfmQfKl587IDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.4 61/91] vti[6]: fix packet tx through bpf_redirect() in XinY cases
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.19 101/116] vt: vt_ioctl: remove unnecessary console allocation checks
 Date:   Wed,  1 Apr 2020 18:17:57 +0200
-Message-Id: <20200401161534.227074591@linuxfoundation.org>
+Message-Id: <20200401161555.195453535@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,124 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit f1ed10264ed6b66b9cd5e8461cffce69be482356 upstream.
+commit 1aa6e058dd6cd04471b1f21298270014daf48ac9 upstream.
 
-I forgot the 4in6/6in4 cases in my previous patch. Let's fix them.
+The vc_cons_allocated() checks in vt_ioctl() and vt_compat_ioctl() are
+unnecessary because they can only be reached by calling ioctl() on an
+open tty, which implies the corresponding virtual console is allocated.
 
-Fixes: 95224166a903 ("vti[6]: fix packet tx through bpf_redirect()")
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+And even if the virtual console *could* be freed concurrently, then
+these checks would be broken since they aren't done under console_lock,
+and the vc_data is dereferenced before them anyway.
+
+So, remove these unneeded checks to avoid confusion.
+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20200224080326.295046-1-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/Kconfig   |    1 +
- net/ipv4/ip_vti.c  |   36 +++++++++++++++++++++++++++++-------
- net/ipv6/ip6_vti.c |   32 +++++++++++++++++++++++++-------
- 3 files changed, 55 insertions(+), 14 deletions(-)
+ drivers/tty/vt/vt_ioctl.c |   21 ++-------------------
+ 1 file changed, 2 insertions(+), 19 deletions(-)
 
---- a/net/ipv4/Kconfig
-+++ b/net/ipv4/Kconfig
-@@ -298,6 +298,7 @@ config SYN_COOKIES
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -350,22 +350,13 @@ int vt_ioctl(struct tty_struct *tty,
+ {
+ 	struct vc_data *vc = tty->driver_data;
+ 	struct console_font_op op;	/* used in multiple places here */
+-	unsigned int console;
++	unsigned int console = vc->vc_num;
+ 	unsigned char ucval;
+ 	unsigned int uival;
+ 	void __user *up = (void __user *)arg;
+ 	int i, perm;
+ 	int ret = 0;
  
- config NET_IPVTI
- 	tristate "Virtual (secure) IP: tunneling"
-+	depends on IPV6 || IPV6=n
- 	select INET_TUNNEL
- 	select NET_IP_TUNNEL
- 	depends on INET_XFRM_MODE_TUNNEL
---- a/net/ipv4/ip_vti.c
-+++ b/net/ipv4/ip_vti.c
-@@ -195,17 +195,39 @@ static netdev_tx_t vti_xmit(struct sk_bu
- 	int err;
+-	console = vc->vc_num;
+-
+-
+-	if (!vc_cons_allocated(console)) { 	/* impossible? */
+-		ret = -ENOIOCTLCMD;
+-		goto out;
+-	}
+-
+-
+ 	/*
+ 	 * To have permissions to do most of the vt ioctls, we either have
+ 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+@@ -1195,18 +1186,10 @@ long vt_compat_ioctl(struct tty_struct *
+ {
+ 	struct vc_data *vc = tty->driver_data;
+ 	struct console_font_op op;	/* used in multiple places here */
+-	unsigned int console;
+ 	void __user *up = (void __user *)arg;
+ 	int perm;
+ 	int ret = 0;
  
- 	if (!dst) {
--		struct rtable *rt;
-+		switch (skb->protocol) {
-+		case htons(ETH_P_IP): {
-+			struct rtable *rt;
- 
--		fl->u.ip4.flowi4_oif = dev->ifindex;
--		fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
--		rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
--		if (IS_ERR(rt)) {
-+			fl->u.ip4.flowi4_oif = dev->ifindex;
-+			fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
-+			rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
-+			if (IS_ERR(rt)) {
-+				dev->stats.tx_carrier_errors++;
-+				goto tx_error_icmp;
-+			}
-+			dst = &rt->dst;
-+			skb_dst_set(skb, dst);
-+			break;
-+		}
-+#if IS_ENABLED(CONFIG_IPV6)
-+		case htons(ETH_P_IPV6):
-+			fl->u.ip6.flowi6_oif = dev->ifindex;
-+			fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
-+			dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
-+			if (dst->error) {
-+				dst_release(dst);
-+				dst = NULL;
-+				dev->stats.tx_carrier_errors++;
-+				goto tx_error_icmp;
-+			}
-+			skb_dst_set(skb, dst);
-+			break;
-+#endif
-+		default:
- 			dev->stats.tx_carrier_errors++;
- 			goto tx_error_icmp;
- 		}
--		dst = &rt->dst;
--		skb_dst_set(skb, dst);
+-	console = vc->vc_num;
+-
+-	if (!vc_cons_allocated(console)) { 	/* impossible? */
+-		ret = -ENOIOCTLCMD;
+-		goto out;
+-	}
+-
+ 	/*
+ 	 * To have permissions to do most of the vt ioctls, we either have
+ 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+@@ -1266,7 +1249,7 @@ long vt_compat_ioctl(struct tty_struct *
+ 		arg = (unsigned long)compat_ptr(arg);
+ 		goto fallback;
  	}
- 
- 	dst_hold(dst);
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -442,15 +442,33 @@ vti6_xmit(struct sk_buff *skb, struct ne
- 	int mtu;
- 
- 	if (!dst) {
--		fl->u.ip6.flowi6_oif = dev->ifindex;
--		fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
--		dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
--		if (dst->error) {
--			dst_release(dst);
--			dst = NULL;
-+		switch (skb->protocol) {
-+		case htons(ETH_P_IP): {
-+			struct rtable *rt;
+-out:
 +
-+			fl->u.ip4.flowi4_oif = dev->ifindex;
-+			fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
-+			rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
-+			if (IS_ERR(rt))
-+				goto tx_err_link_failure;
-+			dst = &rt->dst;
-+			skb_dst_set(skb, dst);
-+			break;
-+		}
-+		case htons(ETH_P_IPV6):
-+			fl->u.ip6.flowi6_oif = dev->ifindex;
-+			fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
-+			dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
-+			if (dst->error) {
-+				dst_release(dst);
-+				dst = NULL;
-+				goto tx_err_link_failure;
-+			}
-+			skb_dst_set(skb, dst);
-+			break;
-+		default:
- 			goto tx_err_link_failure;
- 		}
--		skb_dst_set(skb, dst);
- 	}
+ 	return ret;
  
- 	dst_hold(dst);
+ fallback:
 
 
