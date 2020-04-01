@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CAFB19B121
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27B1619B451
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388154AbgDAQcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:32:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58642 "EHLO mail.kernel.org"
+        id S2387527AbgDAQWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:22:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733133AbgDAQcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:32:16 -0400
+        id S1732328AbgDAQWs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:22:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9962F212CC;
-        Wed,  1 Apr 2020 16:32:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26AD72137B;
+        Wed,  1 Apr 2020 16:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758736;
-        bh=7mOO/1GKnXsj0qXC+PRMD1ZEMzw03xyoSr+lsy1aBGc=;
+        s=default; t=1585758167;
+        bh=yoXhOL7nTVasZHR6cKwhWMciTV/1jPkQpUjZtocCq3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKm4QIn/s1tdGfl447EOA8hdMGRnT7K3yGCAaNekUdID6f5P1IGaZTrpOqSJEVPM1
-         KJC+MNDN8qHCsRaxC1Vrr/LQFZulgIpIzX+Zqtx2hC0Bl4CfO4pcA/nv875LhJMrjN
-         0AK/h0ZYhmKHlkujTyvRemOXG59i9y5AGWmrR3YY=
+        b=lETU3sk6JxZO84U4Q0RMtaLe1G8jo3NMLX2vMONAY88JvEmyDfw1LFKVT7l5FjXUl
+         jVD43yfuNi9J/TfMBjSfVIJ7tPBP+Gt03+PaD4dx/5IrfzBDuhUd5KF4C4V/p//XKk
+         vMcP8UOIAVlAJYL+Wi/rNE+PO4H3pEEgtmckWXLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bryan Gurney <bgurney@redhat.com>,
-        Bernhard Sulzer <micraft.b@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 58/91] scsi: sd: Fix optimal I/O size for devices that change reported values
+        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@oss.nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 26/27] arm64: dts: ls1043a-rdb: correct RGMII delay mode to rgmii-id
 Date:   Wed,  1 Apr 2020 18:17:54 +0200
-Message-Id: <20200401161533.313453106@linuxfoundation.org>
+Message-Id: <20200401161434.983235078@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
+References: <20200401161414.352722470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin K. Petersen <martin.petersen@oracle.com>
+From: Madalin Bucur <madalin.bucur@oss.nxp.com>
 
-commit ea697a8bf5a4161e59806fab14f6e4a46dc7dcb0 upstream.
+commit 4022d808c45277693ea86478fab1f081ebf997e8 upstream.
 
-Some USB bridge devices will return a default set of characteristics during
-initialization. And then, once an attached drive has spun up, substitute
-the actual parameters reported by the drive. According to the SCSI spec,
-the device should return a UNIT ATTENTION in case any reported parameters
-change. But in this case the change is made silently after a small window
-where default values are reported.
+The correct setting for the RGMII ports on LS1043ARDB is to
+enable delay on both Rx and Tx so the interface mode used must
+be PHY_INTERFACE_MODE_RGMII_ID.
 
-Commit a83da8a4509d ("scsi: sd: Optimal I/O size should be a multiple of
-physical block size") validated the reported optimal I/O size against the
-physical block size to overcome problems with devices reporting nonsensical
-transfer sizes. However, this validation did not account for the fact that
-aforementioned devices will return default values during a brief window
-during spin-up. The subsequent change in reported characteristics would
-invalidate the checking that had previously been performed.
+Since commit 1b3047b5208a80 ("net: phy: realtek: add support for
+configuring the RX delay on RTL8211F") the Realtek 8211F PHY driver
+has control over the RGMII RX delay and it is disabling it for
+RGMII_TXID. The LS1043ARDB uses two such PHYs in RGMII_ID mode but
+in the device tree the mode was described as "rgmii_txid".
+This issue was not apparent at the time as the PHY driver took the
+same action for RGMII_TXID and RGMII_ID back then but it became
+visible (RX no longer working) after the above patch.
 
-Unset a previously configured optimal I/O size should the sanity checking
-fail on subsequent revalidate attempts.
+Changing the phy-connection-type to "rgmii-id" to address the issue.
 
-Link: https://lore.kernel.org/r/33fb522e-4f61-1b76-914f-c9e6a3553c9b@gmail.com
-Cc: Bryan Gurney <bgurney@redhat.com>
-Cc: <stable@vger.kernel.org>
-Reported-by: Bernhard Sulzer <micraft.b@gmail.com>
-Tested-by: Bernhard Sulzer <micraft.b@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: bf02f2ffe59c ("arm64: dts: add LS1043A DPAA FMan support")
+Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/sd.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -2915,9 +2915,11 @@ static int sd_revalidate_disk(struct gen
- 	    logical_to_bytes(sdp, sdkp->opt_xfer_blocks) >= PAGE_CACHE_SIZE) {
- 		q->limits.io_opt = logical_to_bytes(sdp, sdkp->opt_xfer_blocks);
- 		rw_max = logical_to_sectors(sdp, sdkp->opt_xfer_blocks);
--	} else
-+	} else {
-+		q->limits.io_opt = 0;
- 		rw_max = min_not_zero(logical_to_sectors(sdp, dev_max),
- 				      (sector_t)BLK_DEF_MAX_SECTORS);
-+	}
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
+@@ -119,12 +119,12 @@
  
- 	/* Do not exceed controller limit */
- 	rw_max = min(rw_max, queue_max_hw_sectors(q));
+ 	ethernet@e4000 {
+ 		phy-handle = <&rgmii_phy1>;
+-		phy-connection-type = "rgmii-txid";
++		phy-connection-type = "rgmii-id";
+ 	};
+ 
+ 	ethernet@e6000 {
+ 		phy-handle = <&rgmii_phy2>;
+-		phy-connection-type = "rgmii-txid";
++		phy-connection-type = "rgmii-id";
+ 	};
+ 
+ 	ethernet@e8000 {
 
 
