@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4A819B3F9
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1212A19B3FA
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:55:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388225AbgDAQ3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:29:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55656 "EHLO mail.kernel.org"
+        id S2387615AbgDAQyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:54:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388221AbgDAQ3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:29:54 -0400
+        id S2388192AbgDAQ35 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:29:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E33A1212CC;
-        Wed,  1 Apr 2020 16:29:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D09D20658;
+        Wed,  1 Apr 2020 16:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758594;
-        bh=gjhoOloQBD59gFMnNazCDCwzPSf+vl9lMqmIUM7SoHY=;
+        s=default; t=1585758596;
+        bh=ZimnssbihiT/CUcvGjrmtWm5fbdnfn+B5wH6DVTDZMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CILycLgj7Pnq2cXOwiiP1eWi3M/wElQ1Ov751aq2styMQmhvpwQm2GWxfqpUlTm1t
-         9K4IcTIrYKHtBeCDvvkRpOhG40eSxiA6fgAwxFOjM9YuOMywqDKZRDXfRdpBWCARiq
-         +hHKHqHA7hFbdvbwnX7xMOcTUtF9S0Dc8DwLn3q8=
+        b=Bkl0e3MQ+Y8Injaby/swcnOzVm5JBff5wxo3r9w+iA9QiKz4m/UTEr+R57/Br6ejv
+         LX4K7vsUTsz2vPch3bVShxAwDZS0Gqg1XnYBIrSFCc4UekljvJr7CwTwv771PP5DXh
+         76CDi3/vW4l73UplbuFk0K6sRm/5A2A8KE7X12l0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Thommy Jakobsson <thommyj@gmail.com>,
+        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 03/91] ARM: dts: dra7: Add "dma-ranges" property to PCIe RC DT nodes
-Date:   Wed,  1 Apr 2020 18:16:59 +0200
-Message-Id: <20200401161513.966878867@linuxfoundation.org>
+Subject: [PATCH 4.4 04/91] spi/zynqmp: remove entry that causes a cs glitch
+Date:   Wed,  1 Apr 2020 18:17:00 +0200
+Message-Id: <20200401161514.491966420@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
 References: <20200401161512.917494101@linuxfoundation.org>
@@ -44,44 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Thommy Jakobsson <thommyj@gmail.com>
 
-[ Upstream commit 27f13774654ea6bd0b6fc9b97cce8d19e5735661 ]
+[ Upstream commit 5dd8304981ecffa77bb72b1c57c4be5dfe6cfae9 ]
 
-'dma-ranges' in a PCI bridge node does correctly set dma masks for PCI
-devices not described in the DT. Certain DRA7 platforms (e.g., DRA76)
-has RAM above 32-bit boundary (accessible with LPAE config) though the
-PCIe bridge will be able to access only 32-bits. Add 'dma-ranges'
-property in PCIe RC DT nodes to indicate the host bridge can access
-only 32 bits.
+In the public interface for chipselect, there is always an entry
+commented as "Dummy generic FIFO entry" pushed down to the fifo right
+after the activate/deactivate command. The dummy entry is 0x0,
+irregardless if the intention was to activate or deactive the cs. This
+causes the cs line to glitch rather than beeing activated in the case
+when there was an activate command.
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+This has been observed on oscilloscope, and have caused problems for at
+least one specific flash device type connected to the qspi port. After
+the change the glitch is gone and cs goes active when intended.
+
+The reason why this worked before (except for the glitch) was because
+when sending the actual data, the CS bits are once again set. Since
+most flashes uses mode 0, there is always a half clk period anyway for
+cs to clk active setup time. If someone would rely on timing from a
+chip_select call to a transfer_one, it would fail though.
+
+It is unknown why the dummy entry was there in the first place, git log
+seems to be of no help in this case. The reference manual gives no
+indication of the necessity of this. In fact the lower 8 bits are a
+setup (or hold in case of deactivate) time expressed in cycles. So this
+should not be needed to fulfill any setup/hold timings.
+
+Signed-off-by: Thommy Jakobsson <thommyj@gmail.com>
+Reviewed-by: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
+Link: https://lore.kernel.org/r/20200224162643.29102-1-thommyj@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/dra7.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-zynqmp-gqspi.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index e6a3a94bac693..2cdaa38c114e8 100644
---- a/arch/arm/boot/dts/dra7.dtsi
-+++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -227,6 +227,7 @@
- 				device_type = "pci";
- 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
- 					  0x82000000 0 0x20013000 0x13000 0 0xffed000>;
-+				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
- 				bus-range = <0x00 0xff>;
- 				#interrupt-cells = <1>;
- 				num-lanes = <1>;
-@@ -263,6 +264,7 @@
- 				device_type = "pci";
- 				ranges = <0x81000000 0 0          0x03000 0 0x00010000
- 					  0x82000000 0 0x30013000 0x13000 0 0xffed000>;
-+				dma-ranges = <0x02000000 0x0 0x00000000 0x00000000 0x1 0x00000000>;
- 				bus-range = <0x00 0xff>;
- 				#interrupt-cells = <1>;
- 				num-lanes = <1>;
+diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
+index f23f36ebaf3dc..bd3945a5660a5 100644
+--- a/drivers/spi/spi-zynqmp-gqspi.c
++++ b/drivers/spi/spi-zynqmp-gqspi.c
+@@ -414,9 +414,6 @@ static void zynqmp_qspi_chipselect(struct spi_device *qspi, bool is_high)
+ 
+ 	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, genfifoentry);
+ 
+-	/* Dummy generic FIFO entry */
+-	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, 0x0);
+-
+ 	/* Manually start the generic FIFO command */
+ 	zynqmp_gqspi_write(xqspi, GQSPI_CONFIG_OFST,
+ 			zynqmp_gqspi_read(xqspi, GQSPI_CONFIG_OFST) |
 -- 
 2.20.1
 
