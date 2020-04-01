@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1F719AFE9
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D00C19B32B
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387449AbgDAQWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:22:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45216 "EHLO mail.kernel.org"
+        id S2389460AbgDAQoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:44:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387452AbgDAQWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:22:12 -0400
+        id S2388037AbgDAQop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:44:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A151720857;
-        Wed,  1 Apr 2020 16:22:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1E62206E9;
+        Wed,  1 Apr 2020 16:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758131;
-        bh=36a9lD/veDQq5Kk24uPgKZn3yWb8Gm7VdB8+weBsoQU=;
+        s=default; t=1585759485;
+        bh=BEppHJSF0Q3dBGNXBQdv4LxwkkElFKHdTM/3CINeEuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N9oc3XuP3p0N8dnUGfnnZ+o1IaNM3O5AF5JnuyAAIMbLcvigWHMsOQi5aZLuf+MoW
-         xoKbQPbxj7e+yu6VpiDqybj+dbgNpXxwqx1SeGGyu1FgpulMl14r/I+FzW0BP6yYNH
-         XOAIBbhPIfTLH6enY3uoqXqhU4FV8GYZpG6GNOnY=
+        b=jVcvjcogbiu63iggfkIesiT2VQG+h8y3SyZ4tqWlTPdsCIvO0lL5kR9PCvuv1wO/h
+         dT947KoB6/fcfuXUWFDTIiygktFs5e6feZdSawzuFg6ZGvqJjHUqwtsPjZQGdVF3XH
+         nBhph4BQWCJGwQGKIJnyLiBEO2Caedd+oy35gkqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sungbo Eo <mans0n@gorani.run>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Subject: [PATCH 5.4 21/27] ARM: dts: oxnas: Fix clear-mask property
+        stable@vger.kernel.org, Tycho Andersen <tycho@tycho.ws>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 077/148] cgroup1: dont call release_agent when it is ""
 Date:   Wed,  1 Apr 2020 18:17:49 +0200
-Message-Id: <20200401161431.755855599@linuxfoundation.org>
+Message-Id: <20200401161600.703386393@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
-References: <20200401161414.352722470@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungbo Eo <mans0n@gorani.run>
+From: Tycho Andersen <tycho@tycho.ws>
 
-commit deeabb4c1341a12bf8b599e6a2f4cfa4fd74738c upstream.
+[ Upstream commit 2e5383d7904e60529136727e49629a82058a5607 ]
 
-Disable all rps-irq interrupts during driver initialization to prevent
-an accidental interrupt on GIC.
+Older (and maybe current) versions of systemd set release_agent to "" when
+shutting down, but do not set notify_on_release to 0.
 
-Fixes: 84316f4ef141 ("ARM: boot: dts: Add Oxford Semiconductor OX810SE dtsi")
-Fixes: 38d4a53733f5 ("ARM: dts: Add support for OX820 and Pogoplug V3")
-Signed-off-by: Sungbo Eo <mans0n@gorani.run>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since 64e90a8acb85 ("Introduce STATIC_USERMODEHELPER to mediate
+call_usermodehelper()"), we filter out such calls when the user mode helper
+path is "". However, when used in conjunction with an actual (i.e. non "")
+STATIC_USERMODEHELPER, the path is never "", so the real usermode helper
+will be called with argv[0] == "".
 
+Let's avoid this by not invoking the release_agent when it is "".
+
+Signed-off-by: Tycho Andersen <tycho@tycho.ws>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ox810se.dtsi |    4 ++--
- arch/arm/boot/dts/ox820.dtsi   |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ kernel/cgroup/cgroup-v1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/ox810se.dtsi
-+++ b/arch/arm/boot/dts/ox810se.dtsi
-@@ -323,8 +323,8 @@
- 					interrupt-controller;
- 					reg = <0 0x200>;
- 					#interrupt-cells = <1>;
--					valid-mask = <0xFFFFFFFF>;
--					clear-mask = <0>;
-+					valid-mask = <0xffffffff>;
-+					clear-mask = <0xffffffff>;
- 				};
+diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
+index d148965180893..545f29c5268d7 100644
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -824,7 +824,7 @@ void cgroup1_release_agent(struct work_struct *work)
  
- 				timer0: timer@200 {
---- a/arch/arm/boot/dts/ox820.dtsi
-+++ b/arch/arm/boot/dts/ox820.dtsi
-@@ -240,8 +240,8 @@
- 					reg = <0 0x200>;
- 					interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
- 					#interrupt-cells = <1>;
--					valid-mask = <0xFFFFFFFF>;
--					clear-mask = <0>;
-+					valid-mask = <0xffffffff>;
-+					clear-mask = <0xffffffff>;
- 				};
+ 	pathbuf = kmalloc(PATH_MAX, GFP_KERNEL);
+ 	agentbuf = kstrdup(cgrp->root->release_agent_path, GFP_KERNEL);
+-	if (!pathbuf || !agentbuf)
++	if (!pathbuf || !agentbuf || !strlen(agentbuf))
+ 		goto out;
  
- 				timer0: timer@200 {
+ 	spin_lock_irq(&css_set_lock);
+-- 
+2.20.1
+
 
 
