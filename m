@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8096F19B3EB
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD5519B310
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387738AbgDAQ0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:26:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51338 "EHLO mail.kernel.org"
+        id S2389396AbgDAQlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:41:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733241AbgDAQ0r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:26:47 -0400
+        id S2389215AbgDAQlH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:41:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6422C212CC;
-        Wed,  1 Apr 2020 16:26:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26E6A20658;
+        Wed,  1 Apr 2020 16:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758406;
-        bh=QwssEJY9YhkmdjyuruQXGe5BxtQkNAjH9XpgNWCscko=;
+        s=default; t=1585759266;
+        bh=JritSytOa17n9A8eCr1IfHZFbdBPS/YBgudn9Ph3Q20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q9EVuZUFN0VCgocg1gmQUuxsKscKRYraEMvIayi8eTUAOf25xwXqA9PCPCuB5kc1p
-         Au722mttpZFQUkfCxPd45gTvY3MN8F03jh2mnRKtUT/fUGyBiP5a3SkO8HvRr8ZDil
-         LjDWiK9pPsXL7Z1LdoCOoRxKOnkSq1uHK/w/aKQs=
+        b=nNx+xDIa2HCv2FytIHtmmQjy6FAUVSHetkv3zPi1O05RM/HBrPwTFJfokX2tRaAAU
+         vEbfd/sgaX7xsY+Wc0nu9v3duHLut48FDTRe7zqOiNvUJ1+NazL3iUkwd5cwPnGlxa
+         YR+QlVZIU6c4fDtde9YT1Py7lQi0z+oyakQEvJik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Xiong <wenxiong@linux.vnet.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/116] scsi: ipr: Fix softlockup when rescanning devices in petitboot
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 026/148] iio: trigger: stm32-timer: disable master mode when stopping
 Date:   Wed,  1 Apr 2020 18:16:58 +0200
-Message-Id: <20200401161547.818626221@linuxfoundation.org>
+Message-Id: <20200401161555.014527689@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Xiong <wenxiong@linux.vnet.ibm.com>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit 394b61711f3ce33f75bf70a3e22938464a13b3ee ]
+commit 29e8c8253d7d5265f58122c0a7902e26df6c6f61 upstream.
 
-When trying to rescan disks in petitboot shell, we hit the following
-softlockup stacktrace:
+Master mode should be disabled when stopping. This mainly impacts
+possible other use-case after timer has been stopped. Currently,
+master mode remains set (from start routine).
 
-Kernel panic - not syncing: System is deadlocked on memory
-[  241.223394] CPU: 32 PID: 693 Comm: sh Not tainted 5.4.16-openpower1 #1
-[  241.223406] Call Trace:
-[  241.223415] [c0000003f07c3180] [c000000000493fc4] dump_stack+0xa4/0xd8 (unreliable)
-[  241.223432] [c0000003f07c31c0] [c00000000007d4ac] panic+0x148/0x3cc
-[  241.223446] [c0000003f07c3260] [c000000000114b10] out_of_memory+0x468/0x4c4
-[  241.223461] [c0000003f07c3300] [c0000000001472b0] __alloc_pages_slowpath+0x594/0x6d8
-[  241.223476] [c0000003f07c3420] [c00000000014757c] __alloc_pages_nodemask+0x188/0x1a4
-[  241.223492] [c0000003f07c34a0] [c000000000153e10] alloc_pages_current+0xcc/0xd8
-[  241.223508] [c0000003f07c34e0] [c0000000001577ac] alloc_slab_page+0x30/0x98
-[  241.223524] [c0000003f07c3520] [c0000000001597fc] new_slab+0x138/0x40c
-[  241.223538] [c0000003f07c35f0] [c00000000015b204] ___slab_alloc+0x1e4/0x404
-[  241.223552] [c0000003f07c36c0] [c00000000015b450] __slab_alloc+0x2c/0x48
-[  241.223566] [c0000003f07c36f0] [c00000000015b754] kmem_cache_alloc_node+0x9c/0x1b4
-[  241.223582] [c0000003f07c3760] [c000000000218c48] blk_alloc_queue_node+0x34/0x270
-[  241.223599] [c0000003f07c37b0] [c000000000226574] blk_mq_init_queue+0x2c/0x78
-[  241.223615] [c0000003f07c37e0] [c0000000002ff710] scsi_mq_alloc_queue+0x28/0x70
-[  241.223631] [c0000003f07c3810] [c0000000003005b8] scsi_alloc_sdev+0x184/0x264
-[  241.223647] [c0000003f07c38a0] [c000000000300ba0] scsi_probe_and_add_lun+0x288/0xa3c
-[  241.223663] [c0000003f07c3a00] [c000000000301768] __scsi_scan_target+0xcc/0x478
-[  241.223679] [c0000003f07c3b20] [c000000000301c64] scsi_scan_channel.part.9+0x74/0x7c
-[  241.223696] [c0000003f07c3b70] [c000000000301df4] scsi_scan_host_selected+0xe0/0x158
-[  241.223712] [c0000003f07c3bd0] [c000000000303f04] store_scan+0x104/0x114
-[  241.223727] [c0000003f07c3cb0] [c0000000002d5ac4] dev_attr_store+0x30/0x4c
-[  241.223741] [c0000003f07c3cd0] [c0000000001dbc34] sysfs_kf_write+0x64/0x78
-[  241.223756] [c0000003f07c3cf0] [c0000000001da858] kernfs_fop_write+0x170/0x1b8
-[  241.223773] [c0000003f07c3d40] [c0000000001621fc] __vfs_write+0x34/0x60
-[  241.223787] [c0000003f07c3d60] [c000000000163c2c] vfs_write+0xa8/0xcc
-[  241.223802] [c0000003f07c3db0] [c000000000163df4] ksys_write+0x70/0xbc
-[  241.223816] [c0000003f07c3e20] [c00000000000b40c] system_call+0x5c/0x68
+Fixes: 6fb34812c2a2 ("iio: stm32 trigger: Add support for TRGO2 triggers")
 
-As a part of the scan process Linux will allocate and configure a
-scsi_device for each target to be scanned. If the device is not present,
-then the scsi_device is torn down. As a part of scsi_device teardown a
-workqueue item will be scheduled and the lockups we see are because there
-are 250k workqueue items to be processed.  Accoding to the specification of
-SIS-64 sas controller, max_channel should be decreased on SIS-64 adapters
-to 4.
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The patch fixes softlockup issue.
-
-Thanks for Oliver Halloran's help with debugging and explanation!
-
-Link: https://lore.kernel.org/r/1583510248-23672-1-git-send-email-wenxiong@linux.vnet.ibm.com
-Signed-off-by: Wen Xiong <wenxiong@linux.vnet.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ipr.c | 3 ++-
- drivers/scsi/ipr.h | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/trigger/stm32-timer-trigger.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
-index 271990bc065b9..1b04a8223eb01 100644
---- a/drivers/scsi/ipr.c
-+++ b/drivers/scsi/ipr.c
-@@ -9958,6 +9958,7 @@ static void ipr_init_ioa_cfg(struct ipr_ioa_cfg *ioa_cfg,
- 	ioa_cfg->max_devs_supported = ipr_max_devs;
+--- a/drivers/iio/trigger/stm32-timer-trigger.c
++++ b/drivers/iio/trigger/stm32-timer-trigger.c
+@@ -161,7 +161,8 @@ static int stm32_timer_start(struct stm3
+ 	return 0;
+ }
  
- 	if (ioa_cfg->sis64) {
-+		host->max_channel = IPR_MAX_SIS64_BUSES;
- 		host->max_id = IPR_MAX_SIS64_TARGETS_PER_BUS;
- 		host->max_lun = IPR_MAX_SIS64_LUNS_PER_TARGET;
- 		if (ipr_max_devs > IPR_MAX_SIS64_DEVS)
-@@ -9966,6 +9967,7 @@ static void ipr_init_ioa_cfg(struct ipr_ioa_cfg *ioa_cfg,
- 					   + ((sizeof(struct ipr_config_table_entry64)
- 					       * ioa_cfg->max_devs_supported)));
+-static void stm32_timer_stop(struct stm32_timer_trigger *priv)
++static void stm32_timer_stop(struct stm32_timer_trigger *priv,
++			     struct iio_trigger *trig)
+ {
+ 	u32 ccer, cr1;
+ 
+@@ -179,6 +180,12 @@ static void stm32_timer_stop(struct stm3
+ 	regmap_write(priv->regmap, TIM_PSC, 0);
+ 	regmap_write(priv->regmap, TIM_ARR, 0);
+ 
++	/* Force disable master mode */
++	if (stm32_timer_is_trgo2_name(trig->name))
++		regmap_update_bits(priv->regmap, TIM_CR2, TIM_CR2_MMS2, 0);
++	else
++		regmap_update_bits(priv->regmap, TIM_CR2, TIM_CR2_MMS, 0);
++
+ 	/* Make sure that registers are updated */
+ 	regmap_update_bits(priv->regmap, TIM_EGR, TIM_EGR_UG, TIM_EGR_UG);
+ }
+@@ -197,7 +204,7 @@ static ssize_t stm32_tt_store_frequency(
+ 		return ret;
+ 
+ 	if (freq == 0) {
+-		stm32_timer_stop(priv);
++		stm32_timer_stop(priv, trig);
  	} else {
-+		host->max_channel = IPR_VSET_BUS;
- 		host->max_id = IPR_MAX_NUM_TARGETS_PER_BUS;
- 		host->max_lun = IPR_MAX_NUM_LUNS_PER_TARGET;
- 		if (ipr_max_devs > IPR_MAX_PHYSICAL_DEVS)
-@@ -9975,7 +9977,6 @@ static void ipr_init_ioa_cfg(struct ipr_ioa_cfg *ioa_cfg,
- 					       * ioa_cfg->max_devs_supported)));
- 	}
- 
--	host->max_channel = IPR_VSET_BUS;
- 	host->unique_id = host->host_no;
- 	host->max_cmd_len = IPR_MAX_CDB_LEN;
- 	host->can_queue = ioa_cfg->max_cmds;
-diff --git a/drivers/scsi/ipr.h b/drivers/scsi/ipr.h
-index f6baa23513139..9fbcdc283cdbb 100644
---- a/drivers/scsi/ipr.h
-+++ b/drivers/scsi/ipr.h
-@@ -1313,6 +1313,7 @@ struct ipr_resource_entry {
- #define IPR_ARRAY_VIRTUAL_BUS			0x1
- #define IPR_VSET_VIRTUAL_BUS			0x2
- #define IPR_IOAFP_VIRTUAL_BUS			0x3
-+#define IPR_MAX_SIS64_BUSES			0x4
- 
- #define IPR_GET_RES_PHYS_LOC(res) \
- 	(((res)->bus << 24) | ((res)->target << 8) | (res)->lun)
--- 
-2.20.1
-
+ 		ret = stm32_timer_start(priv, trig, freq);
+ 		if (ret)
 
 
