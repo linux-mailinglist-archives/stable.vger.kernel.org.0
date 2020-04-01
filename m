@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1183719B29A
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98A0A19B149
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:35:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389849AbgDAQpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
+        id S2388568AbgDAQdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389673AbgDAQpc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:45:32 -0400
+        id S2388383AbgDAQdh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:33:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6863B206E9;
-        Wed,  1 Apr 2020 16:45:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D63620658;
+        Wed,  1 Apr 2020 16:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759530;
-        bh=Zb7mzK58iMv/f7Em5bU4RrsDulMKPlH00x6d3hoe/4s=;
+        s=default; t=1585758816;
+        bh=+gz3rEvWtbhTtAy+WeUnB6gS9zGckPevAbBr38f1C1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V03KuGmVyUzxkPrhKVi6WUHd1GrOzGSEdBwPfvKXvd6JzDjZ+jWwEbWsQU4kdZX7V
-         lI1o0JB6/VM3cxhmZeZArqa/W8DZZabhKKywutk6X8U8pI4Av984TTQGFImjDSFu0D
-         wicv7KFjavUQwoVy4EWMjzRjNBuWfzqVjOERnlv0=
+        b=DM/C31bBpqACp+3oWc6VTh6spyoCmuz/r79L6GTQTR2lZQBd38JLaXT1etQSAVhIf
+         n+Wwk9AIVHzNmzdqmKYNOlbhoget7HN5f/LyUQZqj3dmWKD6jx5JuL1VYWTp/mq1H6
+         tx97S/OFqUapMgIYqAG7mp4eBV5zTKcyMRYHqA/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        =?UTF-8?q?Timo=20Ter=C3=A4s?= <timo.teras@iki.fi>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.14 108/148] xfrm: policy: Fix doulbe free in xfrm_policy_timer
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.4 84/91] vt: switch vt_dont_switch to bool
 Date:   Wed,  1 Apr 2020 18:18:20 +0200
-Message-Id: <20200401161602.993586076@linuxfoundation.org>
+Message-Id: <20200401161539.220388636@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 4c59406ed00379c8663f8663d82b2537467ce9d7 upstream.
+commit f400991bf872debffb01c46da882dc97d7e3248e upstream.
 
-After xfrm_add_policy add a policy, its ref is 2, then
+vt_dont_switch is pure boolean, no need for whole char.
 
-                             xfrm_policy_timer
-                               read_lock
-                               xp->walk.dead is 0
-                               ....
-                               mod_timer()
-xfrm_policy_kill
-  policy->walk.dead = 1
-  ....
-  del_timer(&policy->timer)
-    xfrm_pol_put //ref is 1
-  xfrm_pol_put  //ref is 0
-    xfrm_policy_destroy
-      call_rcu
-                                 xfrm_pol_hold //ref is 1
-                               read_unlock
-                               xfrm_pol_put //ref is 0
-                                 xfrm_policy_destroy
-                                  call_rcu
-
-xfrm_policy_destroy is called twice, which may leads to
-double free.
-
-Call Trace:
-RIP: 0010:refcount_warn_saturate+0x161/0x210
-...
- xfrm_policy_timer+0x522/0x600
- call_timer_fn+0x1b3/0x5e0
- ? __xfrm_decode_session+0x2990/0x2990
- ? msleep+0xb0/0xb0
- ? _raw_spin_unlock_irq+0x24/0x40
- ? __xfrm_decode_session+0x2990/0x2990
- ? __xfrm_decode_session+0x2990/0x2990
- run_timer_softirq+0x5c5/0x10e0
-
-Fix this by use write_lock_bh in xfrm_policy_kill.
-
-Fixes: ea2dea9dacc2 ("xfrm: remove policy lock when accessing policy->walk.dead")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Timo Teräs <timo.teras@iki.fi>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200219073951.16151-6-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/xfrm/xfrm_policy.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/vt/vt_ioctl.c |    6 +++---
+ include/linux/vt_kern.h   |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -301,7 +301,9 @@ EXPORT_SYMBOL(xfrm_policy_destroy);
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -38,7 +38,7 @@
+ #include <linux/kbd_diacr.h>
+ #include <linux/selection.h>
  
- static void xfrm_policy_kill(struct xfrm_policy *policy)
+-char vt_dont_switch;
++bool vt_dont_switch;
+ 
+ static inline bool vt_in_use(unsigned int i)
  {
-+	write_lock_bh(&policy->lock);
- 	policy->walk.dead = 1;
-+	write_unlock_bh(&policy->lock);
+@@ -1035,12 +1035,12 @@ int vt_ioctl(struct tty_struct *tty,
+ 	case VT_LOCKSWITCH:
+ 		if (!capable(CAP_SYS_TTY_CONFIG))
+ 			return -EPERM;
+-		vt_dont_switch = 1;
++		vt_dont_switch = true;
+ 		break;
+ 	case VT_UNLOCKSWITCH:
+ 		if (!capable(CAP_SYS_TTY_CONFIG))
+ 			return -EPERM;
+-		vt_dont_switch = 0;
++		vt_dont_switch = false;
+ 		break;
+ 	case VT_GETHIFONTMASK:
+ 		ret = put_user(vc->vc_hi_font_mask,
+--- a/include/linux/vt_kern.h
++++ b/include/linux/vt_kern.h
+@@ -142,7 +142,7 @@ static inline bool vt_force_oops_output(
+ 	return false;
+ }
  
- 	atomic_inc(&policy->genid);
+-extern char vt_dont_switch;
++extern bool vt_dont_switch;
+ extern int default_utf8;
+ extern int global_cursor_default;
  
 
 
