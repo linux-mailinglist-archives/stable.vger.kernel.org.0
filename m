@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 684D619B0A0
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A005319B327
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388086AbgDAQ2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:28:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53468 "EHLO mail.kernel.org"
+        id S2389332AbgDAQob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:44:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387582AbgDAQ2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:28:12 -0400
+        id S2389253AbgDAQoa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:44:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C59021582;
-        Wed,  1 Apr 2020 16:28:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C64832078C;
+        Wed,  1 Apr 2020 16:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758492;
-        bh=w8IrY9r12WpYReH7DJwsZobqRrfkWlvu+9LYqSSptVc=;
+        s=default; t=1585759469;
+        bh=P7eaBlYz4GzVkyvhowH9g6w/cqbHD7kEmXW8Sh3FLOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDY/Vo+v27r6waFvVspuFPwEsSDxCtqv1h1eQkhGVzEBVEYwSbFdCmlwEryu0CfBq
-         739py7nK+jpxzwncrcKq5ST4oxuyZy/kf/t1IJ0hKedh/LLvE3hdY+TQvUtxAzj7HA
-         IRez9A3TDDl/AG+XjgYMSj1a6Gn/jO/64HJclkK0=
+        b=16s3s06Bj4qT/JP0Ci8pQ5ru/uEiUwS3Avqzb7Upwn/7Oo2RT8CAdsHpDBLjQrdvo
+         4pEh+mXBYWBSzkVI4VhBbMW0NTMUmYDuw1IwaA37uc/l6xv4QVKGsKkbg07FEsuBh6
+         9jux8fKpt+IF/n2Wm4bQqF3/OJFX2voNZQGGrtsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>
-Subject: [PATCH 4.19 106/116] bpf: Explicitly memset some bpf info structures declared on the stack
+        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 090/148] Input: avoid BIT() macro usage in the serio.h UAPI header
 Date:   Wed,  1 Apr 2020 18:18:02 +0200
-Message-Id: <20200401161555.744987196@linuxfoundation.org>
+Message-Id: <20200401161601.648921885@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Eugene Syromiatnikov <esyr@redhat.com>
 
-commit 5c6f25887963f15492b604dd25cb149c501bbabf upstream.
+commit 52afa505a03d914081f40cb869a3248567a57573 upstream.
 
-Trying to initialize a structure with "= {};" will not always clean out
-all padding locations in a structure. So be explicit and call memset to
-initialize everything for a number of bpf information structures that
-are then copied from userspace, sometimes from smaller memory locations
-than the size of the structure.
+The commit 19ba1eb15a2a ("Input: psmouse - add a custom serio protocol
+to send extra information") introduced usage of the BIT() macro
+for SERIO_* flags; this macro is not provided in UAPI headers.
+Replace if with similarly defined _BITUL() macro defined
+in <linux/const.h>.
 
-Reported-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20200320162258.GA794295@kroah.com
+Fixes: 19ba1eb15a2a ("Input: psmouse - add a custom serio protocol to send extra information")
+Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
+Cc: <stable@vger.kernel.org> # v5.0+
+Link: https://lore.kernel.org/r/20200324041341.GA32335@asgard.redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/btf.c     |    3 ++-
- kernel/bpf/syscall.c |    6 ++++--
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ include/uapi/linux/serio.h |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -2387,7 +2387,7 @@ int btf_get_info_by_fd(const struct btf
- 		       union bpf_attr __user *uattr)
- {
- 	struct bpf_btf_info __user *uinfo;
--	struct bpf_btf_info info = {};
-+	struct bpf_btf_info info;
- 	u32 info_copy, btf_copy;
- 	void __user *ubtf;
- 	u32 uinfo_len;
-@@ -2396,6 +2396,7 @@ int btf_get_info_by_fd(const struct btf
- 	uinfo_len = attr->info.info_len;
+--- a/include/uapi/linux/serio.h
++++ b/include/uapi/linux/serio.h
+@@ -9,7 +9,7 @@
+ #ifndef _UAPI_SERIO_H
+ #define _UAPI_SERIO_H
  
- 	info_copy = min_t(u32, uinfo_len, sizeof(info));
-+	memset(&info, 0, sizeof(info));
- 	if (copy_from_user(&info, uinfo, info_copy))
- 		return -EFAULT;
+-
++#include <linux/const.h>
+ #include <linux/ioctl.h>
  
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -1958,7 +1958,7 @@ static int bpf_prog_get_info_by_fd(struc
- 				   union bpf_attr __user *uattr)
- {
- 	struct bpf_prog_info __user *uinfo = u64_to_user_ptr(attr->info.info);
--	struct bpf_prog_info info = {};
-+	struct bpf_prog_info info;
- 	u32 info_len = attr->info.info_len;
- 	char __user *uinsns;
- 	u32 ulen;
-@@ -1969,6 +1969,7 @@ static int bpf_prog_get_info_by_fd(struc
- 		return err;
- 	info_len = min_t(u32, sizeof(info), info_len);
+ #define SPIOCSTYPE	_IOW('q', 0x01, unsigned long)
+@@ -18,10 +18,10 @@
+ /*
+  * bit masks for use in "interrupt" flags (3rd argument)
+  */
+-#define SERIO_TIMEOUT	BIT(0)
+-#define SERIO_PARITY	BIT(1)
+-#define SERIO_FRAME	BIT(2)
+-#define SERIO_OOB_DATA	BIT(3)
++#define SERIO_TIMEOUT	_BITUL(0)
++#define SERIO_PARITY	_BITUL(1)
++#define SERIO_FRAME	_BITUL(2)
++#define SERIO_OOB_DATA	_BITUL(3)
  
-+	memset(&info, 0, sizeof(info));
- 	if (copy_from_user(&info, uinfo, info_len))
- 		return -EFAULT;
- 
-@@ -2136,7 +2137,7 @@ static int bpf_map_get_info_by_fd(struct
- 				  union bpf_attr __user *uattr)
- {
- 	struct bpf_map_info __user *uinfo = u64_to_user_ptr(attr->info.info);
--	struct bpf_map_info info = {};
-+	struct bpf_map_info info;
- 	u32 info_len = attr->info.info_len;
- 	int err;
- 
-@@ -2145,6 +2146,7 @@ static int bpf_map_get_info_by_fd(struct
- 		return err;
- 	info_len = min_t(u32, sizeof(info), info_len);
- 
-+	memset(&info, 0, sizeof(info));
- 	info.type = map->map_type;
- 	info.id = map->id;
- 	info.key_size = map->key_size;
+ /*
+  * Serio types
 
 
