@@ -2,60 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C7519A4FA
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 07:53:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB8319A513
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 08:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731702AbgDAFxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 01:53:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56266 "EHLO mail.kernel.org"
+        id S1731725AbgDAGHR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 02:07:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731680AbgDAFxN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 01:53:13 -0400
+        id S1731721AbgDAGHR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 02:07:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 748692074D;
-        Wed,  1 Apr 2020 05:53:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C67DB20714;
+        Wed,  1 Apr 2020 06:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585720392;
-        bh=/ibTukA40ue5oJ91DUclgDy3BG8RnFs5QDggSrj7JxY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rcUJHj0ke0BoU7X2aYXKD/0IiAY+S7ake1qjY3PhKD9D4EbjSBm154p3UgUWrbGcY
-         LtWYxzZ/rMgm4cK7AkPlKAa1iiV9HNbt8T86KJgbjkhTTV0d5eogHlb4kWqAFlToHE
-         a7Pdu7BFTOYtR/rxUqvy3XwTTz1kicVUh748/WfM=
-Date:   Wed, 1 Apr 2020 07:53:09 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Woody Suwalski <terraluna977@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.6 00/23] 5.6.1-rc1 review
-Message-ID: <20200401055309.GA1903746@kroah.com>
-References: <20200331085308.098696461@linuxfoundation.org>
- <6cdfe0e5-408f-2d88-cb08-c7675d78637c@gmail.com>
- <20200401055152.GA1903194@kroah.com>
+        s=default; t=1585721237;
+        bh=tYE3yJ+hRq5hJ2wM3o9q2lK9IO5qllaYcSztIE/vBGM=;
+        h=Subject:To:From:Date:From;
+        b=lB6VbLX4q3BJtnsFx4bYmlrPKCDwtdgHlWBuzqUPi8rcUlEcWMPz7B4wyl8qLu7yw
+         YrwiqOhXavTmTgYtgyr0LPc4oaGMvLP2swDYMnAKc8VexQJoPzNXzhGDe+l7GP2duT
+         KtklCQaNodYbX0EzJPDJbd6l1FGXlsTdVpfLCls0=
+Subject: patch "Revert "amba: Initialize dma_parms for amba devices"" added to char-misc-testing
+To:     gregkh@linuxfoundation.org, arnd@arndb.de, hch@lst.de,
+        linus.walleij@linaro.org, linux@armlinux.org.uk,
+        ludovic.barre@st.com, stable@vger.kernel.org,
+        ulf.hansson@linaro.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 01 Apr 2020 08:07:13 +0200
+Message-ID: <158572123332129@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200401055152.GA1903194@kroah.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 07:51:52AM +0200, Greg Kroah-Hartman wrote:
-> On Tue, Mar 31, 2020 at 11:06:16PM -0400, Woody Suwalski wrote:
-> > Greg Kroah-Hartman wrote:
-> > I think you have missed the
-> > https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=be8c827f50a0bcd56361b31ada11dc0a3c2fd240
-> 
-> It should come in soon, in another release or so, when the next set of
-> networking patches get sent to me.
 
-And also didn't hit Linus's tree until after this set of -rc patches
-went out, so it's not like I missed it or anything :)
+This is a note to let you know that I've just added the patch titled
 
-thanks,
+    Revert "amba: Initialize dma_parms for amba devices"
 
-greg k-h
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From a9d68cbd4f8834d126ebdd3097a1dee1c5973fdf Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 1 Apr 2020 08:03:28 +0200
+Subject: Revert "amba: Initialize dma_parms for amba devices"
+
+This reverts commit 5caf6102e32ead7ed5d21b5309c1a4a7d70e6a9f.  It still
+needs some more work and that will happen for the next release cycle,
+not this one.
+
+Cc: <stable@vger.kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ludovic Barre <ludovic.barre@st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/amba/bus.c       | 2 --
+ include/linux/amba/bus.h | 1 -
+ 2 files changed, 3 deletions(-)
+
+diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
+index 5e61783ce92d..fe1523664816 100644
+--- a/drivers/amba/bus.c
++++ b/drivers/amba/bus.c
+@@ -374,8 +374,6 @@ static int amba_device_try_add(struct amba_device *dev, struct resource *parent)
+ 	WARN_ON(dev->irq[0] == (unsigned int)-1);
+ 	WARN_ON(dev->irq[1] == (unsigned int)-1);
+ 
+-	dev->dev.dma_parms = &dev->dma_parms;
+-
+ 	ret = request_resource(parent, &dev->res);
+ 	if (ret)
+ 		goto err_out;
+diff --git a/include/linux/amba/bus.h b/include/linux/amba/bus.h
+index 0bbfd647f5c6..26f0ecf401ea 100644
+--- a/include/linux/amba/bus.h
++++ b/include/linux/amba/bus.h
+@@ -65,7 +65,6 @@ struct amba_device {
+ 	struct device		dev;
+ 	struct resource		res;
+ 	struct clk		*pclk;
+-	struct device_dma_parameters dma_parms;
+ 	unsigned int		periphid;
+ 	unsigned int		cid;
+ 	struct amba_cs_uci_id	uci;
+-- 
+2.26.0
+
+
