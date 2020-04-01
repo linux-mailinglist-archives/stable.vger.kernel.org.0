@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7DCC19B12E
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E55CE19B384
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:52:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388431AbgDAQcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:32:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59084 "EHLO mail.kernel.org"
+        id S2388909AbgDAQhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:37:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388068AbgDAQci (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:32:38 -0400
+        id S2387634AbgDAQhG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:37:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D42392063A;
-        Wed,  1 Apr 2020 16:32:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1685A206F8;
+        Wed,  1 Apr 2020 16:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758758;
-        bh=JL1j4Baacd3Nm5cyUBNnMdvD7STn1dIkzds8vD8e5Oo=;
+        s=default; t=1585759025;
+        bh=4Ki+qkxU39QDsDVJd+9zZO5BdWzNnwZi+XZF9+iCI3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gLKeb49pDflWahjZv4xu4+tQV+7Cbn7OvwVi9qKuOn8CZyyCZ7fA5aUtRjL3MtQMO
-         Rh1Rl57GdlMw3ohcZ4PEmmViUHojOwn9nrgwEI5YUZI74XFGKBCMJx7de07hCcg1zf
-         OIwzy11wdlHHa3OGAfVxRQuCPryFf1OjLgP9P/r0=
+        b=XDth68QNSSOtSP9zl9D3DNbpb9sybVeN5u1gnFZY+TxdpNkjznrn2lQlxGJRlpskV
+         xFpMnLa4DcBdu+JV2X0ENb+x6Wl38Kx9/LI5OhCGMKWHXVR/zDEke/LJLKkd76gXWV
+         gRiiigEDQ8EFkcxmrWu8Vo0ake/A0Lwqn2r1ZUkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Cree <ecree@solarflare.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 60/91] genirq: Fix reference leaks on irq affinity notifiers
+        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 053/102] dt-bindings: net: FMan erratum A050385
 Date:   Wed,  1 Apr 2020 18:17:56 +0200
-Message-Id: <20200401161533.755031533@linuxfoundation.org>
+Message-Id: <20200401161542.741085212@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Cree <ecree@solarflare.com>
+From: Madalin Bucur <madalin.bucur@nxp.com>
 
-commit df81dfcfd6991d547653d46c051bac195cd182c1 upstream.
+[ Upstream commit 26d5bb9e4c4b541c475751e015072eb2cbf70d15 ]
 
-The handling of notify->work did not properly maintain notify->kref in two
- cases:
-1) where the work was already scheduled, another irq_set_affinity_locked()
-   would get the ref and (no-op-ly) schedule the work.  Thus when
-   irq_affinity_notify() ran, it would drop the original ref but not the
-   additional one.
-2) when cancelling the (old) work in irq_set_affinity_notifier(), if there
-   was outstanding work a ref had been got for it but was never put.
-Fix both by checking the return values of the work handling functions
- (schedule_work() for (1) and cancel_work_sync() for (2)) and put the
- extra ref if the return value indicates preexisting work.
+FMAN DMA read or writes under heavy traffic load may cause FMAN
+internal resource leak; thus stopping further packet processing.
 
-Fixes: cd7eab44e994 ("genirq: Add IRQ affinity notifiers")
-Fixes: 59c39840f5ab ("genirq: Prevent use-after-free and work list corruption")
-Signed-off-by: Edward Cree <ecree@solarflare.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Ben Hutchings <ben@decadent.org.uk>
-Link: https://lkml.kernel.org/r/24f5983f-2ab5-e83a-44ee-a45b5f9300f5@solarflare.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The FMAN internal queue can overflow when FMAN splits single
+read or write transactions into multiple smaller transactions
+such that more than 17 AXI transactions are in flight from FMAN
+to interconnect. When the FMAN internal queue overflows, it can
+stall further packet processing. The issue can occur with any one
+of the following three conditions:
 
+  1. FMAN AXI transaction crosses 4K address boundary (Errata
+     A010022)
+  2. FMAN DMA address for an AXI transaction is not 16 byte
+     aligned, i.e. the last 4 bits of an address are non-zero
+  3. Scatter Gather (SG) frames have more than one SG buffer in
+     the SG list and any one of the buffers, except the last
+     buffer in the SG list has data size that is not a multiple
+     of 16 bytes, i.e., other than 16, 32, 48, 64, etc.
+
+With any one of the above three conditions present, there is
+likelihood of stalled FMAN packet processing, especially under
+stress with multiple ports injecting line-rate traffic.
+
+To avoid situations that stall FMAN packet processing, all of the
+above three conditions must be avoided; therefore, configure the
+system with the following rules:
+
+  1. Frame buffers must not span a 4KB address boundary, unless
+     the frame start address is 256 byte aligned
+  2. All FMAN DMA start addresses (for example, BMAN buffer
+     address, FD[address] + FD[offset]) are 16B aligned
+  3. SG table and buffer addresses are 16B aligned and the size
+     of SG buffers are multiple of 16 bytes, except for the last
+     SG buffer that can be of any size.
+
+Additional workaround notes:
+- Address alignment of 64 bytes is recommended for maximally
+efficient system bus transactions (although 16 byte alignment is
+sufficient to avoid the stall condition)
+- To support frame sizes that are larger than 4K bytes, there are
+two options:
+  1. Large single buffer frames that span a 4KB page boundary can
+     be converted into SG frames to avoid transaction splits at
+     the 4KB boundary,
+  2. Align the large single buffer to 256B address boundaries,
+     ensure that the frame address plus offset is 256B aligned.
+- If software generated SG frames have buffers that are unaligned
+and with random non-multiple of 16 byte lengths, before
+transmitting such frames via FMAN, frames will need to be copied
+into a new single buffer or multiple buffer SG frame that is
+compliant with the three rules listed above.
+
+Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/manage.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/powerpc/fsl/fman.txt | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -220,7 +220,11 @@ int irq_set_affinity_locked(struct irq_d
+diff --git a/Documentation/devicetree/bindings/powerpc/fsl/fman.txt b/Documentation/devicetree/bindings/powerpc/fsl/fman.txt
+index df873d1f3b7c5..2aaae210317bb 100644
+--- a/Documentation/devicetree/bindings/powerpc/fsl/fman.txt
++++ b/Documentation/devicetree/bindings/powerpc/fsl/fman.txt
+@@ -110,6 +110,13 @@ PROPERTIES
+ 		Usage: required
+ 		Definition: See soc/fsl/qman.txt and soc/fsl/bman.txt
  
- 	if (desc->affinity_notify) {
- 		kref_get(&desc->affinity_notify->kref);
--		schedule_work(&desc->affinity_notify->work);
-+		if (!schedule_work(&desc->affinity_notify->work)) {
-+			/* Work was already scheduled, drop our extra ref */
-+			kref_put(&desc->affinity_notify->kref,
-+				 desc->affinity_notify->release);
-+		}
- 	}
- 	irqd_set(data, IRQD_AFFINITY_SET);
++- fsl,erratum-a050385
++		Usage: optional
++		Value type: boolean
++		Definition: A boolean property. Indicates the presence of the
++		erratum A050385 which indicates that DMA transactions that are
++		split can result in a FMan lock.
++
+ =============================================================================
+ FMan MURAM Node
  
-@@ -320,7 +324,10 @@ irq_set_affinity_notifier(unsigned int i
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
- 
- 	if (old_notify) {
--		cancel_work_sync(&old_notify->work);
-+		if (cancel_work_sync(&old_notify->work)) {
-+			/* Pending work had a ref, put that one too */
-+			kref_put(&old_notify->kref, old_notify->release);
-+		}
- 		kref_put(&old_notify->kref, old_notify->release);
- 	}
- 
+-- 
+2.20.1
+
 
 
