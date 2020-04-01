@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B59D19B3B7
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E95019B0AF
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388472AbgDAQc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:32:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59438 "EHLO mail.kernel.org"
+        id S2387611AbgDAQ2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:28:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732540AbgDAQc5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:32:57 -0400
+        id S2387942AbgDAQ2m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:28:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9A8120658;
-        Wed,  1 Apr 2020 16:32:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E4C220BED;
+        Wed,  1 Apr 2020 16:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758777;
-        bh=ghDfLd7SVVS3Vf39RZ3MLTXeN9O5LKa3h+M3tjtUbtI=;
+        s=default; t=1585758521;
+        bh=LgPj8+2ycUOEbuzcx4Slc6l4LdVpqf9vUNx2DlNUndY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLn7O2BmmJspylgr3Bt7qcnU8BEPKHnTMw79KV3+agRIH0U1MGGAXbYnUFkKtG5ea
-         thNvmhxUVqa/dIfdRHWkynUjBPpjCxveFwvVkPSKSFIZSwliVypdRILG98ZmCJpnLL
-         3E9anWjcBvAqYwNxIUbaKxGbtTIXweenVxBAvDW8=
+        b=NCROqMkvXTUDNl4KfN4923+SZ/Z1137HXBoANebbvfIl5+cdngzk0rGcf1YuWklvt
+         DhQ7tqRFw02HvaRafox+IzCTKUjzSycBViwKuuNolKfJq42RSCSOyDQRvXYwXbsaKw
+         u+wkfH3jBS2G6xzkWRJTzU2f10S/L7nafiGU87+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.4 73/91] media: flexcop-usb: fix endpoint sanity check
+        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 4.19 113/116] ARM: dts: imx6: phycore-som: fix arm and soc minimum voltage
 Date:   Wed,  1 Apr 2020 18:18:09 +0200
-Message-Id: <20200401161537.231970310@linuxfoundation.org>
+Message-Id: <20200401161556.559331247@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-commit bca243b1ce0e46be26f7c63b5591dfbb41f558e5 upstream.
+commit 636b45b8efa91db05553840b6c0120d6fa6b94fa upstream.
 
-commit 1b976fc6d684 ("media: b2c2-flexcop-usb: add sanity checking") added
-an endpoint sanity check to address a NULL-pointer dereference on probe.
-Unfortunately the check was done on the current altsetting which was later
-changed.
+The current set minimum voltage of 730000µV seems to be wrong. I don't
+know the document which specifies that but the imx6qdl datasheets says
+that the minimum voltage should be 0.925V for VDD_ARM (LDO bypassed,
+lowest opp) and 1.15V for VDD_SOC (LDO bypassed, lowest opp).
 
-Fix this by moving the sanity check to after the altsetting is changed.
-
-Fixes: 1b976fc6d684 ("media: b2c2-flexcop-usb: add sanity checking")
-Cc: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: ddec5d1c0047 ("ARM: dts: imx6: Add initial support for phyCORE-i.MX 6 SOM")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/b2c2/flexcop-usb.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/media/usb/b2c2/flexcop-usb.c
-+++ b/drivers/media/usb/b2c2/flexcop-usb.c
-@@ -481,6 +481,9 @@ static int flexcop_usb_init(struct flexc
- 		return ret;
- 	}
+--- a/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
+@@ -107,14 +107,14 @@
+ 		regulators {
+ 			vdd_arm: buck1 {
+ 				regulator-name = "vdd_arm";
+-				regulator-min-microvolt = <730000>;
++				regulator-min-microvolt = <925000>;
+ 				regulator-max-microvolt = <1380000>;
+ 				regulator-always-on;
+ 			};
  
-+	if (fc_usb->uintf->cur_altsetting->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	switch (fc_usb->udev->speed) {
- 	case USB_SPEED_LOW:
- 		err("cannot handle USB speed because it is too slow.");
-@@ -514,9 +517,6 @@ static int flexcop_usb_probe(struct usb_
- 	struct flexcop_device *fc = NULL;
- 	int ret;
- 
--	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
--		return -ENODEV;
--
- 	if ((fc = flexcop_device_kmalloc(sizeof(struct flexcop_usb))) == NULL) {
- 		err("out of memory\n");
- 		return -ENOMEM;
+ 			vdd_soc: buck2 {
+ 				regulator-name = "vdd_soc";
+-				regulator-min-microvolt = <730000>;
++				regulator-min-microvolt = <1150000>;
+ 				regulator-max-microvolt = <1380000>;
+ 				regulator-always-on;
+ 			};
 
 
