@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C87319B173
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC3D119B057
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:26:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388712AbgDAQfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:35:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33850 "EHLO mail.kernel.org"
+        id S2387584AbgDAQ0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:26:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387563AbgDAQfI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:35:08 -0400
+        id S2387868AbgDAQ0E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:26:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65481206F8;
-        Wed,  1 Apr 2020 16:35:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41C45212CC;
+        Wed,  1 Apr 2020 16:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758907;
-        bh=6B6gsOsroByCB4gAqU47ZGkVGZ7MK8jRlweiG6hb5Aw=;
+        s=default; t=1585758361;
+        bh=HLkyMYABj1W/nqkEG7+IVskAU2nhYu7XZVp+KIkbBEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lv8jQ1StV+KMYCdTGCx32onuSRSG5O8q4Wlc1bh+J61qJaqF2A+bccBOJQFnZDAlU
-         BlDe9UHB2o2Z9VisDeVnAM7MMbl5vhL4rMAxS4PuvGlow9c/XTULS+zGh+AVbWiG06
-         iR2tninU9fGeBw6b8+EmQxpNvbTyUBenFS2o/pnQ=
+        b=d6Mk5FMf3rGDvqj8ovZiQo9A3CnZyvoE88q91N8qFeXmtnAY9bb/PCEhIGtFH5dBF
+         7ZNdqSlmrTGxZ/y8yeqS8kwVzZwuaMpXe1oBX80nbAZs2pRcg3sYRt4YGVX4AiEIk2
+         qeXA1WfkEhzBhrzcDSWuFaZpfjiH244ornpYerVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.9 019/102] mmc: sdhci-of-at91: fix cd-gpios for SAMA5D2
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.19 066/116] vti[6]: fix packet tx through bpf_redirect() in XinY cases
 Date:   Wed,  1 Apr 2020 18:17:22 +0200
-Message-Id: <20200401161536.146584536@linuxfoundation.org>
+Message-Id: <20200401161551.770608190@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit 53dd0a7cd65edc83b0c243d1c08377c8b876b2ee upstream.
+commit f1ed10264ed6b66b9cd5e8461cffce69be482356 upstream.
 
-SAMA5D2x doesn't drive CMD line if GPIO is used as CD line (at least
-SAMA5D27 doesn't). Fix this by forcing card-detect in the module
-if module-controlled CD is not used.
+I forgot the 4in6/6in4 cases in my previous patch. Let's fix them.
 
-Fixed commit addresses the problem only for non-removable cards. This
-amends it to also cover gpio-cd case.
-
-Cc: stable@vger.kernel.org
-Fixes: 7a1e3f143176 ("mmc: sdhci-of-at91: force card detect value for non removable devices")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/8d10950d9940468577daef4772b82a071b204716.1584290561.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 95224166a903 ("vti[6]: fix packet tx through bpf_redirect()")
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-at91.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/ipv4/Kconfig   |    1 +
+ net/ipv4/ip_vti.c  |   36 +++++++++++++++++++++++++++++-------
+ net/ipv6/ip6_vti.c |   32 +++++++++++++++++++++++++-------
+ 3 files changed, 55 insertions(+), 14 deletions(-)
 
---- a/drivers/mmc/host/sdhci-of-at91.c
-+++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -126,7 +126,8 @@ static void sdhci_at91_reset(struct sdhc
- {
- 	sdhci_reset(host, mask);
+--- a/net/ipv4/Kconfig
++++ b/net/ipv4/Kconfig
+@@ -302,6 +302,7 @@ config SYN_COOKIES
  
--	if (host->mmc->caps & MMC_CAP_NONREMOVABLE)
-+	if ((host->mmc->caps & MMC_CAP_NONREMOVABLE)
-+	    || mmc_gpio_get_cd(host->mmc) >= 0)
- 		sdhci_at91_set_force_card_detect(host);
- }
+ config NET_IPVTI
+ 	tristate "Virtual (secure) IP: tunneling"
++	depends on IPV6 || IPV6=n
+ 	select INET_TUNNEL
+ 	select NET_IP_TUNNEL
+ 	depends on INET_XFRM_MODE_TUNNEL
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -208,17 +208,39 @@ static netdev_tx_t vti_xmit(struct sk_bu
+ 	int mtu;
  
-@@ -354,8 +355,11 @@ static int sdhci_at91_probe(struct platf
- 	 * detection procedure using the SDMCC_CD signal is bypassed.
- 	 * This bit is reset when a software reset for all command is performed
- 	 * so we need to implement our own reset function to set back this bit.
-+	 *
-+	 * WA: SAMA5D2 doesn't drive CMD if using CD GPIO line.
- 	 */
--	if (host->mmc->caps & MMC_CAP_NONREMOVABLE)
-+	if ((host->mmc->caps & MMC_CAP_NONREMOVABLE)
-+	    || mmc_gpio_get_cd(host->mmc) >= 0)
- 		sdhci_at91_set_force_card_detect(host);
+ 	if (!dst) {
+-		struct rtable *rt;
++		switch (skb->protocol) {
++		case htons(ETH_P_IP): {
++			struct rtable *rt;
  
- 	pm_runtime_put_autosuspend(&pdev->dev);
+-		fl->u.ip4.flowi4_oif = dev->ifindex;
+-		fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
+-		rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
+-		if (IS_ERR(rt)) {
++			fl->u.ip4.flowi4_oif = dev->ifindex;
++			fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
++			rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
++			if (IS_ERR(rt)) {
++				dev->stats.tx_carrier_errors++;
++				goto tx_error_icmp;
++			}
++			dst = &rt->dst;
++			skb_dst_set(skb, dst);
++			break;
++		}
++#if IS_ENABLED(CONFIG_IPV6)
++		case htons(ETH_P_IPV6):
++			fl->u.ip6.flowi6_oif = dev->ifindex;
++			fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
++			dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
++			if (dst->error) {
++				dst_release(dst);
++				dst = NULL;
++				dev->stats.tx_carrier_errors++;
++				goto tx_error_icmp;
++			}
++			skb_dst_set(skb, dst);
++			break;
++#endif
++		default:
+ 			dev->stats.tx_carrier_errors++;
+ 			goto tx_error_icmp;
+ 		}
+-		dst = &rt->dst;
+-		skb_dst_set(skb, dst);
+ 	}
+ 
+ 	dst_hold(dst);
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -454,15 +454,33 @@ vti6_xmit(struct sk_buff *skb, struct ne
+ 	int mtu;
+ 
+ 	if (!dst) {
+-		fl->u.ip6.flowi6_oif = dev->ifindex;
+-		fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
+-		dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
+-		if (dst->error) {
+-			dst_release(dst);
+-			dst = NULL;
++		switch (skb->protocol) {
++		case htons(ETH_P_IP): {
++			struct rtable *rt;
++
++			fl->u.ip4.flowi4_oif = dev->ifindex;
++			fl->u.ip4.flowi4_flags |= FLOWI_FLAG_ANYSRC;
++			rt = __ip_route_output_key(dev_net(dev), &fl->u.ip4);
++			if (IS_ERR(rt))
++				goto tx_err_link_failure;
++			dst = &rt->dst;
++			skb_dst_set(skb, dst);
++			break;
++		}
++		case htons(ETH_P_IPV6):
++			fl->u.ip6.flowi6_oif = dev->ifindex;
++			fl->u.ip6.flowi6_flags |= FLOWI_FLAG_ANYSRC;
++			dst = ip6_route_output(dev_net(dev), NULL, &fl->u.ip6);
++			if (dst->error) {
++				dst_release(dst);
++				dst = NULL;
++				goto tx_err_link_failure;
++			}
++			skb_dst_set(skb, dst);
++			break;
++		default:
+ 			goto tx_err_link_failure;
+ 		}
+-		skb_dst_set(skb, dst);
+ 	}
+ 
+ 	dst_hold(dst);
 
 
