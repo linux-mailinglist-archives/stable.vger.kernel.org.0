@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE17019B165
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93D4319B232
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732411AbgDAQek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:34:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33316 "EHLO mail.kernel.org"
+        id S2389456AbgDAQlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:41:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388529AbgDAQek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:34:40 -0400
+        id S2389162AbgDAQlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:41:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D501A20772;
-        Wed,  1 Apr 2020 16:34:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C062420658;
+        Wed,  1 Apr 2020 16:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758879;
-        bh=zoIs6g3QiQF1Pb10geW1fimpOpcLW6YJQTXtrUPp+rY=;
+        s=default; t=1585759311;
+        bh=Qv7p7skIwClAgWc94R84u6lXFzPtN2mlav+yyCBP6S0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOPJD4cGXyePPb+T9EczDJauw5Q/AlmJJOKmNsPPmSGhwXfWjONmaxuSyxoBhsZ1+
-         jtttcTNzGKFO3UP7m5/2im3pZdG4wPLk2B3/U8ZQT9v7S/ZFaV9ovI2cRDcRqUJGj6
-         b3BL0d0ljeRof7ysSeRVItedRtx5YdGWHjt3Ew+Y=
+        b=C97YkYsttPnp+UemRo9gWCLI9JIJzJKI+ExrjjNkNKtepdkAkvF9bkiRtghTTI/CD
+         qx78FeHSDC4ZL2cNq/KuihiKqGSBjFh75pxf8IlbRw2KAvh1jpr3eqwRxFAiLrqSCd
+         dKh6xc7p7skrys9WcCV8glxM8+Z87RTH5A7EcvHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ran Wang <ran.wang_1@nxp.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.9 011/102] usb: host: xhci-plat: add a shutdown
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 042/148] iio: adc: at91-sama5d2_adc: fix channel configuration for differential channels
 Date:   Wed,  1 Apr 2020 18:17:14 +0200
-Message-Id: <20200401161533.922470748@linuxfoundation.org>
+Message-Id: <20200401161556.877865168@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ran Wang <ran.wang_1@nxp.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-commit b433e340e7565110b0ce9ca4b3e26f4b97a1decf upstream.
+[ Upstream commit f0c8d1f6dc8eac5a1fbf441c8e080721a7b6c0ff ]
 
-When loading new kernel via kexec, we need to shutdown host controller to
-avoid any un-expected memory accessing during new kernel boot.
+When iterating through the channels, the index in the array is not the
+scan index. Added an xlate function to translate to the proper index.
+The result of the bug is that the channel array is indexed with a wrong index,
+thus instead of the proper channel, we access invalid memory, which may
+lead to invalid results and/or corruption.
+This will be used also for devicetree channel xlate.
 
-Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20200306092328.41253-1-ran.wang_1@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 5e1a1da0f ("iio: adc: at91-sama5d2_adc: add hw trigger and buffer support")
+Fixes: 073c66201 ("iio: adc: at91-sama5d2_adc: add support for DMA")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-plat.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/adc/at91-sama5d2_adc.c | 30 ++++++++++++++++++++++++++++--
+ 1 file changed, 28 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci-plat.c
-+++ b/drivers/usb/host/xhci-plat.c
-@@ -335,6 +335,7 @@ MODULE_DEVICE_TABLE(acpi, usb_xhci_acpi_
- static struct platform_driver usb_xhci_driver = {
- 	.probe	= xhci_plat_probe,
- 	.remove	= xhci_plat_remove,
-+	.shutdown = usb_hcd_platform_shutdown,
- 	.driver	= {
- 		.name = "xhci-hcd",
- 		.pm = DEV_PM_OPS,
+diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+index a70ef7fec95f0..0898f40c2b892 100644
+--- a/drivers/iio/adc/at91-sama5d2_adc.c
++++ b/drivers/iio/adc/at91-sama5d2_adc.c
+@@ -300,6 +300,27 @@ static const struct iio_chan_spec at91_adc_channels[] = {
+ 				+ AT91_SAMA5D2_DIFF_CHAN_CNT + 1),
+ };
+ 
++static int at91_adc_chan_xlate(struct iio_dev *indio_dev, int chan)
++{
++	int i;
++
++	for (i = 0; i < indio_dev->num_channels; i++) {
++		if (indio_dev->channels[i].scan_index == chan)
++			return i;
++	}
++	return -EINVAL;
++}
++
++static inline struct iio_chan_spec const *
++at91_adc_chan_get(struct iio_dev *indio_dev, int chan)
++{
++	int index = at91_adc_chan_xlate(indio_dev, chan);
++
++	if (index < 0)
++		return NULL;
++	return indio_dev->channels + index;
++}
++
+ static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
+ {
+ 	struct iio_dev *indio = iio_trigger_get_drvdata(trig);
+@@ -317,8 +338,10 @@ static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
+ 	at91_adc_writel(st, AT91_SAMA5D2_TRGR, status);
+ 
+ 	for_each_set_bit(bit, indio->active_scan_mask, indio->num_channels) {
+-		struct iio_chan_spec const *chan = indio->channels + bit;
++		struct iio_chan_spec const *chan = at91_adc_chan_get(indio, bit);
+ 
++		if (!chan)
++			continue;
+ 		if (state) {
+ 			at91_adc_writel(st, AT91_SAMA5D2_CHER,
+ 					BIT(chan->channel));
+@@ -398,8 +421,11 @@ static irqreturn_t at91_adc_trigger_handler(int irq, void *p)
+ 	u8 bit;
+ 
+ 	for_each_set_bit(bit, indio->active_scan_mask, indio->num_channels) {
+-		struct iio_chan_spec const *chan = indio->channels + bit;
++		struct iio_chan_spec const *chan =
++					at91_adc_chan_get(indio, bit);
+ 
++		if (!chan)
++			continue;
+ 		st->buffer[i] = at91_adc_readl(st, chan->address);
+ 		i++;
+ 	}
+-- 
+2.20.1
+
 
 
