@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F79F19B371
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8C719B3B1
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732492AbgDAQvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37306 "EHLO mail.kernel.org"
+        id S2388251AbgDAQdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:33:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388258AbgDAQh4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:37:56 -0400
+        id S2388490AbgDAQdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:33:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0663C20772;
-        Wed,  1 Apr 2020 16:37:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50FE42063A;
+        Wed,  1 Apr 2020 16:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759075;
-        bh=CgY4mXuITzuTPiXbroF4GvgpCRhDYaZpzAOZmacCfns=;
+        s=default; t=1585758783;
+        bh=RgEC/UFyDfA3IWS/jjbLRXkhkFbRjA5TDwmOQTQociQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1U1rWfPjmYXvdvTk88MNheWUW35q3Vo62vaEd07v4NBFdFYHTe6+wXaSorVNoRDs
-         W1+2Rtev5QY27EFAz/hZAkvcPN6T1PKYgOKY3wKGhDlkvxekJtmDo37HUylxNa2PqP
-         zBLvbCJhPAwKQqxoT0Az+P0STERtxShm0qomufUU=
+        b=IqGZkEf2LyJQNPHPfAU3a0MjBnFLnaAN6UN8hUy1vlQv7+36L5d8uLWZtKW4z5rPO
+         t4MXP+XCpVY09Xlps7KwevdaxX3kKxthNDrhcOlnZkJIJiF1C0DtDcdaTz7+qkppNr
+         oMkf3Xqerktoez2gDI0Oms0rjhq125VqLcR7BqJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        =?UTF-8?q?Timo=20Ter=C3=A4s?= <timo.teras@iki.fi>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.9 068/102] xfrm: policy: Fix doulbe free in xfrm_policy_timer
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        kovi <zraetn@gmail.com>
+Subject: [PATCH 4.4 75/91] staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
 Date:   Wed,  1 Apr 2020 18:18:11 +0200
-Message-Id: <20200401161544.181086408@linuxfoundation.org>
+Message-Id: <20200401161537.682766898@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 4c59406ed00379c8663f8663d82b2537467ce9d7 upstream.
+commit 38ef48f7d4b7342f145a1b4f96023bde99aeb245 upstream.
 
-After xfrm_add_policy add a policy, its ref is 2, then
+The ASUS USB-N10 Nano B1 has been reported as a new RTL8188EU device.
+Add it to the device tables.
 
-                             xfrm_policy_timer
-                               read_lock
-                               xp->walk.dead is 0
-                               ....
-                               mod_timer()
-xfrm_policy_kill
-  policy->walk.dead = 1
-  ....
-  del_timer(&policy->timer)
-    xfrm_pol_put //ref is 1
-  xfrm_pol_put  //ref is 0
-    xfrm_policy_destroy
-      call_rcu
-                                 xfrm_pol_hold //ref is 1
-                               read_unlock
-                               xfrm_pol_put //ref is 0
-                                 xfrm_policy_destroy
-                                  call_rcu
-
-xfrm_policy_destroy is called twice, which may leads to
-double free.
-
-Call Trace:
-RIP: 0010:refcount_warn_saturate+0x161/0x210
-...
- xfrm_policy_timer+0x522/0x600
- call_timer_fn+0x1b3/0x5e0
- ? __xfrm_decode_session+0x2990/0x2990
- ? msleep+0xb0/0xb0
- ? _raw_spin_unlock_irq+0x24/0x40
- ? __xfrm_decode_session+0x2990/0x2990
- ? __xfrm_decode_session+0x2990/0x2990
- run_timer_softirq+0x5c5/0x10e0
-
-Fix this by use write_lock_bh in xfrm_policy_kill.
-
-Fixes: ea2dea9dacc2 ("xfrm: remove policy lock when accessing policy->walk.dead")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Timo Teräs <timo.teras@iki.fi>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Reported-by: kovi <zraetn@gmail.com>
+Cc: Stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200321180011.26153-1-Larry.Finger@lwfinger.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/xfrm/xfrm_policy.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -336,7 +336,9 @@ EXPORT_SYMBOL(xfrm_policy_destroy);
- 
- static void xfrm_policy_kill(struct xfrm_policy *policy)
- {
-+	write_lock_bh(&policy->lock);
- 	policy->walk.dead = 1;
-+	write_unlock_bh(&policy->lock);
- 
- 	atomic_inc(&policy->genid);
- 
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -44,6 +44,7 @@ static struct usb_device_id rtw_usb_id_t
+ 	/****** 8188EUS ********/
+ 	{USB_DEVICE(0x056e, 0x4008)}, /* Elecom WDC-150SU2M */
+ 	{USB_DEVICE(0x07b8, 0x8179)}, /* Abocom - Abocom */
++	{USB_DEVICE(0x0B05, 0x18F0)}, /* ASUS USB-N10 Nano B1 */
+ 	{USB_DEVICE(0x2001, 0x330F)}, /* DLink DWA-125 REV D1 */
+ 	{USB_DEVICE(0x2001, 0x3310)}, /* Dlink DWA-123 REV D1 */
+ 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
 
 
