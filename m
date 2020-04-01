@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D32BB19B0A3
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB4719B329
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387582AbgDAQ2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:28:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53612 "EHLO mail.kernel.org"
+        id S2389752AbgDAQoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:44:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387687AbgDAQ2T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:28:19 -0400
+        id S2388037AbgDAQoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:44:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 215A3216FD;
-        Wed,  1 Apr 2020 16:28:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 845E520714;
+        Wed,  1 Apr 2020 16:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758497;
-        bh=WM4pyHeczIls59bM+v5rLTOAhhCKoKCjnRL4t3xqhIU=;
+        s=default; t=1585759479;
+        bh=PL47H3m46y2ou7/kunfoWvBHfO+TqmJQviVQ9Y3h6/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LABdHkOqXpT1XrNvaFqLW+mjtnDNHV7+5N5fNf+wYIKNDS2Qiqn/EIP/F07CZrPsi
-         wpKrAb8qSeRo2ShZnpsxvGvS//Joye2FNcLEOe/6MM+Gntaq3L8BLSFo3pm2AhNYCd
-         aUqfdr5pkMJJYETxFjUFUakwc55ZWWEYJTme+fxA=
+        b=b+RaT6P4Maw2JuBINBYx+/h7EdpAsFywP6zX9nmqEqRePxuviVI1D/jXfX3W/h4lm
+         l7ba7R1SczaGfGY1ChrZhcGhHrW4maoDtATHznjiSAk4OrLF0mxEm2ZM80KiluzADc
+         HoI7mSBWtlQyBpekpA+qg2HVp5DBTTV2yUXFZc84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lukas Wunner <lukas@wunner.de>, Petr Stetiar <ynezz@true.cz>,
-        YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH 4.19 108/116] net: ks8851-ml: Fix IO operations, again
-Date:   Wed,  1 Apr 2020 18:18:04 +0200
-Message-Id: <20200401161555.959171624@linuxfoundation.org>
+        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.14 093/148] perf probe: Do not depend on dwfl_module_addrsym()
+Date:   Wed,  1 Apr 2020 18:18:05 +0200
+Message-Id: <20200401161601.892799411@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,137 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 8262e6f9b1034ede34548a04dec4c302d92c9497 upstream.
+commit 1efde2754275dbd9d11c6e0132a4f09facf297ab upstream.
 
-This patch reverts 58292104832f ("net: ks8851-ml: Fix 16-bit IO operation")
-and edacb098ea9c ("net: ks8851-ml: Fix 16-bit data access"), because it
-turns out these were only necessary due to buggy hardware. This patch adds
-a check for such a buggy hardware to prevent any such mistakes again.
+Do not depend on dwfl_module_addrsym() because it can fail on user-space
+shared libraries.
 
-While working further on the KS8851 driver, it came to light that the
-KS8851-16MLL is capable of switching bus endianness by a hardware strap,
-EESK pin. If this strap is incorrect, the IO accesses require such endian
-swapping as is being reverted by this patch. Such swapping also impacts
-the performance significantly.
+Actually, same bug was fixed by commit 664fee3dc379 ("perf probe: Do not
+use dwfl_module_addrsym if dwarf_diename finds symbol name"), but commit
+07d369857808 ("perf probe: Fix wrong address verification) reverted to
+get actual symbol address from symtab.
 
-Hence, in addition to removing it, detect that the hardware is broken,
-report to user, and fail to bind with such hardware.
+This fixes it again by getting symbol address from DIE, and only if the
+DIE has only address range, it uses dwfl_module_addrsym().
 
-Fixes: 58292104832f ("net: ks8851-ml: Fix 16-bit IO operation")
-Fixes: edacb098ea9c ("net: ks8851-ml: Fix 16-bit data access")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Petr Stetiar <ynezz@true.cz>
-Cc: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 07d369857808 ("perf probe: Fix wrong address verification)
+Reported-by: Alexandre Ghiti <alex@ghiti.fr>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Alexandre Ghiti <alex@ghiti.fr>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Link: http://lore.kernel.org/lkml/158281812176.476.14164573830975116234.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/micrel/ks8851_mll.c |   56 ++++++++++++++++++++++++++++---
- 1 file changed, 52 insertions(+), 4 deletions(-)
+ tools/perf/util/probe-finder.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/micrel/ks8851_mll.c
-+++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -476,6 +476,50 @@ static int msg_enable;
-  */
- 
- /**
-+ * ks_check_endian - Check whether endianness of the bus is correct
-+ * @ks	  : The chip information
-+ *
-+ * The KS8851-16MLL EESK pin allows selecting the endianness of the 16bit
-+ * bus. To maintain optimum performance, the bus endianness should be set
-+ * such that it matches the endianness of the CPU.
-+ */
-+
-+static int ks_check_endian(struct ks_net *ks)
-+{
-+	u16 cider;
-+
-+	/*
-+	 * Read CIDER register first, however read it the "wrong" way around.
-+	 * If the endian strap on the KS8851-16MLL in incorrect and the chip
-+	 * is operating in different endianness than the CPU, then the meaning
-+	 * of BE[3:0] byte-enable bits is also swapped such that:
-+	 *    BE[3,2,1,0] becomes BE[1,0,3,2]
-+	 *
-+	 * Luckily for us, the byte-enable bits are the top four MSbits of
-+	 * the address register and the CIDER register is at offset 0xc0.
-+	 * Hence, by reading address 0xc0c0, which is not impacted by endian
-+	 * swapping, we assert either BE[3:2] or BE[1:0] while reading the
-+	 * CIDER register.
-+	 *
-+	 * If the bus configuration is correct, reading 0xc0c0 asserts
-+	 * BE[3:2] and this read returns 0x0000, because to read register
-+	 * with bottom two LSbits of address set to 0, BE[1:0] must be
-+	 * asserted.
-+	 *
-+	 * If the bus configuration is NOT correct, reading 0xc0c0 asserts
-+	 * BE[1:0] and this read returns non-zero 0x8872 value.
-+	 */
-+	iowrite16(BE3 | BE2 | KS_CIDER, ks->hw_addr_cmd);
-+	cider = ioread16(ks->hw_addr);
-+	if (!cider)
-+		return 0;
-+
-+	netdev_err(ks->netdev, "incorrect EESK endian strap setting\n");
-+
-+	return -EINVAL;
-+}
-+
-+/**
-  * ks_rdreg16 - read 16 bit register from device
-  * @ks	  : The chip information
-  * @offset: The register address
-@@ -485,7 +529,7 @@ static int msg_enable;
- 
- static u16 ks_rdreg16(struct ks_net *ks, int offset)
- {
--	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	return ioread16(ks->hw_addr);
- }
-@@ -500,7 +544,7 @@ static u16 ks_rdreg16(struct ks_net *ks,
- 
- static void ks_wrreg16(struct ks_net *ks, int offset, u16 value)
- {
--	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	iowrite16(value, ks->hw_addr);
- }
-@@ -516,7 +560,7 @@ static inline void ks_inblk(struct ks_ne
- {
- 	len >>= 1;
- 	while (len--)
--		*wptr++ = be16_to_cpu(ioread16(ks->hw_addr));
-+		*wptr++ = (u16)ioread16(ks->hw_addr);
- }
- 
- /**
-@@ -530,7 +574,7 @@ static inline void ks_outblk(struct ks_n
- {
- 	len >>= 1;
- 	while (len--)
--		iowrite16(cpu_to_be16(*wptr++), ks->hw_addr);
-+		iowrite16(*wptr++, ks->hw_addr);
- }
- 
- static void ks_disable_int(struct ks_net *ks)
-@@ -1540,6 +1584,10 @@ static int ks8851_probe(struct platform_
- 		goto err_free;
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -626,14 +626,19 @@ static int convert_to_trace_point(Dwarf_
+ 		return -EINVAL;
  	}
  
-+	err = ks_check_endian(ks);
-+	if (err)
-+		goto err_free;
-+
- 	netdev->irq = platform_get_irq(pdev, 0);
+-	/* Try to get actual symbol name from symtab */
+-	symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
++	if (dwarf_entrypc(sp_die, &eaddr) == 0) {
++		/* If the DIE has entrypc, use it. */
++		symbol = dwarf_diename(sp_die);
++	} else {
++		/* Try to get actual symbol name and address from symtab */
++		symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
++		eaddr = sym.st_value;
++	}
+ 	if (!symbol) {
+ 		pr_warning("Failed to find symbol at 0x%lx\n",
+ 			   (unsigned long)paddr);
+ 		return -ENOENT;
+ 	}
+-	eaddr = sym.st_value;
  
- 	if ((int)netdev->irq < 0) {
+ 	tp->offset = (unsigned long)(paddr - eaddr);
+ 	tp->address = (unsigned long)paddr;
 
 
