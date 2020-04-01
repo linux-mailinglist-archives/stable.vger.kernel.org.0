@@ -2,829 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDFF719AD6B
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 16:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5C419AD7F
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 16:11:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732972AbgDAOHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 10:07:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58286 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732894AbgDAOHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 10:07:31 -0400
+        id S1732847AbgDAOLs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 10:11:48 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:40491 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732760AbgDAOLs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 10:11:48 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 0E2385C015E;
+        Wed,  1 Apr 2020 10:11:47 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 01 Apr 2020 10:11:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=nttjfI9cnsv06SYrmMmGs9JjqhF
+        2pqEUJrx1CPedQog=; b=kqmTwkMAccxwzS+T+/GhVssaYujL+Y1Kfnv4esXdvf5
+        vnUXupjzGBe/mhd00QyM/H94SsvHSPhrAVA7kkLHMw55xIy3NfbgYxpAbN6Lz3xC
+        DILfYLLtrn90WbnNmLyc9xhfSSoi2P7BNpwlBAlvZQhD7H4Fua2FnSITywPpfwfr
+        Tkrx1Ti3uyL5AnRI+8iZfTyqQbCAvVOqP150nMzOEFNCQv1mIHonDfmTwROIB627
+        KyKi/QKuzSGqijl0l3sje/sC3tWxZCcPgK9Mqmcp7+SLJNNjQpe+PAcWRCspgPSD
+        nx1jZgr+nVGvDIDDqim0gd2mTQlfIVBfe6MX1Tud7sQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=nttjfI
+        9cnsv06SYrmMmGs9JjqhF2pqEUJrx1CPedQog=; b=ejyJrbgZTT/DDDbOnvtfbI
+        +zvYXBjNMwECub5dHZvmXcNmZj+7yA8knxIUzfPSft4/LUI38HcBIfRtwJmBDdPP
+        B4U3sl57BfGt+Qd61ZPBGD9hq7sIapIdE1+qhYAbiN2IETEx1ccIe8ogaS+bVKvH
+        Q2ECWkr/VM054di6+d5zufMz9kyXp/tIFhrRJJbneo2DMWodLr/JBorp3rboz6MP
+        /J1wILXd2ku7P2zrx1L8/m23x2S5zRNn/Q+6PT4//Ilj7Z4nb/0SeuQ6GjXzV72O
+        xPBdU04qtG1JzBnuza8dwFhU9j3qogn4RZvx+9z5lPM3VCFIqGZWrBgKULdfsEVA
+        ==
+X-ME-Sender: <xms:IqGEXhbBpJqe-HE55VeJlEu6Qt9Z8u_AHioi6EcQrdt54W-iN2-U4A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrtddvgdejvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdroh
+    hrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptden
+    ucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:IqGEXvX7euvQ_J0ynyQVLqm2q4v8oZERZaTFafUucYsxm6u8xaYypw>
+    <xmx:IqGEXqYQWAkMJ4PDMxuI_C9fahvoGt3jt3OZ9SeNhMBjIv_Fg2G26A>
+    <xmx:IqGEXuJD76d1VXo561yJRZz3HMV2xa6lAz4nCJBnzLWsilBAtA3hYg>
+    <xmx:I6GEXjMsay4-bZA9WAJjpz0cLPxCWlisKeqgvQMSY8fe0a8pEGURTQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41A9F206F6;
-        Wed,  1 Apr 2020 14:07:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585750049;
-        bh=U47IXI0dpBDl0mtjB3vEg/IyM6Ue5oH4USnXjZLQY/M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KfvkWSbAiIKzvEzRLIMgy2PDXHJ8fGR09l2YejwvBS+0SZ0hvdx/wE4Vm2a5Kz2HB
-         h58u8CkD3h0IoTnFq+q0snB63mzEkRXPvg53mMXdG+kqk/ocuiHro++AI5Hk51dto5
-         uU0azEsGan1J0adPLGaYMGoyyr8EZC0DgWSoI39w=
-Date:   Wed, 1 Apr 2020 16:05:11 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 5.6.1
-Message-ID: <20200401140511.GB2427801@kroah.com>
-References: <20200401140451.GA2427801@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0AEEA3280064;
+        Wed,  1 Apr 2020 10:11:45 -0400 (EDT)
+Date:   Wed, 1 Apr 2020 16:11:42 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Felipe Contreras <felipe.contreras@gmail.com>
+Cc:     stable@vger.kernel.org, Golan Ben Ami <golan.ben.ami@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Jonathan McDowell <noodles@earth.li>,
+        Len Brown <len.brown@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: Re: [PATCH] iwlwifi: don't send GEO_TX_POWER_LIMIT if no wgds table
+Message-ID: <20200401141142.GA2429506@kroah.com>
+References: <20200331202625.7998-1-felipe.contreras@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200401140451.GA2427801@kroah.com>
+In-Reply-To: <20200331202625.7998-1-felipe.contreras@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 4d0711f54047..75d17e7f799b 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 6
--SUBLEVEL = 0
-+SUBLEVEL = 1
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 11ea1aff40db..8c6f8c83dd6f 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -401,6 +401,7 @@ static const struct pci_device_id ahci_pci_tbl[] = {
- 	{ PCI_VDEVICE(INTEL, 0xa252), board_ahci }, /* Lewisburg RAID*/
- 	{ PCI_VDEVICE(INTEL, 0xa256), board_ahci }, /* Lewisburg RAID*/
- 	{ PCI_VDEVICE(INTEL, 0xa356), board_ahci }, /* Cannon Lake PCH-H RAID */
-+	{ PCI_VDEVICE(INTEL, 0x06d7), board_ahci }, /* Comet Lake-H RAID */
- 	{ PCI_VDEVICE(INTEL, 0x0f22), board_ahci_mobile }, /* Bay Trail AHCI */
- 	{ PCI_VDEVICE(INTEL, 0x0f23), board_ahci_mobile }, /* Bay Trail AHCI */
- 	{ PCI_VDEVICE(INTEL, 0x22a3), board_ahci_mobile }, /* Cherry Tr. AHCI */
-diff --git a/drivers/media/usb/b2c2/flexcop-usb.c b/drivers/media/usb/b2c2/flexcop-usb.c
-index 039963a7765b..198ddfb8d2b1 100644
---- a/drivers/media/usb/b2c2/flexcop-usb.c
-+++ b/drivers/media/usb/b2c2/flexcop-usb.c
-@@ -511,6 +511,9 @@ static int flexcop_usb_init(struct flexcop_usb *fc_usb)
- 		return ret;
- 	}
- 
-+	if (fc_usb->uintf->cur_altsetting->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	switch (fc_usb->udev->speed) {
- 	case USB_SPEED_LOW:
- 		err("cannot handle USB speed because it is too slow.");
-@@ -544,9 +547,6 @@ static int flexcop_usb_probe(struct usb_interface *intf,
- 	struct flexcop_device *fc = NULL;
- 	int ret;
- 
--	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
--		return -ENODEV;
--
- 	if ((fc = flexcop_device_kmalloc(sizeof(struct flexcop_usb))) == NULL) {
- 		err("out of memory\n");
- 		return -ENOMEM;
-diff --git a/drivers/media/usb/dvb-usb/dib0700_core.c b/drivers/media/usb/dvb-usb/dib0700_core.c
-index e53c58ab6488..ef62dd6c5ae4 100644
---- a/drivers/media/usb/dvb-usb/dib0700_core.c
-+++ b/drivers/media/usb/dvb-usb/dib0700_core.c
-@@ -818,7 +818,7 @@ int dib0700_rc_setup(struct dvb_usb_device *d, struct usb_interface *intf)
- 
- 	/* Starting in firmware 1.20, the RC info is provided on a bulk pipe */
- 
--	if (intf->altsetting[0].desc.bNumEndpoints < rc_ep + 1)
-+	if (intf->cur_altsetting->desc.bNumEndpoints < rc_ep + 1)
- 		return -ENODEV;
- 
- 	purb = usb_alloc_urb(0, GFP_KERNEL);
-@@ -838,7 +838,7 @@ int dib0700_rc_setup(struct dvb_usb_device *d, struct usb_interface *intf)
- 	 * Some devices like the Hauppauge NovaTD model 52009 use an interrupt
- 	 * endpoint, while others use a bulk one.
- 	 */
--	e = &intf->altsetting[0].endpoint[rc_ep].desc;
-+	e = &intf->cur_altsetting->endpoint[rc_ep].desc;
- 	if (usb_endpoint_dir_in(e)) {
- 		if (usb_endpoint_xfer_bulk(e)) {
- 			pipe = usb_rcvbulkpipe(d->udev, rc_ep);
-diff --git a/drivers/media/usb/gspca/ov519.c b/drivers/media/usb/gspca/ov519.c
-index f417dfc0b872..0afe70a3f9a2 100644
---- a/drivers/media/usb/gspca/ov519.c
-+++ b/drivers/media/usb/gspca/ov519.c
-@@ -3477,6 +3477,11 @@ static void ov511_mode_init_regs(struct sd *sd)
- 		return;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	reg_w(sd, R51x_FIFO_PSIZE, packet_size >> 5);
- 
-@@ -3603,6 +3608,11 @@ static void ov518_mode_init_regs(struct sd *sd)
- 		return;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	ov518_reg_w32(sd, R51x_FIFO_PSIZE, packet_size & ~7, 2);
- 
-diff --git a/drivers/media/usb/gspca/stv06xx/stv06xx.c b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-index 79653d409951..95673fc0a99c 100644
---- a/drivers/media/usb/gspca/stv06xx/stv06xx.c
-+++ b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-@@ -282,6 +282,9 @@ static int stv06xx_start(struct gspca_dev *gspca_dev)
- 		return -EIO;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	err = stv06xx_write_bridge(sd, STV_ISO_SIZE_L, packet_size);
- 	if (err < 0)
-@@ -306,11 +309,21 @@ static int stv06xx_start(struct gspca_dev *gspca_dev)
- 
- static int stv06xx_isoc_init(struct gspca_dev *gspca_dev)
- {
-+	struct usb_interface_cache *intfc;
- 	struct usb_host_interface *alt;
- 	struct sd *sd = (struct sd *) gspca_dev;
- 
-+	intfc = gspca_dev->dev->actconfig->intf_cache[0];
-+
-+	if (intfc->num_altsetting < 2)
-+		return -ENODEV;
-+
-+	alt = &intfc->altsetting[1];
-+
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	/* Start isoc bandwidth "negotiation" at max isoc bandwidth */
--	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
- 	alt->endpoint[0].desc.wMaxPacketSize =
- 		cpu_to_le16(sd->sensor->max_packet_size[gspca_dev->curr_mode]);
- 
-@@ -323,6 +336,10 @@ static int stv06xx_isoc_nego(struct gspca_dev *gspca_dev)
- 	struct usb_host_interface *alt;
- 	struct sd *sd = (struct sd *) gspca_dev;
- 
-+	/*
-+	 * Existence of altsetting and endpoint was verified in
-+	 * stv06xx_isoc_init()
-+	 */
- 	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	min_packet_size = sd->sensor->min_packet_size[gspca_dev->curr_mode];
-diff --git a/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c b/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c
-index 6d1007715ff7..ae382b3b5f7f 100644
---- a/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c
-+++ b/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c
-@@ -185,6 +185,10 @@ static int pb0100_start(struct sd *sd)
- 	alt = usb_altnum_to_altsetting(intf, sd->gspca_dev.alt);
- 	if (!alt)
- 		return -ENODEV;
-+
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 
- 	/* If we don't have enough bandwidth use a lower framerate */
-diff --git a/drivers/media/usb/gspca/xirlink_cit.c b/drivers/media/usb/gspca/xirlink_cit.c
-index 934a90bd78c2..c579b100f066 100644
---- a/drivers/media/usb/gspca/xirlink_cit.c
-+++ b/drivers/media/usb/gspca/xirlink_cit.c
-@@ -1442,6 +1442,9 @@ static int cit_get_packet_size(struct gspca_dev *gspca_dev)
- 		return -EIO;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	return le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- }
- 
-@@ -2626,6 +2629,7 @@ static int sd_start(struct gspca_dev *gspca_dev)
- 
- static int sd_isoc_init(struct gspca_dev *gspca_dev)
- {
-+	struct usb_interface_cache *intfc;
- 	struct usb_host_interface *alt;
- 	int max_packet_size;
- 
-@@ -2641,8 +2645,17 @@ static int sd_isoc_init(struct gspca_dev *gspca_dev)
- 		break;
- 	}
- 
-+	intfc = gspca_dev->dev->actconfig->intf_cache[0];
-+
-+	if (intfc->num_altsetting < 2)
-+		return -ENODEV;
-+
-+	alt = &intfc->altsetting[1];
-+
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	/* Start isoc bandwidth "negotiation" at max isoc bandwidth */
--	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
- 	alt->endpoint[0].desc.wMaxPacketSize = cpu_to_le16(max_packet_size);
- 
- 	return 0;
-@@ -2665,6 +2678,9 @@ static int sd_isoc_nego(struct gspca_dev *gspca_dev)
- 		break;
- 	}
- 
-+	/*
-+	 * Existence of altsetting and endpoint was verified in sd_isoc_init()
-+	 */
- 	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	if (packet_size <= min_packet_size)
-diff --git a/drivers/media/usb/usbtv/usbtv-core.c b/drivers/media/usb/usbtv/usbtv-core.c
-index 5095c380b2c1..ee9c656d121f 100644
---- a/drivers/media/usb/usbtv/usbtv-core.c
-+++ b/drivers/media/usb/usbtv/usbtv-core.c
-@@ -56,7 +56,7 @@ int usbtv_set_regs(struct usbtv *usbtv, const u16 regs[][2], int size)
- 
- 		ret = usb_control_msg(usbtv->udev, pipe, USBTV_REQUEST_REG,
- 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			value, index, NULL, 0, 0);
-+			value, index, NULL, 0, USB_CTRL_GET_TIMEOUT);
- 		if (ret < 0)
- 			return ret;
- 	}
-diff --git a/drivers/media/usb/usbtv/usbtv-video.c b/drivers/media/usb/usbtv/usbtv-video.c
-index 3d9284a09ee5..b249f037900c 100644
---- a/drivers/media/usb/usbtv/usbtv-video.c
-+++ b/drivers/media/usb/usbtv/usbtv-video.c
-@@ -800,7 +800,8 @@ static int usbtv_s_ctrl(struct v4l2_ctrl *ctrl)
- 		ret = usb_control_msg(usbtv->udev,
- 			usb_rcvctrlpipe(usbtv->udev, 0), USBTV_CONTROL_REG,
- 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			0, USBTV_BASE + 0x0244, (void *)data, 3, 0);
-+			0, USBTV_BASE + 0x0244, (void *)data, 3,
-+			USB_CTRL_GET_TIMEOUT);
- 		if (ret < 0)
- 			goto error;
- 	}
-@@ -851,7 +852,7 @@ static int usbtv_s_ctrl(struct v4l2_ctrl *ctrl)
- 	ret = usb_control_msg(usbtv->udev, usb_sndctrlpipe(usbtv->udev, 0),
- 			USBTV_CONTROL_REG,
- 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			0, index, (void *)data, size, 0);
-+			0, index, (void *)data, size, USB_CTRL_SET_TIMEOUT);
- 
- error:
- 	if (ret < 0)
-diff --git a/drivers/media/v4l2-core/v4l2-device.c b/drivers/media/v4l2-core/v4l2-device.c
-index 63d6b147b21e..41da73ce2e98 100644
---- a/drivers/media/v4l2-core/v4l2-device.c
-+++ b/drivers/media/v4l2-core/v4l2-device.c
-@@ -179,6 +179,7 @@ static void v4l2_subdev_release(struct v4l2_subdev *sd)
- 
- 	if (sd->internal_ops && sd->internal_ops->release)
- 		sd->internal_ops->release(sd);
-+	sd->devnode = NULL;
- 	module_put(owner);
- }
- 
-diff --git a/drivers/staging/kpc2000/kpc2000/core.c b/drivers/staging/kpc2000/kpc2000/core.c
-index 93cf28febdf6..7b00d7069e21 100644
---- a/drivers/staging/kpc2000/kpc2000/core.c
-+++ b/drivers/staging/kpc2000/kpc2000/core.c
-@@ -110,10 +110,10 @@ static ssize_t cpld_reconfigure(struct device *dev,
- 				const char *buf, size_t count)
- {
- 	struct kp2000_device *pcard = dev_get_drvdata(dev);
--	long wr_val;
-+	unsigned long wr_val;
- 	int rv;
- 
--	rv = kstrtol(buf, 0, &wr_val);
-+	rv = kstrtoul(buf, 0, &wr_val);
- 	if (rv < 0)
- 		return rv;
- 	if (wr_val > 7)
-diff --git a/drivers/staging/rtl8188eu/os_dep/usb_intf.c b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-index 845c8817281c..f7f09c0d273f 100644
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -32,6 +32,7 @@ static const struct usb_device_id rtw_usb_id_tbl[] = {
- 	/****** 8188EUS ********/
- 	{USB_DEVICE(0x056e, 0x4008)}, /* Elecom WDC-150SU2M */
- 	{USB_DEVICE(0x07b8, 0x8179)}, /* Abocom - Abocom */
-+	{USB_DEVICE(0x0B05, 0x18F0)}, /* ASUS USB-N10 Nano B1 */
- 	{USB_DEVICE(0x2001, 0x330F)}, /* DLink DWA-125 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3310)}, /* Dlink DWA-123 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
-diff --git a/drivers/staging/wfx/Documentation/devicetree/bindings/net/wireless/siliabs,wfx.txt b/drivers/staging/wfx/Documentation/devicetree/bindings/net/wireless/siliabs,wfx.txt
-index 081d58abd5ac..fca6357e1d45 100644
---- a/drivers/staging/wfx/Documentation/devicetree/bindings/net/wireless/siliabs,wfx.txt
-+++ b/drivers/staging/wfx/Documentation/devicetree/bindings/net/wireless/siliabs,wfx.txt
-@@ -6,7 +6,7 @@ SPI
- You have to declare the WFxxx chip in your device tree.
- 
- Required properties:
-- - compatible: Should be "silabs,wfx-spi"
-+ - compatible: Should be "silabs,wf200"
-  - reg: Chip select address of device
-  - spi-max-frequency: Maximum SPI clocking speed of device in Hz
-  - interrupts-extended: Should contain interrupt line (interrupt-parent +
-@@ -15,6 +15,7 @@ Required properties:
- Optional properties:
-  - reset-gpios: phandle of gpio that will be used to reset chip during probe.
-    Without this property, you may encounter issues with warm boot.
-+   (Legacy: when compatible == "silabs,wfx-spi", the gpio is inverted.)
- 
- Please consult Documentation/devicetree/bindings/spi/spi-bus.txt for optional
- SPI connection related properties,
-@@ -23,12 +24,12 @@ Example:
- 
- &spi1 {
- 	wfx {
--		compatible = "silabs,wfx-spi";
-+		compatible = "silabs,wf200";
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&wfx_irq &wfx_gpios>;
- 		interrupts-extended = <&gpio 16 IRQ_TYPE_EDGE_RISING>;
- 		wakeup-gpios = <&gpio 12 GPIO_ACTIVE_HIGH>;
--		reset-gpios = <&gpio 13 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
- 		reg = <0>;
- 		spi-max-frequency = <42000000>;
- 	};
-diff --git a/drivers/staging/wfx/bus_sdio.c b/drivers/staging/wfx/bus_sdio.c
-index f8901164c206..5450bd5e1b5d 100644
---- a/drivers/staging/wfx/bus_sdio.c
-+++ b/drivers/staging/wfx/bus_sdio.c
-@@ -200,25 +200,23 @@ static int wfx_sdio_probe(struct sdio_func *func,
- 	if (ret)
- 		goto err0;
- 
--	ret = wfx_sdio_irq_subscribe(bus);
--	if (ret)
--		goto err1;
--
- 	bus->core = wfx_init_common(&func->dev, &wfx_sdio_pdata,
- 				    &wfx_sdio_hwbus_ops, bus);
- 	if (!bus->core) {
- 		ret = -EIO;
--		goto err2;
-+		goto err1;
- 	}
- 
-+	ret = wfx_sdio_irq_subscribe(bus);
-+	if (ret)
-+		goto err1;
-+
- 	ret = wfx_probe(bus->core);
- 	if (ret)
--		goto err3;
-+		goto err2;
- 
- 	return 0;
- 
--err3:
--	wfx_free_common(bus->core);
- err2:
- 	wfx_sdio_irq_unsubscribe(bus);
- err1:
-@@ -234,7 +232,6 @@ static void wfx_sdio_remove(struct sdio_func *func)
- 	struct wfx_sdio_priv *bus = sdio_get_drvdata(func);
- 
- 	wfx_release(bus->core);
--	wfx_free_common(bus->core);
- 	wfx_sdio_irq_unsubscribe(bus);
- 	sdio_claim_host(func);
- 	sdio_disable_func(func);
-diff --git a/drivers/staging/wfx/bus_spi.c b/drivers/staging/wfx/bus_spi.c
-index 40bc33035de2..d6a75bd61595 100644
---- a/drivers/staging/wfx/bus_spi.c
-+++ b/drivers/staging/wfx/bus_spi.c
-@@ -27,6 +27,8 @@ MODULE_PARM_DESC(gpio_reset, "gpio number for reset. -1 for none.");
- #define SET_WRITE 0x7FFF        /* usage: and operation */
- #define SET_READ 0x8000         /* usage: or operation */
- 
-+#define WFX_RESET_INVERTED 1
-+
- static const struct wfx_platform_data wfx_spi_pdata = {
- 	.file_fw = "wfm_wf200",
- 	.file_pds = "wf200.pds",
-@@ -154,6 +156,11 @@ static void wfx_spi_request_rx(struct work_struct *work)
- 	wfx_bh_request_rx(bus->core);
- }
- 
-+static void wfx_flush_irq_work(void *w)
-+{
-+	flush_work(w);
-+}
-+
- static size_t wfx_spi_align_size(void *priv, size_t size)
- {
- 	// Most of SPI controllers avoid DMA if buffer size is not 32bit aligned
-@@ -201,28 +208,31 @@ static int wfx_spi_probe(struct spi_device *func)
- 	if (!bus->gpio_reset) {
- 		dev_warn(&func->dev, "try to load firmware anyway\n");
- 	} else {
--		gpiod_set_value(bus->gpio_reset, 0);
--		udelay(100);
-+		if (spi_get_device_id(func)->driver_data & WFX_RESET_INVERTED)
-+			gpiod_toggle_active_low(bus->gpio_reset);
- 		gpiod_set_value(bus->gpio_reset, 1);
-+		udelay(100);
-+		gpiod_set_value(bus->gpio_reset, 0);
- 		udelay(2000);
- 	}
- 
--	ret = devm_request_irq(&func->dev, func->irq, wfx_spi_irq_handler,
--			       IRQF_TRIGGER_RISING, "wfx", bus);
--	if (ret)
--		return ret;
--
- 	INIT_WORK(&bus->request_rx, wfx_spi_request_rx);
- 	bus->core = wfx_init_common(&func->dev, &wfx_spi_pdata,
- 				    &wfx_spi_hwbus_ops, bus);
- 	if (!bus->core)
- 		return -EIO;
- 
--	ret = wfx_probe(bus->core);
-+	ret = devm_add_action_or_reset(&func->dev, wfx_flush_irq_work,
-+				       &bus->request_rx);
- 	if (ret)
--		wfx_free_common(bus->core);
-+		return ret;
- 
--	return ret;
-+	ret = devm_request_irq(&func->dev, func->irq, wfx_spi_irq_handler,
-+			       IRQF_TRIGGER_RISING, "wfx", bus);
-+	if (ret)
-+		return ret;
-+
-+	return wfx_probe(bus->core);
- }
- 
- static int wfx_spi_remove(struct spi_device *func)
-@@ -230,11 +240,6 @@ static int wfx_spi_remove(struct spi_device *func)
- 	struct wfx_spi_priv *bus = spi_get_drvdata(func);
- 
- 	wfx_release(bus->core);
--	wfx_free_common(bus->core);
--	// A few IRQ will be sent during device release. Hopefully, no IRQ
--	// should happen after wdev/wvif are released.
--	devm_free_irq(&func->dev, func->irq, bus);
--	flush_work(&bus->request_rx);
- 	return 0;
- }
- 
-@@ -244,14 +249,16 @@ static int wfx_spi_remove(struct spi_device *func)
-  * stripped.
-  */
- static const struct spi_device_id wfx_spi_id[] = {
--	{ "wfx-spi", 0 },
-+	{ "wfx-spi", WFX_RESET_INVERTED },
-+	{ "wf200", 0 },
- 	{ },
- };
- MODULE_DEVICE_TABLE(spi, wfx_spi_id);
- 
- #ifdef CONFIG_OF
- static const struct of_device_id wfx_spi_of_match[] = {
--	{ .compatible = "silabs,wfx-spi" },
-+	{ .compatible = "silabs,wfx-spi", .data = (void *)WFX_RESET_INVERTED },
-+	{ .compatible = "silabs,wf200" },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, wfx_spi_of_match);
-diff --git a/drivers/staging/wfx/main.c b/drivers/staging/wfx/main.c
-index 84adad64fc30..76b2ff7fc7fe 100644
---- a/drivers/staging/wfx/main.c
-+++ b/drivers/staging/wfx/main.c
-@@ -262,6 +262,16 @@ static int wfx_send_pdata_pds(struct wfx_dev *wdev)
- 	return ret;
- }
- 
-+static void wfx_free_common(void *data)
-+{
-+	struct wfx_dev *wdev = data;
-+
-+	mutex_destroy(&wdev->rx_stats_lock);
-+	mutex_destroy(&wdev->conf_mutex);
-+	wfx_tx_queues_deinit(wdev);
-+	ieee80211_free_hw(wdev->hw);
-+}
-+
- struct wfx_dev *wfx_init_common(struct device *dev,
- 				const struct wfx_platform_data *pdata,
- 				const struct hwbus_ops *hwbus_ops,
-@@ -332,15 +342,10 @@ struct wfx_dev *wfx_init_common(struct device *dev,
- 	wfx_init_hif_cmd(&wdev->hif_cmd);
- 	wfx_tx_queues_init(wdev);
- 
--	return wdev;
--}
-+	if (devm_add_action_or_reset(dev, wfx_free_common, wdev))
-+		return NULL;
- 
--void wfx_free_common(struct wfx_dev *wdev)
--{
--	mutex_destroy(&wdev->rx_stats_lock);
--	mutex_destroy(&wdev->conf_mutex);
--	wfx_tx_queues_deinit(wdev);
--	ieee80211_free_hw(wdev->hw);
-+	return wdev;
- }
- 
- int wfx_probe(struct wfx_dev *wdev)
-diff --git a/drivers/staging/wfx/main.h b/drivers/staging/wfx/main.h
-index 875f8c227803..9c9410072def 100644
---- a/drivers/staging/wfx/main.h
-+++ b/drivers/staging/wfx/main.h
-@@ -34,7 +34,6 @@ struct wfx_dev *wfx_init_common(struct device *dev,
- 				const struct wfx_platform_data *pdata,
- 				const struct hwbus_ops *hwbus_ops,
- 				void *hwbus_priv);
--void wfx_free_common(struct wfx_dev *wdev);
- 
- int wfx_probe(struct wfx_dev *wdev);
- void wfx_release(struct wfx_dev *wdev);
-diff --git a/drivers/staging/wfx/queue.c b/drivers/staging/wfx/queue.c
-index 0bcc61feee1d..51d6c55ae91f 100644
---- a/drivers/staging/wfx/queue.c
-+++ b/drivers/staging/wfx/queue.c
-@@ -130,12 +130,12 @@ static void wfx_tx_queue_clear(struct wfx_dev *wdev, struct wfx_queue *queue,
- 	spin_lock_bh(&queue->queue.lock);
- 	while ((item = __skb_dequeue(&queue->queue)) != NULL)
- 		skb_queue_head(gc_list, item);
--	spin_lock_bh(&stats->pending.lock);
-+	spin_lock_nested(&stats->pending.lock, 1);
- 	for (i = 0; i < ARRAY_SIZE(stats->link_map_cache); ++i) {
- 		stats->link_map_cache[i] -= queue->link_map_cache[i];
- 		queue->link_map_cache[i] = 0;
- 	}
--	spin_unlock_bh(&stats->pending.lock);
-+	spin_unlock(&stats->pending.lock);
- 	spin_unlock_bh(&queue->queue.lock);
- }
- 
-@@ -207,9 +207,9 @@ void wfx_tx_queue_put(struct wfx_dev *wdev, struct wfx_queue *queue,
- 
- 	++queue->link_map_cache[tx_priv->link_id];
- 
--	spin_lock_bh(&stats->pending.lock);
-+	spin_lock_nested(&stats->pending.lock, 1);
- 	++stats->link_map_cache[tx_priv->link_id];
--	spin_unlock_bh(&stats->pending.lock);
-+	spin_unlock(&stats->pending.lock);
- 	spin_unlock_bh(&queue->queue.lock);
- }
- 
-@@ -237,11 +237,11 @@ static struct sk_buff *wfx_tx_queue_get(struct wfx_dev *wdev,
- 		__skb_unlink(skb, &queue->queue);
- 		--queue->link_map_cache[tx_priv->link_id];
- 
--		spin_lock_bh(&stats->pending.lock);
-+		spin_lock_nested(&stats->pending.lock, 1);
- 		__skb_queue_tail(&stats->pending, skb);
- 		if (!--stats->link_map_cache[tx_priv->link_id])
- 			wakeup_stats = true;
--		spin_unlock_bh(&stats->pending.lock);
-+		spin_unlock(&stats->pending.lock);
- 	}
- 	spin_unlock_bh(&queue->queue.lock);
- 	if (wakeup_stats)
-@@ -259,10 +259,10 @@ int wfx_pending_requeue(struct wfx_dev *wdev, struct sk_buff *skb)
- 	spin_lock_bh(&queue->queue.lock);
- 	++queue->link_map_cache[tx_priv->link_id];
- 
--	spin_lock_bh(&stats->pending.lock);
-+	spin_lock_nested(&stats->pending.lock, 1);
- 	++stats->link_map_cache[tx_priv->link_id];
- 	__skb_unlink(skb, &stats->pending);
--	spin_unlock_bh(&stats->pending.lock);
-+	spin_unlock(&stats->pending.lock);
- 	__skb_queue_tail(&queue->queue, skb);
- 	spin_unlock_bh(&queue->queue.lock);
- 	return 0;
-diff --git a/drivers/staging/wlan-ng/hfa384x_usb.c b/drivers/staging/wlan-ng/hfa384x_usb.c
-index b71756ab0394..7fe64fcd385d 100644
---- a/drivers/staging/wlan-ng/hfa384x_usb.c
-+++ b/drivers/staging/wlan-ng/hfa384x_usb.c
-@@ -3372,6 +3372,8 @@ static void hfa384x_int_rxmonitor(struct wlandevice *wlandev,
- 	     WLAN_HDR_A4_LEN + WLAN_DATA_MAXLEN + WLAN_CRC_LEN)) {
- 		pr_debug("overlen frm: len=%zd\n",
- 			 skblen - sizeof(struct p80211_caphdr));
-+
-+		return;
- 	}
- 
- 	skb = dev_alloc_skb(skblen);
-diff --git a/drivers/staging/wlan-ng/prism2usb.c b/drivers/staging/wlan-ng/prism2usb.c
-index 352556f6870a..4689b2170e4f 100644
---- a/drivers/staging/wlan-ng/prism2usb.c
-+++ b/drivers/staging/wlan-ng/prism2usb.c
-@@ -180,6 +180,7 @@ static void prism2sta_disconnect_usb(struct usb_interface *interface)
- 
- 		cancel_work_sync(&hw->link_bh);
- 		cancel_work_sync(&hw->commsqual_bh);
-+		cancel_work_sync(&hw->usb_work);
- 
- 		/* Now we complete any outstanding commands
- 		 * and tell everyone who is waiting for their
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 47f09a6ce7bd..84d6f7df09a4 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -923,16 +923,16 @@ static int set_serial_info(struct tty_struct *tty, struct serial_struct *ss)
- 
- 	mutex_lock(&acm->port.mutex);
- 
--	if ((ss->close_delay != old_close_delay) ||
--            (ss->closing_wait != old_closing_wait)) {
--		if (!capable(CAP_SYS_ADMIN))
-+	if (!capable(CAP_SYS_ADMIN)) {
-+		if ((ss->close_delay != old_close_delay) ||
-+		    (ss->closing_wait != old_closing_wait))
- 			retval = -EPERM;
--		else {
--			acm->port.close_delay  = close_delay;
--			acm->port.closing_wait = closing_wait;
--		}
--	} else
--		retval = -EOPNOTSUPP;
-+		else
-+			retval = -EOPNOTSUPP;
-+	} else {
-+		acm->port.close_delay  = close_delay;
-+		acm->port.closing_wait = closing_wait;
-+	}
- 
- 	mutex_unlock(&acm->port.mutex);
- 	return retval;
-diff --git a/drivers/usb/musb/musb_host.c b/drivers/usb/musb/musb_host.c
-index 886c9b602f8c..5267ad2989ee 100644
---- a/drivers/usb/musb/musb_host.c
-+++ b/drivers/usb/musb/musb_host.c
-@@ -1436,10 +1436,7 @@ void musb_host_tx(struct musb *musb, u8 epnum)
- 	 * We need to map sg if the transfer_buffer is
- 	 * NULL.
- 	 */
--	if (!urb->transfer_buffer)
--		qh->use_sg = true;
--
--	if (qh->use_sg) {
-+	if (!urb->transfer_buffer) {
- 		/* sg_miter_start is already done in musb_ep_program */
- 		if (!sg_miter_next(&qh->sg_miter)) {
- 			dev_err(musb->controller, "error: sg list empty\n");
-@@ -1447,9 +1444,8 @@ void musb_host_tx(struct musb *musb, u8 epnum)
- 			status = -EINVAL;
- 			goto done;
- 		}
--		urb->transfer_buffer = qh->sg_miter.addr;
- 		length = min_t(u32, length, qh->sg_miter.length);
--		musb_write_fifo(hw_ep, length, urb->transfer_buffer);
-+		musb_write_fifo(hw_ep, length, qh->sg_miter.addr);
- 		qh->sg_miter.consumed = length;
- 		sg_miter_stop(&qh->sg_miter);
- 	} else {
-@@ -1458,11 +1454,6 @@ void musb_host_tx(struct musb *musb, u8 epnum)
- 
- 	qh->segsize = length;
- 
--	if (qh->use_sg) {
--		if (offset + length >= urb->transfer_buffer_length)
--			qh->use_sg = false;
--	}
--
- 	musb_ep_select(mbase, epnum);
- 	musb_writew(epio, MUSB_TXCSR,
- 			MUSB_TXCSR_H_WZC_BITS | MUSB_TXCSR_TXPKTRDY);
-@@ -1977,8 +1968,10 @@ void musb_host_rx(struct musb *musb, u8 epnum)
- 	urb->actual_length += xfer_len;
- 	qh->offset += xfer_len;
- 	if (done) {
--		if (qh->use_sg)
-+		if (qh->use_sg) {
- 			qh->use_sg = false;
-+			urb->transfer_buffer = NULL;
-+		}
- 
- 		if (urb->status == -EINPROGRESS)
- 			urb->status = status;
-diff --git a/drivers/usb/serial/io_edgeport.c b/drivers/usb/serial/io_edgeport.c
-index 5737add6a2a4..4cca0b836f43 100644
---- a/drivers/usb/serial/io_edgeport.c
-+++ b/drivers/usb/serial/io_edgeport.c
-@@ -710,7 +710,7 @@ static void edge_interrupt_callback(struct urb *urb)
- 		/* grab the txcredits for the ports if available */
- 		position = 2;
- 		portNumber = 0;
--		while ((position < length) &&
-+		while ((position < length - 1) &&
- 				(portNumber < edge_serial->serial->num_ports)) {
- 			txCredits = data[position] | (data[position+1] << 8);
- 			if (txCredits) {
-diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-index 0b5dcf973d94..8bfffca3e4ae 100644
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1992,8 +1992,14 @@ static const struct usb_device_id option_ids[] = {
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e01, 0xff, 0xff, 0xff) },	/* D-Link DWM-152/C1 */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e02, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/C1 */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x7e11, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/A3 */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x1435, 0xd191, 0xff),			/* Wistron Neweb D19Q1 */
-+	  .driver_info = RSVD(1) | RSVD(4) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x1690, 0x7588, 0xff),			/* ASKEY WWHC050 */
-+	  .driver_info = RSVD(1) | RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2031, 0xff),			/* Olicard 600 */
- 	  .driver_info = RSVD(4) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2033, 0xff),			/* BroadMobi BM806U */
-+	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2060, 0xff),			/* BroadMobi BM818 */
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x4000, 0xff) },			/* OLICARD300 - MT6225 */
-diff --git a/fs/libfs.c b/fs/libfs.c
-index c686bd9caac6..3759fbacf522 100644
---- a/fs/libfs.c
-+++ b/fs/libfs.c
-@@ -891,7 +891,7 @@ int simple_attr_open(struct inode *inode, struct file *file,
- {
- 	struct simple_attr *attr;
- 
--	attr = kmalloc(sizeof(*attr), GFP_KERNEL);
-+	attr = kzalloc(sizeof(*attr), GFP_KERNEL);
- 	if (!attr)
- 		return -ENOMEM;
- 
-@@ -931,9 +931,11 @@ ssize_t simple_attr_read(struct file *file, char __user *buf,
- 	if (ret)
- 		return ret;
- 
--	if (*ppos) {		/* continued read */
-+	if (*ppos && attr->get_buf[0]) {
-+		/* continued read */
- 		size = strlen(attr->get_buf);
--	} else {		/* first read */
-+	} else {
-+		/* first read */
- 		u64 val;
- 		ret = attr->get(attr->data, &val);
- 		if (ret)
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 1cc945daa9c8..5080469094af 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1034,17 +1034,6 @@ static void __reg_bound_offset(struct bpf_reg_state *reg)
- 						 reg->umax_value));
- }
- 
--static void __reg_bound_offset32(struct bpf_reg_state *reg)
--{
--	u64 mask = 0xffffFFFF;
--	struct tnum range = tnum_range(reg->umin_value & mask,
--				       reg->umax_value & mask);
--	struct tnum lo32 = tnum_cast(reg->var_off, 4);
--	struct tnum hi32 = tnum_lshift(tnum_rshift(reg->var_off, 32), 32);
--
--	reg->var_off = tnum_or(hi32, tnum_intersect(lo32, range));
--}
--
- /* Reset the min/max bounds of a register */
- static void __mark_reg_unbounded(struct bpf_reg_state *reg)
- {
-@@ -5717,10 +5706,6 @@ static void reg_set_min_max(struct bpf_reg_state *true_reg,
- 	/* We might have learned some bits from the bounds. */
- 	__reg_bound_offset(false_reg);
- 	__reg_bound_offset(true_reg);
--	if (is_jmp32) {
--		__reg_bound_offset32(false_reg);
--		__reg_bound_offset32(true_reg);
--	}
- 	/* Intersecting with the old var_off might have improved our bounds
- 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
- 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
-@@ -5830,10 +5815,6 @@ static void reg_set_min_max_inv(struct bpf_reg_state *true_reg,
- 	/* We might have learned some bits from the bounds. */
- 	__reg_bound_offset(false_reg);
- 	__reg_bound_offset(true_reg);
--	if (is_jmp32) {
--		__reg_bound_offset32(false_reg);
--		__reg_bound_offset32(true_reg);
--	}
- 	/* Intersecting with the old var_off might have improved our bounds
- 	 * slightly.  e.g. if umax was 0x7f...f and var_off was (0; 0xf...fc),
- 	 * then new var_off is (0; 0x7f...fc) which improves our umax.
+On Tue, Mar 31, 2020 at 02:26:25PM -0600, Felipe Contreras wrote:
+> From: Golan Ben Ami <golan.ben.ami@intel.com>
+> 
+> commit 0433ae556ec8 upstream
+> version linux-5.5.y
+> 
+> The GEO_TX_POWER_LIMIT command was sent although
+> there is no wgds table, so the fw got wrong SAR values
+> from the driver.
+> 
+> Fix this by avoiding sending the command if no wgds
+> tables are available.
+> 
+> Signed-off-by: Golan Ben Ami <golan.ben.ami@intel.com>
+> Fixes: 39c1a9728f93 ("iwlwifi: refactor the SAR tables from mvm to acpi")
+> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+> Tested-By: Jonathan McDowell <noodles@earth.li>
+> Tested-by: Len Brown <len.brown@intel.com>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> Link: https://lore.kernel.org/r/iwlwifi.20200318081237.46db40617cc6.Id5cf852ec8c5dbf20ba86bad7b165a0c828f8b2e@changeid
+> Cc: <stable@vger.kernel.org>
+> ---
+> 
+> Without this patch certain wireless devices simply stop working since
+> Linux 5.5.
+
+Now queued up, thanks.
+
+greg k-h
