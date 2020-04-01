@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F9519B34D
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F2A19B081
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389125AbgDAQit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:38:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38628 "EHLO mail.kernel.org"
+        id S2387697AbgDAQ1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:27:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387828AbgDAQir (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:38:47 -0400
+        id S2388014AbgDAQ1U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:27:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2E00206F8;
-        Wed,  1 Apr 2020 16:38:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 772A720BED;
+        Wed,  1 Apr 2020 16:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759127;
-        bh=SZ2hbU+lcMoW+bQFY1RvJSyW+H+et5QDyAcGJi3xasQ=;
+        s=default; t=1585758440;
+        bh=BHMbDdgp7RbDFwD7URLVyuS3BFawG8VCdPBkWkNinL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AwqJ09O3UHCnP/yO8zjSjb1sNvbRljbjEGKkq0APkIeWIaCFSJGCyfI2tm6FwFsvE
-         ODZ1MghCui1DS4WMEFWjSo5PtldAG3BKGH/gStmp0Ir7c0DsczG+32w69KEjcGruZ2
-         F2BosoPs/2dIpncUn/MQ8cDvU3OYhkryFtvJ7uHI=
+        b=aT0AKtmIpQtaRNpUcKXzaz+SvjLYowjYGGZb3cHCMXeLu9Vfy1wu33Cr7e8s1E1fG
+         1YMkHgWLT1k6BGzul8PGknk/Nvbwfjlg65H5qQejv89AgtPMiWVnxmL+ooekoiSb5q
+         7xKEbe5GGSEocB8NeoljnRVzK0xSBzlsb1+N67SQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 045/102] vxlan: check return value of gro_cells_init()
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 092/116] media: ov519: add missing endpoint sanity checks
 Date:   Wed,  1 Apr 2020 18:17:48 +0200
-Message-Id: <20200401161541.347699626@linuxfoundation.org>
+Message-Id: <20200401161554.186885704@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 384d91c267e621e0926062cfb3f20cb72dc16928 ]
+commit 998912346c0da53a6dbb71fab3a138586b596b30 upstream.
 
-gro_cells_init() returns error if memory allocation is failed.
-But the vxlan module doesn't check the return value of gro_cells_init().
+Make sure to check that we have at least one endpoint before accessing
+the endpoint array to avoid dereferencing a NULL-pointer on stream
+start.
 
-Fixes: 58ce31cca1ff ("vxlan: GRO support at tunnel layer")`
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Note that these sanity checks are not redundant as the driver is mixing
+looking up altsettings by index and by number, which need not coincide.
+
+Fixes: 1876bb923c98 ("V4L/DVB (12079): gspca_ov519: add support for the ov511 bridge")
+Fixes: b282d87332f5 ("V4L/DVB (12080): gspca_ov519: Fix ov518+ with OV7620AE (Trust spacecam 320)")
+Cc: stable <stable@vger.kernel.org>     # 2.6.31
+Cc: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/vxlan.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -2354,10 +2354,19 @@ static void vxlan_vs_add_dev(struct vxla
- /* Setup stats when device is created */
- static int vxlan_init(struct net_device *dev)
- {
-+	struct vxlan_dev *vxlan = netdev_priv(dev);
-+	int err;
-+
- 	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
- 	if (!dev->tstats)
- 		return -ENOMEM;
+---
+ drivers/media/usb/gspca/ov519.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+--- a/drivers/media/usb/gspca/ov519.c
++++ b/drivers/media/usb/gspca/ov519.c
+@@ -3487,6 +3487,11 @@ static void ov511_mode_init_regs(struct
+ 		return;
+ 	}
  
-+	err = gro_cells_init(&vxlan->gro_cells, dev);
-+	if (err) {
-+		free_percpu(dev->tstats);
-+		return err;
++	if (alt->desc.bNumEndpoints < 1) {
++		sd->gspca_dev.usb_err = -ENODEV;
++		return;
 +	}
 +
- 	return 0;
- }
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 	reg_w(sd, R51x_FIFO_PSIZE, packet_size >> 5);
  
-@@ -2623,8 +2632,6 @@ static void vxlan_setup(struct net_devic
+@@ -3613,6 +3618,11 @@ static void ov518_mode_init_regs(struct
+ 		return;
+ 	}
  
- 	vxlan->dev = dev;
++	if (alt->desc.bNumEndpoints < 1) {
++		sd->gspca_dev.usb_err = -ENODEV;
++		return;
++	}
++
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 	ov518_reg_w32(sd, R51x_FIFO_PSIZE, packet_size & ~7, 2);
  
--	gro_cells_init(&vxlan->gro_cells, dev);
--
- 	for (h = 0; h < FDB_HASH_SIZE; ++h)
- 		INIT_HLIST_HEAD(&vxlan->fdb_head[h]);
- }
 
 
