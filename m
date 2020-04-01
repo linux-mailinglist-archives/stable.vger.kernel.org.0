@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E10319AFA2
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8872C19B234
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732574AbgDAQTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:19:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42236 "EHLO mail.kernel.org"
+        id S2389468AbgDAQl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:41:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732545AbgDAQTu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:19:50 -0400
+        id S2389464AbgDAQl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:41:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2AF620658;
-        Wed,  1 Apr 2020 16:19:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D820206F8;
+        Wed,  1 Apr 2020 16:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585757990;
-        bh=/uFLWwHDu9UnM9l2Rzf0l5xvw4/SzBCc5ZNeZVG0iqs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=si1GZGUplI3K0S4JHMyRqkMxc/tYqiazLi/GIhA3o7Pvvm9HxOqsUJR3Mf8McB4yj
-         zYrmRSCtKJAlxaDaVKpaQUakDRhzOXKvKO7CV5NRmhR8IKX9E37lsbKrB7x1Fkk88T
-         YnEBa3XALEUa1dbXjH281dQ/gtrFyNRnctBTjypk=
+        s=default; t=1585759317;
+        bh=ifh5+NO2a8Bf7LjnkrDL9Kt1p7E0gJkTC3guzHdEZxk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=PkQebYIFNarvyRPCDai5HT9fokX8pLMF542qxY5V0BVl2p1YC/Eonrzk7Ol7uC9jd
+         m6mMST0/STgGH7PgAMVQNNrH3PIYiWv5k+qdXGpv0SMQknMggYYFQAscNGuH9DZfGR
+         oP53xNwp0QU4bE5KrHHOPGsMpIvbRkv2l0WmJVVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.6 00/10] 5.6.2-rc1 review
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 044/148] kbuild: Disable -Wpointer-to-enum-cast
 Date:   Wed,  1 Apr 2020 18:17:16 +0200
-Message-Id: <20200401161413.974936041@linuxfoundation.org>
+Message-Id: <20200401161557.099396425@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-MIME-Version: 1.0
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.6.2-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.6.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.6.2-rc1
-X-KernelTest-Deadline: 2020-04-03T16:14+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,75 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.6.2 release.
-There are 10 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-Responses should be made by Fri, 03 Apr 2020 16:09:36 +0000.
-Anything received after that time might be too late.
+commit 82f2bc2fcc0160d6f82dd1ac64518ae0a4dd183f upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.2-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-and the diffstat can be found below.
+Clang's -Wpointer-to-int-cast deviates from GCC in that it warns when
+casting to enums. The kernel does this in certain places, such as device
+tree matches to set the version of the device being used, which allows
+the kernel to avoid using a gigantic union.
 
-thanks,
+https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L428
+https://elixir.bootlin.com/linux/v5.5.8/source/drivers/ata/ahci_brcm.c#L402
+https://elixir.bootlin.com/linux/v5.5.8/source/include/linux/mod_devicetable.h#L264
 
-greg k-h
+To avoid a ton of false positive warnings, disable this particular part
+of the warning, which has been split off into a separate diagnostic so
+that the entire warning does not need to be turned off for clang. It
+will be visible under W=1 in case people want to go about fixing these
+easily and enabling the warning treewide.
 
--------------
-Pseudo-Shortlog of commits:
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/887
+Link: https://github.com/llvm/llvm-project/commit/2a41b31fcdfcb67ab7038fc2ffb606fd50b83a84
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ scripts/Makefile.extrawarn | 1 +
+ 1 file changed, 1 insertion(+)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.6.2-rc1
+diff --git a/scripts/Makefile.extrawarn b/scripts/Makefile.extrawarn
+index 8d5357053f865..486e135d3e30a 100644
+--- a/scripts/Makefile.extrawarn
++++ b/scripts/Makefile.extrawarn
+@@ -72,5 +72,6 @@ KBUILD_CFLAGS += $(call cc-disable-warning, format)
+ KBUILD_CFLAGS += $(call cc-disable-warning, sign-compare)
+ KBUILD_CFLAGS += $(call cc-disable-warning, format-zero-length)
+ KBUILD_CFLAGS += $(call cc-disable-warning, uninitialized)
++KBUILD_CFLAGS += $(call cc-disable-warning, pointer-to-enum-cast)
+ endif
+ endif
+-- 
+2.20.1
 
-Georg Müller <georgmueller@gmx.net>
-    platform/x86: pmc_atom: Add Lex 2I385SW to critclk_systems DMI table
-
-Eric Biggers <ebiggers@google.com>
-    vt: vt_ioctl: fix use-after-free in vt_in_use()
-
-Eric Biggers <ebiggers@google.com>
-    vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use virtual console
-
-Eric Biggers <ebiggers@google.com>
-    vt: vt_ioctl: remove unnecessary console allocation checks
-
-Jiri Slaby <jslaby@suse.cz>
-    vt: switch vt_dont_switch to bool
-
-Jiri Slaby <jslaby@suse.cz>
-    vt: ioctl, switch VT_IS_IN_USE and VT_BUSY to inlines
-
-Jiri Slaby <jslaby@suse.cz>
-    vt: selection, introduce vc_is_sel
-
-Lanqing Liu <liuhhome@gmail.com>
-    serial: sprd: Fix a dereference warning
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211: fix authentication with iwlwifi/mvm
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: update jmp32 test cases to fix range bound deduction
-
-
--------------
-
-Diffstat:
-
- Makefile                                     |  4 +-
- drivers/platform/x86/pmc_atom.c              |  8 +++
- drivers/tty/serial/sprd_serial.c             |  3 +-
- drivers/tty/vt/selection.c                   |  5 ++
- drivers/tty/vt/vt.c                          | 30 +++++++++--
- drivers/tty/vt/vt_ioctl.c                    | 75 +++++++++++++++-------------
- include/linux/selection.h                    |  4 +-
- include/linux/vt_kern.h                      |  2 +-
- net/mac80211/tx.c                            |  3 +-
- tools/testing/selftests/bpf/verifier/jmp32.c |  9 ++--
- 10 files changed, 94 insertions(+), 49 deletions(-)
 
 
