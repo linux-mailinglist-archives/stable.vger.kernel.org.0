@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 077F519B36E
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:51:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD6119B0A7
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388954AbgDAQhk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:37:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36796 "EHLO mail.kernel.org"
+        id S2388100AbgDAQ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:28:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388743AbgDAQhi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:37:38 -0400
+        id S2388104AbgDAQ2Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:28:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2BB820BED;
-        Wed,  1 Apr 2020 16:37:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7833B20857;
+        Wed,  1 Apr 2020 16:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759054;
-        bh=NgluBSrlV5CcAMMvqcf9f58XWpFgyEC29/0bh+iSYgo=;
+        s=default; t=1585758502;
+        bh=r+e9qHmInOQJ47PfeFDi1mAZiHipiVuBXvckxLYW3bU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mqPbKACs9C5lwxxYK5cJSt+XE9oRTtLcVWe1CeAorZ5YJx9GZbyQgcXY/QhUioJ9L
-         Yuf4RnnTf4Br/PjmasFJJtLbTYH3JIY0M9evZMq4jmo7/SXzbMUuzm20QJgaD8sRuy
-         FnojySjJQWyLUJFX0C7DeP7404fOPeBow1HitJgU=
+        b=EoQkWr49OAvTdcNGod+6SVFZ9hU4pwKpIgWu6EgFdRcLBcVUT2bLCWG1AeUDfKEuQ
+         qlKKbPMs8apHT8rQxBCqA5QkUmaKtLp7rse6JAOKYRfusNiK6tkrFTiQNCfGv+PWEK
+         nGDP+bxxCmq/US1NMEZmhqEkOiEEyFpOTdWdDwjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bryan Gurney <bgurney@redhat.com>,
-        Bernhard Sulzer <micraft.b@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.9 062/102] scsi: sd: Fix optimal I/O size for devices that change reported values
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 109/116] arm64: alternative: fix build with clang integrated assembler
 Date:   Wed,  1 Apr 2020 18:18:05 +0200
-Message-Id: <20200401161543.454644273@linuxfoundation.org>
+Message-Id: <20200401161556.080817852@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin K. Petersen <martin.petersen@oracle.com>
+From: Ilie Halip <ilie.halip@gmail.com>
 
-commit ea697a8bf5a4161e59806fab14f6e4a46dc7dcb0 upstream.
+commit 6f5459da2b8736720afdbd67c4bd2d1edba7d0e3 upstream.
 
-Some USB bridge devices will return a default set of characteristics during
-initialization. And then, once an attached drive has spun up, substitute
-the actual parameters reported by the drive. According to the SCSI spec,
-the device should return a UNIT ATTENTION in case any reported parameters
-change. But in this case the change is made silently after a small window
-where default values are reported.
+Building an arm64 defconfig with clang's integrated assembler, this error
+occurs:
+    <instantiation>:2:2: error: unrecognized instruction mnemonic
+     _ASM_EXTABLE 9999b, 9f
+     ^
+    arch/arm64/mm/cache.S:50:1: note: while in macro instantiation
+    user_alt 9f, "dc cvau, x4", "dc civac, x4", 0
+    ^
 
-Commit a83da8a4509d ("scsi: sd: Optimal I/O size should be a multiple of
-physical block size") validated the reported optimal I/O size against the
-physical block size to overcome problems with devices reporting nonsensical
-transfer sizes. However, this validation did not account for the fact that
-aforementioned devices will return default values during a brief window
-during spin-up. The subsequent change in reported characteristics would
-invalidate the checking that had previously been performed.
+While GNU as seems fine with case-sensitive macro instantiations, clang
+doesn't, so use the actual macro name (_asm_extable) as in the rest of
+the file.
 
-Unset a previously configured optimal I/O size should the sanity checking
-fail on subsequent revalidate attempts.
+Also checked that the generated assembly matches the GCC output.
 
-Link: https://lore.kernel.org/r/33fb522e-4f61-1b76-914f-c9e6a3553c9b@gmail.com
-Cc: Bryan Gurney <bgurney@redhat.com>
-Cc: <stable@vger.kernel.org>
-Reported-by: Bernhard Sulzer <micraft.b@gmail.com>
-Tested-by: Bernhard Sulzer <micraft.b@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: 290622efc76e ("arm64: fix "dc cvau" cache operation on errata-affected core")
+Link: https://github.com/ClangBuiltLinux/linux/issues/924
+Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/sd.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/alternative.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -2949,9 +2949,11 @@ static int sd_revalidate_disk(struct gen
- 	if (sd_validate_opt_xfer_size(sdkp, dev_max)) {
- 		q->limits.io_opt = logical_to_bytes(sdp, sdkp->opt_xfer_blocks);
- 		rw_max = logical_to_sectors(sdp, sdkp->opt_xfer_blocks);
--	} else
-+	} else {
-+		q->limits.io_opt = 0;
- 		rw_max = min_not_zero(logical_to_sectors(sdp, dev_max),
- 				      (sector_t)BLK_DEF_MAX_SECTORS);
-+	}
+--- a/arch/arm64/include/asm/alternative.h
++++ b/arch/arm64/include/asm/alternative.h
+@@ -221,7 +221,7 @@ alternative_endif
  
- 	/* Do not exceed controller limit */
- 	rw_max = min(rw_max, queue_max_hw_sectors(q));
+ .macro user_alt, label, oldinstr, newinstr, cond
+ 9999:	alternative_insn "\oldinstr", "\newinstr", \cond
+-	_ASM_EXTABLE 9999b, \label
++	_asm_extable 9999b, \label
+ .endm
+ 
+ /*
 
 
