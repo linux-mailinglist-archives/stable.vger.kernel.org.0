@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC44D19AFF3
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1B6F19B0F5
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732246AbgDAQWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:22:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45748 "EHLO mail.kernel.org"
+        id S2387750AbgDAQan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:30:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387515AbgDAQWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:22:40 -0400
+        id S2387649AbgDAQam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:30:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1692D20857;
-        Wed,  1 Apr 2020 16:22:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B2002137B;
+        Wed,  1 Apr 2020 16:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758159;
-        bh=Lo6aLleuc8gQtoccgiwhgbjbh0eEiciV2V5nIHfa410=;
-        h=From:To:Cc:Subject:Date:From;
-        b=S+f0xe6fY8cszvWt1LlYQUKN3ackRE1/Bx2VWDrQVhPIfuWOWRdJVmqN12u9ybo15
-         iyMGBCK+eozpl15QPzdoLB+jckGuwdjxHks3LXzaV5vNyo+CMzvYfQ+q+bW2n3UL8S
-         CVpHpWR2yHKMeJOgcZRScdEqQjV0eB+W9SyRBru8=
+        s=default; t=1585758641;
+        bh=B1JqZLJuWW+QWK97LdjyPhekqbup566AvV18ey+cPh0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=11Cw9ZHDWKDFszLQwG93MyGc++AWx/gZe9zk+vfwcl6V119N3BkbMvi257/vfsFus
+         bTM2unWRNoknhq4rKN/405hNtKRKys2jpHRq5tGC94qg0+RcRXrkgziWsTW0szccTk
+         pEnQsybb4u+0BfU6u1GGGgqLe2psL2g7VlciejN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.4 00/27] 5.4.30-rc1 review
+        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.4 32/91] arm64: smp: fix smp_send_stop() behaviour
 Date:   Wed,  1 Apr 2020 18:17:28 +0200
-Message-Id: <20200401161414.352722470@linuxfoundation.org>
+Message-Id: <20200401161524.675710937@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-MIME-Version: 1.0
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.30-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.30-rc1
-X-KernelTest-Deadline: 2020-04-03T16:14+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,144 +45,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.30 release.
-There are 27 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-Responses should be made by Fri, 03 Apr 2020 16:09:36 +0000.
-Anything received after that time might be too late.
+commit d0bab0c39e32d39a8c5cddca72e5b4a3059fe050 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.30-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+On a system with only one CPU online, when another one CPU panics while
+starting-up, smp_send_stop() will fail to send any STOP message to the
+other already online core, resulting in a system still responsive and
+alive at the end of the panic procedure.
 
-thanks,
+[  186.700083] CPU3: shutdown
+[  187.075462] CPU2: shutdown
+[  187.162869] CPU1: shutdown
+[  188.689998] ------------[ cut here ]------------
+[  188.691645] kernel BUG at arch/arm64/kernel/cpufeature.c:886!
+[  188.692079] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[  188.692444] Modules linked in:
+[  188.693031] CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.6.0-rc4-00001-g338d25c35a98 #104
+[  188.693175] Hardware name: Foundation-v8A (DT)
+[  188.693492] pstate: 200001c5 (nzCv dAIF -PAN -UAO)
+[  188.694183] pc : has_cpuid_feature+0xf0/0x348
+[  188.694311] lr : verify_local_elf_hwcaps+0x84/0xe8
+[  188.694410] sp : ffff800011b1bf60
+[  188.694536] x29: ffff800011b1bf60 x28: 0000000000000000
+[  188.694707] x27: 0000000000000000 x26: 0000000000000000
+[  188.694801] x25: 0000000000000000 x24: ffff80001189a25c
+[  188.694905] x23: 0000000000000000 x22: 0000000000000000
+[  188.694996] x21: ffff8000114aa018 x20: ffff800011156a38
+[  188.695089] x19: ffff800010c944a0 x18: 0000000000000004
+[  188.695187] x17: 0000000000000000 x16: 0000000000000000
+[  188.695280] x15: 0000249dbde5431e x14: 0262cbe497efa1fa
+[  188.695371] x13: 0000000000000002 x12: 0000000000002592
+[  188.695472] x11: 0000000000000080 x10: 00400032b5503510
+[  188.695572] x9 : 0000000000000000 x8 : ffff800010c80204
+[  188.695659] x7 : 00000000410fd0f0 x6 : 0000000000000001
+[  188.695750] x5 : 00000000410fd0f0 x4 : 0000000000000000
+[  188.695836] x3 : 0000000000000000 x2 : ffff8000100939d8
+[  188.695919] x1 : 0000000000180420 x0 : 0000000000180480
+[  188.696253] Call trace:
+[  188.696410]  has_cpuid_feature+0xf0/0x348
+[  188.696504]  verify_local_elf_hwcaps+0x84/0xe8
+[  188.696591]  check_local_cpu_capabilities+0x44/0x128
+[  188.696666]  secondary_start_kernel+0xf4/0x188
+[  188.697150] Code: 52805001 72a00301 6b01001f 54000ec0 (d4210000)
+[  188.698639] ---[ end trace 3f12ca47652f7b72 ]---
+[  188.699160] Kernel panic - not syncing: Attempted to kill the idle task!
+[  188.699546] Kernel Offset: disabled
+[  188.699828] CPU features: 0x00004,20c02008
+[  188.700012] Memory Limit: none
+[  188.700538] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
 
-greg k-h
+[root@arch ~]# echo Helo
+Helo
+[root@arch ~]# cat /proc/cpuinfo | grep proce
+processor	: 0
 
--------------
-Pseudo-Shortlog of commits:
+Make smp_send_stop() account also for the online status of the calling CPU
+while evaluating how many CPUs are effectively online: this way, the right
+number of STOPs is sent, so enforcing a proper freeze of the system at the
+end of panic even under the above conditions.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.30-rc1
+Fixes: 08e875c16a16c ("arm64: SMP support")
+Reported-by: Dave Martin <Dave.Martin@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Madalin Bucur <madalin.bucur@oss.nxp.com>
-    arm64: dts: ls1046ardb: set RGMII interfaces to RGMII_ID mode
+---
+ arch/arm64/kernel/smp.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-Madalin Bucur <madalin.bucur@oss.nxp.com>
-    arm64: dts: ls1043a-rdb: correct RGMII delay mode to rgmii-id
-
-Chen-Yu Tsai <wens@csie.org>
-    ARM: dts: sun8i: r40: Move AHCI device node based on address order
-
-Arthur Demchenkov <spinal.by@gmail.com>
-    ARM: dts: N900: fix onenand timings
-
-Marco Felsch <m.felsch@pengutronix.de>
-    ARM: dts: imx6: phycore-som: fix arm and soc minimum voltage
-
-Nick Hudson <skrll@netbsd.org>
-    ARM: bcm2835-rpi-zero-w: Add missing pinctrl name
-
-Sungbo Eo <mans0n@gorani.run>
-    ARM: dts: oxnas: Fix clear-mask property
-
-disconnect3d <dominik.b.czarnota@gmail.com>
-    perf map: Fix off by one in strncpy() size argument
-
-Ilie Halip <ilie.halip@gmail.com>
-    arm64: alternative: fix build with clang integrated assembler
-
-Ilya Dryomov <idryomov@gmail.com>
-    libceph: fix alloc_msg_with_page_vector() memory leaks
-
-Tony Lindgren <tony@atomide.com>
-    clk: ti: am43xx: Fix clock parent for RTC clock
-
-Leonard Crestez <leonard.crestez@nxp.com>
-    clk: imx: Align imx sc clock parent msg structs to 4
-
-Leonard Crestez <leonard.crestez@nxp.com>
-    clk: imx: Align imx sc clock msg structs to 4
-
-Marek Vasut <marex@denx.de>
-    net: ks8851-ml: Fix IO operations, again
-
-Hans de Goede <hdegoede@redhat.com>
-    gpiolib: acpi: Add quirk to ignore EC wakeups on HP x2 10 CHT + AXP288 model
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    bpf: Explicitly memset some bpf info structures declared on the stack
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    bpf: Explicitly memset the bpf_attr structure
-
-Georg Müller <georgmueller@gmx.net>
-    platform/x86: pmc_atom: Add Lex 2I385SW to critclk_systems DMI table
-
-Eric Biggers <ebiggers@google.com>
-    vt: vt_ioctl: fix use-after-free in vt_in_use()
-
-Eric Biggers <ebiggers@google.com>
-    vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use virtual console
-
-Eric Biggers <ebiggers@google.com>
-    vt: vt_ioctl: remove unnecessary console allocation checks
-
-Jiri Slaby <jslaby@suse.cz>
-    vt: switch vt_dont_switch to bool
-
-Jiri Slaby <jslaby@suse.cz>
-    vt: ioctl, switch VT_IS_IN_USE and VT_BUSY to inlines
-
-Jiri Slaby <jslaby@suse.cz>
-    vt: selection, introduce vc_is_sel
-
-Lanqing Liu <liuhhome@gmail.com>
-    serial: sprd: Fix a dereference warning
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211: fix authentication with iwlwifi/mvm
-
-Jouni Malinen <jouni@codeaurora.org>
-    mac80211: Check port authorization in the ieee80211_tx_dequeue() case
-
-
--------------
-
-Diffstat:
-
- Makefile                                          |  4 +-
- arch/arm/boot/dts/bcm2835-rpi-zero-w.dts          |  1 +
- arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi |  4 +-
- arch/arm/boot/dts/omap3-n900.dts                  | 44 ++++++++-----
- arch/arm/boot/dts/ox810se.dtsi                    |  4 +-
- arch/arm/boot/dts/ox820.dtsi                      |  4 +-
- arch/arm/boot/dts/sun8i-r40.dtsi                  | 21 +++----
- arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts |  4 +-
- arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts |  4 +-
- arch/arm64/include/asm/alternative.h              |  2 +-
- drivers/clk/imx/clk-scu.c                         |  8 +--
- drivers/clk/ti/clk-43xx.c                         |  2 +-
- drivers/gpio/gpiolib-acpi.c                       | 15 +++++
- drivers/net/ethernet/micrel/ks8851_mll.c          | 56 +++++++++++++++--
- drivers/platform/x86/pmc_atom.c                   |  8 +++
- drivers/tty/serial/sprd_serial.c                  |  3 +-
- drivers/tty/vt/selection.c                        |  5 ++
- drivers/tty/vt/vt.c                               | 30 +++++++--
- drivers/tty/vt/vt_ioctl.c                         | 75 ++++++++++++-----------
- include/linux/ceph/messenger.h                    |  7 ++-
- include/linux/selection.h                         |  4 +-
- include/linux/vt_kern.h                           |  2 +-
- kernel/bpf/btf.c                                  |  3 +-
- kernel/bpf/syscall.c                              |  9 ++-
- net/ceph/messenger.c                              |  9 ++-
- net/ceph/osd_client.c                             | 14 +----
- net/mac80211/tx.c                                 | 20 +++++-
- tools/perf/util/map.c                             |  2 +-
- 28 files changed, 250 insertions(+), 114 deletions(-)
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -769,11 +769,22 @@ void tick_broadcast(const struct cpumask
+ }
+ #endif
+ 
++/*
++ * The number of CPUs online, not counting this CPU (which may not be
++ * fully online and so not counted in num_online_cpus()).
++ */
++static inline unsigned int num_other_online_cpus(void)
++{
++	unsigned int this_cpu_online = cpu_online(smp_processor_id());
++
++	return num_online_cpus() - this_cpu_online;
++}
++
+ void smp_send_stop(void)
+ {
+ 	unsigned long timeout;
+ 
+-	if (num_online_cpus() > 1) {
++	if (num_other_online_cpus()) {
+ 		cpumask_t mask;
+ 
+ 		cpumask_copy(&mask, cpu_online_mask);
+@@ -784,10 +795,10 @@ void smp_send_stop(void)
+ 
+ 	/* Wait up to one second for other CPUs to stop */
+ 	timeout = USEC_PER_SEC;
+-	while (num_online_cpus() > 1 && timeout--)
++	while (num_other_online_cpus() && timeout--)
+ 		udelay(1);
+ 
+-	if (num_online_cpus() > 1)
++	if (num_other_online_cpus())
+ 		pr_warning("SMP: failed to stop secondary CPUs\n");
+ }
+ 
 
 
