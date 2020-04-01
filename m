@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77F7619B383
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:52:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91FE419B452
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388916AbgDAQhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:37:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36158 "EHLO mail.kernel.org"
+        id S1732550AbgDAQWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:22:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388914AbgDAQhC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:37:02 -0400
+        id S1732342AbgDAQWu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:22:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CD2F20658;
-        Wed,  1 Apr 2020 16:37:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAD2621582;
+        Wed,  1 Apr 2020 16:22:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759021;
-        bh=EY5R1QC2UFt4ZgEOuanrzEih+GHs096R2FsqatSo/3w=;
+        s=default; t=1585758170;
+        bh=HwVePymlaD0LDdi3QetTPfohcwL6L5qYFnhXQ7Z8YvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZoz8kALSLujuHUwO7UJ63rCQe9xapmefw1R23Is3TW3GEBaS1PCaTqU/meVPZCAm
-         HW3rxOFFwLKpADPmtWwBio8DI+d198DAgXpiTqw8AXAkK8m7Ba4Ugw3UQ1sTOn+RL+
-         sVBjKiDivif55XaxJoECBIdA4vmnP0smb8px2LlA=
+        b=g7bK4sO6xRjVU0HQsFC39go/CD2VyHgaRQ+DDPF8csS8fJy61JurCfRH8rDJWLsEm
+         vUBNm9OIhtOJQuihZICFZV1c+N95KljyOA1qOaoMkWAGnB40dKv3hZ40NbkNRHCNuQ
+         ACwCA5cuDsr8+5qsq6pH1vohZf9vF6It9sXOE6BM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Gilbert <floppym@gentoo.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 052/102] cpupower: avoid multiple definition with gcc -fno-common
+        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@oss.nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 27/27] arm64: dts: ls1046ardb: set RGMII interfaces to RGMII_ID mode
 Date:   Wed,  1 Apr 2020 18:17:55 +0200
-Message-Id: <20200401161542.671959728@linuxfoundation.org>
+Message-Id: <20200401161436.007336638@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
+References: <20200401161414.352722470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Gilbert <floppym@gentoo.org>
+From: Madalin Bucur <madalin.bucur@oss.nxp.com>
 
-[ Upstream commit 2de7fb60a4740135e03cf55c1982e393ccb87b6b ]
+commit d79e9d7c1e4ba5f95f2ff3541880c40ea9722212 upstream.
 
-Building cpupower with -fno-common in CFLAGS results in errors due to
-multiple definitions of the 'cpu_count' and 'start_time' variables.
+The correct setting for the RGMII ports on LS1046ARDB is to
+enable delay on both Rx and Tx so the interface mode used must
+be PHY_INTERFACE_MODE_RGMII_ID.
 
-./utils/idle_monitor/snb_idle.o:./utils/idle_monitor/cpupower-monitor.h:28:
-multiple definition of `cpu_count';
-./utils/idle_monitor/nhm_idle.o:./utils/idle_monitor/cpupower-monitor.h:28:
-first defined here
-...
-./utils/idle_monitor/cpuidle_sysfs.o:./utils/idle_monitor/cpuidle_sysfs.c:22:
-multiple definition of `start_time';
-./utils/idle_monitor/amd_fam14h_idle.o:./utils/idle_monitor/amd_fam14h_idle.c:85:
-first defined here
+Since commit 1b3047b5208a80 ("net: phy: realtek: add support for
+configuring the RX delay on RTL8211F") the Realtek 8211F PHY driver
+has control over the RGMII RX delay and it is disabling it for
+RGMII_TXID. The LS1046ARDB uses two such PHYs in RGMII_ID mode but
+in the device tree the mode was described as "rgmii".
 
-The -fno-common option will be enabled by default in GCC 10.
+Changing the phy-connection-type to "rgmii-id" to address the issue.
 
-Bug: https://bugs.gentoo.org/707462
-Signed-off-by: Mike Gilbert <floppym@gentoo.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3fa395d2c48a ("arm64: dts: add LS1046A DPAA FMan nodes")
+Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c  | 2 +-
- tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c    | 2 +-
- tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c | 2 ++
- tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h | 2 +-
- 4 files changed, 5 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c b/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c
-index 2116df9ad8325..c097a3748674f 100644
---- a/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c
-+++ b/tools/power/cpupower/utils/idle_monitor/amd_fam14h_idle.c
-@@ -83,7 +83,7 @@ static struct pci_access *pci_acc;
- static struct pci_dev *amd_fam14h_pci_dev;
- static int nbp1_entered;
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
+@@ -127,12 +127,12 @@
+ &fman0 {
+ 	ethernet@e4000 {
+ 		phy-handle = <&rgmii_phy1>;
+-		phy-connection-type = "rgmii";
++		phy-connection-type = "rgmii-id";
+ 	};
  
--struct timespec start_time;
-+static struct timespec start_time;
- static unsigned long long timediff;
+ 	ethernet@e6000 {
+ 		phy-handle = <&rgmii_phy2>;
+-		phy-connection-type = "rgmii";
++		phy-connection-type = "rgmii-id";
+ 	};
  
- #ifdef DEBUG
-diff --git a/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c b/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c
-index 5b3205f162174..5277df27191f3 100644
---- a/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c
-+++ b/tools/power/cpupower/utils/idle_monitor/cpuidle_sysfs.c
-@@ -21,7 +21,7 @@ struct cpuidle_monitor cpuidle_sysfs_monitor;
- 
- static unsigned long long **previous_count;
- static unsigned long long **current_count;
--struct timespec start_time;
-+static struct timespec start_time;
- static unsigned long long timediff;
- 
- static int cpuidle_get_count_percent(unsigned int id, double *percent,
-diff --git a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c
-index 05f953f0f0a0c..80a21cb67d94f 100644
---- a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c
-+++ b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.c
-@@ -29,6 +29,8 @@ struct cpuidle_monitor *all_monitors[] = {
- 0
- };
- 
-+int cpu_count;
-+
- static struct cpuidle_monitor *monitors[MONITORS_MAX];
- static unsigned int avail_monitors;
- 
-diff --git a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h
-index 9e43f3371fbc6..3558bbae2b5dc 100644
---- a/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h
-+++ b/tools/power/cpupower/utils/idle_monitor/cpupower-monitor.h
-@@ -18,7 +18,7 @@
- #define CSTATE_NAME_LEN 5
- #define CSTATE_DESC_LEN 60
- 
--int cpu_count;
-+extern int cpu_count;
- 
- /* Hard to define the right names ...: */
- enum power_range_e {
--- 
-2.20.1
-
+ 	ethernet@e8000 {
 
 
