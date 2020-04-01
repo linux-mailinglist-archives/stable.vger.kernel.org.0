@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C219819B300
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5FAB19B1FF
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732624AbgDAQqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:46:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47424 "EHLO mail.kernel.org"
+        id S2388928AbgDAQjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:39:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387520AbgDAQqI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:46:08 -0400
+        id S2388679AbgDAQjy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:39:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43FEB21974;
-        Wed,  1 Apr 2020 16:46:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF46420719;
+        Wed,  1 Apr 2020 16:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759566;
-        bh=NGYYxPkSNRcas7z3Ved7Ug05OaJBKCqcIlSnGkcoDSU=;
+        s=default; t=1585759194;
+        bh=Vb7rH95H+cRLRZgwZr5PFtUUZF7nYM9p+VSLhDZaSGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gY7esmP7TRcRRuZ83k1I1kRGI6SOcxXbder7mU51OjvVWFqIBv5ybUqF9Zdz3M95n
-         1gLMe7Q5mQoFA6K183fC6hVR9qfu+nAgGFQXOLDrqeQm28OrjskA9v2zBKURoGqWvJ
-         82YfvlrsINcquY3PfQ7s0Hy15IgeK4XZWIkvvDu4=
+        b=ASNVZMZjpip4M9pEP2XUqeYWLZGbg8FdMlYA7PpPGkS3iLuPBAL9UcRNAfUFUsKYd
+         sP9gKneb2dSxp4vF6YJqI2R+RA4FwHmUiTZD0UtkEwRTpz8/4RKeerCaMLzfzbeeMK
+         St2hxQUHBnps4m1M9dNiOdKTA9UQomJEKj77Cw60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>,
-        Oliver Neukum <oneukum@suse.com>,
-        Matthias Reichl <hias@horus.com>
-Subject: [PATCH 4.14 117/148] USB: cdc-acm: restore capability check order
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.9 086/102] media: ov519: add missing endpoint sanity checks
 Date:   Wed,  1 Apr 2020 18:18:29 +0200
-Message-Id: <20200401161603.715151045@linuxfoundation.org>
+Message-Id: <20200401161546.780346676@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Reichl <hias@horus.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 62d65bdd9d05158aa2547f8ef72375535f3bc6e3 upstream.
+commit 998912346c0da53a6dbb71fab3a138586b596b30 upstream.
 
-commit b401f8c4f492c ("USB: cdc-acm: fix rounding error in TIOCSSERIAL")
-introduced a regression by changing the order of capability and close
-settings change checks. When running with CAP_SYS_ADMIN setting the
-close settings to the values already set resulted in -EOPNOTSUPP.
+Make sure to check that we have at least one endpoint before accessing
+the endpoint array to avoid dereferencing a NULL-pointer on stream
+start.
 
-Fix this by changing the check order back to how it was before.
+Note that these sanity checks are not redundant as the driver is mixing
+looking up altsettings by index and by number, which need not coincide.
 
-Fixes: b401f8c4f492c ("USB: cdc-acm: fix rounding error in TIOCSSERIAL")
-Cc: Anthony Mallet <anthony.mallet@laas.fr>
-Cc: stable <stable@vger.kernel.org>
-Cc: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Matthias Reichl <hias@horus.com>
-Link: https://lore.kernel.org/r/20200327150350.3657-1-hias@horus.com
+Fixes: 1876bb923c98 ("V4L/DVB (12079): gspca_ov519: add support for the ov511 bridge")
+Fixes: b282d87332f5 ("V4L/DVB (12080): gspca_ov519: Fix ov518+ with OV7620AE (Trust spacecam 320)")
+Cc: stable <stable@vger.kernel.org>     # 2.6.31
+Cc: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-acm.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/media/usb/gspca/ov519.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -961,16 +961,16 @@ static int set_serial_info(struct acm *a
+--- a/drivers/media/usb/gspca/ov519.c
++++ b/drivers/media/usb/gspca/ov519.c
+@@ -3482,6 +3482,11 @@ static void ov511_mode_init_regs(struct
+ 		return;
+ 	}
  
- 	mutex_lock(&acm->port.mutex);
- 
--	if ((new_serial.close_delay != old_close_delay) ||
--            (new_serial.closing_wait != old_closing_wait)) {
--		if (!capable(CAP_SYS_ADMIN))
-+	if (!capable(CAP_SYS_ADMIN)) {
-+		if ((new_serial.close_delay != old_close_delay) ||
-+	            (new_serial.closing_wait != old_closing_wait))
- 			retval = -EPERM;
--		else {
--			acm->port.close_delay  = close_delay;
--			acm->port.closing_wait = closing_wait;
--		}
--	} else
--		retval = -EOPNOTSUPP;
-+		else
-+			retval = -EOPNOTSUPP;
-+	} else {
-+		acm->port.close_delay  = close_delay;
-+		acm->port.closing_wait = closing_wait;
++	if (alt->desc.bNumEndpoints < 1) {
++		sd->gspca_dev.usb_err = -ENODEV;
++		return;
 +	}
++
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 	reg_w(sd, R51x_FIFO_PSIZE, packet_size >> 5);
  
- 	mutex_unlock(&acm->port.mutex);
- 	return retval;
+@@ -3607,6 +3612,11 @@ static void ov518_mode_init_regs(struct
+ 		return;
+ 	}
+ 
++	if (alt->desc.bNumEndpoints < 1) {
++		sd->gspca_dev.usb_err = -ENODEV;
++		return;
++	}
++
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 	ov518_reg_w32(sd, R51x_FIFO_PSIZE, packet_size & ~7, 2);
+ 
 
 
