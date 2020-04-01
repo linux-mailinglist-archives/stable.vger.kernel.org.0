@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9184719AFD4
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A83319AFD7
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732492AbgDAQVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:21:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44258 "EHLO mail.kernel.org"
+        id S1733257AbgDAQVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:21:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733274AbgDAQVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:21:22 -0400
+        id S1732316AbgDAQVa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:21:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E845214DB;
-        Wed,  1 Apr 2020 16:21:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CEB820658;
+        Wed,  1 Apr 2020 16:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758082;
-        bh=2m4phitjhFbrsAJcF3uiJiiQDobncxewRiAT1Y8YfC0=;
+        s=default; t=1585758089;
+        bh=bXNkeGwBre6RylNGc5QGEcwosMUQKy1AT6CoaQ3Ly4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f3n6iYAAw64M6CXyfyVHPUYUjIHenr0XouzT/q1U8nUxhNZkGGtEhBWUd7O+9atqp
-         WJc15RT8D8f+yD5D/eZ9Sjy5+2Y8crTYohfujsXW2JdqmmoUc8KuSvUeXVSMVeJ/zQ
-         ncpSad8JCnZDobfYfd89JsxbIUjILr/HtmJGoYAc=
+        b=l8s22RxSkoBXdE8ab3yTjoed/IBJXyAUfXk2IL7U08x95hf/xhgjEqrOpoFHqQ8Ah
+         F/SKIqnw8wMzJaROJBqPly63aGtIy158TeFbaxsRMknn5CAqLxbdgOV53V7L9czUe4
+         G+1URIiVNQhJrNREFR5DhWpniuJF5i0NjrqbMgoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Hudson <skrll@netbsd.org>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.5 25/30] ARM: bcm2835-rpi-zero-w: Add missing pinctrl name
+        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 01/27] mac80211: Check port authorization in the ieee80211_tx_dequeue() case
 Date:   Wed,  1 Apr 2020 18:17:29 +0200
-Message-Id: <20200401161433.751653781@linuxfoundation.org>
+Message-Id: <20200401161416.960972223@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
-References: <20200401161414.345528747@linuxfoundation.org>
+In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
+References: <20200401161414.352722470@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,31 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Hudson <skrll@netbsd.org>
+From: Jouni Malinen <jouni@codeaurora.org>
 
-commit 6687c201fdc3139315c2ea7ef96c157672805cdc upstream.
+commit ce2e1ca703071723ca2dd94d492a5ab6d15050da upstream.
 
-Define the sdhci pinctrl state as "default" so it gets applied
-correctly and to match all other RPis.
+mac80211 used to check port authorization in the Data frame enqueue case
+when going through start_xmit(). However, that authorization status may
+change while the frame is waiting in a queue. Add a similar check in the
+dequeue case to avoid sending previously accepted frames after
+authorization change. This provides additional protection against
+potential leaking of frames after a station has been disconnected and
+the keys for it are being removed.
 
-Fixes: 2c7c040c73e9 ("ARM: dts: bcm2835: Add Raspberry Pi Zero W")
-Signed-off-by: Nick Hudson <skrll@netbsd.org>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Link: https://lore.kernel.org/r/20200326155133.ced84317ea29.I34d4c47cd8cc8a4042b38a76f16a601fbcbfd9b3@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/bcm2835-rpi-zero-w.dts |    1 +
- 1 file changed, 1 insertion(+)
+ net/mac80211/tx.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-+++ b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-@@ -112,6 +112,7 @@
- &sdhci {
- 	#address-cells = <1>;
- 	#size-cells = <0>;
-+	pinctrl-names = "default";
- 	pinctrl-0 = <&emmc_gpio34 &gpclk2_gpio43>;
- 	bus-width = <4>;
- 	mmc-pwrseq = <&wifi_pwrseq>;
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -3596,8 +3596,25 @@ begin:
+ 	tx.skb = skb;
+ 	tx.sdata = vif_to_sdata(info->control.vif);
+ 
+-	if (txq->sta)
++	if (txq->sta) {
+ 		tx.sta = container_of(txq->sta, struct sta_info, sta);
++		/*
++		 * Drop unicast frames to unauthorised stations unless they are
++		 * EAPOL frames from the local station.
++		 */
++		if (unlikely(!ieee80211_vif_is_mesh(&tx.sdata->vif) &&
++			     tx.sdata->vif.type != NL80211_IFTYPE_OCB &&
++			     !is_multicast_ether_addr(hdr->addr1) &&
++			     !test_sta_flag(tx.sta, WLAN_STA_AUTHORIZED) &&
++			     (!(info->control.flags &
++				IEEE80211_TX_CTRL_PORT_CTRL_PROTO) ||
++			      !ether_addr_equal(tx.sdata->vif.addr,
++						hdr->addr2)))) {
++			I802_DEBUG_INC(local->tx_handlers_drop_unauth_port);
++			ieee80211_free_txskb(&local->hw, skb);
++			goto begin;
++		}
++	}
+ 
+ 	/*
+ 	 * The key can be removed while the packet was queued, so need to call
 
 
