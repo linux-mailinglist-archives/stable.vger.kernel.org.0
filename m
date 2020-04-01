@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 372B719B093
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ADEF19B2B2
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:47:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387861AbgDAQ1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:27:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52954 "EHLO mail.kernel.org"
+        id S2389918AbgDAQqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:46:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732286AbgDAQ1x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:27:53 -0400
+        id S1732692AbgDAQqV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:46:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46CB320BED;
-        Wed,  1 Apr 2020 16:27:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABF4520705;
+        Wed,  1 Apr 2020 16:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758472;
-        bh=YjbJkWnulZxpZ5AzBSei2JjCsNgi5cGWbkLwlh2FsTA=;
+        s=default; t=1585759581;
+        bh=Ueg9Zw03/bC0jrpPrYe2uRa++2Dy+9cvjAOMfNFrvYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OPa4KHgA5476c6KuqXECkugj3I/+Y9F5tBFsPwJRjvTaCgkRqVay1G1e1vYJD/Fyb
-         FxiZYUKdj4tDIt9r89k9UsrudYka66ovrzevHd6C/hALWMokHE8YMmFuCxlr3cXkAC
-         6ed+Yqf9RCuM4WKtufKB21l+UB3WuKPZYJySRFnU=
+        b=iKB8cuUkB3O9RAKfkIQg8OfyB7FIA9nVzgNBfIawuBwMgdy/MtGTZJZOsxw1ksGtM
+         WMssZsTDsiaYmNryMDmPyhE5hN8xWrd1Gjkb1h5FaZ13+ul0TnEY+AHT0B0/uWl8uc
+         KiK7sf2Cuas4cuf6T5tKpyYVCtdMqfjjFUAd2IyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 4.19 100/116] vt: switch vt_dont_switch to bool
+        stable@vger.kernel.org,
+        Dominik Czarnota <dominik.b.czarnota@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 084/148] sxgbe: Fix off by one in samsung driver strncpy size arg
 Date:   Wed,  1 Apr 2020 18:17:56 +0200
-Message-Id: <20200401161555.068953071@linuxfoundation.org>
+Message-Id: <20200401161601.195347861@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Dominik Czarnota <dominik.b.czarnota@gmail.com>
 
-commit f400991bf872debffb01c46da882dc97d7e3248e upstream.
+[ Upstream commit f3cc008bf6d59b8d93b4190e01d3e557b0040e15 ]
 
-vt_dont_switch is pure boolean, no need for whole char.
+This patch fixes an off-by-one error in strncpy size argument in
+drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c. The issue is that in:
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20200219073951.16151-6-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        strncmp(opt, "eee_timer:", 6)
 
+the passed string literal: "eee_timer:" has 10 bytes (without the NULL
+byte) and the passed size argument is 6. As a result, the logic will
+also accept other, malformed strings, e.g. "eee_tiXXX:".
+
+This bug doesn't seem to have any security impact since its present in
+module's cmdline parsing code.
+
+Signed-off-by: Dominik Czarnota <dominik.b.czarnota@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt_ioctl.c |    6 +++---
- include/linux/vt_kern.h   |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -39,7 +39,7 @@
- #include <linux/kbd_diacr.h>
- #include <linux/selection.h>
- 
--char vt_dont_switch;
-+bool vt_dont_switch;
- 
- static inline bool vt_in_use(unsigned int i)
- {
-@@ -1026,12 +1026,12 @@ int vt_ioctl(struct tty_struct *tty,
- 	case VT_LOCKSWITCH:
- 		if (!capable(CAP_SYS_TTY_CONFIG))
- 			return -EPERM;
--		vt_dont_switch = 1;
-+		vt_dont_switch = true;
- 		break;
- 	case VT_UNLOCKSWITCH:
- 		if (!capable(CAP_SYS_TTY_CONFIG))
- 			return -EPERM;
--		vt_dont_switch = 0;
-+		vt_dont_switch = false;
- 		break;
- 	case VT_GETHIFONTMASK:
- 		ret = put_user(vc->vc_hi_font_mask,
---- a/include/linux/vt_kern.h
-+++ b/include/linux/vt_kern.h
-@@ -142,7 +142,7 @@ static inline bool vt_force_oops_output(
- 	return false;
- }
- 
--extern char vt_dont_switch;
-+extern bool vt_dont_switch;
- extern int default_utf8;
- extern int global_cursor_default;
- 
+diff --git a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
+index 89831adb8eb75..6d27eec85fcef 100644
+--- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
++++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
+@@ -2284,7 +2284,7 @@ static int __init sxgbe_cmdline_opt(char *str)
+ 	if (!str || !*str)
+ 		return -EINVAL;
+ 	while ((opt = strsep(&str, ",")) != NULL) {
+-		if (!strncmp(opt, "eee_timer:", 6)) {
++		if (!strncmp(opt, "eee_timer:", 10)) {
+ 			if (kstrtoint(opt + 10, 0, &eee_timer))
+ 				goto err;
+ 		}
+-- 
+2.20.1
+
 
 
