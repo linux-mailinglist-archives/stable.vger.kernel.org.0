@@ -2,175 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3AB19A25E
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 01:19:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C52319A305
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 02:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731325AbgCaXTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 19:19:11 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:35790 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729647AbgCaXTL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 19:19:11 -0400
-Received: by mail-lj1-f195.google.com with SMTP id k21so23863507ljh.2
-        for <stable@vger.kernel.org>; Tue, 31 Mar 2020 16:19:09 -0700 (PDT)
+        id S1731548AbgDAAnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Mar 2020 20:43:12 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:33438 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731541AbgDAAnM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 20:43:12 -0400
+Received: by mail-qt1-f195.google.com with SMTP id c14so20290165qtp.0
+        for <stable@vger.kernel.org>; Tue, 31 Mar 2020 17:43:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=DNZLvGPKS7ifGuavc6HxXaBrmBaYInXs47Z6xKmXacc=;
-        b=VOIY9W9yz7aKp8dPnogI0Y+SRXVPfbBixuGZxyza7lb4oloPNrQYB3RHynO7AIh3LS
-         1fv7jv3qUfyUt67cnhH5Ql1JTxuZHfpuZi6iueB3w0e+PKBfIg3FP2EFd2YbVEgdJBWF
-         A/Dsu42vzRwa63ALNlmrOa1zpmk1EKCy5qbAGGBaW/TNdqYW3hLwyDjxM+6b5uPzARPA
-         20TDwJpuyiRXupt8Heso9aokoomFq+0knjX6E+1s7/ck2sZ1fLi752RZ6nXMaaZR/KSU
-         5hdmVJq46CEJIxbar0uPv5bznP7FdsoK3DQR1F1nWZvA4DM4YWJWWjd4I38PJE1EjooG
-         8tSw==
+        d=massaru-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=29l1Cx3EQRTg+9C3FuFocy47P0Q9W5pPReVeNSwur6o=;
+        b=RWI+XKWfSaDXusY29+11maE3rke9eaax5k1NXL5V9s98nlLQhJPNZ2LnX2kCDNSbFK
+         GGEqZ3xA9w34hAVSlAySVBdYgSLzJPzitgoYCw2moesOic+Frdo4IM1fs2gszhJyJllw
+         dCGmFewutA47Tm/igpqUDGnir/3efzX6vIkAX6O4zsQbbrXLLquizZDKw6Uk76Boe3zU
+         vKuNi0JYie6zKdtWajostEv0sbOV3Ny/W+WOzH5GXP51U3bAEZ8kbGfPPLJyQmkX4+j8
+         9EXLT2JSRXvuw/cvedQKJK8Gd8Hr/lkohg8/CyqTajxurMpQKGLWx0qorUnnEoKNr1DS
+         C8Cw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=DNZLvGPKS7ifGuavc6HxXaBrmBaYInXs47Z6xKmXacc=;
-        b=K2Wa28Z4p6j31d4KMW0ya879mhdVlCRwqYZ4izy/PeNlP8Q4Wwl0CCB1NYqH7ekI6u
-         lyzL40RIIcbnzgnjP+3qIfGNnotfZBKkcvkkmQYtP/oaDKD4mgCfI6DZv53TG+FGJttB
-         60Je4ICWydUhiEGp8TEocmP5n2spRD2GWF85VTkVmT3hQeFEpNWVIxYojkP2ZJHGSWsw
-         beAh9agkfSPZSEGUTgYloa2A62lSEg0SPHF2JjkzHQsZF5edvA0VQQSVYlTT+lZ/fOZS
-         Pi/w30NJirQojpqVn8X3cFIpY2q7BGQSHcqZPonwu/h332ySPKMqEQ55cnuXSpZols8A
-         pXrQ==
-X-Gm-Message-State: AGi0PuaI/YFFfmvwk6PyNUV3vSh+xasEK11uYaXxDEeEwVIc+AWmwUQC
-        Fr8xDKhD6hx0XKHuc2vuZFZlWPT7lWN6qaWmqy1jig==
-X-Google-Smtp-Source: APiQypKLQfeXmbpfCSKxjxNDfDESvbR/4c3x5o3NczPGdzzeGc2PxgmbZ0POJwPpA1OAl+xzMjMD33hImdfNEkDFqHY=
-X-Received: by 2002:a2e:700e:: with SMTP id l14mr10496920ljc.51.1585696748342;
- Tue, 31 Mar 2020 16:19:08 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200331085308.098696461@linuxfoundation.org> <CA+G9fYsZjmf34pQT1DeLN_DDwvxCWEkbzBfF0q2VERHb25dfZQ@mail.gmail.com>
- <CAHk-=whyW9TXfYxyxUW6hP9e0A=5MnOHrTarr4_k0hiddxq69Q@mail.gmail.com> <20200331192949.GN9917@kernel.org>
-In-Reply-To: <20200331192949.GN9917@kernel.org>
-From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
-Date:   Tue, 31 Mar 2020 17:18:57 -0600
-Message-ID: <CAEUSe7_f8m0dLQT1jdU+87fNThnxMKuoGJkFuGpbT4OmpmE4iA@mail.gmail.com>
-Subject: Re: [PATCH 5.6 00/23] 5.6.1-rc1 review
-To:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=29l1Cx3EQRTg+9C3FuFocy47P0Q9W5pPReVeNSwur6o=;
+        b=VjGCNOEkwoDqa/2CmOC/lfiEEmiwC4iyBv7VcCUfxdwPCr+Qpl3e+F7fIY7PdW+kSL
+         LvApTFdbsj0SoRoH2CnJIm10Qq+kUlynwFi9fJF6tR0FG+RHO/+HMb70AMWHUmgkKhu+
+         3T5BD13I1GCo6HwwGyduEHG87t8XTTsOf7jgtRb6wy1AL0cEeYOoYSBCrdwsQVVK7zWM
+         gY2uAYkwjo/r608tdRvZ+0rCQgltYHYwqrKO3L1wHc9uCq3YDWh0+/h3CLe1MTXiK5Oz
+         FdGWvfH4ye8ydhh7t1DppHA3tDdYFbjBNkEq/qyxiTZH2nz2LKH+r3cjHD/wKfoxVAwu
+         NItw==
+X-Gm-Message-State: ANhLgQ0aHhrp/ZTrwcLtAp0URYHOaP35g1E+36QrPso080fJTW8lsOe8
+        uGZg7n+U65m7tv6qWQhzXgxX70i7uyobDw==
+X-Google-Smtp-Source: ADFU+vsa9O48OZ0BTiH0JIAZqbnWZeB9KY6uad99GDtbM5YxMPs8wVGAqMTdKHx3aP9ZXRMIqGiC3g==
+X-Received: by 2002:ac8:2d88:: with SMTP id p8mr8191570qta.346.1585701789565;
+        Tue, 31 Mar 2020 17:43:09 -0700 (PDT)
+Received: from bbking.lan ([2804:14c:4a5:36c::cd2])
+        by smtp.gmail.com with ESMTPSA id t6sm430247qkd.60.2020.03.31.17.43.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 31 Mar 2020 17:43:08 -0700 (PDT)
+Message-ID: <5ccaf0509d415643338abdd04493a4c6f4a77c9f.camel@massaru.org>
+Subject: Re: [PATCH 5.5 000/171] 5.5.14-rc2 review
+From:   Vitor Massaru Iha <vitor@massaru.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        "linux-kernel-mentees@lists.linuxfoundation.org" 
+        <linux-kernel-mentees@lists.linuxfoundation.org>
+Date:   Tue, 31 Mar 2020 21:43:04 -0300
+In-Reply-To: <20200331141450.035873853@linuxfoundation.org>
+References: <20200331141450.035873853@linuxfoundation.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.32.5 (3.32.5-1.fc30) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+On Tue, 2020-03-31 at 17:32 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.5.14 release.
+> There are 171 patches in this series, all will be posted as a
+> response
+> to this one.  If anyone has any issues with these being applied,
+> please
+> let me know.
+> 
+> Responses should be made by Thu, 02 Apr 2020 14:12:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	
+> https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.14-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
+> stable-rc.git linux-5.5.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-On Tue, 31 Mar 2020 at 13:29, Arnaldo Carvalho de Melo
-<arnaldo.melo@gmail.com> wrote:
->
-> Em Tue, Mar 31, 2020 at 11:20:37AM -0700, Linus Torvalds escreveu:
-> > On Tue, Mar 31, 2020 at 11:08 AM Naresh Kamboju
-> > <naresh.kamboju@linaro.org> wrote:
-> > >
-> > > Perf build broken on Linux next and mainline and now on stable-rc-5.6=
- branch.
-> >
-> > Strange. What is it that triggers the problem for you? It works fine
-> > here.. The error looks like some kind of command line quoting error,
-> > but I don't see the direct cause.
-> >
-> > Have you bisected the failure? Build failures should be particularly
-> > easy and quick to bisect.
->
-> Naresh, can you try with the patch below? There was some back and forth
-> about a second patch in a series and this fell thru the cracks.
+Compiled, booted, and no regressions on my machine.
 
-I tried that patch, did not help.
-
-Bisection led to the expected merge, "perf-urgent-for-linus", so I
-went one by one and found this commit: a7ffd416d804 ("perf python: Fix
-clang detection when using CC=3Dclang-version"). Specifically, the line
-that fails is:
-
-  cc_is_clang =3D b"clang version" in Popen([cc, "-v"],
-stderr=3DPIPE).stderr.readline()
-
-with:
-
-  Traceback (most recent call last):
-    File "util/setup.py", line 6, in <module>
-      cc_is_clang =3D b"clang version" in Popen([cc, "-v"],
-stderr=3DPIPE).stderr.readline()
-    File "/oe/build/tmp/work/juno-linaro-linux/perf/1.0-r9/recipe-sysroot-n=
-ative/usr/lib/python2.7/subprocess.py",
-line 394, in __init__
-      errread, errwrite)
-    File "/oe/build/tmp/work/juno-linaro-linux/perf/1.0-r9/recipe-sysroot-n=
-ative/usr/lib/python2.7/subprocess.py",
-line 1047, in _execute_child
-      raise child_exception
-  OSError: [Errno 2] No such file or directory
-
-There, the value for CC is "aarch64-linaro-linux-gcc
---sysroot=3D/oe/build/tmp/work/juno-linaro-linux/perf/1.0-r9/recipe-sysroot=
-".
-
-> And also, BTW, can you please send me instructions on how to get hold of
-> the toolchain you use to crossbuild perf, so that I can add it to my set
-> of test build containers?
-
-It's an OE build, so it's bound to take quite a bit of space. I'll try
-to get something dockerized so that it's easier to replicate.
-
-Thanks and greetings!
-
-Daniel D=C3=ADaz
-daniel.diaz@linaro.org
+BR,
+Vitor
 
 
-
-> - Arnaldo
->
-> ---
->
-> From: He Zhe <zhe.he@windriver.com>
->
-> The $(CC) passed to arch_errno_names.sh may include a series of parameter=
-s
-> along with gcc itself. To avoid overwriting the following parameters of
-> arch_errno_names.sh and break the build like below, we just pick up the
-> first word of the $(CC).
->
-> find: unknown predicate `-m64/arch'
-> x86_64-wrs-linux-gcc: warning: '-x c' after last input file has no effect
-> x86_64-wrs-linux-gcc: error: unrecognized command line option '-m64/inclu=
-de/uapi/asm-generic/errno.h'
-> x86_64-wrs-linux-gcc: fatal error: no input files
->
-> Signed-off-by: He Zhe <zhe.he@windriver.com>
-> ---
->  tools/perf/Makefile.perf | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
-> index 3eda9d4..7114c11 100644
-> --- a/tools/perf/Makefile.perf
-> +++ b/tools/perf/Makefile.perf
-> @@ -573,7 +573,7 @@ arch_errno_hdr_dir :=3D $(srctree)/tools
->  arch_errno_tbl :=3D $(srctree)/tools/perf/trace/beauty/arch_errno_names.=
-sh
->
->  $(arch_errno_name_array): $(arch_errno_tbl)
-> -       $(Q)$(SHELL) '$(arch_errno_tbl)' $(CC) $(arch_errno_hdr_dir) > $@
-> +       $(Q)$(SHELL) '$(arch_errno_tbl)' $(firstword $(CC)) $(arch_errno_=
-hdr_dir) > $@
->
->  sync_file_range_arrays :=3D $(beauty_outdir)/sync_file_range_arrays.c
->  sync_file_range_tbls :=3D $(srctree)/tools/perf/trace/beauty/sync_file_r=
-ange.sh
-> --
-> 2.7.4
->
