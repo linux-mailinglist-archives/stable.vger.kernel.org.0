@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF19419B02D
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:26:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B03519AFFF
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:23:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387743AbgDAQYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:24:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
+        id S1732843AbgDAQXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:23:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387734AbgDAQYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:24:48 -0400
+        id S2387561AbgDAQXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:23:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2EA1212CC;
-        Wed,  1 Apr 2020 16:24:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9647020857;
+        Wed,  1 Apr 2020 16:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758288;
-        bh=rFN2dQwuflHduz4JWiRFToRSx2xwiHorTcHD7D9X/zM=;
+        s=default; t=1585758182;
+        bh=HShBr38L9TtO0Jru578++oUHXplOTkg6vdn9iu3NCIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dAn9EDcQTf1QVQytUtW0UBr+Wmsg/i5ccGwiP/CrK9qOcawQ8NR0aoSlGIakA0zTe
-         fBc4/VjXXvaR9goYNFkl2hc6diuZM+h3Di76G+4xNW+1CnGtBP5DdGlesOkmJscXww
-         McefMMQKZbnm01ERsQADIPKwF194g8CBPoB+xX/4=
+        b=WOKTaBFIhS/N6yPTZOuHT9Usz8Q99FpVcNlc0EOyyI1r+jVUhA7hqwNPx3nQ58DXN
+         WYO3PZvdnAgDsiloBhfrhE4NS222Z1Na4MWf2PRL+cdh9k2oWM1IJmVhXRyDK9LzL5
+         wWgnJQy/ny73PQVWDiKqVaZPhpaIihgI1Mm0i74c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 009/116] macsec: restrict to ethernet devices
-Date:   Wed,  1 Apr 2020 18:16:25 +0200
-Message-Id: <20200401161543.378887711@linuxfoundation.org>
+Subject: [PATCH 4.19 010/116] mlxsw: spectrum_mr: Fix list iteration in error path
+Date:   Wed,  1 Apr 2020 18:16:26 +0200
+Message-Id: <20200401161543.451874223@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
 References: <20200401161542.669484650@linuxfoundation.org>
@@ -44,46 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit b06d072ccc4b1acd0147b17914b7ad1caa1818bb ]
+[ Upstream commit f6bf1bafdc2152bb22aff3a4e947f2441a1d49e2 ]
 
-Only attach macsec to ethernet devices.
+list_for_each_entry_from_reverse() iterates backwards over the list from
+the current position, but in the error path we should start from the
+previous position.
 
-Syzbot was able to trigger a KMSAN warning in macsec_handle_frame
-by attaching to a phonet device.
+Fix this by using list_for_each_entry_continue_reverse() instead.
 
-Macvlan has a similar check in macvlan_port_create.
+This suppresses the following error from coccinelle:
 
-v1->v2
-  - fix commit message typo
+drivers/net/ethernet/mellanox/mlxsw//spectrum_mr.c:655:34-38: ERROR:
+invalid reference to the index variable of the iterator on line 636
 
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
+Fixes: c011ec1bbfd6 ("mlxsw: spectrum: Add the multicast routing offloading logic")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macsec.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -20,6 +20,7 @@
- #include <net/genetlink.h>
- #include <net/sock.h>
- #include <net/gro_cells.h>
-+#include <linux/if_arp.h>
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
+@@ -637,12 +637,12 @@ static int mlxsw_sp_mr_vif_resolve(struc
+ 	return 0;
  
- #include <uapi/linux/if_macsec.h>
- 
-@@ -3248,6 +3249,8 @@ static int macsec_newlink(struct net *ne
- 	real_dev = __dev_get_by_index(net, nla_get_u32(tb[IFLA_LINK]));
- 	if (!real_dev)
- 		return -ENODEV;
-+	if (real_dev->type != ARPHRD_ETHER)
-+		return -EINVAL;
- 
- 	dev->priv_flags |= IFF_MACSEC;
- 
+ err_erif_unresolve:
+-	list_for_each_entry_from_reverse(erve, &mr_vif->route_evif_list,
+-					 vif_node)
++	list_for_each_entry_continue_reverse(erve, &mr_vif->route_evif_list,
++					     vif_node)
+ 		mlxsw_sp_mr_route_evif_unresolve(mr_table, erve);
+ err_irif_unresolve:
+-	list_for_each_entry_from_reverse(irve, &mr_vif->route_ivif_list,
+-					 vif_node)
++	list_for_each_entry_continue_reverse(irve, &mr_vif->route_ivif_list,
++					     vif_node)
+ 		mlxsw_sp_mr_route_ivif_unresolve(mr_table, irve);
+ 	mr_vif->rif = NULL;
+ 	return err;
 
 
