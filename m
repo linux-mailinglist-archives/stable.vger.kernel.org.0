@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91BF419B360
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:51:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9765119B306
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:48:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388724AbgDAQiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:38:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37590 "EHLO mail.kernel.org"
+        id S2389617AbgDAQpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389055AbgDAQiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:38:04 -0400
+        id S2389830AbgDAQpN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:45:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25D05214DB;
-        Wed,  1 Apr 2020 16:38:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBC942063A;
+        Wed,  1 Apr 2020 16:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759083;
-        bh=ctrYX3pfBTM62WA3edoDko5eDSVbvGqOt2cG3g/6zwI=;
+        s=default; t=1585759513;
+        bh=67eFtnoK8AdSWJZIizwLnzcLwf5fazvq02dXq99p830=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRPI5tR0qlzBgnnl7mMjTE5A+hSv5440jTV42tnB9meLMNjh47y2Kr1ybo/VCXe/H
-         vzZZpV5af+TqPH9wYtn6rcsyhJx2PHYqJTXRgOEtygoT4LH1gd3O1gLCtmBJMAxXpz
-         yTdj+PdlPkf2uZCQVkjyfeL0MI/07+X65dqQimgs=
+        b=gDi2d3Yn4osLpbMuWopTCIoEeryjzL8FcBBLn38DCLUsp8ZjhDIwC0e26CT6a4riP
+         ant3Ne3Wv1QoQ6gyDyWbJC+AK/ApBQdnCgQ753ugbwEiI/VF+xPEUKBTdMHLzwFpNI
+         q7pByaUkOVe/68ILy/g+YDRJ5peqbtgCmlM6mHDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 071/102] Input: raydium_i2c_ts - use true and false for boolean values
-Date:   Wed,  1 Apr 2020 18:18:14 +0200
-Message-Id: <20200401161544.665703693@linuxfoundation.org>
+        stable@vger.kernel.org, Raed Salem <raeds@mellanox.com>,
+        Boris Pismenny <borisp@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.14 103/148] xfrm: handle NETDEV_UNREGISTER for xfrm device
+Date:   Wed,  1 Apr 2020 18:18:15 +0200
+Message-Id: <20200401161602.625007693@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Raed Salem <raeds@mellanox.com>
 
-[ Upstream commit 6cad4e269e25dddd7260a53e9d9d90ba3a3cc35a ]
+commit 03891f820c2117b19e80b370281eb924a09cf79f upstream.
 
-Return statements in functions returning bool should use true or false
-instead of an integer value.
+This patch to handle the asynchronous unregister
+device event so the device IPsec offload resources
+could be cleanly released.
 
-This code was detected with the help of Coccinelle.
+Fixes: e4db5b61c572 ("xfrm: policy: remove pcpu policy cache")
+Signed-off-by: Raed Salem <raeds@mellanox.com>
+Reviewed-by: Boris Pismenny <borisp@mellanox.com>
+Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/raydium_i2c_ts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/xfrm/xfrm_device.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index a99fb5cac5a0e..76cdc145c0912 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -466,7 +466,7 @@ static bool raydium_i2c_boot_trigger(struct i2c_client *client)
- 		}
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -187,6 +187,7 @@ static int xfrm_dev_event(struct notifie
+ 		return xfrm_dev_feat_change(dev);
+ 
+ 	case NETDEV_DOWN:
++	case NETDEV_UNREGISTER:
+ 		return xfrm_dev_down(dev);
  	}
- 
--	return 0;
-+	return false;
- }
- 
- static bool raydium_i2c_fw_trigger(struct i2c_client *client)
-@@ -492,7 +492,7 @@ static bool raydium_i2c_fw_trigger(struct i2c_client *client)
- 		}
- 	}
- 
--	return 0;
-+	return false;
- }
- 
- static int raydium_i2c_check_path(struct i2c_client *client)
--- 
-2.20.1
-
+ 	return NOTIFY_DONE;
 
 
