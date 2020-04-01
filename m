@@ -2,75 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1963E19B4DD
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBECC19B4F0
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732808AbgDARrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 13:47:20 -0400
-Received: from mail-io1-f46.google.com ([209.85.166.46]:44763 "EHLO
-        mail-io1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732211AbgDARrU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 13:47:20 -0400
-Received: by mail-io1-f46.google.com with SMTP id r25so550544ioc.11
-        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 10:47:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=79OCU2A1Y2j0hIjjbavaQYkVyv+GSu1qOE7wXpw9VLI=;
-        b=ZpPqLCgppPGm8VOxp23hzQck/aSLhk7l37sWOHluLDV2ubLFIQ8dmKHMVaPvHN9pap
-         NnhOnMu4Le7LLYP+7YA9KleJcRCxSSEq9zfhr+9A3USGXFMS+vHldqvnOYzM04Idednl
-         HRjcQCaXfdz3UF9/2BjatWxUatRwC3d9IW6oVMRPm6wo5VTT2jUzj9UF/f/7cOTAnnLY
-         w1DU/qDy6CNmVupabLs/71wNCUsjzqXopT8A71ArlyPNwCJk24de/IP4tVYtWngBlxcf
-         1TTwU9Be5eULj8WAnW/S61IXIbbTY27qzMzxRxr0Nrv9dTmk3rYKH8II70JeIY346RKq
-         lRag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=79OCU2A1Y2j0hIjjbavaQYkVyv+GSu1qOE7wXpw9VLI=;
-        b=uV8A17nYYBYRZt8FkcXQwssUhl5ZTdqXOGdzxaLSSThV0DZY2RAUOIQvOGMc8DKCuY
-         BDL72Is9vM1vz8oW89Vb+xpb7XRmeCoqzb7aeWo5Cmo/A1f7vJW9UnwYlcebbKmHPcop
-         9VhxhyCgz74y3uRUGEmYJo9Gj/IBydyUsDCCoItGgCb1dx21EHXy0HTJ4uALS+qLwMi2
-         yHNn0L4hG5koO6Zoff6wkmcA+DDUpPX/2DYRrJkRHfh37LFyfzdIOd6c2tgNMbTZhAI5
-         +ML3TBt5CYzcMzhCU9pSZbJu4WbzIhh3cFinFCQcRLQZjBGIumjbWsikha3ktFsO/dA9
-         HF5g==
-X-Gm-Message-State: ANhLgQ0/GdqRJD3DAfSljrvUwqOby1Bqo1tM1GQ7A7fQuObFWyqKg2mT
-        bSuzmHv4mHoGxlS/WQnthNwObQm7/6PzVDMhuAprKb5acBY=
-X-Google-Smtp-Source: ADFU+vvCv6ic8MtqWa4rP+QVJg8t+HqCTFBQ3VspbhW92kTZ0srit4057gfX98XV2lg/4nONtLfrSxYZ1dsUdKWDcB0=
-X-Received: by 2002:a05:6602:164b:: with SMTP id y11mr21663616iow.3.1585763239100;
- Wed, 01 Apr 2020 10:47:19 -0700 (PDT)
+        id S1732461AbgDARyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 13:54:53 -0400
+Received: from foss.arm.com ([217.140.110.172]:58090 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726974AbgDARyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 13:54:53 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 35A061FB;
+        Wed,  1 Apr 2020 10:54:52 -0700 (PDT)
+Received: from mbp (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 062EA3F52E;
+        Wed,  1 Apr 2020 10:54:50 -0700 (PDT)
+Date:   Wed, 1 Apr 2020 18:54:44 +0100
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Will Deacon <will@kernel.org>, Mark Rutland <Mark.Rutland@arm.com>,
+        Amit Kachhap <Amit.Kachhap@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        Szabolcs Nagy <Szabolcs.Nagy@arm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] arm64: Always force a branch protection mode when the
+ compiler has one
+Message-ID: <20200401175444.GF9434@mbp>
+References: <20200331194459.54740-1-broonie@kernel.org>
 MIME-Version: 1.0
-From:   Giuliano Procida <gprocida@google.com>
-Date:   Wed, 1 Apr 2020 17:47:02 +0000
-Message-ID: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
-Subject: backport request for use-after-free blk_mq_queue_tag_busy_iter
-To:     stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200331194459.54740-1-broonie@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This issue was found in 4.14 and is present in earlier kernels.
+On Tue, Mar 31, 2020 at 08:44:59PM +0100, Mark Brown wrote:
+> Compilers with branch protection support can be configured to enable it by
+> default, it is likely that distributions will do this as part of deploying
+> branch protection system wide. As well as the slight overhead from having
+> some extra NOPs for unused branch protection features this can cause more
+> serious problems when the kernel is providing pointer authentication to
+> userspace but not built for pointer authentication itself.
 
-Please backport
+With 5.7 you won't be able to configure user and kernel PAC support
+independently. So, I guess that's something only for prior kernel
+versions.
 
-f5bbbbe4d635 blk-mq: sync the update nr_hw_queues with
-blk_mq_queue_tag_busy_iter
-530ca2c9bd69 blk-mq: Allow blocking queue tag iter callbacks
+> In that case our
+> switching of keys for userspace can affect the kernel unexpectedly, causing
+> pointer authentication instructions in the kernel to corrupt addresses.
+> 
+> To ensure that we get consistent and reliable behaviour always explicitly
+> initialise the branch protection mode, ensuring that the kernel is built
+> the same way regardless of the compiler defaults.
+> 
+> Fixes: 7503197562567 (arm64: add basic pointer authentication support)
+> Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  arch/arm64/Kconfig  | 4 ++++
+>  arch/arm64/Makefile | 7 ++++++-
+>  2 files changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index d3efdc095a17..1e46746e8392 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -1537,6 +1537,10 @@ config ARM64_PTR_AUTH
+>  	  This feature works with FUNCTION_GRAPH_TRACER option only if
+>  	  DYNAMIC_FTRACE_WITH_REGS is enabled.
+>  
+> +config CC_HAS_BRANCH_PROT_NONE
+> +	# GCC 9 or later, clang 8 or later
+> +	def_bool $(cc-option,-mbranch-protection=none)
 
-onto the stable branches that don't have these. The second is a fix
-for the first. Thank you.
+I don't think we need to bother with a Kconfig entry here. We did it for
+the other options since CONFIG_ARM64_PTR_AUTH has a dependency on them.
 
-4.19.y and later - commits already present
-4.14.y - f5bbbbe4d635 doesn't patch cleanly but it's still
-straightforward, just drop the comment and code mentioning switching
-to 'none' in the trailing context
-4.9.y - ditto
-4.4.y - there was a refactoring of the code in commit
-0bf6cd5b9531bcc29c0a5e504b6ce2984c6fd8d8 making this non-trivial
-3.16.y - ditto
+> +
+>  config CC_HAS_BRANCH_PROT_PAC_RET
+>  	# GCC 9 or later, clang 8 or later
+>  	def_bool $(cc-option,-mbranch-protection=pac-ret+leaf)
+> diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+> index f15f92ba53e6..370fca6663c8 100644
+> --- a/arch/arm64/Makefile
+> +++ b/arch/arm64/Makefile
+> @@ -65,6 +65,10 @@ stack_protector_prepare: prepare0
+>  					include/generated/asm-offsets.h))
+>  endif
+>  
+> +# Ensure that if the compiler supports branch protection we default it
+> +# off, this will be overridden if we are using branch protection.
+> +branch-prot-flags-$(CONFIG_CC_HAS_BRANCH_PROT_NONE) := -mbranch-protection=none
 
-I am happy to try to produce clean patches, but it may be a day or so.
+And a $(call cc-option,-mbranch-protection=none) here.
 
-Regards,
-Giuliano.
+branch-prot-flags-y is only introduced in 5.7, so backporting may look
+slightly weirder.
+
+> +
+>  ifeq ($(CONFIG_ARM64_PTR_AUTH),y)
+>  branch-prot-flags-$(CONFIG_CC_HAS_SIGN_RETURN_ADDRESS) := -msign-return-address=all
+>  branch-prot-flags-$(CONFIG_CC_HAS_BRANCH_PROT_PAC_RET) := -mbranch-protection=pac-ret+leaf
+> @@ -73,9 +77,10 @@ branch-prot-flags-$(CONFIG_CC_HAS_BRANCH_PROT_PAC_RET) := -mbranch-protection=pa
+>  # we pass it only to the assembler. This option is utilized only in case of non
+>  # integrated assemblers.
+>  branch-prot-flags-$(CONFIG_AS_HAS_PAC) += -Wa,-march=armv8.3-a
+> -KBUILD_CFLAGS += $(branch-prot-flags-y)
+>  endif
+>  
+> +KBUILD_CFLAGS += $(branch-prot-flags-y)
+
+Or just use an else clause here with:
+
+KBUILD_CFLAGS += ($call cc-option,-mbranch-protection=none).
+
+On backports, we just drop else/endif since they don't exist.
+
+Not a strong preference really, just looking to have backports resemble
+upstream better. I can fix it up locally, whichever variant we go for
+(or even this one).
+
+-- 
+Catalin
