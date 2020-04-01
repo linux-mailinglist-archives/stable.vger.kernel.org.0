@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A61719B163
+	by mail.lfdr.de (Postfix) with ESMTP id EE17019B165
 	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387779AbgDAQeh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:34:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
+        id S1732411AbgDAQek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:34:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387687AbgDAQeh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:34:37 -0400
+        id S2388529AbgDAQek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:34:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 551BE20772;
-        Wed,  1 Apr 2020 16:34:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D501A20772;
+        Wed,  1 Apr 2020 16:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758876;
-        bh=oGFDckR2TBmji8ob8AwdRWoVL7cZrdBE6BwdymPeHfc=;
+        s=default; t=1585758879;
+        bh=zoIs6g3QiQF1Pb10geW1fimpOpcLW6YJQTXtrUPp+rY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pvzA0zFont59Sf+KfVnfZRpDENVFXOg6s6qVK67Zpt5UOYAuB4TuDdKgLykwy7ow7
-         Pb7PN8Im3exVvn0stbo215tQXkvRe69TswJQ1aYjBMU0RnM7S4ZeZwZH/NfKQMXaaZ
-         deB2YiW14QXt+0tOIh0hJ5IuU6+nuSqimPdMabok=
+        b=JOPJD4cGXyePPb+T9EczDJauw5Q/AlmJJOKmNsPPmSGhwXfWjONmaxuSyxoBhsZ1+
+         jtttcTNzGKFO3UP7m5/2im3pZdG4wPLk2B3/U8ZQT9v7S/ZFaV9ovI2cRDcRqUJGj6
+         b3BL0d0ljeRof7ysSeRVItedRtx5YdGWHjt3Ew+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 010/102] USB: serial: option: add ME910G1 ECM composition 0x110b
-Date:   Wed,  1 Apr 2020 18:17:13 +0200
-Message-Id: <20200401161533.706422614@linuxfoundation.org>
+        stable@vger.kernel.org, Ran Wang <ran.wang_1@nxp.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.9 011/102] usb: host: xhci-plat: add a shutdown
+Date:   Wed,  1 Apr 2020 18:17:14 +0200
+Message-Id: <20200401161533.922470748@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
 References: <20200401161530.451355388@linuxfoundation.org>
@@ -43,32 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Ran Wang <ran.wang_1@nxp.com>
 
-commit 8e852a7953be2a6ee371449f7257fe15ace6a1fc upstream.
+commit b433e340e7565110b0ce9ca4b3e26f4b97a1decf upstream.
 
-Add ME910G1 ECM composition 0x110b: tty, tty, tty, ecm
+When loading new kernel via kexec, we need to shutdown host controller to
+avoid any un-expected memory accessing during new kernel boot.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20200304104310.2938-1-dnlplm@gmail.com
+Signed-off-by: Ran Wang <ran.wang_1@nxp.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Tested-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20200306092328.41253-1-ran.wang_1@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/host/xhci-plat.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1172,6 +1172,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110a, 0xff),	/* Telit ME910G1 */
- 	  .driver_info = NCTRL(0) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110b, 0xff),	/* Telit ME910G1 (ECM) */
-+	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -335,6 +335,7 @@ MODULE_DEVICE_TABLE(acpi, usb_xhci_acpi_
+ static struct platform_driver usb_xhci_driver = {
+ 	.probe	= xhci_plat_probe,
+ 	.remove	= xhci_plat_remove,
++	.shutdown = usb_hcd_platform_shutdown,
+ 	.driver	= {
+ 		.name = "xhci-hcd",
+ 		.pm = DEV_PM_OPS,
 
 
