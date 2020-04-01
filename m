@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5FAB19B1FF
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:40:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C22119B2F7
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388928AbgDAQjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:39:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39998 "EHLO mail.kernel.org"
+        id S2387609AbgDAQsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:48:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388679AbgDAQjy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:39:54 -0400
+        id S2390106AbgDAQsB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:48:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF46420719;
-        Wed,  1 Apr 2020 16:39:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B84332063A;
+        Wed,  1 Apr 2020 16:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759194;
-        bh=Vb7rH95H+cRLRZgwZr5PFtUUZF7nYM9p+VSLhDZaSGI=;
+        s=default; t=1585759680;
+        bh=IKlBNIhNGOdSwMXMGcHYdw2UJo0lDoL6NaGMlLD0S+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ASNVZMZjpip4M9pEP2XUqeYWLZGbg8FdMlYA7PpPGkS3iLuPBAL9UcRNAfUFUsKYd
-         sP9gKneb2dSxp4vF6YJqI2R+RA4FwHmUiTZD0UtkEwRTpz8/4RKeerCaMLzfzbeeMK
-         St2hxQUHBnps4m1M9dNiOdKTA9UQomJEKj77Cw60=
+        b=bacYpaSu1polefpnhBmbzrniEhuP3dPypknyXcehCZUzk81ofjUAGNT5ThaSX4ox3
+         5U9xO70MwWYvqHk1rQ8YSdH+ZueTvH9Cyh82ud7+W8FvdiWBYxM5SBdYtopJYjfgfA
+         L3O6W6zhdlLaNQJkv+W6oQml/8/o5gVOv5v63ftA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
         Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 086/102] media: ov519: add missing endpoint sanity checks
-Date:   Wed,  1 Apr 2020 18:18:29 +0200
-Message-Id: <20200401161546.780346676@linuxfoundation.org>
+        syzbot+37ba33391ad5f3935bbd@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 118/148] USB: serial: io_edgeport: fix slab-out-of-bounds read in edge_interrupt_callback
+Date:   Wed,  1 Apr 2020 18:18:30 +0200
+Message-Id: <20200401161603.801803678@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit 998912346c0da53a6dbb71fab3a138586b596b30 upstream.
+commit 57aa9f294b09463492f604feaa5cc719beaace32 upstream.
 
-Make sure to check that we have at least one endpoint before accessing
-the endpoint array to avoid dereferencing a NULL-pointer on stream
-start.
+Fix slab-out-of-bounds read in the interrupt-URB completion handler.
 
-Note that these sanity checks are not redundant as the driver is mixing
-looking up altsettings by index and by number, which need not coincide.
+The boundary condition should be (length - 1) as we access
+data[position + 1].
 
-Fixes: 1876bb923c98 ("V4L/DVB (12079): gspca_ov519: add support for the ov511 bridge")
-Fixes: b282d87332f5 ("V4L/DVB (12080): gspca_ov519: Fix ov518+ with OV7620AE (Trust spacecam 320)")
-Cc: stable <stable@vger.kernel.org>     # 2.6.31
-Cc: Hans de Goede <hdegoede@redhat.com>
+Reported-and-tested-by: syzbot+37ba33391ad5f3935bbd@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/ov519.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/usb/serial/io_edgeport.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/gspca/ov519.c
-+++ b/drivers/media/usb/gspca/ov519.c
-@@ -3482,6 +3482,11 @@ static void ov511_mode_init_regs(struct
- 		return;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	reg_w(sd, R51x_FIFO_PSIZE, packet_size >> 5);
- 
-@@ -3607,6 +3612,11 @@ static void ov518_mode_init_regs(struct
- 		return;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1) {
-+		sd->gspca_dev.usb_err = -ENODEV;
-+		return;
-+	}
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	ov518_reg_w32(sd, R51x_FIFO_PSIZE, packet_size & ~7, 2);
- 
+--- a/drivers/usb/serial/io_edgeport.c
++++ b/drivers/usb/serial/io_edgeport.c
+@@ -714,7 +714,7 @@ static void edge_interrupt_callback(stru
+ 		/* grab the txcredits for the ports if available */
+ 		position = 2;
+ 		portNumber = 0;
+-		while ((position < length) &&
++		while ((position < length - 1) &&
+ 				(portNumber < edge_serial->serial->num_ports)) {
+ 			txCredits = data[position] | (data[position+1] << 8);
+ 			if (txCredits) {
 
 
