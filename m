@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1158B19B3D3
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:54:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F6119B175
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732428AbgDAQaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:30:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55982 "EHLO mail.kernel.org"
+        id S2388713AbgDAQfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:35:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387716AbgDAQaK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:30:10 -0400
+        id S2387563AbgDAQfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:35:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFBEB212CC;
-        Wed,  1 Apr 2020 16:30:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E036B2063A;
+        Wed,  1 Apr 2020 16:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758609;
-        bh=nApbZ80mXRy/+ibrdVc/TvjMd1UMq5jINCA6FxGD2T8=;
+        s=default; t=1585758910;
+        bh=mSvL+Ku0/hfoZ6yGDCwrJ/EfR1GzJJRFMJ8SJ4QiRoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quWgzVxmGRQjoxB/UREHrpWrIIl+xmetR0qDzVYTJkAC/T9eHffcADM0lqBg+o2yU
-         Gsq4gl/gm3vx0bOxqoFJtz1+hTtKHXUrGjI0E442nzeAPG87n4gQ3/8V9akRA986W3
-         URgWe8MikQOhhwWdL/w5nrP0NsCl1m0sK5KRY5qU=
+        b=ZGBV2cA9CiGy0VIKRXxJU1SSZqkIRg9xlDcDUmPHoHxniFGQEgog2O0XdizUTzpOQ
+         qA9wIjkdUKKBndUcKyRGo595i5syWaUonWQ1tZmAMYzTrMYWYxGck19B/nWNdWtdaG
+         r3Adl1Z9VcHnU77DzcL4XGasAyHAIqQRztYBhqOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 4.4 08/91] USB: Disable LPM on WD19s Realtek Hub
-Date:   Wed,  1 Apr 2020 18:17:04 +0200
-Message-Id: <20200401161515.747019324@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 002/102] powerpc: Include .BTF section
+Date:   Wed,  1 Apr 2020 18:17:05 +0200
+Message-Id: <20200401161531.429011705@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit b63e48fb50e1ca71db301ca9082befa6f16c55c4 upstream.
+[ Upstream commit cb0cc635c7a9fa8a3a0f75d4d896721819c63add ]
 
-Realtek Hub (0bda:0x0487) used in Dell Dock WD19 sometimes drops off the
-bus when bringing underlying ports from U3 to U0.
+Selecting CONFIG_DEBUG_INFO_BTF results in the below warning from ld:
+  ld: warning: orphan section `.BTF' from `.btf.vmlinux.bin.o' being placed in section `.BTF'
 
-Disabling LPM on the hub during setting link state is not enough, so
-let's disable LPM completely for this hub.
+Include .BTF section in vmlinux explicitly to fix the same.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200205112633.25995-3-kai.heng.feng@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200220113132.857132-1-naveen.n.rao@linux.vnet.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/kernel/vmlinux.lds.S | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -229,6 +229,9 @@ static const struct usb_device_id usb_qu
- 	{ USB_DEVICE(0x0b05, 0x17e0), .driver_info =
- 			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
+diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
+index 50d3650608558..c20510497c49d 100644
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -315,6 +315,12 @@ SECTIONS
+ 		*(.branch_lt)
+ 	}
  
-+	/* Realtek hub in Dell WD19 (Type-C) */
-+	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
++#ifdef CONFIG_DEBUG_INFO_BTF
++	.BTF : AT(ADDR(.BTF) - LOAD_OFFSET) {
++		*(.BTF)
++	}
++#endif
 +
- 	/* Action Semiconductor flash disk */
- 	{ USB_DEVICE(0x10d6, 0x2200), .driver_info =
- 			USB_QUIRK_STRING_FETCH_255 },
+ 	.opd : AT(ADDR(.opd) - LOAD_OFFSET) {
+ 		*(.opd)
+ 	}
+-- 
+2.20.1
+
 
 
