@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E89719B380
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:52:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02DD919B382
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:52:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388905AbgDAQg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:36:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36048 "EHLO mail.kernel.org"
+        id S2388912AbgDAQhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:37:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388900AbgDAQg5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:36:57 -0400
+        id S2388909AbgDAQg7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:36:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 452D620658;
-        Wed,  1 Apr 2020 16:36:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B719C20857;
+        Wed,  1 Apr 2020 16:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759016;
-        bh=JVZfJY6/5ALNIW2gEhKmn1RI1T33U9c2/ocITbeMS4A=;
+        s=default; t=1585759019;
+        bh=ohqJLmyECEmNlowxB0+bY4WZAdYt+06EO59CPW/sGCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qv0OYuAg95qks8AoVilkFDDtTtOjvypmvisXDuWOUXFY4zyIYVFHeq5TN0S+hN07i
-         nbxSTnXsPUnIVf4WKV7oQxT1MqBZFdAA4d/PN8BgCcKdgSkanMj0iwC17SwPHgbMlY
-         9LEJ2/v0d+Vu5ohEQUg+rK7PoVKrUwEWpUjD5rYM=
+        b=tgWApvuTM7faNIeOiLepUeKCLMnIrqi76Oq0GvijGXUWYoIyWL6R8N+yw4E3jlXuh
+         A5KX0ay90nZI7iecRFef9ODlI3B3Pxd9tFv3uq+MIGp5AredU2/pOxl+RveG3bdupV
+         sEdMjX58A8rVqN+aooO6/vOQ26B+6Q2Wo82HPqC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 050/102] KVM: VMX: Do not allow reexecute_instruction() when skipping MMIO instr
-Date:   Wed,  1 Apr 2020 18:17:53 +0200
-Message-Id: <20200401161542.437929623@linuxfoundation.org>
+Subject: [PATCH 4.9 051/102] net: ipv4: dont let PMTU updates increase route MTU
+Date:   Wed,  1 Apr 2020 18:17:54 +0200
+Message-Id: <20200401161542.614838063@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
 References: <20200401161530.451355388@linuxfoundation.org>
@@ -45,47 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit c4409905cd6eb42cfd06126e9226b0150e05a715 ]
+[ Upstream commit 28d35bcdd3925e7293408cdb8aa5f2aac5f0d6e3 ]
 
-Re-execution after an emulation decode failure is only intended to
-handle a case where two or vCPUs race to write a shadowed page, i.e.
-we should never re-execute an instruction as part of MMIO emulation.
-As handle_ept_misconfig() is only used for MMIO emulation, it should
-pass EMULTYPE_NO_REEXECUTE when using the emulator to skip an instr
-in the fast-MMIO case where VM_EXIT_INSTRUCTION_LEN is invalid.
+When an MTU update with PMTU smaller than net.ipv4.route.min_pmtu is
+received, we must clamp its value. However, we can receive a PMTU
+exception with PMTU < old_mtu < ip_rt_min_pmtu, which would lead to an
+increase in PMTU.
 
-And because the cr2 value passed to x86_emulate_instruction() is only
-destined for use when retrying or reexecuting, we can simply call
-emulate_instruction().
+To fix this, take the smallest of the old MTU and ip_rt_min_pmtu.
 
-Fixes: d391f1207067 ("x86/kvm/vmx: do not use vm-exit instruction length
-                      for fast MMIO when running nested")
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
+Before this patch, in case of an update, the exception's MTU would
+always change. Now, an exception can have only its lock flag updated,
+but not the MTU, so we need to add a check on locking to the following
+"is this exception getting updated, or close to expiring?" test.
+
+Fixes: d52e5a7e7ca4 ("ipv4: lock mtu in fnhe when received PMTU < net.ipv4.route.min_pmtu")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/route.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-index 8bd336651de52..1fa4545c55e35 100644
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -6564,8 +6564,8 @@ static int handle_ept_misconfig(struct kvm_vcpu *vcpu)
- 			return 1;
- 		}
- 		else
--			return x86_emulate_instruction(vcpu, gpa, EMULTYPE_SKIP,
--						       NULL, 0) == EMULATE_DONE;
-+			return emulate_instruction(vcpu, EMULTYPE_SKIP) ==
-+								EMULATE_DONE;
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 6058dbc4e2c19..8f5c6fa54ac09 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -991,21 +991,22 @@ out:	kfree_skb(skb);
+ static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
+ {
+ 	struct dst_entry *dst = &rt->dst;
++	u32 old_mtu = ipv4_mtu(dst);
+ 	struct fib_result res;
+ 	bool lock = false;
+ 
+ 	if (ip_mtu_locked(dst))
+ 		return;
+ 
+-	if (ipv4_mtu(dst) < mtu)
++	if (old_mtu < mtu)
+ 		return;
+ 
+ 	if (mtu < ip_rt_min_pmtu) {
+ 		lock = true;
+-		mtu = ip_rt_min_pmtu;
++		mtu = min(old_mtu, ip_rt_min_pmtu);
  	}
  
- 	ret = kvm_mmu_page_fault(vcpu, gpa, PFERR_RSVD_MASK, NULL, 0);
+-	if (rt->rt_pmtu == mtu &&
++	if (rt->rt_pmtu == mtu && !lock &&
+ 	    time_before(jiffies, dst->expires - ip_rt_mtu_expires / 2))
+ 		return;
+ 
 -- 
 2.20.1
 
