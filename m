@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CDE619B102
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EEA819AFED
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:22:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387728AbgDAQbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:31:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57148 "EHLO mail.kernel.org"
+        id S2387463AbgDAQW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:22:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387768AbgDAQbE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:31:04 -0400
+        id S2387477AbgDAQWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:22:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 928F6212CC;
-        Wed,  1 Apr 2020 16:31:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 791B4214D8;
+        Wed,  1 Apr 2020 16:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758664;
-        bh=igKsz5aGdZ2VauEo01TFaMDcawtLkncf0/hV/bXqtII=;
+        s=default; t=1585758142;
+        bh=62H8q4wS2U8H3WVXq49tHHl0V1M2VnJlDoEkzXF2fzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fe1AaBJg15MPRSF7R740xFEoppDUf//yCFov6f/qSzulpjhiqFL0Io+uokmHio8/B
-         F5U2vpxbjkpZGSO5PTuqzqe0zx9O/8r4r/rq/iM+3GRpMHEuSkEoumwwGmKCdc1y+d
-         DIuJ/ZK4qPjyfRf0EXxNp9d4ERaLOCKTGXNhU/EI=
+        b=xhZRbZqp5WX2wFoxg3mxHJ+E/Y6NBqte2REwMy+IMYywOL5c0LvV7jhjD6z+LUsFF
+         JRyGTIJF+XJHTbiDTGxYLy7x8RbBv73YrpbJa9HdSsVsRLM1ObbKbbDbMUpqjRvyDd
+         +T/ziMgQRE3G7fxc8TnR+6Jm/nkwM9rng/70JmrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+dcc34d54d68ef7d2d53d@syzkaller.appspotmail.com,
-        syzbot+c72da7b9ed57cde6fca2@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 37/91] net_sched: keep alloc_hash updated after hash allocation
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.4 05/27] vt: ioctl, switch VT_IS_IN_USE and VT_BUSY to inlines
 Date:   Wed,  1 Apr 2020 18:17:33 +0200
-Message-Id: <20200401161527.011635323@linuxfoundation.org>
+Message-Id: <20200401161419.358817229@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
+References: <20200401161414.352722470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,39 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 0d1c3530e1bd38382edef72591b78e877e0edcd3 ]
+commit e587e8f17433ddb26954f0edf5b2f95c42155ae9 upstream.
 
-In commit 599be01ee567 ("net_sched: fix an OOB access in cls_tcindex")
-I moved cp->hash calculation before the first
-tcindex_alloc_perfect_hash(), but cp->alloc_hash is left untouched.
-This difference could lead to another out of bound access.
+These two were macros. Switch them to static inlines, so that it's more
+understandable what they are doing.
 
-cp->alloc_hash should always be the size allocated, we should
-update it after this tcindex_alloc_perfect_hash().
-
-Reported-and-tested-by: syzbot+dcc34d54d68ef7d2d53d@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+c72da7b9ed57cde6fca2@syzkaller.appspotmail.com
-Fixes: 599be01ee567 ("net_sched: fix an OOB access in cls_tcindex")
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200219073951.16151-2-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/cls_tcindex.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -293,6 +293,7 @@ tcindex_set_parms(struct net *net, struc
- 				      sizeof(*r) * cp->hash, GFP_KERNEL);
- 		if (!cp->perfect)
- 			goto errout;
-+		cp->alloc_hash = cp->hash;
- 		for (i = 0; i < min(cp->hash, p->hash); i++)
- 			tcf_exts_init(&cp->perfect[i].exts,
- 				      TCA_TCINDEX_ACT, TCA_TCINDEX_POLICE);
+---
+ drivers/tty/vt/vt_ioctl.c |   29 ++++++++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 7 deletions(-)
+
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -40,10 +40,25 @@
+ #include <linux/selection.h>
+ 
+ char vt_dont_switch;
+-extern struct tty_driver *console_driver;
+ 
+-#define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
+-#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
++static inline bool vt_in_use(unsigned int i)
++{
++	extern struct tty_driver *console_driver;
++
++	return console_driver->ttys[i] && console_driver->ttys[i]->count;
++}
++
++static inline bool vt_busy(int i)
++{
++	if (vt_in_use(i))
++		return true;
++	if (i == fg_console)
++		return true;
++	if (vc_is_sel(vc_cons[i].d))
++		return true;
++
++	return false;
++}
+ 
+ /*
+  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
+@@ -289,7 +304,7 @@ static int vt_disallocate(unsigned int v
+ 	int ret = 0;
+ 
+ 	console_lock();
+-	if (VT_BUSY(vc_num))
++	if (vt_busy(vc_num))
+ 		ret = -EBUSY;
+ 	else if (vc_num)
+ 		vc = vc_deallocate(vc_num);
+@@ -311,7 +326,7 @@ static void vt_disallocate_all(void)
+ 
+ 	console_lock();
+ 	for (i = 1; i < MAX_NR_CONSOLES; i++)
+-		if (!VT_BUSY(i))
++		if (!vt_busy(i))
+ 			vc[i] = vc_deallocate(i);
+ 		else
+ 			vc[i] = NULL;
+@@ -648,7 +663,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 			state = 1;	/* /dev/tty0 is always open */
+ 			for (i = 0, mask = 2; i < MAX_NR_CONSOLES && mask;
+ 							++i, mask <<= 1)
+-				if (VT_IS_IN_USE(i))
++				if (vt_in_use(i))
+ 					state |= mask;
+ 			ret = put_user(state, &vtstat->v_state);
+ 		}
+@@ -661,7 +676,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 	case VT_OPENQRY:
+ 		/* FIXME: locking ? - but then this is a stupid API */
+ 		for (i = 0; i < MAX_NR_CONSOLES; ++i)
+-			if (! VT_IS_IN_USE(i))
++			if (!vt_in_use(i))
+ 				break;
+ 		uival = i < MAX_NR_CONSOLES ? (i+1) : -1;
+ 		goto setint;		 
 
 
