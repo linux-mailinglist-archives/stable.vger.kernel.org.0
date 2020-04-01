@@ -2,132 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBECC19B4F0
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC67419B4F4
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732461AbgDARyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 13:54:53 -0400
-Received: from foss.arm.com ([217.140.110.172]:58090 "EHLO foss.arm.com"
+        id S1727723AbgDARzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 13:55:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726974AbgDARyx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 13:54:53 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 35A061FB;
-        Wed,  1 Apr 2020 10:54:52 -0700 (PDT)
-Received: from mbp (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 062EA3F52E;
-        Wed,  1 Apr 2020 10:54:50 -0700 (PDT)
-Date:   Wed, 1 Apr 2020 18:54:44 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Will Deacon <will@kernel.org>, Mark Rutland <Mark.Rutland@arm.com>,
-        Amit Kachhap <Amit.Kachhap@arm.com>,
-        Kees Cook <keescook@chromium.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        Szabolcs Nagy <Szabolcs.Nagy@arm.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] arm64: Always force a branch protection mode when the
- compiler has one
-Message-ID: <20200401175444.GF9434@mbp>
-References: <20200331194459.54740-1-broonie@kernel.org>
+        id S1726974AbgDARzl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 13:55:41 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBCE720719;
+        Wed,  1 Apr 2020 17:55:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585763741;
+        bh=PO+CfaeLhp/aOikVQUgrnUs0hXxuqGk+YncI5MT0P5E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vCEqsYQLpNmyFJNh7P9xl/B6g5mpj8GmjYy6ekQLVAtfZFs6S/PXSOC5JkD2fFKwE
+         981shgS/HaDBKKTx32mkSFl/zROxHYqgxoAz4EBHxNGfpNaSE+H5C1FIlAzve/0Zrw
+         TKZZxiB0mFGEkeLz7+8+SYdCd3MJ246V5UeoiD3w=
+Date:   Wed, 1 Apr 2020 19:55:37 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Giuliano Procida <gprocida@google.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: backport request for use-after-free blk_mq_queue_tag_busy_iter
+Message-ID: <20200401175537.GC2586614@kroah.com>
+References: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200331194459.54740-1-broonie@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 31, 2020 at 08:44:59PM +0100, Mark Brown wrote:
-> Compilers with branch protection support can be configured to enable it by
-> default, it is likely that distributions will do this as part of deploying
-> branch protection system wide. As well as the slight overhead from having
-> some extra NOPs for unused branch protection features this can cause more
-> serious problems when the kernel is providing pointer authentication to
-> userspace but not built for pointer authentication itself.
-
-With 5.7 you won't be able to configure user and kernel PAC support
-independently. So, I guess that's something only for prior kernel
-versions.
-
-> In that case our
-> switching of keys for userspace can affect the kernel unexpectedly, causing
-> pointer authentication instructions in the kernel to corrupt addresses.
+On Wed, Apr 01, 2020 at 05:47:02PM +0000, Giuliano Procida wrote:
+> This issue was found in 4.14 and is present in earlier kernels.
 > 
-> To ensure that we get consistent and reliable behaviour always explicitly
-> initialise the branch protection mode, ensuring that the kernel is built
-> the same way regardless of the compiler defaults.
+> Please backport
 > 
-> Fixes: 7503197562567 (arm64: add basic pointer authentication support)
-> Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Cc: stable@vger.kernel.org
-> ---
->  arch/arm64/Kconfig  | 4 ++++
->  arch/arm64/Makefile | 7 ++++++-
->  2 files changed, 10 insertions(+), 1 deletion(-)
+> f5bbbbe4d635 blk-mq: sync the update nr_hw_queues with
+> blk_mq_queue_tag_busy_iter
+> 530ca2c9bd69 blk-mq: Allow blocking queue tag iter callbacks
 > 
-> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-> index d3efdc095a17..1e46746e8392 100644
-> --- a/arch/arm64/Kconfig
-> +++ b/arch/arm64/Kconfig
-> @@ -1537,6 +1537,10 @@ config ARM64_PTR_AUTH
->  	  This feature works with FUNCTION_GRAPH_TRACER option only if
->  	  DYNAMIC_FTRACE_WITH_REGS is enabled.
->  
-> +config CC_HAS_BRANCH_PROT_NONE
-> +	# GCC 9 or later, clang 8 or later
-> +	def_bool $(cc-option,-mbranch-protection=none)
+> onto the stable branches that don't have these. The second is a fix
+> for the first. Thank you.
+> 
+> 4.19.y and later - commits already present
+> 4.14.y - f5bbbbe4d635 doesn't patch cleanly but it's still
+> straightforward, just drop the comment and code mentioning switching
+> to 'none' in the trailing context
+> 4.9.y - ditto
+> 4.4.y - there was a refactoring of the code in commit
+> 0bf6cd5b9531bcc29c0a5e504b6ce2984c6fd8d8 making this non-trivial
+> 3.16.y - ditto
+> 
+> I am happy to try to produce clean patches, but it may be a day or so.
 
-I don't think we need to bother with a Kconfig entry here. We did it for
-the other options since CONFIG_ARM64_PTR_AUTH has a dependency on them.
+Clean patches would be good, as there are -rcs out right now so I can't
+do anything until they are released in a few days.
 
-> +
->  config CC_HAS_BRANCH_PROT_PAC_RET
->  	# GCC 9 or later, clang 8 or later
->  	def_bool $(cc-option,-mbranch-protection=pac-ret+leaf)
-> diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-> index f15f92ba53e6..370fca6663c8 100644
-> --- a/arch/arm64/Makefile
-> +++ b/arch/arm64/Makefile
-> @@ -65,6 +65,10 @@ stack_protector_prepare: prepare0
->  					include/generated/asm-offsets.h))
->  endif
->  
-> +# Ensure that if the compiler supports branch protection we default it
-> +# off, this will be overridden if we are using branch protection.
-> +branch-prot-flags-$(CONFIG_CC_HAS_BRANCH_PROT_NONE) := -mbranch-protection=none
+thanks,
 
-And a $(call cc-option,-mbranch-protection=none) here.
-
-branch-prot-flags-y is only introduced in 5.7, so backporting may look
-slightly weirder.
-
-> +
->  ifeq ($(CONFIG_ARM64_PTR_AUTH),y)
->  branch-prot-flags-$(CONFIG_CC_HAS_SIGN_RETURN_ADDRESS) := -msign-return-address=all
->  branch-prot-flags-$(CONFIG_CC_HAS_BRANCH_PROT_PAC_RET) := -mbranch-protection=pac-ret+leaf
-> @@ -73,9 +77,10 @@ branch-prot-flags-$(CONFIG_CC_HAS_BRANCH_PROT_PAC_RET) := -mbranch-protection=pa
->  # we pass it only to the assembler. This option is utilized only in case of non
->  # integrated assemblers.
->  branch-prot-flags-$(CONFIG_AS_HAS_PAC) += -Wa,-march=armv8.3-a
-> -KBUILD_CFLAGS += $(branch-prot-flags-y)
->  endif
->  
-> +KBUILD_CFLAGS += $(branch-prot-flags-y)
-
-Or just use an else clause here with:
-
-KBUILD_CFLAGS += ($call cc-option,-mbranch-protection=none).
-
-On backports, we just drop else/endif since they don't exist.
-
-Not a strong preference really, just looking to have backports resemble
-upstream better. I can fix it up locally, whichever variant we go for
-(or even this one).
-
--- 
-Catalin
+greg k-h
