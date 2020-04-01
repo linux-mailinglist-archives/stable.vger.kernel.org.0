@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2470919B312
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF50219B00D
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:23:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389426AbgDAQl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:41:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41820 "EHLO mail.kernel.org"
+        id S1733299AbgDAQXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:23:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389423AbgDAQl1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:41:27 -0400
+        id S2387610AbgDAQXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:23:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3081F206F8;
-        Wed,  1 Apr 2020 16:41:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F2412137B;
+        Wed,  1 Apr 2020 16:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759286;
-        bh=OfXpKBA7jzQyXn/bl/k84peHRGE0FjKMueS/+tHh9G8=;
+        s=default; t=1585758217;
+        bh=nhJQxQCFLz20+3m0GlqbdNdv+16PiSrAntecgskSFgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0TrU7pN8wuJeQEs5Db7QwIeGFSBpJTTq8VnVKOpCJm/oUsFyuXgpVVGKM4ehyU9cM
-         IJNE8iVc1hsQfB0/zb95LUAbUiBAoSJ2FjoKpjdMeVd+1gY0vApHlPFQJQgqwI+pKl
-         QGd5Kc5GFl8lBW/HdQ8fMYMoRMVI3R/cS/XuvQTc=
+        b=iZjFAJGbt/vM6DQmWGuN088CzD4y+Vidrq8VZg6QGZIjBafpHHfLdv0LiVwtU6vo5
+         2AI7VR86HVd6P2rAYezyWCG7PhJAJ1KOf2knKDiGJRd93XTsrPxyAiN3Qb/fBEgG2r
+         lxj2i5EJMKDo+VG81FXyZ8k4t/HdKeNXwC0T2A0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajat Jain <rajatja@google.com>,
-        Evan Green <evgreen@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 004/148] spi: pxa2xx: Add CS control clock quirk
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 020/116] slcan: not call free_netdev before rtnl_unlock in slcan_open
 Date:   Wed,  1 Apr 2020 18:16:36 +0200
-Message-Id: <20200401161552.640095570@linuxfoundation.org>
+Message-Id: <20200401161544.816097128@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit 683f65ded66a9a7ff01ed7280804d2132ebfdf7e ]
+[ Upstream commit 2091a3d42b4f339eaeed11228e0cbe9d4f92f558 ]
 
-In some circumstances on Intel LPSS controllers, toggling the LPSS
-CS control register doesn't actually cause the CS line to toggle.
-This seems to be failure of dynamic clock gating that occurs after
-going through a suspend/resume transition, where the controller
-is sent through a reset transition. This ruins SPI transactions
-that either rely on delay_usecs, or toggle the CS line without
-sending data.
+As the description before netdev_run_todo, we cannot call free_netdev
+before rtnl_unlock, fix it by reorder the code.
 
-Whenever CS is toggled, momentarily set the clock gating register
-to "Force On" to poke the controller into acting on CS.
+This patch is a 1:1 copy of upstream slip.c commit f596c87005f7
+("slip: not call free_netdev before rtnl_unlock in slip_open").
 
-Signed-off-by: Rajat Jain <rajatja@google.com>
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Link: https://lore.kernel.org/r/20200211223700.110252-1-rajatja@google.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: yangerkun <yangerkun@huawei.com>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-pxa2xx.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/net/can/slcan.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index b2245cdce230b..5160e16d3a985 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -76,6 +76,10 @@ MODULE_ALIAS("platform:pxa2xx-spi");
- #define LPSS_CAPS_CS_EN_SHIFT			9
- #define LPSS_CAPS_CS_EN_MASK			(0xf << LPSS_CAPS_CS_EN_SHIFT)
+--- a/drivers/net/can/slcan.c
++++ b/drivers/net/can/slcan.c
+@@ -621,7 +621,10 @@ err_free_chan:
+ 	tty->disc_data = NULL;
+ 	clear_bit(SLF_INUSE, &sl->flags);
+ 	slc_free_netdev(sl->dev);
++	/* do not call free_netdev before rtnl_unlock */
++	rtnl_unlock();
+ 	free_netdev(sl->dev);
++	return err;
  
-+#define LPSS_PRIV_CLOCK_GATE 0x38
-+#define LPSS_PRIV_CLOCK_GATE_CLK_CTL_MASK 0x3
-+#define LPSS_PRIV_CLOCK_GATE_CLK_CTL_FORCE_ON 0x3
-+
- struct lpss_config {
- 	/* LPSS offset from drv_data->ioaddr */
- 	unsigned offset;
-@@ -92,6 +96,8 @@ struct lpss_config {
- 	unsigned cs_sel_shift;
- 	unsigned cs_sel_mask;
- 	unsigned cs_num;
-+	/* Quirks */
-+	unsigned cs_clk_stays_gated : 1;
- };
- 
- /* Keep these sorted with enum pxa_ssp_type */
-@@ -162,6 +168,7 @@ static const struct lpss_config lpss_platforms[] = {
- 		.tx_threshold_hi = 56,
- 		.cs_sel_shift = 8,
- 		.cs_sel_mask = 3 << 8,
-+		.cs_clk_stays_gated = true,
- 	},
- };
- 
-@@ -385,6 +392,22 @@ static void lpss_ssp_cs_control(struct driver_data *drv_data, bool enable)
- 	else
- 		value |= LPSS_CS_CONTROL_CS_HIGH;
- 	__lpss_ssp_write_priv(drv_data, config->reg_cs_ctrl, value);
-+	if (config->cs_clk_stays_gated) {
-+		u32 clkgate;
-+
-+		/*
-+		 * Changing CS alone when dynamic clock gating is on won't
-+		 * actually flip CS at that time. This ruins SPI transfers
-+		 * that specify delays, or have no data. Toggle the clock mode
-+		 * to force on briefly to poke the CS pin to move.
-+		 */
-+		clkgate = __lpss_ssp_read_priv(drv_data, LPSS_PRIV_CLOCK_GATE);
-+		value = (clkgate & ~LPSS_PRIV_CLOCK_GATE_CLK_CTL_MASK) |
-+			LPSS_PRIV_CLOCK_GATE_CLK_CTL_FORCE_ON;
-+
-+		__lpss_ssp_write_priv(drv_data, LPSS_PRIV_CLOCK_GATE, value);
-+		__lpss_ssp_write_priv(drv_data, LPSS_PRIV_CLOCK_GATE, clkgate);
-+	}
- }
- 
- static void cs_assert(struct driver_data *drv_data)
--- 
-2.20.1
-
+ err_exit:
+ 	rtnl_unlock();
 
 
