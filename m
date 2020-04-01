@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 169F919B3EA
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E517F19B444
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387473AbgDAQ0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:26:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51102 "EHLO mail.kernel.org"
+        id S1733303AbgDAQVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:21:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387893AbgDAQ0f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:26:35 -0400
+        id S1733249AbgDAQVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:21:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED23F20857;
-        Wed,  1 Apr 2020 16:26:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0E3B20658;
+        Wed,  1 Apr 2020 16:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758395;
-        bh=VG0NiHdi3TlnW4vQx2Fos3Trvv1k3/p0YMmSv0f118o=;
+        s=default; t=1585758073;
+        bh=LmBurxMh/Sd9bf9gYej2U7KzARDh0ExFrqIUqgthp0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBY4ImPNiVrNRSKuGwt0WAf3jKpfplI6fuDrdMlLReJf8RGXD0G80j0QtUehQv6yh
-         f2ZnJY/RnGhlQ3p7zcHbAUiVN4yvvN/3o7zPcn6V+S/lK5sWHkur8BpFWeR/g7vQdR
-         WXDEJfFWg4wR82J3koRhW6BVZdqWgvazRlygmp/0=
+        b=Ho4Lk+nC0r01Gf4TDGFJ/ziwLcH19ww4jmbV0ZPQvtECvgJbpE+AuIb4I3M869GAy
+         NqqWtIE225dkqwFNY5fYoxCVRzR+5E0F4iq0Hb8C6EhI97BSvG371DaJY+X7wFRzvO
+         JR/SmcPIxW7mc3wsPdmp4oEwVz/wpPvpnEdkHLl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 076/116] Revert "r8169: check that Realtek PHY driver module is loaded"
+        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Chen-Yu Tsai <wens@csie.org>
+Subject: [PATCH 5.5 28/30] ARM: dts: sun8i: r40: Move AHCI device node based on address order
 Date:   Wed,  1 Apr 2020 18:17:32 +0200
-Message-Id: <20200401161552.481298942@linuxfoundation.org>
+Message-Id: <20200401161435.714652280@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
+References: <20200401161414.345528747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Chen-Yu Tsai <wens@csie.org>
 
-This reverts commit 85a19b0e31e256e77fd4124804b9cec10619de5e which is
-commit f325937735498afb054a0195291bbf68d0b60be5 upstream.
+commit fe3a04824f75786e39ed74e82fb6cb2534c95fe4 upstream.
 
-Heiner writes:
-	commit 85a19b0e31e2 ("r8169: check that Realtek PHY driver
-	module is loaded") made it accidentally to 4.19 and causes an
-	issue with Android/x86.  Could you please revert it?
+When the AHCI device node was added, it was added in the wrong location
+in the device tree file. The device nodes should be sorted by register
+address.
 
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Sasha Levin <sashal@kernel.org>
+Move the device node to before EHCI1, where it belongs.
+
+Fixes: 41c64d3318aa ("ARM: dts: sun8i: r40: add sata node")
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/realtek/r8169.c |    9 ---------
- 1 file changed, 9 deletions(-)
 
---- a/drivers/net/ethernet/realtek/r8169.c
-+++ b/drivers/net/ethernet/realtek/r8169.c
-@@ -7433,15 +7433,6 @@ static int rtl_init_one(struct pci_dev *
- 	int chipset, region, i;
- 	int jumbo_max, rc;
+---
+ arch/arm/boot/dts/sun8i-r40.dtsi |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
+
+--- a/arch/arm/boot/dts/sun8i-r40.dtsi
++++ b/arch/arm/boot/dts/sun8i-r40.dtsi
+@@ -275,6 +275,16 @@
+ 			resets = <&ccu RST_BUS_CE>;
+ 		};
  
--	/* Some tools for creating an initramfs don't consider softdeps, then
--	 * r8169.ko may be in initramfs, but realtek.ko not. Then the generic
--	 * PHY driver is used that doesn't work with most chip versions.
--	 */
--	if (!driver_find("RTL8201CP Ethernet", &mdio_bus_type)) {
--		dev_err(&pdev->dev, "realtek.ko not loaded, maybe it needs to be added to initramfs?\n");
--		return -ENOENT;
--	}
++		ahci: sata@1c18000 {
++			compatible = "allwinner,sun8i-r40-ahci";
++			reg = <0x01c18000 0x1000>;
++			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
++			resets = <&ccu RST_BUS_SATA>;
++			reset-names = "ahci";
++			status = "disabled";
++		};
++
+ 		ehci1: usb@1c19000 {
+ 			compatible = "allwinner,sun8i-r40-ehci", "generic-ehci";
+ 			reg = <0x01c19000 0x100>;
+@@ -566,17 +576,6 @@
+ 			#size-cells = <0>;
+ 		};
+ 
+-		ahci: sata@1c18000 {
+-			compatible = "allwinner,sun8i-r40-ahci";
+-			reg = <0x01c18000 0x1000>;
+-			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
+-			resets = <&ccu RST_BUS_SATA>;
+-			reset-names = "ahci";
+-			status = "disabled";
 -
- 	dev = devm_alloc_etherdev(&pdev->dev, sizeof (*tp));
- 	if (!dev)
- 		return -ENOMEM;
+-		};
+-
+ 		gmac: ethernet@1c50000 {
+ 			compatible = "allwinner,sun8i-r40-gmac";
+ 			syscon = <&ccu>;
 
 
