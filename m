@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F0A19B30A
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:49:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92E9019B3B2
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389786AbgDAQo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:44:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
+        id S2388482AbgDAQdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:33:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389621AbgDAQo7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:44:59 -0400
+        id S2388479AbgDAQdB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:33:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABF782063A;
-        Wed,  1 Apr 2020 16:44:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6A9E20658;
+        Wed,  1 Apr 2020 16:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759498;
-        bh=CHBttnsBtGK1uWWbqCGC3uECB8Xas6d7Kytb4dLhd5A=;
+        s=default; t=1585758781;
+        bh=PIrfnSuER25OZ9F/dfyzhTcX/5FOxYCwiej3kBYp+W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nu2RI68bS39GE0218P3id7ay6c2lQbwS9trjxH/ucm7Tm4zBbtNO/4tAiviOLWykZ
-         IIDNRvvKl5Qc0iYcjE1YPoSxucaIFBoYaVgRoxcrsi/+dz2AehtOIxLbrF90TIDF7q
-         yTDWj6/qn+OXB1xAtlOd1S5RFnZ/O3NsUpgRD6uE=
+        b=WtM6x3WRXciJ9e8TrZ1HcAWPPoI7B1pihvd+oPQ3vCJ1s2QC+te3fNF2lr8PlEZuw
+         0OmWeiieZd+oueUpBjv1EEpCebgJ/bzSyISJeHEaJzzY8mliySbKgnfg1xr06sFHah
+         rrEA6H8LnhfCg3nDlp/85ku2xK+dJFlj1mhexvEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 098/148] gpiolib: acpi: Correct comment for HP x2 10 honor_wakeup quirk
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Lubomir Rintel <lkundrak@v3.sk>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.4 74/91] media: usbtv: fix control-message timeouts
 Date:   Wed,  1 Apr 2020 18:18:10 +0200
-Message-Id: <20200401161602.258631106@linuxfoundation.org>
+Message-Id: <20200401161537.373852922@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit efaa87fa0947d525cf7c075316adde4e3ac7720b upstream.
+commit 536f561d871c5781bc33d26d415685211b94032e upstream.
 
-Commit aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option +
-quirk mechanism") added a quirk for some models of the HP x2 10 series.
+The driver was issuing synchronous uninterruptible control requests
+without using a timeout. This could lead to the driver hanging on
+various user requests due to a malfunctioning (or malicious) device
+until the device is physically disconnected.
 
-There are 2 issues with the comment describing the quirk:
-1) The comment claims the DMI quirk applies to all Cherry Trail based HP x2
-   10 models. In the mean time I have learned that there are at least 3
-   models of the HP x2 10 models:
+The USB upper limit of five seconds per request should be more than
+enough.
 
-   Bay Trail SoC + AXP288 PMIC
-   Cherry Trail SoC + AXP288 PMIC
-   Cherry Trail SoC + TI PMIC
-
-   And this quirk's DMI matches only match the Cherry Trail SoC + TI PMIC
-   SoC, which is good because we want a slightly different quirk for the
-   others. This commit updates the comment to make it clear that the quirk
-   is only for the Cherry Trail SoC + TI PMIC models.
-
-2) The comment says that it is ok to disable wakeup on all ACPI GPIO event
-   handlers, because there is only the one for the embedded-controller
-   events. This is not true, there also is a handler for the special
-   INT0002 device which is related to USB wakeups. We need to also disable
-   wakeups on that one because the device turns of the USB-keyboard built
-   into the dock when closing the lid. The XHCI controller takes a while
-   to notice this, so it only notices it when already suspended, causing
-   a spurious wakeup because of this. So disabling wakeup on all handlers
-   is the right thing to do, but not because there only is the one handler
-   for the EC events. This commit updates the comment to correctly reflect
-   this.
-
-Fixes: aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option + quirk mechanism")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200302111225.6641-1-hdegoede@redhat.com
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: f3d27f34fdd7 ("[media] usbtv: Add driver for Fushicai USBTV007 video frame grabber")
+Fixes: c53a846c48f2 ("[media] usbtv: add video controls")
+Cc: stable <stable@vger.kernel.org>     # 3.11
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Lubomir Rintel <lkundrak@v3.sk>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib-acpi.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/media/usb/usbtv/usbtv-core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -1348,12 +1348,14 @@ static const struct dmi_system_id gpioli
- 	},
- 	{
- 		/*
--		 * Various HP X2 10 Cherry Trail models use an external
--		 * embedded-controller connected via I2C + an ACPI GPIO
--		 * event handler. The embedded controller generates various
--		 * spurious wakeup events when suspended. So disable wakeup
--		 * for its handler (it uses the only ACPI GPIO event handler).
--		 * This breaks wakeup when opening the lid, the user needs
-+		 * HP X2 10 models with Cherry Trail SoC + TI PMIC use an
-+		 * external embedded-controller connected via I2C + an ACPI GPIO
-+		 * event handler on INT33FF:01 pin 0, causing spurious wakeups.
-+		 * When suspending by closing the LID, the power to the USB
-+		 * keyboard is turned off, causing INT0002 ACPI events to
-+		 * trigger once the XHCI controller notices the keyboard is
-+		 * gone. So INT0002 events cause spurious wakeups too. Ignoring
-+		 * EC wakes breaks wakeup when opening the lid, the user needs
- 		 * to press the power-button to wakeup the system. The
- 		 * alternative is suspend simply not working, which is worse.
- 		 */
+--- a/drivers/media/usb/usbtv/usbtv-core.c
++++ b/drivers/media/usb/usbtv/usbtv-core.c
+@@ -42,7 +42,7 @@ int usbtv_set_regs(struct usbtv *usbtv,
+ 
+ 		ret = usb_control_msg(usbtv->udev, pipe, USBTV_REQUEST_REG,
+ 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			value, index, NULL, 0, 0);
++			value, index, NULL, 0, USB_CTRL_GET_TIMEOUT);
+ 		if (ret < 0)
+ 			return ret;
+ 	}
 
 
