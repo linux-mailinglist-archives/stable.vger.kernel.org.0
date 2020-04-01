@@ -2,67 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B401519B4A2
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1963E19B4DD
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:47:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731749AbgDARZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 13:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37644 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727661AbgDARZN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 13:25:13 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D97320714;
-        Wed,  1 Apr 2020 17:25:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585761911;
-        bh=M61UwKYGOJS+Q8aadIC4fJ14XpZ5PrjuyG5oVlO6NiU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=W0AGl7Vu5hf7B0BitZ6vnf1Fqu7Lgf087/qYESxMn8/NEd4WVg0Ys8eOfAhcSBJ5K
-         vjyDW2ovw2AauP/bW2ja9ylp8XNgOZgHMDSWakNskIjloR91qzHyM4UWIG/B/10doZ
-         YIKrCi97Hw1QNw1tKdl9nz+/jsXDqJrUhnHnFAy0=
-Date:   Wed, 1 Apr 2020 19:22:42 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.6 00/10] 5.6.2-rc1 review
-Message-ID: <20200401172242.GA2582092@kroah.com>
-References: <20200401161413.974936041@linuxfoundation.org>
- <CAHk-=wiVBvO1b5UzfcHm6y4KLHOp3huFfGMdW21F6g25oUePLw@mail.gmail.com>
+        id S1732808AbgDARrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 13:47:20 -0400
+Received: from mail-io1-f46.google.com ([209.85.166.46]:44763 "EHLO
+        mail-io1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732211AbgDARrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 13:47:20 -0400
+Received: by mail-io1-f46.google.com with SMTP id r25so550544ioc.11
+        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 10:47:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=79OCU2A1Y2j0hIjjbavaQYkVyv+GSu1qOE7wXpw9VLI=;
+        b=ZpPqLCgppPGm8VOxp23hzQck/aSLhk7l37sWOHluLDV2ubLFIQ8dmKHMVaPvHN9pap
+         NnhOnMu4Le7LLYP+7YA9KleJcRCxSSEq9zfhr+9A3USGXFMS+vHldqvnOYzM04Idednl
+         HRjcQCaXfdz3UF9/2BjatWxUatRwC3d9IW6oVMRPm6wo5VTT2jUzj9UF/f/7cOTAnnLY
+         w1DU/qDy6CNmVupabLs/71wNCUsjzqXopT8A71ArlyPNwCJk24de/IP4tVYtWngBlxcf
+         1TTwU9Be5eULj8WAnW/S61IXIbbTY27qzMzxRxr0Nrv9dTmk3rYKH8II70JeIY346RKq
+         lRag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=79OCU2A1Y2j0hIjjbavaQYkVyv+GSu1qOE7wXpw9VLI=;
+        b=uV8A17nYYBYRZt8FkcXQwssUhl5ZTdqXOGdzxaLSSThV0DZY2RAUOIQvOGMc8DKCuY
+         BDL72Is9vM1vz8oW89Vb+xpb7XRmeCoqzb7aeWo5Cmo/A1f7vJW9UnwYlcebbKmHPcop
+         9VhxhyCgz74y3uRUGEmYJo9Gj/IBydyUsDCCoItGgCb1dx21EHXy0HTJ4uALS+qLwMi2
+         yHNn0L4hG5koO6Zoff6wkmcA+DDUpPX/2DYRrJkRHfh37LFyfzdIOd6c2tgNMbTZhAI5
+         +ML3TBt5CYzcMzhCU9pSZbJu4WbzIhh3cFinFCQcRLQZjBGIumjbWsikha3ktFsO/dA9
+         HF5g==
+X-Gm-Message-State: ANhLgQ0/GdqRJD3DAfSljrvUwqOby1Bqo1tM1GQ7A7fQuObFWyqKg2mT
+        bSuzmHv4mHoGxlS/WQnthNwObQm7/6PzVDMhuAprKb5acBY=
+X-Google-Smtp-Source: ADFU+vvCv6ic8MtqWa4rP+QVJg8t+HqCTFBQ3VspbhW92kTZ0srit4057gfX98XV2lg/4nONtLfrSxYZ1dsUdKWDcB0=
+X-Received: by 2002:a05:6602:164b:: with SMTP id y11mr21663616iow.3.1585763239100;
+ Wed, 01 Apr 2020 10:47:19 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wiVBvO1b5UzfcHm6y4KLHOp3huFfGMdW21F6g25oUePLw@mail.gmail.com>
+From:   Giuliano Procida <gprocida@google.com>
+Date:   Wed, 1 Apr 2020 17:47:02 +0000
+Message-ID: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
+Subject: backport request for use-after-free blk_mq_queue_tag_busy_iter
+To:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 10:06:47AM -0700, Linus Torvalds wrote:
-> On Wed, Apr 1, 2020 at 9:19 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.6.2 release.
-> 
-> Good. You made 5.6.1 so quickly that I didn't have time to react and
-> say that it makes little sense without the 802.11 fix, but you're
-> obviously making 5.6.2 quickly, so..
+This issue was found in 4.14 and is present in earlier kernels.
 
-Yeah, 5.6.1 had to go out fast, sorry I missed this patch.  Luckily it
-seems that every distro vendor heard about it (or asked me about it)
-already, and have included it in their trees so the majority of users
-shouldn't hit this just yet.
+Please backport
 
-And, if this passes Guenter's test builds quickly (hint), I can push it
-out quickly as well :)
+f5bbbbe4d635 blk-mq: sync the update nr_hw_queues with
+blk_mq_queue_tag_busy_iter
+530ca2c9bd69 blk-mq: Allow blocking queue tag iter callbacks
 
-thanks,
+onto the stable branches that don't have these. The second is a fix
+for the first. Thank you.
 
-greg k-h
+4.19.y and later - commits already present
+4.14.y - f5bbbbe4d635 doesn't patch cleanly but it's still
+straightforward, just drop the comment and code mentioning switching
+to 'none' in the trailing context
+4.9.y - ditto
+4.4.y - there was a refactoring of the code in commit
+0bf6cd5b9531bcc29c0a5e504b6ce2984c6fd8d8 making this non-trivial
+3.16.y - ditto
+
+I am happy to try to produce clean patches, but it may be a day or so.
+
+Regards,
+Giuliano.
