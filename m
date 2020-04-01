@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1212A19B3FA
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C8C719B220
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387615AbgDAQyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:54:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55686 "EHLO mail.kernel.org"
+        id S2389099AbgDAQlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:41:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388192AbgDAQ35 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:29:57 -0400
+        id S2389403AbgDAQlM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:41:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D09D20658;
-        Wed,  1 Apr 2020 16:29:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9EE0206F8;
+        Wed,  1 Apr 2020 16:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758596;
-        bh=ZimnssbihiT/CUcvGjrmtWm5fbdnfn+B5wH6DVTDZMM=;
+        s=default; t=1585759272;
+        bh=GfDm+Gx1QfN4fOGHjx/49rnwTi379hJedUgjSq5oAcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bkl0e3MQ+Y8Injaby/swcnOzVm5JBff5wxo3r9w+iA9QiKz4m/UTEr+R57/Br6ejv
-         LX4K7vsUTsz2vPch3bVShxAwDZS0Gqg1XnYBIrSFCc4UekljvJr7CwTwv771PP5DXh
-         76CDi3/vW4l73UplbuFk0K6sRm/5A2A8KE7X12l0=
+        b=hXOuDpf+bAssezSVfETkUdsc/9NSB5Wp6Ef/wR2SCiukK+Tg5gpoKhP9B40vIVVZk
+         o994INb6zSdi+CeWzWd6pHryX+slL+EcqC7k1OSlmfaC4GVrB4qOksP7ORRP1mMgBZ
+         TEa9PP/mdOIXimccxk09Udhwrjg1ERgcqq0Z01Rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thommy Jakobsson <thommyj@gmail.com>,
-        Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 04/91] spi/zynqmp: remove entry that causes a cs glitch
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 028/148] mmc: sdhci-of-at91: fix cd-gpios for SAMA5D2
 Date:   Wed,  1 Apr 2020 18:17:00 +0200
-Message-Id: <20200401161514.491966420@linuxfoundation.org>
+Message-Id: <20200401161555.215045885@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thommy Jakobsson <thommyj@gmail.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-[ Upstream commit 5dd8304981ecffa77bb72b1c57c4be5dfe6cfae9 ]
+commit 53dd0a7cd65edc83b0c243d1c08377c8b876b2ee upstream.
 
-In the public interface for chipselect, there is always an entry
-commented as "Dummy generic FIFO entry" pushed down to the fifo right
-after the activate/deactivate command. The dummy entry is 0x0,
-irregardless if the intention was to activate or deactive the cs. This
-causes the cs line to glitch rather than beeing activated in the case
-when there was an activate command.
+SAMA5D2x doesn't drive CMD line if GPIO is used as CD line (at least
+SAMA5D27 doesn't). Fix this by forcing card-detect in the module
+if module-controlled CD is not used.
 
-This has been observed on oscilloscope, and have caused problems for at
-least one specific flash device type connected to the qspi port. After
-the change the glitch is gone and cs goes active when intended.
+Fixed commit addresses the problem only for non-removable cards. This
+amends it to also cover gpio-cd case.
 
-The reason why this worked before (except for the glitch) was because
-when sending the actual data, the CS bits are once again set. Since
-most flashes uses mode 0, there is always a half clk period anyway for
-cs to clk active setup time. If someone would rely on timing from a
-chip_select call to a transfer_one, it would fail though.
+Cc: stable@vger.kernel.org
+Fixes: 7a1e3f143176 ("mmc: sdhci-of-at91: force card detect value for non removable devices")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/8d10950d9940468577daef4772b82a071b204716.1584290561.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-It is unknown why the dummy entry was there in the first place, git log
-seems to be of no help in this case. The reference manual gives no
-indication of the necessity of this. In fact the lower 8 bits are a
-setup (or hold in case of deactivate) time expressed in cycles. So this
-should not be needed to fulfill any setup/hold timings.
-
-Signed-off-by: Thommy Jakobsson <thommyj@gmail.com>
-Reviewed-by: Naga Sureshkumar Relli <naga.sureshkumar.relli@xilinx.com>
-Link: https://lore.kernel.org/r/20200224162643.29102-1-thommyj@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynqmp-gqspi.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/mmc/host/sdhci-of-at91.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-zynqmp-gqspi.c b/drivers/spi/spi-zynqmp-gqspi.c
-index f23f36ebaf3dc..bd3945a5660a5 100644
---- a/drivers/spi/spi-zynqmp-gqspi.c
-+++ b/drivers/spi/spi-zynqmp-gqspi.c
-@@ -414,9 +414,6 @@ static void zynqmp_qspi_chipselect(struct spi_device *qspi, bool is_high)
+--- a/drivers/mmc/host/sdhci-of-at91.c
++++ b/drivers/mmc/host/sdhci-of-at91.c
+@@ -125,7 +125,8 @@ static void sdhci_at91_reset(struct sdhc
+ {
+ 	sdhci_reset(host, mask);
  
- 	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, genfifoentry);
+-	if (host->mmc->caps & MMC_CAP_NONREMOVABLE)
++	if ((host->mmc->caps & MMC_CAP_NONREMOVABLE)
++	    || mmc_gpio_get_cd(host->mmc) >= 0)
+ 		sdhci_at91_set_force_card_detect(host);
+ }
  
--	/* Dummy generic FIFO entry */
--	zynqmp_gqspi_write(xqspi, GQSPI_GEN_FIFO_OFST, 0x0);
--
- 	/* Manually start the generic FIFO command */
- 	zynqmp_gqspi_write(xqspi, GQSPI_CONFIG_OFST,
- 			zynqmp_gqspi_read(xqspi, GQSPI_CONFIG_OFST) |
--- 
-2.20.1
-
+@@ -404,8 +405,11 @@ static int sdhci_at91_probe(struct platf
+ 	 * detection procedure using the SDMCC_CD signal is bypassed.
+ 	 * This bit is reset when a software reset for all command is performed
+ 	 * so we need to implement our own reset function to set back this bit.
++	 *
++	 * WA: SAMA5D2 doesn't drive CMD if using CD GPIO line.
+ 	 */
+-	if (host->mmc->caps & MMC_CAP_NONREMOVABLE)
++	if ((host->mmc->caps & MMC_CAP_NONREMOVABLE)
++	    || mmc_gpio_get_cd(host->mmc) >= 0)
+ 		sdhci_at91_set_force_card_detect(host);
+ 
+ 	pm_runtime_put_autosuspend(&pdev->dev);
 
 
