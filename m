@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EEA819AFED
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:22:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE0019AFCF
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:21:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387463AbgDAQW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45452 "EHLO mail.kernel.org"
+        id S1732470AbgDAQVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:21:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387477AbgDAQWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:22:23 -0400
+        id S1732497AbgDAQVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:21:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 791B4214D8;
-        Wed,  1 Apr 2020 16:22:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8765820658;
+        Wed,  1 Apr 2020 16:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758142;
-        bh=62H8q4wS2U8H3WVXq49tHHl0V1M2VnJlDoEkzXF2fzQ=;
+        s=default; t=1585758077;
+        bh=yoXhOL7nTVasZHR6cKwhWMciTV/1jPkQpUjZtocCq3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhZRbZqp5WX2wFoxg3mxHJ+E/Y6NBqte2REwMy+IMYywOL5c0LvV7jhjD6z+LUsFF
-         JRyGTIJF+XJHTbiDTGxYLy7x8RbBv73YrpbJa9HdSsVsRLM1ObbKbbDbMUpqjRvyDd
-         +T/ziMgQRE3G7fxc8TnR+6Jm/nkwM9rng/70JmrU=
+        b=NFLjohpR5Bnrjd2rCojIAnwbKpnK5UFvlVgnMIq3wefmjIKACY8E5ngtK1bvPvoG/
+         2nLcZgKSBD0W6QjoDPnXSOlSCuSzfoOgUX6IZjnG9CshtgL/dglst9jL7p5p4Y0xP9
+         o+skzfKOncPl8ETP1uoNmCTp0AhXGX2nlyJHtPyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.4 05/27] vt: ioctl, switch VT_IS_IN_USE and VT_BUSY to inlines
+        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@oss.nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 29/30] arm64: dts: ls1043a-rdb: correct RGMII delay mode to rgmii-id
 Date:   Wed,  1 Apr 2020 18:17:33 +0200
-Message-Id: <20200401161419.358817229@linuxfoundation.org>
+Message-Id: <20200401161436.096040580@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
-References: <20200401161414.352722470@linuxfoundation.org>
+In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
+References: <20200401161414.345528747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Madalin Bucur <madalin.bucur@oss.nxp.com>
 
-commit e587e8f17433ddb26954f0edf5b2f95c42155ae9 upstream.
+commit 4022d808c45277693ea86478fab1f081ebf997e8 upstream.
 
-These two were macros. Switch them to static inlines, so that it's more
-understandable what they are doing.
+The correct setting for the RGMII ports on LS1043ARDB is to
+enable delay on both Rx and Tx so the interface mode used must
+be PHY_INTERFACE_MODE_RGMII_ID.
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20200219073951.16151-2-jslaby@suse.cz
+Since commit 1b3047b5208a80 ("net: phy: realtek: add support for
+configuring the RX delay on RTL8211F") the Realtek 8211F PHY driver
+has control over the RGMII RX delay and it is disabling it for
+RGMII_TXID. The LS1043ARDB uses two such PHYs in RGMII_ID mode but
+in the device tree the mode was described as "rgmii_txid".
+This issue was not apparent at the time as the PHY driver took the
+same action for RGMII_TXID and RGMII_ID back then but it became
+visible (RX no longer working) after the above patch.
+
+Changing the phy-connection-type to "rgmii-id" to address the issue.
+
+Fixes: bf02f2ffe59c ("arm64: dts: add LS1043A DPAA FMan support")
+Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt_ioctl.c |   29 ++++++++++++++++++++++-------
- 1 file changed, 22 insertions(+), 7 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -40,10 +40,25 @@
- #include <linux/selection.h>
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
+@@ -119,12 +119,12 @@
  
- char vt_dont_switch;
--extern struct tty_driver *console_driver;
+ 	ethernet@e4000 {
+ 		phy-handle = <&rgmii_phy1>;
+-		phy-connection-type = "rgmii-txid";
++		phy-connection-type = "rgmii-id";
+ 	};
  
--#define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
--#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
-+static inline bool vt_in_use(unsigned int i)
-+{
-+	extern struct tty_driver *console_driver;
-+
-+	return console_driver->ttys[i] && console_driver->ttys[i]->count;
-+}
-+
-+static inline bool vt_busy(int i)
-+{
-+	if (vt_in_use(i))
-+		return true;
-+	if (i == fg_console)
-+		return true;
-+	if (vc_is_sel(vc_cons[i].d))
-+		return true;
-+
-+	return false;
-+}
+ 	ethernet@e6000 {
+ 		phy-handle = <&rgmii_phy2>;
+-		phy-connection-type = "rgmii-txid";
++		phy-connection-type = "rgmii-id";
+ 	};
  
- /*
-  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
-@@ -289,7 +304,7 @@ static int vt_disallocate(unsigned int v
- 	int ret = 0;
- 
- 	console_lock();
--	if (VT_BUSY(vc_num))
-+	if (vt_busy(vc_num))
- 		ret = -EBUSY;
- 	else if (vc_num)
- 		vc = vc_deallocate(vc_num);
-@@ -311,7 +326,7 @@ static void vt_disallocate_all(void)
- 
- 	console_lock();
- 	for (i = 1; i < MAX_NR_CONSOLES; i++)
--		if (!VT_BUSY(i))
-+		if (!vt_busy(i))
- 			vc[i] = vc_deallocate(i);
- 		else
- 			vc[i] = NULL;
-@@ -648,7 +663,7 @@ int vt_ioctl(struct tty_struct *tty,
- 			state = 1;	/* /dev/tty0 is always open */
- 			for (i = 0, mask = 2; i < MAX_NR_CONSOLES && mask;
- 							++i, mask <<= 1)
--				if (VT_IS_IN_USE(i))
-+				if (vt_in_use(i))
- 					state |= mask;
- 			ret = put_user(state, &vtstat->v_state);
- 		}
-@@ -661,7 +676,7 @@ int vt_ioctl(struct tty_struct *tty,
- 	case VT_OPENQRY:
- 		/* FIXME: locking ? - but then this is a stupid API */
- 		for (i = 0; i < MAX_NR_CONSOLES; ++i)
--			if (! VT_IS_IN_USE(i))
-+			if (!vt_in_use(i))
- 				break;
- 		uival = i < MAX_NR_CONSOLES ? (i+1) : -1;
- 		goto setint;		 
+ 	ethernet@e8000 {
 
 
