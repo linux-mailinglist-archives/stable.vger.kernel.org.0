@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AE2119B0AD
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DEE519B133
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387497AbgDAQ2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:28:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54028 "EHLO mail.kernel.org"
+        id S1733000AbgDAQc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:32:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387611AbgDAQ2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:28:38 -0400
+        id S2388467AbgDAQcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:32:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7164320857;
-        Wed,  1 Apr 2020 16:28:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EBF02063A;
+        Wed,  1 Apr 2020 16:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758516;
-        bh=TnaegqLutaCcUAWij8JhdcO3zXmQdHFlD4ZdAEXwmjA=;
+        s=default; t=1585758774;
+        bh=/FJ+OntIpNIrVn8h35nKNUL5zTjcvplGpW6DiTgd9uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2wWylVxEWjvTNkfpYKyIiPc8pt52lc0mFM2uaoEV+1J2zglbY75PO3U5USbLjm5t
-         ubE8MoTLNg5J/De9TUDeHQ6PydVyh1DtWLiDTx052Sm4VH449bhcvp4ti7mlx+LBfA
-         1TL8xWM30CKcUvA581W2PSfjf2x2yMRF5DGPU+NE=
+        b=MRZGpSqA0IEdXDr73CtU2nH6eI0NbzI1qClHwXDyv1poihHEthWbnRy/jll7Q/L4D
+         p6T9gpSe+6nzroz2brMm2xOmQ3nlMBw0xDivDjMhuMvdG6GEqfLK+An2JQYK31dFwA
+         fCySrD8/uCnJghI9DMsJH4+73nHTCT2PHp8L/V5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Hudson <skrll@netbsd.org>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 4.19 112/116] ARM: bcm2835-rpi-zero-w: Add missing pinctrl name
+        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
+        Bin Liu <b-liu@ti.com>
+Subject: [PATCH 4.4 72/91] usb: musb: fix crash with highmen PIO and usbmon
 Date:   Wed,  1 Apr 2020 18:18:08 +0200
-Message-Id: <20200401161556.458997100@linuxfoundation.org>
+Message-Id: <20200401161536.923883042@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Hudson <skrll@netbsd.org>
+From: Mans Rullgard <mans@mansr.com>
 
-commit 6687c201fdc3139315c2ea7ef96c157672805cdc upstream.
+commit 52974d94a206ce428d9d9b6eaa208238024be82a upstream.
 
-Define the sdhci pinctrl state as "default" so it gets applied
-correctly and to match all other RPis.
+When handling a PIO bulk transfer with highmem buffer, a temporary
+mapping is assigned to urb->transfer_buffer.  After the transfer is
+complete, an invalid address is left behind in this pointer.  This is
+not ordinarily a problem since nothing touches that buffer before the
+urb is released.  However, when usbmon is active, usbmon_urb_complete()
+calls (indirectly) mon_bin_get_data() which does access the transfer
+buffer if it is set.  To prevent an invalid memory access here, reset
+urb->transfer_buffer to NULL when finished (musb_host_rx()), or do not
+set it at all (musb_host_tx()).
 
-Fixes: 2c7c040c73e9 ("ARM: dts: bcm2835: Add Raspberry Pi Zero W")
-Signed-off-by: Nick Hudson <skrll@netbsd.org>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 8e8a55165469 ("usb: musb: host: Handle highmem in PIO mode")
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bin Liu <b-liu@ti.com>
+Link: https://lore.kernel.org/r/20200316211136.2274-8-b-liu@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/bcm2835-rpi-zero-w.dts |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/musb/musb_host.c |   17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
 
---- a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-+++ b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-@@ -118,6 +118,7 @@
- &sdhci {
- 	#address-cells = <1>;
- 	#size-cells = <0>;
-+	pinctrl-names = "default";
- 	pinctrl-0 = <&emmc_gpio34 &gpclk2_gpio43>;
- 	mmc-pwrseq = <&wifi_pwrseq>;
- 	non-removable;
+--- a/drivers/usb/musb/musb_host.c
++++ b/drivers/usb/musb/musb_host.c
+@@ -1519,10 +1519,7 @@ done:
+ 	 * We need to map sg if the transfer_buffer is
+ 	 * NULL.
+ 	 */
+-	if (!urb->transfer_buffer)
+-		qh->use_sg = true;
+-
+-	if (qh->use_sg) {
++	if (!urb->transfer_buffer) {
+ 		/* sg_miter_start is already done in musb_ep_program */
+ 		if (!sg_miter_next(&qh->sg_miter)) {
+ 			dev_err(musb->controller, "error: sg list empty\n");
+@@ -1530,9 +1527,8 @@ done:
+ 			status = -EINVAL;
+ 			goto done;
+ 		}
+-		urb->transfer_buffer = qh->sg_miter.addr;
+ 		length = min_t(u32, length, qh->sg_miter.length);
+-		musb_write_fifo(hw_ep, length, urb->transfer_buffer);
++		musb_write_fifo(hw_ep, length, qh->sg_miter.addr);
+ 		qh->sg_miter.consumed = length;
+ 		sg_miter_stop(&qh->sg_miter);
+ 	} else {
+@@ -1541,11 +1537,6 @@ done:
+ 
+ 	qh->segsize = length;
+ 
+-	if (qh->use_sg) {
+-		if (offset + length >= urb->transfer_buffer_length)
+-			qh->use_sg = false;
+-	}
+-
+ 	musb_ep_select(mbase, epnum);
+ 	musb_writew(epio, MUSB_TXCSR,
+ 			MUSB_TXCSR_H_WZC_BITS | MUSB_TXCSR_TXPKTRDY);
+@@ -2064,8 +2055,10 @@ finish:
+ 	urb->actual_length += xfer_len;
+ 	qh->offset += xfer_len;
+ 	if (done) {
+-		if (qh->use_sg)
++		if (qh->use_sg) {
+ 			qh->use_sg = false;
++			urb->transfer_buffer = NULL;
++		}
+ 
+ 		if (urb->status == -EINPROGRESS)
+ 			urb->status = status;
 
 
