@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E517F19B444
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B2219B44D
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733303AbgDAQVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:21:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
+        id S1732579AbgDAQWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:22:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733249AbgDAQVN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:21:13 -0400
+        id S2387463AbgDAQWW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:22:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0E3B20658;
-        Wed,  1 Apr 2020 16:21:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00D7220857;
+        Wed,  1 Apr 2020 16:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758073;
-        bh=LmBurxMh/Sd9bf9gYej2U7KzARDh0ExFrqIUqgthp0U=;
+        s=default; t=1585758140;
+        bh=VnwcAXK+UHzOBiGQchBKglHd/sU6Gq8vZVgDLz7TTZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ho4Lk+nC0r01Gf4TDGFJ/ziwLcH19ww4jmbV0ZPQvtECvgJbpE+AuIb4I3M869GAy
-         NqqWtIE225dkqwFNY5fYoxCVRzR+5E0F4iq0Hb8C6EhI97BSvG371DaJY+X7wFRzvO
-         JR/SmcPIxW7mc3wsPdmp4oEwVz/wpPvpnEdkHLl4=
+        b=VdG0fngmfc/zQMrTU6R6yQtUl9a9EbmVR65yJvnGSvHv9N7/aGWugzoVTH3og6gC5
+         eVMbg5YAFxP80guLg/TltnbCEcVGvCL35U9kkuyYDFvwWskmHSYiwVnA0roRs5NpaM
+         q69n6aiiIUWL7tjzljjrEm5ym9XlNZ4rNO+p3f5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Chen-Yu Tsai <wens@csie.org>
-Subject: [PATCH 5.5 28/30] ARM: dts: sun8i: r40: Move AHCI device node based on address order
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 5.4 04/27] vt: selection, introduce vc_is_sel
 Date:   Wed,  1 Apr 2020 18:17:32 +0200
-Message-Id: <20200401161435.714652280@linuxfoundation.org>
+Message-Id: <20200401161418.604647666@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
-References: <20200401161414.345528747@linuxfoundation.org>
+In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
+References: <20200401161414.352722470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +42,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit fe3a04824f75786e39ed74e82fb6cb2534c95fe4 upstream.
+commit dce05aa6eec977f1472abed95ccd71276b9a3864 upstream.
 
-When the AHCI device node was added, it was added in the wrong location
-in the device tree file. The device nodes should be sorted by register
-address.
+Avoid global variables (namely sel_cons) by introducing vc_is_sel. It
+checks whether the parameter is the current selection console. This will
+help putting sel_cons to a struct later.
 
-Move the device node to before EHCI1, where it belongs.
-
-Fixes: 41c64d3318aa ("ARM: dts: sun8i: r40: add sata node")
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200219073951.16151-1-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/sun8i-r40.dtsi |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/tty/vt/selection.c |    5 +++++
+ drivers/tty/vt/vt.c        |    7 ++++---
+ drivers/tty/vt/vt_ioctl.c  |    2 +-
+ include/linux/selection.h  |    4 +++-
+ 4 files changed, 13 insertions(+), 5 deletions(-)
 
---- a/arch/arm/boot/dts/sun8i-r40.dtsi
-+++ b/arch/arm/boot/dts/sun8i-r40.dtsi
-@@ -275,6 +275,16 @@
- 			resets = <&ccu RST_BUS_CE>;
- 		};
+--- a/drivers/tty/vt/selection.c
++++ b/drivers/tty/vt/selection.c
+@@ -88,6 +88,11 @@ void clear_selection(void)
+ }
+ EXPORT_SYMBOL_GPL(clear_selection);
  
-+		ahci: sata@1c18000 {
-+			compatible = "allwinner,sun8i-r40-ahci";
-+			reg = <0x01c18000 0x1000>;
-+			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
-+			resets = <&ccu RST_BUS_SATA>;
-+			reset-names = "ahci";
-+			status = "disabled";
-+		};
++bool vc_is_sel(struct vc_data *vc)
++{
++	return vc == sel_cons;
++}
 +
- 		ehci1: usb@1c19000 {
- 			compatible = "allwinner,sun8i-r40-ehci", "generic-ehci";
- 			reg = <0x01c19000 0x100>;
-@@ -566,17 +576,6 @@
- 			#size-cells = <0>;
- 		};
+ /*
+  * User settable table: what characters are to be considered alphabetic?
+  * 128 bits. Locked by the console lock.
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -890,8 +890,9 @@ static void hide_softcursor(struct vc_da
  
--		ahci: sata@1c18000 {
--			compatible = "allwinner,sun8i-r40-ahci";
--			reg = <0x01c18000 0x1000>;
--			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
--			resets = <&ccu RST_BUS_SATA>;
--			reset-names = "ahci";
--			status = "disabled";
--
--		};
--
- 		gmac: ethernet@1c50000 {
- 			compatible = "allwinner,sun8i-r40-gmac";
- 			syscon = <&ccu>;
+ static void hide_cursor(struct vc_data *vc)
+ {
+-	if (vc == sel_cons)
++	if (vc_is_sel(vc))
+ 		clear_selection();
++
+ 	vc->vc_sw->con_cursor(vc, CM_ERASE);
+ 	hide_softcursor(vc);
+ }
+@@ -901,7 +902,7 @@ static void set_cursor(struct vc_data *v
+ 	if (!con_is_fg(vc) || console_blanked || vc->vc_mode == KD_GRAPHICS)
+ 		return;
+ 	if (vc->vc_deccm) {
+-		if (vc == sel_cons)
++		if (vc_is_sel(vc))
+ 			clear_selection();
+ 		add_softcursor(vc);
+ 		if ((vc->vc_cursor_type & 0x0f) != 1)
+@@ -1207,7 +1208,7 @@ static int vc_do_resize(struct tty_struc
+ 		}
+ 	}
+ 
+-	if (vc == sel_cons)
++	if (vc_is_sel(vc))
+ 		clear_selection();
+ 
+ 	old_rows = vc->vc_rows;
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -43,7 +43,7 @@ char vt_dont_switch;
+ extern struct tty_driver *console_driver;
+ 
+ #define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
+-#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_cons[i].d == sel_cons)
++#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
+ 
+ /*
+  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
+--- a/include/linux/selection.h
++++ b/include/linux/selection.h
+@@ -11,8 +11,8 @@
+ #include <linux/tiocl.h>
+ #include <linux/vt_buffer.h>
+ 
+-extern struct vc_data *sel_cons;
+ struct tty_struct;
++struct vc_data;
+ 
+ extern void clear_selection(void);
+ extern int set_selection_user(const struct tiocl_selection __user *sel,
+@@ -24,6 +24,8 @@ extern int sel_loadlut(char __user *p);
+ extern int mouse_reporting(void);
+ extern void mouse_report(struct tty_struct * tty, int butt, int mrx, int mry);
+ 
++bool vc_is_sel(struct vc_data *vc);
++
+ extern int console_blanked;
+ 
+ extern const unsigned char color_table[];
 
 
