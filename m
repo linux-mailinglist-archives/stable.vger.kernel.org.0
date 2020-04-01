@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19F3019B277
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:44:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DDD019B1AF
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:38:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389450AbgDAQoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:44:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45198 "EHLO mail.kernel.org"
+        id S2388931AbgDAQhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:37:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389546AbgDAQoP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:44:15 -0400
+        id S2388927AbgDAQhI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:37:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B6BC2063A;
-        Wed,  1 Apr 2020 16:44:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AB8820658;
+        Wed,  1 Apr 2020 16:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759454;
-        bh=5MkXauhoehfgF1bchJUtFa+ktvr7TubTgXLAVcWSsPE=;
+        s=default; t=1585759028;
+        bh=6FyjFPVM5uZqq6mM2zPHBnfpu1B7rfoRHO7+zdywet4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMJZCm1PiJ7oGWgVSWFjIT0ICXL8mvjxojEUI2Zw5EQecmonSRVYIPeT929ddyqjE
-         roVOCaErOSJzTeEin7AjOcQSUzoh6SXsIUYdgx6VFGvmXL28zwN62aKojPcmx8QO4F
-         3ay91iZJDYIcL49P6DnD1n6PGunFFIr97tjTStVM=
+        b=OldqsOtqbxzF5rCPwHVrQUdNwbHI2Rf6MUGp3XnkqUiel4wTOdHS5faeoVBzTm4hK
+         dqWgmpB3XSsBgOCl9VQ5BX6NETN3OksQMWraOP/mYtI5NvrzqffPaWalrixhZpMUHQ
+         DUvqsa0zw7DgAOjReG2wpglrH90ez/eDTA3Bt40k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Suzuki Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 085/148] arm64: ptrace: map SPSR_ELx<->PSR for compat tasks
+        stable@vger.kernel.org, Wen Xiong <wenxiong@linux.vnet.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 054/102] scsi: ipr: Fix softlockup when rescanning devices in petitboot
 Date:   Wed,  1 Apr 2020 18:17:57 +0200
-Message-Id: <20200401161601.264697375@linuxfoundation.org>
+Message-Id: <20200401161542.798607374@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Wen Xiong <wenxiong@linux.vnet.ibm.com>
 
-commit 76fc52bd07d3e9cb708f1a50b60c825c96acd606 upstream.
+[ Upstream commit 394b61711f3ce33f75bf70a3e22938464a13b3ee ]
 
-The SPSR_ELx format for exceptions taken from AArch32 is slightly
-different to the AArch32 PSR format.
+When trying to rescan disks in petitboot shell, we hit the following
+softlockup stacktrace:
 
-Map between the two in the compat ptrace code.
+Kernel panic - not syncing: System is deadlocked on memory
+[  241.223394] CPU: 32 PID: 693 Comm: sh Not tainted 5.4.16-openpower1 #1
+[  241.223406] Call Trace:
+[  241.223415] [c0000003f07c3180] [c000000000493fc4] dump_stack+0xa4/0xd8 (unreliable)
+[  241.223432] [c0000003f07c31c0] [c00000000007d4ac] panic+0x148/0x3cc
+[  241.223446] [c0000003f07c3260] [c000000000114b10] out_of_memory+0x468/0x4c4
+[  241.223461] [c0000003f07c3300] [c0000000001472b0] __alloc_pages_slowpath+0x594/0x6d8
+[  241.223476] [c0000003f07c3420] [c00000000014757c] __alloc_pages_nodemask+0x188/0x1a4
+[  241.223492] [c0000003f07c34a0] [c000000000153e10] alloc_pages_current+0xcc/0xd8
+[  241.223508] [c0000003f07c34e0] [c0000000001577ac] alloc_slab_page+0x30/0x98
+[  241.223524] [c0000003f07c3520] [c0000000001597fc] new_slab+0x138/0x40c
+[  241.223538] [c0000003f07c35f0] [c00000000015b204] ___slab_alloc+0x1e4/0x404
+[  241.223552] [c0000003f07c36c0] [c00000000015b450] __slab_alloc+0x2c/0x48
+[  241.223566] [c0000003f07c36f0] [c00000000015b754] kmem_cache_alloc_node+0x9c/0x1b4
+[  241.223582] [c0000003f07c3760] [c000000000218c48] blk_alloc_queue_node+0x34/0x270
+[  241.223599] [c0000003f07c37b0] [c000000000226574] blk_mq_init_queue+0x2c/0x78
+[  241.223615] [c0000003f07c37e0] [c0000000002ff710] scsi_mq_alloc_queue+0x28/0x70
+[  241.223631] [c0000003f07c3810] [c0000000003005b8] scsi_alloc_sdev+0x184/0x264
+[  241.223647] [c0000003f07c38a0] [c000000000300ba0] scsi_probe_and_add_lun+0x288/0xa3c
+[  241.223663] [c0000003f07c3a00] [c000000000301768] __scsi_scan_target+0xcc/0x478
+[  241.223679] [c0000003f07c3b20] [c000000000301c64] scsi_scan_channel.part.9+0x74/0x7c
+[  241.223696] [c0000003f07c3b70] [c000000000301df4] scsi_scan_host_selected+0xe0/0x158
+[  241.223712] [c0000003f07c3bd0] [c000000000303f04] store_scan+0x104/0x114
+[  241.223727] [c0000003f07c3cb0] [c0000000002d5ac4] dev_attr_store+0x30/0x4c
+[  241.223741] [c0000003f07c3cd0] [c0000000001dbc34] sysfs_kf_write+0x64/0x78
+[  241.223756] [c0000003f07c3cf0] [c0000000001da858] kernfs_fop_write+0x170/0x1b8
+[  241.223773] [c0000003f07c3d40] [c0000000001621fc] __vfs_write+0x34/0x60
+[  241.223787] [c0000003f07c3d60] [c000000000163c2c] vfs_write+0xa8/0xcc
+[  241.223802] [c0000003f07c3db0] [c000000000163df4] ksys_write+0x70/0xbc
+[  241.223816] [c0000003f07c3e20] [c00000000000b40c] system_call+0x5c/0x68
 
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Fixes: 7206dc93a58fb764 ("arm64: Expose Arm v8.4 features")
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Suzuki Poulose <suzuki.poulose@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As a part of the scan process Linux will allocate and configure a
+scsi_device for each target to be scanned. If the device is not present,
+then the scsi_device is torn down. As a part of scsi_device teardown a
+workqueue item will be scheduled and the lockups we see are because there
+are 250k workqueue items to be processed.  Accoding to the specification of
+SIS-64 sas controller, max_channel should be decreased on SIS-64 adapters
+to 4.
 
+The patch fixes softlockup issue.
+
+Thanks for Oliver Halloran's help with debugging and explanation!
+
+Link: https://lore.kernel.org/r/1583510248-23672-1-git-send-email-wenxiong@linux.vnet.ibm.com
+Signed-off-by: Wen Xiong <wenxiong@linux.vnet.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/ptrace.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/ipr.c | 3 ++-
+ drivers/scsi/ipr.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -833,6 +833,7 @@ static int compat_gpr_get(struct task_st
- 			break;
- 		case 16:
- 			reg = task_pt_regs(target)->pstate;
-+			reg = pstate_to_compat_psr(reg);
- 			break;
- 		case 17:
- 			reg = task_pt_regs(target)->orig_x0;
-@@ -900,6 +901,7 @@ static int compat_gpr_set(struct task_st
- 			newregs.pc = reg;
- 			break;
- 		case 16:
-+			reg = compat_psr_to_pstate(reg);
- 			newregs.pstate = reg;
- 			break;
- 		case 17:
+diff --git a/drivers/scsi/ipr.c b/drivers/scsi/ipr.c
+index c5bc41d97f84b..7760b9a1e0aea 100644
+--- a/drivers/scsi/ipr.c
++++ b/drivers/scsi/ipr.c
+@@ -9818,6 +9818,7 @@ static void ipr_init_ioa_cfg(struct ipr_ioa_cfg *ioa_cfg,
+ 	ioa_cfg->max_devs_supported = ipr_max_devs;
+ 
+ 	if (ioa_cfg->sis64) {
++		host->max_channel = IPR_MAX_SIS64_BUSES;
+ 		host->max_id = IPR_MAX_SIS64_TARGETS_PER_BUS;
+ 		host->max_lun = IPR_MAX_SIS64_LUNS_PER_TARGET;
+ 		if (ipr_max_devs > IPR_MAX_SIS64_DEVS)
+@@ -9826,6 +9827,7 @@ static void ipr_init_ioa_cfg(struct ipr_ioa_cfg *ioa_cfg,
+ 					   + ((sizeof(struct ipr_config_table_entry64)
+ 					       * ioa_cfg->max_devs_supported)));
+ 	} else {
++		host->max_channel = IPR_VSET_BUS;
+ 		host->max_id = IPR_MAX_NUM_TARGETS_PER_BUS;
+ 		host->max_lun = IPR_MAX_NUM_LUNS_PER_TARGET;
+ 		if (ipr_max_devs > IPR_MAX_PHYSICAL_DEVS)
+@@ -9835,7 +9837,6 @@ static void ipr_init_ioa_cfg(struct ipr_ioa_cfg *ioa_cfg,
+ 					       * ioa_cfg->max_devs_supported)));
+ 	}
+ 
+-	host->max_channel = IPR_VSET_BUS;
+ 	host->unique_id = host->host_no;
+ 	host->max_cmd_len = IPR_MAX_CDB_LEN;
+ 	host->can_queue = ioa_cfg->max_cmds;
+diff --git a/drivers/scsi/ipr.h b/drivers/scsi/ipr.h
+index 8995053d01b3f..5b2388266c4c3 100644
+--- a/drivers/scsi/ipr.h
++++ b/drivers/scsi/ipr.h
+@@ -1306,6 +1306,7 @@ struct ipr_resource_entry {
+ #define IPR_ARRAY_VIRTUAL_BUS			0x1
+ #define IPR_VSET_VIRTUAL_BUS			0x2
+ #define IPR_IOAFP_VIRTUAL_BUS			0x3
++#define IPR_MAX_SIS64_BUSES			0x4
+ 
+ #define IPR_GET_RES_PHYS_LOC(res) \
+ 	(((res)->bus << 24) | ((res)->target << 8) | (res)->lun)
+-- 
+2.20.1
+
 
 
