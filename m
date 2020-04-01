@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D973619B340
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0F519B3DB
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733291AbgDAQkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:40:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40820 "EHLO mail.kernel.org"
+        id S1732582AbgDAQYd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:24:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389331AbgDAQkh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:40:37 -0400
+        id S1733249AbgDAQYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:24:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17C6120719;
-        Wed,  1 Apr 2020 16:40:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25E99212CC;
+        Wed,  1 Apr 2020 16:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759235;
-        bh=vd9KQm5lJKIzHUK1AZOmpGTXDgVDFpKR0xg/ZSIl5jY=;
+        s=default; t=1585758264;
+        bh=8gWxQB1hy2Rs45/USgNRR4m1Ti7GPXXLLt/ZXidVBr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fTuYIeRidxyj+XC142pu/FSbjOROt5AkUcI0Fu+e8677sYhFQ14xcHsQnL9dD7K5f
-         3OOwmKMzDk/ZjPTmgFV+QRu6tqmQ8suDAO3IT5wREP8AQkDK+35zCdXOj4Rc3AyoLd
-         mkEPq6XnI0Tif1kQK8hCgV3YnMhOBezHmZ1ME9yk=
+        b=LBkQb9l7gRHySzXmdYrGh7/x2wp2mkVTR5EH8mrGUQZpjBguWSBNGzBDic9kbfV+y
+         FpZed7AyUayEqvz0uOWws+gkk+mr24f+QVySS904+JDlJ/pD4UwpHjV6HQYDm9YUJc
+         y4jbaU0Bw95w8La64wWbF0cAYNfMLmoXo6eRPnEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 017/148] USB: serial: option: add ME910G1 ECM composition 0x110b
-Date:   Wed,  1 Apr 2020 18:16:49 +0200
-Message-Id: <20200401161553.986490775@linuxfoundation.org>
+        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
+        Dave Wysochanski <dwysocha@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 034/116] nfs: add minor version to nfs_server_key for fscache
+Date:   Wed,  1 Apr 2020 18:16:50 +0200
+Message-Id: <20200401161546.788908370@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Scott Mayhew <smayhew@redhat.com>
 
-commit 8e852a7953be2a6ee371449f7257fe15ace6a1fc upstream.
+[ Upstream commit 55dee1bc0d72877b99805e42e0205087e98b9edd ]
 
-Add ME910G1 ECM composition 0x110b: tty, tty, tty, ecm
+An NFS client that mounts multiple exports from the same NFS
+server with higher NFSv4 versions disabled (i.e. 4.2) and without
+forcing a specific NFS version results in fscache index cookie
+collisions and the following messages:
+[  570.004348] FS-Cache: Duplicate cookie detected
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20200304104310.2938-1-dnlplm@gmail.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Each nfs_client structure should have its own fscache index cookie,
+so add the minorversion to nfs_server_key.
 
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=200145
+Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/client.c     | 1 +
+ fs/nfs/fscache.c    | 2 ++
+ fs/nfs/nfs4client.c | 1 -
+ 3 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1186,6 +1186,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110a, 0xff),	/* Telit ME910G1 */
- 	  .driver_info = NCTRL(0) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110b, 0xff),	/* Telit ME910G1 (ECM) */
-+	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index 0a2b59c1ecb3d..07c5ddd5d6d50 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -157,6 +157,7 @@ struct nfs_client *nfs_alloc_client(const struct nfs_client_initdata *cl_init)
+ 	if ((clp = kzalloc(sizeof(*clp), GFP_KERNEL)) == NULL)
+ 		goto error_0;
+ 
++	clp->cl_minorversion = cl_init->minorversion;
+ 	clp->cl_nfs_mod = cl_init->nfs_mod;
+ 	if (!try_module_get(clp->cl_nfs_mod->owner))
+ 		goto error_dealloc;
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index a7bc4e0494f92..6f45b1a957397 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -35,6 +35,7 @@ static DEFINE_SPINLOCK(nfs_fscache_keys_lock);
+ struct nfs_server_key {
+ 	struct {
+ 		uint16_t	nfsversion;		/* NFS protocol version */
++		uint32_t	minorversion;		/* NFSv4 minor version */
+ 		uint16_t	family;			/* address family */
+ 		__be16		port;			/* IP port */
+ 	} hdr;
+@@ -59,6 +60,7 @@ void nfs_fscache_get_client_cookie(struct nfs_client *clp)
+ 
+ 	memset(&key, 0, sizeof(key));
+ 	key.hdr.nfsversion = clp->rpc_ops->version;
++	key.hdr.minorversion = clp->cl_minorversion;
+ 	key.hdr.family = clp->cl_addr.ss_family;
+ 
+ 	switch (clp->cl_addr.ss_family) {
+diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
+index 86991bcfbeb12..faaabbedc891d 100644
+--- a/fs/nfs/nfs4client.c
++++ b/fs/nfs/nfs4client.c
+@@ -210,7 +210,6 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
+ 	INIT_LIST_HEAD(&clp->cl_ds_clients);
+ 	rpc_init_wait_queue(&clp->cl_rpcwaitq, "NFS client");
+ 	clp->cl_state = 1 << NFS4CLNT_LEASE_EXPIRED;
+-	clp->cl_minorversion = cl_init->minorversion;
+ 	clp->cl_mvops = nfs_v4_minor_ops[cl_init->minorversion];
+ 	clp->cl_mig_gen = 1;
+ #if IS_ENABLED(CONFIG_NFS_V4_1)
+-- 
+2.20.1
+
 
 
