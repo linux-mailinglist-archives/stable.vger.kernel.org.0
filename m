@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9B4219AE87
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 17:07:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B26BA19AE88
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 17:07:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732696AbgDAPHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 11:07:21 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:34243 "EHLO
+        id S1732633AbgDAPHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 11:07:22 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:60989 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732633AbgDAPHV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 11:07:21 -0400
+        by vger.kernel.org with ESMTP id S1732623AbgDAPHW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 11:07:22 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 561175C0427;
-        Wed,  1 Apr 2020 11:07:19 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id C3BC45C042E;
+        Wed,  1 Apr 2020 11:07:20 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 01 Apr 2020 11:07:19 -0400
+  by compute1.internal (MEProxy); Wed, 01 Apr 2020 11:07:20 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=9moOwl
-        RlmYOeKAcwm6DVryzA23yUw10lEgTuPgReFQ8=; b=aJHdgM2MudYA8Zeje/F96L
-        9AjYGtpR/ZHPrphBQWMoF7GJywLQCcVVkyr1IUGio344Ejj6r+RhW5ZIEfJYfsF+
-        Puj0B+9s+IYlMYWkxRhAOruswtgY5qgqqr4285eHgUQLb6m++LInMKIU2YCDpw0O
-        KZpGI5PSlreOZiIpsCcGCAPWmkMTIa/siRB/DxmpgmZJLCPffXn2QfEPH4nayPRT
-        tSRdhNClMExBHtijqa/qXo1U2XwxY2t2tVCXIgPTJGSnqI88bWZnN2L47e1+BogN
-        SPK2s/u2p/tcqGShkxR5wW/wyzsxTNj/LAW2IF0HWxdqEkI3rG+BI1XwJgLNrZmQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=39T3kY
+        odlomywZbuExMg7MwuQ9+rZ7YZE0/pSwwS8i8=; b=2UnZK6WzJeOzG5N8+0/v3G
+        yGER/xXEs0/0eX1DPAXTiHVXdH2egmu6M6zUlcT8Unj4EU09rNS10fgHXXf9XO/B
+        c90qznZVuYTaD9RUJN7naNrhgbS6RUqwkQP/W6t2Rgy405gXTsHlfFzYzQ/Uh2Aq
+        zZPgKxkzUoQcwKKSI3VOGavsuU7aXCPOXiWog+2UgRUmA1luCRgw9yrnJk7fwvpv
+        WFtFtagjCbjL4xZjNY9u0OjSSv+vYSYhi7U+eggqeImcBxanpDcvUE5t0wrThIT8
+        Xc/EmUDqj+rmowDhMp1Yd1qGsyalVqzTEQjxBgVAUHEeU92F7YZCwySuizJJtQbw
         ==
-X-ME-Sender: <xms:J66EXg56etFkgR33xuCTGuoqbW1s8OrqWO1_EGrZaNMLQdVyVUc2Xg>
+X-ME-Sender: <xms:KK6EXufk-vPisT2eQLDm0Zs4ewLkdWzUNBOjwe7QN04tMakWlqr4Jw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrtddvgdekfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:J66EXgiAZlSLtE3sVt9Hfiz_1OE_xoUP11TGoMJRlUVhY1Fk5YWVXA>
-    <xmx:J66EXvFCxkIpYa50ZM4ENGuVOrlZB1YxTmLUCiJDbshScj2yK2EaQg>
-    <xmx:J66EXrVnRMM_gF-I7ZEtNK5aVtNpdAS-juu7rxSymvNlRTReybWSsg>
-    <xmx:J66EXpSOgMHfhN2LJ0JJtRL8L2GZxmbd6f6fXbZSvVX2FAPndxfv2Q>
+X-ME-Proxy: <xmx:KK6EXq0gNz6ebKesLKaoL3EU_7goJW9cYcw6npV7YC5qsBt-iUaiaw>
+    <xmx:KK6EXkcdpWMweTOy44nqNMzv7z4zFL_vkZuC9Q9K4DMc0Cgd0PCHhA>
+    <xmx:KK6EXu6OfsfNm5_X6kiU3_bjZd0bVLI4IKQGwJJzCG_nY0QanP_eNQ>
+    <xmx:KK6EXs_GB3qBWgdDoDRLo5TVcqlcfKEGHy7ni5wvWK7yqsP8KM5Cgg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E143E328006A;
-        Wed,  1 Apr 2020 11:07:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] libceph: fix alloc_msg_with_page_vector() memory leaks" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 632FD3280065;
+        Wed,  1 Apr 2020 11:07:20 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] libceph: fix alloc_msg_with_page_vector() memory leaks" failed to apply to 4.9-stable tree
 To:     idryomov@gmail.com, rpenyaev@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 01 Apr 2020 17:07:14 +0200
-Message-ID: <158575363434139@kroah.com>
+Date:   Wed, 01 Apr 2020 17:07:17 +0200
+Message-ID: <1585753637146155@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
