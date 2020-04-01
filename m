@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7189E19B238
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DC5719B04F
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:26:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389179AbgDAQmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:42:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42602 "EHLO mail.kernel.org"
+        id S1733224AbgDAQZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:25:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389486AbgDAQmD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:42:03 -0400
+        id S1728427AbgDAQZs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:25:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC20820857;
-        Wed,  1 Apr 2020 16:42:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 102B0212CC;
+        Wed,  1 Apr 2020 16:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759323;
-        bh=NGlbUHeGAsmj8DvLjo4wsyyd7AsWiHPZuZbnLUQ9UIA=;
+        s=default; t=1585758347;
+        bh=3zvdpS4ely3Wkjh0Q3RVmuWN0ABaWaYXgHgRzfvYH1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hPHEMwmN/By4t6PVFu3Ua/aRYUyGZWclR9b36IitoKdfnYXT0LwyQ88zkM3uEOw+W
-         nTFMrnj1hXdpB/o1NsBbVJlmY9lWU/AzxgNV0s9wlnXg77iD9rj+BJVqNV/MyQZyGn
-         sxzpfCXlH6nAezLVOe/28umZIGVTn/nYjLXEfjnw=
+        b=S0GyyNkvsRTxEckx8l8IlHyZS8CGVwl0t8euSV28BujzB2MbjF7Guiwx/OZgEDXLJ
+         2KKd/BtuHBEMo/xNOPZT3wpcKev/e3+qM4vz+7i/a1jrg0l/XPTrTdjugEshlNRTUF
+         iLsBRLACUp1uvj4Kb+2F12OibHEWFqqFh6J450p0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rong Chen <rong.a.chen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 046/148] futex: Unbreak futex hashing
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.19 062/116] gpiolib: acpi: Add quirk to ignore EC wakeups on HP x2 10 BYT + AXP288 model
 Date:   Wed,  1 Apr 2020 18:17:18 +0200
-Message-Id: <20200401161557.348239612@linuxfoundation.org>
+Message-Id: <20200401161551.551217272@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 8d67743653dce5a0e7aa500fcccb237cde7ad88e upstream.
+commit 0e91506ba00730f088961a8d39f8693b0f8e3fea upstream.
 
-The recent futex inode life time fix changed the ordering of the futex key
-union struct members, but forgot to adjust the hash function accordingly,
+Commit aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option +
+quirk mechanism") was added to deal with spurious wakeups on one specific
+model of the HP x2 10 series. In the mean time I have learned that there
+are at least 3 different HP x2 10 models:
 
-As a result the hashing omits the leading 64bit and even hashes beyond the
-futex key causing a bad hash distribution which led to a ~100% performance
-regression.
+Bay Trail SoC + AXP288 PMIC
+Cherry Trail SoC + AXP288 PMIC
+Cherry Trail SoC + TI PMIC
 
-Hand in the futex key pointer instead of a random struct member and make
-the size calculation based of the struct offset.
+And the original quirk is only correct for (and only matches the)
+Cherry Trail SoC + TI PMIC model.
 
-Fixes: 8019ad13ef7f ("futex: Fix inode life-time issue")
-Reported-by: Rong Chen <rong.a.chen@intel.com>
-Decoded-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Rong Chen <rong.a.chen@intel.com>
-Link: https://lkml.kernel.org/r/87h7yy90ve.fsf@nanos.tec.linutronix.de
+The Bay Trail SoC + AXP288 PMIC model has different DMI strings, has
+the external EC interrupt on a different GPIO pin and only needs to ignore
+wakeups on the EC interrupt, the INT0002 device works fine on this model.
+
+This commit adds an extra DMI based quirk for the HP x2 10 BYT + AXP288
+model, ignoring wakeups for ACPI GPIO events on the EC interrupt pin
+on this model. This fixes spurious wakeups from suspend on this model.
+
+Fixes: aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option + quirk mechanism")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200302111225.6641-3-hdegoede@redhat.com
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/futex.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpio/gpiolib-acpi.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -401,9 +401,9 @@ static inline int hb_waiters_pending(str
-  */
- static struct futex_hash_bucket *hash_futex(union futex_key *key)
- {
--	u32 hash = jhash2((u32*)&key->both.word,
--			  (sizeof(key->both.word)+sizeof(key->both.ptr))/4,
-+	u32 hash = jhash2((u32 *)key, offsetof(typeof(*key), both.offset) / 4,
- 			  key->both.offset);
-+
- 	return &futex_queues[hash & (futex_hashsize - 1)];
- }
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -1376,6 +1376,21 @@ static const struct dmi_system_id gpioli
+ 			.ignore_wake = "INT33FF:01@0,INT0002:00@2",
+ 		},
+ 	},
++	{
++		/*
++		 * HP X2 10 models with Bay Trail SoC + AXP288 PMIC use an
++		 * external embedded-controller connected via I2C + an ACPI GPIO
++		 * event handler on INT33FC:02 pin 28, causing spurious wakeups.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
++			DMI_MATCH(DMI_BOARD_NAME, "815D"),
++		},
++		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
++			.ignore_wake = "INT33FC:02@28",
++		},
++	},
+ 	{} /* Terminating entry */
+ };
  
 
 
