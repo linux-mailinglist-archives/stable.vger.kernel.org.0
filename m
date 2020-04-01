@@ -2,103 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A82819A9E2
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 13:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E6319AA5B
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 13:09:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732006AbgDALBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 07:01:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35900 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731343AbgDALBF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 07:01:05 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAEE82078B;
-        Wed,  1 Apr 2020 11:01:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585738864;
-        bh=WHQUuc/7PiXP6VBr7/bGGUFXN2v8mQX50Z6z+MGNQP0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JcTsJEZ2kNCqzzHibWRq/JcX99rhynqcrDA/dhtI5qB6CAvJ50s0mDcg1aZGPg8qd
-         LI8p7s7j9uJCJ94LLYHmeWG2t9xRAEI0CRPkp7gE9roiPh+f2cxYbial6c9ggX2StM
-         nJBKyQAtYyiKV7WQKKVi/kQm+r+WPI51f/nNfnpA=
-Date:   Wed, 1 Apr 2020 13:01:00 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Schmid, Carsten" <Carsten_Schmid@mentor.com>
-Cc:     "sashal@kernel.org" <sashal@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH Backport to stable/linux-4.14.y] make
- 'user_access_begin()' do 'access_ok()'
-Message-ID: <20200401110100.GA2070530@kroah.com>
-References: <8a297704c58b4b4e867efecb08214040@SVR-IES-MBX-03.mgc.mentorg.com>
- <1585733082992.99012@mentor.com>
- <20200401093235.GB2055942@kroah.com>
- <1585735684794.48644@mentor.com>
- <1585737161954.11435@mentor.com>
+        id S1732692AbgDALGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 07:06:52 -0400
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:40700 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732201AbgDALGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 07:06:51 -0400
+Received: by mail-qt1-f193.google.com with SMTP id y25so2275804qtv.7;
+        Wed, 01 Apr 2020 04:06:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding;
+        bh=2EOiDIA2nQVdUSu0VgNzpqDQxBBVebCxPYBUqBEintc=;
+        b=aOfYvUbmqcgzNNykOAPmcWovFz7SJHVwbwBbs0FBFgKGzpdaBg3gprbwnrVUV0b7mm
+         Iz3P5DM4XOV5sdAUYGQ/sj8qaOGAP0e8GuN15foN7DLrnxmsTETEZKc5e88ptGGygplv
+         /3sUnDLx/NGheVpg9FQ6Bqi2iseiYdYj+52dtEDUAghudJ2ab7dHa3+Lo+B1ZRaTPjTv
+         urtbOa1LHMC223jkKVnhAHeQJ0CCcQQPFVghy66UupHA05h3yOlTL2GbG9sEi/bljBD5
+         e7mXqiRQfa4FVnwOQy8sdG9u0b56l7JkmgVGZ6PDH1hvXy5ngSAOy+R42kD1K8a5Ntkg
+         etkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding;
+        bh=2EOiDIA2nQVdUSu0VgNzpqDQxBBVebCxPYBUqBEintc=;
+        b=jsJpFEACYIl1/9lWyKUqLY+KLN6QiPBN3mUqE1qb5U4RXVD3jAZqxPDNzYkVORtBqQ
+         kXhDwEQwZhhCXz1RGSuarJwj8c9NDp9o6k4BSmuiQW6zyC0VHFjwDOHbKZ6pSJl4LRwg
+         zoHV83K7e4qejek9xKNMq+k3eLAkUgy2aY+Ka24ZvAb1ZWks8wRE6yROil1f8udtLHDX
+         3qQ7iERoed7+/dUA7kjgtJ4qv+Fgba+bHeYyik8a8OxcSlxaC08FzufGwxYthTrLgAt4
+         0eMM4mBlk/1Fi1Wj5hpk3+MOmaamnEfzmpSldOadUHHOZxABePLT88DG3Z3nPDfitJ4j
+         HGkg==
+X-Gm-Message-State: ANhLgQ1BGLywPYMHaCVEC2poxpoFDCVuhnSmPoY7v1LD0ZISULkImRE0
+        MthjW5ilm6KAQoAuj6/uZF50IvEjWQmh
+X-Google-Smtp-Source: ADFU+vsQnVTHWhQy8mdKFIoSVS3izJL5rjT1VKecRgDsh7sOob5kpB4YE8fxOwcWWcREqBHLZi7UOw==
+X-Received: by 2002:ac8:a09:: with SMTP id b9mr9761292qti.190.1585739209958;
+        Wed, 01 Apr 2020 04:06:49 -0700 (PDT)
+Received: from [120.7.1.38] ([184.175.21.212])
+        by smtp.gmail.com with ESMTPSA id t53sm1191260qth.70.2020.04.01.04.06.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Apr 2020 04:06:49 -0700 (PDT)
+Subject: Re: [PATCH 5.6 00/23] 5.6.1-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+References: <20200331085308.098696461@linuxfoundation.org>
+ <6cdfe0e5-408f-2d88-cb08-c7675d78637c@gmail.com>
+ <20200401055152.GA1903194@kroah.com> <20200401055309.GA1903746@kroah.com>
+From:   Woody Suwalski <terraluna977@gmail.com>
+Message-ID: <2e853806-264d-cf74-4298-146900ab32a1@gmail.com>
+Date:   Wed, 1 Apr 2020 07:06:47 -0400
+User-Agent: Mozilla/5.0 (X11; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0
+ SeaMonkey/2.53.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1585737161954.11435@mentor.com>
+In-Reply-To: <20200401055309.GA1903746@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 10:32:42AM +0000, Schmid, Carsten wrote:
-> >>
-> >> Fixes CVE-2018-20669
-> >> Backported from v5.0-rc1
-> >> Patch 1/1
-> >
-> > Also, that cve was "supposed" to already be fixed in the 4.19.13 kernel
-> > release for some reason, and it's a drm issue, not a core access_ok()
-> > issue.
-> >
-> > So why is this needed for 4.14?
-> >
-> See https://access.redhat.com/security/cve/cve-2018-20669
-> Looks like Linus' fix was attacking this at the root cause, not only for DRM.
+Greg Kroah-Hartman wrote:
+> On Wed, Apr 01, 2020 at 07:51:52AM +0200, Greg Kroah-Hartman wrote:
+>> On Tue, Mar 31, 2020 at 11:06:16PM -0400, Woody Suwalski wrote:
+>>> Greg Kroah-Hartman wrote:
+>>> I think you have missed the
+>>> https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=be8c827f50a0bcd56361b31ada11dc0a3c2fd240
+>> It should come in soon, in another release or so, when the next set of
+>> networking patches get sent to me.
+> And also didn't hit Linus's tree until after this set of -rc patches
+> went out, so it's not like I missed it or anything :)
+>
+> thanks,
+>
+> greg k-h
+My bad. It was supposed to be: I think that that patch should be 
+considered soon...
+Thanks, Woody
 
-And are you _sure_ this really is an issue in 4.14?  And in 4.19?  There
-was some reason I didn't backport this to 4.19 at the time...
-
-> Also, i use https://www.linuxkernelcves.com/ as a research source,
-> and they claim that CVE not fixed in 4.19.
-
-That disagrees with the "main" CVE database.  Not that I really trust
-any of them further than I can throw their servers...
-
-> (and i'll check for the other LTS kernels as well)
-
-Please do.
-
-> >> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> >
-> > No s-o-by from you?
-> Ops. Will add this in a resend.
-> 
-> >> Want to give this work back to the community, as 4.14 is a SLTS.
-> >
-> > What is "SLTS"?
-> Super Long Term Supported kernel - thanks to guys like you :-)
-> 4.14 really is that (Jan. 2024, as of https://www.kernel.org/category/releases.html)
-
-I don't use that term, don't make new things up where they aren't :)
-
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Thanks, and i have some other patches backported to 4.14 as CVE fixes,
-> which i'll propose in the next hours.
-
-Make sure that they are really issues, and that they are fixed in all
-current trees.  I can't take patches for an older stable tree without a
-newer one also having it otherwise people would upgrade and suffer a
-regression.
-
-thanks,
-
-greg k-h
