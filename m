@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B2219B44D
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF7C19B251
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732579AbgDAQWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:22:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S2389558AbgDAQm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:42:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387463AbgDAQWW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:22:22 -0400
+        id S2389275AbgDAQm4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:42:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00D7220857;
-        Wed,  1 Apr 2020 16:22:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCDA420658;
+        Wed,  1 Apr 2020 16:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758140;
-        bh=VnwcAXK+UHzOBiGQchBKglHd/sU6Gq8vZVgDLz7TTZo=;
+        s=default; t=1585759374;
+        bh=VpYtFSS+pOeTXko6e0++dBytGJph34OFTaLPe23W6WA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VdG0fngmfc/zQMrTU6R6yQtUl9a9EbmVR65yJvnGSvHv9N7/aGWugzoVTH3og6gC5
-         eVMbg5YAFxP80guLg/TltnbCEcVGvCL35U9kkuyYDFvwWskmHSYiwVnA0roRs5NpaM
-         q69n6aiiIUWL7tjzljjrEm5ym9XlNZ4rNO+p3f5g=
+        b=1UvmL11rdG/vQHEqfvFkJbYKtLPQ4qyxFOz3DPELaZajgea30oZ+neQ5YK6+oF6x8
+         ZSuRENfX5kAWvhtlbGAIVf2sLr/C1N3DfX3RgxqqkwS/XKvUFjmjVj6VZtxJHRnLdD
+         eMPNmSWvK3kKLarmVilIkTRAm+BcE5KwqsFpWa38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 5.4 04/27] vt: selection, introduce vc_is_sel
+        stable@vger.kernel.org, Jon Rosen <jrosen@cisco.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 060/148] net/packet: tpacket_rcv: avoid a producer race condition
 Date:   Wed,  1 Apr 2020 18:17:32 +0200
-Message-Id: <20200401161418.604647666@linuxfoundation.org>
+Message-Id: <20200401161558.661288044@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
-References: <20200401161414.352722470@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,101 +44,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Willem de Bruijn <willemb@google.com>
 
-commit dce05aa6eec977f1472abed95ccd71276b9a3864 upstream.
+[ Upstream commit 61fad6816fc10fb8793a925d5c1256d1c3db0cd2 ]
 
-Avoid global variables (namely sel_cons) by introducing vc_is_sel. It
-checks whether the parameter is the current selection console. This will
-help putting sel_cons to a struct later.
+PACKET_RX_RING can cause multiple writers to access the same slot if a
+fast writer wraps the ring while a slow writer is still copying. This
+is particularly likely with few, large, slots (e.g., GSO packets).
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20200219073951.16151-1-jslaby@suse.cz
+Synchronize kernel thread ownership of rx ring slots with a bitmap.
+
+Writers acquire a slot race-free by testing tp_status TP_STATUS_KERNEL
+while holding the sk receive queue lock. They release this lock before
+copying and set tp_status to TP_STATUS_USER to release to userspace
+when done. During copying, another writer may take the lock, also see
+TP_STATUS_KERNEL, and start writing to the same slot.
+
+Introduce a new rx_owner_map bitmap with a bit per slot. To acquire a
+slot, test and set with the lock held. To release race-free, update
+tp_status and owner bit as a transaction, so take the lock again.
+
+This is the one of a variety of discussed options (see Link below):
+
+* instead of a shadow ring, embed the data in the slot itself, such as
+in tp_padding. But any test for this field may match a value left by
+userspace, causing deadlock.
+
+* avoid the lock on release. This leaves a small race if releasing the
+shadow slot before setting TP_STATUS_USER. The below reproducer showed
+that this race is not academic. If releasing the slot after tp_status,
+the race is more subtle. See the first link for details.
+
+* add a new tp_status TP_KERNEL_OWNED to avoid the transactional store
+of two fields. But, legacy applications may interpret all non-zero
+tp_status as owned by the user. As libpcap does. So this is possible
+only opt-in by newer processes. It can be added as an optional mode.
+
+* embed the struct at the tail of pg_vec to avoid extra allocation.
+The implementation proved no less complex than a separate field.
+
+The additional locking cost on release adds contention, no different
+than scaling on multicore or multiqueue h/w. In practice, below
+reproducer nor small packet tcpdump showed a noticeable change in
+perf report in cycles spent in spinlock. Where contention is
+problematic, packet sockets support mitigation through PACKET_FANOUT.
+And we can consider adding opt-in state TP_KERNEL_OWNED.
+
+Easy to reproduce by running multiple netperf or similar TCP_STREAM
+flows concurrently with `tcpdump -B 129 -n greater 60000`.
+
+Based on an earlier patchset by Jon Rosen. See links below.
+
+I believe this issue goes back to the introduction of tpacket_rcv,
+which predates git history.
+
+Link: https://www.mail-archive.com/netdev@vger.kernel.org/msg237222.html
+Suggested-by: Jon Rosen <jrosen@cisco.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Jon Rosen <jrosen@cisco.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/vt/selection.c |    5 +++++
- drivers/tty/vt/vt.c        |    7 ++++---
- drivers/tty/vt/vt_ioctl.c  |    2 +-
- include/linux/selection.h  |    4 +++-
- 4 files changed, 13 insertions(+), 5 deletions(-)
+ net/packet/af_packet.c |   21 +++++++++++++++++++++
+ net/packet/internal.h  |    5 ++++-
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/selection.c
-+++ b/drivers/tty/vt/selection.c
-@@ -88,6 +88,11 @@ void clear_selection(void)
- }
- EXPORT_SYMBOL_GPL(clear_selection);
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -2204,6 +2204,7 @@ static int tpacket_rcv(struct sk_buff *s
+ 	struct timespec ts;
+ 	__u32 ts_status;
+ 	bool is_drop_n_account = false;
++	unsigned int slot_id = 0;
+ 	bool do_vnet = false;
  
-+bool vc_is_sel(struct vc_data *vc)
-+{
-+	return vc == sel_cons;
-+}
+ 	/* struct tpacket{2,3}_hdr is aligned to a multiple of TPACKET_ALIGNMENT.
+@@ -2300,6 +2301,13 @@ static int tpacket_rcv(struct sk_buff *s
+ 	if (!h.raw)
+ 		goto drop_n_account;
+ 
++	if (po->tp_version <= TPACKET_V2) {
++		slot_id = po->rx_ring.head;
++		if (test_bit(slot_id, po->rx_ring.rx_owner_map))
++			goto drop_n_account;
++		__set_bit(slot_id, po->rx_ring.rx_owner_map);
++	}
 +
- /*
-  * User settable table: what characters are to be considered alphabetic?
-  * 128 bits. Locked by the console lock.
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -890,8 +890,9 @@ static void hide_softcursor(struct vc_da
+ 	if (do_vnet &&
+ 	    virtio_net_hdr_from_skb(skb, h.raw + macoff -
+ 				    sizeof(struct virtio_net_hdr),
+@@ -2405,7 +2413,10 @@ static int tpacket_rcv(struct sk_buff *s
+ #endif
  
- static void hide_cursor(struct vc_data *vc)
+ 	if (po->tp_version <= TPACKET_V2) {
++		spin_lock(&sk->sk_receive_queue.lock);
+ 		__packet_set_status(po, h.raw, status);
++		__clear_bit(slot_id, po->rx_ring.rx_owner_map);
++		spin_unlock(&sk->sk_receive_queue.lock);
+ 		sk->sk_data_ready(sk);
+ 	} else {
+ 		prb_clear_blk_fill_status(&po->rx_ring);
+@@ -4298,6 +4309,7 @@ static int packet_set_ring(struct sock *
  {
--	if (vc == sel_cons)
-+	if (vc_is_sel(vc))
- 		clear_selection();
-+
- 	vc->vc_sw->con_cursor(vc, CM_ERASE);
- 	hide_softcursor(vc);
- }
-@@ -901,7 +902,7 @@ static void set_cursor(struct vc_data *v
- 	if (!con_is_fg(vc) || console_blanked || vc->vc_mode == KD_GRAPHICS)
- 		return;
- 	if (vc->vc_deccm) {
--		if (vc == sel_cons)
-+		if (vc_is_sel(vc))
- 			clear_selection();
- 		add_softcursor(vc);
- 		if ((vc->vc_cursor_type & 0x0f) != 1)
-@@ -1207,7 +1208,7 @@ static int vc_do_resize(struct tty_struc
+ 	struct pgv *pg_vec = NULL;
+ 	struct packet_sock *po = pkt_sk(sk);
++	unsigned long *rx_owner_map = NULL;
+ 	int was_running, order = 0;
+ 	struct packet_ring_buffer *rb;
+ 	struct sk_buff_head *rb_queue;
+@@ -4383,6 +4395,12 @@ static int packet_set_ring(struct sock *
+ 			}
+ 			break;
+ 		default:
++			if (!tx_ring) {
++				rx_owner_map = bitmap_alloc(req->tp_frame_nr,
++					GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO);
++				if (!rx_owner_map)
++					goto out_free_pg_vec;
++			}
+ 			break;
  		}
  	}
+@@ -4412,6 +4430,8 @@ static int packet_set_ring(struct sock *
+ 		err = 0;
+ 		spin_lock_bh(&rb_queue->lock);
+ 		swap(rb->pg_vec, pg_vec);
++		if (po->tp_version <= TPACKET_V2)
++			swap(rb->rx_owner_map, rx_owner_map);
+ 		rb->frame_max = (req->tp_frame_nr - 1);
+ 		rb->head = 0;
+ 		rb->frame_size = req->tp_frame_size;
+@@ -4443,6 +4463,7 @@ static int packet_set_ring(struct sock *
+ 	}
  
--	if (vc == sel_cons)
-+	if (vc_is_sel(vc))
- 		clear_selection();
+ out_free_pg_vec:
++	bitmap_free(rx_owner_map);
+ 	if (pg_vec)
+ 		free_pg_vec(pg_vec, order, req->tp_block_nr);
+ out:
+--- a/net/packet/internal.h
++++ b/net/packet/internal.h
+@@ -70,7 +70,10 @@ struct packet_ring_buffer {
  
- 	old_rows = vc->vc_rows;
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -43,7 +43,7 @@ char vt_dont_switch;
- extern struct tty_driver *console_driver;
+ 	unsigned int __percpu	*pending_refcnt;
  
- #define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
--#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_cons[i].d == sel_cons)
-+#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
+-	struct tpacket_kbdq_core	prb_bdqc;
++	union {
++		unsigned long			*rx_owner_map;
++		struct tpacket_kbdq_core	prb_bdqc;
++	};
+ };
  
- /*
-  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
---- a/include/linux/selection.h
-+++ b/include/linux/selection.h
-@@ -11,8 +11,8 @@
- #include <linux/tiocl.h>
- #include <linux/vt_buffer.h>
- 
--extern struct vc_data *sel_cons;
- struct tty_struct;
-+struct vc_data;
- 
- extern void clear_selection(void);
- extern int set_selection_user(const struct tiocl_selection __user *sel,
-@@ -24,6 +24,8 @@ extern int sel_loadlut(char __user *p);
- extern int mouse_reporting(void);
- extern void mouse_report(struct tty_struct * tty, int butt, int mrx, int mry);
- 
-+bool vc_is_sel(struct vc_data *vc);
-+
- extern int console_blanked;
- 
- extern const unsigned char color_table[];
+ extern struct mutex fanout_mutex;
 
 
