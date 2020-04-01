@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F417519B09D
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD4B19B1B3
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:38:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388083AbgDAQ2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:28:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53364 "EHLO mail.kernel.org"
+        id S2388947AbgDAQhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:37:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388078AbgDAQ2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:28:09 -0400
+        id S2388964AbgDAQhX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:37:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E18520857;
-        Wed,  1 Apr 2020 16:28:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15DAC20658;
+        Wed,  1 Apr 2020 16:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758488;
-        bh=aJXSF9To3DwzTZCXEL3zhettvEbM0elzyPobBAlreHg=;
+        s=default; t=1585759042;
+        bh=wgwlB/3is5ib4vqbjhkV0kf88NONHyduGvwHtkIm3Uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P0rgyp3QGgi8agRxn8SwcZG3FBENKRKtymQ9/yWR6wo8VkyAaMWSD0QzZ9OQQ5yns
-         PJ8eWhPBX7qkENupSonsf8bEusEdjHadAV5hFQitYd5CWwRoCP9s4pImrii/uaYOXC
-         3vHh61gTFnO6wd6xJk+5JtBWjyuxnFNgjgtJboH4=
+        b=l7OKP8BCis4HW2NQI7HQqAyGrso2Os57tvAGF1dcXaHpqRF5imMgPvMcImIuIZ866
+         28Qeg7c99bfKwyoujx7BjBPrpC5Z2ed9U5eQKRu3irDy7Dmw3Raqb38QapPlAkiZUl
+         3jGp1ntFFhX9DMuY3TxZcPMRXKneEc3WLvSAk2MM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Alexander Potapenko <glider@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>
-Subject: [PATCH 4.19 105/116] bpf: Explicitly memset the bpf_attr structure
+        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        stable@kernel.org, Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 4.9 058/102] ARM: dts: dra7: Add bus_dma_limit for L3 bus
 Date:   Wed,  1 Apr 2020 18:18:01 +0200
-Message-Id: <20200401161555.630698707@linuxfoundation.org>
+Message-Id: <20200401161543.179991154@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Roger Quadros <rogerq@ti.com>
 
-commit 8096f229421f7b22433775e928d506f0342e5907 upstream.
+commit cfb5d65f25959f724081bae8445a0241db606af6 upstream.
 
-For the bpf syscall, we are relying on the compiler to properly zero out
-the bpf_attr union that we copy userspace data into. Unfortunately that
-doesn't always work properly, padding and other oddities might not be
-correctly zeroed, and in some tests odd things have been found when the
-stack is pre-initialized to other values.
+The L3 interconnect's memory map is from 0x0 to
+0xffffffff. Out of this, System memory (SDRAM) can be
+accessed from 0x80000000 to 0xffffffff (2GB)
 
-Fix this by explicitly memsetting the structure to 0 before using it.
+DRA7 does support 4GB of SDRAM but upper 2GB can only be
+accessed by the MPU subsystem.
 
-Reported-by: Maciej Żenczykowski <maze@google.com>
-Reported-by: John Stultz <john.stultz@linaro.org>
-Reported-by: Alexander Potapenko <glider@google.com>
-Reported-by: Alistair Delva <adelva@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://android-review.googlesource.com/c/kernel/common/+/1235490
-Link: https://lore.kernel.org/bpf/20200320094813.GA421650@kroah.com
+Add the dma-ranges property to reflect the physical address limit
+of the L3 bus.
+
+Issues ere observed only with SATA on DRA7-EVM with 4GB RAM
+and CONFIG_ARM_LPAE enabled. This is because the controller
+supports 64-bit DMA and its driver sets the dma_mask to 64-bit
+thus resulting in DMA accesses beyond L3 limit of 2G.
+
+Setting the correct bus_dma_limit fixes the issue.
+
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Cc: stable@kernel.org
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/syscall.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/dra7.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -2372,7 +2372,7 @@ out:
- 
- SYSCALL_DEFINE3(bpf, int, cmd, union bpf_attr __user *, uattr, unsigned int, size)
- {
--	union bpf_attr attr = {};
-+	union bpf_attr attr;
- 	int err;
- 
- 	if (sysctl_unprivileged_bpf_disabled && !capable(CAP_SYS_ADMIN))
-@@ -2384,6 +2384,7 @@ SYSCALL_DEFINE3(bpf, int, cmd, union bpf
- 	size = min_t(u32, size, sizeof(attr));
- 
- 	/* copy attributes from user space, may be less than sizeof(bpf_attr) */
-+	memset(&attr, 0, sizeof(attr));
- 	if (copy_from_user(&attr, uattr, size) != 0)
- 		return -EFAULT;
- 
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -123,6 +123,7 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 		ranges = <0x0 0x0 0x0 0xc0000000>;
++		dma-ranges = <0x80000000 0x0 0x80000000 0x80000000>;
+ 		ti,hwmods = "l3_main_1", "l3_main_2";
+ 		reg = <0x0 0x44000000 0x0 0x1000000>,
+ 		      <0x0 0x45000000 0x0 0x1000>;
 
 
