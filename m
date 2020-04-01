@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 813E919B45D
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 987FB19B320
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732960AbgDAQ4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:56:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44714 "EHLO mail.kernel.org"
+        id S2389485AbgDAQnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:43:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732355AbgDAQVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:21:47 -0400
+        id S2389459AbgDAQnb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:43:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F573214D8;
-        Wed,  1 Apr 2020 16:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A61D32063A;
+        Wed,  1 Apr 2020 16:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758106;
-        bh=Op1Vmh9JkL9YwYuFWGMzfqjEvOf7teeWQwtofuAiVEA=;
+        s=default; t=1585759410;
+        bh=tTMwHlnz8u/+d0nK3QZhBj+01CbopiVUQqYRQRBRiUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIjhjnPfnD0IAKOt0MpUWeO/zWELk+LE/zHcbDHKeozkdybddBPGUjkyuXkKhUnKi
-         eumwWEnTeb0s9YNx6X3LJIxGy4si/UluTey7KmzJY+DtbGxH62xLdyXgycv6sXyunh
-         FILZ/azV4Jg/9frUFE1fWc8Fjq+iqCf4qlOWUW38=
+        b=jeqfafqiNmYnG24ZScjenOS4bfNKFc3VOVthP3dNrcjLAKC5sJj9ifSUsiJ9v1tD4
+         VB33cP6bD4c65TFzNvJC4VmjPbziwumrebW3Uyik++qxDYkyPFa6TKpGCLefNkxY4/
+         0zKxYidGZMYz2Kc8IkaO6bWHW8zkdFM1xJZMVThI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lukas Wunner <lukas@wunner.de>, Petr Stetiar <ynezz@true.cz>,
-        YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH 5.4 14/27] net: ks8851-ml: Fix IO operations, again
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 070/148] hsr: use rcu_read_lock() in hsr_get_node_{list/status}()
 Date:   Wed,  1 Apr 2020 18:17:42 +0200
-Message-Id: <20200401161426.830978737@linuxfoundation.org>
+Message-Id: <20200401161600.234160355@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
-References: <20200401161414.352722470@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,137 +43,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit 8262e6f9b1034ede34548a04dec4c302d92c9497 upstream.
+[ Upstream commit 173756b86803655d70af7732079b3aa935e6ab68 ]
 
-This patch reverts 58292104832f ("net: ks8851-ml: Fix 16-bit IO operation")
-and edacb098ea9c ("net: ks8851-ml: Fix 16-bit data access"), because it
-turns out these were only necessary due to buggy hardware. This patch adds
-a check for such a buggy hardware to prevent any such mistakes again.
+hsr_get_node_{list/status}() are not under rtnl_lock() because
+they are callback functions of generic netlink.
+But they use __dev_get_by_index() without rtnl_lock().
+So, it would use unsafe data.
+In order to fix it, rcu_read_lock() and dev_get_by_index_rcu()
+are used instead of __dev_get_by_index().
 
-While working further on the KS8851 driver, it came to light that the
-KS8851-16MLL is capable of switching bus endianness by a hardware strap,
-EESK pin. If this strap is incorrect, the IO accesses require such endian
-swapping as is being reverted by this patch. Such swapping also impacts
-the performance significantly.
-
-Hence, in addition to removing it, detect that the hardware is broken,
-report to user, and fail to bind with such hardware.
-
-Fixes: 58292104832f ("net: ks8851-ml: Fix 16-bit IO operation")
-Fixes: edacb098ea9c ("net: ks8851-ml: Fix 16-bit data access")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Petr Stetiar <ynezz@true.cz>
-Cc: YueHaibing <yuehaibing@huawei.com>
+Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/micrel/ks8851_mll.c |   56 ++++++++++++++++++++++++++++---
- 1 file changed, 52 insertions(+), 4 deletions(-)
+ net/hsr/hsr_framereg.c |   10 ++--------
+ net/hsr/hsr_netlink.c  |   43 +++++++++++++++++++++----------------------
+ 2 files changed, 23 insertions(+), 30 deletions(-)
 
---- a/drivers/net/ethernet/micrel/ks8851_mll.c
-+++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -157,6 +157,50 @@ static int msg_enable;
-  */
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -468,13 +468,9 @@ int hsr_get_node_data(struct hsr_priv *h
+ 	struct hsr_port *port;
+ 	unsigned long tdiff;
  
- /**
-+ * ks_check_endian - Check whether endianness of the bus is correct
-+ * @ks	  : The chip information
-+ *
-+ * The KS8851-16MLL EESK pin allows selecting the endianness of the 16bit
-+ * bus. To maintain optimum performance, the bus endianness should be set
-+ * such that it matches the endianness of the CPU.
-+ */
-+
-+static int ks_check_endian(struct ks_net *ks)
-+{
-+	u16 cider;
-+
-+	/*
-+	 * Read CIDER register first, however read it the "wrong" way around.
-+	 * If the endian strap on the KS8851-16MLL in incorrect and the chip
-+	 * is operating in different endianness than the CPU, then the meaning
-+	 * of BE[3:0] byte-enable bits is also swapped such that:
-+	 *    BE[3,2,1,0] becomes BE[1,0,3,2]
-+	 *
-+	 * Luckily for us, the byte-enable bits are the top four MSbits of
-+	 * the address register and the CIDER register is at offset 0xc0.
-+	 * Hence, by reading address 0xc0c0, which is not impacted by endian
-+	 * swapping, we assert either BE[3:2] or BE[1:0] while reading the
-+	 * CIDER register.
-+	 *
-+	 * If the bus configuration is correct, reading 0xc0c0 asserts
-+	 * BE[3:2] and this read returns 0x0000, because to read register
-+	 * with bottom two LSbits of address set to 0, BE[1:0] must be
-+	 * asserted.
-+	 *
-+	 * If the bus configuration is NOT correct, reading 0xc0c0 asserts
-+	 * BE[1:0] and this read returns non-zero 0x8872 value.
-+	 */
-+	iowrite16(BE3 | BE2 | KS_CIDER, ks->hw_addr_cmd);
-+	cider = ioread16(ks->hw_addr);
-+	if (!cider)
-+		return 0;
-+
-+	netdev_err(ks->netdev, "incorrect EESK endian strap setting\n");
-+
-+	return -EINVAL;
-+}
-+
-+/**
-  * ks_rdreg16 - read 16 bit register from device
-  * @ks	  : The chip information
-  * @offset: The register address
-@@ -166,7 +210,7 @@ static int msg_enable;
+-
+-	rcu_read_lock();
+ 	node = find_node_by_AddrA(&hsr->node_db, addr);
+-	if (!node) {
+-		rcu_read_unlock();
+-		return -ENOENT;	/* No such entry */
+-	}
++	if (!node)
++		return -ENOENT;
  
- static u16 ks_rdreg16(struct ks_net *ks, int offset)
- {
--	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	return ioread16(ks->hw_addr);
- }
-@@ -181,7 +225,7 @@ static u16 ks_rdreg16(struct ks_net *ks,
+ 	ether_addr_copy(addr_b, node->MacAddressB);
  
- static void ks_wrreg16(struct ks_net *ks, int offset, u16 value)
- {
--	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	iowrite16(value, ks->hw_addr);
- }
-@@ -197,7 +241,7 @@ static inline void ks_inblk(struct ks_ne
- {
- 	len >>= 1;
- 	while (len--)
--		*wptr++ = be16_to_cpu(ioread16(ks->hw_addr));
-+		*wptr++ = (u16)ioread16(ks->hw_addr);
- }
- 
- /**
-@@ -211,7 +255,7 @@ static inline void ks_outblk(struct ks_n
- {
- 	len >>= 1;
- 	while (len--)
--		iowrite16(cpu_to_be16(*wptr++), ks->hw_addr);
-+		iowrite16(*wptr++, ks->hw_addr);
- }
- 
- static void ks_disable_int(struct ks_net *ks)
-@@ -1218,6 +1262,10 @@ static int ks8851_probe(struct platform_
- 		goto err_free;
+@@ -509,7 +505,5 @@ int hsr_get_node_data(struct hsr_priv *h
+ 		*addr_b_ifindex = -1;
  	}
  
-+	err = ks_check_endian(ks);
-+	if (err)
-+		goto err_free;
-+
- 	netdev->irq = platform_get_irq(pdev, 0);
+-	rcu_read_unlock();
+-
+ 	return 0;
+ }
+--- a/net/hsr/hsr_netlink.c
++++ b/net/hsr/hsr_netlink.c
+@@ -259,17 +259,16 @@ static int hsr_get_node_status(struct sk
+ 	if (!na)
+ 		goto invalid;
  
- 	if ((int)netdev->irq < 0) {
+-	hsr_dev = __dev_get_by_index(genl_info_net(info),
+-					nla_get_u32(info->attrs[HSR_A_IFINDEX]));
++	rcu_read_lock();
++	hsr_dev = dev_get_by_index_rcu(genl_info_net(info),
++				       nla_get_u32(info->attrs[HSR_A_IFINDEX]));
+ 	if (!hsr_dev)
+-		goto invalid;
++		goto rcu_unlock;
+ 	if (!is_hsr_master(hsr_dev))
+-		goto invalid;
+-
++		goto rcu_unlock;
+ 
+ 	/* Send reply */
+-
+-	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_KERNEL);
++	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_ATOMIC);
+ 	if (!skb_out) {
+ 		res = -ENOMEM;
+ 		goto fail;
+@@ -321,12 +320,10 @@ static int hsr_get_node_status(struct sk
+ 	res = nla_put_u16(skb_out, HSR_A_IF1_SEQ, hsr_node_if1_seq);
+ 	if (res < 0)
+ 		goto nla_put_failure;
+-	rcu_read_lock();
+ 	port = hsr_port_get_hsr(hsr, HSR_PT_SLAVE_A);
+ 	if (port)
+ 		res = nla_put_u32(skb_out, HSR_A_IF1_IFINDEX,
+ 				  port->dev->ifindex);
+-	rcu_read_unlock();
+ 	if (res < 0)
+ 		goto nla_put_failure;
+ 
+@@ -336,20 +333,22 @@ static int hsr_get_node_status(struct sk
+ 	res = nla_put_u16(skb_out, HSR_A_IF2_SEQ, hsr_node_if2_seq);
+ 	if (res < 0)
+ 		goto nla_put_failure;
+-	rcu_read_lock();
+ 	port = hsr_port_get_hsr(hsr, HSR_PT_SLAVE_B);
+ 	if (port)
+ 		res = nla_put_u32(skb_out, HSR_A_IF2_IFINDEX,
+ 				  port->dev->ifindex);
+-	rcu_read_unlock();
+ 	if (res < 0)
+ 		goto nla_put_failure;
+ 
++	rcu_read_unlock();
++
+ 	genlmsg_end(skb_out, msg_head);
+ 	genlmsg_unicast(genl_info_net(info), skb_out, info->snd_portid);
+ 
+ 	return 0;
+ 
++rcu_unlock:
++	rcu_read_unlock();
+ invalid:
+ 	netlink_ack(skb_in, nlmsg_hdr(skb_in), -EINVAL, NULL);
+ 	return 0;
+@@ -359,6 +358,7 @@ nla_put_failure:
+ 	/* Fall through */
+ 
+ fail:
++	rcu_read_unlock();
+ 	return res;
+ }
+ 
+@@ -385,17 +385,16 @@ static int hsr_get_node_list(struct sk_b
+ 	if (!na)
+ 		goto invalid;
+ 
+-	hsr_dev = __dev_get_by_index(genl_info_net(info),
+-				     nla_get_u32(info->attrs[HSR_A_IFINDEX]));
++	rcu_read_lock();
++	hsr_dev = dev_get_by_index_rcu(genl_info_net(info),
++				       nla_get_u32(info->attrs[HSR_A_IFINDEX]));
+ 	if (!hsr_dev)
+-		goto invalid;
++		goto rcu_unlock;
+ 	if (!is_hsr_master(hsr_dev))
+-		goto invalid;
+-
++		goto rcu_unlock;
+ 
+ 	/* Send reply */
+-
+-	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_KERNEL);
++	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_ATOMIC);
+ 	if (!skb_out) {
+ 		res = -ENOMEM;
+ 		goto fail;
+@@ -415,14 +414,11 @@ static int hsr_get_node_list(struct sk_b
+ 
+ 	hsr = netdev_priv(hsr_dev);
+ 
+-	rcu_read_lock();
+ 	pos = hsr_get_next_node(hsr, NULL, addr);
+ 	while (pos) {
+ 		res = nla_put(skb_out, HSR_A_NODE_ADDR, ETH_ALEN, addr);
+-		if (res < 0) {
+-			rcu_read_unlock();
++		if (res < 0)
+ 			goto nla_put_failure;
+-		}
+ 		pos = hsr_get_next_node(hsr, pos, addr);
+ 	}
+ 	rcu_read_unlock();
+@@ -432,6 +428,8 @@ static int hsr_get_node_list(struct sk_b
+ 
+ 	return 0;
+ 
++rcu_unlock:
++	rcu_read_unlock();
+ invalid:
+ 	netlink_ack(skb_in, nlmsg_hdr(skb_in), -EINVAL, NULL);
+ 	return 0;
+@@ -441,6 +439,7 @@ nla_put_failure:
+ 	/* Fall through */
+ 
+ fail:
++	rcu_read_unlock();
+ 	return res;
+ }
+ 
 
 
