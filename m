@@ -2,203 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C77119A3C5
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 05:06:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D0D719A425
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 06:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731680AbgDADGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Mar 2020 23:06:20 -0400
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:42474 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731554AbgDADGT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Mar 2020 23:06:19 -0400
-Received: by mail-qt1-f195.google.com with SMTP id t9so20449278qto.9;
-        Tue, 31 Mar 2020 20:06:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding;
-        bh=CTCfa1W35Oc7sDfr9TwTYrOwaj81GSfGfT3RVFEhg1o=;
-        b=R0lPMT/tq1g9OgNl9wLoCJrGyJWRuHsdF6cnIDlh1yvebdw0XGUDyodU4V8KP9Sq4I
-         YKv3FiUl6cNY4UCkp8mR2Wt8wfU+WqNSmuUEF+EDqBboc9w/RMpBL5WrcbJnuTcAOlND
-         +5Vq+se2dtDALPb5pFMCplNmclKDld4TmMszl8qpI3RVb72Ugo1PmLBWmL79nuqPAMa4
-         I0V0Q7tDnwlqT4eZERzjR6Ur68pL2SMfBuj/GC0iH13WYR220z0qKYhkEjpCpC9pRgoE
-         O43ZCk+fSbPsziHhyOeAr76yKfC8KLzjmHKCPb5VvsL9tTC+luZAtLHfgcA621vMMYJC
-         JgcQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding;
-        bh=CTCfa1W35Oc7sDfr9TwTYrOwaj81GSfGfT3RVFEhg1o=;
-        b=Ld8BULMisyt0Z+zC4Vv3EnrvxKwJZ+YSBdn/GujXN3z8JnOdHAzDLlv0Ii5EgwmfYq
-         FtnuwcU3dH4WPcOLc1hdnBmGZBUlswEFYZUN+pq/omCRca1CtmLVCCZ9qnK4OO2NSQg3
-         HLcK4a9OwwqOQkOHZGbOJejyxYJeCMOxxb38gtDuj928l/UMKpl26WdORrulIGZO+2/a
-         QUQFawCeYvEoUnXZmnhT6rMZZiFmKE3gbA69U30t2hR3mAkLJs3SYqZjV1BojclW10En
-         bL2uEugS787xgaoN5wN/H4T7ejSKgGhisNq2SWmlJ84g9L2ReorxRnU1UzpRsQWXUJhy
-         NVUw==
-X-Gm-Message-State: ANhLgQ0gNSBXcYY7Ft3qM4WGXZ1Uk63CMkzlW6wclZ2MjI7DrXWsjQFD
-        hsDnTkArVuYD3UHKNcAOhDSP1+OFzDZ8
-X-Google-Smtp-Source: ADFU+vt5CF4RVP7oYpSoYFpxD2EQ24jNbHllQ71wiLqdMNUhmmSTaApmj0pYh87G1dxgRCvevv07bw==
-X-Received: by 2002:ac8:376d:: with SMTP id p42mr8510918qtb.378.1585710378432;
-        Tue, 31 Mar 2020 20:06:18 -0700 (PDT)
-Received: from [120.7.1.38] ([184.175.21.212])
-        by smtp.gmail.com with ESMTPSA id p191sm622848qke.6.2020.03.31.20.06.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 31 Mar 2020 20:06:17 -0700 (PDT)
-Subject: Re: [PATCH 5.6 00/23] 5.6.1-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200331085308.098696461@linuxfoundation.org>
-From:   Woody Suwalski <terraluna977@gmail.com>
-Message-ID: <6cdfe0e5-408f-2d88-cb08-c7675d78637c@gmail.com>
-Date:   Tue, 31 Mar 2020 23:06:16 -0400
-User-Agent: Mozilla/5.0 (X11; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0
- SeaMonkey/2.53.1
+        id S1726731AbgDAEHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 00:07:04 -0400
+Received: from mail-eopbgr30081.outbound.protection.outlook.com ([40.107.3.81]:1287
+        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726557AbgDAEHE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 00:07:04 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TzAJiB5i0GDBSFFdkbcVLcDS1rKrNE2YqEfbBytrLpTPNhxp/gzgbXvOAaCJZ/gyFgcPOhegOsXl9QydGcCFfWqTj+qgXLP/YqDYdDUwUTvnZmfguMkYRy7KW2PFDxf0aSVA7sJwi97QsyefSB7CeRcv26UeFueSTLh6U+oSHlRpeybDix0YtIBZunzTI0L/kha0jRH8rQn7C41XUiPNWtR+qcGTinf2Wvs4+g86k3fy8kw+5cTzRjnq7mTe7rnZOOOcoxuqEAhGCjQMkImMbsP/MCVQg8gMhpFfrjv9j1/2g7XZKWDeke1QJDYA+0WgVon2oBR84p/fhBI5zT1Hig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wvr9TbU36NK3TsgNjNaZCfb+FQhEpZKxaRxPHRszHT4=;
+ b=ErZr8VfVTV0dK4onUaNdG8XggsFSL6Nk0V++ikZ4MHnqtpoTNqPVvJgQ2kwuhbq7cu26XsqWqcxADroR4QA1kvxbZsYZ++5V+wjH7rf/ixMfg+4LuQFlQ06Tkfd+GkJ3BUL7Gfr2fYDVawdwBLqF7cxPkINahFHd3mCZWqldhx+blVIdl83jKrHCwGg7slJuZBhT855HTKnKqdkwXr7yO+h3KMrgIlOgs8WA0kLRECA3EcyC3I8oXw759gHyp0heDV+WqgYTlAl2fP3Epr06NaHnajG2XPlzPaax1APGWyxLvd6ZH9YRs6dGs12+TNOm4EhFcMfLfR3eF/WuudwGPw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wvr9TbU36NK3TsgNjNaZCfb+FQhEpZKxaRxPHRszHT4=;
+ b=XF+UX6H9SbxCbgVOgun8GwKfqlqpwqaG+XyASU3utcN2ItihaIaVgRafw02ZMkt/SMA8O/Sce2xlJZpx329AnLrrxq4VJUt26xQOVR8O+4Oxp81oArEmVz8mJKOkq3l3zsNwITgNNS1I3jrMuokw0XYeMLWk/Q9/kWmJ/rrsCWU=
+Received: from VI1PR04MB5040.eurprd04.prod.outlook.com (20.177.52.24) by
+ VI1PR04MB6126.eurprd04.prod.outlook.com (20.179.28.141) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2856.20; Wed, 1 Apr 2020 04:06:58 +0000
+Received: from VI1PR04MB5040.eurprd04.prod.outlook.com
+ ([fe80::154e:421d:dd21:3fc3]) by VI1PR04MB5040.eurprd04.prod.outlook.com
+ ([fe80::154e:421d:dd21:3fc3%5]) with mapi id 15.20.2856.019; Wed, 1 Apr 2020
+ 04:06:58 +0000
+From:   BOUGH CHEN <haibo.chen@nxp.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Ludovic Barre <ludovic.barre@st.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "dmaengine@vger.kernel.org" <dmaengine@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v2 1/2] driver core: platform: Initialize dma_parms for
+ platform devices
+Thread-Topic: [PATCH v2 1/2] driver core: platform: Initialize dma_parms for
+ platform devices
+Thread-Index: AQHWB4ugpHkRdkKAZ0OBnkBClhitmahjpWFw
+Date:   Wed, 1 Apr 2020 04:06:58 +0000
+Message-ID: <VI1PR04MB50405B4010B4EBE7078FAA8690C90@VI1PR04MB5040.eurprd04.prod.outlook.com>
+References: <20200331183844.30488-1-ulf.hansson@linaro.org>
+ <20200331183844.30488-2-ulf.hansson@linaro.org>
+In-Reply-To: <20200331183844.30488-2-ulf.hansson@linaro.org>
+Accept-Language: zh-CN, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=haibo.chen@nxp.com; 
+x-originating-ip: [122.194.1.172]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 9481ba9b-f46f-45a1-6b80-08d7d5f21fdd
+x-ms-traffictypediagnostic: VI1PR04MB6126:
+x-microsoft-antispam-prvs: <VI1PR04MB612660A508B954ACC83230A090C90@VI1PR04MB6126.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-forefront-prvs: 03607C04F0
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5040.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10009020)(4636009)(136003)(346002)(376002)(366004)(396003)(39860400002)(53546011)(55016002)(33656002)(8936002)(71200400001)(7696005)(26005)(81156014)(8676002)(2906002)(81166006)(9686003)(186003)(6506007)(5660300002)(7416002)(4326008)(316002)(54906003)(86362001)(478600001)(76116006)(110136005)(66946007)(66556008)(64756008)(66446008)(52536014)(66476007);DIR:OUT;SFP:1101;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: l5GB2wAWdA9fkJJ8tGG9YNZLZGb3LRyJsN2qXR8Hbxi+9XOMweXfGQAI+1oM3Nt2cmrrj2jthucMsf7HfRQGSA61ZMBBGW6dOkcHDRBgzNq259krBHwpQcHsx9dn9z3qH3SW4a44wIlwrDBqSh80dH4gB5a9Wrv9znBBoImzhGujRwoxKSAo4GtwOoQd0n/XvpXd9+hv4lkGg4SlneJ92kdD0zyJ/t8aXvFuZULiNNviCSsLNdrdx2Ytv3rYagOHkBk32+6L8Q8ol8oyRKZSKr601Q6z7bamNV1DtWPE3XGNQUWMWhGg0KemmFfvQs7oV0B8r2pgKqRuzXkzPRxNOzwZCMEVP8gpRBIhIuhITKIdH2/+VsrmrMgnqrh8n00abfi1JrhL1N14K24IqGblye5ahXhVM2hdjftmW5LrG813A3h6bNagvWXk66RqvY47
+x-ms-exchange-antispam-messagedata: ldqfigzoay+0yFWGwKD6RQ5lKdRq6/nJAKDSN2UprYzjkMWWiNUqpWXpskZMFNfA8wjWg5ljaFqaG+K+uVLwUytOcpF3IJfyUTRHmdGywgCWaRpSb6l8AhAhmKNTSZ23WFIZWO4tzi6r6fUXhOWeTw==
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <20200331085308.098696461@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9481ba9b-f46f-45a1-6b80-08d7d5f21fdd
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Apr 2020 04:06:58.8421
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: BZ7956OvA9toogT7idtdLzl6KWYMKvsfYMgBr7lpLC25t7UDw5DYoYV5U6q+ioPe1d8N9sCn7SjZbQ1r3lqcKg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR04MB6126
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.6.1 release.
-> There are 23 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 02 Apr 2020 08:50:37 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.1-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-> -------------
-> Pseudo-Shortlog of commits:
->
-> Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->      Linux 5.6.1-rc1
->
-> Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
->      media: v4l2-core: fix a use-after-free bug of sd->devnode
->
-> Johan Hovold <johan@kernel.org>
->      media: xirlink_cit: add missing descriptor sanity checks
->
-> Johan Hovold <johan@kernel.org>
->      media: stv06xx: add missing descriptor sanity checks
->
-> Johan Hovold <johan@kernel.org>
->      media: dib0700: fix rc endpoint lookup
->
-> Johan Hovold <johan@kernel.org>
->      media: ov519: add missing endpoint sanity checks
->
-> Eric Biggers <ebiggers@google.com>
->      libfs: fix infoleak in simple_attr_read()
->
-> Kai-Heng Feng <kai.heng.feng@canonical.com>
->      ahci: Add Intel Comet Lake H RAID PCI ID
->
-> Michał Mirosław <mirq-linux@rere.qmqm.pl>
->      staging: wfx: annotate nested gc_list vs tx queue locking
->
-> Michał Mirosław <mirq-linux@rere.qmqm.pl>
->      staging: wfx: fix init/remove vs IRQ race
->
-> Michał Mirosław <mirq-linux@rere.qmqm.pl>
->      staging: wfx: add proper "compatible" string
->
-> Qiujun Huang <hqjagain@gmail.com>
->      staging: wlan-ng: fix use-after-free Read in hfa384x_usbin_callback
->
-> Qiujun Huang <hqjagain@gmail.com>
->      staging: wlan-ng: fix ODEBUG bug in prism2sta_disconnect_usb
->
-> Larry Finger <Larry.Finger@lwfinger.net>
->      staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
->
-> Dan Carpenter <dan.carpenter@oracle.com>
->      staging: kpc2000: prevent underflow in cpld_reconfigure()
->
-> Johan Hovold <johan@kernel.org>
->      media: usbtv: fix control-message timeouts
->
-> Johan Hovold <johan@kernel.org>
->      media: flexcop-usb: fix endpoint sanity check
->
-> Mans Rullgard <mans@mansr.com>
->      usb: musb: fix crash with highmen PIO and usbmon
->
-> Qiujun Huang <hqjagain@gmail.com>
->      USB: serial: io_edgeport: fix slab-out-of-bounds read in edge_interrupt_callback
->
-> Matthias Reichl <hias@horus.com>
->      USB: cdc-acm: restore capability check order
->
-> Pawel Dembicki <paweldembicki@gmail.com>
->      USB: serial: option: add Wistron Neweb D19Q1
->
-> Pawel Dembicki <paweldembicki@gmail.com>
->      USB: serial: option: add BroadMobi BM806U
->
-> Pawel Dembicki <paweldembicki@gmail.com>
->      USB: serial: option: add support for ASKEY WWHC050
->
-> Daniel Borkmann <daniel@iogearbox.net>
->      bpf: Undo incorrect __reg_bound_offset32 handling
->
->
-> -------------
->
-> Diffstat:
->
->   Makefile                                           |  4 +--
->   drivers/ata/ahci.c                                 |  1 +
->   drivers/media/usb/b2c2/flexcop-usb.c               |  6 ++--
->   drivers/media/usb/dvb-usb/dib0700_core.c           |  4 +--
->   drivers/media/usb/gspca/ov519.c                    | 10 ++++++
->   drivers/media/usb/gspca/stv06xx/stv06xx.c          | 19 +++++++++-
->   drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c   |  4 +++
->   drivers/media/usb/gspca/xirlink_cit.c              | 18 +++++++++-
->   drivers/media/usb/usbtv/usbtv-core.c               |  2 +-
->   drivers/media/usb/usbtv/usbtv-video.c              |  5 +--
->   drivers/media/v4l2-core/v4l2-device.c              |  1 +
->   drivers/staging/kpc2000/kpc2000/core.c             |  4 +--
->   drivers/staging/rtl8188eu/os_dep/usb_intf.c        |  1 +
->   .../bindings/net/wireless/siliabs,wfx.txt          |  7 ++--
->   drivers/staging/wfx/bus_sdio.c                     | 15 ++++----
->   drivers/staging/wfx/bus_spi.c                      | 41 +++++++++++++---------
->   drivers/staging/wfx/main.c                         | 21 ++++++-----
->   drivers/staging/wfx/main.h                         |  1 -
->   drivers/staging/wfx/queue.c                        | 16 ++++-----
->   drivers/staging/wlan-ng/hfa384x_usb.c              |  2 ++
->   drivers/staging/wlan-ng/prism2usb.c                |  1 +
->   drivers/usb/class/cdc-acm.c                        | 18 +++++-----
->   drivers/usb/musb/musb_host.c                       | 17 +++------
->   drivers/usb/serial/io_edgeport.c                   |  2 +-
->   drivers/usb/serial/option.c                        |  6 ++++
->   fs/libfs.c                                         |  8 +++--
->   kernel/bpf/verifier.c                              | 19 ----------
->   27 files changed, 149 insertions(+), 104 deletions(-)
->
->
-I think you have missed the
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/commit/?id=be8c827f50a0bcd56361b31ada11dc0a3c2fd240
-
-Without it 5.6 is completely broken on iwlwifi.
-
-Thanks, Woody
-
+DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IFVsZiBIYW5zc29uIDx1bGYu
+aGFuc3NvbkBsaW5hcm8ub3JnPg0KPiBTZW50OiAyMDIwxOo01MIxyNUgMjozOQ0KPiBUbzogR3Jl
+ZyBLcm9haC1IYXJ0bWFuIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz47IFJhZmFlbCBKIC4g
+V3lzb2NraQ0KPiA8cmFmYWVsQGtlcm5lbC5vcmc+OyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwu
+b3JnDQo+IENjOiBBcm5kIEJlcmdtYW5uIDxhcm5kQGFybmRiLmRlPjsgQ2hyaXN0b3BoIEhlbGx3
+aWcgPGhjaEBsc3QuZGU+Ow0KPiBSdXNzZWxsIEtpbmcgPGxpbnV4QGFybWxpbnV4Lm9yZy51az47
+IExpbnVzIFdhbGxlaWoNCj4gPGxpbnVzLndhbGxlaWpAbGluYXJvLm9yZz47IFJvYmluIE11cnBo
+eSA8cm9iaW4ubXVycGh5QGFybS5jb20+OyBWaW5vZA0KPiBLb3VsIDx2a291bEBrZXJuZWwub3Jn
+PjsgQk9VR0ggQ0hFTiA8aGFpYm8uY2hlbkBueHAuY29tPjsgTHVkb3ZpYw0KPiBCYXJyZSA8bHVk
+b3ZpYy5iYXJyZUBzdC5jb20+OyBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7
+DQo+IGRtYWVuZ2luZUB2Z2VyLmtlcm5lbC5vcmc7IFVsZiBIYW5zc29uIDx1bGYuaGFuc3NvbkBs
+aW5hcm8ub3JnPjsNCj4gc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBbUEFUQ0gg
+djIgMS8yXSBkcml2ZXIgY29yZTogcGxhdGZvcm06IEluaXRpYWxpemUgZG1hX3Bhcm1zIGZvcg0K
+PiBwbGF0Zm9ybSBkZXZpY2VzDQo+IA0KPiBJdCdzIGN1cnJlbnRseSB0aGUgcGxhdGZvcm0gZHJp
+dmVyJ3MgcmVzcG9uc2liaWxpdHkgdG8gaW5pdGlhbGl6ZSB0aGUgcG9pbnRlciwNCj4gZG1hX3Bh
+cm1zLCBmb3IgaXRzIGNvcnJlc3BvbmRpbmcgc3RydWN0IGRldmljZS4gVGhlIGJlbmVmaXQgd2l0
+aCB0aGlzDQo+IGFwcHJvYWNoIGFsbG93cyB1cyB0byBhdm9pZCB0aGUgaW5pdGlhbGl6YXRpb24g
+YW5kIHRvIG5vdCB3YXN0ZSBtZW1vcnkgZm9yDQo+IHRoZSBzdHJ1Y3QgZGV2aWNlX2RtYV9wYXJh
+bWV0ZXJzLCBhcyB0aGlzIGNhbiBiZSBkZWNpZGVkIG9uIGEgY2FzZSBieSBjYXNlDQo+IGJhc2lz
+Lg0KPiANCj4gSG93ZXZlciwgaXQgaGFzIHR1cm5lZCBvdXQgdGhhdCB0aGlzIGFwcHJvYWNoIGlz
+IG5vdCB2ZXJ5IHByYWN0aWNhbC4gIE5vdA0KPiBvbmx5IGRvZXMgaXQgbGVhZCB0byBvcGVuIGNv
+ZGluZywgYnV0IGFsc28gdG8gcmVhbCBlcnJvcnMuIEluIHByaW5jaXBsZSBjYWxsZXJzIG9mDQo+
+IGRtYV9zZXRfbWF4X3NlZ19zaXplKCkgZG9lc24ndCBjaGVjayB0aGUgZXJyb3IgY29kZSwgYnV0
+IGp1c3QgYXNzdW1lcyBpdA0KPiBzdWNjZWVkcy4NCj4gDQo+IEZvciB0aGVzZSByZWFzb25zLCBs
+ZXQncyBkbyB0aGUgaW5pdGlhbGl6YXRpb24gZnJvbSB0aGUgY29tbW9uIHBsYXRmb3JtIGJ1cw0K
+PiBhdCB0aGUgZGV2aWNlIHJlZ2lzdHJhdGlvbiBwb2ludC4gVGhpcyBhbHNvIGZvbGxvd3MgdGhl
+IHdheSB0aGUgUENJIGRldmljZXMgYXJlDQo+IGJlaW5nIG1hbmFnZWQsIHNlZSBwY2lfZGV2aWNl
+X2FkZCgpLg0KPiANCj4gU3VnZ2VzdGVkLWJ5OiBDaHJpc3RvcGggSGVsbHdpZyA8aGNoQGxzdC5k
+ZT4NCj4gQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KPiBTaWduZWQtb2ZmLWJ5OiBVbGYg
+SGFuc3NvbiA8dWxmLmhhbnNzb25AbGluYXJvLm9yZz4NCj4gDQoNCkhpIFVsZiwNCg0KSSB0ZXN0
+IGJvdGggb24gb3VyIGxvY2FsIDUuNC4yNCBicmFuY2ggYW5kIHRoZSBsYXRlc3QgTGludXgtbmV4
+dCwgYm90aCB3b3JrcyBmaW5lLg0KDQpUZXN0ZWQtYnk6IEhhaWJvIENoZW4gPGhhaWJvLmNoZW5A
+bnhwLmNvbT4NCg0KQmVzdCBSZWdhcmRzDQpIYWlibyBDaGVuDQoNCj4gLS0tDQo+IA0KPiBDaGFu
+Z2VzIGluIHYyOg0KPiAJLSBNb3ZlIGluaXRpYWxpemF0aW9uIHRvIHNldHVwX3BkZXZfZG1hX21h
+c2tzKCkuIFRoaXMgbWVhbnMgdGhlDQo+IAlpbml0aWFsaXphdGlvbiBpcyBkb25lIGFsc28gaW4g
+dGhlIE9GIHBhdGguDQo+IA0KPiAtLS0NCj4gIGRyaXZlcnMvYmFzZS9wbGF0Zm9ybS5jICAgICAg
+ICAgfCAyICsrDQo+ICBpbmNsdWRlL2xpbnV4L3BsYXRmb3JtX2RldmljZS5oIHwgMSArDQo+ICAy
+IGZpbGVzIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZl
+cnMvYmFzZS9wbGF0Zm9ybS5jIGIvZHJpdmVycy9iYXNlL3BsYXRmb3JtLmMgaW5kZXgNCj4gYjVj
+ZTdiMDg1Nzk1Li5jODFiNjhkNWQ2NmQgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvYmFzZS9wbGF0
+Zm9ybS5jDQo+ICsrKyBiL2RyaXZlcnMvYmFzZS9wbGF0Zm9ybS5jDQo+IEBAIC0zNjEsNiArMzYx
+LDggQEAgc3RydWN0IHBsYXRmb3JtX29iamVjdCB7DQo+ICAgKi8NCj4gIHN0YXRpYyB2b2lkIHNl
+dHVwX3BkZXZfZG1hX21hc2tzKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpICB7DQo+ICsJ
+cGRldi0+ZGV2LmRtYV9wYXJtcyA9ICZwZGV2LT5kbWFfcGFybXM7DQo+ICsNCj4gIAlpZiAoIXBk
+ZXYtPmRldi5jb2hlcmVudF9kbWFfbWFzaykNCj4gIAkJcGRldi0+ZGV2LmNvaGVyZW50X2RtYV9t
+YXNrID0gRE1BX0JJVF9NQVNLKDMyKTsNCj4gIAlpZiAoIXBkZXYtPmRldi5kbWFfbWFzaykgew0K
+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9wbGF0Zm9ybV9kZXZpY2UuaA0KPiBiL2luY2x1
+ZGUvbGludXgvcGxhdGZvcm1fZGV2aWNlLmggaW5kZXggMDQxYmZhNDEyYWEwLi44MTkwMGIzY2Jl
+MzcNCj4gMTAwNjQ0DQo+IC0tLSBhL2luY2x1ZGUvbGludXgvcGxhdGZvcm1fZGV2aWNlLmgNCj4g
+KysrIGIvaW5jbHVkZS9saW51eC9wbGF0Zm9ybV9kZXZpY2UuaA0KPiBAQCAtMjUsNiArMjUsNyBA
+QCBzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlIHsNCj4gIAlib29sCQlpZF9hdXRvOw0KPiAgCXN0cnVj
+dCBkZXZpY2UJZGV2Ow0KPiAgCXU2NAkJcGxhdGZvcm1fZG1hX21hc2s7DQo+ICsJc3RydWN0IGRl
+dmljZV9kbWFfcGFyYW1ldGVycyBkbWFfcGFybXM7DQo+ICAJdTMyCQludW1fcmVzb3VyY2VzOw0K
+PiAgCXN0cnVjdCByZXNvdXJjZQkqcmVzb3VyY2U7DQo+IA0KPiAtLQ0KPiAyLjIwLjENCg0K
