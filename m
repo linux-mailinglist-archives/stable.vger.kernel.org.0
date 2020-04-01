@@ -2,111 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EBA619B870
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 00:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB3EC19B8DA
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 01:15:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732669AbgDAWbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 18:31:00 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:45540 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732385AbgDAWbA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 18:31:00 -0400
-Received: by mail-pl1-f196.google.com with SMTP id t4so537922plq.12
-        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 15:30:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=arnKeGX6h38cRc6khs3gd9r35sW1BzAf+pd2Gag2dbA=;
-        b=nCTKlqrsxNZW6vTINjLin1gvOdMe+0DbcTSLVeVEjiTPAu4uhZagvsShGHgOmFYH//
-         rY7j3RPB4dlujUHNpypnvVpRqFhQdXE7qwSZ60r1UJIJhpJGWWf5/JCSlsopieMFRtNW
-         SwArXioJ02goeHLGFG469lmv7yzwU0RdrTPp6/UlrVS6ioNIZF3U65uaBjJ/Xg/pP5AT
-         JSfl7RJY7mg+hp55cA0nY0Mt3mHY7BgF9QCY4Kiwg8S5bFlV8RhE7FQXsOsooeqD4T0F
-         9jBtDfOYINio7UaOkyPF2TcMcH1PMXOA9dwmSPeeO+FcrR10KQgsCU9UbmUZ9HKG56D+
-         pUNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=arnKeGX6h38cRc6khs3gd9r35sW1BzAf+pd2Gag2dbA=;
-        b=rYRhC11FD6nz9GD0fvNV2pixSEG1mYIMZhsLSacPqBmglMb6UspFEPT7mFm7v4zEmT
-         jS5nntBJcHKyT6CeDGl8rzIHk8DqLPEfNS9rxRJaFlzkb5IAgmTiSmqDt1vSAPOAq3kx
-         JiFfSennGVUytnkN01wqxqfeQPk+5SFQyfz0yjRgvtW7QKyJMiobtqmmt8AvhdG+8hYv
-         AYXlyCQyPEsZ8SxcomnIm2qeSvMLH/+t66cw4iGZMIo6LCNe60fCUVTKpEn2htb0A5nT
-         JrPsBJ/cchgnW7LlSZXzsZfhDLqguxTwwHZtSwyWpEvYSZXcwS1cMMI9dPIoB4mDnNgT
-         fPOw==
-X-Gm-Message-State: AGi0PuZ4wZx2DA2Wq9zefsMNuxH7XNP0GM4KTPPfRNORoP6pF8kMiUQr
-        fOouG1xVUJ64cxxRrhDpzFiUYzCyIyc=
-X-Google-Smtp-Source: APiQypKYswnG4k4mY6ljClRSLfaynzIZT5sz6snVEWfj9ZA71sYceWt6pXWoYEclXdU1KxtjwSV8CQ==
-X-Received: by 2002:a17:90b:2397:: with SMTP id mr23mr275398pjb.88.1585780257212;
-        Wed, 01 Apr 2020 15:30:57 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a19sm2304177pfk.110.2020.04.01.15.30.56
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Apr 2020 15:30:56 -0700 (PDT)
-Message-ID: <5e851620.1c69fb81.ba2f.b343@mx.google.com>
-Date:   Wed, 01 Apr 2020 15:30:56 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.217-103-g61ccfbbfe9f6
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 115 boots: 1 failed,
- 107 passed with 2 offline, 5 untried/unknown (v4.9.217-103-g61ccfbbfe9f6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1732732AbgDAXPi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 19:15:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58784 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732537AbgDAXPi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 19:15:38 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3816520719;
+        Wed,  1 Apr 2020 23:15:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585782935;
+        bh=WGgZ62ijNh9fi+fcWG0IWjCbUlEAWxjkT5rD32fRC3w=;
+        h=Date:From:To:Subject:From;
+        b=VjstFfAFeFuoXDJlV7xEjlKL3I0dE1/w4PmSaYbn0mHAHeNZw7NPmT2LCk4ntMesF
+         5lil7cAbwn+vSrEUAlwB75Q3BCqSbdOoqKc+OpwttiwdnqBUAqb7EpPSAqyQfZYmdN
+         T2qR+4K84fpZTZc5/rJi7fueE9BZmgpnfY3VuHFg=
+Date:   Wed, 01 Apr 2020 16:15:34 -0700
+From:   akpm@linux-foundation.org
+To:     akpm@linux-foundation.org, jgg@mellanox.com, jgg@ziepe.ca,
+        longpeng2@huawei.com, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, sean.j.christopherson@intel.com,
+        stable@vger.kernel.org, willy@infradead.org
+Subject:  [to-be-updated]
+ mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch
+ removed from -mm tree
+Message-ID: <20200401231534.2A7YCkw00%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 115 boots: 1 failed, 107 passed with 2 offline,=
- 5 untried/unknown (v4.9.217-103-g61ccfbbfe9f6)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.217-103-g61ccfbbfe9f6/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.217-103-g61ccfbbfe9f6/
+The patch titled
+     Subject: mm/hugetlb: fix a addressing exception caused by huge_pte_offset
+has been removed from the -mm tree.  Its filename was
+     mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset.patch
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.217-103-g61ccfbbfe9f6
-Git Commit: 61ccfbbfe9f63b4a44ef11f9ad40d362970cc8fc
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 60 unique boards, 20 SoC families, 19 builds out of 197
+This patch was dropped because an updated version will be merged
 
-Boot Regressions Detected:
+------------------------------------------------------
+From: Longpeng <longpeng2@huawei.com>
+Subject: mm/hugetlb: fix a addressing exception caused by huge_pte_offset
 
-arm:
+Our machine encountered a panic(addressing exception) after run
+for a long time and the calltrace is:
+RIP: 0010:[<ffffffff9dff0587>]  [<ffffffff9dff0587>] hugetlb_fault+0x307/0xbe0
+RSP: 0018:ffff9567fc27f808  EFLAGS: 00010286
+RAX: e800c03ff1258d48 RBX: ffffd3bb003b69c0 RCX: e800c03ff1258d48
+RDX: 17ff3fc00eda72b7 RSI: 00003ffffffff000 RDI: e800c03ff1258d48
+RBP: ffff9567fc27f8c8 R08: e800c03ff1258d48 R09: 0000000000000080
+R10: ffffaba0704c22a8 R11: 0000000000000001 R12: ffff95c87b4b60d8
+R13: 00005fff00000000 R14: 0000000000000000 R15: ffff9567face8074
+FS:  00007fe2d9ffb700(0000) GS:ffff956900e40000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffd3bb003b69c0 CR3: 000000be67374000 CR4: 00000000003627e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ [<ffffffff9df9b71b>] ? unlock_page+0x2b/0x30
+ [<ffffffff9dff04a2>] ? hugetlb_fault+0x222/0xbe0
+ [<ffffffff9dff1405>] follow_hugetlb_page+0x175/0x540
+ [<ffffffff9e15b825>] ? cpumask_next_and+0x35/0x50
+ [<ffffffff9dfc7230>] __get_user_pages+0x2a0/0x7e0
+ [<ffffffff9dfc648d>] __get_user_pages_unlocked+0x15d/0x210
+ [<ffffffffc068cfc5>] __gfn_to_pfn_memslot+0x3c5/0x460 [kvm]
+ [<ffffffffc06b28be>] try_async_pf+0x6e/0x2a0 [kvm]
+ [<ffffffffc06b4b41>] tdp_page_fault+0x151/0x2d0 [kvm]
+ ...
+ [<ffffffffc06a6f90>] kvm_arch_vcpu_ioctl_run+0x330/0x490 [kvm]
+ [<ffffffffc068d919>] kvm_vcpu_ioctl+0x309/0x6d0 [kvm]
+ [<ffffffff9deaa8c2>] ? dequeue_signal+0x32/0x180
+ [<ffffffff9deae34d>] ? do_sigtimedwait+0xcd/0x230
+ [<ffffffff9e03aed0>] do_vfs_ioctl+0x3f0/0x540
+ [<ffffffff9e03b0c1>] SyS_ioctl+0xa1/0xc0
+ [<ffffffff9e53879b>] system_call_fastpath+0x22/0x27
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 53 days (last pass: v4.9.=
-213 - first fail: v4.9.213-37-g860ec95da9ad)
+For 1G hugepages, huge_pte_offset() wants to return NULL or pudp, but it
+may return a wrong 'pmdp' if there is a race. Please look at the following
+code snippet:
+    ...
+    pud = pud_offset(p4d, addr);
+    if (sz != PUD_SIZE && pud_none(*pud))
+        return NULL;
+    /* hugepage or swap? */
+    if (pud_huge(*pud) || !pud_present(*pud))
+        return (pte_t *)pud;
 
-Boot Failure Detected:
+    pmd = pmd_offset(pud, addr);
+    if (sz != PMD_SIZE && pmd_none(*pmd))
+        return NULL;
+    /* hugepage or swap? */
+    if (pmd_huge(*pmd) || !pmd_present(*pmd))
+        return (pte_t *)pmd;
+    ...
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+The following sequence would trigger this bug:
+1. CPU0: sz = PUD_SIZE and *pud = 0 , continue
+1. CPU0: "pud_huge(*pud)" is false
+2. CPU1: calling hugetlb_no_page and set *pud to xxxx8e7(PRESENT)
+3. CPU0: "!pud_present(*pud)" is false, continue
+4. CPU0: pmd = pmd_offset(pud, addr) and maybe return a wrong pmdp
+However, we want CPU0 to return NULL or pudp in this case.
 
-Offline Platforms:
+Also, according to the section 'COMPILER BARRIER' of memory-barriers.txt:
+'''
+ (*) The compiler is within its rights to reorder loads and stores
+     to the same variable, and in some cases, the CPU is within its
+     rights to reorder loads to the same variable.  This means that
+     the following code:
 
-arm:
+        a[0] = x;
+        a[1] = x;
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
+     Might result in an older value of x stored in a[1] than in a[0].
+'''
+there're several other data races in huge_pte_offset, for example:
+'''
+  p4d = p4d_offset(pgd, addr)
+  if (!p4d_present(*p4d))
+      return NULL;
+  pud = pud_offset(p4d, addr) <-- will be unwinded as:
+    pud = (pud_t *)p4d_page_vaddr(*p4d) + pud_index(address);
+'''
+which is free for the compiler/CPU to execute as:
+'''
+  p4d = p4d_offset(pgd, addr)
+  p4d_for_vaddr = *p4d;
+  if (!p4d_present(*p4d))
+      return NULL;
+  pud = (pud_t *)p4d_page_vaddr(p4d_for_vaddr) + pud_index(address);
+'''
+so in the case where *p4d goes from '!present' to 'present':
+p4d_present(*p4d) == true and p4d_for_vaddr == none, meaning the
+p4d_page_vaddr() will crash.
 
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
+For these reasons, we must make sure there is exactly one dereference of
+p4d, pud and pmd.
 
+Link: http://lkml.kernel.org/r/20200327235748.2048-1-longpeng2@huawei.com
+Signed-off-by: Longpeng <longpeng2@huawei.com>
+Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ mm/hugetlb.c |   24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
+
+--- a/mm/hugetlb.c~mm-hugetlb-fix-a-addressing-exception-caused-by-huge_pte_offset
++++ a/mm/hugetlb.c
+@@ -4909,29 +4909,33 @@ pte_t *huge_pte_offset(struct mm_struct
+ 		       unsigned long addr, unsigned long sz)
+ {
+ 	pgd_t *pgd;
+-	p4d_t *p4d;
+-	pud_t *pud;
+-	pmd_t *pmd;
++	p4d_t *p4d, p4d_entry;
++	pud_t *pud, pud_entry;
++	pmd_t *pmd, pmd_entry;
+ 
+ 	pgd = pgd_offset(mm, addr);
+ 	if (!pgd_present(*pgd))
+ 		return NULL;
++
+ 	p4d = p4d_offset(pgd, addr);
+-	if (!p4d_present(*p4d))
++	p4d_entry = READ_ONCE(*p4d);
++	if (!p4d_present(p4d_entry))
+ 		return NULL;
+ 
+-	pud = pud_offset(p4d, addr);
+-	if (sz != PUD_SIZE && pud_none(*pud))
++	pud = pud_offset(&p4d_entry, addr);
++	pud_entry = READ_ONCE(*pud);
++	if (sz != PUD_SIZE && pud_none(pud_entry))
+ 		return NULL;
+ 	/* hugepage or swap? */
+-	if (pud_huge(*pud) || !pud_present(*pud))
++	if (pud_huge(pud_entry) || !pud_present(pud_entry))
+ 		return (pte_t *)pud;
+ 
+-	pmd = pmd_offset(pud, addr);
+-	if (sz != PMD_SIZE && pmd_none(*pmd))
++	pmd = pmd_offset(&pud_entry, addr);
++	pmd_entry = READ_ONCE(*pmd);
++	if (sz != PMD_SIZE && pmd_none(pmd_entry))
+ 		return NULL;
+ 	/* hugepage or swap? */
+-	if (pmd_huge(*pmd) || !pmd_present(*pmd))
++	if (pmd_huge(pmd_entry) || !pmd_present(pmd_entry))
+ 		return (pte_t *)pmd;
+ 
+ 	return NULL;
+_
+
+Patches currently in -mm which might be from longpeng2@huawei.com are
+
+
