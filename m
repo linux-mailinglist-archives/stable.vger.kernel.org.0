@@ -2,85 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDEA019ACFF
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 15:41:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D753619AD11
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 15:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732504AbgDANlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 09:41:23 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:48521 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732396AbgDANlW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 09:41:22 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 91C775C0144;
-        Wed,  1 Apr 2020 09:41:21 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 01 Apr 2020 09:41:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=+
-        BuUULcnxUlCQFPLf87vowvwLxnHlbdiC0PSt6LrNno=; b=HHY6ZsoBXXnvRUFJP
-        X44vr8yJAinlT80YE5KPrVj3FTPK+3HmOwiY4musdQkpQrDa1b07+i4RMF2M5HJ+
-        4PtjCahYt7eg8MI/p/H8Zs+/wiUo4a4SyAhoU6VAFsuzryTlA+0KBmFYypo3U7oK
-        G4OoDfGiejJ2zZrcOjh18x2GlD+2yrS/q/BSdawFQGxemHDu8fM/YIj100u3ofoW
-        mGMEG3ZMKUGXJTQxHolT6qtTR2BJpOzcAYwBuJ0fZHOABQSXJDQcxMBGy96uEqlG
-        Mmuw6i3L0C4FfZYAbPJdyXBnHzxTy1IPxUlu/cLqfEtwOkroytX95QHGGhEsykXO
-        Z6pcQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=+BuUULcnxUlCQFPLf87vowvwLxnHlbdiC0PSt6LrN
-        no=; b=mJ7EuDJmRbkxhTsMp7kmRb5IcRxnP6nRxitWgUQVdWu1PFMgKJn7CAD4O
-        aZzm1XRldKUMz7xLx5g3qy5VRFaLbsCIZIxrM2CD/X16pt8E2e42UhQtqSE1bdvK
-        m/6el0MiFXlDPydRmfGSoth/VBsn5jMW/jZ2kCb7ZFcqdMYA8pupYzLpx4vQ6cwe
-        chIwihRU16pK84IbytFQ5lMOjRiXNuZsjhjy4eHYV1/D77+w53v5y08mm7WVvn/6
-        CAvnyv0nS8DBhd8FBCOORxkiqDREGae18XE32XDGLFEZSfC3lV2gYfdimnz20WGa
-        NFw878Qhx4rqTsrMVfq3z+qaR4kSg==
-X-ME-Sender: <xms:AJqEXr8IE1xK8Jyoz4XAvImAyisTZUtOqm5w342Q7XFr1k5WomCMDw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrtddvgdeiiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhr
-    vghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:AZqEXr9IL6FsNOBpQmMxG4FJh-fobjv40dggGKNadcJMv4XYsOEh3A>
-    <xmx:AZqEXkCAPJCwA527JO_KbGgge-LYC4D9ehM2xiVKS7Ukky01Jz4ZPw>
-    <xmx:AZqEXrwk-45hcqlupyP0D6RoAbaFta63RjYOoYHuKKXeeFcbVpHKUg>
-    <xmx:AZqEXvt5XPx1t9ACCI_SUPOJiaoQMe69Aus69NhAT52htLpWYaZZRA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id AD052306CCA8;
-        Wed,  1 Apr 2020 09:41:20 -0400 (EDT)
-Date:   Wed, 1 Apr 2020 15:41:17 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Georg =?iso-8859-1?Q?M=FCller?= <georgmueller@gmx.net>
-Cc:     stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: Stable request: platform/x86: pmc_atom: Add Lex 2I385SW to
- critclk_systems DMI table
-Message-ID: <20200401134117.GA2330532@kroah.com>
-References: <8bdec034-3be9-1b5f-ab09-dfdbe153acba@gmx.net>
+        id S1732504AbgDANqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 09:46:12 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:40086 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732722AbgDANqJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 09:46:09 -0400
+Received: by mail-lj1-f195.google.com with SMTP id 19so25769677ljj.7
+        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 06:46:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=id2LgVdX5Zbt9LUjt9m/iHuBybgTZCyiEkTXJT43HH0=;
+        b=a+n5pwj80vxevLVnTRMIx4qWSuxW3589cCII700Sn26rl8XSxthgUsEG6dTmoGB7vt
+         0k53FXKC/jOR9z2QXlU3tsKSJ35NYNtKx0sSec158mg+VDWseor1rT7oGZQnGhDj1iE7
+         XtW44XqLXjZAyJjvwPC2tTk3pkr4PdMBMK4tjgDwkBBmR/ctr995EOcjxt20GxFuvOmm
+         VZ+WJ/oO5vcaHLJiZYz3yTdPieEqBiNfOY6ryPLv6bpjvI2hvsz4VPQ2600QHjtzbvMY
+         qhe4mY58TpGb31ulHf/AuWe4vuJLJhWUXYeKs7xaAl8nK7RND5J4gsN48ZZJl7yeksGW
+         Hj6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=id2LgVdX5Zbt9LUjt9m/iHuBybgTZCyiEkTXJT43HH0=;
+        b=exEJeGQrvJCw4ZWm7gdC84Qo2fCgA2RYhH0j6MtM7JFELpL4ji7mYXgwdAVveJSsqR
+         8I6TXew5uRrlgVjTT6V3bFfzlPK9j3+F9YubkmQ9AhXia8u5z5sV43Ju42KRGktm6EpR
+         hpXtnPHdu2tFqd7ivcxHxKp6D8CRxG+N2+gVaNzX0kaaVsN6CYJl4QJbI3xz7xBdTpTW
+         eted4pgpNiWf508KSA28AA7p9vDLYQyTqJ6MiNCAwPSDbxHI7/H9mkFvLT9cA2wkqcga
+         352FLgQEBkMqlbdPE9VWb76PclJAzqfDjw/x2wcLw+1YFIgpEy3phNDPOTqZ7MJbZq4Z
+         1ccQ==
+X-Gm-Message-State: AGi0PuaVenObf5w1o8opXq8P21BohE8KOVYuqBHT15ePzMzjcnEDKbcv
+        LWfoOIvU8agIqDrS245EpGBTuJBRfnEpGJdRFDqQOg==
+X-Google-Smtp-Source: APiQypL5fQIT3NYdmUUYCoB3bNsaYBvOwXo555DW5cy8GjYmcdui0/psmUX23p16XcJsMoObjMXsCJ96gbNf1YQPmjY=
+X-Received: by 2002:a2e:868b:: with SMTP id l11mr13154273lji.247.1585748765088;
+ Wed, 01 Apr 2020 06:46:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <8bdec034-3be9-1b5f-ab09-dfdbe153acba@gmx.net>
+References: <20200331085308.098696461@linuxfoundation.org> <CA+G9fYsZjmf34pQT1DeLN_DDwvxCWEkbzBfF0q2VERHb25dfZQ@mail.gmail.com>
+ <CAHk-=whyW9TXfYxyxUW6hP9e0A=5MnOHrTarr4_k0hiddxq69Q@mail.gmail.com>
+ <20200331192949.GN9917@kernel.org> <CAEUSe7_f8m0dLQT1jdU+87fNThnxMKuoGJkFuGpbT4OmpmE4iA@mail.gmail.com>
+ <20200401124037.GA12534@kernel.org>
+In-Reply-To: <20200401124037.GA12534@kernel.org>
+From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
+Date:   Wed, 1 Apr 2020 07:45:53 -0600
+Message-ID: <CAEUSe7-ercqbofx93m-d0RNW_dQqr1U7F7JYQ5X81CHSkq4KDw@mail.gmail.com>
+Subject: Re: [PATCH 5.6 00/23] 5.6.1-rc1 review
+To:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 10:28:49AM +0200, Georg Müller wrote:
-> commit 95b31e35239e5e1689e3d965d692a313c71bd8ab upstream
-> 
-> This is a regression since linux v4.19, introduced with commit 648e921888ad96ea3dc922739e96716ad3225d7f.
-> 
-> Without this patch, one ethernet port of this board is not usable.
-> 
-> >From the currently maintained stable kernels, the patch 648e921888ad96ea3dc922739e96716ad3225d7f was also
-> backported to linux-4.14.y, so I suggest to backport the patch to v4.14 and v4.19+.
+Hello!
 
-All now queued up, thanks.
 
-greg k-h
+On Wed, 1 Apr 2020 at 06:40, Arnaldo Carvalho de Melo
+<arnaldo.melo@gmail.com> wrote:
+> Can you please try the one-liner at the end of this message?
+[...]
+>
+> From 2a88ba6ddf54a4340f5a5f896705d5e42561e210 Mon Sep 17 00:00:00 2001
+> From: Arnaldo Carvalho de Melo <acme@redhat.com>
+> Date: Wed, 1 Apr 2020 09:33:59 -0300
+> Subject: [PATCH 1/1] perf python: Fix clang detection to strip out option=
+s
+>  passed in $CC
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=3DUTF-8
+> Content-Transfer-Encoding: 8bit
+>
+> The clang check in the python setup.py file expected $CC to be just the
+> name of the compiler, not the compiler + options, i.e. all options were
+> expected to be passed in $CFLAGS, this ends up making it fail in systems
+> where CC is set to, e.g.:
+>
+>  "aarch64-linaro-linux-gcc --sysroot=3D/oe/build/tmp/work/juno-linaro-lin=
+ux/perf/1.0-r9/recipe-sysroot"
+>
+> Like this:
+>
+>   $ python3
+>   >>> from subprocess import Popen
+>   >>> a =3D Popen(["aarch64-linux-gnu-gcc --sysroot=3D/oe/build/tmp/work/=
+juno-linaro-linux/perf/1.0-r9/recipe-sysroot", "-v"])
+>   Traceback (most recent call last):
+>     File "<stdin>", line 1, in <module>
+>     File "/usr/lib/python3.6/subprocess.py", line 729, in __init__
+>       restore_signals, start_new_session)
+>     File "/usr/lib/python3.6/subprocess.py", line 1364, in _execute_child
+>       raise child_exception_type(errno_num, err_msg, err_filename)
+>   FileNotFoundError: [Errno 2] No such file or directory: 'aarch64-linux-=
+gnu-gcc --sysroot=3D/oe/build/tmp/work/juno-linaro-linux/perf/1.0-r9/recipe=
+-sysroot': 'aarch64-linux-gnu-gcc --sysroot=3D/oe/build/tmp/work/juno-linar=
+o-linux/perf/1.0-r9/recipe-sysroot'
+>   >>>
+>
+> Make it more robust, covering this case, by passing cc.split()[0] as the
+> first arg to popen().
+>
+> Reported-by: Daniel D=C3=ADaz <daniel.diaz@linaro.org>
+> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+> Cc: Adrian Hunter <adrian.hunter@intel.com>
+> Cc: Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>,
+> Cc: Jiri Olsa <jolsa@kernel.org>
+> Cc: Namhyung Kim <namhyung@kernel.org>
+> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+> ---
+>  tools/perf/util/setup.py | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/tools/perf/util/setup.py b/tools/perf/util/setup.py
+> index 8a065a6f9713..347b2c0789e4 100644
+> --- a/tools/perf/util/setup.py
+> +++ b/tools/perf/util/setup.py
+> @@ -3,7 +3,7 @@ from subprocess import Popen, PIPE
+>  from re import sub
+>
+>  cc =3D getenv("CC")
+> -cc_is_clang =3D b"clang version" in Popen([cc, "-v"], stderr=3DPIPE).std=
+err.readline()
+> +cc_is_clang =3D b"clang version" in Popen([cc.split()[0], "-v"], stderr=
+=3DPIPE).stderr.readline()
+>
+>  def clang_has_option(option):
+>      return [o for o in Popen([cc, option], stderr=3DPIPE).stderr.readlin=
+es() if b"unknown argument" in o] =3D=3D [ ]
+> --
+> 2.21.1
+
+This worked on top of torvalds/master and linux-stable-rc/linux-5.6.y.
+
+Thanks and greetings!
+
+Daniel D=C3=ADaz
+daniel.diaz@linaro.org
