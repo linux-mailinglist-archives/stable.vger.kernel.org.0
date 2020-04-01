@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE4319B1F4
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:40:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A3EE19B2BE
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388704AbgDAQjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:39:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39572 "EHLO mail.kernel.org"
+        id S2389973AbgDAQqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:46:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389206AbgDAQjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:39:35 -0400
+        id S2388548AbgDAQql (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:46:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16D7820772;
-        Wed,  1 Apr 2020 16:39:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7408B20784;
+        Wed,  1 Apr 2020 16:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759174;
-        bh=+QjJUEGMxz7btAbAYm/jsWclNxRzd5u/I7HJPsrbUmo=;
+        s=default; t=1585759600;
+        bh=ZzzhJnq45pTNG7JkmwY4o7RFjA//TSQkMxWONW6WaZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TA2wrM4Cxaxm1pvH3sln+hbdhZiEB3LzaSSSmT1Ac5l1MJXFK3fgSCaywibGd3g8Z
-         eVLFRbQb7AEX65xlSlHy3dor2WU5jPURNuOoFRV2rLTzj6XlMuKIZ+ttpIMYUD2PPI
-         T4wJqvFCfQzIuIngxb9d5cuSldqFd0/octEqdcjE=
+        b=RZ3+wyMpRxNRKqPSogIN4XIdct+kgKlcY09jYYbKTgK4wwA40IqOhcEsx8YR98EgR
+         2/iXOW3I9OYhLm1/epmXXi5gg+uoCXXLV2wutJcmeG4tK0vpmI42JaGCJirfqzUvZN
+         Og9PtENjCEd66mVDahk4b0vmj9QGYb0gVZ6VCiJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lukas Wunner <lukas@wunner.de>, Petr Stetiar <ynezz@true.cz>,
-        YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH 4.9 100/102] net: ks8851-ml: Fix IO operations, again
-Date:   Wed,  1 Apr 2020 18:18:43 +0200
-Message-Id: <20200401161548.762755367@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.14 132/148] vt: selection, introduce vc_is_sel
+Date:   Wed,  1 Apr 2020 18:18:44 +0200
+Message-Id: <20200401161605.028788273@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,137 +42,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 8262e6f9b1034ede34548a04dec4c302d92c9497 upstream.
+commit dce05aa6eec977f1472abed95ccd71276b9a3864 upstream.
 
-This patch reverts 58292104832f ("net: ks8851-ml: Fix 16-bit IO operation")
-and edacb098ea9c ("net: ks8851-ml: Fix 16-bit data access"), because it
-turns out these were only necessary due to buggy hardware. This patch adds
-a check for such a buggy hardware to prevent any such mistakes again.
+Avoid global variables (namely sel_cons) by introducing vc_is_sel. It
+checks whether the parameter is the current selection console. This will
+help putting sel_cons to a struct later.
 
-While working further on the KS8851 driver, it came to light that the
-KS8851-16MLL is capable of switching bus endianness by a hardware strap,
-EESK pin. If this strap is incorrect, the IO accesses require such endian
-swapping as is being reverted by this patch. Such swapping also impacts
-the performance significantly.
-
-Hence, in addition to removing it, detect that the hardware is broken,
-report to user, and fail to bind with such hardware.
-
-Fixes: 58292104832f ("net: ks8851-ml: Fix 16-bit IO operation")
-Fixes: edacb098ea9c ("net: ks8851-ml: Fix 16-bit data access")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Petr Stetiar <ynezz@true.cz>
-Cc: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200219073951.16151-1-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/micrel/ks8851_mll.c |   56 ++++++++++++++++++++++++++++---
- 1 file changed, 52 insertions(+), 4 deletions(-)
+ drivers/tty/vt/selection.c |    5 +++++
+ drivers/tty/vt/vt.c        |    7 ++++---
+ drivers/tty/vt/vt_ioctl.c  |    2 +-
+ include/linux/selection.h  |    4 +++-
+ 4 files changed, 13 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/micrel/ks8851_mll.c
-+++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -475,6 +475,50 @@ static int msg_enable;
-  */
+--- a/drivers/tty/vt/selection.c
++++ b/drivers/tty/vt/selection.c
+@@ -83,6 +83,11 @@ void clear_selection(void)
+ 	}
+ }
  
- /**
-+ * ks_check_endian - Check whether endianness of the bus is correct
-+ * @ks	  : The chip information
-+ *
-+ * The KS8851-16MLL EESK pin allows selecting the endianness of the 16bit
-+ * bus. To maintain optimum performance, the bus endianness should be set
-+ * such that it matches the endianness of the CPU.
-+ */
-+
-+static int ks_check_endian(struct ks_net *ks)
++bool vc_is_sel(struct vc_data *vc)
 +{
-+	u16 cider;
-+
-+	/*
-+	 * Read CIDER register first, however read it the "wrong" way around.
-+	 * If the endian strap on the KS8851-16MLL in incorrect and the chip
-+	 * is operating in different endianness than the CPU, then the meaning
-+	 * of BE[3:0] byte-enable bits is also swapped such that:
-+	 *    BE[3,2,1,0] becomes BE[1,0,3,2]
-+	 *
-+	 * Luckily for us, the byte-enable bits are the top four MSbits of
-+	 * the address register and the CIDER register is at offset 0xc0.
-+	 * Hence, by reading address 0xc0c0, which is not impacted by endian
-+	 * swapping, we assert either BE[3:2] or BE[1:0] while reading the
-+	 * CIDER register.
-+	 *
-+	 * If the bus configuration is correct, reading 0xc0c0 asserts
-+	 * BE[3:2] and this read returns 0x0000, because to read register
-+	 * with bottom two LSbits of address set to 0, BE[1:0] must be
-+	 * asserted.
-+	 *
-+	 * If the bus configuration is NOT correct, reading 0xc0c0 asserts
-+	 * BE[1:0] and this read returns non-zero 0x8872 value.
-+	 */
-+	iowrite16(BE3 | BE2 | KS_CIDER, ks->hw_addr_cmd);
-+	cider = ioread16(ks->hw_addr);
-+	if (!cider)
-+		return 0;
-+
-+	netdev_err(ks->netdev, "incorrect EESK endian strap setting\n");
-+
-+	return -EINVAL;
++	return vc == sel_cons;
 +}
 +
-+/**
-  * ks_rdreg16 - read 16 bit register from device
-  * @ks	  : The chip information
-  * @offset: The register address
-@@ -484,7 +528,7 @@ static int msg_enable;
+ /*
+  * User settable table: what characters are to be considered alphabetic?
+  * 128 bits. Locked by the console lock.
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -584,8 +584,9 @@ static void hide_softcursor(struct vc_da
  
- static u16 ks_rdreg16(struct ks_net *ks, int offset)
+ static void hide_cursor(struct vc_data *vc)
  {
--	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	return ioread16(ks->hw_addr);
- }
-@@ -499,7 +543,7 @@ static u16 ks_rdreg16(struct ks_net *ks,
- 
- static void ks_wrreg16(struct ks_net *ks, int offset, u16 value)
- {
--	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	iowrite16(value, ks->hw_addr);
- }
-@@ -515,7 +559,7 @@ static inline void ks_inblk(struct ks_ne
- {
- 	len >>= 1;
- 	while (len--)
--		*wptr++ = be16_to_cpu(ioread16(ks->hw_addr));
-+		*wptr++ = (u16)ioread16(ks->hw_addr);
- }
- 
- /**
-@@ -529,7 +573,7 @@ static inline void ks_outblk(struct ks_n
- {
- 	len >>= 1;
- 	while (len--)
--		iowrite16(cpu_to_be16(*wptr++), ks->hw_addr);
-+		iowrite16(*wptr++, ks->hw_addr);
- }
- 
- static void ks_disable_int(struct ks_net *ks)
-@@ -1535,6 +1579,10 @@ static int ks8851_probe(struct platform_
- 		goto err_free;
- 	}
- 
-+	err = ks_check_endian(ks);
-+	if (err)
-+		goto err_free;
+-	if (vc == sel_cons)
++	if (vc_is_sel(vc))
+ 		clear_selection();
 +
- 	netdev->irq = platform_get_irq(pdev, 0);
+ 	vc->vc_sw->con_cursor(vc, CM_ERASE);
+ 	hide_softcursor(vc);
+ }
+@@ -595,7 +596,7 @@ static void set_cursor(struct vc_data *v
+ 	if (!con_is_fg(vc) || console_blanked || vc->vc_mode == KD_GRAPHICS)
+ 		return;
+ 	if (vc->vc_deccm) {
+-		if (vc == sel_cons)
++		if (vc_is_sel(vc))
+ 			clear_selection();
+ 		add_softcursor(vc);
+ 		if ((vc->vc_cursor_type & 0x0f) != 1)
+@@ -873,7 +874,7 @@ static int vc_do_resize(struct tty_struc
+ 	if (!newscreen)
+ 		return -ENOMEM;
  
- 	if ((int)netdev->irq < 0) {
+-	if (vc == sel_cons)
++	if (vc_is_sel(vc))
+ 		clear_selection();
+ 
+ 	old_rows = vc->vc_rows;
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -43,7 +43,7 @@ char vt_dont_switch;
+ extern struct tty_driver *console_driver;
+ 
+ #define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
+-#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_cons[i].d == sel_cons)
++#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
+ 
+ /*
+  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
+--- a/include/linux/selection.h
++++ b/include/linux/selection.h
+@@ -13,8 +13,8 @@
+ 
+ struct tty_struct;
+ 
+-extern struct vc_data *sel_cons;
+ struct tty_struct;
++struct vc_data;
+ 
+ extern void clear_selection(void);
+ extern int set_selection(const struct tiocl_selection __user *sel, struct tty_struct *tty);
+@@ -23,6 +23,8 @@ extern int sel_loadlut(char __user *p);
+ extern int mouse_reporting(void);
+ extern void mouse_report(struct tty_struct * tty, int butt, int mrx, int mry);
+ 
++bool vc_is_sel(struct vc_data *vc);
++
+ extern int console_blanked;
+ 
+ extern const unsigned char color_table[];
 
 
