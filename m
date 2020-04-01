@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F6119B175
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22FDD19B0E5
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388713AbgDAQfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:35:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33902 "EHLO mail.kernel.org"
+        id S1732917AbgDAQaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:30:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387563AbgDAQfL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:35:11 -0400
+        id S2388254AbgDAQaM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:30:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E036B2063A;
-        Wed,  1 Apr 2020 16:35:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7446420658;
+        Wed,  1 Apr 2020 16:30:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758910;
-        bh=mSvL+Ku0/hfoZ6yGDCwrJ/EfR1GzJJRFMJ8SJ4QiRoY=;
+        s=default; t=1585758611;
+        bh=1tX4S0+QPibSqEbZo24Qo6tnbpDV2afDLlug35vQ+dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGBV2cA9CiGy0VIKRXxJU1SSZqkIRg9xlDcDUmPHoHxniFGQEgog2O0XdizUTzpOQ
-         qA9wIjkdUKKBndUcKyRGo595i5syWaUonWQ1tZmAMYzTrMYWYxGck19B/nWNdWtdaG
-         r3Adl1Z9VcHnU77DzcL4XGasAyHAIqQRztYBhqOk=
+        b=a5yH9D76J/MzEYqkbUsF8bZHl2zYwmW3rk3Q6hdBo3sFwuKhUQ6FsQhdrXJsgk/20
+         elCGWDBz0WlrbSbYtTVxnXTnmzrM9y0DQJYCvsy6Khxr+ZIjUuOaNcKcM3MWj0QK+k
+         oBKa6JM1bHxSQColS6+b6wycnYZXPeyppkFc+rkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 002/102] powerpc: Include .BTF section
+        stable@vger.kernel.org, russianneuromancer@ya.ru,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 4.4 09/91] usb: quirks: add NO_LPM quirk for RTL8153 based ethernet adapters
 Date:   Wed,  1 Apr 2020 18:17:05 +0200
-Message-Id: <20200401161531.429011705@linuxfoundation.org>
+Message-Id: <20200401161516.297886448@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit cb0cc635c7a9fa8a3a0f75d4d896721819c63add ]
+commit 75d7676ead19b1fbb5e0ee934c9ccddcb666b68c upstream.
 
-Selecting CONFIG_DEBUG_INFO_BTF results in the below warning from ld:
-  ld: warning: orphan section `.BTF' from `.btf.vmlinux.bin.o' being placed in section `.BTF'
+We have been receiving bug reports that ethernet connections over
+RTL8153 based ethernet adapters stops working after a while with
+errors like these showing up in dmesg when the ethernet stops working:
 
-Include .BTF section in vmlinux explicitly to fix the same.
+[12696.189484] r8152 6-1:1.0 enp10s0u1: Tx timeout
+[12702.333456] r8152 6-1:1.0 enp10s0u1: Tx timeout
+[12707.965422] r8152 6-1:1.0 enp10s0u1: Tx timeout
 
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200220113132.857132-1-naveen.n.rao@linux.vnet.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This has been reported on Dell WD15 docks, Belkin USB-C Express Dock 3.1
+docks and with generic USB to ethernet dongles using the RTL8153
+chipsets. Some users have tried adding usbcore.quirks=0bda:8153:k to
+the kernel commandline and all users who have tried this report that
+this fixes this.
+
+Also note that we already have an existing NO_LPM quirk for the RTL8153
+used in the Microsoft Surface Dock (where it uses a different usb-id).
+
+This commit adds a NO_LPM quirk for the generic Realtek RTL8153
+0bda:8153 usb-id, fixing the Tx timeout errors on these devices.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=198931
+Cc: stable@vger.kernel.org
+Cc: russianneuromancer@ya.ru
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200313120708.100339-1-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/kernel/vmlinux.lds.S | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/kernel/vmlinux.lds.S b/arch/powerpc/kernel/vmlinux.lds.S
-index 50d3650608558..c20510497c49d 100644
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -315,6 +315,12 @@ SECTIONS
- 		*(.branch_lt)
- 	}
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -232,6 +232,9 @@ static const struct usb_device_id usb_qu
+ 	/* Realtek hub in Dell WD19 (Type-C) */
+ 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
  
-+#ifdef CONFIG_DEBUG_INFO_BTF
-+	.BTF : AT(ADDR(.BTF) - LOAD_OFFSET) {
-+		*(.BTF)
-+	}
-+#endif
++	/* Generic RTL8153 based ethernet adapters */
++	{ USB_DEVICE(0x0bda, 0x8153), .driver_info = USB_QUIRK_NO_LPM },
 +
- 	.opd : AT(ADDR(.opd) - LOAD_OFFSET) {
- 		*(.opd)
- 	}
--- 
-2.20.1
-
+ 	/* Action Semiconductor flash disk */
+ 	{ USB_DEVICE(0x10d6, 0x2200), .driver_info =
+ 			USB_QUIRK_STRING_FETCH_255 },
 
 
