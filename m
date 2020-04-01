@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8294319B0B2
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F0A19B30A
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:49:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732430AbgDAQ2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:28:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54166 "EHLO mail.kernel.org"
+        id S2389786AbgDAQo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:44:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387659AbgDAQ2p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:28:45 -0400
+        id S2389621AbgDAQo7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:44:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9D782137B;
-        Wed,  1 Apr 2020 16:28:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABF782063A;
+        Wed,  1 Apr 2020 16:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758524;
-        bh=5JqrpdjqLIuWIOjEGpjTuL1YlPVL+BNI/ZpNl79kbkE=;
+        s=default; t=1585759498;
+        bh=CHBttnsBtGK1uWWbqCGC3uECB8Xas6d7Kytb4dLhd5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHw8idb90JtFRWkRqfXHRgw4qMN/WLsBpTHflHW3W/IZ0aIUMS90MU6lTTOGihHT+
-         8HsULRNnauHk9esA31Jr9VWY/Hl0PgmNTLU/x5ULYvetR0xLaiV0Zt1Wl+653o0DIS
-         2hJs//cyVSrXbQJkhiUDsjkAfJ6rnpAp7BzQh74w=
+        b=Nu2RI68bS39GE0218P3id7ay6c2lQbwS9trjxH/ucm7Tm4zBbtNO/4tAiviOLWykZ
+         IIDNRvvKl5Qc0iYcjE1YPoSxucaIFBoYaVgRoxcrsi/+dz2AehtOIxLbrF90TIDF7q
+         yTDWj6/qn+OXB1xAtlOd1S5RFnZ/O3NsUpgRD6uE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arthur Demchenkov <spinal.by@gmail.com>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Roger Quadros <rogerq@ti.com>, Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 4.19 114/116] ARM: dts: N900: fix onenand timings
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.14 098/148] gpiolib: acpi: Correct comment for HP x2 10 honor_wakeup quirk
 Date:   Wed,  1 Apr 2020 18:18:10 +0200
-Message-Id: <20200401161556.667067117@linuxfoundation.org>
+Message-Id: <20200401161602.258631106@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arthur Demchenkov <spinal.by@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 0c5220a3c1242c7a2451570ed5f5af69620aac75 upstream.
+commit efaa87fa0947d525cf7c075316adde4e3ac7720b upstream.
 
-Commit a758f50f10cf ("mtd: onenand: omap2: Configure driver from DT")
-started using DT specified timings for GPMC, and as a result the
-OneNAND stopped working on N900 as we had wrong values in the DT.
-Fix by updating the values to bootloader timings that have been tested
-to be working on Nokia N900 with OneNAND manufacturers: Samsung,
-Numonyx.
+Commit aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option +
+quirk mechanism") added a quirk for some models of the HP x2 10 series.
 
-Fixes: a758f50f10cf ("mtd: onenand: omap2: Configure driver from DT")
-Signed-off-by: Arthur Demchenkov <spinal.by@gmail.com>
-Tested-by: Merlijn Wajer <merlijn@wizzup.org>
-Reviewed-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+There are 2 issues with the comment describing the quirk:
+1) The comment claims the DMI quirk applies to all Cherry Trail based HP x2
+   10 models. In the mean time I have learned that there are at least 3
+   models of the HP x2 10 models:
+
+   Bay Trail SoC + AXP288 PMIC
+   Cherry Trail SoC + AXP288 PMIC
+   Cherry Trail SoC + TI PMIC
+
+   And this quirk's DMI matches only match the Cherry Trail SoC + TI PMIC
+   SoC, which is good because we want a slightly different quirk for the
+   others. This commit updates the comment to make it clear that the quirk
+   is only for the Cherry Trail SoC + TI PMIC models.
+
+2) The comment says that it is ok to disable wakeup on all ACPI GPIO event
+   handlers, because there is only the one for the embedded-controller
+   events. This is not true, there also is a handler for the special
+   INT0002 device which is related to USB wakeups. We need to also disable
+   wakeups on that one because the device turns of the USB-keyboard built
+   into the dock when closing the lid. The XHCI controller takes a while
+   to notice this, so it only notices it when already suspended, causing
+   a spurious wakeup because of this. So disabling wakeup on all handlers
+   is the right thing to do, but not because there only is the one handler
+   for the EC events. This commit updates the comment to correctly reflect
+   this.
+
+Fixes: aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option + quirk mechanism")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200302111225.6641-1-hdegoede@redhat.com
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/omap3-n900.dts |   44 ++++++++++++++++++++++++---------------
- 1 file changed, 28 insertions(+), 16 deletions(-)
+ drivers/gpio/gpiolib-acpi.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/arch/arm/boot/dts/omap3-n900.dts
-+++ b/arch/arm/boot/dts/omap3-n900.dts
-@@ -852,34 +852,46 @@
- 		compatible = "ti,omap2-onenand";
- 		reg = <0 0 0x20000>;	/* CS0, offset 0, IO size 128K */
- 
-+		/*
-+		 * These timings are based on CONFIG_OMAP_GPMC_DEBUG=y reported
-+		 * bootloader set values when booted with v5.1
-+		 * (OneNAND Manufacturer: Samsung):
-+		 *
-+		 *   cs0 GPMC_CS_CONFIG1: 0xfb001202
-+		 *   cs0 GPMC_CS_CONFIG2: 0x00111100
-+		 *   cs0 GPMC_CS_CONFIG3: 0x00020200
-+		 *   cs0 GPMC_CS_CONFIG4: 0x11001102
-+		 *   cs0 GPMC_CS_CONFIG5: 0x03101616
-+		 *   cs0 GPMC_CS_CONFIG6: 0x90060000
-+		 */
- 		gpmc,sync-read;
- 		gpmc,sync-write;
- 		gpmc,burst-length = <16>;
- 		gpmc,burst-read;
- 		gpmc,burst-wrap;
- 		gpmc,burst-write;
--		gpmc,device-width = <2>; /* GPMC_DEVWIDTH_16BIT */
--		gpmc,mux-add-data = <2>; /* GPMC_MUX_AD */
-+		gpmc,device-width = <2>;
-+		gpmc,mux-add-data = <2>;
- 		gpmc,cs-on-ns = <0>;
--		gpmc,cs-rd-off-ns = <87>;
--		gpmc,cs-wr-off-ns = <87>;
-+		gpmc,cs-rd-off-ns = <102>;
-+		gpmc,cs-wr-off-ns = <102>;
- 		gpmc,adv-on-ns = <0>;
--		gpmc,adv-rd-off-ns = <10>;
--		gpmc,adv-wr-off-ns = <10>;
--		gpmc,oe-on-ns = <15>;
--		gpmc,oe-off-ns = <87>;
-+		gpmc,adv-rd-off-ns = <12>;
-+		gpmc,adv-wr-off-ns = <12>;
-+		gpmc,oe-on-ns = <12>;
-+		gpmc,oe-off-ns = <102>;
- 		gpmc,we-on-ns = <0>;
--		gpmc,we-off-ns = <87>;
--		gpmc,rd-cycle-ns = <112>;
--		gpmc,wr-cycle-ns = <112>;
--		gpmc,access-ns = <81>;
--		gpmc,page-burst-access-ns = <15>;
-+		gpmc,we-off-ns = <102>;
-+		gpmc,rd-cycle-ns = <132>;
-+		gpmc,wr-cycle-ns = <132>;
-+		gpmc,access-ns = <96>;
-+		gpmc,page-burst-access-ns = <18>;
- 		gpmc,bus-turnaround-ns = <0>;
- 		gpmc,cycle2cycle-delay-ns = <0>;
- 		gpmc,wait-monitoring-ns = <0>;
--		gpmc,clk-activation-ns = <5>;
--		gpmc,wr-data-mux-bus-ns = <30>;
--		gpmc,wr-access-ns = <81>;
-+		gpmc,clk-activation-ns = <6>;
-+		gpmc,wr-data-mux-bus-ns = <36>;
-+		gpmc,wr-access-ns = <96>;
- 		gpmc,sync-clk-ps = <15000>;
- 
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -1348,12 +1348,14 @@ static const struct dmi_system_id gpioli
+ 	},
+ 	{
  		/*
+-		 * Various HP X2 10 Cherry Trail models use an external
+-		 * embedded-controller connected via I2C + an ACPI GPIO
+-		 * event handler. The embedded controller generates various
+-		 * spurious wakeup events when suspended. So disable wakeup
+-		 * for its handler (it uses the only ACPI GPIO event handler).
+-		 * This breaks wakeup when opening the lid, the user needs
++		 * HP X2 10 models with Cherry Trail SoC + TI PMIC use an
++		 * external embedded-controller connected via I2C + an ACPI GPIO
++		 * event handler on INT33FF:01 pin 0, causing spurious wakeups.
++		 * When suspending by closing the LID, the power to the USB
++		 * keyboard is turned off, causing INT0002 ACPI events to
++		 * trigger once the XHCI controller notices the keyboard is
++		 * gone. So INT0002 events cause spurious wakeups too. Ignoring
++		 * EC wakes breaks wakeup when opening the lid, the user needs
+ 		 * to press the power-button to wakeup the system. The
+ 		 * alternative is suspend simply not working, which is worse.
+ 		 */
 
 
