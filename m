@@ -2,37 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0118619B2BD
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:47:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69CF119B1F8
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:40:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388610AbgDAQqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:46:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48188 "EHLO mail.kernel.org"
+        id S2389018AbgDAQjm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:39:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388565AbgDAQqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:46:43 -0400
+        id S2389232AbgDAQjl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:39:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 057BF20705;
-        Wed,  1 Apr 2020 16:46:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45A5D20772;
+        Wed,  1 Apr 2020 16:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759603;
-        bh=62H8q4wS2U8H3WVXq49tHHl0V1M2VnJlDoEkzXF2fzQ=;
+        s=default; t=1585759180;
+        bh=CJKaPqpSF/6554jKMxbP73kFxnplmF6Dn0Bz9JIrEdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xcXHaqAHAy+rMT+prPhsJW17ffOTihpAEO6dBOf97CtJS84E6rnlq3sCmqBFRdPF4
-         YhAofT8/Iuyr+T056EJqJbg9J+s0h7Zeunxd0Y2Z0w5xSZFosX2aAWYkY6LQPMulz+
-         nvH6hSsCtwKkazEqzp4bIGY/q7ZWpBGZaZ7nGhoE=
+        b=Rs9SKdcXSTXYu5RhmV76PIGr4mXPtPokQXCpOD3M3EtX4zM7mhS7hoZ6Yri/BsZoe
+         si9OwB/8MijrGonSRPWcF797X2xHlbVjOGwaC0aCVHFuV9orjU/vfo3FD252XO58MB
+         ExDWzQCApQ4MD3VIjFe/LFqWN7DCce09nQIjVz+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 4.14 133/148] vt: ioctl, switch VT_IS_IN_USE and VT_BUSY to inlines
+        stable@vger.kernel.org,
+        disconnect3d <dominik.b.czarnota@gmail.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Changbin Du <changbin.du@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>, John Keeping <john@metanate.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Lentine <mlentine@google.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.9 102/102] perf map: Fix off by one in strncpy() size argument
 Date:   Wed,  1 Apr 2020 18:18:45 +0200
-Message-Id: <20200401161605.103099023@linuxfoundation.org>
+Message-Id: <20200401161549.020442250@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: disconnect3d <dominik.b.czarnota@gmail.com>
 
-commit e587e8f17433ddb26954f0edf5b2f95c42155ae9 upstream.
+commit db2c549407d4a76563c579e4768f7d6d32afefba upstream.
 
-These two were macros. Switch them to static inlines, so that it's more
-understandable what they are doing.
+This patch fixes an off-by-one error in strncpy size argument in
+tools/perf/util/map.c. The issue is that in:
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20200219073951.16151-2-jslaby@suse.cz
+        strncmp(filename, "/system/lib/", 11)
+
+the passed string literal: "/system/lib/" has 12 bytes (without the NULL
+byte) and the passed size argument is 11. As a result, the logic won't
+match the ending "/" byte and will pass filepaths that are stored in
+other directories e.g. "/system/libmalicious/bin" or just
+"/system/libmalicious".
+
+This functionality seems to be present only on Android. I assume the
+/system/ directory is only writable by the root user, so I don't think
+this bug has much (or any) security impact.
+
+Fixes: eca818369996 ("perf tools: Add automatic remapping of Android libraries")
+Signed-off-by: disconnect3d <dominik.b.czarnota@gmail.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Changbin Du <changbin.du@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Keeping <john@metanate.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Lentine <mlentine@google.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200309104855.3775-1-dominik.b.czarnota@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt_ioctl.c |   29 ++++++++++++++++++++++-------
- 1 file changed, 22 insertions(+), 7 deletions(-)
+ tools/perf/util/map.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -40,10 +40,25 @@
- #include <linux/selection.h>
+--- a/tools/perf/util/map.c
++++ b/tools/perf/util/map.c
+@@ -88,7 +88,7 @@ static inline bool replace_android_lib(c
+ 		return true;
+ 	}
  
- char vt_dont_switch;
--extern struct tty_driver *console_driver;
- 
--#define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
--#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
-+static inline bool vt_in_use(unsigned int i)
-+{
-+	extern struct tty_driver *console_driver;
-+
-+	return console_driver->ttys[i] && console_driver->ttys[i]->count;
-+}
-+
-+static inline bool vt_busy(int i)
-+{
-+	if (vt_in_use(i))
-+		return true;
-+	if (i == fg_console)
-+		return true;
-+	if (vc_is_sel(vc_cons[i].d))
-+		return true;
-+
-+	return false;
-+}
- 
- /*
-  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
-@@ -289,7 +304,7 @@ static int vt_disallocate(unsigned int v
- 	int ret = 0;
- 
- 	console_lock();
--	if (VT_BUSY(vc_num))
-+	if (vt_busy(vc_num))
- 		ret = -EBUSY;
- 	else if (vc_num)
- 		vc = vc_deallocate(vc_num);
-@@ -311,7 +326,7 @@ static void vt_disallocate_all(void)
- 
- 	console_lock();
- 	for (i = 1; i < MAX_NR_CONSOLES; i++)
--		if (!VT_BUSY(i))
-+		if (!vt_busy(i))
- 			vc[i] = vc_deallocate(i);
- 		else
- 			vc[i] = NULL;
-@@ -648,7 +663,7 @@ int vt_ioctl(struct tty_struct *tty,
- 			state = 1;	/* /dev/tty0 is always open */
- 			for (i = 0, mask = 2; i < MAX_NR_CONSOLES && mask;
- 							++i, mask <<= 1)
--				if (VT_IS_IN_USE(i))
-+				if (vt_in_use(i))
- 					state |= mask;
- 			ret = put_user(state, &vtstat->v_state);
- 		}
-@@ -661,7 +676,7 @@ int vt_ioctl(struct tty_struct *tty,
- 	case VT_OPENQRY:
- 		/* FIXME: locking ? - but then this is a stupid API */
- 		for (i = 0; i < MAX_NR_CONSOLES; ++i)
--			if (! VT_IS_IN_USE(i))
-+			if (!vt_in_use(i))
- 				break;
- 		uival = i < MAX_NR_CONSOLES ? (i+1) : -1;
- 		goto setint;		 
+-	if (!strncmp(filename, "/system/lib/", 11)) {
++	if (!strncmp(filename, "/system/lib/", 12)) {
+ 		char *ndk, *app;
+ 		const char *arch;
+ 		size_t ndk_length;
 
 
