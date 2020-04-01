@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6168C19AFE5
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D96F119B115
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387428AbgDAQWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:22:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45040 "EHLO mail.kernel.org"
+        id S2388353AbgDAQby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:31:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387434AbgDAQWD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:22:03 -0400
+        id S2388361AbgDAQbx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:31:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF37020658;
-        Wed,  1 Apr 2020 16:22:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C7E12063A;
+        Wed,  1 Apr 2020 16:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758123;
-        bh=r+e9qHmInOQJ47PfeFDi1mAZiHipiVuBXvckxLYW3bU=;
+        s=default; t=1585758712;
+        bh=X7SO+AFWtttTHvmpiHOIjqHujUY1avAOlL7VXiJYJl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fu5I0QpEMWlh+X+u4JfRvUOkQ+nxHPJN5G1Jhw+N64uY2/Lb6PyReW7x3mmR1z49F
-         vb1GlDBDTRlAYxqPAY9ZMH/noB7GMdCyw6KSgSh9ZPsBfFDTvenFueXZ0TIO0pCbeJ
-         b8v7CSBV8vQyyOTtgbjPbwg1B1tJ/ntRA4idXj8w=
+        b=DReyATUR0D5lZOXs5axl6tuTdAoa2vrePGHOEdWAUvVwPOccaygf9SCFwQAER1UGQ
+         Q5m4iFR6jkUI6sdtmFicp6R3AfLv4qpc8feEcHCA2dFMQnbaa9PIJYRHtdUtTlC9iM
+         Rg8gWnyAb2LSRCMexBuCn4ND2UfIsvFM6+3QDx00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.4 19/27] arm64: alternative: fix build with clang integrated assembler
+        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 51/91] dt-bindings: net: FMan erratum A050385
 Date:   Wed,  1 Apr 2020 18:17:47 +0200
-Message-Id: <20200401161431.059776937@linuxfoundation.org>
+Message-Id: <20200401161531.218283511@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
-References: <20200401161414.352722470@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilie Halip <ilie.halip@gmail.com>
+From: Madalin Bucur <madalin.bucur@nxp.com>
 
-commit 6f5459da2b8736720afdbd67c4bd2d1edba7d0e3 upstream.
+[ Upstream commit 26d5bb9e4c4b541c475751e015072eb2cbf70d15 ]
 
-Building an arm64 defconfig with clang's integrated assembler, this error
-occurs:
-    <instantiation>:2:2: error: unrecognized instruction mnemonic
-     _ASM_EXTABLE 9999b, 9f
-     ^
-    arch/arm64/mm/cache.S:50:1: note: while in macro instantiation
-    user_alt 9f, "dc cvau, x4", "dc civac, x4", 0
-    ^
+FMAN DMA read or writes under heavy traffic load may cause FMAN
+internal resource leak; thus stopping further packet processing.
 
-While GNU as seems fine with case-sensitive macro instantiations, clang
-doesn't, so use the actual macro name (_asm_extable) as in the rest of
-the file.
+The FMAN internal queue can overflow when FMAN splits single
+read or write transactions into multiple smaller transactions
+such that more than 17 AXI transactions are in flight from FMAN
+to interconnect. When the FMAN internal queue overflows, it can
+stall further packet processing. The issue can occur with any one
+of the following three conditions:
 
-Also checked that the generated assembly matches the GCC output.
+  1. FMAN AXI transaction crosses 4K address boundary (Errata
+     A010022)
+  2. FMAN DMA address for an AXI transaction is not 16 byte
+     aligned, i.e. the last 4 bits of an address are non-zero
+  3. Scatter Gather (SG) frames have more than one SG buffer in
+     the SG list and any one of the buffers, except the last
+     buffer in the SG list has data size that is not a multiple
+     of 16 bytes, i.e., other than 16, 32, 48, 64, etc.
 
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Fixes: 290622efc76e ("arm64: fix "dc cvau" cache operation on errata-affected core")
-Link: https://github.com/ClangBuiltLinux/linux/issues/924
-Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+With any one of the above three conditions present, there is
+likelihood of stalled FMAN packet processing, especially under
+stress with multiple ports injecting line-rate traffic.
 
+To avoid situations that stall FMAN packet processing, all of the
+above three conditions must be avoided; therefore, configure the
+system with the following rules:
+
+  1. Frame buffers must not span a 4KB address boundary, unless
+     the frame start address is 256 byte aligned
+  2. All FMAN DMA start addresses (for example, BMAN buffer
+     address, FD[address] + FD[offset]) are 16B aligned
+  3. SG table and buffer addresses are 16B aligned and the size
+     of SG buffers are multiple of 16 bytes, except for the last
+     SG buffer that can be of any size.
+
+Additional workaround notes:
+- Address alignment of 64 bytes is recommended for maximally
+efficient system bus transactions (although 16 byte alignment is
+sufficient to avoid the stall condition)
+- To support frame sizes that are larger than 4K bytes, there are
+two options:
+  1. Large single buffer frames that span a 4KB page boundary can
+     be converted into SG frames to avoid transaction splits at
+     the 4KB boundary,
+  2. Align the large single buffer to 256B address boundaries,
+     ensure that the frame address plus offset is 256B aligned.
+- If software generated SG frames have buffers that are unaligned
+and with random non-multiple of 16 byte lengths, before
+transmitting such frames via FMAN, frames will need to be copied
+into a new single buffer or multiple buffer SG frame that is
+compliant with the three rules listed above.
+
+Signed-off-by: Madalin Bucur <madalin.bucur@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/alternative.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/powerpc/fsl/fman.txt | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -221,7 +221,7 @@ alternative_endif
+diff --git a/Documentation/devicetree/bindings/powerpc/fsl/fman.txt b/Documentation/devicetree/bindings/powerpc/fsl/fman.txt
+index 1fc5328c0651b..23708f3f4e58a 100644
+--- a/Documentation/devicetree/bindings/powerpc/fsl/fman.txt
++++ b/Documentation/devicetree/bindings/powerpc/fsl/fman.txt
+@@ -110,6 +110,13 @@ PROPERTIES
+ 		Usage: required
+ 		Definition: See soc/fsl/qman.txt and soc/fsl/bman.txt
  
- .macro user_alt, label, oldinstr, newinstr, cond
- 9999:	alternative_insn "\oldinstr", "\newinstr", \cond
--	_ASM_EXTABLE 9999b, \label
-+	_asm_extable 9999b, \label
- .endm
++- fsl,erratum-a050385
++		Usage: optional
++		Value type: boolean
++		Definition: A boolean property. Indicates the presence of the
++		erratum A050385 which indicates that DMA transactions that are
++		split can result in a FMan lock.
++
+ =============================================================================
+ FMan MURAM Node
  
- /*
+-- 
+2.20.1
+
 
 
