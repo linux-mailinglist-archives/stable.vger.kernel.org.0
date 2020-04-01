@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 080C219B086
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E87B719B3C2
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387601AbgDAQ1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:27:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52330 "EHLO mail.kernel.org"
+        id S2387959AbgDAQxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:53:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733133AbgDAQ1b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:27:31 -0400
+        id S2388365AbgDAQcB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:32:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBA2020857;
-        Wed,  1 Apr 2020 16:27:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E8CB20658;
+        Wed,  1 Apr 2020 16:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758450;
-        bh=gESZ+k3uAigjSvjDEXd0JIolkravefDLDKG+O2C0yuU=;
+        s=default; t=1585758721;
+        bh=CsM8V2CQnyjC90orvntK+0kSmFRCj8crCFyUUVSPRKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=puEblgISkAvu97sSDaZm7wcEkGP/2eq+itn/pjlH9Ae+ggnvuYM26IyX1x8Tazy/E
-         eYtvIOnzl0e7yJqxKDQWTXlguYOEuPZwKrxRorrtuTB/OBAsyXaX9J84vJdHcBptdZ
-         T8wDa6lEHO/sUWzPa9KgVitHasEuQfBoNWU2rMvo=
+        b=ib2dLq2SdI7A/hJm6eEbNBYsmfDw5FM5lKXyY70+qWq7WX9FvmmkycIXR/uCPoZFT
+         etaisrAJPXwRPPUwXc29h26JktMITj8kzbgr2JXGP4QmaZpv4FwMg1+wAI9TfI7GTK
+         wNkHzYxnrCRv0PJlm7ISvKR2imYcHkJsx1vg3Cck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 094/116] media: stv06xx: add missing descriptor sanity checks
+        stable@vger.kernel.org,
+        Dominik Czarnota <dominik.b.czarnota@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 54/91] sxgbe: Fix off by one in samsung driver strncpy size arg
 Date:   Wed,  1 Apr 2020 18:17:50 +0200
-Message-Id: <20200401161554.428688790@linuxfoundation.org>
+Message-Id: <20200401161532.431463975@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,93 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dominik Czarnota <dominik.b.czarnota@gmail.com>
 
-commit 485b06aadb933190f4bc44e006076bc27a23f205 upstream.
+[ Upstream commit f3cc008bf6d59b8d93b4190e01d3e557b0040e15 ]
 
-Make sure to check that we have two alternate settings and at least one
-endpoint before accessing the second altsetting structure and
-dereferencing the endpoint arrays.
+This patch fixes an off-by-one error in strncpy size argument in
+drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c. The issue is that in:
 
-This specifically avoids dereferencing NULL-pointers or corrupting
-memory when a device does not have the expected descriptors.
+        strncmp(opt, "eee_timer:", 6)
 
-Note that the sanity checks in stv06xx_start() and pb0100_start() are
-not redundant as the driver is mixing looking up altsettings by index
-and by number, which may not coincide.
+the passed string literal: "eee_timer:" has 10 bytes (without the NULL
+byte) and the passed size argument is 6. As a result, the logic will
+also accept other, malformed strings, e.g. "eee_tiXXX:".
 
-Fixes: 8668d504d72c ("V4L/DVB (12082): gspca_stv06xx: Add support for st6422 bridge and sensor")
-Fixes: c0b33bdc5b8d ("[media] gspca-stv06xx: support bandwidth changing")
-Cc: stable <stable@vger.kernel.org>     # 2.6.31
-Cc: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This bug doesn't seem to have any security impact since its present in
+module's cmdline parsing code.
 
+Signed-off-by: Dominik Czarnota <dominik.b.czarnota@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/stv06xx/stv06xx.c        |   19 ++++++++++++++++++-
- drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c |    4 ++++
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/gspca/stv06xx/stv06xx.c
-+++ b/drivers/media/usb/gspca/stv06xx/stv06xx.c
-@@ -291,6 +291,9 @@ static int stv06xx_start(struct gspca_de
- 		return -EIO;
- 	}
- 
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	err = stv06xx_write_bridge(sd, STV_ISO_SIZE_L, packet_size);
- 	if (err < 0)
-@@ -315,11 +318,21 @@ out:
- 
- static int stv06xx_isoc_init(struct gspca_dev *gspca_dev)
- {
-+	struct usb_interface_cache *intfc;
- 	struct usb_host_interface *alt;
- 	struct sd *sd = (struct sd *) gspca_dev;
- 
-+	intfc = gspca_dev->dev->actconfig->intf_cache[0];
-+
-+	if (intfc->num_altsetting < 2)
-+		return -ENODEV;
-+
-+	alt = &intfc->altsetting[1];
-+
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	/* Start isoc bandwidth "negotiation" at max isoc bandwidth */
--	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
- 	alt->endpoint[0].desc.wMaxPacketSize =
- 		cpu_to_le16(sd->sensor->max_packet_size[gspca_dev->curr_mode]);
- 
-@@ -332,6 +345,10 @@ static int stv06xx_isoc_nego(struct gspc
- 	struct usb_host_interface *alt;
- 	struct sd *sd = (struct sd *) gspca_dev;
- 
-+	/*
-+	 * Existence of altsetting and endpoint was verified in
-+	 * stv06xx_isoc_init()
-+	 */
- 	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 	min_packet_size = sd->sensor->min_packet_size[gspca_dev->curr_mode];
---- a/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c
-+++ b/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c
-@@ -194,6 +194,10 @@ static int pb0100_start(struct sd *sd)
- 	alt = usb_altnum_to_altsetting(intf, sd->gspca_dev.alt);
- 	if (!alt)
- 		return -ENODEV;
-+
-+	if (alt->desc.bNumEndpoints < 1)
-+		return -ENODEV;
-+
- 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
- 
- 	/* If we don't have enough bandwidth use a lower framerate */
+diff --git a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
+index 413ea14ab91f7..56cdc01c58477 100644
+--- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
++++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
+@@ -2315,7 +2315,7 @@ static int __init sxgbe_cmdline_opt(char *str)
+ 	if (!str || !*str)
+ 		return -EINVAL;
+ 	while ((opt = strsep(&str, ",")) != NULL) {
+-		if (!strncmp(opt, "eee_timer:", 6)) {
++		if (!strncmp(opt, "eee_timer:", 10)) {
+ 			if (kstrtoint(opt + 10, 0, &eee_timer))
+ 				goto err;
+ 		}
+-- 
+2.20.1
+
 
 
