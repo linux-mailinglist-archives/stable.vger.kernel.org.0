@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B9B19B2DB
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:48:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FFC819B3FF
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389665AbgDAQqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:46:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47664 "EHLO mail.kernel.org"
+        id S2387690AbgDAQyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:54:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389919AbgDAQqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:46:19 -0400
+        id S2387513AbgDAQ1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:27:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FB912063A;
-        Wed,  1 Apr 2020 16:46:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C05FB20857;
+        Wed,  1 Apr 2020 16:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759578;
-        bh=I2oYdk8F22AfoJfmc1204FRw4JaaneDeqgX+3KuBpV0=;
+        s=default; t=1585758470;
+        bh=62H8q4wS2U8H3WVXq49tHHl0V1M2VnJlDoEkzXF2fzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VATjR6NIEdur4e8tN1CRm7fwDviWhBO7KpfDCri8pY5ynDad0pevDOzBjYeK4lNC3
-         RMJnCQ+xJ6nATMRsFHERd81CVoLX5mXu/StuiPfErR1Z7jmAaMM6wsqeyFCqmOrDbE
-         EZ/cGNflSxcUKcn9MXX9joAF5LUeLREjLASN08zs=
+        b=GKo1aaCno4AHwmPHexijbulR2ayfiovO5eU2PfVDKUit39Opv++nqz/R7HkDIlRWZ
+         w7Tbyp8YDTM3mG62aCqFbVy4lhpmaxBkYKLhoyupxDjsTeZIfhmtb+PDc3T+Ir2EsE
+         t4wKQMupz6A0p1aT+lrePYrNRHHK4UkGpeeJMZnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Madalin Bucur <madalin.bucur@oss.nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 083/148] dpaa_eth: Remove unnecessary boolean expression in dpaa_get_headroom
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.19 099/116] vt: ioctl, switch VT_IS_IN_USE and VT_BUSY to inlines
 Date:   Wed,  1 Apr 2020 18:17:55 +0200
-Message-Id: <20200401161601.126682785@linuxfoundation.org>
+Message-Id: <20200401161554.972628750@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 7395f62d95aafacdb9bd4996ec2f95b4a655d7e6 ]
+commit e587e8f17433ddb26954f0edf5b2f95c42155ae9 upstream.
 
-Clang warns:
+These two were macros. Switch them to static inlines, so that it's more
+understandable what they are doing.
 
-drivers/net/ethernet/freescale/dpaa/dpaa_eth.c:2860:9: warning:
-converting the result of '?:' with integer constants to a boolean always
-evaluates to 'true' [-Wtautological-constant-compare]
-        return DPAA_FD_DATA_ALIGNMENT ? ALIGN(headroom,
-               ^
-drivers/net/ethernet/freescale/dpaa/dpaa_eth.c:131:34: note: expanded
-from macro 'DPAA_FD_DATA_ALIGNMENT'
-\#define DPAA_FD_DATA_ALIGNMENT  (fman_has_errata_a050385() ? 64 : 16)
-                                 ^
-1 warning generated.
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200219073951.16151-2-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This was exposed by commit 3c68b8fffb48 ("dpaa_eth: FMan erratum A050385
-workaround") even though it appears to have been an issue since the
-introductory commit 9ad1a3749333 ("dpaa_eth: add support for DPAA
-Ethernet") since DPAA_FD_DATA_ALIGNMENT has never been able to be zero.
-
-Just replace the whole boolean expression with the true branch, as it is
-always been true.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/928
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/tty/vt/vt_ioctl.c |   29 ++++++++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-index 39b8b6730e77c..67246d42c3d9f 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -2646,9 +2646,7 @@ static inline u16 dpaa_get_headroom(struct dpaa_buffer_layout *bl)
- 	headroom = (u16)(bl->priv_data_size + DPAA_PARSE_RESULTS_SIZE +
- 		DPAA_TIME_STAMP_SIZE + DPAA_HASH_RESULTS_SIZE);
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -40,10 +40,25 @@
+ #include <linux/selection.h>
  
--	return DPAA_FD_DATA_ALIGNMENT ? ALIGN(headroom,
--					      DPAA_FD_DATA_ALIGNMENT) :
--					headroom;
-+	return ALIGN(headroom, DPAA_FD_DATA_ALIGNMENT);
- }
+ char vt_dont_switch;
+-extern struct tty_driver *console_driver;
  
- static int dpaa_eth_probe(struct platform_device *pdev)
--- 
-2.20.1
-
+-#define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
+-#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
++static inline bool vt_in_use(unsigned int i)
++{
++	extern struct tty_driver *console_driver;
++
++	return console_driver->ttys[i] && console_driver->ttys[i]->count;
++}
++
++static inline bool vt_busy(int i)
++{
++	if (vt_in_use(i))
++		return true;
++	if (i == fg_console)
++		return true;
++	if (vc_is_sel(vc_cons[i].d))
++		return true;
++
++	return false;
++}
+ 
+ /*
+  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
+@@ -289,7 +304,7 @@ static int vt_disallocate(unsigned int v
+ 	int ret = 0;
+ 
+ 	console_lock();
+-	if (VT_BUSY(vc_num))
++	if (vt_busy(vc_num))
+ 		ret = -EBUSY;
+ 	else if (vc_num)
+ 		vc = vc_deallocate(vc_num);
+@@ -311,7 +326,7 @@ static void vt_disallocate_all(void)
+ 
+ 	console_lock();
+ 	for (i = 1; i < MAX_NR_CONSOLES; i++)
+-		if (!VT_BUSY(i))
++		if (!vt_busy(i))
+ 			vc[i] = vc_deallocate(i);
+ 		else
+ 			vc[i] = NULL;
+@@ -648,7 +663,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 			state = 1;	/* /dev/tty0 is always open */
+ 			for (i = 0, mask = 2; i < MAX_NR_CONSOLES && mask;
+ 							++i, mask <<= 1)
+-				if (VT_IS_IN_USE(i))
++				if (vt_in_use(i))
+ 					state |= mask;
+ 			ret = put_user(state, &vtstat->v_state);
+ 		}
+@@ -661,7 +676,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 	case VT_OPENQRY:
+ 		/* FIXME: locking ? - but then this is a stupid API */
+ 		for (i = 0; i < MAX_NR_CONSOLES; ++i)
+-			if (! VT_IS_IN_USE(i))
++			if (!vt_in_use(i))
+ 				break;
+ 		uival = i < MAX_NR_CONSOLES ? (i+1) : -1;
+ 		goto setint;		 
 
 
