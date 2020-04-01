@@ -2,69 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC67419B4F4
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0FFC19B517
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 20:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727723AbgDARzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 13:55:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
+        id S1732723AbgDASHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 14:07:24 -0400
+Received: from foss.arm.com ([217.140.110.172]:58332 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726974AbgDARzl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 13:55:41 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBCE720719;
-        Wed,  1 Apr 2020 17:55:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585763741;
-        bh=PO+CfaeLhp/aOikVQUgrnUs0hXxuqGk+YncI5MT0P5E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vCEqsYQLpNmyFJNh7P9xl/B6g5mpj8GmjYy6ekQLVAtfZFs6S/PXSOC5JkD2fFKwE
-         981shgS/HaDBKKTx32mkSFl/zROxHYqgxoAz4EBHxNGfpNaSE+H5C1FIlAzve/0Zrw
-         TKZZxiB0mFGEkeLz7+8+SYdCd3MJ246V5UeoiD3w=
-Date:   Wed, 1 Apr 2020 19:55:37 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Giuliano Procida <gprocida@google.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: backport request for use-after-free blk_mq_queue_tag_busy_iter
-Message-ID: <20200401175537.GC2586614@kroah.com>
-References: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
+        id S1732121AbgDASHY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 14:07:24 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F1EC41FB;
+        Wed,  1 Apr 2020 11:07:23 -0700 (PDT)
+Received: from localhost (unknown [10.37.6.21])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 759483F52E;
+        Wed,  1 Apr 2020 11:07:23 -0700 (PDT)
+Date:   Wed, 1 Apr 2020 19:07:21 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     Will Deacon <will@kernel.org>, Mark Rutland <Mark.Rutland@arm.com>,
+        Amit Kachhap <Amit.Kachhap@arm.com>,
+        Kees Cook <keescook@chromium.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        Szabolcs Nagy <Szabolcs.Nagy@arm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] arm64: Always force a branch protection mode when the
+ compiler has one
+Message-ID: <20200401180721.GG4943@sirena.org.uk>
+References: <20200331194459.54740-1-broonie@kernel.org>
+ <20200401175444.GF9434@mbp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="bajzpZikUji1w+G9"
 Content-Disposition: inline
-In-Reply-To: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
+In-Reply-To: <20200401175444.GF9434@mbp>
+X-Cookie: The Ranger isn't gonna like it, Yogi.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 05:47:02PM +0000, Giuliano Procida wrote:
-> This issue was found in 4.14 and is present in earlier kernels.
-> 
-> Please backport
-> 
-> f5bbbbe4d635 blk-mq: sync the update nr_hw_queues with
-> blk_mq_queue_tag_busy_iter
-> 530ca2c9bd69 blk-mq: Allow blocking queue tag iter callbacks
-> 
-> onto the stable branches that don't have these. The second is a fix
-> for the first. Thank you.
-> 
-> 4.19.y and later - commits already present
-> 4.14.y - f5bbbbe4d635 doesn't patch cleanly but it's still
-> straightforward, just drop the comment and code mentioning switching
-> to 'none' in the trailing context
-> 4.9.y - ditto
-> 4.4.y - there was a refactoring of the code in commit
-> 0bf6cd5b9531bcc29c0a5e504b6ce2984c6fd8d8 making this non-trivial
-> 3.16.y - ditto
-> 
-> I am happy to try to produce clean patches, but it may be a day or so.
 
-Clean patches would be good, as there are -rcs out right now so I can't
-do anything until they are released in a few days.
+--bajzpZikUji1w+G9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-thanks,
+On Wed, Apr 01, 2020 at 06:54:44PM +0100, Catalin Marinas wrote:
+> On Tue, Mar 31, 2020 at 08:44:59PM +0100, Mark Brown wrote:
+> > Compilers with branch protection support can be configured to enable it by
+> > default, it is likely that distributions will do this as part of deploying
+> > branch protection system wide. As well as the slight overhead from having
+> > some extra NOPs for unused branch protection features this can cause more
+> > serious problems when the kernel is providing pointer authentication to
+> > userspace but not built for pointer authentication itself.
 
-greg k-h
+> With 5.7 you won't be able to configure user and kernel PAC support
+> independently. So, I guess that's something only for prior kernel
+> versions.
+
+Yes, it's really for the benefit of stable at this point - hence the Cc.
+Going forward it's hopefully more for defensiveness than anything else,
+it's possible something similar might come up with some future stuff but
+ideally not.
+
+--bajzpZikUji1w+G9
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEyBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl6E2FkACgkQJNaLcl1U
+h9AvZAf4kcawmHf3KjTLz/Ml0UjkQlK6IiE5hl/jqyojdkmbqJ6vdmNYVpxdGRZv
+jXhRkAf8jc6tuNYEJESXynxGqqygMkn46iMlBKpNRjNcs9niJoI5Xsc8cxczlyMD
+RyPLCVtV0rGCXUbCqprcZc+0OvIXavtvAGPiOW+A1uoqKmBjY8EzJOheTJPCmGxj
+3RgoWrHUHfDs9UnAlSleC9HdpI1o2x+H8T6pW8lw1jKwgx7O1kGSbv/EFXWcFfqT
+wOGT+/QHawC2xC1GHO4hzOvq7Ao9pF4jBEAmZAxQVUgknxumFQJlSviubg8lGKxe
+4jkQAXQgBy3YGWhzdW37lSBfpHaH
+=5eIU
+-----END PGP SIGNATURE-----
+
+--bajzpZikUji1w+G9--
