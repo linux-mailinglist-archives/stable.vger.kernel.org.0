@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C226419B22B
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E062419B011
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388667AbgDAQlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:41:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42022 "EHLO mail.kernel.org"
+        id S1733159AbgDAQXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:23:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389435AbgDAQlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:41:37 -0400
+        id S1733168AbgDAQXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:23:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14A78206F8;
-        Wed,  1 Apr 2020 16:41:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E56642137B;
+        Wed,  1 Apr 2020 16:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759296;
-        bh=x+FTAAyhFq6TVGlwzx7by7EMdoDZnaysRDkXNvrL3Pw=;
+        s=default; t=1585758226;
+        bh=7mn0OsRLuSlXekhmY6dq6f8i2zS8g0X6tHQm6gYWpas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A9UBvzDbPxsyHApsWNSmzFr7KxszYKGUqkP6EcJj9W4syW+rFxiP3tb3w4WqNBpJs
-         dE88GbhJbBg3Uqaem3qqC6Y0Vv0gXY8KbK4EXVord+kOTWjBLoDuv9jesBG8KjJsme
-         Z7y6dFqB/sW4UB72Z0YOAGWOURXdELMeUzHnfn5s=
+        b=H0TN+koOKJ+6YosMO6hsZ3RZmnVcWjAyBVYTG9B2dsik7K8VwtpvrWdbVef7YNlZo
+         zPWPW2kDaGlFzvLil24kZ1UqPYdtSzq+mwDEd6y9O0pSKG0nj1GXeoS+VY+RcriTRK
+         R3KMCsXrDWjTxzdapSae3uN2o39BcCtaZ1pUeUZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Inki Dae <inki.dae@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 007/148] drm/exynos: dsi: fix workaround for the legacy clock name
+        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 023/116] net: ip_gre: Separate ERSPAN newlink / changelink callbacks
 Date:   Wed,  1 Apr 2020 18:16:39 +0200
-Message-Id: <20200401161552.910163446@linuxfoundation.org>
+Message-Id: <20200401161545.325405858@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +43,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit c0fd99d659ba5582e09625c7a985d63fc2ca74b5 ]
+[ Upstream commit e1f8f78ffe9854308b9e12a73ebe4e909074fc33 ]
 
-Writing to the built-in strings arrays doesn't work if driver is loaded
-as kernel module. This is also considered as a bad pattern. Fix this by
-adding a call to clk_get() with legacy clock name. This fixes following
-kernel oops if driver is loaded as module:
+ERSPAN shares most of the code path with GRE and gretap code. While that
+helps keep the code compact, it is also error prone. Currently a broken
+userspace can turn a gretap tunnel into a de facto ERSPAN one by passing
+IFLA_GRE_ERSPAN_VER. There has been a similar issue in ip6gretap in the
+past.
 
-Unable to handle kernel paging request at virtual address bf047978
- pgd = (ptrval)
- [bf047978] *pgd=59344811, *pte=5903c6df, *ppte=5903c65f
- Internal error: Oops: 80f [#1] SMP ARM
- Modules linked in: mc exynosdrm(+) analogix_dp rtc_s3c exynos_ppmu i2c_gpio
- CPU: 1 PID: 212 Comm: systemd-udevd Not tainted 5.6.0-rc2-next-20200219 #326
- videodev: Linux video capture interface: v2.00
- Hardware name: Samsung Exynos (Flattened Device Tree)
- PC is at exynos_dsi_probe+0x1f0/0x384 [exynosdrm]
- LR is at exynos_dsi_probe+0x1dc/0x384 [exynosdrm]
- ...
- Process systemd-udevd (pid: 212, stack limit = 0x(ptrval))
- ...
- [<bf03cf14>] (exynos_dsi_probe [exynosdrm]) from [<c09b1ca0>] (platform_drv_probe+0x6c/0xa4)
- [<c09b1ca0>] (platform_drv_probe) from [<c09afcb8>] (really_probe+0x210/0x350)
- [<c09afcb8>] (really_probe) from [<c09aff74>] (driver_probe_device+0x60/0x1a0)
- [<c09aff74>] (driver_probe_device) from [<c09b0254>] (device_driver_attach+0x58/0x60)
- [<c09b0254>] (device_driver_attach) from [<c09b02dc>] (__driver_attach+0x80/0xbc)
- [<c09b02dc>] (__driver_attach) from [<c09ade00>] (bus_for_each_dev+0x68/0xb4)
- [<c09ade00>] (bus_for_each_dev) from [<c09aefd8>] (bus_add_driver+0x130/0x1e8)
- [<c09aefd8>] (bus_add_driver) from [<c09b0d64>] (driver_register+0x78/0x110)
- [<c09b0d64>] (driver_register) from [<bf038558>] (exynos_drm_init+0xe8/0x11c [exynosdrm])
- [<bf038558>] (exynos_drm_init [exynosdrm]) from [<c0302fa8>] (do_one_initcall+0x50/0x220)
- [<c0302fa8>] (do_one_initcall) from [<c03dd02c>] (do_init_module+0x60/0x210)
- [<c03dd02c>] (do_init_module) from [<c03dbf44>] (load_module+0x1c0c/0x2310)
- [<c03dbf44>] (load_module) from [<c03dc85c>] (sys_finit_module+0xac/0xbc)
- [<c03dc85c>] (sys_finit_module) from [<c0301000>] (ret_fast_syscall+0x0/0x54)
- Exception stack(0xd979bfa8 to 0xd979bff0)
- ...
- ---[ end trace db16efe05faab470 ]---
+To prevent these problems in future, split the newlink and changelink code
+paths. Split the ERSPAN code out of ipgre_netlink_parms() into a new
+function erspan_netlink_parms(). Extract a piece of common logic from
+ipgre_newlink() and ipgre_changelink() into ipgre_newlink_encap_setup().
+Add erspan_newlink() and erspan_changelink().
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 84e54fe0a5ea ("gre: introduce native tunnel support for ERSPAN")
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_dsi.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/ipv4/ip_gre.c |  103 ++++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 85 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-index aef18f807e383..366c975cde5b7 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-@@ -1754,9 +1754,10 @@ static int exynos_dsi_probe(struct platform_device *pdev)
- 		dsi->clks[i] = devm_clk_get(dev, clk_names[i]);
- 		if (IS_ERR(dsi->clks[i])) {
- 			if (strcmp(clk_names[i], "sclk_mipi") == 0) {
--				strcpy(clk_names[i], OLD_SCLK_MIPI_CLK_NAME);
--				i--;
--				continue;
-+				dsi->clks[i] = devm_clk_get(dev,
-+							OLD_SCLK_MIPI_CLK_NAME);
-+				if (!IS_ERR(dsi->clks[i]))
-+					continue;
- 			}
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -1226,6 +1226,22 @@ static int ipgre_netlink_parms(struct ne
+ 	if (data[IFLA_GRE_FWMARK])
+ 		*fwmark = nla_get_u32(data[IFLA_GRE_FWMARK]);
  
- 			dev_info(dev, "failed to get the clock: %s\n",
--- 
-2.20.1
-
++	return 0;
++}
++
++static int erspan_netlink_parms(struct net_device *dev,
++				struct nlattr *data[],
++				struct nlattr *tb[],
++				struct ip_tunnel_parm *parms,
++				__u32 *fwmark)
++{
++	struct ip_tunnel *t = netdev_priv(dev);
++	int err;
++
++	err = ipgre_netlink_parms(dev, data, tb, parms, fwmark);
++	if (err)
++		return err;
++
+ 	if (data[IFLA_GRE_ERSPAN_VER]) {
+ 		t->erspan_ver = nla_get_u8(data[IFLA_GRE_ERSPAN_VER]);
+ 
+@@ -1355,45 +1371,70 @@ bool is_gretap_dev(const struct net_devi
+ }
+ EXPORT_SYMBOL_GPL(is_gretap_dev);
+ 
+-static int ipgre_newlink(struct net *src_net, struct net_device *dev,
+-			 struct nlattr *tb[], struct nlattr *data[],
+-			 struct netlink_ext_ack *extack)
++static int
++ipgre_newlink_encap_setup(struct net_device *dev, struct nlattr *data[])
+ {
+-	struct ip_tunnel_parm p;
+ 	struct ip_tunnel_encap ipencap;
+-	__u32 fwmark = 0;
+-	int err;
+ 
+ 	if (ipgre_netlink_encap_parms(data, &ipencap)) {
+ 		struct ip_tunnel *t = netdev_priv(dev);
+-		err = ip_tunnel_encap_setup(t, &ipencap);
++		int err = ip_tunnel_encap_setup(t, &ipencap);
+ 
+ 		if (err < 0)
+ 			return err;
+ 	}
+ 
++	return 0;
++}
++
++static int ipgre_newlink(struct net *src_net, struct net_device *dev,
++			 struct nlattr *tb[], struct nlattr *data[],
++			 struct netlink_ext_ack *extack)
++{
++	struct ip_tunnel_parm p;
++	__u32 fwmark = 0;
++	int err;
++
++	err = ipgre_newlink_encap_setup(dev, data);
++	if (err)
++		return err;
++
+ 	err = ipgre_netlink_parms(dev, data, tb, &p, &fwmark);
+ 	if (err < 0)
+ 		return err;
+ 	return ip_tunnel_newlink(dev, tb, &p, fwmark);
+ }
+ 
++static int erspan_newlink(struct net *src_net, struct net_device *dev,
++			  struct nlattr *tb[], struct nlattr *data[],
++			  struct netlink_ext_ack *extack)
++{
++	struct ip_tunnel_parm p;
++	__u32 fwmark = 0;
++	int err;
++
++	err = ipgre_newlink_encap_setup(dev, data);
++	if (err)
++		return err;
++
++	err = erspan_netlink_parms(dev, data, tb, &p, &fwmark);
++	if (err)
++		return err;
++	return ip_tunnel_newlink(dev, tb, &p, fwmark);
++}
++
+ static int ipgre_changelink(struct net_device *dev, struct nlattr *tb[],
+ 			    struct nlattr *data[],
+ 			    struct netlink_ext_ack *extack)
+ {
+ 	struct ip_tunnel *t = netdev_priv(dev);
+-	struct ip_tunnel_encap ipencap;
+ 	__u32 fwmark = t->fwmark;
+ 	struct ip_tunnel_parm p;
+ 	int err;
+ 
+-	if (ipgre_netlink_encap_parms(data, &ipencap)) {
+-		err = ip_tunnel_encap_setup(t, &ipencap);
+-
+-		if (err < 0)
+-			return err;
+-	}
++	err = ipgre_newlink_encap_setup(dev, data);
++	if (err)
++		return err;
+ 
+ 	err = ipgre_netlink_parms(dev, data, tb, &p, &fwmark);
+ 	if (err < 0)
+@@ -1406,8 +1447,34 @@ static int ipgre_changelink(struct net_d
+ 	t->parms.i_flags = p.i_flags;
+ 	t->parms.o_flags = p.o_flags;
+ 
+-	if (strcmp(dev->rtnl_link_ops->kind, "erspan"))
+-		ipgre_link_update(dev, !tb[IFLA_MTU]);
++	ipgre_link_update(dev, !tb[IFLA_MTU]);
++
++	return 0;
++}
++
++static int erspan_changelink(struct net_device *dev, struct nlattr *tb[],
++			     struct nlattr *data[],
++			     struct netlink_ext_ack *extack)
++{
++	struct ip_tunnel *t = netdev_priv(dev);
++	__u32 fwmark = t->fwmark;
++	struct ip_tunnel_parm p;
++	int err;
++
++	err = ipgre_newlink_encap_setup(dev, data);
++	if (err)
++		return err;
++
++	err = erspan_netlink_parms(dev, data, tb, &p, &fwmark);
++	if (err < 0)
++		return err;
++
++	err = ip_tunnel_changelink(dev, tb, &p, fwmark);
++	if (err < 0)
++		return err;
++
++	t->parms.i_flags = p.i_flags;
++	t->parms.o_flags = p.o_flags;
+ 
+ 	return 0;
+ }
+@@ -1598,8 +1665,8 @@ static struct rtnl_link_ops erspan_link_
+ 	.priv_size	= sizeof(struct ip_tunnel),
+ 	.setup		= erspan_setup,
+ 	.validate	= erspan_validate,
+-	.newlink	= ipgre_newlink,
+-	.changelink	= ipgre_changelink,
++	.newlink	= erspan_newlink,
++	.changelink	= erspan_changelink,
+ 	.dellink	= ip_tunnel_dellink,
+ 	.get_size	= ipgre_get_size,
+ 	.fill_info	= ipgre_fill_info,
 
 
