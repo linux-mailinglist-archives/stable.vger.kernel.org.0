@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5920919B29D
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:45:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B84119B3A9
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389638AbgDAQpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:45:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46828 "EHLO mail.kernel.org"
+        id S2388574AbgDAQdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:33:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389853AbgDAQpg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:45:36 -0400
+        id S2388573AbgDAQdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:33:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F5C720719;
-        Wed,  1 Apr 2020 16:45:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD19520658;
+        Wed,  1 Apr 2020 16:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759535;
-        bh=IpskLDqHHZRm9edhwLu30IHxKAr24vBmtaA+c2F/oaA=;
+        s=default; t=1585758819;
+        bh=a3ZuDnxMQgCSScO4KDDz8FyS389uR0PmI/11HSciiD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5GEzTVlcRPUCaG7dcH4QeS0vjTsEIXR27Er+tg7L9+DlcZUb1q2XOiUsJR062rq3
-         b0a9ex/hMgE1R1XlCXL7FJPSYIhUXq7kVJX4Aljk9UtKCkf7Zza+rMAds4u1ip1LQo
-         8Mlp6Im8MQj6RsUYJgNH+3wF2gheba1z4PCWutHM=
+        b=XmLwIOKcqcTbC6m47Az+1fSc0vjjOjaA75qt0Vub7eOM+p5dEjrl5c1YkIop1edGS
+         leXcuQI9o7asl7iK9jt4+g4+w6PNqzTiInLCm9whLhJZb4hfJbm2DUrghH5uijJZKn
+         HyqGjbnnUhZ0S8qU/II0DmpU3TDgDMvZB/xbT67Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 109/148] netfilter: nft_fwd_netdev: validate family and chain type
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.4 85/91] vt: vt_ioctl: remove unnecessary console allocation checks
 Date:   Wed,  1 Apr 2020 18:18:21 +0200
-Message-Id: <20200401161603.061574431@linuxfoundation.org>
+Message-Id: <20200401161539.366293605@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 76a109fac206e158eb3c967af98c178cff738e6a upstream.
+commit 1aa6e058dd6cd04471b1f21298270014daf48ac9 upstream.
 
-Make sure the forward action is only used from ingress.
+The vc_cons_allocated() checks in vt_ioctl() and vt_compat_ioctl() are
+unnecessary because they can only be reached by calling ioctl() on an
+open tty, which implies the corresponding virtual console is allocated.
 
-Fixes: 39e6dea28adc ("netfilter: nf_tables: add forward expression to the netdev family")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+And even if the virtual console *could* be freed concurrently, then
+these checks would be broken since they aren't done under console_lock,
+and the vc_data is dereferenced before them anyway.
+
+So, remove these unneeded checks to avoid confusion.
+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20200224080326.295046-1-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_fwd_netdev.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/tty/vt/vt_ioctl.c |   21 ++-------------------
+ 1 file changed, 2 insertions(+), 19 deletions(-)
 
---- a/net/netfilter/nft_fwd_netdev.c
-+++ b/net/netfilter/nft_fwd_netdev.c
-@@ -62,6 +62,13 @@ nla_put_failure:
- 	return -1;
- }
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -353,22 +353,13 @@ int vt_ioctl(struct tty_struct *tty,
+ {
+ 	struct vc_data *vc = tty->driver_data;
+ 	struct console_font_op op;	/* used in multiple places here */
+-	unsigned int console;
++	unsigned int console = vc->vc_num;
+ 	unsigned char ucval;
+ 	unsigned int uival;
+ 	void __user *up = (void __user *)arg;
+ 	int i, perm;
+ 	int ret = 0;
  
-+static int nft_fwd_validate(const struct nft_ctx *ctx,
-+			    const struct nft_expr *expr,
-+			    const struct nft_data **data)
-+{
-+	return nft_chain_validate_hooks(ctx->chain, (1 << NF_NETDEV_INGRESS));
-+}
+-	console = vc->vc_num;
+-
+-
+-	if (!vc_cons_allocated(console)) { 	/* impossible? */
+-		ret = -ENOIOCTLCMD;
+-		goto out;
+-	}
+-
+-
+ 	/*
+ 	 * To have permissions to do most of the vt ioctls, we either have
+ 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+@@ -1208,18 +1199,10 @@ long vt_compat_ioctl(struct tty_struct *
+ {
+ 	struct vc_data *vc = tty->driver_data;
+ 	struct console_font_op op;	/* used in multiple places here */
+-	unsigned int console;
+ 	void __user *up = (void __user *)arg;
+ 	int perm;
+ 	int ret = 0;
+ 
+-	console = vc->vc_num;
+-
+-	if (!vc_cons_allocated(console)) { 	/* impossible? */
+-		ret = -ENOIOCTLCMD;
+-		goto out;
+-	}
+-
+ 	/*
+ 	 * To have permissions to do most of the vt ioctls, we either have
+ 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+@@ -1279,7 +1262,7 @@ long vt_compat_ioctl(struct tty_struct *
+ 		arg = (unsigned long)compat_ptr(arg);
+ 		goto fallback;
+ 	}
+-out:
 +
- static struct nft_expr_type nft_fwd_netdev_type;
- static const struct nft_expr_ops nft_fwd_netdev_ops = {
- 	.type		= &nft_fwd_netdev_type,
-@@ -69,6 +76,7 @@ static const struct nft_expr_ops nft_fwd
- 	.eval		= nft_fwd_netdev_eval,
- 	.init		= nft_fwd_netdev_init,
- 	.dump		= nft_fwd_netdev_dump,
-+	.validate	= nft_fwd_validate,
- };
+ 	return ret;
  
- static struct nft_expr_type nft_fwd_netdev_type __read_mostly = {
+ fallback:
 
 
