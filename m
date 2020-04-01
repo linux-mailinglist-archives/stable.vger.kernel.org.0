@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A4119B2F1
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 766D519B1E9
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389481AbgDAQrx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:47:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49722 "EHLO mail.kernel.org"
+        id S2388287AbgDAQjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:39:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390092AbgDAQrt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:47:49 -0400
+        id S2388964AbgDAQjQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:39:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81835206E9;
-        Wed,  1 Apr 2020 16:47:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F05820658;
+        Wed,  1 Apr 2020 16:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759669;
-        bh=hWOZrHvnYSAf5XeSIOQqTauluJyu1ePX9xjyJ1biX1c=;
+        s=default; t=1585759155;
+        bh=a+jLHopsBjMxVre/ncOSnv38JEf7TJM4qEJ2WI7ZDDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pL+ObCtxEWnuo4pWpm0fBzIbpDUV1lUnnN4zrdg0Tn8KinxJDWRKkWaJb38FOip7u
-         qzGwv7kR5n8DcwwbbJlxOz4HuRqMRwSVEveNVzQcw4KqrfioG+htQPRiCgavInUKVU
-         Fa8OrL5dbagv1ZvoqYBgf+81pTxnLboR4lfyx29Y=
+        b=VaiQmQrip2C3Nc7XFP2eBu/iZXh83LKsGj9P3kgTreUckgArmvmrynobcyCYP36/u
+         5KS5oQDRUYw1hc03u1xNZSzwObmGemlFE/cSF5hEaPU2AED7GbqmGigiv0HhqpjImL
+         3HC+6UKtUD2oraUsvoWFnnT76XZf9kr3QHixd+Yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+fcab69d1ada3e8d6f06b@syzkaller.appspotmail.com,
-        Alexander Potapenko <glider@google.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.14 125/148] libfs: fix infoleak in simple_attr_read()
-Date:   Wed,  1 Apr 2020 18:18:37 +0200
-Message-Id: <20200401161604.401620995@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.9 095/102] vt: vt_ioctl: remove unnecessary console allocation checks
+Date:   Wed,  1 Apr 2020 18:18:38 +0200
+Message-Id: <20200401161548.023659142@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,77 +44,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit a65cab7d7f05c2061a3e2490257d3086ff3202c6 upstream.
+commit 1aa6e058dd6cd04471b1f21298270014daf48ac9 upstream.
 
-Reading from a debugfs file at a nonzero position, without first reading
-at position 0, leaks uninitialized memory to userspace.
+The vc_cons_allocated() checks in vt_ioctl() and vt_compat_ioctl() are
+unnecessary because they can only be reached by calling ioctl() on an
+open tty, which implies the corresponding virtual console is allocated.
 
-It's a bit tricky to do this, since lseek() and pread() aren't allowed
-on these files, and write() doesn't update the position on them.  But
-writing to them with splice() *does* update the position:
+And even if the virtual console *could* be freed concurrently, then
+these checks would be broken since they aren't done under console_lock,
+and the vc_data is dereferenced before them anyway.
 
-	#define _GNU_SOURCE 1
-	#include <fcntl.h>
-	#include <stdio.h>
-	#include <unistd.h>
-	int main()
-	{
-		int pipes[2], fd, n, i;
-		char buf[32];
+So, remove these unneeded checks to avoid confusion.
 
-		pipe(pipes);
-		write(pipes[1], "0", 1);
-		fd = open("/sys/kernel/debug/fault_around_bytes", O_RDWR);
-		splice(pipes[0], NULL, fd, NULL, 1, 0);
-		n = read(fd, buf, sizeof(buf));
-		for (i = 0; i < n; i++)
-			printf("%02x", buf[i]);
-		printf("\n");
-	}
-
-Output:
-	5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a30
-
-Fix the infoleak by making simple_attr_read() always fill
-simple_attr::get_buf if it hasn't been filled yet.
-
-Reported-by: syzbot+fcab69d1ada3e8d6f06b@syzkaller.appspotmail.com
-Reported-by: Alexander Potapenko <glider@google.com>
-Fixes: acaefc25d21f ("[PATCH] libfs: add simple attribute files")
-Cc: stable@vger.kernel.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200308023849.988264-1-ebiggers@kernel.org
+Link: https://lore.kernel.org/r/20200224080326.295046-1-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/libfs.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/tty/vt/vt_ioctl.c |   21 ++-------------------
+ 1 file changed, 2 insertions(+), 19 deletions(-)
 
---- a/fs/libfs.c
-+++ b/fs/libfs.c
-@@ -802,7 +802,7 @@ int simple_attr_open(struct inode *inode
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -353,22 +353,13 @@ int vt_ioctl(struct tty_struct *tty,
  {
- 	struct simple_attr *attr;
+ 	struct vc_data *vc = tty->driver_data;
+ 	struct console_font_op op;	/* used in multiple places here */
+-	unsigned int console;
++	unsigned int console = vc->vc_num;
+ 	unsigned char ucval;
+ 	unsigned int uival;
+ 	void __user *up = (void __user *)arg;
+ 	int i, perm;
+ 	int ret = 0;
  
--	attr = kmalloc(sizeof(*attr), GFP_KERNEL);
-+	attr = kzalloc(sizeof(*attr), GFP_KERNEL);
- 	if (!attr)
- 		return -ENOMEM;
+-	console = vc->vc_num;
+-
+-
+-	if (!vc_cons_allocated(console)) { 	/* impossible? */
+-		ret = -ENOIOCTLCMD;
+-		goto out;
+-	}
+-
+-
+ 	/*
+ 	 * To have permissions to do most of the vt ioctls, we either have
+ 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+@@ -1202,18 +1193,10 @@ long vt_compat_ioctl(struct tty_struct *
+ {
+ 	struct vc_data *vc = tty->driver_data;
+ 	struct console_font_op op;	/* used in multiple places here */
+-	unsigned int console;
+ 	void __user *up = (void __user *)arg;
+ 	int perm;
+ 	int ret = 0;
  
-@@ -842,9 +842,11 @@ ssize_t simple_attr_read(struct file *fi
- 	if (ret)
- 		return ret;
+-	console = vc->vc_num;
+-
+-	if (!vc_cons_allocated(console)) { 	/* impossible? */
+-		ret = -ENOIOCTLCMD;
+-		goto out;
+-	}
+-
+ 	/*
+ 	 * To have permissions to do most of the vt ioctls, we either have
+ 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+@@ -1273,7 +1256,7 @@ long vt_compat_ioctl(struct tty_struct *
+ 		arg = (unsigned long)compat_ptr(arg);
+ 		goto fallback;
+ 	}
+-out:
++
+ 	return ret;
  
--	if (*ppos) {		/* continued read */
-+	if (*ppos && attr->get_buf[0]) {
-+		/* continued read */
- 		size = strlen(attr->get_buf);
--	} else {		/* first read */
-+	} else {
-+		/* first read */
- 		u64 val;
- 		ret = attr->get(attr->data, &val);
- 		if (ret)
+ fallback:
 
 
