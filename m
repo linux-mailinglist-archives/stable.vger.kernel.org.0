@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CDE19B34A
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D628F19B3A6
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389102AbgDAQij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:38:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38348 "EHLO mail.kernel.org"
+        id S2388383AbgDAQdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:33:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387520AbgDAQif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:38:35 -0400
+        id S2388583AbgDAQdn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:33:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66A0020658;
-        Wed,  1 Apr 2020 16:38:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66E5A212CC;
+        Wed,  1 Apr 2020 16:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759114;
-        bh=Jb477QnmVOumNiQUhTwmrb7ruwSZE2FwDmZGJD3j1d4=;
+        s=default; t=1585758821;
+        bh=J8Gzh9tpJn04sjEbpPoC6fxUncPAlPvJmJYcD523F9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+7ktAI8vaDdio9psPxFwv5oEEfvAQwnXDYCr8muZk6RHdlWmHwzC1QRW2bMdPpW7
-         SWLTKi94+OzBhMehpXHdBtfocfHZ5Kmx9hK60sywxnXxvSbimq+Og28S/7lKFwqQBJ
-         kHX2+dT/n0ZJa0oyk8qzr8RAf7nxN37b/FayKCNQ=
+        b=aFECOa2yYw+6+JUKT8nRfmoVdgo65/6yotuEqYAvI6wfEOneRAptCzhF5aPRZrtfH
+         dClwybyfG0MiB69RKK6NuFt6am6o5U2+/Jd7LjrAkUIgWGOHWKAhGhG4Tvja+dDHRu
+         hP/vOMjARj41Yu9K5Ya5levX0iIFf658lVl2kEas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
-        Bin Liu <b-liu@ti.com>
-Subject: [PATCH 4.9 079/102] usb: musb: fix crash with highmen PIO and usbmon
+        stable@vger.kernel.org,
+        syzbot+522643ab5729b0421998@syzkaller.appspotmail.com,
+        Jiri Slaby <jslaby@suse.cz>, Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.4 86/91] vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use virtual console
 Date:   Wed,  1 Apr 2020 18:18:22 +0200
-Message-Id: <20200401161545.845950601@linuxfoundation.org>
+Message-Id: <20200401161539.531588688@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +44,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mans Rullgard <mans@mansr.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 52974d94a206ce428d9d9b6eaa208238024be82a upstream.
+commit ca4463bf8438b403596edd0ec961ca0d4fbe0220 upstream.
 
-When handling a PIO bulk transfer with highmem buffer, a temporary
-mapping is assigned to urb->transfer_buffer.  After the transfer is
-complete, an invalid address is left behind in this pointer.  This is
-not ordinarily a problem since nothing touches that buffer before the
-urb is released.  However, when usbmon is active, usbmon_urb_complete()
-calls (indirectly) mon_bin_get_data() which does access the transfer
-buffer if it is set.  To prevent an invalid memory access here, reset
-urb->transfer_buffer to NULL when finished (musb_host_rx()), or do not
-set it at all (musb_host_tx()).
+The VT_DISALLOCATE ioctl can free a virtual console while tty_release()
+is still running, causing a use-after-free in con_shutdown().  This
+occurs because VT_DISALLOCATE considers a virtual console's
+'struct vc_data' to be unused as soon as the corresponding tty's
+refcount hits 0.  But actually it may be still being closed.
 
-Fixes: 8e8a55165469 ("usb: musb: host: Handle highmem in PIO mode")
-Signed-off-by: Mans Rullgard <mans@mansr.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20200316211136.2274-8-b-liu@ti.com
+Fix this by making vc_data be reference-counted via the embedded
+'struct tty_port'.  A newly allocated virtual console has refcount 1.
+Opening it for the first time increments the refcount to 2.  Closing it
+for the last time decrements the refcount (in tty_operations::cleanup()
+so that it happens late enough), as does VT_DISALLOCATE.
+
+Reproducer:
+	#include <fcntl.h>
+	#include <linux/vt.h>
+	#include <sys/ioctl.h>
+	#include <unistd.h>
+
+	int main()
+	{
+		if (fork()) {
+			for (;;)
+				close(open("/dev/tty5", O_RDWR));
+		} else {
+			int fd = open("/dev/tty10", O_RDWR);
+
+			for (;;)
+				ioctl(fd, VT_DISALLOCATE, 5);
+		}
+	}
+
+KASAN report:
+	BUG: KASAN: use-after-free in con_shutdown+0x76/0x80 drivers/tty/vt/vt.c:3278
+	Write of size 8 at addr ffff88806a4ec108 by task syz_vt/129
+
+	CPU: 0 PID: 129 Comm: syz_vt Not tainted 5.6.0-rc2 #11
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20191223_100556-anatol 04/01/2014
+	Call Trace:
+	 [...]
+	 con_shutdown+0x76/0x80 drivers/tty/vt/vt.c:3278
+	 release_tty+0xa8/0x410 drivers/tty/tty_io.c:1514
+	 tty_release_struct+0x34/0x50 drivers/tty/tty_io.c:1629
+	 tty_release+0x984/0xed0 drivers/tty/tty_io.c:1789
+	 [...]
+
+	Allocated by task 129:
+	 [...]
+	 kzalloc include/linux/slab.h:669 [inline]
+	 vc_allocate drivers/tty/vt/vt.c:1085 [inline]
+	 vc_allocate+0x1ac/0x680 drivers/tty/vt/vt.c:1066
+	 con_install+0x4d/0x3f0 drivers/tty/vt/vt.c:3229
+	 tty_driver_install_tty drivers/tty/tty_io.c:1228 [inline]
+	 tty_init_dev+0x94/0x350 drivers/tty/tty_io.c:1341
+	 tty_open_by_driver drivers/tty/tty_io.c:1987 [inline]
+	 tty_open+0x3ca/0xb30 drivers/tty/tty_io.c:2035
+	 [...]
+
+	Freed by task 130:
+	 [...]
+	 kfree+0xbf/0x1e0 mm/slab.c:3757
+	 vt_disallocate drivers/tty/vt/vt_ioctl.c:300 [inline]
+	 vt_ioctl+0x16dc/0x1e30 drivers/tty/vt/vt_ioctl.c:818
+	 tty_ioctl+0x9db/0x11b0 drivers/tty/tty_io.c:2660
+	 [...]
+
+Fixes: 4001d7b7fc27 ("vt: push down the tty lock so we can see what is left to tackle")
+Cc: <stable@vger.kernel.org> # v3.4+
+Reported-by: syzbot+522643ab5729b0421998@syzkaller.appspotmail.com
+Acked-by: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20200322034305.210082-2-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/musb/musb_host.c |   17 +++++------------
- 1 file changed, 5 insertions(+), 12 deletions(-)
+ drivers/tty/vt/vt.c       |   23 ++++++++++++++++++++++-
+ drivers/tty/vt/vt_ioctl.c |   12 ++++--------
+ 2 files changed, 26 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/musb/musb_host.c
-+++ b/drivers/usb/musb/musb_host.c
-@@ -1494,10 +1494,7 @@ done:
- 	 * We need to map sg if the transfer_buffer is
- 	 * NULL.
- 	 */
--	if (!urb->transfer_buffer)
--		qh->use_sg = true;
--
--	if (qh->use_sg) {
-+	if (!urb->transfer_buffer) {
- 		/* sg_miter_start is already done in musb_ep_program */
- 		if (!sg_miter_next(&qh->sg_miter)) {
- 			dev_err(musb->controller, "error: sg list empty\n");
-@@ -1505,9 +1502,8 @@ done:
- 			status = -EINVAL;
- 			goto done;
- 		}
--		urb->transfer_buffer = qh->sg_miter.addr;
- 		length = min_t(u32, length, qh->sg_miter.length);
--		musb_write_fifo(hw_ep, length, urb->transfer_buffer);
-+		musb_write_fifo(hw_ep, length, qh->sg_miter.addr);
- 		qh->sg_miter.consumed = length;
- 		sg_miter_stop(&qh->sg_miter);
- 	} else {
-@@ -1516,11 +1512,6 @@ done:
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -760,6 +760,17 @@ static void visual_init(struct vc_data *
+ 	vc->vc_screenbuf_size = vc->vc_rows * vc->vc_size_row;
+ }
  
- 	qh->segsize = length;
++static void vc_port_destruct(struct tty_port *port)
++{
++	struct vc_data *vc = container_of(port, struct vc_data, port);
++
++	kfree(vc);
++}
++
++static const struct tty_port_operations vc_port_ops = {
++	.destruct = vc_port_destruct,
++};
++
+ int vc_allocate(unsigned int currcons)	/* return 0 on success */
+ {
+ 	WARN_CONSOLE_UNLOCKED();
+@@ -785,6 +796,7 @@ int vc_allocate(unsigned int currcons)	/
+ 		return -ENOMEM;
+ 	    vc_cons[currcons].d = vc;
+ 	    tty_port_init(&vc->port);
++	    vc->port.ops = &vc_port_ops;
+ 	    INIT_WORK(&vc_cons[currcons].SAK_work, vc_SAK);
+ 	    visual_init(vc, currcons, 1);
+ 	    if (!*vc->vc_uni_pagedir_loc)
+@@ -2894,6 +2906,7 @@ static int con_install(struct tty_driver
  
--	if (qh->use_sg) {
--		if (offset + length >= urb->transfer_buffer_length)
--			qh->use_sg = false;
+ 	tty->driver_data = vc;
+ 	vc->port.tty = tty;
++	tty_port_get(&vc->port);
+ 
+ 	if (!tty->winsize.ws_row && !tty->winsize.ws_col) {
+ 		tty->winsize.ws_row = vc_cons[currcons].d->vc_rows;
+@@ -2929,6 +2942,13 @@ static void con_shutdown(struct tty_stru
+ 	console_unlock();
+ }
+ 
++static void con_cleanup(struct tty_struct *tty)
++{
++	struct vc_data *vc = tty->driver_data;
++
++	tty_port_put(&vc->port);
++}
++
+ static int default_color           = 7; /* white */
+ static int default_italic_color    = 2; // green (ASCII)
+ static int default_underline_color = 3; // cyan (ASCII)
+@@ -3053,7 +3073,8 @@ static const struct tty_operations con_o
+ 	.throttle = con_throttle,
+ 	.unthrottle = con_unthrottle,
+ 	.resize = vt_resize,
+-	.shutdown = con_shutdown
++	.shutdown = con_shutdown,
++	.cleanup = con_cleanup,
+ };
+ 
+ static struct cdev vc0_cdev;
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -313,10 +313,8 @@ static int vt_disallocate(unsigned int v
+ 		vc = vc_deallocate(vc_num);
+ 	console_unlock();
+ 
+-	if (vc && vc_num >= MIN_NR_CONSOLES) {
+-		tty_port_destroy(&vc->port);
+-		kfree(vc);
 -	}
--
- 	musb_ep_select(mbase, epnum);
- 	musb_writew(epio, MUSB_TXCSR,
- 			MUSB_TXCSR_H_WZC_BITS | MUSB_TXCSR_TXPKTRDY);
-@@ -2040,8 +2031,10 @@ finish:
- 	urb->actual_length += xfer_len;
- 	qh->offset += xfer_len;
- 	if (done) {
--		if (qh->use_sg)
-+		if (qh->use_sg) {
- 			qh->use_sg = false;
-+			urb->transfer_buffer = NULL;
-+		}
++	if (vc && vc_num >= MIN_NR_CONSOLES)
++		tty_port_put(&vc->port);
  
- 		if (urb->status == -EINPROGRESS)
- 			urb->status = status;
+ 	return ret;
+ }
+@@ -336,10 +334,8 @@ static void vt_disallocate_all(void)
+ 	console_unlock();
+ 
+ 	for (i = 1; i < MAX_NR_CONSOLES; i++) {
+-		if (vc[i] && i >= MIN_NR_CONSOLES) {
+-			tty_port_destroy(&vc[i]->port);
+-			kfree(vc[i]);
+-		}
++		if (vc[i] && i >= MIN_NR_CONSOLES)
++			tty_port_put(&vc[i]->port);
+ 	}
+ }
+ 
 
 
