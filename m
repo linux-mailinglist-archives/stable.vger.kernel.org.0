@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CBBC19B064
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169F919B3EA
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:55:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387646AbgDAQ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:26:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51026 "EHLO mail.kernel.org"
+        id S2387473AbgDAQ0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:26:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387903AbgDAQ0e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:26:34 -0400
+        id S2387893AbgDAQ0f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:26:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8CCF20857;
-        Wed,  1 Apr 2020 16:26:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED23F20857;
+        Wed,  1 Apr 2020 16:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758392;
-        bh=vHUjieBU5aslM55rEOP09v3yMqm7chbEbPX1sJ1IF44=;
+        s=default; t=1585758395;
+        bh=VG0NiHdi3TlnW4vQx2Fos3Trvv1k3/p0YMmSv0f118o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VsZj9Z/F21bKtkTMxDBv1EMCrUO8L5yoVeH1U1BsTupOYV1BOyn5mL6LkPLquVazz
-         vQ1ohn7HQvtOLU7Dn3+apy3/hrub0MYSx82HKsDymXLxzkOYFfyrzq292SuD91HKqp
-         dUQxskrM16iPWymSvZuNAcQU4BFL+ZDmENatKrRc=
+        b=mBY4ImPNiVrNRSKuGwt0WAf3jKpfplI6fuDrdMlLReJf8RGXD0G80j0QtUehQv6yh
+         f2ZnJY/RnGhlQ3p7zcHbAUiVN4yvvN/3o7zPcn6V+S/lK5sWHkur8BpFWeR/g7vQdR
+         WXDEJfFWg4wR82J3koRhW6BVZdqWgvazRlygmp/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Torsten Hilbrich <torsten.hilbrich@secunet.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.19 075/116] vti6: Fix memory leak of skb if input policy check fails
-Date:   Wed,  1 Apr 2020 18:17:31 +0200
-Message-Id: <20200401161552.388956738@linuxfoundation.org>
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 076/116] Revert "r8169: check that Realtek PHY driver module is loaded"
+Date:   Wed,  1 Apr 2020 18:17:32 +0200
+Message-Id: <20200401161552.481298942@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
 References: <20200401161542.669484650@linuxfoundation.org>
@@ -45,39 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Torsten Hilbrich <torsten.hilbrich@secunet.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 2a9de3af21aa8c31cd68b0b39330d69f8c1e59df upstream.
+This reverts commit 85a19b0e31e256e77fd4124804b9cec10619de5e which is
+commit f325937735498afb054a0195291bbf68d0b60be5 upstream.
 
-The vti6_rcv function performs some tests on the retrieved tunnel
-including checking the IP protocol, the XFRM input policy, the
-source and destination address.
+Heiner writes:
+	commit 85a19b0e31e2 ("r8169: check that Realtek PHY driver
+	module is loaded") made it accidentally to 4.19 and causes an
+	issue with Android/x86.  Could you please revert it?
 
-In all but one places the skb is released in the error case. When
-the input policy check fails the network packet is leaked.
-
-Using the same goto-label discard in this case to fix this problem.
-
-Fixes: ed1efb2aefbb ("ipv6: Add support for IPsec virtual tunnel interfaces")
-Signed-off-by: Torsten Hilbrich <torsten.hilbrich@secunet.com>
-Reviewed-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/ipv6/ip6_vti.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -315,7 +315,7 @@ static int vti6_rcv(struct sk_buff *skb)
+--- a/drivers/net/ethernet/realtek/r8169.c
++++ b/drivers/net/ethernet/realtek/r8169.c
+@@ -7433,15 +7433,6 @@ static int rtl_init_one(struct pci_dev *
+ 	int chipset, region, i;
+ 	int jumbo_max, rc;
  
- 		if (!xfrm6_policy_check(NULL, XFRM_POLICY_IN, skb)) {
- 			rcu_read_unlock();
--			return 0;
-+			goto discard;
- 		}
- 
- 		ipv6h = ipv6_hdr(skb);
+-	/* Some tools for creating an initramfs don't consider softdeps, then
+-	 * r8169.ko may be in initramfs, but realtek.ko not. Then the generic
+-	 * PHY driver is used that doesn't work with most chip versions.
+-	 */
+-	if (!driver_find("RTL8201CP Ethernet", &mdio_bus_type)) {
+-		dev_err(&pdev->dev, "realtek.ko not loaded, maybe it needs to be added to initramfs?\n");
+-		return -ENOENT;
+-	}
+-
+ 	dev = devm_alloc_etherdev(&pdev->dev, sizeof (*tp));
+ 	if (!dev)
+ 		return -ENOMEM;
 
 
