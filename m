@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25B5719B43E
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0160E19B0F1
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733085AbgDAQUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:20:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43294 "EHLO mail.kernel.org"
+        id S1732460AbgDAQah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733049AbgDAQUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:20:36 -0400
+        id S2387517AbgDAQag (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:30:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34291212CC;
-        Wed,  1 Apr 2020 16:20:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51DDB21D79;
+        Wed,  1 Apr 2020 16:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758035;
-        bh=rOLcQFBcOaYW09lFzHjPK8KG4rOMjc8FZ5JxI0RTGlI=;
+        s=default; t=1585758634;
+        bh=kkiZxSWSvTmep1CrIhlSNygi64GZbcmWRh4jqTD3b3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGVYxPgNqaGQZKlPa7qPGFOM4ddFKAeQ6199s9606yGgVBc3q/VBo17B0M2eeR3yS
-         VGLXuqCqkkE2bvNb4cOR7jAECkgXaVZuiXcQ/ZweYSwt9mxM13ordh4diaSPz4DcWx
-         N/mwwf3PyUI8plTsAfkkG/FHGpPANsnDsVfWxFZA=
+        b=ecvlQEl3nJvuKJ6CNJyizKmRyWSl5uuePBHjBMG29iSvvO4taIrDh0nb5wqNpOnhH
+         c9z0cNlOihTSFSUZvpM4fvMtZvuG7Y6fqRzVApMS42dhbRSZvx9UwABdx9IAX1tK31
+         AUsNbc1DlTN2c9vBT0zYvGqWVoPTHls9cyzUQS2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        disconnect3d <dominik.b.czarnota@gmail.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Changbin Du <changbin.du@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>, John Keeping <john@metanate.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Lentine <mlentine@google.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.5 22/30] perf map: Fix off by one in strncpy() size argument
+        stable@vger.kernel.org, Rong Chen <rong.a.chen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 30/91] futex: Unbreak futex hashing
 Date:   Wed,  1 Apr 2020 18:17:26 +0200
-Message-Id: <20200401161431.754502853@linuxfoundation.org>
+Message-Id: <20200401161523.559502813@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
-References: <20200401161414.345528747@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: disconnect3d <dominik.b.czarnota@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit db2c549407d4a76563c579e4768f7d6d32afefba upstream.
+commit 8d67743653dce5a0e7aa500fcccb237cde7ad88e upstream.
 
-This patch fixes an off-by-one error in strncpy size argument in
-tools/perf/util/map.c. The issue is that in:
+The recent futex inode life time fix changed the ordering of the futex key
+union struct members, but forgot to adjust the hash function accordingly,
 
-        strncmp(filename, "/system/lib/", 11)
+As a result the hashing omits the leading 64bit and even hashes beyond the
+futex key causing a bad hash distribution which led to a ~100% performance
+regression.
 
-the passed string literal: "/system/lib/" has 12 bytes (without the NULL
-byte) and the passed size argument is 11. As a result, the logic won't
-match the ending "/" byte and will pass filepaths that are stored in
-other directories e.g. "/system/libmalicious/bin" or just
-"/system/libmalicious".
+Hand in the futex key pointer instead of a random struct member and make
+the size calculation based of the struct offset.
 
-This functionality seems to be present only on Android. I assume the
-/system/ directory is only writable by the root user, so I don't think
-this bug has much (or any) security impact.
-
-Fixes: eca818369996 ("perf tools: Add automatic remapping of Android libraries")
-Signed-off-by: disconnect3d <dominik.b.czarnota@gmail.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Changbin Du <changbin.du@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: John Keeping <john@metanate.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Lentine <mlentine@google.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20200309104855.3775-1-dominik.b.czarnota@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 8019ad13ef7f ("futex: Fix inode life-time issue")
+Reported-by: Rong Chen <rong.a.chen@intel.com>
+Decoded-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Rong Chen <rong.a.chen@intel.com>
+Link: https://lkml.kernel.org/r/87h7yy90ve.fsf@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/map.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/futex.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/perf/util/map.c
-+++ b/tools/perf/util/map.c
-@@ -89,7 +89,7 @@ static inline bool replace_android_lib(c
- 		return true;
- 	}
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -378,9 +378,9 @@ static inline int hb_waiters_pending(str
+  */
+ static struct futex_hash_bucket *hash_futex(union futex_key *key)
+ {
+-	u32 hash = jhash2((u32*)&key->both.word,
+-			  (sizeof(key->both.word)+sizeof(key->both.ptr))/4,
++	u32 hash = jhash2((u32 *)key, offsetof(typeof(*key), both.offset) / 4,
+ 			  key->both.offset);
++
+ 	return &futex_queues[hash & (futex_hashsize - 1)];
+ }
  
--	if (!strncmp(filename, "/system/lib/", 11)) {
-+	if (!strncmp(filename, "/system/lib/", 12)) {
- 		char *ndk, *app;
- 		const char *arch;
- 		size_t ndk_length;
 
 
