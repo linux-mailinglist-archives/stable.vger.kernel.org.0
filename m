@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B38AA19B0CA
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:30:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F02619AFB5
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:20:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387545AbgDAQ33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:29:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55036 "EHLO mail.kernel.org"
+        id S1732960AbgDAQU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:20:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387963AbgDAQ32 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:29:28 -0400
+        id S1732943AbgDAQU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:20:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFAD52063A;
-        Wed,  1 Apr 2020 16:29:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C653120658;
+        Wed,  1 Apr 2020 16:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758568;
-        bh=oGFDckR2TBmji8ob8AwdRWoVL7cZrdBE6BwdymPeHfc=;
+        s=default; t=1585758026;
+        bh=d6VKuddZD86LFfUIk9GqNfHzWMUmnWM9/G4hQecQH5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pPX8nw1S1fJJ3z4D7LvZLly+UjF1KSQ6aKjMQgPqsrl8193bIyTr/d5l4yCi+Hr7q
-         1g075is0N7B3WA4UP14UBnXdVw+FrFsMb37OcTxPixk2KexWjl56D7lJLrfGL2Hujs
-         Jd2NaQ1L4bPLp4MG3IDfBK4ZPggzEuSYBzR41MU8=
+        b=btHH2dDdnZ+faT1W2865E94WCOM/7g1nt8pf2HfF4R/OsfQPdqoqSZVqYbDktojT8
+         0K0PZCBZItx/0cjwme7gqeDLnrOuSz7zyRXotes709lkrRAx+C1EEe7U65D9vhTE+/
+         Eft3O0NzaNuS5U2wl/+1woCg2RafItaA7L/A+OP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 10/91] USB: serial: option: add ME910G1 ECM composition 0x110b
+        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.5 02/30] mac80211: Check port authorization in the ieee80211_tx_dequeue() case
 Date:   Wed,  1 Apr 2020 18:17:06 +0200
-Message-Id: <20200401161516.805635623@linuxfoundation.org>
+Message-Id: <20200401161416.929794261@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
+References: <20200401161414.345528747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Jouni Malinen <jouni@codeaurora.org>
 
-commit 8e852a7953be2a6ee371449f7257fe15ace6a1fc upstream.
+commit ce2e1ca703071723ca2dd94d492a5ab6d15050da upstream.
 
-Add ME910G1 ECM composition 0x110b: tty, tty, tty, ecm
+mac80211 used to check port authorization in the Data frame enqueue case
+when going through start_xmit(). However, that authorization status may
+change while the frame is waiting in a queue. Add a similar check in the
+dequeue case to avoid sending previously accepted frames after
+authorization change. This provides additional protection against
+potential leaking of frames after a station has been disconnected and
+the keys for it are being removed.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20200304104310.2938-1-dnlplm@gmail.com
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Link: https://lore.kernel.org/r/20200326155133.ced84317ea29.I34d4c47cd8cc8a4042b38a76f16a601fbcbfd9b3@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/mac80211/tx.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1172,6 +1172,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110a, 0xff),	/* Telit ME910G1 */
- 	  .driver_info = NCTRL(0) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110b, 0xff),	/* Telit ME910G1 (ECM) */
-+	  .driver_info = NCTRL(0) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -3604,8 +3604,25 @@ begin:
+ 	tx.skb = skb;
+ 	tx.sdata = vif_to_sdata(info->control.vif);
+ 
+-	if (txq->sta)
++	if (txq->sta) {
+ 		tx.sta = container_of(txq->sta, struct sta_info, sta);
++		/*
++		 * Drop unicast frames to unauthorised stations unless they are
++		 * EAPOL frames from the local station.
++		 */
++		if (unlikely(!ieee80211_vif_is_mesh(&tx.sdata->vif) &&
++			     tx.sdata->vif.type != NL80211_IFTYPE_OCB &&
++			     !is_multicast_ether_addr(hdr->addr1) &&
++			     !test_sta_flag(tx.sta, WLAN_STA_AUTHORIZED) &&
++			     (!(info->control.flags &
++				IEEE80211_TX_CTRL_PORT_CTRL_PROTO) ||
++			      !ether_addr_equal(tx.sdata->vif.addr,
++						hdr->addr2)))) {
++			I802_DEBUG_INC(local->tx_handlers_drop_unauth_port);
++			ieee80211_free_txskb(&local->hw, skb);
++			goto begin;
++		}
++	}
+ 
+ 	/*
+ 	 * The key can be removed while the packet was queued, so need to call
 
 
