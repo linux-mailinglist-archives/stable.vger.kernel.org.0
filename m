@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 506B819B1CA
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:38:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A3719B3AD
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389064AbgDAQiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:38:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37652 "EHLO mail.kernel.org"
+        id S2388344AbgDAQdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:33:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388751AbgDAQiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:38:06 -0400
+        id S2387529AbgDAQdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:33:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A764E20772;
-        Wed,  1 Apr 2020 16:38:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33855212CC;
+        Wed,  1 Apr 2020 16:33:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759086;
-        bh=SLuziyPDhy/Krr1/3ovv/97FsHO/PgRPxTZKFAYm9Mc=;
+        s=default; t=1585758799;
+        bh=/js1TKxHe2wJwHHX+YVGC8Z7Th8Aiw40ATA7XA+ZAfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLvPAOa9gQHMD/POCaeggS9ebTkPdlMHz58EjSBfgJoPcHzF4IoJ8urjMLbCTPaBa
-         jKM5NFeBTr6H4R8OnfAoGu4Lo8DHk9i9Bxu+OovXovzyZcBMuQ9GqjZ7TiL0w0/9kp
-         ZdKrAYlUfmB7imfISiHHiA1qRiMXRZEVTrspuqFA=
+        b=fGeIQVYUlBGf6ucX9yPn3RwGbk4pxdSCjgq+12oTeQ3LynYlxSwHiuEtR3AaTruLS
+         b6cGO9CaWrzi1/7y6RkEX5CkjaadvaukDeR42SsSc7GHuY4NVpsidzQdOxKjjqB9lH
+         V02YL6FVWx+ziijPM15SUQzqx5+OPKAMT1QIweGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 072/102] Input: raydium_i2c_ts - fix error codes in raydium_i2c_boot_trigger()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.4 79/91] media: dib0700: fix rc endpoint lookup
 Date:   Wed,  1 Apr 2020 18:18:15 +0200
-Message-Id: <20200401161544.760720853@linuxfoundation.org>
+Message-Id: <20200401161538.466318120@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 32cf3a610c35cb21e3157f4bbf29d89960e30a36 ]
+commit f52981019ad8d6718de79b425a574c6bddf81f7c upstream.
 
-These functions are supposed to return negative error codes but instead
-it returns true on failure and false on success.  The error codes are
-eventually propagated back to user space.
+Make sure to use the current alternate setting when verifying the
+interface descriptors to avoid submitting an URB to an invalid endpoint.
 
-Fixes: 48a2b783483b ("Input: add Raydium I2C touchscreen driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200303101306.4potflz7na2nn3od@kili.mountain
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+
+Fixes: c4018fa2e4c0 ("[media] dib0700: fix RC support on Hauppauge Nova-TD")
+Cc: stable <stable@vger.kernel.org>     # 3.16
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/input/touchscreen/raydium_i2c_ts.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/usb/dvb-usb/dib0700_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index 76cdc145c0912..1f5b6b5b1018a 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -441,7 +441,7 @@ static int raydium_i2c_write_object(struct i2c_client *client,
- 	return 0;
- }
+--- a/drivers/media/usb/dvb-usb/dib0700_core.c
++++ b/drivers/media/usb/dvb-usb/dib0700_core.c
+@@ -783,7 +783,7 @@ int dib0700_rc_setup(struct dvb_usb_devi
  
--static bool raydium_i2c_boot_trigger(struct i2c_client *client)
-+static int raydium_i2c_boot_trigger(struct i2c_client *client)
- {
- 	static const u8 cmd[7][6] = {
- 		{ 0x08, 0x0C, 0x09, 0x00, 0x50, 0xD7 },
-@@ -466,10 +466,10 @@ static bool raydium_i2c_boot_trigger(struct i2c_client *client)
- 		}
- 	}
+ 	/* Starting in firmware 1.20, the RC info is provided on a bulk pipe */
  
--	return false;
-+	return 0;
- }
+-	if (intf->altsetting[0].desc.bNumEndpoints < rc_ep + 1)
++	if (intf->cur_altsetting->desc.bNumEndpoints < rc_ep + 1)
+ 		return -ENODEV;
  
--static bool raydium_i2c_fw_trigger(struct i2c_client *client)
-+static int raydium_i2c_fw_trigger(struct i2c_client *client)
- {
- 	static const u8 cmd[5][11] = {
- 		{ 0, 0x09, 0x71, 0x0C, 0x09, 0x00, 0x50, 0xD7, 0, 0, 0 },
-@@ -492,7 +492,7 @@ static bool raydium_i2c_fw_trigger(struct i2c_client *client)
- 		}
- 	}
- 
--	return false;
-+	return 0;
- }
- 
- static int raydium_i2c_check_path(struct i2c_client *client)
--- 
-2.20.1
-
+ 	purb = usb_alloc_urb(0, GFP_KERNEL);
+@@ -805,7 +805,7 @@ int dib0700_rc_setup(struct dvb_usb_devi
+ 	 * Some devices like the Hauppauge NovaTD model 52009 use an interrupt
+ 	 * endpoint, while others use a bulk one.
+ 	 */
+-	e = &intf->altsetting[0].endpoint[rc_ep].desc;
++	e = &intf->cur_altsetting->endpoint[rc_ep].desc;
+ 	if (usb_endpoint_dir_in(e)) {
+ 		if (usb_endpoint_xfer_bulk(e)) {
+ 			pipe = usb_rcvbulkpipe(d->udev, rc_ep);
 
 
