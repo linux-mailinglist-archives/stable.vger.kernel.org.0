@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91FE419B452
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7DCC19B12E
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732550AbgDAQWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:22:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46022 "EHLO mail.kernel.org"
+        id S2388431AbgDAQcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:32:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732342AbgDAQWu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:22:50 -0400
+        id S2388068AbgDAQci (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:32:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAD2621582;
-        Wed,  1 Apr 2020 16:22:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D42392063A;
+        Wed,  1 Apr 2020 16:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758170;
-        bh=HwVePymlaD0LDdi3QetTPfohcwL6L5qYFnhXQ7Z8YvA=;
+        s=default; t=1585758758;
+        bh=JL1j4Baacd3Nm5cyUBNnMdvD7STn1dIkzds8vD8e5Oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g7bK4sO6xRjVU0HQsFC39go/CD2VyHgaRQ+DDPF8csS8fJy61JurCfRH8rDJWLsEm
-         vUBNm9OIhtOJQuihZICFZV1c+N95KljyOA1qOaoMkWAGnB40dKv3hZ40NbkNRHCNuQ
-         ACwCA5cuDsr8+5qsq6pH1vohZf9vF6It9sXOE6BM=
+        b=gLKeb49pDflWahjZv4xu4+tQV+7Cbn7OvwVi9qKuOn8CZyyCZ7fA5aUtRjL3MtQMO
+         Rh1Rl57GdlMw3ohcZ4PEmmViUHojOwn9nrgwEI5YUZI74XFGKBCMJx7de07hCcg1zf
+         OIwzy11wdlHHa3OGAfVxRQuCPryFf1OjLgP9P/r0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@oss.nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 27/27] arm64: dts: ls1046ardb: set RGMII interfaces to RGMII_ID mode
-Date:   Wed,  1 Apr 2020 18:17:55 +0200
-Message-Id: <20200401161436.007336638@linuxfoundation.org>
+        stable@vger.kernel.org, Edward Cree <ecree@solarflare.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 60/91] genirq: Fix reference leaks on irq affinity notifiers
+Date:   Wed,  1 Apr 2020 18:17:56 +0200
+Message-Id: <20200401161533.755031533@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
-References: <20200401161414.352722470@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madalin Bucur <madalin.bucur@oss.nxp.com>
+From: Edward Cree <ecree@solarflare.com>
 
-commit d79e9d7c1e4ba5f95f2ff3541880c40ea9722212 upstream.
+commit df81dfcfd6991d547653d46c051bac195cd182c1 upstream.
 
-The correct setting for the RGMII ports on LS1046ARDB is to
-enable delay on both Rx and Tx so the interface mode used must
-be PHY_INTERFACE_MODE_RGMII_ID.
+The handling of notify->work did not properly maintain notify->kref in two
+ cases:
+1) where the work was already scheduled, another irq_set_affinity_locked()
+   would get the ref and (no-op-ly) schedule the work.  Thus when
+   irq_affinity_notify() ran, it would drop the original ref but not the
+   additional one.
+2) when cancelling the (old) work in irq_set_affinity_notifier(), if there
+   was outstanding work a ref had been got for it but was never put.
+Fix both by checking the return values of the work handling functions
+ (schedule_work() for (1) and cancel_work_sync() for (2)) and put the
+ extra ref if the return value indicates preexisting work.
 
-Since commit 1b3047b5208a80 ("net: phy: realtek: add support for
-configuring the RX delay on RTL8211F") the Realtek 8211F PHY driver
-has control over the RGMII RX delay and it is disabling it for
-RGMII_TXID. The LS1046ARDB uses two such PHYs in RGMII_ID mode but
-in the device tree the mode was described as "rgmii".
-
-Changing the phy-connection-type to "rgmii-id" to address the issue.
-
-Fixes: 3fa395d2c48a ("arm64: dts: add LS1046A DPAA FMan nodes")
-Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cd7eab44e994 ("genirq: Add IRQ affinity notifiers")
+Fixes: 59c39840f5ab ("genirq: Prevent use-after-free and work list corruption")
+Signed-off-by: Edward Cree <ecree@solarflare.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Ben Hutchings <ben@decadent.org.uk>
+Link: https://lkml.kernel.org/r/24f5983f-2ab5-e83a-44ee-a45b5f9300f5@solarflare.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/irq/manage.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-@@ -127,12 +127,12 @@
- &fman0 {
- 	ethernet@e4000 {
- 		phy-handle = <&rgmii_phy1>;
--		phy-connection-type = "rgmii";
-+		phy-connection-type = "rgmii-id";
- 	};
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -220,7 +220,11 @@ int irq_set_affinity_locked(struct irq_d
  
- 	ethernet@e6000 {
- 		phy-handle = <&rgmii_phy2>;
--		phy-connection-type = "rgmii";
-+		phy-connection-type = "rgmii-id";
- 	};
+ 	if (desc->affinity_notify) {
+ 		kref_get(&desc->affinity_notify->kref);
+-		schedule_work(&desc->affinity_notify->work);
++		if (!schedule_work(&desc->affinity_notify->work)) {
++			/* Work was already scheduled, drop our extra ref */
++			kref_put(&desc->affinity_notify->kref,
++				 desc->affinity_notify->release);
++		}
+ 	}
+ 	irqd_set(data, IRQD_AFFINITY_SET);
  
- 	ethernet@e8000 {
+@@ -320,7 +324,10 @@ irq_set_affinity_notifier(unsigned int i
+ 	raw_spin_unlock_irqrestore(&desc->lock, flags);
+ 
+ 	if (old_notify) {
+-		cancel_work_sync(&old_notify->work);
++		if (cancel_work_sync(&old_notify->work)) {
++			/* Pending work had a ref, put that one too */
++			kref_put(&old_notify->kref, old_notify->release);
++		}
+ 		kref_put(&old_notify->kref, old_notify->release);
+ 	}
+ 
 
 
