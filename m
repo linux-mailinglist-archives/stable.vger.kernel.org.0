@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E12BE19B3BD
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 468B319AF96
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387580AbgDAQcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58758 "EHLO mail.kernel.org"
+        id S1732336AbgDAQT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:19:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733300AbgDAQcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:32:24 -0400
+        id S1726205AbgDAQT2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:19:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA358212CC;
-        Wed,  1 Apr 2020 16:32:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F30A620B1F;
+        Wed,  1 Apr 2020 16:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758743;
-        bh=If+2ef+MMU2/Y/HWgpdpuL8hH5GfqGQEDo6IN9aP8sA=;
+        s=default; t=1585757968;
+        bh=/9QYk9OVbzZY26ScvUwzpIZOv2gxgJRWE1IW8g7lRxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kDhOkNg4qRZDTEyUgHbcRrtmtOcjp8u1OUs8FItfaE1PQn9rdmAhgxMxDoDP07MYP
-         +8TVyTMWfHh9NQA4o/l8JljOmqNE6bjnOoUJ/gQtwyY2Tx+3UFk0bbMMKE4yyK/D43
-         6zOl8j1lzj+qZkr8SWeeuyxdqSUpLVKKhVsaATSc=
+        b=fp3ox+aA7B4zIgJll+56saBYJ2y03J0J8S9XVXIPGy+GKpSy9SHBNx/O+Xl2WbPxb
+         HwW3/wikN19f054d+oemJ3ahFWztzJNywN+eakxugoOLGeAJnMrFSb9bvdhvprySwc
+         pyIj1MwkNqJmR9vJXs1mxxuVKFTnzg2ksC5fgruY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 23/91] mm: slub: be more careful about the double cmpxchg of freelist
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lanqing Liu <liuhhome@gmail.com>
+Subject: [PATCH 5.6 03/10] serial: sprd: Fix a dereference warning
 Date:   Wed,  1 Apr 2020 18:17:19 +0200
-Message-Id: <20200401161521.226572987@linuxfoundation.org>
+Message-Id: <20200401161417.039813573@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161413.974936041@linuxfoundation.org>
+References: <20200401161413.974936041@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Lanqing Liu <liuhhome@gmail.com>
 
-commit 5076190daded2197f62fe92cf69674488be44175 upstream.
+commit efc176929a3505a30c3993ddd393b40893649bd2 upstream.
 
-This is just a cleanup addition to Jann's fix to properly update the
-transaction ID for the slub slowpath in commit fd4d9c7d0c71 ("mm: slub:
-add missing TID bump..").
+We should validate if the 'sup' is NULL or not before freeing DMA
+memory, to fix below warning.
 
-The transaction ID is what protects us against any concurrent accesses,
-but we should really also make sure to make the 'freelist' comparison
-itself always use the same freelist value that we then used as the new
-next free pointer.
+"drivers/tty/serial/sprd_serial.c:1141 sprd_remove()
+ error: we previously assumed 'sup' could be null (see line 1132)"
 
-Jann points out that if we do all of this carefully, we could skip the
-transaction ID update for all the paths that only remove entries from
-the lists, and only update the TID when adding entries (to avoid the ABA
-issue with cmpxchg and list handling re-adding a previously seen value).
-
-But this patch just does the "make sure to cmpxchg the same value we
-used" rather than then try to be clever.
-
-Acked-by: Jann Horn <jannh@google.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f4487db58eb7 ("serial: sprd: Add DMA mode support")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lanqing Liu <liuhhome@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/e2bd92691538e95b04a2c2a728f3292e1617018f.1584325957.git.liuhhome@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/slub.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/tty/serial/sprd_serial.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -2788,11 +2788,13 @@ redo:
- 	barrier();
+--- a/drivers/tty/serial/sprd_serial.c
++++ b/drivers/tty/serial/sprd_serial.c
+@@ -1132,14 +1132,13 @@ static int sprd_remove(struct platform_d
+ 	if (sup) {
+ 		uart_remove_one_port(&sprd_uart_driver, &sup->port);
+ 		sprd_port[sup->port.line] = NULL;
++		sprd_rx_free_buf(sup);
+ 		sprd_ports_num--;
+ 	}
  
- 	if (likely(page == c->page)) {
--		set_freepointer(s, tail_obj, c->freelist);
-+		void **freelist = READ_ONCE(c->freelist);
-+
-+		set_freepointer(s, tail_obj, freelist);
+ 	if (!sprd_ports_num)
+ 		uart_unregister_driver(&sprd_uart_driver);
  
- 		if (unlikely(!this_cpu_cmpxchg_double(
- 				s->cpu_slab->freelist, s->cpu_slab->tid,
--				c->freelist, tid,
-+				freelist, tid,
- 				head, next_tid(tid)))) {
+-	sprd_rx_free_buf(sup);
+-
+ 	return 0;
+ }
  
- 			note_cmpxchg_failure("slab_free", s, tid);
 
 
