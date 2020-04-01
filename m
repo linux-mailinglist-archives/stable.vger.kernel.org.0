@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B31CC19B1CD
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B399519B3AC
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389083AbgDAQiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:38:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37812 "EHLO mail.kernel.org"
+        id S2388175AbgDAQd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:33:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389077AbgDAQiO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:38:14 -0400
+        id S2388534AbgDAQdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:33:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18BFB206F8;
-        Wed,  1 Apr 2020 16:38:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C174920658;
+        Wed,  1 Apr 2020 16:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759093;
-        bh=kEy0NfYiT2QXySylppDfadlIZtmjIhQgrb8hbIeuYyY=;
+        s=default; t=1585758803;
+        bh=NnPdleigmo/cA/VjQbdgKHuDwHFZNPrfkOgfkaKtv5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mrKKJz/XQMG8DXKMO8dgfFxbDsBftMtpjyjfasmtKEXt6M+EKuL+8Xth/xgrkC1qq
-         vvWuwonD3BSo78FpPUCoy1olQOMAFG8KAbVSH/t6oOc8gKm+w96Vf/GuvoyXhbpW6a
-         Aud5jvIG/BHt75J6EXEcPRrToEBE7IxFUj3lzU8Y=
+        b=YeoeCJByMye8YfFPAIYz8L1/6cuOhfY8WAJNg/rfjd13IGM89pipcnA28R7GSHBvV
+         A5HGF22Wozjv2EBM5Js7zlo2RFzq5cIg6rYwHn3avTsiKzdsshAsHNGAWhOWAgymgk
+         ytuwwxmS3NF23FfKi7fH2+F30FKlP3cuIEAyvbT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.9 073/102] tools: Let O= makes handle a relative path with -C option
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.4 80/91] media: stv06xx: add missing descriptor sanity checks
 Date:   Wed,  1 Apr 2020 18:18:16 +0200
-Message-Id: <20200401161544.846198392@linuxfoundation.org>
+Message-Id: <20200401161538.581300191@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit be40920fbf1003c38ccdc02b571e01a75d890c82 ]
+commit 485b06aadb933190f4bc44e006076bc27a23f205 upstream.
 
-When I tried to compile tools/perf from the top directory with the -C
-option, the O= option didn't work correctly if I passed a relative path:
+Make sure to check that we have two alternate settings and at least one
+endpoint before accessing the second altsetting structure and
+dereferencing the endpoint arrays.
 
-  $ make O=BUILD -C tools/perf/
-  make: Entering directory '/home/mhiramat/ksrc/linux/tools/perf'
-    BUILD:   Doing 'make -j8' parallel build
-  ../scripts/Makefile.include:4: *** O=/home/mhiramat/ksrc/linux/tools/perf/BUILD does not exist.  Stop.
-  make: *** [Makefile:70: all] Error 2
-  make: Leaving directory '/home/mhiramat/ksrc/linux/tools/perf'
+This specifically avoids dereferencing NULL-pointers or corrupting
+memory when a device does not have the expected descriptors.
 
-The O= directory existence check failed because the check script ran in
-the build target directory instead of the directory where I ran the make
-command.
+Note that the sanity checks in stv06xx_start() and pb0100_start() are
+not redundant as the driver is mixing looking up altsettings by index
+and by number, which may not coincide.
 
-To fix that, once change directory to $(PWD) and check O= directory,
-since the PWD is set to where the make command runs.
+Fixes: 8668d504d72c ("V4L/DVB (12082): gspca_stv06xx: Add support for st6422 bridge and sensor")
+Fixes: c0b33bdc5b8d ("[media] gspca-stv06xx: support bandwidth changing")
+Cc: stable <stable@vger.kernel.org>     # 2.6.31
+Cc: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: c883122acc0d ("perf tools: Let O= makes handle relative paths")
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Michal Marek <michal.lkml@markovi.net>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/158351957799.3363.15269768530697526765.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/Makefile            | 2 +-
- tools/scripts/Makefile.include | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/usb/gspca/stv06xx/stv06xx.c        |   19 ++++++++++++++++++-
+ drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c |    4 ++++
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/Makefile b/tools/perf/Makefile
-index cd86fd7b35c48..ebcc0868b99ea 100644
---- a/tools/perf/Makefile
-+++ b/tools/perf/Makefile
-@@ -34,7 +34,7 @@ endif
- # Only pass canonical directory names as the output directory:
- #
- ifneq ($(O),)
--  FULL_O := $(shell readlink -f $(O) || echo $(O))
-+  FULL_O := $(shell cd $(PWD); readlink -f $(O) || echo $(O))
- endif
+--- a/drivers/media/usb/gspca/stv06xx/stv06xx.c
++++ b/drivers/media/usb/gspca/stv06xx/stv06xx.c
+@@ -293,6 +293,9 @@ static int stv06xx_start(struct gspca_de
+ 		return -EIO;
+ 	}
  
- #
-diff --git a/tools/scripts/Makefile.include b/tools/scripts/Makefile.include
-index 7ea4438b801dd..882c18201c7c3 100644
---- a/tools/scripts/Makefile.include
-+++ b/tools/scripts/Makefile.include
-@@ -1,7 +1,7 @@
- ifneq ($(O),)
- ifeq ($(origin O), command line)
--	dummy := $(if $(shell test -d $(O) || echo $(O)),$(error O=$(O) does not exist),)
--	ABSOLUTE_O := $(shell cd $(O) ; pwd)
-+	dummy := $(if $(shell cd $(PWD); test -d $(O) || echo $(O)),$(error O=$(O) does not exist),)
-+	ABSOLUTE_O := $(shell cd $(PWD); cd $(O) ; pwd)
- 	OUTPUT := $(ABSOLUTE_O)/$(if $(subdir),$(subdir)/)
- 	COMMAND_O := O=$(ABSOLUTE_O)
- ifeq ($(objtree),)
--- 
-2.20.1
-
++	if (alt->desc.bNumEndpoints < 1)
++		return -ENODEV;
++
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 	err = stv06xx_write_bridge(sd, STV_ISO_SIZE_L, packet_size);
+ 	if (err < 0)
+@@ -317,11 +320,21 @@ out:
+ 
+ static int stv06xx_isoc_init(struct gspca_dev *gspca_dev)
+ {
++	struct usb_interface_cache *intfc;
+ 	struct usb_host_interface *alt;
+ 	struct sd *sd = (struct sd *) gspca_dev;
+ 
++	intfc = gspca_dev->dev->actconfig->intf_cache[0];
++
++	if (intfc->num_altsetting < 2)
++		return -ENODEV;
++
++	alt = &intfc->altsetting[1];
++
++	if (alt->desc.bNumEndpoints < 1)
++		return -ENODEV;
++
+ 	/* Start isoc bandwidth "negotiation" at max isoc bandwidth */
+-	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
+ 	alt->endpoint[0].desc.wMaxPacketSize =
+ 		cpu_to_le16(sd->sensor->max_packet_size[gspca_dev->curr_mode]);
+ 
+@@ -334,6 +347,10 @@ static int stv06xx_isoc_nego(struct gspc
+ 	struct usb_host_interface *alt;
+ 	struct sd *sd = (struct sd *) gspca_dev;
+ 
++	/*
++	 * Existence of altsetting and endpoint was verified in
++	 * stv06xx_isoc_init()
++	 */
+ 	alt = &gspca_dev->dev->actconfig->intf_cache[0]->altsetting[1];
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 	min_packet_size = sd->sensor->min_packet_size[gspca_dev->curr_mode];
+--- a/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c
++++ b/drivers/media/usb/gspca/stv06xx/stv06xx_pb0100.c
+@@ -198,6 +198,10 @@ static int pb0100_start(struct sd *sd)
+ 	alt = usb_altnum_to_altsetting(intf, sd->gspca_dev.alt);
+ 	if (!alt)
+ 		return -ENODEV;
++
++	if (alt->desc.bNumEndpoints < 1)
++		return -ENODEV;
++
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 
+ 	/* If we don't have enough bandwidth use a lower framerate */
 
 
