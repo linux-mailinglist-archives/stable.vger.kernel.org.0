@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8548A19B308
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E4C19B1C4
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:38:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389811AbgDAQpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:45:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46286 "EHLO mail.kernel.org"
+        id S2389024AbgDAQh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:37:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389527AbgDAQpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:45:04 -0400
+        id S2388751AbgDAQh6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:37:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C20FE2071A;
-        Wed,  1 Apr 2020 16:45:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF34420BED;
+        Wed,  1 Apr 2020 16:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759503;
-        bh=MfcDThaTPKmBvoit5K+m3YHIT6p5iRuI/Pc5lZ+tk3o=;
+        s=default; t=1585759078;
+        bh=IpskLDqHHZRm9edhwLu30IHxKAr24vBmtaA+c2F/oaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUua4RUml5lUdav+A2wV7f0t04j1fituV3zoCWa8BTV5xkpjUwJ06RF/0dNZAGMfY
-         cS0YdzwxIMwJFVrbjJyw980S3LUUEt1bYmlyaNRODFt4kY9m5kcw08gqKlqpi2RPl1
-         2+SAIzbumccprkTb/zjrK1C2a9H7rMndI87e1wyU=
+        b=m0z4GsTw82U6q81wsX1TY5tC7/mMIc60R3qAzjnXV/XOANuVgbBIsxXOtbMK3E2j3
+         M0fvngYzt+1/Bc8NmDxJ8XwR7/FSWPpoU1ABo/o58YaARc5rwCyhKKNMvOIjSX4naX
+         gskFD6FwDNRfem3Ws+DslzoEoAgUpcysa6Sllu80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 100/148] gpiolib: acpi: Add quirk to ignore EC wakeups on HP x2 10 BYT + AXP288 model
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.9 069/102] netfilter: nft_fwd_netdev: validate family and chain type
 Date:   Wed,  1 Apr 2020 18:18:12 +0200
-Message-Id: <20200401161602.404317194@linuxfoundation.org>
+Message-Id: <20200401161544.267072629@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 0e91506ba00730f088961a8d39f8693b0f8e3fea upstream.
+commit 76a109fac206e158eb3c967af98c178cff738e6a upstream.
 
-Commit aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option +
-quirk mechanism") was added to deal with spurious wakeups on one specific
-model of the HP x2 10 series. In the mean time I have learned that there
-are at least 3 different HP x2 10 models:
+Make sure the forward action is only used from ingress.
 
-Bay Trail SoC + AXP288 PMIC
-Cherry Trail SoC + AXP288 PMIC
-Cherry Trail SoC + TI PMIC
-
-And the original quirk is only correct for (and only matches the)
-Cherry Trail SoC + TI PMIC model.
-
-The Bay Trail SoC + AXP288 PMIC model has different DMI strings, has
-the external EC interrupt on a different GPIO pin and only needs to ignore
-wakeups on the EC interrupt, the INT0002 device works fine on this model.
-
-This commit adds an extra DMI based quirk for the HP x2 10 BYT + AXP288
-model, ignoring wakeups for ACPI GPIO events on the EC interrupt pin
-on this model. This fixes spurious wakeups from suspend on this model.
-
-Fixes: aa23ca3d98f7 ("gpiolib: acpi: Add honor_wakeup module-option + quirk mechanism")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200302111225.6641-3-hdegoede@redhat.com
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 39e6dea28adc ("netfilter: nf_tables: add forward expression to the netdev family")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpio/gpiolib-acpi.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ net/netfilter/nft_fwd_netdev.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -1425,6 +1425,21 @@ static const struct dmi_system_id gpioli
- 			.ignore_wake = "INT33FF:01@0,INT0002:00@2",
- 		},
- 	},
-+	{
-+		/*
-+		 * HP X2 10 models with Bay Trail SoC + AXP288 PMIC use an
-+		 * external embedded-controller connected via I2C + an ACPI GPIO
-+		 * event handler on INT33FC:02 pin 28, causing spurious wakeups.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-+			DMI_MATCH(DMI_BOARD_NAME, "815D"),
-+		},
-+		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
-+			.ignore_wake = "INT33FC:02@28",
-+		},
-+	},
- 	{} /* Terminating entry */
+--- a/net/netfilter/nft_fwd_netdev.c
++++ b/net/netfilter/nft_fwd_netdev.c
+@@ -62,6 +62,13 @@ nla_put_failure:
+ 	return -1;
+ }
+ 
++static int nft_fwd_validate(const struct nft_ctx *ctx,
++			    const struct nft_expr *expr,
++			    const struct nft_data **data)
++{
++	return nft_chain_validate_hooks(ctx->chain, (1 << NF_NETDEV_INGRESS));
++}
++
+ static struct nft_expr_type nft_fwd_netdev_type;
+ static const struct nft_expr_ops nft_fwd_netdev_ops = {
+ 	.type		= &nft_fwd_netdev_type,
+@@ -69,6 +76,7 @@ static const struct nft_expr_ops nft_fwd
+ 	.eval		= nft_fwd_netdev_eval,
+ 	.init		= nft_fwd_netdev_init,
+ 	.dump		= nft_fwd_netdev_dump,
++	.validate	= nft_fwd_validate,
  };
  
+ static struct nft_expr_type nft_fwd_netdev_type __read_mostly = {
 
 
