@@ -2,157 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7FA619AC3D
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 15:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15DD119ACF2
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 15:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732370AbgDANAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 09:00:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51810 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732566AbgDANAb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 09:00:31 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1732561AbgDANfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 09:35:14 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:54989 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732289AbgDANfO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 09:35:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1585748113;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=XIz2ho7kIoYFj6kHnCtqWvrVWKEwd+7pTflChEDZah8=;
+        b=KnakDjsUGxRL42g+ib9OB+Txwe07PhE7M0wJwRy0L07o6oOzP1zCDc5Lbo404g7fSMKr+I
+        84Z51Xxo6RgGBs8PFO9P9hTCfQGghu0bFzRLcXRL845DAhUXmR3ZEJMKAcaPNDnqy+8ldZ
+        11f7eW7r+UGaKto/VHAdWfJMCDYs9LM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-9-MnUUBOTuMAimL40G301MqQ-1; Wed, 01 Apr 2020 09:35:09 -0400
+X-MC-Unique: MnUUBOTuMAimL40G301MqQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DACE1206E9;
-        Wed,  1 Apr 2020 13:00:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585746030;
-        bh=aKcChnMzoou54YyNYcC3aIadzStZalwDLAZ1iiS7gAM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FIxUCd0/qNNDucEpzNY7bOK3MWK8205feDqT3/vgM+qcDpX2w4WEJzqYzRSFhOucR
-         ME2ar5Xj0S7yKzbLqOOdgdeVGcrFDxYU9IDK/pIDE321tJZWZ2c5SEPvktLbCNU79t
-         YnUCpnaTFD+PYbYhfnd/st9Vtcn1zPcephJSn/8s=
-Date:   Wed, 1 Apr 2020 15:00:28 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Zhuang Yanying <ann.zhuangyanying@huawei.com>
-Cc:     pbonzini@redhat.com, tv@lio96.de, stable@vger.kernel.org,
-        LinFeng <linfeng23@huawei.com>
-Subject: Re: [PATCH 1/2] KVM: fix overflow of zero page refcount with ksm
- running
-Message-ID: <20200401130028.GC2262255@kroah.com>
-References: <1585745456-24340-1-git-send-email-ann.zhuangyanying@huawei.com>
- <1585745456-24340-2-git-send-email-ann.zhuangyanying@huawei.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 20AAA8010CA;
+        Wed,  1 Apr 2020 13:35:06 +0000 (UTC)
+Received: from [10.36.114.59] (ovpn-114-59.ams2.redhat.com [10.36.114.59])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8D31D5C29A;
+        Wed,  1 Apr 2020 13:35:02 +0000 (UTC)
+Subject: Re: [patch 2/5] drivers/base/memory.c: indicate all memory blocks as
+ removable
+From:   David Hildenbrand <david@redhat.com>
+To:     Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Karel Zak <kzak@redhat.com>, Linux-MM <linux-mm@kvack.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Michal Hocko <mhocko@suse.com>, mm-commits@vger.kernel.org,
+        ndfont@gmail.com, pbadari@us.ibm.com,
+        Rafael Wysocki <rafael@kernel.org>, rcj@linux.vnet.ibm.com,
+        stable <stable@vger.kernel.org>, steve.scargall@intel.com
+References: <20200328191456.4fc0b9ca86780f26c122399e@linux-foundation.org>
+ <20200329021719.MBKzW0xSl%akpm@linux-foundation.org>
+ <CAHk-=wgs1mfvk8pwefSD2A4=RgH6td50x9D-yn3Axm7icp5Xag@mail.gmail.com>
+ <b80d7cea-a8f7-11c9-66fa-bdc272bdf099@redhat.com>
+ <20200329194354.xrbzlvlbjimy3pzz@chatter.i7.local>
+ <bdab60f6-2755-3aff-49a0-86ffc7f79fb1@redhat.com>
+Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
+ mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABtCREYXZpZCBIaWxk
+ ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT6JAlgEEwEIAEICGwMFCQlmAYAGCwkIBwMCBhUI
+ AgkKCwQWAgMBAh4BAheAFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl3pImkCGQEACgkQTd4Q
+ 9wD/g1o+VA//SFvIHUAvul05u6wKv/pIR6aICPdpF9EIgEU448g+7FfDgQwcEny1pbEzAmiw
+ zAXIQ9H0NZh96lcq+yDLtONnXk/bEYWHHUA014A1wqcYNRY8RvY1+eVHb0uu0KYQoXkzvu+s
+ Dncuguk470XPnscL27hs8PgOP6QjG4jt75K2LfZ0eAqTOUCZTJxA8A7E9+XTYuU0hs7QVrWJ
+ jQdFxQbRMrYz7uP8KmTK9/Cnvqehgl4EzyRaZppshruKMeyheBgvgJd5On1wWq4ZUV5PFM4x
+ II3QbD3EJfWbaJMR55jI9dMFa+vK7MFz3rhWOkEx/QR959lfdRSTXdxs8V3zDvChcmRVGN8U
+ Vo93d1YNtWnA9w6oCW1dnDZ4kgQZZSBIjp6iHcA08apzh7DPi08jL7M9UQByeYGr8KuR4i6e
+ RZI6xhlZerUScVzn35ONwOC91VdYiQgjemiVLq1WDDZ3B7DIzUZ4RQTOaIWdtXBWb8zWakt/
+ ztGhsx0e39Gvt3391O1PgcA7ilhvqrBPemJrlb9xSPPRbaNAW39P8ws/UJnzSJqnHMVxbRZC
+ Am4add/SM+OCP0w3xYss1jy9T+XdZa0lhUvJfLy7tNcjVG/sxkBXOaSC24MFPuwnoC9WvCVQ
+ ZBxouph3kqc4Dt5X1EeXVLeba+466P1fe1rC8MbcwDkoUo65Ag0EVcufkQEQAOfX3n0g0fZz
+ Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
+ T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
+ 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
+ CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
+ NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
+ 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
+ 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
+ lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
+ AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
+ N7eop7uh+6bezi+rugUI+w6DABEBAAGJAiUEGAECAA8FAlXLn5ECGwwFCQlmAYAACgkQTd4Q
+ 9wD/g1qA6w/+M+ggFv+JdVsz5+ZIc6MSyGUozASX+bmIuPeIecc9UsFRatc91LuJCKMkD9Uv
+ GOcWSeFpLrSGRQ1Z7EMzFVU//qVs6uzhsNk0RYMyS0B6oloW3FpyQ+zOVylFWQCzoyyf227y
+ GW8HnXunJSC+4PtlL2AY4yZjAVAPLK2l6mhgClVXTQ/S7cBoTQKP+jvVJOoYkpnFxWE9pn4t
+ H5QIFk7Ip8TKr5k3fXVWk4lnUi9MTF/5L/mWqdyIO1s7cjharQCstfWCzWrVeVctpVoDfJWp
+ 4LwTuQ5yEM2KcPeElLg5fR7WB2zH97oI6/Ko2DlovmfQqXh9xWozQt0iGy5tWzh6I0JrlcxJ
+ ileZWLccC4XKD1037Hy2FLAjzfoWgwBLA6ULu0exOOdIa58H4PsXtkFPrUF980EEibUp0zFz
+ GotRVekFAceUaRvAj7dh76cToeZkfsjAvBVb4COXuhgX6N4pofgNkW2AtgYu1nUsPAo+NftU
+ CxrhjHtLn4QEBpkbErnXQyMjHpIatlYGutVMS91XTQXYydCh5crMPs7hYVsvnmGHIaB9ZMfB
+ njnuI31KBiLUks+paRkHQlFcgS2N3gkRBzH7xSZ+t7Re3jvXdXEzKBbQ+dC3lpJB0wPnyMcX
+ FOTT3aZT7IgePkt5iC/BKBk3hqKteTnJFeVIT7EC+a6YUFg=
+Organization: Red Hat GmbH
+Message-ID: <0c7d6011-714e-adb9-5826-4f3088a8826b@redhat.com>
+Date:   Wed, 1 Apr 2020 15:35:01 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1585745456-24340-2-git-send-email-ann.zhuangyanying@huawei.com>
+In-Reply-To: <bdab60f6-2755-3aff-49a0-86ffc7f79fb1@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 08:50:55PM +0800, Zhuang Yanying wrote:
-> We are testing Virtual Machine with KSM on v5.4-rc2 kernel,
-> and found the zero_page refcount overflow.
-> The cause of refcount overflow is increased in try_async_pf
-> (get_user_page) without being decreased in mmu_set_spte()
-> while handling ept violation.
-> In kvm_release_pfn_clean(), only unreserved page will call
-> put_page. However, zero page is reserved.
-> So, as well as creating and destroy vm, the refcount of
-> zero page will continue to increase until it overflows.
-> 
-> step1:
-> echo 10000 > /sys/kernel/mm/ksm/pages_to_scan
-> echo 1 > /sys/kernel/mm/ksm/run
-> echo 1 > /sys/kernel/mm/ksm/use_zero_pages
-> 
-> step2:
-> just create several normal qemu kvm vms.
-> And destroy it after 10s.
-> Repeat this action all the time.
-> 
-> After a long period of time, all domains hang because
-> of the refcount of zero page overflow.
-> 
-> Qemu print error log as follow:
-> error: kvm run failed Bad address
->  EAX=00006cdc EBX=00000008 ECX=80202001 EDX=078bfbfd
->  ESI=ffffffff EDI=00000000 EBP=00000008 ESP=00006cc4
->  EIP=000efd75 EFL=00010002 [-------] CPL=0 II=0 A20=1 SMM=0 HLT=0
->  ES =0010 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
->  CS =0008 00000000 ffffffff 00c09b00 DPL=0 CS32 [-RA]
->  SS =0010 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
->  DS =0010 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
->  FS =0010 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
->  GS =0010 00000000 ffffffff 00c09300 DPL=0 DS   [-WA]
->  LDT=0000 00000000 0000ffff 00008200 DPL=0 LDT
->  TR =0000 00000000 0000ffff 00008b00 DPL=0 TSS32-busy
->  GDT=     000f7070 00000037
->  IDT=     000f70ae 00000000
->  CR0=00000011 CR2=00000000 CR3=00000000 CR4=00000000
->  DR0=0000000000000000 DR1=0000000000000000 DR2=0000000000000000 DR3=0000000000000000
->  DR6=00000000ffff0ff0 DR7=0000000000000400
->  EFER=0000000000000000
->  Code=00 01 00 00 00 e9 e8 00 00 00 c7 05 4c 55 0f 00 01 00 00 00 <8b> 35 00 00 01 00 8b 3d 04 00 01 00 b8 d8 d3 00 00 c1 e0 08 0c ea a3 00 00 01 00 c7 05 04
-> 
-> Meanwhile, a kernel warning is departed.
-> 
->  [40914.836375] WARNING: CPU: 3 PID: 82067 at ./include/linux/mm.h:987 try_get_page+0x1f/0x30
->  [40914.836412] CPU: 3 PID: 82067 Comm: CPU 0/KVM Kdump: loaded Tainted: G           OE     5.2.0-rc2 #5
->  [40914.836415] RIP: 0010:try_get_page+0x1f/0x30
->  [40914.836417] Code: 40 00 c3 0f 1f 84 00 00 00 00 00 48 8b 47 08 a8 01 75 11 8b 47 34 85 c0 7e 10 f0 ff 47 34 b8 01 00 00 00 c3 48 8d 78 ff eb e9 <0f> 0b 31 c0 c3 66 90 66 2e 0f 1f 84 00 0
->  0 00 00 00 48 8b 47 08 a8
->  [40914.836418] RSP: 0018:ffffb4144e523988 EFLAGS: 00010286
->  [40914.836419] RAX: 0000000080000000 RBX: 0000000000000326 RCX: 0000000000000000
->  [40914.836420] RDX: 0000000000000000 RSI: 00004ffdeba10000 RDI: ffffdf07093f6440
->  [40914.836421] RBP: ffffdf07093f6440 R08: 800000424fd91225 R09: 0000000000000000
->  [40914.836421] R10: ffff9eb41bfeebb8 R11: 0000000000000000 R12: ffffdf06bbd1e8a8
->  [40914.836422] R13: 0000000000000080 R14: 800000424fd91225 R15: ffffdf07093f6440
->  [40914.836423] FS:  00007fb60ffff700(0000) GS:ffff9eb4802c0000(0000) knlGS:0000000000000000
->  [40914.836425] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->  [40914.836426] CR2: 0000000000000000 CR3: 0000002f220e6002 CR4: 00000000003626e0
->  [40914.836427] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->  [40914.836427] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->  [40914.836428] Call Trace:
->  [40914.836433]  follow_page_pte+0x302/0x47b
->  [40914.836437]  __get_user_pages+0xf1/0x7d0
->  [40914.836441]  ? irq_work_queue+0x9/0x70
->  [40914.836443]  get_user_pages_unlocked+0x13f/0x1e0
->  [40914.836469]  __gfn_to_pfn_memslot+0x10e/0x400 [kvm]
->  [40914.836486]  try_async_pf+0x87/0x240 [kvm]
->  [40914.836503]  tdp_page_fault+0x139/0x270 [kvm]
->  [40914.836523]  kvm_mmu_page_fault+0x76/0x5e0 [kvm]
->  [40914.836588]  vcpu_enter_guest+0xb45/0x1570 [kvm]
->  [40914.836632]  kvm_arch_vcpu_ioctl_run+0x35d/0x580 [kvm]
->  [40914.836645]  kvm_vcpu_ioctl+0x26e/0x5d0 [kvm]
->  [40914.836650]  do_vfs_ioctl+0xa9/0x620
->  [40914.836653]  ksys_ioctl+0x60/0x90
->  [40914.836654]  __x64_sys_ioctl+0x16/0x20
->  [40914.836658]  do_syscall_64+0x5b/0x180
->  [40914.836664]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
->  [40914.836666] RIP: 0033:0x7fb61cb6bfc7
-> 
-> Signed-off-by: LinFeng <linfeng23@huawei.com>
-> Signed-off-by: Zhuang Yanying <ann.zhuangyanying@huawei.com>
-> ---
->  virt/kvm/kvm_main.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 7e80f62f034c..7f7c22a687c0 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -133,7 +133,8 @@ static bool largepages_enabled = true;
->  bool kvm_is_reserved_pfn(kvm_pfn_t pfn)
->  {
->  	if (pfn_valid(pfn))
-> -		return PageReserved(pfn_to_page(pfn));
-> +		return PageReserved(pfn_to_page(pfn)) &&
-> +		       !is_zero_pfn(pfn);
->  
->  	return true;
->  }
-> -- 
-> 2.23.0
-> 
-> 
-<formletter>
+On 30.03.20 16:54, David Hildenbrand wrote:
+>> It would appear that the workflow Andrew uses to queue up patches from=
+=20
+>> you isn't expecting quoted-printable formatting, which is why when Lin=
+us=20
+>> gets them, they are mangled.
+>>
+>> We would either need to switch Andrew to a set of tools that handle 7b=
+it=20
+>> legacy formats better, or figure out how you can send things via MTAs=20
+>> that won't convert from 8bit to quoted-printable. Maybe you can convin=
+ce=20
+>> Red Hat to set up their relays to always preserve 8bit?
+>=20
+> I'll give it a try, but I think it's rather unlikely ... :)
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+So, people are looking into. Literally any mail that goes via Mimecast
+servers (at least sent by me!) is converted *for whatever reason* to
+quoted-printable.
 
-</formletter>
+E.g., patches I punched out today via "git send-email" even have the
+line continuations thingy again (they disappeared for a while, maybe
+there are different MTAs involved and it's like playing the lottery)
+
+https://lore.kernel.org/linux-mm/20200401104156.11564-2-david@redhat.com/=
+raw
+
+From what I can tell the mail itself is fine once converted, it's just
+nasty that 8-bit is converted *for whatever reason*.
+
+--=20
+Thanks,
+
+David / dhildenb
+
