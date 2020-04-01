@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDF9E19B354
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:51:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0118619B2BD
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389221AbgDAQjj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:39:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39640 "EHLO mail.kernel.org"
+        id S2388610AbgDAQqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:46:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389218AbgDAQjj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:39:39 -0400
+        id S2388565AbgDAQqn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:46:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D72602063A;
-        Wed,  1 Apr 2020 16:39:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 057BF20705;
+        Wed,  1 Apr 2020 16:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759178;
-        bh=KlgPpM2Ec2cZzsTcea0OVWKnugoEe7M7T6IX8wEotoE=;
+        s=default; t=1585759603;
+        bh=62H8q4wS2U8H3WVXq49tHHl0V1M2VnJlDoEkzXF2fzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HV0VSv+X5oQBe9pSuyx8gSGE1wCbkatskHX61yvH8JOHRc/QFWSWsHVwj/8jLq9kS
-         FniVWDPwsz0TaYb897uQcKPfCszF9aQdgiuTzJSL7p1ZYiSmmQwXmIu8BvsiOOz3kS
-         SB+/kiCIek6PfKDoQMqE6jOdtlwUR3QR//dpKk6I=
+        b=xcXHaqAHAy+rMT+prPhsJW17ffOTihpAEO6dBOf97CtJS84E6rnlq3sCmqBFRdPF4
+         YhAofT8/Iuyr+T056EJqJbg9J+s0h7Zeunxd0Y2Z0w5xSZFosX2aAWYkY6LQPMulz+
+         nvH6hSsCtwKkazEqzp4bIGY/q7ZWpBGZaZ7nGhoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.9 101/102] arm64: alternative: fix build with clang integrated assembler
-Date:   Wed,  1 Apr 2020 18:18:44 +0200
-Message-Id: <20200401161548.900106030@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+Subject: [PATCH 4.14 133/148] vt: ioctl, switch VT_IS_IN_USE and VT_BUSY to inlines
+Date:   Wed,  1 Apr 2020 18:18:45 +0200
+Message-Id: <20200401161605.103099023@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilie Halip <ilie.halip@gmail.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 6f5459da2b8736720afdbd67c4bd2d1edba7d0e3 upstream.
+commit e587e8f17433ddb26954f0edf5b2f95c42155ae9 upstream.
 
-Building an arm64 defconfig with clang's integrated assembler, this error
-occurs:
-    <instantiation>:2:2: error: unrecognized instruction mnemonic
-     _ASM_EXTABLE 9999b, 9f
-     ^
-    arch/arm64/mm/cache.S:50:1: note: while in macro instantiation
-    user_alt 9f, "dc cvau, x4", "dc civac, x4", 0
-    ^
+These two were macros. Switch them to static inlines, so that it's more
+understandable what they are doing.
 
-While GNU as seems fine with case-sensitive macro instantiations, clang
-doesn't, so use the actual macro name (_asm_extable) as in the rest of
-the file.
-
-Also checked that the generated assembly matches the GCC output.
-
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Fixes: 290622efc76e ("arm64: fix "dc cvau" cache operation on errata-affected core")
-Link: https://github.com/ClangBuiltLinux/linux/issues/924
-Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20200219073951.16151-2-jslaby@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/alternative.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/vt/vt_ioctl.c |   29 ++++++++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -215,7 +215,7 @@ alternative_endif
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -40,10 +40,25 @@
+ #include <linux/selection.h>
  
- .macro user_alt, label, oldinstr, newinstr, cond
- 9999:	alternative_insn "\oldinstr", "\newinstr", \cond
--	_ASM_EXTABLE 9999b, \label
-+	_asm_extable 9999b, \label
- .endm
+ char vt_dont_switch;
+-extern struct tty_driver *console_driver;
+ 
+-#define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
+-#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
++static inline bool vt_in_use(unsigned int i)
++{
++	extern struct tty_driver *console_driver;
++
++	return console_driver->ttys[i] && console_driver->ttys[i]->count;
++}
++
++static inline bool vt_busy(int i)
++{
++	if (vt_in_use(i))
++		return true;
++	if (i == fg_console)
++		return true;
++	if (vc_is_sel(vc_cons[i].d))
++		return true;
++
++	return false;
++}
  
  /*
+  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
+@@ -289,7 +304,7 @@ static int vt_disallocate(unsigned int v
+ 	int ret = 0;
+ 
+ 	console_lock();
+-	if (VT_BUSY(vc_num))
++	if (vt_busy(vc_num))
+ 		ret = -EBUSY;
+ 	else if (vc_num)
+ 		vc = vc_deallocate(vc_num);
+@@ -311,7 +326,7 @@ static void vt_disallocate_all(void)
+ 
+ 	console_lock();
+ 	for (i = 1; i < MAX_NR_CONSOLES; i++)
+-		if (!VT_BUSY(i))
++		if (!vt_busy(i))
+ 			vc[i] = vc_deallocate(i);
+ 		else
+ 			vc[i] = NULL;
+@@ -648,7 +663,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 			state = 1;	/* /dev/tty0 is always open */
+ 			for (i = 0, mask = 2; i < MAX_NR_CONSOLES && mask;
+ 							++i, mask <<= 1)
+-				if (VT_IS_IN_USE(i))
++				if (vt_in_use(i))
+ 					state |= mask;
+ 			ret = put_user(state, &vtstat->v_state);
+ 		}
+@@ -661,7 +676,7 @@ int vt_ioctl(struct tty_struct *tty,
+ 	case VT_OPENQRY:
+ 		/* FIXME: locking ? - but then this is a stupid API */
+ 		for (i = 0; i < MAX_NR_CONSOLES; ++i)
+-			if (! VT_IS_IN_USE(i))
++			if (!vt_in_use(i))
+ 				break;
+ 		uival = i < MAX_NR_CONSOLES ? (i+1) : -1;
+ 		goto setint;		 
 
 
