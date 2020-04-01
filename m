@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7B319B161
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09DF19B323
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388674AbgDAQed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:34:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33118 "EHLO mail.kernel.org"
+        id S2389536AbgDAQoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:44:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388670AbgDAQed (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:34:33 -0400
+        id S2388929AbgDAQoI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:44:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AE422063A;
-        Wed,  1 Apr 2020 16:34:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B4BC20658;
+        Wed,  1 Apr 2020 16:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758872;
-        bh=6Pe8o5i5K3qDvVX/UzNEoLD4bmR+7YYriviwdr0EBk8=;
+        s=default; t=1585759447;
+        bh=pJ/+w4JUb9p/7brWKw3eaPnJiSGLDotbZnSUw8RPCQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BniWwC+C1++o99nqY9lW7oQfAI1D51flj/Uw47crdYNCXuWLMdnlV8Dyly5+oh1Z9
-         ZFiOvwkFiAz9xxs4HpODtWGYhcd6qmemz9JsdNMBYi0hMicYTDQy3gCFKlZwVUER7R
-         bKy45UhUztHnbcgMg1pKnFhC+8IBAwys8JP7TFBY=
+        b=dcfb1HVn8Jhc4dmD76q8bRkPhtPuz+l+h/J9gFIMObEH3TdajLjpYRuxjIhO7lalQ
+         76HghaxF2wl0t88HWBCVHXM7zLsLUAckNi6OqhGn57XA8F06z53RbDYbXMq9Uy+pBq
+         8bxFbAcYp/ABts55gzVuTxApgGpdVCnNf+0vKRMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuji sasaki <sasakiy@chromium.org>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 001/102] spi: qup: call spi_qup_pm_resume_runtime before suspending
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.14 032/148] intel_th: pci: Add Elkhart Lake CPU support
 Date:   Wed,  1 Apr 2020 18:17:04 +0200
-Message-Id: <20200401161530.999915465@linuxfoundation.org>
+Message-Id: <20200401161555.684596226@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,55 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuji Sasaki <sasakiy@chromium.org>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit 136b5cd2e2f97581ae560cff0db2a3b5369112da ]
+commit add492d2e9446a77ede9bb43699ec85ca8fc1aba upstream.
 
-spi_qup_suspend() will cause synchronous external abort when
-runtime suspend is enabled and applied, as it tries to
-access SPI controller register while clock is already disabled
-in spi_qup_pm_suspend_runtime().
+This adds support for the Trace Hub in Elkhart Lake CPU.
 
-Signed-off-by: Yuji sasaki <sasakiy@chromium.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20200214074340.2286170-1-vkoul@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200317062215.15598-7-alexander.shishkin@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-qup.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/hwtracing/intel_th/pci.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/spi/spi-qup.c b/drivers/spi/spi-qup.c
-index 1bfa889b8427a..88b108e1c85fe 100644
---- a/drivers/spi/spi-qup.c
-+++ b/drivers/spi/spi-qup.c
-@@ -974,6 +974,11 @@ static int spi_qup_suspend(struct device *device)
- 	struct spi_qup *controller = spi_master_get_devdata(master);
- 	int ret;
- 
-+	if (pm_runtime_suspended(device)) {
-+		ret = spi_qup_pm_resume_runtime(device);
-+		if (ret)
-+			return ret;
-+	}
- 	ret = spi_master_suspend(master);
- 	if (ret)
- 		return ret;
-@@ -982,10 +987,8 @@ static int spi_qup_suspend(struct device *device)
- 	if (ret)
- 		return ret;
- 
--	if (!pm_runtime_suspended(device)) {
--		clk_disable_unprepare(controller->cclk);
--		clk_disable_unprepare(controller->iclk);
--	}
-+	clk_disable_unprepare(controller->cclk);
-+	clk_disable_unprepare(controller->iclk);
- 	return 0;
- }
- 
--- 
-2.20.1
-
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -219,6 +219,11 @@ static const struct pci_device_id intel_
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
+ 	},
+ 	{
++		/* Elkhart Lake CPU */
++		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4529),
++		.driver_data = (kernel_ulong_t)&intel_th_2x,
++	},
++	{
+ 		/* Elkhart Lake */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4b26),
+ 		.driver_data = (kernel_ulong_t)&intel_th_2x,
 
 
