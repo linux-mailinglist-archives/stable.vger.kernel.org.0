@@ -2,100 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4DBD19AE51
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 16:52:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2D819AE86
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 17:07:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732749AbgDAOwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 10:52:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733137AbgDAOwP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 10:52:15 -0400
-Received: from localhost (unknown [137.135.114.1])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB1A620787;
-        Wed,  1 Apr 2020 14:52:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585752734;
-        bh=RbUCbhqHpdexsV1Veeih2T3a+5xZB0y/sIj30QLoZN0=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=okClQVPva2WxKFYgVV7rEy5FAM3CmqEc8lSzi29yRyK48E25l6sdZ9lWRf/vzB8tb
-         EyLxgYPs4vb03TlZNBYaZ46SwLqaB8PseH3226T5bvupa1UFxe934MW9VEnJkfooUK
-         mmvj1IdypF/g9iUN5zyla+CwCqfbMpMdsgDmXgNg=
-Date:   Wed, 01 Apr 2020 14:52:13 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>
+        id S1732640AbgDAPHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 11:07:19 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:57289 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732633AbgDAPHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 11:07:19 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id EB8215C03EA;
+        Wed,  1 Apr 2020 11:07:17 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 01 Apr 2020 11:07:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=VQAIYb
+        7AsHeIgIR50/q38P477/QLkAu/YGohCHc09yY=; b=Dw0CZiKD7sVQUX303s5k0n
+        uAHugqrzpmV2rOa3zv64QH2CjLNQN1K8wWd5e3yLpDLtwyguTN7xKqlKpKAB0i/O
+        GH2glDuO/qWFmK873YSPzk9LA7EFKJb/0OVe5B8z5A5wjS49zGTuj40VG0623lWq
+        CbhrjhaTWxbAwrdHchfktJyLxUHFqN3NoncSC0P5gm/8DxsHGCAjNlV6NlTdzfk2
+        /U/JsnuvhfM0zzB4gwUikKvurHCZN9f3qnS9Ypqe8rHWzUn8AMchGUSRh5imcGra
+        KKtXkffh0QYgIDSJCEjRKoHlQs5Sv1CMvEGPKpCIV9eQwGJe/MO3SAewTFY8Q4Uw
+        ==
+X-ME-Sender: <xms:Ja6EXtOjVgoDEx7xqR3mNWwxDgAPvVavhkJWPR5_EfyzjqAKZWR50A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrtddvgdekfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:Ja6EXkH1jPh4JbH3uX-vawlJEywT5HMGlbYdeBylGzzw6vNs4gSGLQ>
+    <xmx:Ja6EXpSRjTd-LtHQLGaoRqkgTc31kKjVRWXfGIRXR1ZrKKUz2qwgwQ>
+    <xmx:Ja6EXkSQYyc2C7jnEw97aAk0FIS42eXX8Qan8KD36GKnpKxsghL1fA>
+    <xmx:Ja6EXojWXxHQlmEODotWs_Pie_5urMQIQIAY1yudY-01hOdvQmuQuQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1DD69328005D;
+        Wed,  1 Apr 2020 11:07:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] libceph: fix alloc_msg_with_page_vector() memory leaks" failed to apply to 4.19-stable tree
+To:     idryomov@gmail.com, rpenyaev@suse.de
 Cc:     <stable@vger.kernel.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] driver core: platform: Initialize dma_parms for platform devices
-In-Reply-To: <20200331183844.30488-2-ulf.hansson@linaro.org>
-References: <20200331183844.30488-2-ulf.hansson@linaro.org>
-Message-Id: <20200401145214.AB1A620787@mail.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 01 Apr 2020 17:07:13 +0200
+Message-ID: <158575363318645@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
 
-[This is an automated email]
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+thanks,
 
-The bot has tested the following trees: v5.5.13, v5.4.28, v4.19.113, v4.14.174, v4.9.217, v4.4.217.
+greg k-h
 
-v5.5.13: Build OK!
-v5.4.28: Build OK!
-v4.19.113: Failed to apply! Possible dependencies:
-    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
-    e3a36eb6dfae ("driver code: clarify and fix platform device DMA mask allocation")
+------------------ original commit in Linus's tree ------------------
 
-v4.14.174: Failed to apply! Possible dependencies:
-    186c446f4b84 ("media: arch: sh: migor: Use new renesas-ceu camera driver")
-    1a3c230b4151 ("media: arch: sh: ms7724se: Use new renesas-ceu camera driver")
-    39fb993038e1 ("media: arch: sh: ap325rxa: Use new renesas-ceu camera driver")
-    b12c8a70643f ("m68k: Set default dma mask for platform devices")
-    c2f9b05fd5c1 ("media: arch: sh: ecovec: Use new renesas-ceu camera driver")
-    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
-    e3a36eb6dfae ("driver code: clarify and fix platform device DMA mask allocation")
-    f3590dc32974 ("media: arch: sh: kfr2r09: Use new renesas-ceu camera driver")
+From e886274031200bb60965c1b9c49b7acda56a93bd Mon Sep 17 00:00:00 2001
+From: Ilya Dryomov <idryomov@gmail.com>
+Date: Tue, 10 Mar 2020 16:19:01 +0100
+Subject: [PATCH] libceph: fix alloc_msg_with_page_vector() memory leaks
 
-v4.9.217: Failed to apply! Possible dependencies:
-    186c446f4b84 ("media: arch: sh: migor: Use new renesas-ceu camera driver")
-    1a3c230b4151 ("media: arch: sh: ms7724se: Use new renesas-ceu camera driver")
-    39fb993038e1 ("media: arch: sh: ap325rxa: Use new renesas-ceu camera driver")
-    8fd708157a59 ("Input: tsc2007 - move header file out of I2C realm")
-    b12c8a70643f ("m68k: Set default dma mask for platform devices")
-    c2f9b05fd5c1 ("media: arch: sh: ecovec: Use new renesas-ceu camera driver")
-    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
-    e3a36eb6dfae ("driver code: clarify and fix platform device DMA mask allocation")
-    f14434040ce0 ("Input: tsc2007 - add iio interface to read external ADC input and temperature")
-    f3590dc32974 ("media: arch: sh: kfr2r09: Use new renesas-ceu camera driver")
+Make it so that CEPH_MSG_DATA_PAGES data item can own pages,
+fixing a bunch of memory leaks for a page vector allocated in
+alloc_msg_with_page_vector().  Currently, only watch-notify
+messages trigger this allocation, and normally the page vector
+is freed either in handle_watch_notify() or by the caller of
+ceph_osdc_notify().  But if the message is freed before that
+(e.g. if the session faults while reading in the message or
+if the notify is stale), we leak the page vector.
 
-v4.4.217: Failed to apply! Possible dependencies:
-    166dd7d3fbf2 ("powerpc/64: Move MMU backend selection out of platform code")
-    340f3039acd6 ("m68k: convert to dma_map_ops")
-    3808a88985b4 ("powerpc: Move FW feature probing out of pseries probe()")
-    406b0b6ae3fc ("powerpc/64: Move 64-bit probe_machine() to later in the boot process")
-    565713840445 ("powerpc: Move 32-bit probe() machine to later in the boot process")
-    5d31a96e6c01 ("powerpc/livepatch: Add livepatch stack to struct thread_info")
-    63c254a50104 ("powerpc: Add comment explaining the purpose of setup_kdump_trampoline()")
-    b12c8a70643f ("m68k: Set default dma mask for platform devices")
-    b1923caa6e64 ("powerpc: Merge 32-bit and 64-bit setup_arch()")
-    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
-    da6a97bf12d5 ("powerpc: Move epapr_paravirt_early_init() to early_init_devtree()")
-    f63e6d898760 ("powerpc/livepatch: Add livepatch header")
+This was supposed to be fixed by switching to a message-owned
+pagelist, but that never happened.
 
+Fixes: 1907920324f1 ("libceph: support for sending notifies")
+Reported-by: Roman Penyaev <rpenyaev@suse.de>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Roman Penyaev <rpenyaev@suse.de>
 
-NOTE: The patch will not be queued to stable trees until it is upstream.
+diff --git a/include/linux/ceph/messenger.h b/include/linux/ceph/messenger.h
+index c4458dc6a757..76371aaae2d1 100644
+--- a/include/linux/ceph/messenger.h
++++ b/include/linux/ceph/messenger.h
+@@ -175,9 +175,10 @@ struct ceph_msg_data {
+ #endif /* CONFIG_BLOCK */
+ 		struct ceph_bvec_iter	bvec_pos;
+ 		struct {
+-			struct page	**pages;	/* NOT OWNER. */
++			struct page	**pages;
+ 			size_t		length;		/* total # bytes */
+ 			unsigned int	alignment;	/* first page */
++			bool		own_pages;
+ 		};
+ 		struct ceph_pagelist	*pagelist;
+ 	};
+@@ -356,8 +357,8 @@ extern void ceph_con_keepalive(struct ceph_connection *con);
+ extern bool ceph_con_keepalive_expired(struct ceph_connection *con,
+ 				       unsigned long interval);
+ 
+-extern void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
+-				size_t length, size_t alignment);
++void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
++			     size_t length, size_t alignment, bool own_pages);
+ extern void ceph_msg_data_add_pagelist(struct ceph_msg *msg,
+ 				struct ceph_pagelist *pagelist);
+ #ifdef CONFIG_BLOCK
+diff --git a/net/ceph/messenger.c b/net/ceph/messenger.c
+index 5b4bd8261002..f8ca5edc5f2c 100644
+--- a/net/ceph/messenger.c
++++ b/net/ceph/messenger.c
+@@ -3248,12 +3248,16 @@ static struct ceph_msg_data *ceph_msg_data_add(struct ceph_msg *msg)
+ 
+ static void ceph_msg_data_destroy(struct ceph_msg_data *data)
+ {
+-	if (data->type == CEPH_MSG_DATA_PAGELIST)
++	if (data->type == CEPH_MSG_DATA_PAGES && data->own_pages) {
++		int num_pages = calc_pages_for(data->alignment, data->length);
++		ceph_release_page_vector(data->pages, num_pages);
++	} else if (data->type == CEPH_MSG_DATA_PAGELIST) {
+ 		ceph_pagelist_release(data->pagelist);
++	}
+ }
+ 
+ void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
+-		size_t length, size_t alignment)
++			     size_t length, size_t alignment, bool own_pages)
+ {
+ 	struct ceph_msg_data *data;
+ 
+@@ -3265,6 +3269,7 @@ void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
+ 	data->pages = pages;
+ 	data->length = length;
+ 	data->alignment = alignment & ~PAGE_MASK;
++	data->own_pages = own_pages;
+ 
+ 	msg->data_length += length;
+ }
+diff --git a/net/ceph/osd_client.c b/net/ceph/osd_client.c
+index b68b376d8c2f..af868d3923b9 100644
+--- a/net/ceph/osd_client.c
++++ b/net/ceph/osd_client.c
+@@ -962,7 +962,7 @@ static void ceph_osdc_msg_data_add(struct ceph_msg *msg,
+ 		BUG_ON(length > (u64) SIZE_MAX);
+ 		if (length)
+ 			ceph_msg_data_add_pages(msg, osd_data->pages,
+-					length, osd_data->alignment);
++					length, osd_data->alignment, false);
+ 	} else if (osd_data->type == CEPH_OSD_DATA_TYPE_PAGELIST) {
+ 		BUG_ON(!length);
+ 		ceph_msg_data_add_pagelist(msg, osd_data->pagelist);
+@@ -4436,9 +4436,7 @@ static void handle_watch_notify(struct ceph_osd_client *osdc,
+ 							CEPH_MSG_DATA_PAGES);
+ 					*lreq->preply_pages = data->pages;
+ 					*lreq->preply_len = data->length;
+-				} else {
+-					ceph_release_page_vector(data->pages,
+-					       calc_pages_for(0, data->length));
++					data->own_pages = false;
+ 				}
+ 			}
+ 			lreq->notify_finish_error = return_code;
+@@ -5506,9 +5504,6 @@ static struct ceph_msg *get_reply(struct ceph_connection *con,
+ 	return m;
+ }
+ 
+-/*
+- * TODO: switch to a msg-owned pagelist
+- */
+ static struct ceph_msg *alloc_msg_with_page_vector(struct ceph_msg_header *hdr)
+ {
+ 	struct ceph_msg *m;
+@@ -5522,7 +5517,6 @@ static struct ceph_msg *alloc_msg_with_page_vector(struct ceph_msg_header *hdr)
+ 
+ 	if (data_len) {
+ 		struct page **pages;
+-		struct ceph_osd_data osd_data;
+ 
+ 		pages = ceph_alloc_page_vector(calc_pages_for(0, data_len),
+ 					       GFP_NOIO);
+@@ -5531,9 +5525,7 @@ static struct ceph_msg *alloc_msg_with_page_vector(struct ceph_msg_header *hdr)
+ 			return NULL;
+ 		}
+ 
+-		ceph_osd_data_pages_init(&osd_data, pages, data_len, 0, false,
+-					 false);
+-		ceph_osdc_msg_data_add(m, &osd_data);
++		ceph_msg_data_add_pages(m, pages, data_len, 0, true);
+ 	}
+ 
+ 	return m;
 
-How should we proceed with this patch?
-
--- 
-Thanks
-Sasha
