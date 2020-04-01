@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1BDA19B450
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 313D519B3CD
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387511AbgDAQWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:22:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45700 "EHLO mail.kernel.org"
+        id S2388099AbgDAQbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:31:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732246AbgDAQWh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:22:37 -0400
+        id S2388109AbgDAQbR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:31:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 195E6212CC;
-        Wed,  1 Apr 2020 16:22:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E7C42063A;
+        Wed,  1 Apr 2020 16:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758155;
-        bh=xEtiESbTIcESJ4xqcCwq5ZZHvMgmrv9aSMzI+0ZLmPo=;
+        s=default; t=1585758676;
+        bh=F2g/g9a2VGxsZEFsFCJnB8LU4qh3oRDpjMj4MeTstkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YqpB0QKqrS323/dWujsOJNgBGBEhYzxHuBQkjNtRnMjy9iLYQjtmqlML2ew9+dIl3
-         mjA96iTZgQeaxv9qFr7YJ4yTrdQKQvV9W2CP2U/CXe3FAgyGN6s2Mrjr6RherdnzEn
-         88XIL5zdnLaHbyV4O8f9Aa/hBcJvlN6guPcsE2Lk=
+        b=rijMlYwi9kZqAvYuWEA7Yoh6siiRq7dPFAwX/3FnVic9mZmhcXwk1UlIA7RREpteh
+         D5upFBlSXAA5SKS+DwLBpcWQzL5azsvpm/b3A1DlSkSVDZE1A+dYFGEKUnbeaTKvhi
+         HXwwnZMU0zUAMvvaLbAwlzS1ouhfx7t4w36Iu2rE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.4 09/27] vt: vt_ioctl: fix use-after-free in vt_in_use()
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 41/91] hsr: use rcu_read_lock() in hsr_get_node_{list/status}()
 Date:   Wed,  1 Apr 2020 18:17:37 +0200
-Message-Id: <20200401161422.995544906@linuxfoundation.org>
+Message-Id: <20200401161527.874632679@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
-References: <20200401161414.352722470@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,138 +43,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit 7cf64b18b0b96e751178b8d0505d8466ff5a448f upstream.
+[ Upstream commit 173756b86803655d70af7732079b3aa935e6ab68 ]
 
-vt_in_use() dereferences console_driver->ttys[i] without proper locking.
-This is broken because the tty can be closed and freed concurrently.
+hsr_get_node_{list/status}() are not under rtnl_lock() because
+they are callback functions of generic netlink.
+But they use __dev_get_by_index() without rtnl_lock().
+So, it would use unsafe data.
+In order to fix it, rcu_read_lock() and dev_get_by_index_rcu()
+are used instead of __dev_get_by_index().
 
-We could fix this by using 'READ_ONCE(console_driver->ttys[i]) != NULL'
-and skipping the check of tty_struct::count.  But, looking at
-console_driver->ttys[i] isn't really appropriate anyway because even if
-it is NULL the tty can still be in the process of being closed.
-
-Instead, fix it by making vt_in_use() require console_lock() and check
-whether the vt is allocated and has port refcount > 1.  This works since
-following the patch "vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use
-virtual console" the port refcount is incremented while the vt is open.
-
-Reproducer (very unreliable, but it worked for me after a few minutes):
-
-	#include <fcntl.h>
-	#include <linux/vt.h>
-
-	int main()
-	{
-		int fd, nproc;
-		struct vt_stat state;
-		char ttyname[16];
-
-		fd = open("/dev/tty10", O_RDONLY);
-		for (nproc = 1; nproc < 8; nproc *= 2)
-			fork();
-		for (;;) {
-			sprintf(ttyname, "/dev/tty%d", rand() % 8);
-			close(open(ttyname, O_RDONLY));
-			ioctl(fd, VT_GETSTATE, &state);
-		}
-	}
-
-KASAN report:
-
-	BUG: KASAN: use-after-free in vt_in_use drivers/tty/vt/vt_ioctl.c:48 [inline]
-	BUG: KASAN: use-after-free in vt_ioctl+0x1ad3/0x1d70 drivers/tty/vt/vt_ioctl.c:657
-	Read of size 4 at addr ffff888065722468 by task syz-vt2/132
-
-	CPU: 0 PID: 132 Comm: syz-vt2 Not tainted 5.6.0-rc5-00130-g089b6d3654916 #13
-	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20191223_100556-anatol 04/01/2014
-	Call Trace:
-	 [...]
-	 vt_in_use drivers/tty/vt/vt_ioctl.c:48 [inline]
-	 vt_ioctl+0x1ad3/0x1d70 drivers/tty/vt/vt_ioctl.c:657
-	 tty_ioctl+0x9db/0x11b0 drivers/tty/tty_io.c:2660
-	 [...]
-
-	Allocated by task 136:
-	 [...]
-	 kzalloc include/linux/slab.h:669 [inline]
-	 alloc_tty_struct+0x96/0x8a0 drivers/tty/tty_io.c:2982
-	 tty_init_dev+0x23/0x350 drivers/tty/tty_io.c:1334
-	 tty_open_by_driver drivers/tty/tty_io.c:1987 [inline]
-	 tty_open+0x3ca/0xb30 drivers/tty/tty_io.c:2035
-	 [...]
-
-	Freed by task 41:
-	 [...]
-	 kfree+0xbf/0x200 mm/slab.c:3757
-	 free_tty_struct+0x8d/0xb0 drivers/tty/tty_io.c:177
-	 release_one_tty+0x22d/0x2f0 drivers/tty/tty_io.c:1468
-	 process_one_work+0x7f1/0x14b0 kernel/workqueue.c:2264
-	 worker_thread+0x8b/0xc80 kernel/workqueue.c:2410
-	 [...]
-
-Fixes: 4001d7b7fc27 ("vt: push down the tty lock so we can see what is left to tackle")
-Cc: <stable@vger.kernel.org> # v3.4+
-Acked-by: Jiri Slaby <jslaby@suse.cz>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20200322034305.210082-3-ebiggers@kernel.org
+Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/vt/vt_ioctl.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ net/hsr/hsr_framereg.c |   10 ++--------
+ net/hsr/hsr_netlink.c  |   43 +++++++++++++++++++++----------------------
+ 2 files changed, 23 insertions(+), 30 deletions(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -43,9 +43,15 @@ bool vt_dont_switch;
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -455,13 +455,9 @@ int hsr_get_node_data(struct hsr_priv *h
+ 	struct hsr_port *port;
+ 	unsigned long tdiff;
  
- static inline bool vt_in_use(unsigned int i)
- {
--	extern struct tty_driver *console_driver;
-+	const struct vc_data *vc = vc_cons[i].d;
+-
+-	rcu_read_lock();
+ 	node = find_node_by_AddrA(&hsr->node_db, addr);
+-	if (!node) {
+-		rcu_read_unlock();
+-		return -ENOENT;	/* No such entry */
+-	}
++	if (!node)
++		return -ENOENT;
  
--	return console_driver->ttys[i] && console_driver->ttys[i]->count;
-+	/*
-+	 * console_lock must be held to prevent the vc from being deallocated
-+	 * while we're checking whether it's in-use.
-+	 */
-+	WARN_CONSOLE_UNLOCKED();
+ 	ether_addr_copy(addr_b, node->MacAddressB);
+ 
+@@ -496,7 +492,5 @@ int hsr_get_node_data(struct hsr_priv *h
+ 		*addr_b_ifindex = -1;
+ 	}
+ 
+-	rcu_read_unlock();
+-
+ 	return 0;
+ }
+--- a/net/hsr/hsr_netlink.c
++++ b/net/hsr/hsr_netlink.c
+@@ -259,17 +259,16 @@ static int hsr_get_node_status(struct sk
+ 	if (!na)
+ 		goto invalid;
+ 
+-	hsr_dev = __dev_get_by_index(genl_info_net(info),
+-					nla_get_u32(info->attrs[HSR_A_IFINDEX]));
++	rcu_read_lock();
++	hsr_dev = dev_get_by_index_rcu(genl_info_net(info),
++				       nla_get_u32(info->attrs[HSR_A_IFINDEX]));
+ 	if (!hsr_dev)
+-		goto invalid;
++		goto rcu_unlock;
+ 	if (!is_hsr_master(hsr_dev))
+-		goto invalid;
+-
++		goto rcu_unlock;
+ 
+ 	/* Send reply */
+-
+-	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_KERNEL);
++	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_ATOMIC);
+ 	if (!skb_out) {
+ 		res = -ENOMEM;
+ 		goto fail;
+@@ -321,12 +320,10 @@ static int hsr_get_node_status(struct sk
+ 	res = nla_put_u16(skb_out, HSR_A_IF1_SEQ, hsr_node_if1_seq);
+ 	if (res < 0)
+ 		goto nla_put_failure;
+-	rcu_read_lock();
+ 	port = hsr_port_get_hsr(hsr, HSR_PT_SLAVE_A);
+ 	if (port)
+ 		res = nla_put_u32(skb_out, HSR_A_IF1_IFINDEX,
+ 				  port->dev->ifindex);
+-	rcu_read_unlock();
+ 	if (res < 0)
+ 		goto nla_put_failure;
+ 
+@@ -336,20 +333,22 @@ static int hsr_get_node_status(struct sk
+ 	res = nla_put_u16(skb_out, HSR_A_IF2_SEQ, hsr_node_if2_seq);
+ 	if (res < 0)
+ 		goto nla_put_failure;
+-	rcu_read_lock();
+ 	port = hsr_port_get_hsr(hsr, HSR_PT_SLAVE_B);
+ 	if (port)
+ 		res = nla_put_u32(skb_out, HSR_A_IF2_IFINDEX,
+ 				  port->dev->ifindex);
+-	rcu_read_unlock();
+ 	if (res < 0)
+ 		goto nla_put_failure;
+ 
++	rcu_read_unlock();
 +
-+	return vc && kref_read(&vc->port.kref) > 1;
+ 	genlmsg_end(skb_out, msg_head);
+ 	genlmsg_unicast(genl_info_net(info), skb_out, info->snd_portid);
+ 
+ 	return 0;
+ 
++rcu_unlock:
++	rcu_read_unlock();
+ invalid:
+ 	netlink_ack(skb_in, nlmsg_hdr(skb_in), -EINVAL);
+ 	return 0;
+@@ -359,6 +358,7 @@ nla_put_failure:
+ 	/* Fall through */
+ 
+ fail:
++	rcu_read_unlock();
+ 	return res;
  }
  
- static inline bool vt_busy(int i)
-@@ -643,15 +649,16 @@ int vt_ioctl(struct tty_struct *tty,
- 		struct vt_stat __user *vtstat = up;
- 		unsigned short state, mask;
+@@ -385,17 +385,16 @@ static int hsr_get_node_list(struct sk_b
+ 	if (!na)
+ 		goto invalid;
  
--		/* Review: FIXME: Console lock ? */
- 		if (put_user(fg_console + 1, &vtstat->v_active))
- 			ret = -EFAULT;
- 		else {
- 			state = 1;	/* /dev/tty0 is always open */
-+			console_lock(); /* required by vt_in_use() */
- 			for (i = 0, mask = 2; i < MAX_NR_CONSOLES && mask;
- 							++i, mask <<= 1)
- 				if (vt_in_use(i))
- 					state |= mask;
-+			console_unlock();
- 			ret = put_user(state, &vtstat->v_state);
- 		}
- 		break;
-@@ -661,10 +668,11 @@ int vt_ioctl(struct tty_struct *tty,
- 	 * Returns the first available (non-opened) console.
- 	 */
- 	case VT_OPENQRY:
--		/* FIXME: locking ? - but then this is a stupid API */
-+		console_lock(); /* required by vt_in_use() */
- 		for (i = 0; i < MAX_NR_CONSOLES; ++i)
- 			if (!vt_in_use(i))
- 				break;
-+		console_unlock();
- 		uival = i < MAX_NR_CONSOLES ? (i+1) : -1;
- 		goto setint;		 
+-	hsr_dev = __dev_get_by_index(genl_info_net(info),
+-				     nla_get_u32(info->attrs[HSR_A_IFINDEX]));
++	rcu_read_lock();
++	hsr_dev = dev_get_by_index_rcu(genl_info_net(info),
++				       nla_get_u32(info->attrs[HSR_A_IFINDEX]));
+ 	if (!hsr_dev)
+-		goto invalid;
++		goto rcu_unlock;
+ 	if (!is_hsr_master(hsr_dev))
+-		goto invalid;
+-
++		goto rcu_unlock;
+ 
+ 	/* Send reply */
+-
+-	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_KERNEL);
++	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_ATOMIC);
+ 	if (!skb_out) {
+ 		res = -ENOMEM;
+ 		goto fail;
+@@ -415,14 +414,11 @@ static int hsr_get_node_list(struct sk_b
+ 
+ 	hsr = netdev_priv(hsr_dev);
+ 
+-	rcu_read_lock();
+ 	pos = hsr_get_next_node(hsr, NULL, addr);
+ 	while (pos) {
+ 		res = nla_put(skb_out, HSR_A_NODE_ADDR, ETH_ALEN, addr);
+-		if (res < 0) {
+-			rcu_read_unlock();
++		if (res < 0)
+ 			goto nla_put_failure;
+-		}
+ 		pos = hsr_get_next_node(hsr, pos, addr);
+ 	}
+ 	rcu_read_unlock();
+@@ -432,6 +428,8 @@ static int hsr_get_node_list(struct sk_b
+ 
+ 	return 0;
+ 
++rcu_unlock:
++	rcu_read_unlock();
+ invalid:
+ 	netlink_ack(skb_in, nlmsg_hdr(skb_in), -EINVAL);
+ 	return 0;
+@@ -441,6 +439,7 @@ nla_put_failure:
+ 	/* Fall through */
+ 
+ fail:
++	rcu_read_unlock();
+ 	return res;
+ }
  
 
 
