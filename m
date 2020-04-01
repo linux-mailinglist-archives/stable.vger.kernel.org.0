@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8C719B3B1
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7703519B0B5
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388251AbgDAQdH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:33:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59574 "EHLO mail.kernel.org"
+        id S2387659AbgDAQ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:28:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388490AbgDAQdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:33:04 -0400
+        id S2387543AbgDAQ2x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:28:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50FE42063A;
-        Wed,  1 Apr 2020 16:33:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7002220BED;
+        Wed,  1 Apr 2020 16:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758783;
-        bh=RgEC/UFyDfA3IWS/jjbLRXkhkFbRjA5TDwmOQTQociQ=;
+        s=default; t=1585758531;
+        bh=VJu4QYTi6OUJ0thSb1ipp7/N0aGjZyGyy/gIYPdiCmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IqGZkEf2LyJQNPHPfAU3a0MjBnFLnaAN6UN8hUy1vlQv7+36L5d8uLWZtKW4z5rPO
-         t4MXP+XCpVY09Xlps7KwevdaxX3kKxthNDrhcOlnZkJIJiF1C0DtDcdaTz7+qkppNr
-         oMkf3Xqerktoez2gDI0Oms0rjhq125VqLcR7BqJM=
+        b=c3K9pPGYJxDtfbgO4NuZpjKk7F4K7wK7zn2zC4seuQ17RhzCuT90IMs9ji6kqTINO
+         i+RX6lWiGF8xLfRR93Rnoz6FzPfxcolK0LJR52ZjCpN6ktvmoLbC1xOH4lX0Q6bC5F
+         NJptXLUs9qAZ+5G1dsRxpq4OkTOTFwA0kAGtAZSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        kovi <zraetn@gmail.com>
-Subject: [PATCH 4.4 75/91] staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
+        stable@vger.kernel.org, Madalin Bucur <madalin.bucur@oss.nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 115/116] arm64: dts: ls1043a-rdb: correct RGMII delay mode to rgmii-id
 Date:   Wed,  1 Apr 2020 18:18:11 +0200
-Message-Id: <20200401161537.682766898@linuxfoundation.org>
+Message-Id: <20200401161556.792387965@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Madalin Bucur <madalin.bucur@oss.nxp.com>
 
-commit 38ef48f7d4b7342f145a1b4f96023bde99aeb245 upstream.
+commit 4022d808c45277693ea86478fab1f081ebf997e8 upstream.
 
-The ASUS USB-N10 Nano B1 has been reported as a new RTL8188EU device.
-Add it to the device tables.
+The correct setting for the RGMII ports on LS1043ARDB is to
+enable delay on both Rx and Tx so the interface mode used must
+be PHY_INTERFACE_MODE_RGMII_ID.
 
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Reported-by: kovi <zraetn@gmail.com>
-Cc: Stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200321180011.26153-1-Larry.Finger@lwfinger.net
+Since commit 1b3047b5208a80 ("net: phy: realtek: add support for
+configuring the RX delay on RTL8211F") the Realtek 8211F PHY driver
+has control over the RGMII RX delay and it is disabling it for
+RGMII_TXID. The LS1043ARDB uses two such PHYs in RGMII_ID mode but
+in the device tree the mode was described as "rgmii_txid".
+This issue was not apparent at the time as the PHY driver took the
+same action for RGMII_TXID and RGMII_ID back then but it became
+visible (RX no longer working) after the above patch.
+
+Changing the phy-connection-type to "rgmii-id" to address the issue.
+
+Fixes: bf02f2ffe59c ("arm64: dts: add LS1043A DPAA FMan support")
+Signed-off-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -44,6 +44,7 @@ static struct usb_device_id rtw_usb_id_t
- 	/****** 8188EUS ********/
- 	{USB_DEVICE(0x056e, 0x4008)}, /* Elecom WDC-150SU2M */
- 	{USB_DEVICE(0x07b8, 0x8179)}, /* Abocom - Abocom */
-+	{USB_DEVICE(0x0B05, 0x18F0)}, /* ASUS USB-N10 Nano B1 */
- 	{USB_DEVICE(0x2001, 0x330F)}, /* DLink DWA-125 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3310)}, /* Dlink DWA-123 REV D1 */
- 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
+@@ -118,12 +118,12 @@
+ 
+ 	ethernet@e4000 {
+ 		phy-handle = <&rgmii_phy1>;
+-		phy-connection-type = "rgmii-txid";
++		phy-connection-type = "rgmii-id";
+ 	};
+ 
+ 	ethernet@e6000 {
+ 		phy-handle = <&rgmii_phy2>;
+-		phy-connection-type = "rgmii-txid";
++		phy-connection-type = "rgmii-id";
+ 	};
+ 
+ 	ethernet@e8000 {
 
 
