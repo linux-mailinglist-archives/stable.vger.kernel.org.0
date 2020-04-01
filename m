@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC11819AFC9
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F059119B0D6
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:30:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733191AbgDAQU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43780 "EHLO mail.kernel.org"
+        id S2388061AbgDAQ3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:29:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733210AbgDAQU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:20:58 -0400
+        id S2388192AbgDAQ3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:29:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65FA220658;
-        Wed,  1 Apr 2020 16:20:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E32A20658;
+        Wed,  1 Apr 2020 16:29:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758057;
-        bh=mR+5OGoU1pNR0jhdMMwChIxKedYFniCIAotdRFpImVQ=;
+        s=default; t=1585758587;
+        bh=AL7hoBSzUmkmWDlkQMwp9cp9Ui5kceVTauOdV7/oyJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDhDdXqpHSSn2YlgY+HYr/u1tbguLiDsk2oX2PBwkahF9I39GksCudfSckiOoB9Dn
-         SRzelZdu/+0SdzMhIx/zcDLzGc6lDT/XYvwhQMFngqjcCa2tK52VzOFthQVzpstOSM
-         fZGA6lwyEk+8dZhw4PnP1oOtcfDo2MGWVaAeXosg=
+        b=ia6on8FRD+wLdah6cR5OG1DMG6OFnE9IUWlf0x6SzYUKleJBokAoknBylwMAMN0r6
+         v/Zh1vpfv8RTCb26TjHB5qaDLq6h/Ih+zq/wGniv6v94e+lmMLqOykPiDHP4xMcZXV
+         e9svlA3L+6gR4q4/wKAH1DSwwPrUNFjpFM9aX0Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.5 08/30] vt: vt_ioctl: remove unnecessary console allocation checks
+        stable@vger.kernel.org,
+        syzbot+e1fe9f44fb8ecf4fb5dd@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 16/91] ALSA: pcm: oss: Avoid plugin buffer overflow
 Date:   Wed,  1 Apr 2020 18:17:12 +0200
-Message-Id: <20200401161420.374733591@linuxfoundation.org>
+Message-Id: <20200401161518.639084136@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
-References: <20200401161414.345528747@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 1aa6e058dd6cd04471b1f21298270014daf48ac9 upstream.
+commit f2ecf903ef06eb1bbbfa969db9889643d487e73a upstream.
 
-The vc_cons_allocated() checks in vt_ioctl() and vt_compat_ioctl() are
-unnecessary because they can only be reached by calling ioctl() on an
-open tty, which implies the corresponding virtual console is allocated.
+Each OSS PCM plugins allocate its internal buffer per pre-calculation
+of the max buffer size through the chain of plugins (calling
+src_frames and dst_frames callbacks).  This works for most plugins,
+but the rate plugin might behave incorrectly.  The calculation in the
+rate plugin involves with the fractional position, i.e. it may vary
+depending on the input position.  Since the buffer size
+pre-calculation is always done with the offset zero, it may return a
+shorter size than it might be; this may result in the out-of-bound
+access as spotted by fuzzer.
 
-And even if the virtual console *could* be freed concurrently, then
-these checks would be broken since they aren't done under console_lock,
-and the vc_data is dereferenced before them anyway.
+This patch addresses those possible buffer overflow accesses by simply
+setting the upper limit per the given buffer size for each plugin
+before src_frames() and after dst_frames() calls.
 
-So, remove these unneeded checks to avoid confusion.
-
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20200224080326.295046-1-ebiggers@kernel.org
+Reported-by: syzbot+e1fe9f44fb8ecf4fb5dd@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000b25ea005a02bcf21@google.com
+Link: https://lore.kernel.org/r/20200309082148.19855-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/vt_ioctl.c |   16 +---------------
- 1 file changed, 1 insertion(+), 15 deletions(-)
+ sound/core/oss/pcm_plugin.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -350,22 +350,13 @@ int vt_ioctl(struct tty_struct *tty,
- {
- 	struct vc_data *vc = tty->driver_data;
- 	struct console_font_op op;	/* used in multiple places here */
--	unsigned int console;
-+	unsigned int console = vc->vc_num;
- 	unsigned char ucval;
- 	unsigned int uival;
- 	void __user *up = (void __user *)arg;
- 	int i, perm;
- 	int ret = 0;
- 
--	console = vc->vc_num;
--
--
--	if (!vc_cons_allocated(console)) { 	/* impossible? */
--		ret = -ENOIOCTLCMD;
--		goto out;
--	}
--
--
- 	/*
- 	 * To have permissions to do most of the vt ioctls, we either have
- 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
-@@ -1195,14 +1186,9 @@ long vt_compat_ioctl(struct tty_struct *
- {
- 	struct vc_data *vc = tty->driver_data;
- 	struct console_font_op op;	/* used in multiple places here */
--	unsigned int console = vc->vc_num;
- 	void __user *up = compat_ptr(arg);
- 	int perm;
- 
--
--	if (!vc_cons_allocated(console)) 	/* impossible? */
--		return -ENOIOCTLCMD;
--
- 	/*
- 	 * To have permissions to do most of the vt ioctls, we either have
- 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -209,6 +209,8 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
+ 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin && drv_frames > 0) {
++			if (drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames)
+ 				drv_frames = plugin->src_frames(plugin, drv_frames);
+@@ -220,6 +222,8 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
+ 			plugin_next = plugin->next;
+ 			if (plugin->dst_frames)
+ 				drv_frames = plugin->dst_frames(plugin, drv_frames);
++			if (drv_frames > plugin->buf_frames)
++				drv_frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else
+@@ -248,11 +252,15 @@ snd_pcm_sframes_t snd_pcm_plug_slave_siz
+ 				if (frames < 0)
+ 					return frames;
+ 			}
++			if (frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin) {
++			if (frames > plugin->buf_frames)
++				frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames) {
+ 				frames = plugin->src_frames(plugin, frames);
 
 
