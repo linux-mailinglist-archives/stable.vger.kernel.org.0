@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76B1219B072
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:27:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9EAC19B223
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387959AbgDAQ1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:27:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51624 "EHLO mail.kernel.org"
+        id S2389406AbgDAQlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:41:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387954AbgDAQ06 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:26:58 -0400
+        id S2389238AbgDAQlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:41:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3600921582;
-        Wed,  1 Apr 2020 16:26:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03E732063A;
+        Wed,  1 Apr 2020 16:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758417;
-        bh=CCq3L2C5b5am1LuV8X7wApOJDo5W0UFsM7e0KfQwLow=;
+        s=default; t=1585759281;
+        bh=WRBUD46qixzrv7/fKXx1wY16VvMfeiD7Ux85sux5KAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TEp+pMwxEsesoXoHcyYRnP4xYYLNdz0puu6/evi07WLBvBgKjZtcQUSetWfql2dN3
-         k3iBW8fMim/FUlbxyB/SrSuZwkhnnQA9rI9tqI8+2VTfTUQ5LTRuwgnYEwe0GGQ+0g
-         fj8kBRXrnhaldLxEBO8FjXsR3VqPXLQgnYz1DPdY=
+        b=G5wFvIkWo9GOdoULhmENWZtVoCbWlBEUGpoktyzE1Q/Uh2BPmElzfpFs5+4Qwhdrg
+         V+QxFp/h++ZfqEpWY5rlluWkU5XndyzLbqt3T1yX4qKnofXmTi4ItHt9EGbQZ+ABQA
+         06M0GmJ927DeCqL5SDUsjbDyhqRhdOK198CB5sX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Czarnota <dominik.b.czarnota@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 045/116] sxgbe: Fix off by one in samsung driver strncpy size arg
-Date:   Wed,  1 Apr 2020 18:17:01 +0200
-Message-Id: <20200401161548.244119774@linuxfoundation.org>
+        stable@vger.kernel.org, Kirk Reiser <kirk@reisers.ca>,
+        Janina Sajka <janina@rednote.net>,
+        Alexandr Epaneshnikov <aarnaarn2@gmail.com>,
+        Gregory Nowak <greg@gregn.net>,
+        deedra waters <deedra@the-brannons.com>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Michael Taboada <michael@michaels.world>
+Subject: [PATCH 4.14 030/148] staging/speakup: fix get_word non-space look-ahead
+Date:   Wed,  1 Apr 2020 18:17:02 +0200
+Message-Id: <20200401161555.435323323@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Czarnota <dominik.b.czarnota@gmail.com>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-[ Upstream commit f3cc008bf6d59b8d93b4190e01d3e557b0040e15 ]
+commit 9d32c0cde4e2d1343dfb88a67b2ec6397705b32b upstream.
 
-This patch fixes an off-by-one error in strncpy size argument in
-drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c. The issue is that in:
+get_char was erroneously given the address of the pointer to the text
+instead of the address of the text, thus leading to random crashes when
+the user requests speaking a word while the current position is on a space
+character and say_word_ctl is not enabled.
 
-        strncmp(opt, "eee_timer:", 6)
+Reported-on: https://github.com/bytefire/speakup/issues/1
+Reported-by: Kirk Reiser <kirk@reisers.ca>
+Reported-by: Janina Sajka <janina@rednote.net>
+Reported-by: Alexandr Epaneshnikov <aarnaarn2@gmail.com>
+Reported-by: Gregory Nowak <greg@gregn.net>
+Reported-by: deedra waters <deedra@the-brannons.com>
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Tested-by: Alexandr Epaneshnikov <aarnaarn2@gmail.com>
+Tested-by: Gregory Nowak <greg@gregn.net>
+Tested-by: Michael Taboada <michael@michaels.world>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200306003047.thijtmqrnayd3dmw@function
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-the passed string literal: "eee_timer:" has 10 bytes (without the NULL
-byte) and the passed size argument is 6. As a result, the logic will
-also accept other, malformed strings, e.g. "eee_tiXXX:".
-
-This bug doesn't seem to have any security impact since its present in
-module's cmdline parsing code.
-
-Signed-off-by: Dominik Czarnota <dominik.b.czarnota@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c | 2 +-
+ drivers/staging/speakup/main.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-index a9da1ad4b4f20..30cd087aa67c1 100644
---- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-+++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-@@ -2282,7 +2282,7 @@ static int __init sxgbe_cmdline_opt(char *str)
- 	if (!str || !*str)
- 		return -EINVAL;
- 	while ((opt = strsep(&str, ",")) != NULL) {
--		if (!strncmp(opt, "eee_timer:", 6)) {
-+		if (!strncmp(opt, "eee_timer:", 10)) {
- 			if (kstrtoint(opt + 10, 0, &eee_timer))
- 				goto err;
- 		}
--- 
-2.20.1
-
+--- a/drivers/staging/speakup/main.c
++++ b/drivers/staging/speakup/main.c
+@@ -567,7 +567,7 @@ static u_long get_word(struct vc_data *v
+ 		return 0;
+ 	} else if (tmpx < vc->vc_cols - 2 &&
+ 		   (ch == SPACE || ch == 0 || (ch < 0x100 && IS_WDLM(ch))) &&
+-		   get_char(vc, (u_short *)&tmp_pos + 1, &temp) > SPACE) {
++		   get_char(vc, (u_short *)tmp_pos + 1, &temp) > SPACE) {
+ 		tmp_pos += 2;
+ 		tmpx++;
+ 	} else
 
 
