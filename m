@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4090D19B10B
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C71A019B0BC
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:29:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388229AbgDAQbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:31:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57728 "EHLO mail.kernel.org"
+        id S2387558AbgDAQ3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:29:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388318AbgDAQba (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:31:30 -0400
+        id S2388005AbgDAQ3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:29:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA6152063A;
-        Wed,  1 Apr 2020 16:31:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CD51215A4;
+        Wed,  1 Apr 2020 16:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758690;
-        bh=VsRh+mYVWjw3vw5igl7CNXGZG/GfmVCNJmJHfY/fTPU=;
+        s=default; t=1585758545;
+        bh=m/m/Jw3A3ciNENbhVb8c9FbUWlsYv2sjeNllAtN62Ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x768Jh3xL9+lCVSDWisBdriW/RhABiFxOnaUNZw3fu1JNT7hAH9QmwEmnxRk8i2Pm
-         Cb3vIgikpDcaJfSCUH9o1eCAbGrn8tBzobx8AZ0uhfNU/yIiqNzw+gQC7nB/E+qE9F
-         +rfEFGk3WzvvzHuult0wrrYY3rT0Dc3CdMk3qNuE=
+        b=ERgdMnmRDRAd15unUEHzO3Pj6S6Z7Bx7dkCFzSEeLJ86RNiLK82TEQtlXv2Ywph6g
+         7JWwkMN7ihthuG7ewUAfK6+XttHuRsy8rZxFMY06g/rgrPjNcbWl6Gt7mx1A3MZ+ke
+         JcFVLapf1825BzN4ZA6Sv7maRCyptkrXxaSsoGZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alaa Hleihel <alaa@mellanox.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 45/91] IB/ipoib: Do not warn if IPoIB debugfs doesnt exist
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 085/116] media: flexcop-usb: fix endpoint sanity check
 Date:   Wed,  1 Apr 2020 18:17:41 +0200
-Message-Id: <20200401161529.019824784@linuxfoundation.org>
+Message-Id: <20200401161553.346436694@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
+References: <20200401161542.669484650@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Hleihel <alaa@mellanox.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 14fa91e0fef8e4d6feb8b1fa2a807828e0abe815 ]
+commit bca243b1ce0e46be26f7c63b5591dfbb41f558e5 upstream.
 
-netdev_wait_allrefs() could rebroadcast NETDEV_UNREGISTER event
-multiple times until all refs are gone, which will result in calling
-ipoib_delete_debug_files multiple times and printing a warning.
+commit 1b976fc6d684 ("media: b2c2-flexcop-usb: add sanity checking") added
+an endpoint sanity check to address a NULL-pointer dereference on probe.
+Unfortunately the check was done on the current altsetting which was later
+changed.
 
-Remove the WARN_ONCE since checks of NULL pointers before calling
-debugfs_remove are not needed.
+Fix this by moving the sanity check to after the altsetting is changed.
 
-Fixes: 771a52584096 ("IB/IPoIB: ibX: failed to create mcg debug file")
-Signed-off-by: Alaa Hleihel <alaa@mellanox.com>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1b976fc6d684 ("media: b2c2-flexcop-usb: add sanity checking")
+Cc: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/infiniband/ulp/ipoib/ipoib_fs.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/media/usb/b2c2/flexcop-usb.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_fs.c b/drivers/infiniband/ulp/ipoib/ipoib_fs.c
-index 09396bd7b02d2..63be3bcdc0e38 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_fs.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_fs.c
-@@ -281,8 +281,6 @@ void ipoib_delete_debug_files(struct net_device *dev)
- {
- 	struct ipoib_dev_priv *priv = netdev_priv(dev);
+--- a/drivers/media/usb/b2c2/flexcop-usb.c
++++ b/drivers/media/usb/b2c2/flexcop-usb.c
+@@ -510,6 +510,9 @@ static int flexcop_usb_init(struct flexc
+ 		return ret;
+ 	}
  
--	WARN_ONCE(!priv->mcg_dentry, "null mcg debug file\n");
--	WARN_ONCE(!priv->path_dentry, "null path debug file\n");
- 	debugfs_remove(priv->mcg_dentry);
- 	debugfs_remove(priv->path_dentry);
- 	priv->mcg_dentry = priv->path_dentry = NULL;
--- 
-2.20.1
-
++	if (fc_usb->uintf->cur_altsetting->desc.bNumEndpoints < 1)
++		return -ENODEV;
++
+ 	switch (fc_usb->udev->speed) {
+ 	case USB_SPEED_LOW:
+ 		err("cannot handle USB speed because it is too slow.");
+@@ -543,9 +546,6 @@ static int flexcop_usb_probe(struct usb_
+ 	struct flexcop_device *fc = NULL;
+ 	int ret;
+ 
+-	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
+-		return -ENODEV;
+-
+ 	if ((fc = flexcop_device_kmalloc(sizeof(struct flexcop_usb))) == NULL) {
+ 		err("out of memory\n");
+ 		return -ENOMEM;
 
 
