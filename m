@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8B7819B350
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:51:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B5CB19B2EB
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:48:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388582AbgDAQjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:39:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38948 "EHLO mail.kernel.org"
+        id S2390080AbgDAQrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:47:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389153AbgDAQjE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:39:04 -0400
+        id S2389820AbgDAQrk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:47:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E615620BED;
-        Wed,  1 Apr 2020 16:39:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B2A7206E9;
+        Wed,  1 Apr 2020 16:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759143;
-        bh=ECMTapZiEAO5V+zel/kh53056N1oVlmBEd7f5TKCtXU=;
+        s=default; t=1585759659;
+        bh=fkqJgZcXEk3ANMHQV2zr7kHP0YWWYnpw4faPhGrgKl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kwi8cwoL9mYliM9PuWHpwnjbhQWbcr0W9Ha+81PcPfzZtAzfweajnxGUIZKG0kxdX
-         2rGcZprA/Y1cfJTPcJE35qAVlDvYW0QnIGgGRU4PTRfUtNCB57gurCMikch4n4aJ5z
-         6s8OiA9+MEPPuiy3OKz8FNRhbWBcSrnEi+am4eX8=
+        b=g3pF6pIGKhzQZ41Wg5xgpn4g2yYK/Qdm4VAVrmdrofXnVTQxSZjhIhgTiR1pN5Clr
+         LbHNPJXOI6pfPvT2ETpIYBwoHTprWoTJO34MHHI2myvQqiucnsa2LwfWO19WFzOaS2
+         HNE5YXvPvLBbWk8efy/0/A2e5aHjhBGYgbz++wgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Woody Suwalski <terraluna977@gmail.com>
-Subject: [PATCH 4.9 091/102] mac80211: fix authentication with iwlwifi/mvm
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        kovi <zraetn@gmail.com>
+Subject: [PATCH 4.14 122/148] staging: rtl8188eu: Add ASUS USB-N10 Nano B1 to device table
 Date:   Wed,  1 Apr 2020 18:18:34 +0200
-Message-Id: <20200401161547.475362513@linuxfoundation.org>
+Message-Id: <20200401161604.144252449@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit be8c827f50a0bcd56361b31ada11dc0a3c2fd240 upstream.
+commit 38ef48f7d4b7342f145a1b4f96023bde99aeb245 upstream.
 
-The original patch didn't copy the ieee80211_is_data() condition
-because on most drivers the management frames don't go through
-this path. However, they do on iwlwifi/mvm, so we do need to keep
-the condition here.
+The ASUS USB-N10 Nano B1 has been reported as a new RTL8188EU device.
+Add it to the device tables.
 
-Cc: stable@vger.kernel.org
-Fixes: ce2e1ca70307 ("mac80211: Check port authorization in the ieee80211_tx_dequeue() case")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Woody Suwalski <terraluna977@gmail.com>
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Reported-by: kovi <zraetn@gmail.com>
+Cc: Stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200321180011.26153-1-Larry.Finger@lwfinger.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/tx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -3418,7 +3418,8 @@ begin:
- 		 * Drop unicast frames to unauthorised stations unless they are
- 		 * EAPOL frames from the local station.
- 		 */
--		if (unlikely(!ieee80211_vif_is_mesh(&tx.sdata->vif) &&
-+		if (unlikely(ieee80211_is_data(hdr->frame_control) &&
-+			     !ieee80211_vif_is_mesh(&tx.sdata->vif) &&
- 			     tx.sdata->vif.type != NL80211_IFTYPE_OCB &&
- 			     !is_multicast_ether_addr(hdr->addr1) &&
- 			     !test_sta_flag(tx.sta, WLAN_STA_AUTHORIZED) &&
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -40,6 +40,7 @@ static const struct usb_device_id rtw_us
+ 	/****** 8188EUS ********/
+ 	{USB_DEVICE(0x056e, 0x4008)}, /* Elecom WDC-150SU2M */
+ 	{USB_DEVICE(0x07b8, 0x8179)}, /* Abocom - Abocom */
++	{USB_DEVICE(0x0B05, 0x18F0)}, /* ASUS USB-N10 Nano B1 */
+ 	{USB_DEVICE(0x2001, 0x330F)}, /* DLink DWA-125 REV D1 */
+ 	{USB_DEVICE(0x2001, 0x3310)}, /* Dlink DWA-123 REV D1 */
+ 	{USB_DEVICE(0x2001, 0x3311)}, /* DLink GO-USB-N150 REV B1 */
 
 
