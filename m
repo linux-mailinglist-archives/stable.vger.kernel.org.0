@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F341219B38B
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:52:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 910A719B0D0
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388616AbgDAQwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:52:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35410 "EHLO mail.kernel.org"
+        id S1732337AbgDAQ3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388056AbgDAQg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:36:28 -0400
+        id S2388201AbgDAQ3j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:29:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7805420658;
-        Wed,  1 Apr 2020 16:36:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88DB72063A;
+        Wed,  1 Apr 2020 16:29:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758987;
-        bh=DAzNytEKYVDkkCaQNm7J4s7xcEx2wTe7yrYfQJXX7+Q=;
+        s=default; t=1585758579;
+        bh=DohTVQXblbOwvsyl0RT+rMMpmpa3x4b197VJ4A9xvic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWiEoKciTfShtGo0qWfC89EWEnCC7scIDAu/GNVK/d6XNmINvJjZFPehGYBu2Cjyp
-         S/HdYI6BPBXEgPSaobg41gZR8d0y2iGeJLdFr0LWeTTr3lGGWXkpONS+oCdIOumDUS
-         eMPnKvcry/4lI38dcteeF9GoXJ8xLQ8sxuXzFD4E=
+        b=ORO7jml0y+EFOqhfPHr8FFKiXHgWSa3eipV0dn1ptpFaCQxTRE4zp1QSy2ws4CzXl
+         fIuj1K2PIiq2xIOdFd9AX29A3eDkhEsn96bqPShft6ggkMUxhi8o0VvHZfJ4jia3Qp
+         0kb3lL1mvXwcFI+bCM27wPHvdVBB0F+kwvSR0Kjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Inki Dae <inki.dae@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 006/102] drm/exynos: dsi: fix workaround for the legacy clock name
+        syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 13/91] ALSA: line6: Fix endless MIDI read loop
 Date:   Wed,  1 Apr 2020 18:17:09 +0200
-Message-Id: <20200401161532.691800992@linuxfoundation.org>
+Message-Id: <20200401161517.763952939@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c0fd99d659ba5582e09625c7a985d63fc2ca74b5 ]
+commit d683469b3c93d7e2afd39e6e1970f24700eb7a68 upstream.
 
-Writing to the built-in strings arrays doesn't work if driver is loaded
-as kernel module. This is also considered as a bad pattern. Fix this by
-adding a call to clk_get() with legacy clock name. This fixes following
-kernel oops if driver is loaded as module:
+The MIDI input event parser of the LINE6 driver may enter into an
+endless loop when the unexpected data sequence is given, as it tries
+to continue the secondary bytes without termination.  Also, when the
+input data is too short, the parser returns a negative error, while
+the caller doesn't handle it properly.  This would lead to the
+unexpected behavior as well.
 
-Unable to handle kernel paging request at virtual address bf047978
- pgd = (ptrval)
- [bf047978] *pgd=59344811, *pte=5903c6df, *ppte=5903c65f
- Internal error: Oops: 80f [#1] SMP ARM
- Modules linked in: mc exynosdrm(+) analogix_dp rtc_s3c exynos_ppmu i2c_gpio
- CPU: 1 PID: 212 Comm: systemd-udevd Not tainted 5.6.0-rc2-next-20200219 #326
- videodev: Linux video capture interface: v2.00
- Hardware name: Samsung Exynos (Flattened Device Tree)
- PC is at exynos_dsi_probe+0x1f0/0x384 [exynosdrm]
- LR is at exynos_dsi_probe+0x1dc/0x384 [exynosdrm]
- ...
- Process systemd-udevd (pid: 212, stack limit = 0x(ptrval))
- ...
- [<bf03cf14>] (exynos_dsi_probe [exynosdrm]) from [<c09b1ca0>] (platform_drv_probe+0x6c/0xa4)
- [<c09b1ca0>] (platform_drv_probe) from [<c09afcb8>] (really_probe+0x210/0x350)
- [<c09afcb8>] (really_probe) from [<c09aff74>] (driver_probe_device+0x60/0x1a0)
- [<c09aff74>] (driver_probe_device) from [<c09b0254>] (device_driver_attach+0x58/0x60)
- [<c09b0254>] (device_driver_attach) from [<c09b02dc>] (__driver_attach+0x80/0xbc)
- [<c09b02dc>] (__driver_attach) from [<c09ade00>] (bus_for_each_dev+0x68/0xb4)
- [<c09ade00>] (bus_for_each_dev) from [<c09aefd8>] (bus_add_driver+0x130/0x1e8)
- [<c09aefd8>] (bus_add_driver) from [<c09b0d64>] (driver_register+0x78/0x110)
- [<c09b0d64>] (driver_register) from [<bf038558>] (exynos_drm_init+0xe8/0x11c [exynosdrm])
- [<bf038558>] (exynos_drm_init [exynosdrm]) from [<c0302fa8>] (do_one_initcall+0x50/0x220)
- [<c0302fa8>] (do_one_initcall) from [<c03dd02c>] (do_init_module+0x60/0x210)
- [<c03dd02c>] (do_init_module) from [<c03dbf44>] (load_module+0x1c0c/0x2310)
- [<c03dbf44>] (load_module) from [<c03dc85c>] (sys_finit_module+0xac/0xbc)
- [<c03dc85c>] (sys_finit_module) from [<c0301000>] (ret_fast_syscall+0x0/0x54)
- Exception stack(0xd979bfa8 to 0xd979bff0)
- ...
- ---[ end trace db16efe05faab470 ]---
+This patch addresses those issues by checking the return value
+correctly and handling the one-byte event in the parser properly.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The bug was reported by syzkaller.
+
+Reported-by: syzbot+cce32521ee0a824c21f7@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000033087059f8f8fa3@google.com
+Link: https://lore.kernel.org/r/20200309095922.30269-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/exynos/exynos_drm_dsi.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/usb/line6/driver.c  |    2 +-
+ sound/usb/line6/midibuf.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-index 5e202af7fbf53..2b6c04acb24f5 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-@@ -1790,9 +1790,10 @@ static int exynos_dsi_probe(struct platform_device *pdev)
- 		dsi->clks[i] = devm_clk_get(dev, clk_names[i]);
- 		if (IS_ERR(dsi->clks[i])) {
- 			if (strcmp(clk_names[i], "sclk_mipi") == 0) {
--				strcpy(clk_names[i], OLD_SCLK_MIPI_CLK_NAME);
--				i--;
--				continue;
-+				dsi->clks[i] = devm_clk_get(dev,
-+							OLD_SCLK_MIPI_CLK_NAME);
-+				if (!IS_ERR(dsi->clks[i]))
-+					continue;
- 			}
+--- a/sound/usb/line6/driver.c
++++ b/sound/usb/line6/driver.c
+@@ -283,7 +283,7 @@ static void line6_data_received(struct u
+ 		    line6_midibuf_read(mb, line6->buffer_message,
+ 				       LINE6_MESSAGE_MAXLEN);
  
- 			dev_info(dev, "failed to get the clock: %s\n",
--- 
-2.20.1
-
+-		if (done == 0)
++		if (done <= 0)
+ 			break;
+ 
+ 		line6->message_length = done;
+--- a/sound/usb/line6/midibuf.c
++++ b/sound/usb/line6/midibuf.c
+@@ -163,7 +163,7 @@ int line6_midibuf_read(struct midi_buffe
+ 			int midi_length_prev =
+ 			    midibuf_message_length(this->command_prev);
+ 
+-			if (midi_length_prev > 0) {
++			if (midi_length_prev > 1) {
+ 				midi_length = midi_length_prev - 1;
+ 				repeat = 1;
+ 			} else
 
 
