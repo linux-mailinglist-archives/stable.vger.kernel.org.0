@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A3619B39C
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 996DC19AFCD
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388756AbgDAQfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:35:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34562 "EHLO mail.kernel.org"
+        id S1733244AbgDAQVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:21:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388773AbgDAQfq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:35:46 -0400
+        id S1733241AbgDAQVL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:21:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E067C20658;
-        Wed,  1 Apr 2020 16:35:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27E89212CC;
+        Wed,  1 Apr 2020 16:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758945;
-        bh=oeSkHvhk+E5lKXj9sWZUu5MtAvGJsJpI7ik9znVotAw=;
+        s=default; t=1585758070;
+        bh=PIZTE+EIbLccDU1QGRu3mlihSm17nSu7NpAVqp4qfqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y0QEVIW70+3HnMWC+m+oJuKnG3DQetVi1ta5oXHiO7TFxSerHtIQoQsL69UQ2Yb11
-         vaumvQKTPoKX5vY64XNA0SOe8WhWkgjFHClW1e0Mcrp5c5pf6YE4rI52QRbXXFz9Pt
-         lZxaQAleCJmDSltuY/EZWqwHjevZO+yJgJ37/ikw=
+        b=RBsKylpSVF7ptQf9NBvHKYG7/Q6v1VKLIpq1PSkdkvxjGmF+uVzDnT8G3BF0zTHlo
+         UTC9uMaaJuQunKnwRRQCFAirbJDKOuuENR8x4iqIR4B0VkSN0vLR52orJ3UtNWKoMB
+         ukTv067KiAZBEmF/0o1LJwZNRhXZa14Ce2nHXPPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 028/102] USB: cdc-acm: fix close_delay and closing_wait units in TIOCSSERIAL
+        stable@vger.kernel.org, Arthur Demchenkov <spinal.by@gmail.com>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Roger Quadros <rogerq@ti.com>, Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.5 27/30] ARM: dts: N900: fix onenand timings
 Date:   Wed,  1 Apr 2020 18:17:31 +0200
-Message-Id: <20200401161538.481068160@linuxfoundation.org>
+Message-Id: <20200401161434.679865096@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
+References: <20200401161414.345528747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Mallet <anthony.mallet@laas.fr>
+From: Arthur Demchenkov <spinal.by@gmail.com>
 
-[ Upstream commit 633e2b2ded739a34bd0fb1d8b5b871f7e489ea29 ]
+commit 0c5220a3c1242c7a2451570ed5f5af69620aac75 upstream.
 
-close_delay and closing_wait are specified in hundredth of a second but stored
-internally in jiffies. Use the jiffies_to_msecs() and msecs_to_jiffies()
-functions to convert from each other.
+Commit a758f50f10cf ("mtd: onenand: omap2: Configure driver from DT")
+started using DT specified timings for GPMC, and as a result the
+OneNAND stopped working on N900 as we had wrong values in the DT.
+Fix by updating the values to bootloader timings that have been tested
+to be working on Nokia N900 with OneNAND manufacturers: Samsung,
+Numonyx.
 
-Signed-off-by: Anthony Mallet <anthony.mallet@laas.fr>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200312133101.7096-1-anthony.mallet@laas.fr
+Fixes: a758f50f10cf ("mtd: onenand: omap2: Configure driver from DT")
+Signed-off-by: Arthur Demchenkov <spinal.by@gmail.com>
+Tested-by: Merlijn Wajer <merlijn@wizzup.org>
+Reviewed-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/class/cdc-acm.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/omap3-n900.dts |   44 ++++++++++++++++++++++++---------------
+ 1 file changed, 28 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index b2edbd4bf8c44..9fd1cd99aa977 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -828,10 +828,10 @@ static int get_serial_info(struct acm *acm, struct serial_struct __user *info)
- 	tmp.flags = ASYNC_LOW_LATENCY;
- 	tmp.xmit_fifo_size = acm->writesize;
- 	tmp.baud_base = le32_to_cpu(acm->line.dwDTERate);
--	tmp.close_delay	= acm->port.close_delay / 10;
-+	tmp.close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
- 	tmp.closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
- 				ASYNC_CLOSING_WAIT_NONE :
--				acm->port.closing_wait / 10;
-+				jiffies_to_msecs(acm->port.closing_wait) / 10;
+--- a/arch/arm/boot/dts/omap3-n900.dts
++++ b/arch/arm/boot/dts/omap3-n900.dts
+@@ -849,34 +849,46 @@
+ 		compatible = "ti,omap2-onenand";
+ 		reg = <0 0 0x20000>;	/* CS0, offset 0, IO size 128K */
  
- 	if (copy_to_user(info, &tmp, sizeof(tmp)))
- 		return -EFAULT;
-@@ -849,9 +849,10 @@ static int set_serial_info(struct acm *acm,
- 	if (copy_from_user(&new_serial, newinfo, sizeof(new_serial)))
- 		return -EFAULT;
++		/*
++		 * These timings are based on CONFIG_OMAP_GPMC_DEBUG=y reported
++		 * bootloader set values when booted with v5.1
++		 * (OneNAND Manufacturer: Samsung):
++		 *
++		 *   cs0 GPMC_CS_CONFIG1: 0xfb001202
++		 *   cs0 GPMC_CS_CONFIG2: 0x00111100
++		 *   cs0 GPMC_CS_CONFIG3: 0x00020200
++		 *   cs0 GPMC_CS_CONFIG4: 0x11001102
++		 *   cs0 GPMC_CS_CONFIG5: 0x03101616
++		 *   cs0 GPMC_CS_CONFIG6: 0x90060000
++		 */
+ 		gpmc,sync-read;
+ 		gpmc,sync-write;
+ 		gpmc,burst-length = <16>;
+ 		gpmc,burst-read;
+ 		gpmc,burst-wrap;
+ 		gpmc,burst-write;
+-		gpmc,device-width = <2>; /* GPMC_DEVWIDTH_16BIT */
+-		gpmc,mux-add-data = <2>; /* GPMC_MUX_AD */
++		gpmc,device-width = <2>;
++		gpmc,mux-add-data = <2>;
+ 		gpmc,cs-on-ns = <0>;
+-		gpmc,cs-rd-off-ns = <87>;
+-		gpmc,cs-wr-off-ns = <87>;
++		gpmc,cs-rd-off-ns = <102>;
++		gpmc,cs-wr-off-ns = <102>;
+ 		gpmc,adv-on-ns = <0>;
+-		gpmc,adv-rd-off-ns = <10>;
+-		gpmc,adv-wr-off-ns = <10>;
+-		gpmc,oe-on-ns = <15>;
+-		gpmc,oe-off-ns = <87>;
++		gpmc,adv-rd-off-ns = <12>;
++		gpmc,adv-wr-off-ns = <12>;
++		gpmc,oe-on-ns = <12>;
++		gpmc,oe-off-ns = <102>;
+ 		gpmc,we-on-ns = <0>;
+-		gpmc,we-off-ns = <87>;
+-		gpmc,rd-cycle-ns = <112>;
+-		gpmc,wr-cycle-ns = <112>;
+-		gpmc,access-ns = <81>;
+-		gpmc,page-burst-access-ns = <15>;
++		gpmc,we-off-ns = <102>;
++		gpmc,rd-cycle-ns = <132>;
++		gpmc,wr-cycle-ns = <132>;
++		gpmc,access-ns = <96>;
++		gpmc,page-burst-access-ns = <18>;
+ 		gpmc,bus-turnaround-ns = <0>;
+ 		gpmc,cycle2cycle-delay-ns = <0>;
+ 		gpmc,wait-monitoring-ns = <0>;
+-		gpmc,clk-activation-ns = <5>;
+-		gpmc,wr-data-mux-bus-ns = <30>;
+-		gpmc,wr-access-ns = <81>;
++		gpmc,clk-activation-ns = <6>;
++		gpmc,wr-data-mux-bus-ns = <36>;
++		gpmc,wr-access-ns = <96>;
+ 		gpmc,sync-clk-ps = <15000>;
  
--	close_delay = new_serial.close_delay * 10;
-+	close_delay = msecs_to_jiffies(new_serial.close_delay * 10);
- 	closing_wait = new_serial.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
--			ASYNC_CLOSING_WAIT_NONE : new_serial.closing_wait * 10;
-+			ASYNC_CLOSING_WAIT_NONE :
-+			msecs_to_jiffies(new_serial.closing_wait * 10);
- 
- 	mutex_lock(&acm->port.mutex);
- 
--- 
-2.20.1
-
+ 		/*
 
 
