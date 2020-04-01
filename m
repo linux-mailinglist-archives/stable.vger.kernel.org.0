@@ -2,118 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B4BE19AC38
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 15:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFB2A19AC3A
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 15:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732252AbgDANAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 09:00:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51676 "EHLO mail.kernel.org"
+        id S1732439AbgDANAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 09:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732439AbgDANAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 09:00:18 -0400
+        id S1732370AbgDANAX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 09:00:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19EA5206E9;
-        Wed,  1 Apr 2020 13:00:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7197B206E9;
+        Wed,  1 Apr 2020 13:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585746015;
-        bh=wbmMtKq8OesIKxt+Bsmwbn40mtVE28sFlu9uvzGCJ/E=;
+        s=default; t=1585746022;
+        bh=zHyBMVhaIhlISRnToLLwxhZaI6ACFg6J6D55j8fChhk=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OOsNRY9AaGA++EpA0phgb7wmYuxQ2avG089cH2y62rBdGPajH/5VSbDnP8H3ZllCg
-         d7Ij2FCzOyNOcK8gmRS+dDUZs75QNmDCUZSj9BI47Z+NQNEZ3lq8yR5hraQGu+/7P8
-         hdoRT+lUwMSXoDmPOCoX93KLfKm5vZr2TO13ZxLU=
-Date:   Wed, 1 Apr 2020 15:00:11 +0200
+        b=jiG8NUvZAtehOd9HFhr7qayqLGRP8D9fmH6bohxobCVFBr5j3+HUfKYeKLIEfs7xG
+         zDkdETym3MeF3K6sPVYKt8xTccUsbKJUQ6XhjbUiC+/SFPOda/H6hWnipB4u+jIDnn
+         VEmA0GG4RGcpP6FWLgHhQXX2Yjqr1p7+tHU0xfA4=
+Date:   Wed, 1 Apr 2020 15:00:20 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Zhuang Yanying <ann.zhuangyanying@huawei.com>
 Cc:     pbonzini@redhat.com, tv@lio96.de, stable@vger.kernel.org,
         LinFeng <linfeng23@huawei.com>
-Subject: Re: [PATCH 0/2] KVM: fix overflow of zero page refcount with ksm
- running
-Message-ID: <20200401130011.GA2262255@kroah.com>
+Subject: Re: [PATCH 2/2] KVM: special handling of zero_page in some flows
+Message-ID: <20200401130020.GB2262255@kroah.com>
 References: <1585745456-24340-1-git-send-email-ann.zhuangyanying@huawei.com>
+ <1585745456-24340-3-git-send-email-ann.zhuangyanying@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1585745456-24340-1-git-send-email-ann.zhuangyanying@huawei.com>
+In-Reply-To: <1585745456-24340-3-git-send-email-ann.zhuangyanying@huawei.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 08:50:54PM +0800, Zhuang Yanying wrote:
+On Wed, Apr 01, 2020 at 08:50:56PM +0800, Zhuang Yanying wrote:
 > From: LinFeng <linfeng23@huawei.com>
 > 
-> We found that the !is_zero_page() in kvm_is_mmio_pfn() was
-> submmited in commit:90cff5a8cc("KVM: check for !is_zero_pfn() in
-> kvm_is_mmio_pfn()"), but reverted in commit:0ef2459983("kvm: fix
-> kvm_is_mmio_pfn() and rename to kvm_is_reserved_pfn()").
-> 
-> Maybe just adding !is_zero_page() to kvm_is_reserved_pfn() is too
+> Just adding !is_zero_page() to kvm_is_reserved_pfn() is too
 > rough. According to commit:e433e83bc3("KVM: MMU: Do not treat
 > ZONE_DEVICE pages as being reserved"), special handling in some
-> other flows is also need by zero_page, if we would treat zero_page
-> as being reserved.
+> other flows is also need by zero_page, if not treat zero_page as
+> being reserved.
 > 
-> Well, as fixing all functions reference to kvm_is_reserved_pfn() in
-> this patch, we found that only kvm_release_pfn_clean() and
-> kvm_get_pfn() don't need special handling.
+> Signed-off-by: LinFeng <linfeng23@huawei.com>
+> Signed-off-by: Zhuang Yanying <ann.zhuangyanying@huawei.com>
+> ---
+>  arch/x86/kvm/mmu.c  | 2 ++
+>  virt/kvm/kvm_main.c | 6 +++---
+>  2 files changed, 5 insertions(+), 3 deletions(-)
 > 
-> So, we thought why not only check is_zero_page() in before get and
-> put page, and revert our last commit:31e813f38f("KVM: fix overflow
-> of zero page refcount with ksm running") in master.
-> Instead of adding !is_zero_page() in kvm_is_reserved_pfn(),
-> new idea is as follow:
-> 
+> diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+> index 732c0270a489..e8db17d87c1a 100644
+> --- a/arch/x86/kvm/mmu.c
+> +++ b/arch/x86/kvm/mmu.c
+> @@ -2961,6 +2961,7 @@ static void transparent_hugepage_adjust(struct kvm_vcpu *vcpu,
+>  	 * here.
+>  	 */
+>  	if (!is_error_noslot_pfn(pfn) && !kvm_is_reserved_pfn(pfn) &&
+> +	    !is_zero_pfn(pfn) &&
+>  	    level == PT_PAGE_TABLE_LEVEL &&
+>  	    PageTransCompoundMap(pfn_to_page(pfn)) &&
+>  	    !mmu_gfn_lpage_is_disallowed(vcpu, gfn, PT_DIRECTORY_LEVEL)) {
+> @@ -5010,6 +5011,7 @@ static bool kvm_mmu_zap_collapsible_spte(struct kvm *kvm,
+>  		 */
+>  		if (sp->role.direct &&
+>  			!kvm_is_reserved_pfn(pfn) &&
+> +			!is_zero_pfn(pfn) &&
+>  			PageTransCompoundMap(pfn_to_page(pfn))) {
+>  			drop_spte(kvm, sptep);
+>  			need_tlb_flush = 1;
 > diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 7f9ee2929cfe..f9a1f9cf188e 100644
+> index 7f7c22a687c0..fc0446bb393b 100644
 > --- a/virt/kvm/kvm_main.c
 > +++ b/virt/kvm/kvm_main.c
-> @@ -1695,7 +1695,8 @@ EXPORT_SYMBOL_GPL(kvm_release_page_clean);
-> 
->  void kvm_release_pfn_clean(kvm_pfn_t pfn)
+> @@ -1660,7 +1660,7 @@ static struct page *kvm_pfn_to_page(kvm_pfn_t pfn)
+>  	if (is_error_noslot_pfn(pfn))
+>  		return KVM_ERR_PTR_BAD_PAGE;
+>  
+> -	if (kvm_is_reserved_pfn(pfn)) {
+> +	if (kvm_is_reserved_pfn(pfn) && is_zero_pfn(pfn)) {
+>  		WARN_ON(1);
+>  		return KVM_ERR_PTR_BAD_PAGE;
+>  	}
+> @@ -1719,7 +1719,7 @@ static void kvm_release_pfn_dirty(kvm_pfn_t pfn)
+>  
+>  void kvm_set_pfn_dirty(kvm_pfn_t pfn)
 >  {
-> -	if (!is_error_noslot_pfn(pfn) && !kvm_is_reserved_pfn(pfn))
-> +	if (!is_error_noslot_pfn(pfn) &&
-> +	    (!kvm_is_reserved_pfn(pfn) || is_zero_pfn(pfn)))
->  		put_page(pfn_to_page(pfn));
->  }
->  EXPORT_SYMBOL_GPL(kvm_release_pfn_clean);
-> @@ -1734,7 +1735,7 @@ EXPORT_SYMBOL_GPL(kvm_set_pfn_accessed);
-> 
->  void kvm_get_pfn(kvm_pfn_t pfn)
+> -	if (!kvm_is_reserved_pfn(pfn)) {
+> +	if (!kvm_is_reserved_pfn(pfn) && !is_zero_pfn(pfn)) {
+>  		struct page *page = pfn_to_page(pfn);
+>  
+>  		if (!PageReserved(page))
+> @@ -1730,7 +1730,7 @@ EXPORT_SYMBOL_GPL(kvm_set_pfn_dirty);
+>  
+>  void kvm_set_pfn_accessed(kvm_pfn_t pfn)
 >  {
 > -	if (!kvm_is_reserved_pfn(pfn))
-> +	if (!kvm_is_reserved_pfn(pfn) || is_zero_pfn(pfn))
->  		get_page(pfn_to_page(pfn));
+> +	if (!kvm_is_reserved_pfn(pfn) && !is_zero_pfn(pfn))
+>  		mark_page_accessed(pfn_to_page(pfn));
 >  }
->  EXPORT_SYMBOL_GPL(kvm_get_pfn);
-> 
-> We are confused why ZONE_DEVICE not do this, but treating it as
-> no reserved. Is it racy if we change only use the patch in cover letter,
-> but not the series patches.
-> 
-> And we check the code of v4.9.y v4.10.y v4.11.y v4.12.y, this bug exists
-> in v4.11.y and later, but not in v4.9.y v4.10.y or before.
-> After commit:e86c59b1b1("mm/ksm: improve deduplication of zero pages
-> with colouring"), ksm will use zero pages with colouring. This feature
-> was added in v4.11.y, so I wonder why v4.9.y has this bug.
-> 
-> We use crash tools attaching to /proc/kcore to check the refcount of
-> zero_page, then create and destroy vm. The refcount stays at 1 on v4.9.y,
-> well it increases only after v4.11.y. Are you sure it is the same bug
-> you run into? Is there something we missing?
-> 
-> LinFeng (1):
->   KVM: special handling of zero_page in some flows
-> 
-> Zhuang Yanying (1):
->   KVM: fix overflow of zero page refcount with ksm running
-> 
->  arch/x86/kvm/mmu.c  | 2 ++
->  virt/kvm/kvm_main.c | 9 +++++----
->  2 files changed, 7 insertions(+), 4 deletions(-)
-> 
+>  EXPORT_SYMBOL_GPL(kvm_set_pfn_accessed);
 > -- 
 > 2.23.0
 > 
