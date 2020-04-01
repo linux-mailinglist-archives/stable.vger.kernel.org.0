@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5C919B11D
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 116CB19AFF8
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388147AbgDAQcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:32:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58478 "EHLO mail.kernel.org"
+        id S2387526AbgDAQWr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:22:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388222AbgDAQcH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:32:07 -0400
+        id S2387527AbgDAQWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:22:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C959220658;
-        Wed,  1 Apr 2020 16:32:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F4952137B;
+        Wed,  1 Apr 2020 16:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758727;
-        bh=fuZdubD077dq0B7HOwQ6mfwjuba+ZeVl7JU27HhDW0c=;
+        s=default; t=1585758164;
+        bh=mPMg+GIZNgjPNi6MOWo6soVJy6BjBjhd20BrzjGqz2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOMgxWa1StBgNapMiGuf45C5TWFQ9SV3ZfC1vfqcAYZKXnq4skx5kaeBWqAQhpvlt
-         miyLhkU5c2U2UOrGP9Hem6cs5QMV1TSHMrrmRpsRx38pjas59saMMng3+7zx/Bj4Qi
-         crjdiq15v9tgoRH5jp5GeFtwYe5MJhPsMIU0NXDY=
+        b=EKJ0qQ1lb5JXgoRmvkfrwJl2xBQbElKnCUQuD/mNmw3tKOFYFkQp7Jg8UqSB9Eyab
+         ydybLfZacxrlu/7ZafjEogWbGX5odBskzX8VYDSyTrSzeecq1Xyf7U9j/7a/mZikMX
+         QIYq85NjFwv5/VsAWSvVWeL6Bm2ONws+SZmnKdHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.4 56/91] perf probe: Do not depend on dwfl_module_addrsym()
-Date:   Wed,  1 Apr 2020 18:17:52 +0200
-Message-Id: <20200401161532.691187361@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Chen-Yu Tsai <wens@csie.org>
+Subject: [PATCH 5.4 25/27] ARM: dts: sun8i: r40: Move AHCI device node based on address order
+Date:   Wed,  1 Apr 2020 18:17:53 +0200
+Message-Id: <20200401161434.337279705@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
+References: <20200401161414.352722470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,63 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Chen-Yu Tsai <wens@csie.org>
 
-commit 1efde2754275dbd9d11c6e0132a4f09facf297ab upstream.
+commit fe3a04824f75786e39ed74e82fb6cb2534c95fe4 upstream.
 
-Do not depend on dwfl_module_addrsym() because it can fail on user-space
-shared libraries.
+When the AHCI device node was added, it was added in the wrong location
+in the device tree file. The device nodes should be sorted by register
+address.
 
-Actually, same bug was fixed by commit 664fee3dc379 ("perf probe: Do not
-use dwfl_module_addrsym if dwarf_diename finds symbol name"), but commit
-07d369857808 ("perf probe: Fix wrong address verification) reverted to
-get actual symbol address from symtab.
+Move the device node to before EHCI1, where it belongs.
 
-This fixes it again by getting symbol address from DIE, and only if the
-DIE has only address range, it uses dwfl_module_addrsym().
-
-Fixes: 07d369857808 ("perf probe: Fix wrong address verification)
-Reported-by: Alexandre Ghiti <alex@ghiti.fr>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Alexandre Ghiti <alex@ghiti.fr>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Link: http://lore.kernel.org/lkml/158281812176.476.14164573830975116234.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 41c64d3318aa ("ARM: dts: sun8i: r40: add sata node")
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/probe-finder.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/sun8i-r40.dtsi |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -608,14 +608,19 @@ static int convert_to_trace_point(Dwarf_
- 		return -EINVAL;
- 	}
+--- a/arch/arm/boot/dts/sun8i-r40.dtsi
++++ b/arch/arm/boot/dts/sun8i-r40.dtsi
+@@ -266,6 +266,16 @@
+ 			#phy-cells = <1>;
+ 		};
  
--	/* Try to get actual symbol name from symtab */
--	symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
-+	if (dwarf_entrypc(sp_die, &eaddr) == 0) {
-+		/* If the DIE has entrypc, use it. */
-+		symbol = dwarf_diename(sp_die);
-+	} else {
-+		/* Try to get actual symbol name and address from symtab */
-+		symbol = dwfl_module_addrsym(mod, paddr, &sym, NULL);
-+		eaddr = sym.st_value;
-+	}
- 	if (!symbol) {
- 		pr_warning("Failed to find symbol at 0x%lx\n",
- 			   (unsigned long)paddr);
- 		return -ENOENT;
- 	}
--	eaddr = sym.st_value;
++		ahci: sata@1c18000 {
++			compatible = "allwinner,sun8i-r40-ahci";
++			reg = <0x01c18000 0x1000>;
++			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
++			resets = <&ccu RST_BUS_SATA>;
++			reset-names = "ahci";
++			status = "disabled";
++		};
++
+ 		ehci1: usb@1c19000 {
+ 			compatible = "allwinner,sun8i-r40-ehci", "generic-ehci";
+ 			reg = <0x01c19000 0x100>;
+@@ -557,17 +567,6 @@
+ 			#size-cells = <0>;
+ 		};
  
- 	tp->offset = (unsigned long)(paddr - eaddr);
- 	tp->address = (unsigned long)paddr;
+-		ahci: sata@1c18000 {
+-			compatible = "allwinner,sun8i-r40-ahci";
+-			reg = <0x01c18000 0x1000>;
+-			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
+-			resets = <&ccu RST_BUS_SATA>;
+-			reset-names = "ahci";
+-			status = "disabled";
+-
+-		};
+-
+ 		gmac: ethernet@1c50000 {
+ 			compatible = "allwinner,sun8i-r40-gmac";
+ 			syscon = <&ccu>;
 
 
