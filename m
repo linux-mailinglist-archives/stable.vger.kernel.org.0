@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13DF619B45A
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D07B19B3C5
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387603AbgDAQ4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:56:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44786 "EHLO mail.kernel.org"
+        id S1732940AbgDAQxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:53:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387403AbgDAQVt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:21:49 -0400
+        id S2388328AbgDAQbj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:31:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 010AB212CC;
-        Wed,  1 Apr 2020 16:21:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 228B12063A;
+        Wed,  1 Apr 2020 16:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758109;
-        bh=Exro3RBVTcuX8IyxCG+436aDA/mC5fv5PCGXfpK/dw8=;
+        s=default; t=1585758698;
+        bh=mtfkkCt5SFGhLPN1U7MCkZ3jcSv/3FhZA5jJUw2+TxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFWjfTvTVkBax6iogs5KOfuAtkdbLAAMNRo+5Gvxkm8tIvvI/sj3M5ao8U3NqLN0s
-         wuh8sd0wb0tLM+qppMU0YxuI7A6gcg/a/Qh4knT+FiIQE6qudq0+gdW+YwnbNcnWaa
-         nK1GWGRYp/30D9lCepjJErbylF/infmNxGinrZ5o=
+        b=dOXJbAU6S/pg/fW0wQ4ib5dnwpjCZgDCWwUd1azR5hfbxGIG5TvJsslwslNSCLBVP
+         Spl2WOM1ig9nNXwnF3cv9xNapHciXwP1g8QwBfpewbrf2DdpPNSn8f5kglBFpXcIzu
+         TfC0vzxNgdgLKdqL3yjMrOxfXLtXVqK4M3/+my6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 15/27] clk: imx: Align imx sc clock msg structs to 4
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 47/91] KVM: VMX: Do not allow reexecute_instruction() when skipping MMIO instr
 Date:   Wed,  1 Apr 2020 18:17:43 +0200
-Message-Id: <20200401161427.336194111@linuxfoundation.org>
+Message-Id: <20200401161529.578652949@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
-References: <20200401161414.352722470@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leonard Crestez <leonard.crestez@nxp.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit a0ae04a25650fd51b7106e742d27333e502173c6 upstream.
+[ Upstream commit c4409905cd6eb42cfd06126e9226b0150e05a715 ]
 
-The imx SC api strongly assumes that messages are composed out of
-4-bytes words but some of our message structs have odd sizeofs.
+Re-execution after an emulation decode failure is only intended to
+handle a case where two or vCPUs race to write a shadowed page, i.e.
+we should never re-execute an instruction as part of MMIO emulation.
+As handle_ept_misconfig() is only used for MMIO emulation, it should
+pass EMULTYPE_NO_REEXECUTE when using the emulator to skip an instr
+in the fast-MMIO case where VM_EXIT_INSTRUCTION_LEN is invalid.
 
-This produces many oopses with CONFIG_KASAN=y.
+And because the cr2 value passed to x86_emulate_instruction() is only
+destined for use when retrying or reexecuting, we can simply call
+emulate_instruction().
 
-Fix by marking with __aligned(4).
-
-Fixes: fe37b4820417 ("clk: imx: add scu clock common part")
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Link: https://lkml.kernel.org/r/10e97a04980d933b2cfecb6b124bf9046b6e4f16.1582216144.git.leonard.crestez@nxp.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: d391f1207067 ("x86/kvm/vmx: do not use vm-exit instruction length
+                      for fast MMIO when running nested")
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Radim Krčmář <rkrcmar@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-scu.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kvm/vmx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/imx/clk-scu.c
-+++ b/drivers/clk/imx/clk-scu.c
-@@ -43,12 +43,12 @@ struct imx_sc_msg_req_set_clock_rate {
- 	__le32 rate;
- 	__le16 resource;
- 	u8 clk;
--} __packed;
-+} __packed __aligned(4);
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 78daf891abec8..2634b45562026 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -6187,8 +6187,8 @@ static int handle_ept_misconfig(struct kvm_vcpu *vcpu)
+ 			return 1;
+ 		}
+ 		else
+-			return x86_emulate_instruction(vcpu, gpa, EMULTYPE_SKIP,
+-						       NULL, 0) == EMULATE_DONE;
++			return emulate_instruction(vcpu, EMULTYPE_SKIP) ==
++								EMULATE_DONE;
+ 	}
  
- struct req_get_clock_rate {
- 	__le16 resource;
- 	u8 clk;
--} __packed;
-+} __packed __aligned(4);
- 
- struct resp_get_clock_rate {
- 	__le32 rate;
-@@ -121,7 +121,7 @@ struct imx_sc_msg_req_clock_enable {
- 	u8 clk;
- 	u8 enable;
- 	u8 autog;
--} __packed;
-+} __packed __aligned(4);
- 
- static inline struct clk_scu *to_clk_scu(struct clk_hw *hw)
- {
+ 	ret = handle_mmio_page_fault(vcpu, gpa, true);
+-- 
+2.20.1
+
 
 
