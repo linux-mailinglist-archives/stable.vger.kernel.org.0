@@ -2,83 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2693519A8B7
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 11:34:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D47019A8EB
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 11:52:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730764AbgDAJeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 05:34:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39474 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726205AbgDAJeH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 05:34:07 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BEC52077D;
-        Wed,  1 Apr 2020 09:34:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585733647;
-        bh=ygn69CFIGLehSFM4Xy0zGpVwdoajAhY/hL9FFPbt0lo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=i+K+mEhg28YPwIosrGBMkhDSyyPqqvEw6WedSnnyJDscvEqhp6E93PemYZw8WygxQ
-         naaLmczIieJ8yw16gMF2ArztsQhin1aTuW7WSeW4053ZRZKpfiuF+bwapwEiBFWB0L
-         ZFGWwhJApQOT3uzT0uM7tAT9I4/G2fPOudZsmDVg=
-Date:   Wed, 1 Apr 2020 11:33:59 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.6 00/23] 5.6.1-rc1 review
-Message-ID: <20200401093359.GD2055942@kroah.com>
-References: <20200331085308.098696461@linuxfoundation.org>
- <d0744ad0-40b4-3bea-4d4f-1faf562126ec@nvidia.com>
+        id S1726785AbgDAJw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 05:52:29 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:36692 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725860AbgDAJw3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 05:52:29 -0400
+Received: by mail-ot1-f68.google.com with SMTP id l23so25285292otf.3
+        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 02:52:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=GrdyiqEFc7d9G/zdkgFcJ6VHW0IWWZvW+Hm2PT6e4V0=;
+        b=YgGc8P1HqktkhM1PLOuB6mU2ygo4ISedPzp5a3V4USi+r4qkpNNDrx85JJr+PwoGBj
+         I0NdvsIMhujzVA9+OXD2uK1n2hvPyVQHLnnzRG2LpfvH6IIIoJpWs6Yq10708v5fTFs4
+         QfTZiglfAIXfuPZsb2PGx9B/raRVPaYbHF4TOFVESTDBYXyy84RzBSfwnJzjJeoXl4XS
+         EydqgVp0mZFRCwtnVqfnQkzLQzlMxcYs5SeAGLiuV26X/Uyukfp9XjCmk8EM+2zzJSiP
+         0DczUKgk0iX+Ta5n+miZ1ZiFrLs5MW0EtzvoYFY+HqzqfKLnkF0bFZYMFxWsgY8D6b75
+         px3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=GrdyiqEFc7d9G/zdkgFcJ6VHW0IWWZvW+Hm2PT6e4V0=;
+        b=qO0gP9xen9NTEJ5JEppGJzaPRU8P9lnO7yR6In6cYuTSjO0cJUqs/HI8tqi3+gkG6Q
+         SsHIHJOut4qpiCOhJGVEZzRC8ja0ZhX8qdGLPK46U0ItZAOfLVAWt6oJm7uaeMFwH0IM
+         n7krEbq9bsrPedDJkROyo4OJyWUH3ubna2RTveZCxy1fL/tD+uYPGegmerqsXYK8Wf2w
+         aBE3MZbFi2bdYume9SpeFx6/2VSBJjVSynN/Ess2Sy3LSKNLzZVdHp79juivj6ZLlDj9
+         BHLdqzt2FR6xeuu7qsf6ZIRTFJiwUhD4Bh0n+L6YN1f3x8QvAaR84JZ9zaC2iLfOgDSN
+         27Bg==
+X-Gm-Message-State: ANhLgQ13PpT1TiPfxTw/4ExRQUcG7kCiHd9Cyy0z8yfixFyYtTgRStHY
+        JTrU23QHCoLGTn84RtQnajzv4HwVJwrLcRpNfDo=
+X-Google-Smtp-Source: ADFU+vvR+sa2Wgxzf6A0HebBJ1b/GCZ1t5uwPe6aUej5wBsfoVPQZefk/zYuBR22kGaQMLbB4jZbaH4GFpWsF4NQjbc=
+X-Received: by 2002:a4a:e78b:: with SMTP id x11mr16307906oov.45.1585734748475;
+ Wed, 01 Apr 2020 02:52:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d0744ad0-40b4-3bea-4d4f-1faf562126ec@nvidia.com>
+Received: by 2002:a8a:284:0:0:0:0:0 with HTTP; Wed, 1 Apr 2020 02:52:28 -0700 (PDT)
+Reply-To: tracywilliam26@gmail.com
+From:   Miss Tracy William <kundaharry773@gmail.com>
+Date:   Wed, 1 Apr 2020 02:52:28 -0700
+Message-ID: <CAJwO17Gw5xw=0Fg0Lfc8=YWcq4fycrDWwXUztVML1i7vHTGn+A@mail.gmail.com>
+Subject: GREETINGS FROM TRACY WILLIAM
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 09:57:37AM +0100, Jon Hunter wrote:
-> 
-> On 31/03/2020 09:59, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.6.1 release.
-> > There are 23 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 02 Apr 2020 08:50:37 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.1-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> All tests are passing for Tegra ...
-> 
-> Test results for stable-v5.6:
->     13 builds:	13 pass, 0 fail
->     24 boots:	24 pass, 0 fail
->     40 tests:	40 pass, 0 fail
-> 
-> Linux version:	5.6.1-rc1-g579bffceae01
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
+-- 
+Hello Dear,
+how are you today,I hope you are doing great.
+It is my great pleasure to
+contact you and i hope you don't mind,I was just surfing
+through the Internet search when i found your email address,I want to make a new
+and special friend,I hope you don't mind.
 
-Thanks for testing all of these and letting me know.
-
-greg k-h
+My name is Tracy William,I am from the United States of America but
+presently I live
+and work in England,
+I will give you pictures and details of me as soon as i hear from you
+bye
+Tracy
