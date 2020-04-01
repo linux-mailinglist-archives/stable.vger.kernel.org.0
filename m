@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E87B719B3C2
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9871419B37F
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:52:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387959AbgDAQxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:53:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58350 "EHLO mail.kernel.org"
+        id S2388754AbgDAQgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:36:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388365AbgDAQcB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:32:01 -0400
+        id S2388500AbgDAQgv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:36:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E8CB20658;
-        Wed,  1 Apr 2020 16:32:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A52720658;
+        Wed,  1 Apr 2020 16:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758721;
-        bh=CsM8V2CQnyjC90orvntK+0kSmFRCj8crCFyUUVSPRKA=;
+        s=default; t=1585759011;
+        bh=7KbVJ4pyGWkFPAmW1q226OXHwGc6AKPnrksV39LEdrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ib2dLq2SdI7A/hJm6eEbNBYsmfDw5FM5lKXyY70+qWq7WX9FvmmkycIXR/uCPoZFT
-         etaisrAJPXwRPPUwXc29h26JktMITj8kzbgr2JXGP4QmaZpv4FwMg1+wAI9TfI7GTK
-         wNkHzYxnrCRv0PJlm7ISvKR2imYcHkJsx1vg3Cck=
+        b=M7LeTBr8wDXDZiUw1SciGzvilTbdEpixyie7hA4kuJm3mczp/rGk0bTi2Jf5u8AWU
+         n7bOAqlgvB97uWUoSEbeBWGKp6TtCgvkwVvRRKXW8hH2NES43nj5ucD1kRYd8TbzVX
+         tKQUvvx2YBQYuDaDZ4+qsOyJ1c5gW+sJOgrRvDwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Czarnota <dominik.b.czarnota@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 54/91] sxgbe: Fix off by one in samsung driver strncpy size arg
-Date:   Wed,  1 Apr 2020 18:17:50 +0200
-Message-Id: <20200401161532.431463975@linuxfoundation.org>
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 048/102] hsr: add restart routine into hsr_get_node_list()
+Date:   Wed,  1 Apr 2020 18:17:51 +0200
+Message-Id: <20200401161542.149755699@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +43,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Czarnota <dominik.b.czarnota@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit f3cc008bf6d59b8d93b4190e01d3e557b0040e15 ]
+[ Upstream commit ca19c70f5225771c05bcdcb832b4eb84d7271c5e ]
 
-This patch fixes an off-by-one error in strncpy size argument in
-drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c. The issue is that in:
+The hsr_get_node_list() is to send node addresses to the userspace.
+If there are so many nodes, it could fail because of buffer size.
+In order to avoid this failure, the restart routine is added.
 
-        strncmp(opt, "eee_timer:", 6)
-
-the passed string literal: "eee_timer:" has 10 bytes (without the NULL
-byte) and the passed size argument is 6. As a result, the logic will
-also accept other, malformed strings, e.g. "eee_tiXXX:".
-
-This bug doesn't seem to have any security impact since its present in
-module's cmdline parsing code.
-
-Signed-off-by: Dominik Czarnota <dominik.b.czarnota@gmail.com>
+Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/hsr/hsr_netlink.c |   38 ++++++++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-index 413ea14ab91f7..56cdc01c58477 100644
---- a/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-+++ b/drivers/net/ethernet/samsung/sxgbe/sxgbe_main.c
-@@ -2315,7 +2315,7 @@ static int __init sxgbe_cmdline_opt(char *str)
- 	if (!str || !*str)
- 		return -EINVAL;
- 	while ((opt = strsep(&str, ",")) != NULL) {
--		if (!strncmp(opt, "eee_timer:", 6)) {
-+		if (!strncmp(opt, "eee_timer:", 10)) {
- 			if (kstrtoint(opt + 10, 0, &eee_timer))
- 				goto err;
- 		}
--- 
-2.20.1
-
+--- a/net/hsr/hsr_netlink.c
++++ b/net/hsr/hsr_netlink.c
+@@ -371,16 +371,14 @@ fail:
+  */
+ static int hsr_get_node_list(struct sk_buff *skb_in, struct genl_info *info)
+ {
+-	/* For receiving */
+-	struct nlattr *na;
++	unsigned char addr[ETH_ALEN];
+ 	struct net_device *hsr_dev;
+-
+-	/* For sending */
+ 	struct sk_buff *skb_out;
+-	void *msg_head;
+ 	struct hsr_priv *hsr;
+-	void *pos;
+-	unsigned char addr[ETH_ALEN];
++	bool restart = false;
++	struct nlattr *na;
++	void *pos = NULL;
++	void *msg_head;
+ 	int res;
+ 
+ 	if (!info)
+@@ -398,8 +396,9 @@ static int hsr_get_node_list(struct sk_b
+ 	if (!is_hsr_master(hsr_dev))
+ 		goto rcu_unlock;
+ 
++restart:
+ 	/* Send reply */
+-	skb_out = genlmsg_new(NLMSG_GOODSIZE, GFP_ATOMIC);
++	skb_out = genlmsg_new(GENLMSG_DEFAULT_SIZE, GFP_ATOMIC);
+ 	if (!skb_out) {
+ 		res = -ENOMEM;
+ 		goto fail;
+@@ -413,17 +412,28 @@ static int hsr_get_node_list(struct sk_b
+ 		goto nla_put_failure;
+ 	}
+ 
+-	res = nla_put_u32(skb_out, HSR_A_IFINDEX, hsr_dev->ifindex);
+-	if (res < 0)
+-		goto nla_put_failure;
++	if (!restart) {
++		res = nla_put_u32(skb_out, HSR_A_IFINDEX, hsr_dev->ifindex);
++		if (res < 0)
++			goto nla_put_failure;
++	}
+ 
+ 	hsr = netdev_priv(hsr_dev);
+ 
+-	pos = hsr_get_next_node(hsr, NULL, addr);
++	if (!pos)
++		pos = hsr_get_next_node(hsr, NULL, addr);
+ 	while (pos) {
+ 		res = nla_put(skb_out, HSR_A_NODE_ADDR, ETH_ALEN, addr);
+-		if (res < 0)
++		if (res < 0) {
++			if (res == -EMSGSIZE) {
++				genlmsg_end(skb_out, msg_head);
++				genlmsg_unicast(genl_info_net(info), skb_out,
++						info->snd_portid);
++				restart = true;
++				goto restart;
++			}
+ 			goto nla_put_failure;
++		}
+ 		pos = hsr_get_next_node(hsr, pos, addr);
+ 	}
+ 	rcu_read_unlock();
+@@ -440,7 +450,7 @@ invalid:
+ 	return 0;
+ 
+ nla_put_failure:
+-	kfree_skb(skb_out);
++	nlmsg_free(skb_out);
+ 	/* Fall through */
+ 
+ fail:
 
 
