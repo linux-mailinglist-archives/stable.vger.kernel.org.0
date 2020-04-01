@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA42219B0EC
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50B2919B23E
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733207AbgDAQaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56322 "EHLO mail.kernel.org"
+        id S2389202AbgDAQmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:42:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732683AbgDAQa1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:30:27 -0400
+        id S2389521AbgDAQmS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:42:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D15FC215A4;
-        Wed,  1 Apr 2020 16:30:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B5682063A;
+        Wed,  1 Apr 2020 16:42:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758625;
-        bh=Mb0hvmbgez7y+paqjQ0qHPTlmbJ48sqndd0cHkzkev0=;
+        s=default; t=1585759337;
+        bh=2GYY6NpL3Zl0as81AZssM2YpQhlCNS2bfB3YtYUhYA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DC2OcyTsx9NDU64P8M/ANLC/4vFLI7ii7GrRNVc3DfSRfaBnwK5J2t1pdiJQmd4kF
-         TDt3UVu+uuUREf4RAm3ktC5L3ON2sk9RXkYTCLrP0PWecWy2u2d+ttPafgfxq74jbX
-         O5zpw++reABURrLRROIkNRdsmUOxFSIA7mVlnZx4=
+        b=L/HsA7AVYRh/h9XahAnWgKJzY0fLogY5IjUPryETmiOzJc/Q+1CR5iq3C44f4fUKE
+         2nuXDWFPVUqAMGwO8UeBdh1lCGZusQkUDJPeBYPwSOMJbNv8imsTGnhp2veA2Wdf2X
+         lJRyNUdAXk9PUYsHcAajFIetwC3xxQwKWTjA7KXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Mallet <anthony.mallet@laas.fr>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 27/91] USB: cdc-acm: fix rounding error in TIOCSSERIAL
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.14 051/148] arm64: smp: fix crash_smp_send_stop() behaviour
 Date:   Wed,  1 Apr 2020 18:17:23 +0200
-Message-Id: <20200401161522.133672386@linuxfoundation.org>
+Message-Id: <20200401161557.910161315@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Mallet <anthony.mallet@laas.fr>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit b401f8c4f492cbf74f3f59c9141e5be3071071bb ]
+commit f50b7dacccbab2b9e3ef18f52a6dcc18ed2050b9 upstream.
 
-By default, tty_port_init() initializes those parameters to a multiple
-of HZ. For instance in line 69 of tty_port.c:
-   port->close_delay = (50 * HZ) / 100;
-https://github.com/torvalds/linux/blob/master/drivers/tty/tty_port.c#L69
+On a system configured to trigger a crash_kexec() reboot, when only one CPU
+is online and another CPU panics while starting-up, crash_smp_send_stop()
+will fail to send any STOP message to the other already online core,
+resulting in fail to freeze and registers not properly saved.
 
-With e.g. CONFIG_HZ = 250 (as this is the case for Ubuntu 18.04
-linux-image-4.15.0-37-generic), the default setting for close_delay is
-thus 125.
+Moreover even if the proper messages are sent (case CPUs > 2)
+it will similarly fail to account for the booting CPU when executing
+the final stop wait-loop, so potentially resulting in some CPU not
+been waited for shutdown before rebooting.
 
-When ioctl(fd, TIOCGSERIAL, &s) is executed, the setting returned in
-user space is '12' (125/10). When ioctl(fd, TIOCSSERIAL, &s) is then
-executed with the same setting '12', the value is interpreted as '120'
-which is different from the current setting and a EPERM error may be
-raised by set_serial_info() if !CAP_SYS_ADMIN.
-https://github.com/torvalds/linux/blob/master/drivers/usb/class/cdc-acm.c#L919
+A tangible effect of this behaviour can be observed when, after a panic
+with kexec enabled and loaded, on the following reboot triggered by kexec,
+the cpu that could not be successfully stopped fails to come back online:
 
-Fixes: ba2d8ce9db0a6 ("cdc-acm: implement TIOCSSERIAL to avoid blocking close(2)")
-Signed-off-by: Anthony Mallet <anthony.mallet@laas.fr>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200312133101.7096-2-anthony.mallet@laas.fr
+[  362.291022] ------------[ cut here ]------------
+[  362.291525] kernel BUG at arch/arm64/kernel/cpufeature.c:886!
+[  362.292023] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[  362.292400] Modules linked in:
+[  362.292970] CPU: 3 PID: 0 Comm: swapper/3 Kdump: loaded Not tainted 5.6.0-rc4-00003-gc780b890948a #105
+[  362.293136] Hardware name: Foundation-v8A (DT)
+[  362.293382] pstate: 200001c5 (nzCv dAIF -PAN -UAO)
+[  362.294063] pc : has_cpuid_feature+0xf0/0x348
+[  362.294177] lr : verify_local_elf_hwcaps+0x84/0xe8
+[  362.294280] sp : ffff800011b1bf60
+[  362.294362] x29: ffff800011b1bf60 x28: 0000000000000000
+[  362.294534] x27: 0000000000000000 x26: 0000000000000000
+[  362.294631] x25: 0000000000000000 x24: ffff80001189a25c
+[  362.294718] x23: 0000000000000000 x22: 0000000000000000
+[  362.294803] x21: ffff8000114aa018 x20: ffff800011156a00
+[  362.294897] x19: ffff800010c944a0 x18: 0000000000000004
+[  362.294987] x17: 0000000000000000 x16: 0000000000000000
+[  362.295073] x15: 00004e53b831ae3c x14: 00004e53b831ae3c
+[  362.295165] x13: 0000000000000384 x12: 0000000000000000
+[  362.295251] x11: 0000000000000000 x10: 00400032b5503510
+[  362.295334] x9 : 0000000000000000 x8 : ffff800010c7e204
+[  362.295426] x7 : 00000000410fd0f0 x6 : 0000000000000001
+[  362.295508] x5 : 00000000410fd0f0 x4 : 0000000000000000
+[  362.295592] x3 : 0000000000000000 x2 : ffff8000100939d8
+[  362.295683] x1 : 0000000000180420 x0 : 0000000000180480
+[  362.296011] Call trace:
+[  362.296257]  has_cpuid_feature+0xf0/0x348
+[  362.296350]  verify_local_elf_hwcaps+0x84/0xe8
+[  362.296424]  check_local_cpu_capabilities+0x44/0x128
+[  362.296497]  secondary_start_kernel+0xf4/0x188
+[  362.296998] Code: 52805001 72a00301 6b01001f 54000ec0 (d4210000)
+[  362.298652] SMP: stopping secondary CPUs
+[  362.300615] Starting crashdump kernel...
+[  362.301168] Bye!
+[    0.000000] Booting Linux on physical CPU 0x0000000003 [0x410fd0f0]
+[    0.000000] Linux version 5.6.0-rc4-00003-gc780b890948a (crimar01@e120937-lin) (gcc version 8.3.0 (GNU Toolchain for the A-profile Architecture 8.3-2019.03 (arm-rel-8.36))) #105 SMP PREEMPT Fri Mar 6 17:00:42 GMT 2020
+[    0.000000] Machine model: Foundation-v8A
+[    0.000000] earlycon: pl11 at MMIO 0x000000001c090000 (options '')
+[    0.000000] printk: bootconsole [pl11] enabled
+.....
+[    0.138024] rcu: Hierarchical SRCU implementation.
+[    0.153472] its@2f020000: unable to locate ITS domain
+[    0.154078] its@2f020000: Unable to locate ITS domain
+[    0.157541] EFI services will not be available.
+[    0.175395] smp: Bringing up secondary CPUs ...
+[    0.209182] psci: failed to boot CPU1 (-22)
+[    0.209377] CPU1: failed to boot: -22
+[    0.274598] Detected PIPT I-cache on CPU2
+[    0.278707] GICv3: CPU2: found redistributor 1 region 0:0x000000002f120000
+[    0.285212] CPU2: Booted secondary processor 0x0000000001 [0x410fd0f0]
+[    0.369053] Detected PIPT I-cache on CPU3
+[    0.372947] GICv3: CPU3: found redistributor 2 region 0:0x000000002f140000
+[    0.378664] CPU3: Booted secondary processor 0x0000000002 [0x410fd0f0]
+[    0.401707] smp: Brought up 1 node, 3 CPUs
+[    0.404057] SMP: Total of 3 processors activated.
+
+Make crash_smp_send_stop() account also for the online status of the
+calling CPU while evaluating how many CPUs are effectively online: this way
+the right number of STOPs is sent and all other stopped-cores's registers
+are properly saved.
+
+Fixes: 78fd584cdec05 ("arm64: kdump: implement machine_crash_shutdown()")
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/class/cdc-acm.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ arch/arm64/kernel/smp.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 3cb7a23e1253f..7dd2f413595eb 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -857,6 +857,7 @@ static int set_serial_info(struct acm *acm,
- {
- 	struct serial_struct new_serial;
- 	unsigned int closing_wait, close_delay;
-+	unsigned int old_closing_wait, old_close_delay;
- 	int retval = 0;
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -965,13 +965,17 @@ void crash_smp_send_stop(void)
  
- 	if (copy_from_user(&new_serial, newinfo, sizeof(new_serial)))
-@@ -867,18 +868,24 @@ static int set_serial_info(struct acm *acm,
- 			ASYNC_CLOSING_WAIT_NONE :
- 			msecs_to_jiffies(new_serial.closing_wait * 10);
+ 	cpus_stopped = 1;
  
-+	/* we must redo the rounding here, so that the values match */
-+	old_close_delay	= jiffies_to_msecs(acm->port.close_delay) / 10;
-+	old_closing_wait = acm->port.closing_wait == ASYNC_CLOSING_WAIT_NONE ?
-+				ASYNC_CLOSING_WAIT_NONE :
-+				jiffies_to_msecs(acm->port.closing_wait) / 10;
-+
- 	mutex_lock(&acm->port.mutex);
+-	if (num_online_cpus() == 1)
++	/*
++	 * If this cpu is the only one alive at this point in time, online or
++	 * not, there are no stop messages to be sent around, so just back out.
++	 */
++	if (num_other_online_cpus() == 0)
+ 		return;
  
--	if (!capable(CAP_SYS_ADMIN)) {
--		if ((close_delay != acm->port.close_delay) ||
--		    (closing_wait != acm->port.closing_wait))
-+	if ((new_serial.close_delay != old_close_delay) ||
-+            (new_serial.closing_wait != old_closing_wait)) {
-+		if (!capable(CAP_SYS_ADMIN))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
--	} else {
--		acm->port.close_delay  = close_delay;
--		acm->port.closing_wait = closing_wait;
--	}
-+		else {
-+			acm->port.close_delay  = close_delay;
-+			acm->port.closing_wait = closing_wait;
-+		}
-+	} else
-+		retval = -EOPNOTSUPP;
+ 	cpumask_copy(&mask, cpu_online_mask);
+ 	cpumask_clear_cpu(smp_processor_id(), &mask);
  
- 	mutex_unlock(&acm->port.mutex);
- 	return retval;
--- 
-2.20.1
-
+-	atomic_set(&waiting_for_crash_ipi, num_online_cpus() - 1);
++	atomic_set(&waiting_for_crash_ipi, num_other_online_cpus());
+ 
+ 	pr_crit("SMP: stopping secondary CPUs\n");
+ 	smp_cross_call(&mask, IPI_CPU_CRASH_STOP);
 
 
