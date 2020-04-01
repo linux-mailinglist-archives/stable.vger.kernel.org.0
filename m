@@ -2,118 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E579719B7FC
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 23:57:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE0E519B83A
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 00:15:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732554AbgDAV5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 17:57:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41094 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732527AbgDAV5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 17:57:03 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD8CF2054F;
-        Wed,  1 Apr 2020 21:57:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585778223;
-        bh=/YyxLCzFdEXtW2VuPeIeEIvL8UNJ9V1HIkiV7d88PYY=;
-        h=Date:From:To:Subject:From;
-        b=IYVnM2c6rcG3DB3v2Sx9yE4vYVYChu8eakL5k2S5Bivb3YZh14HlabDbkQ8hqbq+8
-         Hi8ugPdBDJ3b7B7PvZlCg/Cf1lyhOAQGHJ+d+zl//gZneaATX8koHgEKL9cJ7CLgXz
-         CWb5v1p1UZm7cNv2fWBPw+o2a0Bz6SIyFlx/Fcfk=
-Date:   Wed, 01 Apr 2020 14:57:02 -0700
-From:   akpm@linux-foundation.org
-To:     chris@chrisdown.name, hannes@cmpxchg.org, kuba@kernel.org,
-        mhocko@suse.com, mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  +
- mm-memcg-do-not-high-throttle-allocators-based-on-wraparound.patch added to
- -mm tree
-Message-ID: <20200401215702.N700c1Mno%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1733101AbgDAWPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 18:15:14 -0400
+Received: from esa2.microchip.iphmx.com ([68.232.149.84]:59743 "EHLO
+        esa2.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732537AbgDAWPN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 18:15:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1585779313; x=1617315313;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=pNTIwQ1CqOZCjXOldRhyWpBfPZeO+eg3UOXWN3Y4ZhM=;
+  b=f4HcLq1tbPKw/WWUeuHkZ9WubJXNSwLOpxqAuBtLzUwFDuQf4B0YLwE4
+   30wsqLJb3T2tGDHgnkFM7fgrebm365mOKahY6Vggl4nvPR+lki8f/ZYiW
+   leDJvH5IN47AmUGK4u+pwVExEMy/kNIB4SmBDED+4JI/X/lSAqkNthCtw
+   fVDZOQi42g7UOUJNVJjztJyBqaJBz2QJUtttO+rJJhNkQQs+aPrm9Xfuf
+   12ZJ6g0PcAcNxUQIwotuU9pEmrs0Tvh+4VGDS/dObu74/48LP5nE3RN6B
+   z2aOHuxE/wJDFlRxp1JcbYhIcvy7h+rcQmFUediWzY5i5JJSScgo0R0aS
+   w==;
+IronPort-SDR: qqE3wNJ1NKBF4wpf0zWePNhEAnobjp7/iTV/I5QY/VUA3NjQLZAoAXsRNEV8MseWD6qlejj0Xi
+ K3Dg1lQCWf6OyBJ26oZ9uq7AgzMEnDmJN9UcjN3LLKmmcOVgr3owYq395RoEVvrTKdgv9XeGYA
+ ysKExkPDqAsLKitmjRYVuuE3zEFv47TsyAsC5kqRotNHT2nleIhE6L5eppUAPbKD82k/9eOhhq
+ W0TyUMTOT2xn0x40LfyWjpqneTgz9cKPjhCwZex3lgCGHrtSPTjLkVTAl53KwpfcqumhQl4SGH
+ XkQ=
+X-IronPort-AV: E=Sophos;i="5.72,333,1580799600"; 
+   d="scan'208";a="70956400"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 01 Apr 2020 15:15:12 -0700
+Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Wed, 1 Apr 2020 15:15:12 -0700
+Received: from sekiro.microchip.com (10.10.115.15) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server id
+ 15.1.1713.5 via Frontend Transport; Wed, 1 Apr 2020 15:15:15 -0700
+From:   Ludovic Desroches <ludovic.desroches@microchip.com>
+To:     <nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
+        <robh+dt@kernel.org>
+CC:     <linux-arm-kernel@lists.infradead.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <Tudor.Ambarus@microchip.com>, <Cristian.Birsan@microchip.com>,
+        <Codrin.Ciubotariu@microchip.com>,
+        "Ludovic Desroches" <ludovic.desroches@microchip.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH 1/5] ARM: dts: at91: sama5d2_ptc_ek: fix sdmmc0 node description
+Date:   Thu, 2 Apr 2020 00:15:00 +0200
+Message-ID: <20200401221504.41196-1-ludovic.desroches@microchip.com>
+X-Mailer: git-send-email 2.26.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Remove non-removable and mmc-ddr-1_8v properties from the sdmmc0
+node which come probably from an unchecked copy/paste.
 
-The patch titled
-     Subject: mm, memcg: Do not high throttle allocators based on wraparound
-has been added to the -mm tree.  Its filename is
-     mm-memcg-do-not-high-throttle-allocators-based-on-wraparound.patch
-
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-memcg-do-not-high-throttle-allocators-based-on-wraparound.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcg-do-not-high-throttle-allocators-based-on-wraparound.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Jakub Kicinski <kuba@kernel.org>
-Subject: mm, memcg: Do not high throttle allocators based on wraparound
-
-If a cgroup violates its memory.high constraints, we may end up unduly
-penalising it.  For example, for the following hierarchy:
-
-A:   max high, 20 usage
-A/B: 9 high, 10 usage
-A/C: max high, 10 usage
-
-We would end up doing the following calculation below when calculating
-high delay for A/B:
-
-A/B: 10 - 9 = 1...
-A:   20 - PAGE_COUNTER_MAX = 21, so set max_overage to 21.
-
-This gets worse with higher disparities in usage in the parent.
-
-I have no idea how this disappeared from the final version of the patch,
-but it is certainly Not Good(tm).  This wasn't obvious in testing because,
-for a simple cgroup hierarchy with only one child, the result is usually
-roughly the same.  It's only in more complex hierarchies that things go
-really awry (although still, the effects are limited to a maximum of 2
-seconds in schedule_timeout_killable at a maximum).
-
-[chris@chrisdown.name: changelog]
-Link: http://lkml.kernel.org/r/20200331152424.GA1019937@chrisdown.name
-Fixes: e26733e0d0ec ("mm, memcg: throttle allocators based on ancestral memory.high")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Chris Down <chris@chrisdown.name>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>	[5.4.x]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Fixes:42ed535595ec "ARM: dts: at91: introduce the sama5d2 ptc ek board"
+Cc: stable@vger.kernel.org # 4.19 and later
 ---
+ arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts | 2 --
+ 1 file changed, 2 deletions(-)
 
- mm/memcontrol.c |    3 +++
- 1 file changed, 3 insertions(+)
-
---- a/mm/memcontrol.c~mm-memcg-do-not-high-throttle-allocators-based-on-wraparound
-+++ a/mm/memcontrol.c
-@@ -2324,6 +2324,9 @@ static unsigned long calculate_high_dela
- 		usage = page_counter_read(&memcg->memory);
- 		high = READ_ONCE(memcg->high);
+diff --git a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
+index 1c24ac8019ba7..772809c54c1f3 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
+@@ -125,8 +125,6 @@ sdmmc0: sdio-host@a0000000 {
+ 			bus-width = <8>;
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pinctrl_sdmmc0_default>;
+-			non-removable;
+-			mmc-ddr-1_8v;
+ 			status = "okay";
+ 		};
  
-+		if (usage <= high)
-+			continue;
-+
- 		/*
- 		 * Prevent division by 0 in overage calculation by acting as if
- 		 * it was a threshold of 1 page
-_
-
-Patches currently in -mm which might be from kuba@kernel.org are
-
-mm-memcg-do-not-high-throttle-allocators-based-on-wraparound.patch
+-- 
+2.26.0
 
