@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D2F19B290
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:45:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA98919B3AE
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388317AbgDAQpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:45:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46352 "EHLO mail.kernel.org"
+        id S2388523AbgDAQdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:33:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389823AbgDAQpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:45:09 -0400
+        id S2387984AbgDAQdP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:33:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A964520719;
-        Wed,  1 Apr 2020 16:45:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C814212CC;
+        Wed,  1 Apr 2020 16:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759509;
-        bh=FJpKdcb6Tyjk/stNLsH5eg81JaWGyK3JQadgmibkM2E=;
+        s=default; t=1585758794;
+        bh=LI1TXju7BvYNYBqckgk5icjS0KxqsByRTaXflSe8YaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fb871MTD9qPWm2m1d9O/UOo92Kk/52gz+3cu5h4R1lqjqXnEcYYJ4UwxFVWUD7J1/
-         dcQ7KIFrbbtyhGz7NvOLXZSVSNcPndUvZM8IHdP8SYGMJZl0gzGw/NApKM7pyiS+qh
-         y1G2XOXDNdNpFffbSyL1bUraNf79TNEI7hq7g23M=
+        b=Dh1XjisSOW9Ip6nj2KSj8rQ4W6M5niulNcG/3Nei/6V1l6jNaqUi+QKTyrrAgYQzW
+         LhkVdFwUg3bINSbcMkrhMqSwSHKjZeJQyrdwxQYjmdMi8mV2DGNDJG4C3ddsODBPLK
+         XP1FA5vMP8ccjPmhH6Bc4fPIMk9UA5El2DE9HuuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edward Cree <ecree@solarflare.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.14 102/148] genirq: Fix reference leaks on irq affinity notifiers
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.4 78/91] media: ov519: add missing endpoint sanity checks
 Date:   Wed,  1 Apr 2020 18:18:14 +0200
-Message-Id: <20200401161602.552704822@linuxfoundation.org>
+Message-Id: <20200401161538.246825052@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edward Cree <ecree@solarflare.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit df81dfcfd6991d547653d46c051bac195cd182c1 upstream.
+commit 998912346c0da53a6dbb71fab3a138586b596b30 upstream.
 
-The handling of notify->work did not properly maintain notify->kref in two
- cases:
-1) where the work was already scheduled, another irq_set_affinity_locked()
-   would get the ref and (no-op-ly) schedule the work.  Thus when
-   irq_affinity_notify() ran, it would drop the original ref but not the
-   additional one.
-2) when cancelling the (old) work in irq_set_affinity_notifier(), if there
-   was outstanding work a ref had been got for it but was never put.
-Fix both by checking the return values of the work handling functions
- (schedule_work() for (1) and cancel_work_sync() for (2)) and put the
- extra ref if the return value indicates preexisting work.
+Make sure to check that we have at least one endpoint before accessing
+the endpoint array to avoid dereferencing a NULL-pointer on stream
+start.
 
-Fixes: cd7eab44e994 ("genirq: Add IRQ affinity notifiers")
-Fixes: 59c39840f5ab ("genirq: Prevent use-after-free and work list corruption")
-Signed-off-by: Edward Cree <ecree@solarflare.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Ben Hutchings <ben@decadent.org.uk>
-Link: https://lkml.kernel.org/r/24f5983f-2ab5-e83a-44ee-a45b5f9300f5@solarflare.com
+Note that these sanity checks are not redundant as the driver is mixing
+looking up altsettings by index and by number, which need not coincide.
+
+Fixes: 1876bb923c98 ("V4L/DVB (12079): gspca_ov519: add support for the ov511 bridge")
+Fixes: b282d87332f5 ("V4L/DVB (12080): gspca_ov519: Fix ov518+ with OV7620AE (Trust spacecam 320)")
+Cc: stable <stable@vger.kernel.org>     # 2.6.31
+Cc: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/irq/manage.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/media/usb/gspca/ov519.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -224,7 +224,11 @@ int irq_set_affinity_locked(struct irq_d
- 
- 	if (desc->affinity_notify) {
- 		kref_get(&desc->affinity_notify->kref);
--		schedule_work(&desc->affinity_notify->work);
-+		if (!schedule_work(&desc->affinity_notify->work)) {
-+			/* Work was already scheduled, drop our extra ref */
-+			kref_put(&desc->affinity_notify->kref,
-+				 desc->affinity_notify->release);
-+		}
+--- a/drivers/media/usb/gspca/ov519.c
++++ b/drivers/media/usb/gspca/ov519.c
+@@ -3507,6 +3507,11 @@ static void ov511_mode_init_regs(struct
+ 		return;
  	}
- 	irqd_set(data, IRQD_AFFINITY_SET);
  
-@@ -324,7 +328,10 @@ irq_set_affinity_notifier(unsigned int i
- 	raw_spin_unlock_irqrestore(&desc->lock, flags);
++	if (alt->desc.bNumEndpoints < 1) {
++		sd->gspca_dev.usb_err = -ENODEV;
++		return;
++	}
++
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 	reg_w(sd, R51x_FIFO_PSIZE, packet_size >> 5);
  
- 	if (old_notify) {
--		cancel_work_sync(&old_notify->work);
-+		if (cancel_work_sync(&old_notify->work)) {
-+			/* Pending work had a ref, put that one too */
-+			kref_put(&old_notify->kref, old_notify->release);
-+		}
- 		kref_put(&old_notify->kref, old_notify->release);
+@@ -3632,6 +3637,11 @@ static void ov518_mode_init_regs(struct
+ 		return;
  	}
+ 
++	if (alt->desc.bNumEndpoints < 1) {
++		sd->gspca_dev.usb_err = -ENODEV;
++		return;
++	}
++
+ 	packet_size = le16_to_cpu(alt->endpoint[0].desc.wMaxPacketSize);
+ 	ov518_reg_w32(sd, R51x_FIFO_PSIZE, packet_size & ~7, 2);
  
 
 
