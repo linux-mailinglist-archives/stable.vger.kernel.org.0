@@ -2,112 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7577D19A51E
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 08:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D73BF19A53D
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 08:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731780AbgDAGLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 02:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59726 "EHLO mail.kernel.org"
+        id S1731721AbgDAGVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 02:21:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731725AbgDAGLf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 02:11:35 -0400
+        id S1731683AbgDAGVP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 02:21:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20BEA20714;
-        Wed,  1 Apr 2020 06:11:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1118820719;
+        Wed,  1 Apr 2020 06:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585721494;
-        bh=yn4DTjfeYhX/ci/4lfzmZSEl2lrudX8CABrfWhxhOfQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KqsfjQ1qUSENBtF4qSo+lPc+ecgJkVIplngAg0zVs4Xk2KSgQYOGYN4A616YR8J+8
-         JD4lnc+1DSZuafmxq8tEjl6XLRn/ry2RkbpbXTQJDxTYvLcbgb4BP/zlY1QFCkJxtm
-         pfruGQAPd433YTg4khoumDhAr7Zghz4qyb3E9gSo=
-Date:   Wed, 1 Apr 2020 08:11:31 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        john.fastabend@gmail.com, komachi.yoshiki@gmail.com,
-        Andrii Nakryiko <andriin@fb.com>, lukenels@cs.washington.edu,
-        Netdev <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>
-Subject: Re: [PATCH 5.5 000/171] 5.5.14-rc2 review
-Message-ID: <20200401061131.GA1907105@kroah.com>
-References: <20200331141450.035873853@linuxfoundation.org>
- <CA+G9fYuU-5o5DG1VSQuCPx=TSs61-1jBekdGb5yvMRz4ur3BQg@mail.gmail.com>
+        s=default; t=1585722074;
+        bh=Tkk/uHxqPeMU3ux12KBY/NRWjcGC3iKm26UzQzvnNsk=;
+        h=Subject:To:From:Date:From;
+        b=c0SKfnx+pMJjbP01CCjPRQ74apP5K/nXBocFwLfnd7LoOY86sffAYLNJt9CAu3ets
+         wfxA/bTaP7aDKExflEUgliDwsiCxCPX2Dgp/rvRJdyEPd3STEorHOqmavjjBWrvAes
+         tMfq0+D3NsEPOskPN6Bw/6EDHFHoDklCnDyRqNjY=
+Subject: patch "Revert "driver core: platform: Initialize dma_parms for platform" added to char-misc-next
+To:     gregkh@linuxfoundation.org, arnd@arndb.de, hch@lst.de,
+        linus.walleij@linaro.org, linux@armlinux.org.uk,
+        ludovic.barre@st.com, stable@vger.kernel.org,
+        ulf.hansson@linaro.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 01 Apr 2020 08:21:04 +0200
+Message-ID: <1585722064122122@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYuU-5o5DG1VSQuCPx=TSs61-1jBekdGb5yvMRz4ur3BQg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 04:18:41AM +0530, Naresh Kamboju wrote:
-> On Tue, 31 Mar 2020 at 21:02, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.5.14 release.
-> > There are 171 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 02 Apr 2020 14:12:02 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.14-rc2.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> 
-> Results from Linaro’s test farm.
-> Regressions on x86_64 and i386.
-> 
-> selftests bpf test_verifier reports as failed.
-> This test PASSED on v5.5.13
-> 
-> #554/p jgt32: range bound deduction, reg op imm FAIL
-> Failed to load prog 'Success'!
-> R8 unbounded memory access, make sure to bounds check any array access
-> into a map
-> verification time 141 usec
-> stack depth 8
-> processed 16 insns (limit 1000000) max_states_per_insn 0 total_states
-> 1 peak_states 1 mark_read 1
-> #555/p jgt32: range bound deduction, reg1 op reg2, reg1 unknown FAIL
-> Failed to load prog 'Success'!
-> R8 unbounded memory access, make sure to bounds check any array access
-> into a map
-> verification time 94 usec
-> stack depth 8
-> processed 17 insns (limit 1000000) max_states_per_insn 0 total_states
-> 1 peak_states 1 mark_read 1
-> #556/p jle32: range bound deduction, reg1 op reg2, reg2 unknown FAIL
-> Failed to load prog 'Success'!
-> R8 unbounded memory access, make sure to bounds check any array access
-> into a map
-> verification time 68 usec
-> stack depth 8
-> processed 17 insns (limit 1000000) max_states_per_insn 0 total_states
-> 1 peak_states 1 mark_read 1
 
-Can you run 'git bisect' to find the offending patch?
+This is a note to let you know that I've just added the patch titled
 
-thanks,
+    Revert "driver core: platform: Initialize dma_parms for platform
 
-greg k-h
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 885a64715fd81e6af6d94a038556e0b2e6deb19c Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Wed, 1 Apr 2020 08:06:54 +0200
+Subject: Revert "driver core: platform: Initialize dma_parms for platform
+ devices"
+
+This reverts commit 7c8978c0837d40c302f5e90d24c298d9ca9fc097, a new
+version will come in the next release cycle.
+
+Cc: <stable@vger.kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ludovic Barre <ludovic.barre@st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/base/platform.c         | 1 -
+ include/linux/platform_device.h | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index 46abbfb52655..b5ce7b085795 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -512,7 +512,6 @@ int platform_device_add(struct platform_device *pdev)
+ 		pdev->dev.parent = &platform_bus;
+ 
+ 	pdev->dev.bus = &platform_bus_type;
+-	pdev->dev.dma_parms = &pdev->dma_parms;
+ 
+ 	switch (pdev->id) {
+ 	default:
+diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
+index 81900b3cbe37..041bfa412aa0 100644
+--- a/include/linux/platform_device.h
++++ b/include/linux/platform_device.h
+@@ -25,7 +25,6 @@ struct platform_device {
+ 	bool		id_auto;
+ 	struct device	dev;
+ 	u64		platform_dma_mask;
+-	struct device_dma_parameters dma_parms;
+ 	u32		num_resources;
+ 	struct resource	*resource;
+ 
+-- 
+2.26.0
+
+
