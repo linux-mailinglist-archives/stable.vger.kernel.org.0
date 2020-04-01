@@ -2,98 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B06119ADFA
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 16:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4DBD19AE51
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 16:52:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732749AbgDAOed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 10:34:33 -0400
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:41768 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732807AbgDAOed (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 10:34:33 -0400
-Received: by mail-qk1-f196.google.com with SMTP id q188so15672qke.8;
-        Wed, 01 Apr 2020 07:34:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=9uAYoKMGE9PgfUp+bxUEGlyVqoWBakozXuhgR9OnmJo=;
-        b=fK3mLwVpmvWNMNQZIfkorXHF76+WwmMryp1OHVwlSl1O85sIrcNart6MFCEiiWbEhs
-         aytFZnssPwGjnbo94olpF9MfsbX9J1xCSFt2BrENTSHN4vC155UVCk720aGx5WASi60E
-         TscGO7swoEZI/8F5BSwrz7MOLDmVktr79lLuamR8edNuRVAyrDm5YX5hsjDS05joeTQ7
-         YMGTWZNOMgdh7V3Z4DD+luIQEbBk7y6QiTveIR8T3eUl180TbMuKjhcJ5/cp8wFnNNVl
-         xQMfXJ4EMnv917YC7y0dA1ifpMpJSwYENyT3lwQbBIyn6JsLAvlHnPo2sRxtP0UW7cbf
-         1OwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=9uAYoKMGE9PgfUp+bxUEGlyVqoWBakozXuhgR9OnmJo=;
-        b=Kjf06fnK2Ph3EFyNRO71+w02LEWXoj4rFkVyIgITLMD1GnJTZoixT/BfED0X0T08g+
-         eP7NF9YrGHHGdhpMWYdApn4PWvlE+85+YaOeIzBka/vTtgweYtxDcHCBpnbj2UIVgcol
-         mUeuNdT9asMv+3pL3g42A2Dy2HAA/HqnhEDTOdyAi0zxi6qGteyEgOyCiyv+SStd3oKC
-         UPHvYIaJjSGXPvD0+sRGJC8sx2wmZfT/wmKPtwEqu1eglCodRls9tG90xasE6qwIdQPK
-         +PC+L7B6j5RLNZTwJwi3EyGDdvUlKon4+9hmZoZlpLRAfolbg9iixT3uy+jyzusHmD5Y
-         im+A==
-X-Gm-Message-State: ANhLgQ1RBgD+7OsM3a38Efm3xy8FVjIgDIcVCcVQaCF4m4hFOq6ujd71
-        IQAu4Q6REU4DvHeTp/e43MA=
-X-Google-Smtp-Source: ADFU+vtGOEpjkKIYtf8jHd+3VJ7c6eIOIuhNahnR88YvKxOs9svqhhyOqpuGA3wbHqbp6skYm77mJg==
-X-Received: by 2002:a37:812:: with SMTP id 18mr9637047qki.139.1585751670754;
-        Wed, 01 Apr 2020 07:34:30 -0700 (PDT)
-Received: from quaco.ghostprotocols.net ([179.97.37.151])
-        by smtp.gmail.com with ESMTPSA id 199sm1505085qkm.7.2020.04.01.07.34.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Apr 2020 07:34:29 -0700 (PDT)
-From:   Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
-X-Google-Original-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
-        id 14EAD409A3; Wed,  1 Apr 2020 11:34:27 -0300 (-03)
-Date:   Wed, 1 Apr 2020 11:34:27 -0300
-To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Cc:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.6 00/23] 5.6.1-rc1 review
-Message-ID: <20200401143427.GB12534@kernel.org>
-References: <20200331085308.098696461@linuxfoundation.org>
- <CA+G9fYsZjmf34pQT1DeLN_DDwvxCWEkbzBfF0q2VERHb25dfZQ@mail.gmail.com>
- <CAHk-=whyW9TXfYxyxUW6hP9e0A=5MnOHrTarr4_k0hiddxq69Q@mail.gmail.com>
- <20200331192949.GN9917@kernel.org>
- <CAEUSe7_f8m0dLQT1jdU+87fNThnxMKuoGJkFuGpbT4OmpmE4iA@mail.gmail.com>
- <20200401124037.GA12534@kernel.org>
- <CAEUSe7-ercqbofx93m-d0RNW_dQqr1U7F7JYQ5X81CHSkq4KDw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEUSe7-ercqbofx93m-d0RNW_dQqr1U7F7JYQ5X81CHSkq4KDw@mail.gmail.com>
-X-Url:  http://acmel.wordpress.com
+        id S1732749AbgDAOwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 10:52:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733137AbgDAOwP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 10:52:15 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB1A620787;
+        Wed,  1 Apr 2020 14:52:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585752734;
+        bh=RbUCbhqHpdexsV1Veeih2T3a+5xZB0y/sIj30QLoZN0=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=okClQVPva2WxKFYgVV7rEy5FAM3CmqEc8lSzi29yRyK48E25l6sdZ9lWRf/vzB8tb
+         EyLxgYPs4vb03TlZNBYaZ46SwLqaB8PseH3226T5bvupa1UFxe934MW9VEnJkfooUK
+         mmvj1IdypF/g9iUN5zyla+CwCqfbMpMdsgDmXgNg=
+Date:   Wed, 01 Apr 2020 14:52:13 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>
+Cc:     <stable@vger.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] driver core: platform: Initialize dma_parms for platform devices
+In-Reply-To: <20200331183844.30488-2-ulf.hansson@linaro.org>
+References: <20200331183844.30488-2-ulf.hansson@linaro.org>
+Message-Id: <20200401145214.AB1A620787@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Em Wed, Apr 01, 2020 at 07:45:53AM -0600, Daniel Díaz escreveu:
-> This worked on top of torvalds/master and linux-stable-rc/linux-5.6.y.
-> 
-> Thanks and greetings!
+Hi
 
-Thanks, I'm taking this as a:
+[This is an automated email]
 
-Tested-by: Daniel Díaz <daniel.diaz@linaro.org>
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-Ok?
+The bot has tested the following trees: v5.5.13, v5.4.28, v4.19.113, v4.14.174, v4.9.217, v4.4.217.
 
-- Arnaldo
- 
-> Daniel Díaz
-> daniel.diaz@linaro.org
+v5.5.13: Build OK!
+v5.4.28: Build OK!
+v4.19.113: Failed to apply! Possible dependencies:
+    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
+    e3a36eb6dfae ("driver code: clarify and fix platform device DMA mask allocation")
+
+v4.14.174: Failed to apply! Possible dependencies:
+    186c446f4b84 ("media: arch: sh: migor: Use new renesas-ceu camera driver")
+    1a3c230b4151 ("media: arch: sh: ms7724se: Use new renesas-ceu camera driver")
+    39fb993038e1 ("media: arch: sh: ap325rxa: Use new renesas-ceu camera driver")
+    b12c8a70643f ("m68k: Set default dma mask for platform devices")
+    c2f9b05fd5c1 ("media: arch: sh: ecovec: Use new renesas-ceu camera driver")
+    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
+    e3a36eb6dfae ("driver code: clarify and fix platform device DMA mask allocation")
+    f3590dc32974 ("media: arch: sh: kfr2r09: Use new renesas-ceu camera driver")
+
+v4.9.217: Failed to apply! Possible dependencies:
+    186c446f4b84 ("media: arch: sh: migor: Use new renesas-ceu camera driver")
+    1a3c230b4151 ("media: arch: sh: ms7724se: Use new renesas-ceu camera driver")
+    39fb993038e1 ("media: arch: sh: ap325rxa: Use new renesas-ceu camera driver")
+    8fd708157a59 ("Input: tsc2007 - move header file out of I2C realm")
+    b12c8a70643f ("m68k: Set default dma mask for platform devices")
+    c2f9b05fd5c1 ("media: arch: sh: ecovec: Use new renesas-ceu camera driver")
+    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
+    e3a36eb6dfae ("driver code: clarify and fix platform device DMA mask allocation")
+    f14434040ce0 ("Input: tsc2007 - add iio interface to read external ADC input and temperature")
+    f3590dc32974 ("media: arch: sh: kfr2r09: Use new renesas-ceu camera driver")
+
+v4.4.217: Failed to apply! Possible dependencies:
+    166dd7d3fbf2 ("powerpc/64: Move MMU backend selection out of platform code")
+    340f3039acd6 ("m68k: convert to dma_map_ops")
+    3808a88985b4 ("powerpc: Move FW feature probing out of pseries probe()")
+    406b0b6ae3fc ("powerpc/64: Move 64-bit probe_machine() to later in the boot process")
+    565713840445 ("powerpc: Move 32-bit probe() machine to later in the boot process")
+    5d31a96e6c01 ("powerpc/livepatch: Add livepatch stack to struct thread_info")
+    63c254a50104 ("powerpc: Add comment explaining the purpose of setup_kdump_trampoline()")
+    b12c8a70643f ("m68k: Set default dma mask for platform devices")
+    b1923caa6e64 ("powerpc: Merge 32-bit and 64-bit setup_arch()")
+    cdfee5623290 ("driver core: initialize a default DMA mask for platform device")
+    da6a97bf12d5 ("powerpc: Move epapr_paravirt_early_init() to early_init_devtree()")
+    f63e6d898760 ("powerpc/livepatch: Add livepatch header")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+-- 
+Thanks
+Sasha
