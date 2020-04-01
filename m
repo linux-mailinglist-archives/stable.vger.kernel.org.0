@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E05BC19B1D6
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:38:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7CDE19B34A
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733290AbgDAQig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:38:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38304 "EHLO mail.kernel.org"
+        id S2389102AbgDAQij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:38:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388962AbgDAQic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:38:32 -0400
+        id S2387520AbgDAQif (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:38:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB1D020772;
-        Wed,  1 Apr 2020 16:38:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66A0020658;
+        Wed,  1 Apr 2020 16:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759112;
-        bh=tet5YOIqQdCOHptiSOmkenXOZ5P8aUOSAsNdEt653NQ=;
+        s=default; t=1585759114;
+        bh=Jb477QnmVOumNiQUhTwmrb7ruwSZE2FwDmZGJD3j1d4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qq/ypKshbB7jWtsxz5UX4A/MH2w0yOzDzF1/ri83ph1TeC2YcNWHVLK2TmnUbHCOD
-         T4QEKhqb870C9DkjWazEywkcG5M+dfM/0kpn4gYwqQeCxmjufPj935Vg8Ui84xN7Os
-         FBiMDO6QL7f/Y4QJHYSsPGU5emlO22No5khjwkMQ=
+        b=K+7ktAI8vaDdio9psPxFwv5oEEfvAQwnXDYCr8muZk6RHdlWmHwzC1QRW2bMdPpW7
+         SWLTKi94+OzBhMehpXHdBtfocfHZ5Kmx9hK60sywxnXxvSbimq+Og28S/7lKFwqQBJ
+         kHX2+dT/n0ZJa0oyk8qzr8RAf7nxN37b/FayKCNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        syzbot+37ba33391ad5f3935bbd@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 078/102] USB: serial: io_edgeport: fix slab-out-of-bounds read in edge_interrupt_callback
-Date:   Wed,  1 Apr 2020 18:18:21 +0200
-Message-Id: <20200401161545.691788527@linuxfoundation.org>
+        stable@vger.kernel.org, Mans Rullgard <mans@mansr.com>,
+        Bin Liu <b-liu@ti.com>
+Subject: [PATCH 4.9 079/102] usb: musb: fix crash with highmen PIO and usbmon
+Date:   Wed,  1 Apr 2020 18:18:22 +0200
+Message-Id: <20200401161545.845950601@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
 References: <20200401161530.451355388@linuxfoundation.org>
@@ -44,36 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Mans Rullgard <mans@mansr.com>
 
-commit 57aa9f294b09463492f604feaa5cc719beaace32 upstream.
+commit 52974d94a206ce428d9d9b6eaa208238024be82a upstream.
 
-Fix slab-out-of-bounds read in the interrupt-URB completion handler.
+When handling a PIO bulk transfer with highmem buffer, a temporary
+mapping is assigned to urb->transfer_buffer.  After the transfer is
+complete, an invalid address is left behind in this pointer.  This is
+not ordinarily a problem since nothing touches that buffer before the
+urb is released.  However, when usbmon is active, usbmon_urb_complete()
+calls (indirectly) mon_bin_get_data() which does access the transfer
+buffer if it is set.  To prevent an invalid memory access here, reset
+urb->transfer_buffer to NULL when finished (musb_host_rx()), or do not
+set it at all (musb_host_tx()).
 
-The boundary condition should be (length - 1) as we access
-data[position + 1].
-
-Reported-and-tested-by: syzbot+37ba33391ad5f3935bbd@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 8e8a55165469 ("usb: musb: host: Handle highmem in PIO mode")
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bin Liu <b-liu@ti.com>
+Link: https://lore.kernel.org/r/20200316211136.2274-8-b-liu@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/io_edgeport.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/musb/musb_host.c |   17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/serial/io_edgeport.c
-+++ b/drivers/usb/serial/io_edgeport.c
-@@ -634,7 +634,7 @@ static void edge_interrupt_callback(stru
- 		/* grab the txcredits for the ports if available */
- 		position = 2;
- 		portNumber = 0;
--		while ((position < length) &&
-+		while ((position < length - 1) &&
- 				(portNumber < edge_serial->serial->num_ports)) {
- 			txCredits = data[position] | (data[position+1] << 8);
- 			if (txCredits) {
+--- a/drivers/usb/musb/musb_host.c
++++ b/drivers/usb/musb/musb_host.c
+@@ -1494,10 +1494,7 @@ done:
+ 	 * We need to map sg if the transfer_buffer is
+ 	 * NULL.
+ 	 */
+-	if (!urb->transfer_buffer)
+-		qh->use_sg = true;
+-
+-	if (qh->use_sg) {
++	if (!urb->transfer_buffer) {
+ 		/* sg_miter_start is already done in musb_ep_program */
+ 		if (!sg_miter_next(&qh->sg_miter)) {
+ 			dev_err(musb->controller, "error: sg list empty\n");
+@@ -1505,9 +1502,8 @@ done:
+ 			status = -EINVAL;
+ 			goto done;
+ 		}
+-		urb->transfer_buffer = qh->sg_miter.addr;
+ 		length = min_t(u32, length, qh->sg_miter.length);
+-		musb_write_fifo(hw_ep, length, urb->transfer_buffer);
++		musb_write_fifo(hw_ep, length, qh->sg_miter.addr);
+ 		qh->sg_miter.consumed = length;
+ 		sg_miter_stop(&qh->sg_miter);
+ 	} else {
+@@ -1516,11 +1512,6 @@ done:
+ 
+ 	qh->segsize = length;
+ 
+-	if (qh->use_sg) {
+-		if (offset + length >= urb->transfer_buffer_length)
+-			qh->use_sg = false;
+-	}
+-
+ 	musb_ep_select(mbase, epnum);
+ 	musb_writew(epio, MUSB_TXCSR,
+ 			MUSB_TXCSR_H_WZC_BITS | MUSB_TXCSR_TXPKTRDY);
+@@ -2040,8 +2031,10 @@ finish:
+ 	urb->actual_length += xfer_len;
+ 	qh->offset += xfer_len;
+ 	if (done) {
+-		if (qh->use_sg)
++		if (qh->use_sg) {
+ 			qh->use_sg = false;
++			urb->transfer_buffer = NULL;
++		}
+ 
+ 		if (urb->status == -EINPROGRESS)
+ 			urb->status = status;
 
 
