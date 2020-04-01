@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6F419B021
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D973619B340
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387418AbgDAQYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:24:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47976 "EHLO mail.kernel.org"
+        id S1733291AbgDAQkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:40:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387694AbgDAQYW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:24:22 -0400
+        id S2389331AbgDAQkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:40:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ADED20BED;
-        Wed,  1 Apr 2020 16:24:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17C6120719;
+        Wed,  1 Apr 2020 16:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758262;
-        bh=V4XcCi4zI+m4Y89ggKKf+m+BzhB6paEjnpHJR1dUQbY=;
+        s=default; t=1585759235;
+        bh=vd9KQm5lJKIzHUK1AZOmpGTXDgVDFpKR0xg/ZSIl5jY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ts01N9tLyCvMoRwyKw5Kp46v2DW+CXuw7EcIiwfTqd4oov3KkOtU4Pr2Makghs7lI
-         nEefhwinf3r4OYMbj8+YdXaLWfFctAMdKyzajUKJb5ql9CoNVuhNgK8YOg8gW4+O69
-         NrFVAWXn5i5mhcMLEsLC+u44u2DDODs7bOTDNB40=
+        b=fTuYIeRidxyj+XC142pu/FSbjOROt5AkUcI0Fu+e8677sYhFQ14xcHsQnL9dD7K5f
+         3OOwmKMzDk/ZjPTmgFV+QRu6tqmQ8suDAO3IT5wREP8AQkDK+35zCdXOj4Rc3AyoLd
+         mkEPq6XnI0Tif1kQK8hCgV3YnMhOBezHmZ1ME9yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/116] cgroup-v1: cgroup_pidlist_next should update position index
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 017/148] USB: serial: option: add ME910G1 ECM composition 0x110b
 Date:   Wed,  1 Apr 2020 18:16:49 +0200
-Message-Id: <20200401161546.668252291@linuxfoundation.org>
+Message-Id: <20200401161553.986490775@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit db8dd9697238be70a6b4f9d0284cd89f59c0e070 ]
+commit 8e852a7953be2a6ee371449f7257fe15ace6a1fc upstream.
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+Add ME910G1 ECM composition 0x110b: tty, tty, tty, ecm
 
- # mount | grep cgroup
- # dd if=/mnt/cgroup.procs bs=1  # normal output
-...
-1294
-1295
-1296
-1304
-1382
-584+0 records in
-584+0 records out
-584 bytes copied
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20200304104310.2938-1-dnlplm@gmail.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-dd: /mnt/cgroup.procs: cannot skip to specified offset
-83  <<< generates end of last line
-1383  <<< ... and whole last line once again
-0+1 records in
-0+1 records out
-8 bytes copied
-
-dd: /mnt/cgroup.procs: cannot skip to specified offset
-1386  <<< generates last line anyway
-0+1 records in
-0+1 records out
-5 bytes copied
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup-v1.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index 51063e7a93c28..c9628b9a41d23 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -501,6 +501,7 @@ static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
- 	 */
- 	p++;
- 	if (p >= end) {
-+		(*pos)++;
- 		return NULL;
- 	} else {
- 		*pos = *p;
--- 
-2.20.1
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1186,6 +1186,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110a, 0xff),	/* Telit ME910G1 */
+ 	  .driver_info = NCTRL(0) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x110b, 0xff),	/* Telit ME910G1 (ECM) */
++	  .driver_info = NCTRL(0) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE910_USBCFG4),
 
 
