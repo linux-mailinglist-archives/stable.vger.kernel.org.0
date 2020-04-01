@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D443C19B198
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3078F19B25C
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388837AbgDAQgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35184 "EHLO mail.kernel.org"
+        id S2389397AbgDAQnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:43:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388119AbgDAQgT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:36:19 -0400
+        id S2389607AbgDAQnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:43:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E3BE206F8;
-        Wed,  1 Apr 2020 16:36:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 506C9206F8;
+        Wed,  1 Apr 2020 16:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758976;
-        bh=IoW0UQ7gMuUmvsa4lQ1KLYup5Ho1EcpJce25OdnnrO0=;
+        s=default; t=1585759398;
+        bh=NawbuyTVM8YNV6WtPzNC5TWsO3Kns5RAMv/5SI2fH4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ANlv4IzQxAGX7jGPCUOVxq0/vYTUNEhXq2Og+qL3M8Ht47sUYf1SnVgOOOuvYN5j
-         YKmwDEcWNowXfc3YeHS6LMl7cUCKmLfQaMtuOUrvR5/RNWMDYZTxhrtgIokeiFi1RA
-         4t9K99nooYJhSXYRLWaiROYx8/ONfUziLiAhHqnY=
+        b=pMKMiAS82DDmXemO4Xnau+rFRb1RVb66EbTmoZ6VkqgzgRxKhkmG61y+vJwcXc8Cy
+         dbgieYXKRuBvHpiO7rneaOJz1CVs6TAvK8dJYrJ+ghOziAXoaT2fBMX1LLLy0gxaVc
+         zgkmuPBG6LcJ6I/FOy/OpjzRGdAW8/7SJilaMeMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 036/102] staging: greybus: loopback_test: fix potential path truncations
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 067/148] bnxt_en: fix memory leaks in bnxt_dcbnl_ieee_getets()
 Date:   Wed,  1 Apr 2020 18:17:39 +0200
-Message-Id: <20200401161539.574614378@linuxfoundation.org>
+Message-Id: <20200401161600.044598431@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
-References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,94 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Edwin Peer <edwin.peer@broadcom.com>
 
-commit ae62cf5eb2792d9a818c2d93728ed92119357017 upstream.
+[ Upstream commit 62d4073e86e62e316bea2c53e77db10418fd5dd7 ]
 
-Newer GCC warns about possible truncations of two generated path names as
-we're concatenating the configurable sysfs and debugfs path prefixes
-with a filename and placing the results in buffers of the same size as
-the maximum length of the prefixes.
+The allocated ieee_ets structure goes out of scope without being freed,
+leaking memory. Appropriate result codes should be returned so that
+callers do not rely on invalid data passed by reference.
 
-	snprintf(d->name, MAX_STR_LEN, "gb_loopback%u", dev_id);
+Also cache the ETS config retrieved from the device so that it doesn't
+need to be freed. The balance of the code was clearly written with the
+intent of having the results of querying the hardware cached in the
+device structure. The commensurate store was evidently missed though.
 
-	snprintf(d->sysfs_entry, MAX_SYSFS_PATH, "%s%s/",
-		 t->sysfs_prefix, d->name);
-
-	snprintf(d->debugfs_entry, MAX_SYSFS_PATH, "%sraw_latency_%s",
-		 t->debugfs_prefix, d->name);
-
-Fix this by separating the maximum path length from the maximum prefix
-length and reducing the latter enough to fit the generated strings.
-
-Note that we also need to reduce the device-name buffer size as GCC
-isn't smart enough to figure out that we ever only used MAX_STR_LEN
-bytes of it.
-
-Fixes: 6b0658f68786 ("greybus: tools: Add tools directory to greybus repo and add loopback")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20200312110151.22028-4-johan@kernel.org
+Fixes: 7df4ae9fe855 ("bnxt_en: Implement DCBNL to support host-based DCBX.")
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/greybus/tools/loopback_test.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/greybus/tools/loopback_test.c
-+++ b/drivers/staging/greybus/tools/loopback_test.c
-@@ -20,6 +20,7 @@
- #include <signal.h>
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_dcb.c
+@@ -387,24 +387,26 @@ static int bnxt_dcbnl_ieee_getets(struct
+ {
+ 	struct bnxt *bp = netdev_priv(dev);
+ 	struct ieee_ets *my_ets = bp->ieee_ets;
++	int rc;
  
- #define MAX_NUM_DEVICES 10
-+#define MAX_SYSFS_PREFIX 0x80
- #define MAX_SYSFS_PATH	0x200
- #define CSV_MAX_LINE	0x1000
- #define SYSFS_MAX_INT	0x20
-@@ -68,7 +69,7 @@ struct loopback_results {
- };
+ 	ets->ets_cap = bp->max_tc;
  
- struct loopback_device {
--	char name[MAX_SYSFS_PATH];
-+	char name[MAX_STR_LEN];
- 	char sysfs_entry[MAX_SYSFS_PATH];
- 	char debugfs_entry[MAX_SYSFS_PATH];
- 	struct loopback_results results;
-@@ -94,8 +95,8 @@ struct loopback_test {
- 	int stop_all;
- 	int poll_count;
- 	char test_name[MAX_STR_LEN];
--	char sysfs_prefix[MAX_SYSFS_PATH];
--	char debugfs_prefix[MAX_SYSFS_PATH];
-+	char sysfs_prefix[MAX_SYSFS_PREFIX];
-+	char debugfs_prefix[MAX_SYSFS_PREFIX];
- 	struct timespec poll_timeout;
- 	struct loopback_device devices[MAX_NUM_DEVICES];
- 	struct loopback_results aggregate_results;
-@@ -917,10 +918,10 @@ int main(int argc, char *argv[])
- 			t.iteration_max = atoi(optarg);
- 			break;
- 		case 'S':
--			snprintf(t.sysfs_prefix, MAX_SYSFS_PATH, "%s", optarg);
-+			snprintf(t.sysfs_prefix, MAX_SYSFS_PREFIX, "%s", optarg);
- 			break;
- 		case 'D':
--			snprintf(t.debugfs_prefix, MAX_SYSFS_PATH, "%s", optarg);
-+			snprintf(t.debugfs_prefix, MAX_SYSFS_PREFIX, "%s", optarg);
- 			break;
- 		case 'm':
- 			t.mask = atol(optarg);
-@@ -971,10 +972,10 @@ int main(int argc, char *argv[])
+ 	if (!my_ets) {
+-		int rc;
+-
+ 		if (bp->dcbx_cap & DCB_CAP_DCBX_HOST)
+ 			return 0;
+ 
+ 		my_ets = kzalloc(sizeof(*my_ets), GFP_KERNEL);
+ 		if (!my_ets)
+-			return 0;
++			return -ENOMEM;
+ 		rc = bnxt_hwrm_queue_cos2bw_qcfg(bp, my_ets);
+ 		if (rc)
+-			return 0;
++			goto error;
+ 		rc = bnxt_hwrm_queue_pri2cos_qcfg(bp, my_ets);
+ 		if (rc)
+-			return 0;
++			goto error;
++
++		/* cache result */
++		bp->ieee_ets = my_ets;
  	}
  
- 	if (!strcmp(t.sysfs_prefix, ""))
--		snprintf(t.sysfs_prefix, MAX_SYSFS_PATH, "%s", sysfs_prefix);
-+		snprintf(t.sysfs_prefix, MAX_SYSFS_PREFIX, "%s", sysfs_prefix);
+ 	ets->cbs = my_ets->cbs;
+@@ -413,6 +415,9 @@ static int bnxt_dcbnl_ieee_getets(struct
+ 	memcpy(ets->tc_tsa, my_ets->tc_tsa, sizeof(ets->tc_tsa));
+ 	memcpy(ets->prio_tc, my_ets->prio_tc, sizeof(ets->prio_tc));
+ 	return 0;
++error:
++	kfree(my_ets);
++	return rc;
+ }
  
- 	if (!strcmp(t.debugfs_prefix, ""))
--		snprintf(t.debugfs_prefix, MAX_SYSFS_PATH, "%s", debugfs_prefix);
-+		snprintf(t.debugfs_prefix, MAX_SYSFS_PREFIX, "%s", debugfs_prefix);
- 
- 	ret = find_loopback_devices(&t);
- 	if (ret)
+ static int bnxt_dcbnl_ieee_setets(struct net_device *dev, struct ieee_ets *ets)
 
 
