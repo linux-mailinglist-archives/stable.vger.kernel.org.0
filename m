@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29FBF19AF92
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:19:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B5719B43E
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 19:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732258AbgDAQTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:19:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41656 "EHLO mail.kernel.org"
+        id S1733085AbgDAQUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:20:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726205AbgDAQTW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:19:22 -0400
+        id S1733049AbgDAQUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:20:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F3C120857;
-        Wed,  1 Apr 2020 16:19:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34291212CC;
+        Wed,  1 Apr 2020 16:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585757962;
-        bh=7degDOeCs59BBBBJ9Nmvb+EqwBBNDXJkLd6Ox/OUxjc=;
+        s=default; t=1585758035;
+        bh=rOLcQFBcOaYW09lFzHjPK8KG4rOMjc8FZ5JxI0RTGlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=InVHBjK//tS9W0lMT59ozkiGD0e1mm6Yi2JmpvGtuOXrOdwxpJYhg3+T84HuDwm8U
-         eJEjZiUWHDhqPFenLdW4o5xl1wGdtgfdO74ZOzk8sAj9Df2E06yeJs16nONeJoGhfK
-         5rKD2THZ9T10EKMrx/rjZbj6CXnPXMIISU5J+j3I=
+        b=MGVYxPgNqaGQZKlPa7qPGFOM4ddFKAeQ6199s9606yGgVBc3q/VBo17B0M2eeR3yS
+         VGLXuqCqkkE2bvNb4cOR7jAECkgXaVZuiXcQ/ZweYSwt9mxM13ordh4diaSPz4DcWx
+         N/mwwf3PyUI8plTsAfkkG/FHGpPANsnDsVfWxFZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Georg=20M=C3=BCller?= <georgmueller@gmx.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.6 10/10] platform/x86: pmc_atom: Add Lex 2I385SW to critclk_systems DMI table
+        disconnect3d <dominik.b.czarnota@gmail.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Changbin Du <changbin.du@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>, John Keeping <john@metanate.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Lentine <mlentine@google.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.5 22/30] perf map: Fix off by one in strncpy() size argument
 Date:   Wed,  1 Apr 2020 18:17:26 +0200
-Message-Id: <20200401161423.073400358@linuxfoundation.org>
+Message-Id: <20200401161431.754502853@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161413.974936041@linuxfoundation.org>
-References: <20200401161413.974936041@linuxfoundation.org>
+In-Reply-To: <20200401161414.345528747@linuxfoundation.org>
+References: <20200401161414.345528747@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georg Müller <georgmueller@gmx.net>
+From: disconnect3d <dominik.b.czarnota@gmail.com>
 
-commit 95b31e35239e5e1689e3d965d692a313c71bd8ab upstream.
+commit db2c549407d4a76563c579e4768f7d6d32afefba upstream.
 
-The Lex 2I385SW board has two Intel I211 ethernet controllers. Without
-this patch, only the first port is usable. The second port fails to
-start with the following message:
+This patch fixes an off-by-one error in strncpy size argument in
+tools/perf/util/map.c. The issue is that in:
 
-    igb: probe of 0000:02:00.0 failed with error -2
+        strncmp(filename, "/system/lib/", 11)
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Tested-by: Georg Müller <georgmueller@gmx.net>
-Signed-off-by: Georg Müller <georgmueller@gmx.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+the passed string literal: "/system/lib/" has 12 bytes (without the NULL
+byte) and the passed size argument is 11. As a result, the logic won't
+match the ending "/" byte and will pass filepaths that are stored in
+other directories e.g. "/system/libmalicious/bin" or just
+"/system/libmalicious".
+
+This functionality seems to be present only on Android. I assume the
+/system/ directory is only writable by the root user, so I don't think
+this bug has much (or any) security impact.
+
+Fixes: eca818369996 ("perf tools: Add automatic remapping of Android libraries")
+Signed-off-by: disconnect3d <dominik.b.czarnota@gmail.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Changbin Du <changbin.du@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Keeping <john@metanate.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Lentine <mlentine@google.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200309104855.3775-1-dominik.b.czarnota@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/pmc_atom.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ tools/perf/util/map.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -385,6 +385,14 @@ static const struct dmi_system_id critcl
- 	},
- 	{
- 		/* pmc_plt_clk* - are used for ethernet controllers */
-+		.ident = "Lex 2I385SW",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "2I385SW"),
-+		},
-+	},
-+	{
-+		/* pmc_plt_clk* - are used for ethernet controllers */
- 		.ident = "Beckhoff CB3163",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+--- a/tools/perf/util/map.c
++++ b/tools/perf/util/map.c
+@@ -89,7 +89,7 @@ static inline bool replace_android_lib(c
+ 		return true;
+ 	}
+ 
+-	if (!strncmp(filename, "/system/lib/", 11)) {
++	if (!strncmp(filename, "/system/lib/", 12)) {
+ 		char *ndk, *app;
+ 		const char *arch;
+ 		size_t ndk_length;
 
 
