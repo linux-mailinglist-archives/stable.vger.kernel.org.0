@@ -2,93 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1029019B853
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 00:19:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EBA619B870
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 00:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732637AbgDAWTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 18:19:55 -0400
-Received: from esa2.microchip.iphmx.com ([68.232.149.84]:60114 "EHLO
-        esa2.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732385AbgDAWTz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 18:19:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1585779594; x=1617315594;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=BPjNOnkGc0WibCjCNo7i6GUfzGFIqq0ztMrxOHNDZwQ=;
-  b=tjv4I0tTb7+AkNHMr34G4igS48jdklqpLCkJjIsNfL7FyTIxmmWfvGoH
-   znrLyZMpGjA/nqUOISk9CTWUda/soO0Gw0fu+w69yoK0XNOQgKJImYW5z
-   LqfHDoi9LLIQ9wkv4yfd1+oCKPevo0Ux8e2X6XJ42JmF+0HyswGzVob2k
-   yuL2uhdEHtg2qj7uxt5hr2JKWohAeG7p7Sqfl/rASPk7DG8NZPHwHUK3+
-   EIjnVsBSot7urGRERirMCycLw2xijS2NjDJN8kbMog5eIfKURRqQvuVn0
-   JvhgVs3ADs/e+g5/nJFqaLqWTTQ2PsKhUzG1nwt+kqEevRKRpZ/Xo0j3U
-   g==;
-IronPort-SDR: E38uwSDiXzIp38bHPdN0cFgpbIsfXGgCKcIMl8IchKCQ2R6QxytPDUgpf3ndS7QPcQw20eX/JX
- sXjzZ2edkIYukkCp0VGp1a/4a/cKvyzTiVRsgVRDv80c4Zm+0qFZn9SWU3fpDsuXRhVHLfx1+0
- 8Es+diZtT2pfxqdiQsjNhp6GWKS2DNkAsPrbyBCZeZWFo9x76Je/QsQh2OjfUHihyoh7AhtCHk
- 8u1xVWDIt3LtOayQINBa3lqhvfl/a64V3tyfBzwrt1KR8Rmi4JOcB5xWCnMG6TZiOIRLrepZaw
- zVQ=
-X-IronPort-AV: E=Sophos;i="5.72,333,1580799600"; 
-   d="scan'208";a="70956797"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa2.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 01 Apr 2020 15:19:53 -0700
-Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Wed, 1 Apr 2020 15:19:53 -0700
-Received: from sekiro.microchip.com (10.10.115.15) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server id
- 15.1.1713.5 via Frontend Transport; Wed, 1 Apr 2020 15:19:56 -0700
-From:   Ludovic Desroches <ludovic.desroches@microchip.com>
-To:     <nicolas.ferre@microchip.com>, <alexandre.belloni@bootlin.com>,
-        <robh+dt@kernel.org>
-CC:     <linux-arm-kernel@lists.infradead.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <Tudor.Ambarus@microchip.com>, <Cristian.Birsan@microchip.com>,
-        <Codrin.Ciubotariu@microchip.com>,
-        "Ludovic Desroches" <ludovic.desroches@microchip.com>,
-        <stable@vger.kernel.org>
-Subject: [RESEND PATCH 2/5] ARM: dts: at91: sama5d2_ptc_ek: fix vbus pin
-Date:   Thu, 2 Apr 2020 00:19:47 +0200
-Message-ID: <20200401221947.41502-1-ludovic.desroches@microchip.com>
-X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401221504.41196-2-ludovic.desroches@microchip.com>
-References: <20200401221504.41196-2-ludovic.desroches@microchip.com>
+        id S1732669AbgDAWbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 18:31:00 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:45540 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732385AbgDAWbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 18:31:00 -0400
+Received: by mail-pl1-f196.google.com with SMTP id t4so537922plq.12
+        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 15:30:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=arnKeGX6h38cRc6khs3gd9r35sW1BzAf+pd2Gag2dbA=;
+        b=nCTKlqrsxNZW6vTINjLin1gvOdMe+0DbcTSLVeVEjiTPAu4uhZagvsShGHgOmFYH//
+         rY7j3RPB4dlujUHNpypnvVpRqFhQdXE7qwSZ60r1UJIJhpJGWWf5/JCSlsopieMFRtNW
+         SwArXioJ02goeHLGFG469lmv7yzwU0RdrTPp6/UlrVS6ioNIZF3U65uaBjJ/Xg/pP5AT
+         JSfl7RJY7mg+hp55cA0nY0Mt3mHY7BgF9QCY4Kiwg8S5bFlV8RhE7FQXsOsooeqD4T0F
+         9jBtDfOYINio7UaOkyPF2TcMcH1PMXOA9dwmSPeeO+FcrR10KQgsCU9UbmUZ9HKG56D+
+         pUNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=arnKeGX6h38cRc6khs3gd9r35sW1BzAf+pd2Gag2dbA=;
+        b=rYRhC11FD6nz9GD0fvNV2pixSEG1mYIMZhsLSacPqBmglMb6UspFEPT7mFm7v4zEmT
+         jS5nntBJcHKyT6CeDGl8rzIHk8DqLPEfNS9rxRJaFlzkb5IAgmTiSmqDt1vSAPOAq3kx
+         JiFfSennGVUytnkN01wqxqfeQPk+5SFQyfz0yjRgvtW7QKyJMiobtqmmt8AvhdG+8hYv
+         AYXlyCQyPEsZ8SxcomnIm2qeSvMLH/+t66cw4iGZMIo6LCNe60fCUVTKpEn2htb0A5nT
+         JrPsBJ/cchgnW7LlSZXzsZfhDLqguxTwwHZtSwyWpEvYSZXcwS1cMMI9dPIoB4mDnNgT
+         fPOw==
+X-Gm-Message-State: AGi0PuZ4wZx2DA2Wq9zefsMNuxH7XNP0GM4KTPPfRNORoP6pF8kMiUQr
+        fOouG1xVUJ64cxxRrhDpzFiUYzCyIyc=
+X-Google-Smtp-Source: APiQypKYswnG4k4mY6ljClRSLfaynzIZT5sz6snVEWfj9ZA71sYceWt6pXWoYEclXdU1KxtjwSV8CQ==
+X-Received: by 2002:a17:90b:2397:: with SMTP id mr23mr275398pjb.88.1585780257212;
+        Wed, 01 Apr 2020 15:30:57 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a19sm2304177pfk.110.2020.04.01.15.30.56
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Apr 2020 15:30:56 -0700 (PDT)
+Message-ID: <5e851620.1c69fb81.ba2f.b343@mx.google.com>
+Date:   Wed, 01 Apr 2020 15:30:56 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.217-103-g61ccfbbfe9f6
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 115 boots: 1 failed,
+ 107 passed with 2 offline, 5 untried/unknown (v4.9.217-103-g61ccfbbfe9f6)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The gpio property for the vbus pin doesn't match the pinctrl and is
-not correct.
+stable-rc/linux-4.9.y boot: 115 boots: 1 failed, 107 passed with 2 offline,=
+ 5 untried/unknown (v4.9.217-103-g61ccfbbfe9f6)
 
-Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Fixes: 42ed535595ec "ARM: dts: at91: introduce the sama5d2 ptc ek board"
-Cc: stable@vger.kernel.org # 4.19 and later
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.217-103-g61ccfbbfe9f6/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.217-103-g61ccfbbfe9f6/
+
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.217-103-g61ccfbbfe9f6
+Git Commit: 61ccfbbfe9f63b4a44ef11f9ad40d362970cc8fc
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 60 unique boards, 20 SoC families, 19 builds out of 197
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 53 days (last pass: v4.9.=
+213 - first fail: v4.9.213-37-g860ec95da9ad)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
 ---
-
-s/watch/match
-
- arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-index 772809c54c1f3..b803fa1f20391 100644
---- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-@@ -40,7 +40,7 @@ main_xtal {
- 
- 	ahb {
- 		usb0: gadget@300000 {
--			atmel,vbus-gpio = <&pioA PIN_PA27 GPIO_ACTIVE_HIGH>;
-+			atmel,vbus-gpio = <&pioA PIN_PB11 GPIO_ACTIVE_HIGH>;
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pinctrl_usba_vbus>;
- 			status = "okay";
--- 
-2.26.0
-
+For more info write to <info@kernelci.org>
