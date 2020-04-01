@@ -2,128 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D322019B787
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 23:25:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F6EC19B7DB
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 23:42:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732527AbgDAVZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 17:25:57 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:37197 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732357AbgDAVZ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 17:25:57 -0400
-Received: by mail-ot1-f65.google.com with SMTP id g23so1208183otq.4;
-        Wed, 01 Apr 2020 14:25:56 -0700 (PDT)
+        id S1732385AbgDAVmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 17:42:43 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:33653 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732357AbgDAVmn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 17:42:43 -0400
+Received: by mail-pg1-f193.google.com with SMTP id d17so805340pgo.0
+        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 14:42:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=CxmQrvAa8GNHsreDb0m3HDvj3HWhFUiqQ7e9QqtLS8s=;
-        b=vEziVXU+PhPWjGxw/xC7aLHAsGZIYKa2oODtmbkDYY7TjvkqHfsyLFqqjkTbm1bh7a
-         GwIWWfviMwy7KYSNSVmERjfgkfn33VkZu/5gbCl7vj141PeSd8OaL/MhqS2iJ8QHzis3
-         9Jv/7hnzNa1LSMfSIXHDSKB1AlJ7YRthLzf8aDbhYXbHs5e6CgG86Mqm7YyOcwDoQ5ss
-         341M4XgoYS/QTAGPpzsXc0vnHnHx4CkgD9OTCfUiFslaSeNLW1EnMiOZVQ8SO8r5saoP
-         amlmzBtoA4Pm7Cfx0A58OKzucr5E/LKJfRTwf77Q2zsLsCoxY8KxEsSGVIn0BUsMIdLo
-         aDJg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tpkYkegso9nP4PwHeoUkWVRN7vGKiOwAbYp8C+5XNks=;
+        b=Byl06HzB+j4Tp79hdZxJ45Ez/3jV85YSwXiU4XZsxXVOXFAj9UaV1zkNeQc2CAuqDI
+         Ca3nYNBVTb4v1Sii6FALmZjeme5oouxkLA8myuy50rlXI1CgR6Qx3kzszBBnEaVze9SH
+         idqmVyZoh6Jj0la0h6RcxzE6Nxf3xCHCBJg3zGh0GhpD0LIajpJMN4Hcv9FZ6/ZmYbsD
+         5KOW+r2zbwTcgQZdI1TnOqFEHCdQOoYJHY/EjzSe/DvKhWRL5sj+rDX9fv8kA6BxLucM
+         XWjEKEjfRdgBcenN9cSzxemXZtD2UAcLH/SQsb11DVDZKB38dC2qD52SnJeE+kVpNtjR
+         lVlg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=CxmQrvAa8GNHsreDb0m3HDvj3HWhFUiqQ7e9QqtLS8s=;
-        b=Pxm2smp+4lQzqJ+6zhqPnSDpiW2V1AzNJVTZzufnwTcUsqj1FhxEBzwkUYIOkDh4QR
-         aCFt7sevIh5XPVa9KM1yFA3y9IFjcxZzyiubcgt0hOcJ4HDajovVMCM19iQLrC3Me5Ja
-         W017RTB79aixqA/87bkXsHIKD0uVS+DYOCW0MHenFMjZKwt2rHJeEa+kwqL1FjNGy7a3
-         uLYVswZuPilRuOBEJBObMvgXtwHQLB7s1umZXEpziXlGJifCO3SJuad6/82KjZBWces5
-         1K5vthwLHxml+Of0TQqss8RKky/zYrRTbrbSnW1euEKZqT7Uj+VCJfY8jwKwZSiMSaUN
-         ZIjA==
-X-Gm-Message-State: ANhLgQ2ew5FHJkBmJsnxNpjKNbRUVz/5SxgLWan5HclY9vs4xYGa3r0k
-        Q9HtGNGDEpE7XelpXL1GjYb1Darg
-X-Google-Smtp-Source: ADFU+vuL72kTYj3uqbOO7/4sMcpiAe9kQNEEsm+0iR0dEGuzJSt4814GqQbDb6W2N/zzsxd0qTA2pw==
-X-Received: by 2002:a05:6830:1413:: with SMTP id v19mr17448119otp.41.1585776355915;
-        Wed, 01 Apr 2020 14:25:55 -0700 (PDT)
-Received: from ubuntu-m2-xlarge-x86 ([2604:1380:4111:8b00::1])
-        by smtp.gmail.com with ESMTPSA id j90sm774717otc.21.2020.04.01.14.25.54
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 01 Apr 2020 14:25:55 -0700 (PDT)
-Date:   Wed, 1 Apr 2020 14:25:53 -0700
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dirk Mueller <dmueller@suse.com>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 4.9 061/102] scripts/dtc: Remove redundant YYLOC global
- declaration
-Message-ID: <20200401212553.GA43588@ubuntu-m2-xlarge-x86>
-References: <20200401161530.451355388@linuxfoundation.org>
- <20200401161543.380204082@linuxfoundation.org>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tpkYkegso9nP4PwHeoUkWVRN7vGKiOwAbYp8C+5XNks=;
+        b=Z6lP24ffoJMaypat0GANU4lSW8K13pyxX2DqzhH9i1NTixDRhT+ZcuY7rsqm7KIGJ+
+         2OblW5BtYdT4avcDXrX2Ydu7IN/HI7eblkNCgGPG1/iXOo2kghxkz9yVvUl0J5lIGWMV
+         RsnsoHaBV8RZEOUUbGSDcG0xrBd8efnCnRnFswS1VMAl+HoO3YmbFOrZQqGcegSSSXLl
+         ul+SNkCXa+RjqDfuUkQib+qJTDFEVymKwWGE5Fg3waoycc/+Z+7F6Oc3iGauj+JTDMrX
+         gQvo+ESkzyKWycDrPEZrY4X1dJWVItWE0DZgTF+xISQ8O8Zzg+uMU2b/Z8E7IBu5vBkB
+         gjAQ==
+X-Gm-Message-State: ANhLgQ2aHSujGj+3lmTi0VOyrqNQvzfE4ZKn3EMpb7/hFbk6mIEHVoT+
+        8LCuSkt8LRPTQ4nd4yYqO0TwXfS7zOw=
+X-Google-Smtp-Source: ADFU+vtFHS50dVZBulRCnKppnsL32Ar6m22xsHKKjuksikOwGLq5QJ0zOYlBkEDhqLgTBsPbDhVLzw==
+X-Received: by 2002:a62:1847:: with SMTP id 68mr25664619pfy.288.1585777361791;
+        Wed, 01 Apr 2020 14:42:41 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e9sm2266698pfl.179.2020.04.01.14.42.40
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Apr 2020 14:42:40 -0700 (PDT)
+Message-ID: <5e850ad0.1c69fb81.360e2.afc7@mx.google.com>
+Date:   Wed, 01 Apr 2020 14:42:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200401161543.380204082@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.217-92-g2d26509e19e3
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 98 boots: 3 failed,
+ 88 passed with 2 offline, 5 untried/unknown (v4.4.217-92-g2d26509e19e3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 06:18:04PM +0200, Greg Kroah-Hartman wrote:
-> From: Dirk Mueller <dmueller@suse.com>
-> 
-> commit e33a814e772cdc36436c8c188d8c42d019fda639 upstream.
-> 
-> gcc 10 will default to -fno-common, which causes this error at link
-> time:
-> 
->   (.text+0x0): multiple definition of `yylloc'; dtc-lexer.lex.o (symbol from plugin):(.text+0x0): first defined here
-> 
-> This is because both dtc-lexer as well as dtc-parser define the same
-> global symbol yyloc. Before with -fcommon those were merged into one
-> defintion. The proper solution would be to to mark this as "extern",
-> however that leads to:
-> 
->   dtc-lexer.l:26:16: error: redundant redeclaration of 'yylloc' [-Werror=redundant-decls]
->    26 | extern YYLTYPE yylloc;
->       |                ^~~~~~
-> In file included from dtc-lexer.l:24:
-> dtc-parser.tab.h:127:16: note: previous declaration of 'yylloc' was here
->   127 | extern YYLTYPE yylloc;
->       |                ^~~~~~
-> cc1: all warnings being treated as errors
-> 
-> which means the declaration is completely redundant and can just be
-> dropped.
-> 
-> Signed-off-by: Dirk Mueller <dmueller@suse.com>
-> Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
-> [robh: cherry-pick from upstream]
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> ---
->  scripts/dtc/dtc-lexer.l |    1 -
->  1 file changed, 1 deletion(-)
-> 
-> --- a/scripts/dtc/dtc-lexer.l
-> +++ b/scripts/dtc/dtc-lexer.l
-> @@ -38,7 +38,6 @@ LINECOMMENT	"//".*\n
->  #include "srcpos.h"
->  #include "dtc-parser.tab.h"
->  
-> -YYLTYPE yylloc;
->  extern bool treesource_error;
->  
->  /* CAUTION: this will stop working if we ever use yyless() or yyunput() */
-> 
-> 
+stable-rc/linux-4.4.y boot: 98 boots: 3 failed, 88 passed with 2 offline, 5=
+ untried/unknown (v4.4.217-92-g2d26509e19e3)
 
-Hi Greg,
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.217-92-g2d26509e19e3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.217-92-g2d26509e19e3/
 
-Please see my email on the 5.5 version of this patch:
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.217-92-g2d26509e19e3
+Git Commit: 2d26509e19e30e927f01e298d1ce71dadc5ec33a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 18 SoC families, 17 builds out of 190
 
-https://lore.kernel.org/stable/20200331192515.GA39354@ubuntu-m2-xlarge-x86/
+Boot Regressions Detected:
 
-As it stands how, this version of the patch does nothing.
+arm:
 
-Cheers,
-Nathan
+    omap2plus_defconfig:
+        gcc-8:
+          omap3-beagle-xm:
+              lab-baylibre: new failure (last pass: v4.4.217-82-gb193eaf188=
+1d)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 53 days (last pass: v4.4.=
+212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 6 days (last pass: v4.4.216-127-g=
+955137020949 - first fail: v4.4.217)
+
+Boot Failures Detected:
+
+arm:
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
