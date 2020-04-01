@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D4319B232
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D9719B0EA
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389456AbgDAQlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:41:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42356 "EHLO mail.kernel.org"
+        id S1732854AbgDAQaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:30:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389162AbgDAQlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:41:52 -0400
+        id S1732683AbgDAQaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:30:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C062420658;
-        Wed,  1 Apr 2020 16:41:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 451472137B;
+        Wed,  1 Apr 2020 16:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585759311;
-        bh=Qv7p7skIwClAgWc94R84u6lXFzPtN2mlav+yyCBP6S0=;
+        s=default; t=1585758622;
+        bh=fTRyOl1Orx7e2ysLkp6Ucx/ayhAxV6Tul2irmgEtuWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C97YkYsttPnp+UemRo9gWCLI9JIJzJKI+ExrjjNkNKtepdkAkvF9bkiRtghTTI/CD
-         qx78FeHSDC4ZL2cNq/KuihiKqGSBjFh75pxf8IlbRw2KAvh1jpr3eqwRxFAiLrqSCd
-         dKh6xc7p7skrys9WcCV8glxM8+Z87RTH5A7EcvHk=
+        b=qYGFDV3Peo4FE8F9agiEir3RbYJoUwoeBf7O+lePMVi2Ch3bl/uFHg+Ihswo3n9AD
+         eQ+qGWflWnZFfeHHBjTK8W0VzxltRaP1oZNkXogmMA39my+ARfgfPtjBYokGXyrJDZ
+         gVN84XX4gTY2livea4OvnFo9ZfQV1dM7oSUmWUag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 042/148] iio: adc: at91-sama5d2_adc: fix channel configuration for differential channels
+        stable@vger.kernel.org, Michael Straube <straube.linux@gmail.com>
+Subject: [PATCH 4.4 18/91] staging: rtl8188eu: Add device id for MERCUSYS MW150US v2
 Date:   Wed,  1 Apr 2020 18:17:14 +0200
-Message-Id: <20200401161556.877865168@linuxfoundation.org>
+Message-Id: <20200401161519.229022998@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
-References: <20200401161552.245876366@linuxfoundation.org>
+In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,86 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Michael Straube <straube.linux@gmail.com>
 
-[ Upstream commit f0c8d1f6dc8eac5a1fbf441c8e080721a7b6c0ff ]
+commit bb5786b9286c253557a0115bc8d21879e61b7b94 upstream.
 
-When iterating through the channels, the index in the array is not the
-scan index. Added an xlate function to translate to the proper index.
-The result of the bug is that the channel array is indexed with a wrong index,
-thus instead of the proper channel, we access invalid memory, which may
-lead to invalid results and/or corruption.
-This will be used also for devicetree channel xlate.
+This device was added to the stand-alone driver on github.
+Add it to the staging driver as well.
 
-Fixes: 5e1a1da0f ("iio: adc: at91-sama5d2_adc: add hw trigger and buffer support")
-Fixes: 073c66201 ("iio: adc: at91-sama5d2_adc: add support for DMA")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://github.com/lwfinger/rtl8188eu/commit/2141f244c3e7
+Signed-off-by: Michael Straube <straube.linux@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200312093652.13918-1-straube.linux@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iio/adc/at91-sama5d2_adc.c | 30 ++++++++++++++++++++++++++++--
- 1 file changed, 28 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
-index a70ef7fec95f0..0898f40c2b892 100644
---- a/drivers/iio/adc/at91-sama5d2_adc.c
-+++ b/drivers/iio/adc/at91-sama5d2_adc.c
-@@ -300,6 +300,27 @@ static const struct iio_chan_spec at91_adc_channels[] = {
- 				+ AT91_SAMA5D2_DIFF_CHAN_CNT + 1),
- };
- 
-+static int at91_adc_chan_xlate(struct iio_dev *indio_dev, int chan)
-+{
-+	int i;
-+
-+	for (i = 0; i < indio_dev->num_channels; i++) {
-+		if (indio_dev->channels[i].scan_index == chan)
-+			return i;
-+	}
-+	return -EINVAL;
-+}
-+
-+static inline struct iio_chan_spec const *
-+at91_adc_chan_get(struct iio_dev *indio_dev, int chan)
-+{
-+	int index = at91_adc_chan_xlate(indio_dev, chan);
-+
-+	if (index < 0)
-+		return NULL;
-+	return indio_dev->channels + index;
-+}
-+
- static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
- {
- 	struct iio_dev *indio = iio_trigger_get_drvdata(trig);
-@@ -317,8 +338,10 @@ static int at91_adc_configure_trigger(struct iio_trigger *trig, bool state)
- 	at91_adc_writel(st, AT91_SAMA5D2_TRGR, status);
- 
- 	for_each_set_bit(bit, indio->active_scan_mask, indio->num_channels) {
--		struct iio_chan_spec const *chan = indio->channels + bit;
-+		struct iio_chan_spec const *chan = at91_adc_chan_get(indio, bit);
- 
-+		if (!chan)
-+			continue;
- 		if (state) {
- 			at91_adc_writel(st, AT91_SAMA5D2_CHER,
- 					BIT(chan->channel));
-@@ -398,8 +421,11 @@ static irqreturn_t at91_adc_trigger_handler(int irq, void *p)
- 	u8 bit;
- 
- 	for_each_set_bit(bit, indio->active_scan_mask, indio->num_channels) {
--		struct iio_chan_spec const *chan = indio->channels + bit;
-+		struct iio_chan_spec const *chan =
-+					at91_adc_chan_get(indio, bit);
- 
-+		if (!chan)
-+			continue;
- 		st->buffer[i] = at91_adc_readl(st, chan->address);
- 		i++;
- 	}
--- 
-2.20.1
-
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -50,6 +50,7 @@ static struct usb_device_id rtw_usb_id_t
+ 	{USB_DEVICE(0x2001, 0x331B)}, /* D-Link DWA-121 rev B1 */
+ 	{USB_DEVICE(0x2357, 0x010c)}, /* TP-Link TL-WN722N v2 */
+ 	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
++	{USB_DEVICE(0x2C4E, 0x0102)}, /* MERCUSYS MW150US v2 */
+ 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
+ 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
+ 	{}	/* Terminating entry */
 
 
