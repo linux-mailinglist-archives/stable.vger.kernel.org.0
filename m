@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8E4319B147
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:35:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8BD19B299
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733201AbgDAQdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:33:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60064 "EHLO mail.kernel.org"
+        id S2389431AbgDAQpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:45:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387586AbgDAQdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:33:31 -0400
+        id S2389263AbgDAQpZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:45:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7E1520658;
-        Wed,  1 Apr 2020 16:33:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0A7420719;
+        Wed,  1 Apr 2020 16:45:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758810;
-        bh=u7OLazOSlSIWCsLffa6IuGDxnh9pPXQR+T/jnWj3Frw=;
+        s=default; t=1585759525;
+        bh=tmjogg9yI+Opax21DufBCCunzR9HJWzo5dAUBKQVx3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/GWLfbGmqs8t5sZ44UwhD2t7Z7yrku2UkrU20jot/wsOVV8JxwnWI0kfODU7IPio
-         QDKLEC8yxRptyHjcjoZ/a/Q0DjqFw2UvqflLk0wD0rnYrE1l7vyye1Ysv1v49XYj5x
-         u2wEEWDgCkeG1GImoIhpCqh6G9P9gv3b7D3aRy/c=
+        b=spGJ8LghqhePhHshgIIrpPJQ420nZ3GN5Pjr/io0lSLzY4RzkU2Y0ZSOvQ3eEkhSy
+         9xdKUJz+UOtFNaZLpH/Yj+vXUHJai38pIocMd/ib7RANlBtsDHwk98n4KJeY9P+pJU
+         J+sCcSGEqy2m8BbEE7oLRYfMXw4dyIj+kEWByQAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH 4.4 82/91] vt: selection, introduce vc_is_sel
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.14 106/148] xfrm: fix uctx len check in verify_sec_ctx_len
 Date:   Wed,  1 Apr 2020 18:18:18 +0200
-Message-Id: <20200401161539.007738954@linuxfoundation.org>
+Message-Id: <20200401161602.856868152@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161512.917494101@linuxfoundation.org>
-References: <20200401161512.917494101@linuxfoundation.org>
+In-Reply-To: <20200401161552.245876366@linuxfoundation.org>
+References: <20200401161552.245876366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,101 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit dce05aa6eec977f1472abed95ccd71276b9a3864 upstream.
+commit 171d449a028573b2f0acdc7f31ecbb045391b320 upstream.
 
-Avoid global variables (namely sel_cons) by introducing vc_is_sel. It
-checks whether the parameter is the current selection console. This will
-help putting sel_cons to a struct later.
+It's not sufficient to do 'uctx->len != (sizeof(struct xfrm_user_sec_ctx) +
+uctx->ctx_len)' check only, as uctx->len may be greater than nla_len(rt),
+in which case it will cause slab-out-of-bounds when accessing uctx->ctx_str
+later.
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20200219073951.16151-1-jslaby@suse.cz
+This patch is to fix it by return -EINVAL when uctx->len > nla_len(rt).
+
+Fixes: df71837d5024 ("[LSM-IPSec]: Security association restriction.")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/selection.c |    5 +++++
- drivers/tty/vt/vt.c        |    7 ++++---
- drivers/tty/vt/vt_ioctl.c  |    2 +-
- include/linux/selection.h  |    4 +++-
- 4 files changed, 13 insertions(+), 5 deletions(-)
+ net/xfrm/xfrm_user.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/selection.c
-+++ b/drivers/tty/vt/selection.c
-@@ -80,6 +80,11 @@ void clear_selection(void)
- 	}
- }
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -109,7 +109,8 @@ static inline int verify_sec_ctx_len(str
+ 		return 0;
  
-+bool vc_is_sel(struct vc_data *vc)
-+{
-+	return vc == sel_cons;
-+}
-+
- /*
-  * User settable table: what characters are to be considered alphabetic?
-  * 256 bits. Locked by the console lock.
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -600,8 +600,9 @@ static void hide_softcursor(struct vc_da
+ 	uctx = nla_data(rt);
+-	if (uctx->len != (sizeof(struct xfrm_user_sec_ctx) + uctx->ctx_len))
++	if (uctx->len > nla_len(rt) ||
++	    uctx->len != (sizeof(struct xfrm_user_sec_ctx) + uctx->ctx_len))
+ 		return -EINVAL;
  
- static void hide_cursor(struct vc_data *vc)
- {
--	if (vc == sel_cons)
-+	if (vc_is_sel(vc))
- 		clear_selection();
-+
- 	vc->vc_sw->con_cursor(vc, CM_ERASE);
- 	hide_softcursor(vc);
- }
-@@ -612,7 +613,7 @@ static void set_cursor(struct vc_data *v
- 	    vc->vc_mode == KD_GRAPHICS)
- 		return;
- 	if (vc->vc_deccm) {
--		if (vc == sel_cons)
-+		if (vc_is_sel(vc))
- 			clear_selection();
- 		add_softcursor(vc);
- 		if ((vc->vc_cursor_type & 0x0f) != 1)
-@@ -878,7 +879,7 @@ static int vc_do_resize(struct tty_struc
- 	if (!newscreen)
- 		return -ENOMEM;
- 
--	if (vc == sel_cons)
-+	if (vc_is_sel(vc))
- 		clear_selection();
- 
- 	old_rows = vc->vc_rows;
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -42,7 +42,7 @@ char vt_dont_switch;
- extern struct tty_driver *console_driver;
- 
- #define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
--#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_cons[i].d == sel_cons)
-+#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_is_sel(vc_cons[i].d))
- 
- /*
-  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
---- a/include/linux/selection.h
-+++ b/include/linux/selection.h
-@@ -12,8 +12,8 @@
- 
- struct tty_struct;
- 
--extern struct vc_data *sel_cons;
- struct tty_struct;
-+struct vc_data;
- 
- extern void clear_selection(void);
- extern int set_selection(const struct tiocl_selection __user *sel, struct tty_struct *tty);
-@@ -22,6 +22,8 @@ extern int sel_loadlut(char __user *p);
- extern int mouse_reporting(void);
- extern void mouse_report(struct tty_struct * tty, int butt, int mrx, int mry);
- 
-+bool vc_is_sel(struct vc_data *vc);
-+
- extern int console_blanked;
- 
- extern unsigned char color_table[];
+ 	return 0;
 
 
