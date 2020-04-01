@@ -2,58 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 022D219B92A
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 01:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8ACD19B93E
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 02:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732682AbgDAX7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 19:59:31 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:41942 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732560AbgDAX7a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 19:59:30 -0400
-Received: by mail-ed1-f68.google.com with SMTP id v1so1992672edq.8
-        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 16:59:27 -0700 (PDT)
+        id S1733060AbgDBABi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 20:01:38 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:38302 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733017AbgDBABh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Apr 2020 20:01:37 -0400
+Received: by mail-lf1-f66.google.com with SMTP id c5so1240899lfp.5
+        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 17:01:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=H9rQ+4MX6AGqiS4gDh7zcouPJInPh/6Vm7fyt3tgD0k=;
-        b=JX+jSiMzF2RZC7X1UHsV906x8DewgkAwWN6EQ17vLXZEJQX6swhg/zVI1vxFEEZxIH
-         PbSD0KAyottCcGb/rT1bEA1sm5NRoFsrhBrQoH3A79V86rZeArdSk7sJvXfa6DN/8YJY
-         Q2hGYFvnvtsGpe9Mfmd01M2hX1hq6hVJbWiug=
+        bh=/BfWZS5+9as5lD6vEMwl/6xxGz06a9gloYkQ+RKeiao=;
+        b=JfE6FWMW0WrTIHwAtwqL3bo+qhTInr5LXI005KEawz6BRmX/rJrge8UmPsiMK5pPpc
+         uTi9rFGFrfCf6pGgobgz2x2SN1yInjn8O4MwUNtnjY4Fxxg3pNbTXYvif4DrVZeLWFYk
+         NwMooEZifjvk8bHNwWTVKU9ykqNbijKLOcb/k=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=H9rQ+4MX6AGqiS4gDh7zcouPJInPh/6Vm7fyt3tgD0k=;
-        b=MrmyZ+yzDBAc2mWutu7XtqS1/xPHNxY/wuIetz3iY8TxkxRsk27brMPrVmBzYrxhBN
-         ZFFaFiLsrdQ3/b+WgQYF3ZJqE5bd37LpO9wUzUihctLBpi1P5kNXhqKCEUruLWxgmxIq
-         2M64kc2Z4iL59x/7dn+nya8QwKuazgyxyFibAWR//qWpZ1Haf47eDa8023IitLpFyRUJ
-         93YJktfMO3zg/N6MVkjR1gaRu0mJroMsCUN44w89A3GUErS7cQtftBW+K2Qf//8GNHvk
-         WxqI3n1UR5FZZ72yRMeFcgCEMQSDFNMD9Se/IH128RUj+GaMnaosMbqxBM3PcEc3GXdD
-         btZg==
-X-Gm-Message-State: AGi0Puby5/rFi7bdqjNgtbtp5POK0dK5PaIXaCISSYKLIvj9NPPVe5Ys
-        Iu0T14MrywhdMjvWO7mf8jvvsIuYzyY=
-X-Google-Smtp-Source: APiQypLhxrZFUWZb3SoGCaqcI370EdPi3Q/67vQAGd8U3DD8uvkDxYabqhFu8Tbrl2I2hvch5gr9Og==
-X-Received: by 2002:a17:906:eb93:: with SMTP id mh19mr599771ejb.323.1585785566579;
-        Wed, 01 Apr 2020 16:59:26 -0700 (PDT)
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com. [209.85.221.43])
-        by smtp.gmail.com with ESMTPSA id j10sm803511ejv.13.2020.04.01.16.59.26
+        bh=/BfWZS5+9as5lD6vEMwl/6xxGz06a9gloYkQ+RKeiao=;
+        b=jrpIRXaDLH76tfulnMtEzCCArAX7rsFIDIOTWQFvwk+SS1YWH+BaoykjkRtCsEg0NF
+         SSC0XRPbm9th97KknpQi3fptHxhlMaqiwxblIrHiqMpGMDwUAwEjO3SlcJL/tAUyAVuj
+         FgmTOzlzynhj2wKOCHfTeJqbYRJ5R86d2GLM43h0nUyMqyuRWtsf17ptDk4osZEkKqCo
+         ydBJYOnQ50Q/PQ228+mb/KZ49s9/s8NuOt8GEvUbAaxGwmARdIMjjrX+/VFLpo2iaRO8
+         aZG7U3OB4ghkps/DM1wcxKnvwnE6+5Foj9bGlLXbAqH7lKw1pGdIyn7INGYTSxB2PjgN
+         Id3w==
+X-Gm-Message-State: AGi0PubySfTbw6rml6k5lSgAhrVa8XzBTRc87k+tB61AatPvoPK4lurz
+        jB0OdOAxq+5MZl9OCCiywWd+OrIIlDk=
+X-Google-Smtp-Source: APiQypI+CLLAJW2SsmG+e0AsTLG0bPXBbJBQeEx1CdmXiEaR76/ryn+CjyNw3cAh59pAyp1pHRAAqA==
+X-Received: by 2002:a19:240a:: with SMTP id k10mr429947lfk.30.1585785695380;
+        Wed, 01 Apr 2020 17:01:35 -0700 (PDT)
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com. [209.85.167.51])
+        by smtp.gmail.com with ESMTPSA id b198sm2666582lfg.11.2020.04.01.17.01.34
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Apr 2020 16:59:26 -0700 (PDT)
-Received: by mail-wr1-f43.google.com with SMTP id c7so2132525wrx.5
-        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 16:59:26 -0700 (PDT)
-X-Received: by 2002:a2e:8652:: with SMTP id i18mr373016ljj.265.1585785113845;
- Wed, 01 Apr 2020 16:51:53 -0700 (PDT)
+        Wed, 01 Apr 2020 17:01:35 -0700 (PDT)
+Received: by mail-lf1-f51.google.com with SMTP id e7so1267215lfq.1
+        for <stable@vger.kernel.org>; Wed, 01 Apr 2020 17:01:34 -0700 (PDT)
+X-Received: by 2002:a2e:b4cb:: with SMTP id r11mr371604ljm.201.1585785358260;
+ Wed, 01 Apr 2020 16:55:58 -0700 (PDT)
 MIME-Version: 1.0
 References: <20200324215049.GA3710@pi3.com.pl> <202003291528.730A329@keescook>
  <87zhbvlyq7.fsf_-_@x220.int.ebiederm.org> <CAG48ez3nYr7dj340Rk5-QbzhsFq0JTKPf2MvVJ1-oi1Zug1ftQ@mail.gmail.com>
-In-Reply-To: <CAG48ez3nYr7dj340Rk5-QbzhsFq0JTKPf2MvVJ1-oi1Zug1ftQ@mail.gmail.com>
+ <CAHk-=wjz0LEi68oGJSQzZ--3JTFF+dX2yDaXDRKUpYxtBB=Zfw@mail.gmail.com>
+In-Reply-To: <CAHk-=wjz0LEi68oGJSQzZ--3JTFF+dX2yDaXDRKUpYxtBB=Zfw@mail.gmail.com>
 From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 1 Apr 2020 16:51:38 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wjz0LEi68oGJSQzZ--3JTFF+dX2yDaXDRKUpYxtBB=Zfw@mail.gmail.com>
-Message-ID: <CAHk-=wjz0LEi68oGJSQzZ--3JTFF+dX2yDaXDRKUpYxtBB=Zfw@mail.gmail.com>
+Date:   Wed, 1 Apr 2020 16:55:42 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgM3qZeChs_1yFt8p8ye1pOaM_cX57BZ_0+qdEPcAiaCQ@mail.gmail.com>
+Message-ID: <CAHk-=wgM3qZeChs_1yFt8p8ye1pOaM_cX57BZ_0+qdEPcAiaCQ@mail.gmail.com>
 Subject: Re: [PATCH] signal: Extend exec_id to 64bits
 To:     Jann Horn <jannh@google.com>
 Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
@@ -84,17 +85,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 1, 2020 at 4:37 PM Jann Horn <jannh@google.com> wrote:
+On Wed, Apr 1, 2020 at 4:51 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> GCC will generate code for this without complaining, but I think it'll
-> probably generate a tearing store on 32-bit platforms:
+> It's literally testing a sequence counter for equality. If you get
+> tearing in the high bits on the write (or the read), you'd still need
+> to have the low bits turn around 4G times to get a matching value.
 
-This is very much a "we don't care" case.
+Put another way: first you'd have to work however many weeks to do 4
+billion execve() calls, and then you need to hit basically a
+single-instruction race to take advantage of it.
 
-It's literally testing a sequence counter for equality. If you get
-tearing in the high bits on the write (or the read), you'd still need
-to have the low bits turn around 4G times to get a matching value.
+Good luck with that. If you have that kind of God-like capability,
+whoever you're attacking stands no chance in the first place.
 
-So no. We're not doing atomics for the 32-bit case. That's insane.
-
-               Linus
+                  Linus
