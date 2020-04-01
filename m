@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1B419B074
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51ACB19AFF2
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387966AbgDAQ1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:27:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51828 "EHLO mail.kernel.org"
+        id S1732285AbgDAQWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:22:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732890AbgDAQ1F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:27:05 -0400
+        id S1733064AbgDAQWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:22:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4E3F20BED;
-        Wed,  1 Apr 2020 16:27:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 986EC20857;
+        Wed,  1 Apr 2020 16:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758425;
-        bh=SFOWE/27zqtS1mso7mCUfh5jR+5ME//znMimyV2p3wE=;
+        s=default; t=1585758153;
+        bh=Wa8P1jOfkHI4v48bQZDuuFiKv1xs+JNvmcqlX+vHPy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LnmwNSSbrQeUJG/zGNv/6GGHACrO4xwbhheShKX0j0VhXitpFOK0LAa8oKb/2M94I
-         uuAC7K0jShXBAykd3EJZHq4loXhryybZjTTKucgLSI2X54P7ASL5ZgJXJkpTk8idcl
-         DuXSsaKaUjhJzpFWT8Xm7DpwrYJl7BD8JhAfG9sI=
+        b=Vb+6OwAJ4vW9I3sgEY5hz/ppFxjdpi3tvhAIfJdrq3YubMeFYL7UBC5Vgxt+pX2bO
+         MhO7QobfEoCfDQGl5BoPyShP2p9p0K+60diiMjH9BYksc4eGusydxv8uFioOx6aUGN
+         Fp/lzplgpi32zmwuFVjrmm4sZB54OlEgKzRwX89g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cezary Jackiewicz <cezary@eko.one.pl>,
-        Pawel Dembicki <paweldembicki@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 080/116] USB: serial: option: add BroadMobi BM806U
+        stable@vger.kernel.org,
+        syzbot+522643ab5729b0421998@syzkaller.appspotmail.com,
+        Jiri Slaby <jslaby@suse.cz>, Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.4 08/27] vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use virtual console
 Date:   Wed,  1 Apr 2020 18:17:36 +0200
-Message-Id: <20200401161552.836037179@linuxfoundation.org>
+Message-Id: <20200401161421.844438426@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161414.352722470@linuxfoundation.org>
+References: <20200401161414.352722470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +44,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Dembicki <paweldembicki@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 6cb2669cb97fc4fdf526127159ac59caae052247 upstream.
+commit ca4463bf8438b403596edd0ec961ca0d4fbe0220 upstream.
 
-BroadMobi BM806U is an Qualcomm MDM9225 based 3G/4G modem.
-Tested hardware BM806U is mounted on D-Link DWR-921-C3 router.
+The VT_DISALLOCATE ioctl can free a virtual console while tty_release()
+is still running, causing a use-after-free in con_shutdown().  This
+occurs because VT_DISALLOCATE considers a virtual console's
+'struct vc_data' to be unused as soon as the corresponding tty's
+refcount hits 0.  But actually it may be still being closed.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
-D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=2020 ProdID=2033 Rev= 2.28
-S:  Manufacturer=Mobile Connect
-S:  Product=Mobile Connect
-S:  SerialNumber=f842866cfd5a
-C:* #Ifs= 5 Cfg#= 1 Atr=80 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+Fix this by making vc_data be reference-counted via the embedded
+'struct tty_port'.  A newly allocated virtual console has refcount 1.
+Opening it for the first time increments the refcount to 2.  Closing it
+for the last time decrements the refcount (in tty_operations::cleanup()
+so that it happens late enough), as does VT_DISALLOCATE.
 
-Co-developed-by: Cezary Jackiewicz <cezary@eko.one.pl>
-Signed-off-by: Cezary Jackiewicz <cezary@eko.one.pl>
-Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reproducer:
+	#include <fcntl.h>
+	#include <linux/vt.h>
+	#include <sys/ioctl.h>
+	#include <unistd.h>
+
+	int main()
+	{
+		if (fork()) {
+			for (;;)
+				close(open("/dev/tty5", O_RDWR));
+		} else {
+			int fd = open("/dev/tty10", O_RDWR);
+
+			for (;;)
+				ioctl(fd, VT_DISALLOCATE, 5);
+		}
+	}
+
+KASAN report:
+	BUG: KASAN: use-after-free in con_shutdown+0x76/0x80 drivers/tty/vt/vt.c:3278
+	Write of size 8 at addr ffff88806a4ec108 by task syz_vt/129
+
+	CPU: 0 PID: 129 Comm: syz_vt Not tainted 5.6.0-rc2 #11
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20191223_100556-anatol 04/01/2014
+	Call Trace:
+	 [...]
+	 con_shutdown+0x76/0x80 drivers/tty/vt/vt.c:3278
+	 release_tty+0xa8/0x410 drivers/tty/tty_io.c:1514
+	 tty_release_struct+0x34/0x50 drivers/tty/tty_io.c:1629
+	 tty_release+0x984/0xed0 drivers/tty/tty_io.c:1789
+	 [...]
+
+	Allocated by task 129:
+	 [...]
+	 kzalloc include/linux/slab.h:669 [inline]
+	 vc_allocate drivers/tty/vt/vt.c:1085 [inline]
+	 vc_allocate+0x1ac/0x680 drivers/tty/vt/vt.c:1066
+	 con_install+0x4d/0x3f0 drivers/tty/vt/vt.c:3229
+	 tty_driver_install_tty drivers/tty/tty_io.c:1228 [inline]
+	 tty_init_dev+0x94/0x350 drivers/tty/tty_io.c:1341
+	 tty_open_by_driver drivers/tty/tty_io.c:1987 [inline]
+	 tty_open+0x3ca/0xb30 drivers/tty/tty_io.c:2035
+	 [...]
+
+	Freed by task 130:
+	 [...]
+	 kfree+0xbf/0x1e0 mm/slab.c:3757
+	 vt_disallocate drivers/tty/vt/vt_ioctl.c:300 [inline]
+	 vt_ioctl+0x16dc/0x1e30 drivers/tty/vt/vt_ioctl.c:818
+	 tty_ioctl+0x9db/0x11b0 drivers/tty/tty_io.c:2660
+	 [...]
+
+Fixes: 4001d7b7fc27 ("vt: push down the tty lock so we can see what is left to tackle")
+Cc: <stable@vger.kernel.org> # v3.4+
+Reported-by: syzbot+522643ab5729b0421998@syzkaller.appspotmail.com
+Acked-by: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20200322034305.210082-2-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/vt/vt.c       |   23 ++++++++++++++++++++++-
+ drivers/tty/vt/vt_ioctl.c |   12 ++++--------
+ 2 files changed, 26 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1996,6 +1996,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(1) | RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2031, 0xff),			/* Olicard 600 */
- 	  .driver_info = RSVD(4) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2033, 0xff),			/* BroadMobi BM806U */
-+	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2060, 0xff),			/* BroadMobi BM818 */
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x4000, 0xff) },			/* OLICARD300 - MT6225 */
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1075,6 +1075,17 @@ static void visual_deinit(struct vc_data
+ 	module_put(vc->vc_sw->owner);
+ }
+ 
++static void vc_port_destruct(struct tty_port *port)
++{
++	struct vc_data *vc = container_of(port, struct vc_data, port);
++
++	kfree(vc);
++}
++
++static const struct tty_port_operations vc_port_ops = {
++	.destruct = vc_port_destruct,
++};
++
+ int vc_allocate(unsigned int currcons)	/* return 0 on success */
+ {
+ 	struct vt_notifier_param param;
+@@ -1100,6 +1111,7 @@ int vc_allocate(unsigned int currcons)	/
+ 
+ 	vc_cons[currcons].d = vc;
+ 	tty_port_init(&vc->port);
++	vc->port.ops = &vc_port_ops;
+ 	INIT_WORK(&vc_cons[currcons].SAK_work, vc_SAK);
+ 
+ 	visual_init(vc, currcons, 1);
+@@ -3254,6 +3266,7 @@ static int con_install(struct tty_driver
+ 
+ 	tty->driver_data = vc;
+ 	vc->port.tty = tty;
++	tty_port_get(&vc->port);
+ 
+ 	if (!tty->winsize.ws_row && !tty->winsize.ws_col) {
+ 		tty->winsize.ws_row = vc_cons[currcons].d->vc_rows;
+@@ -3289,6 +3302,13 @@ static void con_shutdown(struct tty_stru
+ 	console_unlock();
+ }
+ 
++static void con_cleanup(struct tty_struct *tty)
++{
++	struct vc_data *vc = tty->driver_data;
++
++	tty_port_put(&vc->port);
++}
++
+ static int default_color           = 7; /* white */
+ static int default_italic_color    = 2; // green (ASCII)
+ static int default_underline_color = 3; // cyan (ASCII)
+@@ -3413,7 +3433,8 @@ static const struct tty_operations con_o
+ 	.throttle = con_throttle,
+ 	.unthrottle = con_unthrottle,
+ 	.resize = vt_resize,
+-	.shutdown = con_shutdown
++	.shutdown = con_shutdown,
++	.cleanup = con_cleanup,
+ };
+ 
+ static struct cdev vc0_cdev;
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -310,10 +310,8 @@ static int vt_disallocate(unsigned int v
+ 		vc = vc_deallocate(vc_num);
+ 	console_unlock();
+ 
+-	if (vc && vc_num >= MIN_NR_CONSOLES) {
+-		tty_port_destroy(&vc->port);
+-		kfree(vc);
+-	}
++	if (vc && vc_num >= MIN_NR_CONSOLES)
++		tty_port_put(&vc->port);
+ 
+ 	return ret;
+ }
+@@ -333,10 +331,8 @@ static void vt_disallocate_all(void)
+ 	console_unlock();
+ 
+ 	for (i = 1; i < MAX_NR_CONSOLES; i++) {
+-		if (vc[i] && i >= MIN_NR_CONSOLES) {
+-			tty_port_destroy(&vc[i]->port);
+-			kfree(vc[i]);
+-		}
++		if (vc[i] && i >= MIN_NR_CONSOLES)
++			tty_port_put(&vc[i]->port);
+ 	}
+ }
+ 
 
 
