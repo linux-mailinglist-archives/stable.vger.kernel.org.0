@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0685019B3F3
-	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 116A719B3A1
+	for <lists+stable@lfdr.de>; Wed,  1 Apr 2020 18:53:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388038AbgDAQ1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Apr 2020 12:27:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        id S2388573AbgDAQw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Apr 2020 12:52:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388032AbgDAQ1s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Apr 2020 12:27:48 -0400
+        id S2388817AbgDAQgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Apr 2020 12:36:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6416C214D8;
-        Wed,  1 Apr 2020 16:27:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E238620857;
+        Wed,  1 Apr 2020 16:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585758467;
-        bh=zKvuJkpvTrMV1DlA6p6mT9CYfcRYC1VBuACGXS7i5uE=;
+        s=default; t=1585758970;
+        bh=A4yrwFSk3OBSP1jAMmIDEeb5DY80CtP/K/m1QWY7pdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+5Vs9ucLy4xivlW8xyB/s2aKhybVLchKJzTXvix0nb1GGCmX74KbpaVi/juhJM5n
-         hytVdLYQoG7nkv4y9WcstnWZgSe1HUGnW1dSiqeKGlCUkAS27YDNRHKWy4NWYtlcgD
-         QKjcp5eu6wdehsk75AIbmi0YNRbJFEJqerkiGvPk=
+        b=NdbxcC7wHlMGJg/Xj9jaMTbXBzObd36Oxm98dzkbhPfHV5r/1nwcWwdaJI1vikWyR
+         VwwELRltPuYRZYDC+ZQers1/i+XgDuzaPFL1k+IC5FqneaH4Usa2qePoKhxN8MTjNi
+         bhvfsVE4quowkk5KmS7G0LxgGYjwVjqBNi1FJCLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pawel Dembicki <paweldembicki@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 081/116] USB: serial: option: add Wistron Neweb D19Q1
+        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.9 034/102] arm64: smp: fix smp_send_stop() behaviour
 Date:   Wed,  1 Apr 2020 18:17:37 +0200
-Message-Id: <20200401161552.929448686@linuxfoundation.org>
+Message-Id: <20200401161539.215884848@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200401161542.669484650@linuxfoundation.org>
-References: <20200401161542.669484650@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+References: <20200401161530.451355388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +45,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Dembicki <paweldembicki@gmail.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit dfee7e2f478346b12ea651d5c28b069f6a4af563 upstream.
+commit d0bab0c39e32d39a8c5cddca72e5b4a3059fe050 upstream.
 
-This modem is embedded on dlink dwr-960 router.
-The oem configuration states:
+On a system with only one CPU online, when another one CPU panics while
+starting-up, smp_send_stop() will fail to send any STOP message to the
+other already online core, resulting in a system still responsive and
+alive at the end of the panic procedure.
 
-T: Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 2 Spd=480 MxCh= 0
-D: Ver= 2.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs= 1
-P: Vendor=1435 ProdID=d191 Rev=ff.ff
-S: Manufacturer=Android
-S: Product=Android
-S: SerialNumber=0123456789ABCDEF
-C:* #Ifs= 6 Cfg#= 1 Atr=80 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E: Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E: Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-E: Ad=84(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
-E: Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-E: Ad=86(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
-E: Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E: Ad=88(I) Atr=03(Int.) MxPS= 8 Ivl=32ms
-E: Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50 Driver=(none)
-E: Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=125us
+[  186.700083] CPU3: shutdown
+[  187.075462] CPU2: shutdown
+[  187.162869] CPU1: shutdown
+[  188.689998] ------------[ cut here ]------------
+[  188.691645] kernel BUG at arch/arm64/kernel/cpufeature.c:886!
+[  188.692079] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[  188.692444] Modules linked in:
+[  188.693031] CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.6.0-rc4-00001-g338d25c35a98 #104
+[  188.693175] Hardware name: Foundation-v8A (DT)
+[  188.693492] pstate: 200001c5 (nzCv dAIF -PAN -UAO)
+[  188.694183] pc : has_cpuid_feature+0xf0/0x348
+[  188.694311] lr : verify_local_elf_hwcaps+0x84/0xe8
+[  188.694410] sp : ffff800011b1bf60
+[  188.694536] x29: ffff800011b1bf60 x28: 0000000000000000
+[  188.694707] x27: 0000000000000000 x26: 0000000000000000
+[  188.694801] x25: 0000000000000000 x24: ffff80001189a25c
+[  188.694905] x23: 0000000000000000 x22: 0000000000000000
+[  188.694996] x21: ffff8000114aa018 x20: ffff800011156a38
+[  188.695089] x19: ffff800010c944a0 x18: 0000000000000004
+[  188.695187] x17: 0000000000000000 x16: 0000000000000000
+[  188.695280] x15: 0000249dbde5431e x14: 0262cbe497efa1fa
+[  188.695371] x13: 0000000000000002 x12: 0000000000002592
+[  188.695472] x11: 0000000000000080 x10: 00400032b5503510
+[  188.695572] x9 : 0000000000000000 x8 : ffff800010c80204
+[  188.695659] x7 : 00000000410fd0f0 x6 : 0000000000000001
+[  188.695750] x5 : 00000000410fd0f0 x4 : 0000000000000000
+[  188.695836] x3 : 0000000000000000 x2 : ffff8000100939d8
+[  188.695919] x1 : 0000000000180420 x0 : 0000000000180480
+[  188.696253] Call trace:
+[  188.696410]  has_cpuid_feature+0xf0/0x348
+[  188.696504]  verify_local_elf_hwcaps+0x84/0xe8
+[  188.696591]  check_local_cpu_capabilities+0x44/0x128
+[  188.696666]  secondary_start_kernel+0xf4/0x188
+[  188.697150] Code: 52805001 72a00301 6b01001f 54000ec0 (d4210000)
+[  188.698639] ---[ end trace 3f12ca47652f7b72 ]---
+[  188.699160] Kernel panic - not syncing: Attempted to kill the idle task!
+[  188.699546] Kernel Offset: disabled
+[  188.699828] CPU features: 0x00004,20c02008
+[  188.700012] Memory Limit: none
+[  188.700538] ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
 
-Tested on openwrt distribution
+[root@arch ~]# echo Helo
+Helo
+[root@arch ~]# cat /proc/cpuinfo | grep proce
+processor	: 0
 
-Signed-off-by: Pawel Dembicki <paweldembicki@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Make smp_send_stop() account also for the online status of the calling CPU
+while evaluating how many CPUs are effectively online: this way, the right
+number of STOPs is sent, so enforcing a proper freeze of the system at the
+end of panic even under the above conditions.
+
+Fixes: 08e875c16a16c ("arm64: SMP support")
+Reported-by: Dave Martin <Dave.Martin@arm.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/kernel/smp.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1992,6 +1992,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e01, 0xff, 0xff, 0xff) },	/* D-Link DWM-152/C1 */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x3e02, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/C1 */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x07d1, 0x7e11, 0xff, 0xff, 0xff) },	/* D-Link DWM-156/A3 */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x1435, 0xd191, 0xff),			/* Wistron Neweb D19Q1 */
-+	  .driver_info = RSVD(1) | RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x1690, 0x7588, 0xff),			/* ASKEY WWHC050 */
- 	  .driver_info = RSVD(1) | RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x2031, 0xff),			/* Olicard 600 */
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -901,11 +901,22 @@ void tick_broadcast(const struct cpumask
+ }
+ #endif
+ 
++/*
++ * The number of CPUs online, not counting this CPU (which may not be
++ * fully online and so not counted in num_online_cpus()).
++ */
++static inline unsigned int num_other_online_cpus(void)
++{
++	unsigned int this_cpu_online = cpu_online(smp_processor_id());
++
++	return num_online_cpus() - this_cpu_online;
++}
++
+ void smp_send_stop(void)
+ {
+ 	unsigned long timeout;
+ 
+-	if (num_online_cpus() > 1) {
++	if (num_other_online_cpus()) {
+ 		cpumask_t mask;
+ 
+ 		cpumask_copy(&mask, cpu_online_mask);
+@@ -919,10 +930,10 @@ void smp_send_stop(void)
+ 
+ 	/* Wait up to one second for other CPUs to stop */
+ 	timeout = USEC_PER_SEC;
+-	while (num_online_cpus() > 1 && timeout--)
++	while (num_other_online_cpus() && timeout--)
+ 		udelay(1);
+ 
+-	if (num_online_cpus() > 1)
++	if (num_other_online_cpus())
+ 		pr_warning("SMP: failed to stop secondary CPUs %*pbl\n",
+ 			   cpumask_pr_args(cpu_online_mask));
+ }
 
 
