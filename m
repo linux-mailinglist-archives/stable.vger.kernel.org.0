@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 129E119C98B
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91DDF19C98A
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389184AbgDBTNG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:13:06 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:55665 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389167AbgDBTNG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:06 -0400
-Received: by mail-wm1-f66.google.com with SMTP id r16so4613770wmg.5
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:03 -0700 (PDT)
+        id S2389181AbgDBTNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:13:05 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:40594 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388499AbgDBTNF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:05 -0400
+Received: by mail-wr1-f67.google.com with SMTP id s8so3446188wrt.7
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=yWp18OzsOskB66rjxomLP3YHpSoLDTDv+zg5SpQOzVQ=;
-        b=GxmPTkCzkrqVymk/wCCSj4kInjSGWOzqyTzGJWrrk9ncnSmupnWnUyCIwW9ZUscfqX
-         QPUqPGuyUCFlojeQQZqGqHGzEpW3bmoTHMlwvu/RQ+1WQ1ae2FhlQGqqRMVJrKW5pB9E
-         9/q119AcINTFFVy4a2Tl1h1vs88KurW0xx45FOA61VbWEd4Xm46kUtP8HKc5EXbupdS3
-         7jfpMfYJD/kTMonCswYGCNHE5EwqAQ6/WiA+6T15HGINk5HTrqYj95Jq2tN4w8dq60jE
-         f2uALWM0p9ddgfcIdOx95sT1FzRrw7mrLat6O9FPEO6ma0vl628BcfeDbVk9vkL6ovd4
-         WmAw==
+        bh=CZoKztIEsmgAvabu7dcStmDLo2kd4ifdwugaw9w08qo=;
+        b=zfb7pZWWsH8Di4oGsgySbWS3+2HySqQ807Hz1SsnFmKocCS/v3Ms6HcM0jdpS6bzVd
+         e21TCewGWFrijLPJPEpZqU6lSoDX33/T/BhMk7JTXFkLUYc6I53lX9+veudHzXxyPlGr
+         XVAXqj1yosawFrKMHKMzLhjNP8E4W8UVL9zAUYfIUTzWlVycZbGpEiAK5d8ViUBYrc3C
+         f/Xe4bt3bFFWiMuk/SxjVuD3xHjkuYFQM5wlP1+gIPuResJ00BtZCx+gDv/XcHSVVPaf
+         kB6TglPAZUG2rAvK5k6SEgAS2Jv0F4qEiGnOvPhLphuxJrBWudd4ADRP0k5H03/bDxm3
+         f6HA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=yWp18OzsOskB66rjxomLP3YHpSoLDTDv+zg5SpQOzVQ=;
-        b=ePL4RCNjzlSo4PLC78geZ1nodDlQLPUb1K7l/3Qj6dcxWI36sVu8Auw15gUp72qya+
-         4aXr6YjVsAJBPkVamrrs/5ltLkZ+JBEUHiR8M0n1D7jrlvrjJjmnK05jjkqiOTnTtboZ
-         Bvq4nux59OEbeesX7ruJhlMDOwv7L9FCjfGXU0T+l9kNmjuNwwYuoi8ekBOt4zmQAtnw
-         yRjCED61ne0YmhoKwkQBN0QqN6Z+dUxbTGgTPJG/FPQK6Zpms2Z4k9Gul9xpXK69t42H
-         NlUHeQQ82yTkSKMdhogK4H1w+1sREDEt2z3RbxhKB34GlaaRS+n8viqgy9izxXV+gld3
-         /joA==
-X-Gm-Message-State: AGi0PuZuewysbevBFw/ATk/RTTScIGpZFIPpxIcCZSAR0KG1Yi//taGa
-        8qYO5/HrO3dPiB/BTn0jOpLU03xTKTtSHg==
-X-Google-Smtp-Source: APiQypJkh/lJiUuymMXEQV1eo4Qo/hBxBt4+4jhUz7gPgH4XhMpuszHjS2vJWdn7UxRiVD6limDzog==
-X-Received: by 2002:a05:600c:3d1:: with SMTP id z17mr4904505wmd.56.1585854782315;
-        Thu, 02 Apr 2020 12:13:02 -0700 (PDT)
+        bh=CZoKztIEsmgAvabu7dcStmDLo2kd4ifdwugaw9w08qo=;
+        b=lzCaHplhLTKh8qZIz/dPchfKiWF3g4BtVk51bLovBcbeEjeN5ygAKGffEWK2YyuH1L
+         72uDdRQkCcpuH7S2kEXjLjOyAATCJDXCm6swVsFSFSjsXVemZlQmAL4FHV5sEj9V/TUm
+         dB30Fr49gsXwOMrHwyy9jKW1iciy/k4SPCDe3gcfMAMeuEcWnSIcb8aI7PWkWV/ZrwPf
+         bgSFrer8PYMHbYYusb1DdHzf2UQn361WhpaUoGAFDk7uxBBRygf4sw5h+pzc3/9BxdaS
+         NfJ3CIz5j9oJK8Tt0mnMQ49lCCU3wypdSL5SoRH53D+/XX/a605twFmngH1TNuy1zbSB
+         ToOA==
+X-Gm-Message-State: AGi0PuYLklOauXqnuqSUvvQHLwkQFTx8LmAzxAw5+XNEsaGFIdGxR34s
+        gNh19Sq+Vf6W5Jv1ZjMErMNvS/ta0KKO0A==
+X-Google-Smtp-Source: APiQypLjBa7Wwh0eXLiGm9V1E6UjNIe4XUs/hIq7YMEX6/0/VOJIJZw1UMRXYkvzW76mapVkxZ76qw==
+X-Received: by 2002:a5d:4648:: with SMTP id j8mr5016308wrs.202.1585854783288;
+        Thu, 02 Apr 2020 12:13:03 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.01
+        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:13:01 -0700 (PDT)
+        Thu, 02 Apr 2020 12:13:02 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 03/33] arm64: Fix size of __early_cpu_boot_status
-Date:   Thu,  2 Apr 2020 20:13:23 +0100
-Message-Id: <20200402191353.787836-3-lee.jones@linaro.org>
+Subject: [PATCH 4.14 04/33] drm_dp_mst_topology: fix broken drm_dp_sideband_parse_remote_dpcd_read()
+Date:   Thu,  2 Apr 2020 20:13:24 +0100
+Message-Id: <20200402191353.787836-4-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191353.787836-1-lee.jones@linaro.org>
 References: <20200402191353.787836-1-lee.jones@linaro.org>
@@ -59,33 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun KS <arunks@codeaurora.org>
+From: Hans Verkuil <hans.verkuil@cisco.com>
 
-[ Upstream commit 61cf61d81e326163ce1557ceccfca76e11d0e57c ]
+[ Upstream commit a4c30a4861c54af78c4eb8b7855524c1a96d9f80 ]
 
-__early_cpu_boot_status is of type long. Use quad
-assembler directive to allocate proper size.
+When parsing the reply of a DP_REMOTE_DPCD_READ DPCD command the
+result is wrong due to a missing idx increment.
 
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Arun KS <arunks@codeaurora.org>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+This was never noticed since DP_REMOTE_DPCD_READ is currently not
+used, but if you enable it, then it is all wrong.
+
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/e72ddac2-1dc0-100a-d816-9ac98ac009dd@xs4all.nl
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm64/kernel/head.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
-index 9c00fd2acc2a4..bd24c8aed6120 100644
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -558,7 +558,7 @@ ENTRY(__boot_cpu_mode)
-  * with MMU turned off.
-  */
- ENTRY(__early_cpu_boot_status)
--	.long 	0
-+	.quad 	0
- 
- 	.popsection
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index 9d94c306c8ca1..a4bf98e6af57d 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -433,6 +433,7 @@ static bool drm_dp_sideband_parse_remote_dpcd_read(struct drm_dp_sideband_msg_rx
+ 	if (idx > raw->curlen)
+ 		goto fail_len;
+ 	repmsg->u.remote_dpcd_read_ack.num_bytes = raw->msg[idx];
++	idx++;
+ 	if (idx > raw->curlen)
+ 		goto fail_len;
  
 -- 
 2.25.1
