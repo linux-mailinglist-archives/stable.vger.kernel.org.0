@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D0E19C9D1
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:20:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A13C19C9D3
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:20:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389465AbgDBTSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:18:07 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:53034 "EHLO
+        id S2388745AbgDBTSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:18:08 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:35878 "EHLO
         mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728452AbgDBTSH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:18:07 -0400
-Received: by mail-wm1-f66.google.com with SMTP id t8so4638085wmi.2
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:18:06 -0700 (PDT)
+        with ESMTP id S2389416AbgDBTSI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:18:08 -0400
+Received: by mail-wm1-f66.google.com with SMTP id d202so4982527wmd.1
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:18:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=AD3yazCLz1166rGwfU67/jVo25D89AfNG0UXBEmhdE8=;
-        b=KkZPd1YCbMZiUObcXC5ECSZMRIy/IYXDPG7WGTyXiwNIX2n2bwdc85IVwKsX9HUn3a
-         AbxXK8VySqFTpS3N32WnqY2AN+eHZEhuNV+ij6ghcLYuXf6Mat4A3v4d3qJ8KeN/Ire3
-         aGiMkHJw+OuXZB+rxtK5t8Y75tJeRArFkWVZlIvUjnTOmMqGLtpU1AwYJ0wUP5BlTQm3
-         xE3mj+2JbBAuoiIibzCpJ0eTICP+gMf31zIqNWeC7bZpRuD2qOXxJDku9Y+GPXAfMcVy
-         3v+krb55CTDQ/dV0eWnXL7wxWnJRMmtEELIg+H3c3x3Z4NMsM2vuHszZ+mut8X2Od51B
-         Mi/g==
+        bh=66ViJN+ZbAv/wx0SyJm9vds07oz/mQTCqp+w3CnCjhk=;
+        b=bAZgLxMthTlKO8QgMVPs8MsNdBhzS1pLfuj7/vrSuYvUav+nkIpWGwYmqJlPoOMhG6
+         wJF5WO8wQ8D2f+rvO8mnvywkz6kZtwXIUCr2RpyWg4gV1Bi6sNnUPGbe03zaIlM5Bodo
+         9+fKnYHEP0wQ6M1ZIg07dbBsphRqHiOjouBeo8jIJYZQEXK4bt4JxdwxPtsgkEUU2wsX
+         HJfuny/DJPWv30mPcdJbwdzePD40q5h+ljLNIhbi9sRmVG3pEGW48X5EweDfR/VgdHE+
+         wIuxPbd9h2Holnr7kcXxhN37hxavHxJYeN8LGyA1fL3WjLPyR9sIQ/RsZXyNk6WVa/YB
+         SkPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=AD3yazCLz1166rGwfU67/jVo25D89AfNG0UXBEmhdE8=;
-        b=YD/I+CgLMFKu36MO+/kkjSf7cuok/nCNmDorul3NulJmWB8pTVAS5wUWkB+IqLw09Q
-         2vzep7FEUj9kx02h4/rgpgAqWxHoufg/eWkI8Q6vk44AxaoMOzJzky2PrWcXYxSpSpNK
-         RWfkhfuIWDBTgQCHhynjQRo5z9hC0J407exa5d7323lhDjsh/c7kInd4wUS9bNfrn9GV
-         zUP0ee5RTfl8saleKYHLWhx32ud+PwxtWHmehs447JYSr2lQrb2lvnuNjklHshp6Q7fS
-         HZBpqDB1qgoQWhWCMdQCG5rF4yrB7j1sZ1MRHnjtT8HuvRyy8tbktdrS0Jk7a3O0Bbuk
-         baZQ==
-X-Gm-Message-State: AGi0PuYJERLx8bj11TMOm0oiTIl+wvTgqa2wJHeunumbz16qohss0Uc5
-        VHpRJpjiku4qIl9HkOcLcJZYY1E8Q8dHOA==
-X-Google-Smtp-Source: APiQypJUtS7jMSOPPYlCT0iKrFVh/qTJQEWE2ZC/xnXiiO49LUV3qz08uSVF77tlZ6gjijaklDh5Ww==
-X-Received: by 2002:a05:600c:1403:: with SMTP id g3mr4660861wmi.76.1585855085215;
-        Thu, 02 Apr 2020 12:18:05 -0700 (PDT)
+        bh=66ViJN+ZbAv/wx0SyJm9vds07oz/mQTCqp+w3CnCjhk=;
+        b=YbD8H4iJq66IIR4670oJvVQoBVbdf9+MqjxMowpkewmERXmubGn/UoKST6K3yL90K1
+         Fctwq1VJyGvcy06M5R7g3//yDjyS22DF494LLWvJ/1uUJe+sUcOMhi3JDEEtR/YkfaJt
+         +VneCqERcmURzCo1z7+yuUYfFQ3ebf0mpYUrK+FKW6XbYwfqVJSFIcBnmWHoXHvG13Y8
+         R8jqMuDxOjNvZRcrvJSZPNZ7cF21KhsA/qDjUuNtBu9Mcy4kGWTxCOrXk7+npr/XSxa6
+         /gc7wLAsrwDnCy8ugicZuCNhTaBP4q4hC51BqU6XJ+BEg0KDRxuN73Q4vf+a4t+Vn59f
+         lVGQ==
+X-Gm-Message-State: AGi0Pubr+dvWBmNJT1hvFA+X6IE0G9hwOpi1fo4FgkGM/d18OTICd6CF
+        GYaxDWkeumYBDwf75boYLaqZDHsjJVy1Ig==
+X-Google-Smtp-Source: APiQypKtJgoMKIj9uF8D3KdrbIjjTaf393Yxo5BaL5y+rL23IQJM4ORlQOD8kd8mH9Pbrz8fcp5Zdw==
+X-Received: by 2002:a05:600c:2f17:: with SMTP id r23mr1702607wmn.20.1585855086204;
+        Thu, 02 Apr 2020 12:18:06 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id l10sm8622707wrq.95.2020.04.02.12.18.04
+        by smtp.gmail.com with ESMTPSA id l10sm8622707wrq.95.2020.04.02.12.18.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:18:04 -0700 (PDT)
+        Thu, 02 Apr 2020 12:18:05 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.4 03/20] gpiolib: Fix references to gpiod_[gs]et_*value_cansleep() variants
-Date:   Thu,  2 Apr 2020 20:18:39 +0100
-Message-Id: <20200402191856.789622-3-lee.jones@linaro.org>
+Subject: [PATCH 4.4 04/20] devres: Align data[] to ARCH_KMALLOC_MINALIGN
+Date:   Thu,  2 Apr 2020 20:18:40 +0100
+Message-Id: <20200402191856.789622-4-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191856.789622-1-lee.jones@linaro.org>
 References: <20200402191856.789622-1-lee.jones@linaro.org>
@@ -59,65 +59,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Alexey Brodkin <alexey.brodkin@synopsys.com>
 
-Commit 372e722ea4dd4ca1 ("gpiolib: use descriptors internally") renamed
-the functions to use a "gpiod" prefix, and commit 79a9becda8940deb
-("gpiolib: export descriptor-based GPIO interface") introduced the "raw"
-variants, but both changes forgot to update the comments.
+[ Upstream commit a66d972465d15b1d89281258805eb8b47d66bd36 ]
 
-Readd a similar reference to gpiod_set_value(), which was accidentally
-removed by commit 1e77fc82110ac36f ("gpio: Add missing open drain/source
-handling to gpiod_set_value_cansleep()").
+Initially we bumped into problem with 32-bit aligned atomic64_t
+on ARC, see [1]. And then during quite lengthly discussion Peter Z.
+mentioned ARCH_KMALLOC_MINALIGN which IMHO makes perfect sense.
+If allocation is done by plain kmalloc() obtained buffer will be
+ARCH_KMALLOC_MINALIGN aligned and then why buffer obtained via
+devm_kmalloc() should have any other alignment?
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20190701142738.25219-1-geert+renesas@glider.be
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This way we at least get the same behavior for both types of
+allocation.
+
+[1] http://lists.infradead.org/pipermail/linux-snps-arc/2018-July/004009.html
+[2] http://lists.infradead.org/pipermail/linux-snps-arc/2018-July/004036.html
+
+Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: David Laight <David.Laight@ACULAB.COM>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Greg KH <greg@kroah.com>
+Cc: <stable@vger.kernel.org> # 4.8+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/gpio/gpiolib.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/base/devres.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 503405d32d240..3369dcc230e58 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1304,7 +1304,7 @@ int gpiod_get_raw_value(const struct gpio_desc *desc)
- {
- 	if (!desc)
- 		return 0;
--	/* Should be using gpio_get_value_cansleep() */
-+	/* Should be using gpiod_get_raw_value_cansleep() */
- 	WARN_ON(desc->chip->can_sleep);
- 	return _gpiod_get_raw_value(desc);
- }
-@@ -1325,7 +1325,7 @@ int gpiod_get_value(const struct gpio_desc *desc)
- 	int value;
- 	if (!desc)
- 		return 0;
--	/* Should be using gpio_get_value_cansleep() */
-+	/* Should be using gpiod_get_value_cansleep() */
- 	WARN_ON(desc->chip->can_sleep);
+diff --git a/drivers/base/devres.c b/drivers/base/devres.c
+index 8fc654f0807bf..9763325a9c944 100644
+--- a/drivers/base/devres.c
++++ b/drivers/base/devres.c
+@@ -24,8 +24,14 @@ struct devres_node {
  
- 	value = _gpiod_get_raw_value(desc);
-@@ -1501,7 +1501,7 @@ void gpiod_set_raw_value(struct gpio_desc *desc, int value)
- {
- 	if (!desc)
- 		return;
--	/* Should be using gpio_set_value_cansleep() */
-+	/* Should be using gpiod_set_raw_value_cansleep() */
- 	WARN_ON(desc->chip->can_sleep);
- 	_gpiod_set_raw_value(desc, value);
- }
-@@ -1522,7 +1522,7 @@ void gpiod_set_value(struct gpio_desc *desc, int value)
- {
- 	if (!desc)
- 		return;
--	/* Should be using gpio_set_value_cansleep() */
-+	/* Should be using gpiod_set_value_cansleep() */
- 	WARN_ON(desc->chip->can_sleep);
- 	if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
- 		value = !value;
+ struct devres {
+ 	struct devres_node		node;
+-	/* -- 3 pointers */
+-	unsigned long long		data[];	/* guarantee ull alignment */
++	/*
++	 * Some archs want to perform DMA into kmalloc caches
++	 * and need a guaranteed alignment larger than
++	 * the alignment of a 64-bit integer.
++	 * Thus we use ARCH_KMALLOC_MINALIGN here and get exactly the same
++	 * buffer alignment as if it was allocated by plain kmalloc().
++	 */
++	u8 __aligned(ARCH_KMALLOC_MINALIGN) data[];
+ };
+ 
+ struct devres_group {
 -- 
 2.25.1
 
