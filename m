@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DAB019C99B
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95FCD19C99F
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388710AbgDBTNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:13:22 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:39079 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388892AbgDBTNV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:21 -0400
-Received: by mail-wr1-f67.google.com with SMTP id p10so5579338wrt.6
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:20 -0700 (PDT)
+        id S2389387AbgDBTNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:13:25 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:54070 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388892AbgDBTNY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:24 -0400
+Received: by mail-wm1-f65.google.com with SMTP id d77so4637744wmd.3
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=dJjaCdK3r6IAoOPZX6O1/KwvrCQleqNcbRzJakc7p/s=;
-        b=BQDsFe9n5ukI4Nu4h04bWHovTQyqIxOX784kBquD7gPZJ3tFXlcxk0t/iUrMuwn9o1
-         kVEKSveh3kBbAKMhPXh77GNyp3qtVor4L2sl3XJwyuLNb0A3ICC5LcPId31Nx/1Pjc8y
-         7fY6AW5oWTUsGwelCpPghA2u7hJMdWr9YwyJMcTue2+v9B8uxZzWmvfag/TZX9J9HEZg
-         0awBB3Fp9QVmNg/c0AcR42IiviRuLuFxhusrxO/Gp8TT+GQ/Gp3RgI5eSY+1VZYuxzz9
-         JpNdILrSomsmis7Z4tfLbJvLt+3eTRyFINXhPpZk4FuUt6rNxMCObFCQUBk+Cd4MW8mr
-         rveg==
+        bh=egX0tfu7NRZXkI34xEHvcmq3oOPGI9lnyNWYVxggksI=;
+        b=QyA6kDP3OuolBTM4wZKQ5XR/SXjBor1lsQYRPLNbseQuwHzEyQ3D+TY/y38laQSqCP
+         PmVkmcnKw23Mt1CbqDkyOtJhpDt55uaS7TWWpNsqz9BPUzo5MVxy/Xvwcl5v4Cft+74b
+         FhwLTivmMKs76QJ96UdxKYVx9R2lx1H3XsnNeeNMc0nEQvqJcPQ7qR2pnbHJn9JoEDU9
+         UOu57XI3O1cZ0QPvq7ZjAWkt2vONq4Eq44hMQX8xQ0IzYNJ5TX97Gj++l0HS2Jp6p16m
+         WzbQdp3F9LMhzUzsDjvi7nqy+klWyk9vnxQDfFlSGb+ZRGMwwFM/QVQVFYzWPT189HNG
+         p8KA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=dJjaCdK3r6IAoOPZX6O1/KwvrCQleqNcbRzJakc7p/s=;
-        b=eHBFS0dcW7R3qpP+BprjFi/G1KH/KyNOqMncyzSZG73jt5U/fbpxUO/JN1mLOyN+Au
-         Z+C5cv6gpXlVJjbmYsdpxRBfJV68fnC1HFV7hOq7GnGKybpjHeoCmr4DV5w/WQRSzZvc
-         ncuiOSWoLMPTDpYATrmIXnpQY04IJj4AMzVE5Tic7jbbJuQhsYsPHGULdDHEYkJBQYen
-         KOfJKfz39FikN5eRSmqyjQbDFQD7NyMFKq4jvefEPkTV06oZY36xlCU64EdLqQtjOt1u
-         fISnQfuS7chcYPcpQRc6ulXh07HGEFIe+iATdEs1CnQoK7CBIUIiC79hJyeflC3ov4cC
-         WP4g==
-X-Gm-Message-State: AGi0PuZqhIHtx3X0TvZZ3n7wj6oGAUm6Ou5zHQ3qMDj7z023eXqM4ldd
-        C70PPt3d1GOHdQpswzbfwy3mQRX4CcvdBA==
-X-Google-Smtp-Source: APiQypJhQDySB+zoVrYO8+bTkEsLguBDJE1gYYplc1zyjUYZ3eosSnK/r65pCQN/kqcbKLQiZiRh9Q==
-X-Received: by 2002:adf:b258:: with SMTP id y24mr4897334wra.318.1585854799896;
-        Thu, 02 Apr 2020 12:13:19 -0700 (PDT)
+        bh=egX0tfu7NRZXkI34xEHvcmq3oOPGI9lnyNWYVxggksI=;
+        b=IZ6gA67PnvUgonZyySUbJfEscMro2u3OGNQMQk8uK8ChYFHxIqPx/FKIIMyq2lOnG2
+         pMQogF+9zZ22ldK89nKlwrDl/9Eub+jlWgZziMYVc7+ZvydWEb2/PE6hwPm2H/+zbPSL
+         7+LSEij+SGv5SpGY/VYLoYBZ6Mnd34qsTfzV9gnXBRVmSeuizPSKfP6tUsePOEcHq7YN
+         ExHbe4hSMG4pQ7B4tTOISln0U+28XzET2QMgzpXImeTmaHHsp5rv1i0p2pc9zHoGY75t
+         xGp8hZIIJ6qBm8K0lO1NuMFilq2hQLYi6bYum2rTCVd/wOLySrwqNLcGlLIHGSxD859f
+         ONLg==
+X-Gm-Message-State: AGi0PubVTjFZeZcEpy6M7XNRkPcoj1eY1uBtu+oZtUx7epFlCebaX09N
+        2dBt56gMKyRK6XGsfVSkcZO4PrEw3XEHJg==
+X-Google-Smtp-Source: APiQypKN8C1IpyZIJ10CSGDIEt6oRFvBdloAarbpayhkr+I4JVffX/xFfNXbJ0/4X1IXTzrvYjV5Xw==
+X-Received: by 2002:a1c:1d93:: with SMTP id d141mr5036381wmd.134.1585854801064;
+        Thu, 02 Apr 2020 12:13:21 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
         by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:13:19 -0700 (PDT)
+        Thu, 02 Apr 2020 12:13:20 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 21/33] net: qualcomm: rmnet: Fix casting issues
-Date:   Thu,  2 Apr 2020 20:13:41 +0100
-Message-Id: <20200402191353.787836-21-lee.jones@linaro.org>
+Subject: [PATCH 4.14 22/33] rpmsg: glink: Fix missing mutex_init() in qcom_glink_alloc_channel()
+Date:   Thu,  2 Apr 2020 20:13:42 +0100
+Message-Id: <20200402191353.787836-22-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191353.787836-1-lee.jones@linaro.org>
 References: <20200402191353.787836-1-lee.jones@linaro.org>
@@ -59,65 +59,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 6e010dd9b16b1a320bbf8312359ac294d7e1d9a8 ]
+[ Upstream commit fb416f69900773d5a6030c909114099f92d07ab9 ]
 
-Fix warnings which were reported when running with sparse
-(make C=1 CF=-D__CHECK_ENDIAN__)
+qcom_glink_alloc_channel() allocates the mutex but not initialize it.
+Use mutex_init() on it to initialize it correctly.
 
-drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c:81:15:
-warning: cast to restricted __be16
-drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c:271:37:
-warning: incorrect type in assignment (different base types)
-expected unsigned short [unsigned] [usertype] pkt_len
-got restricted __be16 [usertype] <noident>
-drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c:287:29:
-warning: incorrect type in assignment (different base types)
-expected unsigned short [unsigned] [usertype] pkt_len
-got restricted __be16 [usertype] <noident>
-drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c:310:22:
-warning: cast to restricted __be16
-drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c:319:13:
-warning: cast to restricted __be16
-drivers/net/ethernet/qualcomm/rmnet/rmnet_map_command.c:49:18:
-warning: cast to restricted __be16
-drivers/net/ethernet/qualcomm/rmnet/rmnet_map_command.c:50:18:
-warning: cast to restricted __be32
-drivers/net/ethernet/qualcomm/rmnet/rmnet_map_command.c:74:21:
-warning: cast to restricted __be16
+This is detected by Coccinelle semantic patch.
 
-Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/rpmsg/qcom_glink_native.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h b/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h
-index ce2302c25b128..41fa881e4540e 100644
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h
-@@ -23,8 +23,8 @@ struct rmnet_map_control_command {
- 		struct {
- 			u16 ip_family:2;
- 			u16 reserved:14;
--			u16 flow_control_seq_num;
--			u32 qos_id;
-+			__be16 flow_control_seq_num;
-+			__be32 qos_id;
- 		} flow_control;
- 		u8 data[0];
- 	};
-@@ -53,7 +53,7 @@ struct rmnet_map_header {
- 	u8  reserved_bit:1;
- 	u8  cd_bit:1;
- 	u8  mux_id;
--	u16 pkt_len;
-+	__be16 pkt_len;
- }  __aligned(1);
+diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
+index 114481c9fba12..7802663efe332 100644
+--- a/drivers/rpmsg/qcom_glink_native.c
++++ b/drivers/rpmsg/qcom_glink_native.c
+@@ -221,6 +221,7 @@ static struct glink_channel *qcom_glink_alloc_channel(struct qcom_glink *glink,
+ 	/* Setup glink internal glink_channel data */
+ 	spin_lock_init(&channel->recv_lock);
+ 	spin_lock_init(&channel->intent_lock);
++	mutex_init(&channel->intent_req_lock);
  
- #define RMNET_MAP_GET_MUX_ID(Y) (((struct rmnet_map_header *) \
+ 	channel->glink = glink;
+ 	channel->name = kstrdup(name, GFP_KERNEL);
 -- 
 2.25.1
 
