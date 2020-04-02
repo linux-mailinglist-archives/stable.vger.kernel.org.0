@@ -2,76 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A328119C32B
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 15:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4725019C3AF
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 16:13:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729213AbgDBNwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 09:52:12 -0400
-Received: from mga14.intel.com ([192.55.52.115]:13584 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732218AbgDBNwL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Apr 2020 09:52:11 -0400
-IronPort-SDR: 8d1oCFcDIhQ7pC3OhS7iZWqrBm4Z+x9ESJxxcTof4k7LDdRMeIts7tXfyN3GYM4EIBzzAwKOsZ
- YVmUNlrbreiA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2020 06:52:11 -0700
-IronPort-SDR: gu90V5fKQ1jEMgfpYhdFjTO84yNiywf2TnCsKvRIC/ZTxpeykz3+EzWz2Zl/hqAQ63Ec4vXpoG
- mYqyhxuJsoeQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,335,1580803200"; 
-   d="scan'208";a="360199836"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga001.fm.intel.com with SMTP; 02 Apr 2020 06:52:03 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Thu, 02 Apr 2020 16:52:03 +0300
-Date:   Thu, 2 Apr 2020 16:52:03 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Giacomo Comes <comes@naic.edu>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] kernel 5.6: baytrail hdmi audio not working
-Message-ID: <20200402135203.GV13686@intel.com>
-References: <20200401225317.GA13834@monopoli.naic.edu>
+        id S2388239AbgDBONJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 10:13:09 -0400
+Received: from imap3.hz.codethink.co.uk ([176.9.8.87]:47132 "EHLO
+        imap3.hz.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729213AbgDBONJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 10:13:09 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126] helo=xylophone)
+        by imap3.hz.codethink.co.uk with esmtpsa  (Exim 4.92 #3 (Debian))
+        id 1jK0ae-0003b2-Dv; Thu, 02 Apr 2020 15:13:04 +0100
+Message-ID: <b7a947dbf4222028149b12c9d63cfa2334664645.camel@codethink.co.uk>
+Subject: Re: [PATCH 4.4 59/91] mac80211: mark station unauthorized before
+ key removal
+From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
+To:     Johannes Berg <johannes.berg@intel.com>
+Cc:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Date:   Thu, 02 Apr 2020 15:13:02 +0100
+In-Reply-To: <20200401161533.422920304@linuxfoundation.org>
+References: <20200401161512.917494101@linuxfoundation.org>
+         <20200401161533.422920304@linuxfoundation.org>
+Organization: Codethink Ltd.
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200401225317.GA13834@monopoli.naic.edu>
-X-Patchwork-Hint: comment
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 06:53:17PM -0400, Giacomo Comes wrote:
-> Hi,
-> on my Intel Compute Stick STCK1 (baytrail hdmi audio) 
-> sound is not working with the kernel 5.6
+On Wed, 2020-04-01 at 18:17 +0200, Greg Kroah-Hartman wrote:
+> From: Johannes Berg <johannes.berg@intel.com>
 > 
-> I have bisected the kernel and I found the commit that introduced the issue:
+> commit b16798f5b907733966fd1a558fca823b3c67e4a1 upstream.
 > 
-> commit 58d124ea2739e1440ddd743d46c470fe724aca9a
-> Author: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Date:   Thu Oct 31 12:26:04 2019 +0100
+> If a station is still marked as authorized, mark it as no longer
+> so before removing its keys. This allows frames transmitted to it
+> to be rejected, providing additional protection against leaking
+> plain text data during the disconnection flow.
 > 
->     drm/i915: Complete crtc hw/uapi split, v6.
->     
->     Now that we separated everything into uapi and hw, it's
->     time to make the split definitive. Remove the union and
->     make a copy of the hw state on modeset and fastset.
->     
->     Color blobs are copied in crtc atomic_check(), right
->     before color management is checked.
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/r/20200326155133.ccb4fb0bb356.If48f0f0504efdcf16b8921f48c6d3bb2cb763c99@changeid
+> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > 
-> If more information is required please let me know.
+> ---
+>  net/mac80211/sta_info.c |    6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> --- a/net/mac80211/sta_info.c
+> +++ b/net/mac80211/sta_info.c
+> @@ -2,6 +2,7 @@
+>   * Copyright 2002-2005, Instant802 Networks, Inc.
+>   * Copyright 2006-2007	Jiri Benc <jbenc@suse.cz>
+>   * Copyright 2013-2014  Intel Mobile Communications GmbH
+> + * Copyright (C) 2018-2020 Intel Corporation
+>   *
+>   * This program is free software; you can redistribute it and/or modify
+>   * it under the terms of the GNU General Public License version 2 as
+> @@ -904,6 +905,11 @@ static void __sta_info_destroy_part2(str
+>  	might_sleep();
+>  	lockdep_assert_held(&local->sta_mtx);
+>  
+> +	while (sta->sta_state == IEEE80211_STA_AUTHORIZED) {
 
-Should hopefully be fixed with
-commit 2bdd4c28baff ("drm/i915/display: Fix mode private_flags
-comparison at atomic_check")
+So this should be retried forever?  Surely not.
 
-Stable folks, please pick that up for 5.6.x stable releases.
+Ben.
 
+> +		ret = sta_info_move_state(sta, IEEE80211_STA_ASSOC);
+> +		WARN_ON_ONCE(ret);
+> +	}
+> +
+>  	/* now keys can no longer be reached */
+>  	ieee80211_free_sta_keys(local, sta);
+>  
 -- 
-Ville Syrjälä
-Intel
+Ben Hutchings, Software Developer                         Codethink Ltd
+https://www.codethink.co.uk/                 Dale House, 35 Dale Street
+                                     Manchester, M1 2HF, United Kingdom
+
