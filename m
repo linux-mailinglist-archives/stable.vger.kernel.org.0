@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E89FE19C955
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1FDB19C968
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:07:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389297AbgDBTDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:03:22 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:34371 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388843AbgDBTDW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:03:22 -0400
-Received: by mail-wm1-f68.google.com with SMTP id c195so316226wme.1
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:03:20 -0700 (PDT)
+        id S2388864AbgDBTHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:07:09 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:40128 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388810AbgDBTHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:07:09 -0400
+Received: by mail-wm1-f65.google.com with SMTP id a81so4893763wmf.5
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:07:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id;
-        bh=Xqfqaao4MLLH+J6dNDM8nik5DOhFY8K5BbIRbAOhXY4=;
-        b=uPKLoH8rCamTkls3Qh7rB/N+6FIZ8E7X6N8oYyaHgYG+xdbu0e5aNyb2yA4meGLZ2n
-         fveyoMrTi5v84FEBd8QSqYtXHSODVsc4KYS6uXKJm3oXUOEBdTPhO637vYDe/KODJ5ke
-         Bq+lzppuAP9TB8ajiSCEyXt2majhx7X+ELl+UG8ELqJem/KO1Uh1rkX0YnUdUlr38pOI
-         XBuZxgjPI63muISSzTVgVqFnYqF8K7v+TumuMURAU4HBFcIH0aPHfvfcYDTFF6KMCTHR
-         dXZaOy+mYKye7zXWGhhA8ONkNBEihBiXQvLfKmgu2I6bzyCpNNkjSJeSWnCWWzvLcFUJ
-         FQNA==
+        bh=1/tM/QWwWwAW8oTSHIjd9lVEMMjm04LSx3ao3PWzEEA=;
+        b=lK/x1nFdPg8zft+k30pfGC8o9mCqxkNztUe56eGK2iGv1j+NfPOQv6ZoGP5rHp5jdq
+         f0CnIoN26gbnl4g7rNguh1b5vTcdZv7U8SxH1BFssX30Ud0XpTf1Hx2Tmz8eQiEhtaJ1
+         3xtusXA+s3weOoY9VjBDRudxh68Z0GCc7zftHL9/gcTTM56+kzPviiq/rxZP/xCozvuZ
+         7FfkoyCei+SMZ4N8UZ7Nd0k5rwsrmCf8+N/OeE0Z2Vb+hEhcEPTx9JH/5OEvuQMegmtT
+         nB1KjNNYFn51j6m3H1UBxhQB7+Upwu5SjYWZKQpfg83L+7UmGgWQUabb6FD2fVb8+DBd
+         qfZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=Xqfqaao4MLLH+J6dNDM8nik5DOhFY8K5BbIRbAOhXY4=;
-        b=JbaRqfQS7Fofekr4JE8dGKozkiq8agFUT/n9WI8fQlFRw3Nt9I8cqAb6a3BU0DKGYr
-         l6oq+R3dJ9G9kkjEUobLUwo+HNGkmKsvcFAFUAc7P5KVkSMrt6TURUOrbq7EAtRPTxtR
-         uTuapiwVoS1gQQ7aJ5Nj7GzBYvuhfPVfLF2OCjs27VYOTsNTebl1tzGimA40a4GAErS7
-         JDQeGly5YNwlgzAtI9UWNnnRVhLg1bV61mU0vY2TlvSvW+uEZYjgCjTY6E4fWtKELrWG
-         7j2HYKEfnLDzwZVkuTMm35fZjGhfisiPmGSAg4oQeopQ7+cvnY52KOekKFDP6sYyPksu
-         61rA==
-X-Gm-Message-State: AGi0PuY6ZmCCE7gvwB5rcGU/Cbv/RrfzVugXej91rTyz39itRHWptQ6A
-        syvoK8m+it4LzvZEqlasbic=
-X-Google-Smtp-Source: APiQypL2bysbkxyRiwXuddkacIKGHko4KuT2q4sEcBZ1mPMxhjYpzIJRB2WNikNLqb2WWs8u4Ly1rw==
-X-Received: by 2002:a1c:4b19:: with SMTP id y25mr4713388wma.70.1585854199976;
-        Thu, 02 Apr 2020 12:03:19 -0700 (PDT)
+        bh=1/tM/QWwWwAW8oTSHIjd9lVEMMjm04LSx3ao3PWzEEA=;
+        b=P9NKehQbbwzFV6XlQlJ50oH9o6a9gnFAeGLCblUXJYBPt2Be73iPWL4Bvl1zBstiDn
+         Mse9HP7NTHQStOh3eoJTpTq68RDqwx6L9uWLW/BGNroEW4g0cO62eQKGmc6S2bDDpdWy
+         Yllr8RawOz5WtJwnTZTDcb8zfeNdVnWvsiatQ21L4UbGYZlI44f4ed656NcGZgS8Pc3O
+         mSwUPXOCWa9FC1tF7Ca4XkTMUzrYcIDlOTbo+4nneiCWmmERO6JyuL525jsLJQjGyNXk
+         Rr++lwU+/a4gxtXjCsWvosyGBTOniJkUN6poh4v9XCXFmj3AFLUoKRGYC2ixIGrMjxE2
+         vnBQ==
+X-Gm-Message-State: AGi0PubIGBmG9NJ3H8PhWupE7cxkzLeYFxfCw6lTrmnsVO2EFX2d2QKK
+        iej8CTDfBl3CBNkUlyispDg=
+X-Google-Smtp-Source: APiQypJ914Gt7UeiZANbmwrd/B3h72xEqyQb/Dx5X7pKPepWIzdxRWDfvYVH1Ryr4x3uGobAtn1wEg==
+X-Received: by 2002:a1c:9ecb:: with SMTP id h194mr5036112wme.49.1585854428347;
+        Thu, 02 Apr 2020 12:07:08 -0700 (PDT)
 Received: from localhost.localdomain.localdomain ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id n2sm8905315wro.25.2020.04.02.12.03.17
+        by smtp.gmail.com with ESMTPSA id 25sm3379433wmf.13.2020.04.02.12.07.06
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 Apr 2020 12:03:19 -0700 (PDT)
+        Thu, 02 Apr 2020 12:07:07 -0700 (PDT)
 From:   James Smart <jsmart2021@gmail.com>
 To:     linux-nvme@lists.infradead.org
 Cc:     James Smart <jsmart2021@gmail.com>, stable@vger.kernel.org,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
         Christoph Hellwig <hch@lst.de>, Keith Busch <kbusch@kernel.org>
-Subject: [PATCH] nvme-fc: revert controller references on lldd module
-Date:   Thu,  2 Apr 2020 12:03:12 -0700
-Message-Id: <20200402190312.88868-1-jsmart2021@gmail.com>
+Subject: [REPOST][PATCH] nvme-fc: revert controller references on lldd module
+Date:   Thu,  2 Apr 2020 12:07:00 -0700
+Message-Id: <20200402190700.100198-1-jsmart2021@gmail.com>
 X-Mailer: git-send-email 2.16.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -68,7 +68,7 @@ The original patch:
 The original patch was to resolve the lldd being able to be unloaded
 while being used to talk to the boot device of the system. However, the
 end result of the original patch is that any driver unload while a nvme
-controller is live via the lldd is not being prohibited. Given the module
+controller is live via the lldd is now being prohibited. Given the module
 reference, the module teardown routine can't be called, thus there's no
 way, other than manual actions to terminate the controllers.
 
@@ -88,6 +88,9 @@ Signed-off-by: James Smart <jsmart2021@gmail.com>
 Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
 CC: Christoph Hellwig <hch@lst.de>
 CC: Keith Busch <kbusch@kernel.org>
+
+---
+fix typo in description "not"->"now"
 ---
  drivers/nvme/host/fc.c | 11 +----------
  1 file changed, 1 insertion(+), 10 deletions(-)
