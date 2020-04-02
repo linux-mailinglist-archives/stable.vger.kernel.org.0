@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D5E919C9A2
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D78F19C9A1
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388755AbgDBTN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389054AbgDBTN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 2 Apr 2020 15:13:29 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:35661 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388989AbgDBTN3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:29 -0400
-Received: by mail-wm1-f67.google.com with SMTP id i19so4966954wmb.0
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:26 -0700 (PDT)
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:36608 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388755AbgDBTN2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:28 -0400
+Received: by mail-wr1-f68.google.com with SMTP id 31so5590021wrs.3
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Y2qCj2VEWLETSdDzdg9wby0Dp4VMBOBRFzvR2ZFa7wU=;
-        b=dD3OE0esu/95ovhOagcBwUvDSUGgoSBMXKkWo6htsYmA3QuO3MJC/Ps0qQZJdo1mtu
-         E/9eRZ+260YNvcqTfBd1uswl6eiV5hjDvWcxqrwfdQFw7RCTY7GUYLH1Ho8U8egR2K/G
-         hg7AqEM5/6xvCcfyG65aEYQTa18bFD+FIhEFKmrIfOgqNF5drD4y9sDkIKTp6k2+8AkC
-         t8fiUcG8Bwf1EQJixSHXvltwuFbQwNI2zZ3VNi+UxCklM2WJKtKW+tF0etoUmaW39gQJ
-         mqx5ORra8J0La67cDQ79bjDILLrxu7evBx4aaGNWDRRZMyenGUYW1OwFME8MsDjh7R4L
-         kWHA==
+        bh=9HCLRvGXYC5n1AHCqufnjpyrxqZW9cO7ygbPcIujNSw=;
+        b=BsY0Kfs4i+EDx4e3wReNotPSh6uLnvP77DrPfr8NDUHE6gH0oJ90+FmsNIFfPNlKE6
+         oSkPLnfiSqImlVoW71BNJdg6YnfRozGZKeQyrxFVzz4sKPv0bb4wkNtaKQVPvAXKMENu
+         7rRxdnnLLAKzKNq8+CYKCndImCHX+bR+JmrIZ2iy73bnuINsNvybcionXIA4WXjEt1e2
+         zZP0JYnRqMYgF2oW0L761XdDMtEZDCP3hDoH73WiYF5eNOlL1aLGKSfvkzVfGJUW61u4
+         AG08veddmwhun/SQCLipuQv7KyfFFTgICEwFszWpbaBwy3re2jek+0F4P1AZZDAPI/Dq
+         pn8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Y2qCj2VEWLETSdDzdg9wby0Dp4VMBOBRFzvR2ZFa7wU=;
-        b=p5mfQ0e7pE1fWKAAG5VW2nXAfeECCsUFy/5rJRqLHE/i4e5kcv0hK0xKoYrLoZRZLe
-         MAQpZPGtjnqLGpW65O1eOGgayQYEN7BoZ5ZKaIgPaZWYbIe44AyyJew7qn08EMkv+eSZ
-         z6W/qb0pKv09pyfjiIq9csKnu+aPYkKV6bmq7cJDw36JWHBLe0BW2M0VR7tcYYsyL+9R
-         Cegh4Y9VBRY4zU8cg6UAwzfMJ0LJ04TVjZGbSy0kc21qdwZBA/mvh+cQpv53ecrMm9gi
-         EugeVzJM127KvQNidcb77VP72av/YOxKtrHc2wbJVig5td5CeAK84t7ufNEhUdaEWWYj
-         +E+w==
-X-Gm-Message-State: AGi0PuZ2f5jqTYfnZJprCxACfqeDCQ1AqcuPju/Mh2MlA3ehE+fBEBUn
-        9zjWBuJcbv9QLXJcnPQ8FZzWxDU7B6Ndnw==
-X-Google-Smtp-Source: APiQypLUn7kfPaneJCpsv70ZRjgNZmx/mgCFaH0kVew5fkS1fn0d8AHNe9KNly2h3OIrJDCFGY0IEA==
-X-Received: by 2002:a7b:c8cd:: with SMTP id f13mr4884104wml.138.1585854805277;
-        Thu, 02 Apr 2020 12:13:25 -0700 (PDT)
+        bh=9HCLRvGXYC5n1AHCqufnjpyrxqZW9cO7ygbPcIujNSw=;
+        b=adOLHkeWP4pnVnE5bXayH+bYgr3rklsNOiVkI6d82My5cahGIheVTKJO9kFJ9gG2jN
+         Bo9W+pc49jaZUm/erLb3G4yJhDEFrtRxg81Ji8cofHF+l0cmvcwzCKPplRFfqfQPcUmj
+         oHVN5/d6F67aup+5nt+0fy21/saG35HyjZ8fcwSmvwCMJX4/fmTTQzUoY8Yfb2Hm9vyR
+         ofzF5P/sUs19BzS65K4WRks3B9266frwf9iVt5ti0TS1eb/in/xUzRY3P2id5v2rOqQI
+         cHl9IR5mwiE3peeTszvhOYUOfw25AeXzG4qumcCcSgKJ5XrMnwHehsXGmzw1My+b8P9r
+         bygg==
+X-Gm-Message-State: AGi0PuaJMkHVfAhoTx8t2kh+tvkZH3dl2v0XZ9JDMQhVohFK58AO4MzP
+        95tbDkW6MEBWJWPCl1rVwXEPelhh+6Smhw==
+X-Google-Smtp-Source: APiQypIjBX7AttmMJKtOgTGnxRba0J4gOtjJkIl3wfhySyaUYXVN/k8TUQrTPyFesukh9t1mOC2hDQ==
+X-Received: by 2002:adf:dfce:: with SMTP id q14mr5184354wrn.326.1585854806560;
+        Thu, 02 Apr 2020 12:13:26 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.24
+        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:13:24 -0700 (PDT)
+        Thu, 02 Apr 2020 12:13:25 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 26/33] wil6210: fix length check in __wmi_send
-Date:   Thu,  2 Apr 2020 20:13:46 +0100
-Message-Id: <20200402191353.787836-26-lee.jones@linaro.org>
+Subject: [PATCH 4.14 27/33] wil6210: abort properly in cfg suspend
+Date:   Thu,  2 Apr 2020 20:13:47 +0100
+Message-Id: <20200402191353.787836-27-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191353.787836-1-lee.jones@linaro.org>
 References: <20200402191353.787836-1-lee.jones@linaro.org>
@@ -59,79 +59,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lior David <qca_liord@qca.qualcomm.com>
+From: Hamad Kadmany <qca_hkadmany@qca.qualcomm.com>
 
-[ Upstream commit 26a6d5274865532502c682ff378ac8ebe2886238 ]
+[ Upstream commit 144a12a6d83f3ca34ddefce5dee4d502afd2fc5b ]
 
-The current length check:
-sizeof(cmd) + len > r->entry_size
-will allow very large values of len (> U16_MAX - sizeof(cmd))
-and can cause a buffer overflow. Fix the check to cover this case.
-In addition, ensure the mailbox entry_size is not too small,
-since this can also bypass the above check.
+On-going operations were not aborted properly
+and required locks were not taken.
 
-Signed-off-by: Lior David <qca_liord@qca.qualcomm.com>
+Signed-off-by: Hamad Kadmany <qca_hkadmany@qca.qualcomm.com>
 Signed-off-by: Maya Erez <qca_merez@qca.qualcomm.com>
 Signed-off-by: Kalle Valo <kvalo@qca.qualcomm.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/wireless/ath/wil6210/interrupt.c | 22 +++++++++++++++++++-
- drivers/net/wireless/ath/wil6210/wmi.c       |  2 +-
- 2 files changed, 22 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/wil6210/cfg80211.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wil6210/interrupt.c b/drivers/net/wireless/ath/wil6210/interrupt.c
-index 59def4f3fcf3d..5cf341702dc11 100644
---- a/drivers/net/wireless/ath/wil6210/interrupt.c
-+++ b/drivers/net/wireless/ath/wil6210/interrupt.c
-@@ -358,6 +358,25 @@ static void wil_cache_mbox_regs(struct wil6210_priv *wil)
- 	wil_mbox_ring_le2cpus(&wil->mbox_ctl.tx);
- }
+diff --git a/drivers/net/wireless/ath/wil6210/cfg80211.c b/drivers/net/wireless/ath/wil6210/cfg80211.c
+index c374ed311520e..58784e77e215b 100644
+--- a/drivers/net/wireless/ath/wil6210/cfg80211.c
++++ b/drivers/net/wireless/ath/wil6210/cfg80211.c
+@@ -1735,9 +1735,12 @@ static int wil_cfg80211_suspend(struct wiphy *wiphy,
  
-+static bool wil_validate_mbox_regs(struct wil6210_priv *wil)
-+{
-+	size_t min_size = sizeof(struct wil6210_mbox_hdr) +
-+		sizeof(struct wmi_cmd_hdr);
-+
-+	if (wil->mbox_ctl.rx.entry_size < min_size) {
-+		wil_err(wil, "rx mbox entry too small (%d)\n",
-+			wil->mbox_ctl.rx.entry_size);
-+		return false;
-+	}
-+	if (wil->mbox_ctl.tx.entry_size < min_size) {
-+		wil_err(wil, "tx mbox entry too small (%d)\n",
-+			wil->mbox_ctl.tx.entry_size);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
- static irqreturn_t wil6210_irq_misc(int irq, void *cookie)
- {
- 	struct wil6210_priv *wil = cookie;
-@@ -393,7 +412,8 @@ static irqreturn_t wil6210_irq_misc(int irq, void *cookie)
- 	if (isr & ISR_MISC_FW_READY) {
- 		wil_dbg_irq(wil, "IRQ: FW ready\n");
- 		wil_cache_mbox_regs(wil);
--		set_bit(wil_status_mbox_ready, wil->status);
-+		if (wil_validate_mbox_regs(wil))
-+			set_bit(wil_status_mbox_ready, wil->status);
- 		/**
- 		 * Actual FW ready indicated by the
- 		 * WMI_FW_READY_EVENTID
-diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
-index 6cfb820caa3ee..22bfa10ea8276 100644
---- a/drivers/net/wireless/ath/wil6210/wmi.c
-+++ b/drivers/net/wireless/ath/wil6210/wmi.c
-@@ -231,7 +231,7 @@ static int __wmi_send(struct wil6210_priv *wil, u16 cmdid, void *buf, u16 len)
- 	uint retry;
- 	int rc = 0;
+ 	wil_dbg_pm(wil, "suspending\n");
  
--	if (sizeof(cmd) + len > r->entry_size) {
-+	if (len > r->entry_size - sizeof(cmd)) {
- 		wil_err(wil, "WMI size too large: %d bytes, max is %d\n",
- 			(int)(sizeof(cmd) + len), r->entry_size);
- 		return -ERANGE;
+-	wil_p2p_stop_discovery(wil);
+-
++	mutex_lock(&wil->mutex);
++	mutex_lock(&wil->p2p_wdev_mutex);
++	wil_p2p_stop_radio_operations(wil);
+ 	wil_abort_scan(wil, true);
++	mutex_unlock(&wil->p2p_wdev_mutex);
++	mutex_unlock(&wil->mutex);
+ 
+ out:
+ 	return rc;
 -- 
 2.25.1
 
