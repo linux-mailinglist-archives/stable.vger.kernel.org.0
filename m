@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEDF119C9D4
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:20:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E443C19C9D6
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:20:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389469AbgDBTSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:18:10 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:44794 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389416AbgDBTSK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:18:10 -0400
-Received: by mail-wr1-f65.google.com with SMTP id m17so5557068wrw.11
+        id S2389467AbgDBTSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:18:11 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:40214 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389416AbgDBTSL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:18:11 -0400
+Received: by mail-wr1-f66.google.com with SMTP id s8so3463378wrt.7
         for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:18:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=LhjhO29qP4YDiHKKomduT/iM9G93of5peeh/dmZcMag=;
-        b=w2/SBTPHp43mehiBQoSIc+6yhdCCluyoWJ6Ilenpfv90fnn/TEC0Z/jJwYxshRk7gK
-         NsVHOE4vzBKHz1BpS8ZROlOdTZoJIDuK+0roUCjOPdBCvwcCDf62zW6wGzeEIyikci8B
-         vAYPprdCHmwnPmr3nRfPcWZod8jlz0cD+Oxb8xvYojmhmisjh/yBqInRPEGMp5TxlGPm
-         L2wQyEmsU8pxulkdzuT1IWNvrVvELPnPgmUsnOr/0UuQ0o4OSAUVCShfD3OMl+v2CrJ9
-         1uU/UrtUcVnB5ivmuZWFnYUInz7leVQzQIumrIU+jYU2CwtDjfdRsANdsjmk1FNvKQt3
-         X/8w==
+        bh=/hkstutUKkzAeVkb8A6CMmZCBPtBnLhhXsPrhwYxTuA=;
+        b=SirPeW88Y+RmRS4g5/o4h4SDKotBXDTA2jrWGJfjAKJ0v+2ktQPbdvgZ1MtP3sX03C
+         EFGlikfkKn47NjdZH8MytmYDJdwqTRZHmY4/goaIb5eWYC7eRcbRU99a3mkSKc5LaM0s
+         6RDWoCazZ1ZgXLL0ZyqJ/qD5/1BCmIOjsm0n33uX569WPRrbOtx8X8RDI9hjX75nCfHA
+         S7vWEnUMuoBYm4QPcr/fcyAkR+AIMCkS1UDCAmB/osMiTPGpCONHXcubjyixNC+oeo1f
+         jyso/67wBp+QDe8SJAun0RiowBSJk0qU4761gWJIs5V9ACm/t7bxv0yNdC4y4TjtxVIV
+         eQjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LhjhO29qP4YDiHKKomduT/iM9G93of5peeh/dmZcMag=;
-        b=dxNegmziEFd/7imX9UiEPl2PGEY6YMic3D6i3U/0wu5OuQGpD2KsH+m9aL5JBm9Esc
-         +BXmkhlb2JaLzqoNz+d16dE20rQrI57ufHK7/vx970EwHxy+a/6oA2LBiwpq1wNCWG/u
-         FxYaOAmKf5Dpo99zks48S1BqyIAlVTyOwyzAQAGN86Go765CiAnureSJX7ng36iaJl+R
-         7MFzDBToxA/SdBF4bJGAWxdNlZ+izwVOpEy2FDsR9DWg/2Eo5g22ygFqjHeYB/EfMkjr
-         Jd+dXQyLg1YlyVrIdeOMfU+n6NZvwbQuCxmSQBYB448kggI9FpQ84bO8fipgsS8fBRQi
-         Xewg==
-X-Gm-Message-State: AGi0PuZ2RK94XIadw7OiZHZO5BRfYIzKHkpPuqSL1/2bka71wiaHj511
-        xGTedVvZAfYstad6XoNzmwn760S1V857MA==
-X-Google-Smtp-Source: APiQypLpWIv9GJ5WDhSvEAAK8I4NBSQl37AsgIIpkd4KJY9O1DgsODNihCu8bfhdawWJMl8mTff7FA==
-X-Received: by 2002:adf:f5c8:: with SMTP id k8mr4593899wrp.33.1585855087067;
-        Thu, 02 Apr 2020 12:18:07 -0700 (PDT)
+        bh=/hkstutUKkzAeVkb8A6CMmZCBPtBnLhhXsPrhwYxTuA=;
+        b=coBRROhS2z9w9g1OD5WgMoZg0DiXaVHkKaGX98e1bz86pYTDVbkmcTGLRbyWvdJNRC
+         X8BEMRWScE1utjmYXdlUkk0spsEal62OUxehrRWJOVkOwn7gxdit7F2wG9tBfHiyddDr
+         50zxVwXq9CzkXTzUyMv0tfQdgdEsf8wjrZx09iTazqCrWWvv6ZaZA4zmWv+IjtFVdj8k
+         CC2yNPtm6bXgufIe/o36gPQQqzWeK07SRGvpnId4ogpwdm2L+xpF+4E+jW/KSBK4g7WT
+         FVwZ/ekIsTloHdSdXz/mAEt+yHiw+cUS1Wa0OE8PVA9gzM/4wlCU8asKRapJfKIX4YPO
+         t6dQ==
+X-Gm-Message-State: AGi0PubWp05+ZsCs/Q4v18ZT9wdyZrch1YZu7OeTl4Wa5AMVNMNSoHFq
+        XDpwx7LXA/BYSIC9LsBxY5A8JhoHK9QNxw==
+X-Google-Smtp-Source: APiQypLv29wdtwmz+9Szuj6cHMsXUqk95Z/3tq+mcwH9JIFT0TGbqwnx4WMMeES6U+E6plEnAxNj8A==
+X-Received: by 2002:a5d:50d1:: with SMTP id f17mr5225942wrt.150.1585855088096;
+        Thu, 02 Apr 2020 12:18:08 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id l10sm8622707wrq.95.2020.04.02.12.18.06
+        by smtp.gmail.com with ESMTPSA id l10sm8622707wrq.95.2020.04.02.12.18.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:18:06 -0700 (PDT)
+        Thu, 02 Apr 2020 12:18:07 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.4 05/20] drm_dp_mst_topology: fix broken drm_dp_sideband_parse_remote_dpcd_read()
-Date:   Thu,  2 Apr 2020 20:18:41 +0100
-Message-Id: <20200402191856.789622-5-lee.jones@linaro.org>
+Subject: [PATCH 4.4 06/20] crypto: talitos - Delete an error message for a failed memory allocation in talitos_edesc_alloc()
+Date:   Thu,  2 Apr 2020 20:18:42 +0100
+Message-Id: <20200402191856.789622-6-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191856.789622-1-lee.jones@linaro.org>
 References: <20200402191856.789622-1-lee.jones@linaro.org>
@@ -59,36 +59,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
+From: Markus Elfring <elfring@users.sourceforge.net>
 
-[ Upstream commit a4c30a4861c54af78c4eb8b7855524c1a96d9f80 ]
+[ Upstream commit 0108aab1161532c9b62a0d05b8115f4d0b529831 ]
 
-When parsing the reply of a DP_REMOTE_DPCD_READ DPCD command the
-result is wrong due to a missing idx increment.
+Omit an extra message for a memory allocation failure in this function.
 
-This was never noticed since DP_REMOTE_DPCD_READ is currently not
-used, but if you enable it, then it is all wrong.
+This issue was detected by using the Coccinelle software.
 
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/e72ddac2-1dc0-100a-d816-9ac98ac009dd@xs4all.nl
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/talitos.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index 4d0f77f0edad1..6f6a6325b4691 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -431,6 +431,7 @@ static bool drm_dp_sideband_parse_remote_dpcd_read(struct drm_dp_sideband_msg_rx
- 	if (idx > raw->curlen)
- 		goto fail_len;
- 	repmsg->u.remote_dpcd_read_ack.num_bytes = raw->msg[idx];
-+	idx++;
- 	if (idx > raw->curlen)
- 		goto fail_len;
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index 1c8857e7db894..f3d0a33f4ddb4 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1287,7 +1287,6 @@ static struct talitos_edesc *talitos_edesc_alloc(struct device *dev,
+ 		if (iv_dma)
+ 			dma_unmap_single(dev, iv_dma, ivsize, DMA_TO_DEVICE);
+ 
+-		dev_err(dev, "could not allocate edescriptor\n");
+ 		return ERR_PTR(-ENOMEM);
+ 	}
  
 -- 
 2.25.1
