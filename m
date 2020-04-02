@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC5819C993
+	by mail.lfdr.de (Postfix) with ESMTP id D246B19C994
 	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388499AbgDBTNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:13:13 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:37917 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389221AbgDBTNN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:13 -0400
-Received: by mail-wm1-f65.google.com with SMTP id f6so4942236wmj.3
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:12 -0700 (PDT)
+        id S2389370AbgDBTNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:13:15 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:35244 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389221AbgDBTNP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:15 -0400
+Received: by mail-wr1-f66.google.com with SMTP id g3so3292898wrx.2
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=F1RxqoVym4udjkgxIj1+YF/PQS5E7Vq+xOrBZvSu6QM=;
-        b=LIGlLU5/bAbwidCwU9l9QKk1lu4QtcDHi9MzZwv6Y2Iz6hebYuBjljRMtGMuFkhwrX
-         WI9NRTFCQWzCnadUoDHrneHeimWEp4YUweaxSiKb1gMqgyVV8Yj2jAkPZZM9wgAwZMYS
-         +d8F73spLu0cVQjZOvouSLakck50GSx69rr+YQW9tJo9+auwFCduC5YYrSC2fXtHH4Ud
-         0CLvRC3IuwVug4WX4tv2OuKteQT/mKF8QrOW0hcRst0ijmryZC7SfmnMhC+CDDPzSdNM
-         /qou+pJV7FNr8DjzY9hDs/aZ3lG1n7i4OygO5wmmURUuQd14Z1SVI6grqU1Lr8bFFIna
-         O2Qg==
+        bh=1zvKr4FBn1gNdRzju8qn/rTiI5TQxwfOYmsvPx9Ax2k=;
+        b=y/N5NcjM94pid4dLGEuCz390oPMHj/RwL8OoGAuuiX86pI7S3LnJJtDja6aXNEAVQB
+         KhNTfm7AZDW/BtL3SaFlNaV+n/wEKRHCZgNtYrvzim9ASmHm6x8Z/dsyAF3U0dhq/Nxx
+         7PK9dVnLl1bxPHHCdt+wmrwMYHO4KRoQrsx8SNSq4hQdxTzR0yW869o6ZmMjVQTEHLav
+         ZFceFE5OmRLD4aeI4bEpB/7WHyHoTfEKyi+IvTwOuy4BqpYQZoMITJdRCTGJHe97J+Ti
+         jDkxLM1KTM9sCSIXSOG7OyHgOB0ZNrpCD3nkU/8br8StVShpXmnyy1AAmqTNrM7n/N0C
+         L0tQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=F1RxqoVym4udjkgxIj1+YF/PQS5E7Vq+xOrBZvSu6QM=;
-        b=Yj3h10NxuzkuqiLPOaqPpG6PAcznRuQ9LrgvRIjwDMMVQ34WJLrL5joMY8PDrx+VjI
-         nfxw7ZffWETBJ28IfrSIgH/brhrxbXcaVJprhkZZK6YqtzGbJVV9wmZVcxX/SZnQpB/Y
-         VJGWp4wep9SDJgf2oRpXyV2yd9BrNEDpIUbDxbJWZruXGjG4156okBE6jtc9Rg0ik7vw
-         1vCrEBwkHcYbhEn/1olUD9yf2KGP+574uMlaGKJzrNIzkcys6OMBXLxp7+Y+B0wKYPbh
-         nhTEMv21Gh2LSH2NNo59l8tTryCVbi8RW+IPSJZ9xcU4ZircL8bVqR787TlrvB7vtf/j
-         EA4w==
-X-Gm-Message-State: AGi0Pub14+rNPvde4Rr9Siq2W34qivqNt4+w368yiILEyfdI30TY/LYC
-        E9adBTMG70eXg+c18mXy19HFpjQVxhiFXg==
-X-Google-Smtp-Source: APiQypKnL0aCIgdgESDBh64m99RpKZfOH2E4svbhfbmmh2xBIq5sp7L8/h5WRYJqCc8LWDw2rxgsfA==
-X-Received: by 2002:a7b:c18c:: with SMTP id y12mr1781442wmi.56.1585854791141;
-        Thu, 02 Apr 2020 12:13:11 -0700 (PDT)
+        bh=1zvKr4FBn1gNdRzju8qn/rTiI5TQxwfOYmsvPx9Ax2k=;
+        b=XLgOCvVcsJvXRJ+twZRw98X+KOwtrLXHjW/vEWeMxSpCqgcRhitHvH+3Z7DMgoggSO
+         +UQDsWacLG988mbamoAVW/sT0tFILnWNS83S5ClGQtnwu+IRvPxPnim2K8KGi2oyPZPI
+         HL6CCRcQ7eHvfOGz+l1qeFiBuu1baiSaIKiG+P/sYl/MsEtqvCBV7FxR5XdjdaE0sZDV
+         yEXdbFAxvGB9IV7KSROHxbNY6xpNUFQvGtC5fjV46wPsGO72poEIHdf694blxhBdgszC
+         mgCrAPETOMMdH0fz2P0zSnVUorMdsDJrVxILoKOWBm1aDtL5loBlOyJibIj2C0piOW9G
+         bEHw==
+X-Gm-Message-State: AGi0PuZMacT2jq3LwayL8uCPm5m84HdQvXMYsnv3hCtnV17TI+8Glfz/
+        GxlwaJzfYCmDYm6LkARC7HadW4mTGZQs0A==
+X-Google-Smtp-Source: APiQypKtUcacUN4LKBb23DXU/psP5B8ZKa6Dm6WZDEZmoiZoyPAGEgZW7ZFI+L36PS0F33V/KvI0zg==
+X-Received: by 2002:adf:dec3:: with SMTP id i3mr5213660wrn.351.1585854792028;
+        Thu, 02 Apr 2020 12:13:12 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.10
+        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:13:10 -0700 (PDT)
+        Thu, 02 Apr 2020 12:13:11 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 12/33] rpmsg: glink: Remove chunk size word align warning
-Date:   Thu,  2 Apr 2020 20:13:32 +0100
-Message-Id: <20200402191353.787836-12-lee.jones@linaro.org>
+Subject: [PATCH 4.14 13/33] wil6210: remove reset file from debugfs
+Date:   Thu,  2 Apr 2020 20:13:33 +0100
+Message-Id: <20200402191353.787836-13-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191353.787836-1-lee.jones@linaro.org>
 References: <20200402191353.787836-1-lee.jones@linaro.org>
@@ -59,36 +59,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Lew <clew@codeaurora.org>
+From: Karthick Gopalasubramanian <kargop@codeaurora.org>
 
-[ Upstream commit f0beb4ba9b185d497c8efe7b349363700092aee0 ]
+[ Upstream commit 32dcfe8316cdbd885542967c0c85f5b9de78874b ]
 
-It is possible for the chunk sizes coming from the non RPM remote procs
-to not be word aligned. Remove the alignment warning and continue to
-read from the FIFO so execution is not stalled.
+Reset file is not used and may cause race conditions
+with operational driver if used.
 
-Signed-off-by: Chris Lew <clew@codeaurora.org>
-Signed-off-by: Arun Kumar Neelakantam <aneela@codeaurora.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Karthick Gopalasubramanian <kargop@codeaurora.org>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/rpmsg/qcom_glink_native.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/wireless/ath/wil6210/debugfs.c | 27 ----------------------
+ 1 file changed, 27 deletions(-)
 
-diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
-index 1e6253f1e070e..114481c9fba12 100644
---- a/drivers/rpmsg/qcom_glink_native.c
-+++ b/drivers/rpmsg/qcom_glink_native.c
-@@ -811,9 +811,6 @@ static int qcom_glink_rx_data(struct qcom_glink *glink, size_t avail)
- 		return -EAGAIN;
- 	}
+diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
+index 6db00c167d2e1..b17ecf796ed83 100644
+--- a/drivers/net/wireless/ath/wil6210/debugfs.c
++++ b/drivers/net/wireless/ath/wil6210/debugfs.c
+@@ -555,32 +555,6 @@ struct dentry *wil_debugfs_create_ioblob(const char *name,
+ 	return debugfs_create_file(name, mode, parent, wil_blob, &fops_ioblob);
+ }
  
--	if (WARN(chunk_size % 4, "Incoming data must be word aligned\n"))
--		return -EINVAL;
+-/*---reset---*/
+-static ssize_t wil_write_file_reset(struct file *file, const char __user *buf,
+-				    size_t len, loff_t *ppos)
+-{
+-	struct wil6210_priv *wil = file->private_data;
+-	struct net_device *ndev = wil_to_ndev(wil);
 -
- 	rcid = le16_to_cpu(hdr.msg.param1);
- 	spin_lock_irqsave(&glink->idr_lock, flags);
- 	channel = idr_find(&glink->rcids, rcid);
+-	/**
+-	 * BUG:
+-	 * this code does NOT sync device state with the rest of system
+-	 * use with care, debug only!!!
+-	 */
+-	rtnl_lock();
+-	dev_close(ndev);
+-	ndev->flags &= ~IFF_UP;
+-	rtnl_unlock();
+-	wil_reset(wil, true);
+-
+-	return len;
+-}
+-
+-static const struct file_operations fops_reset = {
+-	.write = wil_write_file_reset,
+-	.open  = simple_open,
+-};
+-
+ /*---write channel 1..4 to rxon for it, 0 to rxoff---*/
+ static ssize_t wil_write_file_rxon(struct file *file, const char __user *buf,
+ 				   size_t len, loff_t *ppos)
+@@ -1697,7 +1671,6 @@ static const struct {
+ 	{"bf",		0444,		&fops_bf},
+ 	{"ssid",	0644,		&fops_ssid},
+ 	{"mem_val",	0644,		&fops_memread},
+-	{"reset",	0244,		&fops_reset},
+ 	{"rxon",	0244,		&fops_rxon},
+ 	{"tx_mgmt",	0244,		&fops_txmgmt},
+ 	{"wmi_send", 0244,		&fops_wmi},
 -- 
 2.25.1
 
