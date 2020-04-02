@@ -2,359 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C05F19C9E3
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C2A619C9E5
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389536AbgDBTS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:18:26 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:38521 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732006AbgDBTS0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:18:26 -0400
-Received: by mail-wm1-f66.google.com with SMTP id f6so4958186wmj.3
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:18:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=gQFHcPxXPE+YXp+wudnJI7drI9XdjlXprzkGVzfaSeA=;
-        b=t+sX/SjK0Znehl4jSMCYwBlwsvh/w3hig9x9upRt95oZ5rdUAwbs0AKZpbPl+z3ITz
-         DoScVfsegAgYjKvIt17byH+pElSL64Bd3BIXUjPSUhK2lS22O17PnrtpLjEspkO4sySh
-         8uYJV/4kpBifxKmKa/yXhIRmpYlK7XSR3xxaPHWQLw359ssaDKoLzcamXGkCaiba2Fvb
-         DtzAc+//4sSHUGXiBsWlrlveGIgckDeMHaKKvmQq+3CspCj61r3/GdAP8hUn1ttuCKT+
-         bvFuqTUsxttQ/E2+gk3I0oqf73dH8yb60juaAPZwJok8rI9O2z5hryJZC/ryaC5T0kBf
-         rJKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=gQFHcPxXPE+YXp+wudnJI7drI9XdjlXprzkGVzfaSeA=;
-        b=Zg/rge3dE5nnjdr5oWgkXsI0niMMjHnx8kQlvdACRb2DdT3Cra1fcDTWsowIGxL06w
-         CWDTcq0zccg7vVnLnabqYuKdYAuOrMK+Xy/BpAPP85BwH4wqCxd8qZEIW9Pf7to4KeDI
-         0OUX0qQPI8dmsUDHUs6NzT9JF/nvORx6erSxPT19HY91124Os3sIn0tepIyRJkHBP81B
-         L+a2+9x8xcnM6/WPNHBvO99J0AxwKmC9N7MJ88yiPUWNWLYJ/UpMevGjI7hKAHvddRRa
-         gdrWhd+dJWfUgfIf5dy6y0spH9P3VU0B3GxeUhJxK/svuGs1Yr7OtO/7bGZaNzhG+fNF
-         f6/Q==
-X-Gm-Message-State: AGi0PuaSxKW2vKe27wyDUZAKYdUZwgzAdqCK/qb9kB1Vpfd6BL6jbTAb
-        X2G9CDRfOF768WIQUhqJrOwnHNJFB53uFA==
-X-Google-Smtp-Source: APiQypK6WAy3eDPKoDJYePuTJhT9tFMnzZeJOPf0YANatWwFZ8t1CfcyH3YrEViTwe/bch/CTvZgTQ==
-X-Received: by 2002:a1c:dc8b:: with SMTP id t133mr4502470wmg.99.1585855102659;
-        Thu, 02 Apr 2020 12:18:22 -0700 (PDT)
-Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id l10sm8622707wrq.95.2020.04.02.12.18.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:18:21 -0700 (PDT)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     stable@vger.kernel.org
-Subject: [PATCH 4.4 20/20] lib/list_sort: simplify and remove MAX_LIST_LENGTH_BITS
-Date:   Thu,  2 Apr 2020 20:18:56 +0100
-Message-Id: <20200402191856.789622-20-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200402191856.789622-1-lee.jones@linaro.org>
-References: <20200402191856.789622-1-lee.jones@linaro.org>
+        id S2389588AbgDBTTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:19:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44210 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732937AbgDBTTj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Apr 2020 15:19:39 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B853206F8;
+        Thu,  2 Apr 2020 19:19:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585855178;
+        bh=rOPwtbBOBFiF82ie/2HapkDPckrKOlDUJEddYS++Ta8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=H3Oj2jlpNO4TS98adrAw7QHhPX04DMY/VN1yWEKyYjDVaIqhScq5W7tIWAzVP28nt
+         nRJizaNBIZkrGk0hF3NbFboQrXQV1mdtv6bQwxjr6sWRppUbiIvoHo9+LtKLONXAQ5
+         t035E1wU8NKcj3Wzj4OTNvogYtowLPQEJeUWXEr8=
+Date:   Thu, 2 Apr 2020 21:19:36 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Maciej =?utf-8?Q?=C5=BBenczykowski?= <maze@google.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Alexander Potapenko <glider@google.com>,
+        Alistair Delva <adelva@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>
+Subject: Re: [PATCH 4.19 105/116] bpf: Explicitly memset the bpf_attr
+ structure
+Message-ID: <20200402191936.GA3243295@kroah.com>
+References: <20200401161542.669484650@linuxfoundation.org>
+ <20200401161555.630698707@linuxfoundation.org>
+ <20200402185320.GA8077@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200402185320.GA8077@duo.ucw.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Spelvin <lkml@sdf.org>
+On Thu, Apr 02, 2020 at 08:53:21PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > 
+> > commit 8096f229421f7b22433775e928d506f0342e5907 upstream.
+> > 
+> > For the bpf syscall, we are relying on the compiler to properly zero out
+> > the bpf_attr union that we copy userspace data into. Unfortunately that
+> > doesn't always work properly, padding and other oddities might not be
+> > correctly zeroed, and in some tests odd things have been found when the
+> > stack is pre-initialized to other values.
+> > 
+> > Fix this by explicitly memsetting the structure to 0 before using
+> > it.
+> 
+> Is not that a gcc bug?
 
-[ Upstream commit 043b3f7b6388fca6be86ca82979f66c5723a0d10 ]
+No.
 
-Rather than a fixed-size array of pending sorted runs, use the ->prev
-links to keep track of things.  This reduces stack usage, eliminates
-some ugly overflow handling, and reduces the code size.
+> I mean, that's seriously unhelpful behaviour from security
+> perspective.
 
-Also:
-* merge() no longer needs to handle NULL inputs, so simplify.
-* The same applies to merge_and_restore_back_links(), which is renamed
-  to the less ponderous merge_final().  (It's a static helper function,
-  so we don't need a super-descriptive name; comments will do.)
-* Document the actual return value requirements on the (*cmp)()
-  function; some callers are already using this feature.
+I totally agree, and it is something we have been playing whack-a-mole
+over for a number of years now.
 
-x86-64 code size 1086 -> 739 bytes (-347)
+Nothing new, but we do have a config option to zero out the stack all
+the time if you are feeling paranoid and can take the performance hit.
 
-(Yes, I see checkpatch complaining about no space after comma in
-"__attribute__((nonnull(2,3,4,5)))".  Checkpatch is wrong.)
+> Is there any reason to believe this is not causing problems elsewhere?
 
-Feedback from Rasmus Villemoes, Andy Shevchenko and Geert Uytterhoeven.
+It probably is, please feel free to audit and fix up the remaining
+issues that you find.
 
-[akpm@linux-foundation.org: remove __pure usage due to mysterious warning]
-Link: http://lkml.kernel.org/r/f63c410e0ff76009c9b58e01027e751ff7fdb749.1552704200.git.lkml@sdf.org
-Signed-off-by: George Spelvin <lkml@sdf.org>
-Acked-by: Andrey Abramov <st5pub@yandex.ru>
-Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Daniel Wagner <daniel.wagner@siemens.com>
-Cc: Dave Chinner <dchinner@redhat.com>
-Cc: Don Mullis <don.mullis@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- include/linux/list_sort.h |   1 +
- lib/list_sort.c           | 165 ++++++++++++++++++++++++--------------
- 2 files changed, 104 insertions(+), 62 deletions(-)
+thanks,
 
-diff --git a/include/linux/list_sort.h b/include/linux/list_sort.h
-index 1a2df2efb7716..8a03fd8c7ec36 100644
---- a/include/linux/list_sort.h
-+++ b/include/linux/list_sort.h
-@@ -5,6 +5,7 @@
- 
- struct list_head;
- 
-+__attribute__((nonnull(2,3)))
- void list_sort(void *priv, struct list_head *head,
- 	       int (*cmp)(void *priv, struct list_head *a,
- 			  struct list_head *b));
-diff --git a/lib/list_sort.c b/lib/list_sort.c
-index 3fe401067e20b..b4b130a9d536f 100644
---- a/lib/list_sort.c
-+++ b/lib/list_sort.c
-@@ -9,33 +9,41 @@
- #include <linux/list_sort.h>
- #include <linux/list.h>
- 
--#define MAX_LIST_LENGTH_BITS 20
-+typedef int __attribute__((nonnull(2,3))) (*cmp_func)(void *,
-+		struct list_head const *, struct list_head const *);
- 
- /*
-  * Returns a list organized in an intermediate format suited
-  * to chaining of merge() calls: null-terminated, no reserved or
-  * sentinel head node, "prev" links not maintained.
-  */
--static struct list_head *merge(void *priv,
--				int (*cmp)(void *priv, struct list_head *a,
--					struct list_head *b),
-+__attribute__((nonnull(2,3,4)))
-+static struct list_head *merge(void *priv, cmp_func cmp,
- 				struct list_head *a, struct list_head *b)
- {
--	struct list_head head, *tail = &head;
-+	struct list_head *head, **tail = &head;
- 
--	while (a && b) {
-+	for (;;) {
- 		/* if equal, take 'a' -- important for sort stability */
--		if ((*cmp)(priv, a, b) <= 0) {
--			tail->next = a;
-+		if (cmp(priv, a, b) <= 0) {
-+			*tail = a;
-+			tail = &a->next;
- 			a = a->next;
-+			if (!a) {
-+				*tail = b;
-+				break;
-+			}
- 		} else {
--			tail->next = b;
-+			*tail = b;
-+			tail = &b->next;
- 			b = b->next;
-+			if (!b) {
-+				*tail = a;
-+				break;
-+			}
- 		}
--		tail = tail->next;
- 	}
--	tail->next = a?:b;
--	return head.next;
-+	return head;
- }
- 
- /*
-@@ -45,44 +53,52 @@ static struct list_head *merge(void *priv,
-  * prev-link restoration pass, or maintaining the prev links
-  * throughout.
-  */
--static void merge_and_restore_back_links(void *priv,
--				int (*cmp)(void *priv, struct list_head *a,
--					struct list_head *b),
--				struct list_head *head,
--				struct list_head *a, struct list_head *b)
-+__attribute__((nonnull(2,3,4,5)))
-+static void merge_final(void *priv, cmp_func cmp, struct list_head *head,
-+			struct list_head *a, struct list_head *b)
- {
- 	struct list_head *tail = head;
- 	u8 count = 0;
- 
--	while (a && b) {
-+	for (;;) {
- 		/* if equal, take 'a' -- important for sort stability */
--		if ((*cmp)(priv, a, b) <= 0) {
-+		if (cmp(priv, a, b) <= 0) {
- 			tail->next = a;
- 			a->prev = tail;
-+			tail = a;
- 			a = a->next;
-+			if (!a)
-+				break;
- 		} else {
- 			tail->next = b;
- 			b->prev = tail;
-+			tail = b;
- 			b = b->next;
-+			if (!b) {
-+				b = a;
-+				break;
-+			}
- 		}
--		tail = tail->next;
- 	}
--	tail->next = a ? : b;
- 
-+	/* Finish linking remainder of list b on to tail */
-+	tail->next = b;
- 	do {
- 		/*
--		 * In worst cases this loop may run many iterations.
-+		 * If the merge is highly unbalanced (e.g. the input is
-+		 * already sorted), this loop may run many iterations.
- 		 * Continue callbacks to the client even though no
- 		 * element comparison is needed, so the client's cmp()
- 		 * routine can invoke cond_resched() periodically.
- 		 */
--		if (unlikely(!(++count)))
--			(*cmp)(priv, tail->next, tail->next);
--
--		tail->next->prev = tail;
--		tail = tail->next;
--	} while (tail->next);
--
-+		if (unlikely(!++count))
-+			cmp(priv, b, b);
-+		b->prev = tail;
-+		tail = b;
-+		b = b->next;
-+	} while (b);
-+
-+	/* And the final links to make a circular doubly-linked list */
- 	tail->next = head;
- 	head->prev = tail;
- }
-@@ -93,56 +109,81 @@ static void merge_and_restore_back_links(void *priv,
-  * @head: the list to sort
-  * @cmp: the elements comparison function
-  *
-- * This function implements "merge sort", which has O(nlog(n))
-- * complexity.
-+ * This function implements a bottom-up merge sort, which has O(nlog(n))
-+ * complexity.  We use depth-first order to take advantage of cacheing.
-+ * (E.g. when we get to the fourth element, we immediately merge the
-+ * first two 2-element lists.)
-+ *
-+ * The comparison funtion @cmp must return > 0 if @a should sort after
-+ * @b ("@a > @b" if you want an ascending sort), and <= 0 if @a should
-+ * sort before @b *or* their original order should be preserved.  It is
-+ * always called with the element that came first in the input in @a,
-+ * and list_sort is a stable sort, so it is not necessary to distinguish
-+ * the @a < @b and @a == @b cases.
-+ *
-+ * This is compatible with two styles of @cmp function:
-+ * - The traditional style which returns <0 / =0 / >0, or
-+ * - Returning a boolean 0/1.
-+ * The latter offers a chance to save a few cycles in the comparison
-+ * (which is used by e.g. plug_ctx_cmp() in block/blk-mq.c).
-  *
-- * The comparison function @cmp must return a negative value if @a
-- * should sort before @b, and a positive value if @a should sort after
-- * @b. If @a and @b are equivalent, and their original relative
-- * ordering is to be preserved, @cmp must return 0.
-+ * A good way to write a multi-word comparison is
-+ *	if (a->high != b->high)
-+ *		return a->high > b->high;
-+ *	if (a->middle != b->middle)
-+ *		return a->middle > b->middle;
-+ *	return a->low > b->low;
-  */
-+__attribute__((nonnull(2,3)))
- void list_sort(void *priv, struct list_head *head,
- 		int (*cmp)(void *priv, struct list_head *a,
- 			struct list_head *b))
- {
--	struct list_head *part[MAX_LIST_LENGTH_BITS+1]; /* sorted partial lists
--						-- last slot is a sentinel */
--	int lev;  /* index into part[] */
--	int max_lev = 0;
--	struct list_head *list;
-+	struct list_head *list = head->next, *pending = NULL;
-+	size_t count = 0;	/* Count of pending */
- 
--	if (list_empty(head))
-+	if (list == head->prev)	/* Zero or one elements */
- 		return;
- 
--	memset(part, 0, sizeof(part));
--
-+	/* Convert to a null-terminated singly-linked list. */
- 	head->prev->next = NULL;
--	list = head->next;
- 
--	while (list) {
-+	/*
-+	 * Data structure invariants:
-+	 * - All lists are singly linked and null-terminated; prev
-+	 *   pointers are not maintained.
-+	 * - pending is a prev-linked "list of lists" of sorted
-+	 *   sublists awaiting further merging.
-+	 * - Each of the sorted sublists is power-of-two in size,
-+	 *   corresponding to bits set in "count".
-+	 * - Sublists are sorted by size and age, smallest & newest at front.
-+	 */
-+	do {
-+		size_t bits;
- 		struct list_head *cur = list;
-+
-+		/* Extract the head of "list" as a single-element list "cur" */
- 		list = list->next;
- 		cur->next = NULL;
- 
--		for (lev = 0; part[lev]; lev++) {
--			cur = merge(priv, cmp, part[lev], cur);
--			part[lev] = NULL;
--		}
--		if (lev > max_lev) {
--			if (unlikely(lev >= ARRAY_SIZE(part)-1)) {
--				printk_once(KERN_DEBUG "list too long for efficiency\n");
--				lev--;
--			}
--			max_lev = lev;
-+		/* Do merges corresponding to set lsbits in count */
-+		for (bits = count; bits & 1; bits >>= 1) {
-+			cur = merge(priv, (cmp_func)cmp, pending, cur);
-+			pending = pending->prev;  /* Untouched by merge() */
- 		}
--		part[lev] = cur;
--	}
--
--	for (lev = 0; lev < max_lev; lev++)
--		if (part[lev])
--			list = merge(priv, cmp, part[lev], list);
-+		/* And place the result at the head of "pending" */
-+		cur->prev = pending;
-+		pending = cur;
-+		count++;
-+	} while (list->next);
- 
--	merge_and_restore_back_links(priv, cmp, head, part[max_lev], list);
-+	/* Now merge together last element with all pending lists */
-+	while (pending->prev) {
-+		list = merge(priv, (cmp_func)cmp, pending, list);
-+		pending = pending->prev;
-+	}
-+	/* The final merge, rebuilding prev links */
-+	merge_final(priv, (cmp_func)cmp, head, pending, list);
- }
- EXPORT_SYMBOL(list_sort);
- 
--- 
-2.25.1
-
+greg k-h
