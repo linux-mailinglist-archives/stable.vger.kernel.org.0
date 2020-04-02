@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A0719C9A5
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 188CD19C9A6
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389148AbgDBTNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:13:33 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:42779 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388905AbgDBTNd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:33 -0400
-Received: by mail-wr1-f67.google.com with SMTP id h15so5566503wrx.9
+        id S2388905AbgDBTNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:13:34 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:45077 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388989AbgDBTNe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:34 -0400
+Received: by mail-wr1-f68.google.com with SMTP id t7so5540168wrw.12
         for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=2MkvQNPZKVczY76MLBPwTTDhOiywokrQfHFs6PMyPNM=;
-        b=ftBVqR332alamOZ5Ygg9RY/8GrHtMztd3F9FtFOU+sNADu7JaOdjG8eoayKOdvamrS
-         RVYyxIb3FIRHkI0Rc9i2FdCzVWJMEHRmEEXBDKQT36gSdlBrLuJCzmrrzp+o5CRT4Si2
-         ALgSAn7TP3mbbZfDqxUD+h+FvfBIridj1f1wcPPpZTP08G+gWBx81f/WrWqzFk/S3nBa
-         OWVtruwZ8N5wSUD9MksFPFImy54v+mXg034Yrgp8qoiuUsLjSmxL2wBQf4JZL9uMKfBU
-         oP2e+6x7X1p4DZ7bO+AkCevskOEuUB2hkrUzXTtrX7e2AofUxGYMLQ//hfBx2KeA1tsH
-         gf2g==
+        bh=4pengcvy5Yycyp9fs4C3dUV4shvRnbagfJNMDgQf1lc=;
+        b=AfRbKwlGHaSi6+M6Gq8BueNi6Ji6Zwg3q3E1kMdTrG6FOOWy1WSF+Bm0ORbJznbM4b
+         JV3lymnN95eWs7bcENoKcU7MDXTfih8KU6TdShDlnSAKmJ+3LU7RYTlmp0s9y89cjWi9
+         9Kmz0u0PwIM3DS/K1HDUQNETqlRi//UDq+DItzxRE25nSuV+J7q7y2mtZgADdEkKFC7N
+         6bTDQeXqL/QUx0jmL1IHjJdziwTmuhhYQ7+wQnDKOsKJ3qh9ECfF8oYnIzbGwyZh6dqg
+         xHC+O2pIgZ/2Y5sYyzJbu9CG5XxbuFR2tbL8cop1+WmRfykPhrIoyNLSt52wulMIRmj+
+         3t+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2MkvQNPZKVczY76MLBPwTTDhOiywokrQfHFs6PMyPNM=;
-        b=YeQ7hdnqIRYq5dfX7QDzp435vkOpuGhhADX0ZSqnOU3pF0TBoVW05ST9zvqXIVL93S
-         GU10+ScOgZxqp9UDJNo1dKCwi7TgiAsWSfTKaqYwoeIPDVb+KaXmdhwDk5/SN4hsL+Yt
-         xUGdMAfkgegH68eIKd/gKIBgKhRKQrSTTeyqerc+vqHTQ/Xn/kVqyOcTbg/T/m1peHne
-         j8MhSjjW+Xh+uP3vP6jm7tlLMV15YobPtS/do4BxzXHYiVeGFM/ICYsMhsDEtv1Haals
-         JTS70ck0tIsm7KmMW3NltxZaQwu3pR+dk7dZY+3yDwAaSfE3Y+XfZeYf7BFv7i0eFbCW
-         hLqA==
-X-Gm-Message-State: AGi0Pua3BJPni59b8sYBujMQIE4YEqY7YP5qNwl37wJzlX1PjXUE8I3s
-        Cng2Gv49+5tit83mD5ZggJRFqcRgj21Ejg==
-X-Google-Smtp-Source: APiQypL3zNt6cMmCh/zgigTRlQg8i24QXorK2ThIMmm+IQbbutTMUWiPclP3GcWzhkt521etvqdkXg==
-X-Received: by 2002:adf:f3d2:: with SMTP id g18mr2336956wrp.356.1585854808565;
-        Thu, 02 Apr 2020 12:13:28 -0700 (PDT)
+        bh=4pengcvy5Yycyp9fs4C3dUV4shvRnbagfJNMDgQf1lc=;
+        b=baHgB/zuTGd/8K9HPMp2X6Fi5Zk20ejh/6BUzL2p+sLgFfJK/+bZc6cClQWR3jFIiz
+         j8KIqPy2NFpjeg5W9GV4wEIqkEjN1LoQL5PqDwFz+3N3HKIEwE/zcR4d75/nHNmeqrvr
+         5mNUFH1ULPa0LLJL9HYCKHDcQGXoyvw+TFxo7wmjUGqM+fpja17OAm/VbdI/CLhV2vQf
+         NAuJUmRzT/EwZcofKiFVsCJz7Lv6OO2Q93MEh8HuXk666c0n7gCDXO9ahq53CfK+8oyE
+         /Ncq73KQHLfoc4KdKlSfU0bDU7WU2g9UlamHQOrDSO8BoySi7OAwVN3nTo+7mhJaJ82u
+         Y7hQ==
+X-Gm-Message-State: AGi0PuYeH5+dfYJ1cv/UzmG98FivRvMCXYOzJ7HmsTbll9zi5mdkak+c
+        Jw8WxosOU+/DTFbpO2tBNn7fFYUVmLDvvg==
+X-Google-Smtp-Source: APiQypIZNWKjRjaayP5ODVJhOEnmn65Q0QN3CAESYgobGot2+5w5qp9uDCD+EOs4DQJ8bcisk4xHrA==
+X-Received: by 2002:adf:a348:: with SMTP id d8mr4970027wrb.83.1585854812084;
+        Thu, 02 Apr 2020 12:13:32 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.27
+        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:13:27 -0700 (PDT)
+        Thu, 02 Apr 2020 12:13:31 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 29/33] of: fix missing kobject init for !SYSFS && OF_DYNAMIC config
-Date:   Thu,  2 Apr 2020 20:13:49 +0100
-Message-Id: <20200402191353.787836-29-lee.jones@linaro.org>
+Subject: [PATCH 4.14 30/33] perf/core: Reattach a misplaced comment
+Date:   Thu,  2 Apr 2020 20:13:50 +0100
+Message-Id: <20200402191353.787836-30-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191353.787836-1-lee.jones@linaro.org>
 References: <20200402191353.787836-1-lee.jones@linaro.org>
@@ -59,37 +59,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit bd82bbf38cbe27f2c65660da801900d71bcc5cc8 ]
+[ Upstream commit f25d8ba9e1b204b90fbf55970ea6e68955006068 ]
 
-The ref counting is broken for OF_DYNAMIC when sysfs is disabled because
-the kobject initialization is skipped. Only the properties
-add/remove/update should be skipped for !SYSFS config.
+A comment is in a wrong place in perf_event_create_kernel_counter().
+Fix that.
 
-Tested-by: Nicolas Pitre <nico@linaro.org>
-Reviewed-by: Frank Rowand <frowand.list@gmail.com>
-Acked-by: Grant Likely <grant.likely@secretlab.ca>
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Link: https://lkml.kernel.org/r/20191030134731.5437-2-alexander.shishkin@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/of/base.c | 3 ---
- 1 file changed, 3 deletions(-)
+ kernel/events/core.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/of/base.c b/drivers/of/base.c
-index 41b254be02954..c0281be8e0611 100644
---- a/drivers/of/base.c
-+++ b/drivers/of/base.c
-@@ -169,9 +169,6 @@ int __of_attach_node_sysfs(struct device_node *np)
- 	struct property *pp;
- 	int rc;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 2ac73b4cb8a93..9d8f699f11873 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -10430,10 +10430,6 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
+ 	struct perf_event *event;
+ 	int err;
  
--	if (!IS_ENABLED(CONFIG_SYSFS))
--		return 0;
+-	/*
+-	 * Get the target context (task or percpu):
+-	 */
 -
- 	if (!of_kset)
- 		return 0;
+ 	event = perf_event_alloc(attr, cpu, task, NULL, NULL,
+ 				 overflow_handler, context, -1);
+ 	if (IS_ERR(event)) {
+@@ -10444,6 +10440,9 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
+ 	/* Mark owner so we could distinguish it from user events. */
+ 	event->owner = TASK_TOMBSTONE;
  
++	/*
++	 * Get the target context (task or percpu):
++	 */
+ 	ctx = find_get_context(event->pmu, task, event);
+ 	if (IS_ERR(ctx)) {
+ 		err = PTR_ERR(ctx);
 -- 
 2.25.1
 
