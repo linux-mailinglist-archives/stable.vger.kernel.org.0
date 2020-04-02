@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9F8019C998
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39D4819C999
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389376AbgDBTNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:13:18 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:37320 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388766AbgDBTNS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:18 -0400
-Received: by mail-wm1-f67.google.com with SMTP id j19so4940414wmi.2
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:17 -0700 (PDT)
+        id S2388766AbgDBTNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:13:19 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:33089 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388710AbgDBTNT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:19 -0400
+Received: by mail-wr1-f67.google.com with SMTP id a25so5640963wrd.0
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=b9U0M3sx67B1Gb7lifHPL1pZ9q1gXirVR2CbXmiCZYc=;
-        b=gLCAIEbr/NIZ8tuWHgwnkc8dFjRhukku+JVuBLnZlDQFHRACrfFEUurlE9FXn4CzdQ
-         G0k4T311cr5OL6lb9oPUjqP21SRucaTl7Cu5GWl/rYhTW8UDBzkwPoCjR94N7o/jcNbM
-         Hp/xGUkxutidmkCYopet4iTnVx8sQTi0vMctej+i/NTWbrdHLYeBtzRmiUAGZXp47yby
-         vChs7n38ElBnuVHEqcQgMfCe5F1VFH/Apt2xQy2smEmU+YvEwdFrzpd5cn5iK2Xp3JgA
-         0X9ilT56O8iK4TnkC0ZrvmXjqAogTl8OcJOw4awG+oTEMSr04L9tth//sd60lTiIhkF8
-         GXjA==
+        bh=aCe1QZjmaMyeP77BfjlfNyliRZWqjMuk0JjgiLARwG8=;
+        b=aA3ijYEK4U6Ao/FzdM9nmN6VO6VO5t5L/6o867zw29MtYnzKN9iEuiXnmIoDSGRaYK
+         NGLWZaGB7GSRuMBJ9QT8TUbBj8Drj+/x6p4mLi5V6T3s04WC+PXY9w3KcCyhDN0nBSIq
+         vOu83AiN8OvHDInehC5apTBaHWhZ+PP0zOU9hzs1JWn51h0G9u/WiuMuCeyfbVBHY9yb
+         mq8VFmcNTlqk/Vzf61hiTewvkN50IL0vlaVz3KISSWBOnqYzqItzz3Zn2lFrh8Nnys2L
+         Qdtj4CDa+TrSgsxTcShNdNVvUAvan+NYWKiMO7LnR7DNiEJfe9ToEYoPy1ZZ0e/AL5OG
+         t5qQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=b9U0M3sx67B1Gb7lifHPL1pZ9q1gXirVR2CbXmiCZYc=;
-        b=H22PjvmGnfAW8m8+DNjo/815P+aogChO9Jpx8a3TOM1BOA1WFATDfUjyuP1G+ic7T+
-         GpDv5gmCEWpDpP/D30U1y8taiF+CF1RWUIW3n61000/vNsqggml8790u9DftiWIx7yph
-         f4j9SVrFk2CXMj9pOnepqnOZvbupIgEDQSmYgLEKTCSBMiPxUNqBmQYiA/HSnx82Uj38
-         BNI+ZRqvvLqlXIDNXWqmNsQOPhl26iYxwgBEISrVPHbp0Fg9pn8QRpag8p+UPDm5bmwO
-         yYiuFdSQX7N1L5uklwjoMSNG13NZZPIDs10T1cRa+644S6DJd4EdWGwuY9T3x20NvDHi
-         vK1w==
-X-Gm-Message-State: AGi0PuYUWmbja7JhqpvvUQ+7vGMFEzmrc7xtPaQW6lz4zQkvqDjUIRsW
-        +CVM4E1zTI0uenPsHD6cbkWdETUDwcvAQw==
-X-Google-Smtp-Source: APiQypKp1hAHw4V9h2KiMMDjZUkCDIyn5KUYFJd1DL5runi3P8SncLqDhi7pL70/iehxyrQD5dyRhQ==
-X-Received: by 2002:a05:600c:da:: with SMTP id u26mr5142877wmm.117.1585854796210;
-        Thu, 02 Apr 2020 12:13:16 -0700 (PDT)
+        bh=aCe1QZjmaMyeP77BfjlfNyliRZWqjMuk0JjgiLARwG8=;
+        b=EVMMwnGM7UC4vjA1t60zxGel+ab1c9SiaqAJlvpGHRVJ1F6Ab6sTGJo8ZEL0sLswp4
+         K6J3QAw5Lvo7MJtvhF6rEs9Kr19swVW6NNwZmaRT3ofFDa6xoSa2wUNVuK5t+aiMdWG1
+         /Endyo87yumCE7rzH4crB3xEuW4HyOOH1WUr1Mwd92y5szx9tlgjbzUw93owoQr5ZjUq
+         CAn5ebdj55PBsUj0y2v0mx5mV4oY9gfPX07zC0kXyz7OVC9tNXoUzYBfpDXAH+ksYd5K
+         vE61a4lyNu9dvjg9wxiCvxIRLCLKK15YKgnB7soRLIeT6BpcHBdIW6Tk2eI9hvbjdhdi
+         G9YQ==
+X-Gm-Message-State: AGi0PubnPmOM7fOofktg4Kufg7DnAEcAVJv3EwJL6ifCRXQL36vlHI1s
+        kn4k2n+1HmPfpnZuLJmz0hJ3dv5PXJINEA==
+X-Google-Smtp-Source: APiQypLADF0yXsWEEOynOzYJfQL0dYvFRRXFh1OUY7h3+MK4nJh6FiKTgdjmeme7Z8II489pshbHrQ==
+X-Received: by 2002:a5d:6605:: with SMTP id n5mr4837176wru.303.1585854797171;
+        Thu, 02 Apr 2020 12:13:17 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.15
+        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:13:15 -0700 (PDT)
+        Thu, 02 Apr 2020 12:13:16 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 17/33] scsi: ufs: ufs-qcom: remove broken hci version quirk
-Date:   Thu,  2 Apr 2020 20:13:37 +0100
-Message-Id: <20200402191353.787836-17-lee.jones@linaro.org>
+Subject: [PATCH 4.14 18/33] wil6210: rate limit wil_rx_refill error
+Date:   Thu,  2 Apr 2020 20:13:38 +0100
+Message-Id: <20200402191353.787836-18-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191353.787836-1-lee.jones@linaro.org>
 References: <20200402191353.787836-1-lee.jones@linaro.org>
@@ -59,37 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subhash Jadavani <subhashj@codeaurora.org>
+From: Dedy Lansky <dlansky@codeaurora.org>
 
-[ Upstream commit 69a6fff068567469c0ef1156ae5ac8d3d71701f0 ]
+[ Upstream commit 3d6b72729cc2933906de8d2c602ae05e920b2122 ]
 
-UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION is only applicable for QCOM UFS host
-controller version 2.x.y and this has been fixed from version 3.x.y
-onwards, hence this change removes this quirk for version 3.x.y onwards.
+wil_err inside wil_rx_refill can flood the log buffer.
+Replace it with wil_err_ratelimited.
 
-[mkp: applied by hand]
-
-Signed-off-by: Subhash Jadavani <subhashj@codeaurora.org>
-Signed-off-by: Asutosh Das <asutoshd@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Dedy Lansky <dlansky@codeaurora.org>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/scsi/ufs/ufs-qcom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/wil6210/txrx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
-index c87d770b519a7..f2b8de195d8af 100644
---- a/drivers/scsi/ufs/ufs-qcom.c
-+++ b/drivers/scsi/ufs/ufs-qcom.c
-@@ -1094,7 +1094,7 @@ static void ufs_qcom_advertise_quirks(struct ufs_hba *hba)
- 		hba->quirks |= UFSHCD_QUIRK_BROKEN_LCC;
+diff --git a/drivers/net/wireless/ath/wil6210/txrx.c b/drivers/net/wireless/ath/wil6210/txrx.c
+index 16750056b8b52..b483c42660971 100644
+--- a/drivers/net/wireless/ath/wil6210/txrx.c
++++ b/drivers/net/wireless/ath/wil6210/txrx.c
+@@ -636,8 +636,8 @@ static int wil_rx_refill(struct wil6210_priv *wil, int count)
+ 			v->swtail = next_tail) {
+ 		rc = wil_vring_alloc_skb(wil, v, v->swtail, headroom);
+ 		if (unlikely(rc)) {
+-			wil_err(wil, "Error %d in wil_rx_refill[%d]\n",
+-				rc, v->swtail);
++			wil_err_ratelimited(wil, "Error %d in rx refill[%d]\n",
++					    rc, v->swtail);
+ 			break;
+ 		}
  	}
- 
--	if (host->hw_ver.major >= 0x2) {
-+	if (host->hw_ver.major == 0x2) {
- 		hba->quirks |= UFSHCD_QUIRK_BROKEN_UFS_HCI_VERSION;
- 
- 		if (!ufs_qcom_cap_qunipro(host))
 -- 
 2.25.1
 
