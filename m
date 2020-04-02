@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C6619C99C
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAB019C99B
 	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389397AbgDBTNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:13:23 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:52131 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388892AbgDBTNX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:23 -0400
-Received: by mail-wm1-f67.google.com with SMTP id z7so4610811wmk.1
+        id S2388710AbgDBTNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:13:22 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:39079 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388892AbgDBTNV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:21 -0400
+Received: by mail-wr1-f67.google.com with SMTP id p10so5579338wrt.6
         for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=8Z20wcAGJt+rsOO0qFIXrokKyfVoYrM8wAvpmSP5OEA=;
-        b=yaXz2ct3ZMS4CeatTunlhe4+4Tu5ghKGkYX7vL9yMEChD1yVBObKz7sqNLeerBpr6p
-         YJMWsz08CxvCp8aQ/4GBaT/3/dZV+qes3c/N923Efcet22ctMuSht2qf31z8oW9lSrAt
-         DIV3QKXiURb2Cn2hR2kzj0RMTg31cWPE0b8cYJ4tjeSwWoJ32UycpVaTBB2QuJtvOPA5
-         2PSs+RrKTVZ13qmdZoTRdMVO3J7B04tMNoUbzUBR5r63nmzWKIYqzOpahn8nhQo57khD
-         C2gs64F4oWSrozSbc2eNRLzqpVwZ5QUaXayFdCvD/RdAljJ2+eqeb+5DqWkFreVX9Rvc
-         sNJg==
+        bh=dJjaCdK3r6IAoOPZX6O1/KwvrCQleqNcbRzJakc7p/s=;
+        b=BQDsFe9n5ukI4Nu4h04bWHovTQyqIxOX784kBquD7gPZJ3tFXlcxk0t/iUrMuwn9o1
+         kVEKSveh3kBbAKMhPXh77GNyp3qtVor4L2sl3XJwyuLNb0A3ICC5LcPId31Nx/1Pjc8y
+         7fY6AW5oWTUsGwelCpPghA2u7hJMdWr9YwyJMcTue2+v9B8uxZzWmvfag/TZX9J9HEZg
+         0awBB3Fp9QVmNg/c0AcR42IiviRuLuFxhusrxO/Gp8TT+GQ/Gp3RgI5eSY+1VZYuxzz9
+         JpNdILrSomsmis7Z4tfLbJvLt+3eTRyFINXhPpZk4FuUt6rNxMCObFCQUBk+Cd4MW8mr
+         rveg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=8Z20wcAGJt+rsOO0qFIXrokKyfVoYrM8wAvpmSP5OEA=;
-        b=MeGx7tYCeQDLcAZO0KHosAzfJbzxI+q91GUAT19168ek8mxc3TyAD9X+ITHd5XsfjS
-         nz3KILTTeFVq9IamhF3b0KtYhRcS74d7N2ZixKTKcnSslmQ4HvQjYD+ZWVs3EP3aHQaq
-         Qv+jkwLT4Us++t0cZF39l00qFYfGvcnEVc7jPsb4s99o3Mz6jZN3RR9N4LSp8jSq5V7x
-         DkHu5ovFkml2l94shvzDByj2rwO3UuBBIvRHUwESJ1fyH6n4NV84PECCs2ng84O0euzf
-         CYVGhA86iLAJ6n6V3/Hd0D90T81F4F+4j15U28c4xslMTug/MCj1v3yKh60iPIotMa4X
-         nvgg==
-X-Gm-Message-State: AGi0Pua+5Xwqcd2ptm1JgtTGSBL+rsox/+LuZfqc+2TqXm5Ql0t5OG1v
-        sJ0nsKsjcwnbaQfOzPBQsXIV/+W0xcIr8g==
-X-Google-Smtp-Source: APiQypKZmk5kCXneFATbqD5CTcVOqOyriGQrHHF7ovV5lRJ8FTQlxgJqaekQvqf8s7Sw4Kv8E/DfEg==
-X-Received: by 2002:a7b:c18e:: with SMTP id y14mr4542679wmi.99.1585854799119;
+        bh=dJjaCdK3r6IAoOPZX6O1/KwvrCQleqNcbRzJakc7p/s=;
+        b=eHBFS0dcW7R3qpP+BprjFi/G1KH/KyNOqMncyzSZG73jt5U/fbpxUO/JN1mLOyN+Au
+         Z+C5cv6gpXlVJjbmYsdpxRBfJV68fnC1HFV7hOq7GnGKybpjHeoCmr4DV5w/WQRSzZvc
+         ncuiOSWoLMPTDpYATrmIXnpQY04IJj4AMzVE5Tic7jbbJuQhsYsPHGULdDHEYkJBQYen
+         KOfJKfz39FikN5eRSmqyjQbDFQD7NyMFKq4jvefEPkTV06oZY36xlCU64EdLqQtjOt1u
+         fISnQfuS7chcYPcpQRc6ulXh07HGEFIe+iATdEs1CnQoK7CBIUIiC79hJyeflC3ov4cC
+         WP4g==
+X-Gm-Message-State: AGi0PuZqhIHtx3X0TvZZ3n7wj6oGAUm6Ou5zHQ3qMDj7z023eXqM4ldd
+        C70PPt3d1GOHdQpswzbfwy3mQRX4CcvdBA==
+X-Google-Smtp-Source: APiQypJhQDySB+zoVrYO8+bTkEsLguBDJE1gYYplc1zyjUYZ3eosSnK/r65pCQN/kqcbKLQiZiRh9Q==
+X-Received: by 2002:adf:b258:: with SMTP id y24mr4897334wra.318.1585854799896;
         Thu, 02 Apr 2020 12:13:19 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.18
+        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:13:18 -0700 (PDT)
+        Thu, 02 Apr 2020 12:13:19 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 20/33] rtc: pm8xxx: Fix issue in RTC write path
-Date:   Thu,  2 Apr 2020 20:13:40 +0100
-Message-Id: <20200402191353.787836-20-lee.jones@linaro.org>
+Subject: [PATCH 4.14 21/33] net: qualcomm: rmnet: Fix casting issues
+Date:   Thu,  2 Apr 2020 20:13:41 +0100
+Message-Id: <20200402191353.787836-21-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191353.787836-1-lee.jones@linaro.org>
 References: <20200402191353.787836-1-lee.jones@linaro.org>
@@ -59,118 +59,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohit Aggarwal <maggarwa@codeaurora.org>
+From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
 
-[ Upstream commit 83220bf38b77a830f8e62ab1a0d0408304f9b966 ]
+[ Upstream commit 6e010dd9b16b1a320bbf8312359ac294d7e1d9a8 ]
 
-In order to set time in rtc, need to disable
-rtc hw before writing into rtc registers.
+Fix warnings which were reported when running with sparse
+(make C=1 CF=-D__CHECK_ENDIAN__)
 
-Also fixes disabling of alarm while setting
-rtc time.
+drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c:81:15:
+warning: cast to restricted __be16
+drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c:271:37:
+warning: incorrect type in assignment (different base types)
+expected unsigned short [unsigned] [usertype] pkt_len
+got restricted __be16 [usertype] <noident>
+drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c:287:29:
+warning: incorrect type in assignment (different base types)
+expected unsigned short [unsigned] [usertype] pkt_len
+got restricted __be16 [usertype] <noident>
+drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c:310:22:
+warning: cast to restricted __be16
+drivers/net/ethernet/qualcomm/rmnet/rmnet_map_data.c:319:13:
+warning: cast to restricted __be16
+drivers/net/ethernet/qualcomm/rmnet/rmnet_map_command.c:49:18:
+warning: cast to restricted __be16
+drivers/net/ethernet/qualcomm/rmnet/rmnet_map_command.c:50:18:
+warning: cast to restricted __be32
+drivers/net/ethernet/qualcomm/rmnet/rmnet_map_command.c:74:21:
+warning: cast to restricted __be16
 
-Signed-off-by: Mohit Aggarwal <maggarwa@codeaurora.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/rtc/rtc-pm8xxx.c | 49 +++++++++++++++++++++++++++++++---------
- 1 file changed, 38 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index a1b4b0ed1f196..3b619b7b2c530 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -74,16 +74,18 @@ struct pm8xxx_rtc {
- /*
-  * Steps to write the RTC registers.
-  * 1. Disable alarm if enabled.
-- * 2. Write 0x00 to LSB.
-- * 3. Write Byte[1], Byte[2], Byte[3] then Byte[0].
-- * 4. Enable alarm if disabled in step 1.
-+ * 2. Disable rtc if enabled.
-+ * 3. Write 0x00 to LSB.
-+ * 4. Write Byte[1], Byte[2], Byte[3] then Byte[0].
-+ * 5. Enable rtc if disabled in step 2.
-+ * 6. Enable alarm if disabled in step 1.
-  */
- static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- {
- 	int rc, i;
- 	unsigned long secs, irq_flags;
--	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0;
--	unsigned int ctrl_reg;
-+	u8 value[NUM_8_BIT_RTC_REGS], alarm_enabled = 0, rtc_disabled = 0;
-+	unsigned int ctrl_reg, rtc_ctrl_reg;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
+diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h b/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h
+index ce2302c25b128..41fa881e4540e 100644
+--- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h
++++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_map.h
+@@ -23,8 +23,8 @@ struct rmnet_map_control_command {
+ 		struct {
+ 			u16 ip_family:2;
+ 			u16 reserved:14;
+-			u16 flow_control_seq_num;
+-			u32 qos_id;
++			__be16 flow_control_seq_num;
++			__be32 qos_id;
+ 		} flow_control;
+ 		u8 data[0];
+ 	};
+@@ -53,7 +53,7 @@ struct rmnet_map_header {
+ 	u8  reserved_bit:1;
+ 	u8  cd_bit:1;
+ 	u8  mux_id;
+-	u16 pkt_len;
++	__be16 pkt_len;
+ }  __aligned(1);
  
-@@ -92,23 +94,38 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 
- 	rtc_tm_to_time(tm, &secs);
- 
-+	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
-+
- 	for (i = 0; i < NUM_8_BIT_RTC_REGS; i++) {
- 		value[i] = secs & 0xFF;
- 		secs >>= 8;
- 	}
- 
--	dev_dbg(dev, "Seconds value to be written to RTC = %lu\n", secs);
--
- 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
- 
--	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &ctrl_reg);
-+	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
- 	if (rc)
- 		goto rtc_rw_fail;
- 
- 	if (ctrl_reg & regs->alarm_en) {
- 		alarm_enabled = 1;
- 		ctrl_reg &= ~regs->alarm_en;
--		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
-+		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
-+		if (rc) {
-+			dev_err(dev, "Write to RTC Alarm control register failed\n");
-+			goto rtc_rw_fail;
-+		}
-+	}
-+
-+	/* Disable RTC H/w before writing on RTC register */
-+	rc = regmap_read(rtc_dd->regmap, regs->ctrl, &rtc_ctrl_reg);
-+	if (rc)
-+		goto rtc_rw_fail;
-+
-+	if (rtc_ctrl_reg & PM8xxx_RTC_ENABLE) {
-+		rtc_disabled = 1;
-+		rtc_ctrl_reg &= ~PM8xxx_RTC_ENABLE;
-+		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
- 		if (rc) {
- 			dev_err(dev, "Write to RTC control register failed\n");
- 			goto rtc_rw_fail;
-@@ -137,11 +154,21 @@ static int pm8xxx_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 		goto rtc_rw_fail;
- 	}
- 
-+	/* Enable RTC H/w after writing on RTC register */
-+	if (rtc_disabled) {
-+		rtc_ctrl_reg |= PM8xxx_RTC_ENABLE;
-+		rc = regmap_write(rtc_dd->regmap, regs->ctrl, rtc_ctrl_reg);
-+		if (rc) {
-+			dev_err(dev, "Write to RTC control register failed\n");
-+			goto rtc_rw_fail;
-+		}
-+	}
-+
- 	if (alarm_enabled) {
- 		ctrl_reg |= regs->alarm_en;
--		rc = regmap_write(rtc_dd->regmap, regs->ctrl, ctrl_reg);
-+		rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
- 		if (rc) {
--			dev_err(dev, "Write to RTC control register failed\n");
-+			dev_err(dev, "Write to RTC Alarm control register failed\n");
- 			goto rtc_rw_fail;
- 		}
- 	}
+ #define RMNET_MAP_GET_MUX_ID(Y) (((struct rmnet_map_header *) \
 -- 
 2.25.1
 
