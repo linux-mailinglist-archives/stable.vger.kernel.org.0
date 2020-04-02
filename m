@@ -2,108 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4084219BB30
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 06:47:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B683A19BBA3
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 08:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728063AbgDBEr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 00:47:27 -0400
-Received: from mail27.static.mailgun.info ([104.130.122.27]:47327 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726617AbgDBEr1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 00:47:27 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1585802846; h=Content-Transfer-Encoding: Content-Type:
- In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
- Subject: Sender; bh=59P6EAAUU6IHvsrVuS92TdywCF819skz/knlehoKg18=; b=LaRYKzbJ3u7V8aZ1cR0+wJRntXJG4tDv6stm3KpSB0XxTm+EzDx+nBw10YXSbwDN7C3HJZM+
- YC8nvMh41puyu/7eYFIKbYblEGx60n8xaVoFZTAK0+RDOUIqaDD6r6TYpCA+7/VZz7gYgQG5
- 2rh77mAIYX91z0ivxbHowpFd0dw=
-X-Mailgun-Sending-Ip: 104.130.122.27
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e856e50.7f4a188f43b0-smtp-out-n04;
- Thu, 02 Apr 2020 04:47:12 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 8C6D5C44788; Thu,  2 Apr 2020 04:47:12 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from [192.168.0.101] (unknown [192.140.155.233])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1728455AbgDBG02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 02:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33406 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726743AbgDBG01 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Apr 2020 02:26:27 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: sallenki)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 94FF3C43637;
-        Thu,  2 Apr 2020 04:47:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 94FF3C43637
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=sallenki@codeaurora.org
-Subject: Re: [PATCH] usb: f_fs: Clear OS Extended descriptor counts to zero in
- ffs_data_reset()
-To:     Manu Gautam <mgautam@codeaurora.org>, balbi@kernel.org,
-        gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
-        ugoswami@codeaurora.org
-Cc:     jackp@codeaurora.org, stable@vger.kernel.org
-References: <20200402043210.2342-1-sallenki@codeaurora.org>
- <1040af70-2298-df80-614d-a4d3cf6cca57@codeaurora.org>
-From:   Sriharsha Allenki <sallenki@codeaurora.org>
-Message-ID: <ad787648-6349-fd23-711e-be607e53b768@codeaurora.org>
-Date:   Thu, 2 Apr 2020 10:17:07 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        by mail.kernel.org (Postfix) with ESMTPSA id 77E04206D3;
+        Thu,  2 Apr 2020 06:26:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1585808784;
+        bh=9t3QFsfMnBwg73lC7+GDMLXRSXRD6YDJKPSre/hB7IE=;
+        h=Date:From:To:Cc:Subject:From;
+        b=uPNOqjYrp7HqOZOhJkZc+8Wrq8BDGLo8pnD/TOlzbgJdVV7AV5O3hHdROJfAJ6xOe
+         SpD3QKwTBvgd5NnMoianj9Quo3GyOLVWFEnADxTjLvfvtXg57F7JFaEy2sPGIaK87d
+         PIDkVjK15YPdr417fhySmb/OEXhhSWywmi9PllXE=
+Date:   Thu, 2 Apr 2020 08:26:20 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
+Subject: Linux 5.6.2
+Message-ID: <20200402062620.GA2678935@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <1040af70-2298-df80-614d-a4d3cf6cca57@codeaurora.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-On 4/2/2020 10:10 AM, Manu Gautam wrote:
-> On 4/2/2020 10:02 AM, Sriharsha Allenki wrote:
->> From: Udipto Goswami <ugoswami@codeaurora.org>
->>
->> For userspace functions using OS Descriptors, if a function also supplies
->> Extended Property descriptors currently the counts and lengths stored in
->> the ms_os_descs_ext_prop_{count,name_len,data_len} variables are not
->> getting reset to 0 during an unbind or when the epfiles are closed. If
->> the same function is re-bound and the descriptors are re-written, this
->> results in those count/length variables to monotonically increase
->> causing the VLA allocation in _ffs_func_bind() to grow larger and larger
->> at each bind/unbind cycle and eventually fail to allocate.
->>
->> Fix this by clearing the ms_os_descs_ext_prop count & lengths to 0 in
->> ffs_data_reset().
->>
->> Change-Id: I3b292fe5386ab54b53df2b9f15f07430dc3df24a
-> Please remove this.
-Thanks Manu, sent v2 after removing it.
->> Fixes: f0175ab51993 ("usb: gadget: f_fs: OS descriptors support")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Udipto Goswami <ugoswami@codeaurora.org>
->> Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
->> ---
->>  drivers/usb/gadget/function/f_fs.c | 4 ++++
->>  1 file changed, 4 insertions(+)
->>
->> diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
->> index c81023b195c3..10f01f974f67 100644
->> --- a/drivers/usb/gadget/function/f_fs.c
->> +++ b/drivers/usb/gadget/function/f_fs.c
->> @@ -1813,6 +1813,10 @@ static void ffs_data_reset(struct ffs_data *ffs)
->>  	ffs->state = FFS_READ_DESCRIPTORS;
->>  	ffs->setup_state = FFS_NO_SETUP;
->>  	ffs->flags = 0;
->> +
->> +	ffs->ms_os_descs_ext_prop_count = 0;
->> +	ffs->ms_os_descs_ext_prop_name_len = 0;
->> +	ffs->ms_os_descs_ext_prop_data_len = 0;
->>  }
->>  
->>  
-> Reviewed-by: Manu Gautam <mgautam@codeaurora.org>
-Thanks,
-Sriharsha
+
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+I'm announcing the release of the 5.6.2 kernel.
+
+All users of the 5.6 kernel series must upgrade.
+
+The updated 5.6.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linu=
+x-5.6.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3Ds=
+ummary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                     |    2=20
+ drivers/platform/x86/pmc_atom.c              |    8 ++
+ drivers/tty/serial/sprd_serial.c             |    3 -
+ drivers/tty/vt/selection.c                   |    5 +
+ drivers/tty/vt/vt.c                          |   30 +++++++++-
+ drivers/tty/vt/vt_ioctl.c                    |   75 ++++++++++++++--------=
+-----
+ include/linux/selection.h                    |    4 +
+ include/linux/vt_kern.h                      |    2=20
+ net/mac80211/tx.c                            |    3 -
+ tools/testing/selftests/bpf/verifier/jmp32.c |    9 ++-
+ 10 files changed, 93 insertions(+), 48 deletions(-)
+
+Daniel Borkmann (1):
+      bpf: update jmp32 test cases to fix range bound deduction
+
+Eric Biggers (3):
+      vt: vt_ioctl: remove unnecessary console allocation checks
+      vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use virtual console
+      vt: vt_ioctl: fix use-after-free in vt_in_use()
+
+Georg M=FCller (1):
+      platform/x86: pmc_atom: Add Lex 2I385SW to critclk_systems DMI table
+
+Greg Kroah-Hartman (1):
+      Linux 5.6.2
+
+Jiri Slaby (3):
+      vt: selection, introduce vc_is_sel
+      vt: ioctl, switch VT_IS_IN_USE and VT_BUSY to inlines
+      vt: switch vt_dont_switch to bool
+
+Johannes Berg (1):
+      mac80211: fix authentication with iwlwifi/mvm
+
+Lanqing Liu (1):
+      serial: sprd: Fix a dereference warning
+
+
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEZH8oZUiU471FcZm+ONu9yGCSaT4FAl6FhYkACgkQONu9yGCS
+aT7qKw//aIhkpWkdMMYM06ZOtXmWzaJWDKGjYFWZSnx9ywsYYbaUvqBHlhFdrUor
+yYTg1iBSTGyH3QhF3278KugyJVDO5rqGNSdocPIDRe5zvpDsRS1GMIim3dmldglz
+dKX6ykouMO6BeP2NR710ulGYpcF3LUCk0EG3Z/v7ppEmayyKOou+NYYvMgLtbWF6
+7vYIs3P2sWNJp/9dyp++X6FV+UKy+bi07yM2x7RyGDLrqIEOBL2756gouf9JJImO
+Uceycs17n0pVG2PjNYQhBQ5DsATMimEjZ/vgwGt/ySeki14eXfIzSvVx8/MrhiFX
+wxLQNV4gZumDQZm+fFR3AnNk6LCIYUwFHgx6csAlEOw+0IeOGWP16gle2O4ay6Rz
+N9c6vH+Bm/cGbbz29jeT56iShqdhAggNBMqSJPWuHnW0zlYv+OBXdjguckP8Vf1+
+jbW1j+ffr7gz6zWnhRbNhj1dn4vSfg9DSsu5O/neBWbCS3fOcpGhy/Unl29pl2C4
+ce9dCGKCIEnDh8fhuZ0gLM02y7C0BfP6LJXRI6saStFEyuZiWxGEKyNFF0ZB13lu
+MVK8qx/4ZSry26jD/yr5IS6klNl75JjNDNNOrZgcIsO7xGkJ++xUKo2KZfHAqWie
++UcpvdI3i/aTiAQjehFOGJtj4Miei//ER05e3rrxVy2y4kCqtrU=
+=45zP
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--
