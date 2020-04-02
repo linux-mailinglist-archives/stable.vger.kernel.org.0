@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82C0B19C97E
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 613DA19C980
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:11:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389242AbgDBTLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:11:40 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:35052 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389109AbgDBTLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:11:40 -0400
-Received: by mail-wr1-f66.google.com with SMTP id g3so3287601wrx.2
+        id S1731689AbgDBTLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:11:41 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:43260 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731892AbgDBTLl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:11:41 -0400
+Received: by mail-wr1-f68.google.com with SMTP id 91so3638153wri.10
         for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:11:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=4+1QiWssL4d1wmhT1EIw61xBk51HxKN8ogqOFZ7KYzc=;
-        b=yEyklBPRApOA+Fgz8PYDiJ75O24S5Psbh8jmRcB5NG3ZlGPSibFB/kYgE2dlkqvrWz
-         r8aOWg5vfPq6iVzwgtx/WRz5vB6kqp2XxWpPqfI0R0jDHQ2TqAYQNegIPpuFHefssNPn
-         vWbagSAGDrC7R0vZqk9fufE5pZOJac3Zli6443F6Mb7mRXUohSEzn62TeL+qdb/WmBvm
-         cAjxoejGxhTxJjVzr3VLLsM48nZ8CE/9sZByRjL/OQdCzkvJ6yQwcjcSmMBXtld3DZGv
-         EzA42fYfgMCe0J9YVKrsozThVNOo0/bn/+U2biFZAXa83ZQyBJxGm5+U6HSb38BdaMpB
-         K+zw==
+        bh=bQSVQUznH72WQBKL04U2uoQruvsVD6tJ6h7LJtSHrIo=;
+        b=kho8ap0JYcgB9oWLy3A7108PGVWxZvJV1ULlUNbQ0QdD5X1gb+a+aP+cfUo+MmGbzM
+         ASSqq734wF1sXcv8uymzczG3nt61zBvpb5I7/uhxbRxijDtrZWxChIvWKPI+1peiCxG6
+         TDoSJ67rzfbkgDEVnPMwcXCB1j8fLy2d+QDl29AC4mb5LEEx2sUuLk72pUa/LPP8r41U
+         YmdpCYYqbB0DoqX7fXOZfOmrXUUIes6yonERyllxXGU95S+ljhXg0kXldfjzK5C4jKMR
+         Nb1/Vhcm3iYSBB0VpDY8dL74DZvtoysmoA5gtu7Lo3WjoAUWvAp0zXnzLBe+Bg6KKSpB
+         6MUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=4+1QiWssL4d1wmhT1EIw61xBk51HxKN8ogqOFZ7KYzc=;
-        b=JbQig82ZL6yCFFnUjwORwOuBZ1xm17oE40dx5GG+JB3n4JsCDk6NIq41IGQP4ETkl+
-         xX1lnjMGQFFZzWQCVUgiC7c8WD3NEdoDm9NWOMTi1mg4Jz6tfFt0G2nMKuh3flSphvUi
-         90gi5ta7SFYDJYZhE71kg42sMrclNyJSvJejxc7BJ7G3WRx+5aNTWM9bxtM2duQ9LFU9
-         OMXY2tyGf7xkY0jGL6Atfcjm9t+bPkKFgeGrC1uCmXdseaSGFClIWq+Ber7Zp7N8x8mE
-         Zqz7lXUSrD5+IgtJmGayDmCspZp8a9hcV4eL25BV3TzxavcluUgSlo6BqNLehzA7WYgR
-         zudQ==
-X-Gm-Message-State: AGi0PuYiEVV3YumHlrjLF3kop+zHwmuWLAW7QuRhaO1tPBLSxT2CTOdh
-        n8GZP46zkigCK2g6hVO4Gi4VcGyvXUfgTQ==
-X-Google-Smtp-Source: APiQypJ3JPkCXm5i1ywiQCcMiNbA6Zpsyg8p3zkSJTeVIMjTky7c6RCejiyrWtjORjSM55UowPkV3g==
-X-Received: by 2002:adf:edd2:: with SMTP id v18mr5267207wro.55.1585854698076;
-        Thu, 02 Apr 2020 12:11:38 -0700 (PDT)
+        bh=bQSVQUznH72WQBKL04U2uoQruvsVD6tJ6h7LJtSHrIo=;
+        b=W+mtahxXqyXg/VR+B7ZZI3EI0ybyNRMYHog5UQu9zrG0FijHIzjvakWrEmd0/oC7G7
+         a3voAJHUaTrnEVrHCNFoxWedbZiYRfIhXqoeRqC1lmRMiTCv2Trj/nyyBMIL1YbzYNfw
+         EzI+4u3nabi3l32I1JoiIce3yNyKNODXlC0bRslL45eaBKD7U442NyUDsfLIY/zqe304
+         +HgGNVnkDfcuR/bR5BlT1DW9fZNEl+RDu6MH+pfYR209swsSoGyxPLeC5R3Xi3dJm/nI
+         GMy44uadOPZGTioGPEdTjYVZrRRlyNJe6hfmblGslT6ecCpsdrVsMWa1XnkFDDe47nxg
+         EWIQ==
+X-Gm-Message-State: AGi0PuaTvt/25oBru5hi9fDyOaMRHIN7WfvMVTY14xNvv7UjMnQXZ8oi
+        o8EBRGqjD5n+J9d3y1cqkRedAKic5wJxAw==
+X-Google-Smtp-Source: APiQypIAK03g1fhrjDS3Nm6nMU103S5AUxgPb75DMKDG5HdCIaZPXSPEO/3oHE157riZ+ABBRn3RZw==
+X-Received: by 2002:adf:dd86:: with SMTP id x6mr4868672wrl.169.1585854699080;
+        Thu, 02 Apr 2020 12:11:39 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id s15sm8442164wrt.16.2020.04.02.12.11.36
+        by smtp.gmail.com with ESMTPSA id s15sm8442164wrt.16.2020.04.02.12.11.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:11:37 -0700 (PDT)
+        Thu, 02 Apr 2020 12:11:38 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.19 10/14] wil6210: remove reset file from debugfs
-Date:   Thu,  2 Apr 2020 20:12:16 +0100
-Message-Id: <20200402191220.787381-10-lee.jones@linaro.org>
+Subject: [PATCH 4.19 11/14] perf/core: Reattach a misplaced comment
+Date:   Thu,  2 Apr 2020 20:12:17 +0100
+Message-Id: <20200402191220.787381-11-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191220.787381-1-lee.jones@linaro.org>
 References: <20200402191220.787381-1-lee.jones@linaro.org>
@@ -59,66 +59,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthick Gopalasubramanian <kargop@codeaurora.org>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit 32dcfe8316cdbd885542967c0c85f5b9de78874b ]
+[ Upstream commit f25d8ba9e1b204b90fbf55970ea6e68955006068 ]
 
-Reset file is not used and may cause race conditions
-with operational driver if used.
+A comment is in a wrong place in perf_event_create_kernel_counter().
+Fix that.
 
-Signed-off-by: Karthick Gopalasubramanian <kargop@codeaurora.org>
-Signed-off-by: Maya Erez <merez@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Link: https://lkml.kernel.org/r/20191030134731.5437-2-alexander.shishkin@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/wireless/ath/wil6210/debugfs.c | 27 ----------------------
- 1 file changed, 27 deletions(-)
+ kernel/events/core.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
-index acd95ca0430b9..55a809cb31054 100644
---- a/drivers/net/wireless/ath/wil6210/debugfs.c
-+++ b/drivers/net/wireless/ath/wil6210/debugfs.c
-@@ -730,32 +730,6 @@ struct dentry *wil_debugfs_create_ioblob(const char *name,
- 	return debugfs_create_file(name, mode, parent, wil_blob, &fops_ioblob);
- }
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 8c70ee23fbe91..16f268475e8e4 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -10954,10 +10954,6 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
+ 	struct perf_event *event;
+ 	int err;
  
--/*---reset---*/
--static ssize_t wil_write_file_reset(struct file *file, const char __user *buf,
--				    size_t len, loff_t *ppos)
--{
--	struct wil6210_priv *wil = file->private_data;
--	struct net_device *ndev = wil->main_ndev;
--
--	/**
--	 * BUG:
--	 * this code does NOT sync device state with the rest of system
--	 * use with care, debug only!!!
+-	/*
+-	 * Get the target context (task or percpu):
 -	 */
--	rtnl_lock();
--	dev_close(ndev);
--	ndev->flags &= ~IFF_UP;
--	rtnl_unlock();
--	wil_reset(wil, true);
 -
--	return len;
--}
--
--static const struct file_operations fops_reset = {
--	.write = wil_write_file_reset,
--	.open  = simple_open,
--};
--
- /*---write channel 1..4 to rxon for it, 0 to rxoff---*/
- static ssize_t wil_write_file_rxon(struct file *file, const char __user *buf,
- 				   size_t len, loff_t *ppos)
-@@ -2461,7 +2435,6 @@ static const struct {
- 	{"desc",	0444,		&fops_txdesc},
- 	{"bf",		0444,		&fops_bf},
- 	{"mem_val",	0644,		&fops_memread},
--	{"reset",	0244,		&fops_reset},
- 	{"rxon",	0244,		&fops_rxon},
- 	{"tx_mgmt",	0244,		&fops_txmgmt},
- 	{"wmi_send", 0244,		&fops_wmi},
+ 	event = perf_event_alloc(attr, cpu, task, NULL, NULL,
+ 				 overflow_handler, context, -1);
+ 	if (IS_ERR(event)) {
+@@ -10968,6 +10964,9 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
+ 	/* Mark owner so we could distinguish it from user events. */
+ 	event->owner = TASK_TOMBSTONE;
+ 
++	/*
++	 * Get the target context (task or percpu):
++	 */
+ 	ctx = find_get_context(event->pmu, task, event);
+ 	if (IS_ERR(ctx)) {
+ 		err = PTR_ERR(ctx);
 -- 
 2.25.1
 
