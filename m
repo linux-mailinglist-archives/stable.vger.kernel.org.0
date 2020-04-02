@@ -2,145 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1FDB19C968
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:07:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D9219C984
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388864AbgDBTHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:07:09 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:40128 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388810AbgDBTHJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:07:09 -0400
-Received: by mail-wm1-f65.google.com with SMTP id a81so4893763wmf.5
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:07:09 -0700 (PDT)
+        id S2389111AbgDBTL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:11:56 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:39071 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389163AbgDBTL4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:11:56 -0400
+Received: by mail-pf1-f193.google.com with SMTP id k15so2209430pfh.6
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:11:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=1/tM/QWwWwAW8oTSHIjd9lVEMMjm04LSx3ao3PWzEEA=;
-        b=lK/x1nFdPg8zft+k30pfGC8o9mCqxkNztUe56eGK2iGv1j+NfPOQv6ZoGP5rHp5jdq
-         f0CnIoN26gbnl4g7rNguh1b5vTcdZv7U8SxH1BFssX30Ud0XpTf1Hx2Tmz8eQiEhtaJ1
-         3xtusXA+s3weOoY9VjBDRudxh68Z0GCc7zftHL9/gcTTM56+kzPviiq/rxZP/xCozvuZ
-         7FfkoyCei+SMZ4N8UZ7Nd0k5rwsrmCf8+N/OeE0Z2Vb+hEhcEPTx9JH/5OEvuQMegmtT
-         nB1KjNNYFn51j6m3H1UBxhQB7+Upwu5SjYWZKQpfg83L+7UmGgWQUabb6FD2fVb8+DBd
-         qfZg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=OsUyv0n+aFOOgHR3viRP0mmEGS8ng/lgXBO73177fUA=;
+        b=s38MIG7kZHDSvx8o/MMIkbo8Xtr6IQPW4MD0I79dYaZUvAAApYVVYISjC8my8zirPP
+         0c4MbHznxO84XU4a8xLD8Ae2LwxmMHBV4+yzVUKZ4nOmos4HEU9EsFGag67k+p+dK/q6
+         xn7B2bVed3rjTlQcipviwg3yTlktA2JOEk165zFn5xlgbJVnVj+0A8BqO4kMhdzPSWcj
+         kKVoAV9tY9PUdfb2xOptlAFOzpZ1nsUwXPUyanIx/iQzBghsoekAbyt8iGC/muRejdT+
+         Y6d7mr1oyxCHP7Ti1tY8kk9fh6DoEDWoL9S0YTAq7QV26n1KCFaXbuuvi7V+4jPguwzv
+         Hrig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=1/tM/QWwWwAW8oTSHIjd9lVEMMjm04LSx3ao3PWzEEA=;
-        b=P9NKehQbbwzFV6XlQlJ50oH9o6a9gnFAeGLCblUXJYBPt2Be73iPWL4Bvl1zBstiDn
-         Mse9HP7NTHQStOh3eoJTpTq68RDqwx6L9uWLW/BGNroEW4g0cO62eQKGmc6S2bDDpdWy
-         Yllr8RawOz5WtJwnTZTDcb8zfeNdVnWvsiatQ21L4UbGYZlI44f4ed656NcGZgS8Pc3O
-         mSwUPXOCWa9FC1tF7Ca4XkTMUzrYcIDlOTbo+4nneiCWmmERO6JyuL525jsLJQjGyNXk
-         Rr++lwU+/a4gxtXjCsWvosyGBTOniJkUN6poh4v9XCXFmj3AFLUoKRGYC2ixIGrMjxE2
-         vnBQ==
-X-Gm-Message-State: AGi0PubIGBmG9NJ3H8PhWupE7cxkzLeYFxfCw6lTrmnsVO2EFX2d2QKK
-        iej8CTDfBl3CBNkUlyispDg=
-X-Google-Smtp-Source: APiQypJ914Gt7UeiZANbmwrd/B3h72xEqyQb/Dx5X7pKPepWIzdxRWDfvYVH1Ryr4x3uGobAtn1wEg==
-X-Received: by 2002:a1c:9ecb:: with SMTP id h194mr5036112wme.49.1585854428347;
-        Thu, 02 Apr 2020 12:07:08 -0700 (PDT)
-Received: from localhost.localdomain.localdomain ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id 25sm3379433wmf.13.2020.04.02.12.07.06
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 Apr 2020 12:07:07 -0700 (PDT)
-From:   James Smart <jsmart2021@gmail.com>
-To:     linux-nvme@lists.infradead.org
-Cc:     James Smart <jsmart2021@gmail.com>, stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Keith Busch <kbusch@kernel.org>
-Subject: [REPOST][PATCH] nvme-fc: revert controller references on lldd module
-Date:   Thu,  2 Apr 2020 12:07:00 -0700
-Message-Id: <20200402190700.100198-1-jsmart2021@gmail.com>
-X-Mailer: git-send-email 2.16.4
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=OsUyv0n+aFOOgHR3viRP0mmEGS8ng/lgXBO73177fUA=;
+        b=VzlxF88yzb3+Ci75eouIJ1qZZgnarAUCZXH7GR4UamKQvvtNsbDygHNpCI8wRog5hX
+         BdrRqG5bC3ipU38+giDlomzL1WlhJBHEOeTirVOwFh7mlZnvTx5oHRFNlRdHnb6wQcs2
+         RklQqZzvSF0Wo41POBprcY46mZkAP/DUS3nDxuYEObxjXtDDYuRYYF7Zfu38S1ePi3Jn
+         mzfsdub90Ni7QYjOdkgWTKzU732j2SJy3F27L/NOpCsUo5MXlAC2ZL7EwnaqXrjX1ttf
+         rD8nJQAFKk9PO6ct3WafbPmz+yScdbsXQxVWrS/kRMjl+3GHG0Okokl5lyAtYg85ngjp
+         OAAw==
+X-Gm-Message-State: AGi0PuZQtHoIFQfS2Tsv5tqTqrNxb0vyUrJ8WuELdOawZW/uTgDM7RQu
+        XnvA0FXjVgW8ys06SIVCt0Bogb6epvg=
+X-Google-Smtp-Source: APiQypIrt/ka0hEA1iltKDqyonqjCOw+ARuVd0DvDhAfAXj0VqcdzM6NIn4O0Ji3Tr462RN3yIR8ug==
+X-Received: by 2002:a63:4f64:: with SMTP id p36mr4662753pgl.330.1585854713682;
+        Thu, 02 Apr 2020 12:11:53 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 184sm3916779pge.71.2020.04.02.12.11.52
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Apr 2020 12:11:53 -0700 (PDT)
+Message-ID: <5e8638f9.1c69fb81.20dcc.1237@mx.google.com>
+Date:   Thu, 02 Apr 2020 12:11:53 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.30
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable/linux-5.4.y boot: 105 boots: 1 failed,
+ 99 passed with 5 untried/unknown (v5.4.30)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch partially reverts the commit for
-  nvme_fc: add module to ops template to allow module references
+stable/linux-5.4.y boot: 105 boots: 1 failed, 99 passed with 5 untried/unkn=
+own (v5.4.30)
 
-The original patch:
-  Added an ops parameter of "module" to be set by the lldd, and the
-    lldds were updated to provide their value.
-  Used the parameter to take module references when a controller was
-    created or terminated.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+4.y/kernel/v5.4.30/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.4.y/ke=
+rnel/v5.4.30/
 
-The original patch was to resolve the lldd being able to be unloaded
-while being used to talk to the boot device of the system. However, the
-end result of the original patch is that any driver unload while a nvme
-controller is live via the lldd is now being prohibited. Given the module
-reference, the module teardown routine can't be called, thus there's no
-way, other than manual actions to terminate the controllers.
+Tree: stable
+Branch: linux-5.4.y
+Git Describe: v5.4.30
+Git Commit: ad13e142e024aa194016a32de8b9ba058fe9a6af
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 65 unique boards, 18 SoC families, 18 builds out of 200
 
-This patch reverts the portion of the patch that takes module references
-on controller creation. It leaves the module parameter so that it could
-be used in the future.
+Boot Failure Detected:
 
-As such, there will still remain the issue of detaching from the boot
-device, yet needing boot device access to load a new module to replace
-the lldd that was unloaded. A solution will be looked for later.
-
--- james
-
-Fixes: 863fbae929c7 ("nvme_fc: add module to ops template to allow module  references")
-Cc: <stable@vger.kernel.org> # v5.4+
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-CC: Christoph Hellwig <hch@lst.de>
-CC: Keith Busch <kbusch@kernel.org>
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
 ---
-fix typo in description "not"->"now"
----
- drivers/nvme/host/fc.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
-
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index a8bf2fb1287b..1419c8c41fd8 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -2016,7 +2016,6 @@ nvme_fc_ctrl_free(struct kref *ref)
- {
- 	struct nvme_fc_ctrl *ctrl =
- 		container_of(ref, struct nvme_fc_ctrl, ref);
--	struct nvme_fc_lport *lport = ctrl->lport;
- 	unsigned long flags;
- 
- 	if (ctrl->ctrl.tagset) {
-@@ -2043,7 +2042,6 @@ nvme_fc_ctrl_free(struct kref *ref)
- 	if (ctrl->ctrl.opts)
- 		nvmf_free_options(ctrl->ctrl.opts);
- 	kfree(ctrl);
--	module_put(lport->ops->module);
- }
- 
- static void
-@@ -3074,15 +3072,10 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
- 		goto out_fail;
- 	}
- 
--	if (!try_module_get(lport->ops->module)) {
--		ret = -EUNATCH;
--		goto out_free_ctrl;
--	}
--
- 	idx = ida_simple_get(&nvme_fc_ctrl_cnt, 0, 0, GFP_KERNEL);
- 	if (idx < 0) {
- 		ret = -ENOSPC;
--		goto out_mod_put;
-+		goto out_free_ctrl;
- 	}
- 
- 	ctrl->ctrl.opts = opts;
-@@ -3232,8 +3225,6 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
- out_free_ida:
- 	put_device(ctrl->dev);
- 	ida_simple_remove(&nvme_fc_ctrl_cnt, ctrl->cnum);
--out_mod_put:
--	module_put(lport->ops->module);
- out_free_ctrl:
- 	kfree(ctrl);
- out_fail:
--- 
-2.16.4
-
+For more info write to <info@kernelci.org>
