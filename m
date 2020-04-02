@@ -2,210 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE6619C9BA
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56C8B19C9B8
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388822AbgDBTRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:17:07 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:40076 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388761AbgDBTRH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:17:07 -0400
-Received: by mail-wr1-f65.google.com with SMTP id s8so3459840wrt.7
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:17:04 -0700 (PDT)
+        id S2388853AbgDBTRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:17:06 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:40269 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388621AbgDBTRG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:17:06 -0400
+Received: by mail-wm1-f67.google.com with SMTP id a81so4925494wmf.5
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:17:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=BeyLphkFLnP4CTEflF/utnlR8G5qa5q59+49c7r8kS0=;
-        b=H9rIX5St6Cpc0s13sla67hTjy0gu9/KMBi9l9yyxjUWgyVd+RkKIVUiQ6r6xdWTewq
-         AHGJ9M5wOC681pQIAiewupxW6poqX5IKF+o7LQUKondRb8PmlaWzexY5vPP1VYcLix8N
-         XsAXVOLxlD/4npfDf6ZiOLb8ds5m0DWuaGPg4HaPYZf+BTGijTGIM1OoOU/sK+K3xNTp
-         jyUu3Ey0nBlIuKgGWSdcmiWttD7OO9GBpFjuAkemJSVjnbDKAk0dqgFwRQvHN2Yki5DX
-         fwqRVsvPmV85lDHOIpBpPao0ZzTrkMmr5dZgVrqQNOv7yUu/4HWdVVIiebk93Nw3IZGs
-         EaiQ==
+        bh=TV3arK5WUb34bvJty3z/ZBkIfATI4h4LTn5/l2uId24=;
+        b=cx6kp2JT7RZH7M7jjfuVQmwfEjefw6ue5UWWPbe+DFqiBnsq9PpBA+SPt+mzCBsr31
+         NUZk/FTNklIwdcYrb0VWZaBJjmGf4tGZjr8mcRTVe2DVNyqKSFnPotMZ9SCR3jGVgM09
+         ulvWTN70gvAN24ZpvWXG8hO0Tiu9cALQKSNLYaYQYYKy7IVM5HC2H2lOfY60QEzyd2TL
+         EwQKSWl/Xm/y4nZG0TjmFsm/8LOdkJo3XOAbLxFfWqDCshXfpeFQYsUMKEtyOSnYnzo1
+         prUc88jiqDIQKiVFJq4ctgJNrW3D7QWTcZiE2zACmWKCjlyAIyAGBIfIOgp7HnR4rNHU
+         p/1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=BeyLphkFLnP4CTEflF/utnlR8G5qa5q59+49c7r8kS0=;
-        b=GJUDqXqmuH0JC5gVYq+BTK6zjcL//rk4outw5vwRu5SHQkRLMEZ7Jww/pQ0qnFOM8Z
-         D/h9nX8RJ5Nojtr0GsjzUiUC15WWQgYuRoxKfMGsK/KWWGVdiFpxFe2DD6Wm/CPQQdf9
-         HESg3G/GTWHIvdNrqQsZ5CTjUjlxTJPJiCysX0CJh+EIRzx4018PB7kAljuGof++4fL9
-         /pna/rVhYKTh+LNAowoXvn9pE/kyz/2MXyV9pLbBINTmKRa5GU74EUFb85cqdkvies/B
-         /QZkttD9l4GOCQsHeoSHTi9FNgxQSuVaWSKHUbmwqtkgdKWiiPOguIuf5x2c81cQw/BK
-         yQlA==
-X-Gm-Message-State: AGi0PuZsEHJYOAgnfAPCh09KJ1FCe+5Vx0muH38lufWrLlyOZPsQUjq3
-        t6SitcKyw4ikDFvVPCiFAoaytDAHAhb51Q==
-X-Google-Smtp-Source: APiQypIAyytBz78o0nSdrTAMzff/UMtf/Rwh17hChZaTZhUjbZj/2N28mduUI1BbqhNyOTEE1MZ3sQ==
-X-Received: by 2002:adf:ff81:: with SMTP id j1mr4880611wrr.171.1585855023297;
-        Thu, 02 Apr 2020 12:17:03 -0700 (PDT)
+        bh=TV3arK5WUb34bvJty3z/ZBkIfATI4h4LTn5/l2uId24=;
+        b=kV75ok5OSNhyS0/ShSKfzuRVx6kuCdv7wuDvqGXp6RuKpfYPvIA49cfLvz/yYxm4Tf
+         m774NRugNk6+Yc6ibzr2eC69984tkg5evHlZ3nkC9yAg0LEAssy7dyDxCRDtRUuQk+aV
+         KaVuMRB7hq4mprNYCyUazXy4//Dy6AQQOZhELmEZr/n7J8JVjdHuolPb8PRgkmgr8aYv
+         ++KjFd3Fw60eqGSlHLJOMpoVorpIe1WL93wGPzz4ClR1sDfc8Xq3pwW/A7GAZgO15qLI
+         vFP0aUTD5hFh5z2Di1k+Lnlw0pZrbkUOa2yTGeBPMfbLjKkwOIb79c2q7dWtc/cdPdgE
+         fsyw==
+X-Gm-Message-State: AGi0PuabyM9tXWP70V7SpUzTob0HRu+BcbdrIbVkgEDWQecNhXlNYKU4
+        PEMizhwFMkW6nBlI9tehiRNSqxF8AcjiDA==
+X-Google-Smtp-Source: APiQypI7d4d6XKzWPatZAO1guJcFAKGHrOHtFh/q8l+TRRUtYbfGte2otLFsa9szeSD9Ka9zOExuRw==
+X-Received: by 2002:a7b:c8cd:: with SMTP id f13mr4952969wml.181.1585855024068;
+        Thu, 02 Apr 2020 12:17:04 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y1sm879050wmd.14.2020.04.02.12.17.02
+        by smtp.gmail.com with ESMTPSA id y1sm879050wmd.14.2020.04.02.12.17.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:17:02 -0700 (PDT)
+        Thu, 02 Apr 2020 12:17:03 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.9 09/24] arm64: traps: Don't print stack or raw PC/LR values in backtraces
-Date:   Thu,  2 Apr 2020 20:17:32 +0100
-Message-Id: <20200402191747.789097-9-lee.jones@linaro.org>
+Subject: [PATCH 4.9 10/24] scsi: ufs: Fix error handing during hibern8 enter
+Date:   Thu,  2 Apr 2020 20:17:33 +0100
+Message-Id: <20200402191747.789097-10-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191747.789097-1-lee.jones@linaro.org>
 References: <20200402191747.789097-1-lee.jones@linaro.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Subhash Jadavani <subhashj@codeaurora.org>
 
-[ Upstream commit a25ffd3a6302a67814280274d8f1aa4ae2ea4b59 ]
+[ Upstream commit 6d303e4b19d694cdbebf76bcdb51ada664ee953d ]
 
-Printing raw pointer values in backtraces has potential security
-implications and are of questionable value anyway.
+During clock gating (ufshcd_gate_work()), we first put the link hibern8 by
+calling ufshcd_uic_hibern8_enter() and if ufshcd_uic_hibern8_enter()
+returns success (0) then we gate all the clocks.  Now let’s zoom in to what
+ufshcd_uic_hibern8_enter() does internally: It calls
+__ufshcd_uic_hibern8_enter() and if failure is encountered, link recovery
+shall put the link back to the highest HS gear and returns success (0) to
+ufshcd_uic_hibern8_enter() which is the issue as link is still in active
+state due to recovery!  Now ufshcd_uic_hibern8_enter() returns success to
+ufshcd_gate_work() and hence it goes ahead with gating the UFS clock while
+link is still in active state hence I believe controller would raise UIC
+error interrupts. But when we service the interrupt, clocks might have
+already been disabled!
 
-This patch follows x86's lead and removes the "Exception stack:" dump
-from kernel backtraces, as well as converting PC/LR values to symbols
-such as "sysrq_handle_crash+0x20/0x30".
+This change fixes for this by returning failure from
+__ufshcd_uic_hibern8_enter() if recovery succeeds as link is still not in
+hibern8, upon receiving the error ufshcd_hibern8_enter() would initiate
+retry to put the link state back into hibern8.
 
-Tested-by: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Link: https://lore.kernel.org/r/1573798172-20534-8-git-send-email-cang@codeaurora.org
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Subhash Jadavani <subhashj@codeaurora.org>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- arch/arm64/kernel/process.c |  8 ++--
- arch/arm64/kernel/traps.c   | 74 ++-----------------------------------
- 2 files changed, 6 insertions(+), 76 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index e917d119490ce..6b073a31eec1c 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -182,11 +182,9 @@ void __show_regs(struct pt_regs *regs)
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 394df57894e6b..0b268f0151c67 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -2804,15 +2804,24 @@ static int __ufshcd_uic_hibern8_enter(struct ufs_hba *hba)
+ 	ret = ufshcd_uic_pwr_ctrl(hba, &uic_cmd);
+ 
+ 	if (ret) {
++		int err;
++
+ 		dev_err(hba->dev, "%s: hibern8 enter failed. ret = %d\n",
+ 			__func__, ret);
+ 
+ 		/*
+-		 * If link recovery fails then return error so that caller
+-		 * don't retry the hibern8 enter again.
++		 * If link recovery fails then return error code returned from
++		 * ufshcd_link_recovery().
++		 * If link recovery succeeds then return -EAGAIN to attempt
++		 * hibern8 enter retry again.
+ 		 */
+-		if (ufshcd_link_recovery(hba))
+-			ret = -ENOLINK;
++		err = ufshcd_link_recovery(hba);
++		if (err) {
++			dev_err(hba->dev, "%s: link recovery failed", __func__);
++			ret = err;
++		} else {
++			ret = -EAGAIN;
++		}
  	}
  
- 	show_regs_print_info(KERN_DEFAULT);
--	print_symbol("PC is at %s\n", instruction_pointer(regs));
--	print_symbol("LR is at %s\n", lr);
--	printk("pc : [<%016llx>] lr : [<%016llx>] pstate: %08llx\n",
--	       regs->pc, lr, regs->pstate);
--	printk("sp : %016llx\n", sp);
-+	print_symbol("pc : %s\n", regs->pc);
-+	print_symbol("lr : %s\n", lr);
-+	printk("sp : %016llx pstate : %08llx\n", sp, regs->pstate);
+ 	return ret;
+@@ -2824,7 +2833,7 @@ static int ufshcd_uic_hibern8_enter(struct ufs_hba *hba)
  
- 	i = top_reg;
- 
-diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
-index 5962badb33462..ac73d8d8cd81d 100644
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -52,55 +52,9 @@ static const char *handler[]= {
- 
- int show_unhandled_signals = 0;
- 
--/*
-- * Dump out the contents of some kernel memory nicely...
-- */
--static void dump_mem(const char *lvl, const char *str, unsigned long bottom,
--		     unsigned long top)
--{
--	unsigned long first;
--	mm_segment_t fs;
--	int i;
--
--	/*
--	 * We need to switch to kernel mode so that we can use __get_user
--	 * to safely read from kernel space.
--	 */
--	fs = get_fs();
--	set_fs(KERNEL_DS);
--
--	printk("%s%s(0x%016lx to 0x%016lx)\n", lvl, str, bottom, top);
--
--	for (first = bottom & ~31; first < top; first += 32) {
--		unsigned long p;
--		char str[sizeof(" 12345678") * 8 + 1];
--
--		memset(str, ' ', sizeof(str));
--		str[sizeof(str) - 1] = '\0';
--
--		for (p = first, i = 0; i < (32 / 8)
--					&& p < top; i++, p += 8) {
--			if (p >= bottom && p < top) {
--				unsigned long val;
--
--				if (__get_user(val, (unsigned long *)p) == 0)
--					sprintf(str + i * 17, " %016lx", val);
--				else
--					sprintf(str + i * 17, " ????????????????");
--			}
--		}
--		printk("%s%04lx:%s\n", lvl, first & 0xffff, str);
--	}
--
--	set_fs(fs);
--}
--
- static void dump_backtrace_entry(unsigned long where)
- {
--	/*
--	 * Note that 'where' can have a physical address, but it's not handled.
--	 */
--	print_ip_sym(where);
-+	printk(" %pS\n", (void *)where);
- }
- 
- static void __dump_instr(const char *lvl, struct pt_regs *regs)
-@@ -174,10 +128,8 @@ static void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk)
- 
- 	skip = !!regs;
- 	printk("Call trace:\n");
--	while (1) {
-+	do {
- 		unsigned long where = frame.pc;
--		unsigned long stack;
--		int ret;
- 
- 		/* skip until specified stack frame */
- 		if (!skip) {
-@@ -193,25 +145,7 @@ static void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk)
- 			 */
- 			dump_backtrace_entry(regs->pc);
- 		}
--		ret = unwind_frame(tsk, &frame);
--		if (ret < 0)
--			break;
--		stack = frame.sp;
--		if (in_exception_text(where)) {
--			/*
--			 * If we switched to the irq_stack before calling this
--			 * exception handler, then the pt_regs will be on the
--			 * task stack. The easiest way to tell is if the large
--			 * pt_regs would overlap with the end of the irq_stack.
--			 */
--			if (stack < irq_stack_ptr &&
--			    (stack + sizeof(struct pt_regs)) > irq_stack_ptr)
--				stack = IRQ_STACK_TO_TASK_STACK(irq_stack_ptr);
--
--			dump_mem("", "Exception stack", stack,
--				 stack + sizeof(struct pt_regs));
--		}
--	}
-+	} while (!unwind_frame(tsk, &frame));
- }
- 
- void show_stack(struct task_struct *tsk, unsigned long *sp)
-@@ -248,8 +182,6 @@ static int __die(const char *str, int err, struct thread_info *thread,
- 		 TASK_COMM_LEN, tsk->comm, task_pid_nr(tsk), thread + 1);
- 
- 	if (!user_mode(regs)) {
--		dump_mem(KERN_EMERG, "Stack: ", regs->sp,
--			 THREAD_SIZE + (unsigned long)task_stack_page(tsk));
- 		dump_backtrace(regs, tsk);
- 		dump_instr(KERN_EMERG, regs);
+ 	for (retries = UIC_HIBERN8_ENTER_RETRIES; retries > 0; retries--) {
+ 		ret = __ufshcd_uic_hibern8_enter(hba);
+-		if (!ret || ret == -ENOLINK)
++		if (!ret)
+ 			goto out;
  	}
+ out:
 -- 
 2.25.1
 
