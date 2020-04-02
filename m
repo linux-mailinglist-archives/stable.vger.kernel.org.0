@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 082C819C9C5
+	by mail.lfdr.de (Postfix) with ESMTP id DDD6A19C9C7
 	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389053AbgDBTRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:17:19 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:53466 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389043AbgDBTRT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:17:19 -0400
-Received: by mail-wm1-f65.google.com with SMTP id d77so4649478wmd.3
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:17:18 -0700 (PDT)
+        id S2389069AbgDBTRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:17:23 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:38028 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388452AbgDBTRX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:17:23 -0400
+Received: by mail-wr1-f65.google.com with SMTP id c7so5587913wrx.5
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:17:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=fR75NvuHzXWg21/KSMcbyqxjqVfNasU7sbSgFf4Y3Rw=;
-        b=i8Eo3y72Nb6T5m6OYWCDeUX7UAUNXWsCTUjfBwCFGo3TtQ1VFt85OQ63fiZhQXZwxS
-         cqRi5V7cx699F5PSisCnQn6mYh7iwe+MgcZbA5vbEj/zaq2cNwsz0xDsICaloLRNwBxr
-         8txLbiWDUUJQEOkY2n6yEGuQ5gSuipDiPUg76Cr4V6jvzz39XdoERTr6pHhLFMaWD9fN
-         QqX2D9Cwuerv56wr+4LEYLLFTyB0mLI0OUJ+gTNkUVUs0a+IyJHx7NNqvI2i19D+AP0/
-         LZPUULJLH1nt280acs8xV+Rc/fK/hMeUkch/N/pKko/1PF4xwT/llg+P0qTbVmp+CIeJ
-         YyWg==
+        bh=tivNM/PEWJwAHGJj+MV6vEaMnomGFhEGX1VywED1rVs=;
+        b=UOdamzfSwkhpyTPC+9IvvOBkzPiVIpmr3X6LAJfJNCGon+oL2xCZur5kEsAiT64bTM
+         j7KMD+I9ATH2k+0/+v2zjnr+X3QzNnZdDsW7f73xkI2A2Ud1qlUvmebGPEor02+CVVnw
+         RCl+eauMiNL8RVZl7wPSql7C6HskUJ9aT3c4RqZNKLAKmNE/AK0rMNR9MmvCH/a/VRU2
+         TjuDOPfWq00hDGjvMM2PYFHqYAvHD1CnVhmFeHrlIdxIsNddAZPoqt/0CFxR6rBsNevZ
+         pf1vY9OJaDk9Al68GkXB5fNubhIXFSeUbRuluRw9NuInCIW7BNdsJAfrCLgwnbVpKngL
+         lP+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=fR75NvuHzXWg21/KSMcbyqxjqVfNasU7sbSgFf4Y3Rw=;
-        b=iw+fvZHw3A5hWMbEMhvtxG9Ls57ej8SAd+LOMJFYbg2WhSINcOqSZWFACGzvBkfW9m
-         S4dSse0mKqbi+C6kyMh6ZaXTmTkpNDGXCnPdaFBTgPvotIUUKZY6YM8lP9P9z3MtMizT
-         pcUgRGJomncMbBXJ2bQ00qgqP5F9D8wwudTR6Ym5pkCyEimUZ5fnTw2HhB36SHqtWHPt
-         Jc+z7jLLLSu52Wc8N2X3OE/6QOMWfhypqZLJ3FUDw98veyLScQ5GpvMqKJ6Gxa+YCEGA
-         em98Q8GjqJIO+CzkWLlQEKUctBTo01u3q25vOw93pB+aBChViUFFi+DXEcQRlH/l8MAd
-         kMng==
-X-Gm-Message-State: AGi0PubC7y1cNfsV8xQUjQbm1tQdWJ15OC4RnFgQ2Ve6xJvNv8vICdTJ
-        tzrOwHnVET6fhgG6uWoQ6OA2mcnbV5iVmw==
-X-Google-Smtp-Source: APiQypIv4P1IsrN+Gno7DmGmSxiWzkRMFrXkzpt9+zjHDGmlJ5/qJBpmN0BSBPv7NZzrc6iqE3XUdw==
-X-Received: by 2002:a7b:cb45:: with SMTP id v5mr4729003wmj.17.1585855037549;
-        Thu, 02 Apr 2020 12:17:17 -0700 (PDT)
+        bh=tivNM/PEWJwAHGJj+MV6vEaMnomGFhEGX1VywED1rVs=;
+        b=hsoywLJ1nWmPQm2x1YXUWiPOoV16Ft6V6AeCQ+bWbU0Sjry7jW972qDSiuwsob6Bv8
+         euIF8RTlqRUfl9ZrKwqvGvSorhytXB4CVb2PAIm/S3wGUioHaYZZYBjN7GAEusx+Koye
+         CiLmZrnGvEtUbBDsm6LgGrcMdVjxKfducANLz54c1voJiL8DZP22JOAvowtKxbZOC0iB
+         aL7ojY9v1leHxiebYESLu8mTPiQKj4VBAzvAyDOFyAlnNwwSyZf0GfrDj/P+SGYFg9a6
+         uo+Z6dY96bx0IPptWsFANgKpxgjBv8BgPLOCJ1aV8M9Hxl5mn45q8a+kj0IBBMeex7VX
+         m/gQ==
+X-Gm-Message-State: AGi0PuZoeWlDBRhuuykmWmCnI4Aq2TP8FP1eGdk5J8961HtmCsX+2dwZ
+        kKV4NjVUQXaNAGSpcKgkifv0vN/5wPLVtQ==
+X-Google-Smtp-Source: APiQypJoImhX0wrzHjvMxFAHCxbM4QN+eXeDREW0GvdLbTqIXepYpTqUZFrVDb9bXkZ2gv2WatDlNw==
+X-Received: by 2002:adf:e288:: with SMTP id v8mr3552652wri.141.1585855038813;
+        Thu, 02 Apr 2020 12:17:18 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y1sm879050wmd.14.2020.04.02.12.17.16
+        by smtp.gmail.com with ESMTPSA id y1sm879050wmd.14.2020.04.02.12.17.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:17:16 -0700 (PDT)
+        Thu, 02 Apr 2020 12:17:17 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.9 22/24] mm/vmalloc.c: move 'area->pages' after if statement
-Date:   Thu,  2 Apr 2020 20:17:45 +0100
-Message-Id: <20200402191747.789097-22-lee.jones@linaro.org>
+Subject: [PATCH 4.9 23/24] usb: dwc3: don't set gadget->is_otg flag
+Date:   Thu,  2 Apr 2020 20:17:46 +0100
+Message-Id: <20200402191747.789097-23-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191747.789097-1-lee.jones@linaro.org>
 References: <20200402191747.789097-1-lee.jones@linaro.org>
@@ -59,65 +59,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austindh.kim@gmail.com>
+From: Roger Quadros <rogerq@ti.com>
 
-[ Upstream commit 7ea362427c170061b8822dd41bafaa72b3bcb9ad ]
+[ Upstream commit c09b73cfac2a9317f1104169045c519c6021aa1d ]
 
-If !area->pages statement is true where memory allocation fails, area is
-freed.
+This reverts
+commit 6a4290cc28be1 ("usb: dwc3: gadget: set the OTG flag in dwc3 gadget driver.")
 
-In this case 'area->pages = pages' should not executed.  So move
-'area->pages = pages' after if statement.
+We don't yet support any of the OTG mechanisms (HNP/SRP/ADP)
+and are not setting gadget->otg_caps, so don't set gadget->is_otg
+flag.
 
-[akpm@linux-foundation.org: give area->pages the same treatment]
-Link: http://lkml.kernel.org/r/20190830035716.GA190684@LGEARND20B15
-Signed-off-by: Austin Kim <austindh.kim@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Roman Penyaev <rpenyaev@suse.de>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+If we do then we end up publishing a OTG1.0 descriptor in
+the gadget descriptor which causes device enumeration to fail
+if we are connected to a host with CONFIG_USB_OTG enabled.
+
+Host side log without this patch
+
+[   96.720453] usb 1-1: new high-speed USB device number 2 using xhci-hcd
+[   96.901391] usb 1-1: Dual-Role OTG device on non-HNP port
+[   96.907552] usb 1-1: set a_alt_hnp_support failed: -32
+[   97.060447] usb 1-1: new high-speed USB device number 3 using xhci-hcd
+[   97.241378] usb 1-1: Dual-Role OTG device on non-HNP port
+[   97.247536] usb 1-1: set a_alt_hnp_support failed: -32
+[   97.253606] usb usb1-port1: attempt power cycle
+[   97.960449] usb 1-1: new high-speed USB device number 4 using xhci-hcd
+[   98.141383] usb 1-1: Dual-Role OTG device on non-HNP port
+[   98.147540] usb 1-1: set a_alt_hnp_support failed: -32
+[   98.300453] usb 1-1: new high-speed USB device number 5 using xhci-hcd
+[   98.481391] usb 1-1: Dual-Role OTG device on non-HNP port
+[   98.487545] usb 1-1: set a_alt_hnp_support failed: -32
+[   98.493532] usb usb1-port1: unable to enumerate USB device
+
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- mm/vmalloc.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/gadget.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index dd66f1fb3fcf6..45e8d51d73233 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1624,7 +1624,6 @@ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
- 	nr_pages = get_vm_area_size(area) >> PAGE_SHIFT;
- 	array_size = (nr_pages * sizeof(struct page *));
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 712bd450f8573..bf36eda082d65 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2996,7 +2996,6 @@ int dwc3_gadget_init(struct dwc3 *dwc)
+ 	dwc->gadget.speed		= USB_SPEED_UNKNOWN;
+ 	dwc->gadget.sg_supported	= true;
+ 	dwc->gadget.name		= "dwc3-gadget";
+-	dwc->gadget.is_otg		= dwc->dr_mode == USB_DR_MODE_OTG;
  
--	area->nr_pages = nr_pages;
- 	/* Please note that the recursion is strictly bounded. */
- 	if (array_size > PAGE_SIZE) {
- 		pages = __vmalloc_node(array_size, 1, nested_gfp|__GFP_HIGHMEM,
-@@ -1632,13 +1631,16 @@ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
- 	} else {
- 		pages = kmalloc_node(array_size, nested_gfp, node);
- 	}
--	area->pages = pages;
--	if (!area->pages) {
-+
-+	if (!pages) {
- 		remove_vm_area(area->addr);
- 		kfree(area);
- 		return NULL;
- 	}
- 
-+	area->pages = pages;
-+	area->nr_pages = nr_pages;
-+
- 	for (i = 0; i < area->nr_pages; i++) {
- 		struct page *page;
- 
+ 	/*
+ 	 * FIXME We might be setting max_speed to <SUPER, however versions
 -- 
 2.25.1
 
