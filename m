@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C4B19C98C
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 124FB19C98D
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389167AbgDBTNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389176AbgDBTNH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 2 Apr 2020 15:13:07 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:43431 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389176AbgDBTNG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:06 -0400
-Received: by mail-wr1-f67.google.com with SMTP id 91so3642773wri.10
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:05 -0700 (PDT)
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:40596 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388499AbgDBTNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:07 -0400
+Received: by mail-wr1-f65.google.com with SMTP id s8so3446298wrt.7
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=fzL9s9Yiv7xXMi2iCxfhQznYtRkR2kzBx6Fly/MA7Nk=;
-        b=W6i6FMWYklp5dna6PgjNP4Ldc+beD8x37lhxTJcww+VbMojNiKWWken/+h9X0B23cV
-         p079tp3oiImPuk5rLvuM6d1AkUR1N+W3Bjpa3QeY/I2DhQHkDKr6MaYc2F238c3M0FB+
-         SCGkkQH8goFP/jqZh6UMNa1Wvsje7qdGS+vgd/hBO5vqkn7HiL0lFCsWmg1qYxTTPqdq
-         EwOPDMPhjXIvSxW6t7bZzyqcKkln4E+UFZDlLEsMF+hQ1m6cyBMW7v/4mLRhyAeba0dj
-         TbqVK0Yo1mBgtOqH1fSKolCrgZUgr6cJ664vr0VoY7tkNJm4V4vF3iFXzhirnuxh0zso
-         muIg==
+        bh=MfNuHxEjbU0bCTmDk+zE6vZTzkddZEYuAf50sMJGKgg=;
+        b=hcewtn1dA6E9+AD3SaVD4EmMKP2XBXb2KK5aJeDjGTOS6BpOd6hVdieWxUEXVLVc7r
+         /Xz6ib9tztwyKfUu23zPamFqA1GNNXiMDFxwFGVqqUY/pzsEI20qeRJkc00q+ZhlzkM8
+         hjlN5/jppNkM6DULq3ivFYQzNL6xvv/C7K9fMm4RUOfp+DMlxF8se1AmAoZwht3Q4ZBN
+         64uWuVIh8hUjdcWhoHLXy58iSfDV2xF277lYxGLBlPCpertuoYGjMmJWtWPua4IVE1u5
+         C2qutIF8malxX7KmyAZHCxLlkR+LZStQabUWsDnhQKJdSqTvKhkFTHsXWWc73nbOCh7S
+         4Ldg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=fzL9s9Yiv7xXMi2iCxfhQznYtRkR2kzBx6Fly/MA7Nk=;
-        b=RM/gLhgjor9CuolkC0vLOkeneY5mYy8nyHr40BtGGhMlo1DrBhm0H3C7dDbkZ087hc
-         Cd1IhfsyLeYfmTgriYONAvc4buPYik5nMmslVJi1tdIitzM5h9w6FNFNx/Td4sz+/a76
-         PRmBp8AzABCDwb3FyV+1mf4LkQKqJ7HApK8ulSeirw8txpkm93bhAozFeM2BL0b0//eg
-         Sp2Yub5y2TN2D0i0goqms5naypPanr359lkTUDh3pbP6wr7gBW7TchW+WxFyxVCc/51Y
-         JMHfbF7vrjwhYdvYFvSHtSDvNLhf/Z+FJiGviyoGxXnHdB8v1Mv7zHClZlDoGSnDt+oG
-         XgqA==
-X-Gm-Message-State: AGi0PuYTEF9UbXeASyX7ZXq2zYa69gg7QF+YjwKx9dvOZdl7WeIzReKt
-        U6791n/8eTKhm6tGb9Eblq2sMDfusr+gmg==
-X-Google-Smtp-Source: APiQypJqF4pLfCJtpbeu8Tebz7poTaW803MoMadKaFVD1pIBblcrnHD473kUad07QxPDqFAl6Qr+RA==
-X-Received: by 2002:adf:e942:: with SMTP id m2mr4872914wrn.364.1585854784331;
-        Thu, 02 Apr 2020 12:13:04 -0700 (PDT)
+        bh=MfNuHxEjbU0bCTmDk+zE6vZTzkddZEYuAf50sMJGKgg=;
+        b=pJTic1thcHf5rUufQkJmr8n7VWWpmVPprxbm4/cPgNBO1XKvUjHB89aW2KMggzvRhg
+         jnth4e4Epk5Yk0hYAMuKl72uHmt1986m/RG7xHK9jktMDpedY4xt+xmi0J0m6wCkSVaO
+         IBk7tzBNNvTHMUQGaTNSLpAm3vLVMv6HDzuRtW8FKm8EEQQqV+WnfQu3SyQFTgMSrlOo
+         XVp1yLBAS06mSZac5VQ6UNfIlrVweqVBbYkozWVIIEi+gCkywRGDFrx0kDK5NTu67j09
+         tNaA4t4kPZBH1Lrdi8lxTOoWEDhfVf/zy3gREkVW2rSjeIgjRU67U4oDS1+j2nrZ7Nqw
+         33CQ==
+X-Gm-Message-State: AGi0PubvNhxaNdGHDNt1IwyND7B1UOPNKngC4+K/EcEM2/s7deZFtImt
+        Sez9fE/XhO1z/bAuJFwEl3VptRqQ5EMKKQ==
+X-Google-Smtp-Source: APiQypJesy2YQ5crxKa+I7EbrsHQj29e1OpEU8kbHsYvhdqMS/l9jrQsUrDHCrgFTonnZYvLffgkSA==
+X-Received: by 2002:adf:dfce:: with SMTP id q14mr5182942wrn.326.1585854785272;
+        Thu, 02 Apr 2020 12:13:05 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.03
+        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:13:03 -0700 (PDT)
+        Thu, 02 Apr 2020 12:13:04 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 05/33] drm: NULL pointer dereference [null-pointer-deref] (CWE 476) problem
-Date:   Thu,  2 Apr 2020 20:13:25 +0100
-Message-Id: <20200402191353.787836-5-lee.jones@linaro.org>
+Subject: [PATCH 4.14 06/33] clk: Fix debugfs_create_*() usage
+Date:   Thu,  2 Apr 2020 20:13:26 +0100
+Message-Id: <20200402191353.787836-6-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191353.787836-1-lee.jones@linaro.org>
 References: <20200402191353.787836-1-lee.jones@linaro.org>
@@ -59,47 +59,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Moriarty <joe.moriarty@oracle.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 22a07038c0eaf4d1315a493ce66dcd255accba19 ]
+[ Upstream commit 4c8326d5ebb0de3191e98980c80ab644026728d0 ]
 
-The Parfait (version 2.1.0) static code analysis tool found the
-following NULL pointer derefernce problem.
+When exposing data access through debugfs, the correct
+debugfs_create_*() functions must be used, matching the data
+types.
 
-- drivers/gpu/drm/drm_dp_mst_topology.c
-The call to drm_dp_calculate_rad() in function drm_dp_port_setup_pdt()
-could result in a NULL pointer being returned to port->mstb due to a
-failure to allocate memory for port->mstb.
+Remove all casts from data pointers passed to debugfs_create_*()
+functions, as such casts prevent the compiler from flagging bugs.
 
-Signed-off-by: Joe Moriarty <joe.moriarty@oracle.com>
-Reviewed-by: Steven Sistare <steven.sistare@oracle.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20180212195144.98323-3-joe.moriarty@oracle.com
+clk_core.rate and .accuracy are "unsigned long", hence casting
+their addresses to "u32 *" exposed the wrong halves on big-endian
+64-bit systems. Fix this by using debugfs_create_ulong() instead.
+
+Octal permissions are preferred, as they are easier to read than
+symbolic permissions. Hence replace "S_IRUGO" by "0444"
+throughout.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+[sboyd@codeaurora.org: Squash the octal change in too]
+Signed-off-by: Stephen Boyd <sboyd@codeaurora.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/clk/clk.c | 32 +++++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index a4bf98e6af57d..9f67e1c8474bc 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -1054,10 +1054,12 @@ static bool drm_dp_port_setup_pdt(struct drm_dp_mst_port *port)
- 		lct = drm_dp_calculate_rad(port, rad);
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index 8341a128dab1d..44b6f23cc851d 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -2172,18 +2172,16 @@ static int clk_debug_create_one(struct clk_core *core, struct dentry *pdentry)
  
- 		port->mstb = drm_dp_add_mst_branch_device(lct, rad);
--		port->mstb->mgr = port->mgr;
--		port->mstb->port_parent = port;
-+		if (port->mstb) {
-+			port->mstb->mgr = port->mgr;
-+			port->mstb->port_parent = port;
+ 	core->dentry = d;
  
--		send_link = true;
-+			send_link = true;
-+		}
- 		break;
- 	}
- 	return send_link;
+-	d = debugfs_create_u32("clk_rate", S_IRUGO, core->dentry,
+-			(u32 *)&core->rate);
++	d = debugfs_create_ulong("clk_rate", 0444, core->dentry, &core->rate);
+ 	if (!d)
+ 		goto err_out;
+ 
+-	d = debugfs_create_u32("clk_accuracy", S_IRUGO, core->dentry,
+-			(u32 *)&core->accuracy);
++	d = debugfs_create_ulong("clk_accuracy", 0444, core->dentry,
++				 &core->accuracy);
+ 	if (!d)
+ 		goto err_out;
+ 
+-	d = debugfs_create_u32("clk_phase", S_IRUGO, core->dentry,
+-			(u32 *)&core->phase);
++	d = debugfs_create_u32("clk_phase", 0444, core->dentry, &core->phase);
+ 	if (!d)
+ 		goto err_out;
+ 
+@@ -2192,23 +2190,23 @@ static int clk_debug_create_one(struct clk_core *core, struct dentry *pdentry)
+ 	if (!d)
+ 		goto err_out;
+ 
+-	d = debugfs_create_u32("clk_prepare_count", S_IRUGO, core->dentry,
+-			(u32 *)&core->prepare_count);
++	d = debugfs_create_u32("clk_prepare_count", 0444, core->dentry,
++			       &core->prepare_count);
+ 	if (!d)
+ 		goto err_out;
+ 
+-	d = debugfs_create_u32("clk_enable_count", S_IRUGO, core->dentry,
+-			(u32 *)&core->enable_count);
++	d = debugfs_create_u32("clk_enable_count", 0444, core->dentry,
++			       &core->enable_count);
+ 	if (!d)
+ 		goto err_out;
+ 
+-	d = debugfs_create_u32("clk_notifier_count", S_IRUGO, core->dentry,
+-			(u32 *)&core->notifier_count);
++	d = debugfs_create_u32("clk_notifier_count", 0444, core->dentry,
++			       &core->notifier_count);
+ 	if (!d)
+ 		goto err_out;
+ 
+ 	if (core->num_parents > 1) {
+-		d = debugfs_create_file("clk_possible_parents", S_IRUGO,
++		d = debugfs_create_file("clk_possible_parents", 0444,
+ 				core->dentry, core, &possible_parents_fops);
+ 		if (!d)
+ 			goto err_out;
+@@ -2304,22 +2302,22 @@ static int __init clk_debug_init(void)
+ 	if (!rootdir)
+ 		return -ENOMEM;
+ 
+-	d = debugfs_create_file("clk_summary", S_IRUGO, rootdir, &all_lists,
++	d = debugfs_create_file("clk_summary", 0444, rootdir, &all_lists,
+ 				&clk_summary_fops);
+ 	if (!d)
+ 		return -ENOMEM;
+ 
+-	d = debugfs_create_file("clk_dump", S_IRUGO, rootdir, &all_lists,
++	d = debugfs_create_file("clk_dump", 0444, rootdir, &all_lists,
+ 				&clk_dump_fops);
+ 	if (!d)
+ 		return -ENOMEM;
+ 
+-	d = debugfs_create_file("clk_orphan_summary", S_IRUGO, rootdir,
++	d = debugfs_create_file("clk_orphan_summary", 0444, rootdir,
+ 				&orphan_list, &clk_summary_fops);
+ 	if (!d)
+ 		return -ENOMEM;
+ 
+-	d = debugfs_create_file("clk_orphan_dump", S_IRUGO, rootdir,
++	d = debugfs_create_file("clk_orphan_dump", 0444, rootdir,
+ 				&orphan_list, &clk_dump_fops);
+ 	if (!d)
+ 		return -ENOMEM;
 -- 
 2.25.1
 
