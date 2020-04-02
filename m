@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD6A19C9C7
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C2F19C9C8
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389069AbgDBTRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:17:23 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:38028 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388452AbgDBTRX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:17:23 -0400
-Received: by mail-wr1-f65.google.com with SMTP id c7so5587913wrx.5
+        id S2388452AbgDBTRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:17:24 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:51535 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389016AbgDBTRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:17:24 -0400
+Received: by mail-wm1-f66.google.com with SMTP id z7so4622935wmk.1
         for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:17:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=tivNM/PEWJwAHGJj+MV6vEaMnomGFhEGX1VywED1rVs=;
-        b=UOdamzfSwkhpyTPC+9IvvOBkzPiVIpmr3X6LAJfJNCGon+oL2xCZur5kEsAiT64bTM
-         j7KMD+I9ATH2k+0/+v2zjnr+X3QzNnZdDsW7f73xkI2A2Ud1qlUvmebGPEor02+CVVnw
-         RCl+eauMiNL8RVZl7wPSql7C6HskUJ9aT3c4RqZNKLAKmNE/AK0rMNR9MmvCH/a/VRU2
-         TjuDOPfWq00hDGjvMM2PYFHqYAvHD1CnVhmFeHrlIdxIsNddAZPoqt/0CFxR6rBsNevZ
-         pf1vY9OJaDk9Al68GkXB5fNubhIXFSeUbRuluRw9NuInCIW7BNdsJAfrCLgwnbVpKngL
-         lP+Q==
+        bh=gQFHcPxXPE+YXp+wudnJI7drI9XdjlXprzkGVzfaSeA=;
+        b=gfZO47sM9+78JRD5nHJpd8Pbfn9kW/vaozu9Jd3jfxkxzPHgJsiPsBaRmeKmnxGL8l
+         KPJOH2AIa0CRsiLI56Y8EUq6DWadIFK9t+nvQlv5xJ/Dd7awW4KxX5CfMlhs4kO/Vz+j
+         KuIxpwp0qYfYC15vkSE3Evwd9gC5hevkyStznwMJpt8OBIv1hYaFnKR/4Awnlcea26Wp
+         /oNvan81ZOarAVwjvePyPiJgin22uhnWT23cqoSbVj5c+5+bD6SeU/XZ/Aicg4Dy2U8q
+         vOkXEj5Hle3zAaHLmp/cD93AeyWcj0dMU8woZDBA5YYBe3oLfdg28fTb7FXh+JjGkGtu
+         IvBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=tivNM/PEWJwAHGJj+MV6vEaMnomGFhEGX1VywED1rVs=;
-        b=hsoywLJ1nWmPQm2x1YXUWiPOoV16Ft6V6AeCQ+bWbU0Sjry7jW972qDSiuwsob6Bv8
-         euIF8RTlqRUfl9ZrKwqvGvSorhytXB4CVb2PAIm/S3wGUioHaYZZYBjN7GAEusx+Koye
-         CiLmZrnGvEtUbBDsm6LgGrcMdVjxKfducANLz54c1voJiL8DZP22JOAvowtKxbZOC0iB
-         aL7ojY9v1leHxiebYESLu8mTPiQKj4VBAzvAyDOFyAlnNwwSyZf0GfrDj/P+SGYFg9a6
-         uo+Z6dY96bx0IPptWsFANgKpxgjBv8BgPLOCJ1aV8M9Hxl5mn45q8a+kj0IBBMeex7VX
-         m/gQ==
-X-Gm-Message-State: AGi0PuZoeWlDBRhuuykmWmCnI4Aq2TP8FP1eGdk5J8961HtmCsX+2dwZ
-        kKV4NjVUQXaNAGSpcKgkifv0vN/5wPLVtQ==
-X-Google-Smtp-Source: APiQypJoImhX0wrzHjvMxFAHCxbM4QN+eXeDREW0GvdLbTqIXepYpTqUZFrVDb9bXkZ2gv2WatDlNw==
-X-Received: by 2002:adf:e288:: with SMTP id v8mr3552652wri.141.1585855038813;
-        Thu, 02 Apr 2020 12:17:18 -0700 (PDT)
+        bh=gQFHcPxXPE+YXp+wudnJI7drI9XdjlXprzkGVzfaSeA=;
+        b=XTUZdjHLiw+HhrMSf6/A033ZR7Pjk+8MoQ8I5+X/GInXqDF0BmCsgAQXCpwfAi3HYO
+         wgP89frkJ6Pb+j5VlsgyE7/Qz1K25IbqdWf3GhV2Ll6Sz6bFkO37CDVxU5fXesVixbnw
+         5VFR+nh0dMdNGFlaUw0IdWxv8UZclnTXjI8X84hKSvg9jEWj+DS8aJ92cp001yMlioXw
+         zt6Gl1F6Xe9mEsDYTGAN7lrCSq/6fU8s6IRklW0rIDmlUjfP3nM77AXtJzYp+m5a7nv0
+         2UdS4T+Xe/50+rPV8KGQwRpkryWjn57BWfVtrI69WJegfgHTMD0gJE6ntpmGHmsN/pGx
+         ji9A==
+X-Gm-Message-State: AGi0PuaMC9EX6to5MyI3Gtj/LHrjoPoO3Qu7Wqi2kcFMQRR/STIIUuS3
+        +8lko/aRIijw4OW/TOCGYDkOHmPAWB+ZhA==
+X-Google-Smtp-Source: APiQypLO8hXqFb/kvfJdsRKH0IAimFtYF6bd0tyoQMYUklb9TDhnQpEEVqgzuzxqY5frD8+tThWPBA==
+X-Received: by 2002:a1c:4c1a:: with SMTP id z26mr4760703wmf.94.1585855039806;
+        Thu, 02 Apr 2020 12:17:19 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y1sm879050wmd.14.2020.04.02.12.17.17
+        by smtp.gmail.com with ESMTPSA id y1sm879050wmd.14.2020.04.02.12.17.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:17:17 -0700 (PDT)
+        Thu, 02 Apr 2020 12:17:19 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.9 23/24] usb: dwc3: don't set gadget->is_otg flag
-Date:   Thu,  2 Apr 2020 20:17:46 +0100
-Message-Id: <20200402191747.789097-23-lee.jones@linaro.org>
+Subject: [PATCH 4.9 24/24] lib/list_sort: simplify and remove MAX_LIST_LENGTH_BITS
+Date:   Thu,  2 Apr 2020 20:17:47 +0100
+Message-Id: <20200402191747.789097-24-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191747.789097-1-lee.jones@linaro.org>
 References: <20200402191747.789097-1-lee.jones@linaro.org>
@@ -59,57 +59,302 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: George Spelvin <lkml@sdf.org>
 
-[ Upstream commit c09b73cfac2a9317f1104169045c519c6021aa1d ]
+[ Upstream commit 043b3f7b6388fca6be86ca82979f66c5723a0d10 ]
 
-This reverts
-commit 6a4290cc28be1 ("usb: dwc3: gadget: set the OTG flag in dwc3 gadget driver.")
+Rather than a fixed-size array of pending sorted runs, use the ->prev
+links to keep track of things.  This reduces stack usage, eliminates
+some ugly overflow handling, and reduces the code size.
 
-We don't yet support any of the OTG mechanisms (HNP/SRP/ADP)
-and are not setting gadget->otg_caps, so don't set gadget->is_otg
-flag.
+Also:
+* merge() no longer needs to handle NULL inputs, so simplify.
+* The same applies to merge_and_restore_back_links(), which is renamed
+  to the less ponderous merge_final().  (It's a static helper function,
+  so we don't need a super-descriptive name; comments will do.)
+* Document the actual return value requirements on the (*cmp)()
+  function; some callers are already using this feature.
 
-If we do then we end up publishing a OTG1.0 descriptor in
-the gadget descriptor which causes device enumeration to fail
-if we are connected to a host with CONFIG_USB_OTG enabled.
+x86-64 code size 1086 -> 739 bytes (-347)
 
-Host side log without this patch
+(Yes, I see checkpatch complaining about no space after comma in
+"__attribute__((nonnull(2,3,4,5)))".  Checkpatch is wrong.)
 
-[   96.720453] usb 1-1: new high-speed USB device number 2 using xhci-hcd
-[   96.901391] usb 1-1: Dual-Role OTG device on non-HNP port
-[   96.907552] usb 1-1: set a_alt_hnp_support failed: -32
-[   97.060447] usb 1-1: new high-speed USB device number 3 using xhci-hcd
-[   97.241378] usb 1-1: Dual-Role OTG device on non-HNP port
-[   97.247536] usb 1-1: set a_alt_hnp_support failed: -32
-[   97.253606] usb usb1-port1: attempt power cycle
-[   97.960449] usb 1-1: new high-speed USB device number 4 using xhci-hcd
-[   98.141383] usb 1-1: Dual-Role OTG device on non-HNP port
-[   98.147540] usb 1-1: set a_alt_hnp_support failed: -32
-[   98.300453] usb 1-1: new high-speed USB device number 5 using xhci-hcd
-[   98.481391] usb 1-1: Dual-Role OTG device on non-HNP port
-[   98.487545] usb 1-1: set a_alt_hnp_support failed: -32
-[   98.493532] usb usb1-port1: unable to enumerate USB device
+Feedback from Rasmus Villemoes, Andy Shevchenko and Geert Uytterhoeven.
 
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+[akpm@linux-foundation.org: remove __pure usage due to mysterious warning]
+Link: http://lkml.kernel.org/r/f63c410e0ff76009c9b58e01027e751ff7fdb749.1552704200.git.lkml@sdf.org
+Signed-off-by: George Spelvin <lkml@sdf.org>
+Acked-by: Andrey Abramov <st5pub@yandex.ru>
+Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Daniel Wagner <daniel.wagner@siemens.com>
+Cc: Dave Chinner <dchinner@redhat.com>
+Cc: Don Mullis <don.mullis@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/usb/dwc3/gadget.c | 1 -
- 1 file changed, 1 deletion(-)
+ include/linux/list_sort.h |   1 +
+ lib/list_sort.c           | 165 ++++++++++++++++++++++++--------------
+ 2 files changed, 104 insertions(+), 62 deletions(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 712bd450f8573..bf36eda082d65 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2996,7 +2996,6 @@ int dwc3_gadget_init(struct dwc3 *dwc)
- 	dwc->gadget.speed		= USB_SPEED_UNKNOWN;
- 	dwc->gadget.sg_supported	= true;
- 	dwc->gadget.name		= "dwc3-gadget";
--	dwc->gadget.is_otg		= dwc->dr_mode == USB_DR_MODE_OTG;
+diff --git a/include/linux/list_sort.h b/include/linux/list_sort.h
+index 1a2df2efb7716..8a03fd8c7ec36 100644
+--- a/include/linux/list_sort.h
++++ b/include/linux/list_sort.h
+@@ -5,6 +5,7 @@
  
- 	/*
- 	 * FIXME We might be setting max_speed to <SUPER, however versions
+ struct list_head;
+ 
++__attribute__((nonnull(2,3)))
+ void list_sort(void *priv, struct list_head *head,
+ 	       int (*cmp)(void *priv, struct list_head *a,
+ 			  struct list_head *b));
+diff --git a/lib/list_sort.c b/lib/list_sort.c
+index 3fe401067e20b..b4b130a9d536f 100644
+--- a/lib/list_sort.c
++++ b/lib/list_sort.c
+@@ -9,33 +9,41 @@
+ #include <linux/list_sort.h>
+ #include <linux/list.h>
+ 
+-#define MAX_LIST_LENGTH_BITS 20
++typedef int __attribute__((nonnull(2,3))) (*cmp_func)(void *,
++		struct list_head const *, struct list_head const *);
+ 
+ /*
+  * Returns a list organized in an intermediate format suited
+  * to chaining of merge() calls: null-terminated, no reserved or
+  * sentinel head node, "prev" links not maintained.
+  */
+-static struct list_head *merge(void *priv,
+-				int (*cmp)(void *priv, struct list_head *a,
+-					struct list_head *b),
++__attribute__((nonnull(2,3,4)))
++static struct list_head *merge(void *priv, cmp_func cmp,
+ 				struct list_head *a, struct list_head *b)
+ {
+-	struct list_head head, *tail = &head;
++	struct list_head *head, **tail = &head;
+ 
+-	while (a && b) {
++	for (;;) {
+ 		/* if equal, take 'a' -- important for sort stability */
+-		if ((*cmp)(priv, a, b) <= 0) {
+-			tail->next = a;
++		if (cmp(priv, a, b) <= 0) {
++			*tail = a;
++			tail = &a->next;
+ 			a = a->next;
++			if (!a) {
++				*tail = b;
++				break;
++			}
+ 		} else {
+-			tail->next = b;
++			*tail = b;
++			tail = &b->next;
+ 			b = b->next;
++			if (!b) {
++				*tail = a;
++				break;
++			}
+ 		}
+-		tail = tail->next;
+ 	}
+-	tail->next = a?:b;
+-	return head.next;
++	return head;
+ }
+ 
+ /*
+@@ -45,44 +53,52 @@ static struct list_head *merge(void *priv,
+  * prev-link restoration pass, or maintaining the prev links
+  * throughout.
+  */
+-static void merge_and_restore_back_links(void *priv,
+-				int (*cmp)(void *priv, struct list_head *a,
+-					struct list_head *b),
+-				struct list_head *head,
+-				struct list_head *a, struct list_head *b)
++__attribute__((nonnull(2,3,4,5)))
++static void merge_final(void *priv, cmp_func cmp, struct list_head *head,
++			struct list_head *a, struct list_head *b)
+ {
+ 	struct list_head *tail = head;
+ 	u8 count = 0;
+ 
+-	while (a && b) {
++	for (;;) {
+ 		/* if equal, take 'a' -- important for sort stability */
+-		if ((*cmp)(priv, a, b) <= 0) {
++		if (cmp(priv, a, b) <= 0) {
+ 			tail->next = a;
+ 			a->prev = tail;
++			tail = a;
+ 			a = a->next;
++			if (!a)
++				break;
+ 		} else {
+ 			tail->next = b;
+ 			b->prev = tail;
++			tail = b;
+ 			b = b->next;
++			if (!b) {
++				b = a;
++				break;
++			}
+ 		}
+-		tail = tail->next;
+ 	}
+-	tail->next = a ? : b;
+ 
++	/* Finish linking remainder of list b on to tail */
++	tail->next = b;
+ 	do {
+ 		/*
+-		 * In worst cases this loop may run many iterations.
++		 * If the merge is highly unbalanced (e.g. the input is
++		 * already sorted), this loop may run many iterations.
+ 		 * Continue callbacks to the client even though no
+ 		 * element comparison is needed, so the client's cmp()
+ 		 * routine can invoke cond_resched() periodically.
+ 		 */
+-		if (unlikely(!(++count)))
+-			(*cmp)(priv, tail->next, tail->next);
+-
+-		tail->next->prev = tail;
+-		tail = tail->next;
+-	} while (tail->next);
+-
++		if (unlikely(!++count))
++			cmp(priv, b, b);
++		b->prev = tail;
++		tail = b;
++		b = b->next;
++	} while (b);
++
++	/* And the final links to make a circular doubly-linked list */
+ 	tail->next = head;
+ 	head->prev = tail;
+ }
+@@ -93,56 +109,81 @@ static void merge_and_restore_back_links(void *priv,
+  * @head: the list to sort
+  * @cmp: the elements comparison function
+  *
+- * This function implements "merge sort", which has O(nlog(n))
+- * complexity.
++ * This function implements a bottom-up merge sort, which has O(nlog(n))
++ * complexity.  We use depth-first order to take advantage of cacheing.
++ * (E.g. when we get to the fourth element, we immediately merge the
++ * first two 2-element lists.)
++ *
++ * The comparison funtion @cmp must return > 0 if @a should sort after
++ * @b ("@a > @b" if you want an ascending sort), and <= 0 if @a should
++ * sort before @b *or* their original order should be preserved.  It is
++ * always called with the element that came first in the input in @a,
++ * and list_sort is a stable sort, so it is not necessary to distinguish
++ * the @a < @b and @a == @b cases.
++ *
++ * This is compatible with two styles of @cmp function:
++ * - The traditional style which returns <0 / =0 / >0, or
++ * - Returning a boolean 0/1.
++ * The latter offers a chance to save a few cycles in the comparison
++ * (which is used by e.g. plug_ctx_cmp() in block/blk-mq.c).
+  *
+- * The comparison function @cmp must return a negative value if @a
+- * should sort before @b, and a positive value if @a should sort after
+- * @b. If @a and @b are equivalent, and their original relative
+- * ordering is to be preserved, @cmp must return 0.
++ * A good way to write a multi-word comparison is
++ *	if (a->high != b->high)
++ *		return a->high > b->high;
++ *	if (a->middle != b->middle)
++ *		return a->middle > b->middle;
++ *	return a->low > b->low;
+  */
++__attribute__((nonnull(2,3)))
+ void list_sort(void *priv, struct list_head *head,
+ 		int (*cmp)(void *priv, struct list_head *a,
+ 			struct list_head *b))
+ {
+-	struct list_head *part[MAX_LIST_LENGTH_BITS+1]; /* sorted partial lists
+-						-- last slot is a sentinel */
+-	int lev;  /* index into part[] */
+-	int max_lev = 0;
+-	struct list_head *list;
++	struct list_head *list = head->next, *pending = NULL;
++	size_t count = 0;	/* Count of pending */
+ 
+-	if (list_empty(head))
++	if (list == head->prev)	/* Zero or one elements */
+ 		return;
+ 
+-	memset(part, 0, sizeof(part));
+-
++	/* Convert to a null-terminated singly-linked list. */
+ 	head->prev->next = NULL;
+-	list = head->next;
+ 
+-	while (list) {
++	/*
++	 * Data structure invariants:
++	 * - All lists are singly linked and null-terminated; prev
++	 *   pointers are not maintained.
++	 * - pending is a prev-linked "list of lists" of sorted
++	 *   sublists awaiting further merging.
++	 * - Each of the sorted sublists is power-of-two in size,
++	 *   corresponding to bits set in "count".
++	 * - Sublists are sorted by size and age, smallest & newest at front.
++	 */
++	do {
++		size_t bits;
+ 		struct list_head *cur = list;
++
++		/* Extract the head of "list" as a single-element list "cur" */
+ 		list = list->next;
+ 		cur->next = NULL;
+ 
+-		for (lev = 0; part[lev]; lev++) {
+-			cur = merge(priv, cmp, part[lev], cur);
+-			part[lev] = NULL;
+-		}
+-		if (lev > max_lev) {
+-			if (unlikely(lev >= ARRAY_SIZE(part)-1)) {
+-				printk_once(KERN_DEBUG "list too long for efficiency\n");
+-				lev--;
+-			}
+-			max_lev = lev;
++		/* Do merges corresponding to set lsbits in count */
++		for (bits = count; bits & 1; bits >>= 1) {
++			cur = merge(priv, (cmp_func)cmp, pending, cur);
++			pending = pending->prev;  /* Untouched by merge() */
+ 		}
+-		part[lev] = cur;
+-	}
+-
+-	for (lev = 0; lev < max_lev; lev++)
+-		if (part[lev])
+-			list = merge(priv, cmp, part[lev], list);
++		/* And place the result at the head of "pending" */
++		cur->prev = pending;
++		pending = cur;
++		count++;
++	} while (list->next);
+ 
+-	merge_and_restore_back_links(priv, cmp, head, part[max_lev], list);
++	/* Now merge together last element with all pending lists */
++	while (pending->prev) {
++		list = merge(priv, (cmp_func)cmp, pending, list);
++		pending = pending->prev;
++	}
++	/* The final merge, rebuilding prev links */
++	merge_final(priv, (cmp_func)cmp, head, pending, list);
+ }
+ EXPORT_SYMBOL(list_sort);
+ 
 -- 
 2.25.1
 
