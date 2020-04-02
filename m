@@ -2,1036 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7522A19CB2F
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 22:26:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7242919CB31
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 22:27:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389511AbgDBU0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 16:26:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38976 "EHLO mail.kernel.org"
+        id S2389471AbgDBU1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 16:27:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389471AbgDBU0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Apr 2020 16:26:39 -0400
+        id S1730837AbgDBU1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Apr 2020 16:27:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1C8D206E9;
-        Thu,  2 Apr 2020 20:26:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97B6720678;
+        Thu,  2 Apr 2020 20:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585859197;
-        bh=8UQrBqcoQxHak1sfTFKi54DCqUaBBC6H5YmMdo6ItKo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iF6h8LBK/Wg8r5Q/sFQZVoTveMCcsLVJd9lU/DiAJq+3ISX6lsgBiZ31WUSypMNTL
-         lqqTKbwkpDjkMBIxjVj77sy7iY3dX6gOTZowbKoR1OcpsPM8XpmRKAuEjnHzou3p6e
-         ypXE5cYvxz1dLoDCe+RnjhB4MQqxhFpEaA8j3IIA=
-Date:   Thu, 2 Apr 2020 22:26:33 +0200
+        s=default; t=1585859225;
+        bh=HuoW3d574iGL9TdWdqoUQUnzCPiRFcj2SCtfb5X8U6k=;
+        h=Date:From:To:Cc:Subject:From;
+        b=B7Rq16qtKvS3KWEml00jBomCUTlvkJx9uDFZk+oTTPVszGYa9D5oUFytvCGTPmh0S
+         A/R7JNkzF9lYLpXJNWKw81Nn/BCLhku7Atsrayka3fQhAxUqBQmZra6zPU98aSlC4v
+         AKQ9Qlyq81X0Aj8Qz8tAZ2LXq/ISi8zoDxvF9D2o=
+Date:   Thu, 2 Apr 2020 22:27:01 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 5.4.30
-Message-ID: <20200402202633.GB3259625@kroah.com>
-References: <20200402202626.GA3259625@kroah.com>
+Subject: Linux 5.5.15
+Message-ID: <20200402202701.GA3259729@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
 Content-Disposition: inline
-In-Reply-To: <20200402202626.GA3259625@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 8cb72071a842..e1f41756f475 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 4
--SUBLEVEL = 29
-+SUBLEVEL = 30
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-index b75af21069f9..4c3f606e5b8d 100644
---- a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-+++ b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-@@ -112,6 +112,7 @@
- &sdhci {
- 	#address-cells = <1>;
- 	#size-cells = <0>;
-+	pinctrl-names = "default";
- 	pinctrl-0 = <&emmc_gpio34 &gpclk2_gpio43>;
- 	bus-width = <4>;
- 	mmc-pwrseq = <&wifi_pwrseq>;
-diff --git a/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
-index 881cea0b61ba..31fa37d2fe47 100644
---- a/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi
-@@ -107,14 +107,14 @@
- 		regulators {
- 			vdd_arm: buck1 {
- 				regulator-name = "vdd_arm";
--				regulator-min-microvolt = <730000>;
-+				regulator-min-microvolt = <925000>;
- 				regulator-max-microvolt = <1380000>;
- 				regulator-always-on;
- 			};
- 
- 			vdd_soc: buck2 {
- 				regulator-name = "vdd_soc";
--				regulator-min-microvolt = <730000>;
-+				regulator-min-microvolt = <1150000>;
- 				regulator-max-microvolt = <1380000>;
- 				regulator-always-on;
- 			};
-diff --git a/arch/arm/boot/dts/omap3-n900.dts b/arch/arm/boot/dts/omap3-n900.dts
-index 63659880eeb3..7f2ddb78da5f 100644
---- a/arch/arm/boot/dts/omap3-n900.dts
-+++ b/arch/arm/boot/dts/omap3-n900.dts
-@@ -849,34 +849,46 @@
- 		compatible = "ti,omap2-onenand";
- 		reg = <0 0 0x20000>;	/* CS0, offset 0, IO size 128K */
- 
-+		/*
-+		 * These timings are based on CONFIG_OMAP_GPMC_DEBUG=y reported
-+		 * bootloader set values when booted with v5.1
-+		 * (OneNAND Manufacturer: Samsung):
-+		 *
-+		 *   cs0 GPMC_CS_CONFIG1: 0xfb001202
-+		 *   cs0 GPMC_CS_CONFIG2: 0x00111100
-+		 *   cs0 GPMC_CS_CONFIG3: 0x00020200
-+		 *   cs0 GPMC_CS_CONFIG4: 0x11001102
-+		 *   cs0 GPMC_CS_CONFIG5: 0x03101616
-+		 *   cs0 GPMC_CS_CONFIG6: 0x90060000
-+		 */
- 		gpmc,sync-read;
- 		gpmc,sync-write;
- 		gpmc,burst-length = <16>;
- 		gpmc,burst-read;
- 		gpmc,burst-wrap;
- 		gpmc,burst-write;
--		gpmc,device-width = <2>; /* GPMC_DEVWIDTH_16BIT */
--		gpmc,mux-add-data = <2>; /* GPMC_MUX_AD */
-+		gpmc,device-width = <2>;
-+		gpmc,mux-add-data = <2>;
- 		gpmc,cs-on-ns = <0>;
--		gpmc,cs-rd-off-ns = <87>;
--		gpmc,cs-wr-off-ns = <87>;
-+		gpmc,cs-rd-off-ns = <102>;
-+		gpmc,cs-wr-off-ns = <102>;
- 		gpmc,adv-on-ns = <0>;
--		gpmc,adv-rd-off-ns = <10>;
--		gpmc,adv-wr-off-ns = <10>;
--		gpmc,oe-on-ns = <15>;
--		gpmc,oe-off-ns = <87>;
-+		gpmc,adv-rd-off-ns = <12>;
-+		gpmc,adv-wr-off-ns = <12>;
-+		gpmc,oe-on-ns = <12>;
-+		gpmc,oe-off-ns = <102>;
- 		gpmc,we-on-ns = <0>;
--		gpmc,we-off-ns = <87>;
--		gpmc,rd-cycle-ns = <112>;
--		gpmc,wr-cycle-ns = <112>;
--		gpmc,access-ns = <81>;
--		gpmc,page-burst-access-ns = <15>;
-+		gpmc,we-off-ns = <102>;
-+		gpmc,rd-cycle-ns = <132>;
-+		gpmc,wr-cycle-ns = <132>;
-+		gpmc,access-ns = <96>;
-+		gpmc,page-burst-access-ns = <18>;
- 		gpmc,bus-turnaround-ns = <0>;
- 		gpmc,cycle2cycle-delay-ns = <0>;
- 		gpmc,wait-monitoring-ns = <0>;
--		gpmc,clk-activation-ns = <5>;
--		gpmc,wr-data-mux-bus-ns = <30>;
--		gpmc,wr-access-ns = <81>;
-+		gpmc,clk-activation-ns = <6>;
-+		gpmc,wr-data-mux-bus-ns = <36>;
-+		gpmc,wr-access-ns = <96>;
- 		gpmc,sync-clk-ps = <15000>;
- 
- 		/*
-diff --git a/arch/arm/boot/dts/ox810se.dtsi b/arch/arm/boot/dts/ox810se.dtsi
-index 9f6c2b660ed3..0755e5864c4a 100644
---- a/arch/arm/boot/dts/ox810se.dtsi
-+++ b/arch/arm/boot/dts/ox810se.dtsi
-@@ -323,8 +323,8 @@
- 					interrupt-controller;
- 					reg = <0 0x200>;
- 					#interrupt-cells = <1>;
--					valid-mask = <0xFFFFFFFF>;
--					clear-mask = <0>;
-+					valid-mask = <0xffffffff>;
-+					clear-mask = <0xffffffff>;
- 				};
- 
- 				timer0: timer@200 {
-diff --git a/arch/arm/boot/dts/ox820.dtsi b/arch/arm/boot/dts/ox820.dtsi
-index c9b327732063..90846a7655b4 100644
---- a/arch/arm/boot/dts/ox820.dtsi
-+++ b/arch/arm/boot/dts/ox820.dtsi
-@@ -240,8 +240,8 @@
- 					reg = <0 0x200>;
- 					interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
- 					#interrupt-cells = <1>;
--					valid-mask = <0xFFFFFFFF>;
--					clear-mask = <0>;
-+					valid-mask = <0xffffffff>;
-+					clear-mask = <0xffffffff>;
- 				};
- 
- 				timer0: timer@200 {
-diff --git a/arch/arm/boot/dts/sun8i-r40.dtsi b/arch/arm/boot/dts/sun8i-r40.dtsi
-index c9c2688db66d..80f4dc34df34 100644
---- a/arch/arm/boot/dts/sun8i-r40.dtsi
-+++ b/arch/arm/boot/dts/sun8i-r40.dtsi
-@@ -266,6 +266,16 @@
- 			#phy-cells = <1>;
- 		};
- 
-+		ahci: sata@1c18000 {
-+			compatible = "allwinner,sun8i-r40-ahci";
-+			reg = <0x01c18000 0x1000>;
-+			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
-+			resets = <&ccu RST_BUS_SATA>;
-+			reset-names = "ahci";
-+			status = "disabled";
-+		};
-+
- 		ehci1: usb@1c19000 {
- 			compatible = "allwinner,sun8i-r40-ehci", "generic-ehci";
- 			reg = <0x01c19000 0x100>;
-@@ -557,17 +567,6 @@
- 			#size-cells = <0>;
- 		};
- 
--		ahci: sata@1c18000 {
--			compatible = "allwinner,sun8i-r40-ahci";
--			reg = <0x01c18000 0x1000>;
--			interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
--			clocks = <&ccu CLK_BUS_SATA>, <&ccu CLK_SATA>;
--			resets = <&ccu RST_BUS_SATA>;
--			reset-names = "ahci";
--			status = "disabled";
--
--		};
--
- 		gmac: ethernet@1c50000 {
- 			compatible = "allwinner,sun8i-r40-gmac";
- 			syscon = <&ccu>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
-index 4223a2352d45..dde50c88f5e3 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts
-@@ -119,12 +119,12 @@
- 
- 	ethernet@e4000 {
- 		phy-handle = <&rgmii_phy1>;
--		phy-connection-type = "rgmii-txid";
-+		phy-connection-type = "rgmii-id";
- 	};
- 
- 	ethernet@e6000 {
- 		phy-handle = <&rgmii_phy2>;
--		phy-connection-type = "rgmii-txid";
-+		phy-connection-type = "rgmii-id";
- 	};
- 
- 	ethernet@e8000 {
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-index 6a6514d0e5a9..274339759114 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-@@ -127,12 +127,12 @@
- &fman0 {
- 	ethernet@e4000 {
- 		phy-handle = <&rgmii_phy1>;
--		phy-connection-type = "rgmii";
-+		phy-connection-type = "rgmii-id";
- 	};
- 
- 	ethernet@e6000 {
- 		phy-handle = <&rgmii_phy2>;
--		phy-connection-type = "rgmii";
-+		phy-connection-type = "rgmii-id";
- 	};
- 
- 	ethernet@e8000 {
-diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
-index 324e7d5ab37e..5e5dc05d63a0 100644
---- a/arch/arm64/include/asm/alternative.h
-+++ b/arch/arm64/include/asm/alternative.h
-@@ -221,7 +221,7 @@ alternative_endif
- 
- .macro user_alt, label, oldinstr, newinstr, cond
- 9999:	alternative_insn "\oldinstr", "\newinstr", \cond
--	_ASM_EXTABLE 9999b, \label
-+	_asm_extable 9999b, \label
- .endm
- 
- /*
-diff --git a/drivers/clk/imx/clk-scu.c b/drivers/clk/imx/clk-scu.c
-index fbef740704d0..b8b2072742a5 100644
---- a/drivers/clk/imx/clk-scu.c
-+++ b/drivers/clk/imx/clk-scu.c
-@@ -43,12 +43,12 @@ struct imx_sc_msg_req_set_clock_rate {
- 	__le32 rate;
- 	__le16 resource;
- 	u8 clk;
--} __packed;
-+} __packed __aligned(4);
- 
- struct req_get_clock_rate {
- 	__le16 resource;
- 	u8 clk;
--} __packed;
-+} __packed __aligned(4);
- 
- struct resp_get_clock_rate {
- 	__le32 rate;
-@@ -84,7 +84,7 @@ struct imx_sc_msg_get_clock_parent {
- 		struct req_get_clock_parent {
- 			__le16 resource;
- 			u8 clk;
--		} __packed req;
-+		} __packed __aligned(4) req;
- 		struct resp_get_clock_parent {
- 			u8 parent;
- 		} resp;
-@@ -121,7 +121,7 @@ struct imx_sc_msg_req_clock_enable {
- 	u8 clk;
- 	u8 enable;
- 	u8 autog;
--} __packed;
-+} __packed __aligned(4);
- 
- static inline struct clk_scu *to_clk_scu(struct clk_hw *hw)
- {
-diff --git a/drivers/clk/ti/clk-43xx.c b/drivers/clk/ti/clk-43xx.c
-index 2782d91838ac..2cca1ced913d 100644
---- a/drivers/clk/ti/clk-43xx.c
-+++ b/drivers/clk/ti/clk-43xx.c
-@@ -78,7 +78,7 @@ static const struct omap_clkctrl_reg_data am4_gfx_l3_clkctrl_regs[] __initconst
- };
- 
- static const struct omap_clkctrl_reg_data am4_l4_rtc_clkctrl_regs[] __initconst = {
--	{ AM4_L4_RTC_RTC_CLKCTRL, NULL, CLKF_SW_SUP, "clk_32768_ck" },
-+	{ AM4_L4_RTC_RTC_CLKCTRL, NULL, CLKF_SW_SUP, "clkdiv32k_ick" },
- 	{ 0 },
- };
- 
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index a3fb450a9ca8..b2e186047014 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -1430,6 +1430,21 @@ static const struct dmi_system_id gpiolib_acpi_quirks[] = {
- 			.ignore_wake = "INT33FC:02@28",
- 		},
- 	},
-+	{
-+		/*
-+		 * HP X2 10 models with Cherry Trail SoC + AXP288 PMIC use an
-+		 * external embedded-controller connected via I2C + an ACPI GPIO
-+		 * event handler on INT33FF:01 pin 0, causing spurious wakeups.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-+			DMI_MATCH(DMI_BOARD_NAME, "813E"),
-+		},
-+		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
-+			.ignore_wake = "INT33FF:01@0",
-+		},
-+	},
- 	{} /* Terminating entry */
- };
- 
-diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
-index 58579baf3f7a..45cc840d8e2e 100644
---- a/drivers/net/ethernet/micrel/ks8851_mll.c
-+++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -156,6 +156,50 @@ static int msg_enable;
-  * chip is busy transferring packet data (RX/TX FIFO accesses).
-  */
- 
-+/**
-+ * ks_check_endian - Check whether endianness of the bus is correct
-+ * @ks	  : The chip information
-+ *
-+ * The KS8851-16MLL EESK pin allows selecting the endianness of the 16bit
-+ * bus. To maintain optimum performance, the bus endianness should be set
-+ * such that it matches the endianness of the CPU.
-+ */
-+
-+static int ks_check_endian(struct ks_net *ks)
-+{
-+	u16 cider;
-+
-+	/*
-+	 * Read CIDER register first, however read it the "wrong" way around.
-+	 * If the endian strap on the KS8851-16MLL in incorrect and the chip
-+	 * is operating in different endianness than the CPU, then the meaning
-+	 * of BE[3:0] byte-enable bits is also swapped such that:
-+	 *    BE[3,2,1,0] becomes BE[1,0,3,2]
-+	 *
-+	 * Luckily for us, the byte-enable bits are the top four MSbits of
-+	 * the address register and the CIDER register is at offset 0xc0.
-+	 * Hence, by reading address 0xc0c0, which is not impacted by endian
-+	 * swapping, we assert either BE[3:2] or BE[1:0] while reading the
-+	 * CIDER register.
-+	 *
-+	 * If the bus configuration is correct, reading 0xc0c0 asserts
-+	 * BE[3:2] and this read returns 0x0000, because to read register
-+	 * with bottom two LSbits of address set to 0, BE[1:0] must be
-+	 * asserted.
-+	 *
-+	 * If the bus configuration is NOT correct, reading 0xc0c0 asserts
-+	 * BE[1:0] and this read returns non-zero 0x8872 value.
-+	 */
-+	iowrite16(BE3 | BE2 | KS_CIDER, ks->hw_addr_cmd);
-+	cider = ioread16(ks->hw_addr);
-+	if (!cider)
-+		return 0;
-+
-+	netdev_err(ks->netdev, "incorrect EESK endian strap setting\n");
-+
-+	return -EINVAL;
-+}
-+
- /**
-  * ks_rdreg16 - read 16 bit register from device
-  * @ks	  : The chip information
-@@ -166,7 +210,7 @@ static int msg_enable;
- 
- static u16 ks_rdreg16(struct ks_net *ks, int offset)
- {
--	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	return ioread16(ks->hw_addr);
- }
-@@ -181,7 +225,7 @@ static u16 ks_rdreg16(struct ks_net *ks, int offset)
- 
- static void ks_wrreg16(struct ks_net *ks, int offset, u16 value)
- {
--	ks->cmd_reg_cache = (u16)offset | ((BE3 | BE2) >> (offset & 0x02));
-+	ks->cmd_reg_cache = (u16)offset | ((BE1 | BE0) << (offset & 0x02));
- 	iowrite16(ks->cmd_reg_cache, ks->hw_addr_cmd);
- 	iowrite16(value, ks->hw_addr);
- }
-@@ -197,7 +241,7 @@ static inline void ks_inblk(struct ks_net *ks, u16 *wptr, u32 len)
- {
- 	len >>= 1;
- 	while (len--)
--		*wptr++ = be16_to_cpu(ioread16(ks->hw_addr));
-+		*wptr++ = (u16)ioread16(ks->hw_addr);
- }
- 
- /**
-@@ -211,7 +255,7 @@ static inline void ks_outblk(struct ks_net *ks, u16 *wptr, u32 len)
- {
- 	len >>= 1;
- 	while (len--)
--		iowrite16(cpu_to_be16(*wptr++), ks->hw_addr);
-+		iowrite16(*wptr++, ks->hw_addr);
- }
- 
- static void ks_disable_int(struct ks_net *ks)
-@@ -1218,6 +1262,10 @@ static int ks8851_probe(struct platform_device *pdev)
- 		goto err_free;
- 	}
- 
-+	err = ks_check_endian(ks);
-+	if (err)
-+		goto err_free;
-+
- 	netdev->irq = platform_get_irq(pdev, 0);
- 
- 	if ((int)netdev->irq < 0) {
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index 52ef1419b671..2b1a3a6ee8db 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -383,6 +383,14 @@ static const struct dmi_system_id critclk_systems[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
- 		},
- 	},
-+	{
-+		/* pmc_plt_clk* - are used for ethernet controllers */
-+		.ident = "Lex 2I385SW",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "2I385SW"),
-+		},
-+	},
- 	{
- 		/* pmc_plt_clk* - are used for ethernet controllers */
- 		.ident = "Beckhoff CB3163",
-diff --git a/drivers/tty/serial/sprd_serial.c b/drivers/tty/serial/sprd_serial.c
-index 494e2672ebd7..07573de70445 100644
---- a/drivers/tty/serial/sprd_serial.c
-+++ b/drivers/tty/serial/sprd_serial.c
-@@ -1103,14 +1103,13 @@ static int sprd_remove(struct platform_device *dev)
- 	if (sup) {
- 		uart_remove_one_port(&sprd_uart_driver, &sup->port);
- 		sprd_port[sup->port.line] = NULL;
-+		sprd_rx_free_buf(sup);
- 		sprd_ports_num--;
- 	}
- 
- 	if (!sprd_ports_num)
- 		uart_unregister_driver(&sprd_uart_driver);
- 
--	sprd_rx_free_buf(sup);
--
- 	return 0;
- }
- 
-diff --git a/drivers/tty/vt/selection.c b/drivers/tty/vt/selection.c
-index d7d2e4b844bc..7556139cd0da 100644
---- a/drivers/tty/vt/selection.c
-+++ b/drivers/tty/vt/selection.c
-@@ -88,6 +88,11 @@ void clear_selection(void)
- }
- EXPORT_SYMBOL_GPL(clear_selection);
- 
-+bool vc_is_sel(struct vc_data *vc)
-+{
-+	return vc == sel_cons;
-+}
-+
- /*
-  * User settable table: what characters are to be considered alphabetic?
-  * 128 bits. Locked by the console lock.
-diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
-index e9e27ba69d5d..fa9433e6cdc7 100644
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -890,8 +890,9 @@ static void hide_softcursor(struct vc_data *vc)
- 
- static void hide_cursor(struct vc_data *vc)
- {
--	if (vc == sel_cons)
-+	if (vc_is_sel(vc))
- 		clear_selection();
-+
- 	vc->vc_sw->con_cursor(vc, CM_ERASE);
- 	hide_softcursor(vc);
- }
-@@ -901,7 +902,7 @@ static void set_cursor(struct vc_data *vc)
- 	if (!con_is_fg(vc) || console_blanked || vc->vc_mode == KD_GRAPHICS)
- 		return;
- 	if (vc->vc_deccm) {
--		if (vc == sel_cons)
-+		if (vc_is_sel(vc))
- 			clear_selection();
- 		add_softcursor(vc);
- 		if ((vc->vc_cursor_type & 0x0f) != 1)
-@@ -1074,6 +1075,17 @@ static void visual_deinit(struct vc_data *vc)
- 	module_put(vc->vc_sw->owner);
- }
- 
-+static void vc_port_destruct(struct tty_port *port)
-+{
-+	struct vc_data *vc = container_of(port, struct vc_data, port);
-+
-+	kfree(vc);
-+}
-+
-+static const struct tty_port_operations vc_port_ops = {
-+	.destruct = vc_port_destruct,
-+};
-+
- int vc_allocate(unsigned int currcons)	/* return 0 on success */
- {
- 	struct vt_notifier_param param;
-@@ -1099,6 +1111,7 @@ int vc_allocate(unsigned int currcons)	/* return 0 on success */
- 
- 	vc_cons[currcons].d = vc;
- 	tty_port_init(&vc->port);
-+	vc->port.ops = &vc_port_ops;
- 	INIT_WORK(&vc_cons[currcons].SAK_work, vc_SAK);
- 
- 	visual_init(vc, currcons, 1);
-@@ -1207,7 +1220,7 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
- 		}
- 	}
- 
--	if (vc == sel_cons)
-+	if (vc_is_sel(vc))
- 		clear_selection();
- 
- 	old_rows = vc->vc_rows;
-@@ -3253,6 +3266,7 @@ static int con_install(struct tty_driver *driver, struct tty_struct *tty)
- 
- 	tty->driver_data = vc;
- 	vc->port.tty = tty;
-+	tty_port_get(&vc->port);
- 
- 	if (!tty->winsize.ws_row && !tty->winsize.ws_col) {
- 		tty->winsize.ws_row = vc_cons[currcons].d->vc_rows;
-@@ -3288,6 +3302,13 @@ static void con_shutdown(struct tty_struct *tty)
- 	console_unlock();
- }
- 
-+static void con_cleanup(struct tty_struct *tty)
-+{
-+	struct vc_data *vc = tty->driver_data;
-+
-+	tty_port_put(&vc->port);
-+}
-+
- static int default_color           = 7; /* white */
- static int default_italic_color    = 2; // green (ASCII)
- static int default_underline_color = 3; // cyan (ASCII)
-@@ -3412,7 +3433,8 @@ static const struct tty_operations con_ops = {
- 	.throttle = con_throttle,
- 	.unthrottle = con_unthrottle,
- 	.resize = vt_resize,
--	.shutdown = con_shutdown
-+	.shutdown = con_shutdown,
-+	.cleanup = con_cleanup,
- };
- 
- static struct cdev vc0_cdev;
-diff --git a/drivers/tty/vt/vt_ioctl.c b/drivers/tty/vt/vt_ioctl.c
-index ee6c91ef1f6c..daf61c28ba76 100644
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -39,11 +39,32 @@
- #include <linux/kbd_diacr.h>
- #include <linux/selection.h>
- 
--char vt_dont_switch;
--extern struct tty_driver *console_driver;
-+bool vt_dont_switch;
- 
--#define VT_IS_IN_USE(i)	(console_driver->ttys[i] && console_driver->ttys[i]->count)
--#define VT_BUSY(i)	(VT_IS_IN_USE(i) || i == fg_console || vc_cons[i].d == sel_cons)
-+static inline bool vt_in_use(unsigned int i)
-+{
-+	const struct vc_data *vc = vc_cons[i].d;
-+
-+	/*
-+	 * console_lock must be held to prevent the vc from being deallocated
-+	 * while we're checking whether it's in-use.
-+	 */
-+	WARN_CONSOLE_UNLOCKED();
-+
-+	return vc && kref_read(&vc->port.kref) > 1;
-+}
-+
-+static inline bool vt_busy(int i)
-+{
-+	if (vt_in_use(i))
-+		return true;
-+	if (i == fg_console)
-+		return true;
-+	if (vc_is_sel(vc_cons[i].d))
-+		return true;
-+
-+	return false;
-+}
- 
- /*
-  * Console (vt and kd) routines, as defined by USL SVR4 manual, and by
-@@ -289,16 +310,14 @@ static int vt_disallocate(unsigned int vc_num)
- 	int ret = 0;
- 
- 	console_lock();
--	if (VT_BUSY(vc_num))
-+	if (vt_busy(vc_num))
- 		ret = -EBUSY;
- 	else if (vc_num)
- 		vc = vc_deallocate(vc_num);
- 	console_unlock();
- 
--	if (vc && vc_num >= MIN_NR_CONSOLES) {
--		tty_port_destroy(&vc->port);
--		kfree(vc);
--	}
-+	if (vc && vc_num >= MIN_NR_CONSOLES)
-+		tty_port_put(&vc->port);
- 
- 	return ret;
- }
-@@ -311,17 +330,15 @@ static void vt_disallocate_all(void)
- 
- 	console_lock();
- 	for (i = 1; i < MAX_NR_CONSOLES; i++)
--		if (!VT_BUSY(i))
-+		if (!vt_busy(i))
- 			vc[i] = vc_deallocate(i);
- 		else
- 			vc[i] = NULL;
- 	console_unlock();
- 
- 	for (i = 1; i < MAX_NR_CONSOLES; i++) {
--		if (vc[i] && i >= MIN_NR_CONSOLES) {
--			tty_port_destroy(&vc[i]->port);
--			kfree(vc[i]);
--		}
-+		if (vc[i] && i >= MIN_NR_CONSOLES)
-+			tty_port_put(&vc[i]->port);
- 	}
- }
- 
-@@ -335,22 +352,13 @@ int vt_ioctl(struct tty_struct *tty,
- {
- 	struct vc_data *vc = tty->driver_data;
- 	struct console_font_op op;	/* used in multiple places here */
--	unsigned int console;
-+	unsigned int console = vc->vc_num;
- 	unsigned char ucval;
- 	unsigned int uival;
- 	void __user *up = (void __user *)arg;
- 	int i, perm;
- 	int ret = 0;
- 
--	console = vc->vc_num;
--
--
--	if (!vc_cons_allocated(console)) { 	/* impossible? */
--		ret = -ENOIOCTLCMD;
--		goto out;
--	}
--
--
- 	/*
- 	 * To have permissions to do most of the vt ioctls, we either have
- 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
-@@ -641,15 +649,16 @@ int vt_ioctl(struct tty_struct *tty,
- 		struct vt_stat __user *vtstat = up;
- 		unsigned short state, mask;
- 
--		/* Review: FIXME: Console lock ? */
- 		if (put_user(fg_console + 1, &vtstat->v_active))
- 			ret = -EFAULT;
- 		else {
- 			state = 1;	/* /dev/tty0 is always open */
-+			console_lock(); /* required by vt_in_use() */
- 			for (i = 0, mask = 2; i < MAX_NR_CONSOLES && mask;
- 							++i, mask <<= 1)
--				if (VT_IS_IN_USE(i))
-+				if (vt_in_use(i))
- 					state |= mask;
-+			console_unlock();
- 			ret = put_user(state, &vtstat->v_state);
- 		}
- 		break;
-@@ -659,10 +668,11 @@ int vt_ioctl(struct tty_struct *tty,
- 	 * Returns the first available (non-opened) console.
- 	 */
- 	case VT_OPENQRY:
--		/* FIXME: locking ? - but then this is a stupid API */
-+		console_lock(); /* required by vt_in_use() */
- 		for (i = 0; i < MAX_NR_CONSOLES; ++i)
--			if (! VT_IS_IN_USE(i))
-+			if (!vt_in_use(i))
- 				break;
-+		console_unlock();
- 		uival = i < MAX_NR_CONSOLES ? (i+1) : -1;
- 		goto setint;		 
- 
-@@ -1011,12 +1021,12 @@ int vt_ioctl(struct tty_struct *tty,
- 	case VT_LOCKSWITCH:
- 		if (!capable(CAP_SYS_TTY_CONFIG))
- 			return -EPERM;
--		vt_dont_switch = 1;
-+		vt_dont_switch = true;
- 		break;
- 	case VT_UNLOCKSWITCH:
- 		if (!capable(CAP_SYS_TTY_CONFIG))
- 			return -EPERM;
--		vt_dont_switch = 0;
-+		vt_dont_switch = false;
- 		break;
- 	case VT_GETHIFONTMASK:
- 		ret = put_user(vc->vc_hi_font_mask,
-@@ -1180,14 +1190,9 @@ long vt_compat_ioctl(struct tty_struct *tty,
- {
- 	struct vc_data *vc = tty->driver_data;
- 	struct console_font_op op;	/* used in multiple places here */
--	unsigned int console = vc->vc_num;
- 	void __user *up = compat_ptr(arg);
- 	int perm;
- 
--
--	if (!vc_cons_allocated(console)) 	/* impossible? */
--		return -ENOIOCTLCMD;
--
- 	/*
- 	 * To have permissions to do most of the vt ioctls, we either have
- 	 * to be the owner of the tty, or have CAP_SYS_TTY_CONFIG.
-diff --git a/include/linux/ceph/messenger.h b/include/linux/ceph/messenger.h
-index c4458dc6a757..76371aaae2d1 100644
---- a/include/linux/ceph/messenger.h
-+++ b/include/linux/ceph/messenger.h
-@@ -175,9 +175,10 @@ struct ceph_msg_data {
- #endif /* CONFIG_BLOCK */
- 		struct ceph_bvec_iter	bvec_pos;
- 		struct {
--			struct page	**pages;	/* NOT OWNER. */
-+			struct page	**pages;
- 			size_t		length;		/* total # bytes */
- 			unsigned int	alignment;	/* first page */
-+			bool		own_pages;
- 		};
- 		struct ceph_pagelist	*pagelist;
- 	};
-@@ -356,8 +357,8 @@ extern void ceph_con_keepalive(struct ceph_connection *con);
- extern bool ceph_con_keepalive_expired(struct ceph_connection *con,
- 				       unsigned long interval);
- 
--extern void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
--				size_t length, size_t alignment);
-+void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
-+			     size_t length, size_t alignment, bool own_pages);
- extern void ceph_msg_data_add_pagelist(struct ceph_msg *msg,
- 				struct ceph_pagelist *pagelist);
- #ifdef CONFIG_BLOCK
-diff --git a/include/linux/selection.h b/include/linux/selection.h
-index e2c1f96bf059..5b890ef5b59f 100644
---- a/include/linux/selection.h
-+++ b/include/linux/selection.h
-@@ -11,8 +11,8 @@
- #include <linux/tiocl.h>
- #include <linux/vt_buffer.h>
- 
--extern struct vc_data *sel_cons;
- struct tty_struct;
-+struct vc_data;
- 
- extern void clear_selection(void);
- extern int set_selection_user(const struct tiocl_selection __user *sel,
-@@ -24,6 +24,8 @@ extern int sel_loadlut(char __user *p);
- extern int mouse_reporting(void);
- extern void mouse_report(struct tty_struct * tty, int butt, int mrx, int mry);
- 
-+bool vc_is_sel(struct vc_data *vc);
-+
- extern int console_blanked;
- 
- extern const unsigned char color_table[];
-diff --git a/include/linux/vt_kern.h b/include/linux/vt_kern.h
-index 8dc77e40bc03..ded5c48598f3 100644
---- a/include/linux/vt_kern.h
-+++ b/include/linux/vt_kern.h
-@@ -135,7 +135,7 @@ extern int do_unbind_con_driver(const struct consw *csw, int first, int last,
- 			     int deflt);
- int vty_init(const struct file_operations *console_fops);
- 
--extern char vt_dont_switch;
-+extern bool vt_dont_switch;
- extern int default_utf8;
- extern int global_cursor_default;
- 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index b774e2210f7d..b03087f110eb 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -3460,7 +3460,7 @@ int btf_get_info_by_fd(const struct btf *btf,
- 		       union bpf_attr __user *uattr)
- {
- 	struct bpf_btf_info __user *uinfo;
--	struct bpf_btf_info info = {};
-+	struct bpf_btf_info info;
- 	u32 info_copy, btf_copy;
- 	void __user *ubtf;
- 	u32 uinfo_len;
-@@ -3469,6 +3469,7 @@ int btf_get_info_by_fd(const struct btf *btf,
- 	uinfo_len = attr->info.info_len;
- 
- 	info_copy = min_t(u32, uinfo_len, sizeof(info));
-+	memset(&info, 0, sizeof(info));
- 	if (copy_from_user(&info, uinfo, info_copy))
- 		return -EFAULT;
- 
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index ace1cfaa24b6..14f4a76b44d5 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -2325,7 +2325,7 @@ static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
- 				   union bpf_attr __user *uattr)
- {
- 	struct bpf_prog_info __user *uinfo = u64_to_user_ptr(attr->info.info);
--	struct bpf_prog_info info = {};
-+	struct bpf_prog_info info;
- 	u32 info_len = attr->info.info_len;
- 	struct bpf_prog_stats stats;
- 	char __user *uinsns;
-@@ -2337,6 +2337,7 @@ static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
- 		return err;
- 	info_len = min_t(u32, sizeof(info), info_len);
- 
-+	memset(&info, 0, sizeof(info));
- 	if (copy_from_user(&info, uinfo, info_len))
- 		return -EFAULT;
- 
-@@ -2600,7 +2601,7 @@ static int bpf_map_get_info_by_fd(struct bpf_map *map,
- 				  union bpf_attr __user *uattr)
- {
- 	struct bpf_map_info __user *uinfo = u64_to_user_ptr(attr->info.info);
--	struct bpf_map_info info = {};
-+	struct bpf_map_info info;
- 	u32 info_len = attr->info.info_len;
- 	int err;
- 
-@@ -2609,6 +2610,7 @@ static int bpf_map_get_info_by_fd(struct bpf_map *map,
- 		return err;
- 	info_len = min_t(u32, sizeof(info), info_len);
- 
-+	memset(&info, 0, sizeof(info));
- 	info.type = map->map_type;
- 	info.id = map->id;
- 	info.key_size = map->key_size;
-@@ -2836,7 +2838,7 @@ static int bpf_task_fd_query(const union bpf_attr *attr,
- 
- SYSCALL_DEFINE3(bpf, int, cmd, union bpf_attr __user *, uattr, unsigned int, size)
- {
--	union bpf_attr attr = {};
-+	union bpf_attr attr;
- 	int err;
- 
- 	if (sysctl_unprivileged_bpf_disabled && !capable(CAP_SYS_ADMIN))
-@@ -2848,6 +2850,7 @@ SYSCALL_DEFINE3(bpf, int, cmd, union bpf_attr __user *, uattr, unsigned int, siz
- 	size = min_t(u32, size, sizeof(attr));
- 
- 	/* copy attributes from user space, may be less than sizeof(bpf_attr) */
-+	memset(&attr, 0, sizeof(attr));
- 	if (copy_from_user(&attr, uattr, size) != 0)
- 		return -EFAULT;
- 
-diff --git a/net/ceph/messenger.c b/net/ceph/messenger.c
-index e4cb3db2ee77..3d2e9f944e0f 100644
---- a/net/ceph/messenger.c
-+++ b/net/ceph/messenger.c
-@@ -3250,12 +3250,16 @@ static struct ceph_msg_data *ceph_msg_data_add(struct ceph_msg *msg)
- 
- static void ceph_msg_data_destroy(struct ceph_msg_data *data)
- {
--	if (data->type == CEPH_MSG_DATA_PAGELIST)
-+	if (data->type == CEPH_MSG_DATA_PAGES && data->own_pages) {
-+		int num_pages = calc_pages_for(data->alignment, data->length);
-+		ceph_release_page_vector(data->pages, num_pages);
-+	} else if (data->type == CEPH_MSG_DATA_PAGELIST) {
- 		ceph_pagelist_release(data->pagelist);
-+	}
- }
- 
- void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
--		size_t length, size_t alignment)
-+			     size_t length, size_t alignment, bool own_pages)
- {
- 	struct ceph_msg_data *data;
- 
-@@ -3267,6 +3271,7 @@ void ceph_msg_data_add_pages(struct ceph_msg *msg, struct page **pages,
- 	data->pages = pages;
- 	data->length = length;
- 	data->alignment = alignment & ~PAGE_MASK;
-+	data->own_pages = own_pages;
- 
- 	msg->data_length += length;
- }
-diff --git a/net/ceph/osd_client.c b/net/ceph/osd_client.c
-index ba45b074a362..2352afa62d1f 100644
---- a/net/ceph/osd_client.c
-+++ b/net/ceph/osd_client.c
-@@ -962,7 +962,7 @@ static void ceph_osdc_msg_data_add(struct ceph_msg *msg,
- 		BUG_ON(length > (u64) SIZE_MAX);
- 		if (length)
- 			ceph_msg_data_add_pages(msg, osd_data->pages,
--					length, osd_data->alignment);
-+					length, osd_data->alignment, false);
- 	} else if (osd_data->type == CEPH_OSD_DATA_TYPE_PAGELIST) {
- 		BUG_ON(!length);
- 		ceph_msg_data_add_pagelist(msg, osd_data->pagelist);
-@@ -4436,9 +4436,7 @@ static void handle_watch_notify(struct ceph_osd_client *osdc,
- 							CEPH_MSG_DATA_PAGES);
- 					*lreq->preply_pages = data->pages;
- 					*lreq->preply_len = data->length;
--				} else {
--					ceph_release_page_vector(data->pages,
--					       calc_pages_for(0, data->length));
-+					data->own_pages = false;
- 				}
- 			}
- 			lreq->notify_finish_error = return_code;
-@@ -5500,9 +5498,6 @@ static struct ceph_msg *get_reply(struct ceph_connection *con,
- 	return m;
- }
- 
--/*
-- * TODO: switch to a msg-owned pagelist
-- */
- static struct ceph_msg *alloc_msg_with_page_vector(struct ceph_msg_header *hdr)
- {
- 	struct ceph_msg *m;
-@@ -5516,7 +5511,6 @@ static struct ceph_msg *alloc_msg_with_page_vector(struct ceph_msg_header *hdr)
- 
- 	if (data_len) {
- 		struct page **pages;
--		struct ceph_osd_data osd_data;
- 
- 		pages = ceph_alloc_page_vector(calc_pages_for(0, data_len),
- 					       GFP_NOIO);
-@@ -5525,9 +5519,7 @@ static struct ceph_msg *alloc_msg_with_page_vector(struct ceph_msg_header *hdr)
- 			return NULL;
- 		}
- 
--		ceph_osd_data_pages_init(&osd_data, pages, data_len, 0, false,
--					 false);
--		ceph_osdc_msg_data_add(m, &osd_data);
-+		ceph_msg_data_add_pages(m, pages, data_len, 0, true);
- 	}
- 
- 	return m;
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index c8fc29f0efcf..41da41cb5c40 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -3596,8 +3596,26 @@ struct sk_buff *ieee80211_tx_dequeue(struct ieee80211_hw *hw,
- 	tx.skb = skb;
- 	tx.sdata = vif_to_sdata(info->control.vif);
- 
--	if (txq->sta)
-+	if (txq->sta) {
- 		tx.sta = container_of(txq->sta, struct sta_info, sta);
-+		/*
-+		 * Drop unicast frames to unauthorised stations unless they are
-+		 * EAPOL frames from the local station.
-+		 */
-+		if (unlikely(ieee80211_is_data(hdr->frame_control) &&
-+			     !ieee80211_vif_is_mesh(&tx.sdata->vif) &&
-+			     tx.sdata->vif.type != NL80211_IFTYPE_OCB &&
-+			     !is_multicast_ether_addr(hdr->addr1) &&
-+			     !test_sta_flag(tx.sta, WLAN_STA_AUTHORIZED) &&
-+			     (!(info->control.flags &
-+				IEEE80211_TX_CTRL_PORT_CTRL_PROTO) ||
-+			      !ether_addr_equal(tx.sdata->vif.addr,
-+						hdr->addr2)))) {
-+			I802_DEBUG_INC(local->tx_handlers_drop_unauth_port);
-+			ieee80211_free_txskb(&local->hw, skb);
-+			goto begin;
-+		}
-+	}
- 
- 	/*
- 	 * The key can be removed while the packet was queued, so need to call
-diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
-index eec9b282c047..4b07b1cc22dc 100644
---- a/tools/perf/util/map.c
-+++ b/tools/perf/util/map.c
-@@ -90,7 +90,7 @@ static inline bool replace_android_lib(const char *filename, char *newfilename)
- 		return true;
- 	}
- 
--	if (!strncmp(filename, "/system/lib/", 11)) {
-+	if (!strncmp(filename, "/system/lib/", 12)) {
- 		char *ndk, *app;
- 		const char *arch;
- 		size_t ndk_length;
+
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+I'm announcing the release of the 5.5.15 kernel.
+
+All users of the 5.5 kernel series must upgrade.
+
+The updated 5.5.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linu=
+x-5.5.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3Ds=
+ummary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                          |    2=20
+ arch/arm/boot/dts/bcm2835-rpi-zero-w.dts          |    1=20
+ arch/arm/boot/dts/bcm2835-rpi.dtsi                |    1=20
+ arch/arm/boot/dts/imx6qdl-phytec-phycore-som.dtsi |    4 -
+ arch/arm/boot/dts/omap3-n900.dts                  |   44 ++++++++----
+ arch/arm/boot/dts/ox810se.dtsi                    |    4 -
+ arch/arm/boot/dts/ox820.dtsi                      |    4 -
+ arch/arm/boot/dts/sun8i-r40.dtsi                  |   21 ++----
+ arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb.dts |    4 -
+ arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts |    4 -
+ arch/arm64/include/asm/alternative.h              |    2=20
+ drivers/clk/imx/clk-scu.c                         |    8 +-
+ drivers/clk/ti/clk-43xx.c                         |    2=20
+ drivers/gpio/gpiolib-acpi.c                       |   15 ++++
+ drivers/net/ethernet/micrel/ks8851_mll.c          |   56 +++++++++++++++-
+ drivers/net/wireless/intel/iwlwifi/fw/acpi.c      |   14 ++--
+ drivers/net/wireless/intel/iwlwifi/fw/acpi.h      |   14 ++--
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c       |    9 ++
+ drivers/platform/x86/pmc_atom.c                   |    8 ++
+ drivers/tty/serial/sprd_serial.c                  |    3=20
+ drivers/tty/vt/selection.c                        |    5 +
+ drivers/tty/vt/vt.c                               |   30 +++++++-
+ drivers/tty/vt/vt_ioctl.c                         |   75 +++++++++++------=
+-----
+ include/linux/ceph/messenger.h                    |    7 +-
+ include/linux/selection.h                         |    4 -
+ include/linux/vt_kern.h                           |    2=20
+ kernel/bpf/btf.c                                  |    3=20
+ kernel/bpf/syscall.c                              |    9 +-
+ net/ceph/messenger.c                              |    9 ++
+ net/ceph/osd_client.c                             |   14 ----
+ net/mac80211/tx.c                                 |   20 +++++
+ tools/perf/util/map.c                             |    2=20
+ tools/testing/selftests/bpf/verifier/jmp32.c      |    9 +-
+ 33 files changed, 280 insertions(+), 129 deletions(-)
+
+Arthur Demchenkov (1):
+      ARM: dts: N900: fix onenand timings
+
+Chen-Yu Tsai (1):
+      ARM: dts: sun8i: r40: Move AHCI device node based on address order
+
+Daniel Borkmann (1):
+      bpf: update jmp32 test cases to fix range bound deduction
+
+Eric Biggers (3):
+      vt: vt_ioctl: remove unnecessary console allocation checks
+      vt: vt_ioctl: fix VT_DISALLOCATE freeing in-use virtual console
+      vt: vt_ioctl: fix use-after-free in vt_in_use()
+
+Georg M=FCller (1):
+      platform/x86: pmc_atom: Add Lex 2I385SW to critclk_systems DMI table
+
+Golan Ben Ami (1):
+      iwlwifi: don't send GEO_TX_POWER_LIMIT if no wgds table
+
+Greg Kroah-Hartman (3):
+      bpf: Explicitly memset the bpf_attr structure
+      bpf: Explicitly memset some bpf info structures declared on the stack
+      Linux 5.5.15
+
+Hans de Goede (1):
+      gpiolib: acpi: Add quirk to ignore EC wakeups on HP x2 10 CHT + AXP28=
+8 model
+
+Ilie Halip (1):
+      arm64: alternative: fix build with clang integrated assembler
+
+Ilya Dryomov (1):
+      libceph: fix alloc_msg_with_page_vector() memory leaks
+
+Jiri Slaby (3):
+      vt: selection, introduce vc_is_sel
+      vt: ioctl, switch VT_IS_IN_USE and VT_BUSY to inlines
+      vt: switch vt_dont_switch to bool
+
+Johannes Berg (1):
+      mac80211: fix authentication with iwlwifi/mvm
+
+Jouni Malinen (1):
+      mac80211: Check port authorization in the ieee80211_tx_dequeue() case
+
+Lanqing Liu (1):
+      serial: sprd: Fix a dereference warning
+
+Leonard Crestez (2):
+      clk: imx: Align imx sc clock msg structs to 4
+      clk: imx: Align imx sc clock parent msg structs to 4
+
+Madalin Bucur (2):
+      arm64: dts: ls1043a-rdb: correct RGMII delay mode to rgmii-id
+      arm64: dts: ls1046ardb: set RGMII interfaces to RGMII_ID mode
+
+Marco Felsch (1):
+      ARM: dts: imx6: phycore-som: fix arm and soc minimum voltage
+
+Marek Vasut (1):
+      net: ks8851-ml: Fix IO operations, again
+
+Nick Hudson (1):
+      ARM: bcm2835-rpi-zero-w: Add missing pinctrl name
+
+Nicolas Saenz Julienne (1):
+      ARM: dts: bcm283x: Fix vc4's firmware bus DMA limitations
+
+Sungbo Eo (1):
+      ARM: dts: oxnas: Fix clear-mask property
+
+Tony Lindgren (1):
+      clk: ti: am43xx: Fix clock parent for RTC clock
+
+disconnect3d (1):
+      perf map: Fix off by one in strncpy() size argument
+
+
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEZH8oZUiU471FcZm+ONu9yGCSaT4FAl6GSpUACgkQONu9yGCS
+aT65mxAAmxnW3+BL6fFjdvGyOlOD+CTRvZG1r479N5mf1DcuP0Nbtpk5CFexr5gF
+PZkN8h5mIWZkdtMIXxPADpgCe0tO+Y1+7oEghBo5JpXKRC5wBNZphOnBQj7HB/mZ
+QKqt5u+mF73LyPZ4i/PnMfM7yUFQIDtx6/p5IwF2p+B1GS0iWVko6pJhugzlC7bV
+NB4NVbCd53GyRiVTssgXqkga7qn5Q0NvS78mHODUfZMuCf+QCemv7hJJHKve30qZ
+ATgcaoJbraqNw8itUjtrTHOeqbjhfPHnEBDM8T6VXtNuQXI5cpzxjX+tS1MP5Vvd
+VVlAhAY930vCS2FeL3QCr/M3IjCIs0Mx7tpdXf3bmofSpcdXZeU0kvz3N/0la5fG
+aIFK3BmIYROXHPJL5wg7rsdVzvie01Zrw6id/T3MxP1oG0Dsnb7WXUV/h99x4TFq
+CAkICTLWQwo1vumnfuvQjTSLeez1/rJ4cMTYND9FutouAvEtJuz1qj+MEc3YIpDa
+gNquWFR4sv2cr7bRx/YCh1Lj6VzGlOnNWp9gyZPxvIsZKUlYvbbrMuLAc4cU0Ho+
+lVFsyIcFSiEPQ8kUIA4IGBJJcNuBPPpM5EFJvjzPG2qm4sFQ5Ci1CuqJQ9Nk+PY0
+jNzjIhI20UTv6FF4TQKguUlKDCRAL+iAY6IBQA2rh7U6ommds7E=
+=uHp5
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--
