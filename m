@@ -2,60 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 407F019C9ED
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:21:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D1419C9F6
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:23:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389769AbgDBTU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:20:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44484 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389261AbgDBTU4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Apr 2020 15:20:56 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 208E8206F8;
-        Thu,  2 Apr 2020 19:20:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585855255;
-        bh=mdROf5FDATZ7QP97pw47LQyxagMXuoP+y7Kaxh6NErM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=L+rTAt0fHo/krTsbIxVlaFbiH3a630gdyVE6f4HA6qC54/KKEwURGtEMnU21vWygR
-         del+6EMtTZ+Amw3nflUoCTHRWjiIMsiCrNwu5XGTQ7OZZrkstHbAga8OmPyLZDuO81
-         LI0QpDjAFcnNDavJEKpe0aDJIDhmaJl9549G/Kyw=
-Date:   Thu, 2 Apr 2020 21:20:53 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Maciej =?utf-8?Q?=C5=BBenczykowski?= <maze@google.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Alexander Potapenko <glider@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>
-Subject: Re: [PATCH 4.19 105/116] bpf: Explicitly memset the bpf_attr
- structure
-Message-ID: <20200402192053.GB3243295@kroah.com>
-References: <20200401161542.669484650@linuxfoundation.org>
- <20200401161555.630698707@linuxfoundation.org>
- <20200402185320.GA8077@duo.ucw.cz>
+        id S2389963AbgDBTXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:23:08 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:33648 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732484AbgDBTXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:23:07 -0400
+Received: by mail-pg1-f193.google.com with SMTP id d17so2309996pgo.0
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:23:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=IUgM9FY2AkCkhd39DaOUYF74PHpYg+kkbbyR59VtFow=;
+        b=yFaFz9V0Hnh8NkwJGYZlqAYKHJ+nPDk9ZtXbKDoo/fFF3l3PdFjYqttoAHpv5ru6rm
+         JKjS3HSM6nGGJ8Ya3ZogG2+hgzkWvBXEWUxGA5cY1+17lApMaqYWl9oEIvryUen8wXpx
+         EF4u4Z7ZRm8XWxaAayioETb1dHp4ht7RJk9TvyLmECL1k8sc2Bmle7we84O+KJxgmNFy
+         dHfHejIh/3hDDH5lbZ1a7CbwB7/wnlKZmIO6R2KsvWauh7IL4jr9um54PDL8JxNEC0ea
+         LrNF9sULW/E++trtGLjYPIoxXwyY4qZEwFiMD1H4cUNrQidEQGqgluTRLQrBncN04rbJ
+         8GiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=IUgM9FY2AkCkhd39DaOUYF74PHpYg+kkbbyR59VtFow=;
+        b=YJcpGsIDfEsX61/e7hlqImeyrm6WCvlqlHhT5XuQQU9WfQzA8xahV3jogiYXKChNGv
+         GBKicKij2IvxFbe1pP2hDO6CEx1qM+s53cVVUBFtQPOKfN5rBLZgbtQjDOsGS1ERolnj
+         Nnmqkw4WXig6xKDNrlMsA3jSpGWNkHfaLtU/IAo1TSF0lU+Dn3SUz9jm+9xbS5rxy5HU
+         4BWV9CSB3qiXoT9n7nMdcqjD0IH9bCxgupdCqdrvEjnHxQ+AmVk3Y4dfCyqKQBWxHBuk
+         tJj8VxxtK71fyhKATEYQaPt0lUBvbFwynsV7bnVSUQ0f96gShnAZL4GB+bpTXOVcNnPX
+         0LVQ==
+X-Gm-Message-State: AGi0Pub4G6x9uYL+OPmuyQVNM5MVJv8byuqipYm2B/H+t6EaQmhKvzlw
+        Y5bYVf+8Mzio06w6RZFxdFRnfeXMJ0Q=
+X-Google-Smtp-Source: APiQypJ5Y5pdkeiF0JBjM/5ZhrQBtWfeK2v1hM80L/FMI2lMzQx+qXBPLThHTDS5/XSNKL32jHGKsg==
+X-Received: by 2002:a63:2542:: with SMTP id l63mr4612553pgl.312.1585855386056;
+        Thu, 02 Apr 2020 12:23:06 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v185sm4236393pfv.32.2020.04.02.12.23.05
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Apr 2020 12:23:05 -0700 (PDT)
+Message-ID: <5e863b99.1c69fb81.9a63e.31d4@mx.google.com>
+Date:   Thu, 02 Apr 2020 12:23:05 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200402185320.GA8077@duo.ucw.cz>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.114
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable/linux-4.19.y boot: 94 boots: 1 failed,
+ 87 passed with 6 untried/unknown (v4.19.114)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 02, 2020 at 08:53:21PM +0200, Pavel Machek wrote:
-> Should we fix gcc, instead?
+stable/linux-4.19.y boot: 94 boots: 1 failed, 87 passed with 6 untried/unkn=
+own (v4.19.114)
 
-Also, this is allowed in the C standard, and both clang and gcc
-sometimes emit code that does not clear padding in structures.  Changing
-the compiler to not do this would be wonderful, but we still have to
-live with this for the next 10 years as those older compilers age-out.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+19.y/kernel/v4.19.114/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
+ernel/v4.19.114/
 
-sorry,
+Tree: stable
+Branch: linux-4.19.y
+Git Describe: v4.19.114
+Git Commit: dda0e2920330128e0dbdeb11c8f25031aa40b11c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 55 unique boards, 16 SoC families, 18 builds out of 206
 
-greg k-h
+Boot Regressions Detected:
+
+arm:
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.19.113)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxl-s905d-p230:
+              lab-baylibre: new failure (last pass: v4.19.113)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
