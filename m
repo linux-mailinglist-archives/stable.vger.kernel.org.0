@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D246B19C994
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C60B719C996
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389370AbgDBTNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:13:15 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:35244 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389221AbgDBTNP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:15 -0400
-Received: by mail-wr1-f66.google.com with SMTP id g3so3292898wrx.2
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:13 -0700 (PDT)
+        id S2389371AbgDBTNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:13:17 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:38536 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389367AbgDBTNR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:13:17 -0400
+Received: by mail-wr1-f68.google.com with SMTP id c7so5574298wrx.5
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:13:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=1zvKr4FBn1gNdRzju8qn/rTiI5TQxwfOYmsvPx9Ax2k=;
-        b=y/N5NcjM94pid4dLGEuCz390oPMHj/RwL8OoGAuuiX86pI7S3LnJJtDja6aXNEAVQB
-         KhNTfm7AZDW/BtL3SaFlNaV+n/wEKRHCZgNtYrvzim9ASmHm6x8Z/dsyAF3U0dhq/Nxx
-         7PK9dVnLl1bxPHHCdt+wmrwMYHO4KRoQrsx8SNSq4hQdxTzR0yW869o6ZmMjVQTEHLav
-         ZFceFE5OmRLD4aeI4bEpB/7WHyHoTfEKyi+IvTwOuy4BqpYQZoMITJdRCTGJHe97J+Ti
-         jDkxLM1KTM9sCSIXSOG7OyHgOB0ZNrpCD3nkU/8br8StVShpXmnyy1AAmqTNrM7n/N0C
-         L0tQ==
+        bh=pGegqeDbRY6Y5f60xelQQzofEJmSdDI54qyCBBvOxXA=;
+        b=Jc/X/f8xcglnIXbxh/8ywetgCOv8S38qxGvzm+NhW5UcBkOcaagEs8i+lXwYDsQr6G
+         nuxomh4rkuCDPCWtkPp7JpqRt3gPNy/8PQKTUivSVDN2omM3N0BIcw1h4nVhFs2GQmn6
+         g/egBalAYdl2AD8enNhsMrerIYedYialr0Man28dutksCdxXzLlEawvLVYkg+xh3C9pM
+         dm7Aicx/G1NVL5WwsHbHWGwUmUq6GmQd6xiJIh9VdQQvVON0tCQhXZNMZJ2MgTHzyeIj
+         wcXrdworglJcVkhT/GoopUsObyTsORdDd13itjR9gButkcPPHc6UEWbDSugIF+O4o/sT
+         D+SQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=1zvKr4FBn1gNdRzju8qn/rTiI5TQxwfOYmsvPx9Ax2k=;
-        b=XLgOCvVcsJvXRJ+twZRw98X+KOwtrLXHjW/vEWeMxSpCqgcRhitHvH+3Z7DMgoggSO
-         +UQDsWacLG988mbamoAVW/sT0tFILnWNS83S5ClGQtnwu+IRvPxPnim2K8KGi2oyPZPI
-         HL6CCRcQ7eHvfOGz+l1qeFiBuu1baiSaIKiG+P/sYl/MsEtqvCBV7FxR5XdjdaE0sZDV
-         yEXdbFAxvGB9IV7KSROHxbNY6xpNUFQvGtC5fjV46wPsGO72poEIHdf694blxhBdgszC
-         mgCrAPETOMMdH0fz2P0zSnVUorMdsDJrVxILoKOWBm1aDtL5loBlOyJibIj2C0piOW9G
-         bEHw==
-X-Gm-Message-State: AGi0PuZMacT2jq3LwayL8uCPm5m84HdQvXMYsnv3hCtnV17TI+8Glfz/
-        GxlwaJzfYCmDYm6LkARC7HadW4mTGZQs0A==
-X-Google-Smtp-Source: APiQypKtUcacUN4LKBb23DXU/psP5B8ZKa6Dm6WZDEZmoiZoyPAGEgZW7ZFI+L36PS0F33V/KvI0zg==
-X-Received: by 2002:adf:dec3:: with SMTP id i3mr5213660wrn.351.1585854792028;
-        Thu, 02 Apr 2020 12:13:12 -0700 (PDT)
+        bh=pGegqeDbRY6Y5f60xelQQzofEJmSdDI54qyCBBvOxXA=;
+        b=KX1GIumyJ/suI1TefPdry18LGbdj/VLl7lQZlOKEAav8mxNgnTbEY4oLJkYFtMSalh
+         8nDa+uTe+qFp80WeXBZRdgUxzolx4C5eNc1g41CP+sd4z4yoRS+awPIyZNkaFT6e5sJX
+         KZ3DbXAQwMEetjBczgo81aeibYzfJBsnxu3kZ8AIOOy7doKx5Bw74uy2SyZ/qDzT0AnK
+         VuMGZndUWQbOJ0p2AlauZ8zsXjf5OjDXS2OLTQh79L+WuUHNZpE9MWilYnFLzW/s34J9
+         j9ex80RCLZCajeFagLtgdfOhnyf5idcSPr2es8MWWOC9yXWtSFO87BUQE7MT0Y1btuV/
+         8K8w==
+X-Gm-Message-State: AGi0PuZiLEIe6V82qdlWNuYYmljZv5wcCX9kh3sdwDseaRm2c0oIqH5t
+        OzMUjbWa4mfAerFBrDnKjbf+KCo6czPZwg==
+X-Google-Smtp-Source: APiQypJDtLXwmoCh3mGeGbwRD3di1VeZZptgvNSvnPfmGO/cao+jNywZGWu5zJXX4rrCISrm5V9RRQ==
+X-Received: by 2002:a5d:69c8:: with SMTP id s8mr4898044wrw.300.1585854793291;
+        Thu, 02 Apr 2020 12:13:13 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.11
+        by smtp.gmail.com with ESMTPSA id y12sm5511514wrn.55.2020.04.02.12.13.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:13:11 -0700 (PDT)
+        Thu, 02 Apr 2020 12:13:12 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.14 13/33] wil6210: remove reset file from debugfs
-Date:   Thu,  2 Apr 2020 20:13:33 +0100
-Message-Id: <20200402191353.787836-13-lee.jones@linaro.org>
+Subject: [PATCH 4.14 14/33] wil6210: increase firmware ready timeout
+Date:   Thu,  2 Apr 2020 20:13:34 +0100
+Message-Id: <20200402191353.787836-14-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191353.787836-1-lee.jones@linaro.org>
 References: <20200402191353.787836-1-lee.jones@linaro.org>
@@ -59,66 +59,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthick Gopalasubramanian <kargop@codeaurora.org>
+From: Hamad Kadmany <hkadmany@codeaurora.org>
 
-[ Upstream commit 32dcfe8316cdbd885542967c0c85f5b9de78874b ]
+[ Upstream commit 6ccae584014ef7074359eb4151086beef66ecfa9 ]
 
-Reset file is not used and may cause race conditions
-with operational driver if used.
+Firmware ready event may take longer than
+current timeout in some scenarios, for example
+with multiple RFs connected where each
+requires an initial calibration.
 
-Signed-off-by: Karthick Gopalasubramanian <kargop@codeaurora.org>
+Increase the timeout to support these scenarios.
+
+Signed-off-by: Hamad Kadmany <hkadmany@codeaurora.org>
 Signed-off-by: Maya Erez <merez@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/wireless/ath/wil6210/debugfs.c | 27 ----------------------
- 1 file changed, 27 deletions(-)
+ drivers/net/wireless/ath/wil6210/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
-index 6db00c167d2e1..b17ecf796ed83 100644
---- a/drivers/net/wireless/ath/wil6210/debugfs.c
-+++ b/drivers/net/wireless/ath/wil6210/debugfs.c
-@@ -555,32 +555,6 @@ struct dentry *wil_debugfs_create_ioblob(const char *name,
- 	return debugfs_create_file(name, mode, parent, wil_blob, &fops_ioblob);
- }
+diff --git a/drivers/net/wireless/ath/wil6210/main.c b/drivers/net/wireless/ath/wil6210/main.c
+index bac829aa950d5..a3dc42841526f 100644
+--- a/drivers/net/wireless/ath/wil6210/main.c
++++ b/drivers/net/wireless/ath/wil6210/main.c
+@@ -871,7 +871,7 @@ static void wil_bl_crash_info(struct wil6210_priv *wil, bool is_err)
  
--/*---reset---*/
--static ssize_t wil_write_file_reset(struct file *file, const char __user *buf,
--				    size_t len, loff_t *ppos)
--{
--	struct wil6210_priv *wil = file->private_data;
--	struct net_device *ndev = wil_to_ndev(wil);
--
--	/**
--	 * BUG:
--	 * this code does NOT sync device state with the rest of system
--	 * use with care, debug only!!!
--	 */
--	rtnl_lock();
--	dev_close(ndev);
--	ndev->flags &= ~IFF_UP;
--	rtnl_unlock();
--	wil_reset(wil, true);
--
--	return len;
--}
--
--static const struct file_operations fops_reset = {
--	.write = wil_write_file_reset,
--	.open  = simple_open,
--};
--
- /*---write channel 1..4 to rxon for it, 0 to rxoff---*/
- static ssize_t wil_write_file_rxon(struct file *file, const char __user *buf,
- 				   size_t len, loff_t *ppos)
-@@ -1697,7 +1671,6 @@ static const struct {
- 	{"bf",		0444,		&fops_bf},
- 	{"ssid",	0644,		&fops_ssid},
- 	{"mem_val",	0644,		&fops_memread},
--	{"reset",	0244,		&fops_reset},
- 	{"rxon",	0244,		&fops_rxon},
- 	{"tx_mgmt",	0244,		&fops_txmgmt},
- 	{"wmi_send", 0244,		&fops_wmi},
+ static int wil_wait_for_fw_ready(struct wil6210_priv *wil)
+ {
+-	ulong to = msecs_to_jiffies(1000);
++	ulong to = msecs_to_jiffies(2000);
+ 	ulong left = wait_for_completion_timeout(&wil->wmi_ready, to);
+ 
+ 	if (0 == left) {
 -- 
 2.25.1
 
