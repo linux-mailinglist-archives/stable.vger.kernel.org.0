@@ -2,119 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD6119C1E0
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 15:14:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABA9819C2CB
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 15:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388510AbgDBNO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 09:14:28 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:49380 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388504AbgDBNO2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 09:14:28 -0400
-Received: from in02.mta.xmission.com ([166.70.13.52])
-        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.90_1)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jJzfp-00075I-T0; Thu, 02 Apr 2020 07:14:21 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jJzfj-00021V-6R; Thu, 02 Apr 2020 07:14:21 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Jann Horn <jannh@google.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        David Howells <dhowells@redhat.com>,
-        Jade Alglave <j.alglave@ucl.ac.uk>,
-        Luc Maranget <luc.maranget@inria.fr>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Akira Yokosawa <akiyks@gmail.com>,
-        Daniel Lustig <dlustig@nvidia.com>,
-        Adam Zabrocki <pi3@pi3.com.pl>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Bernd Edlinger <bernd.edlinger@hotmail.de>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable <stable@vger.kernel.org>, Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        kasan-dev <kasan-dev@googlegroups.com>
-References: <20200324215049.GA3710@pi3.com.pl> <202003291528.730A329@keescook>
-        <87zhbvlyq7.fsf_-_@x220.int.ebiederm.org>
-        <CAG48ez3nYr7dj340Rk5-QbzhsFq0JTKPf2MvVJ1-oi1Zug1ftQ@mail.gmail.com>
-        <CAHk-=wjz0LEi68oGJSQzZ--3JTFF+dX2yDaXDRKUpYxtBB=Zfw@mail.gmail.com>
-        <CAHk-=wgM3qZeChs_1yFt8p8ye1pOaM_cX57BZ_0+qdEPcAiaCQ@mail.gmail.com>
-        <CAG48ez1f82re_V=DzQuRHpy7wOWs1iixrah4GYYxngF1v-moZw@mail.gmail.com>
-        <CAHk-=whks0iE1f=Ka0_vo2PYg774P7FA8Y30YrOdUBGRH-ch9A@mail.gmail.com>
-Date:   Thu, 02 Apr 2020 08:11:31 -0500
-In-Reply-To: <CAHk-=whks0iE1f=Ka0_vo2PYg774P7FA8Y30YrOdUBGRH-ch9A@mail.gmail.com>
-        (Linus Torvalds's message of "Wed, 1 Apr 2020 19:05:59 -0700")
-Message-ID: <877dyym3r0.fsf@x220.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S2387752AbgDBNiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 09:38:52 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:37823 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388520AbgDBNiw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 09:38:52 -0400
+Received: by mail-lj1-f194.google.com with SMTP id r24so3273720ljd.4
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 06:38:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=shutemov-name.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Exs+wcW8pqgTK370fZw+VgeJY6A05eU9Q6JVvMKSZ5A=;
+        b=ZtUyWy0R2Z5oSIViPZp5LZkLeggJSxUyZnS7rn5QBfuXfMm36UY64CFejQ6rDLK27M
+         ck8f+uK76r+ypnQb1eJ+r2wYJfzjan9U6qOtBrsZMq3xFfGa9VZBO2JSPc9uY//+e8x/
+         JKda+C2ufhRLa2BYr2vvq3BbYpG/BLEKZoUnabqg/dzTitex1dkSJK4M9AGMjwBXU3vq
+         U8vW18JxWxqvX3y1ts5f2RGJYrp0xV6XHvrN7jh9XmkobXSel3F2PKWjzqIfRz6iIvLZ
+         nDa6+bCrIWFQHWmdv8ICJSpVgdj64W2zx7uDldTa26YxVxR00sH9NOK4VISRbR8+ATsN
+         EqoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Exs+wcW8pqgTK370fZw+VgeJY6A05eU9Q6JVvMKSZ5A=;
+        b=h+sdBExsol55tvO8rXO95AKGxOfP0t6ifWe3DtGtesvOeBF3F6g8UZhsb8gHhymzuc
+         GDdxwFugI8+bAKLUKHG5kuIFGvkvkWpNHiQ5drTXRjVZrZ4zlzRJewWXVWGHTTDR0MrH
+         7+CWjdQzLkoDTXWHAf4EC4+0LJD699jIhXMLwUloLVFqr7YDp3c7wpMjNjt+iO9e4jAa
+         xngfwT81yMrGiou0XEaZUMTqZjvuo1tM9RfCDN9liH50c2S7catG7eoXiCW+Dd1D6dbS
+         Z+WFNojvNtgC81r7w0SNEjkWcCNZfnAYqTkz2kVkSik0s00Hg8Ri6qbLN7Oibl2kTmaX
+         MBuA==
+X-Gm-Message-State: AGi0PubWLhFxC8jksSkB1/IeVOBOGRLfvqDKuQbTV6L6rr1Qr6BYo1nE
+        UOPCkkxBC4IGLIXTjMHMd3T7Jw==
+X-Google-Smtp-Source: APiQypJKLmrPDaM+SDnr4wmawnXsXtnQLFd7hmufLkhv5z3INZXRH64Iqc60CAZAwjstSbK8pKN4qQ==
+X-Received: by 2002:a2e:884d:: with SMTP id z13mr2088608ljj.158.1585834731008;
+        Thu, 02 Apr 2020 06:38:51 -0700 (PDT)
+Received: from box.localdomain ([86.57.175.117])
+        by smtp.gmail.com with ESMTPSA id m193sm1960052lfa.39.2020.04.02.06.38.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Apr 2020 06:38:49 -0700 (PDT)
+Received: by box.localdomain (Postfix, from userid 1000)
+        id 204491020A6; Thu,  2 Apr 2020 16:38:49 +0300 (+03)
+Date:   Thu, 2 Apr 2020 16:38:49 +0300
+From:   "Kirill A. Shutemov" <kirill@shutemov.name>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        linux- stable <stable@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        William Kucharski <william.kucharski@oracle.com>,
+        Julia Lawall <Julia.Lawall@lip6.fr>,
+        Michal Hocko <mhocko@kernel.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        lkft-triage@lists.linaro.org,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        LTP List <ltp@lists.linux.it>
+Subject: Re: mm/mremap.c : WARNING: at mm/mremap.c:211
+ move_page_tables+0x5b0/0x5d0
+Message-ID: <20200402133849.mmkvekzx37kw4nsj@box>
+References: <CA+G9fYs1xStrrsvGbW7bc4h1a0Kjfz0_zn4c7LL7-bGZb0GH6g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1jJzfj-00021V-6R;;;mid=<877dyym3r0.fsf@x220.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1/aAgD/0VF7hya1cN9dZdOTpz/w8uomdK0=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa01.xmission.com
-X-Spam-Level: 
-X-Spam-Status: No, score=-0.2 required=8.0 tests=ALL_TRUSTED,BAYES_50,
-        DCC_CHECK_NEGATIVE,NO_DNS_FOR_FROM,T_TM2_M_HEADER_IN_MSG
-        autolearn=disabled version=3.4.2
-X-Spam-Virus: No
-X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4987]
-        *  0.0 NO_DNS_FOR_FROM DNS: Envelope sender has no MX or A DNS records
-        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
-        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-        *      [sa01 1397; Body=1 Fuz1=1 Fuz2=1]
-X-Spam-DCC: XMission; sa01 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ;Linus Torvalds <torvalds@linux-foundation.org>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 6259 ms - load_scoreonly_sql: 0.03 (0.0%),
-        signal_user_changed: 4.6 (0.1%), b_tie_ro: 3.2 (0.1%), parse: 1.03
-        (0.0%), extract_message_metadata: 11 (0.2%), get_uri_detail_list: 0.70
-        (0.0%), tests_pri_-1000: 4.0 (0.1%), tests_pri_-950: 1.01 (0.0%),
-        tests_pri_-900: 0.88 (0.0%), tests_pri_-90: 83 (1.3%), check_bayes: 82
-        (1.3%), b_tokenize: 5 (0.1%), b_tok_get_all: 6 (0.1%), b_comp_prob:
-        1.59 (0.0%), b_tok_touch_all: 66 (1.0%), b_finish: 0.79 (0.0%),
-        tests_pri_0: 6143 (98.1%), check_dkim_signature: 0.51 (0.0%),
-        check_dkim_adsp: 5997 (95.8%), poll_dns_idle: 5993 (95.7%),
-        tests_pri_10: 1.70 (0.0%), tests_pri_500: 6 (0.1%), rewrite_mail: 0.00
-        (0.0%)
-Subject: Re: [PATCH] signal: Extend exec_id to 64bits
-X-Spam-Flag: No
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYs1xStrrsvGbW7bc4h1a0Kjfz0_zn4c7LL7-bGZb0GH6g@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Linus Torvalds <torvalds@linux-foundation.org> writes:
+On Thu, Apr 02, 2020 at 04:49:02PM +0530, Naresh Kamboju wrote:
+> While running LTP mm thp01 test case on i386 kernel running on x86_64 device
+> the following kernel warning was noticed multiple times.
+> 
+> This issue is not new,
+> we have noticed on stable-rc 5.4, stable-rc 5.5 and stable-rc 5.6 branches.
+> FYI, CONFIG_HAVE_MOVE_PMD=y is set on
+> and total memory 2.2G as per free output.
+> 
+> steps to reproduce:
+> --------------------
+> boot i386 kernel on x86_64 device,
+> cd /opt/ltp
+> ./runltp -f mm
+> thp01.c:98: PASS: system didn't crash.
+> thp01.c:98: PASS: system didn't crash.
+> thp01.c:98: PASS: system didn't crash.
+> 
+> [  207.317499] ------------[ cut here ]------------
+> [  207.322153] WARNING: CPU: 0 PID: 18963 at mm/mremap.c:211
+> move_page_tables+0x5b0/0x5d0
 
-> tasklist_lock is aboue the hottest lock there is in all of the kernel.
 
-Do you know code paths you see tasklist_lock being hot?
+> Kernel config:
+> https://builds.tuxbuild.com/RJ9BGpsgfPfj3Sfje8oLSw/kernel.config
 
-I am looking at some of the exec/signal/ptrace code paths because they
-get subtle corner case wrong like a threaded exec deadlocking when
-straced.
+Interesting. I suspect it's related to 2-level page tables in this
+configuration. But I cannot immediately see how.
 
-If the performance problems are in the same neighbourhood I might be
-able to fix those problems while I am in the code.
+Could you test if enabling HIGHMEM64 fixes the issue?
 
-Eric
+Below is patch that prints some additional info:
 
-
-
+diff --git a/mm/mremap.c b/mm/mremap.c
+index d28f08a36b96..065d5ec3614a 100644
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -208,8 +208,14 @@ static bool move_normal_pmd(struct vm_area_struct *vma, unsigned long old_addr,
+ 	 * The destination pmd shouldn't be established, free_pgtables()
+ 	 * should have release it.
+ 	 */
+-	if (WARN_ON(!pmd_none(*new_pmd)))
++	if (WARN_ON(!pmd_none(*new_pmd))) {
++		dump_vma(vma);
++		printk("old_addr: %#lx, new_addr: %#lx, old_end: %#lx\n",
++				old_addr, new_addr, old_end);
++		printk("old_pmd: %#lx", pmd_val(*old_pmd));
++		printk("new_pmd: %#lx", pmd_val(*new_pmd));
+ 		return false;
++	}
+ 
+ 	/*
+ 	 * We don't have to worry about the ordering of src and dst
+-- 
+ Kirill A. Shutemov
