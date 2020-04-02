@@ -2,176 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55DA319BCF0
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 09:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4682619BCFA
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 09:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387575AbgDBHnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 03:43:16 -0400
-Received: from mail-am6eur05olkn2063.outbound.protection.outlook.com ([40.92.91.63]:14464
-        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729030AbgDBHnQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Apr 2020 03:43:16 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=b2cUts5N16McRkteTSJ4tPxLs8Gq2KfmcQbL/xiRX18vgKFEUGxoUfHE0AQygrHTljDRlY3PknSNTlE9Vp27/ZJouN868WZZu9Wy46QbUpe/n9a2Mwrz6zjU/9+kEJD5Anfa3mCEeeLyS35DIa0NuZM/RAdrPzdsM/gPNhkeYGN2aasS7gNo+1fowto9MGTablBHNYNuG1Kc4JuAzjY5SLLqvzFmxCtLIG1abrbs2N6H2lYI17nQ82dmuZVn8O/oluFbHT1JCR4Hrn6ILkzU/Hx6FSfV9d48i8KEXyJ3G+BGlaEwDkNbeDlK1CtCExMaFy7EoC3bTiJWHpy6t+4O6A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6lHvXv2qvgTocqZUByXvhXUr/SR9rYM63nGCFas6UBg=;
- b=cAK4GUjCNakS5D1bMYhycPMPMSPHem+rT6iHb/CA+LvIKxbahY77uf2xDaNAhSjDrQp5tEfGTNnQeKTRtZWmHWfxvo6jrPFBLicsdCatdrFycySucygb2FVGwSiy0QtaTjRnwfEWnh+wKZ8JSMKIQaY/vcgjIrm4QqTfdZEUgNrrJwcyCGWX/qGh7dG/b5bUDby9OS9y4CDG14TA6YMzMwJLXVMthP2Cn6joe7cQDV+PScVz+v1vA83bpGKzW8x/48+LfghVB2bHcdSnvIZTMi2iyKOy6JKHBmRwKXymmIk+mb2KU3jIN1TlGeDL0FSD1Ow9cYVq6483fuIz9Rfrfw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=hotmail.de; dmarc=pass action=none header.from=hotmail.de;
- dkim=pass header.d=hotmail.de; arc=none
-Received: from VI1EUR05FT049.eop-eur05.prod.protection.outlook.com
- (2a01:111:e400:fc12::4f) by
- VI1EUR05HT254.eop-eur05.prod.protection.outlook.com (2a01:111:e400:fc12::409)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2856.17; Thu, 2 Apr
- 2020 07:43:11 +0000
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
- (2a01:111:e400:fc12::45) by VI1EUR05FT049.mail.protection.outlook.com
- (2a01:111:e400:fc12::225) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2878.15 via Frontend
- Transport; Thu, 2 Apr 2020 07:43:11 +0000
-X-IncomingTopHeaderMarker: OriginalChecksum:192060CCA2EA40A98D1833EAB84E54207B905DDD96D0AF8A4991279F38F33890;UpperCasedChecksum:8C384A884F3961336F28F441EC3CD3CDD96C2E4AF458357192D86F2FA015439B;SizeAsReceived:9765;Count:50
-Received: from AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::d57:5853:a396:969d]) by AM6PR03MB5170.eurprd03.prod.outlook.com
- ([fe80::d57:5853:a396:969d%7]) with mapi id 15.20.2856.019; Thu, 2 Apr 2020
- 07:43:11 +0000
-Subject: Re: [PATCH v6 00/16] Infrastructure to allow fixing exec deadlocks
-To:     Kees Cook <keescook@chromium.org>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Andrei Vagin <avagin@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Yuyang Du <duyuyang@gmail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Christian Kellner <christian@kellner.me>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>
-References: <AM6PR03MB5170B2F5BE24A28980D05780E4F50@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <871rpg8o7v.fsf@x220.int.ebiederm.org>
- <AM6PR03MB5170938306F22C3CF61CC573E4CD0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <202003282041.A2639091@keescook>
- <AM6PR03MB5170E0E722ED0B05B149C135E4CB0@AM6PR03MB5170.eurprd03.prod.outlook.com>
- <20200330201459.GF22483@bombadil.infradead.org>
- <202004020037.67ED66C8B6@keescook>
-From:   Bernd Edlinger <bernd.edlinger@hotmail.de>
-Message-ID: <AM6PR03MB5170F3FD73A0E7A82AB25B96E4C60@AM6PR03MB5170.eurprd03.prod.outlook.com>
-Date:   Thu, 2 Apr 2020 09:43:08 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-In-Reply-To: <202004020037.67ED66C8B6@keescook>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: AM0PR0102CA0050.eurprd01.prod.exchangelabs.com
- (2603:10a6:208::27) To AM6PR03MB5170.eurprd03.prod.outlook.com
- (2603:10a6:20b:ca::23)
-X-Microsoft-Original-Message-ID: <9c2954ac-e6b7-4a0e-14e1-c265c24dccb2@hotmail.de>
+        id S1728135AbgDBHqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 03:46:00 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:46417 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725845AbgDBHqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 03:46:00 -0400
+Received: by mail-lf1-f65.google.com with SMTP id q5so1846995lfb.13
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 00:45:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=POxEV3gj5cjnPO9rMI9IMD58/NUgIZeKUsyUnyCZ2LE=;
+        b=W+yspeD4JWWsnqpgdHoGlADkiuEdPw59EKlpn0eViFz5wlHzKZFkn1Z7OyaHwxPlLj
+         Y8gTLnmmrwKafg4eJmpFAnfM34L/NErzk5P0YdYUk4Rpx6KzxIqnJYeaZsvbFAEzDedJ
+         gZKSN+cq5RKj4+jc9odCyX78ivhNB1AZbczFK575LPeEdhHIVAL+J/cN2LMeif/yj9Z1
+         amKW27YaVIRJdlbzKLvVA91rFUImtGdXXGyztq7kit7Rs9s9wrnSx+KOt8sn1giAA2xZ
+         WDpGbAeqKeojXLXL1rBBcwD0Nc8Hdqd4uTpKpYh8sPAtppfiHmgakSSkbLFdeDO73DPy
+         lsTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=POxEV3gj5cjnPO9rMI9IMD58/NUgIZeKUsyUnyCZ2LE=;
+        b=O/+FXNyk4ZHdWnoGSnqlmLgZINHLBNs9tMDcfz+b3eA4h0EpZpxxcOexFbgTO5qcx4
+         RnDB9wUz0MY7aO55xp2rSh1Pp+4DHSCMHZl3u8d11tlWnTkhJNw78cBD4lG5XfJG966t
+         zSde6PhJ6WXux9kS8ZlqI1s5SpVxnmXQNhAcDl95cY6U5xk8tr7ChGcTY1z83jvgMRKT
+         e5oJUbA9BTm+0DiizFGbXbVqtWsUohk81J30JyRTE6hU3O0fD/i2/8kphJ0rn8WL10BL
+         GW+pN+KSV3WSxihzW8Em9EpCeT7Of2jGfoRKwJOe8KyXkFC6NI72IHikPxyyL8t++Bjv
+         BA/A==
+X-Gm-Message-State: AGi0PuY3B2W0xHDbVCLlpXyyf53YH0w+vdd4ZvNdxBrQu+HR6a+zBmLU
+        HgVxHjNlGC4U/2XRLUxLHt0wrgP5bmo9HXqZDynN+g==
+X-Google-Smtp-Source: APiQypL6BCglL+mKXWvslatfZWl30Hc678f0SMa9dY0CVlHkkFRnHXupeBxR23E9415HjLdGtIqX1ujoq7hN32HdbkU=
+X-Received: by 2002:a05:6512:21b:: with SMTP id a27mr1309779lfo.55.1585813557262;
+ Thu, 02 Apr 2020 00:45:57 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.1.101] (92.77.140.102) by AM0PR0102CA0050.eurprd01.prod.exchangelabs.com (2603:10a6:208::27) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2878.15 via Frontend Transport; Thu, 2 Apr 2020 07:43:09 +0000
-X-Microsoft-Original-Message-ID: <9c2954ac-e6b7-4a0e-14e1-c265c24dccb2@hotmail.de>
-X-TMN:  [88Bzfcadfsi95ESOfguVOxLRuBSSerjb]
-X-MS-PublicTrafficType: Email
-X-IncomingHeaderCount: 50
-X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-Correlation-Id: 69f7d8f5-1a26-473a-4ac4-08d7d6d97e4b
-X-MS-TrafficTypeDiagnostic: VI1EUR05HT254:
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: LTn5N5b/BBeabhy5oIJokULLKJzCeEdlYW0Jhlue1ce0xKjwAWs6bSP32JFc6SEimOD31h0fTAw3AJD9xEy6hUba2K5qd74MUUV+mOKeFhl7Q81qqvmxz4g/NXayKbqQ0p8uuyMXx3PM7BOXvE4SbPVIyiDlzBt5mI4GJZ5pVclJjhsjEHwD1cGX+kJgDUQuTv+/7AsqnbmbVkX6e6fcPPexXCsIdqJ7Hk6eHwWaTEc=
-X-MS-Exchange-AntiSpam-MessageData: GXUhajBQ2ipAr/3zlk2B/izhvu+V8/q1X7GmsJV/bskG3kIqU53msJfIDErUSQFzFlg2rw5RYTAOhdMVmRrD+eTGFp+XDbquK+dnpFj5GnHPFficTwyQ7kAc5bc2eoh9g9tuHuhLCIYD49zNr3vlcQ==
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 69f7d8f5-1a26-473a-4ac4-08d7d6d97e4b
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2020 07:43:11.4503
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-FromEntityHeader: Internet
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1EUR05HT254
+References: <20200401161530.451355388@linuxfoundation.org>
+In-Reply-To: <20200401161530.451355388@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 2 Apr 2020 13:15:45 +0530
+Message-ID: <CA+G9fYswn5TeEeuoNLx6i95tsaEirahBjU1V7Rc7ZMj2Lc6K+g@mail.gmail.com>
+Subject: Re: [PATCH 4.9 000/102] 4.9.218-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/2/20 9:40 AM, Kees Cook wrote:
-> On Mon, Mar 30, 2020 at 01:14:59PM -0700, Matthew Wilcox wrote:
->> On Mon, Mar 30, 2020 at 10:12:02PM +0200, Bernd Edlinger wrote:
->>> On 3/29/20 5:44 AM, Kees Cook wrote:
->>>> On Sat, Mar 28, 2020 at 11:32:35PM +0100, Bernd Edlinger wrote:
->>>>> Oh, do I understand you right, that I can add a From: in the
->>>>> *body* of the mail, and then the From: in the MIME header part
->>>>> which I cannot change is ignored, so I can make you the author?
->>>>
->>>> Correct. (If you use "git send-email" it'll do this automatically.)
->>>>
->>>> e.g., trimmed from my workflow:
->>>>
->>>> git format-patch -n --to "$to" --cover-letter -o outgoing/ \
->>>> 	--subject-prefix "PATCH v$version" "$SHA"
->>>> edit outgoing/0000-*
->>>> git send-email --transfer-encoding=8bit --8bit-encoding=UTF-8 \
->>>> 	--from="$ME" --to="$to" --cc="$ME" --cc="...more..." outgoing/*
->>>>
->>>>
->>>
->>> Okay, thanks, I see that is very helpful information for me, and in
->>> this case I had also fixed a small bug in one of Eric's patches, which
->>> was initially overlooked (aquiring mutexes in wrong order,
->>> releasing an unlocked mutex in some error paths).
->>> I am completely unexperienced, and something that complex was not
->>> expected to happen :-) so this is just to make sure I can handle it
->>> correctly if something like this happens again.
->>>
->>> In the case of PATCH v6 05/16 I removed the Reviewd-by: Bernd Edlinger
->>> since it is now somehow two authors and reviewing own code is obviously
->>> not ok, instead I added a Signed-off-by: Bernd Edlinger (and posted the
->>> whole series on Eric's behalf (after asking Eric's permissing per off-list
->>> e-mail, which probably ended in his spam folder)
->>>
->>> Is this having two Signed-off-by: for mutliple authors the
->>> correct way to handle a shared authorship?
->>
->> If the patch comes through you, then Reviewed-by: is inappropriate.
->> Instead, you should use Signed-off-by: in the second sense of
->> Documentation/process/submitting-patches.rst
->>
->> This also documents how to handle "minor changes" that you make.
-> 
-> And in the true case of multiple authors, have both SoBs, but also add a
-> Co-developed-by: for the non-"git author" author. Specific details:
-> https://www.kernel.org/doc/html/latest/process/submitting-patches.html#when-to-use-acked-by-cc-and-co-developed-by
-> 
+On Wed, 1 Apr 2020 at 22:06, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.218 release.
+> There are 102 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 03 Apr 2020 16:09:36 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.218-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Thanks a lot, much appreciated information indeed.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-I personally like to play together :-)
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.9.218-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: 61ccfbbfe9f63b4a44ef11f9ad40d362970cc8fc
+git describe: v4.9.217-103-g61ccfbbfe9f6
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.217-103-g61ccfbbfe9f6
+
+No regressions (compared to build v4.9.217)
+
+No fixes (compared to build v4.9.217)
 
 
-Bernd.
+Ran 28143 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-commands-tests
+* ltp-cve-tests
+* ltp-math-tests
+* network-basic-tests
+* ltp-ipc-tests
+* ltp-open-posix-tests
+* spectre-meltdown-checker-test
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
