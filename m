@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED2DD19C97B
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C089019C97C
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730837AbgDBTLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:11:35 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:45007 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389109AbgDBTLe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:11:34 -0400
-Received: by mail-wr1-f65.google.com with SMTP id m17so5535089wrw.11
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:11:34 -0700 (PDT)
+        id S2389224AbgDBTLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:11:39 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:55493 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731689AbgDBTLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:11:39 -0400
+Received: by mail-wm1-f66.google.com with SMTP id r16so4609259wmg.5
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:11:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=F5CTVmkRwDkF7Ni00En7JXaK7NKNpAYGpg2igcv3wbI=;
-        b=gCVR1lXloWKANyvhcZUFiqytlFIY2CA97FGvJ1ABZI48YzZB0oyaa/HU40nntiB97b
-         7ZG0szRIy8OZqmvLG1sg4WWGRNt0E6BuGJHCOi/5UndYDWCFgOULdl8FLa6BclMILRN5
-         MpikEuSQknx1hRnJsIYQKelCk3mLMXxlTKopBAhHCvtjzTBQAiuV4Pq/Lui6EQhbtOW0
-         waBztOX3Zocjnsf6UyJfa6BTOHOY97YPfkPP0TTLwCfJB8+8wG2k1J1kZ6Vo0ZvJTDkF
-         ScVaJBLokf7tBxbFEwLhHhhsLjgkKUIj/nfLVIK6Y9ZapONG28946vIxqMC1cecb2xwj
-         X0HQ==
+        bh=rizpshgRSVswJNtjW2UZ/pm8CNXM39+z2QpqQR8eHr8=;
+        b=fYhkKqZm/pPmdPk67spI3EjYS3skZCNKAxBDtNoWwknyhXMVs1QLwn6rj7OZNAMeM8
+         vdttxOkxxbBZI3XAaazlVKJw6wHKiq1a2bNzROdl1Fg+uNTXb/sJO5kiE2fi+oX0B9Y1
+         mQhKkY/v2/YpYMAxeMokI1HOOXaOZyMKHqQlKZvcz0uK1f2ypI0xYJIBA3hQ4GriZNm9
+         jlxO0UjCt+DuElLOP4IFzcnWlwn1aHEs1j6iSPpiG7Tk6uQzfKl1DLRlnXUck1OPUJFz
+         3h65rmYjcVm5rCCq8rjb4mfHxCh/KE9drl4Wm/+DJZ8mcQFVNnmAdXjW47Gn7uv/9hM7
+         8hRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=F5CTVmkRwDkF7Ni00En7JXaK7NKNpAYGpg2igcv3wbI=;
-        b=SDeprpu2mZh81+VOcrSnlgiQbkcYb477KpYpgHO440iXM8rXsjNT064s5B5oHpPZkl
-         CiFflNjO2l8Ew561YIDszZbHpsr/BjI7Fyarj7++gFlaxW69sppq+/zhV++1ZKdwfcAb
-         jHessuC6uV1iK0dV9zO+XBqzQmJUmGJX5gmsyCfZ1jpG+20W3MzknXfMFHrHbasawrNA
-         VoaWE/i5eJ5g6t/MByY8CWDFB86UST2qCwCwo+jveV1paFwbzfHRteqXMGIpO8NJB3KA
-         f5Wk9eJRg3k9LVsPbnd1vu/1/TWSAbU4QTrehghg1So9vFhdLt5C0MFXDLkbAnfqGd6w
-         1EEg==
-X-Gm-Message-State: AGi0PubxR+bW3faRKrZRhHtbHwv7BCn2hPcmuIYlO/SqdPA69wZ7mfdy
-        4aWVLD2ldwzJdVtbERlFD4Zaj/PvTH/+KQ==
-X-Google-Smtp-Source: APiQypKWFAAfyy4v1IJibAM8F+dKk4tI8CN/usIgRM0B44jA2ZCYRqPP7aAzdfjrP93/3u7CbZYP3A==
-X-Received: by 2002:a5d:6a10:: with SMTP id m16mr5288386wru.371.1585854693219;
-        Thu, 02 Apr 2020 12:11:33 -0700 (PDT)
+        bh=rizpshgRSVswJNtjW2UZ/pm8CNXM39+z2QpqQR8eHr8=;
+        b=NRGHH2o0lWnpoDZf8aFLqKT649TDR7vaZP2zOaBYWP5po8In2Kaxr2yeQGSqxbs7Ed
+         tTpBE9QUp/wZc0GMhmfNqQZz/1EE+2qLYv1zhMeutbnvMSwysCrgOTAdUwA5fzHyj9tU
+         mXoB3v7kMGxregkBHm9CKht+Sl/90RqWGSeEqi4YB57H6F9tSyf5wLKo+mw5Mqdoiq7Y
+         nXXRC0K3dVmgG/Vmns189j5GTy4Od05evqiknM45eAeOMrFmHHUPibIfft/kDvakGQFj
+         5jOZBzE7+frgTZhYsI2Sw/YfZ99bfsIl0Q4YEi1feuYjab+d0rfXnzMyQ6S0u/MXnam8
+         h0gw==
+X-Gm-Message-State: AGi0PuZTH/xU3uletRMkXp7FQWL/C2MdC7tGVySX9qizJZm+wABQr0Lh
+        juRXSxr9aD47O8TqPgM9TYIkJHvRzIMQiA==
+X-Google-Smtp-Source: APiQypJflW9Wbdga//xMAXLUIXGFXs9d4XFyVNilxNCUeuhYZUjnDNQe6rBI27dVKyapvNm9QnBhkg==
+X-Received: by 2002:a1c:41d4:: with SMTP id o203mr4652372wma.1.1585854694388;
+        Thu, 02 Apr 2020 12:11:34 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id s15sm8442164wrt.16.2020.04.02.12.11.31
+        by smtp.gmail.com with ESMTPSA id s15sm8442164wrt.16.2020.04.02.12.11.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:11:31 -0700 (PDT)
+        Thu, 02 Apr 2020 12:11:33 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.19 06/14] wil6210: ignore HALP ICR if already handled
-Date:   Thu,  2 Apr 2020 20:12:12 +0100
-Message-Id: <20200402191220.787381-6-lee.jones@linaro.org>
+Subject: [PATCH 4.19 07/14] wil6210: add general initialization/size checks
+Date:   Thu,  2 Apr 2020 20:12:13 +0100
+Message-Id: <20200402191220.787381-7-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191220.787381-1-lee.jones@linaro.org>
 References: <20200402191220.787381-1-lee.jones@linaro.org>
@@ -59,88 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maya Erez <merez@codeaurora.org>
+From: Alexei Avshalom Lazar <ailizaro@codeaurora.org>
 
-[ Upstream commit 979c9d8d01c482b1befb44dc639ecb907b5a37bd ]
+[ Upstream commit ac0e541ab2f2951845acee784ef487be40fb4c77 ]
 
-HALP ICR is set as long as the FW should stay awake.
-To prevent its multiple handling the driver masks this IRQ bit.
-However, if there is a different MISC ICR before the driver clears
-this bit, there is a risk of race condition between HALP mask and
-unmask. This race leads to HALP timeout, in case it is mistakenly
-masked.
-Add an atomic flag to indicate if HALP ICR should be handled.
+Initialize unset variable, and verify that mid is valid.
 
+Signed-off-by: Alexei Avshalom Lazar <ailizaro@codeaurora.org>
 Signed-off-by: Maya Erez <merez@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/net/wireless/ath/wil6210/interrupt.c | 12 ++++++++----
- drivers/net/wireless/ath/wil6210/main.c      |  3 +++
- drivers/net/wireless/ath/wil6210/wil6210.h   |  1 +
- 3 files changed, 12 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/wil6210/debugfs.c | 2 ++
+ drivers/net/wireless/ath/wil6210/wmi.c     | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/wil6210/interrupt.c b/drivers/net/wireless/ath/wil6210/interrupt.c
-index 0655cd8845142..d161dc930313d 100644
---- a/drivers/net/wireless/ath/wil6210/interrupt.c
-+++ b/drivers/net/wireless/ath/wil6210/interrupt.c
-@@ -1,6 +1,6 @@
- /*
-  * Copyright (c) 2012-2017 Qualcomm Atheros, Inc.
-- * Copyright (c) 2018, The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
-  *
-  * Permission to use, copy, modify, and/or distribute this software for any
-  * purpose with or without fee is hereby granted, provided that the above
-@@ -590,10 +590,14 @@ static irqreturn_t wil6210_irq_misc(int irq, void *cookie)
- 	}
+diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
+index 44296c0159252..acd95ca0430b9 100644
+--- a/drivers/net/wireless/ath/wil6210/debugfs.c
++++ b/drivers/net/wireless/ath/wil6210/debugfs.c
+@@ -991,6 +991,8 @@ static ssize_t wil_write_file_txmgmt(struct file *file, const char __user *buf,
+ 	int rc;
+ 	void *frame;
  
- 	if (isr & BIT_DMA_EP_MISC_ICR_HALP) {
--		wil_dbg_irq(wil, "irq_misc: HALP IRQ invoked\n");
--		wil6210_mask_halp(wil);
- 		isr &= ~BIT_DMA_EP_MISC_ICR_HALP;
--		complete(&wil->halp.comp);
-+		if (wil->halp.handle_icr) {
-+			/* no need to handle HALP ICRs until next vote */
-+			wil->halp.handle_icr = false;
-+			wil_dbg_irq(wil, "irq_misc: HALP IRQ invoked\n");
-+			wil6210_mask_halp(wil);
-+			complete(&wil->halp.comp);
-+		}
- 	}
++	memset(&params, 0, sizeof(params));
++
+ 	if (!len)
+ 		return -EINVAL;
  
- 	wil->isr_misc = isr;
-diff --git a/drivers/net/wireless/ath/wil6210/main.c b/drivers/net/wireless/ath/wil6210/main.c
-index 10673fa9388ec..28d2bfd0fde79 100644
---- a/drivers/net/wireless/ath/wil6210/main.c
-+++ b/drivers/net/wireless/ath/wil6210/main.c
-@@ -1814,11 +1814,14 @@ void wil_halp_vote(struct wil6210_priv *wil)
+diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
+index 8a603432f5317..3928b13ae0266 100644
+--- a/drivers/net/wireless/ath/wil6210/wmi.c
++++ b/drivers/net/wireless/ath/wil6210/wmi.c
+@@ -2802,7 +2802,7 @@ static void wmi_event_handle(struct wil6210_priv *wil,
  
- 	if (++wil->halp.ref_cnt == 1) {
- 		reinit_completion(&wil->halp.comp);
-+		/* mark to IRQ context to handle HALP ICR */
-+		wil->halp.handle_icr = true;
- 		wil6210_set_halp(wil);
- 		rc = wait_for_completion_timeout(&wil->halp.comp, to_jiffies);
- 		if (!rc) {
- 			wil_err(wil, "HALP vote timed out\n");
- 			/* Mask HALP as done in case the interrupt is raised */
-+			wil->halp.handle_icr = false;
- 			wil6210_mask_halp(wil);
- 		} else {
- 			wil_dbg_irq(wil,
-diff --git a/drivers/net/wireless/ath/wil6210/wil6210.h b/drivers/net/wireless/ath/wil6210/wil6210.h
-index 75fe1a3b70466..6a05f59ee58e9 100644
---- a/drivers/net/wireless/ath/wil6210/wil6210.h
-+++ b/drivers/net/wireless/ath/wil6210/wil6210.h
-@@ -778,6 +778,7 @@ struct wil_halp {
- 	struct mutex		lock; /* protect halp ref_cnt */
- 	unsigned int		ref_cnt;
- 	struct completion	comp;
-+	u8			handle_icr;
- };
- 
- struct wil_blob_wrapper {
+ 		if (mid == MID_BROADCAST)
+ 			mid = 0;
+-		if (mid >= wil->max_vifs) {
++		if (mid >= ARRAY_SIZE(wil->vifs) || mid >= wil->max_vifs) {
+ 			wil_dbg_wmi(wil, "invalid mid %d, event skipped\n",
+ 				    mid);
+ 			return;
 -- 
 2.25.1
 
