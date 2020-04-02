@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE4319BB1C
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 06:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBF5619BB1F
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 06:32:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725890AbgDBEaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 00:30:06 -0400
-Received: from mail27.static.mailgun.info ([104.130.122.27]:17550 "EHLO
+        id S1726136AbgDBEcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 00:32:31 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:13214 "EHLO
         mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726136AbgDBEaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 00:30:06 -0400
+        by vger.kernel.org with ESMTP id S1726205AbgDBEca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 00:32:30 -0400
 DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1585801805; h=Content-Transfer-Encoding: MIME-Version:
+ s=smtp; t=1585801950; h=Content-Transfer-Encoding: MIME-Version:
  Message-Id: Date: Subject: Cc: To: From: Sender;
- bh=53yvaZxEbBFefoatZ8fiPBqScAFWbULTmksxVY0SyVA=; b=ft5AV4YLVJ3wdLVZpbLZwi76Zc9wlCh+yfbQv49YNAHwqY/gsw+W/ruL40zLZ5JOu/TyOSJt
- X2bQ6Wkl4O2aAv9T5XLwbCaZFGupNWtJvU5KnUlQJ25WzkMPR0tAle48hlUcd0cSGmQtKeWb
- NOeIc90BF82UL4ovIRW2r2k2HqI=
+ bh=53yvaZxEbBFefoatZ8fiPBqScAFWbULTmksxVY0SyVA=; b=XyuK4j2Sflhei3Nsdq0oJC2Y9pVlRm/fdUAWlCjwJ+BCbUWUV/pJMggEjqL25/BrdTvibHfg
+ oiUHBvkp7sBKvqhaVr4vLbDmucJJy6vv7bSGssLhnamdntEFhqz3q/v5anzH6uzmT8k404UI
+ mXxPSpHleUDO4uNzKI2zPf/pGDo=
 X-Mailgun-Sending-Ip: 104.130.122.27
 X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
 Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e856a49.7f625dcc90d8-smtp-out-n05;
- Thu, 02 Apr 2020 04:30:01 -0000 (UTC)
+ by mxa.mailgun.org with ESMTP id 5e856ad5.7ff7bcfe67d8-smtp-out-n05;
+ Thu, 02 Apr 2020 04:32:21 -0000 (UTC)
 Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 0E92FC433BA; Thu,  2 Apr 2020 04:30:01 +0000 (UTC)
+        id B57A0C43637; Thu,  2 Apr 2020 04:32:21 +0000 (UTC)
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
         aws-us-west-2-caf-mail-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.0
+        autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from sallenki-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
         (No client certificate requested)
         (Authenticated sender: sallenki)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 58CA7C433D2;
-        Thu,  2 Apr 2020 04:29:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 58CA7C433D2
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 5CE04C433F2;
+        Thu,  2 Apr 2020 04:32:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 5CE04C433F2
 Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
 Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=sallenki@codeaurora.org
 From:   Sriharsha Allenki <sallenki@codeaurora.org>
-To:     ugoswami@codeaurora.org
-Cc:     stable@vger.kernel.org, Sriharsha Allenki <sallenki@codeaurora.org>
+To:     balbi@kernel.org, gregkh@linuxfoundation.org,
+        linux-usb@vger.kernel.org, ugoswami@codeaurora.org
+Cc:     mgautam@codeaurora.org, jackp@codeaurora.org,
+        stable@vger.kernel.org, Sriharsha Allenki <sallenki@codeaurora.org>
 Subject: [PATCH] usb: f_fs: Clear OS Extended descriptor counts to zero in ffs_data_reset()
-Date:   Thu,  2 Apr 2020 09:59:50 +0530
-Message-Id: <20200402042950.866-1-sallenki@codeaurora.org>
+Date:   Thu,  2 Apr 2020 10:02:10 +0530
+Message-Id: <20200402043210.2342-1-sallenki@codeaurora.org>
 X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
