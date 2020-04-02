@@ -2,109 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9E0F19BAE5
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 06:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B90E19BB18
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 06:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728841AbgDBELx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 00:11:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38956 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726136AbgDBELw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Apr 2020 00:11:52 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725789AbgDBE3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 00:29:30 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:17550 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725788AbgDBE33 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 00:29:29 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1585801769; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=aSJkkDo9r4BopXJ1X7jEzBTnOXcTVpq2ZrCW1W8OyvQ=; b=gBvskU2kwXzZzqt9ILTeDPLMvhslSLDo7R5+jT8m96czcsDTIE5Ln4k6xpDgU7uHw3Iept2q
+ Onod2Fizgz8t6U53CmU3B0z+qvFml6SViDrIwyt1Bed1/2kXotjsxXQlGPma+NpaQu8R5pCb
+ oeutNBXnm9IVWaO9dGEolMeZjmo=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e856a1a.7fed780646c0-smtp-out-n04;
+ Thu, 02 Apr 2020 04:29:14 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 4BA15C433D2; Thu,  2 Apr 2020 04:29:13 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from sallenki-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBFFA206E9;
-        Thu,  2 Apr 2020 04:11:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1585800712;
-        bh=P2e8qzlNQcei1FraJyANcW3Nv8wmtTYjvoEQlyi0QPI=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=WKv2Tc7xu7k7wwR00qtGq+3wDuOYN5Emi6Crraa9AzMCFrDGKHG9qEJkFtUj45ePM
-         OHXKHe8A+o9GE1YYYqkMW1psWUOiTygZZF7M4tU4XUni+cI+ZuHSAErfF8Diy1RjbW
-         Dcn0Q8wa+oNSJP5dnhYBLDX/xCBBuHLwFhB8wtgI=
-Date:   Wed, 01 Apr 2020 21:11:51 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, christophe.leroy@c-s.fr,
-        leonardo@linux.ibm.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, mpe@ellerman.id.au, shuah@kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 153/155] selftests/vm: fix map_hugetlb length used
- for testing read and write
-Message-ID: <20200402041151.Oj5_LzOcN%akpm@linux-foundation.org>
-In-Reply-To: <20200401210155.09e3b9742e1c6e732f5a7250@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        (Authenticated sender: sallenki)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id E1BDCC433F2;
+        Thu,  2 Apr 2020 04:29:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org E1BDCC433F2
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=sallenki@codeaurora.org
+From:   Sriharsha Allenki <sallenki@codeaurora.org>
+To:     mgautam@codeaurora.org, ugoswami@codeaurora.org
+Cc:     stable@vger.kernel.org, Sriharsha Allenki <sallenki@codeaurora.org>
+Subject: [PATCH] usb: f_fs: Clear OS Extended descriptor counts to zero in ffs_data_reset()
+Date:   Thu,  2 Apr 2020 09:59:00 +0530
+Message-Id: <20200402042900.597-1-sallenki@codeaurora.org>
+X-Mailer: git-send-email 2.26.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Subject: selftests/vm: fix map_hugetlb length used for testing read and write
+From: Udipto Goswami <ugoswami@codeaurora.org>
 
-Commit fa7b9a805c79 ("tools/selftest/vm: allow choosing mem size and page
-size in map_hugetlb") added the possibility to change the size of memory
-mapped for the test, but left the read and write test using the default
-value.  This is unnoticed when mapping a length greater than the default
-one, but segfaults otherwise.
+From: Udipto Goswami <ugoswami@codeaurora.org>
 
-Fix read_bytes() and write_bytes() by giving them the real length.
+For userspace functions using OS Descriptors, if a function also supplies
+Extended Property descriptors currently the counts and lengths stored in
+the ms_os_descs_ext_prop_{count,name_len,data_len} variables are not
+getting reset to 0 during an unbind or when the epfiles are closed. If
+the same function is re-bound and the descriptors are re-written, this
+results in those count/length variables to monotonically increase
+causing the VLA allocation in _ffs_func_bind() to grow larger and larger
+at each bind/unbind cycle and eventually fail to allocate.
 
-Also fix the call to munmap().
+Fix this by clearing the ms_os_descs_ext_prop count & lengths to 0 in
+ffs_data_reset().
 
-Link: http://lkml.kernel.org/r/9a404a13c871c4bd0ba9ede68f69a1225180dd7e.1580978385.git.christophe.leroy@c-s.fr
-Fixes: fa7b9a805c79 ("tools/selftest/vm: allow choosing mem size and page size in map_hugetlb")
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Reviewed-by: Leonardo Bras <leonardo@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Change-Id: I3b292fe5386ab54b53df2b9f15f07430dc3df24a
+Fixes: f0175ab51993 ("usb: gadget: f_fs: OS descriptors support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Udipto Goswami <ugoswami@codeaurora.org>
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
 ---
+ drivers/usb/gadget/function/f_fs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
- tools/testing/selftests/vm/map_hugetlb.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
---- a/tools/testing/selftests/vm/map_hugetlb.c~selftests-vm-fix-map_hugetlb-length-used-for-testing-read-and-write
-+++ a/tools/testing/selftests/vm/map_hugetlb.c
-@@ -45,20 +45,20 @@ static void check_bytes(char *addr)
- 	printf("First hex is %x\n", *((unsigned int *)addr));
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index c81023b195c3..10f01f974f67 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1813,6 +1813,10 @@ static void ffs_data_reset(struct ffs_data *ffs)
+ 	ffs->state = FFS_READ_DESCRIPTORS;
+ 	ffs->setup_state = FFS_NO_SETUP;
+ 	ffs->flags = 0;
++
++	ffs->ms_os_descs_ext_prop_count = 0;
++	ffs->ms_os_descs_ext_prop_name_len = 0;
++	ffs->ms_os_descs_ext_prop_data_len = 0;
  }
  
--static void write_bytes(char *addr)
-+static void write_bytes(char *addr, size_t length)
- {
- 	unsigned long i;
  
--	for (i = 0; i < LENGTH; i++)
-+	for (i = 0; i < length; i++)
- 		*(addr + i) = (char)i;
- }
- 
--static int read_bytes(char *addr)
-+static int read_bytes(char *addr, size_t length)
- {
- 	unsigned long i;
- 
- 	check_bytes(addr);
--	for (i = 0; i < LENGTH; i++)
-+	for (i = 0; i < length; i++)
- 		if (*(addr + i) != (char)i) {
- 			printf("Mismatch at %lu\n", i);
- 			return 1;
-@@ -96,11 +96,11 @@ int main(int argc, char **argv)
- 
- 	printf("Returned address is %p\n", addr);
- 	check_bytes(addr);
--	write_bytes(addr);
--	ret = read_bytes(addr);
-+	write_bytes(addr, length);
-+	ret = read_bytes(addr, length);
- 
- 	/* munmap() length of MAP_HUGETLB memory must be hugepage aligned */
--	if (munmap(addr, LENGTH)) {
-+	if (munmap(addr, length)) {
- 		perror("munmap");
- 		exit(1);
- 	}
-_
+-- 
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, a Linux Foundation Collaborative Project
