@@ -2,107 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1D7819C3CB
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 16:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4092319C54F
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 17:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731842AbgDBOR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 10:17:28 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:33362 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731783AbgDBOR2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 10:17:28 -0400
-Received: from in02.mta.xmission.com ([166.70.13.52])
-        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.90_1)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jK0es-0003sC-5r; Thu, 02 Apr 2020 08:17:26 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jK0en-0002Mh-AX; Thu, 02 Apr 2020 08:17:25 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Jann Horn <jannh@google.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Adam Zabrocki <pi3@pi3.com.pl>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Bernd Edlinger <bernd.edlinger@hotmail.de>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable <stable@vger.kernel.org>
-References: <20200324215049.GA3710@pi3.com.pl> <202003291528.730A329@keescook>
-        <87zhbvlyq7.fsf_-_@x220.int.ebiederm.org>
-        <CAG48ez1dCPw9Dep-+GWn=SnHv1nVv4Npv1FpFxmomk6tmazB-g@mail.gmail.com>
-Date:   Thu, 02 Apr 2020 09:14:38 -0500
-In-Reply-To: <CAG48ez1dCPw9Dep-+GWn=SnHv1nVv4Npv1FpFxmomk6tmazB-g@mail.gmail.com>
-        (Jann Horn's message of "Thu, 2 Apr 2020 06:46:49 +0200")
-Message-ID: <87y2rekm9d.fsf@x220.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S2388923AbgDBPCL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 11:02:11 -0400
+Received: from poserver.naic.edu ([192.65.176.209]:44509 "EHLO
+        poserver.naic.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388234AbgDBPCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 11:02:11 -0400
+X-Greylist: delayed 503 seconds by postgrey-1.27 at vger.kernel.org; Thu, 02 Apr 2020 11:02:10 EDT
+Received: from mailserver.naic.edu (mailserver.naic.edu [192.65.176.45])
+        by poserver.naic.edu (8.14.4/8.14.4/Debian-8+deb8u2) with ESMTP id 032Erb2v021311;
+        Thu, 2 Apr 2020 14:53:37 GMT
+Received: from monopoli.naic.edu (monopoli [192.65.176.208])
+        by mailserver.naic.edu (8.12.8/8.12.8) with ESMTP id 032Eraik026816;
+        Thu, 2 Apr 2020 10:53:36 -0400
+Received: by monopoli.naic.edu (Postfix, from userid 205)
+        id 4BD348533D3A; Thu,  2 Apr 2020 10:53:36 -0400 (AST)
+Date:   Thu, 2 Apr 2020 10:53:36 -0400
+From:   Giacomo Comes <comes@naic.edu>
+To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Cc:     Giacomo Comes <comes@naic.edu>, intel-gfx@lists.freedesktop.org,
+        stable@vger.kernel.org
+Subject: Re: [Intel-gfx] kernel 5.6: baytrail hdmi audio not working
+Message-ID: <20200402145336.GA19483@monopoli.naic.edu>
+References: <20200401225317.GA13834@monopoli.naic.edu>
+ <20200402135203.GV13686@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1jK0en-0002Mh-AX;;;mid=<87y2rekm9d.fsf@x220.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX19aHVbkFFXhJEzKOhX85KQe0ZY2f9JbahM=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa03.xmission.com
-X-Spam-Level: 
-X-Spam-Status: No, score=-0.2 required=8.0 tests=ALL_TRUSTED,BAYES_50,
-        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG autolearn=disabled
-        version=3.4.2
-X-Spam-Virus: No
-X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4764]
-        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
-        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-        *      [sa03 1397; Body=1 Fuz1=1 Fuz2=1]
-X-Spam-DCC: XMission; sa03 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ;Jann Horn <jannh@google.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 4401 ms - load_scoreonly_sql: 0.04 (0.0%),
-        signal_user_changed: 4.4 (0.1%), b_tie_ro: 3.1 (0.1%), parse: 0.99
-        (0.0%), extract_message_metadata: 12 (0.3%), get_uri_detail_list: 1.37
-        (0.0%), tests_pri_-1000: 10 (0.2%), tests_pri_-950: 0.98 (0.0%),
-        tests_pri_-900: 0.80 (0.0%), tests_pri_-90: 300 (6.8%), check_bayes:
-        298 (6.8%), b_tokenize: 4.6 (0.1%), b_tok_get_all: 224 (5.1%),
-        b_comp_prob: 1.51 (0.0%), b_tok_touch_all: 65 (1.5%), b_finish: 0.78
-        (0.0%), tests_pri_0: 166 (3.8%), check_dkim_signature: 0.37 (0.0%),
-        check_dkim_adsp: 2.2 (0.0%), poll_dns_idle: 3894 (88.5%),
-        tests_pri_10: 1.77 (0.0%), tests_pri_500: 3901 (88.7%), rewrite_mail:
-        0.00 (0.0%)
-Subject: Re: [PATCH] signal: Extend exec_id to 64bits
-X-Spam-Flag: No
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200402135203.GV13686@intel.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Spam-Score: undef - 192.65.176.45 is allowed always.
+X-CanIt-Geo: ip=192.65.176.45; country=PR; latitude=18.2500; longitude=-66.5000; http://maps.google.com/maps?q=18.2500,-66.5000&z=6
+X-CanItPRO-Stream: default
+X-Canit-Stats-ID: Bayes signature not available
+Received-SPF: neutral (poserver.naic.edu: 192.65.176.45 is neither permitted
+        nor denied by domain comes@naic.edu)
+        receiver=poserver.naic.edu; client-ip=192.65.176.45;
+        envelope-from=<comes@naic.edu>; helo=mailserver.naic.edu;
+        identity=mailfrom
+X-Scanned-By: CanIt (www . roaringpenguin . com) on 192.65.176.209
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Jann Horn <jannh@google.com> writes:
+On Thu, Apr 02, 2020 at 04:52:03PM +0300, Ville Syrjälä wrote:
+> On Wed, Apr 01, 2020 at 06:53:17PM -0400, Giacomo Comes wrote:
+> > Hi,
+> > on my Intel Compute Stick STCK1 (baytrail hdmi audio) 
+> > sound is not working with the kernel 5.6
+> > 
+> > I have bisected the kernel and I found the commit that introduced the issue:
+> > 
+> > commit 58d124ea2739e1440ddd743d46c470fe724aca9a
+> > Author: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> > Date:   Thu Oct 31 12:26:04 2019 +0100
+> > 
+> >     drm/i915: Complete crtc hw/uapi split, v6.
+> >     
+> >     Now that we separated everything into uapi and hw, it's
+> >     time to make the split definitive. Remove the union and
+> >     make a copy of the hw state on modeset and fastset.
+> >     
+> >     Color blobs are copied in crtc atomic_check(), right
+> >     before color management is checked.
+> > 
+> > If more information is required please let me know.
+> 
+> Should hopefully be fixed with
+> commit 2bdd4c28baff ("drm/i915/display: Fix mode private_flags
+> comparison at atomic_check")
+> 
+> Stable folks, please pick that up for 5.6.x stable releases.
 
-> On Wed, Apr 1, 2020 at 10:50 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
->> Replace the 32bit exec_id with a 64bit exec_id to make it impossible
->> to wrap the exec_id counter.  With care an attacker can cause exec_id
->> wrap and send arbitrary signals to a newly exec'd parent.  This
->> bypasses the signal sending checks if the parent changes their
->> credentials during exec.
->>
->> The severity of this problem can been seen that in my limited testing
->> of a 32bit exec_id it can take as little as 19s to exec 65536 times.
->> Which means that it can take as little as 14 days to wrap a 32bit
->> exec_id.  Adam Zabrocki has succeeded wrapping the self_exe_id in 7
->> days.  Even my slower timing is in the uptime of a typical server.
->
-> FYI, if you actually optimize this, it's more like 12s to exec 1048576
-> times according to my test, which means ~14 hours for 2^32 executions
-> (on a single core). That's on an i7-4790 (a Haswell desktop processor
-> that was launched about six years ago, in 2014).
+I can confirm that the commit indeed solves the problem I have.
+It should go in the stable 5.6.x release ASAP.
 
-Half a day.  I am not at all surprised, but it is good to know it can
-take so little time.
-
-Eric
+Thanks.
+Giacomo
