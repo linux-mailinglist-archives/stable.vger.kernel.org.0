@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B325619C9C2
-	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9275E19C9C4
+	for <lists+stable@lfdr.de>; Thu,  2 Apr 2020 21:17:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389021AbgDBTRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 15:17:15 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:35748 "EHLO
+        id S2389006AbgDBTRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 15:17:16 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:43961 "EHLO
         mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388921AbgDBTRP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:17:15 -0400
-Received: by mail-wr1-f65.google.com with SMTP id g3so3306573wrx.2
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:17:14 -0700 (PDT)
+        with ESMTP id S2389016AbgDBTRQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 15:17:16 -0400
+Received: by mail-wr1-f65.google.com with SMTP id 91so3656196wri.10
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 12:17:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Da4R2mObgWasMS/Jsu1LIg5EJg09QgEbjMnbzzaCLcM=;
-        b=DOS6Qwk17hcD7EQ+w/EO9hrgV/XWLxakPTBuC4MHQVerRGqXoZORyR1+q44sbsJWUs
-         tX4Ouo0aEiBzeK7qQMNy7zgGfQSiRUkj7FLcppWIluACxwKkf9R3bCEGaPEly82lVCko
-         kMBP5P6fHXkO1plvmkYrCdkuimmMYitqNw8HOa+hhZkdJgmsPSlG9EtJQGhhKAxzPM9B
-         2QPtiXqNbhDy16QjGTXSSGxcoVu8R9mFCXLk78Uj3AxkpemoQ5pgO1DrI5d0OQXo9CUd
-         KRS/6gftDT7GRj7HTIbNCPBp4bxqVWaukXLrEEana0lHiLIgESQlMpFuID0+HKjwUtO2
-         TCCQ==
+        bh=+fghok1gB+76TrHDpTqaBXzeyc4G/qE0r24JbvN7snI=;
+        b=nGM+IvJ9G+y4fTE/Cm4jkUF9UoE+h3zn2P1tp/kQ9/laQxjJoRim0wC7Q9mJl/UV7r
+         wxtZLZdPbd0Qy8JTjgooZoPK11+4C/ERCvMDep0IFosz51ibmJ8hGHSGFzNkGD15MFfs
+         FKSZGujJjH/GLlGJ34D5DPY/r5xGuhCU0xlVnSpTc7tvCtbVnIFIJq0DPuGx/yGvTzJn
+         6NUJCT7IwyE1/eUCdosLxxtY3dTaEdeH+KIklqbgBK4Fk7sq7lxgl5Q7lu+yvJdQck09
+         82erUN2CvBHKQRoF9IR85t9xL9ve3YptK8rL4ygbzoc9s5IkPk9yv0JpD/XtP+QhmZIS
+         gijg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Da4R2mObgWasMS/Jsu1LIg5EJg09QgEbjMnbzzaCLcM=;
-        b=pFOuj+ulABd3IqKcZspJ5WQ9tzke3VIg4KRMcph8NEVb+z7XC3yQK2Ky4hiF/uv9Gc
-         RAV5/dReydp5a/D5jy+IeIrqPNgiy538breSgXBloqAiMd3/4TsEUvKt3h1jYM2xhcP0
-         TbuRwc0+HNgvS4bxaNRSEuRhBERLaeu9PGPf6SveZeE4f0B8+ugJb7TciAzg71hin19/
-         1GAy3OxUpDObf1FkYUR4MWy/TzZFwHGPWing38DHwtifC0I6b4OxbqjVxeaoL2xMCOxK
-         5Lza/z2R5bfqjV8et5rB3D8TKxL6LEbzLvqDedYkPsK4v0Tn9gU4aDld2pK7K/72Aefj
-         CSnA==
-X-Gm-Message-State: AGi0PuYSS5YHx9uVYtAc4h1JayyohxhpXADMfrkDp6Wwma4PF7WXg4K8
-        KWy9WiQv9bJCmDJL4uH0P4+cB+MwjrGUaQ==
-X-Google-Smtp-Source: APiQypLMXNjzBALWtFyuyUSWuMLbYE0SS373kQv+vPtscmOVbkKkzTiJzcc0a25t8LKTM/9ng5np9Q==
-X-Received: by 2002:adf:e611:: with SMTP id p17mr4891680wrm.212.1585855033152;
-        Thu, 02 Apr 2020 12:17:13 -0700 (PDT)
+        bh=+fghok1gB+76TrHDpTqaBXzeyc4G/qE0r24JbvN7snI=;
+        b=rvF7IDumajm17u3eLA05G0JhJ1qzzXpX4HwGEoouBqaB9f2C77NQDw/QjzofLWHjTw
+         iRbvqxK81P0mQ8VJRrkEop7i6OwxvE4IdgBaKqn3YrIL4WTA1Xk6zIxh63u+hAjm7Ywt
+         ltZH9iSgNFb6ChAEqbXBpZuYZkDKcViOlo2FlC8MZEMJHRdibvhUcjx9A17R5EBBnpSY
+         vc/+sDqztmHvJms1z0wIFgVyycdJou0oKPiRD+JTiwIfr1BtDf9i5IGeyrvDvCt8OSXT
+         taWZpsKM+Ax8t+nrycn0q2C6pnN2P2L01k3y+IiKjvAf5v5fFkHcEf7GKfkvGWMzkjSN
+         C/FQ==
+X-Gm-Message-State: AGi0Pub2zXRV0uL/KxZCUsdmOq3hnYGgSH+lcNYHMWpIVVTGrwjrXtjR
+        3s5i+0tdldmLmfJqfS+NBeByJHC4GNEYkg==
+X-Google-Smtp-Source: APiQypKpjZxxGup4NU6x44SKP3sGsIFkiI0INdglIvikhyZf2Gp+jGMrexEBjxjwhPij8ceyIsncLw==
+X-Received: by 2002:adf:dfc6:: with SMTP id q6mr4645356wrn.325.1585855034494;
+        Thu, 02 Apr 2020 12:17:14 -0700 (PDT)
 Received: from localhost.localdomain ([95.149.164.95])
-        by smtp.gmail.com with ESMTPSA id y1sm879050wmd.14.2020.04.02.12.17.12
+        by smtp.gmail.com with ESMTPSA id y1sm879050wmd.14.2020.04.02.12.17.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 12:17:12 -0700 (PDT)
+        Thu, 02 Apr 2020 12:17:13 -0700 (PDT)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH 4.9 19/24] soc: qcom: smem: Use le32_to_cpu for comparison
-Date:   Thu,  2 Apr 2020 20:17:42 +0100
-Message-Id: <20200402191747.789097-19-lee.jones@linaro.org>
+Subject: [PATCH 4.9 20/24] of: fix missing kobject init for !SYSFS && OF_DYNAMIC config
+Date:   Thu,  2 Apr 2020 20:17:43 +0100
+Message-Id: <20200402191747.789097-20-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200402191747.789097-1-lee.jones@linaro.org>
 References: <20200402191747.789097-1-lee.jones@linaro.org>
@@ -59,34 +59,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Lew <clew@codeaurora.org>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit a216000f0140f415cec96129f777b5234c9d142f ]
+[ Upstream commit bd82bbf38cbe27f2c65660da801900d71bcc5cc8 ]
 
-Endianness can vary in the system, add le32_to_cpu when comparing
-partition sizes from smem.
+The ref counting is broken for OF_DYNAMIC when sysfs is disabled because
+the kobject initialization is skipped. Only the properties
+add/remove/update should be skipped for !SYSFS config.
 
-Signed-off-by: Chris Lew <clew@codeaurora.org>
-Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Andy Gross <andy.gross@linaro.org>
+Tested-by: Nicolas Pitre <nico@linaro.org>
+Reviewed-by: Frank Rowand <frowand.list@gmail.com>
+Acked-by: Grant Likely <grant.likely@secretlab.ca>
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/soc/qcom/smem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/of/base.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/soc/qcom/smem.c b/drivers/soc/qcom/smem.c
-index 18ec52f2078aa..89dd50fa404f7 100644
---- a/drivers/soc/qcom/smem.c
-+++ b/drivers/soc/qcom/smem.c
-@@ -646,7 +646,7 @@ static int qcom_smem_enumerate_partitions(struct qcom_smem *smem,
- 			return -EINVAL;
- 		}
+diff --git a/drivers/of/base.c b/drivers/of/base.c
+index c66cdc4307fd7..af80e3d34eda7 100644
+--- a/drivers/of/base.c
++++ b/drivers/of/base.c
+@@ -170,9 +170,6 @@ int __of_attach_node_sysfs(struct device_node *np)
+ 	struct property *pp;
+ 	int rc;
  
--		if (header->size != entry->size) {
-+		if (le32_to_cpu(header->size) != le32_to_cpu(entry->size)) {
- 			dev_err(smem->dev,
- 				"Partition %d has invalid size\n", i);
- 			return -EINVAL;
+-	if (!IS_ENABLED(CONFIG_SYSFS))
+-		return 0;
+-
+ 	if (!of_kset)
+ 		return 0;
+ 
 -- 
 2.25.1
 
