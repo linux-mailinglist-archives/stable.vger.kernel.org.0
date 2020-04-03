@@ -2,132 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49B2119D785
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 15:25:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 021C319D7A1
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 15:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728066AbgDCNZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 09:25:54 -0400
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:37101 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726087AbgDCNZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 09:25:53 -0400
-Received: by mail-oi1-f196.google.com with SMTP id u20so6061692oic.4;
-        Fri, 03 Apr 2020 06:25:53 -0700 (PDT)
+        id S1727989AbgDCNcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 09:32:55 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:33286 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727431AbgDCNcz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 09:32:55 -0400
+Received: by mail-lj1-f194.google.com with SMTP id f20so6990615ljm.0
+        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 06:32:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=shutemov-name.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=1B9NLeMDtTnr4dZAofQWYRGmeVDWcEa7QUbOLt8Zif0=;
+        b=V9OaIG26ZZXBs2ja92clufhFn4bOl7BZKyyKBPjIS97kJICoeFTJ/gNh0JRjSkG8XM
+         sELHUQIHzUNHOUZ1KDMD/J+JEE+vaUJpNarNzd+T8/0ftnB72UpO4ubBpiHPXj/zfB/H
+         qSb3zG1ktIjiC5q7Fdq8Qpf+r7s1gTZ76sQZ/8I9hP0pHwprXb16FgqdXMOUJzZYq8+m
+         ItiVGlE5Rswak81VqO7oL4nCyx0sPtR8LrcNBqEU1YCGzZUuzifVW9lZr3AL+487jotX
+         MmK7sbjRL0Ey5HtpevAa+FI9mrXKmMspJxdLSoKnl7MKovjcPchWGV9RwTc6OsmH+M8P
+         8STg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=5bl0oW2UaMbm846MDbnqihMiQu6ij4SqNZLt2jQkKdU=;
-        b=G26iveqllpugosFx4k9CzIOEjokj18JAKguIZ/lQVRAm0v16lQnSJ2Fqs2yZ4ktKOw
-         J/zbaVP8JDLYhbyemnIg9twlgX7G33DcR5YiE5g5PMO++mmIG/2etTNijzvNtVvv9NB1
-         pVLEgv1RsYgCJEk+kdol2wUvj1Xb3OyNjxbIaQkKdOYNlCiihPSZXq7M0t9XsbA38Oeg
-         vFb7gAAo82BseNV9GwJPxWdirxEeDLLWSSs451aZJjZLisRJfiY9dGyAzH1InLY3oCQA
-         8sbwAvzyxJwf1/rYSqGSkJRyQe8xFCsMMjBJYzSLirmVRzucnI32ChpY8fKMsjfnN5Mp
-         X6Lg==
-X-Gm-Message-State: AGi0PuaeEWHG8JzOPmD2covqSLg4R5Wcnku/bMwKYrcdRmDyaDJVV8ty
-        3lnu9UuhYEnmUeQ+3ug2TUtzpY9uogG+Gh7Bf4E=
-X-Google-Smtp-Source: APiQypKZPO0JhoWTs/XSnrPSPcz/KXDIsII7JLUge7QN3UZ7VSoLgRf1WErGGN8QSjpAiedtM5tpf0hb+p7dfG1a2Vs=
-X-Received: by 2002:aca:2209:: with SMTP id b9mr3021772oic.103.1585920352757;
- Fri, 03 Apr 2020 06:25:52 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=1B9NLeMDtTnr4dZAofQWYRGmeVDWcEa7QUbOLt8Zif0=;
+        b=HnQzPeeljH0BUoWHATmPaLMlYVlWPGDjgvXCa/DT4PPRqVsMJ5nMOuSySSdaw/33uh
+         umZr7BAfJdELr1UiUpvKwuRsIt/LB0RCE2oA109bkrI68amRmxZXaU9A246cgBIEVb1F
+         VKRyWwBMjPjFXAzmIHuuNtWZPKPSxCsjPPNaIQ0P1ItjE4nS0VLc5QrXmtFRC2FF76G7
+         w8Sp6F7+Q4B79i1TatRcpy9eXZ86Rhs6xcaDwWXDIeGs0WrBsT79+DFrmHkB0oFyMQ9v
+         mFuMfKZ7GVuYhHCmQZWvq9XI5lua+TwEVPiBscDgZBAYKPesyaiz80XUcYHi3o2U511Q
+         B5tw==
+X-Gm-Message-State: AGi0PuaWNBE+kvzcwrP4ysQtHEOy/GQqo1jOfQh+MijfrqQoIxRIXtn6
+        xcOPfJtvQWYVR8Pt5WwamnPr2XAOlME=
+X-Google-Smtp-Source: APiQypJoMxosZHh+k2+LEa98vRpsbBdcqv2X4B9kWQ22u0lddJXax1ykbJNUZYV1LR2PHYfc5evJKQ==
+X-Received: by 2002:a2e:95c4:: with SMTP id y4mr4912219ljh.94.1585920773859;
+        Fri, 03 Apr 2020 06:32:53 -0700 (PDT)
+Received: from box.localdomain ([86.57.175.117])
+        by smtp.gmail.com with ESMTPSA id d12sm5748186lfi.86.2020.04.03.06.32.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2020 06:32:53 -0700 (PDT)
+Received: by box.localdomain (Postfix, from userid 1000)
+        id AB1DD100F13; Fri,  3 Apr 2020 16:32:52 +0300 (+03)
+Date:   Fri, 3 Apr 2020 16:32:52 +0300
+From:   "Kirill A. Shutemov" <kirill@shutemov.name>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        linux- stable <stable@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        William Kucharski <william.kucharski@oracle.com>,
+        Julia Lawall <Julia.Lawall@lip6.fr>,
+        Michal Hocko <mhocko@kernel.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        lkft-triage@lists.linaro.org,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        LTP List <ltp@lists.linux.it>
+Subject: Re: mm/mremap.c : WARNING: at mm/mremap.c:211
+ move_page_tables+0x5b0/0x5d0
+Message-ID: <20200403133252.ivdqoppxhc6w5b47@box>
+References: <CA+G9fYs1xStrrsvGbW7bc4h1a0Kjfz0_zn4c7LL7-bGZb0GH6g@mail.gmail.com>
+ <20200402133849.mmkvekzx37kw4nsj@box>
+ <CA+G9fYv0xNtnD=eBmxVqYqEoYTbMk6mdn04WmgSUasDw2L7uFg@mail.gmail.com>
 MIME-Version: 1.0
-References: <20200403105235.105187-1-hdegoede@redhat.com> <20200403105235.105187-2-hdegoede@redhat.com>
-In-Reply-To: <20200403105235.105187-2-hdegoede@redhat.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 3 Apr 2020 15:25:41 +0200
-Message-ID: <CAJZ5v0gcRgTTRfCKHS00y599NBhWPgAYQF0RfFo6-vDegYA6Eg@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] platform/x86: intel_int0002_vgpio: Use acpi_register_wakeup_handler()
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "5 . 4+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYv0xNtnD=eBmxVqYqEoYTbMk6mdn04WmgSUasDw2L7uFg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 3, 2020 at 12:52 PM Hans de Goede <hdegoede@redhat.com> wrote:
->
-> The Power Management Events (PMEs) the INT0002 driver listens for get
-> signalled by the Power Management Controller (PMC) using the same IRQ
-> as used for the ACPI SCI.
->
-> Since commit fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from
-> waking up the system") the SCI triggering, without there being a wakeup
-> cause recognized by the ACPI sleep code, will no longer wakeup the system.
->
-> This breaks PMEs / wakeups signalled to the INT0002 driver, the system
-> never leaves the s2idle_loop() now.
->
-> Use acpi_register_wakeup_handler() to register a function which checks
-> the GPE0a_STS register for a PME and trigger a wakeup when a PME has
-> been signalled.
->
-> With this new mechanism the pm_wakeup_hard_event() call is no longer
-> necessary, so remove it and also remove the matching device_init_wakeup()
-> calls.
->
-> Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system")
-> Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v2:
-> - Adjust for the wakeup-handler registration function being renamed to
->   acpi_register_wakeup_handler()
-> ---
->  drivers/platform/x86/intel_int0002_vgpio.c | 14 ++++++++++----
->  1 file changed, 10 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platform/x86/intel_int0002_vgpio.c
-> index f14e2c5f9da5..9da19168b4f6 100644
-> --- a/drivers/platform/x86/intel_int0002_vgpio.c
-> +++ b/drivers/platform/x86/intel_int0002_vgpio.c
-> @@ -122,11 +122,17 @@ static irqreturn_t int0002_irq(int irq, void *data)
->         generic_handle_irq(irq_find_mapping(chip->irq.domain,
->                                             GPE0A_PME_B0_VIRT_GPIO_PIN));
->
-> -       pm_wakeup_hard_event(chip->parent);
-> -
+On Fri, Apr 03, 2020 at 12:56:57AM +0530, Naresh Kamboju wrote:
+> [  734.876355] old_addr: 0xbfe00000, new_addr: 0xbfc00000, old_end: 0xc0000000
 
-If the event occurs before the "noirq" phase of suspending devices, it
-can be missed with this change AFAICS.
+The ranges are overlapping. We don't expect it. mremap(2) never does this.
 
->         return IRQ_HANDLED;
->  }
->
-> +static bool int0002_check_wake(void *data)
-> +{
-> +       u32 gpe_sts_reg;
-> +
-> +       gpe_sts_reg = inl(GPE0A_STS_PORT);
-> +       return (gpe_sts_reg & GPE0A_PME_B0_STS_BIT);
-> +}
-> +
->  static struct irq_chip int0002_byt_irqchip = {
->         .name                   = DRV_NAME,
->         .irq_ack                = int0002_irq_ack,
-> @@ -220,13 +226,13 @@ static int int0002_probe(struct platform_device *pdev)
->                 return ret;
->         }
->
-> -       device_init_wakeup(dev, true);
-> +       acpi_register_wakeup_handler(irq, int0002_check_wake, NULL);
+shift_arg_pages() only moves range downwards. It should be safe.
 
-So I would just add the wakeup handler registration here.
+Could you try this:
 
->         return 0;
->  }
->
->  static int int0002_remove(struct platform_device *pdev)
->  {
-> -       device_init_wakeup(&pdev->dev, false);
-> +       acpi_unregister_wakeup_handler(int0002_check_wake, NULL);
->         return 0;
->  }
->
-> --
+diff --git a/mm/mremap.c b/mm/mremap.c
+index af363063ea23..ddd5337de395 100644
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -205,10 +205,14 @@ static bool move_normal_pmd(struct vm_area_struct *vma, unsigned long old_addr,
+ 		return false;
+ 
+ 	/*
+-	 * The destination pmd shouldn't be established, free_pgtables()
+-	 * should have release it.
++	 * mremap(2) clears the new place, so the new_pmd is expected to be
++	 * clear.
++	 *
++	 * But move_page_tables() is also called from shift_arg_pages() that
++	 * allows for overlapping address ranges. The shift_arg_pages() case
++	 * is also safe as we only move page tables downwards.
+ 	 */
+-	if (WARN_ON(!pmd_none(*new_pmd)))
++	if (WARN_ON(!pmd_none(*new_pmd) && old_addr > new_addr))
+ 		return false;
+ 
+ 	/*
+-- 
+ Kirill A. Shutemov
