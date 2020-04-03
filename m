@@ -2,142 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C9619DB42
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 18:17:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D874B19DB88
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 18:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728270AbgDCQRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 12:17:36 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:42023 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2403778AbgDCQRg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 12:17:36 -0400
-Received: by mail-pl1-f195.google.com with SMTP id e1so2861011plt.9
-        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 09:17:35 -0700 (PDT)
+        id S2404495AbgDCQYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 12:24:03 -0400
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:38128 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728293AbgDCQYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 12:24:02 -0400
+Received: by mail-pj1-f65.google.com with SMTP id m15so3150195pje.3;
+        Fri, 03 Apr 2020 09:24:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3wIrb42hBbEGJzjeUfNulfTRBbE/9xRnleYyMdg1GT4=;
-        b=msjlujgPvtzNcLT6CC/BN+Ue1d3wYOoc1FFPS8br5dS4HDib4IaToOjF8u8d0U6TUg
-         6J94BHaI35Kql3himAbXEqet63Yxo99bsubV/oFnPCFRyERPpGhyRkIm/eSRUr5enJGd
-         eowDlvbk2Vpo/m0o4bkKpbeMJciIvyzrjUqjJ00CgRhALIrKR17RY4l0f0faaGx4eLSh
-         kx0ln5jcCYDtOqrWMjRVsisRk2xQjHUGi/r33hfH1mXjZzdG6AbUuSdL0zl+lNnwp4Rj
-         gQqYpduje2ZaxyDYsXL0MnCk9dLNrTWtuhhNX45inAc5UG3b3buLDJzawYUUmtqkwY6Z
-         ecjQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=VHZL7VkAiKyU+OLHV3Q6UdUVJcGFPeA3Rqtpg/t6Yag=;
+        b=dwy+bq652NZlCPKGx5RgdbE2OCzGh0yfXL9N8TXnYdtV2PAgt+wHhZP0nI7MgdbW+z
+         V4Fdv6jBOOMTO20U07atV5R/0L7kcbcoNMV8j22XiaHaa4Pl24XCrp5FVsPXj+iSxqts
+         FLFCWZpMIBghvL4H82MK9mnaLSH/B1y2Hu9JwxUAv45WxaCg9Kkfm/fgd+FGp6pb66V3
+         o/RYVkAUGZ/qYcpE3w4+DyNgwURQMfkbFc/eV8BzqxUlhohMVFRvnz18/P24DGqd4WBL
+         AYq+RCRw4E68lWbCmkwSFLWmxXlHFWZKNCv84RhYqfZg2X9b2RBKkMo3vxiDoAOuyqST
+         e5xQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3wIrb42hBbEGJzjeUfNulfTRBbE/9xRnleYyMdg1GT4=;
-        b=XDL3coBlT8s3UKZsgyeGJm74e3S4MoFte0r21+iP2V+GejoIPpTraSmpPyfBOOo4bY
-         8+Sk+yNhjEW3gigF3GzwJAjMGVQCXdFxtihZl3jSSPBhug4grgyFJnhO3WTN4R/wU6dU
-         XKRRLMfKobynyQUt03lQLSXtiisvy8IuQscpPp/fhmRXquBPypP8nSvapx9MigHQS3mj
-         p4G20D/yCRGiyAboKqoQk+b9tkbg9fbin5qP3Tutlo8fqpZQiaBSJQBtHaQRW1MJqvS9
-         Mtftd57ZvMDGUj1VZDhK1rlvIhW1I1495pg5moFGukul3xODuV/whL6p1r9l77O1C4AE
-         ALfg==
-X-Gm-Message-State: AGi0PuYxrEsyIfBIqD83eQQKrGk9hGiXS21+W+TXXf+3LP5vXAKoFzpz
-        Ped0uzQ9x7r+tHBnjwgkeyie11ZD2l4=
-X-Google-Smtp-Source: APiQypK4dH9FYQdOlZqpjQouQJxXs0qdUVDJosdbL1obbuPdXv8OmiixW/hNnqmdG+dcCLXsfLmLLA==
-X-Received: by 2002:a17:902:b586:: with SMTP id a6mr8589482pls.239.1585930654740;
-        Fri, 03 Apr 2020 09:17:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g9sm5557024pgj.89.2020.04.03.09.17.33
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Apr 2020 09:17:33 -0700 (PDT)
-Message-ID: <5e87619d.1c69fb81.445c2.93e9@mx.google.com>
-Date:   Fri, 03 Apr 2020 09:17:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=VHZL7VkAiKyU+OLHV3Q6UdUVJcGFPeA3Rqtpg/t6Yag=;
+        b=eO09LTc84W7s0pi5qVqjHKAMNlOxDnyCIj99bcSYYRJr6iWWjbGG/h79MDXZ/RY/tP
+         NxEPT4Yq3pBxBEpwco77Tqeqce9jM/n04f5oYqEC5cEtHzTiuquCozdPAZ+4VD3ImDEV
+         v9eJWv8GfcDJF0GuoZBiKGmLW/sLisHEcVuShVPmDo3y1PEB/V7KWb85N2shu7WaiKm6
+         ba5n1fU5nC3ecOIbfQJ99fu0EqAQGNfp39xOBFOWUQdLsFIOW3WS0+ELR9zDf0+7s1xK
+         CEH0ax19v7so5aT+lcFtqUslk+HQ4yqd4eDWDppPQ2er5JRDeC+nS5y8jzft/DtwV3m7
+         k8YA==
+X-Gm-Message-State: AGi0PuZ0HmAKjXxhghuvoZkUJaqOJ591raq9fNrj8E03IMMvHq/e3r68
+        Njy0tBnmDmJob8kQq7Yx6ZCFiK2DrFC8VTzvfNI=
+X-Google-Smtp-Source: APiQypJ45+3EwU1AMNAqrlW12hA1LE6C4EtPe9jefycJESLHDJfelc4gB2zOt0moSFww3plOb4WBlmvfq/lhal9a/eU=
+X-Received: by 2002:a17:902:b190:: with SMTP id s16mr8506114plr.262.1585931041577;
+ Fri, 03 Apr 2020 09:24:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.30-15-g3db2f4cba70e
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y boot: 167 boots: 1 failed,
- 156 passed with 3 offline, 7 untried/unknown (v5.4.30-15-g3db2f4cba70e)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20200403154834.303105-1-hdegoede@redhat.com> <20200403154834.303105-2-hdegoede@redhat.com>
+ <3798902.sSGyZ91sKY@kreacher>
+In-Reply-To: <3798902.sSGyZ91sKY@kreacher>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Fri, 3 Apr 2020 19:23:54 +0300
+Message-ID: <CAHp75VfThW1CrkneP5kEm_7KejQgS2dhDi0YyDrL4y3=uY9ZbA@mail.gmail.com>
+Subject: Re: [PATCH v3 2/2] platform/x86: intel_int0002_vgpio: Use acpi_register_wakeup_handler()
+To:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc:     Hans de Goede <hdegoede@redhat.com>, Len Brown <lenb@kernel.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Platform Driver <platform-driver-x86@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "5 . 4+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 167 boots: 1 failed, 156 passed with 3 offline,=
- 7 untried/unknown (v5.4.30-15-g3db2f4cba70e)
+On Fri, Apr 3, 2020 at 7:08 PM Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
+>
+> On Friday, April 3, 2020 5:48:34 PM CEST Hans de Goede wrote:
+> > The Power Management Events (PMEs) the INT0002 driver listens for get
+> > signalled by the Power Management Controller (PMC) using the same IRQ
+> > as used for the ACPI SCI.
+> >
+> > Since commit fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from
+> > waking up the system") the SCI triggering, without there being a wakeup
+> > cause recognized by the ACPI sleep code, will no longer wakeup the system.
+> >
+> > This breaks PMEs / wakeups signalled to the INT0002 driver, the system
+> > never leaves the s2idle_loop() now.
+> >
+> > Use acpi_register_wakeup_handler() to register a function which checks
+> > the GPE0a_STS register for a PME and trigger a wakeup when a PME has
+> > been signalled.
+> >
+> > Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system")
+> > Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
+> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>
+> Andy, any objections?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.30-15-g3db2f4cba70e/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.30-15-g3db2f4cba70e/
+No,
+Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.30-15-g3db2f4cba70e
-Git Commit: 3db2f4cba70ef0a7956ca094c8f6e45c6614477d
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 101 unique boards, 25 SoC families, 20 builds out of 200
+Hans, just today when testing some other stuff noticed this
 
-Boot Regressions Detected:
+[   49.279001] irq 9: nobody cared (try booting with the "irqpoll" option)
+[   49.289176] CPU: 0 PID: 168 Comm: irq/123-ATML100 Not tainted
+5.6.0-next-20200403+ #212
+[   49.300915] Hardware name: Intel Corporation CHERRYVIEW D0
+PLATFORM/Braswell CRB, BIOS BRAS.X64.B082.R00.150727 0557 07/27/2015
+[   49.316520] Call Trace:
+[   49.322093]  <IRQ>
+[   49.327193]  dump_stack+0x50/0x70
+[   49.333744]  __report_bad_irq+0x30/0xa2
+[   49.340858]  note_interrupt.cold+0xb/0x62
+...
+[   49.685087] handlers:
+[   49.690307] [<000000000ab3cf88>] acpi_irq
+[   49.697463] [<00000000e5d78029>] int0002_irq [intel_int0002_vgpio]
+[   49.707063] Disabling IRQ #9
 
-arm:
+Is this what your series fixes?
 
-    omap2plus_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-baylibre: new failure (last pass: v5.4.30)
+>
+> > ---
+> > Changes in v3:
+> > - Keep the pm_wakeup_hard_event() call
+> >
+> > Changes in v2:
+> > - Adjust for the wakeup-handler registration function being renamed to
+> >   acpi_register_wakeup_handler()
+> > ---
+> >  drivers/platform/x86/intel_int0002_vgpio.c | 10 ++++++++++
+> >  1 file changed, 10 insertions(+)
+> >
+> > diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platform/x86/intel_int0002_vgpio.c
+> > index f14e2c5f9da5..55f088f535e2 100644
+> > --- a/drivers/platform/x86/intel_int0002_vgpio.c
+> > +++ b/drivers/platform/x86/intel_int0002_vgpio.c
+> > @@ -127,6 +127,14 @@ static irqreturn_t int0002_irq(int irq, void *data)
+> >       return IRQ_HANDLED;
+> >  }
+> >
+> > +static bool int0002_check_wake(void *data)
+> > +{
+> > +     u32 gpe_sts_reg;
+> > +
+> > +     gpe_sts_reg = inl(GPE0A_STS_PORT);
+> > +     return (gpe_sts_reg & GPE0A_PME_B0_STS_BIT);
+> > +}
+> > +
+> >  static struct irq_chip int0002_byt_irqchip = {
+> >       .name                   = DRV_NAME,
+> >       .irq_ack                = int0002_irq_ack,
+> > @@ -220,6 +228,7 @@ static int int0002_probe(struct platform_device *pdev)
+> >               return ret;
+> >       }
+> >
+> > +     acpi_register_wakeup_handler(irq, int0002_check_wake, NULL);
+> >       device_init_wakeup(dev, true);
+> >       return 0;
+> >  }
+> > @@ -227,6 +236,7 @@ static int int0002_probe(struct platform_device *pdev)
+> >  static int int0002_remove(struct platform_device *pdev)
+> >  {
+> >       device_init_wakeup(&pdev->dev, false);
+> > +     acpi_unregister_wakeup_handler(int0002_check_wake, NULL);
+> >       return 0;
+> >  }
+> >
+> >
+>
+>
+>
+>
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 54 days (last pass: v5.4.=
-17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 18 days (last pass: v5.4.25 - fir=
-st fail: v5.4.25-58-gc72f49ecd87b)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.4.30)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v5.4.30)
-          meson-gxl-s905d-p230:
-              lab-baylibre: new failure (last pass: v5.4.30)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+With Best Regards,
+Andy Shevchenko
