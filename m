@@ -2,167 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D874B19DB88
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 18:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 285EF19DBD9
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 18:39:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404495AbgDCQYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 12:24:03 -0400
-Received: from mail-pj1-f65.google.com ([209.85.216.65]:38128 "EHLO
-        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728293AbgDCQYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 12:24:02 -0400
-Received: by mail-pj1-f65.google.com with SMTP id m15so3150195pje.3;
-        Fri, 03 Apr 2020 09:24:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=VHZL7VkAiKyU+OLHV3Q6UdUVJcGFPeA3Rqtpg/t6Yag=;
-        b=dwy+bq652NZlCPKGx5RgdbE2OCzGh0yfXL9N8TXnYdtV2PAgt+wHhZP0nI7MgdbW+z
-         V4Fdv6jBOOMTO20U07atV5R/0L7kcbcoNMV8j22XiaHaa4Pl24XCrp5FVsPXj+iSxqts
-         FLFCWZpMIBghvL4H82MK9mnaLSH/B1y2Hu9JwxUAv45WxaCg9Kkfm/fgd+FGp6pb66V3
-         o/RYVkAUGZ/qYcpE3w4+DyNgwURQMfkbFc/eV8BzqxUlhohMVFRvnz18/P24DGqd4WBL
-         AYq+RCRw4E68lWbCmkwSFLWmxXlHFWZKNCv84RhYqfZg2X9b2RBKkMo3vxiDoAOuyqST
-         e5xQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VHZL7VkAiKyU+OLHV3Q6UdUVJcGFPeA3Rqtpg/t6Yag=;
-        b=eO09LTc84W7s0pi5qVqjHKAMNlOxDnyCIj99bcSYYRJr6iWWjbGG/h79MDXZ/RY/tP
-         NxEPT4Yq3pBxBEpwco77Tqeqce9jM/n04f5oYqEC5cEtHzTiuquCozdPAZ+4VD3ImDEV
-         v9eJWv8GfcDJF0GuoZBiKGmLW/sLisHEcVuShVPmDo3y1PEB/V7KWb85N2shu7WaiKm6
-         ba5n1fU5nC3ecOIbfQJ99fu0EqAQGNfp39xOBFOWUQdLsFIOW3WS0+ELR9zDf0+7s1xK
-         CEH0ax19v7so5aT+lcFtqUslk+HQ4yqd4eDWDppPQ2er5JRDeC+nS5y8jzft/DtwV3m7
-         k8YA==
-X-Gm-Message-State: AGi0PuZ0HmAKjXxhghuvoZkUJaqOJ591raq9fNrj8E03IMMvHq/e3r68
-        Njy0tBnmDmJob8kQq7Yx6ZCFiK2DrFC8VTzvfNI=
-X-Google-Smtp-Source: APiQypJ45+3EwU1AMNAqrlW12hA1LE6C4EtPe9jefycJESLHDJfelc4gB2zOt0moSFww3plOb4WBlmvfq/lhal9a/eU=
-X-Received: by 2002:a17:902:b190:: with SMTP id s16mr8506114plr.262.1585931041577;
- Fri, 03 Apr 2020 09:24:01 -0700 (PDT)
+        id S1728420AbgDCQj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 12:39:28 -0400
+Received: from userp2130.oracle.com ([156.151.31.86]:53544 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728381AbgDCQj2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 12:39:28 -0400
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 033GO48e119034;
+        Fri, 3 Apr 2020 16:39:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=ba/j5CbMc04KuK6mlsaQvN5EhmuP6zjq0aHHSv/ALJI=;
+ b=br/O1UPJeP2JGbAkX+MZVbHYoAe7v6C7Lfaj6VYknT2RlvrbE4IghWO3GFcH3x5BY8eB
+ 7ollf3Lu94EbI9Y9ykPYsSn4SWcJ0neeNfaFRSnuw6qF/hI/rtRXA8qdlgxmJSUvueFE
+ 06qAFzb++FuUZpWyow1x7g9u6pS/iM8wOzJb8W+U+WglkpNuHVBzdPEnzQecjK9aNyyT
+ vSsmWx+mrbvSCcUB3GE7GnRRnIRDoFPNVhdAafaS22dLvkljAPCxjTPpkLRIVutQ9onW
+ eTHIswAtG+pXM4JHJdDukHFS3oi3en6LtdL1FiaYhpjk5T4xilT+GyHvOBHTdj+unPfV HQ== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by userp2130.oracle.com with ESMTP id 303cevj3x4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 03 Apr 2020 16:39:13 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 033GcMZa033604;
+        Fri, 3 Apr 2020 16:39:13 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by userp3020.oracle.com with ESMTP id 302ga55699-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 03 Apr 2020 16:39:12 +0000
+Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 033GdB18026063;
+        Fri, 3 Apr 2020 16:39:11 GMT
+Received: from [10.154.129.193] (/10.154.129.193)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 03 Apr 2020 09:39:11 -0700
+Subject: Re: [PATCH] nvme-fc: Revert - add module to ops template to allow
+ module references
+To:     James Smart <jsmart2021@gmail.com>, linux-nvme@lists.infradead.org
+Cc:     stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>
+References: <20200403143320.49522-1-jsmart2021@gmail.com>
+From:   himanshu.madhani@oracle.com
+Organization: Oracle Corporation
+Message-ID: <6ad66e15-4815-146a-9921-c776559e3c75@oracle.com>
+Date:   Fri, 3 Apr 2020 11:38:50 -0500
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.6.0
 MIME-Version: 1.0
-References: <20200403154834.303105-1-hdegoede@redhat.com> <20200403154834.303105-2-hdegoede@redhat.com>
- <3798902.sSGyZ91sKY@kreacher>
-In-Reply-To: <3798902.sSGyZ91sKY@kreacher>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Fri, 3 Apr 2020 19:23:54 +0300
-Message-ID: <CAHp75VfThW1CrkneP5kEm_7KejQgS2dhDi0YyDrL4y3=uY9ZbA@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] platform/x86: intel_int0002_vgpio: Use acpi_register_wakeup_handler()
-To:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc:     Hans de Goede <hdegoede@redhat.com>, Len Brown <lenb@kernel.org>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "5 . 4+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200403143320.49522-1-jsmart2021@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9580 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=2 malwarescore=0
+ mlxlogscore=999 bulkscore=0 mlxscore=0 spamscore=0 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2004030139
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9580 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 adultscore=0
+ clxscore=1011 phishscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
+ suspectscore=2 mlxscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
+ definitions=main-2004030139
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 3, 2020 at 7:08 PM Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
->
-> On Friday, April 3, 2020 5:48:34 PM CEST Hans de Goede wrote:
-> > The Power Management Events (PMEs) the INT0002 driver listens for get
-> > signalled by the Power Management Controller (PMC) using the same IRQ
-> > as used for the ACPI SCI.
-> >
-> > Since commit fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from
-> > waking up the system") the SCI triggering, without there being a wakeup
-> > cause recognized by the ACPI sleep code, will no longer wakeup the system.
-> >
-> > This breaks PMEs / wakeups signalled to the INT0002 driver, the system
-> > never leaves the s2idle_loop() now.
-> >
-> > Use acpi_register_wakeup_handler() to register a function which checks
-> > the GPE0a_STS register for a PME and trigger a wakeup when a PME has
-> > been signalled.
-> >
-> > Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system")
-> > Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->
-> Andy, any objections?
 
-No,
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
-Hans, just today when testing some other stuff noticed this
-
-[   49.279001] irq 9: nobody cared (try booting with the "irqpoll" option)
-[   49.289176] CPU: 0 PID: 168 Comm: irq/123-ATML100 Not tainted
-5.6.0-next-20200403+ #212
-[   49.300915] Hardware name: Intel Corporation CHERRYVIEW D0
-PLATFORM/Braswell CRB, BIOS BRAS.X64.B082.R00.150727 0557 07/27/2015
-[   49.316520] Call Trace:
-[   49.322093]  <IRQ>
-[   49.327193]  dump_stack+0x50/0x70
-[   49.333744]  __report_bad_irq+0x30/0xa2
-[   49.340858]  note_interrupt.cold+0xb/0x62
-...
-[   49.685087] handlers:
-[   49.690307] [<000000000ab3cf88>] acpi_irq
-[   49.697463] [<00000000e5d78029>] int0002_irq [intel_int0002_vgpio]
-[   49.707063] Disabling IRQ #9
-
-Is this what your series fixes?
-
+On 4/3/20 9:33 AM, James Smart wrote:
+> This patch reverts the commit for
+>     nvme_fc: add module to ops template to allow module references
 >
-> > ---
-> > Changes in v3:
-> > - Keep the pm_wakeup_hard_event() call
-> >
-> > Changes in v2:
-> > - Adjust for the wakeup-handler registration function being renamed to
-> >   acpi_register_wakeup_handler()
-> > ---
-> >  drivers/platform/x86/intel_int0002_vgpio.c | 10 ++++++++++
-> >  1 file changed, 10 insertions(+)
-> >
-> > diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platform/x86/intel_int0002_vgpio.c
-> > index f14e2c5f9da5..55f088f535e2 100644
-> > --- a/drivers/platform/x86/intel_int0002_vgpio.c
-> > +++ b/drivers/platform/x86/intel_int0002_vgpio.c
-> > @@ -127,6 +127,14 @@ static irqreturn_t int0002_irq(int irq, void *data)
-> >       return IRQ_HANDLED;
-> >  }
-> >
-> > +static bool int0002_check_wake(void *data)
-> > +{
-> > +     u32 gpe_sts_reg;
-> > +
-> > +     gpe_sts_reg = inl(GPE0A_STS_PORT);
-> > +     return (gpe_sts_reg & GPE0A_PME_B0_STS_BIT);
-> > +}
-> > +
-> >  static struct irq_chip int0002_byt_irqchip = {
-> >       .name                   = DRV_NAME,
-> >       .irq_ack                = int0002_irq_ack,
-> > @@ -220,6 +228,7 @@ static int int0002_probe(struct platform_device *pdev)
-> >               return ret;
-> >       }
-> >
-> > +     acpi_register_wakeup_handler(irq, int0002_check_wake, NULL);
-> >       device_init_wakeup(dev, true);
-> >       return 0;
-> >  }
-> > @@ -227,6 +236,7 @@ static int int0002_probe(struct platform_device *pdev)
-> >  static int int0002_remove(struct platform_device *pdev)
-> >  {
-> >       device_init_wakeup(&pdev->dev, false);
-> > +     acpi_unregister_wakeup_handler(int0002_check_wake, NULL);
-> >       return 0;
-> >  }
-> >
-> >
+> The original patch was to resolve the lldd being able to be unloaded
+> while being used to talk to the boot device of the system. However, the
+> end result of the original patch is that any driver unload while a nvme
+> controller is live via the lldd is now being prohibited. Given the module
+> reference, the module teardown routine can't be called, thus there's no
+> way, other than manual actions to terminate the controllers.
 >
+> -- james
 >
+> Fixes: 863fbae929c7 ("nvme_fc: add module to ops template to allow module  references")
+> Cc: <stable@vger.kernel.org> # v5.4+
+> Signed-off-by: James Smart <jsmart2021@gmail.com>
+> Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
+> CC: Christoph Hellwig <hch@lst.de>
+> CC: Keith Busch <kbusch@kernel.org>
+> ---
+>   drivers/nvme/host/fc.c          | 14 ++------------
+>   drivers/nvme/target/fcloop.c    |  1 -
+>   drivers/scsi/lpfc/lpfc_nvme.c   |  2 --
+>   drivers/scsi/qla2xxx/qla_nvme.c |  1 -
+>   include/linux/nvme-fc-driver.h  |  4 ----
+>   5 files changed, 2 insertions(+), 20 deletions(-)
 >
->
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+> diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+> index a8bf2fb1287b..7dfc4a2ecf1e 100644
+> --- a/drivers/nvme/host/fc.c
+> +++ b/drivers/nvme/host/fc.c
+> @@ -342,8 +342,7 @@ nvme_fc_register_localport(struct nvme_fc_port_info *pinfo,
+>   	    !template->ls_req || !template->fcp_io ||
+>   	    !template->ls_abort || !template->fcp_abort ||
+>   	    !template->max_hw_queues || !template->max_sgl_segments ||
+> -	    !template->max_dif_sgl_segments || !template->dma_boundary ||
+> -	    !template->module) {
+> +	    !template->max_dif_sgl_segments || !template->dma_boundary) {
+>   		ret = -EINVAL;
+>   		goto out_reghost_failed;
+>   	}
+> @@ -2016,7 +2015,6 @@ nvme_fc_ctrl_free(struct kref *ref)
+>   {
+>   	struct nvme_fc_ctrl *ctrl =
+>   		container_of(ref, struct nvme_fc_ctrl, ref);
+> -	struct nvme_fc_lport *lport = ctrl->lport;
+>   	unsigned long flags;
+>   
+>   	if (ctrl->ctrl.tagset) {
+> @@ -2043,7 +2041,6 @@ nvme_fc_ctrl_free(struct kref *ref)
+>   	if (ctrl->ctrl.opts)
+>   		nvmf_free_options(ctrl->ctrl.opts);
+>   	kfree(ctrl);
+> -	module_put(lport->ops->module);
+>   }
+>   
+>   static void
+> @@ -3074,15 +3071,10 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
+>   		goto out_fail;
+>   	}
+>   
+> -	if (!try_module_get(lport->ops->module)) {
+> -		ret = -EUNATCH;
+> -		goto out_free_ctrl;
+> -	}
+> -
+>   	idx = ida_simple_get(&nvme_fc_ctrl_cnt, 0, 0, GFP_KERNEL);
+>   	if (idx < 0) {
+>   		ret = -ENOSPC;
+> -		goto out_mod_put;
+> +		goto out_free_ctrl;
+>   	}
+>   
+>   	ctrl->ctrl.opts = opts;
+> @@ -3232,8 +3224,6 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
+>   out_free_ida:
+>   	put_device(ctrl->dev);
+>   	ida_simple_remove(&nvme_fc_ctrl_cnt, ctrl->cnum);
+> -out_mod_put:
+> -	module_put(lport->ops->module);
+>   out_free_ctrl:
+>   	kfree(ctrl);
+>   out_fail:
+> diff --git a/drivers/nvme/target/fcloop.c b/drivers/nvme/target/fcloop.c
+> index 9861fcea39f6..f69ce66e2d44 100644
+> --- a/drivers/nvme/target/fcloop.c
+> +++ b/drivers/nvme/target/fcloop.c
+> @@ -875,7 +875,6 @@ fcloop_targetport_delete(struct nvmet_fc_target_port *targetport)
+>   #define FCLOOP_DMABOUND_4G		0xFFFFFFFF
+>   
+>   static struct nvme_fc_port_template fctemplate = {
+> -	.module			= THIS_MODULE,
+>   	.localport_delete	= fcloop_localport_delete,
+>   	.remoteport_delete	= fcloop_remoteport_delete,
+>   	.create_queue		= fcloop_create_queue,
+> diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+> index f6c8963c915d..db4a04a207ec 100644
+> --- a/drivers/scsi/lpfc/lpfc_nvme.c
+> +++ b/drivers/scsi/lpfc/lpfc_nvme.c
+> @@ -1985,8 +1985,6 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
+>   
+>   /* Declare and initialization an instance of the FC NVME template. */
+>   static struct nvme_fc_port_template lpfc_nvme_template = {
+> -	.module	= THIS_MODULE,
+> -
+>   	/* initiator-based functions */
+>   	.localport_delete  = lpfc_nvme_localport_delete,
+>   	.remoteport_delete = lpfc_nvme_remoteport_delete,
+> diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
+> index bfcd02fdf2b8..941aa53363f5 100644
+> --- a/drivers/scsi/qla2xxx/qla_nvme.c
+> +++ b/drivers/scsi/qla2xxx/qla_nvme.c
+> @@ -610,7 +610,6 @@ static void qla_nvme_remoteport_delete(struct nvme_fc_remote_port *rport)
+>   }
+>   
+>   static struct nvme_fc_port_template qla_nvme_fc_transport = {
+> -	.module	= THIS_MODULE,
+>   	.localport_delete = qla_nvme_localport_delete,
+>   	.remoteport_delete = qla_nvme_remoteport_delete,
+>   	.create_queue   = qla_nvme_alloc_queue,
+> diff --git a/include/linux/nvme-fc-driver.h b/include/linux/nvme-fc-driver.h
+> index 6d0d70f3219c..10f81629b9ce 100644
+> --- a/include/linux/nvme-fc-driver.h
+> +++ b/include/linux/nvme-fc-driver.h
+> @@ -270,8 +270,6 @@ struct nvme_fc_remote_port {
+>    *
+>    * Host/Initiator Transport Entrypoints/Parameters:
+>    *
+> - * @module:  The LLDD module using the interface
+> - *
+>    * @localport_delete:  The LLDD initiates deletion of a localport via
+>    *       nvme_fc_deregister_localport(). However, the teardown is
+>    *       asynchronous. This routine is called upon the completion of the
+> @@ -385,8 +383,6 @@ struct nvme_fc_remote_port {
+>    *       Value is Mandatory. Allowed to be zero.
+>    */
+>   struct nvme_fc_port_template {
+> -	struct module	*module;
+> -
+>   	/* initiator-based functions */
+>   	void	(*localport_delete)(struct nvme_fc_local_port *);
+>   	void	(*remoteport_delete)(struct nvme_fc_remote_port *);
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
