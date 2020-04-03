@@ -2,133 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1E819DDCB
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 20:19:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 725E819DEE7
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 21:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391040AbgDCSTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 14:19:03 -0400
-Received: from mx.0dd.nl ([5.2.79.48]:46272 "EHLO mx.0dd.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728268AbgDCSTD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Apr 2020 14:19:03 -0400
-X-Greylist: delayed 589 seconds by postgrey-1.27 at vger.kernel.org; Fri, 03 Apr 2020 14:19:02 EDT
-Received: from mail.vdorst.com (mail.vdorst.com [IPv6:fd01::250])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mx.0dd.nl (Postfix) with ESMTPS id 1E45F5FADE;
-        Fri,  3 Apr 2020 20:09:12 +0200 (CEST)
-Authentication-Results: mx.0dd.nl;
-        dkim=pass (2048-bit key; secure) header.d=vdorst.com header.i=@vdorst.com header.b="KtO3uizp";
-        dkim-atps=neutral
-Received: from www (www.vdorst.com [192.168.2.222])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.vdorst.com (Postfix) with ESMTPSA id AC18627C0E5;
-        Fri,  3 Apr 2020 20:09:11 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.vdorst.com AC18627C0E5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vdorst.com;
-        s=default; t=1585937351;
-        bh=xBdua0z2R0JdSBRmoYYNQnHi6mI3NA5tona4JmFQPrw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=KtO3uizphLuDc4K+36n4GW9eKfV1czQNFNwwSjsRupOFX6zh+lc1ZJofOUnx7mw74
-         ACD1d+pMmh1u+BWLL2DRtM8RDSHlfTV77qXfsqj61/DTTdEmbhf1dCe2suosyIC57j
-         WuhmNA9fKpJhZGgaNCkjiW6JJDS5V+rNLePUZNBPmIxBrwl9UM++ZXeKCFEiY5+qqS
-         N+sY8VvZG2cq76ciatzusD9V0JFxMnk1xfOQZ/gCf1lRy13iHL7/9/Uabty7dg+ejo
-         hhAzL/LXSHOM0CT4gaowSGGLe+VF0PkOoQ01NEDcWhJQrh4yTErQtmfvk/Pjq2MEtH
-         5XOrEeek0MH/w==
-Received: from localhost.localdomain (localhost.localdomain [127.0.0.1]) by
- www.vdorst.com (Horde Framework) with HTTPS; Fri, 03 Apr 2020 18:09:11 +0000
-Date:   Fri, 03 Apr 2020 18:09:11 +0000
-Message-ID: <20200403180911.Horde.9xqnJvjcRDe-ttshlJbG6WE@www.vdorst.com>
-From:   =?utf-8?b?UmVuw6k=?= van Dorst <opensource@vdorst.com>
-To:     Chuanhong Guo <gch981213@gmail.com>
-Cc:     netdev@vger.kernel.org, stable@vger.kernel.org,
-        Sean Wang <sean.wang@mediatek.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net: dsa: mt7530: fix null pointer dereferencing in
- port5 setup
-In-Reply-To: <20200403112830.505720-1-gch981213@gmail.com>
-User-Agent: Horde Application Framework 5
-Content-Type: text/plain; charset=utf-8; format=flowed; DelSp=Yes
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+        id S1727909AbgDCTzH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 15:55:07 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:25131 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727421AbgDCTzH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 15:55:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1585943706;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HF0Zwc1wocMpHH80a9Ld76/ETXaQKsm1NeNpR7kpIqs=;
+        b=Qoi89/YNwf9Uv93xogFkD70bO4TlGN7pFpB53xHTO5zGTYxM722KZ03pnK1sJPgu+5SHKD
+        dEKMGlilJrNcLXBlBxsXMc7C2NSdXi/Eq9B8Goqo18PTUQOYSUDWjoqSS7bQobnupUkypG
+        ASmziJ8JdwnorWiTMy5+U5xWLwbaUhM=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-250-Ra_mmt5FOkiUsfNyP_ZNFg-1; Fri, 03 Apr 2020 15:55:04 -0400
+X-MC-Unique: Ra_mmt5FOkiUsfNyP_ZNFg-1
+Received: by mail-wm1-f69.google.com with SMTP id s15so2532612wmc.0
+        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 12:55:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:content-transfer-encoding:from:mime-version
+         :subject:date:message-id:references:cc:in-reply-to:to;
+        bh=HF0Zwc1wocMpHH80a9Ld76/ETXaQKsm1NeNpR7kpIqs=;
+        b=o5lX1/BsOUkVVF1T2r1g5p4SdVyMJzSNfdz4FeyBB2IIw620FsVKykqHOiI650vqTi
+         c9OLJb6KGMuuwyVdeIDWTjjR+D1r3lP8ASzhoWDlevhKqUTdz751msaxeoEYMuAHLKWC
+         al/YnN5dJy1N7hY9HtVRZIqOw+J1oXV3Zqcv2m7LyRTX5CB18kW2FcmriHepuCnNSvG5
+         FqhsGGMiLLKcqpl9e3A5qhN475EgUzlwyI2JYZNKlJHnz32wrD7RrdgZKJ9qp/RTZdml
+         mrjRNBff5M/mRbLhsiPlSGazfgicBPsBJrk+GgQNp2DY37tPAEA0iNjzyYcgkOY7Xav/
+         Cwbw==
+X-Gm-Message-State: AGi0PuYJqNLmeeAS4PKdfEBFl2JHqzesfcwIBv5jziwzfuQKYDhrV62v
+        ezjIeKObfbh08yUTx5+5108QOa91avlhutiuWLp3O56opQbHeTNyJFSLHW6kciofsMGLo1UHbxB
+        NOju5v6te2YhTGUK3
+X-Received: by 2002:a05:6000:51:: with SMTP id k17mr11032874wrx.148.1585943703358;
+        Fri, 03 Apr 2020 12:55:03 -0700 (PDT)
+X-Google-Smtp-Source: APiQypIMlN52jfL13U65g+yzderJRf7TKcAdljqBnIneSxRjajZqcZuVG4ls3JkT8t9gOas3TmozzA==
+X-Received: by 2002:a05:6000:51:: with SMTP id k17mr11032855wrx.148.1585943703163;
+        Fri, 03 Apr 2020 12:55:03 -0700 (PDT)
+Received: from [192.168.3.122] (p5B0C69E0.dip0.t-ipconnect.de. [91.12.105.224])
+        by smtp.gmail.com with ESMTPSA id y1sm5470162wmd.14.2020.04.03.12.55.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 03 Apr 2020 12:55:02 -0700 (PDT)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+From:   David Hildenbrand <david@redhat.com>
+Mime-Version: 1.0 (1.0)
+Subject: Re: [PATCH v2 1/5] KVM: s390: vsie: Fix region 1 ASCE sanity shadow address checks
+Date:   Fri, 3 Apr 2020 21:55:02 +0200
+Message-Id: <67F45F4F-33CB-455A-8CB8-7D20D9A2BF2F@redhat.com>
+References: <59b411eb-dabe-8cac-9270-7a9f0faa63d5@de.ibm.com>
+Cc:     David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>, stable@vger.kernel.org
+In-Reply-To: <59b411eb-dabe-8cac-9270-7a9f0faa63d5@de.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+X-Mailer: iPhone Mail (17D50)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Chuanhong Guo <gch981213@gmail.com>:
-
-Hi Chuanhong,
-
-> The 2nd gmac of mediatek soc ethernet may not be connected to a PHY
-> and a phy-handle isn't always available.
-> Unfortunately, mt7530 dsa driver assumes that the 2nd gmac is always
-> connected to switch port 5 and setup mt7530 according to phy address
-> of 2nd gmac node, causing null pointer dereferencing when phy-handle
-> isn't defined in dts.
-
-MT7530 tries to detect if 2nd GMAC is using a phy with phy-address 0 or 4.
-If so, switch port 5 needs to be setup so that PHY 0 or 4 is available
-via port 5 of the switch. Any MAC can talk to PHY 0/4 directly via port 5.
-This is also explained in the kernel docs mt7530.txt.
-
-May be there are better way to detect that any node is using phy 0/4 of
-the switch.
-
-Funny that I never tested this case that 2nd gmac node exits and is disabled
-without using port 5.
-
-Thanks for the fix.
-
-Tested-by: René van Dorst <opensource@vdorst.com>
-
-Greats,
-
-René
-
-> This commit fix this setup code by checking return value of
-> of_parse_phandle before using it.
->
-> Fixes: 38f790a80560 ("net: dsa: mt7530: Add support for port 5")
-> Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
-> Cc: stable@vger.kernel.org
-> ---
->
-> mt7530 is available as a standalone chip and we should not make it
-> tightly coupled with a specific type of ethernet dt binding in the
-> first place.
-> A proper fix is to replace this port detection logic with a dt
-> property under mt7530 node, but that's too much for linux-stable.
->
->  drivers/net/dsa/mt7530.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-> index 6e91fe2f4b9a..1d53a4ebcd5a 100644
-> --- a/drivers/net/dsa/mt7530.c
-> +++ b/drivers/net/dsa/mt7530.c
-> @@ -1414,6 +1414,9 @@ mt7530_setup(struct dsa_switch *ds)
->  				continue;
->
->  			phy_node = of_parse_phandle(mac_np, "phy-handle", 0);
-> +			if (!phy_node)
-> +				continue;
-> +
->  			if (phy_node->parent == priv->dev->of_node->parent) {
->  				ret = of_get_phy_mode(mac_np, &interface);
->  				if (ret && ret != -ENODEV)
-> --
-> 2.25.1
 
 
+> Am 03.04.2020 um 19:56 schrieb Christian Borntraeger <borntraeger@de.ibm.c=
+om>:
+>=20
+> =EF=BB=BF
+>=20
+>> On 03.04.20 17:30, David Hildenbrand wrote:
+>> In case we have a region 1 ASCE, our shadow/g3 address can have any value=
+.
+>> Unfortunately, (-1UL << 64) is undefined and triggers sometimes,
+>> rejecting valid shadow addresses when trying to walk our shadow table
+>> hierarchy.
+>=20
+> I thin the range of the addresses do not matter.
+> Took me a while to understand maybe rephrase that:
+>=20
+> In case we have a region 1 the following calculation=20
+> (31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11)
+> results in 64. As shifts beyond the size are undefined the compiler is fre=
+e to use
+> instructions like sllg. sllg will only use 6 bits of the shift value (here=
+ 64)
+> resulting in no shift at all. That means that ALL addresses will be reject=
+ed.
+
+Interestingly, it would not fail when shadowing the r2t, but only when tryin=
+g to shadow the r3t.
+
+>=20
+> With that this makes sense.=20
+>=20
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>=20
+
+In case there are no other comments, can you fixup when applying, or do you w=
+ant me to resend?
+
+Cheers=
 
