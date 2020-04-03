@@ -2,110 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FBBD19D35F
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 11:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB9B19D364
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 11:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389297AbgDCJSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 05:18:20 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:46277 "EHLO
+        id S1727829AbgDCJUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 05:20:36 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:35509 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727854AbgDCJSU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 05:18:20 -0400
+        by vger.kernel.org with ESMTP id S1727774AbgDCJUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 05:20:35 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 9E43364E;
-        Fri,  3 Apr 2020 05:18:19 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 03 Apr 2020 05:18:19 -0400
+        by mailout.west.internal (Postfix) with ESMTP id C46C97BF;
+        Fri,  3 Apr 2020 05:20:34 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 03 Apr 2020 05:20:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=O
-        7cqg0kFt1j+JAzxb2BuwvOOt9xAuYfjQutzNyUEm7U=; b=Y+HArtjqYmoUhqvXg
-        E+LO/2J6pEpjvym3yLFY+d/HR08M2j0n5xglMlnbVkvP/xlrqU9a1GyJf0y7xJ5g
-        RzsCLrczsSlWfACgUrPberk2Gjv5gA6R8qqGLYAC2tXjpLgU94p0vYS+qLBLPG/F
-        08SzSe/gs0Gqy1mw7/70BXXEdfiTe8yq7eCDl4KBrUlbTxUggqhEjpzJWypMs4mI
-        GiPmDK7QfyTzaAjEzZQLNyMHohnnd0qLMXNTvWJTkMcFGsq/TOW8l/88s0aLMSfX
-        8tYyl00z10+afDUlPId77kCmaOgZ52gATxXi1B6NZ86dvbcSNg7pe5AowYKTOnu8
-        YPuDw==
+        :content-type:in-reply-to; s=fm3; bh=cGOTJPKcDs47nZ9/lI4ynlR3lxG
+        ccMyQDcAWVYl28lY=; b=o09laQZs0qYFYef28XZFT6GwJZGL4Mhuc+o7Ph2a7Kr
+        IPVfFH6I6OBWPdvdH7j6IgkF80Gh30WKo+hhwLZJwTRt9LVE0jeBCgmhwxgcG9sN
+        i5SsSwukEsAxkd0HHGIA3jw4kgJAuzJZFI4HCU9hXHJFEoPnJv5H8xui3PS6M2rU
+        BqtOuUTs078QBchhgNSG+Kd4KI+O3YjLXO2toaRjqONRC+xjonhR1EP0IobxWOk+
+        gjNT/miqb4aAZtUudBGNqJB2clRSeC8yeZTDlKWF/BkqjQ5I6+6kyeQme1Tto3Gt
+        6MF0WmG7XYWfmWJZQbhhPEV6tg3QRPAWs5D+OpSOCzQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=O7cqg0kFt1j+JAzxb2BuwvOOt9xAuYfjQutzNyUEm
-        7U=; b=gm+lAvT5mN2L1FTfxeWmslGbUMgJOokW/NTcTX+VADwr6gX6hRA6Vip9E
-        FtGGkAm1jH83w64ggyiMnhhOxSXYSrhGf/vkUrr5O7v4EftOb0fKBTBrlAwiVbLt
-        HIuvRPJAf1Y0sJi9qinbYn9/t+yODK8lJXlkqHJ12Df1hoPV0jrShKGM5E+DwA0N
-        GHZOWKEAZnp72jUGV+oz6N2GqdKrCE/y9JnQaLk8bwYdga8EzItHHjsiGATSflP4
-        sfC7/N5LcPMJjhDos8x9c4bC73YsEl6W7R5XCcC+UiWj5sZWa34Hpsklr+OG5Z3w
-        ANQAmQxcthmrgctCMRYgyvcMuGwQg==
-X-ME-Sender: <xms:Wf-GXsIU6cwZBBeVL4We5RvWZJnzA4BnBpQ0mMFyJl3GmLr1eun_Yg>
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=cGOTJP
+        KcDs47nZ9/lI4ynlR3lxGccMyQDcAWVYl28lY=; b=nZpxawwATOgsljdh7/emx0
+        GZyy4ZMnd0Wo2g+3jNSBXfOd8+c7F0EUoyw25dAMb47HATaSqtTaWscW4uZrVtVV
+        tDBqOz19AQhiFWITjcVSyL4bpxQhOHCg+6fPhu5RTSs1RMxOUje3H8qXdHy6AVGd
+        kmIz9TFoamg5Se8EV66OfjkhK0oAgA1OxyK/qsunZmfzC9k63SxDq9DHhTN0NNdk
+        CG4kLVddqSiFJ91F90lGbT/D2WXRHCOFNT5ePLb+xVg6UiyjHyD+fBOAv25utVO3
+        9KaNhgf5+wlnRvHWiXTzBCjGyBLJ+dAfDOVw1+EwUGF5grxgrVwTj45YNfpo0ySg
+        ==
+X-ME-Sender: <xms:4v-GXizOBir4MsOb0e8NKmNGJfKKENoM1edJb-URvCy042_Dzh0WTw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrtdeigddugecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhr
-    vghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Wf-GXgYY4adXz3v_tBSiPVIh2aMu53G-l5zNIyv850O1dppq5SjnlA>
-    <xmx:Wf-GXnuLn9GHD-TS8RnK1TNRtpLK4QdNWcERPutB-6ghx8VjyHI5_Q>
-    <xmx:Wf-GXtvuoebC9awjSlZF9Fzoj4qAG7sh9p74IMrJWjNVrtx4K3bp2g>
-    <xmx:W_-GXpaRoTLC6Y01KaLwbuBdWTfiq6jvMeBRUm6ua2zfSD8JDrLZIQ>
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledruddtje
+    enucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgv
+    gheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:4v-GXsgImUSxovAwFfLQH57hkkFr_s42osbl5Xm-9W9_0Rrzkvsfvw>
+    <xmx:4v-GXhfu-x7qPxfyC5HLTnJ1GlpBFyf78Klg_MimVfTNLmAdZEITwA>
+    <xmx:4v-GXrVUPwNICGhWFhqgtB_W29Pr2nh5x4rfn191oeZK-BGdP3KmUQ>
+    <xmx:4v-GXscW-JcNWGhHxlBpmKCxsltB5wv_4wsxztePB7uEUQovB-4Cgw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 87BE6306CF47;
-        Fri,  3 Apr 2020 05:18:17 -0400 (EDT)
-Date:   Fri, 3 Apr 2020 11:18:16 +0200
+        by mail.messagingengine.com (Postfix) with ESMTPA id D37FD328005E;
+        Fri,  3 Apr 2020 05:20:33 -0400 (EDT)
+Date:   Fri, 3 Apr 2020 11:20:32 +0200
 From:   Greg KH <greg@kroah.com>
-To:     Giacomo Comes <comes@naic.edu>
-Cc:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>, intel-gfx@lists.freedesktop.org,
-        stable@vger.kernel.org
-Subject: Re: [Intel-gfx] kernel 5.6: baytrail hdmi audio not working
-Message-ID: <20200403091816.GD3740897@kroah.com>
-References: <20200401225317.GA13834@monopoli.naic.edu>
- <20200402135203.GV13686@intel.com>
- <20200402145336.GA19483@monopoli.naic.edu>
+To:     Giuliano Procida <gprocida@google.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: backport request for use-after-free blk_mq_queue_tag_busy_iter
+Message-ID: <20200403092032.GE3740897@kroah.com>
+References: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200402145336.GA19483@monopoli.naic.edu>
+In-Reply-To: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 02, 2020 at 10:53:36AM -0400, Giacomo Comes wrote:
-> On Thu, Apr 02, 2020 at 04:52:03PM +0300, Ville Syrjälä wrote:
-> > On Wed, Apr 01, 2020 at 06:53:17PM -0400, Giacomo Comes wrote:
-> > > Hi,
-> > > on my Intel Compute Stick STCK1 (baytrail hdmi audio) 
-> > > sound is not working with the kernel 5.6
-> > > 
-> > > I have bisected the kernel and I found the commit that introduced the issue:
-> > > 
-> > > commit 58d124ea2739e1440ddd743d46c470fe724aca9a
-> > > Author: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> > > Date:   Thu Oct 31 12:26:04 2019 +0100
-> > > 
-> > >     drm/i915: Complete crtc hw/uapi split, v6.
-> > >     
-> > >     Now that we separated everything into uapi and hw, it's
-> > >     time to make the split definitive. Remove the union and
-> > >     make a copy of the hw state on modeset and fastset.
-> > >     
-> > >     Color blobs are copied in crtc atomic_check(), right
-> > >     before color management is checked.
-> > > 
-> > > If more information is required please let me know.
-> > 
-> > Should hopefully be fixed with
-> > commit 2bdd4c28baff ("drm/i915/display: Fix mode private_flags
-> > comparison at atomic_check")
-> > 
-> > Stable folks, please pick that up for 5.6.x stable releases.
+On Wed, Apr 01, 2020 at 05:47:02PM +0000, Giuliano Procida wrote:
+> This issue was found in 4.14 and is present in earlier kernels.
 > 
-> I can confirm that the commit indeed solves the problem I have.
-> It should go in the stable 5.6.x release ASAP.
+> Please backport
+> 
+> f5bbbbe4d635 blk-mq: sync the update nr_hw_queues with
+> blk_mq_queue_tag_busy_iter
+> 530ca2c9bd69 blk-mq: Allow blocking queue tag iter callbacks
+> 
+> onto the stable branches that don't have these. The second is a fix
+> for the first. Thank you.
+> 
+> 4.19.y and later - commits already present
+> 4.14.y - f5bbbbe4d635 doesn't patch cleanly but it's still
+> straightforward, just drop the comment and code mentioning switching
+> to 'none' in the trailing context
+> 4.9.y - ditto
+> 4.4.y - there was a refactoring of the code in commit
+> 0bf6cd5b9531bcc29c0a5e504b6ce2984c6fd8d8 making this non-trivial
+> 3.16.y - ditto
+> 
+> I am happy to try to produce clean patches, but it may be a day or so.
 
-Now queued up, thanks.
+I have done this for 4.14.y and 4.9.y, can you please provide a backport
+for 4.4.y that I can queue up?
+
+thanks,
 
 greg k-h
