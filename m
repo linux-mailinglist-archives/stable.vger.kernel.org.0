@@ -2,138 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B349919D6AA
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 14:26:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B93119D6B0
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 14:29:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728140AbgDCM0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 08:26:13 -0400
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:54311 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727927AbgDCM0M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 08:26:12 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 502C458016A;
-        Fri,  3 Apr 2020 08:26:11 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 03 Apr 2020 08:26:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=4X1yBFS5VM7YxjSUJmROxEr0L14
-        Qzk9bfmsDO9Klaj8=; b=WQrWsgIYvsTlSp2AEEopRisEXWage0X6F1yz/tM4EYi
-        4iogun3QUP8ft5xYDIfYxPqvbErj7JYon4O1pUI6VB5BhqgSAjKYXvcgV+dkIXZK
-        wa/e48l6xxtj+sH6n7YLvYKYzRuTzeb2W78pEVQl/6+IsZSwsHtTQWzy4gN01FOB
-        XurrWsqJTraQVd+GSV62zASjNcjEWN37nTAWKcprbpGlPI7yew8ZTUUL+p3LjCq5
-        xtU6lrqBbRrecenryeHmMh54Hrq4JA04507hZM+HT9woU6d69bZgYvHCSAw47XX/
-        BeDky1SjacT36kr2l85Oh1M3k2UAzjO2APfL5dtwXjA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4X1yBF
-        S5VM7YxjSUJmROxEr0L14Qzk9bfmsDO9Klaj8=; b=lPOznT+Hx+Rarj5yDcGxc/
-        AfwkCUjSbfu6B9ORWzy8uKWgVMRRrKini/FGVZCQwhJEGk8l8MVY77XvmJCaXcbh
-        xTCsSbtFlTH3sb7sRE9SxkpXfvZ7pv22lOwv9ScQh/6OuKb3a/MSY/d125PLr41y
-        LdWvVZm+SjPLCFDLyWlMZPPPzYPqRHhXcdZXXgQU/NFphB8tO7gdHANycsVB69hm
-        810nW+UfI0dbxX+oxUnekG3SeGsmb6Aa9wy3M9xfafjc8ctTWrUwQbHP+EjoKr7S
-        0k+UtQmEkvIscJabGYwPO0SkdanY8/2NaWl8oJ9NLATPbE3vGDdyF0ap0CLfVxCA
-        ==
-X-ME-Sender: <xms:YSuHXnsFurbhwMsaFP7MDtlU_O3-XRGHK02RtHByqCm-5Aphye_NUw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrtdeigdehvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdroh
-    hrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptden
-    ucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:YSuHXvocYGiPVjlTuXetS0u9Dh0PU83GJgKbM8uJP7JcTYpyU8VWYA>
-    <xmx:YSuHXvLoy_Wkze6WkvqodHSnosKWeUZO2aAcvAggWw1KLDpg9kLGNQ>
-    <xmx:YSuHXu4EtpB4vL-iCobzhrIA2cqeUA2eWgTfJV4vK-VMHSGLIsiHyQ>
-    <xmx:YyuHXiPx26iX08tU1dRmAJ8O3r-BNj-yDpvtq2GRlABr3gE_WWtVvg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 49C10328005D;
-        Fri,  3 Apr 2020 08:26:09 -0400 (EDT)
-Date:   Fri, 3 Apr 2020 14:26:04 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH 4.19 11/13] perf/core: Reattach a misplaced comment
-Message-ID: <20200403122604.GA3928660@kroah.com>
-References: <20200403121859.901838-1-lee.jones@linaro.org>
- <20200403121859.901838-12-lee.jones@linaro.org>
+        id S1727956AbgDCM3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 08:29:05 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:46947 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727882AbgDCM3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 08:29:05 -0400
+Received: by mail-pl1-f194.google.com with SMTP id s23so2622172plq.13
+        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 05:29:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hxWzc5hoYKAMjeb0Upg5qTrBahthYwCGiUDgCL6YJRo=;
+        b=q34dSqI9anO7zmP2QrxSU20p6Qdl9GU36Eg7ySKhF/K9E/6nbh5cEacBi2PWIiWdlm
+         JpneyDo1DoP4LOKGk4u1vLGg94G4RkQbWyd3kcq+tmQNTbmYKpo+x8d8dSSmo82zdaM1
+         1Wqogf1Eu778XCoEuD1sf2R5HxTRJ9fr3ZRmQl12Nd9+iBigWuquzUQxOgiIkNuv1AjX
+         JKWODczfCNPiXOnOHWLf0Rb77pK7KGylKOgiDgsrslq6JDE/gvc1vP5nnPYq55A9crOG
+         bZBOHTsHzyew8+Dk/K4r32o/RlTlwtI9vB336O4p01jJ8SaJSTpGcMXBM2WTNDsRmHPm
+         Pzaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hxWzc5hoYKAMjeb0Upg5qTrBahthYwCGiUDgCL6YJRo=;
+        b=cwk+Ksd0dQa2wQc5fBcJUtTHR+JZKfgQJtkVyarel7ZbyjQSAj2H4D8x8mx413inGx
+         e6eM/EGyUGrpcGqROkC6uVMUSMjHZ0cbjX08qTQ6UKXarkWtA6fSqpih6dX/cz8Rpc93
+         h5gnZjuAulSgwkSA90hbDHpGw2lEYBM5TPzBfgJ664/KSGBeHymMGHKzVkQiHfX3tFwb
+         ygcSms+59+Ynj3ER4BsIQc6UoXLS7Zj1rcJxGelpN5VO9WnXxuKo2S2E3dkjgzrbkGkN
+         eTHTF8auD6BSIt/90CtRogsUYBWa3hOQS81pml/kSFMAI14HCaL0OcFeILItqyASryIc
+         psdA==
+X-Gm-Message-State: AGi0PuaEYWoZNbIVeARL2vQmOICq6sswzmPFjQsla89m4WzbdnbuAlwG
+        vSEQvLaLm2Lb/NnuC2T69nQmctA57tQ=
+X-Google-Smtp-Source: APiQypJOdz0n2ZzIhXJUX8qzQkQjiJKhZ6hc553qNvQDXUMFdvuhGeaSsE7i38Qsz28RlfQ1/1OuBA==
+X-Received: by 2002:a17:902:aa48:: with SMTP id c8mr7447650plr.95.1585916943876;
+        Fri, 03 Apr 2020 05:29:03 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z8sm5778279pju.33.2020.04.03.05.29.02
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2020 05:29:02 -0700 (PDT)
+Message-ID: <5e872c0e.1c69fb81.f568.a98b@mx.google.com>
+Date:   Fri, 03 Apr 2020 05:29:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200403121859.901838-12-lee.jones@linaro.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.114
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 146 boots: 1 failed,
+ 138 passed with 2 offline, 5 untried/unknown (v4.19.114)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 03, 2020 at 01:18:57PM +0100, Lee Jones wrote:
-> From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> 
-> [ Upstream commit f25d8ba9e1b204b90fbf55970ea6e68955006068 ]
-> 
-> A comment is in a wrong place in perf_event_create_kernel_counter().
-> Fix that.
-> 
-> Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-> Cc: David Ahern <dsahern@gmail.com>
-> Cc: Jiri Olsa <jolsa@redhat.com>
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Namhyung Kim <namhyung@kernel.org>
-> Cc: Stephane Eranian <eranian@google.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Vince Weaver <vincent.weaver@maine.edu>
-> Link: https://lkml.kernel.org/r/20191030134731.5437-2-alexander.shishkin@linux.intel.com
-> Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  kernel/events/core.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/kernel/events/core.c b/kernel/events/core.c
-> index 8c70ee23fbe91..16f268475e8e4 100644
-> --- a/kernel/events/core.c
-> +++ b/kernel/events/core.c
-> @@ -10954,10 +10954,6 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
->  	struct perf_event *event;
->  	int err;
->  
-> -	/*
-> -	 * Get the target context (task or percpu):
-> -	 */
-> -
->  	event = perf_event_alloc(attr, cpu, task, NULL, NULL,
->  				 overflow_handler, context, -1);
->  	if (IS_ERR(event)) {
-> @@ -10968,6 +10964,9 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
->  	/* Mark owner so we could distinguish it from user events. */
->  	event->owner = TASK_TOMBSTONE;
->  
-> +	/*
-> +	 * Get the target context (task or percpu):
-> +	 */
->  	ctx = find_get_context(event->pmu, task, event);
->  	if (IS_ERR(ctx)) {
->  		err = PTR_ERR(ctx);
+stable-rc/linux-4.19.y boot: 146 boots: 1 failed, 138 passed with 2 offline=
+, 5 untried/unknown (v4.19.114)
 
-Unless this is needed by a follow-on patch, I kind of doubt thsi is
-needed in a stable kernel release :)
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.114/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.114/
 
-thanks,
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.114
+Git Commit: dda0e2920330128e0dbdeb11c8f25031aa40b11c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 83 unique boards, 22 SoC families, 19 builds out of 206
 
-greg k-h
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 54 days (last pass: v4.19=
+.101 - first fail: v4.19.102-96-g0632821fe218)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 21 days (last pass: v4.19.108-87-=
+g624c124960e8 - first fail: v4.19.109)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
