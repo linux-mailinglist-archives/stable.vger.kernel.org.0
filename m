@@ -2,107 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19C9219D599
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 13:14:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E55EE19D5DB
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 13:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728073AbgDCLOv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 07:14:51 -0400
-Received: from mail-pj1-f65.google.com ([209.85.216.65]:54515 "EHLO
-        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727968AbgDCLOv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 07:14:51 -0400
-Received: by mail-pj1-f65.google.com with SMTP id np9so2853296pjb.4
-        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 04:14:50 -0700 (PDT)
+        id S2390800AbgDCL34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 07:29:56 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:34302 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390783AbgDCL3q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 07:29:46 -0400
+Received: by mail-pl1-f195.google.com with SMTP id a23so2607480plm.1;
+        Fri, 03 Apr 2020 04:29:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=k36+MI0AOEVjyYJZcFmsXTeTcwuregAAp6ml2N6DZcg=;
-        b=cE9jNMSN3q5LXZ2XUHHeaeA75lu0XiMhnejrXO5lqBnY3jKRb5GlhQtGtqBfFE20km
-         mvBvjWZCY+38Ae7FW49yAydlkY+iyeRPOUaM7Jfbo0LiQeirIyrScud+6EouinFtBMRV
-         nmpKsTJELWiiQ/FR1haE08HirF2um89aIp5OQW51GAvgSL/IEIegMjKk4RMbGyu/hVV2
-         QCnhz0e3bMvXlSG9tzL03vLYObKRmlzUHw58QS+hsLDb73ZA9RxTE+HtVEn3kQw7Krke
-         wqNuj2eAjS+jDkjoRCwL92hQNNyJHPpJRdSGE8EvyMjqP91HjopuoL+WxM4OnAspRtcY
-         JVyQ==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8rXpdWw7x9PpBvoBR/qm/XcVJsNWHJ1tSvQ9UIVcPLA=;
+        b=iegDoB1IxCA4quOPEOuEst/h/o+3lRJuFDKhH/u9bys+FKqKdgPy8zwo7dxJoU2DwR
+         OqDJQKEkNLhlMWWPZ065eDbOe6Eo4ZD2JqnLMoX4sksEkxM3ZDYy5kzvKC2zOoRSXSix
+         t4aCJWtpQqSvrC2solgN22MI9dJUgkfeMjY9mCzCjV3+JrCclicKu8HBvSumuae23O0f
+         YKuek9MktR7z3Pa6J8hUkwLCmerbyvtBYv3ux2yPUeMxkyXQt8qVyoEDBorLtSBfEd5K
+         OyxNXrHVYivJX0Up0fRhONeNVQ+BFkAj2kkYUT2zWAdglRTaY2wwTkrVVQKGMJYZypuJ
+         v5YA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=k36+MI0AOEVjyYJZcFmsXTeTcwuregAAp6ml2N6DZcg=;
-        b=N0KIHj8JiwgdhwAPx3Ejxy2vf90JPRY94/FlSIVENnbkTcwc3CfyRQiAMijILbSJk9
-         88wpg9XAjkPN+nwn1JmdzUJBFSKgsqz9TONO6FjGHIWe5D1asHKeI63ObY4nL6Sey+iz
-         3u/QE1/KMbayBwsK2bQZSSyZck35qa+lx1HPasB0puA/ZYaZM0S6UKk1V0Ha+TNrdOl0
-         Z2KBwPaLsArNGKhKcdrGA2xh3QPj2l+Js+todhcnPeSNM5+GMuTd8av+05GmVSZC5FKP
-         jaad9p9bwRlyCXxJpGLCO7Z4LVIKXybIq5+3yD+Pyo/ekbuNo8Yofu8GnsGDWYCC3crR
-         X9OA==
-X-Gm-Message-State: AGi0Pua2S2gZ5FIHQ5k1llGyPVVQyIO1rYPCQCb7eg8qNo1pKIXdm+Td
-        k2LZJUlPNMMtCzutyWeg5GQK8WiTq9o=
-X-Google-Smtp-Source: APiQypLxjVQzNIq1Bp/bTquzYTv+Lfeo576OVYnj4jt4eqy0dLdrz2Fds0aFqASTCI3ukkCa9KkO1w==
-X-Received: by 2002:a17:902:9a08:: with SMTP id v8mr6731592plp.251.1585912489291;
-        Fri, 03 Apr 2020 04:14:49 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m2sm5524329pjl.21.2020.04.03.04.14.48
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8rXpdWw7x9PpBvoBR/qm/XcVJsNWHJ1tSvQ9UIVcPLA=;
+        b=kXlRLJUqIFfWAFPsfiwYuGzh5x1N3JZ3KQW7qFLWFkLE5Ai/l6mMccFhnZajqXiFA6
+         tCzhjuIEwJ497mwwRbceZpwRDh8m5MDz98GmBwuZlrYN95D52ZYPC67Sof55lVOw0VJ9
+         my6XkabdGL1fNS64ztn05A8WiNzqRboQhB+dKVbX5ASzx2DVZVCHnqB2n7YS+UnsF8OH
+         4ZGt7in73vy4qsVRh1bOwwFx2ZPI2GMmz9VetkPxWOC2mjJuWIAlcub4KpmdHU5uKuz5
+         BYEva4Y59ye/BynE+GGJuGYCy6ZwmhTZDXHcanI+sValOygyUbcmIC+T9TIZDput3UHb
+         Mr1Q==
+X-Gm-Message-State: AGi0PuaRyRoZjx880J91xAQaoPPKbY3MZLDFEjJlw1hgc6K1KOUKUSDL
+        Ou93nUOCClTk1kyiBVV/l8p1Uyp0gw8=
+X-Google-Smtp-Source: APiQypJ73aRw0jbyNSgssLXyjPahMN2KTO/im/OozAk2AXrhtWeGe0HEMNdi7dRewEFL4MTJbkL6Mg==
+X-Received: by 2002:a17:90a:37ea:: with SMTP id v97mr9591002pjb.26.1585913384901;
+        Fri, 03 Apr 2020 04:29:44 -0700 (PDT)
+Received: from guoguo-omen.lan ([240e:379:95c:7214:abe6:11ff:840d:b9a7])
+        by smtp.gmail.com with ESMTPSA id g18sm5034114pgh.42.2020.04.03.04.29.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Apr 2020 04:14:48 -0700 (PDT)
-Message-ID: <5e871aa8.1c69fb81.8f235.9a20@mx.google.com>
-Date:   Fri, 03 Apr 2020 04:14:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Fri, 03 Apr 2020 04:29:44 -0700 (PDT)
+From:   Chuanhong Guo <gch981213@gmail.com>
+To:     netdev@vger.kernel.org
+Cc:     Chuanhong Guo <gch981213@gmail.com>, stable@vger.kernel.org,
+        Sean Wang <sean.wang@mediatek.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        =?UTF-8?q?Ren=C3=A9=20van=20Dorst?= <opensource@vdorst.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] net: dsa: mt7530: fix null pointer dereferencing in port5 setup
+Date:   Fri,  3 Apr 2020 19:28:24 +0800
+Message-Id: <20200403112830.505720-1-gch981213@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.218
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable/linux-4.4.y boot: 59 boots: 3 failed,
- 52 passed with 4 untried/unknown (v4.4.218)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y boot: 59 boots: 3 failed, 52 passed with 4 untried/unkno=
-wn (v4.4.218)
+The 2nd gmac of mediatek soc ethernet may not be connected to a PHY
+and a phy-handle isn't always available.
+Unfortunately, mt7530 dsa driver assumes that the 2nd gmac is always
+connected to switch port 5 and setup mt7530 according to phy address
+of 2nd gmac node, causing null pointer dereferencing when phy-handle
+isn't defined in dts.
+This commit fix this setup code by checking return value of
+of_parse_phandle before using it.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-4.y/kernel/v4.4.218/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
-rnel/v4.4.218/
-
-Tree: stable
-Branch: linux-4.4.y
-Git Describe: v4.4.218
-Git Commit: c4f11a973295ba9ecfe1881ede91025b59d43916
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 30 unique boards, 11 SoC families, 13 builds out of 190
-
-Boot Regressions Detected:
-
-arm:
-
-    vexpress_defconfig:
-        gcc-8:
-          vexpress-v2p-ca9:
-              lab-baylibre: failing since 13 days (last pass: v4.4.216 - fi=
-rst fail: v4.4.217)
-
-Boot Failures Detected:
-
-arm:
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
+Fixes: 38f790a80560 ("net: dsa: mt7530: Add support for port 5")
+Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+Cc: stable@vger.kernel.org
 ---
-For more info write to <info@kernelci.org>
+
+mt7530 is available as a standalone chip and we should not make it
+tightly coupled with a specific type of ethernet dt binding in the
+first place.
+A proper fix is to replace this port detection logic with a dt
+property under mt7530 node, but that's too much for linux-stable.
+
+ drivers/net/dsa/mt7530.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index 6e91fe2f4b9a..1d53a4ebcd5a 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -1414,6 +1414,9 @@ mt7530_setup(struct dsa_switch *ds)
+ 				continue;
+ 
+ 			phy_node = of_parse_phandle(mac_np, "phy-handle", 0);
++			if (!phy_node)
++				continue;
++
+ 			if (phy_node->parent == priv->dev->of_node->parent) {
+ 				ret = of_get_phy_mode(mac_np, &interface);
+ 				if (ret && ret != -ENODEV)
+-- 
+2.25.1
+
