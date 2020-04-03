@@ -2,132 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D9419D54D
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 12:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C9219D599
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 13:14:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728023AbgDCKwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 06:52:47 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:45536 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2390474AbgDCKwq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 06:52:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585911165;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=+5NLHWAihP8eW/m69CJGGciyPRDVjDNEWxz3B2il954=;
-        b=enG5PG6shc0G/JidX4KrJ9QdSnXIOtHOcePkio4JsRI+atuSxx8GRYXnagmbwQaj2VTmpt
-        H674XAvcFBsvfr3AXsDiBBBziW0NQTTxro9tU+6wpq5/UD6lzupC1DW0UCMOLiVq1m0BMy
-        xxPptqfTO90L96qsTu62buvmTtGXOD4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-57-Fu1C1p5TNVKAUdeun9FrOQ-1; Fri, 03 Apr 2020 06:52:44 -0400
-X-MC-Unique: Fu1C1p5TNVKAUdeun9FrOQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8A7CD1B18BD5;
-        Fri,  3 Apr 2020 10:52:42 +0000 (UTC)
-Received: from x1.localdomain.com (ovpn-115-123.ams2.redhat.com [10.36.115.123])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D2574BEA6C;
-        Fri,  3 Apr 2020 10:52:39 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-acpi@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "5 . 4+" <stable@vger.kernel.org>
-Subject: [PATCH v2 2/2] platform/x86: intel_int0002_vgpio: Use acpi_register_wakeup_handler()
-Date:   Fri,  3 Apr 2020 12:52:35 +0200
-Message-Id: <20200403105235.105187-2-hdegoede@redhat.com>
-In-Reply-To: <20200403105235.105187-1-hdegoede@redhat.com>
-References: <20200403105235.105187-1-hdegoede@redhat.com>
+        id S1728073AbgDCLOv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 07:14:51 -0400
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:54515 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727968AbgDCLOv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 07:14:51 -0400
+Received: by mail-pj1-f65.google.com with SMTP id np9so2853296pjb.4
+        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 04:14:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=k36+MI0AOEVjyYJZcFmsXTeTcwuregAAp6ml2N6DZcg=;
+        b=cE9jNMSN3q5LXZ2XUHHeaeA75lu0XiMhnejrXO5lqBnY3jKRb5GlhQtGtqBfFE20km
+         mvBvjWZCY+38Ae7FW49yAydlkY+iyeRPOUaM7Jfbo0LiQeirIyrScud+6EouinFtBMRV
+         nmpKsTJELWiiQ/FR1haE08HirF2um89aIp5OQW51GAvgSL/IEIegMjKk4RMbGyu/hVV2
+         QCnhz0e3bMvXlSG9tzL03vLYObKRmlzUHw58QS+hsLDb73ZA9RxTE+HtVEn3kQw7Krke
+         wqNuj2eAjS+jDkjoRCwL92hQNNyJHPpJRdSGE8EvyMjqP91HjopuoL+WxM4OnAspRtcY
+         JVyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=k36+MI0AOEVjyYJZcFmsXTeTcwuregAAp6ml2N6DZcg=;
+        b=N0KIHj8JiwgdhwAPx3Ejxy2vf90JPRY94/FlSIVENnbkTcwc3CfyRQiAMijILbSJk9
+         88wpg9XAjkPN+nwn1JmdzUJBFSKgsqz9TONO6FjGHIWe5D1asHKeI63ObY4nL6Sey+iz
+         3u/QE1/KMbayBwsK2bQZSSyZck35qa+lx1HPasB0puA/ZYaZM0S6UKk1V0Ha+TNrdOl0
+         Z2KBwPaLsArNGKhKcdrGA2xh3QPj2l+Js+todhcnPeSNM5+GMuTd8av+05GmVSZC5FKP
+         jaad9p9bwRlyCXxJpGLCO7Z4LVIKXybIq5+3yD+Pyo/ekbuNo8Yofu8GnsGDWYCC3crR
+         X9OA==
+X-Gm-Message-State: AGi0Pua2S2gZ5FIHQ5k1llGyPVVQyIO1rYPCQCb7eg8qNo1pKIXdm+Td
+        k2LZJUlPNMMtCzutyWeg5GQK8WiTq9o=
+X-Google-Smtp-Source: APiQypLxjVQzNIq1Bp/bTquzYTv+Lfeo576OVYnj4jt4eqy0dLdrz2Fds0aFqASTCI3ukkCa9KkO1w==
+X-Received: by 2002:a17:902:9a08:: with SMTP id v8mr6731592plp.251.1585912489291;
+        Fri, 03 Apr 2020 04:14:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m2sm5524329pjl.21.2020.04.03.04.14.48
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2020 04:14:48 -0700 (PDT)
+Message-ID: <5e871aa8.1c69fb81.8f235.9a20@mx.google.com>
+Date:   Fri, 03 Apr 2020 04:14:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.218
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable/linux-4.4.y boot: 59 boots: 3 failed,
+ 52 passed with 4 untried/unknown (v4.4.218)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Power Management Events (PMEs) the INT0002 driver listens for get
-signalled by the Power Management Controller (PMC) using the same IRQ
-as used for the ACPI SCI.
+stable/linux-4.4.y boot: 59 boots: 3 failed, 52 passed with 4 untried/unkno=
+wn (v4.4.218)
 
-Since commit fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from
-waking up the system") the SCI triggering, without there being a wakeup
-cause recognized by the ACPI sleep code, will no longer wakeup the system=
-.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+4.y/kernel/v4.4.218/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
+rnel/v4.4.218/
 
-This breaks PMEs / wakeups signalled to the INT0002 driver, the system
-never leaves the s2idle_loop() now.
+Tree: stable
+Branch: linux-4.4.y
+Git Describe: v4.4.218
+Git Commit: c4f11a973295ba9ecfe1881ede91025b59d43916
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 30 unique boards, 11 SoC families, 13 builds out of 190
 
-Use acpi_register_wakeup_handler() to register a function which checks
-the GPE0a_STS register for a PME and trigger a wakeup when a PME has
-been signalled.
+Boot Regressions Detected:
 
-With this new mechanism the pm_wakeup_hard_event() call is no longer
-necessary, so remove it and also remove the matching device_init_wakeup()
-calls.
+arm:
 
-Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking=
- up the system")
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+    vexpress_defconfig:
+        gcc-8:
+          vexpress-v2p-ca9:
+              lab-baylibre: failing since 13 days (last pass: v4.4.216 - fi=
+rst fail: v4.4.217)
+
+Boot Failures Detected:
+
+arm:
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
 ---
-Changes in v2:
-- Adjust for the wakeup-handler registration function being renamed to
-  acpi_register_wakeup_handler()
----
- drivers/platform/x86/intel_int0002_vgpio.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platfor=
-m/x86/intel_int0002_vgpio.c
-index f14e2c5f9da5..9da19168b4f6 100644
---- a/drivers/platform/x86/intel_int0002_vgpio.c
-+++ b/drivers/platform/x86/intel_int0002_vgpio.c
-@@ -122,11 +122,17 @@ static irqreturn_t int0002_irq(int irq, void *data)
- 	generic_handle_irq(irq_find_mapping(chip->irq.domain,
- 					    GPE0A_PME_B0_VIRT_GPIO_PIN));
-=20
--	pm_wakeup_hard_event(chip->parent);
--
- 	return IRQ_HANDLED;
- }
-=20
-+static bool int0002_check_wake(void *data)
-+{
-+	u32 gpe_sts_reg;
-+
-+	gpe_sts_reg =3D inl(GPE0A_STS_PORT);
-+	return (gpe_sts_reg & GPE0A_PME_B0_STS_BIT);
-+}
-+
- static struct irq_chip int0002_byt_irqchip =3D {
- 	.name			=3D DRV_NAME,
- 	.irq_ack		=3D int0002_irq_ack,
-@@ -220,13 +226,13 @@ static int int0002_probe(struct platform_device *pd=
-ev)
- 		return ret;
- 	}
-=20
--	device_init_wakeup(dev, true);
-+	acpi_register_wakeup_handler(irq, int0002_check_wake, NULL);
- 	return 0;
- }
-=20
- static int int0002_remove(struct platform_device *pdev)
- {
--	device_init_wakeup(&pdev->dev, false);
-+	acpi_unregister_wakeup_handler(int0002_check_wake, NULL);
- 	return 0;
- }
-=20
---=20
-2.26.0
-
+For more info write to <info@kernelci.org>
