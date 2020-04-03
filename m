@@ -2,97 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FB9B19D364
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 11:20:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ABB419D367
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 11:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727829AbgDCJUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 05:20:36 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:35509 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727774AbgDCJUf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 05:20:35 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id C46C97BF;
-        Fri,  3 Apr 2020 05:20:34 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 03 Apr 2020 05:20:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=cGOTJPKcDs47nZ9/lI4ynlR3lxG
-        ccMyQDcAWVYl28lY=; b=o09laQZs0qYFYef28XZFT6GwJZGL4Mhuc+o7Ph2a7Kr
-        IPVfFH6I6OBWPdvdH7j6IgkF80Gh30WKo+hhwLZJwTRt9LVE0jeBCgmhwxgcG9sN
-        i5SsSwukEsAxkd0HHGIA3jw4kgJAuzJZFI4HCU9hXHJFEoPnJv5H8xui3PS6M2rU
-        BqtOuUTs078QBchhgNSG+Kd4KI+O3YjLXO2toaRjqONRC+xjonhR1EP0IobxWOk+
-        gjNT/miqb4aAZtUudBGNqJB2clRSeC8yeZTDlKWF/BkqjQ5I6+6kyeQme1Tto3Gt
-        6MF0WmG7XYWfmWJZQbhhPEV6tg3QRPAWs5D+OpSOCzQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=cGOTJP
-        KcDs47nZ9/lI4ynlR3lxGccMyQDcAWVYl28lY=; b=nZpxawwATOgsljdh7/emx0
-        GZyy4ZMnd0Wo2g+3jNSBXfOd8+c7F0EUoyw25dAMb47HATaSqtTaWscW4uZrVtVV
-        tDBqOz19AQhiFWITjcVSyL4bpxQhOHCg+6fPhu5RTSs1RMxOUje3H8qXdHy6AVGd
-        kmIz9TFoamg5Se8EV66OfjkhK0oAgA1OxyK/qsunZmfzC9k63SxDq9DHhTN0NNdk
-        CG4kLVddqSiFJ91F90lGbT/D2WXRHCOFNT5ePLb+xVg6UiyjHyD+fBOAv25utVO3
-        9KaNhgf5+wlnRvHWiXTzBCjGyBLJ+dAfDOVw1+EwUGF5grxgrVwTj45YNfpo0ySg
-        ==
-X-ME-Sender: <xms:4v-GXizOBir4MsOb0e8NKmNGJfKKENoM1edJb-URvCy042_Dzh0WTw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrtdeigddugecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledruddtje
-    enucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgv
-    gheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:4v-GXsgImUSxovAwFfLQH57hkkFr_s42osbl5Xm-9W9_0Rrzkvsfvw>
-    <xmx:4v-GXhfu-x7qPxfyC5HLTnJ1GlpBFyf78Klg_MimVfTNLmAdZEITwA>
-    <xmx:4v-GXrVUPwNICGhWFhqgtB_W29Pr2nh5x4rfn191oeZK-BGdP3KmUQ>
-    <xmx:4v-GXscW-JcNWGhHxlBpmKCxsltB5wv_4wsxztePB7uEUQovB-4Cgw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D37FD328005E;
-        Fri,  3 Apr 2020 05:20:33 -0400 (EDT)
-Date:   Fri, 3 Apr 2020 11:20:32 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Giuliano Procida <gprocida@google.com>
+        id S1727843AbgDCJVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 05:21:38 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54474 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727774AbgDCJVh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 05:21:37 -0400
+Received: by mail-wm1-f68.google.com with SMTP id c81so6402021wmd.4
+        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 02:21:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=jHuT6DAScL4tMtP+YdP4mAw8JHh9m0HacngFD8L3u9c=;
+        b=BCzo3L+Wx7J8K+wLJfeBZ2xJD+Y1pdha1oXincBCoP81qa8aNUQ2k7I50nHl/QF32U
+         LEmaerv0SztTiRe84+ezxM5ktefDA6azMSVmTfXDnlatGX6UO16D/vOy7NtnMgzeC2YJ
+         Ak+UmUtOTxC9w8GNhcaTQ9zL5W2ILaneyD6UgNzpQLrD24EixXFX6nwtzkKsCHdi1Ay9
+         L4L6i9eWSUy3rHOauysQNLnEJ76jljv/lkbxd+RMasSJXS3PSrHA0bGAhNmhfsRezw8C
+         1Cy3UfRVXou73jiqFI5NVFQ26Z5dGrQgbuiX/Y82l/iP0fzmijbCo2VbOJjjeG0w7U1c
+         x3uw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=jHuT6DAScL4tMtP+YdP4mAw8JHh9m0HacngFD8L3u9c=;
+        b=do3a5nNQEe6xBwFQ1kyLva3S0qtpqMCsWSKEZQrG9GPCWAigbiQi3oRFNBX5wQzEmJ
+         +zWFwRR2fCCnPSfNRRpfeR4iItf7uJ/yre7HMt/E1eOPir+i9Dgm7NjdC43KvPpgSTwv
+         CwiyYAMQxVLKRcpbHSilX2nUY6kR8jbMedAEx9r5K1ChLEzdZg9wkEhoQyUxoZMfp44A
+         ynrE9FI6BJQpvClxC4aWMf8mzxc/ZLZwCfq2BdpbjQ0MvHfZ7i+xq3AHdyoP/7Oq1RjQ
+         bdvZWqY+wAw8ZNICLNvcMZDrB5T37bsJdusiaZuVw7MN/YjCnDtZtbb8jfxC/eTRZeO3
+         RVPw==
+X-Gm-Message-State: AGi0PuaEm2/RZUKmRrpV9ZxJJNWLYGE1X253wOjKgFLjF0heKOVZpzm7
+        l76BpXaINpLslyNB27dsl4A7uIV6dvo=
+X-Google-Smtp-Source: APiQypKvK1664jO6UUF/Uo6YTIzUzjk50u89Xviy8XXeoT18E6JIUaDQMCANhKms/CfakVaKfn/z4Q==
+X-Received: by 2002:a05:600c:214b:: with SMTP id v11mr7786299wml.104.1585905695763;
+        Fri, 03 Apr 2020 02:21:35 -0700 (PDT)
+Received: from dell ([2.27.35.179])
+        by smtp.gmail.com with ESMTPSA id a2sm11227122wrp.13.2020.04.03.02.21.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2020 02:21:35 -0700 (PDT)
+Date:   Fri, 3 Apr 2020 10:22:29 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Greg KH <greg@kroah.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: backport request for use-after-free blk_mq_queue_tag_busy_iter
-Message-ID: <20200403092032.GE3740897@kroah.com>
-References: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 14/14] lib/list_sort: simplify and remove
+ MAX_LIST_LENGTH_BITS
+Message-ID: <20200403092229.GC30614@dell>
+References: <20200402191220.787381-1-lee.jones@linaro.org>
+ <20200402191220.787381-14-lee.jones@linaro.org>
+ <20200403091337.GB3739689@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAGvU0HkVUE_mQY8AUjieRcRrD38gdJRE+CbDuenMxnU6DAFOSA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200403091337.GB3739689@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 05:47:02PM +0000, Giuliano Procida wrote:
-> This issue was found in 4.14 and is present in earlier kernels.
-> 
-> Please backport
-> 
-> f5bbbbe4d635 blk-mq: sync the update nr_hw_queues with
-> blk_mq_queue_tag_busy_iter
-> 530ca2c9bd69 blk-mq: Allow blocking queue tag iter callbacks
-> 
-> onto the stable branches that don't have these. The second is a fix
-> for the first. Thank you.
-> 
-> 4.19.y and later - commits already present
-> 4.14.y - f5bbbbe4d635 doesn't patch cleanly but it's still
-> straightforward, just drop the comment and code mentioning switching
-> to 'none' in the trailing context
-> 4.9.y - ditto
-> 4.4.y - there was a refactoring of the code in commit
-> 0bf6cd5b9531bcc29c0a5e504b6ce2984c6fd8d8 making this non-trivial
-> 3.16.y - ditto
-> 
-> I am happy to try to produce clean patches, but it may be a day or so.
+On Fri, 03 Apr 2020, Greg KH wrote:
 
-I have done this for 4.14.y and 4.9.y, can you please provide a backport
-for 4.4.y that I can queue up?
+> On Thu, Apr 02, 2020 at 08:12:20PM +0100, Lee Jones wrote:
+> > From: George Spelvin <lkml@sdf.org>
+> > 
+> > [ Upstream commit 043b3f7b6388fca6be86ca82979f66c5723a0d10 ]
+> > 
+> > Rather than a fixed-size array of pending sorted runs, use the ->prev
+> > links to keep track of things.  This reduces stack usage, eliminates
+> > some ugly overflow handling, and reduces the code size.
+> > 
+> > Also:
+> > * merge() no longer needs to handle NULL inputs, so simplify.
+> > * The same applies to merge_and_restore_back_links(), which is renamed
+> >   to the less ponderous merge_final().  (It's a static helper function,
+> >   so we don't need a super-descriptive name; comments will do.)
+> > * Document the actual return value requirements on the (*cmp)()
+> >   function; some callers are already using this feature.
+> > 
+> > x86-64 code size 1086 -> 739 bytes (-347)
+> > 
+> > (Yes, I see checkpatch complaining about no space after comma in
+> > "__attribute__((nonnull(2,3,4,5)))".  Checkpatch is wrong.)
+> > 
+> > Feedback from Rasmus Villemoes, Andy Shevchenko and Geert Uytterhoeven.
+> 
+> Random patch chosen from the list, why is this needed?  What issue does
+> this fix?  Where did it come from?
+> 
+> Also, you need to cc: all of the people involved in a patch for when you
+> submit them to the stable trees, to give them a chance to weigh in and
+> say "no, that should not go there."
+> 
+> Please do that for all of these series, and provide a 00/XX email.  I'm
+> dropping them all from my queue for now, thanks.
 
-thanks,
+Will do.  Thanks for the feedback.
 
-greg k-h
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
