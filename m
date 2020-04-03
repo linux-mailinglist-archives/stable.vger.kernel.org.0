@@ -2,218 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 285EF19DBD9
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 18:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 252C119DC4F
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 19:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728420AbgDCQj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 12:39:28 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:53544 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728381AbgDCQj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 12:39:28 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 033GO48e119034;
-        Fri, 3 Apr 2020 16:39:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=ba/j5CbMc04KuK6mlsaQvN5EhmuP6zjq0aHHSv/ALJI=;
- b=br/O1UPJeP2JGbAkX+MZVbHYoAe7v6C7Lfaj6VYknT2RlvrbE4IghWO3GFcH3x5BY8eB
- 7ollf3Lu94EbI9Y9ykPYsSn4SWcJ0neeNfaFRSnuw6qF/hI/rtRXA8qdlgxmJSUvueFE
- 06qAFzb++FuUZpWyow1x7g9u6pS/iM8wOzJb8W+U+WglkpNuHVBzdPEnzQecjK9aNyyT
- vSsmWx+mrbvSCcUB3GE7GnRRnIRDoFPNVhdAafaS22dLvkljAPCxjTPpkLRIVutQ9onW
- eTHIswAtG+pXM4JHJdDukHFS3oi3en6LtdL1FiaYhpjk5T4xilT+GyHvOBHTdj+unPfV HQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 303cevj3x4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 03 Apr 2020 16:39:13 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 033GcMZa033604;
-        Fri, 3 Apr 2020 16:39:13 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3020.oracle.com with ESMTP id 302ga55699-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 03 Apr 2020 16:39:12 +0000
-Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 033GdB18026063;
-        Fri, 3 Apr 2020 16:39:11 GMT
-Received: from [10.154.129.193] (/10.154.129.193)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 03 Apr 2020 09:39:11 -0700
-Subject: Re: [PATCH] nvme-fc: Revert - add module to ops template to allow
- module references
-To:     James Smart <jsmart2021@gmail.com>, linux-nvme@lists.infradead.org
-Cc:     stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>
-References: <20200403143320.49522-1-jsmart2021@gmail.com>
-From:   himanshu.madhani@oracle.com
-Organization: Oracle Corporation
-Message-ID: <6ad66e15-4815-146a-9921-c776559e3c75@oracle.com>
-Date:   Fri, 3 Apr 2020 11:38:50 -0500
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.6.0
+        id S1728121AbgDCRDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 13:03:10 -0400
+Received: from mail-qv1-f68.google.com ([209.85.219.68]:41164 "EHLO
+        mail-qv1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728117AbgDCRDK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 13:03:10 -0400
+Received: by mail-qv1-f68.google.com with SMTP id t4so3929549qvz.8;
+        Fri, 03 Apr 2020 10:03:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:message-id:from:to:cc:subject:in-reply-to:references
+         :mime-version:content-disposition:content-transfer-encoding;
+        bh=C18c1IugNAFxFaCXPQKTt7OVFB64Oo1MwWK6g2EBugk=;
+        b=hENydy7D0JCIgFa87b7M0ed1qoGpz0QGXHyXVDmHGDh7zw+L+WUhbK8IW02pBk8qHM
+         ADsA25xAJ67o4Ra6VRdXBwMhcZMuHy475xAxlyiU1YuRkbqv+PF2ir5V5qEjMcANfQVn
+         jGY8UQU13Viwi+GDqFDM01+/XrhVQbFZPaY/Tb2zki4oxJUEWTJXSoycxyeREVVBXM5T
+         uUK7ezP46TqBapFishKlJi3Sy21RVUbp0ZoycRDNJ8VBJIH1oXob0kZUNKCSq+meSRlw
+         PvtxAFdZSw3sGPJDdA0MlyJjyUWjLDDi5bCftL5qN/hJ4Jis+/StdK4ZXo5AsP3JJEfj
+         3FBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:from:to:cc:subject:in-reply-to
+         :references:mime-version:content-disposition
+         :content-transfer-encoding;
+        bh=C18c1IugNAFxFaCXPQKTt7OVFB64Oo1MwWK6g2EBugk=;
+        b=rybU4ozIerctSM0MzTB0k3ERvOnYEv6ZCk0L2c4W6/1IYwZN8R+xDAFiT8Pd59MexN
+         UFTVEdcfYD5zv8ByxFHsGXipcbXgxsLLYFmYUk5qTzyyb5rvnmQbousLiaburYrS/dTN
+         47iTws+XsMaZX3YUuQd3RkiQBiAP97qOVLYQEbIuJHSzEkRSU+H/olyY2alErw2q0DtC
+         twBn3MWyVsGQMRk/Lvj+FynUL7QaF4alci5buJE4RyJYrUDR+ziDeKKKIsEMalzXqrBn
+         3+Bx2IG///BqqOgXeXuLIQ265ouq3uOxdIFBqOy3BOhXfbqmnNOyZeb2NzEp+OaFATFL
+         q5Ig==
+X-Gm-Message-State: AGi0Pub7mxwRCDhfmmPwPQPG+PIW8qszdXyOnYgo1qSsXoaeIqhEOFoO
+        jpERSXYDFTJyuaFz6rQNkGg=
+X-Google-Smtp-Source: APiQypI7c1myt6pyEA1+Je1XA2txJx4TleqRCwZGZQeWyffLtTOCPCApztHQrbf9btvLkagoi//UCw==
+X-Received: by 2002:a05:6214:1933:: with SMTP id es19mr9320626qvb.186.1585933389339;
+        Fri, 03 Apr 2020 10:03:09 -0700 (PDT)
+Received: from localhost (modemcable249.105-163-184.mc.videotron.ca. [184.163.105.249])
+        by smtp.gmail.com with ESMTPSA id k2sm6777761qte.16.2020.04.03.10.03.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2020 10:03:08 -0700 (PDT)
+Date:   Fri, 3 Apr 2020 13:03:05 -0400
+Message-ID: <20200403130305.GB6453@t480s.localdomain>
+From:   Vivien Didelot <vivien.didelot@gmail.com>
+To:     Chuanhong Guo <gch981213@gmail.com>
+Cc:     netdev@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        =?UTF-8?B?UmVuw6k=?= van Dorst <opensource@vdorst.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net: dsa: mt7530: fix null pointer dereferencing in port5
+ setup
+In-Reply-To: <20200403112830.505720-1-gch981213@gmail.com>
+References: <20200403112830.505720-1-gch981213@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200403143320.49522-1-jsmart2021@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9580 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=2 malwarescore=0
- mlxlogscore=999 bulkscore=0 mlxscore=0 spamscore=0 adultscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2004030139
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9580 signatures=668685
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 adultscore=0
- clxscore=1011 phishscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
- suspectscore=2 mlxscore=0 impostorscore=0 mlxlogscore=999 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
- definitions=main-2004030139
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri,  3 Apr 2020 19:28:24 +0800, Chuanhong Guo <gch981213@gmail.com> wrote:
+> The 2nd gmac of mediatek soc ethernet may not be connected to a PHY
+> and a phy-handle isn't always available.
+> Unfortunately, mt7530 dsa driver assumes that the 2nd gmac is always
+> connected to switch port 5 and setup mt7530 according to phy address
+> of 2nd gmac node, causing null pointer dereferencing when phy-handle
+> isn't defined in dts.
+> This commit fix this setup code by checking return value of
+> of_parse_phandle before using it.
+> 
+> Fixes: 38f790a80560 ("net: dsa: mt7530: Add support for port 5")
+> Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+> Cc: stable@vger.kernel.org
 
-On 4/3/20 9:33 AM, James Smart wrote:
-> This patch reverts the commit for
->     nvme_fc: add module to ops template to allow module references
->
-> The original patch was to resolve the lldd being able to be unloaded
-> while being used to talk to the boot device of the system. However, the
-> end result of the original patch is that any driver unload while a nvme
-> controller is live via the lldd is now being prohibited. Given the module
-> reference, the module teardown routine can't be called, thus there's no
-> way, other than manual actions to terminate the controllers.
->
-> -- james
->
-> Fixes: 863fbae929c7 ("nvme_fc: add module to ops template to allow module  references")
-> Cc: <stable@vger.kernel.org> # v5.4+
-> Signed-off-by: James Smart <jsmart2021@gmail.com>
-> Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-> CC: Christoph Hellwig <hch@lst.de>
-> CC: Keith Busch <kbusch@kernel.org>
-> ---
->   drivers/nvme/host/fc.c          | 14 ++------------
->   drivers/nvme/target/fcloop.c    |  1 -
->   drivers/scsi/lpfc/lpfc_nvme.c   |  2 --
->   drivers/scsi/qla2xxx/qla_nvme.c |  1 -
->   include/linux/nvme-fc-driver.h  |  4 ----
->   5 files changed, 2 insertions(+), 20 deletions(-)
->
-> diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-> index a8bf2fb1287b..7dfc4a2ecf1e 100644
-> --- a/drivers/nvme/host/fc.c
-> +++ b/drivers/nvme/host/fc.c
-> @@ -342,8 +342,7 @@ nvme_fc_register_localport(struct nvme_fc_port_info *pinfo,
->   	    !template->ls_req || !template->fcp_io ||
->   	    !template->ls_abort || !template->fcp_abort ||
->   	    !template->max_hw_queues || !template->max_sgl_segments ||
-> -	    !template->max_dif_sgl_segments || !template->dma_boundary ||
-> -	    !template->module) {
-> +	    !template->max_dif_sgl_segments || !template->dma_boundary) {
->   		ret = -EINVAL;
->   		goto out_reghost_failed;
->   	}
-> @@ -2016,7 +2015,6 @@ nvme_fc_ctrl_free(struct kref *ref)
->   {
->   	struct nvme_fc_ctrl *ctrl =
->   		container_of(ref, struct nvme_fc_ctrl, ref);
-> -	struct nvme_fc_lport *lport = ctrl->lport;
->   	unsigned long flags;
->   
->   	if (ctrl->ctrl.tagset) {
-> @@ -2043,7 +2041,6 @@ nvme_fc_ctrl_free(struct kref *ref)
->   	if (ctrl->ctrl.opts)
->   		nvmf_free_options(ctrl->ctrl.opts);
->   	kfree(ctrl);
-> -	module_put(lport->ops->module);
->   }
->   
->   static void
-> @@ -3074,15 +3071,10 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
->   		goto out_fail;
->   	}
->   
-> -	if (!try_module_get(lport->ops->module)) {
-> -		ret = -EUNATCH;
-> -		goto out_free_ctrl;
-> -	}
-> -
->   	idx = ida_simple_get(&nvme_fc_ctrl_cnt, 0, 0, GFP_KERNEL);
->   	if (idx < 0) {
->   		ret = -ENOSPC;
-> -		goto out_mod_put;
-> +		goto out_free_ctrl;
->   	}
->   
->   	ctrl->ctrl.opts = opts;
-> @@ -3232,8 +3224,6 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
->   out_free_ida:
->   	put_device(ctrl->dev);
->   	ida_simple_remove(&nvme_fc_ctrl_cnt, ctrl->cnum);
-> -out_mod_put:
-> -	module_put(lport->ops->module);
->   out_free_ctrl:
->   	kfree(ctrl);
->   out_fail:
-> diff --git a/drivers/nvme/target/fcloop.c b/drivers/nvme/target/fcloop.c
-> index 9861fcea39f6..f69ce66e2d44 100644
-> --- a/drivers/nvme/target/fcloop.c
-> +++ b/drivers/nvme/target/fcloop.c
-> @@ -875,7 +875,6 @@ fcloop_targetport_delete(struct nvmet_fc_target_port *targetport)
->   #define FCLOOP_DMABOUND_4G		0xFFFFFFFF
->   
->   static struct nvme_fc_port_template fctemplate = {
-> -	.module			= THIS_MODULE,
->   	.localport_delete	= fcloop_localport_delete,
->   	.remoteport_delete	= fcloop_remoteport_delete,
->   	.create_queue		= fcloop_create_queue,
-> diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-> index f6c8963c915d..db4a04a207ec 100644
-> --- a/drivers/scsi/lpfc/lpfc_nvme.c
-> +++ b/drivers/scsi/lpfc/lpfc_nvme.c
-> @@ -1985,8 +1985,6 @@ lpfc_nvme_fcp_abort(struct nvme_fc_local_port *pnvme_lport,
->   
->   /* Declare and initialization an instance of the FC NVME template. */
->   static struct nvme_fc_port_template lpfc_nvme_template = {
-> -	.module	= THIS_MODULE,
-> -
->   	/* initiator-based functions */
->   	.localport_delete  = lpfc_nvme_localport_delete,
->   	.remoteport_delete = lpfc_nvme_remoteport_delete,
-> diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-> index bfcd02fdf2b8..941aa53363f5 100644
-> --- a/drivers/scsi/qla2xxx/qla_nvme.c
-> +++ b/drivers/scsi/qla2xxx/qla_nvme.c
-> @@ -610,7 +610,6 @@ static void qla_nvme_remoteport_delete(struct nvme_fc_remote_port *rport)
->   }
->   
->   static struct nvme_fc_port_template qla_nvme_fc_transport = {
-> -	.module	= THIS_MODULE,
->   	.localport_delete = qla_nvme_localport_delete,
->   	.remoteport_delete = qla_nvme_remoteport_delete,
->   	.create_queue   = qla_nvme_alloc_queue,
-> diff --git a/include/linux/nvme-fc-driver.h b/include/linux/nvme-fc-driver.h
-> index 6d0d70f3219c..10f81629b9ce 100644
-> --- a/include/linux/nvme-fc-driver.h
-> +++ b/include/linux/nvme-fc-driver.h
-> @@ -270,8 +270,6 @@ struct nvme_fc_remote_port {
->    *
->    * Host/Initiator Transport Entrypoints/Parameters:
->    *
-> - * @module:  The LLDD module using the interface
-> - *
->    * @localport_delete:  The LLDD initiates deletion of a localport via
->    *       nvme_fc_deregister_localport(). However, the teardown is
->    *       asynchronous. This routine is called upon the completion of the
-> @@ -385,8 +383,6 @@ struct nvme_fc_remote_port {
->    *       Value is Mandatory. Allowed to be zero.
->    */
->   struct nvme_fc_port_template {
-> -	struct module	*module;
-> -
->   	/* initiator-based functions */
->   	void	(*localport_delete)(struct nvme_fc_local_port *);
->   	void	(*remoteport_delete)(struct nvme_fc_remote_port *);
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
