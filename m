@@ -2,117 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FE1819D697
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 14:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B349919D6AA
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 14:26:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403929AbgDCMSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 08:18:40 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:55430 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2403925AbgDCMSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 08:18:39 -0400
-Received: by mail-wm1-f68.google.com with SMTP id r16so6926683wmg.5
-        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 05:18:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=0AIBR/Fbp1+bL9hbHwPNzEV1sMWpxsi1yYPh/RkQmpU=;
-        b=eq6a9O1f0AGpU3Ni8cr30IVsPzWOnyKRrPuz5xUhx12UATiza/Lk7qMHoS8tyY7zfg
-         ahYcx/yFFdAU4RWltG201UG/FcLaFn30oYhsBH0BmngwNeQuYRbEoOMcsrGsUtNfYVz4
-         D1Ti8MqXroavUlpVQmv4dDi45XSNUt5tUTtC81vHc6KIdfGwOOW05YiVZcKgW/KpqPJq
-         r4E+LSPBKxvdcw0KxM3viR71qb1tSAp+VCy2oXVkL1anFVDEgABAspyE0ZPniyB6q1Yg
-         LePO7chJsUrPU0h0rVRfOMyugqK7Hma6kVgj1DSKvVEivwg4SKcirKy6e3Jy0ierj+GV
-         o7QQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=0AIBR/Fbp1+bL9hbHwPNzEV1sMWpxsi1yYPh/RkQmpU=;
-        b=ADA8sCtYGlpymeVQ6lnkmBRrnAkFRraJTRMRtVdRq1nzFwqFtTue97FwWb+NDqWgp8
-         HK/Zr6+LBKB6vulof3EzzkGKsJbASyUU3zZbjH+y7OgXfqKMeNZxV+j/mPM2E7YAkusc
-         2Tiquf3nva4LIjSL9ak0WS2cnNRhNnjPHkif+m1fwXSTjHJRkpS1UTqo+Nw3oHDGH9Wq
-         MjiF+JMRBGSouLQgLR8XNiR1pBP6B4Q4x7cfCG1RMnFkdJCX+GXgJKn+JzYoOPtRYFvQ
-         gR4Sj5bdJGNHKXVpQbQIuzoZQ3AR0tOiaTTU1VQBAAReL8kANOtfX824ufWATt2znwTN
-         vXQA==
-X-Gm-Message-State: AGi0PuabJWX4VHJS2NJqsTpkIOYgbLEv+5SRhrePOINzaQ6GwxwZOLSS
-        FI5adgnKzhGwb9Z/yIpynmGOjJjiq0w=
-X-Google-Smtp-Source: APiQypLbp7e3Mr+JPo3b0j1LAtIoGzRMcgCzwI4cYhipPSfzTSSfhqtwubIlZDZZCEiE8OSlE8u2uw==
-X-Received: by 2002:a05:600c:34c:: with SMTP id u12mr8351015wmd.186.1585916318063;
-        Fri, 03 Apr 2020 05:18:38 -0700 (PDT)
-Received: from localhost.localdomain ([2.27.35.179])
-        by smtp.gmail.com with ESMTPSA id l185sm11377712wml.44.2020.04.03.05.18.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Apr 2020 05:18:37 -0700 (PDT)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     stable@vger.kernel.org
-Cc:     Roger Quadros <rogerq@ti.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.19 13/13] usb: dwc3: don't set gadget->is_otg flag
-Date:   Fri,  3 Apr 2020 13:18:59 +0100
-Message-Id: <20200403121859.901838-14-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200403121859.901838-1-lee.jones@linaro.org>
+        id S1728140AbgDCM0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 08:26:13 -0400
+Received: from new4-smtp.messagingengine.com ([66.111.4.230]:54311 "EHLO
+        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727927AbgDCM0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 08:26:12 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 502C458016A;
+        Fri,  3 Apr 2020 08:26:11 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 03 Apr 2020 08:26:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=4X1yBFS5VM7YxjSUJmROxEr0L14
+        Qzk9bfmsDO9Klaj8=; b=WQrWsgIYvsTlSp2AEEopRisEXWage0X6F1yz/tM4EYi
+        4iogun3QUP8ft5xYDIfYxPqvbErj7JYon4O1pUI6VB5BhqgSAjKYXvcgV+dkIXZK
+        wa/e48l6xxtj+sH6n7YLvYKYzRuTzeb2W78pEVQl/6+IsZSwsHtTQWzy4gN01FOB
+        XurrWsqJTraQVd+GSV62zASjNcjEWN37nTAWKcprbpGlPI7yew8ZTUUL+p3LjCq5
+        xtU6lrqBbRrecenryeHmMh54Hrq4JA04507hZM+HT9woU6d69bZgYvHCSAw47XX/
+        BeDky1SjacT36kr2l85Oh1M3k2UAzjO2APfL5dtwXjA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4X1yBF
+        S5VM7YxjSUJmROxEr0L14Qzk9bfmsDO9Klaj8=; b=lPOznT+Hx+Rarj5yDcGxc/
+        AfwkCUjSbfu6B9ORWzy8uKWgVMRRrKini/FGVZCQwhJEGk8l8MVY77XvmJCaXcbh
+        xTCsSbtFlTH3sb7sRE9SxkpXfvZ7pv22lOwv9ScQh/6OuKb3a/MSY/d125PLr41y
+        LdWvVZm+SjPLCFDLyWlMZPPPzYPqRHhXcdZXXgQU/NFphB8tO7gdHANycsVB69hm
+        810nW+UfI0dbxX+oxUnekG3SeGsmb6Aa9wy3M9xfafjc8ctTWrUwQbHP+EjoKr7S
+        0k+UtQmEkvIscJabGYwPO0SkdanY8/2NaWl8oJ9NLATPbE3vGDdyF0ap0CLfVxCA
+        ==
+X-ME-Sender: <xms:YSuHXnsFurbhwMsaFP7MDtlU_O3-XRGHK02RtHByqCm-5Aphye_NUw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrtdeigdehvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdroh
+    hrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptden
+    ucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:YSuHXvocYGiPVjlTuXetS0u9Dh0PU83GJgKbM8uJP7JcTYpyU8VWYA>
+    <xmx:YSuHXvLoy_Wkze6WkvqodHSnosKWeUZO2aAcvAggWw1KLDpg9kLGNQ>
+    <xmx:YSuHXu4EtpB4vL-iCobzhrIA2cqeUA2eWgTfJV4vK-VMHSGLIsiHyQ>
+    <xmx:YyuHXiPx26iX08tU1dRmAJ8O3r-BNj-yDpvtq2GRlABr3gE_WWtVvg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 49C10328005D;
+        Fri,  3 Apr 2020 08:26:09 -0400 (EDT)
+Date:   Fri, 3 Apr 2020 14:26:04 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH 4.19 11/13] perf/core: Reattach a misplaced comment
+Message-ID: <20200403122604.GA3928660@kroah.com>
 References: <20200403121859.901838-1-lee.jones@linaro.org>
+ <20200403121859.901838-12-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200403121859.901838-12-lee.jones@linaro.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+On Fri, Apr 03, 2020 at 01:18:57PM +0100, Lee Jones wrote:
+> From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> 
+> [ Upstream commit f25d8ba9e1b204b90fbf55970ea6e68955006068 ]
+> 
+> A comment is in a wrong place in perf_event_create_kernel_counter().
+> Fix that.
+> 
+> Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+> Cc: David Ahern <dsahern@gmail.com>
+> Cc: Jiri Olsa <jolsa@redhat.com>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Namhyung Kim <namhyung@kernel.org>
+> Cc: Stephane Eranian <eranian@google.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Vince Weaver <vincent.weaver@maine.edu>
+> Link: https://lkml.kernel.org/r/20191030134731.5437-2-alexander.shishkin@linux.intel.com
+> Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  kernel/events/core.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/kernel/events/core.c b/kernel/events/core.c
+> index 8c70ee23fbe91..16f268475e8e4 100644
+> --- a/kernel/events/core.c
+> +++ b/kernel/events/core.c
+> @@ -10954,10 +10954,6 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
+>  	struct perf_event *event;
+>  	int err;
+>  
+> -	/*
+> -	 * Get the target context (task or percpu):
+> -	 */
+> -
+>  	event = perf_event_alloc(attr, cpu, task, NULL, NULL,
+>  				 overflow_handler, context, -1);
+>  	if (IS_ERR(event)) {
+> @@ -10968,6 +10964,9 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
+>  	/* Mark owner so we could distinguish it from user events. */
+>  	event->owner = TASK_TOMBSTONE;
+>  
+> +	/*
+> +	 * Get the target context (task or percpu):
+> +	 */
+>  	ctx = find_get_context(event->pmu, task, event);
+>  	if (IS_ERR(ctx)) {
+>  		err = PTR_ERR(ctx);
 
-[ Upstream commit c09b73cfac2a9317f1104169045c519c6021aa1d ]
+Unless this is needed by a follow-on patch, I kind of doubt thsi is
+needed in a stable kernel release :)
 
-This reverts
-commit 6a4290cc28be1 ("usb: dwc3: gadget: set the OTG flag in dwc3 gadget driver.")
+thanks,
 
-We don't yet support any of the OTG mechanisms (HNP/SRP/ADP)
-and are not setting gadget->otg_caps, so don't set gadget->is_otg
-flag.
-
-If we do then we end up publishing a OTG1.0 descriptor in
-the gadget descriptor which causes device enumeration to fail
-if we are connected to a host with CONFIG_USB_OTG enabled.
-
-Host side log without this patch
-
-[   96.720453] usb 1-1: new high-speed USB device number 2 using xhci-hcd
-[   96.901391] usb 1-1: Dual-Role OTG device on non-HNP port
-[   96.907552] usb 1-1: set a_alt_hnp_support failed: -32
-[   97.060447] usb 1-1: new high-speed USB device number 3 using xhci-hcd
-[   97.241378] usb 1-1: Dual-Role OTG device on non-HNP port
-[   97.247536] usb 1-1: set a_alt_hnp_support failed: -32
-[   97.253606] usb usb1-port1: attempt power cycle
-[   97.960449] usb 1-1: new high-speed USB device number 4 using xhci-hcd
-[   98.141383] usb 1-1: Dual-Role OTG device on non-HNP port
-[   98.147540] usb 1-1: set a_alt_hnp_support failed: -32
-[   98.300453] usb 1-1: new high-speed USB device number 5 using xhci-hcd
-[   98.481391] usb 1-1: Dual-Role OTG device on non-HNP port
-[   98.487545] usb 1-1: set a_alt_hnp_support failed: -32
-[   98.493532] usb usb1-port1: unable to enumerate USB device
-
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/usb/dwc3/gadget.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index d482f89ffae2d..773d5dcaefcfb 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3166,7 +3166,6 @@ int dwc3_gadget_init(struct dwc3 *dwc)
- 	dwc->gadget.speed		= USB_SPEED_UNKNOWN;
- 	dwc->gadget.sg_supported	= true;
- 	dwc->gadget.name		= "dwc3-gadget";
--	dwc->gadget.is_otg		= dwc->dr_mode == USB_DR_MODE_OTG;
- 
- 	/*
- 	 * FIXME We might be setting max_speed to <SUPER, however versions
--- 
-2.25.1
-
+greg k-h
