@@ -2,209 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE4419CE91
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 04:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77E6519CEC9
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 05:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389900AbgDCCTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 22:19:19 -0400
-Received: from pi3.com.pl ([185.238.74.129]:54200 "EHLO pi3.com.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388709AbgDCCTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Apr 2020 22:19:18 -0400
-X-Greylist: delayed 489 seconds by postgrey-1.27 at vger.kernel.org; Thu, 02 Apr 2020 22:19:16 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by pi3.com.pl (Postfix) with ESMTP id 00E3E4C00F6;
-        Fri,  3 Apr 2020 04:11:05 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=pi3.com.pl; s=default;
-        t=1585879865; bh=XYIvUepz8Qe+tqiBlLV256QftMp5j/ITT/q+jgi5gbI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Yor9doaDGj9M0b7Yz1AKEvFPpx70hJfGv8qsHK6uhQ34m2qrnvS8qq2DWiBfIlfjn
-         ISRxGNesqBcYbW2kzAmu7wabU1kvt/1dRcy+j9rDDS5irgeeF1NyW3mMXfQ/XH+Z7Y
-         vZJ4G2xCDa4ts+zSQ+3U+8GmKzSZI2WMVE45esWyqt/0qgH6t1rVBG8H4dw+EfFC1L
-         j3S2lStq+A/qpGa9cMueJfWL5Kjb9qcVvs9YbFlLWZitvPGSnSpQf2zmP2tVqqfqi3
-         F5gpZEjDVHWNiMBvVKCqHCaQ6RfIoNZXY1xOu3BcbuqwvADKkVIhOJkR6ldGdNBM3M
-         Jd1u1exLMGA2g==
-X-Virus-Scanned: Debian amavisd-new at pi3.com.pl
-Received: from pi3.com.pl ([127.0.0.1])
-        by localhost (pi3.com.pl [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id xnKB_2yP9xfP; Fri,  3 Apr 2020 04:11:01 +0200 (CEST)
-Received: by pi3.com.pl (Postfix, from userid 1000)
-        id DF1884C13C0; Fri,  3 Apr 2020 04:11:01 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=pi3.com.pl; s=default;
-        t=1585879861; bh=XYIvUepz8Qe+tqiBlLV256QftMp5j/ITT/q+jgi5gbI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R2s9iEEfBYlPc+FPyQCksrHChkQo6pvDE4notAjx6iF14mQ+H/tHxuWb+gP5t2ka7
-         ti2x8jEKLx+5wvqCuDjhefXGO/KTPoCd08Qhd4r/4cD1xFdNH/xAFsFLf6q6EgBw1k
-         zwKiLJg6fLqGCdeLti4GaHfslQiXmzfF/Ue96u26V9UrvfmXK+vkd2AVPxSpCt9piY
-         ZNzdun/96nJk+887Ufee75C9p94vPgdSH/pvy1V7FtmqkKc6yoSYHO1dSgKo+LKi+V
-         GLp1DooSg+md4vCdFqgDTMlfwXnepXTTS05dGU2c7MC8tBFYQnSfH63ndx5UgVkQsR
-         BK5Gkhf2P/KAw==
-Date:   Fri, 3 Apr 2020 04:11:01 +0200
-From:   Adam Zabrocki <pi3@pi3.com.pl>
-To:     Jann Horn <jannh@google.com>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Bernd Edlinger <bernd.edlinger@hotmail.de>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] signal: Extend exec_id to 64bits
-Message-ID: <20200403021101.GA2608@pi3.com.pl>
-References: <20200324215049.GA3710@pi3.com.pl>
- <202003291528.730A329@keescook>
- <87zhbvlyq7.fsf_-_@x220.int.ebiederm.org>
- <CAG48ez1dCPw9Dep-+GWn=SnHv1nVv4Npv1FpFxmomk6tmazB-g@mail.gmail.com>
+        id S2388951AbgDCDGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Apr 2020 23:06:50 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:46268 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731842AbgDCDGu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 23:06:50 -0400
+Received: by mail-pl1-f195.google.com with SMTP id s23so2132169plq.13
+        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 20:06:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=01o0JPxavZjGRENmJGB3CzWNqi8LBW1u8PmW2SjCttQ=;
+        b=EKf3r2XUeHCovl/9sqTUQLxneanThvakIbSeOL/lF7cRdPt8xkPtuHmMFsOiMHqTnE
+         BKj/Aq73ciNXoy19t6ZfoJHmDVWEhYFPrYnhccNNERHdKG7jWf7QuB4U64KsXTx85l/G
+         bixxEl9BPB16mver4/J4aTBDZZHdeDbdwoLXCZtudX/Ju4R3EP52r8uuqV090oGDXRJT
+         rHT+WWlWD6C2UPboUadg3SA6SnTC5xyMXVX1NuWWkAWbG05joI3TRto+jKGfxR//Rws0
+         +TYkk8QT2/EvPPxBrWIM9Wni6zSZ/Mg6+YyvmQrPrVvWBhv3ocwQFMHy7exY/jrmq3LU
+         WT6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=01o0JPxavZjGRENmJGB3CzWNqi8LBW1u8PmW2SjCttQ=;
+        b=ErrbpR37MAUcAgY5TsKUDNdPfNxJtmjfxYUUnVPMYc43UYv6VNB/5vRj3pegd/cdjY
+         4H/W35WEpt9nzcv4HIlRDlsyqUZcGIuoyV5zAQvgQ51gB02C6wO+4jjgrRDM31HL21YT
+         2pU0hT4NIh+K/uFMv4dcXZ4uM5vM+bpnoQ7S5GC/J9MHbB0MIeD7xKhk2U31BMEvqDxa
+         RP1ZpmREfZsSRTlij1yp7khEzdVdDk5/+bUWmhORxz6ncglBqm4k5GjxHvp6eXjsf3m1
+         kwqHqEYyYT1zPXy5X9eIXtexw9pLu8KJskOaUgxIdKbBKDO6Hc+OMzfZ/LuW5iZI0CMq
+         I59Q==
+X-Gm-Message-State: AGi0PubtQjR3O7/Ej+1pHOc61RRerZm9JLUoHIBdAYAKFT0aa14ZkjXB
+        giUjOg0f/WRSamVBmEVfwdy9CNXobs4=
+X-Google-Smtp-Source: APiQypLxzbntzPvnAAoY3Sq0CVLUlL19s7GqJvjFs8ur9r+64A/1T4lIbfvS85aENnVVTYFh8QKkTQ==
+X-Received: by 2002:a17:902:347:: with SMTP id 65mr5914302pld.21.1585883208324;
+        Thu, 02 Apr 2020 20:06:48 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i3sm4296929pgj.13.2020.04.02.20.06.47
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Apr 2020 20:06:47 -0700 (PDT)
+Message-ID: <5e86a847.1c69fb81.e343.3464@mx.google.com>
+Date:   Thu, 02 Apr 2020 20:06:47 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAG48ez1dCPw9Dep-+GWn=SnHv1nVv4Npv1FpFxmomk6tmazB-g@mail.gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.218
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 98 boots: 3 failed,
+ 89 passed with 2 offline, 4 untried/unknown (v4.4.218)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 02, 2020 at 06:46:49AM +0200, Jann Horn wrote:
-> On Wed, Apr 1, 2020 at 10:50 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
-> > Replace the 32bit exec_id with a 64bit exec_id to make it impossible
-> > to wrap the exec_id counter.  With care an attacker can cause exec_id
-> > wrap and send arbitrary signals to a newly exec'd parent.  This
-> > bypasses the signal sending checks if the parent changes their
-> > credentials during exec.
-> >
-> > The severity of this problem can been seen that in my limited testing
-> > of a 32bit exec_id it can take as little as 19s to exec 65536 times.
-> > Which means that it can take as little as 14 days to wrap a 32bit
-> > exec_id.  Adam Zabrocki has succeeded wrapping the self_exe_id in 7
-> > days.  Even my slower timing is in the uptime of a typical server.
-> 
-> FYI, if you actually optimize this, it's more like 12s to exec 1048576
-> times according to my test, which means ~14 hours for 2^32 executions
-> (on a single core). That's on an i7-4790 (a Haswell desktop processor
-> that was launched about six years ago, in 2014).
-> 
+stable-rc/linux-4.4.y boot: 98 boots: 3 failed, 89 passed with 2 offline, 4=
+ untried/unknown (v4.4.218)
 
-Yep, there are a few ways of optimizing it and I believe I've pointed it out 
-here:
-https://www.openwall.com/lists/kernel-hardening/2020/03/31/11
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.218/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.218/
 
-Thanks for doing such tests :)
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.218
+Git Commit: c4f11a973295ba9ecfe1881ede91025b59d43916
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 18 SoC families, 17 builds out of 190
 
-I've also modified your PoC to use 'sysenter' and 'syscall' instruction. Both 
-cases gave me an extra 4% speed bump (including a test for 64-bits 
-"fast_execve"). I've run it under Intel(R) Xeon(R) E-2176G CPU @ 3.70GHz
+Boot Regressions Detected:
 
-As you've proven, it is possible to be done in a matter of hours.
+arm:
 
-Thanks,
-Adam
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 54 days (last pass: v4.4.=
+212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
 
-> Here's my test code:
-> 
-> =============
-> $ grep 'model name' /proc/cpuinfo | head -n1
-> model name : Intel(R) Core(TM) i7-4790 CPU @ 3.60GHz
-> $ cat build.sh
-> #!/bin/sh
-> set -e
-> nasm -felf32 -o fast_execve.o fast_execve.asm
-> ld -m elf_i386 -o fast_execve fast_execve.o
-> gcc -o launch launch.c -Wall
-> gcc -o finish finish.c -Wall
-> $ cat fast_execve.asm
-> bits 32
-> 
-> section .text
-> global _start
-> _start:
-> ; eax = argv[0]
-> ; expected to be 8 hex digits, with 'a' meaning 0x0 and 'p' meaning 0xf
-> mov eax, [esp+4]
-> 
-> mov ebx, 0 ; loop counter
-> hex_digit_loop:
-> inc byte [eax+ebx]
-> cmp byte [eax+ebx], 'a'+16
-> jne next_exec
-> mov byte [eax+ebx], 'a'
-> inc ebx
-> cmp ebx, 5 ;;;;;;;;;;;;;;;;;; this is N, where iteration_count=pow(16,N)
-> jne hex_digit_loop
-> 
-> 
-> ; reached pow(256,N) execs, get out
-> 
-> ; first make the stack big again
-> mov eax, 75 ; setrlimit (32-bit ABI)
-> mov ebx, 3 ; RLIMIT_STACK
-> mov ecx, stacklim
-> int 0x80
-> 
-> ; execute end helper
-> mov ebx, 4 ; dirfd = 4
-> jmp common_exec
-> 
-> next_exec:
-> mov ebx, 3 ; dirfd = 3
-> 
-> common_exec: ; execveat() with file descriptor passed in as ebx
-> mov ecx, nullval ; pathname = empty string
-> lea edx, [esp+4] ; argv
-> mov esi, 0 ; envp
-> mov edi, 0x1000 ; flags = AT_EMPTY_PATH
-> mov eax, 358 ; execveat (32-bit ABI)
-> int 0x80
-> int3
-> 
-> nullval:
-> dd 0
-> stacklim:
-> dd 0x02000000
-> dd 0xffffffff
-> $ cat launch.c
-> #define _GNU_SOURCE
-> #include <fcntl.h>
-> #include <err.h>
-> #include <unistd.h>
-> #include <sys/syscall.h>
-> #include <sys/resource.h>
-> int main(void) {
->   close(3);
->   close(4);
->   if (open("fast_execve", O_PATH) != 3)
->     err(1, "open fast_execve");
->   if (open("finish", O_PATH) != 4)
->     err(1, "open finish");
->   char *argv[] = { "aaaaaaaa", NULL };
-> 
->   struct rlimit lim;
->   if (getrlimit(RLIMIT_STACK, &lim))
->     err(1, "getrlimit");
->   lim.rlim_cur = 0x4000;
->   if (setrlimit(RLIMIT_STACK, &lim))
->     err(1, "setrlimit");
-> 
->   syscall(__NR_execveat, 3, "", argv, NULL, AT_EMPTY_PATH);
-> }
-> $ cat finish.c
-> #include <stdlib.h>
-> int main(void) {
->   exit(0);
-> }
-> $ ./build.sh
-> $ time ./launch
-> 
-> real 0m12,075s
-> user 0m0,905s
-> sys 0m11,026s
-> $
-> =============
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 7 days (last pass: v4.4.216-127-g=
+955137020949 - first fail: v4.4.217)
 
--- 
-pi3 (pi3ki31ny) - pi3 (at) itsec pl
-http://pi3.com.pl
+Boot Failures Detected:
 
+arm:
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
