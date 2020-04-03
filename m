@@ -2,125 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77E6519CEC9
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 05:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DA4A19CF51
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 06:30:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388951AbgDCDGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Apr 2020 23:06:50 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:46268 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731842AbgDCDGu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Apr 2020 23:06:50 -0400
-Received: by mail-pl1-f195.google.com with SMTP id s23so2132169plq.13
-        for <stable@vger.kernel.org>; Thu, 02 Apr 2020 20:06:49 -0700 (PDT)
+        id S1726999AbgDCEaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 00:30:16 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:40594 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725851AbgDCEaP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 00:30:15 -0400
+Received: by mail-pl1-f196.google.com with SMTP id h11so2216914plk.7;
+        Thu, 02 Apr 2020 21:30:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=01o0JPxavZjGRENmJGB3CzWNqi8LBW1u8PmW2SjCttQ=;
-        b=EKf3r2XUeHCovl/9sqTUQLxneanThvakIbSeOL/lF7cRdPt8xkPtuHmMFsOiMHqTnE
-         BKj/Aq73ciNXoy19t6ZfoJHmDVWEhYFPrYnhccNNERHdKG7jWf7QuB4U64KsXTx85l/G
-         bixxEl9BPB16mver4/J4aTBDZZHdeDbdwoLXCZtudX/Ju4R3EP52r8uuqV090oGDXRJT
-         rHT+WWlWD6C2UPboUadg3SA6SnTC5xyMXVX1NuWWkAWbG05joI3TRto+jKGfxR//Rws0
-         +TYkk8QT2/EvPPxBrWIM9Wni6zSZ/Mg6+YyvmQrPrVvWBhv3ocwQFMHy7exY/jrmq3LU
-         WT6A==
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=sja6m3Mw9LjC7BK1j0HHPXQY4FKYL2Fx6diFCtiS1PE=;
+        b=h19/LNG3aBIRLqbyGckbtmcU+95XD0pxnfS64bhodTfzfjfXtnq/TJ+KQUfwxKbkb2
+         kkgsoBc0I4Esz0idHIfXX/maFUNkfgjkxmvwWyEHF/tK7o6GzBSQKbWx15oClB8LB0YW
+         zfEkUEWqzsljCZu9yhzAomn5U5idlMHsYHL0cjeoQ0+lCpgvmUdVNuNnD1axnRaeqAih
+         +R/MIFoqiTu794LHqc04TGNEU9rTEuqOoFWKgez+AbafEHmyK/4s7DGBYfx/bfEcg/K2
+         CwSr78KY+rGtCsqe8IEmG6QvsDePGLfBLBMewml61bnXUTmCpjjqDUKsON5NLcjL/FQP
+         Ty5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=01o0JPxavZjGRENmJGB3CzWNqi8LBW1u8PmW2SjCttQ=;
-        b=ErrbpR37MAUcAgY5TsKUDNdPfNxJtmjfxYUUnVPMYc43UYv6VNB/5vRj3pegd/cdjY
-         4H/W35WEpt9nzcv4HIlRDlsyqUZcGIuoyV5zAQvgQ51gB02C6wO+4jjgrRDM31HL21YT
-         2pU0hT4NIh+K/uFMv4dcXZ4uM5vM+bpnoQ7S5GC/J9MHbB0MIeD7xKhk2U31BMEvqDxa
-         RP1ZpmREfZsSRTlij1yp7khEzdVdDk5/+bUWmhORxz6ncglBqm4k5GjxHvp6eXjsf3m1
-         kwqHqEYyYT1zPXy5X9eIXtexw9pLu8KJskOaUgxIdKbBKDO6Hc+OMzfZ/LuW5iZI0CMq
-         I59Q==
-X-Gm-Message-State: AGi0PubtQjR3O7/Ej+1pHOc61RRerZm9JLUoHIBdAYAKFT0aa14ZkjXB
-        giUjOg0f/WRSamVBmEVfwdy9CNXobs4=
-X-Google-Smtp-Source: APiQypLxzbntzPvnAAoY3Sq0CVLUlL19s7GqJvjFs8ur9r+64A/1T4lIbfvS85aENnVVTYFh8QKkTQ==
-X-Received: by 2002:a17:902:347:: with SMTP id 65mr5914302pld.21.1585883208324;
-        Thu, 02 Apr 2020 20:06:48 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i3sm4296929pgj.13.2020.04.02.20.06.47
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references:mime-version:content-transfer-encoding;
+        bh=sja6m3Mw9LjC7BK1j0HHPXQY4FKYL2Fx6diFCtiS1PE=;
+        b=ijY8UUISPPM6URsJuhnwF9j3VLekN8yTJ1qAjphfQkAxLK7HDYyUAq2mARkEMHmPQK
+         z0u5hBIqrJC63IXy9hY23Bj0jHjBhUXs0lovBEBu9FKcSlaH8QVHVxyjVE8+AW3Kga5j
+         D4gGU275ydK9VznpFDqN7VU/5dVUh5s+a/HiuhWq+gzrAcunmuND5DKq2sqW1SZWlD0R
+         9nFVJq3+VS4BRzg/MW3ktkT+v9WaHlG9yohRzzSnQe3c0FDjHTZvh3BLYNU/JNPNtjsj
+         nSQGpvIAVfvkxMpr9CvlN7pc2EySgwV2zIZ1V2V9mJjJCxW5Eq7n27Hx4BkBsW7161n6
+         O2dg==
+X-Gm-Message-State: AGi0PuaJ1o2OSVqneh2UEfnLn19NS+AhFAmohO1USloxzMAkIT9bmobU
+        u9CPoOYPwIYx5ujtHz5z5YDLCVCy
+X-Google-Smtp-Source: APiQypKymBolWpSQuKDcfRDNRhf9oi/2EuBelOfhbRc/eR/CsqYbdLKKIyexzCRlujj5Uqa9h055gQ==
+X-Received: by 2002:a17:902:ac8d:: with SMTP id h13mr6193580plr.267.1585888214837;
+        Thu, 02 Apr 2020 21:30:14 -0700 (PDT)
+Received: from sultan-box.localdomain (static-198-54-129-52.cust.tzulo.com. [198.54.129.52])
+        by smtp.gmail.com with ESMTPSA id k20sm4368281pgn.62.2020.04.02.21.30.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2020 20:06:47 -0700 (PDT)
-Message-ID: <5e86a847.1c69fb81.e343.3464@mx.google.com>
-Date:   Thu, 02 Apr 2020 20:06:47 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 02 Apr 2020 21:30:14 -0700 (PDT)
+From:   Sultan Alsawaf <sultan@kerneltoast.com>
+X-Google-Original-From: Sultan Alsawaf
+Cc:     Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2] drm/i915: Fix use-after-free due to intel_context_pin/unpin race
+Date:   Thu,  2 Apr 2020 21:29:44 -0700
+Message-Id: <20200403042948.2533-1-sultan@kerneltoast.com>
+X-Mailer: git-send-email 2.26.0
+In-Reply-To: <20200403011318.2280-1-sultan@kerneltoast.com>
+References: <20200403011318.2280-1-sultan@kerneltoast.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.218
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 98 boots: 3 failed,
- 89 passed with 2 offline, 4 untried/unknown (v4.4.218)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 98 boots: 3 failed, 89 passed with 2 offline, 4=
- untried/unknown (v4.4.218)
+From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.218/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.218/
+The retire and active callbacks can run simultaneously, allowing
+intel_context_pin() and intel_context_unpin() to run at the same time,
+trashing the ring and page tables. In 5.4, this was more noticeable
+because intel_ring_unpin() would set ring->vaddr to NULL and cause a
+clean NULL-pointer-dereference panic, but in newer kernels the
+use-after-free goes unnoticed.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.218
-Git Commit: c4f11a973295ba9ecfe1881ede91025b59d43916
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 50 unique boards, 18 SoC families, 17 builds out of 190
+The NULL-pointer-dereference looks like this:
+BUG: unable to handle page fault for address: 0000000000003448
+RIP: 0010:gen8_emit_flush_render+0x163/0x190
+Call Trace:
+ execlists_request_alloc+0x25/0x40
+ __i915_request_create+0x1f4/0x2c0
+ i915_request_create+0x71/0xc0
+ i915_gem_do_execbuffer+0xb98/0x1a80
+ ? preempt_count_add+0x68/0xa0
+ ? _raw_spin_lock+0x13/0x30
+ ? _raw_spin_unlock+0x16/0x30
+ i915_gem_execbuffer2_ioctl+0x1de/0x3c0
+ ? i915_gem_busy_ioctl+0x7f/0x1d0
+ ? i915_gem_execbuffer_ioctl+0x2d0/0x2d0
+ drm_ioctl_kernel+0xb2/0x100
+ drm_ioctl+0x209/0x360
+ ? i915_gem_execbuffer_ioctl+0x2d0/0x2d0
+ ksys_ioctl+0x87/0xc0
+ __x64_sys_ioctl+0x16/0x20
+ do_syscall_64+0x4e/0x150
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Boot Regressions Detected:
+Protect __intel_context_retire() with active->mutex (i.e., ref->mutex)
+to complement the active callback and fix the corruption.
 
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 54 days (last pass: v4.4.=
-212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 7 days (last pass: v4.4.216-127-g=
-955137020949 - first fail: v4.4.217)
-
-Boot Failures Detected:
-
-arm:
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
+Fixes: 12c255b5dad1 ("drm/i915: Provide an i915_active.acquire callback")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 ---
-For more info write to <info@kernelci.org>
+v2: Reduce the scope of the mutex lock to only __intel_context_retire()
+    and mark it as a function that may sleep so it doesn't run in
+    atomic context
+
+ drivers/gpu/drm/i915/gt/intel_context.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_context.c b/drivers/gpu/drm/i915/gt/intel_context.c
+index 57e8a051ddc2..9b9be8058881 100644
+--- a/drivers/gpu/drm/i915/gt/intel_context.c
++++ b/drivers/gpu/drm/i915/gt/intel_context.c
+@@ -221,6 +221,7 @@ static void __intel_context_retire(struct i915_active *active)
+ 
+ 	CE_TRACE(ce, "retire\n");
+ 
++	mutex_lock(&active->mutex);
+ 	set_bit(CONTEXT_VALID_BIT, &ce->flags);
+ 	if (ce->state)
+ 		__context_unpin_state(ce->state);
+@@ -229,6 +230,7 @@ static void __intel_context_retire(struct i915_active *active)
+ 	__ring_retire(ce->ring);
+ 
+ 	intel_context_put(ce);
++	mutex_unlock(&active->mutex);
+ }
+ 
+ static int __intel_context_active(struct i915_active *active)
+@@ -288,7 +290,8 @@ intel_context_init(struct intel_context *ce,
+ 	mutex_init(&ce->pin_mutex);
+ 
+ 	i915_active_init(&ce->active,
+-			 __intel_context_active, __intel_context_retire);
++			 __intel_context_active,
++			 i915_active_may_sleep(__intel_context_retire));
+ }
+ 
+ void intel_context_fini(struct intel_context *ce)
+-- 
+2.26.0
+
