@@ -2,115 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C007819D6F3
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 14:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8639819D6F6
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 14:51:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728164AbgDCMtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 08:49:55 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:34844 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728044AbgDCMtz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 08:49:55 -0400
-Received: by mail-ed1-f66.google.com with SMTP id c7so1399531edl.2
-        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 05:49:54 -0700 (PDT)
+        id S1728264AbgDCMv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 08:51:58 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:50795 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728173AbgDCMv5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 08:51:57 -0400
+Received: by mail-wm1-f66.google.com with SMTP id t128so7061820wma.0
+        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 05:51:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=googlenew;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=qQ4GjlaBNnkqjandRnDKumnjBIkctbwHxWdo0M4wsMI=;
-        b=ASnR0E3twBUn3zFHPgwVLzGRCQDeCNzuma4SqK3MmSzZIdWWrXFg8pCBWD4epfIJ+z
-         2OUBhBph32xan2QlF1RTOih+bc/LuuXJUQlq0iN2y5fu4d+/dnczuhRU9UUVpsoDdYuZ
-         ydiEvmwy9d48th4OPl+a1yTfrR9RPceRVflsdsZkGlttu3jIYGOzb5T/GwGoBaIFpoNA
-         k0KoH4qQBH7tOQ5AH4Xq8UCixq3wVjW29B7w90J3hbU3+JeFSJQhPhGXhAMsfueibgXa
-         c6wfYcKAP/B9C1KT13N/Uqu/GulrAEMyeVQ/PVEvYV0LxhXv0DoqB1zwusHV3iCHBTiK
-         OItw==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=engPFJgdUItSkA2S0QPyRMxkTnv2Jg4Tf1ResN3fSK0=;
+        b=qLF3Hdfk1NSsl5EFGR57yk61hLZ9HM+2T9+HK6yoEkvcfwvwuAQXMzeZ288fAF3/jR
+         kgC5+p+G2+jdL1IQjZnkcY4dXcVn5tA+sCW6PuEobYkyKicKvg93zRnNPL6RPAAi+Ioj
+         JqyBpt46gxLokDaZagEhM2VqwSoyWaQTE2y71bgvxRKujeK01zXbv2yLOgmHo5XSCJIN
+         36JPqTRiww+Q2wLTNLM4Yc1VlldDjwgu/Vp69B3ZMYOwFPN24qp52V3bF5vIoH1+muAL
+         EZ29drLhrOuWXVlKFsCot1RWazc5GzBfIne5Q8NG8uSqZdUP6IMnkNFlubE9bQ+ZdmoL
+         09OQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=qQ4GjlaBNnkqjandRnDKumnjBIkctbwHxWdo0M4wsMI=;
-        b=XdOoghEtWPou6dNgVnKi197lOvvC4xUqo4JEpg/ECBnFNrt/f89NOq7m0W8iD2PKtR
-         SvU4brObSjpq5Nj+9Bl4E6CjKhGD4VGt90XIPnI23tAqe7nW4PvaN2hNnzLlhE1DYBll
-         l1IyElCmqj17LiwyXdFKLWQG0gOpUBgoPo37Jn6PxIu7kyK5+3m4D03kGTwe1j1sf/KK
-         DT+yupIYWuph/DWh1Qp/Q+w7tWlDfHqQ8Y71FBR2vbQlY6CoAbvel6CoqeNZVnaKHTZV
-         5t5tKndhIimHm6/azxL5i4GmWr0GBVxV34NuVOUbg0pm8iP7BZaq5tvCJqKvi/XKDBYB
-         cgnQ==
-X-Gm-Message-State: AGi0PuZwuwIMHiRKStbZyDBp1hWvZHywzY5nTB2SOxQxcRZRre5+JGXp
-        872sus9l2wfnXmxW9TR6sC1tzQ==
-X-Google-Smtp-Source: APiQypL5gP9d5L/YD06dpE9QuVApfFMy3N0f0Ub7xYKYv6KkNS8Zf7gkd/4JdkznDB02IeowhtMk2Q==
-X-Received: by 2002:a17:906:7045:: with SMTP id r5mr8266254ejj.29.1585918193015;
-        Fri, 03 Apr 2020 05:49:53 -0700 (PDT)
-Received: from ?IPv6:2a02:8084:e84:2480:228:f8ff:fe6f:83a8? ([2a02:8084:e84:2480:228:f8ff:fe6f:83a8])
-        by smtp.gmail.com with ESMTPSA id by25sm1649452ejb.16.2020.04.03.05.49.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Apr 2020 05:49:52 -0700 (PDT)
-Subject: Re: [PATCH] ns: Fix time_for_children symlink
-To:     Christian Brauner <christian.brauner@ubuntu.com>,
-        "Michael Kerrisk (man-pages)" <mtk.manpages@gmail.com>
-Cc:     Andrei Vagin <avagin@openvz.or>, Adrian Reber <adrian@lisas.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrei Vagin <avagin@gmail.com>, linux-kernel@vger.kernel.org,
-        linux-api@vger.kernel.org, Dmitry Safonov <0x7f454c46@gmail.com>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=engPFJgdUItSkA2S0QPyRMxkTnv2Jg4Tf1ResN3fSK0=;
+        b=LWcpM1urdRvX8Byb+zZwLwfp0v91uIRHqEg0ulhuT2nh8+hOWJ9yv55GBwcYS3gCX1
+         jvYW/8lxoVQUj4LKnRRkNmcmajAcVbDFc2IaGZlSCyyrfV+kE4P4jOIQNHw/svjX0oUC
+         1cFMcElYzGcZ04ZmNiJOvaVPRK285F0DXYTGhF2RABHf1P7M5E+rYLm6w5PmVzeB3wYZ
+         vzaMtQ91rUczG22U2CHhE1bLCi4urNJLgbZV65X1kaYTypP90PPuUDatzG5xHXTbZAUb
+         HG9pc6f3S1FxSA4Fbas+m6W4phFZji498Lv2/jHqWicw0gJIhfH37J9Tti1jtcYq+f7h
+         AZvQ==
+X-Gm-Message-State: AGi0PuamuJ8cTcRYwlReqTgFxPK8X0dKEb0aHY8wODpJlyP2o1/posex
+        A4uwb3zr8JyztLi0tmceYR6pCA==
+X-Google-Smtp-Source: APiQypLiLMkuJHDQFitD2HWTlUCEEbncr/2tdNkp0h6dbl9hnWkuAwhoJwuAZPO8vFg0htY2KMNcDg==
+X-Received: by 2002:a7b:c083:: with SMTP id r3mr8879221wmh.92.1585918313899;
+        Fri, 03 Apr 2020 05:51:53 -0700 (PDT)
+Received: from dell ([2.27.35.179])
+        by smtp.gmail.com with ESMTPSA id 98sm12306738wrk.52.2020.04.03.05.51.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2020 05:51:53 -0700 (PDT)
+Date:   Fri, 3 Apr 2020 13:52:46 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Cyrill Gorcunov <gorcunov@gmail.com>,
-        Containers <containers@lists.linux-foundation.org>,
-        stable <stable@vger.kernel.org>
-References: <a2418c48-ed80-3afe-116e-6611cb799557@gmail.com>
- <20200403123431.tsvj6alagg3ee356@wittgenstein>
-From:   Dmitry Safonov <dima@arista.com>
-Message-ID: <11460527-7d03-0966-508a-b67dc2bc8459@arista.com>
-Date:   Fri, 3 Apr 2020 13:49:51 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH 4.19 11/13] perf/core: Reattach a misplaced comment
+Message-ID: <20200403125246.GE30614@dell>
+References: <20200403121859.901838-1-lee.jones@linaro.org>
+ <20200403121859.901838-12-lee.jones@linaro.org>
+ <20200403122604.GA3928660@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20200403123431.tsvj6alagg3ee356@wittgenstein>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200403122604.GA3928660@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/3/20 1:34 PM, Christian Brauner wrote:
-> On Fri, Apr 03, 2020 at 02:11:39PM +0200, Michael Kerrisk (man-pages) wrote:
->> Dmitry, Andrei,
->>
->> Looking at the contents of the /proc/PID/ns/time_for_children
->> symlink shows an anomaly:
->>
->> $ ls -l /proc/self/ns/* |awk '{print $9, $10, $11}'
->> ...
->> /proc/self/ns/pid -> pid:[4026531836]
->> /proc/self/ns/pid_for_children -> pid:[4026531836]
->> /proc/self/ns/time -> time:[4026531834]
->> /proc/self/ns/time_for_children -> time_for_children:[4026531834]
->> /proc/self/ns/user -> user:[4026531837]
->> ...
->>
->> The reference for 'time_for_children' should be a 'time' namespace,
->> just as the reference for 'pid_for_children' is a 'pid' namespace.
->> In other words, I think the above time_for_children link should read:
->>
->> /proc/self/ns/time_for_children -> time:[4026531834]
->>
->> If you agree with this patch, then it should be marked for
->> stable@vger.kernel.org.
->>
->> Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
-> 
-> Yeah, that just seems like an oversight.
-> 
-> Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+On Fri, 03 Apr 2020, Greg KH wrote:
 
-Thanks,
+> On Fri, Apr 03, 2020 at 01:18:57PM +0100, Lee Jones wrote:
+> > From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> > 
+> > [ Upstream commit f25d8ba9e1b204b90fbf55970ea6e68955006068 ]
+> > 
+> > A comment is in a wrong place in perf_event_create_kernel_counter().
+> > Fix that.
+> > 
+> > Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+> > Cc: David Ahern <dsahern@gmail.com>
+> > Cc: Jiri Olsa <jolsa@redhat.com>
+> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> > Cc: Mark Rutland <mark.rutland@arm.com>
+> > Cc: Namhyung Kim <namhyung@kernel.org>
+> > Cc: Stephane Eranian <eranian@google.com>
+> > Cc: Thomas Gleixner <tglx@linutronix.de>
+> > Cc: Vince Weaver <vincent.weaver@maine.edu>
+> > Link: https://lkml.kernel.org/r/20191030134731.5437-2-alexander.shishkin@linux.intel.com
+> > Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  kernel/events/core.c | 7 +++----
+> >  1 file changed, 3 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/kernel/events/core.c b/kernel/events/core.c
+> > index 8c70ee23fbe91..16f268475e8e4 100644
+> > --- a/kernel/events/core.c
+> > +++ b/kernel/events/core.c
+> > @@ -10954,10 +10954,6 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
+> >  	struct perf_event *event;
+> >  	int err;
+> >  
+> > -	/*
+> > -	 * Get the target context (task or percpu):
+> > -	 */
+> > -
+> >  	event = perf_event_alloc(attr, cpu, task, NULL, NULL,
+> >  				 overflow_handler, context, -1);
+> >  	if (IS_ERR(event)) {
+> > @@ -10968,6 +10964,9 @@ perf_event_create_kernel_counter(struct perf_event_attr *attr, int cpu,
+> >  	/* Mark owner so we could distinguish it from user events. */
+> >  	event->owner = TASK_TOMBSTONE;
+> >  
+> > +	/*
+> > +	 * Get the target context (task or percpu):
+> > +	 */
+> >  	ctx = find_get_context(event->pmu, task, event);
+> >  	if (IS_ERR(ctx)) {
+> >  		err = PTR_ERR(ctx);
+> 
+> Unless this is needed by a follow-on patch, I kind of doubt thsi is
+> needed in a stable kernel release :)
 
-Reviewed-by: Dmitry Safonov <dima@arista.com>
-Fixes: 769071ac9f20 ("ns: Introduce Time Namespace")
-+Cc: stable # v5.6
+I believe you once called this "debugging the comments", or
+similar. :)
+
+No problem though - happy to drop it from this and other sets.
 
 -- 
-          Dmitry
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
