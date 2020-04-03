@@ -2,88 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 252C119DC4F
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 19:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F6019DC69
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 19:10:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728121AbgDCRDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 13:03:10 -0400
-Received: from mail-qv1-f68.google.com ([209.85.219.68]:41164 "EHLO
-        mail-qv1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728117AbgDCRDK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 13:03:10 -0400
-Received: by mail-qv1-f68.google.com with SMTP id t4so3929549qvz.8;
-        Fri, 03 Apr 2020 10:03:09 -0700 (PDT)
+        id S1728352AbgDCRKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 13:10:06 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:41568 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728023AbgDCRKG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 13:10:06 -0400
+Received: by mail-pl1-f194.google.com with SMTP id d24so2935792pll.8
+        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 10:10:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:message-id:from:to:cc:subject:in-reply-to:references
-         :mime-version:content-disposition:content-transfer-encoding;
-        bh=C18c1IugNAFxFaCXPQKTt7OVFB64Oo1MwWK6g2EBugk=;
-        b=hENydy7D0JCIgFa87b7M0ed1qoGpz0QGXHyXVDmHGDh7zw+L+WUhbK8IW02pBk8qHM
-         ADsA25xAJ67o4Ra6VRdXBwMhcZMuHy475xAxlyiU1YuRkbqv+PF2ir5V5qEjMcANfQVn
-         jGY8UQU13Viwi+GDqFDM01+/XrhVQbFZPaY/Tb2zki4oxJUEWTJXSoycxyeREVVBXM5T
-         uUK7ezP46TqBapFishKlJi3Sy21RVUbp0ZoycRDNJ8VBJIH1oXob0kZUNKCSq+meSRlw
-         PvtxAFdZSw3sGPJDdA0MlyJjyUWjLDDi5bCftL5qN/hJ4Jis+/StdK4ZXo5AsP3JJEfj
-         3FBw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=bIN6QgmUegrokGjCCSKHNhVGicSGJvhH6t3NaqBpDr4=;
+        b=gzCO+HIo1yhrscAZWuwdsackiO2s3r8O0x0CYbA2zsxYYu1114AGmZ9E/Mu6J21fGw
+         DsifANeDSp5HAAiG/sxu6h+vYBnhjhR+zrxozvlngYi4/taVFf5YFoB4Feflfjkd7yFy
+         l993ajJSP8tDleMWv4YSEHv0zkVAD3ch2CFGoazDX9m/GgkrygzE1MRaTMksy6jKm9gJ
+         PZsmUOy2vURAfWyZ9jdbTvwLKyiGsIj1aTTOjcyCF5+cnTcygRWqq5eFh8KR8zolu2a5
+         l7qX+zdBZ9RBUQQ8YrkR3S62RjIv1gtO2TGPTYFHeOT1QQZtn2mimRlAdDYymH3OCHjK
+         TcAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:from:to:cc:subject:in-reply-to
-         :references:mime-version:content-disposition
-         :content-transfer-encoding;
-        bh=C18c1IugNAFxFaCXPQKTt7OVFB64Oo1MwWK6g2EBugk=;
-        b=rybU4ozIerctSM0MzTB0k3ERvOnYEv6ZCk0L2c4W6/1IYwZN8R+xDAFiT8Pd59MexN
-         UFTVEdcfYD5zv8ByxFHsGXipcbXgxsLLYFmYUk5qTzyyb5rvnmQbousLiaburYrS/dTN
-         47iTws+XsMaZX3YUuQd3RkiQBiAP97qOVLYQEbIuJHSzEkRSU+H/olyY2alErw2q0DtC
-         twBn3MWyVsGQMRk/Lvj+FynUL7QaF4alci5buJE4RyJYrUDR+ziDeKKKIsEMalzXqrBn
-         3+Bx2IG///BqqOgXeXuLIQ265ouq3uOxdIFBqOy3BOhXfbqmnNOyZeb2NzEp+OaFATFL
-         q5Ig==
-X-Gm-Message-State: AGi0Pub7mxwRCDhfmmPwPQPG+PIW8qszdXyOnYgo1qSsXoaeIqhEOFoO
-        jpERSXYDFTJyuaFz6rQNkGg=
-X-Google-Smtp-Source: APiQypI7c1myt6pyEA1+Je1XA2txJx4TleqRCwZGZQeWyffLtTOCPCApztHQrbf9btvLkagoi//UCw==
-X-Received: by 2002:a05:6214:1933:: with SMTP id es19mr9320626qvb.186.1585933389339;
-        Fri, 03 Apr 2020 10:03:09 -0700 (PDT)
-Received: from localhost (modemcable249.105-163-184.mc.videotron.ca. [184.163.105.249])
-        by smtp.gmail.com with ESMTPSA id k2sm6777761qte.16.2020.04.03.10.03.07
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=bIN6QgmUegrokGjCCSKHNhVGicSGJvhH6t3NaqBpDr4=;
+        b=c2LWLk5Ozbm/x3zBfeit1qc+nvlMkB+I5IUYt3QtnlxH7G+z7kYN/QJRXrxdoMAMSI
+         FvCodau+8O1fw5px2/uW2lo1VdOsm84aOqFCQQTqFKueqEFbZ+gyaMogURNcPc5fpQOz
+         7xFF4Eq7c7IT9g0dzKzrMNlDH/PjrLHzmSffQH8OAGfA4a7gds91ZhhMENxQWCpKzGXj
+         z5XIbwWBs4RbZF+O0AY9KqaNepficu0keLmiUTxAskNE1J3IeMyeCI5S1eXi0y2o4qSO
+         Pqpm59H09U2ss0X3KyHcqzxcmdUe10v3JxrAt3wRqXZxbj3+qN5lczHwM7ynkwW6WtnH
+         wNog==
+X-Gm-Message-State: AGi0PuaIWH/uXaUjAIEPCd9+HWgYCXOHhYpx7jFLnPDeeNeUpqnryur/
+        0BuVUtFkkxn1SujTEp8UYR7F7Tb3vGc=
+X-Google-Smtp-Source: APiQypLxPFExragQCkk2ZhLYrVLbIxEC6v10DvZOCy3k2zwjVIWtbhXIkcS3VklKcNpdyt8BwhXaMw==
+X-Received: by 2002:a17:902:aa88:: with SMTP id d8mr8635981plr.201.1585933804587;
+        Fri, 03 Apr 2020 10:10:04 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s98sm6115430pjb.46.2020.04.03.10.10.03
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Apr 2020 10:03:08 -0700 (PDT)
-Date:   Fri, 3 Apr 2020 13:03:05 -0400
-Message-ID: <20200403130305.GB6453@t480s.localdomain>
-From:   Vivien Didelot <vivien.didelot@gmail.com>
-To:     Chuanhong Guo <gch981213@gmail.com>
-Cc:     netdev@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        =?UTF-8?B?UmVuw6k=?= van Dorst <opensource@vdorst.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net: dsa: mt7530: fix null pointer dereferencing in port5
- setup
-In-Reply-To: <20200403112830.505720-1-gch981213@gmail.com>
-References: <20200403112830.505720-1-gch981213@gmail.com>
+        Fri, 03 Apr 2020 10:10:03 -0700 (PDT)
+Message-ID: <5e876deb.1c69fb81.b7256.bd9e@mx.google.com>
+Date:   Fri, 03 Apr 2020 10:10:03 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.218-10-g7971bb00ac53
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 115 boots: 1 failed,
+ 107 passed with 2 offline, 5 untried/unknown (v4.9.218-10-g7971bb00ac53)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri,  3 Apr 2020 19:28:24 +0800, Chuanhong Guo <gch981213@gmail.com> wrote:
-> The 2nd gmac of mediatek soc ethernet may not be connected to a PHY
-> and a phy-handle isn't always available.
-> Unfortunately, mt7530 dsa driver assumes that the 2nd gmac is always
-> connected to switch port 5 and setup mt7530 according to phy address
-> of 2nd gmac node, causing null pointer dereferencing when phy-handle
-> isn't defined in dts.
-> This commit fix this setup code by checking return value of
-> of_parse_phandle before using it.
-> 
-> Fixes: 38f790a80560 ("net: dsa: mt7530: Add support for port 5")
-> Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
-> Cc: stable@vger.kernel.org
+stable-rc/linux-4.9.y boot: 115 boots: 1 failed, 107 passed with 2 offline,=
+ 5 untried/unknown (v4.9.218-10-g7971bb00ac53)
 
-Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.218-10-g7971bb00ac53/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.218-10-g7971bb00ac53/
+
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.218-10-g7971bb00ac53
+Git Commit: 7971bb00ac53ca61eebd562e3493e9d38d4bba5e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 60 unique boards, 20 SoC families, 19 builds out of 197
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 55 days (last pass: v4.9.=
+213 - first fail: v4.9.213-37-g860ec95da9ad)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
