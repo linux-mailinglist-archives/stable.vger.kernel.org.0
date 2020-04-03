@@ -2,127 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0063819D5CD
-	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 13:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3735219D60B
+	for <lists+stable@lfdr.de>; Fri,  3 Apr 2020 13:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727882AbgDCL2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 07:28:54 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:40463 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727927AbgDCL2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 07:28:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585913332;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=XPEESavfwM63xVWOo7cUuTIhyZC7PlahLCpO+H+H8EM=;
-        b=Hs0QkBevFCeYXZqhVSLAZjJXpO54q8nlYy6saKxYOvGposxlsE95wT6JwDBjDOBiPzCS+L
-        Z4zPunWQonTeqldYp4RfssU6vwGI0/e1TqdmmJrwW9YkK0TPgHe5Ovs8ppcgJ7vi4s43jE
-        cB0AbTOnep34FpXUmJlemPbEcXj5agc=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-98-E5Rn06QnPgeAn0NuVaEsOw-1; Fri, 03 Apr 2020 07:28:49 -0400
-X-MC-Unique: E5Rn06QnPgeAn0NuVaEsOw-1
-Received: by mail-qv1-f72.google.com with SMTP id v4so5499319qvt.3
-        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 04:28:49 -0700 (PDT)
+        id S1728092AbgDCLuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Apr 2020 07:50:11 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:38854 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726087AbgDCLuL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 07:50:11 -0400
+Received: by mail-pl1-f194.google.com with SMTP id w3so2609465plz.5
+        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 04:50:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=6O+kHg3cRFt+RyYveFCx2maWId1PlMXCV3/TRXyPcxk=;
+        b=xsO75BFEErh/tNFKGKOjpZEg1qPaWKCGc5blACwk4EeTiEM0f92BX//h+3fOzcZsVy
+         JZ5lydZ+0N0u54sM2uQ3gydaz51HrgsJxf3PCgGRvnEKYjmuJJooyrBGA29AW8YvxTvF
+         bFObRCOeuAMtNzbdD2jgosDOx6Ye5az3Um8NmhYX4qLVLAALLCnIAGbF6ulNI7/32wbR
+         STMVM4R6zVm4IsZ7ywiit207grYBfqg3Z53gF4dyHHX9+trM8sxfDdWIdUfNHHNRldbO
+         W8whJuwm4k4hcP++TErfMpj5pS7HqVURlck2UvhMGaDG9kIPSwcvsq6mrekF+6HaO8w5
+         wnNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XPEESavfwM63xVWOo7cUuTIhyZC7PlahLCpO+H+H8EM=;
-        b=n2vTEUEuUr1fStKgwZSqF+VvqlNqLZWFtT2gIt875zfDwX8A6E2nMF+e+NweuqAoys
-         9xUmkpJ+w8PnJqsAaTlLKIg98Es+PJRBzN5yHKGDTQ/9vzu9EF3ELt72WCBeHdVfJQ0q
-         hEdxmpRII0WM4gZ5hXnoXmk6gYwVtTk7blYoLBgwAC/91J1C1CPXEMsx7Wsxm3Y+1PEZ
-         YB74H2iirvwXyBS90NkpzhvzCe/Bj0Npp7ram+YH7sRW+433F5U0FwAu8I3s2jm+CvcV
-         TrUZjtyG32JNRbeMejiSDmWQNpiC2s7u/XRP8ASYe8jYmQJPMG2chiaynsxf3giJilPD
-         SJeA==
-X-Gm-Message-State: AGi0Pua/NzaNJ7lNIxS9GkrAIB44Knl5lRC1Ddjc5h9PUEB7GaH+Qzh7
-        as4ziZLarHiDtGvb6AOW4kICKGdopXROUQooCIF9up3kKD2JuRV12Bki4Iqs0/9p+RxsNGci3fu
-        GJVTTJ2rAgzmUN6DkkCwj5Ua/Ez9K80sc
-X-Received: by 2002:a05:620a:1395:: with SMTP id k21mr6462408qki.230.1585913328494;
-        Fri, 03 Apr 2020 04:28:48 -0700 (PDT)
-X-Google-Smtp-Source: APiQypKzw2Z4lsArYbYDmYmJeoDn6UPC+SM+FM5wuTW7i+X8by6uB1fpKgjtGxQ/u8mvg42AApuy1cyioBaYs3zO7Xc=
-X-Received: by 2002:a05:620a:1395:: with SMTP id k21mr6462383qki.230.1585913328025;
- Fri, 03 Apr 2020 04:28:48 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=6O+kHg3cRFt+RyYveFCx2maWId1PlMXCV3/TRXyPcxk=;
+        b=YkPQj/mfsjILEUZZD3LJblGy/PG+N8S1+VzGN3nGlfTGIk6ONHdB0kuFTfaBYVHwYO
+         5nv2gw46a9aO75rTWVEC2FNAnrtlihG7D+gyDfNVVZY32a8B3C7PAYOulIAm44m6g0QA
+         VLUozAu20OtakSIJ7twv6GkMyIl/als0rPcdSVhv/9zLfzOLl5I5llwBVqLvzZ1Np/l4
+         tHf+zBFZuhE8fFAG2mgBQley0U1ZrYlpTNQaG7tgYUxJzlbQUrKc3h1Ts/It7wGyy1Vp
+         wTF9hxUIbmAoH+pQuo4Ep1Sb++1J298wxjTqUPpRlhAaXZgX6veiVbThSLDHu1rSPhWo
+         HPAA==
+X-Gm-Message-State: AGi0PuY2PU62T9E9sIUvXBd/4CrzkLRwokTuPsfR4SDLT07JNygQWuoo
+        zpTg5uRCuOJZmIkLqKLDbwNxarde5DA=
+X-Google-Smtp-Source: APiQypLuVWlmI/L4Zdko5ECWHjjwInotwDlFWBYX4Nz+3ww7PC5nSSHuFhzupRu6UhA/Ddv3lDBLkg==
+X-Received: by 2002:a17:902:ec01:: with SMTP id l1mr7495637pld.151.1585914609969;
+        Fri, 03 Apr 2020 04:50:09 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m28sm5155573pgn.7.2020.04.03.04.50.09
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2020 04:50:09 -0700 (PDT)
+Message-ID: <5e8722f1.1c69fb81.889cc.81ee@mx.google.com>
+Date:   Fri, 03 Apr 2020 04:50:09 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200401212329.23305-1-jason.gerecke@wacom.com>
-In-Reply-To: <20200401212329.23305-1-jason.gerecke@wacom.com>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Fri, 3 Apr 2020 13:28:36 +0200
-Message-ID: <CAO-hwJJMRzGpfOQtBUsOkiGO44LLudL7_rbqC4Ec9Ti8Ua-aGA@mail.gmail.com>
-Subject: Re: [PATCH] HID: wacom: Read HID_DG_CONTACTMAX directly for
- non-generic devices
-To:     "Gerecke, Jason" <killertofu@gmail.com>
-Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        "3.8+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.175
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 133 boots: 4 failed,
+ 121 passed with 2 offline, 6 untried/unknown (v4.14.175)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 1, 2020 at 11:23 PM Gerecke, Jason <killertofu@gmail.com> wrote:
->
-> From: Jason Gerecke <jason.gerecke@wacom.com>
->
-> We've recently switched from extracting the value of HID_DG_CONTACTMAX
-> at a fixed offset (which may not be correct for all tablets) to
-> injecting the report into the driver for the generic codepath to handle.
-> Unfortunately, this change was made for *all* tablets, even those which
-> aren't generic. Because `wacom_wac_report` ignores reports from non-
-> generic devices, the contact count never gets initialized. Ultimately
-> this results in the touch device itself failing to probe, and thus the
-> loss of touch input.
->
-> This commit adds back the fixed-offset extraction for non-generic devices.
->
-> Ref: https://github.com/linuxwacom/input-wacom/issues/155
+stable-rc/linux-4.14.y boot: 133 boots: 4 failed, 121 passed with 2 offline=
+, 6 untried/unknown (v4.14.175)
 
-I think the official tag is "Link", not "Ref". I changed it.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.175/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.175/
 
-> Fixes: 184eccd40389 ("HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report")
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-> CC: stable@vger.kernel.org # 5.3+
-> ---
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.175
+Git Commit: 4520f06b03ae667e442da1ab9351fd28cd7ac598
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 74 unique boards, 21 SoC families, 18 builds out of 201
 
-I really wish we had regression tests for Wacom devices too. This
-could have been avoided in the first place.
+Boot Regressions Detected:
 
-Anyway, applied to for-5.7/upstream-fixes
+arm:
 
-Thanks!
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 54 days (last pass: v4.14=
+.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
 
-Cheers,
-Benjamin
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 43 days (last pass: v4.14.170-141=
+-g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
 
->  drivers/hid/wacom_sys.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 5ded94b7bf68..cd71e7133944 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -319,9 +319,11 @@ static void wacom_feature_mapping(struct hid_device *hdev,
->                         data[0] = field->report->id;
->                         ret = wacom_get_report(hdev, HID_FEATURE_REPORT,
->                                                data, n, WAC_CMD_RETRIES);
-> -                       if (ret == n) {
-> +                       if (ret == n && features->type == HID_GENERIC) {
->                                 ret = hid_report_raw_event(hdev,
->                                         HID_FEATURE_REPORT, data, n, 0);
-> +                       } else if (ret == 2 && features->type != HID_GENERIC) {
-> +                               features->touch_max = data[1];
->                         } else {
->                                 features->touch_max = 16;
->                                 hid_warn(hdev, "wacom_feature_mapping: "
-> --
-> 2.26.0
->
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.14.174-149-gbc03924=
+ca6ea)
 
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxl-s905d-p230:
+              lab-baylibre: new failure (last pass: v4.14.174-149-gbc03924c=
+a6ea)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
+            meson-gxl-s905d-p230: 1 failed lab
+            meson-gxm-q200: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
