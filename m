@@ -2,81 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF6F19E28A
-	for <lists+stable@lfdr.de>; Sat,  4 Apr 2020 05:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB8319E29D
+	for <lists+stable@lfdr.de>; Sat,  4 Apr 2020 06:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726254AbgDDDhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Apr 2020 23:37:42 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:35298 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726028AbgDDDhm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Apr 2020 23:37:42 -0400
-Received: by mail-ot1-f68.google.com with SMTP id v2so9567437oto.2;
-        Fri, 03 Apr 2020 20:37:41 -0700 (PDT)
+        id S1725536AbgDDEGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Apr 2020 00:06:25 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:33349 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725468AbgDDEGZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Apr 2020 00:06:25 -0400
+Received: by mail-pg1-f195.google.com with SMTP id d17so4611938pgo.0
+        for <stable@vger.kernel.org>; Fri, 03 Apr 2020 21:06:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4WbluZDhw2UVjup7ga4DOtaPANEI0o4JCWjagoCmgy8=;
-        b=W3YeCMAF9MApJBdYEFhU9WsZL11NUkjdvzGUS1f5iLxFQzYg1glMKciGmHzRkrgiig
-         XS9a2TvTBLi69fV799tgOqiWowIg0UZWX4LgIy5YzskVoSr5YwPO4ty9hFxyTjexG0vd
-         z9AaXdon2RpwUukaf1JCnOl/mbITMlZdWHNiPo06XwCzDy64aeO9uXx83shizIKEYxG4
-         4pr5vOtVIK1+y8DXlynJXCcXSrQ++70A60vUXdCYljk/+HfcjP5TxzcmMsmxvrzA3XbN
-         QsHelQ9GJ6O53g/Svw1kEHnRYhaZ58f5tJRGuaV9pdREYNiqSyXVq+9nAj8ddc8KbCD8
-         UMBg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vtz65BcbIk9WfZ3jnaekXmmXZqqNdV9Nig+kri06Qy4=;
+        b=L2KQn/pKqPivi3HrG0/X5mrrGLTK88HfrNvd1xp2pIPnBDUrj1dOk6ARoFB0khCxqb
+         E7B1ot7gHBe4xRbDJOhrxzy2FS686JiI92sn/QStxuLvWqUd/MLQgFMdYBDLKMhis6hl
+         PLI3lItolecDK4FDEh1OUAllDGA2YQSi9ydupKF50VQgvy6gQ15CCvhdP2LBoPBM+Cil
+         15dBT82MTAvHfmlJI0ewlb+MZecWkz8H+YHwC/jeveAbNYtGCNOGZqSiJziv5/2oYY33
+         NdeYmu3kKohS1SjIkCkqThd++Pe+Wsn8xkJROyXBPbhbd+eMkJrGnYgfpPLa0fpBYyHY
+         v44w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4WbluZDhw2UVjup7ga4DOtaPANEI0o4JCWjagoCmgy8=;
-        b=YtX1Aac5ALYe6/68AzqeXkkGc90WdWqTUBBp//UGGkcI9eW6ygoBBiAc/LYKI/E8pE
-         3kRszgWEOu8v2DkRZlG9XsL1PKeLWAJR6Ke2QYtxV/i5T7Oby+DcZTvGi4UMaw6pUmFm
-         9kNByanEYD00c5sPvB1ZA7vuD9m27d8aWjQkieanJBBkJGJgMy0AiLb6CKEr6JtyO2OC
-         jpqoIPqJBvnbuehojPFs+llG2ggCI/f3XngR5IYl1RB8DOVuszqLWZVz1tf8+uCLsQe7
-         kqF/P9avz9/KfChXkK/0XslzPi2CzHpBmMECojcjYlWT8PrJWn+AO9Tk/Ld3g6FAM98F
-         WaMg==
-X-Gm-Message-State: AGi0PuYyTKYvMigrFPll8sfQSVejgEzI90wHEbKfaJuJpKteYDbpc1JK
-        zZxCSMLMxJHuQ6YMNZ5Agny5c4wGBredQaNpyrc=
-X-Google-Smtp-Source: APiQypKyHxYIf+5TXgFLUWui2aNL0tjRUUYrTHIDbSYafaUkC7PU2HOOf4l4UI+ukKt8ZQLbURBm/vE4UafQw2ZP9Is=
-X-Received: by 2002:a9d:1b6d:: with SMTP id l100mr8477327otl.70.1585971461014;
- Fri, 03 Apr 2020 20:37:41 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vtz65BcbIk9WfZ3jnaekXmmXZqqNdV9Nig+kri06Qy4=;
+        b=i9gmlFHvo/1hXagff22E86F8FFoXJveiuck3WTpErsRlrmpQXjcnCviZLUsC7Oobjh
+         NUZAvjz+W3TsWNfgHK0VCItUEVdBZbM/d99Wr6u+RQDBXuM+qiOHJZwTENnblGO+EyU8
+         GtmyBMTyUWFrXn652tbAl8ugd3j9iZ2djL6jOsuPuxovr3fbBKsfxOKBWKtFM8n4qK7A
+         XrXCbLEm0bG1FtdzRrlAepBecsozxsMtpyR9pqePaFBGrc16SMu0M/RhDPtn/3Or016z
+         9WekEYhdY5eSFDGrUSkFVRpsMUQ29GC2uU29xn0Dq1H17OJa41tZUe+Nifg2y6HLOJJh
+         XVRw==
+X-Gm-Message-State: AGi0Pub58Z+XtCIPiumSplZ3LIlDqr4kD9/vXbZjQEvUlts6NICW6s5q
+        LqEKOZ8WdDkQAlbGUlw85EUZ3XhISaE=
+X-Google-Smtp-Source: APiQypJ/G0CcFjSmLDdz06Yx0nm3yWAuPP8/lKrRPDCL9jo1/qRuUCBAQIR2eMVtVQjSlHqEct0LtQ==
+X-Received: by 2002:a62:880f:: with SMTP id l15mr11519160pfd.218.1585973183410;
+        Fri, 03 Apr 2020 21:06:23 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ck3sm6815259pjb.44.2020.04.03.21.06.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2020 21:06:22 -0700 (PDT)
+Message-ID: <5e8807be.1c69fb81.0c9f.121f@mx.google.com>
+Date:   Fri, 03 Apr 2020 21:06:22 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200403112830.505720-1-gch981213@gmail.com> <20200403.161139.2115986079787627095.davem@davemloft.net>
-In-Reply-To: <20200403.161139.2115986079787627095.davem@davemloft.net>
-From:   Chuanhong Guo <gch981213@gmail.com>
-Date:   Sat, 4 Apr 2020 11:37:29 +0800
-Message-ID: <CAJsYDVLGi3xczRqDC-d9q8=jHK=kfYh886erUxULoMNidSX8JA@mail.gmail.com>
-Subject: Re: [PATCH] net: dsa: mt7530: fix null pointer dereferencing in port5 setup
-To:     David Miller <davem@davemloft.net>
-Cc:     netdev@vger.kernel.org, stable@vger.kernel.org,
-        Sean Wang <sean.wang@mediatek.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        =?UTF-8?Q?Ren=C3=A9_van_Dorst?= <opensource@vdorst.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>,
-        linux-mediatek@lists.infradead.org,
-        open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.218-5-g1d2188f191be
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 98 boots: 3 failed,
+ 89 passed with 2 offline, 4 untried/unknown (v4.4.218-5-g1d2188f191be)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi!
+stable-rc/linux-4.4.y boot: 98 boots: 3 failed, 89 passed with 2 offline, 4=
+ untried/unknown (v4.4.218-5-g1d2188f191be)
 
-On Sat, Apr 4, 2020 at 7:11 AM David Miller <davem@davemloft.net> wrote:
-> > Cc: stable@vger.kernel.org
->
-> Please do not CC: stable for networking changes, as per:
->
->         Documentation/networking/netdev-FAQ.rstq
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.218-5-g1d2188f191be/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.218-5-g1d2188f191be/
 
-Oh! I'm not aware of this doc. Thanks for pointing it out.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.218-5-g1d2188f191be
+Git Commit: 1d2188f191be66572f9e20c9486eda0544ab750f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 18 SoC families, 17 builds out of 190
 
--- 
-Regards,
-Chuanhong Guo
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 55 days (last pass: v4.4.=
+212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 8 days (last pass: v4.4.216-127-g=
+955137020949 - first fail: v4.4.217)
+
+Boot Failures Detected:
+
+arm:
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
