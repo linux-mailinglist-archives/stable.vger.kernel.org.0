@@ -2,103 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF0C19E657
-	for <lists+stable@lfdr.de>; Sat,  4 Apr 2020 18:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F03019E697
+	for <lists+stable@lfdr.de>; Sat,  4 Apr 2020 19:08:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726294AbgDDQGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Apr 2020 12:06:34 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:33586 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726287AbgDDQGd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Apr 2020 12:06:33 -0400
-Received: by mail-lj1-f194.google.com with SMTP id f20so10153792ljm.0
-        for <stable@vger.kernel.org>; Sat, 04 Apr 2020 09:06:31 -0700 (PDT)
+        id S1726057AbgDDRIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Apr 2020 13:08:55 -0400
+Received: from mail-ed1-f66.google.com ([209.85.208.66]:36898 "EHLO
+        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726066AbgDDRIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Apr 2020 13:08:55 -0400
+Received: by mail-ed1-f66.google.com with SMTP id de14so13322072edb.4
+        for <stable@vger.kernel.org>; Sat, 04 Apr 2020 10:08:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=shutemov-name.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=JRGsKivxe9j13Vrd41+3vZjk/D6J0Gm5H+Vo+RNnIsM=;
-        b=u4VBZf8DWGri/CJMWdVajTa0xQcpmwrb+zk6ESFEMFIjPcYc7GaaSQI52drILyLNiN
-         H0vEw6qLWWZAhN1c4ou2EZlKI9Of30F0J5hxr9BOAG/OlJGMPmfMu5b8PRH2Xdk7e7Jt
-         wj1IwuHfmIesbu6AM5K5flkC9Y/cTvAoRJe//WGVL3r2TlRIvPcMYnBmz8L5Z2iWBXZU
-         JIsmfsNl0WLCwXOuqxWSz2B6ihRBWbevfP/o81JCvUxx3NFYp2zvQw3EK0ONTqSmn79s
-         xMTSqirmJJ2FlE0SXQyXWzUYQsNa1psjDxAUVnjP2mRiGwo8wzamf1q9k0sobnjbA5g3
-         tNvA==
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=QAHPoVjCjdV3t4V+yiEOlIcKQL0G3JYt87cluu1r7t8=;
+        b=OgiowiDkLiMD0BzIoupyW55D5CdaeEtGg7Yaz1MwIt5ftlBCi/1NN6HsmyUnPIhbrx
+         x+cnKBuqB+erdRQgHbyE23v7oq2Y4ozyDYxoY58+7ulxXt48J0WcrUR4Yb01teDBtcgl
+         AgusnmMtfAtNoW9Or9yxiXE2cqOe3ofB5sHkYXSPI0oIJ07fcn1a4A4KaRpldIJECi4g
+         2zSNwafZ4LsggzrQ7Fz9PCwYkAebgGGpUWqnFJ7fTwjFjq5efQVuF12Gsti6mBuF2xo1
+         66embtKXAYnBE3rY6i/W1kVFxSh//LV6dMz8m67SJ0vLps5QK2m87P8xAJ+wWvLEbs8t
+         BIow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=JRGsKivxe9j13Vrd41+3vZjk/D6J0Gm5H+Vo+RNnIsM=;
-        b=qnPmmt/i1tI2XfcVx6fmn1fx5N1QOYswurcEa0q/uC+xnnOfNORVtLVGKkvdY2uisR
-         XUL5C//XKohHyMmb2wLciC/SlVzMRMFuWlKWvijsh5FpCsDwSHsNorefPSGdUQVsn3/5
-         7ruynouAi8/Y7Wp4L0sVGFavV8dx4VDMabZeHcVkq71C9VNZG979WcVqje6eIlCpRbTo
-         qnthwnuQmvbRLFPKckU8YPbJuyApu7RqFyNol29F+WzKsbO+PXjivU4z6ekVKbeQ5xfa
-         woZVpY63jBAI3mywDkpuEfok5YJwAW7aAGkgVw/YoeaRv7L5E6UYtR+XQo7A1W+RiVIy
-         RDQQ==
-X-Gm-Message-State: AGi0PubPHdKgsumuva+qBhxQ1jhOUQ7sw106Ba+hHCplzVVPWpQIf1FZ
-        V6mM082SRi3X+f42tOoASUSPpQ==
-X-Google-Smtp-Source: APiQypIxW1eygGjnq/xOojjEUtOkk5jCDkQIz/ZzxBIqBHtRYYpksysAGE43MzcbDGuPRZjIEHHdOw==
-X-Received: by 2002:a2e:82d0:: with SMTP id n16mr7945847ljh.174.1586016391180;
-        Sat, 04 Apr 2020 09:06:31 -0700 (PDT)
-Received: from box.localdomain ([86.57.175.117])
-        by smtp.gmail.com with ESMTPSA id x29sm5236114lfn.64.2020.04.04.09.06.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Apr 2020 09:06:30 -0700 (PDT)
-Received: by box.localdomain (Postfix, from userid 1000)
-        id 5519C101B5B; Sat,  4 Apr 2020 19:06:31 +0300 (+03)
-Date:   Sat, 4 Apr 2020 19:06:31 +0300
-From:   "Kirill A. Shutemov" <kirill@shutemov.name>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux- stable <stable@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        William Kucharski <william.kucharski@oracle.com>,
-        Julia Lawall <Julia.Lawall@lip6.fr>,
-        Michal Hocko <mhocko@kernel.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        lkft-triage@lists.linaro.org,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        LTP List <ltp@lists.linux.it>
-Subject: Re: mm/mremap.c : WARNING: at mm/mremap.c:211
- move_page_tables+0x5b0/0x5d0
-Message-ID: <20200404160631.7eny3swsqn665m2p@box>
-References: <CA+G9fYs1xStrrsvGbW7bc4h1a0Kjfz0_zn4c7LL7-bGZb0GH6g@mail.gmail.com>
- <20200402133849.mmkvekzx37kw4nsj@box>
- <CA+G9fYv0xNtnD=eBmxVqYqEoYTbMk6mdn04WmgSUasDw2L7uFg@mail.gmail.com>
- <20200403133252.ivdqoppxhc6w5b47@box>
- <CA+G9fYsnD0vkCpSH98Lpsi6nxXBS+JYbSPhTnNE16CrQ4s4QhQ@mail.gmail.com>
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=QAHPoVjCjdV3t4V+yiEOlIcKQL0G3JYt87cluu1r7t8=;
+        b=m/xyQANBosv2S2Y2ntvgRGSlhm0kQvEIxS8fa6KCu9gnwfQ+PhvGCpeAxxNJIPNN5P
+         LQoI/N1p7nRIZaKUgoanZQlSa9X2PqFuBMF28fm3yfFSkEq57PQjISu5gYqpLzvcIHSJ
+         1ZbFLJRoaxbn2bbWVx1IG8rjYJmX/DvR6/PgQzntxusPTWCsdhDJkdxP0UNw3CtU0nlw
+         /epmzu3Cwc7SImMV104YTiUhBikNvNCJMjOUUzyorONc20wHMN6CUAIvjYEekBnJX+Dp
+         bT2IzU2g3rttiVFDEORHYY0NhTZhONct7Q2afrdDWegF+/vy1IFnZlEfZhAWddE2rXzS
+         3qpA==
+X-Gm-Message-State: AGi0Puba2T8dvc/cnRasgrAoeobsZP5CKcidNVtf/Cq4mkNTyhqorcP5
+        Fsp8UXfhoLmV2zGkovByRQijCXS1WWUlUpjithI=
+X-Google-Smtp-Source: APiQypKq+HD1Hz4Gbt8ImbSaqc0NMKM2hNXWlFo9EppaB0pC+nAmJNW+WT2ikUdc3uQZ4itcDd7+cbwLrF2V4KiNFc8=
+X-Received: by 2002:a50:b062:: with SMTP id i89mr12815136edd.72.1586020133279;
+ Sat, 04 Apr 2020 10:08:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYsnD0vkCpSH98Lpsi6nxXBS+JYbSPhTnNE16CrQ4s4QhQ@mail.gmail.com>
+Received: by 2002:aa7:c7d6:0:0:0:0:0 with HTTP; Sat, 4 Apr 2020 10:08:52 -0700 (PDT)
+From:   Herminia Wade <mrs.alicia6666@gmail.com>
+Date:   Sat, 4 Apr 2020 19:08:52 +0200
+Message-ID: <CAPR2zwmPGevYp1ORQhSJfjAKupK0ydXjh=ncaxT5qi28_M32rw@mail.gmail.com>
+Subject: HI
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 04, 2020 at 08:10:42PM +0530, Naresh Kamboju wrote:
-> On Fri, 3 Apr 2020 at 19:02, Kirill A. Shutemov <kirill@shutemov.name> wrote:
-> >
-> > On Fri, Apr 03, 2020 at 12:56:57AM +0530, Naresh Kamboju wrote:
-> > > [  734.876355] old_addr: 0xbfe00000, new_addr: 0xbfc00000, old_end: 0xc0000000
-> >
-> > The ranges are overlapping. We don't expect it. mremap(2) never does this.
-> >
-> > shift_arg_pages() only moves range downwards. It should be safe.
-> >
-> > Could you try this:
-> 
-> Applied the patch and tested and still getting kernel warning.
-> CONFIG_HIGHMEM64G=y is still enabled.
-> 
-> [  790.041040] ------------[ cut here ]------------
-> [  790.045664] WARNING: CPU: 3 PID: 3195 at mm/mremap.c:212
-> move_page_tables+0x7a7/0x840
+Dear.
+I greetings you in the name of our lord Jesus Christ.
+I am Mrs. Herminia Wade an aging widow suffering from long time
+illness. I am currently admitted in a private hospital in Abidjan Cote
+d`Ivoire, I have some funds I inherited from my late loving husband
+Mr. Wade, the sum of US$ 3, 800, 000 which he deposited in bank here
+and I need a very honest and God fearing person that can use these
+funds for charity work and 15% out of the total funds will be for your
+compensation for doing this work of charity. I found your email
+address from the internet and decided to contact you.
 
-Are you sure the patch is applied? The line number in the warning supposed
-to change.
+Please if you and your husband would be able to use these funds for
+the Lord's work kindly reply me as soon as possible for more details.
 
--- 
- Kirill A. Shutemov
+I am looking forward hearing from you.
+
+Remain Blessed
+Mrs. Herminia,
