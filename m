@@ -2,209 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D67119E4C1
-	for <lists+stable@lfdr.de>; Sat,  4 Apr 2020 13:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48EC919E5E7
+	for <lists+stable@lfdr.de>; Sat,  4 Apr 2020 16:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726312AbgDDLwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Apr 2020 07:52:54 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:41194 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726039AbgDDLwy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Apr 2020 07:52:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586001173;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=f64FR+wQwG4Rf+1Nwf9deQLAxinVjgUZ9huOaCrREcU=;
-        b=Z3OHSHnWPWsWIyIGN/wtzxXfwRCbOzgoDMqprZpfeMmNuoRNLuu0mV4ryC6WHKcV5lU+jk
-        NaQnC7XcMk0xBeaXYyczpDqj2fgxvPSleYPHilcUqJL/8IUDe4y6w1l6QzBQzva/yi1ZcQ
-        lsjoUPEKUW7H0aOPQI8uyqsEzod3qkQ=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-104-sqE6yblOOPKXSTGKVhfaEA-1; Sat, 04 Apr 2020 07:52:51 -0400
-X-MC-Unique: sqE6yblOOPKXSTGKVhfaEA-1
-Received: by mail-wm1-f69.google.com with SMTP id p12so1761016wmi.0
-        for <stable@vger.kernel.org>; Sat, 04 Apr 2020 04:52:51 -0700 (PDT)
+        id S1726534AbgDDOk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Apr 2020 10:40:57 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:33550 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726508AbgDDOk5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Apr 2020 10:40:57 -0400
+Received: by mail-lf1-f67.google.com with SMTP id h6so3690656lfc.0
+        for <stable@vger.kernel.org>; Sat, 04 Apr 2020 07:40:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8faSeldjtI+4HFEzjeUHGgbLGHXUu/xpOsQaYuJ9g28=;
+        b=WJrqUFpx5yHDorppFEmuHGbZp9wmrNVH1xgFYuDM8zSF7JRkZhTw1SDn+/3L/1B8FG
+         JyDLeZdodntAqW9D4/fPcI5vjnfm1j5q9BbPxoyjT3KMcUu93Zaz0CouaiqcmyV73d2Z
+         cpX2rHOeoo1zRRgqGcIowBLGK4QQ+aeCZ/txK1DE9CE8gYBL5SDpixa0toB0UqJ8Sio3
+         r2O2qIcdYuVs49jSOHgdPb5YWIesIkke3aAGIfjGWBK88B8ES59xBEckWkUm0rEumEOH
+         tfKiRURO0+9bmFsb6N4cFj6p2VWQs3xnInwzZBgMyspaTxrFPembhsHjifNjoqL41V7s
+         H+jw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=f64FR+wQwG4Rf+1Nwf9deQLAxinVjgUZ9huOaCrREcU=;
-        b=gL6zN+OTpG8Ig1mjoJdxFwjgU131Opy5DxlNf+MAH2S93Vi6TX1EfVot/UG/dKeKl3
-         ot6NTiFprJ0oPlriyetdyf24VbSHnRD2f85dJtbUBB32vDZFs9/u2UIwRhY5WnxTO9oN
-         AVGMlw1W+It5sxUFUVVcHz88cbwBEbWui/uSGc+B+npHL0Ucewc37XUKkc7lAHLNberA
-         ZFW5hfD/GTiWgsqPGP3IDxfXtCLBq/JHx+l1NdGPh3Ri5PEC6lweNLr88mzsqoCbFRcr
-         eiRd33ifrS0f822fLTmXapGCHUcVNMbum7/8ykqFiou9jXwXFBzb15KZWkBv7t+he6Oh
-         CaMg==
-X-Gm-Message-State: AGi0PuYTF+yK1Ym1YLc8XjobGZQdBUWtn4QCC3CzItVFyMmQzuU+rm+6
-        OGYItBkBlH8pWzY+//azT+gNVB/2mlj8s3YoPdf8RCJJBy9LZGsVxdwfFKPDvQ00awvsDgune4r
-        xLRR7Ebn0y2hvlKEH
-X-Received: by 2002:a7b:cb59:: with SMTP id v25mr13986479wmj.13.1586001170108;
-        Sat, 04 Apr 2020 04:52:50 -0700 (PDT)
-X-Google-Smtp-Source: APiQypK0AZLIM+VFnAkYrCUNC87FZEsHxgjBLzBFl6igf0XOnAGiRT//XV5W7FDIbXfi3Leu5nrGlA==
-X-Received: by 2002:a7b:cb59:: with SMTP id v25mr13986456wmj.13.1586001169826;
-        Sat, 04 Apr 2020 04:52:49 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id z16sm346059wrg.66.2020.04.04.04.52.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 04 Apr 2020 04:52:49 -0700 (PDT)
-Subject: Re: [PATCH v3 2/2] platform/x86: intel_int0002_vgpio: Use
- acpi_register_wakeup_handler()
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc:     Len Brown <lenb@kernel.org>, Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "5 . 4+" <stable@vger.kernel.org>
-References: <20200403154834.303105-1-hdegoede@redhat.com>
- <20200403154834.303105-2-hdegoede@redhat.com> <3798902.sSGyZ91sKY@kreacher>
- <CAHp75VfThW1CrkneP5kEm_7KejQgS2dhDi0YyDrL4y3=uY9ZbA@mail.gmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <f054f195-d5e7-8041-4995-8a52d2bd7674@redhat.com>
-Date:   Sat, 4 Apr 2020 13:52:47 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8faSeldjtI+4HFEzjeUHGgbLGHXUu/xpOsQaYuJ9g28=;
+        b=eqwdEDoQxpqpCdCv31Wf5DCjF2OJrWIP1quCf5YnYvOKZnpUQ6Nm4insoiBAeaKUa2
+         058MY/PhZgh01hnd0R7Bn9FKoIBX8CHgAgUHSJvXR/ozyzF0x6m4XDKhw6OQ+ln/D5X8
+         iUMo6tlCk1+A5z9QPxIFCYLQBqzD7gXqVKq9Y1/2Ze0gRsHGcDbEZ9a2SvXM6QP3SJ68
+         93yuVsE8ObF42CRohrfSsd3zM2B724WFmaqupwc0wTCC7AfyixP1XiGttEL46oq89+00
+         UTSw0QlwETMD4h5c/nazdO3k0taBm8ZsWRysK3oP6CFiXoPRsyLBYWuH/+kQTw4p0KbL
+         /PAA==
+X-Gm-Message-State: AGi0PuYjO4V4WIjDOZTMju2Sv9rA/kyP7q2PLadqNg+5oIt96G9xH7zE
+        zXr9oP1WoISmEhM7E9ZbEB87vt5ntlJARImxpcFgMQ==
+X-Google-Smtp-Source: APiQypJpSaClV6FqEIuZP6vtdkuCgEtD4FWzFqNcyGeR4Poy0Gs6lJYLiYinS/QYqPwqS/BFQknStkonA7iP4245SOQ=
+X-Received: by 2002:ac2:44c6:: with SMTP id d6mr4573588lfm.26.1586011254618;
+ Sat, 04 Apr 2020 07:40:54 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VfThW1CrkneP5kEm_7KejQgS2dhDi0YyDrL4y3=uY9ZbA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CA+G9fYs1xStrrsvGbW7bc4h1a0Kjfz0_zn4c7LL7-bGZb0GH6g@mail.gmail.com>
+ <20200402133849.mmkvekzx37kw4nsj@box> <CA+G9fYv0xNtnD=eBmxVqYqEoYTbMk6mdn04WmgSUasDw2L7uFg@mail.gmail.com>
+ <20200403133252.ivdqoppxhc6w5b47@box>
+In-Reply-To: <20200403133252.ivdqoppxhc6w5b47@box>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 4 Apr 2020 20:10:42 +0530
+Message-ID: <CA+G9fYsnD0vkCpSH98Lpsi6nxXBS+JYbSPhTnNE16CrQ4s4QhQ@mail.gmail.com>
+Subject: Re: mm/mremap.c : WARNING: at mm/mremap.c:211 move_page_tables+0x5b0/0x5d0
+To:     "Kirill A. Shutemov" <kirill@shutemov.name>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        linux- stable <stable@vger.kernel.org>,
+        linux-mm <linux-mm@kvack.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        William Kucharski <william.kucharski@oracle.com>,
+        Julia Lawall <Julia.Lawall@lip6.fr>,
+        Michal Hocko <mhocko@kernel.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        lkft-triage@lists.linaro.org,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        LTP List <ltp@lists.linux.it>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Fri, 3 Apr 2020 at 19:02, Kirill A. Shutemov <kirill@shutemov.name> wrote:
+>
+> On Fri, Apr 03, 2020 at 12:56:57AM +0530, Naresh Kamboju wrote:
+> > [  734.876355] old_addr: 0xbfe00000, new_addr: 0xbfc00000, old_end: 0xc0000000
+>
+> The ranges are overlapping. We don't expect it. mremap(2) never does this.
+>
+> shift_arg_pages() only moves range downwards. It should be safe.
+>
+> Could you try this:
 
-On 4/3/20 6:23 PM, Andy Shevchenko wrote:
-> On Fri, Apr 3, 2020 at 7:08 PM Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
->>
->> On Friday, April 3, 2020 5:48:34 PM CEST Hans de Goede wrote:
->>> The Power Management Events (PMEs) the INT0002 driver listens for get
->>> signalled by the Power Management Controller (PMC) using the same IRQ
->>> as used for the ACPI SCI.
->>>
->>> Since commit fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from
->>> waking up the system") the SCI triggering, without there being a wakeup
->>> cause recognized by the ACPI sleep code, will no longer wakeup the system.
->>>
->>> This breaks PMEs / wakeups signalled to the INT0002 driver, the system
->>> never leaves the s2idle_loop() now.
->>>
->>> Use acpi_register_wakeup_handler() to register a function which checks
->>> the GPE0a_STS register for a PME and trigger a wakeup when a PME has
->>> been signalled.
->>>
->>> Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system")
->>> Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
->>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>
->> Andy, any objections?
-> 
-> No,
-> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> 
-> Hans, just today when testing some other stuff noticed this
-> 
-> [   49.279001] irq 9: nobody cared (try booting with the "irqpoll" option)
-> [   49.289176] CPU: 0 PID: 168 Comm: irq/123-ATML100 Not tainted
-> 5.6.0-next-20200403+ #212
-> [   49.300915] Hardware name: Intel Corporation CHERRYVIEW D0
-> PLATFORM/Braswell CRB, BIOS BRAS.X64.B082.R00.150727 0557 07/27/2015
-> [   49.316520] Call Trace:
-> [   49.322093]  <IRQ>
-> [   49.327193]  dump_stack+0x50/0x70
-> [   49.333744]  __report_bad_irq+0x30/0xa2
-> [   49.340858]  note_interrupt.cold+0xb/0x62
-> ...
-> [   49.685087] handlers:
-> [   49.690307] [<000000000ab3cf88>] acpi_irq
-> [   49.697463] [<00000000e5d78029>] int0002_irq [intel_int0002_vgpio]
-> [   49.707063] Disabling IRQ #9
-> 
-> Is this what your series fixes?
+Applied the patch and tested and still getting kernel warning.
+CONFIG_HIGHMEM64G=y is still enabled.
 
-I don't think that my series fixes this.
+[  790.041040] ------------[ cut here ]------------
+[  790.045664] WARNING: CPU: 3 PID: 3195 at mm/mremap.c:212
+move_page_tables+0x7a7/0x840
+[  790.053486] Modules linked in: x86_pkg_temp_thermal
+[  790.058358] CPU: 3 PID: 3195 Comm: true Tainted: G        W
+5.6.2-rc1+ #15
+[  790.065915] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
+2.0b 07/27/2017
+[  790.073386] EIP: move_page_tables+0x7a7/0x840
+[  790.077737] Code: 9f 84 c0 0f 84 b7 fc ff ff 89 c3 e9 ba fe ff ff
+8b 40 54 8b 40 10 8b 40 1c 8b 80 20 02 00 00 8b 40 0c 8b 50 08 83 c2
+0c eb a7 <0f> 0b e9 55 fd ff ff 8d 45 d8 83 4d e8 01 e8 c6 e6 01 00 e9
+ac f8
+[  790.096475] EAX: bfe00000 EBX: 00200000 ECX: 07606001 EDX: 07606000
+[  790.102732] ESI: c64c0010 EDI: c7606ff8 EBP: c845de14 ESP: c845dd7c
+[  790.108989] DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010206
+[  790.115764] CR0: 80050033 CR2: b7e13b50 CR3: 064c0000 CR4: 003406f0
+[  790.122024] DR0: 00000000 DR1: 00000000 DR2: 00000000 DR3: 00000000
+[  790.128281] DR6: fffe0ff0 DR7: 00000400
+[  790.132111] Call Trace:
+[  790.134558]  setup_arg_pages+0x22c/0x350
+[  790.138514]  ? strlcpy+0x33/0x50
+[  790.141776]  load_elf_binary+0x352/0x1010
+[  790.145788]  ? selinux_inode_permission+0xe5/0x1f0
+[  790.150573]  search_binary_handler+0x77/0x1a0
+[  790.154931]  __do_execve_file+0x5aa/0x710
+[  790.158935]  sys_execve+0x21/0x30
+[  790.162246]  do_fast_syscall_32+0x75/0x260
+[  790.166336]  entry_SYSENTER_32+0xa5/0xf8
+[  790.170254] EIP: 0xb7f12c11
+[  790.173045] Code: Bad RIP value.
+[  790.176266] EAX: ffffffda EBX: bfc687d0 ECX: 08069420 EDX: bfc68a34
+[  790.182548] ESI: 080599d4 EDI: bfc687d9 EBP: bfc68878 ESP: bfc687a8
+[  790.188808] DS: 007b ES: 007b FS: 0000 GS: 0033 SS: 007b EFLAGS: 00000296
+[  790.195585] ---[ end trace e8f9014a5c1de460 ]---
 
-My series fixes CHT devices no longer waking up from s2idle
-when woken by pressing a key on the USB attached keyboard dock
-of various 2-in-1s. Before we were relying on the ACPI code
-also waking up on IRQs which from the ACPI SCI handler pov where
-spurious. Rafael fixed the ACPI SCI handling during s2idle
-also waking the system on spurious events. My patch hooks
-the INT0002 driver into the ACPI SCI handling / wakeup checks
-during s2idle.
+full test log,
+https://lkft.validation.linaro.org/scheduler/job/1339582#L9858
 
-I guess Rafael may have made some related changes elsewhere
-though where the SCI no longer returns IRQ_HANDLED in some cases?
-
-Rafael?
-
-Regards,
-
-Hans
-
-
-
-
-> 
->>
->>> ---
->>> Changes in v3:
->>> - Keep the pm_wakeup_hard_event() call
->>>
->>> Changes in v2:
->>> - Adjust for the wakeup-handler registration function being renamed to
->>>    acpi_register_wakeup_handler()
->>> ---
->>>   drivers/platform/x86/intel_int0002_vgpio.c | 10 ++++++++++
->>>   1 file changed, 10 insertions(+)
->>>
->>> diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platform/x86/intel_int0002_vgpio.c
->>> index f14e2c5f9da5..55f088f535e2 100644
->>> --- a/drivers/platform/x86/intel_int0002_vgpio.c
->>> +++ b/drivers/platform/x86/intel_int0002_vgpio.c
->>> @@ -127,6 +127,14 @@ static irqreturn_t int0002_irq(int irq, void *data)
->>>        return IRQ_HANDLED;
->>>   }
->>>
->>> +static bool int0002_check_wake(void *data)
->>> +{
->>> +     u32 gpe_sts_reg;
->>> +
->>> +     gpe_sts_reg = inl(GPE0A_STS_PORT);
->>> +     return (gpe_sts_reg & GPE0A_PME_B0_STS_BIT);
->>> +}
->>> +
->>>   static struct irq_chip int0002_byt_irqchip = {
->>>        .name                   = DRV_NAME,
->>>        .irq_ack                = int0002_irq_ack,
->>> @@ -220,6 +228,7 @@ static int int0002_probe(struct platform_device *pdev)
->>>                return ret;
->>>        }
->>>
->>> +     acpi_register_wakeup_handler(irq, int0002_check_wake, NULL);
->>>        device_init_wakeup(dev, true);
->>>        return 0;
->>>   }
->>> @@ -227,6 +236,7 @@ static int int0002_probe(struct platform_device *pdev)
->>>   static int int0002_remove(struct platform_device *pdev)
->>>   {
->>>        device_init_wakeup(&pdev->dev, false);
->>> +     acpi_unregister_wakeup_handler(int0002_check_wake, NULL);
->>>        return 0;
->>>   }
->>>
->>>
->>
->>
->>
->>
-> 
-> 
-
+- Naresh
