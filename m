@@ -2,99 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7DCF19FDDC
-	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 21:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2636519FDE2
+	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 21:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726246AbgDFTHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Apr 2020 15:07:12 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:38718 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725895AbgDFTHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 15:07:12 -0400
-Received: by mail-pg1-f193.google.com with SMTP id m17so450845pgj.5
-        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 12:07:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=nn6lAXvMhOSAG463Tcw7G3OuyKtKbiDNyhVK6NjC7mA=;
-        b=gEsOrKCNs7EvU0CA/t4YOusXH5AQFGv37CmHaimROV+i6F8WLWq30SHrtbEdknNTyh
-         V2zNfSmAUq7JeUWIc0YEVmiakqKyFyX5aBOewl11Na3JxfkwUFYBSoPP6KB5XB4kaf/Y
-         UbIprWWy3OTFJflJCHOAok6NnzL4x+1Agaja/DKUViaF7g6+PnelxnN/RPmqgcsZfNmy
-         l5vbDMm/0tfKk4wvY9gELMqOXgG0ISlIqRIPwY4M9DWe0FpSXrUTIwF7KFGQtnZO/vio
-         7o75YsfE+l6kZd4KM1gYRVdcnSLAPi0JFCako5LoPOuFH0RJDHY9j+ROTj3c1XCPgnkD
-         ahIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=nn6lAXvMhOSAG463Tcw7G3OuyKtKbiDNyhVK6NjC7mA=;
-        b=qDd1ubRiOQxZoLO9HHJmFr05dJL+75U9gcvXSHKTqYUCuwyfEq9TwrfnUy+1ASpHq5
-         XiR+j6qERYNL2xIEYeZbjKdGMec3MqySNQFWVE6h/WIK7Lm4Yu0Mo7yUskUfzr8F9pTE
-         cCafUjITLbAf4+he+ILjdqp+jwk4iKPmJZvSOz2PZAYB8tXtgoerzZf/Z69NX5OdDrTf
-         tyyXcaAf1UhcPUHZivaJ2Nbw+64iy0XnyqmYS1+Kg3Q/0G4dDxor25yrNCAvOopChXBf
-         dkj1uJmDH6D96G0ctDK0AKm8sY8CQrtYHVfvPaExeQlYin6qn9SQ6i5HYkCXTKqosoLg
-         ZGBg==
-X-Gm-Message-State: AGi0PuZa0RaRSkzbHP8g8/cnUkxyD72K4yTV/mvHe256l66mGtOTyEcK
-        fYM0wL63DeJs91u7eljSDAXoAqhmW0c=
-X-Google-Smtp-Source: APiQypJKu8MNTnuuAjOybo7BpjN/WS3Xn87yS/kVQMIrQzaaKGVol3fF3QjL2CScb/zvG0dn4+Al8w==
-X-Received: by 2002:a63:d74e:: with SMTP id w14mr553037pgi.157.1586200030482;
-        Mon, 06 Apr 2020 12:07:10 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q185sm12192184pfb.154.2020.04.06.12.07.08
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Apr 2020 12:07:09 -0700 (PDT)
-Message-ID: <5e8b7ddd.1c69fb81.90088.72af@mx.google.com>
-Date:   Mon, 06 Apr 2020 12:07:09 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726365AbgDFTKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Apr 2020 15:10:01 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:46419 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726310AbgDFTKB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 15:10:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586200200;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=2WntavKAAILKmUl5tuzVQBGYOFdZ1K83H/b52IOT1/E=;
+        b=NCWEwV6c9gOnYDRP5msUjPOdy+lWkCKNMtmtVOa4/XEsSDN8bqmIKD13jqHtreKQ2Ogz3s
+        S32JTP7SsSS2DkJNhR7VXvgT59jEVONW5iKAQJX+iWZIbCZGcb8ZSy3UaXSjrWs0Z8hdGY
+        wrQpTHaou0YwviKdnMJiq+vkAPIpd8I=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-347-bU9l9M8MMvWWter2viivmA-1; Mon, 06 Apr 2020 15:09:54 -0400
+X-MC-Unique: bU9l9M8MMvWWter2viivmA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 694FC8018A8;
+        Mon,  6 Apr 2020 19:09:52 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-115-173.rdu2.redhat.com [10.10.115.173])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 331809D36D;
+        Mon,  6 Apr 2020 19:09:52 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id A9577220515; Mon,  6 Apr 2020 15:09:51 -0400 (EDT)
+Date:   Mon, 6 Apr 2020 15:09:51 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+Message-ID: <20200406190951.GA19259@redhat.com>
+References: <87ftek9ngq.fsf@nanos.tec.linutronix.de>
+ <CALCETrVsc-t=tDRPbCg5dWHDY0NFv2zjz12ahD-vnGPn8T+RXA@mail.gmail.com>
+ <87a74s9ehb.fsf@nanos.tec.linutronix.de>
+ <87wo7v8g4j.fsf@nanos.tec.linutronix.de>
+ <877dzu8178.fsf@nanos.tec.linutronix.de>
+ <37440ade-1657-648b-bf72-2b8ca4ac21ce@redhat.com>
+ <871rq199oz.fsf@nanos.tec.linutronix.de>
+ <CALCETrUHwd8pNr_ZdFqY8vMjJeMdNyw2C+FL6uOUM98SEE9rNQ@mail.gmail.com>
+ <87d09l73ip.fsf@nanos.tec.linutronix.de>
+ <20200309202215.GM12561@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.218
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable/linux-4.9.y boot: 68 boots: 1 failed,
- 62 passed with 5 untried/unknown (v4.9.218)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200309202215.GM12561@hirez.programming.kicks-ass.net>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y boot: 68 boots: 1 failed, 62 passed with 5 untried/unkno=
-wn (v4.9.218)
+On Mon, Mar 09, 2020 at 09:22:15PM +0100, Peter Zijlstra wrote:
+> On Mon, Mar 09, 2020 at 08:05:18PM +0100, Thomas Gleixner wrote:
+> > Andy Lutomirski <luto@kernel.org> writes:
+> 
+> > > I'm okay with the save/restore dance, I guess.  It's just yet more
+> > > entry crud to deal with architecture nastiness, except that this
+> > > nastiness is 100% software and isn't Intel/AMD's fault.
+> > 
+> > And we can do it in C and don't have to fiddle with it in the ASM
+> > maze.
+> 
+> Right; I'd still love to kill KVM_ASYNC_PF_SEND_ALWAYS though, even if
+> we do the save/restore in do_nmi(). That is some wild brain melt. Also,
+> AFAIK none of the distros are actually shipping a PREEMPT=y kernel
+> anyway, so killing it shouldn't matter much.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-9.y/kernel/v4.9.218/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.218/
+It will be nice if we can retain KVM_ASYNC_PF_SEND_ALWAYS. I have another
+use case outside CONFIG_PREEMPT.
 
-Tree: stable
-Branch: linux-4.9.y
-Git Describe: v4.9.218
-Git Commit: a5ad06fc4b7b22f6df0c21b7052a82e039305a14
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 36 unique boards, 14 SoC families, 16 builds out of 197
+I am trying to extend async pf interface to also report page fault errors
+to the guest.
 
-Boot Regressions Detected:
+https://lore.kernel.org/kvm/20200331194011.24834-1-vgoyal@redhat.com/
 
-arm:
+Right now async page fault interface assumes that host will always be
+able to successfully resolve the page fault and sooner or later PAGE_READY
+event will be sent to guest. And there is no mechnaism to report the
+errors back to guest.
 
-    vexpress_defconfig:
-        gcc-8:
-          vexpress-v2p-ca15-tc1:
-              lab-baylibre: failing since 13 days (last pass: v4.9.216 - fi=
-rst fail: v4.9.217)
+I am trying to add enhance virtiofs to directly map host page cache in guest.
 
-Boot Failure Detected:
+https://lore.kernel.org/linux-fsdevel/20200304165845.3081-1-vgoyal@redhat.com/
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+There it is possible that a file page on host is mapped in guest and file
+got truncated and page is not there anymore. Guest tries to access it,
+and it generates async page fault. On host we will get -EFAULT and I 
+need to propagate it back to guest so that guest can either send SIGBUS
+to process which caused this. Or if kernel was trying to do memcpy(),
+then be able to use execpetion table error handling and be able to
+return with error.  (memcpy_mcflush()).
 
----
-For more info write to <info@kernelci.org>
+For the second case to work, I will need async pf events to come in
+even if guest is in kernel and CONFIG_PREEMPT=n.
+
+So it would be nice if we can keep KVM_ASYNC_PF_SEND_ALWAYS around.
+
+Thanks
+Vivek
+
