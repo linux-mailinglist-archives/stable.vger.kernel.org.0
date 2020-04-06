@@ -2,121 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D364819F6C9
-	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 15:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3153819F6D2
+	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 15:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728348AbgDFNVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Apr 2020 09:21:18 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:43465 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728282AbgDFNVS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 09:21:18 -0400
-Received: by mail-lj1-f196.google.com with SMTP id g27so14574729ljn.10
-        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 06:21:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sjFMtmuU3xHuzoUFWq9Y0DhLjc0PE8fgYoHAQmkfrZE=;
-        b=q0+b59CKCMf16lfCFCrz+8Vga8AQbbnlul6SAAPiEK6Z40MhjCJl5lMXZGjeOIR4sj
-         WXFXqWqaxBwiuX3ek3W41llkgTTwVBk0Gv7UwLunZB1ahYNl0fas+Fwmv4Go9rCdrnnR
-         vOc3SPVG2rXgARf8j1lZYXSHapc7lXi7u1sv3/a1uBGyF6PET55UO7ry3TIxoItAriBJ
-         6QOpxQ19v5kFVg5xKS1C/k4iUoZc0gERXlmZLjjgNfO8i8DxiUNfc57UbPzoCRalcWxQ
-         ew1SyBeJ86G4p5AOKyX4AnoqTRKsh4lVSSWA85IA6oQdkwHuhsnIgCDpqu0FRCuceiaa
-         Ko0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sjFMtmuU3xHuzoUFWq9Y0DhLjc0PE8fgYoHAQmkfrZE=;
-        b=gpDiBaLblJUAboMicRF3MgSaST+y/sxFo1nLismkW75MfUHsVS0DXr/p8wKvu9w46c
-         DECswTG0xgQK0Oe88TnqK6ROpCIsAfizV2ePyNgr4AEJiS/w6WwkUGcEG3Cq5Bf2ISPB
-         ibzlIcyEhQNO6lXbFqSzvznL8JkRSynuzL+P/ESwGx1krw+zISB4EjM8ajFrMFUGnjUI
-         vQm4K6RKd7txguVjYHFP0boUZpouvNkiDHFaf4tr0e4vCuBSWVuyhWJiGiRcKdVitX6O
-         ifJQeAxNsUmj/kc5wl7SCIenYgdcBqF8vumdHevyTcFCQEWTUs+qApwC+m0o0f1tmmaG
-         Ng8g==
-X-Gm-Message-State: AGi0PuaL/DmhzChj0reG6Q/KiM5jQvp18n18x+YbmODVIJkdmz/bnn6u
-        2AcCfSRQx5oziszlL9aroDdbhlVtRAJmn/PGhU3G7g==
-X-Google-Smtp-Source: APiQypIZr3Wr7gU6HfYZ2DPp4KYZRoMiMMIzh0ZeGpLkLlpRcwTmLnmLC682+JLbzmgWhr4LrLDmlXima8G8ek4WTDk=
-X-Received: by 2002:a2e:8093:: with SMTP id i19mr12191984ljg.12.1586179276126;
- Mon, 06 Apr 2020 06:21:16 -0700 (PDT)
+        id S1728434AbgDFNWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Apr 2020 09:22:53 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:54966 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728284AbgDFNWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 09:22:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586179368;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=0TkjC5HYtOTtrZU10KhI3fNnM2TQOrHn3T1iEG5p4N0=;
+        b=SlGpdErROdNdEQp8nyP3mlpVISAYbv4VfhjMxIoKVNudc0/9kNi4oDBVvdwCQHqFJt7O9y
+        phC1RlZrZOP3S79yGau9ba+KmrhaWQphIqVUwsuK4rD2BEvQsQ1XLwFQ4uwsag+cGiV3Yk
+        Bv13bfSBUcI14/VVHIHJcyTw39DOcow=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-239-8GbgfZv4OjyHvo_4yLZtZw-1; Mon, 06 Apr 2020 09:22:46 -0400
+X-MC-Unique: 8GbgfZv4OjyHvo_4yLZtZw-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3BC4B1937FC1;
+        Mon,  6 Apr 2020 13:22:45 +0000 (UTC)
+Received: from [10.36.114.88] (ovpn-114-88.ams2.redhat.com [10.36.114.88])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 414C6118E29;
+        Mon,  6 Apr 2020 13:22:43 +0000 (UTC)
+Subject: Re: [PATCH v1 2/5] KVM: s390: vsie: Fix delivery of addressing
+ exceptions
+To:     Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>, stable@vger.kernel.org
+References: <20200402184819.34215-1-david@redhat.com>
+ <20200402184819.34215-3-david@redhat.com>
+ <0cd2822e-8486-d386-6c00-faadaa573e5e@de.ibm.com>
+From:   David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
+ 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
+Organization: Red Hat GmbH
+Message-ID: <527f7bdf-d8f9-59b4-e70a-54e358ee9e26@redhat.com>
+Date:   Mon, 6 Apr 2020 15:22:42 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-References: <1586175677-3061-1-git-send-email-sumit.garg@linaro.org>
- <87ftdgokao.fsf@tynnyri.adurom.net> <1e352e2130e19aec5aa5fc42db397ad50bb4ad05.camel@sipsolutions.net>
- <87r1x0zsgk.fsf@kamboji.qca.qualcomm.com> <a7e3e8cceff1301f5de5fb2c9aac62b372922b3e.camel@sipsolutions.net>
- <87imiczrwm.fsf@kamboji.qca.qualcomm.com> <ee168acb768d87776db2be4e978616f9187908d0.camel@sipsolutions.net>
-In-Reply-To: <ee168acb768d87776db2be4e978616f9187908d0.camel@sipsolutions.net>
-From:   Sumit Garg <sumit.garg@linaro.org>
-Date:   Mon, 6 Apr 2020 18:51:04 +0530
-Message-ID: <CAFA6WYOjU_iDyAn5PMGe=usg-2sPtupSQEYwcomUcHZBAPnURA@mail.gmail.com>
-Subject: Re: [PATCH] mac80211: fix race in ieee80211_register_hw()
-To:     Johannes Berg <johannes@sipsolutions.net>,
-        Kalle Valo <kvalo@codeaurora.org>
-Cc:     linux-wireless@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>, kuba@kernel.org,
-        netdev@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        =?UTF-8?Q?Matthias=2DPeter_Sch=C3=B6pfer?= 
-        <matthias.schoepfer@ithinx.io>,
-        "Berg Philipp (HAU-EDS)" <Philipp.Berg@liebherr.com>,
-        "Weitner Michael (HAU-EDS)" <Michael.Weitner@liebherr.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <0cd2822e-8486-d386-6c00-faadaa573e5e@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 6 Apr 2020 at 18:38, Johannes Berg <johannes@sipsolutions.net> wrote:
->
-> On Mon, 2020-04-06 at 16:04 +0300, Kalle Valo wrote:
-> > Johannes Berg <johannes@sipsolutions.net> writes:
-> >
-> > > On Mon, 2020-04-06 at 15:52 +0300, Kalle Valo wrote:
-> > > > Johannes Berg <johannes@sipsolutions.net> writes:
-> > > >
-> > > > > On Mon, 2020-04-06 at 15:44 +0300, Kalle Valo wrote:
-> > > > > > >     user-space  ieee80211_register_hw()  RX IRQ
-> > > > > > >     +++++++++++++++++++++++++++++++++++++++++++++
-> > > > > > >        |                    |             |
-> > > > > > >        |<---wlan0---wiphy_register()      |
-> > > > > > >        |----start wlan0---->|             |
-> > > > > > >        |                    |<---IRQ---(RX packet)
-> > > > > > >        |              Kernel crash        |
-> > > > > > >        |              due to unallocated  |
-> > > > > > >        |              workqueue.          |
-> > > > >
-> > > > > [snip]
-> > > > >
-> > > > > > I have understood that no frames should be received until mac80211 calls
-> > > > > > struct ieee80211_ops::start:
-> > > > > >
-> > > > > >  * @start: Called before the first netdevice attached to the hardware
-> > > > > >  *         is enabled. This should turn on the hardware and must turn on
-> > > > > >  *         frame reception (for possibly enabled monitor interfaces.)
-> > > > >
-> > > > > True, but I think he's saying that you can actually add and configure an
-> > > > > interface as soon as the wiphy is registered?
-> > > >
-> > > > With '<---IRQ---(RX packet)' I assumed wcn36xx is delivering a frame to
-> > > > mac80211 using ieee80211_rx(), but of course I'm just guessing here.
-> > >
-> > > Yeah, but that could be legitimate?
-> >
-> > Ah, I misunderstood then. The way I have understood is that no rx frames
-> > should be delivered (= calling ieee80211_rx()_ before start() is called,
-> > but if that's not the case please ignore me :)
->
-> No no, that _is_ the case. But I think the "start wlan0" could end up
-> calling it?
->
+On 06.04.20 15:17, Christian Borntraeger wrote:
+> 
+> 
+> On 02.04.20 20:48, David Hildenbrand wrote:
+>> Whenever we get an -EFAULT, we failed to read in guest 2 physical
+>> address space. Such addressing exceptions are reported via a program
+>> intercept to the nested hypervisor.
+>>
+>> We faked the intercept, we have to return to guest 2. Instead, right
+>> now we would be returning -EFAULT from the intercept handler, eventually
+>> crashing the VM.
+>>
+>> Addressing exceptions can only happen if the g2->g3 page tables
+>> reference invalid g2 addresses (say, either a table or the final page is
+>> not accessible - so something that basically never happens in sane
+>> environments.
+>>
+>> Identified by manual code inspection.
+>>
+>> Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+>> Cc: <stable@vger.kernel.org> # v4.8+
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>  arch/s390/kvm/vsie.c | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>> index 076090f9e666..4f6c22d72072 100644
+>> --- a/arch/s390/kvm/vsie.c
+>> +++ b/arch/s390/kvm/vsie.c
+>> @@ -1202,6 +1202,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>>  		scb_s->iprcc = PGM_ADDRESSING;
+>>  		scb_s->pgmilc = 4;
+>>  		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
+>> +		rc = 1;
+> 
+> 
+> kvm_s390_handle_vsie has 
+> 
+>  return rc < 0 ? rc : 0;
+> 
+> 
+> so rc = 0 would result in the same behaviour, correct?
 
-Sorry if I wasn't clear enough via the sequence diagram. It's a common
-RX packet that arrives via ieee80211_tasklet_handler() which is
-enabled via call to "struct ieee80211_ops::start" api.
+yes
 
--Sumit
+> Since we DO handle everything as we should, why rc = 1 ?
 
-> johannes
->
+rc == 1 is the internal representation of "we have to go back into g2".
+rc == 0, in contrast, means "we can go back into g2 (via a NULL
+intercept) or continue executing g3". Returning rc == 1 instead of rc ==
+0 at this point is just consistency.
+
+-- 
+Thanks,
+
+David / dhildenb
+
