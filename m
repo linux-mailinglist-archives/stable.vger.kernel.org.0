@@ -2,81 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FB2E19F361
-	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 12:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6795919F42C
+	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 13:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726910AbgDFKRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Apr 2020 06:17:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51094 "EHLO mail.kernel.org"
+        id S1727045AbgDFLKO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Apr 2020 07:10:14 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40542 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726675AbgDFKRJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Apr 2020 06:17:09 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C6742054F;
-        Mon,  6 Apr 2020 10:17:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586168228;
-        bh=ds1MlHuAAnJu9UOEPHBIrpL4Q3PVENppdThGQdxIwfk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TN5qXqqpQh9MR4BCb5crNVwWGvweZM8yzilJu+R/qaeHYukfQk1loDjKumQD1xoNI
-         nK+cyG8r3nwGen6gMvJBVruFahFZdlbyI4Rp4ZMpER4Fr/0EAi5M7gtkHWmQJu86Qm
-         tMH9K2KD7mkKIwvetXxcYB2wTNJoYpSFfiLkFIjQ=
-Date:   Mon, 6 Apr 2020 12:17:04 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sean Young <sean@mess.org>
-Cc:     stable@vger.kernel.org, linux-media@vger.kernel.org,
-        Takashi Kanamaru <neuralassembly@gmail.com>
-Subject: Re: [PATCH] media: rc: IR signal for Panasonic air conditioner too
- long sequences is too small
-Message-ID: <20200406101704.GA1743709@kroah.com>
-References: <CAKL8oB_qPGVXd3MCj=f1Lzh02ifGzYTS2YAD77s2MY2LAnc+1A@mail.gmail.com>
- <20190612150132.iemhbronjjaonpt2@gofer.mess.org>
- <CAKL8oB-KxsGxHAUac7sYBf-Gs4UkAPVkXg75LwwVbut9GkQ-sQ@mail.gmail.com>
- <20190613084926.bjxv2vdkp3qqpkuu@gofer.mess.org>
- <CAKL8oB-_=07iOBUfiuD4sj_nuL2HURt_Ej4m9EFCL7yNzLYXjg@mail.gmail.com>
- <20200406095154.GA19905@gofer.mess.org>
+        id S1726883AbgDFLKO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Apr 2020 07:10:14 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 8ADA1ABAD;
+        Mon,  6 Apr 2020 11:10:11 +0000 (UTC)
+Subject: Re: [PATCH] thermal: devfreq_cooling: inline all stubs for
+ CONFIG_DEVFREQ_THERMAL=n
+To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        rui.zhang@intel.com, daniel.lezcano@linaro.org,
+        amit.kucheria@verdurent.com, linux-pm@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, javi.merino@kernel.org,
+        edubezval@gmail.com, orjan.eide@arm.com, stable@vger.kernel.org
+References: <20200403205133.1101808-1-martin.blumenstingl@googlemail.com>
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ mQENBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAG0J1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPokBVAQTAQgAPhYh
+ BHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJbOdLgAhsDBQkDwmcABQsJCAcCBhUKCQgLAgQWAgMB
+ Ah4BAheAAAoJEGgNwR1TC3ojR80H/jH+vYavwQ+TvO8ksXL9JQWc3IFSiGpuSVXLCdg62AmR
+ irxW+qCwNncNQyb9rd30gzdectSkPWL3KSqEResBe24IbA5/jSkPweJasgXtfhuyoeCJ6PXo
+ clQQGKIoFIAEv1s8l0ggPZswvCinegl1diyJXUXmdEJRTWYAtxn/atut1o6Giv6D2qmYbXN7
+ mneMC5MzlLaJKUtoH7U/IjVw1sx2qtxAZGKVm4RZxPnMCp9E1MAr5t4dP5gJCIiqsdrVqI6i
+ KupZstMxstPU//azmz7ZWWxT0JzgJqZSvPYx/SATeexTYBP47YFyri4jnsty2ErS91E6H8os
+ Bv6pnSn7eAq5AQ0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRH
+ UE9eosYbT6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgT
+ RjP+qbU63Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+R
+ dhgATnWWGKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zb
+ ehDda8lvhFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r
+ 12+lqdsAEQEAAYkBPAQYAQgAJhYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJbOdLgAhsMBQkD
+ wmcAAAoJEGgNwR1TC3ojpfcIAInwP5OlcEKokTnHCiDTz4Ony4GnHRP2fXATQZCKxmu4AJY2
+ h9ifw9Nf2TjCZ6AMvC3thAN0rFDj55N9l4s1CpaDo4J+0fkrHuyNacnT206CeJV1E7NYntxU
+ n+LSiRrOdywn6erjxRi9EYTVLCHcDhBEjKmFZfg4AM4GZMWX1lg0+eHbd5oL1as28WvvI/uI
+ aMyV8RbyXot1r/8QLlWldU3NrTF5p7TMU2y3ZH2mf5suSKHAMtbE4jKJ8ZHFOo3GhLgjVrBW
+ HE9JXO08xKkgD+w6v83+nomsEuf6C6LYrqY/tsZvyEX6zN8CtirPdPWu/VXNRYAl/lat7lSI
+ 3H26qrE=
+Message-ID: <0af90cb5-f6ba-d3a9-2cc7-8813ebab5ed6@suse.de>
+Date:   Mon, 6 Apr 2020 13:10:07 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200406095154.GA19905@gofer.mess.org>
+In-Reply-To: <20200403205133.1101808-1-martin.blumenstingl@googlemail.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="rs5boHrlPxoqBFfxZ68VQcjl33WRm3lV0"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 06, 2020 at 10:51:55AM +0100, Sean Young wrote:
-> Hello stable team, Greg,
-> 
-> On Mon, Apr 06, 2020 at 06:06:29PM +0900, Takashi Kanamaru wrote:
-> > Dear Sean Young and all,
-> > 
-> > In the last year, a change of the value of LIRCBUF_SIZE
-> > from 256 to 1024 was committed to the master branch at the time,
-> > and the new value can be used in the kernel 5.3 or later.
-> > 
-> > https://github.com/torvalds/linux/commit/5c4c8b4a999019f19e770cb55cbacb89c95897bd#diff-3b71f634ae88214ee31a1b6c90f7df5c
-> > 
-> > This change of LIRCBUF_SIZE was proposed
-> > in order to treat long IR sequences of remote controllers
-> > on Raspberry Pi.
-> > 
-> > However, Raspberry Pi now uses kernel 4.19,
-> > so the new value cannot be used.
-> > 
-> > Can you backport the above commit
-> > to the older kernels, i.e.,
-> > 4.19, 4.20, 5.0, 5.1, and 5.2?
-> 
-> I'd like to propose this commit for the stable tree, from kernel 4.16 to
-> 5.2. It has been in the tree from v5.3 onwards and no regressions have
-> been found.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--rs5boHrlPxoqBFfxZ68VQcjl33WRm3lV0
+Content-Type: multipart/mixed; boundary="XtqKdN7vdrbl3NXOzpHyXgHa0EpwxDHhz";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ rui.zhang@intel.com, daniel.lezcano@linaro.org, amit.kucheria@verdurent.com,
+ linux-pm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, javi.merino@kernel.org,
+ edubezval@gmail.com, orjan.eide@arm.com, stable@vger.kernel.org
+Message-ID: <0af90cb5-f6ba-d3a9-2cc7-8813ebab5ed6@suse.de>
+Subject: Re: [PATCH] thermal: devfreq_cooling: inline all stubs for
+ CONFIG_DEVFREQ_THERMAL=n
+References: <20200403205133.1101808-1-martin.blumenstingl@googlemail.com>
+In-Reply-To: <20200403205133.1101808-1-martin.blumenstingl@googlemail.com>
 
-The only kernel being supported in that range is 4.19 at the moment, so
-I'll queue it up now, thanks.  All other kernel trees are long
-end-of-life and no one should be using them anymore.
+--XtqKdN7vdrbl3NXOzpHyXgHa0EpwxDHhz
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
 
-greg k-h
+
+Am 03.04.20 um 22:51 schrieb Martin Blumenstingl:
+> When CONFIG_DEVFREQ_THERMAL is disabled all functions except
+> of_devfreq_cooling_register_power() were already inlined. Also inline
+> the last function to avoid compile errors when multiple drivers call
+> of_devfreq_cooling_register_power() when CONFIG_DEVFREQ_THERMAL is not
+> set. Compilation failed with the following message:
+>   multiple definition of `of_devfreq_cooling_register_power'
+> (which then lists all usages of of_devfreq_cooling_register_power())
+>=20
+> Thomas Zimmermann reported this problem [0] on a kernel config with
+> CONFIG_DRM_LIMA=3D{m,y}, CONFIG_DRM_PANFROST=3D{m,y} and
+> CONFIG_DEVFREQ_THERMAL=3Dn after both, the lima and panfrost drivers
+> gained devfreq cooling support.
+>=20
+> [0] https://www.spinics.net/lists/dri-devel/msg252825.html
+>=20
+> Fixes: a76caf55e5b356 ("thermal: Add devfreq cooling")
+> Cc: stable@vger.kernel.org
+> Reported-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>=
+
+
+Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
+
+> ---
+>  include/linux/devfreq_cooling.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/include/linux/devfreq_cooling.h b/include/linux/devfreq_co=
+oling.h
+> index 4635f95000a4..79a6e37a1d6f 100644
+> --- a/include/linux/devfreq_cooling.h
+> +++ b/include/linux/devfreq_cooling.h
+> @@ -75,7 +75,7 @@ void devfreq_cooling_unregister(struct thermal_coolin=
+g_device *dfc);
+> =20
+>  #else /* !CONFIG_DEVFREQ_THERMAL */
+> =20
+> -struct thermal_cooling_device *
+> +static inline struct thermal_cooling_device *
+>  of_devfreq_cooling_register_power(struct device_node *np, struct devfr=
+eq *df,
+>  				  struct devfreq_cooling_power *dfc_power)
+>  {
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--XtqKdN7vdrbl3NXOzpHyXgHa0EpwxDHhz--
+
+--rs5boHrlPxoqBFfxZ68VQcjl33WRm3lV0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl6LDhIACgkQaA3BHVML
+eiPOmggAo2AgrVyoaHLR1NAsGf/aJPm535dYRX/7X3exyn7bcEApm1TYiMsmbZI2
+KJ4umEw7myXEoQQfmUpRKywvdTOyAaapShsIm8xvIj/F8/U/yKGWXQNIfcPhhoFh
+4LrhPYQ/tTkju79OLVcVMc7DK2darHAnpYwlgW2CKOFZCix4mONZQNp+HKfc+j07
+rXzL8N9TrDugLDaVqpLum9Lf+VMATa4ojnHts0quf72cPYQn4pp1g+CVyjb6mzIn
+bcVyRfp+fc2v92jz2KHWC6vxz54jnv7E6C1HMYCDdPThriG3dM62L65p1+J1i8Hp
+BopII8/+/VpG8DRx70xtMuiW+NJvXg==
+=KDV+
+-----END PGP SIGNATURE-----
+
+--rs5boHrlPxoqBFfxZ68VQcjl33WRm3lV0--
