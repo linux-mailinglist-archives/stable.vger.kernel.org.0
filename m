@@ -2,97 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35B1619FD83
-	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 20:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7DCF19FDDC
+	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 21:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725995AbgDFSvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Apr 2020 14:51:48 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:54501 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725928AbgDFSvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 14:51:48 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 2E144601;
-        Mon,  6 Apr 2020 14:51:47 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 06 Apr 2020 14:51:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=S3eDzI
-        FTx6ZBVCPhDtfUjXwqKVWVFOES6KftgLT7GKw=; b=1hg2WgaBi3cHUWGm3zNhIJ
-        KUMYDTPwCYWVTMlXD8zemyCflYbSumn4CGmABwU6Gg7Q9cCiJqO93keGUxB2fzMU
-        AOQ6wEBIPfSz1xYTd4bTRahFrHWb84Ne1qRP7Fgwi0Pcj5DHg3M06zjA+ble/WZn
-        EsFtVFkm8cFeqKJG6ktXQjCzyE0ZqyHM2fn3Bn9e4frqxHs0fMIXX0eQR4jGUpZh
-        3vKg3xqGr7Hx+3Q8Ha3GryAtFJEue8jgyzgG6vohVLnouiCfVI97jdVde9w1ROph
-        skCvYkniAW7Hu2tkMSFi6UTAc+RWPYUVZ1CV4/cDcvdzzUup334FGx+Nn2lPlTJg
-        ==
-X-ME-Sender: <xms:QnqLXs9EKxQ6Y2iUmlzlGil9KjZNH3xP1Kf5uUMo0-2caopdeadpAQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudefgdduvdefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhep
-    ghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:QnqLXo87NwjVDzIh_8aqnfe61WIvnUTskdgU_JMYp9UMqUkFNhOk4g>
-    <xmx:QnqLXtDChcr4mze-t2B7A7MrZJSd0Bkk-bbSf2_ADUALmSu8w1Ir2Q>
-    <xmx:QnqLXgzcuW53jTnmBfm5hU8QsXAfC2luh8L746VVapJz76urSxK0bA>
-    <xmx:QnqLXhy_K0M6nNiijBTqMjMp325jnl-XWpq-x7qXHb2ggIyd_HOE1w>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 57D70328005E;
-        Mon,  6 Apr 2020 14:51:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] misc: rtsx: set correct pcr_ops for rts522A" failed to apply to 4.14-stable tree
-To:     yuehaibing@huawei.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Apr 2020 20:51:37 +0200
-Message-ID: <158619909784129@kroah.com>
+        id S1726246AbgDFTHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Apr 2020 15:07:12 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:38718 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725895AbgDFTHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 15:07:12 -0400
+Received: by mail-pg1-f193.google.com with SMTP id m17so450845pgj.5
+        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 12:07:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=nn6lAXvMhOSAG463Tcw7G3OuyKtKbiDNyhVK6NjC7mA=;
+        b=gEsOrKCNs7EvU0CA/t4YOusXH5AQFGv37CmHaimROV+i6F8WLWq30SHrtbEdknNTyh
+         V2zNfSmAUq7JeUWIc0YEVmiakqKyFyX5aBOewl11Na3JxfkwUFYBSoPP6KB5XB4kaf/Y
+         UbIprWWy3OTFJflJCHOAok6NnzL4x+1Agaja/DKUViaF7g6+PnelxnN/RPmqgcsZfNmy
+         l5vbDMm/0tfKk4wvY9gELMqOXgG0ISlIqRIPwY4M9DWe0FpSXrUTIwF7KFGQtnZO/vio
+         7o75YsfE+l6kZd4KM1gYRVdcnSLAPi0JFCako5LoPOuFH0RJDHY9j+ROTj3c1XCPgnkD
+         ahIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=nn6lAXvMhOSAG463Tcw7G3OuyKtKbiDNyhVK6NjC7mA=;
+        b=qDd1ubRiOQxZoLO9HHJmFr05dJL+75U9gcvXSHKTqYUCuwyfEq9TwrfnUy+1ASpHq5
+         XiR+j6qERYNL2xIEYeZbjKdGMec3MqySNQFWVE6h/WIK7Lm4Yu0Mo7yUskUfzr8F9pTE
+         cCafUjITLbAf4+he+ILjdqp+jwk4iKPmJZvSOz2PZAYB8tXtgoerzZf/Z69NX5OdDrTf
+         tyyXcaAf1UhcPUHZivaJ2Nbw+64iy0XnyqmYS1+Kg3Q/0G4dDxor25yrNCAvOopChXBf
+         dkj1uJmDH6D96G0ctDK0AKm8sY8CQrtYHVfvPaExeQlYin6qn9SQ6i5HYkCXTKqosoLg
+         ZGBg==
+X-Gm-Message-State: AGi0PuZa0RaRSkzbHP8g8/cnUkxyD72K4yTV/mvHe256l66mGtOTyEcK
+        fYM0wL63DeJs91u7eljSDAXoAqhmW0c=
+X-Google-Smtp-Source: APiQypJKu8MNTnuuAjOybo7BpjN/WS3Xn87yS/kVQMIrQzaaKGVol3fF3QjL2CScb/zvG0dn4+Al8w==
+X-Received: by 2002:a63:d74e:: with SMTP id w14mr553037pgi.157.1586200030482;
+        Mon, 06 Apr 2020 12:07:10 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q185sm12192184pfb.154.2020.04.06.12.07.08
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Apr 2020 12:07:09 -0700 (PDT)
+Message-ID: <5e8b7ddd.1c69fb81.90088.72af@mx.google.com>
+Date:   Mon, 06 Apr 2020 12:07:09 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.218
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable/linux-4.9.y boot: 68 boots: 1 failed,
+ 62 passed with 5 untried/unknown (v4.9.218)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-4.9.y boot: 68 boots: 1 failed, 62 passed with 5 untried/unkno=
+wn (v4.9.218)
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.218/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.218/
 
-thanks,
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.218
+Git Commit: a5ad06fc4b7b22f6df0c21b7052a82e039305a14
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 36 unique boards, 14 SoC families, 16 builds out of 197
 
-greg k-h
+Boot Regressions Detected:
 
------------------- original commit in Linus's tree ------------------
+arm:
 
-From 10cea23b6aae15e8324f4101d785687f2c514fe5 Mon Sep 17 00:00:00 2001
-From: YueHaibing <yuehaibing@huawei.com>
-Date: Thu, 26 Mar 2020 11:26:18 +0800
-Subject: [PATCH] misc: rtsx: set correct pcr_ops for rts522A
+    vexpress_defconfig:
+        gcc-8:
+          vexpress-v2p-ca15-tc1:
+              lab-baylibre: failing since 13 days (last pass: v4.9.216 - fi=
+rst fail: v4.9.217)
 
-rts522a should use rts522a_pcr_ops, which is
-diffrent with rts5227 in phy/hw init setting.
+Boot Failure Detected:
 
-Fixes: ce6a5acc9387 ("mfd: rtsx: Add support for rts522A")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200326032618.20472-1-yuehaibing@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-diff --git a/drivers/misc/cardreader/rts5227.c b/drivers/misc/cardreader/rts5227.c
-index 423fecc19fc4..3a9467aaa435 100644
---- a/drivers/misc/cardreader/rts5227.c
-+++ b/drivers/misc/cardreader/rts5227.c
-@@ -394,6 +394,7 @@ static const struct pcr_ops rts522a_pcr_ops = {
- void rts522a_init_params(struct rtsx_pcr *pcr)
- {
- 	rts5227_init_params(pcr);
-+	pcr->ops = &rts522a_pcr_ops;
- 	pcr->tx_initial_phase = SET_CLOCK_PHASE(20, 20, 11);
- 	pcr->reg_pm_ctrl3 = RTS522A_PM_CTRL3;
- 
-
+---
+For more info write to <info@kernelci.org>
