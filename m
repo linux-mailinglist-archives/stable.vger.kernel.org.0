@@ -2,96 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C4019FC8B
-	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 20:09:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 237F119FD82
+	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 20:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726536AbgDFSJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Apr 2020 14:09:08 -0400
-Received: from mail-yb1-f194.google.com ([209.85.219.194]:38002 "EHLO
-        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726436AbgDFSJI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 14:09:08 -0400
-Received: by mail-yb1-f194.google.com with SMTP id 204so347425ybw.5;
-        Mon, 06 Apr 2020 11:09:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YerZdcxcQmsmPmbc7x3l9FNg9tmvbjAIdH163TSG1LM=;
-        b=C3hh1cS14KFIfA2sbb6OW61jKT6Zea0KasgKyB/5198Mh0GTyceREUQ3TXh1fJoy60
-         aqmMe+gR+t3Dt0EER1JxbS4MdKJGWi4dVaX/TUL+ye28lSgk1mgGVT9boLVvLMSx2L8y
-         Vg7uqev+kgFvU46OX16LWH2RWg9DCSCYtNvspZAVTxHu6/o2p96pmo9xBryiQ9f8cnBi
-         cNdRV359X/j2lCSFrbjMr4OIK3J6oEDoCk7sELPLvjv+2CrYfBsdar1rPFsiIknc5yVt
-         mvXiO11tk1AIye2stB2lE/Pvst7v56WhBZdW7fsmhBcbDlhew1SqVZcwOZBjlSuVaRtK
-         z1pQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YerZdcxcQmsmPmbc7x3l9FNg9tmvbjAIdH163TSG1LM=;
-        b=Gc6UuhEVh82b4GgcaCEFs2Q+EG+rBNz8fxCaJejz06aYMI33IOgVxqASNAyh9jtGKX
-         NqOlse9IzOL879sledZqgRv2FdWKvhJXYHyg+7+KK8azzi+da8/p3pBzwqwogSU1aykM
-         i1KDh1pZsZ7NUKa4Gwn917DXvk0yHqudk+RAuogW3qAzB/Eil6i6L6HZQmqMQEi4udwm
-         3KieRfKPo3woFQvBbwMeuU+s+OxFIPOQOfa7RlmCYiTc1c3lWnDnh0QfkyP2513nHZSL
-         vqKiy6cCdtIOZ9G0zwsVHNSUeO05/Hvd+wJgnJ4h6b0g8a95EwYPkseMtLXtigl92Cnt
-         8FwA==
-X-Gm-Message-State: AGi0PuZES+9N8uB01LEkmjl0M9uNjT0rHjpSyPPmDccAViSJSG9an2wY
-        k2AO9ltIspqCHOTXt6h+tWNK4krnSol2Vvaytuc=
-X-Google-Smtp-Source: APiQypJNh0gfrRG+aUIvtwyV5pyFGfJIwXgdUOU3PFRpUCcp7aUGELXyXGkqfsUeqnbL0YixSStkauVyExmNu0ZwAhk=
-X-Received: by 2002:a25:bb0b:: with SMTP id z11mr35630837ybg.400.1586196545618;
- Mon, 06 Apr 2020 11:09:05 -0700 (PDT)
+        id S1726197AbgDFSvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Apr 2020 14:51:40 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:56621 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725928AbgDFSvk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 14:51:40 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 899F787E;
+        Mon,  6 Apr 2020 14:51:39 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 06 Apr 2020 14:51:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=C6VuFn
+        aAf+hqZAeLDflB/0q0tfZJwDL9m+1rbatOHno=; b=nz8gio2eszp95tNhWGjjgf
+        zJu+0Lro80zCXZiS78wH5wq5+bEVIPqUmWr7/lzqAYgx9Mgro7tcyGLVRYCyuQzI
+        s1PY+xSEa270gTI0bYNLs/IbRHQnFr7+GlmLXUvypnocS7EM2jAZ6vP/cbbYsDPx
+        /6iPDMp0wNbNzrt3uPy7joaGzrZAhQiMJk/RBNRsNugDEJh0ewjr9W4AYs5TKPe7
+        H3xA59F7tCLsGa4K00IxWM2LUGm/kWa7XCzdzPhMCELKJQ9mf/Mvg7d1A/cXbVbg
+        BJGzq/OJPK6jb3BwYWyN3FVoPH/OM8l/tqXsitfCrcXs88ZNYnArSOBI1b4M1H/Q
+        ==
+X-ME-Sender: <xms:OnqLXm832xBjyadBvLTACGQP_tOZxsklSI7KvCItRvWs4MQvPKTgPQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudefgdduvdefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
+    ghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:OnqLXl5vQ03KX4CtWRdbxnAA55QYIa0GgpgfhoEPQBoldcDNZvbfkA>
+    <xmx:OnqLXutJnme7EaagY4gRgHTsUkCSEswHJ9W0FJBKDQXPrx7Mn0OZfg>
+    <xmx:OnqLXn3Uwws9uNQEjopb0mA1bfhCZ0A1P-qSL7l8ePvetgxkkowO0Q>
+    <xmx:O3qLXqjMoBbSVcFaeZMGV_gFNvop_5XHQvVarrhHLIXvrdCyw41_9w>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 792403280060;
+        Mon,  6 Apr 2020 14:51:38 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] misc: rtsx: set correct pcr_ops for rts522A" failed to apply to 4.4-stable tree
+To:     yuehaibing@huawei.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 06 Apr 2020 20:51:36 +0200
+Message-ID: <1586199096226162@kroah.com>
 MIME-Version: 1.0
-References: <1586175677-3061-1-git-send-email-sumit.garg@linaro.org>
- <87ftdgokao.fsf@tynnyri.adurom.net> <1e352e2130e19aec5aa5fc42db397ad50bb4ad05.camel@sipsolutions.net>
- <87r1x0zsgk.fsf@kamboji.qca.qualcomm.com> <a7e3e8cceff1301f5de5fb2c9aac62b372922b3e.camel@sipsolutions.net>
- <87imiczrwm.fsf@kamboji.qca.qualcomm.com> <ee168acb768d87776db2be4e978616f9187908d0.camel@sipsolutions.net>
- <CAFA6WYOjU_iDyAn5PMGe=usg-2sPtupSQEYwcomUcHZBAPnURA@mail.gmail.com>
- <87v9mcycbf.fsf@kamboji.qca.qualcomm.com> <CABPxzYKs3nj0AUX4L-j87Db8v3WnM4uGif9nRTGgx1m2HNN8Rg@mail.gmail.com>
- <35cadbaff1239378c955014f9ad491bc68dda028.camel@sipsolutions.net>
- <CABPxzY++YMBPTV4quAkYvEAMfULjMXLkVfNzwocwubno5HO2Bw@mail.gmail.com> <5575dfe84aa745a3c2a61e240c3d150dc8d9446f.camel@sipsolutions.net>
-In-Reply-To: <5575dfe84aa745a3c2a61e240c3d150dc8d9446f.camel@sipsolutions.net>
-From:   Krishna Chaitanya <chaitanya.mgit@gmail.com>
-Date:   Mon, 6 Apr 2020 23:38:54 +0530
-Message-ID: <CABPxzYJHjaLH+ozyFZx1hwXrNxdHgJaardk-kn7d72y7RC-=hw@mail.gmail.com>
-Subject: Re: [PATCH] mac80211: fix race in ieee80211_register_hw()
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     Kalle Valo <kvalo@codeaurora.org>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>, kuba@kernel.org,
-        netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        =?UTF-8?Q?Matthias=2DPeter_Sch=C3=B6pfer?= 
-        <matthias.schoepfer@ithinx.io>,
-        "Berg Philipp (HAU-EDS)" <Philipp.Berg@liebherr.com>,
-        "Weitner Michael (HAU-EDS)" <Michael.Weitner@liebherr.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 6, 2020 at 8:36 PM Johannes Berg <johannes@sipsolutions.net> wrote:
->
-> On Mon, 2020-04-06 at 19:55 +0530, Krishna Chaitanya wrote:
->
-> > > iw phy0 interface add wlan0 type station
-> > > ip link set wlan0 up
-> > Ah okay, got it, thanks. Very narrow window though :-) as the
-> > alloc_ordered_workqueue
-> > doesn't need RTNL and there is a long way to go to do if_add() from
-> > user and setup
-> > the driver for interrupts.
->
-> True, I do wonder how this is hit. Maybe something with no preempt and a
-> uevent triggering things?
-Probably, it might be specific to the dragonboard410c configuration
 
-> > Again depends on the driver though, it
-> > should properly handle
-> > pending ieee80211_register_hw() with start().
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> It could, but it'd be really tricky. Much better to fix mac80211.
-Sure, anyways it is a good change.
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 10cea23b6aae15e8324f4101d785687f2c514fe5 Mon Sep 17 00:00:00 2001
+From: YueHaibing <yuehaibing@huawei.com>
+Date: Thu, 26 Mar 2020 11:26:18 +0800
+Subject: [PATCH] misc: rtsx: set correct pcr_ops for rts522A
+
+rts522a should use rts522a_pcr_ops, which is
+diffrent with rts5227 in phy/hw init setting.
+
+Fixes: ce6a5acc9387 ("mfd: rtsx: Add support for rts522A")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200326032618.20472-1-yuehaibing@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/misc/cardreader/rts5227.c b/drivers/misc/cardreader/rts5227.c
+index 423fecc19fc4..3a9467aaa435 100644
+--- a/drivers/misc/cardreader/rts5227.c
++++ b/drivers/misc/cardreader/rts5227.c
+@@ -394,6 +394,7 @@ static const struct pcr_ops rts522a_pcr_ops = {
+ void rts522a_init_params(struct rtsx_pcr *pcr)
+ {
+ 	rts5227_init_params(pcr);
++	pcr->ops = &rts522a_pcr_ops;
+ 	pcr->tx_initial_phase = SET_CLOCK_PHASE(20, 20, 11);
+ 	pcr->reg_pm_ctrl3 = RTS522A_PM_CTRL3;
+ 
+
