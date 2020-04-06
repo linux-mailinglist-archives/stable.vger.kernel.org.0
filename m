@@ -2,214 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A8A719FE6C
-	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 21:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D03A19FF00
+	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 22:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726246AbgDFTtM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Apr 2020 15:49:12 -0400
-Received: from mail-il1-f194.google.com ([209.85.166.194]:37564 "EHLO
-        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725957AbgDFTtM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 15:49:12 -0400
-Received: by mail-il1-f194.google.com with SMTP id a6so735537ilr.4
-        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 12:49:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=poorly.run; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=GhiJnLkPCog87xcd0QbX7Ukmz7B9K91Y4lcbxRM4PwA=;
-        b=dC65UsoclV5SJSavPY9/ekwH+KupIATDfcVMHqYy5vkbYdlW3CqsEpSyWyf5G/5VZ5
-         54dOsqpCRSsih3zf4sYYodRtSrF+6jyfbS2/Ru+RV3v4sgxi4zDctlTqZkugbmHdFOuM
-         dVRTojsfBekOyLDm/FjEvGrZYeyzPc///xwUjUjCT65vAZKla98VKdBLZ8VTz79GH4o2
-         92JMbZPau4jrnzuqpnEHGjkgEDuGr3taYAqRIDa9LbgthAkOarXym1rJNzO1hDJJYtwv
-         Qo26vHSP4XpLCxUcu5I/mZVlqQltHBQ0mecg4noq/darXIH7D4MUdp+gCGz1MUs7J83d
-         GOsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=GhiJnLkPCog87xcd0QbX7Ukmz7B9K91Y4lcbxRM4PwA=;
-        b=CrBWPNeFS2BiLNtocE9u0SAanu9PQgLCcYfdghLPTeLddX4w84+PYlvgdK/SY4qj7D
-         Ky0LZ9CubRW17TdJYexzHWQ6EgEL+tQeagNkhJNyVtEEuVrx+ytlj003rbFq8UcKmxK2
-         YUjQGWfzvwUZ2IJmMUN/EONvjHigsgUbkQVa0tnBTOj8oO5bMD3NQqkfaqQCZ8jyWaJN
-         MidqFcOK4yNnlbPIUkA9b3NOTnKSwdgRCHk21cmd8H+autnYZMPfRs2ppmO64EJtE3B7
-         pJ+kG29xHKvrKjw+1HDT67AQ8XcQQ5P52qmLx0ypovYfMy/O9Yqv3jdAiXV5u1mAAZIO
-         jC3Q==
-X-Gm-Message-State: AGi0PuZCVjaH1GEY8YSXvLPuuSBnPq7FtjtiVuYpu1st3LTcJlCSfG9b
-        SrYK6p3B1f5Xta3YxAuFzAepjfKodz5RGZcKATzoUg==
-X-Google-Smtp-Source: APiQypIyzTB/RjlY+sJEU5dPf6dbdqhacd2IztQ3y9a+Fw0TAzaCPbxSpgCUfwT2Yl26XpHlcZrKwZVmvz6I3n5zhLU=
-X-Received: by 2002:a92:91d6:: with SMTP id e83mr1069130ill.165.1586202550664;
- Mon, 06 Apr 2020 12:49:10 -0700 (PDT)
+        id S1726331AbgDFUZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Apr 2020 16:25:13 -0400
+Received: from merlin.infradead.org ([205.233.59.134]:38608 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725957AbgDFUZM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 16:25:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=xuOwKkylxNWAK5JsGTSzYpMwNioJNBL3cpLgcRJMmIk=; b=ysD9wHAaYXhY4cbstXONp2HSoW
+        ZSVzDAAVy+rmG0HeJt4CI83tugugTQjr1ZpvMkO5a0H9iRDmQCB0tBMppX3vn+xkSA+f9r5y/4D+N
+        XI/qoOaVGp0oAcDWow6rzk2Sv/6zuEdVdRg/OWiDaPzvKYMiJfazQjJ8y3wjDp//Pv0PvZPZ8GQWc
+        4Kc//4QWnNUWrPTzzWJeLwf4Q4WWX6YKApc+oN83tSFVBvdUFGTCgBXFRax1iIqMlPrkn7EprdP0r
+        5eDF59CRjuRtlq37yzNCNOJHYmVq0HOIgBLwIBhb0SYvsLUP/JlGaI/kMLJ2qtgoBapjoiDOOxWp9
+        vr0XqWKw==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=worktop.programming.kicks-ass.net)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jLYIu-0006Z3-Ut; Mon, 06 Apr 2020 20:25:09 +0000
+Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 5F1C6983962; Mon,  6 Apr 2020 22:25:05 +0200 (CEST)
+Date:   Mon, 6 Apr 2020 22:25:05 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+Message-ID: <20200406202505.GO2452@worktop.programming.kicks-ass.net>
+References: <CALCETrVsc-t=tDRPbCg5dWHDY0NFv2zjz12ahD-vnGPn8T+RXA@mail.gmail.com>
+ <87a74s9ehb.fsf@nanos.tec.linutronix.de>
+ <87wo7v8g4j.fsf@nanos.tec.linutronix.de>
+ <877dzu8178.fsf@nanos.tec.linutronix.de>
+ <37440ade-1657-648b-bf72-2b8ca4ac21ce@redhat.com>
+ <871rq199oz.fsf@nanos.tec.linutronix.de>
+ <CALCETrUHwd8pNr_ZdFqY8vMjJeMdNyw2C+FL6uOUM98SEE9rNQ@mail.gmail.com>
+ <87d09l73ip.fsf@nanos.tec.linutronix.de>
+ <20200309202215.GM12561@hirez.programming.kicks-ass.net>
+ <20200406190951.GA19259@redhat.com>
 MIME-Version: 1.0
-References: <20200403200757.886443-1-lyude@redhat.com> <20200403200757.886443-4-lyude@redhat.com>
- <CAMavQK+yVxFYNUR1wdfwB_UhRS2ziy0N5k+WTwAqUwRovX3GMA@mail.gmail.com> <3eccd492237ee8797a8af2ea757594bc13ae055f.camel@redhat.com>
-In-Reply-To: <3eccd492237ee8797a8af2ea757594bc13ae055f.camel@redhat.com>
-From:   Sean Paul <sean@poorly.run>
-Date:   Mon, 6 Apr 2020 15:48:34 -0400
-Message-ID: <CAMavQKJdh22Xa82W19UuQ+6P-XYgK-f+VV9maTFO7kE0Zs+hwg@mail.gmail.com>
-Subject: Re: [PATCH 3/4] drm/dp_mst: Increase ACT retry timeout to 3s
-To:     Lyude Paul <lyude@redhat.com>
-Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
-        stable <stable@vger.kernel.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Todd Previte <tprevite@gmail.com>,
-        Dave Airlie <airlied@redhat.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200406190951.GA19259@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 6, 2020 at 3:43 PM Lyude Paul <lyude@redhat.com> wrote:
->
-> On Mon, 2020-04-06 at 15:41 -0400, Sean Paul wrote:
-> > On Fri, Apr 3, 2020 at 4:08 PM Lyude Paul <lyude@redhat.com> wrote:
-> > > Currently we only poll for an ACT up to 30 times, with a busy-wait de=
-lay
-> > > of 100=C2=B5s between each attempt - giving us a timeout of 2900=C2=
-=B5s. While
-> > > this might seem sensible, it would appear that in certain scenarios i=
-t
-> > > can take dramatically longer then that for us to receive an ACT. On o=
-ne
-> > > of the EVGA MST hubs that I have available, I observed said hub
-> > > sometimes taking longer then a second before signalling the ACT. Thes=
-e
-> > > delays mostly seem to occur when previous sideband messages we've sen=
-t
-> > > are NAKd by the hub, however it wouldn't be particularly surprising i=
-f
-> > > it's possible to reproduce times like this simply by introducing bran=
-ch
-> > > devices with large LCTs since payload allocations have to take effect=
- on
-> > > every downstream device up to the payload's target.
-> > >
-> > > So, instead of just retrying 30 times we poll for the ACT for up to 3=
-ms,
-> > > and additionally use usleep_range() to avoid a very long and rude
-> > > busy-wait. Note that the previous retry count of 30 appears to have b=
-een
-> > > arbitrarily chosen, as I can't find any mention of a recommended time=
-out
-> > > or retry count for ACTs in the DisplayPort 2.0 specification. This al=
-so
-> > > goes for the range we were previously using for udelay(), although I
-> > > suspect that was just copied from the recommended delay for link
-> > > training on SST devices.
-> > >
-> > > Signed-off-by: Lyude Paul <lyude@redhat.com>
-> > > Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper
-> > > (v0.6)")
-> > > Cc: Sean Paul <sean@poorly.run>
-> > > Cc: <stable@vger.kernel.org> # v3.17+
-> > > ---
-> > >  drivers/gpu/drm/drm_dp_mst_topology.c | 26 +++++++++++++++++++------=
--
-> > >  1 file changed, 19 insertions(+), 7 deletions(-)
-> > >
-> > > diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c
-> > > b/drivers/gpu/drm/drm_dp_mst_topology.c
-> > > index 7aaf184a2e5f..f313407374ed 100644
-> > > --- a/drivers/gpu/drm/drm_dp_mst_topology.c
-> > > +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-> > > @@ -4466,17 +4466,30 @@ static int drm_dp_dpcd_write_payload(struct
-> > > drm_dp_mst_topology_mgr *mgr,
-> > >   * @mgr: manager to use
-> > >   *
-> > >   * Tries waiting for the MST hub to finish updating it's payload tab=
-le by
-> > > - * polling for the ACT handled bit.
-> > > + * polling for the ACT handled bit for up to 3 seconds (yes-some hub=
-s
-> > > really
-> > > + * take that long).
-> > >   *
-> > >   * Returns:
-> > >   * 0 if the ACT was handled in time, negative error code on failure.
-> > >   */
-> > >  int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr)
-> > >  {
-> > > -       int count =3D 0, ret;
-> > > +       /*
-> > > +        * There doesn't seem to be any recommended retry count or ti=
-meout
-> > > in
-> > > +        * the MST specification. Since some hubs have been observed =
-to
-> > > take
-> > > +        * over 1 second to update their payload allocations under ce=
-rtain
-> > > +        * conditions, we use a rather large timeout value.
-> > > +        */
-> > > +       const int timeout_ms =3D 3000;
-> > > +      unsigned long timeout =3D jiffies + msecs_to_jiffies(timeout_m=
-s);
-> > > +       int ret;
-> > > +       bool retrying =3D false;
-> > >         u8 status;
-> > >
-> > >         do {
-> > > +               if (retrying)
-> > > +                       usleep_range(100, 1000);
-> > > +
-> > >                 ret =3D drm_dp_dpcd_readb(mgr->aux,
-> > >                                         DP_PAYLOAD_TABLE_UPDATE_STATU=
-S,
-> > >                                         &status);
-> > > @@ -4488,13 +4501,12 @@ int drm_dp_check_act_status(struct
-> > > drm_dp_mst_topology_mgr *mgr)
-> > >
-> > >                 if (status & DP_PAYLOAD_ACT_HANDLED)
-> > >                         break;
-> > > -               count++;
-> > > -               udelay(100);
-> > > -       } while (count < 30);
-> > > +               retrying =3D true;
-> > > +       } while (jiffies < timeout);
-> >
-> > Somewhat academic, but I think there's an overflow possibility here if
-> > timeout is near ulong_max and jiffies overflows during the usleep. In
-> > that case we'll be retrying for a very loong time.
-> >
-> > I wish we had i915's wait_for() macro available to all drm...
->
-> Maybe we could add it to the kernel library somewhere? I don't see why we=
-'d
-> need to stop at DRM
+On Mon, Apr 06, 2020 at 03:09:51PM -0400, Vivek Goyal wrote:
+> On Mon, Mar 09, 2020 at 09:22:15PM +0100, Peter Zijlstra wrote:
+> > On Mon, Mar 09, 2020 at 08:05:18PM +0100, Thomas Gleixner wrote:
+> > > Andy Lutomirski <luto@kernel.org> writes:
+> > 
+> > > > I'm okay with the save/restore dance, I guess.  It's just yet more
+> > > > entry crud to deal with architecture nastiness, except that this
+> > > > nastiness is 100% software and isn't Intel/AMD's fault.
+> > > 
+> > > And we can do it in C and don't have to fiddle with it in the ASM
+> > > maze.
+> > 
+> > Right; I'd still love to kill KVM_ASYNC_PF_SEND_ALWAYS though, even if
+> > we do the save/restore in do_nmi(). That is some wild brain melt. Also,
+> > AFAIK none of the distros are actually shipping a PREEMPT=y kernel
+> > anyway, so killing it shouldn't matter much.
+> 
+> It will be nice if we can retain KVM_ASYNC_PF_SEND_ALWAYS. I have another
+> use case outside CONFIG_PREEMPT.
+> 
+> I am trying to extend async pf interface to also report page fault errors
+> to the guest.
 
-So You Want To Build A Bikeshed...
-
-Seriously though, I'd be very happy with that. Alternatively you could
-shoehorn this into readx_poll_timeout as well.
-
-Sean
-
->
-> >
-> > Sean
-> >
-> > >         if (!(status & DP_PAYLOAD_ACT_HANDLED)) {
-> > > -               DRM_DEBUG_KMS("failed to get ACT bit %d after %d
-> > > retries\n",
-> > > -                             status, count);
-> > > +               DRM_DEBUG_KMS("failed to get ACT bit %d after %dms\n"=
-,
-> > > +                             status, timeout_ms);
-> > >                 return -EINVAL;
-> > >         }
-> > >         return 0;
-> > > --
-> > > 2.25.1
-> > >
-> --
-> Cheers,
->         Lyude Paul (she/her)
->         Associate Software Engineer at Red Hat
->
+Then please start over and design a sane ParaVirt Fault interface. The
+current one is utter crap.
