@@ -2,124 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F3ED19F17C
-	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 10:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5BE219F1A2
+	for <lists+stable@lfdr.de>; Mon,  6 Apr 2020 10:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726514AbgDFIXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Apr 2020 04:23:23 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:36274 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726475AbgDFIXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 04:23:23 -0400
-Received: by mail-lf1-f68.google.com with SMTP id w145so11054478lff.3
-        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 01:23:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=1c07BEC07UZVPJHnU0F7x86Le0JR3iWdmr6B9bHz+yQ=;
-        b=a7tYuu3Tabrb7D/49u9jm9lL6eXqgnC87ZMNcPFC7Nhjk8WnjExZ5NeAav2TmLOtTW
-         HVNKnRwOQthkpWpKCu2IqTs9B9uLUy+qD+ZXrkoZOQa4SdgWML5ql6jNVz6rjlMO86EM
-         vko/niF41g++EhmL5P89Gaw9j9naop8nVPhfPvv8MtqRlJWkb00n0vhf1E8dnZUcusZm
-         W0XWYQ8/D5jON++s/0YlrLFub6gpZD2KF1qEuyJMLJsVONTssqP7rGo/2tnCoRIGTPsr
-         GLui6R61RHcd9Xb2J+Wnm2rOU8Yv+FJkmZScKBanNWvbolq/1/jbnRCD7nqBKn52Ovdp
-         WDRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=1c07BEC07UZVPJHnU0F7x86Le0JR3iWdmr6B9bHz+yQ=;
-        b=Cx7pJeMB/wLZqqr7/kXecQRw8LmGqBKp2SCFCd79wUx/FG1gBWRHgJUTRC72cd9qYc
-         +d48TCXOd8WQhNQL8pwLksgLur7xHarQMgBNUkwc9nZYF4hsXhN088V25+GwIp5H1Jbz
-         udPT8QfedLpwcUJ6Tc1x/+WfGZw36LDdvpyYCRuZOThTKQApimdcItJiQcyEo2aSu355
-         ZE8ln/UpeClNVCTyI0Qv0UB3aUua6nTx2wtvM/8DTVp9Wlky+4+MeRnyDGw48fk16R+t
-         iGU4eIF3ENBR/A6LQ5tkbNxruFZ7T4arkDMcZKX5urba1LC8fBqAttRKt2UagdvsQ6yt
-         jziA==
-X-Gm-Message-State: AGi0PubEG3/YUcIDq0h/Nf60NI6ENMbjXe5lb58PCBIuJhEDx2qEYmeV
-        3MbLNrQsK2Nmt7M3evYVNz70lcouKKtd9kHYD6yCXw==
-X-Google-Smtp-Source: APiQypJnyOYlwjP10HGdWQRrOOqzpBCTzDkFCOrs1js1rgvxGv5ZQLRUnz8Sei/ZMVu9arbIsNBG6fLhNsXR4+STv6U=
-X-Received: by 2002:a19:5e46:: with SMTP id z6mr11789742lfi.74.1586161400666;
- Mon, 06 Apr 2020 01:23:20 -0700 (PDT)
+        id S1726533AbgDFIdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Apr 2020 04:33:05 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17694 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726475AbgDFIdE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 04:33:04 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0368X09Z119337
+        for <stable@vger.kernel.org>; Mon, 6 Apr 2020 04:33:03 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 306k4eeack-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 04:33:02 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 6 Apr 2020 09:32:34 +0100
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (9.149.109.198)
+        by e06smtp01.uk.ibm.com (192.168.101.131) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 6 Apr 2020 09:32:31 +0100
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0368WpKb54132762
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 6 Apr 2020 08:32:51 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F187B4C050;
+        Mon,  6 Apr 2020 08:32:50 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 758994C052;
+        Mon,  6 Apr 2020 08:32:50 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.145.23.63])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  6 Apr 2020 08:32:50 +0000 (GMT)
+Subject: Re: [PATCH v2 1/5] KVM: s390: vsie: Fix region 1 ASCE sanity shadow
+ address checks
+To:     David Hildenbrand <david@redhat.com>
+Cc:     kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>, stable@vger.kernel.org
+References: <59b411eb-dabe-8cac-9270-7a9f0faa63d5@de.ibm.com>
+ <67F45F4F-33CB-455A-8CB8-7D20D9A2BF2F@redhat.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Autocrypt: addr=borntraeger@de.ibm.com; prefer-encrypt=mutual; keydata=
+ xsFNBE6cPPgBEAC2VpALY0UJjGmgAmavkL/iAdqul2/F9ONz42K6NrwmT+SI9CylKHIX+fdf
+ J34pLNJDmDVEdeb+brtpwC9JEZOLVE0nb+SR83CsAINJYKG3V1b3Kfs0hydseYKsBYqJTN2j
+ CmUXDYq9J7uOyQQ7TNVoQejmpp5ifR4EzwIFfmYDekxRVZDJygD0wL/EzUr8Je3/j548NLyL
+ 4Uhv6CIPf3TY3/aLVKXdxz/ntbLgMcfZsDoHgDk3lY3r1iwbWwEM2+eYRdSZaR4VD+JRD7p8
+ 0FBadNwWnBce1fmQp3EklodGi5y7TNZ/CKdJ+jRPAAnw7SINhSd7PhJMruDAJaUlbYaIm23A
+ +82g+IGe4z9tRGQ9TAflezVMhT5J3ccu6cpIjjvwDlbxucSmtVi5VtPAMTLmfjYp7VY2Tgr+
+ T92v7+V96jAfE3Zy2nq52e8RDdUo/F6faxcumdl+aLhhKLXgrozpoe2nL0Nyc2uqFjkjwXXI
+ OBQiaqGeWtxeKJP+O8MIpjyGuHUGzvjNx5S/592TQO3phpT5IFWfMgbu4OreZ9yekDhf7Cvn
+ /fkYsiLDz9W6Clihd/xlpm79+jlhm4E3xBPiQOPCZowmHjx57mXVAypOP2Eu+i2nyQrkapaY
+ IdisDQfWPdNeHNOiPnPS3+GhVlPcqSJAIWnuO7Ofw1ZVOyg/jwARAQABzUNDaHJpc3RpYW4g
+ Qm9ybnRyYWVnZXIgKDJuZCBJQk0gYWRkcmVzcykgPGJvcm50cmFlZ2VyQGxpbnV4LmlibS5j
+ b20+wsF5BBMBAgAjBQJdP/hMAhsDBwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQEXu8
+ gLWmHHy/pA/+JHjpEnd01A0CCyfVnb5fmcOlQ0LdmoKWLWPvU840q65HycCBFTt6V62cDljB
+ kXFFxMNA4y/2wqU0H5/CiL963y3gWIiJsZa4ent+KrHl5GK1nIgbbesfJyA7JqlB0w/E/SuY
+ NRQwIWOo/uEvOgXnk/7+rtvBzNaPGoGiiV1LZzeaxBVWrqLtmdi1iulW/0X/AlQPuF9dD1Px
+ hx+0mPjZ8ClLpdSp5d0yfpwgHtM1B7KMuQPQZGFKMXXTUd3ceBUGGczsgIMipZWJukqMJiJj
+ QIMH0IN7XYErEnhf0GCxJ3xAn/J7iFpPFv8sFZTvukntJXSUssONnwiKuld6ttUaFhSuSoQg
+ OFYR5v7pOfinM0FcScPKTkrRsB5iUvpdthLq5qgwdQjmyINt3cb+5aSvBX2nNN135oGOtlb5
+ tf4dh00kUR8XFHRrFxXx4Dbaw4PKgV3QLIHKEENlqnthH5t0tahDygQPnSucuXbVQEcDZaL9
+ WgJqlRAAj0pG8M6JNU5+2ftTFXoTcoIUbb0KTOibaO9zHVeGegwAvPLLNlKHiHXcgLX1tkjC
+ DrvE2Z0e2/4q7wgZgn1kbvz7ZHQZB76OM2mjkFu7QNHlRJ2VXJA8tMXyTgBX6kq1cYMmd/Hl
+ OhFrAU3QO1SjCsXA2CDk9MM1471mYB3CTXQuKzXckJnxHkHOwU0ETpw8+AEQAJjyNXvMQdJN
+ t07BIPDtbAQk15FfB0hKuyZVs+0lsjPKBZCamAAexNRk11eVGXK/YrqwjChkk60rt3q5i42u
+ PpNMO9aS8cLPOfVft89Y654Qd3Rs1WRFIQq9xLjdLfHh0i0jMq5Ty+aiddSXpZ7oU6E+ud+X
+ Czs3k5RAnOdW6eV3+v10sUjEGiFNZwzN9Udd6PfKET0J70qjnpY3NuWn5Sp1ZEn6lkq2Zm+G
+ 9G3FlBRVClT30OWeiRHCYB6e6j1x1u/rSU4JiNYjPwSJA8EPKnt1s/Eeq37qXXvk+9DYiHdT
+ PcOa3aNCSbIygD3jyjkg6EV9ZLHibE2R/PMMid9FrqhKh/cwcYn9FrT0FE48/2IBW5mfDpAd
+ YvpawQlRz3XJr2rYZJwMUm1y+49+1ZmDclaF3s9dcz2JvuywNq78z/VsUfGz4Sbxy4ShpNpG
+ REojRcz/xOK+FqNuBk+HoWKw6OxgRzfNleDvScVmbY6cQQZfGx/T7xlgZjl5Mu/2z+ofeoxb
+ vWWM1YCJAT91GFvj29Wvm8OAPN/+SJj8LQazd9uGzVMTz6lFjVtH7YkeW/NZrP6znAwv5P1a
+ DdQfiB5F63AX++NlTiyA+GD/ggfRl68LheSskOcxDwgI5TqmaKtX1/8RkrLpnzO3evzkfJb1
+ D5qh3wM1t7PZ+JWTluSX8W25ABEBAAHCwV8EGAECAAkFAk6cPPgCGwwACgkQEXu8gLWmHHz8
+ 2w//VjRlX+tKF3szc0lQi4X0t+pf88uIsvR/a1GRZpppQbn1jgE44hgF559K6/yYemcvTR7r
+ 6Xt7cjWGS4wfaR0+pkWV+2dbw8Xi4DI07/fN00NoVEpYUUnOnupBgychtVpxkGqsplJZQpng
+ v6fauZtyEcUK3dLJH3TdVQDLbUcL4qZpzHbsuUnTWsmNmG4Vi0NsEt1xyd/Wuw+0kM/oFEH1
+ 4BN6X9xZcG8GYUbVUd8+bmio8ao8m0tzo4pseDZFo4ncDmlFWU6hHnAVfkAs4tqA6/fl7RLN
+ JuWBiOL/mP5B6HDQT9JsnaRdzqF73FnU2+WrZPjinHPLeE74istVgjbowvsgUqtzjPIG5pOj
+ cAsKoR0M1womzJVRfYauWhYiW/KeECklci4TPBDNx7YhahSUlexfoftltJA8swRshNA/M90/
+ i9zDo9ySSZHwsGxG06ZOH5/MzG6HpLja7g8NTgA0TD5YaFm/oOnsQVsf2DeAGPS2xNirmknD
+ jaqYefx7yQ7FJXXETd2uVURiDeNEFhVZWb5CiBJM5c6qQMhmkS4VyT7/+raaEGgkEKEgHOWf
+ ZDP8BHfXtszHqI3Fo1F4IKFo/AP8GOFFxMRgbvlAs8z/+rEEaQYjxYJqj08raw6P4LFBqozr
+ nS4h0HDFPrrp1C2EMVYIQrMokWvlFZbCpsdYbBI=
+Date:   Mon, 6 Apr 2020 10:32:50 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-References: <CA+G9fYs1xStrrsvGbW7bc4h1a0Kjfz0_zn4c7LL7-bGZb0GH6g@mail.gmail.com>
- <20200402133849.mmkvekzx37kw4nsj@box> <CA+G9fYv0xNtnD=eBmxVqYqEoYTbMk6mdn04WmgSUasDw2L7uFg@mail.gmail.com>
- <20200403133252.ivdqoppxhc6w5b47@box> <CA+G9fYsnD0vkCpSH98Lpsi6nxXBS+JYbSPhTnNE16CrQ4s4QhQ@mail.gmail.com>
- <20200404160631.7eny3swsqn665m2p@box>
-In-Reply-To: <20200404160631.7eny3swsqn665m2p@box>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 6 Apr 2020 13:53:09 +0530
-Message-ID: <CA+G9fYtmSMLaqmt-OEovQxXseGqiq_HUDyq_dZZ1kSbsuNQo=Q@mail.gmail.com>
-Subject: Re: mm/mremap.c : WARNING: at mm/mremap.c:211 move_page_tables+0x5b0/0x5d0
-To:     "Kirill A. Shutemov" <kirill@shutemov.name>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux- stable <stable@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        William Kucharski <william.kucharski@oracle.com>,
-        Julia Lawall <Julia.Lawall@lip6.fr>,
-        Michal Hocko <mhocko@kernel.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        lkft-triage@lists.linaro.org,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        LTP List <ltp@lists.linux.it>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <67F45F4F-33CB-455A-8CB8-7D20D9A2BF2F@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 20040608-4275-0000-0000-000003BA85B6
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 20040608-4276-0000-0000-000038CFE2AE
+Message-Id: <e6ef6a64-70eb-448f-1dcf-2f032f94cf07@de.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-04-06_04:2020-04-03,2020-04-06 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ spamscore=0 suspectscore=0 clxscore=1015 priorityscore=1501
+ mlxlogscore=999 adultscore=0 phishscore=0 impostorscore=0 bulkscore=0
+ malwarescore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2004060068
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 4 Apr 2020 at 21:36, Kirill A. Shutemov <kirill@shutemov.name> wrote:
->
-> On Sat, Apr 04, 2020 at 08:10:42PM +0530, Naresh Kamboju wrote:
-> > On Fri, 3 Apr 2020 at 19:02, Kirill A. Shutemov <kirill@shutemov.name> wrote:
-> > >
-> > > On Fri, Apr 03, 2020 at 12:56:57AM +0530, Naresh Kamboju wrote:
-> > > > [  734.876355] old_addr: 0xbfe00000, new_addr: 0xbfc00000, old_end: 0xc0000000
-> > >
-> > > The ranges are overlapping. We don't expect it. mremap(2) never does this.
-> > >
-> > > shift_arg_pages() only moves range downwards. It should be safe.
-> > >
-> > > Could you try this:
-> >
-> > Applied the patch and tested and still getting kernel warning.
-> > CONFIG_HIGHMEM64G=y is still enabled.
-> >
-> > [  790.041040] ------------[ cut here ]------------
-> > [  790.045664] WARNING: CPU: 3 PID: 3195 at mm/mremap.c:212
-> > move_page_tables+0x7a7/0x840
->
-> Are you sure the patch is applied? The line number in the warning supposed
-> to change.
-
-Yes. The patch was applied and tested.
-The reason for line number change is due to linux/mmdebug.h included
-because an earlier patch "dump_vma(vma);" needed this.
-
-diff --git a/mm/mremap.c b/mm/mremap.c
-index af363063ea23..cf02d4244e83 100644
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -24,6 +24,7 @@
- #include <linux/uaccess.h>
- #include <linux/mm-arch-hooks.h>
- #include <linux/userfaultfd_k.h>
-+#include <linux/mmdebug.h>
-
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
-@@ -208,7 +209,7 @@ static bool move_normal_pmd(struct vm_area_struct
-*vma, unsigned long old_addr,
-         * The destination pmd shouldn't be established, free_pgtables()
-         * should have release it.
-         */
--       if (WARN_ON(!pmd_none(*new_pmd)))
-+       if (WARN_ON(!pmd_none(*new_pmd) && old_addr > new_addr))
-                return false;
-
-        /*
 
 
+On 03.04.20 21:55, David Hildenbrand wrote:
+> 
+> 
+>> Am 03.04.2020 um 19:56 schrieb Christian Borntraeger <borntraeger@de.ibm.com>:
+>>
+>> ﻿
+>>
+>>> On 03.04.20 17:30, David Hildenbrand wrote:
+>>> In case we have a region 1 ASCE, our shadow/g3 address can have any value.
+>>> Unfortunately, (-1UL << 64) is undefined and triggers sometimes,
+>>> rejecting valid shadow addresses when trying to walk our shadow table
+>>> hierarchy.
+>>
+>> I thin the range of the addresses do not matter.
+>> Took me a while to understand maybe rephrase that:
+>>
+>> In case we have a region 1 the following calculation 
+>> (31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11)
+>> results in 64. As shifts beyond the size are undefined the compiler is free to use
+>> instructions like sllg. sllg will only use 6 bits of the shift value (here 64)
+>> resulting in no shift at all. That means that ALL addresses will be rejected.
+> 
+> Interestingly, it would not fail when shadowing the r2t, but only when trying to shadow the r3t.
+> 
+>>
+>> With that this makes sense. 
+>>
+>> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>
+> 
+> In case there are no other comments, can you fixup when applying, or do you want me to resend?
 
-- Naresh
+I can fixup.
+
