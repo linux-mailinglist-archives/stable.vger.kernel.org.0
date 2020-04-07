@@ -2,121 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A75001A05CD
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 06:37:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5AE91A068F
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 07:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725883AbgDGEhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 00:37:36 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:40955 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725802AbgDGEhf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 00:37:35 -0400
-Received: by mail-pf1-f194.google.com with SMTP id c20so223135pfi.7
-        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 21:37:35 -0700 (PDT)
+        id S1726635AbgDGF3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 01:29:08 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:41460 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726448AbgDGF3H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 01:29:07 -0400
+Received: by mail-ot1-f65.google.com with SMTP id f52so1854836otf.8
+        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 22:29:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=301PQL45w/yvw/AkEMstye0p+D5O4kyb9rRGv159Sq8=;
-        b=YkQ9qNDxmg9qf8TWZReNhNq6zqRBtIfRuc8rkZpqrM9SiYIAyJpaR3/IAkYP2Ec0i3
-         vxImIBvS96+OWDOWtp4f5pCZ1RX30aR0W/Gz8slemcafp11pdqmfa/te6fGjUUYEylUE
-         vwgONJdnHuDgW70IxRJkM3yRlJ4KYBqwnSepoSyT2JSNFxJwp9tSHaZt3cxQs3lkl9Tk
-         0ExN1dFjBf9mx1GNxxfZNeA8AgRGnM2itLjLucMLlYtqWJO6BQbmIlQ5o6YF6/KYcAZT
-         69yYiwapEPk8JqWT66EDNrhbNMknZs+bPrbfkv+myzMGoEVp0d/o3kI3WhOxRX8L5pln
-         W3Kg==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=He9kpFQwq1I68wdOjeNvE0LON5OL4PlSGVKoCJBAUEM=;
+        b=DzD3si7uJn6h8V+XbuAi1fiwNU73DotO0fEhh7PeZMUQzyfJTMLra5Jmg6fvzzXreT
+         ftr6rYxrmZg5BdTsI4xP9enMJDlp1E5QgHvjMUuwF0edyB6eDVHKYWkZDamlhGqcyI/T
+         NaRJkAS3zvVu2SSfCqRLYUdGtQSETCjDZKAo8XhomJhcsr7UxVjrhn5PMRbKV9ZYESnY
+         NfJpOwT3reI5Vo9sDgUeMyA1wnzbYJYfAcr1ay7colNg9vB5r3X0W4+vgI19j5x0gbLH
+         dJp8bt/Pyvp3+Ndrl7H0fqo1joSrkbN8CVjdRCaMdm1VXp5v+3evoT5aUf5Y/S/zCusp
+         9hmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=301PQL45w/yvw/AkEMstye0p+D5O4kyb9rRGv159Sq8=;
-        b=Z9rXSqR0/byP1ttsoaXz+0tPsWFj+tD8WbxEk+qaIMeouwvnDLkyEmWZvnO93FK32h
-         YAml/PDDvr/df48zR26+M0PbKLOtpdi+CU16PQiwgHuKdYLSmk1xqecX8anjldy21fTP
-         C+b7M+TtXRGmJgT3q/BnrawqVBydIHsauKRLCzFHECN8albhTudhmkZf2BDCCND1ZIve
-         UvlgDC1qR8/NH30B1lggKuckPkB/+RO8Rla59LucO3CCIvEPUor8taBGVBxHOY6AKNcP
-         Xg2kOUVebNO6km2+x8d7L+ClJNdiVegI3/HYIqIUtVRjqWUiDvX76KM/gs3NsXhP0USA
-         9QFg==
-X-Gm-Message-State: AGi0PuY+Fgi+KI5QN9H+6OCJvOWnWZynB63s3zswu0kqh+dTjjQhw+CH
-        E1CQ/7qDAYt01RZOGGKt/9hwwitukz0=
-X-Google-Smtp-Source: APiQypJUIvBOROvVw3P4DbiFdnQZbykJDq1K+K16puSpHJGhnXEEbqtKuMyps9hb4pRe9T2r4XObag==
-X-Received: by 2002:a62:501:: with SMTP id 1mr762018pff.309.1586234254369;
-        Mon, 06 Apr 2020 21:37:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g9sm12136734pgc.46.2020.04.06.21.37.33
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Apr 2020 21:37:33 -0700 (PDT)
-Message-ID: <5e8c038d.1c69fb81.e5387.75e8@mx.google.com>
-Date:   Mon, 06 Apr 2020 21:37:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=He9kpFQwq1I68wdOjeNvE0LON5OL4PlSGVKoCJBAUEM=;
+        b=kn8Nj5/mrKiNTrLbkR4gNdgcYpvSS+EATCr0itFoR+8LxlrwSXWrhCvQzY4rYUGetd
+         Sp7ye3pWnFxZoSbVbRTLeVgzjD/AMoGZaOGccRBK9XX4Fz/BwRW+kr6qxp06ixYrN2c8
+         DzrEwds2De4VdmV/S1ufCagw0Ll8BXgUGb6lau/mGomV7OJX28qXQhFvVLB+/wuUoh0e
+         l+D3zGHKjGUm16HJT/tT8wUezSpNKcI2eXeaf7WqTDztCrq7BZ1lm3DpAiaQ0NFIW+jj
+         Z65uS0eFIVb79XnS3Dba6rcG84wK0WhL63iSj/iGws64cgf5iNVXDy1UB3muDcatzAhu
+         rOCQ==
+X-Gm-Message-State: AGi0PuatTiofWnIwpRSdd8Ny5WxRzyN/YVT/MCo5BFizuinWORVS9BdC
+        9ygacKzHPp3uAq+PElxqoe6JaYQn9oSA0c9VerQ=
+X-Google-Smtp-Source: APiQypLpOcC3pKxCayW1bQ1BRdm3XjF/gLDIUBbvOfZWBpBDjbpyBk9IIIWXf8OrzgFObV5P1sPeQztJEvaZGchHMfY=
+X-Received: by 2002:a9d:480b:: with SMTP id c11mr212174otf.109.1586237346774;
+ Mon, 06 Apr 2020 22:29:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.6.2-29-g99950f10b1ac
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.6.y
-Subject: stable-rc/linux-5.6.y boot: 152 boots: 2 failed,
- 141 passed with 3 offline, 5 untried/unknown,
- 1 conflict (v5.6.2-29-g99950f10b1ac)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a05:6830:1d89:0:0:0:0 with HTTP; Mon, 6 Apr 2020 22:29:06
+ -0700 (PDT)
+Reply-To: mrskad2323@hotmail.com
+From:   mrs kadi <osseline1amadou@gmail.com>
+Date:   Mon, 6 Apr 2020 22:29:06 -0700
+Message-ID: <CACPK8L=RtfGsWtgaQALGujWdh7Wf9dQo5N3en+TET79aeqHT6g@mail.gmail.com>
+Subject: Compliment of the day,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.6.y boot: 152 boots: 2 failed, 141 passed with 3 offline,=
- 5 untried/unknown, 1 conflict (v5.6.2-29-g99950f10b1ac)
+Dear sir/madam
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.6.y/kernel/v5.6.2-29-g99950f10b1ac/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
-/kernel/v5.6.2-29-g99950f10b1ac/
+My name is Mrs Kadi Hamanin.I have decided to seek a confidential
+co-operation with you for the execution of the deal described
+hereunder for our mutual benefit. I Hope you will keep it a secret due
+to the nature of the transaction. During the course of our audit last
+month, I discovered an unclaimed/abandoned fund total US$3.5 million
+in a bank account that belongs to a customer who unfortunately lost
+his life and entire family in a car accident.
 
-Tree: stable-rc
-Branch: linux-5.6.y
-Git Describe: v5.6.2-29-g99950f10b1ac
-Git Commit: 99950f10b1acd1709f42e000156bee8adef3c66a
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 102 unique boards, 25 SoC families, 18 builds out of 191
+Now our bank has been waiting for any of the relatives to come-up for
+the claim but nobody has done that. I personally has been unsuccessful
+in locating any of the relatives, now, I sincerely seek your consent
+to present you as the next of kin / Will Beneficiary to the deceased
+so that the proceeds of this account valued at {US$3.5 Million United
+State Dollars} can be paid to you, which we will share in these
+percentages ratio, 60% to me and 40% to you. All I request is your
+utmost sincere co- operation; trust and maximum confidentiality to
+achieve this project successfully. I have carefully mapped out the
+moralities for execution of this transaction under a legitimate
+arrangement to protect you from any breach of the law both in your
+country and here in my country when the fund is being transferred to
+your bank account.
 
-Boot Failures Detected:
+I will have to provide the entire relevant document that will be
+requested to indicate that you are the rightful beneficiary of this
+legacy and our bank will release the fund to you without any further
+delay, upon your consideration and acceptance of this offer, please
+send me the following information as stated below so we can proceed
+and get this fund transferred to your designated bank account
+immediately. I know much about the existence of this fund and the
+secrets surrounding this money.
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            bcm2836-rpi-2-b: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-collabora: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+-Your Full Name:
+-Your Contact Address:
+-Your direct Mobile telephone Number:
+-Your Date of Birth:
