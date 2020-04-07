@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8F01A0AF8
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:22:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A3631A0BB8
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726562AbgDGKWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:22:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60060 "EHLO mail.kernel.org"
+        id S1728838AbgDGKY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:24:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725883AbgDGKWj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:22:39 -0400
+        id S1728377AbgDGKY6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:24:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 011D020644;
-        Tue,  7 Apr 2020 10:22:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AC032074B;
+        Tue,  7 Apr 2020 10:24:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254957;
-        bh=Yes23aRlJ3lv9ES/aLXStRHl7yqUHk0MZHOigrmI3TE=;
+        s=default; t=1586255097;
+        bh=hhDMd2q+B4foZzqScTF1hMGEB0eCBYKc70Dio+EMIDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQ11FSio7FCxzgkBsuLmkVxQeJfj9C3oSSpbsQsGISxTpef3tW0LcY6RTjgfiUZg2
-         xCkX1EQUis1yNQIrR8OmTsl6FoKuP16Qm6wXneSu+V4I9W+Yv5yitVyd/sWUEg1Edr
-         cvEGs6mohJ+PTT6xTd3x9tp4YWt0yVfMbhnCdhTA=
+        b=KPnh8WoB9tt9PeO3IOea8pIivk/BfWpbHIFOPnpjMVmopEM4CEBbs0Hy0CmhFNTLy
+         jYN6thw7AVV4+KrXDbsnoeQo0Ae2/zO7977qKvVFkCTo0FZfYCxioBVi8Bcq4vk1LN
+         gu6N+hUgbB1bBTw/lxHtrfAtIFgv4Ej5QV6m/GEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roland Dreier <roland@purestorage.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Prabhath Sajeepa <psajeepa@purestorage.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 01/36] nvme-rdma: Avoid double freeing of async event data
-Date:   Tue,  7 Apr 2020 12:21:34 +0200
-Message-Id: <20200407101454.484006015@linuxfoundation.org>
+        stable@vger.kernel.org, Jin Meng <meng.a.jin@nokia-sbell.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 04/46] sctp: fix possibly using a bad saddr with a given dst
+Date:   Tue,  7 Apr 2020 12:21:35 +0200
+Message-Id: <20200407101459.973039702@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,56 +45,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prabhath Sajeepa <psajeepa@purestorage.com>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-[ Upstream commit 9134ae2a2546cb96abddcd4469a79c77ee3a4480 ]
+[ Upstream commit 582eea230536a6f104097dd46205822005d5fe3a ]
 
-The timeout of identify cmd, which is invoked as part of admin queue
-creation, can result in freeing of async event data both in
-nvme_rdma_timeout handler and error handling path of
-nvme_rdma_configure_admin queue thus causing NULL pointer reference.
-Call Trace:
- ? nvme_rdma_setup_ctrl+0x223/0x800 [nvme_rdma]
- nvme_rdma_create_ctrl+0x2ba/0x3f7 [nvme_rdma]
- nvmf_dev_write+0xa54/0xcc6 [nvme_fabrics]
- __vfs_write+0x1b/0x40
- vfs_write+0xb2/0x1b0
- ksys_write+0x61/0xd0
- __x64_sys_write+0x1a/0x20
- do_syscall_64+0x60/0x1e0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Under certain circumstances, depending on the order of addresses on the
+interfaces, it could be that sctp_v[46]_get_dst() would return a dst
+with a mismatched struct flowi.
 
-Reviewed-by: Roland Dreier <roland@purestorage.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Prabhath Sajeepa <psajeepa@purestorage.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For example, if when walking through the bind addresses and the first
+one is not a match, it saves the dst as a fallback (added in
+410f03831c07), but not the flowi. Then if the next one is also not a
+match, the previous dst will be returned but with the flowi information
+for the 2nd address, which is wrong.
+
+The fix is to use a locally stored flowi that can be used for such
+attempts, and copy it to the parameter only in case it is a possible
+match, together with the corresponding dst entry.
+
+The patch updates IPv6 code mostly just to be in sync. Even though the issue
+is also present there, it fallback is not expected to work with IPv6.
+
+Fixes: 410f03831c07 ("sctp: add routing output fallback")
+Reported-by: Jin Meng <meng.a.jin@nokia-sbell.com>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Tested-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/rdma.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/sctp/ipv6.c     |   20 ++++++++++++++------
+ net/sctp/protocol.c |   28 +++++++++++++++++++---------
+ 2 files changed, 33 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 4ff51da3b13fa..73e8475ddc8ab 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -850,9 +850,11 @@ out_free_tagset:
- 	if (new)
- 		blk_mq_free_tag_set(ctrl->ctrl.admin_tagset);
- out_free_async_qe:
--	nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
--		sizeof(struct nvme_command), DMA_TO_DEVICE);
--	ctrl->async_event_sqe.data = NULL;
-+	if (ctrl->async_event_sqe.data) {
-+		nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
-+			sizeof(struct nvme_command), DMA_TO_DEVICE);
-+		ctrl->async_event_sqe.data = NULL;
+--- a/net/sctp/ipv6.c
++++ b/net/sctp/ipv6.c
+@@ -228,7 +228,8 @@ static void sctp_v6_get_dst(struct sctp_
+ {
+ 	struct sctp_association *asoc = t->asoc;
+ 	struct dst_entry *dst = NULL;
+-	struct flowi6 *fl6 = &fl->u.ip6;
++	struct flowi _fl;
++	struct flowi6 *fl6 = &_fl.u.ip6;
+ 	struct sctp_bind_addr *bp;
+ 	struct ipv6_pinfo *np = inet6_sk(sk);
+ 	struct sctp_sockaddr_entry *laddr;
+@@ -238,7 +239,7 @@ static void sctp_v6_get_dst(struct sctp_
+ 	enum sctp_scope scope;
+ 	__u8 matchlen = 0;
+ 
+-	memset(fl6, 0, sizeof(struct flowi6));
++	memset(&_fl, 0, sizeof(_fl));
+ 	fl6->daddr = daddr->v6.sin6_addr;
+ 	fl6->fl6_dport = daddr->v6.sin6_port;
+ 	fl6->flowi6_proto = IPPROTO_SCTP;
+@@ -276,8 +277,11 @@ static void sctp_v6_get_dst(struct sctp_
+ 	rcu_read_unlock();
+ 
+ 	dst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_p);
+-	if (!asoc || saddr)
++	if (!asoc || saddr) {
++		t->dst = dst;
++		memcpy(fl, &_fl, sizeof(_fl));
+ 		goto out;
 +	}
- out_free_queue:
- 	nvme_rdma_free_queue(&ctrl->queues[0]);
- 	return error;
--- 
-2.20.1
-
+ 
+ 	bp = &asoc->base.bind_addr;
+ 	scope = sctp_scope(daddr);
+@@ -300,6 +304,8 @@ static void sctp_v6_get_dst(struct sctp_
+ 			if ((laddr->a.sa.sa_family == AF_INET6) &&
+ 			    (sctp_v6_cmp_addr(&dst_saddr, &laddr->a))) {
+ 				rcu_read_unlock();
++				t->dst = dst;
++				memcpy(fl, &_fl, sizeof(_fl));
+ 				goto out;
+ 			}
+ 		}
+@@ -338,6 +344,8 @@ static void sctp_v6_get_dst(struct sctp_
+ 			if (!IS_ERR_OR_NULL(dst))
+ 				dst_release(dst);
+ 			dst = bdst;
++			t->dst = dst;
++			memcpy(fl, &_fl, sizeof(_fl));
+ 			break;
+ 		}
+ 
+@@ -351,6 +359,8 @@ static void sctp_v6_get_dst(struct sctp_
+ 			dst_release(dst);
+ 		dst = bdst;
+ 		matchlen = bmatchlen;
++		t->dst = dst;
++		memcpy(fl, &_fl, sizeof(_fl));
+ 	}
+ 	rcu_read_unlock();
+ 
+@@ -359,14 +369,12 @@ out:
+ 		struct rt6_info *rt;
+ 
+ 		rt = (struct rt6_info *)dst;
+-		t->dst = dst;
+ 		t->dst_cookie = rt6_get_cookie(rt);
+ 		pr_debug("rt6_dst:%pI6/%d rt6_src:%pI6\n",
+ 			 &rt->rt6i_dst.addr, rt->rt6i_dst.plen,
+-			 &fl6->saddr);
++			 &fl->u.ip6.saddr);
+ 	} else {
+ 		t->dst = NULL;
+-
+ 		pr_debug("no route\n");
+ 	}
+ }
+--- a/net/sctp/protocol.c
++++ b/net/sctp/protocol.c
+@@ -409,7 +409,8 @@ static void sctp_v4_get_dst(struct sctp_
+ {
+ 	struct sctp_association *asoc = t->asoc;
+ 	struct rtable *rt;
+-	struct flowi4 *fl4 = &fl->u.ip4;
++	struct flowi _fl;
++	struct flowi4 *fl4 = &_fl.u.ip4;
+ 	struct sctp_bind_addr *bp;
+ 	struct sctp_sockaddr_entry *laddr;
+ 	struct dst_entry *dst = NULL;
+@@ -419,7 +420,7 @@ static void sctp_v4_get_dst(struct sctp_
+ 
+ 	if (t->dscp & SCTP_DSCP_SET_MASK)
+ 		tos = t->dscp & SCTP_DSCP_VAL_MASK;
+-	memset(fl4, 0x0, sizeof(struct flowi4));
++	memset(&_fl, 0x0, sizeof(_fl));
+ 	fl4->daddr  = daddr->v4.sin_addr.s_addr;
+ 	fl4->fl4_dport = daddr->v4.sin_port;
+ 	fl4->flowi4_proto = IPPROTO_SCTP;
+@@ -438,8 +439,11 @@ static void sctp_v4_get_dst(struct sctp_
+ 		 &fl4->saddr);
+ 
+ 	rt = ip_route_output_key(sock_net(sk), fl4);
+-	if (!IS_ERR(rt))
++	if (!IS_ERR(rt)) {
+ 		dst = &rt->dst;
++		t->dst = dst;
++		memcpy(fl, &_fl, sizeof(_fl));
++	}
+ 
+ 	/* If there is no association or if a source address is passed, no
+ 	 * more validation is required.
+@@ -502,27 +506,33 @@ static void sctp_v4_get_dst(struct sctp_
+ 		odev = __ip_dev_find(sock_net(sk), laddr->a.v4.sin_addr.s_addr,
+ 				     false);
+ 		if (!odev || odev->ifindex != fl4->flowi4_oif) {
+-			if (!dst)
++			if (!dst) {
+ 				dst = &rt->dst;
+-			else
++				t->dst = dst;
++				memcpy(fl, &_fl, sizeof(_fl));
++			} else {
+ 				dst_release(&rt->dst);
++			}
+ 			continue;
+ 		}
+ 
+ 		dst_release(dst);
+ 		dst = &rt->dst;
++		t->dst = dst;
++		memcpy(fl, &_fl, sizeof(_fl));
+ 		break;
+ 	}
+ 
+ out_unlock:
+ 	rcu_read_unlock();
+ out:
+-	t->dst = dst;
+-	if (dst)
++	if (dst) {
+ 		pr_debug("rt_dst:%pI4, rt_src:%pI4\n",
+-			 &fl4->daddr, &fl4->saddr);
+-	else
++			 &fl->u.ip4.daddr, &fl->u.ip4.saddr);
++	} else {
++		t->dst = NULL;
+ 		pr_debug("no route\n");
++	}
+ }
+ 
+ /* For v4, the source address is cached in the route entry(dst). So no need
 
 
