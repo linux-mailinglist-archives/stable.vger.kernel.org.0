@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C3B1A0B09
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:23:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50B651A0B0B
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728093AbgDGKXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32936 "EHLO mail.kernel.org"
+        id S1728426AbgDGKXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728399AbgDGKXN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:13 -0400
+        id S1728409AbgDGKXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:23:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 570C02074F;
-        Tue,  7 Apr 2020 10:23:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAEDF20771;
+        Tue,  7 Apr 2020 10:23:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254991;
-        bh=4pHLwaftfoue1jLFWgtZnNla0KEbD+Y0nes/UYDUXW8=;
+        s=default; t=1586254994;
+        bh=LajlwZRWozrByV7K911L5FLO5HDq7i1yOkPN4glUwB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KPVQtcKy2RIhxpRv6reycQR7Cq4XGnDup2Ov01eITlniAFkT10ChNz8IOGpsEuRQ8
-         ciwV1wE0q6J2jz2IKZfOJAFZgyyxg1i7W8Uh10Ts/cOHI08cDSHQEQZYBwHTqE7LMa
-         1b5L+R6Gdz0a8mjcFPuqk0dmzAVMXyB40lpzgc+k=
+        b=YIw4I+L46A2BpA13B2M0tWU9QemgB72Xc047WkKshGwW1uKzcrREHrBv8UF2t7ZYH
+         iLkoRJRSbzYgOwR6SCFK7/aFVH97n2FQPjohOFj3DzqAS53F1J8WVpx5AD/yHUbqjM
+         FpD68I8DvFsWdFRc4CKsRtK8Iyms+8/obxajRoOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.4 23/36] power: supply: axp288_charger: Add special handling for HP Pavilion x2 10
-Date:   Tue,  7 Apr 2020 12:21:56 +0200
-Message-Id: <20200407101457.282838369@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Barry Marson <bmarson@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 24/36] Revert "dm: always call blk_queue_split() in dm_process_bio()"
+Date:   Tue,  7 Apr 2020 12:21:57 +0200
+Message-Id: <20200407101457.374690045@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
 References: <20200407101454.281052964@linuxfoundation.org>
@@ -43,178 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit 9c80662a74cd2a5d1113f5c69d027face963a556 upstream.
+commit 120c9257f5f19e5d1e87efcbb5531b7cd81b7d74 upstream.
 
-Some HP Pavilion x2 10 models use an AXP288 for charging and fuel-gauge.
-We use a native power_supply / PMIC driver in this case, because on most
-models with an AXP288 the ACPI AC / Battery code is either completely
-missing or relies on custom / proprietary ACPI OpRegions which Linux
-does not implement.
+This reverts commit effd58c95f277744f75d6e08819ac859dbcbd351.
 
-The native drivers mostly work fine, but there are 2 problems:
+blk_queue_split() is causing excessive IO splitting -- because
+blk_max_size_offset() depends on 'chunk_sectors' limit being set and
+if it isn't (as is the case for DM targets!) it falls back to
+splitting on a 'max_sectors' boundary regardless of offset.
 
-1. These model uses a Type-C connector for charging which the AXP288 does
-not support. As long as a Type-A charger (which uses the USB data pins for
-charger type detection) is used everything is fine. But if a Type-C
-charger is used (such as the charger shipped with the device) then the
-charger is not recognized.
+"Fix" this by reverting back to _not_ using blk_queue_split() in
+dm_process_bio() for normal IO (reads and writes).  Long-term fix is
+still TBD but it should focus on training blk_max_size_offset() to
+call into a DM provided hook (to call DM's max_io_len()).
 
-So we end up slowly discharging the device even though a charger is
-connected, because we are limiting the current from the charger to 500mA.
-To make things worse this happens with the device's official charger.
+Test results from simple misaligned IO test on 4-way dm-striped device
+with chunksize of 128K and stripesize of 512K:
 
-Looking at the ACPI tables HP has "solved" the problem of the AXP288 not
-being able to recognize Type-C chargers by simply always programming the
-input-current-limit at 3000mA and relying on a Vhold setting of 4.7V
-(normally 4.4V) to limit the current intake if the charger cannot handle
-this.
+xfs_io -d -c 'pread -b 2m 224s 4072s' /dev/mapper/stripe_dev
 
-2. If no charger is connected when the machine boots then it boots with the
-vbus-path disabled. On other devices this is done when a 5V boost converter
-is active to avoid the PMIC trying to charge from the 5V boost output.
-This is done when an OTG host cable is inserted and the ID pin on the
-micro-B receptacle is pulled low, the ID pin has an ACPI event handler
-associated with it which re-enables the vbus-path when the ID pin is pulled
-high when the OTG cable is removed. The Type-C connector has no ID pin,
-there is no ID pin handler and there appears to be no 5V boost converter,
-so we end up not charging because the vbus-path is disabled, until we
-unplug the charger which automatically clears the vbus-path disable bit and
-then on the second plug-in of the adapter we start charging.
+before this revert:
 
-The HP Pavilion x2 10 models with an AXP288 do have mostly working ACPI
-AC / Battery code which does not rely on custom / proprietary ACPI
-OpRegions. So one possible solution would be to blacklist the AXP288
-native power_supply drivers and add the HP Pavilion x2 10 with AXP288
-DMI ids to the list of devices which should use the ACPI AC / Battery
-code even though they have an AXP288 PMIC. This would require changes to
-4 files: drivers/acpi/ac.c, drivers/power/supply/axp288_charger.c,
-drivers/acpi/battery.c and drivers/power/supply/axp288_fuel_gauge.c.
+253,0   21        1     0.000000000  2206  Q   R 224 + 4072 [xfs_io]
+253,0   21        2     0.000008267  2206  X   R 224 / 480 [xfs_io]
+253,0   21        3     0.000010530  2206  X   R 224 / 256 [xfs_io]
+253,0   21        4     0.000027022  2206  X   R 480 / 736 [xfs_io]
+253,0   21        5     0.000028751  2206  X   R 480 / 512 [xfs_io]
+253,0   21        6     0.000033323  2206  X   R 736 / 992 [xfs_io]
+253,0   21        7     0.000035130  2206  X   R 736 / 768 [xfs_io]
+253,0   21        8     0.000039146  2206  X   R 992 / 1248 [xfs_io]
+253,0   21        9     0.000040734  2206  X   R 992 / 1024 [xfs_io]
+253,0   21       10     0.000044694  2206  X   R 1248 / 1504 [xfs_io]
+253,0   21       11     0.000046422  2206  X   R 1248 / 1280 [xfs_io]
+253,0   21       12     0.000050376  2206  X   R 1504 / 1760 [xfs_io]
+253,0   21       13     0.000051974  2206  X   R 1504 / 1536 [xfs_io]
+253,0   21       14     0.000055881  2206  X   R 1760 / 2016 [xfs_io]
+253,0   21       15     0.000057462  2206  X   R 1760 / 1792 [xfs_io]
+253,0   21       16     0.000060999  2206  X   R 2016 / 2272 [xfs_io]
+253,0   21       17     0.000062489  2206  X   R 2016 / 2048 [xfs_io]
+253,0   21       18     0.000066133  2206  X   R 2272 / 2528 [xfs_io]
+253,0   21       19     0.000067507  2206  X   R 2272 / 2304 [xfs_io]
+253,0   21       20     0.000071136  2206  X   R 2528 / 2784 [xfs_io]
+253,0   21       21     0.000072764  2206  X   R 2528 / 2560 [xfs_io]
+253,0   21       22     0.000076185  2206  X   R 2784 / 3040 [xfs_io]
+253,0   21       23     0.000077486  2206  X   R 2784 / 2816 [xfs_io]
+253,0   21       24     0.000080885  2206  X   R 3040 / 3296 [xfs_io]
+253,0   21       25     0.000082316  2206  X   R 3040 / 3072 [xfs_io]
+253,0   21       26     0.000085788  2206  X   R 3296 / 3552 [xfs_io]
+253,0   21       27     0.000087096  2206  X   R 3296 / 3328 [xfs_io]
+253,0   21       28     0.000093469  2206  X   R 3552 / 3808 [xfs_io]
+253,0   21       29     0.000095186  2206  X   R 3552 / 3584 [xfs_io]
+253,0   21       30     0.000099228  2206  X   R 3808 / 4064 [xfs_io]
+253,0   21       31     0.000101062  2206  X   R 3808 / 3840 [xfs_io]
+253,0   21       32     0.000104956  2206  X   R 4064 / 4096 [xfs_io]
+253,0   21       33     0.001138823     0  C   R 4096 + 200 [0]
 
-Beside needing adding the same DMI matches to 4 different files, this
-approach also triggers problem 2. from above, but then when suspended,
-during suspend the machine will not wakeup because the vbus path is
-disabled by the AML code when not charging, so the Vbus low-to-high
-IRQ is not triggered, the CPU never wakes up and the device does not
-charge even though the user likely things it is charging, esp. since
-the charge status LED is directly coupled to an adapter being plugged
-in and does not reflect actual charging.
+after this revert:
 
-This could be worked by enabling vbus-path explicitly from say the
-axp288_charger driver's suspend handler.
+253,0   18        1     0.000000000  4430  Q   R 224 + 3896 [xfs_io]
+253,0   18        2     0.000018359  4430  X   R 224 / 256 [xfs_io]
+253,0   18        3     0.000028898  4430  X   R 256 / 512 [xfs_io]
+253,0   18        4     0.000033535  4430  X   R 512 / 768 [xfs_io]
+253,0   18        5     0.000065684  4430  X   R 768 / 1024 [xfs_io]
+253,0   18        6     0.000091695  4430  X   R 1024 / 1280 [xfs_io]
+253,0   18        7     0.000098494  4430  X   R 1280 / 1536 [xfs_io]
+253,0   18        8     0.000114069  4430  X   R 1536 / 1792 [xfs_io]
+253,0   18        9     0.000129483  4430  X   R 1792 / 2048 [xfs_io]
+253,0   18       10     0.000136759  4430  X   R 2048 / 2304 [xfs_io]
+253,0   18       11     0.000152412  4430  X   R 2304 / 2560 [xfs_io]
+253,0   18       12     0.000160758  4430  X   R 2560 / 2816 [xfs_io]
+253,0   18       13     0.000183385  4430  X   R 2816 / 3072 [xfs_io]
+253,0   18       14     0.000190797  4430  X   R 3072 / 3328 [xfs_io]
+253,0   18       15     0.000197667  4430  X   R 3328 / 3584 [xfs_io]
+253,0   18       16     0.000218751  4430  X   R 3584 / 3840 [xfs_io]
+253,0   18       17     0.000226005  4430  X   R 3840 / 4096 [xfs_io]
+253,0   18       18     0.000250404  4430  Q   R 4120 + 176 [xfs_io]
+253,0   18       19     0.000847708     0  C   R 4096 + 24 [0]
+253,0   18       20     0.000855783     0  C   R 4120 + 176 [0]
 
-So neither situation is ideal, in both cased we need to explicitly enable
-the vbus-path to work around different variants of problem 2 above, this
-requires a quirk in the axp288_charger code.
-
-If we go the route of using the ACPI AC / Battery drivers then we need
-modifications to 3 other drivers; and we need to partially disable the
-axp288_charger code, while at the same time keeping it around to enable
-vbus-path on suspend.
-
-OTOH we can copy the hardcoding of 3A input-current-limit (we never touch
-Vhold, so that would stay at 4.7V) to the axp288_charger code, which needs
-changes regardless, then we concentrate all special handling of this
-interesting device model in the axp288_charger code. That is what this
-commit does.
-
+Fixes: effd58c95f27774 ("dm: always call blk_queue_split() in dm_process_bio()")
 Cc: stable@vger.kernel.org
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1791098
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reported-by: Andreas Gruenbacher <agruenba@redhat.com>
+Tested-by: Barry Marson <bmarson@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/power/supply/axp288_charger.c |   57 +++++++++++++++++++++++++++++++++-
- 1 file changed, 56 insertions(+), 1 deletion(-)
+ drivers/md/dm.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/power/supply/axp288_charger.c
-+++ b/drivers/power/supply/axp288_charger.c
-@@ -21,6 +21,7 @@
- #include <linux/property.h>
- #include <linux/mfd/axp20x.h>
- #include <linux/extcon.h>
-+#include <linux/dmi.h>
- 
- #define PS_STAT_VBUS_TRIGGER		BIT(0)
- #define PS_STAT_BAT_CHRG_DIR		BIT(2)
-@@ -545,6 +546,49 @@ out:
- 	return IRQ_HANDLED;
- }
- 
-+/*
-+ * The HP Pavilion x2 10 series comes in a number of variants:
-+ * Bay Trail SoC    + AXP288 PMIC, DMI_BOARD_NAME: "815D"
-+ * Cherry Trail SoC + AXP288 PMIC, DMI_BOARD_NAME: "813E"
-+ * Cherry Trail SoC + TI PMIC,     DMI_BOARD_NAME: "827C" or "82F4"
-+ *
-+ * The variants with the AXP288 PMIC are all kinds of special:
-+ *
-+ * 1. All variants use a Type-C connector which the AXP288 does not support, so
-+ * when using a Type-C charger it is not recognized. Unlike most AXP288 devices,
-+ * this model actually has mostly working ACPI AC / Battery code, the ACPI code
-+ * "solves" this by simply setting the input_current_limit to 3A.
-+ * There are still some issues with the ACPI code, so we use this native driver,
-+ * and to solve the charging not working (500mA is not enough) issue we hardcode
-+ * the 3A input_current_limit like the ACPI code does.
-+ *
-+ * 2. If no charger is connected the machine boots with the vbus-path disabled.
-+ * Normally this is done when a 5V boost converter is active to avoid the PMIC
-+ * trying to charge from the 5V boost converter's output. This is done when
-+ * an OTG host cable is inserted and the ID pin on the micro-B receptacle is
-+ * pulled low and the ID pin has an ACPI event handler associated with it
-+ * which re-enables the vbus-path when the ID pin is pulled high when the
-+ * OTG host cable is removed. The Type-C connector has no ID pin, there is
-+ * no ID pin handler and there appears to be no 5V boost converter, so we
-+ * end up not charging because the vbus-path is disabled, until we unplug
-+ * the charger which automatically clears the vbus-path disable bit and then
-+ * on the second plug-in of the adapter we start charging. To solve the not
-+ * charging on first charger plugin we unconditionally enable the vbus-path at
-+ * probe on this model, which is safe since there is no 5V boost converter.
-+ */
-+static const struct dmi_system_id axp288_hp_x2_dmi_ids[] = {
-+	{
-+		/*
-+		 * Bay Trail model has "Hewlett-Packard" as sys_vendor, Cherry
-+		 * Trail model has "HP", so we only match on product_name.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion x2 Detachable"),
-+		},
-+	},
-+	{} /* Terminating entry */
-+};
-+
- static void axp288_charger_extcon_evt_worker(struct work_struct *work)
- {
- 	struct axp288_chrg_info *info =
-@@ -568,7 +612,11 @@ static void axp288_charger_extcon_evt_wo
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1760,8 +1760,9 @@ static blk_qc_t dm_process_bio(struct ma
+ 	 * won't be imposed.
+ 	 */
+ 	if (current->bio_list) {
+-		blk_queue_split(md->queue, &bio);
+-		if (!is_abnormal_io(bio))
++		if (is_abnormal_io(bio))
++			blk_queue_split(md->queue, &bio);
++		else
+ 			dm_queue_split(md, ti, &bio);
  	}
  
- 	/* Determine cable/charger type */
--	if (extcon_get_state(edev, EXTCON_CHG_USB_SDP) > 0) {
-+	if (dmi_check_system(axp288_hp_x2_dmi_ids)) {
-+		/* See comment above axp288_hp_x2_dmi_ids declaration */
-+		dev_dbg(&info->pdev->dev, "HP X2 with Type-C, setting inlmt to 3A\n");
-+		current_limit = 3000000;
-+	} else if (extcon_get_state(edev, EXTCON_CHG_USB_SDP) > 0) {
- 		dev_dbg(&info->pdev->dev, "USB SDP charger is connected\n");
- 		current_limit = 500000;
- 	} else if (extcon_get_state(edev, EXTCON_CHG_USB_CDP) > 0) {
-@@ -685,6 +733,13 @@ static int charger_init_hw_regs(struct a
- 		return ret;
- 	}
- 
-+	if (dmi_check_system(axp288_hp_x2_dmi_ids)) {
-+		/* See comment above axp288_hp_x2_dmi_ids declaration */
-+		ret = axp288_charger_vbus_path_select(info, true);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
- 	/* Read current charge voltage and current limit */
- 	ret = regmap_read(info->regmap, AXP20X_CHRG_CTRL1, &val);
- 	if (ret < 0) {
 
 
