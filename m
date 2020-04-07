@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA3E1A0B54
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44BFD1A0B69
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728942AbgDGKZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:25:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36050 "EHLO mail.kernel.org"
+        id S1729128AbgDGK0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:26:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728950AbgDGKZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:25:28 -0400
+        id S1728774AbgDGK0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:26:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD3232078A;
-        Tue,  7 Apr 2020 10:25:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44D1F2074F;
+        Tue,  7 Apr 2020 10:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255127;
-        bh=f7u6t0dNWjyMlScevwXX5sR0zzzxI9tSWctejazajBU=;
+        s=default; t=1586255180;
+        bh=khVOaY2ujlcX/REye0ztyWAGD+5eMAaXklsRDjNbiUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SxVde5hOT76mNtTnENEcRkQt1/jiD5oInfNH0UgHpks8W44ikzeJ4tJ+zxL68EHTw
-         Z76fYPJ4wBY7wuPSnuQc1kS7biYW9dnPJjRG5KULB4dl3xlBjZ+r9tlRh4bIFYQHrt
-         +v1bCKFIEgJSo/l8KRaEu0JgJS46la/CeX4aBkR4=
+        b=XBj3AjEee1fSUyWTTYrXgtV+Dm0vunFUmwZoaYqilnImlZb4DYjmhYRWgN7Al8dnp
+         nCop/yf8CMaND/vKBwjin4Ok9qoKH1AIc5Dbn9stem01qpBsxZDvhlb7CCl84wsK99
+         s+Z14Ane/YfnHwdazdzE4RCwNMvfptGeddH4QynE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 41/46] tcp: fix TFO SYNACK undo to avoid double-timestamp-undo
-Date:   Tue,  7 Apr 2020 12:22:12 +0200
-Message-Id: <20200407101503.782719171@linuxfoundation.org>
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.6 16/29] misc: pci_endpoint_test: Fix to support > 10 pci-endpoint-test devices
+Date:   Tue,  7 Apr 2020 12:22:13 +0200
+Message-Id: <20200407101453.968495514@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
+References: <20200407101452.046058399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit dad8cea7add96a353fa1898b5ccefbb72da66f29 upstream.
+commit 6b443e5c80b67a7b8a85b33d052d655ef9064e90 upstream.
 
-In a rare corner case the new logic for undo of SYNACK RTO could
-result in triggering the warning in tcp_fastretrans_alert() that says:
-        WARN_ON(tp->retrans_out != 0);
+Adding more than 10 pci-endpoint-test devices results in
+"kobject_add_internal failed for pci-endpoint-test.1 with -EEXIST, don't
+try to register things with the same name in the same directory". This
+is because commit 2c156ac71c6b ("misc: Add host side PCI driver for PCI
+test function device") limited the length of the "name" to 20 characters.
+Change the length of the name to 24 in order to support upto 10000
+pci-endpoint-test devices.
 
-The warning looked like:
-
-WARNING: CPU: 1 PID: 1 at net/ipv4/tcp_input.c:2818 tcp_ack+0x13e0/0x3270
-
-The sequence that tickles this bug is:
- - Fast Open server receives TFO SYN with data, sends SYNACK
- - (client receives SYNACK and sends ACK, but ACK is lost)
- - server app sends some data packets
- - (N of the first data packets are lost)
- - server receives client ACK that has a TS ECR matching first SYNACK,
-   and also SACKs suggesting the first N data packets were lost
-    - server performs TS undo of SYNACK RTO, then immediately
-      enters recovery
-    - buggy behavior then performed a *second* undo that caused
-      the connection to be in CA_Open with retrans_out != 0
-
-Basically, the incoming ACK packet with SACK blocks causes us to first
-undo the cwnd reduction from the SYNACK RTO, but then immediately
-enters fast recovery, which then makes us eligible for undo again. And
-then tcp_rcv_synrecv_state_fastopen() accidentally performs an undo
-using a "mash-up" of state from two different loss recovery phases: it
-uses the timestamp info from the ACK of the original SYNACK, and the
-undo_marker from the fast recovery.
-
-This fix refines the logic to only invoke the tcp_try_undo_loss()
-inside tcp_rcv_synrecv_state_fastopen() if the connection is still in
-CA_Loss.  If peer SACKs triggered fast recovery, then
-tcp_rcv_synrecv_state_fastopen() can't safely undo.
-
-Fixes: 794200d66273 ("tcp: undo cwnd on Fast Open spurious SYNACK retransmit")
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2c156ac71c6b ("misc: Add host side PCI driver for PCI test function device")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org # v4.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/tcp_input.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/misc/pci_endpoint_test.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -6100,7 +6100,11 @@ static void tcp_rcv_synrecv_state_fastop
+--- a/drivers/misc/pci_endpoint_test.c
++++ b/drivers/misc/pci_endpoint_test.c
+@@ -633,7 +633,7 @@ static int pci_endpoint_test_probe(struc
  {
- 	struct request_sock *req;
- 
--	tcp_try_undo_loss(sk, false);
-+	/* If we are still handling the SYNACK RTO, see if timestamp ECR allows
-+	 * undo. If peer SACKs triggered fast recovery, we can't undo here.
-+	 */
-+	if (inet_csk(sk)->icsk_ca_state == TCP_CA_Loss)
-+		tcp_try_undo_loss(sk, false);
- 
- 	/* Reset rtx states to prevent spurious retransmits_timed_out() */
- 	tcp_sk(sk)->retrans_stamp = 0;
+ 	int err;
+ 	int id;
+-	char name[20];
++	char name[24];
+ 	enum pci_barno bar;
+ 	void __iomem *base;
+ 	struct device *dev = &pdev->dev;
 
 
