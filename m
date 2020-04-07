@@ -2,142 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D177E1A077B
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 08:42:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 381041A0781
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 08:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726767AbgDGGmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 02:42:22 -0400
-Received: from mail-pj1-f65.google.com ([209.85.216.65]:39376 "EHLO
-        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726631AbgDGGmW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 02:42:22 -0400
-Received: by mail-pj1-f65.google.com with SMTP id z3so328718pjr.4
-        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 23:42:20 -0700 (PDT)
+        id S1727187AbgDGGnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 02:43:11 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:35343 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726889AbgDGGnK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 02:43:10 -0400
+Received: by mail-lf1-f66.google.com with SMTP id r17so1473838lff.2
+        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 23:43:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0WrhtuGTvAiHolplQzOFCp8uMJmZGpkXRTQNU1RlUn0=;
-        b=jPOT+umaoEF3aQUwqmokQvtYp3aIyDh17j88Z9YBdJlfKijcfMwe7Lxpco89DoC8/E
-         Ny1XL9eb2ahxYn4jT2elqXy1pERg06pQw+w6+Tfz6ZfhXE+nZCOHoiXWQ546O+Fgxb/r
-         qK2h+JsAxM4BH0GZGEJ1zJirpC9OzFSLbL+LvEisEQRTdfQsIEapyV6wKLQBoH3uu8ra
-         f3nskIfKtdUFAcUs9zcsJ7a2tvNvdwASI2HtssF4oX8cIDCej9lydKz2YnWGvOQZQBsA
-         q+64iUFG4VqciZqCGm7wjpcB1Zj55N7f6BqDtCvvPC1QUFZRn1nfz0oefdmv7RXb0lv6
-         z/aQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=OivOvN/o8gD1CI0/RRvNf9QuUqmaxYvN8Wf6SB8cHhk=;
+        b=mxhMTlXaTWQOfj6UOAJK4K+XlKKUSLakafb8CAFJsq1PQC/hBcA34JiOdrRqMJnEGY
+         ZgjnmOq44EvutBSgvMEnI95N8byxPCRJrAQFbIeKRQJu/Qq7syLFZ5eeo/mkoJ0xiomK
+         sroYl33qPbntRAwCjfoihnS4GB4I3d7CCYOLRvo34xM5Vig70FEiQ06yE4gHt1fn+Qi6
+         j6YiDyx3W5KTvI6MfhE/HaT0Dh54hpqJOxM2y/n3BlNZ/SrYsHSspdl0LwTFTUtJNNyw
+         atB/jqPqTClkM282cfExVVnAxn5RwZfRtKpZKLMyq61mPupJy7ebVlNytIawKcZrxDCl
+         uS1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0WrhtuGTvAiHolplQzOFCp8uMJmZGpkXRTQNU1RlUn0=;
-        b=Q+WfM8qv1ZqhJVIApX4mkcqIKjKkcsgG4Sit4/KjmtEg0rFV/xiEyD+YPW/H/waNeS
-         /4vU7E2O3tCpdQqSLO6NVS8kjHeUHxmsqrObEYpfemvpOUYccEcw2oD0VRPLI1tGnZZr
-         EpYaOOw9mS8ZqiNV0UylDcY+hcrwF9p9mLf4GjQRIVOVjy8j0vfLmmo8WnUlB2mgZiB9
-         cy5/Q4VMsqQWzzkRLoJDjr5S/WKCB3Mnc5kz2P2vF1Casms3WsQRnf7FTxvji2Mxl9Ca
-         hG4qv7oIgH+zCoB9LMNz4m1bYRHy4IpGVeAI8jBwSmt20Jb7t4pr9IrdtZVvpJR2EA9u
-         DMHQ==
-X-Gm-Message-State: AGi0PuYI2gTcF+W1BTq/+5MI1ksnjXeVrRyov+moIpCVn3yo38aRfbqL
-        pSaAT88LA7yIqpS0uBxYk4ycfJF6jb0=
-X-Google-Smtp-Source: APiQypK57TH5YU6m+E+Su+24ecp8TBp3mF+myXrhgggwCX8YyCn4ma4LUKLutr1Mx9Sc4yxlYjeoQg==
-X-Received: by 2002:a17:902:7896:: with SMTP id q22mr953417pll.75.1586241739973;
-        Mon, 06 Apr 2020 23:42:19 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u21sm728698pjy.8.2020.04.06.23.42.19
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Apr 2020 23:42:19 -0700 (PDT)
-Message-ID: <5e8c20cb.1c69fb81.3e683.27d7@mx.google.com>
-Date:   Mon, 06 Apr 2020 23:42:19 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=OivOvN/o8gD1CI0/RRvNf9QuUqmaxYvN8Wf6SB8cHhk=;
+        b=bFsdd3SHKhGreMwupA/nHHm17O6slKslzcmx+57saM4urFqRdWOipgodheCsvDHao/
+         73ijWvE44ZYLWuEbf+iqrSj/tkrfKVTDGPzf65f2MCuqLjaZ60HJhYNhKxe+RTTIP9mu
+         U4/b8w50jqtk9Rv09CrK9oQYjqsxaCxjuCYln6ZUrSzE7qgYw5CBz8XK+kyePSejAd5n
+         CxBdnvuSA1KagNTTfprDwX3c/1XjZeDTla9owA30vbLJspcK7BEN7ZA0SYmZAvqn83vm
+         svnxnuvB0UFQiQTS7bAoMZqhs0laJ+wC4msQULFo/B7qYsNUGnUCdsmRcCC71B1PO+fY
+         ngWQ==
+X-Gm-Message-State: AGi0PuZ22UXDPcpcem/9OfmiBaq+WImdu77B3JTIZBRB8/s6jDnyo4qR
+        P5N72j/Pq6d97T33j2zcJEuxjStBmmu4SVwnmdzboQ==
+X-Google-Smtp-Source: APiQypKqAs223KGZqI3lkqdz0fRZjxubri09ud5p1UeeKehXNEZpq92ZBMf2CClMn4Xvs7o3el1+N//5NbPGVdrLbJs=
+X-Received: by 2002:ac2:5c07:: with SMTP id r7mr552282lfp.160.1586241786676;
+ Mon, 06 Apr 2020 23:43:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.218-15-g7272a1730d3e
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 74 boots: 3 failed,
- 65 passed with 4 offline, 2 untried/unknown (v4.4.218-15-g7272a1730d3e)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <1586175677-3061-1-git-send-email-sumit.garg@linaro.org>
+ <87ftdgokao.fsf@tynnyri.adurom.net> <1e352e2130e19aec5aa5fc42db397ad50bb4ad05.camel@sipsolutions.net>
+ <87r1x0zsgk.fsf@kamboji.qca.qualcomm.com> <a7e3e8cceff1301f5de5fb2c9aac62b372922b3e.camel@sipsolutions.net>
+ <87imiczrwm.fsf@kamboji.qca.qualcomm.com> <ee168acb768d87776db2be4e978616f9187908d0.camel@sipsolutions.net>
+ <CAFA6WYOjU_iDyAn5PMGe=usg-2sPtupSQEYwcomUcHZBAPnURA@mail.gmail.com>
+ <87v9mcycbf.fsf@kamboji.qca.qualcomm.com> <CABPxzYKs3nj0AUX4L-j87Db8v3WnM4uGif9nRTGgx1m2HNN8Rg@mail.gmail.com>
+ <35cadbaff1239378c955014f9ad491bc68dda028.camel@sipsolutions.net>
+ <CABPxzY++YMBPTV4quAkYvEAMfULjMXLkVfNzwocwubno5HO2Bw@mail.gmail.com>
+ <5575dfe84aa745a3c2a61e240c3d150dc8d9446f.camel@sipsolutions.net> <CABPxzYJHjaLH+ozyFZx1hwXrNxdHgJaardk-kn7d72y7RC-=hw@mail.gmail.com>
+In-Reply-To: <CABPxzYJHjaLH+ozyFZx1hwXrNxdHgJaardk-kn7d72y7RC-=hw@mail.gmail.com>
+From:   Sumit Garg <sumit.garg@linaro.org>
+Date:   Tue, 7 Apr 2020 12:12:54 +0530
+Message-ID: <CAFA6WYP1Os46sh8-PTyDp0ztK2e6cbCoATVX5HN-ojG7bNxeOw@mail.gmail.com>
+Subject: Re: [PATCH] mac80211: fix race in ieee80211_register_hw()
+To:     Krishna Chaitanya <chaitanya.mgit@gmail.com>,
+        Johannes Berg <johannes@sipsolutions.net>
+Cc:     Kalle Valo <kvalo@codeaurora.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>, kuba@kernel.org,
+        netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        =?UTF-8?Q?Matthias=2DPeter_Sch=C3=B6pfer?= 
+        <matthias.schoepfer@ithinx.io>,
+        "Berg Philipp (HAU-EDS)" <Philipp.Berg@liebherr.com>,
+        "Weitner Michael (HAU-EDS)" <Michael.Weitner@liebherr.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 74 boots: 3 failed, 65 passed with 4 offline, 2=
- untried/unknown (v4.4.218-15-g7272a1730d3e)
+On Mon, 6 Apr 2020 at 23:39, Krishna Chaitanya <chaitanya.mgit@gmail.com> wrote:
+>
+> On Mon, Apr 6, 2020 at 8:36 PM Johannes Berg <johannes@sipsolutions.net> wrote:
+> >
+> > On Mon, 2020-04-06 at 19:55 +0530, Krishna Chaitanya wrote:
+> >
+> > > > iw phy0 interface add wlan0 type station
+> > > > ip link set wlan0 up
+> > > Ah okay, got it, thanks. Very narrow window though :-) as the
+> > > alloc_ordered_workqueue
+> > > doesn't need RTNL and there is a long way to go to do if_add() from
+> > > user and setup
+> > > the driver for interrupts.
+> >
+> > True, I do wonder how this is hit. Maybe something with no preempt and a
+> > uevent triggering things?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.218-15-g7272a1730d3e/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.218-15-g7272a1730d3e/
+The crash is reproducible while working with iwd [1] which is
+basically a wireless daemon. It can be started as "iwd.service" during
+boot that can detect wiphy registration events and configure
+interfaces. Have a look at this text [2] from iwd manager.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.218-15-g7272a1730d3e
-Git Commit: 7272a1730d3e906b608802b86f16e0b4ee2dc550
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 44 unique boards, 16 SoC families, 17 builds out of 190
+To have a simple reproducer, please have a look at this trigger script
+[3] from Matthias in CC. With this script I am able to reproduce the
+kernel crash with approx. frequency of 1/10 across reboots on
+dragonboard 410c.
 
-Boot Regressions Detected:
+There is nothing special like no preempt.
 
-arm:
+[1] https://wiki.archlinux.org/index.php/Iwd
+[2] https://git.kernel.org/pub/scm/network/wireless/iwd.git/tree/src/manager.c#n563
+[3] https://github.com/DasRoteSkelett/meta-iwd/blob/master/recipes-trigger/trigger/trigger/trigger.sh
 
-    multi_v7_defconfig:
-        gcc-8:
-          tegra20-iris-512:
-              lab-baylibre-seattle: new failure (last pass: v4.4.218-5-g1d2=
-188f191be)
+> Probably, it might be specific to the dragonboard410c configuration
+>
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 58 days (last pass: v4.4.=
-212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
+As described above, it isn't specific to any dragonboard 410c
+configuration and one should be able to reproduce it on other boards
+too using iwd depending on how long it takes to start corresponding
+wiphy device.
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 11 days (last pass: v4.4.216-127-=
-g955137020949 - first fail: v4.4.217)
+> > > Again depends on the driver though, it
+> > > should properly handle
+> > > pending ieee80211_register_hw() with start().
+>
+> > It could, but it'd be really tricky. Much better to fix mac80211.
 
-    tegra_defconfig:
-        gcc-8:
-          tegra20-iris-512:
-              lab-baylibre-seattle: new failure (last pass: v4.4.218-5-g1d2=
-188f191be)
++1
 
-Boot Failures Detected:
+-Sumit
 
-arm:
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+> Sure, anyways it is a good change.
