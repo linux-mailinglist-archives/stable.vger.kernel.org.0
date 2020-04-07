@@ -2,54 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ABB91A0EE6
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 16:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB93E1A0F34
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 16:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728737AbgDGOJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 10:09:43 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:47520 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728482AbgDGOJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 10:09:43 -0400
-Received: from [5.158.153.52] (helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1jLov5-0006yk-TB; Tue, 07 Apr 2020 16:09:39 +0200
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id 7A0E9101303; Tue,  7 Apr 2020 16:09:39 +0200 (CEST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Jan Kara <jack@suse.cz>
-Cc:     Andrei Vagin <avagin@gmail.com>,
-        LKML <linux-kernel@vger.kernel.org>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] ucount: Fix wrong inotify ucounts in /proc/sys/user
-In-Reply-To: <20200407121814.26073-1-jack@suse.cz>
-References: <20200407121814.26073-1-jack@suse.cz>
-Date:   Tue, 07 Apr 2020 16:09:39 +0200
-Message-ID: <87o8s3jskc.fsf@nanos.tec.linutronix.de>
+        id S1729108AbgDGObZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 10:31:25 -0400
+Received: from nibbler.cm4all.net ([82.165.145.151]:47577 "EHLO
+        nibbler.cm4all.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728573AbgDGObZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 10:31:25 -0400
+X-Greylist: delayed 496 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 Apr 2020 10:31:24 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by nibbler.cm4all.net (Postfix) with ESMTP id 9D533C00E8
+        for <stable@vger.kernel.org>; Tue,  7 Apr 2020 16:23:05 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at nibbler.cm4all.net
+Received: from nibbler.cm4all.net ([127.0.0.1])
+        by localhost (nibbler.cm4all.net [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id 6ZHPjxeilZVm for <stable@vger.kernel.org>;
+        Tue,  7 Apr 2020 16:23:05 +0200 (CEST)
+Received: from zero.intern.cm-ag (zero.intern.cm-ag [172.30.16.10])
+        by nibbler.cm4all.net (Postfix) with SMTP id 715F2C0158
+        for <stable@vger.kernel.org>; Tue,  7 Apr 2020 16:23:05 +0200 (CEST)
+Received: (qmail 19653 invoked from network); 7 Apr 2020 17:35:18 +0200
+Received: from unknown (HELO rabbit.intern.cm-ag) (172.30.3.1)
+  by zero.intern.cm-ag with SMTP; 7 Apr 2020 17:35:18 +0200
+Received: by rabbit.intern.cm-ag (Postfix, from userid 1023)
+        id 3558B46143D; Tue,  7 Apr 2020 16:23:05 +0200 (CEST)
+From:   Max Kellermann <mk@cm4all.com>
+To:     linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org,
+        trond.myklebust@hammerspace.com
+Cc:     bfields@redhat.com, tytso@mit.edu, viro@zeniv.linux.org.uk,
+        agruenba@redhat.com, linux-kernel@vger.kernel.org,
+        Max Kellermann <mk@cm4all.com>, stable@vger.kernel.org
+Subject: [PATCH v3 1/4] fs/posix_acl: apply umask if superblock disables ACL support
+Date:   Tue,  7 Apr 2020 16:22:40 +0200
+Message-Id: <20200407142243.2032-1-mk@cm4all.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Jan Kara <jack@suse.cz> writes:
-> Commit 769071ac9f20 "ns: Introduce Time Namespace" broke reporting of
-> inotify ucounts (max_inotify_instances, max_inotify_watches) in
-> /proc/sys/user because it has added UCOUNT_TIME_NAMESPACES into enum
-> ucount_type but didn't properly update reporting in
-> kernel/ucount.c:setup_userns_sysctls(). Update the reporting to fix the
-> issue and also add BUILD_BUG_ON to catch a similar problem in the
-> future.
+The function posix_acl_create() applies the umask only if the inode
+has no ACL (= NULL) or if ACLs are not supported by the filesystem
+driver (= -EOPNOTSUPP).
 
-Just merged that:
+However, this happens only after after the IS_POSIXACL() check
+succeeded.  If the superblock doesn't enable ACL support, umask will
+never be applied.  A filesystem which has no ACL support will of
+course not enable SB_POSIXACL, rendering the umask-applying code path
+unreachable.
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/commit/?h=timers/urgent&id=eeec26d5da8248ea4e240b8795bb4364213d3247
+This fixes a bug which causes the umask to be ignored with O_TMPFILE
+on tmpfs:
 
-Could you please send a patch with just the build bug on ?
+ https://github.com/MusicPlayerDaemon/MPD/issues/558
+ https://bugs.gentoo.org/show_bug.cgi?id=686142#c3
+ https://bugzilla.kernel.org/show_bug.cgi?id=203625
 
-Thanks,
+Signed-off-by: Max Kellermann <mk@cm4all.com>
+Reviewed-by: J. Bruce Fields <bfields@redhat.com>
+Cc: stable@vger.kernel.org
+---
+ fs/posix_acl.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-        tglx
+diff --git a/fs/posix_acl.c b/fs/posix_acl.c
+index 249672bf54fe..e5e7a2295b99 100644
+--- a/fs/posix_acl.c
++++ b/fs/posix_acl.c
+@@ -589,9 +589,14 @@ posix_acl_create(struct inode *dir, umode_t *mode,
+ 	*acl = NULL;
+ 	*default_acl = NULL;
+ 
+-	if (S_ISLNK(*mode) || !IS_POSIXACL(dir))
++	if (S_ISLNK(*mode))
+ 		return 0;
+ 
++	if (!IS_POSIXACL(dir)) {
++		*mode &= ~current_umask();
++		return 0;
++	}
++
+ 	p = get_acl(dir, ACL_TYPE_DEFAULT);
+ 	if (!p || p == ERR_PTR(-EOPNOTSUPP)) {
+ 		*mode &= ~current_umask();
+-- 
+2.20.1
+
