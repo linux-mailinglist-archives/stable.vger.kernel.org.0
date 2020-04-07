@@ -2,152 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B651A0B0B
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AF0B1A0B7D
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728426AbgDGKXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32984 "EHLO mail.kernel.org"
+        id S1728554AbgDGK1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:27:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728409AbgDGKXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:15 -0400
+        id S1729270AbgDGK1D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:27:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAEDF20771;
-        Tue,  7 Apr 2020 10:23:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E28B52074B;
+        Tue,  7 Apr 2020 10:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254994;
-        bh=LajlwZRWozrByV7K911L5FLO5HDq7i1yOkPN4glUwB0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YIw4I+L46A2BpA13B2M0tWU9QemgB72Xc047WkKshGwW1uKzcrREHrBv8UF2t7ZYH
-         iLkoRJRSbzYgOwR6SCFK7/aFVH97n2FQPjohOFj3DzqAS53F1J8WVpx5AD/yHUbqjM
-         FpD68I8DvFsWdFRc4CKsRtK8Iyms+8/obxajRoOY=
+        s=default; t=1586255222;
+        bh=YVQM+iczOo1Fh288Dyr3xQF9gGdlPeApTwv+EbhBE20=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eBrYudOMN/1m14Cqjf5kl9HSMciRCtvVbZWp8jlOREOc1BB41s0MCujOfRRRFmGqX
+         962C0TZDj4KJ/Mu+pt3Xy/fPVXUD76GjNR/z/9foDXkUzKyWTBiobSVjccf7DWJzHS
+         8kUOFAT090aa/6EK+3kgrfrUXMnG9WqK3Tb7mswY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Barry Marson <bmarson@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 24/36] Revert "dm: always call blk_queue_split() in dm_process_bio()"
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.6 00/29] 5.6.3-rc1 review
 Date:   Tue,  7 Apr 2020 12:21:57 +0200
-Message-Id: <20200407101457.374690045@linuxfoundation.org>
+Message-Id: <20200407101452.046058399@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.6.3-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.6.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.6.3-rc1
+X-KernelTest-Deadline: 2020-04-09T10:14+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+This is the start of the stable review cycle for the 5.6.3 release.
+There are 29 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 120c9257f5f19e5d1e87efcbb5531b7cd81b7d74 upstream.
+Responses should be made by Thu, 09 Apr 2020 10:13:38 +0000.
+Anything received after that time might be too late.
 
-This reverts commit effd58c95f277744f75d6e08819ac859dbcbd351.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.3-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+and the diffstat can be found below.
 
-blk_queue_split() is causing excessive IO splitting -- because
-blk_max_size_offset() depends on 'chunk_sectors' limit being set and
-if it isn't (as is the case for DM targets!) it falls back to
-splitting on a 'max_sectors' boundary regardless of offset.
+thanks,
 
-"Fix" this by reverting back to _not_ using blk_queue_split() in
-dm_process_bio() for normal IO (reads and writes).  Long-term fix is
-still TBD but it should focus on training blk_max_size_offset() to
-call into a DM provided hook (to call DM's max_io_len()).
+greg k-h
 
-Test results from simple misaligned IO test on 4-way dm-striped device
-with chunksize of 128K and stripesize of 512K:
+-------------
+Pseudo-Shortlog of commits:
 
-xfs_io -d -c 'pread -b 2m 224s 4072s' /dev/mapper/stripe_dev
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.6.3-rc1
 
-before this revert:
+Bibby Hsieh <bibby.hsieh@mediatek.com>
+    soc: mediatek: knows_txdone needs to be set in Mediatek CMDQ helper
 
-253,0   21        1     0.000000000  2206  Q   R 224 + 4072 [xfs_io]
-253,0   21        2     0.000008267  2206  X   R 224 / 480 [xfs_io]
-253,0   21        3     0.000010530  2206  X   R 224 / 256 [xfs_io]
-253,0   21        4     0.000027022  2206  X   R 480 / 736 [xfs_io]
-253,0   21        5     0.000028751  2206  X   R 480 / 512 [xfs_io]
-253,0   21        6     0.000033323  2206  X   R 736 / 992 [xfs_io]
-253,0   21        7     0.000035130  2206  X   R 736 / 768 [xfs_io]
-253,0   21        8     0.000039146  2206  X   R 992 / 1248 [xfs_io]
-253,0   21        9     0.000040734  2206  X   R 992 / 1024 [xfs_io]
-253,0   21       10     0.000044694  2206  X   R 1248 / 1504 [xfs_io]
-253,0   21       11     0.000046422  2206  X   R 1248 / 1280 [xfs_io]
-253,0   21       12     0.000050376  2206  X   R 1504 / 1760 [xfs_io]
-253,0   21       13     0.000051974  2206  X   R 1504 / 1536 [xfs_io]
-253,0   21       14     0.000055881  2206  X   R 1760 / 2016 [xfs_io]
-253,0   21       15     0.000057462  2206  X   R 1760 / 1792 [xfs_io]
-253,0   21       16     0.000060999  2206  X   R 2016 / 2272 [xfs_io]
-253,0   21       17     0.000062489  2206  X   R 2016 / 2048 [xfs_io]
-253,0   21       18     0.000066133  2206  X   R 2272 / 2528 [xfs_io]
-253,0   21       19     0.000067507  2206  X   R 2272 / 2304 [xfs_io]
-253,0   21       20     0.000071136  2206  X   R 2528 / 2784 [xfs_io]
-253,0   21       21     0.000072764  2206  X   R 2528 / 2560 [xfs_io]
-253,0   21       22     0.000076185  2206  X   R 2784 / 3040 [xfs_io]
-253,0   21       23     0.000077486  2206  X   R 2784 / 2816 [xfs_io]
-253,0   21       24     0.000080885  2206  X   R 3040 / 3296 [xfs_io]
-253,0   21       25     0.000082316  2206  X   R 3040 / 3072 [xfs_io]
-253,0   21       26     0.000085788  2206  X   R 3296 / 3552 [xfs_io]
-253,0   21       27     0.000087096  2206  X   R 3296 / 3328 [xfs_io]
-253,0   21       28     0.000093469  2206  X   R 3552 / 3808 [xfs_io]
-253,0   21       29     0.000095186  2206  X   R 3552 / 3584 [xfs_io]
-253,0   21       30     0.000099228  2206  X   R 3808 / 4064 [xfs_io]
-253,0   21       31     0.000101062  2206  X   R 3808 / 3840 [xfs_io]
-253,0   21       32     0.000104956  2206  X   R 4064 / 4096 [xfs_io]
-253,0   21       33     0.001138823     0  C   R 4096 + 200 [0]
+Geoffrey Allott <geoffrey@allott.email>
+    ALSA: hda/ca0132 - Add Recon3Di quirk to handle integrated sound on EVGA X99 Classified motherboard
 
-after this revert:
+Mike Snitzer <snitzer@redhat.com>
+    Revert "dm: always call blk_queue_split() in dm_process_bio()"
 
-253,0   18        1     0.000000000  4430  Q   R 224 + 3896 [xfs_io]
-253,0   18        2     0.000018359  4430  X   R 224 / 256 [xfs_io]
-253,0   18        3     0.000028898  4430  X   R 256 / 512 [xfs_io]
-253,0   18        4     0.000033535  4430  X   R 512 / 768 [xfs_io]
-253,0   18        5     0.000065684  4430  X   R 768 / 1024 [xfs_io]
-253,0   18        6     0.000091695  4430  X   R 1024 / 1280 [xfs_io]
-253,0   18        7     0.000098494  4430  X   R 1280 / 1536 [xfs_io]
-253,0   18        8     0.000114069  4430  X   R 1536 / 1792 [xfs_io]
-253,0   18        9     0.000129483  4430  X   R 1792 / 2048 [xfs_io]
-253,0   18       10     0.000136759  4430  X   R 2048 / 2304 [xfs_io]
-253,0   18       11     0.000152412  4430  X   R 2304 / 2560 [xfs_io]
-253,0   18       12     0.000160758  4430  X   R 2560 / 2816 [xfs_io]
-253,0   18       13     0.000183385  4430  X   R 2816 / 3072 [xfs_io]
-253,0   18       14     0.000190797  4430  X   R 3072 / 3328 [xfs_io]
-253,0   18       15     0.000197667  4430  X   R 3328 / 3584 [xfs_io]
-253,0   18       16     0.000218751  4430  X   R 3584 / 3840 [xfs_io]
-253,0   18       17     0.000226005  4430  X   R 3840 / 4096 [xfs_io]
-253,0   18       18     0.000250404  4430  Q   R 4120 + 176 [xfs_io]
-253,0   18       19     0.000847708     0  C   R 4096 + 24 [0]
-253,0   18       20     0.000855783     0  C   R 4120 + 176 [0]
+Takashi Iwai <tiwai@suse.de>
+    Revert "ALSA: uapi: Drop asound.h inclusion from asoc.h"
 
-Fixes: effd58c95f27774 ("dm: always call blk_queue_split() in dm_process_bio()")
-Cc: stable@vger.kernel.org
-Reported-by: Andreas Gruenbacher <agruenba@redhat.com>
-Tested-by: Barry Marson <bmarson@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Hans de Goede <hdegoede@redhat.com>
+    power: supply: axp288_charger: Add special handling for HP Pavilion x2 10
 
----
- drivers/md/dm.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Hans de Goede <hdegoede@redhat.com>
+    extcon: axp288: Add wakeup support
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1760,8 +1760,9 @@ static blk_qc_t dm_process_bio(struct ma
- 	 * won't be imposed.
- 	 */
- 	if (current->bio_list) {
--		blk_queue_split(md->queue, &bio);
--		if (!is_abnormal_io(bio))
-+		if (is_abnormal_io(bio))
-+			blk_queue_split(md->queue, &bio);
-+		else
- 			dm_queue_split(md, ti, &bio);
- 	}
- 
+Freeman Liu <freeman.liu@unisoc.com>
+    nvmem: sprd: Fix the block lock operation
+
+Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+    nvmem: check for NULL reg_read and reg_write before dereferencing
+
+Khouloud Touil <ktouil@baylibre.com>
+    nvmem: release the write-protect pin
+
+Alexander Usyskin <alexander.usyskin@intel.com>
+    mei: me: add cedar fork device ids
+
+Eugene Syromiatnikov <esyr@redhat.com>
+    coresight: do not use the BIT() macro in the UAPI header
+
+Kelsey Skunberg <kelsey.skunberg@gmail.com>
+    PCI: sysfs: Revert "rescan" file renames
+
+Kishon Vijay Abraham I <kishon@ti.com>
+    misc: pci_endpoint_test: Avoid using module parameter to determine irqtype
+
+Kishon Vijay Abraham I <kishon@ti.com>
+    misc: pci_endpoint_test: Fix to support > 10 pci-endpoint-test devices
+
+YueHaibing <yuehaibing@huawei.com>
+    misc: rtsx: set correct pcr_ops for rts522A
+
+Uma Shankar <uma.shankar@intel.com>
+    drm/i915/display: Fix mode private_flags comparison at atomic_check
+
+Torsten Duwe <duwe@lst.de>
+    drm/bridge: analogix-anx6345: Avoid duplicate -supply suffix
+
+Matthew Wilcox (Oracle) <willy@infradead.org>
+    XArray: Fix xa_find_next for large multi-index entries
+
+Jann Horn <jannh@google.com>
+    bpf: Fix tnum constraints for 32-bit comparisons
+
+Guenter Roeck <linux@roeck-us.net>
+    brcmfmac: abort and release host after error
+
+Daniel Jordan <daniel.m.jordan@oracle.com>
+    padata: fix uninitialized return value in padata_replace()
+
+Xin Long <lucien.xin@gmail.com>
+    udp: initialize is_flist with 0 in udp_gro_receive
+
+Florian Westphal <fw@strlen.de>
+    net: fix fraglist segmentation reference count leak
+
+Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+    net: macb: Fix handling of fixed-link node
+
+Qiujun Huang <hqjagain@gmail.com>
+    sctp: fix refcount bug in sctp_wfree
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: fix possibly using a bad saddr with a given dst
+
+William Dauchy <w.dauchy@criteo.com>
+    net, ip_tunnel: fix interface lookup with no key
+
+Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+    net: dsa: ksz: Select KSZ protocol tag
+
+Qian Cai <cai@lca.pw>
+    ipv4: fix a RCU-list lock in fib_triestat_seq_show
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ drivers/extcon/extcon-axp288.c                     |  32 ++++++
+ drivers/gpu/drm/bridge/analogix/analogix-anx6345.c |   4 +-
+ drivers/gpu/drm/i915/display/intel_display.c       |   4 +-
+ drivers/md/dm.c                                    |   5 +-
+ drivers/misc/cardreader/rts5227.c                  |   1 +
+ drivers/misc/mei/hw-me-regs.h                      |   2 +
+ drivers/misc/mei/pci-me.c                          |   2 +
+ drivers/misc/pci_endpoint_test.c                   |  14 ++-
+ drivers/net/dsa/microchip/Kconfig                  |   1 +
+ drivers/net/ethernet/cadence/macb_main.c           |   3 +
+ .../wireless/broadcom/brcm80211/brcmfmac/sdio.c    |   2 +
+ drivers/nvmem/core.c                               |   1 +
+ drivers/nvmem/nvmem-sysfs.c                        |   6 ++
+ drivers/nvmem/sprd-efuse.c                         |   2 +-
+ drivers/pci/pci-sysfs.c                            |   6 +-
+ drivers/power/supply/axp288_charger.c              |  57 ++++++++++-
+ drivers/soc/mediatek/mtk-cmdq-helper.c             |   1 +
+ include/uapi/linux/coresight-stm.h                 |   6 +-
+ include/uapi/sound/asoc.h                          |   1 +
+ kernel/bpf/verifier.c                              | 108 ++++++++++++++-------
+ kernel/padata.c                                    |   2 +-
+ lib/test_xarray.c                                  |  18 ++++
+ lib/xarray.c                                       |   3 +-
+ net/core/skbuff.c                                  |   1 +
+ net/ipv4/fib_trie.c                                |   3 +
+ net/ipv4/ip_tunnel.c                               |   6 +-
+ net/ipv4/udp_offload.c                             |   1 +
+ net/sctp/ipv6.c                                    |  20 ++--
+ net/sctp/protocol.c                                |  28 ++++--
+ net/sctp/socket.c                                  |  31 ++++--
+ sound/pci/hda/patch_ca0132.c                       |   1 +
+ 32 files changed, 292 insertions(+), 84 deletions(-)
 
 
