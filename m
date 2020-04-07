@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE411A0B9C
+	by mail.lfdr.de (Postfix) with ESMTP id A42A91A0B9D
 	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:28:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729068AbgDGK0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:26:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36862 "EHLO mail.kernel.org"
+        id S1729081AbgDGK0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:26:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728303AbgDGK0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:26:02 -0400
+        id S1729079AbgDGK0E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:26:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A49F2082D;
-        Tue,  7 Apr 2020 10:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B88A32074F;
+        Tue,  7 Apr 2020 10:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255161;
-        bh=TorpH4uEST+U3yxKOkCZL/m53n9xz2lDBNqCEdKUsyA=;
+        s=default; t=1586255164;
+        bh=lgSttysFDVvu+oC6gu+5HLnGkjnVdiiFpHo8cQiPQaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=prSI+ab112bbw4dTnIPAXRWID7LqEeq8w1y44QgJnsxtTUqVm2GBxYxxE30p+3Lch
-         FJ2FXftIukuLnP9wy11gHya54ztFJ4H/lIk9OAxoOiU4rpIEwrgWeiKnz/T9m6f+61
-         qOvhx2mLemAdYAAabFdx7QAiDbVYyhj7I9DP7l2U=
+        b=gfxN0/j/ZtFb40VlZrBflaly3T9URCPTDlacyG9A27KQl4RropozbvS3lQ29GXQLl
+         JcDrbDKcVG88qmeod/7VkRW2BIsAfa/XTTHPLgd8N5GcEFOJ7b2zWZlBehWVxn1rFc
+         9oJJvrO2AX/NGHh2OXQ2ymJ2J08UENOaGGgqukog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.5 27/46] nvmem: check for NULL reg_read and reg_write before dereferencing
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 01/29] ipv4: fix a RCU-list lock in fib_triestat_seq_show
 Date:   Tue,  7 Apr 2020 12:21:58 +0200
-Message-Id: <20200407101502.416106818@linuxfoundation.org>
+Message-Id: <20200407101452.188484947@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
+References: <20200407101452.046058399@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,48 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+From: Qian Cai <cai@lca.pw>
 
-commit 3c91ef69a3e94f78546b246225ed573fbf1735b4 upstream.
+[ Upstream commit fbe4e0c1b298b4665ee6915266c9d6c5b934ef4a ]
 
-Return -EPERM if reg_read is NULL in bin_attr_nvmem_read() or if
-reg_write is NULL in bin_attr_nvmem_write().
+fib_triestat_seq_show() calls hlist_for_each_entry_rcu(tb, head,
+tb_hlist) without rcu_read_lock() will trigger a warning,
 
-This prevents NULL dereferences such as the one described in
-03cd45d2e219 ("thunderbolt: Prevent crash if non-active NVMem file is
-read")
+ net/ipv4/fib_trie.c:2579 RCU-list traversed in non-reader section!!
 
-Signed-off-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200310132257.23358-10-srinivas.kandagatla@linaro.org
+ other info that might help us debug this:
+
+ rcu_scheduler_active = 2, debug_locks = 1
+ 1 lock held by proc01/115277:
+  #0: c0000014507acf00 (&p->lock){+.+.}-{3:3}, at: seq_read+0x58/0x670
+
+ Call Trace:
+  dump_stack+0xf4/0x164 (unreliable)
+  lockdep_rcu_suspicious+0x140/0x164
+  fib_triestat_seq_show+0x750/0x880
+  seq_read+0x1a0/0x670
+  proc_reg_read+0x10c/0x1b0
+  __vfs_read+0x3c/0x70
+  vfs_read+0xac/0x170
+  ksys_read+0x7c/0x140
+  system_call+0x5c/0x68
+
+Fix it by adding a pair of rcu_read_lock/unlock() and use
+cond_resched_rcu() to avoid the situation where walking of a large
+number of items  may prevent scheduling for a long time.
+
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/nvmem/nvmem-sysfs.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv4/fib_trie.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/nvmem/nvmem-sysfs.c
-+++ b/drivers/nvmem/nvmem-sysfs.c
-@@ -56,6 +56,9 @@ static ssize_t bin_attr_nvmem_read(struc
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -2577,6 +2577,7 @@ static int fib_triestat_seq_show(struct
+ 		   " %zd bytes, size of tnode: %zd bytes.\n",
+ 		   LEAF_SIZE, TNODE_SIZE(0));
  
- 	count = round_down(count, nvmem->word_size);
++	rcu_read_lock();
+ 	for (h = 0; h < FIB_TABLE_HASHSZ; h++) {
+ 		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
+ 		struct fib_table *tb;
+@@ -2596,7 +2597,9 @@ static int fib_triestat_seq_show(struct
+ 			trie_show_usage(seq, t->stats);
+ #endif
+ 		}
++		cond_resched_rcu();
+ 	}
++	rcu_read_unlock();
  
-+	if (!nvmem->reg_read)
-+		return -EPERM;
-+
- 	rc = nvmem->reg_read(nvmem->priv, pos, buf, count);
- 
- 	if (rc)
-@@ -90,6 +93,9 @@ static ssize_t bin_attr_nvmem_write(stru
- 
- 	count = round_down(count, nvmem->word_size);
- 
-+	if (!nvmem->reg_write)
-+		return -EPERM;
-+
- 	rc = nvmem->reg_write(nvmem->priv, pos, buf, count);
- 
- 	if (rc)
+ 	return 0;
+ }
 
 
