@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 131481A0BBA
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 125501A0AFD
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:22:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728862AbgDGKZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:25:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35468 "EHLO mail.kernel.org"
+        id S1728266AbgDGKWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728852AbgDGKZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:25:03 -0400
+        id S1728255AbgDGKWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:22:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E2FB20644;
-        Tue,  7 Apr 2020 10:25:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69BF32074F;
+        Tue,  7 Apr 2020 10:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255102;
-        bh=MunPn4yar4LQvXOnM4u+z9RULnq2Lbrbew8pDtjZ0zM=;
+        s=default; t=1586254964;
+        bh=JZKbPbuU2UHbrb6VuFFKYu3d0IBGpuh9U6WpdN5Q95o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FNWYErKb21ktqtnKNi8jWVpgxLNgcH/Wmg/D4J7xfTfmvAiLDBNA2mq9EcKNO/XOu
-         JvClL5T3N/msImmI0NeWwsmZHbf8ZuCw2LLwcL5XlSVQ+W4gizJzWXpPdmJGEYIbq8
-         X5uG/LAK96Iyll9dbDy6hBuMI/H66mKtBg5WuQ0g=
+        b=SkVZFRCSAaIXxDSQ4nk2O6uiS+1h+CGqyM0boZev8rJvOyqKZO4f8hCFpb3AM4KOy
+         vac7EmXppem49t1R0t7EcOzXsOruhOAZS6TKC8NnOJK1izltV3jKZad01bN2Pyu2Pc
+         7kf47JntV6NncoTrMtVheC/QIalsQV+LV6E5aMtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Cristian Birsan <cristian.birsan@microchip.com>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 06/46] net: macb: Fix handling of fixed-link node
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 04/36] drm/bochs: downgrade pci_request_region failure from error to warning
 Date:   Tue,  7 Apr 2020 12:21:37 +0200
-Message-Id: <20200407101500.171147979@linuxfoundation.org>
+Message-Id: <20200407101454.837793251@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-[ Upstream commit 79540d133ed6f65a37dacb54b7a704cc8a24c52d ]
+[ Upstream commit 8c34cd1a7f089dc03933289c5d4a4d1489549828 ]
 
-fixed-link nodes are treated as PHY nodes by of_mdiobus_child_is_phy().
-We must check if the interface is a fixed-link before looking up for PHY
-nodes.
+Shutdown of firmware framebuffer has a bunch of problems.  Because
+of this the framebuffer region might still be reserved even after
+drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
 
-Fixes: 7897b071ac3b ("net: macb: convert to phylink")
-Tested-by: Cristian Birsan <cristian.birsan@microchip.com>
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Don't consider pci_request_region() failure for the framebuffer
+region as fatal error to workaround this issue.
+
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200313084152.2734-1-kraxel@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -685,6 +685,9 @@ static int macb_mdiobus_register(struct
- {
- 	struct device_node *child, *np = bp->pdev->dev.of_node;
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index e567bdfa2ab8e..bb1391784caf0 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -156,10 +156,8 @@ int bochs_hw_init(struct drm_device *dev)
+ 		size = min(size, mem);
+ 	}
  
-+	if (of_phy_is_fixed_link(np))
-+		return mdiobus_register(bp->mii_bus);
-+
- 	/* Only create the PHY from the device tree if at least one PHY is
- 	 * described. Otherwise scan the entire MDIO bus. We do this to support
- 	 * old device tree that did not follow the best practices and did not
+-	if (pci_request_region(pdev, 0, "bochs-drm") != 0) {
+-		DRM_ERROR("Cannot request framebuffer\n");
+-		return -EBUSY;
+-	}
++	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
++		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
+ 
+ 	bochs->fb_map = ioremap(addr, size);
+ 	if (bochs->fb_map == NULL) {
+-- 
+2.20.1
+
 
 
