@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 561AF1A0BD1
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6211A0BD3
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728177AbgDGKXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33822 "EHLO mail.kernel.org"
+        id S1728591AbgDGKXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:23:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728572AbgDGKXv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:51 -0400
+        id S1728585AbgDGKXx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:23:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E7502082D;
-        Tue,  7 Apr 2020 10:23:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFE4420644;
+        Tue,  7 Apr 2020 10:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255030;
-        bh=IefxS/Yc5ROgBysnlD7RBJzc6vlR8Ndpi0VarpK9QKA=;
+        s=default; t=1586255033;
+        bh=kbZl1uDjGDqe9P85bbeC5tlO3WXKxc6I56W8sgaOY54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgEnh+cTklHT92fkelwkJ/4zloF+0WSb3Qwd+ophHzjXkABjuY0tfgBM4VbhlbMbj
-         f1GApiSNW3rPnZLsvvkaPcGM9eTmeaIY2ru22nL4NvZGfv8mpS/71KB8g60ae2ZhbL
-         7inlMS4rtfFnpY93qwVJswm/MbxbKKRAFRuqA0VQ=
+        b=C8B8bevqcdGusAgVCN8q3YFS56P8XJ8fmuRW4uGU/TQraEKurKYqnsVBczPR+aQIX
+         mqbbJ6nXkweNDrQ074AOaGB65h0k/nY8zVNnRT4/se+gnnupy84fPQCAkAnrl3093B
+         mVjALNsYG2t6dQ4kO0wpwjS1vgcIYaNeA4JBbrQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/36] XArray: Fix xa_find_next for large multi-index entries
-Date:   Tue,  7 Apr 2020 12:21:45 +0200
-Message-Id: <20200407101455.909577389@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/36] padata: fix uninitialized return value in padata_replace()
+Date:   Tue,  7 Apr 2020 12:21:46 +0200
+Message-Id: <20200407101456.064759735@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
 References: <20200407101454.281052964@linuxfoundation.org>
@@ -45,84 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit bd40b17ca49d7d110adf456e647701ce74de2241 ]
+[ Upstream commit 41ccdbfd5427bbbf3ed58b16750113b38fad1780 ]
 
-Coverity pointed out that xas_sibling() was shifting xa_offset without
-promoting it to an unsigned long first, so the shift could cause an
-overflow and we'd get the wrong answer.  The fix is obvious, and the
-new test-case provokes UBSAN to report an error:
-runtime error: shift exponent 60 is too large for 32-bit type 'int'
+According to Geert's report[0],
 
-Fixes: 19c30f4dd092 ("XArray: Fix xa_find_after with multi-index entries")
-Reported-by: Bjorn Helgaas <bhelgaas@google.com>
-Reported-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: stable@vger.kernel.org
+  kernel/padata.c: warning: 'err' may be used uninitialized in this
+    function [-Wuninitialized]:  => 539:2
+
+Warning is seen only with older compilers on certain archs.  The
+runtime effect is potentially returning garbage down the stack when
+padata's cpumasks are modified before any pcrypt requests have run.
+
+Simplest fix is to initialize err to the success value.
+
+[0] http://lkml.kernel.org/r/20200210135506.11536-1-geert@linux-m68k.org
+
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: bbefa1dd6a6d ("crypto: pcrypt - Avoid deadlock by using per-instance padata queues")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_xarray.c | 18 ++++++++++++++++++
- lib/xarray.c      |  3 ++-
- 2 files changed, 20 insertions(+), 1 deletion(-)
+ kernel/padata.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/test_xarray.c b/lib/test_xarray.c
-index 55c14e8c88591..8c7d7a8468b88 100644
---- a/lib/test_xarray.c
-+++ b/lib/test_xarray.c
-@@ -12,6 +12,9 @@
- static unsigned int tests_run;
- static unsigned int tests_passed;
- 
-+static const unsigned int order_limit =
-+		IS_ENABLED(CONFIG_XARRAY_MULTI) ? BITS_PER_LONG : 1;
-+
- #ifndef XA_DEBUG
- # ifdef __KERNEL__
- void xa_dump(const struct xarray *xa) { }
-@@ -959,6 +962,20 @@ static noinline void check_multi_find_2(struct xarray *xa)
- 	}
- }
- 
-+static noinline void check_multi_find_3(struct xarray *xa)
-+{
-+	unsigned int order;
-+
-+	for (order = 5; order < order_limit; order++) {
-+		unsigned long index = 1UL << (order - 5);
-+
-+		XA_BUG_ON(xa, !xa_empty(xa));
-+		xa_store_order(xa, 0, order - 4, xa_mk_index(0), GFP_KERNEL);
-+		XA_BUG_ON(xa, xa_find_after(xa, &index, ULONG_MAX, XA_PRESENT));
-+		xa_erase_index(xa, 0);
-+	}
-+}
-+
- static noinline void check_find_1(struct xarray *xa)
+diff --git a/kernel/padata.c b/kernel/padata.c
+index fda7a7039422d..7bd37dd9ec55b 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -516,7 +516,7 @@ static int padata_replace(struct padata_instance *pinst)
  {
- 	unsigned long i, j, k;
-@@ -1081,6 +1098,7 @@ static noinline void check_find(struct xarray *xa)
- 	for (i = 2; i < 10; i++)
- 		check_multi_find_1(xa, i);
- 	check_multi_find_2(xa);
-+	check_multi_find_3(xa);
- }
+ 	int notification_mask = 0;
+ 	struct padata_shell *ps;
+-	int err;
++	int err = 0;
  
- /* See find_swap_entry() in mm/shmem.c */
-diff --git a/lib/xarray.c b/lib/xarray.c
-index 1d9fab7db8dad..acd1fad2e862a 100644
---- a/lib/xarray.c
-+++ b/lib/xarray.c
-@@ -1839,7 +1839,8 @@ static bool xas_sibling(struct xa_state *xas)
- 	if (!node)
- 		return false;
- 	mask = (XA_CHUNK_SIZE << node->shift) - 1;
--	return (xas->xa_index & mask) > (xas->xa_offset << node->shift);
-+	return (xas->xa_index & mask) >
-+		((unsigned long)xas->xa_offset << node->shift);
- }
+ 	pinst->flags |= PADATA_RESET;
  
- /**
 -- 
 2.20.1
 
