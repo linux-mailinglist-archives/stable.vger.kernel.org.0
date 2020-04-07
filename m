@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C56151A0BA4
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:28:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 789301A0B4C
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726562AbgDGK1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:27:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38618 "EHLO mail.kernel.org"
+        id S1728494AbgDGKZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728771AbgDGK0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:26:30 -0400
+        id S1728907AbgDGKZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:25:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11C3320644;
-        Tue,  7 Apr 2020 10:26:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AE7E2074B;
+        Tue,  7 Apr 2020 10:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255190;
-        bh=4nPDAK8FhaKO//oce9RzisZ2p1XmrMAHJp8g7CR2YFg=;
+        s=default; t=1586255115;
+        bh=zMvRv1xvSRez/I8XS6dOdstcuN71d0iQj0e9cGUUUMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S1tg2o0dAxv7a6gG668cS/53p18KPhBmXoTAOi3mXQdXlmow5jCu3EVd3fsYX64Vw
-         r44MSdvr7xZcCkMtcrVjQGa/QURHNYSOqp8a/4FLpB2mZbroJI1UXXwZSkop1lj5Gs
-         eMej0dyKCKGZgSJR0ADKXz058jDRucfbJCh4NX/A=
+        b=RviyVA1F8wLV9ZCRmEGoPw7v07uQ98W5w5eGn4wi+IY52lYG6zrzsfjBhAp7B0STq
+         wd4Bs2fLxUMmaUdCpN6xAs2nfWC0K+eycY3htFiRjEZmK6Bz3iX17O5ZBNStxB2OmR
+         I+Rz4wz5R9YB0u+XBBbxVlbI3ixdhTPFswVR00hU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Birsan <cristian.birsan@microchip.com>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 02/29] net: dsa: ksz: Select KSZ protocol tag
+        stable@vger.kernel.org, Freeman Liu <freeman.liu@unisoc.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.5 28/46] nvmem: sprd: Fix the block lock operation
 Date:   Tue,  7 Apr 2020 12:21:59 +0200
-Message-Id: <20200407101452.289024380@linuxfoundation.org>
+Message-Id: <20200407101502.527377529@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
-References: <20200407101452.046058399@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,31 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Freeman Liu <freeman.liu@unisoc.com>
 
-[ Upstream commit f772148eb757b0823fbfdc2fe592d5e06c7f19b0 ]
+commit c66ebde4d988b592e8f0008e04c47cc4950a49d3 upstream.
 
-KSZ protocol tag is needed by the KSZ DSA drivers.
+According to the Spreadtrum eFuse specification, we should write 0 to
+the block to trigger the lock operation.
 
-Fixes: 0b9f9dfbfab4 ("dsa: Allow tag drivers to be built as modules")
-Tested-by: Cristian Birsan <cristian.birsan@microchip.com>
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 096030e7f449 ("nvmem: sprd: Add Spreadtrum SoCs eFuse support")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Freeman Liu <freeman.liu@unisoc.com>
+Signed-off-by: Baolin Wang <baolin.wang7@gmail.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200323150007.7487-2-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/dsa/microchip/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/drivers/net/dsa/microchip/Kconfig
-+++ b/drivers/net/dsa/microchip/Kconfig
-@@ -1,5 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0-only
- config NET_DSA_MICROCHIP_KSZ_COMMON
-+	select NET_DSA_TAG_KSZ
- 	tristate
+---
+ drivers/nvmem/sprd-efuse.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/nvmem/sprd-efuse.c
++++ b/drivers/nvmem/sprd-efuse.c
+@@ -239,7 +239,7 @@ static int sprd_efuse_raw_prog(struct sp
+ 		ret = -EBUSY;
+ 	} else {
+ 		sprd_efuse_set_prog_lock(efuse, lock);
+-		writel(*data, efuse->base + SPRD_EFUSE_MEM(blk));
++		writel(0, efuse->base + SPRD_EFUSE_MEM(blk));
+ 		sprd_efuse_set_prog_lock(efuse, false);
+ 	}
  
- menuconfig NET_DSA_MICROCHIP_KSZ9477
 
 
