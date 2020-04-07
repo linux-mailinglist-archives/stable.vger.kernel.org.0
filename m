@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EBE31A02D3
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 02:10:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 046441A01FF
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 02:01:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726799AbgDGABZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726830AbgDGABZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 6 Apr 2020 20:01:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34190 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726759AbgDGABX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726762AbgDGABX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 6 Apr 2020 20:01:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D4BE2078A;
-        Tue,  7 Apr 2020 00:01:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FD912082D;
+        Tue,  7 Apr 2020 00:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586217680;
-        bh=aJGDApDJxafW+Vlm41KJkKg+iMU290np3OMqekDT3+0=;
+        s=default; t=1586217682;
+        bh=SteS77gACO4sJ7lpztNtH3/D2R3O5SRCa8yV+ZMnFak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PzpmA8SD5sXlyfu0ggmLC5oCSmsi9nwvk6R/cCF7sN+5pQ66hU1kVrOM1FeHEsbYy
-         wrugyvsa3W+pXGCoLy2w7KE+OTDfOQQxFJh3Cf7TiAzCc1/E+LxFTgHOiMdcNDnH1y
-         PTVEt5vSvqZ03YMyi4ncjn6uBdnNis4EsZnGqND4=
+        b=Mdzmy0SVEjfSYvaOTSoqMQQZ3EjlVHUUQMaSffrGR0VLI3r9XVm8GM4q3LNBNYSfD
+         guxYbQKGnlFcjXXaxzpkx8SgJ/0scp7XctuKFWBfMUmrH0jaQQ40fzaNhKs5qkPJ2m
+         GDOg0py5JinKUyn1Ta3yz4B+XflWPSCaNHC3ZXVI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Wei <wei.zheng@vivo.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 17/35] net: vxge: fix wrong __VA_ARGS__ usage
-Date:   Mon,  6 Apr 2020 20:00:39 -0400
-Message-Id: <20200407000058.16423-17-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, maemo-leste@lists.dyne.org,
+        Arthur Demchenkov <spinal.by@gmail.com>,
+        Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 18/35] ARM: dts: omap4-droid4: Fix lost touchscreen interrupts
+Date:   Mon,  6 Apr 2020 20:00:40 -0400
+Message-Id: <20200407000058.16423-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200407000058.16423-1-sashal@kernel.org>
 References: <20200407000058.16423-1-sashal@kernel.org>
@@ -43,96 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Wei <wei.zheng@vivo.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit b317538c47943f9903860d83cc0060409e12d2ff ]
+[ Upstream commit 4abd9930d189dedaa59097144c6d8f623342fa72 ]
 
-printk in macro vxge_debug_ll uses __VA_ARGS__ without "##" prefix,
-it causes a build error when there is no variable
-arguments(e.g. only fmt is specified.).
+Looks like we can have the maxtouch touchscreen stop producing interrupts
+if an edge interrupt is lost. This can happen easily when the SoC idles as
+the gpio controller may not see any state for an edge interrupt if it
+is briefly triggered when the system is idle.
 
-Signed-off-by: Zheng Wei <wei.zheng@vivo.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Also it looks like maxtouch stops sending any further interrupts if the
+interrupt is not handled. And we do have several cases of maxtouch already
+configured with a level interrupt, so let's do that.
+
+With level interrupt the gpio controller has the interrupt state visible
+after idle. Note that eventually we will probably also be using the
+Linux generic wakeirq configured for the controller, but that cannot be
+done until the maxtouch driver supports runtime PM.
+
+Cc: maemo-leste@lists.dyne.org
+Cc: Arthur Demchenkov <spinal.by@gmail.com>
+Cc: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/neterion/vxge/vxge-config.h |  2 +-
- drivers/net/ethernet/neterion/vxge/vxge-main.h   | 14 +++++++-------
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/motorola-mapphone-common.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/neterion/vxge/vxge-config.h b/drivers/net/ethernet/neterion/vxge/vxge-config.h
-index e678ba379598e..628fa9b2f7416 100644
---- a/drivers/net/ethernet/neterion/vxge/vxge-config.h
-+++ b/drivers/net/ethernet/neterion/vxge/vxge-config.h
-@@ -2045,7 +2045,7 @@ vxge_hw_vpath_strip_fcs_check(struct __vxge_hw_device *hldev, u64 vpath_mask);
- 	if ((level >= VXGE_ERR && VXGE_COMPONENT_LL & VXGE_DEBUG_ERR_MASK) ||  \
- 	    (level >= VXGE_TRACE && VXGE_COMPONENT_LL & VXGE_DEBUG_TRACE_MASK))\
- 		if ((mask & VXGE_DEBUG_MASK) == mask)			       \
--			printk(fmt "\n", __VA_ARGS__);			       \
-+			printk(fmt "\n", ##__VA_ARGS__);		       \
- } while (0)
- #else
- #define vxge_debug_ll(level, mask, fmt, ...)
-diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.h b/drivers/net/ethernet/neterion/vxge/vxge-main.h
-index 59a57ff5e96af..9c86f4f9cd424 100644
---- a/drivers/net/ethernet/neterion/vxge/vxge-main.h
-+++ b/drivers/net/ethernet/neterion/vxge/vxge-main.h
-@@ -452,49 +452,49 @@ int vxge_fw_upgrade(struct vxgedev *vdev, char *fw_name, int override);
+diff --git a/arch/arm/boot/dts/motorola-mapphone-common.dtsi b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+index da6b107da84a4..aeb5a673c209e 100644
+--- a/arch/arm/boot/dts/motorola-mapphone-common.dtsi
++++ b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+@@ -413,7 +413,7 @@
+ 		reset-gpios = <&gpio6 13 GPIO_ACTIVE_HIGH>; /* gpio173 */
  
- #if (VXGE_DEBUG_LL_CONFIG & VXGE_DEBUG_MASK)
- #define vxge_debug_ll_config(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_LL_CONFIG, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_LL_CONFIG, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_ll_config(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_INIT & VXGE_DEBUG_MASK)
- #define vxge_debug_init(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_INIT, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_INIT, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_init(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_TX & VXGE_DEBUG_MASK)
- #define vxge_debug_tx(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_TX, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_TX, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_tx(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_RX & VXGE_DEBUG_MASK)
- #define vxge_debug_rx(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_RX, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_RX, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_rx(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_MEM & VXGE_DEBUG_MASK)
- #define vxge_debug_mem(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_MEM, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_MEM, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_mem(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_ENTRYEXIT & VXGE_DEBUG_MASK)
- #define vxge_debug_entryexit(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_ENTRYEXIT, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_ENTRYEXIT, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_entryexit(level, fmt, ...)
- #endif
- 
- #if (VXGE_DEBUG_INTR & VXGE_DEBUG_MASK)
- #define vxge_debug_intr(level, fmt, ...) \
--	vxge_debug_ll(level, VXGE_DEBUG_INTR, fmt, __VA_ARGS__)
-+	vxge_debug_ll(level, VXGE_DEBUG_INTR, fmt, ##__VA_ARGS__)
- #else
- #define vxge_debug_intr(level, fmt, ...)
- #endif
+ 		/* gpio_183 with sys_nirq2 pad as wakeup */
+-		interrupts-extended = <&gpio6 23 IRQ_TYPE_EDGE_FALLING>,
++		interrupts-extended = <&gpio6 23 IRQ_TYPE_LEVEL_LOW>,
+ 				      <&omap4_pmx_core 0x160>;
+ 		interrupt-names = "irq", "wakeup";
+ 		wakeup-source;
 -- 
 2.20.1
 
