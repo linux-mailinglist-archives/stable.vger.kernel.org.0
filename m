@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EB2B1A0B8D
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8471A0B14
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728674AbgDGK0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:26:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39088 "EHLO mail.kernel.org"
+        id S1728495AbgDGKXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:23:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729231AbgDGK0v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:26:51 -0400
+        id S1728478AbgDGKXc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:23:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA1B62074B;
-        Tue,  7 Apr 2020 10:26:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB2B32074B;
+        Tue,  7 Apr 2020 10:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255210;
-        bh=X5su88Ck+vcA/+euMXd0fYE+MAIfr2mwTk/13mbANOA=;
+        s=default; t=1586255011;
+        bh=jofjR1UsY4XmO6hftHWB0RJ35cTeTLnamkyk1zHaLRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxpOmALmX9EO4ddfyWF9FCADLAhXyP+g/KH0fPVaEzPJUVVemfxgfePa1uRw3Z0tm
-         5wpoIq6HV3erAFxLtpcRrowPqhBoobIpzwrfydo1phay9DUOOd1EYjC+FXxV9mHFxq
-         YtitgZ4G4BTtn60bkXgSBxybTAbM9QqFor3IjstI=
+        b=vmWjPRISIxQK++dnhfc5duMG9TVuCVbh7JNL0jyTiv8nhA7k8rnFOGL9cWIZD0aRH
+         1Ff3WygbE+NtFpH/CaFYqLjs0Xpfoa60qMBEOI0BIEuuaqCdyGfAcDjBpeV3Iecc+v
+         j/CJ50xZcNSGw+peHID/jDWs7j/HTxfzXFN3DoDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Marcelo Ricardo Leitner <mleitner@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+cea71eec5d6de256d54d@syzkaller.appspotmail.com
-Subject: [PATCH 5.6 05/29] sctp: fix refcount bug in sctp_wfree
-Date:   Tue,  7 Apr 2020 12:22:02 +0200
-Message-Id: <20200407101452.619901149@linuxfoundation.org>
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>
+Subject: [PATCH 5.4 30/36] iwlwifi: dbg: dont abort if sending DBGC_SUSPEND_RESUME fails
+Date:   Tue,  7 Apr 2020 12:22:03 +0200
+Message-Id: <20200407101458.123203444@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
-References: <20200407101452.046058399@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,115 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit 5c3e82fe159622e46e91458c1a6509c321a62820 ]
+commit 699b760bd29edba736590fffef7654cb079c753e upstream.
 
-We should iterate over the datamsgs to move
-all chunks(skbs) to newsk.
+If the firmware is in a bad state or not initialized fully, sending
+the DBGC_SUSPEND_RESUME command fails but we can still collect logs.
 
-The following case cause the bug:
-for the trouble SKB, it was in outq->transmitted list
+Instead of aborting the entire dump process, simply ignore the error.
+By removing the last callpoint that was checking the return value, we
+can also convert the function to return void.
 
-sctp_outq_sack
-        sctp_check_transmitted
-                SKB was moved to outq->sacked list
-        then throw away the sack queue
-                SKB was deleted from outq->sacked
-(but it was held by datamsg at sctp_datamsg_to_asoc
-So, sctp_wfree was not called here)
-
-then migrate happened
-
-        sctp_for_each_tx_datachunk(
-        sctp_clear_owner_w);
-        sctp_assoc_migrate();
-        sctp_for_each_tx_datachunk(
-        sctp_set_owner_w);
-SKB was not in the outq, and was not changed to newsk
-
-finally
-
-__sctp_outq_teardown
-        sctp_chunk_put (for another skb)
-                sctp_datamsg_put
-                        __kfree_skb(msg->frag_list)
-                                sctp_wfree (for SKB)
-	SKB->sk was still oldsk (skb->sk != asoc->base.sk).
-
-Reported-and-tested-by: syzbot+cea71eec5d6de256d54d@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <mleitner@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: 576058330f2d ("iwlwifi: dbg: support debug recording suspend resume command")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200306151129.dcec37b2efd4.I8dcd190431d110a6a0e88095ce93591ccfb3d78d@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sctp/socket.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -147,29 +147,44 @@ static void sctp_clear_owner_w(struct sc
- 	skb_orphan(chunk->skb);
+---
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.c |   15 +++++----------
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.h |    6 +++---
+ 2 files changed, 8 insertions(+), 13 deletions(-)
+
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+@@ -2311,10 +2311,7 @@ static void iwl_fw_dbg_collect_sync(stru
+ 		goto out;
+ 	}
+ 
+-	if (iwl_fw_dbg_stop_restart_recording(fwrt, &params, true)) {
+-		IWL_ERR(fwrt, "Failed to stop DBGC recording, aborting dump\n");
+-		goto out;
+-	}
++	iwl_fw_dbg_stop_restart_recording(fwrt, &params, true);
+ 
+ 	IWL_DEBUG_FW_INFO(fwrt, "WRT: Data collection start\n");
+ 	if (iwl_trans_dbg_ini_valid(fwrt->trans))
+@@ -2480,14 +2477,14 @@ static int iwl_fw_dbg_restart_recording(
+ 	return 0;
  }
  
-+#define traverse_and_process()	\
-+do {				\
-+	msg = chunk->msg;	\
-+	if (msg == prev_msg)	\
-+		continue;	\
-+	list_for_each_entry(c, &msg->chunks, frag_list) {	\
-+		if ((clear && asoc->base.sk == c->skb->sk) ||	\
-+		    (!clear && asoc->base.sk != c->skb->sk))	\
-+			cb(c);	\
-+	}			\
-+	prev_msg = msg;		\
-+} while (0)
-+
- static void sctp_for_each_tx_datachunk(struct sctp_association *asoc,
-+				       bool clear,
- 				       void (*cb)(struct sctp_chunk *))
- 
+-int iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
+-				      struct iwl_fw_dbg_params *params,
+-				      bool stop)
++void iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
++				       struct iwl_fw_dbg_params *params,
++				       bool stop)
  {
-+	struct sctp_datamsg *msg, *prev_msg = NULL;
- 	struct sctp_outq *q = &asoc->outqueue;
-+	struct sctp_chunk *chunk, *c;
- 	struct sctp_transport *t;
--	struct sctp_chunk *chunk;
+ 	int ret = 0;
  
- 	list_for_each_entry(t, &asoc->peer.transport_addr_list, transports)
- 		list_for_each_entry(chunk, &t->transmitted, transmitted_list)
--			cb(chunk);
-+			traverse_and_process();
+ 	if (test_bit(STATUS_FW_ERROR, &fwrt->trans->status))
+-		return 0;
++		return;
  
- 	list_for_each_entry(chunk, &q->retransmit, transmitted_list)
--		cb(chunk);
-+		traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->sacked, transmitted_list)
--		cb(chunk);
-+		traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->abandoned, transmitted_list)
--		cb(chunk);
-+		traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->out_chunk_list, list)
--		cb(chunk);
-+		traverse_and_process();
+ 	if (fw_has_capa(&fwrt->fw->ucode_capa,
+ 			IWL_UCODE_TLV_CAPA_DBG_SUSPEND_RESUME_CMD_SUPP))
+@@ -2504,7 +2501,5 @@ int iwl_fw_dbg_stop_restart_recording(st
+ 			iwl_fw_set_dbg_rec_on(fwrt);
+ 	}
+ #endif
+-
+-	return ret;
  }
+ IWL_EXPORT_SYMBOL(iwl_fw_dbg_stop_restart_recording);
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
+@@ -263,9 +263,9 @@ _iwl_fw_dbg_trigger_simple_stop(struct i
+ 	_iwl_fw_dbg_trigger_simple_stop((fwrt), (wdev),		\
+ 					iwl_fw_dbg_get_trigger((fwrt)->fw,\
+ 							       (trig)))
+-int iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
+-				      struct iwl_fw_dbg_params *params,
+-				      bool stop);
++void iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
++				       struct iwl_fw_dbg_params *params,
++				       bool stop);
  
- static void sctp_for_each_rx_skb(struct sctp_association *asoc, struct sock *sk,
-@@ -9574,9 +9589,9 @@ static int sctp_sock_migrate(struct sock
- 	 * paths won't try to lock it and then oldsk.
- 	 */
- 	lock_sock_nested(newsk, SINGLE_DEPTH_NESTING);
--	sctp_for_each_tx_datachunk(assoc, sctp_clear_owner_w);
-+	sctp_for_each_tx_datachunk(assoc, true, sctp_clear_owner_w);
- 	sctp_assoc_migrate(assoc, newsk);
--	sctp_for_each_tx_datachunk(assoc, sctp_set_owner_w);
-+	sctp_for_each_tx_datachunk(assoc, false, sctp_set_owner_w);
- 
- 	/* If the association on the newsk is already closed before accept()
- 	 * is called, set RCV_SHUTDOWN flag.
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+ static inline void iwl_fw_set_dbg_rec_on(struct iwl_fw_runtime *fwrt)
 
 
