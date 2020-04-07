@@ -2,137 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFFBC1A1180
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 18:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 708131A11E1
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 18:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726877AbgDGQfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 12:35:12 -0400
-Received: from rcdn-iport-4.cisco.com ([173.37.86.75]:5255 "EHLO
-        rcdn-iport-4.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726873AbgDGQfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 12:35:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=cisco.com; i=@cisco.com; l=428; q=dns/txt; s=iport;
-  t=1586277312; x=1587486912;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=rUKFq0G4vmiNoKpfot/ksTAVDfAJ8xYSDal/Y2PZ81s=;
-  b=EMSMYJEqPre+mZ9RiHbmJUmdx6XpFgfqbAmpW6XOAJ+z4MNzI/Z1Carl
-   wTnp0mVaFuhLs2WylCqARIPf1hrXL4lHZAzsbSEJI1z3OSwxqpU1/iPE+
-   HuShfbtOQwErt5XjktMYCYwtyq++r/CaqD2MwPi0vE1mmAKpk151/5FNb
-   o=;
-X-IronPort-AV: E=Sophos;i="5.72,355,1580774400"; 
-   d="scan'208";a="747243348"
-Received: from alln-core-7.cisco.com ([173.36.13.140])
-  by rcdn-iport-4.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 07 Apr 2020 16:34:46 +0000
-Received: from XCH-ALN-002.cisco.com (xch-aln-002.cisco.com [173.36.7.12])
-        by alln-core-7.cisco.com (8.15.2/8.15.2) with ESMTPS id 037GYkbF003931
-        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=FAIL);
-        Tue, 7 Apr 2020 16:34:46 GMT
-Received: from xhs-rtp-002.cisco.com (64.101.210.229) by XCH-ALN-002.cisco.com
- (173.36.7.12) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 7 Apr
- 2020 11:34:46 -0500
-Received: from xhs-rcd-003.cisco.com (173.37.227.248) by xhs-rtp-002.cisco.com
- (64.101.210.229) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 7 Apr
- 2020 12:34:45 -0400
-Received: from NAM04-SN1-obe.outbound.protection.outlook.com (72.163.14.9) by
- xhs-rcd-003.cisco.com (173.37.227.248) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2 via Frontend Transport; Tue, 7 Apr 2020 11:34:44 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RjQMkkYr2AxYcf6jd5UYlTKLTJypxJ7V373gnmDY46l2bW8nRInjmJ30WHIL8FIR518Ekgk0GvwlnI7MHcY4nA9Bw2YP43/R4BT0min/GgsFsCLUrSzYZnG/xCjgiH12eIzK22mrUCoXbff5WtZxojwuHXdKc0txJ3lcnqgTb6+CsJbM1yCM25ds0rTaSlmm8pnoWRl2O5c8NW0ZKTZeyBzNTvB5H4N6G4hGirWlenYougE0CJCweGEBjsm8NtKyfcn5cg63TWZlmpycbfZloMuf4qznDXcSOKZg9nVEgVGrnixfwgIdJJgvZs+TAO2j+KhGSsHV5z0eIqw2KQyGtA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rUKFq0G4vmiNoKpfot/ksTAVDfAJ8xYSDal/Y2PZ81s=;
- b=JAc5X3UoWZdMSuJOTqk0sPUTQDTcpKYYKWQwfxe3u4ETESEF5bIGowQFcVn31LaEgVR4aIemptD8RlhMaXFgOx8cbHjNglzpCh1eC2i2zlKiAq0uJ3YTiVjV6J5I9JONeY8DJf2Z6M3rEo9W+9QJfkMEy18MGl4FEGdP2pCzBnonGTp97zIq7MAnXhPrTi6ha/frUu4gYRw9xPTnuCRp5inf6zpmoFcwpcvOdfl32G6Cm2v/9p7DRDH7eecwgOVoq6KmXaMnxNIcfc7mRzwvbdJhk1KPiaZOMrqyH/BydLbeMoAFzHIZ1MtTnREfoRk1Z6XY+NfNFsJr1I4jBsgsdQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cisco.com; dmarc=pass action=none header.from=cisco.com;
- dkim=pass header.d=cisco.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cisco.onmicrosoft.com;
- s=selector2-cisco-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rUKFq0G4vmiNoKpfot/ksTAVDfAJ8xYSDal/Y2PZ81s=;
- b=y2g+kaRo5dEj97qX76y1BMTz2IEJvmbuzLHrA/tl5LgYahuT2Kq0LntiFiP6FHhml3Fj0vPRfg9RCgV8aWmS1qpqWWYiJkNIV0OOtxEOBb80QT9NA2YlcggTxt+LTTILBM3Z7w5qDRwAuWQLpXLK1gUVA63E46DDSVRPgsPBpk8=
-Received: from BYAPR11MB3205.namprd11.prod.outlook.com (2603:10b6:a03:1e::32)
- by BYAPR11MB3512.namprd11.prod.outlook.com (2603:10b6:a03:8f::26) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2878.16; Tue, 7 Apr
- 2020 16:34:43 +0000
-Received: from BYAPR11MB3205.namprd11.prod.outlook.com
- ([fe80::d015:3039:2595:7222]) by BYAPR11MB3205.namprd11.prod.outlook.com
- ([fe80::d015:3039:2595:7222%7]) with mapi id 15.20.2878.018; Tue, 7 Apr 2020
- 16:34:43 +0000
-From:   "Daniel Walker (danielwa)" <danielwa@cisco.com>
-To:     "Y.b. Lu" <yangbo.lu@nxp.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Shyam More (shymore)" <shymore@cisco.com>,
-        "xe-linux-external(mailer list)" <xe-linux-external@cisco.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: mmc: sdhci-of-esdhc: fix P2020 errata handling
-Thread-Topic: mmc: sdhci-of-esdhc: fix P2020 errata handling
-Thread-Index: AQHWDPpxdQdUnnvWsk6SjNz175Py5g==
-Date:   Tue, 7 Apr 2020 16:34:43 +0000
-Message-ID: <20200407163443.GK823@zorba>
-References: <20200331205007.GZ823@zorba>
- <AM7PR04MB6885CDDD1ECEEAE7111C6201F8C90@AM7PR04MB6885.eurprd04.prod.outlook.com>
- <20200401152635.GA823@zorba>
-In-Reply-To: <20200401152635.GA823@zorba>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-Auto-Response-Suppress: DR, OOF, AutoReply
-X-MS-TNEF-Correlator: 
-user-agent: Mutt/1.9.4 (2018-02-28)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=danielwa@cisco.com; 
-x-originating-ip: [128.107.241.170]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: eecf6529-f61a-4a02-4004-08d7db1193cd
-x-ms-traffictypediagnostic: BYAPR11MB3512:
-x-ld-processed: 5ae1af62-9505-4097-a69a-c1553ef7840e,ExtAddr
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BYAPR11MB35125C225C72609A296F095EDDC30@BYAPR11MB3512.namprd11.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2000;
-x-forefront-prvs: 036614DD9C
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB3205.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10009020)(7916004)(4636009)(346002)(396003)(366004)(136003)(39860400002)(376002)(71200400001)(8936002)(4744005)(4326008)(33716001)(186003)(26005)(6506007)(86362001)(1076003)(64756008)(8676002)(66946007)(66446008)(33656002)(81166006)(6512007)(478600001)(6916009)(76116006)(6486002)(2906002)(5660300002)(66556008)(316002)(81156014)(54906003)(66476007)(9686003);DIR:OUT;SFP:1101;
-received-spf: None (protection.outlook.com: cisco.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: pbkNydo48CluwUswmrT8TNgIAmTYrdwYeipGJcxS9dnTDTq+C+5fg2ZpjIvZ+ZEWt/0ULljsa5mLBXf3qlrvjbkMSqH6xKZxgzhMI5/nRYqusCNyPW58WiPs4daA3bFvLnFHERzNvk+3x0gyApxmDua/yRDRTZXSvbBYoQepUh4SDeY0CaLUiR5jJM+JCy/x/hWS9ds9KfGFsMkW54Ej8pJnAA2eaOBv6kxdes68SG7SnmYQqk2XYN6zllF0uNrB8IMDrsK0V7y4FsqQ3Vg1HC4gpIq5rH9u6/o4Qs8egDhL98D27j9y3ai1lkZIMS6gkw+nMemHbktCg1y53STktTQdXrh+RuNfzwvrInmmOvq4XoyRfHFD0xO+raDl72RWl0o8BcjzaL3V6m+W/joWH65N1pDYlSK8EdhILMf52HeDA5TzyFBSIFANxRe53iKf
-x-ms-exchange-antispam-messagedata: eLrckXkddL5thDfOb+Moxiek1HzIM4Uo1t7kEBw5aCPnrSxynVmfJ5Ny4Xs0NRXilTCfwdfpmT4BKndqrVZyucyaUgbtmu5QHG6HpKz/YzAh5NT/tZlVQ5Obg0O3uKCQ96lO+dubRBb4dTc2hVDs1g==
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <B8A3B340358612478E4ED06802FA72A8@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S1729027AbgDGQiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 12:38:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53142 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728993AbgDGQit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 12:38:49 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC48A20768;
+        Tue,  7 Apr 2020 16:38:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586277529;
+        bh=rhtUTbaxCcJo5ZoOVkCOT6i3h9RXJK0YuHNuoZwaSIE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=HnedCQKq0rRpcR0+IKuwoA0vfVk9cxa4obGb3wU7ASz1YvZ11H23clH7iboMnF87m
+         D7+WeNXVpsCW9suxmaqDFbiKdoC2pthVyFSfQ6NdALHgpth9JdL7cTWuExgazCxPsp
+         5tSfjchqL7NM4Mjjd8AdK22kNecT7yCcWcZTOzdA=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.4 00/38] 5.4.31-rc2 review
+Date:   Tue,  7 Apr 2020 18:38:41 +0200
+Message-Id: <20200407154755.973323425@linuxfoundation.org>
+X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: eecf6529-f61a-4a02-4004-08d7db1193cd
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Apr 2020 16:34:43.5194
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5ae1af62-9505-4097-a69a-c1553ef7840e
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: n2rYU8xyixjCxhhsCkF4CcyCTlGZtTGzab9h0/50J85EuzOjy3Z4u1tOkfY9kraI/UHtjhRAl3OEjRCTylmu2A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR11MB3512
-X-OriginatorOrg: cisco.com
-X-Outbound-SMTP-Client: 173.36.7.12, xch-aln-002.cisco.com
-X-Outbound-Node: alln-core-7.cisco.com
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.31-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.31-rc2
+X-KernelTest-Deadline: 2020-04-09T15:47+00:00
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 01, 2020 at 03:26:35PM +0000, Daniel Walker (danielwa) wrote:
-> On Wed, Apr 01, 2020 at 05:12:44AM +0000, Y.b. Lu wrote:
-> > Hi Daniel,
-> >=20
-> > Sorry for the trouble.
-> > I think you were saying below patch introduced issue for you.
-> > fe0acab mmc: sdhci-of-esdhc: fix P2020 errata handling
->=20
-> Yes, this patch cased mmc to stop functioning on p2020.
->=20
+This is the start of the stable review cycle for the 5.4.31 release.
+There are 38 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Have you investigated this ?
+Responses should be made by Thu, 09 Apr 2020 15:46:32 +0000.
+Anything received after that time might be too late.
 
-Daniel=
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.31-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.31-rc2
+
+Randy Dunlap <rdunlap@infradead.org>
+    mm: mempolicy: require at least one nodeid for MPOL_PREFERRED
+
+Daniel Jordan <daniel.m.jordan@oracle.com>
+    padata: always acquire cpu_hotplug_lock before pinst->lock
+
+Amritha Nambiar <amritha.nambiar@intel.com>
+    net: Fix Tx hash bound checking
+
+Mika Westerberg <mika.westerberg@linux.intel.com>
+    i2c: i801: Do not add ICH_RES_IO_SMI for the iTCO_wdt device
+
+Mika Westerberg <mika.westerberg@linux.intel.com>
+    watchdog: iTCO_wdt: Make ICH_RES_IO_SMI optional
+
+Mika Westerberg <mika.westerberg@linux.intel.com>
+    watchdog: iTCO_wdt: Export vendorsupport
+
+Neal Cardwell <ncardwell@google.com>
+    tcp: fix TFO SYNACK undo to avoid double-timestamp-undo
+
+Mike Marciniszyn <mike.marciniszyn@intel.com>
+    IB/hfi1: Ensure pq is not left on waitlist
+
+David Howells <dhowells@redhat.com>
+    rxrpc: Fix sendmsg(MSG_WAITALL) handling
+
+Luca Coelho <luciano.coelho@intel.com>
+    iwlwifi: dbg: don't abort if sending DBGC_SUSPEND_RESUME fails
+
+Mordechay Goodstein <mordechay.goodstein@intel.com>
+    iwlwifi: yoyo: don't add TLV offset when reading FIFOs
+
+Mordechay Goodstein <mordechay.goodstein@intel.com>
+    iwlwifi: consider HE capability when setting LDPC
+
+Tariq Toukan <tariqt@mellanox.com>
+    net/mlx5e: kTLS, Fix wrong value in record tracker enum
+
+Bibby Hsieh <bibby.hsieh@mediatek.com>
+    soc: mediatek: knows_txdone needs to be set in Mediatek CMDQ helper
+
+Geoffrey Allott <geoffrey@allott.email>
+    ALSA: hda/ca0132 - Add Recon3Di quirk to handle integrated sound on EVGA X99 Classified motherboard
+
+Mike Snitzer <snitzer@redhat.com>
+    Revert "dm: always call blk_queue_split() in dm_process_bio()"
+
+Hans de Goede <hdegoede@redhat.com>
+    power: supply: axp288_charger: Add special handling for HP Pavilion x2 10
+
+Hans de Goede <hdegoede@redhat.com>
+    extcon: axp288: Add wakeup support
+
+Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+    nvmem: check for NULL reg_read and reg_write before dereferencing
+
+Alexander Usyskin <alexander.usyskin@intel.com>
+    mei: me: add cedar fork device ids
+
+Eugene Syromiatnikov <esyr@redhat.com>
+    coresight: do not use the BIT() macro in the UAPI header
+
+Kelsey Skunberg <kelsey.skunberg@gmail.com>
+    PCI: sysfs: Revert "rescan" file renames
+
+Kishon Vijay Abraham I <kishon@ti.com>
+    misc: pci_endpoint_test: Avoid using module parameter to determine irqtype
+
+Kishon Vijay Abraham I <kishon@ti.com>
+    misc: pci_endpoint_test: Fix to support > 10 pci-endpoint-test devices
+
+YueHaibing <yuehaibing@huawei.com>
+    misc: rtsx: set correct pcr_ops for rts522A
+
+Guenter Roeck <linux@roeck-us.net>
+    brcmfmac: abort and release host after error
+
+Daniel Jordan <daniel.m.jordan@oracle.com>
+    padata: fix uninitialized return value in padata_replace()
+
+Matthew Wilcox (Oracle) <willy@infradead.org>
+    XArray: Fix xa_find_next for large multi-index entries
+
+Tariq Toukan <tariqt@mellanox.com>
+    net/mlx5e: kTLS, Fix TCP seq off-by-1 issue in TX resync flow
+
+Len Brown <len.brown@intel.com>
+    tools/power turbostat: Fix 32-bit capabilities warning
+
+Len Brown <len.brown@intel.com>
+    tools/power turbostat: Fix missing SYS_LPI counter on some Chromebooks
+
+Len Brown <len.brown@intel.com>
+    tools/power turbostat: Fix gcc build warnings
+
+James Zhu <James.Zhu@amd.com>
+    drm/amdgpu: fix typo for vcn1 idle check
+
+Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+    initramfs: restore default compression behavior
+
+Gerd Hoffmann <kraxel@redhat.com>
+    drm/bochs: downgrade pci_request_region failure from error to warning
+
+Mario Kleiner <mario.kleiner.de@gmail.com>
+    drm/amd/display: Add link_rate quirk for Apple 15" MBP 2017
+
+Masahiro Yamada <masahiroy@kernel.org>
+    kconfig: introduce m32-flag and m64-flag
+
+Prabhath Sajeepa <psajeepa@purestorage.com>
+    nvme-rdma: Avoid double freeing of async event data
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ drivers/extcon/extcon-axp288.c                     | 32 ++++++++++
+ drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c              |  2 +-
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c   | 11 ++++
+ drivers/gpu/drm/bochs/bochs_hw.c                   |  6 +-
+ drivers/i2c/busses/i2c-i801.c                      | 45 ++++---------
+ drivers/infiniband/hw/hfi1/user_sdma.c             | 25 +++++++-
+ drivers/md/dm.c                                    |  5 +-
+ drivers/misc/cardreader/rts5227.c                  |  1 +
+ drivers/misc/mei/hw-me-regs.h                      |  2 +
+ drivers/misc/mei/pci-me.c                          |  2 +
+ drivers/misc/pci_endpoint_test.c                   | 14 +++--
+ .../ethernet/mellanox/mlx5/core/en_accel/ktls.h    |  4 +-
+ .../ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c |  2 +-
+ .../wireless/broadcom/brcm80211/brcmfmac/sdio.c    |  2 +
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.c        | 25 +++-----
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.h        |  6 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c     |  6 +-
+ drivers/nvme/host/rdma.c                           |  8 ++-
+ drivers/nvmem/nvmem-sysfs.c                        |  6 ++
+ drivers/pci/pci-sysfs.c                            |  6 +-
+ drivers/power/supply/axp288_charger.c              | 57 ++++++++++++++++-
+ drivers/soc/mediatek/mtk-cmdq-helper.c             |  1 +
+ drivers/watchdog/iTCO_vendor.h                     |  2 +
+ drivers/watchdog/iTCO_vendor_support.c             | 16 ++---
+ drivers/watchdog/iTCO_wdt.c                        | 28 +++++----
+ include/uapi/linux/coresight-stm.h                 |  6 +-
+ kernel/padata.c                                    |  6 +-
+ lib/test_xarray.c                                  | 18 ++++++
+ lib/xarray.c                                       |  3 +-
+ mm/mempolicy.c                                     |  6 +-
+ net/core/dev.c                                     |  2 +
+ net/ipv4/tcp_input.c                               |  6 +-
+ net/rxrpc/sendmsg.c                                |  4 +-
+ scripts/Kconfig.include                            |  7 +++
+ sound/pci/hda/patch_ca0132.c                       |  1 +
+ tools/power/x86/turbostat/Makefile                 |  2 +-
+ tools/power/x86/turbostat/turbostat.c              | 73 ++++++++++++++--------
+ usr/Kconfig                                        | 22 +++----
+ 39 files changed, 327 insertions(+), 147 deletions(-)
+
+
