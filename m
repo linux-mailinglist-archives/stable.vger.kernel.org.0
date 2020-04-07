@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D3621A0B37
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B03E1A0BCB
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728386AbgDGKYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:24:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34846 "EHLO mail.kernel.org"
+        id S1728634AbgDGKYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728739AbgDGKYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:24:34 -0400
+        id S1728274AbgDGKYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:24:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B92F2080C;
-        Tue,  7 Apr 2020 10:24:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B61B92078A;
+        Tue,  7 Apr 2020 10:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255072;
-        bh=MgUBkgRyGDEoet7WkJIpUu01v9uuWx0w0BQHOcz/Zoo=;
+        s=default; t=1586255043;
+        bh=hFSSaaFZs7iS34JeOV/LO3xxtt/qCl6SQ6F3A3HPIlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6si5W56L2IR1TdjwHMt/EjGkhtsLCqjQgOxsn4GL5T9jDj2Q66gPs7poTdbDEE7L
-         pvxKYxvJ4rhZlw043xfLxV8NH+lZegSysyXJXlg2O4m1vkGUK7rIYchSZAvAdOx+r2
-         3GLc1H+lGC1DqX4gGFB+/oW2M3PfFCiFRTi6+xG8=
+        b=c1gdXcWvhkNJyaS5X5117n8a0wL+gWkvAXIBSyiHlRJ+ksDM9Ss6GeXDjppDtz/sZ
+         31KsChhaSDsSe8XN1dDRW/YcfrQyUP15hPais8nn+86Rnz9ppsdA+pXd7Jm3Uuvwb+
+         eFhICi6Pu+b8FRPfeAT6yMsGtoPS8MEatTnBDwQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 19/46] bpf: Fix tnum constraints for 32-bit comparisons
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.4 17/36] misc: pci_endpoint_test: Avoid using module parameter to determine irqtype
 Date:   Tue,  7 Apr 2020 12:21:50 +0200
-Message-Id: <20200407101501.574740613@linuxfoundation.org>
+Message-Id: <20200407101456.596034502@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,194 +43,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 604dca5e3af1db98bd123b7bfc02b017af99e3a0 ]
+commit b2ba9225e0313b1de631a44b7b48c109032bffec upstream.
 
-The BPF verifier tried to track values based on 32-bit comparisons by
-(ab)using the tnum state via 581738a681b6 ("bpf: Provide better register
-bounds after jmp32 instructions"). The idea is that after a check like
-this:
+commit e03327122e2c ("pci_endpoint_test: Add 2 ioctl commands")
+uses module parameter 'irqtype' in pci_endpoint_test_set_irq()
+to check if IRQ vectors of a particular type (MSI or MSI-X or
+LEGACY) is already allocated. However with multi-function devices,
+'irqtype' will not correctly reflect the IRQ type of the PCI device.
 
-    if ((u32)r0 > 3)
-      exit
+Fix it here by adding 'irqtype' for each PCI device to show the
+IRQ type of a particular PCI device.
 
-We can't meaningfully constrain the arithmetic-range-based tracking, but
-we can update the tnum state to (value=0,mask=0xffff'ffff'0000'0003).
-However, the implementation from 581738a681b6 didn't compute the tnum
-constraint based on the fixed operand, but instead derives it from the
-arithmetic-range-based tracking. This means that after the following
-sequence of operations:
+Fixes: e03327122e2c ("pci_endpoint_test: Add 2 ioctl commands")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-    if (r0 >= 0x1'0000'0001)
-      exit
-    if ((u32)r0 > 7)
-      exit
-
-The verifier assumed that the lower half of r0 is in the range (0, 0)
-and apply the tnum constraint (value=0,mask=0xffff'ffff'0000'0000) thus
-causing the overall tnum to be (value=0,mask=0x1'0000'0000), which was
-incorrect. Provide a fixed implementation.
-
-Fixes: 581738a681b6 ("bpf: Provide better register bounds after jmp32 instructions")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200330160324.15259-3-daniel@iogearbox.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 108 ++++++++++++++++++++++++++++--------------
- 1 file changed, 72 insertions(+), 36 deletions(-)
+ drivers/misc/pci_endpoint_test.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 79f38a281390d..f6476c4e9037a 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5550,6 +5550,70 @@ static bool cmp_val_with_extended_s64(s64 sval, struct bpf_reg_state *reg)
- 		reg->smax_value <= 0 && reg->smin_value >= S32_MIN);
+--- a/drivers/misc/pci_endpoint_test.c
++++ b/drivers/misc/pci_endpoint_test.c
+@@ -98,6 +98,7 @@ struct pci_endpoint_test {
+ 	struct completion irq_raised;
+ 	int		last_irq;
+ 	int		num_irqs;
++	int		irq_type;
+ 	/* mutex to protect the ioctls */
+ 	struct mutex	mutex;
+ 	struct miscdevice miscdev;
+@@ -157,6 +158,7 @@ static void pci_endpoint_test_free_irq_v
+ 	struct pci_dev *pdev = test->pdev;
+ 
+ 	pci_free_irq_vectors(pdev);
++	test->irq_type = IRQ_TYPE_UNDEFINED;
  }
  
-+/* Constrain the possible values of @reg with unsigned upper bound @bound.
-+ * If @is_exclusive, @bound is an exclusive limit, otherwise it is inclusive.
-+ * If @is_jmp32, @bound is a 32-bit value that only constrains the low 32 bits
-+ * of @reg.
-+ */
-+static void set_upper_bound(struct bpf_reg_state *reg, u64 bound, bool is_jmp32,
-+			    bool is_exclusive)
-+{
-+	if (is_exclusive) {
-+		/* There are no values for `reg` that make `reg<0` true. */
-+		if (bound == 0)
-+			return;
-+		bound--;
-+	}
-+	if (is_jmp32) {
-+		/* Constrain the register's value in the tnum representation.
-+		 * For 64-bit comparisons this happens later in
-+		 * __reg_bound_offset(), but for 32-bit comparisons, we can be
-+		 * more precise than what can be derived from the updated
-+		 * numeric bounds.
-+		 */
-+		struct tnum t = tnum_range(0, bound);
-+
-+		t.mask |= ~0xffffffffULL; /* upper half is unknown */
-+		reg->var_off = tnum_intersect(reg->var_off, t);
-+
-+		/* Compute the 64-bit bound from the 32-bit bound. */
-+		bound += gen_hi_max(reg->var_off);
-+	}
-+	reg->umax_value = min(reg->umax_value, bound);
-+}
-+
-+/* Constrain the possible values of @reg with unsigned lower bound @bound.
-+ * If @is_exclusive, @bound is an exclusive limit, otherwise it is inclusive.
-+ * If @is_jmp32, @bound is a 32-bit value that only constrains the low 32 bits
-+ * of @reg.
-+ */
-+static void set_lower_bound(struct bpf_reg_state *reg, u64 bound, bool is_jmp32,
-+			    bool is_exclusive)
-+{
-+	if (is_exclusive) {
-+		/* There are no values for `reg` that make `reg>MAX` true. */
-+		if (bound == (is_jmp32 ? U32_MAX : U64_MAX))
-+			return;
-+		bound++;
-+	}
-+	if (is_jmp32) {
-+		/* Constrain the register's value in the tnum representation.
-+		 * For 64-bit comparisons this happens later in
-+		 * __reg_bound_offset(), but for 32-bit comparisons, we can be
-+		 * more precise than what can be derived from the updated
-+		 * numeric bounds.
-+		 */
-+		struct tnum t = tnum_range(bound, U32_MAX);
-+
-+		t.mask |= ~0xffffffffULL; /* upper half is unknown */
-+		reg->var_off = tnum_intersect(reg->var_off, t);
-+
-+		/* Compute the 64-bit bound from the 32-bit bound. */
-+		bound += gen_hi_min(reg->var_off);
-+	}
-+	reg->umin_value = max(reg->umin_value, bound);
-+}
-+
- /* Adjusts the register min/max values in the case that the dst_reg is the
-  * variable register that we are working on, and src_reg is a constant or we're
-  * simply doing a BPF_K check.
-@@ -5605,15 +5669,8 @@ static void reg_set_min_max(struct bpf_reg_state *true_reg,
- 	case BPF_JGE:
- 	case BPF_JGT:
- 	{
--		u64 false_umax = opcode == BPF_JGT ? val    : val - 1;
--		u64 true_umin = opcode == BPF_JGT ? val + 1 : val;
--
--		if (is_jmp32) {
--			false_umax += gen_hi_max(false_reg->var_off);
--			true_umin += gen_hi_min(true_reg->var_off);
--		}
--		false_reg->umax_value = min(false_reg->umax_value, false_umax);
--		true_reg->umin_value = max(true_reg->umin_value, true_umin);
-+		set_upper_bound(false_reg, val, is_jmp32, opcode == BPF_JGE);
-+		set_lower_bound(true_reg, val, is_jmp32, opcode == BPF_JGT);
- 		break;
+ static bool pci_endpoint_test_alloc_irq_vectors(struct pci_endpoint_test *test,
+@@ -191,6 +193,8 @@ static bool pci_endpoint_test_alloc_irq_
+ 		irq = 0;
+ 		res = false;
  	}
- 	case BPF_JSGE:
-@@ -5634,15 +5691,8 @@ static void reg_set_min_max(struct bpf_reg_state *true_reg,
- 	case BPF_JLE:
- 	case BPF_JLT:
- 	{
--		u64 false_umin = opcode == BPF_JLT ? val    : val + 1;
--		u64 true_umax = opcode == BPF_JLT ? val - 1 : val;
--
--		if (is_jmp32) {
--			false_umin += gen_hi_min(false_reg->var_off);
--			true_umax += gen_hi_max(true_reg->var_off);
--		}
--		false_reg->umin_value = max(false_reg->umin_value, false_umin);
--		true_reg->umax_value = min(true_reg->umax_value, true_umax);
-+		set_lower_bound(false_reg, val, is_jmp32, opcode == BPF_JLE);
-+		set_upper_bound(true_reg, val, is_jmp32, opcode == BPF_JLT);
- 		break;
++
++	test->irq_type = type;
+ 	test->num_irqs = irq;
+ 
+ 	return res;
+@@ -330,6 +334,7 @@ static bool pci_endpoint_test_copy(struc
+ 	dma_addr_t orig_dst_phys_addr;
+ 	size_t offset;
+ 	size_t alignment = test->alignment;
++	int irq_type = test->irq_type;
+ 	u32 src_crc32;
+ 	u32 dst_crc32;
+ 
+@@ -426,6 +431,7 @@ static bool pci_endpoint_test_write(stru
+ 	dma_addr_t orig_phys_addr;
+ 	size_t offset;
+ 	size_t alignment = test->alignment;
++	int irq_type = test->irq_type;
+ 	u32 crc32;
+ 
+ 	if (size > SIZE_MAX - alignment)
+@@ -494,6 +500,7 @@ static bool pci_endpoint_test_read(struc
+ 	dma_addr_t orig_phys_addr;
+ 	size_t offset;
+ 	size_t alignment = test->alignment;
++	int irq_type = test->irq_type;
+ 	u32 crc32;
+ 
+ 	if (size > SIZE_MAX - alignment)
+@@ -555,7 +562,7 @@ static bool pci_endpoint_test_set_irq(st
+ 		return false;
  	}
- 	case BPF_JSLE:
-@@ -5717,15 +5767,8 @@ static void reg_set_min_max_inv(struct bpf_reg_state *true_reg,
- 	case BPF_JGE:
- 	case BPF_JGT:
- 	{
--		u64 false_umin = opcode == BPF_JGT ? val    : val + 1;
--		u64 true_umax = opcode == BPF_JGT ? val - 1 : val;
--
--		if (is_jmp32) {
--			false_umin += gen_hi_min(false_reg->var_off);
--			true_umax += gen_hi_max(true_reg->var_off);
--		}
--		false_reg->umin_value = max(false_reg->umin_value, false_umin);
--		true_reg->umax_value = min(true_reg->umax_value, true_umax);
-+		set_lower_bound(false_reg, val, is_jmp32, opcode == BPF_JGE);
-+		set_upper_bound(true_reg, val, is_jmp32, opcode == BPF_JGT);
- 		break;
- 	}
- 	case BPF_JSGE:
-@@ -5743,15 +5786,8 @@ static void reg_set_min_max_inv(struct bpf_reg_state *true_reg,
- 	case BPF_JLE:
- 	case BPF_JLT:
- 	{
--		u64 false_umax = opcode == BPF_JLT ? val    : val - 1;
--		u64 true_umin = opcode == BPF_JLT ? val + 1 : val;
--
--		if (is_jmp32) {
--			false_umax += gen_hi_max(false_reg->var_off);
--			true_umin += gen_hi_min(true_reg->var_off);
--		}
--		false_reg->umax_value = min(false_reg->umax_value, false_umax);
--		true_reg->umin_value = max(true_reg->umin_value, true_umin);
-+		set_upper_bound(false_reg, val, is_jmp32, opcode == BPF_JLE);
-+		set_lower_bound(true_reg, val, is_jmp32, opcode == BPF_JLT);
- 		break;
- 	}
- 	case BPF_JSLE:
--- 
-2.20.1
-
+ 
+-	if (irq_type == req_irq_type)
++	if (test->irq_type == req_irq_type)
+ 		return true;
+ 
+ 	pci_endpoint_test_release_irq(test);
+@@ -567,12 +574,10 @@ static bool pci_endpoint_test_set_irq(st
+ 	if (!pci_endpoint_test_request_irq(test))
+ 		goto err;
+ 
+-	irq_type = req_irq_type;
+ 	return true;
+ 
+ err:
+ 	pci_endpoint_test_free_irq_vectors(test);
+-	irq_type = IRQ_TYPE_UNDEFINED;
+ 	return false;
+ }
+ 
+@@ -652,6 +657,7 @@ static int pci_endpoint_test_probe(struc
+ 	test->test_reg_bar = 0;
+ 	test->alignment = 0;
+ 	test->pdev = pdev;
++	test->irq_type = IRQ_TYPE_UNDEFINED;
+ 
+ 	if (no_msi)
+ 		irq_type = IRQ_TYPE_LEGACY;
 
 
