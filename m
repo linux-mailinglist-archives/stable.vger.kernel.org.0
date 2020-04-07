@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D4A91A0BD9
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9471A0B3C
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728371AbgDGKXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32772 "EHLO mail.kernel.org"
+        id S1728772AbgDGKYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:24:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728366AbgDGKXF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:05 -0400
+        id S1728747AbgDGKYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:24:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E60A720801;
-        Tue,  7 Apr 2020 10:23:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2744A2082F;
+        Tue,  7 Apr 2020 10:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254984;
-        bh=YSM3qsOVOWSS2Q5ljx8VaWbZ544ASp2dwCLYH7JjW68=;
+        s=default; t=1586255082;
+        bh=khVOaY2ujlcX/REye0ztyWAGD+5eMAaXklsRDjNbiUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPpT/rJ5TI7C5H4E+84w7dSRieMgkFEf0XMkHYBsD7/OlW6mfNtUK/2oZZPdfFEAF
-         sMcX6FzElbQZmbhJaqzK/DievQnz+2EHqH+wF7alkSl9TvaUMxONKNDA1e7hbGE68M
-         ODoJl8zkCr4AqQZ63MjGv0IZB4wcV8mAGwsH1fp0=
+        b=1zEry82Ikal49LncbaqmuFMxrQQbU9fQ4wIc1/Qexu8nGPjEeWU661mRmavEe4Xl0
+         FfA4DMOqAh/JaX39BAy5LlOx372QOwSc0Qxx8CcYIQJ5iDvJcRwcwr4+0UTpAQxbrv
+         5/FH1o1sf46qtIqGz+FruwDxeLXKfYlp1i1U2ras=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.4 20/36] mei: me: add cedar fork device ids
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.5 22/46] misc: pci_endpoint_test: Fix to support > 10 pci-endpoint-test devices
 Date:   Tue,  7 Apr 2020 12:21:53 +0200
-Message-Id: <20200407101456.950869274@linuxfoundation.org>
+Message-Id: <20200407101501.881056561@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 99397d33b763dc554d118aaa38cc5abc6ce985de upstream.
+commit 6b443e5c80b67a7b8a85b33d052d655ef9064e90 upstream.
 
-Add Cedar Fork (CDF) device ids, those belongs to the cannon point family.
+Adding more than 10 pci-endpoint-test devices results in
+"kobject_add_internal failed for pci-endpoint-test.1 with -EEXIST, don't
+try to register things with the same name in the same directory". This
+is because commit 2c156ac71c6b ("misc: Add host side PCI driver for PCI
+test function device") limited the length of the "name" to 20 characters.
+Change the length of the name to 24 in order to support upto 10000
+pci-endpoint-test devices.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200324210730.17672-1-tomas.winkler@intel.com
+Fixes: 2c156ac71c6b ("misc: Add host side PCI driver for PCI test function device")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org # v4.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/hw-me-regs.h |    2 ++
- drivers/misc/mei/pci-me.c     |    2 ++
- 2 files changed, 4 insertions(+)
+ drivers/misc/pci_endpoint_test.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -87,6 +87,8 @@
- #define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
- #define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
- 
-+#define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
-+
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
- 
- #define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -109,6 +109,8 @@ static const struct pci_device_id mei_me
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
- 
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CDF, MEI_ME_PCH8_CFG)},
-+
- 	/* required last entry */
- 	{0, }
- };
+--- a/drivers/misc/pci_endpoint_test.c
++++ b/drivers/misc/pci_endpoint_test.c
+@@ -633,7 +633,7 @@ static int pci_endpoint_test_probe(struc
+ {
+ 	int err;
+ 	int id;
+-	char name[20];
++	char name[24];
+ 	enum pci_barno bar;
+ 	void __iomem *base;
+ 	struct device *dev = &pdev->dev;
 
 
