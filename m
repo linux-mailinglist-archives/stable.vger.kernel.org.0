@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A8E1A0B00
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7D61A0B47
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728298AbgDGKWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:22:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60574 "EHLO mail.kernel.org"
+        id S1728882AbgDGKZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:25:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728255AbgDGKWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:22:49 -0400
+        id S1728880AbgDGKZI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:25:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0D902078A;
-        Tue,  7 Apr 2020 10:22:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 010182074B;
+        Tue,  7 Apr 2020 10:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254967;
-        bh=ZRHdGGkfhDo9JmWaKIaBpioaKTS8YGwYZySmOSLLH3M=;
+        s=default; t=1586255107;
+        bh=sKbjwMLJiBOphC69hyUcwuxnGfiE7NbpZaWocYhiKBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPrfvruGF7rkDSpEogWy1zdb4r8si2Ka6zRA9cRbplwtjNj0tj8cRzYqlDpfh8wmW
-         uOq94jbDbWv5E3WcY4S7+7dNBVNVfFfUn3nRMp6bMQECGEVSioCxlkhdZws6VEuKxF
-         LGwZLfsyfchHPATfYevx65Jjkc9FAVGzYyXmwzog=
+        b=IVdc99VgMFf76EWBozzgWB856yo84dwI3/Nf9OLFVAOaj9uXZeF3bxu5YViMECGD+
+         7/m2oY+W+EXrpmhjBWszAbw85PpZ0PNN+SXd0RXVIsGrGmEHRCSuBjLR5IGRWmzrPa
+         GffIvQeXbmdfl7jvQZOGu/PhKY+IZVp2ZPwnfCrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/36] initramfs: restore default compression behavior
-Date:   Tue,  7 Apr 2020 12:21:38 +0200
-Message-Id: <20200407101454.950774690@linuxfoundation.org>
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 08/46] staging: wfx: fix warning about freeing in-use mutex during device unregister
+Date:   Tue,  7 Apr 2020 12:21:39 +0200
+Message-Id: <20200407101500.370794039@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+From: Jérôme Pouiller <jerome.pouiller@silabs.com>
 
-[ Upstream commit 785d74ec3bbf26ac7f6e92e6e96a259aec0f107a ]
+[ Upstream commit bab0a0b03442a62fe3abefcb2169e0b9ff95990c ]
 
-Even though INITRAMFS_SOURCE kconfig option isn't set in most of
-defconfigs it is used (set) extensively by various build systems.
-Commit f26661e12765 ("initramfs: make initramfs compression choice
-non-optional") has changed default compression mode. Previously we
-compress initramfs using available compression algorithm. Now
-we don't use any compression at all by default.
-It significantly increases the image size in case of build system
-chooses embedded initramfs. Initially I faced with this issue while
-using buildroot.
+After hif_shutdown(), communication with the chip is no more possible.
+It the only request that never reply. Therefore, hif_cmd.lock is never
+unlocked. hif_shutdown() unlock itself hif_cmd.lock to avoid a potential
+warning during disposal of device. hif_cmd.key_renew_lock should also
+been unlocked for the same reason.
 
-As of today it's not possible to set preferred compression mode
-in target defconfig as this option depends on INITRAMFS_SOURCE
-being set. Modification of all build systems either doesn't look
-like good option.
-
-Let's instead rewrite initramfs compression mode choices list
-the way that "INITRAMFS_COMPRESSION_NONE" will be the last option
-in the list. In that case it will be chosen only if all other
-options (which implements any compression) are not available.
-
-Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Link: https://lore.kernel.org/r/20200310101356.182818-2-Jerome.Pouiller@silabs.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- usr/Kconfig | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/staging/wfx/hif_tx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/usr/Kconfig b/usr/Kconfig
-index a6b68503d1774..a80cc79722745 100644
---- a/usr/Kconfig
-+++ b/usr/Kconfig
-@@ -131,17 +131,6 @@ choice
- 
- 	  If in doubt, select 'None'
- 
--config INITRAMFS_COMPRESSION_NONE
--	bool "None"
--	help
--	  Do not compress the built-in initramfs at all. This may sound wasteful
--	  in space, but, you should be aware that the built-in initramfs will be
--	  compressed at a later stage anyways along with the rest of the kernel,
--	  on those architectures that support this. However, not compressing the
--	  initramfs may lead to slightly higher memory consumption during a
--	  short time at boot, while both the cpio image and the unpacked
--	  filesystem image will be present in memory simultaneously
--
- config INITRAMFS_COMPRESSION_GZIP
- 	bool "Gzip"
- 	depends on RD_GZIP
-@@ -214,6 +203,17 @@ config INITRAMFS_COMPRESSION_LZ4
- 	  If you choose this, keep in mind that most distros don't provide lz4
- 	  by default which could cause a build failure.
- 
-+config INITRAMFS_COMPRESSION_NONE
-+	bool "None"
-+	help
-+	  Do not compress the built-in initramfs at all. This may sound wasteful
-+	  in space, but, you should be aware that the built-in initramfs will be
-+	  compressed at a later stage anyways along with the rest of the kernel,
-+	  on those architectures that support this. However, not compressing the
-+	  initramfs may lead to slightly higher memory consumption during a
-+	  short time at boot, while both the cpio image and the unpacked
-+	  filesystem image will be present in memory simultaneously
-+
- endchoice
- 
- config INITRAMFS_COMPRESSION
+diff --git a/drivers/staging/wfx/hif_tx.c b/drivers/staging/wfx/hif_tx.c
+index cb7cddcb98159..16e7d190430f3 100644
+--- a/drivers/staging/wfx/hif_tx.c
++++ b/drivers/staging/wfx/hif_tx.c
+@@ -141,6 +141,7 @@ int hif_shutdown(struct wfx_dev *wdev)
+ 	else
+ 		control_reg_write(wdev, 0);
+ 	mutex_unlock(&wdev->hif_cmd.lock);
++	mutex_unlock(&wdev->hif_cmd.key_renew_lock);
+ 	kfree(hif);
+ 	return ret;
+ }
 -- 
 2.20.1
 
