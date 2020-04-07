@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 708131A11E1
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 18:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDB91A11BF
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 18:39:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729027AbgDGQiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 12:38:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53142 "EHLO mail.kernel.org"
+        id S1729447AbgDGQjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 12:39:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728993AbgDGQit (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 12:38:49 -0400
+        id S1726884AbgDGQjI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 12:39:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC48A20768;
-        Tue,  7 Apr 2020 16:38:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BE9D2078C;
+        Tue,  7 Apr 2020 16:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586277529;
-        bh=rhtUTbaxCcJo5ZoOVkCOT6i3h9RXJK0YuHNuoZwaSIE=;
+        s=default; t=1586277547;
+        bh=RyU6woZl08pajnq+jb3MHICTMi/lfqKU6obBFMaMBuo=;
         h=From:To:Cc:Subject:Date:From;
-        b=HnedCQKq0rRpcR0+IKuwoA0vfVk9cxa4obGb3wU7ASz1YvZ11H23clH7iboMnF87m
-         D7+WeNXVpsCW9suxmaqDFbiKdoC2pthVyFSfQ6NdALHgpth9JdL7cTWuExgazCxPsp
-         5tSfjchqL7NM4Mjjd8AdK22kNecT7yCcWcZTOzdA=
+        b=x7TXrhEgcHfoTWCkW9LCQFfQCE98GSUU/tk0NFHi9KHz9bRiefCASqj1yZXgar2Gc
+         +zuh0qj9D6Wz1vwWqWhsYGwdIZQGNpdHB06nvUO4x0G3AK5Q8PpgHxnDju8OpEZyj9
+         V9BDMQQ2Nep/P0iClf6mgnVeylV157PhHOFKh8WE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,28 +30,29 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH 5.4 00/38] 5.4.31-rc2 review
-Date:   Tue,  7 Apr 2020 18:38:41 +0200
-Message-Id: <20200407154755.973323425@linuxfoundation.org>
+Subject: [PATCH 5.5 00/48] 5.5.16-rc2 review
+Date:   Tue,  7 Apr 2020 18:39:04 +0200
+Message-Id: <20200407154800.629167305@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.31-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.5.16-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Branch: linux-5.5.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.31-rc2
-X-KernelTest-Deadline: 2020-04-09T15:47+00:00
+X-KernelTest-Version: 5.5.16-rc2
+X-KernelTest-Deadline: 2020-04-09T15:48+00:00
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.31 release.
-There are 38 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 5.5.16 release.
+There are 48 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -59,9 +60,9 @@ Responses should be made by Thu, 09 Apr 2020 15:46:32 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.31-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.5.16-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.5.y
 and the diffstat can be found below.
 
 thanks,
@@ -72,7 +73,7 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.31-rc2
+    Linux 5.5.16-rc2
 
 Randy Dunlap <rdunlap@infradead.org>
     mm: mempolicy: require at least one nodeid for MPOL_PREFERRED
@@ -80,8 +81,14 @@ Randy Dunlap <rdunlap@infradead.org>
 Daniel Jordan <daniel.m.jordan@oracle.com>
     padata: always acquire cpu_hotplug_lock before pinst->lock
 
+Ursula Braun <ubraun@linux.ibm.com>
+    net/smc: fix cleanup for linkgroup setup failures
+
 Amritha Nambiar <amritha.nambiar@intel.com>
     net: Fix Tx hash bound checking
+
+Paolo Abeni <pabeni@redhat.com>
+    net: genetlink: return the error code when attribute parsing fails.
 
 Mika Westerberg <mika.westerberg@linux.intel.com>
     i2c: i801: Do not add ICH_RES_IO_SMI for the iTCO_wdt device
@@ -94,6 +101,9 @@ Mika Westerberg <mika.westerberg@linux.intel.com>
 
 Neal Cardwell <ncardwell@google.com>
     tcp: fix TFO SYNACK undo to avoid double-timestamp-undo
+
+Jiri Pirko <jiri@mellanox.com>
+    sched: act: count in the size of action flags bitfield
 
 Mike Marciniszyn <mike.marciniszyn@intel.com>
     IB/hfi1: Ensure pq is not left on waitlist
@@ -128,6 +138,9 @@ Hans de Goede <hdegoede@redhat.com>
 Hans de Goede <hdegoede@redhat.com>
     extcon: axp288: Add wakeup support
 
+Freeman Liu <freeman.liu@unisoc.com>
+    nvmem: sprd: Fix the block lock operation
+
 Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
     nvmem: check for NULL reg_read and reg_write before dereferencing
 
@@ -149,17 +162,14 @@ Kishon Vijay Abraham I <kishon@ti.com>
 YueHaibing <yuehaibing@huawei.com>
     misc: rtsx: set correct pcr_ops for rts522A
 
+Matthew Wilcox (Oracle) <willy@infradead.org>
+    XArray: Fix xa_find_next for large multi-index entries
+
 Guenter Roeck <linux@roeck-us.net>
     brcmfmac: abort and release host after error
 
 Daniel Jordan <daniel.m.jordan@oracle.com>
     padata: fix uninitialized return value in padata_replace()
-
-Matthew Wilcox (Oracle) <willy@infradead.org>
-    XArray: Fix xa_find_next for large multi-index entries
-
-Tariq Toukan <tariqt@mellanox.com>
-    net/mlx5e: kTLS, Fix TCP seq off-by-1 issue in TX resync flow
 
 Len Brown <len.brown@intel.com>
     tools/power turbostat: Fix 32-bit capabilities warning
@@ -182,11 +192,32 @@ Gerd Hoffmann <kraxel@redhat.com>
 Mario Kleiner <mario.kleiner.de@gmail.com>
     drm/amd/display: Add link_rate quirk for Apple 15" MBP 2017
 
-Masahiro Yamada <masahiroy@kernel.org>
-    kconfig: introduce m32-flag and m64-flag
+Evan Quan <evan.quan@amd.com>
+    drm/amdgpu: add fbdev suspend/resume on gpu reset
+
+Jérôme Pouiller <jerome.pouiller@silabs.com>
+    staging: wfx: fix warning about freeing in-use mutex during device unregister
 
 Prabhath Sajeepa <psajeepa@purestorage.com>
     nvme-rdma: Avoid double freeing of async event data
+
+Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+    net: macb: Fix handling of fixed-link node
+
+Qiujun Huang <hqjagain@gmail.com>
+    sctp: fix refcount bug in sctp_wfree
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: fix possibly using a bad saddr with a given dst
+
+William Dauchy <w.dauchy@criteo.com>
+    net, ip_tunnel: fix interface lookup with no key
+
+Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+    net: dsa: ksz: Select KSZ protocol tag
+
+Qian Cai <cai@lca.pw>
+    ipv4: fix a RCU-list lock in fib_triestat_seq_show
 
 
 -------------
@@ -195,6 +226,7 @@ Diffstat:
 
  Makefile                                           |  4 +-
  drivers/extcon/extcon-axp288.c                     | 32 ++++++++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c         |  4 ++
  drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c              |  2 +-
  drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c   | 11 ++++
  drivers/gpu/drm/bochs/bochs_hw.c                   |  6 +-
@@ -205,17 +237,20 @@ Diffstat:
  drivers/misc/mei/hw-me-regs.h                      |  2 +
  drivers/misc/mei/pci-me.c                          |  2 +
  drivers/misc/pci_endpoint_test.c                   | 14 +++--
+ drivers/net/dsa/microchip/Kconfig                  |  1 +
+ drivers/net/ethernet/cadence/macb_main.c           |  3 +
  .../ethernet/mellanox/mlx5/core/en_accel/ktls.h    |  4 +-
- .../ethernet/mellanox/mlx5/core/en_accel/ktls_tx.c |  2 +-
  .../wireless/broadcom/brcm80211/brcmfmac/sdio.c    |  2 +
  drivers/net/wireless/intel/iwlwifi/fw/dbg.c        | 25 +++-----
  drivers/net/wireless/intel/iwlwifi/fw/dbg.h        |  6 +-
  drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c     |  6 +-
  drivers/nvme/host/rdma.c                           |  8 ++-
  drivers/nvmem/nvmem-sysfs.c                        |  6 ++
+ drivers/nvmem/sprd-efuse.c                         |  2 +-
  drivers/pci/pci-sysfs.c                            |  6 +-
  drivers/power/supply/axp288_charger.c              | 57 ++++++++++++++++-
  drivers/soc/mediatek/mtk-cmdq-helper.c             |  1 +
+ drivers/staging/wfx/hif_tx.c                       |  1 +
  drivers/watchdog/iTCO_vendor.h                     |  2 +
  drivers/watchdog/iTCO_vendor_support.c             | 16 ++---
  drivers/watchdog/iTCO_wdt.c                        | 28 +++++----
@@ -225,13 +260,22 @@ Diffstat:
  lib/xarray.c                                       |  3 +-
  mm/mempolicy.c                                     |  6 +-
  net/core/dev.c                                     |  2 +
+ net/ipv4/fib_trie.c                                |  3 +
+ net/ipv4/ip_tunnel.c                               |  6 +-
  net/ipv4/tcp_input.c                               |  6 +-
+ net/netlink/genetlink.c                            |  5 +-
  net/rxrpc/sendmsg.c                                |  4 +-
- scripts/Kconfig.include                            |  7 +++
+ net/sched/act_api.c                                |  1 +
+ net/sctp/ipv6.c                                    | 20 ++++--
+ net/sctp/protocol.c                                | 28 ++++++---
+ net/sctp/socket.c                                  | 31 ++++++---
+ net/smc/af_smc.c                                   | 25 +++++---
+ net/smc/smc_core.c                                 | 12 ++++
+ net/smc/smc_core.h                                 |  2 +-
  sound/pci/hda/patch_ca0132.c                       |  1 +
  tools/power/x86/turbostat/Makefile                 |  2 +-
  tools/power/x86/turbostat/turbostat.c              | 73 ++++++++++++++--------
  usr/Kconfig                                        | 22 +++----
- 39 files changed, 327 insertions(+), 147 deletions(-)
+ 52 files changed, 421 insertions(+), 188 deletions(-)
 
 
