@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 952ED1A0AFC
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 131481A0BBA
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726767AbgDGKWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:22:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60332 "EHLO mail.kernel.org"
+        id S1728862AbgDGKZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:25:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725883AbgDGKWo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:22:44 -0400
+        id S1728852AbgDGKZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:25:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8FFC2074B;
-        Tue,  7 Apr 2020 10:22:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E2FB20644;
+        Tue,  7 Apr 2020 10:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254962;
-        bh=kkdU1QXIZFrX+rWtjvi1c9fZwqHBpQtxlsPp5P5FGXk=;
+        s=default; t=1586255102;
+        bh=MunPn4yar4LQvXOnM4u+z9RULnq2Lbrbew8pDtjZ0zM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MesNB4fzfpiR0FCylWIhqeyRQ9XYTWj6Hi9l5cWwW4Mj/+Ehodg80FFK4sTYgbwYH
-         d8F82VLWR33OBvTZ75pRScLKUf2xLJ33kSHY3ilzBrA4KxCnEh4oA7Jdbu/CKIpDF9
-         +WgMZiR06mkxIY5hmWG9ApL7nPp8Tp0HIdipH2j8=
+        b=FNWYErKb21ktqtnKNi8jWVpgxLNgcH/Wmg/D4J7xfTfmvAiLDBNA2mq9EcKNO/XOu
+         JvClL5T3N/msImmI0NeWwsmZHbf8ZuCw2LLwcL5XlSVQ+W4gizJzWXpPdmJGEYIbq8
+         X5uG/LAK96Iyll9dbDy6hBuMI/H66mKtBg5WuQ0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mario Kleiner <mario.kleiner.de@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/36] drm/amd/display: Add link_rate quirk for Apple 15" MBP 2017
-Date:   Tue,  7 Apr 2020 12:21:36 +0200
-Message-Id: <20200407101454.720348954@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cristian Birsan <cristian.birsan@microchip.com>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 06/46] net: macb: Fix handling of fixed-link node
+Date:   Tue,  7 Apr 2020 12:21:37 +0200
+Message-Id: <20200407101500.171147979@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Kleiner <mario.kleiner.de@gmail.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-[ Upstream commit dec9de2ada523b344eb2428abfedf9d6cd0a0029 ]
+[ Upstream commit 79540d133ed6f65a37dacb54b7a704cc8a24c52d ]
 
-This fixes a problem found on the MacBookPro 2017 Retina panel:
+fixed-link nodes are treated as PHY nodes by of_mdiobus_child_is_phy().
+We must check if the interface is a fixed-link before looking up for PHY
+nodes.
 
-The panel reports 10 bpc color depth in its EDID, and the
-firmware chooses link settings at boot which support enough
-bandwidth for 10 bpc (324000 kbit/sec aka LINK_RATE_RBR2
-aka 0xc), but the DP_MAX_LINK_RATE dpcd register only reports
-2.7 Gbps (multiplier value 0xa) as possible, in direct
-contradiction of what the firmware successfully set up.
-
-This restricts the panel to 8 bpc, not providing the full
-color depth of the panel on Linux <= 5.5. Additionally, commit
-'4a8ca46bae8a ("drm/amd/display: Default max bpc to 16 for eDP")'
-introduced into Linux 5.6-rc1 will unclamp panel depth to
-its full 10 bpc, thereby requiring a eDP bandwidth for all
-modes that exceeds the bandwidth available and causes all modes
-to fail validation -> No modes for the laptop panel -> failure
-to set any mode -> Panel goes dark.
-
-This patch adds a quirk specific to the MBP 2017 15" Retina
-panel to override reported max link rate to the correct maximum
-of 0xc = LINK_RATE_RBR2 to fix the darkness and reduced display
-precision.
-
-Please apply for Linux 5.6+ to avoid regressing Apple MBP panel
-support.
-
-Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7897b071ac3b ("net: macb: convert to phylink")
+Tested-by: Cristian Birsan <cristian.birsan@microchip.com>
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/net/ethernet/cadence/macb_main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index 0ab890c927ec7..6dd2334dd5e60 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -2879,6 +2879,17 @@ static bool retrieve_link_cap(struct dc_link *link)
- 		sink_id.ieee_device_id,
- 		sizeof(sink_id.ieee_device_id));
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -685,6 +685,9 @@ static int macb_mdiobus_register(struct
+ {
+ 	struct device_node *child, *np = bp->pdev->dev.of_node;
  
-+	/* Quirk Apple MBP 2017 15" Retina panel: Wrong DP_MAX_LINK_RATE */
-+	{
-+		uint8_t str_mbp_2017[] = { 101, 68, 21, 101, 98, 97 };
++	if (of_phy_is_fixed_link(np))
++		return mdiobus_register(bp->mii_bus);
 +
-+		if ((link->dpcd_caps.sink_dev_id == 0x0010fa) &&
-+		    !memcmp(link->dpcd_caps.sink_dev_id_str, str_mbp_2017,
-+			    sizeof(str_mbp_2017))) {
-+			link->reported_link_cap.link_rate = 0x0c;
-+		}
-+	}
-+
- 	core_link_read_dpcd(
- 		link,
- 		DP_SINK_HW_REVISION_START,
--- 
-2.20.1
-
+ 	/* Only create the PHY from the device tree if at least one PHY is
+ 	 * described. Otherwise scan the entire MDIO bus. We do this to support
+ 	 * old device tree that did not follow the best practices and did not
 
 
