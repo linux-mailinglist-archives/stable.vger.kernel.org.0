@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 935441A0BB9
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 952ED1A0AFC
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728848AbgDGKZB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:25:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35442 "EHLO mail.kernel.org"
+        id S1726767AbgDGKWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728843AbgDGKZB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:25:01 -0400
+        id S1725883AbgDGKWo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:22:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86FB72078C;
-        Tue,  7 Apr 2020 10:24:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8FFC2074B;
+        Tue,  7 Apr 2020 10:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255100;
-        bh=qBRidKn+v/vs6r8HKnC3Y+FH+rNp4St2BFykGlKnhaM=;
+        s=default; t=1586254962;
+        bh=kkdU1QXIZFrX+rWtjvi1c9fZwqHBpQtxlsPp5P5FGXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUAXwQlYiC4hoSKiqRat89xGGu/oQaxUoOTT6vHj7ooDlc8iipevmW+lG3vvB+u7I
-         IF5pv/uCdTCxJA0ES7jPzPTq9m2NAFuQAbOGjcW/SEm0NtbVmQ+KVg1HPt4Lc5oahl
-         tDgsZDw9yErr+7WKXw0lgPlF46J3gtJG+69RtpLI=
+        b=MesNB4fzfpiR0FCylWIhqeyRQ9XYTWj6Hi9l5cWwW4Mj/+Ehodg80FFK4sTYgbwYH
+         d8F82VLWR33OBvTZ75pRScLKUf2xLJ33kSHY3ilzBrA4KxCnEh4oA7Jdbu/CKIpDF9
+         +WgMZiR06mkxIY5hmWG9ApL7nPp8Tp0HIdipH2j8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Marcelo Ricardo Leitner <mleitner@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+cea71eec5d6de256d54d@syzkaller.appspotmail.com
-Subject: [PATCH 5.5 05/46] sctp: fix refcount bug in sctp_wfree
+        stable@vger.kernel.org, Mario Kleiner <mario.kleiner.de@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 03/36] drm/amd/display: Add link_rate quirk for Apple 15" MBP 2017
 Date:   Tue,  7 Apr 2020 12:21:36 +0200
-Message-Id: <20200407101500.086085972@linuxfoundation.org>
+Message-Id: <20200407101454.720348954@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,115 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Mario Kleiner <mario.kleiner.de@gmail.com>
 
-[ Upstream commit 5c3e82fe159622e46e91458c1a6509c321a62820 ]
+[ Upstream commit dec9de2ada523b344eb2428abfedf9d6cd0a0029 ]
 
-We should iterate over the datamsgs to move
-all chunks(skbs) to newsk.
+This fixes a problem found on the MacBookPro 2017 Retina panel:
 
-The following case cause the bug:
-for the trouble SKB, it was in outq->transmitted list
+The panel reports 10 bpc color depth in its EDID, and the
+firmware chooses link settings at boot which support enough
+bandwidth for 10 bpc (324000 kbit/sec aka LINK_RATE_RBR2
+aka 0xc), but the DP_MAX_LINK_RATE dpcd register only reports
+2.7 Gbps (multiplier value 0xa) as possible, in direct
+contradiction of what the firmware successfully set up.
 
-sctp_outq_sack
-        sctp_check_transmitted
-                SKB was moved to outq->sacked list
-        then throw away the sack queue
-                SKB was deleted from outq->sacked
-(but it was held by datamsg at sctp_datamsg_to_asoc
-So, sctp_wfree was not called here)
+This restricts the panel to 8 bpc, not providing the full
+color depth of the panel on Linux <= 5.5. Additionally, commit
+'4a8ca46bae8a ("drm/amd/display: Default max bpc to 16 for eDP")'
+introduced into Linux 5.6-rc1 will unclamp panel depth to
+its full 10 bpc, thereby requiring a eDP bandwidth for all
+modes that exceeds the bandwidth available and causes all modes
+to fail validation -> No modes for the laptop panel -> failure
+to set any mode -> Panel goes dark.
 
-then migrate happened
+This patch adds a quirk specific to the MBP 2017 15" Retina
+panel to override reported max link rate to the correct maximum
+of 0xc = LINK_RATE_RBR2 to fix the darkness and reduced display
+precision.
 
-        sctp_for_each_tx_datachunk(
-        sctp_clear_owner_w);
-        sctp_assoc_migrate();
-        sctp_for_each_tx_datachunk(
-        sctp_set_owner_w);
-SKB was not in the outq, and was not changed to newsk
+Please apply for Linux 5.6+ to avoid regressing Apple MBP panel
+support.
 
-finally
-
-__sctp_outq_teardown
-        sctp_chunk_put (for another skb)
-                sctp_datamsg_put
-                        __kfree_skb(msg->frag_list)
-                                sctp_wfree (for SKB)
-	SKB->sk was still oldsk (skb->sk != asoc->base.sk).
-
-Reported-and-tested-by: syzbot+cea71eec5d6de256d54d@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <mleitner@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/socket.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -147,29 +147,44 @@ static void sctp_clear_owner_w(struct sc
- 	skb_orphan(chunk->skb);
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 0ab890c927ec7..6dd2334dd5e60 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -2879,6 +2879,17 @@ static bool retrieve_link_cap(struct dc_link *link)
+ 		sink_id.ieee_device_id,
+ 		sizeof(sink_id.ieee_device_id));
  
-+#define traverse_and_process()	\
-+do {				\
-+	msg = chunk->msg;	\
-+	if (msg == prev_msg)	\
-+		continue;	\
-+	list_for_each_entry(c, &msg->chunks, frag_list) {	\
-+		if ((clear && asoc->base.sk == c->skb->sk) ||	\
-+		    (!clear && asoc->base.sk != c->skb->sk))	\
-+			cb(c);	\
-+	}			\
-+	prev_msg = msg;		\
-+} while (0)
++	/* Quirk Apple MBP 2017 15" Retina panel: Wrong DP_MAX_LINK_RATE */
++	{
++		uint8_t str_mbp_2017[] = { 101, 68, 21, 101, 98, 97 };
 +
- static void sctp_for_each_tx_datachunk(struct sctp_association *asoc,
-+				       bool clear,
- 				       void (*cb)(struct sctp_chunk *))
- 
- {
-+	struct sctp_datamsg *msg, *prev_msg = NULL;
- 	struct sctp_outq *q = &asoc->outqueue;
-+	struct sctp_chunk *chunk, *c;
- 	struct sctp_transport *t;
--	struct sctp_chunk *chunk;
- 
- 	list_for_each_entry(t, &asoc->peer.transport_addr_list, transports)
- 		list_for_each_entry(chunk, &t->transmitted, transmitted_list)
--			cb(chunk);
-+			traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->retransmit, transmitted_list)
--		cb(chunk);
-+		traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->sacked, transmitted_list)
--		cb(chunk);
-+		traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->abandoned, transmitted_list)
--		cb(chunk);
-+		traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->out_chunk_list, list)
--		cb(chunk);
-+		traverse_and_process();
- }
- 
- static void sctp_for_each_rx_skb(struct sctp_association *asoc, struct sock *sk,
-@@ -9576,9 +9591,9 @@ static int sctp_sock_migrate(struct sock
- 	 * paths won't try to lock it and then oldsk.
- 	 */
- 	lock_sock_nested(newsk, SINGLE_DEPTH_NESTING);
--	sctp_for_each_tx_datachunk(assoc, sctp_clear_owner_w);
-+	sctp_for_each_tx_datachunk(assoc, true, sctp_clear_owner_w);
- 	sctp_assoc_migrate(assoc, newsk);
--	sctp_for_each_tx_datachunk(assoc, sctp_set_owner_w);
-+	sctp_for_each_tx_datachunk(assoc, false, sctp_set_owner_w);
- 
- 	/* If the association on the newsk is already closed before accept()
- 	 * is called, set RCV_SHUTDOWN flag.
++		if ((link->dpcd_caps.sink_dev_id == 0x0010fa) &&
++		    !memcmp(link->dpcd_caps.sink_dev_id_str, str_mbp_2017,
++			    sizeof(str_mbp_2017))) {
++			link->reported_link_cap.link_rate = 0x0c;
++		}
++	}
++
+ 	core_link_read_dpcd(
+ 		link,
+ 		DP_SINK_HW_REVISION_START,
+-- 
+2.20.1
+
 
 
