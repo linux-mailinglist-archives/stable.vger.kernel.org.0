@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF9F51A0BD6
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AECC61A0BA8
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728447AbgDGKXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33184 "EHLO mail.kernel.org"
+        id S1729003AbgDGKZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:25:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728443AbgDGKXV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:21 -0400
+        id S1728629AbgDGKZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:25:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19F862074B;
-        Tue,  7 Apr 2020 10:23:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A034420771;
+        Tue,  7 Apr 2020 10:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255001;
-        bh=CiDUe5Q2TUEW9mCUg7IqKdEful4ga79obeogsJc9u9Q=;
+        s=default; t=1586255142;
+        bh=h2kS5Qz/xwausVLpxQPYmK+Zqwh3u5tCcA85lqQVuNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rb06Lpbmoyi+3ELZATlcARVNN6X9o7RygfzuL0+557m4t3X8AHx1UlbGbpc/OCiq1
-         LSj3xWpsNsCBm6qhpEgn6DM37edn3/rSIJG6BbJxVFHkMc8nL5ukNEHxCAw5mUQxO/
-         pMZjwzv5uvDqudIm18uF4gfPVISFhiKHDa8RCtO4=
+        b=O2JJXIYuBIX2iXBZWLCGTr4AqwhCRowYpWlk92UcmB8D/j+0sfyTVHo2EOXXJJSf3
+         Im91JUms5Y26HyjFJx0WOeMZaLYo0VfaNTUOA934PrpDAA8umuVz1HlWxdaWv33iSY
+         u9YLV59WygwexJP9Ho3p1w8/JJ+4XwekVTqttIZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tariq Toukan <tariqt@mellanox.com>,
-        Boris Pismenny <borisp@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 27/36] net/mlx5e: kTLS, Fix wrong value in record tracker enum
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>
+Subject: [PATCH 5.5 29/46] extcon: axp288: Add wakeup support
 Date:   Tue,  7 Apr 2020 12:22:00 +0200
-Message-Id: <20200407101457.716113746@linuxfoundation.org>
+Message-Id: <20200407101502.607883725@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit f28ca65efa87b3fb8da3d69ca7cb1ebc0448de66 upstream.
+commit 9c94553099efb2ba873cbdddfd416a8a09d0e5f1 upstream.
 
-Fix to match the HW spec: TRACKING state is 1, SEARCHING is 2.
-No real issue for now, as these values are not currently used.
+On devices with an AXP288, we need to wakeup from suspend when a charger
+is plugged in, so that we can do charger-type detection and so that the
+axp288-charger driver, which listens for our extcon events, can configure
+the input-current-limit accordingly.
 
-Fixes: d2ead1f360e8 ("net/mlx5e: Add kTLS TX HW offload support")
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Reviewed-by: Boris Pismenny <borisp@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/extcon/extcon-axp288.c |   32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.h
-@@ -38,8 +38,8 @@ enum {
+--- a/drivers/extcon/extcon-axp288.c
++++ b/drivers/extcon/extcon-axp288.c
+@@ -443,9 +443,40 @@ static int axp288_extcon_probe(struct pl
+ 	/* Start charger cable type detection */
+ 	axp288_extcon_enable(info);
  
- enum {
- 	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_START     = 0,
--	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_SEARCHING = 1,
--	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_TRACKING  = 2,
-+	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_TRACKING  = 1,
-+	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_SEARCHING = 2,
++	device_init_wakeup(dev, true);
++	platform_set_drvdata(pdev, info);
++
++	return 0;
++}
++
++static int __maybe_unused axp288_extcon_suspend(struct device *dev)
++{
++	struct axp288_extcon_info *info = dev_get_drvdata(dev);
++
++	if (device_may_wakeup(dev))
++		enable_irq_wake(info->irq[VBUS_RISING_IRQ]);
++
+ 	return 0;
+ }
+ 
++static int __maybe_unused axp288_extcon_resume(struct device *dev)
++{
++	struct axp288_extcon_info *info = dev_get_drvdata(dev);
++
++	/*
++	 * Wakeup when a charger is connected to do charger-type
++	 * connection and generate an extcon event which makes the
++	 * axp288 charger driver set the input current limit.
++	 */
++	if (device_may_wakeup(dev))
++		disable_irq_wake(info->irq[VBUS_RISING_IRQ]);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(axp288_extcon_pm_ops, axp288_extcon_suspend,
++			 axp288_extcon_resume);
++
+ static const struct platform_device_id axp288_extcon_table[] = {
+ 	{ .name = "axp288_extcon" },
+ 	{},
+@@ -457,6 +488,7 @@ static struct platform_driver axp288_ext
+ 	.id_table = axp288_extcon_table,
+ 	.driver = {
+ 		.name = "axp288_extcon",
++		.pm = &axp288_extcon_pm_ops,
+ 	},
  };
  
- struct mlx5e_ktls_offload_context_tx {
 
 
