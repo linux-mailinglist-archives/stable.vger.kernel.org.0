@@ -2,137 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F46B1A1783
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 23:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D45941A17AE
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 00:04:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726386AbgDGVvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 17:51:13 -0400
-Received: from mail-pj1-f54.google.com ([209.85.216.54]:55165 "EHLO
-        mail-pj1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726380AbgDGVvN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 17:51:13 -0400
-Received: by mail-pj1-f54.google.com with SMTP id np9so308211pjb.4
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 14:51:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pX8HPw6kZcAaA6I6I6wqPFsFzEYf/kKjD7ej3iu5ce8=;
-        b=chFkQnQJhsL7pLMrWfcsfpHo8Tx6FX9FtauthaC0QlDqTzB0Z1o1pgxXpd3JTnTdPk
-         w0P2vXaU/7Sb/zrm/+SBbA/c0ORNQ8/cRgFE/ZnBRCvMFsVO8WGOfwH/7FCuY9xgXEgk
-         O9c94p+IBfDJrIDeNLFiPAp5BwAxbA6Hbb3Spi1LwVhi30lAdIz57SpyGFTHDsEbSL3m
-         W5dMZ6T4eajlcG2GCNt56NBHM8y8CJC3wRUVHpfY8mi8PfrlcWOF5jj/qhYP3bDATr3O
-         aqfAmpE9yaYb7EHFqKr85zNtFR1tlhJ10NHhFsGIGAMEx+ICGQMbKoZT/9OBWxfuVA8q
-         Or0g==
+        id S1726495AbgDGWEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 18:04:47 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:25475 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726483AbgDGWEq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 18:04:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586297086;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xrH2lLfAiq23v5Jxv+IpDhUxu2udMFmlhuyHKnLXEqg=;
+        b=Ty2m+DFz7lUNx5rs1/BO9KlFnCh2z6B1VSRHYD2XqW8e2O2sPdH7CiJZHYG82HCqa/zjW4
+        bd12/5JtpE0g83uxR/SZqxq1fu9/XKX/PnWUuVs+RUaUUATN2P+VbceFQATk4Y0IfoblaX
+        zem0GB1E2vCxa0XZptRKCxj+yGJZwNQ=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-113-7CY0RLM1N7eYBWZbXk3txg-1; Tue, 07 Apr 2020 18:04:43 -0400
+X-MC-Unique: 7CY0RLM1N7eYBWZbXk3txg-1
+Received: by mail-wm1-f72.google.com with SMTP id s22so1712025wmh.8
+        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 15:04:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pX8HPw6kZcAaA6I6I6wqPFsFzEYf/kKjD7ej3iu5ce8=;
-        b=OTrJ94nzb0yupdps/qJEfFy7oSH6fhl/qfFnK7A9Xp1943MULSLBXnz3pAvHUtBziU
-         yuCiNs5uNayi/a79bY6EI+CGKpIpMm2VuLRIBTGJfgLgCeB2PlqBv+EJ4c8k7B245dd6
-         LIiCg/XoVG0V9M/6QoWWoWJGVTNotNYVpLy1IkqjM4dpT/4ha5qS+G/vKdKfjXjbq0xo
-         +FHpEllTjmn5qgTYG0NDggbhpXiMCSxaXxkAzuYxzd9Yln+/9wxh2p4YGMukZo+Ts/ZU
-         AOzIdlJ6KOwvXfhJDOUyhLnFsDrSHJcOp3XBSOIsGbqaTXRpkCZxra+PipGfaImuQMfS
-         G1+w==
-X-Gm-Message-State: AGi0PubLntN+rEkvKah8IZODiVSiTkn+3nbp7AbxFQHKfdWxs9Nwvz8u
-        6EaHeZfxI2dMpXrBR/ubpAmeevZz/FU=
-X-Google-Smtp-Source: APiQypKJvIzwOl3BnAyknrPQyeh+W+DMhVt8de5Q27mMJgtTvbiSM2nxAzgRLA06nySzBThPx8o/qg==
-X-Received: by 2002:a17:90a:c583:: with SMTP id l3mr1603272pjt.84.1586296270839;
-        Tue, 07 Apr 2020 14:51:10 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m2sm2450919pjl.21.2020.04.07.14.51.10
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2020 14:51:10 -0700 (PDT)
-Message-ID: <5e8cf5ce.1c69fb81.f96ac.a669@mx.google.com>
-Date:   Tue, 07 Apr 2020 14:51:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=xrH2lLfAiq23v5Jxv+IpDhUxu2udMFmlhuyHKnLXEqg=;
+        b=C3UP8JK3wg/0wQUMqZyrTDu8ijgd3XujxcE0Pa0AuQvULQZ1W4ymZHVZ4Ww1Q0pHkv
+         lCmnJ74uVJz6v7hwLjUdh91/aBmZ6ChnS9z5DG6FCcdKXyCKWa191mQxC/cOYBtwqJX8
+         mOamSpQPlIKL9Iq1k/Nj6Rhsor8E+bGiCfUk8wLKvahLVsqNlzJIYT6cnGEKj9L6l/nj
+         WsLZ0zkbvPKKZetgdI3Cn3X+3vBgV1xvrsdRLA/aiEzYLi538h08dqhPvVONtlFqdjEI
+         aOXjoxrwvQ9vRhP4GY8hzd1B185Qvwp+goSU4r3eoXWEslDrzw3zR8RnwLSKMQYKW28E
+         mVFA==
+X-Gm-Message-State: AGi0PuYcwuKph+e78wx1ccJ1JTKZCFpFtYIwiCagU2YAM8ZqFA/ulNja
+        d7i0uopimppRuW75Fy+6gsmcBjfnGCG/4UWyX8+i6frGBe6PbtkfAZXvPavlvworjekqXeM+gbo
+        jEFWAktb9zKcUW/XI
+X-Received: by 2002:adf:8b5c:: with SMTP id v28mr4563549wra.98.1586297082517;
+        Tue, 07 Apr 2020 15:04:42 -0700 (PDT)
+X-Google-Smtp-Source: APiQypLGbUTjfdz6MpZ4qxUe2T9cFiSjdOrwlcJVFzepk8Hol5dhGGIbKBsCKOQCM8Zck3xQ0lCQsQ==
+X-Received: by 2002:adf:8b5c:: with SMTP id v28mr4563476wra.98.1586297081368;
+        Tue, 07 Apr 2020 15:04:41 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:bd61:914:5c2f:2580? ([2001:b07:6468:f312:bd61:914:5c2f:2580])
+        by smtp.gmail.com with ESMTPSA id t17sm28293907wrv.53.2020.04.07.15.04.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Apr 2020 15:04:40 -0700 (PDT)
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Vivek Goyal <vgoyal@redhat.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
+References: <20200407172140.GB64635@redhat.com>
+ <772A564B-3268-49F4-9AEA-CDA648F6131F@amacapital.net>
+ <87eeszjbe6.fsf@nanos.tec.linutronix.de>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <ce81c95f-8674-4012-f307-8f32d0e386c2@redhat.com>
+Date:   Wed, 8 Apr 2020 00:04:39 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.6.2-30-g14d42f1aa3c3
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.6.y
-Subject: stable-rc/linux-5.6.y boot: 164 boots: 3 failed,
- 148 passed with 7 offline, 6 untried/unknown (v5.6.2-30-g14d42f1aa3c3)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <87eeszjbe6.fsf@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.6.y boot: 164 boots: 3 failed, 148 passed with 7 offline,=
- 6 untried/unknown (v5.6.2-30-g14d42f1aa3c3)
+On 07/04/20 22:20, Thomas Gleixner wrote:
+>>> Havind said that, I thought disabling interrupts does not mask exceptions.
+>>> So page fault exception should have been delivered even with interrupts
+>>> disabled. Is that correct? May be there was no vm exit/entry during
+>>> those 10 seconds and that's why.
+> No. Async PF is not a real exception. It has interrupt semantics and it
+> can only be injected when the guest has interrupts enabled. It's bad
+> design.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.6.y/kernel/v5.6.2-30-g14d42f1aa3c3/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
-/kernel/v5.6.2-30-g14d42f1aa3c3/
+Page-ready async PF has interrupt semantics.
 
-Tree: stable-rc
-Branch: linux-5.6.y
-Git Describe: v5.6.2-30-g14d42f1aa3c3
-Git Commit: 14d42f1aa3c34cb80141366c231981dff6cdc7cd
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 102 unique boards, 24 SoC families, 20 builds out of 200
+Page-not-present async PF however does not have interrupt semantics, it
+has to be injected immediately or not at all (falling back to host page
+fault in the latter case).  So page-not-present async PF definitely
+needs to be an exception, this is independent of whether it can be
+injected when IF=0.
 
-Boot Regressions Detected:
+Hypervisors do not have any reserved exception vector, and must use
+vectors up to 31, which is why I believe #PF was used in the first place
+(though that predates my involvement in KVM by a few years).  These
+days, #VE would be a much better exception to use instead (and it also
+has a defined mechanism to avoid reentrancy).
 
-arm64:
+Paolo
 
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v5.6.2-29-g9995=
-0f10b1ac)
-          meson-gxl-s805x-p241:
-              lab-baylibre: new failure (last pass: v5.6.2-29-g99950f10b1ac)
-
-Boot Failures Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            bcm2836-rpi-2-b: 1 failed lab
-
-    exynos_defconfig:
-        gcc-8:
-            exynos5422-odroidxu3: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
