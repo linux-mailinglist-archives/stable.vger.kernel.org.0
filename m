@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2171F1A0B3E
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:25:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E2291A0B07
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728747AbgDGKYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:24:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35100 "EHLO mail.kernel.org"
+        id S1728366AbgDGKXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:23:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728776AbgDGKYq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:24:46 -0400
+        id S1728373AbgDGKXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:23:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 995BF2080C;
-        Tue,  7 Apr 2020 10:24:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E2972074F;
+        Tue,  7 Apr 2020 10:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255085;
-        bh=hFSSaaFZs7iS34JeOV/LO3xxtt/qCl6SQ6F3A3HPIlg=;
+        s=default; t=1586254986;
+        bh=TorpH4uEST+U3yxKOkCZL/m53n9xz2lDBNqCEdKUsyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2iIPHSW+XUIoOQQRoFSPUFx1EvZwE4fgpjoKmc+oq3UrZBnK1zUXSKgf/c86+Tzr
-         7gam58cjoQeIqwKv6//W7LxfBy19H1W6zTmHZT7Smb8eH7xyowOuMa6k2Fn3IUo2Z+
-         GSoO+meAVAvVKZDLSr1dQvS6n/5ARm5OSETZgaxw=
+        b=k8jEBkmSIEXfQfV1A4+po1IfDfeDErInOkq/3vbU5A9ZiGthlX2u9XXyJs7XpFU60
+         lx6yisW9hqoVHwgOVBQa5e6i0q/TZ8aTv1n0HDM9iH4rXl/HGYigKvJeORdIVZvJBf
+         pFsaiv0XklYHeqtVAVBrSvzcL0WJDaFi2CZ/1A1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.5 23/46] misc: pci_endpoint_test: Avoid using module parameter to determine irqtype
+        stable@vger.kernel.org,
+        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.4 21/36] nvmem: check for NULL reg_read and reg_write before dereferencing
 Date:   Tue,  7 Apr 2020 12:21:54 +0200
-Message-Id: <20200407101501.970264355@linuxfoundation.org>
+Message-Id: <20200407101457.069282699@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,109 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
 
-commit b2ba9225e0313b1de631a44b7b48c109032bffec upstream.
+commit 3c91ef69a3e94f78546b246225ed573fbf1735b4 upstream.
 
-commit e03327122e2c ("pci_endpoint_test: Add 2 ioctl commands")
-uses module parameter 'irqtype' in pci_endpoint_test_set_irq()
-to check if IRQ vectors of a particular type (MSI or MSI-X or
-LEGACY) is already allocated. However with multi-function devices,
-'irqtype' will not correctly reflect the IRQ type of the PCI device.
+Return -EPERM if reg_read is NULL in bin_attr_nvmem_read() or if
+reg_write is NULL in bin_attr_nvmem_write().
 
-Fix it here by adding 'irqtype' for each PCI device to show the
-IRQ type of a particular PCI device.
+This prevents NULL dereferences such as the one described in
+03cd45d2e219 ("thunderbolt: Prevent crash if non-active NVMem file is
+read")
 
-Fixes: e03327122e2c ("pci_endpoint_test: Add 2 ioctl commands")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200310132257.23358-10-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/pci_endpoint_test.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/nvmem/nvmem-sysfs.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/misc/pci_endpoint_test.c
-+++ b/drivers/misc/pci_endpoint_test.c
-@@ -98,6 +98,7 @@ struct pci_endpoint_test {
- 	struct completion irq_raised;
- 	int		last_irq;
- 	int		num_irqs;
-+	int		irq_type;
- 	/* mutex to protect the ioctls */
- 	struct mutex	mutex;
- 	struct miscdevice miscdev;
-@@ -157,6 +158,7 @@ static void pci_endpoint_test_free_irq_v
- 	struct pci_dev *pdev = test->pdev;
+--- a/drivers/nvmem/nvmem-sysfs.c
++++ b/drivers/nvmem/nvmem-sysfs.c
+@@ -56,6 +56,9 @@ static ssize_t bin_attr_nvmem_read(struc
  
- 	pci_free_irq_vectors(pdev);
-+	test->irq_type = IRQ_TYPE_UNDEFINED;
- }
+ 	count = round_down(count, nvmem->word_size);
  
- static bool pci_endpoint_test_alloc_irq_vectors(struct pci_endpoint_test *test,
-@@ -191,6 +193,8 @@ static bool pci_endpoint_test_alloc_irq_
- 		irq = 0;
- 		res = false;
- 	}
++	if (!nvmem->reg_read)
++		return -EPERM;
 +
-+	test->irq_type = type;
- 	test->num_irqs = irq;
+ 	rc = nvmem->reg_read(nvmem->priv, pos, buf, count);
  
- 	return res;
-@@ -330,6 +334,7 @@ static bool pci_endpoint_test_copy(struc
- 	dma_addr_t orig_dst_phys_addr;
- 	size_t offset;
- 	size_t alignment = test->alignment;
-+	int irq_type = test->irq_type;
- 	u32 src_crc32;
- 	u32 dst_crc32;
+ 	if (rc)
+@@ -90,6 +93,9 @@ static ssize_t bin_attr_nvmem_write(stru
  
-@@ -426,6 +431,7 @@ static bool pci_endpoint_test_write(stru
- 	dma_addr_t orig_phys_addr;
- 	size_t offset;
- 	size_t alignment = test->alignment;
-+	int irq_type = test->irq_type;
- 	u32 crc32;
+ 	count = round_down(count, nvmem->word_size);
  
- 	if (size > SIZE_MAX - alignment)
-@@ -494,6 +500,7 @@ static bool pci_endpoint_test_read(struc
- 	dma_addr_t orig_phys_addr;
- 	size_t offset;
- 	size_t alignment = test->alignment;
-+	int irq_type = test->irq_type;
- 	u32 crc32;
++	if (!nvmem->reg_write)
++		return -EPERM;
++
+ 	rc = nvmem->reg_write(nvmem->priv, pos, buf, count);
  
- 	if (size > SIZE_MAX - alignment)
-@@ -555,7 +562,7 @@ static bool pci_endpoint_test_set_irq(st
- 		return false;
- 	}
- 
--	if (irq_type == req_irq_type)
-+	if (test->irq_type == req_irq_type)
- 		return true;
- 
- 	pci_endpoint_test_release_irq(test);
-@@ -567,12 +574,10 @@ static bool pci_endpoint_test_set_irq(st
- 	if (!pci_endpoint_test_request_irq(test))
- 		goto err;
- 
--	irq_type = req_irq_type;
- 	return true;
- 
- err:
- 	pci_endpoint_test_free_irq_vectors(test);
--	irq_type = IRQ_TYPE_UNDEFINED;
- 	return false;
- }
- 
-@@ -652,6 +657,7 @@ static int pci_endpoint_test_probe(struc
- 	test->test_reg_bar = 0;
- 	test->alignment = 0;
- 	test->pdev = pdev;
-+	test->irq_type = IRQ_TYPE_UNDEFINED;
- 
- 	if (no_msi)
- 		irq_type = IRQ_TYPE_LEGACY;
+ 	if (rc)
 
 
