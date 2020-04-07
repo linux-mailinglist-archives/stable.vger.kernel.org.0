@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D513D1A0B32
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03BCC1A0B21
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728363AbgDGKY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:24:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34670 "EHLO mail.kernel.org"
+        id S1728292AbgDGKX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728720AbgDGKY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:24:26 -0400
+        id S1728599AbgDGKX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:23:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF6B420801;
-        Tue,  7 Apr 2020 10:24:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E5DA207FF;
+        Tue,  7 Apr 2020 10:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255065;
-        bh=YOtm7zAs79v1XBoTlS89YdTT4HhPrN1rh4uVtP3fu6A=;
+        s=default; t=1586255035;
+        bh=DCZ2l5F56FR9NskugDQGc4jykl12y8rfDISYAsN/Awo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgF3ua6QMbnI8crMsEijYB7vjPjG5IF2mh29NwNknBd5mYSo8DRNjfpNdBm6FPFRR
-         LqO0ud/QB4HpM6nc6oCANaXA0tKjqTmcx6RXca/4FLFJ8BXDXTdNNmpawZZZAJepox
-         TcjVwnBmoo4iQisZ5zDMJw+K02jDKqFv6ihoAHI4=
+        b=CNLeEHTSTH7SgTIKt3Z4pa/o4imRZa5ia6Xt0TQ1cGvOR68kY28bjWLaqSeNTDefo
+         mcSyz3RPhUmTsVxDwteaDOYhOYmhhGHxUn1n06DQ/+RpgEP4fjZiBeik+sgiUCFRqr
+         ocFfU20gXS+AS+nrWtudrpnEtwGgstwXBMNKMmAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Len Brown <len.brown@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>, franky.lin@broadcom.com,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 16/46] tools/power turbostat: Fix 32-bit capabilities warning
+Subject: [PATCH 5.4 14/36] brcmfmac: abort and release host after error
 Date:   Tue,  7 Apr 2020 12:21:47 +0200
-Message-Id: <20200407101501.231048111@linuxfoundation.org>
+Message-Id: <20200407101456.184025773@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,103 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Brown <len.brown@intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit fcaa681c03ea82193e60d7f2cdfd94fbbcd4cae9 ]
+[ Upstream commit 863844ee3bd38219c88e82966d1df36a77716f3e ]
 
-warning: `turbostat' uses 32-bit capabilities (legacy support in use)
+With commit 216b44000ada ("brcmfmac: Fix use after free in
+brcmf_sdio_readframes()") applied, we see locking timeouts in
+brcmf_sdio_watchdog_thread().
 
-Signed-off-by: Len Brown <len.brown@intel.com>
+brcmfmac: brcmf_escan_timeout: timer expired
+INFO: task brcmf_wdog/mmc1:621 blocked for more than 120 seconds.
+Not tainted 4.19.94-07984-g24ff99a0f713 #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+brcmf_wdog/mmc1 D    0   621      2 0x00000000 last_sleep: 2440793077.  last_runnable: 2440766827
+[<c0aa1e60>] (__schedule) from [<c0aa2100>] (schedule+0x98/0xc4)
+[<c0aa2100>] (schedule) from [<c0853830>] (__mmc_claim_host+0x154/0x274)
+[<c0853830>] (__mmc_claim_host) from [<bf10c5b8>] (brcmf_sdio_watchdog_thread+0x1b0/0x1f8 [brcmfmac])
+[<bf10c5b8>] (brcmf_sdio_watchdog_thread [brcmfmac]) from [<c02570b8>] (kthread+0x178/0x180)
+
+In addition to restarting or exiting the loop, it is also necessary to
+abort the command and to release the host.
+
+Fixes: 216b44000ada ("brcmfmac: Fix use after free in brcmf_sdio_readframes()")
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Matthias Kaehlcke <mka@chromium.org>
+Cc: Brian Norris <briannorris@chromium.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: franky.lin@broadcom.com
+Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/Makefile    |  2 +-
- tools/power/x86/turbostat/turbostat.c | 46 +++++++++++++++++----------
- 2 files changed, 31 insertions(+), 17 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/power/x86/turbostat/Makefile b/tools/power/x86/turbostat/Makefile
-index 13f1e8b9ac525..2b6551269e431 100644
---- a/tools/power/x86/turbostat/Makefile
-+++ b/tools/power/x86/turbostat/Makefile
-@@ -16,7 +16,7 @@ override CFLAGS +=	-D_FORTIFY_SOURCE=2
- 
- %: %.c
- 	@mkdir -p $(BUILD_OUTPUT)
--	$(CC) $(CFLAGS) $< -o $(BUILD_OUTPUT)/$@ $(LDFLAGS)
-+	$(CC) $(CFLAGS) $< -o $(BUILD_OUTPUT)/$@ $(LDFLAGS) -lcap
- 
- .PHONY : clean
- clean :
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index 17e82eaf5c4f4..988326b67a916 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -30,7 +30,7 @@
- #include <sched.h>
- #include <time.h>
- #include <cpuid.h>
--#include <linux/capability.h>
-+#include <sys/capability.h>
- #include <errno.h>
- #include <math.h>
- 
-@@ -3150,28 +3150,42 @@ void check_dev_msr()
- 			err(-5, "no /dev/cpu/0/msr, Try \"# modprobe msr\" ");
- }
- 
--void check_permissions()
-+/*
-+ * check for CAP_SYS_RAWIO
-+ * return 0 on success
-+ * return 1 on fail
-+ */
-+int check_for_cap_sys_rawio(void)
- {
--	struct __user_cap_header_struct cap_header_data;
--	cap_user_header_t cap_header = &cap_header_data;
--	struct __user_cap_data_struct cap_data_data;
--	cap_user_data_t cap_data = &cap_data_data;
--	extern int capget(cap_user_header_t hdrp, cap_user_data_t datap);
--	int do_exit = 0;
--	char pathname[32];
-+	cap_t caps;
-+	cap_flag_value_t cap_flag_value;
- 
--	/* check for CAP_SYS_RAWIO */
--	cap_header->pid = getpid();
--	cap_header->version = _LINUX_CAPABILITY_VERSION;
--	if (capget(cap_header, cap_data) < 0)
--		err(-6, "capget(2) failed");
-+	caps = cap_get_proc();
-+	if (caps == NULL)
-+		err(-6, "cap_get_proc\n");
- 
--	if ((cap_data->effective & (1 << CAP_SYS_RAWIO)) == 0) {
--		do_exit++;
-+	if (cap_get_flag(caps, CAP_SYS_RAWIO, CAP_EFFECTIVE, &cap_flag_value))
-+		err(-6, "cap_get\n");
-+
-+	if (cap_flag_value != CAP_SET) {
- 		warnx("capget(CAP_SYS_RAWIO) failed,"
- 			" try \"# setcap cap_sys_rawio=ep %s\"", progname);
-+		return 1;
- 	}
- 
-+	if (cap_free(caps) == -1)
-+		err(-6, "cap_free\n");
-+
-+	return 0;
-+}
-+void check_permissions(void)
-+{
-+	int do_exit = 0;
-+	char pathname[32];
-+
-+	/* check for CAP_SYS_RAWIO */
-+	do_exit += check_for_cap_sys_rawio();
-+
- 	/* test file permissions */
- 	sprintf(pathname, "/dev/cpu/%d/msr", base_cpu);
- 	if (euidaccess(pathname, R_OK)) {
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index a935993a3c514..d43247a95ce53 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -1934,6 +1934,8 @@ static uint brcmf_sdio_readframes(struct brcmf_sdio *bus, uint maxframes)
+ 			if (brcmf_sdio_hdparse(bus, bus->rxhdr, &rd_new,
+ 					       BRCMF_SDIO_FT_NORMAL)) {
+ 				rd->len = 0;
++				brcmf_sdio_rxfail(bus, true, true);
++				sdio_release_host(bus->sdiodev->func1);
+ 				brcmu_pkt_buf_free_skb(pkt);
+ 				continue;
+ 			}
 -- 
 2.20.1
 
