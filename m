@@ -2,90 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B981A167A
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 22:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D481F1A16AA
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 22:20:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726760AbgDGUHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 16:07:11 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:41571 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726759AbgDGUHL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 16:07:11 -0400
-Received: by mail-lj1-f196.google.com with SMTP id n17so5151690lji.8
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 13:07:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xaDI5WZ+Tw5wjkiaUfXulkJabdKkJCvfWkIGtDYsvdM=;
-        b=KOYHiHylGotp6u4EirtYoIpBrCpGxl+xmn9mgypeQsxKVqfZv1mwuWYQvivt5kYnrL
-         d7NNizemEINPjNMrBZYLYfxUCE+cpeWbWVBtGBLTo1176F+IOOEN9uY35VV4GPfXK+/F
-         QJSC4air0ca5DjIKJ6AE2E28LQZZN4daqXwp4=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xaDI5WZ+Tw5wjkiaUfXulkJabdKkJCvfWkIGtDYsvdM=;
-        b=G5R5636YaNX6HSrgpcCiMRX78LdPW/WPU72hu09CHfTSSKclViF5//AViJV9hkHHRU
-         4jck4zx/Eb4IibB87h177b9sqz6EZDtsoKkzp6SG2ID8HoKBPKxP58ywtIW0Dk86/Wwf
-         Bzwmfi298IL96q+IyX2rNU0E/o9KNuLaf1D49XV7U/CV+03V1mMI6Mo8zglMy3+KQZx5
-         ayHBTwcpgLwaPi28qUd8ergFe63hn4NRWqWoKUOoV/pxOuBC+ML/J4Dk8a3xI1lo8BOB
-         AY8FpZoMPSdR2emVYdVET4SP+9IyWmNpzFvSWEPUeTDZ7NX4g6uvVocpbPAxECdAYWBb
-         KkMg==
-X-Gm-Message-State: AGi0Puan0nsogl2q/9pl30+yeiu6wcSvMXSVBXxHPttG2DRrWrTb5jmx
-        fKKKBvhKD8d31KkLTTBeuOJ9Nnq6INc=
-X-Google-Smtp-Source: APiQypKwrra0jVlFc8xlvZ134m5zNLxUekBIj7+Vhj0geHyreHZa9tAyPYUz5IF6TYWwyyhMbScrDw==
-X-Received: by 2002:a2e:81c9:: with SMTP id s9mr2730694ljg.69.1586290026644;
-        Tue, 07 Apr 2020 13:07:06 -0700 (PDT)
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com. [209.85.167.43])
-        by smtp.gmail.com with ESMTPSA id c4sm13789152lfm.37.2020.04.07.13.07.05
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Apr 2020 13:07:05 -0700 (PDT)
-Received: by mail-lf1-f43.google.com with SMTP id h6so3423159lfc.0
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 13:07:05 -0700 (PDT)
-X-Received: by 2002:ac2:4466:: with SMTP id y6mr2462517lfl.125.1586290024968;
- Tue, 07 Apr 2020 13:07:04 -0700 (PDT)
+        id S1727237AbgDGUUl convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 7 Apr 2020 16:20:41 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:48531 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726740AbgDGUUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 16:20:41 -0400
+Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1jLui2-0004ak-1Y; Tue, 07 Apr 2020 22:20:34 +0200
+Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
+        id 595CA101273; Tue,  7 Apr 2020 22:20:33 +0200 (CEST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Andy Lutomirski <luto@amacapital.net>,
+        Vivek Goyal <vgoyal@redhat.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+In-Reply-To: <772A564B-3268-49F4-9AEA-CDA648F6131F@amacapital.net>
+References: <20200407172140.GB64635@redhat.com> <772A564B-3268-49F4-9AEA-CDA648F6131F@amacapital.net>
+Date:   Tue, 07 Apr 2020 22:20:33 +0200
+Message-ID: <87eeszjbe6.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-References: <20200406200254.a69ebd9e08c4074e41ddebaf@linux-foundation.org>
- <20200407031042.8o-fYMox-%akpm@linux-foundation.org> <CAHk-=wi1h-wBC3Kg2qBhs_R1UGyocGq0cT1eO+12pwBsO+d1ww@mail.gmail.com>
- <158627540139.8918.10102358634447361335@build.alporthouse.com>
- <CAHk-=wjTmay+NhnZ5Q+GM9buDioT0ie8njJgcquTFGD_qQhXpw@mail.gmail.com>
- <158628265081.8918.1825514020221532657@build.alporthouse.com> <CAHk-=wj84K2AZNA-qc5DdCo2zUQiSOTK0DOf02KYgPOhw2-DDQ@mail.gmail.com>
-In-Reply-To: <CAHk-=wj84K2AZNA-qc5DdCo2zUQiSOTK0DOf02KYgPOhw2-DDQ@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 7 Apr 2020 13:06:48 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgutu+KpwyMDHk1FRasaB_R4UXP7pHxpA4rfY_er553Rg@mail.gmail.com>
-Message-ID: <CAHk-=wgutu+KpwyMDHk1FRasaB_R4UXP7pHxpA4rfY_er553Rg@mail.gmail.com>
-Subject: Re: [patch 125/166] lib/list: prevent compiler reloads inside 'safe'
- list iteration
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        David Laight <David.Laight@aculab.com>,
-        Marco Elver <elver@google.com>, Linux-MM <linux-mm@kvack.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        mm-commits@vger.kernel.org,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 7, 2020 at 1:04 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
+Andy Lutomirski <luto@amacapital.net> writes:
+>> On Apr 7, 2020, at 10:21 AM, Vivek Goyal <vgoyal@redhat.com> wrote:
+>> Whether interrupts are enabled or not check only happens before we decide
+>> if async pf protocol should be followed or not. Once we decide to
+>> send PAGE_NOT_PRESENT, later notification PAGE_READY does not check
+>> if interrupts are enabled or not. And it kind of makes sense otherwise
+>> guest process will wait infinitely to receive PAGE_READY.
+>> 
+>> I modified the code a bit to disable interrupt and wait 10 seconds (after
+>> getting PAGE_NOT_PRESENT message). And I noticed that error async pf
+>> got delivered after 10 seconds after enabling interrupts. So error
+>> async pf was not lost because interrupts were disabled.
+
+Async PF is not the same as a real #PF. It just hijacked the #PF vector
+because someone thought this is a brilliant idea.
+
+>> Havind said that, I thought disabling interrupts does not mask exceptions.
+>> So page fault exception should have been delivered even with interrupts
+>> disabled. Is that correct? May be there was no vm exit/entry during
+>> those 10 seconds and that's why.
+
+No. Async PF is not a real exception. It has interrupt semantics and it
+can only be injected when the guest has interrupts enabled. It's bad
+design.
+
+> My point is that the entire async pf is nonsense. There are two types of events right now:
 >
-> You may be relying on some very subtle consistency guarantee that is
-> true on x86. For example, x86 does guarantee "causality".
+> “Page not ready”: normally this isn’t even visible to the guest — the
+> guest just waits. With async pf, the idea is to try to tell the guest
+> that a particular instruction would block and the guest should do
+> something else instead. Sending a normal exception is a poor design,
+> though: the guest may not expect this instruction to cause an
+> exception. I think KVM should try to deliver an *interrupt* and, if it
+> can’t, then just block the guest.
+
+That's pretty much what it does, just that it runs this through #PF and
+has the checks for interrupts disabled - i.e can't right now' around
+that. If it can't then KVM schedules the guest out until the situation
+has been resolved.
+
+> “Page ready”: this is a regular asynchronous notification just like,
+> say, a virtio completion. It should be an ordinary interrupt.  Some in
+> memory data structure should indicate which pages are ready.
 >
-> Not everybody else does that.
+> “Page is malfunctioning” is tricky because you *must* deliver the
+> event. x86’s #MC is not exactly a masterpiece, but it does kind of
+> work.
 
-It's worth noting that maybe for the i915 driver it makes sense to
-just assume x86 memory ordering.
+Nooooo. This does not need #MC at all. Don't even think about it.
 
-But even if that's the case, then it doesn't make sense to change
-list_prev_entry_safe() anywhere else.
+The point is that the access to such a page is either happening in user
+space or in kernel space with a proper exception table fixup.
 
-                 Linus
+That means a real #PF is perfectly fine. That can be injected any time
+and does not have the interrupt semantics of async PF.
+
+So now lets assume we distangled async PF from #PF and made it a regular
+interrupt, then the following situation still needs to be dealt with:
+
+   guest -> access faults
+
+host -> injects async fault
+
+   guest -> handles and blocks the task
+
+host figures out that the page does not exist anymore and now needs to
+fixup the situation.
+
+host -> injects async wakeup
+
+   guest -> returns from aysnc PF interrupt and retries the instruction
+            which faults again.
+
+host -> knows by now that this is a real fault and injects a proper #PF
+
+   guest -> #PF runs and either sends signal to user space or runs
+            the exception table fixup for a kernel fault.
+
+Thanks,
+
+        tglx
+
+
+
+
