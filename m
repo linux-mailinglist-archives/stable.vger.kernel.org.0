@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 789301A0B4C
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A94751A0B91
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728494AbgDGKZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:25:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35732 "EHLO mail.kernel.org"
+        id S1729220AbgDGK0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:26:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728907AbgDGKZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:25:15 -0400
+        id S1729215AbgDGK0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:26:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AE7E2074B;
-        Tue,  7 Apr 2020 10:25:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D10932074B;
+        Tue,  7 Apr 2020 10:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255115;
-        bh=zMvRv1xvSRez/I8XS6dOdstcuN71d0iQj0e9cGUUUMI=;
+        s=default; t=1586255205;
+        bh=+9/waoq6urivDfNZvIaeIMosuJ6pHCmjRRVUUlB8Uig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RviyVA1F8wLV9ZCRmEGoPw7v07uQ98W5w5eGn4wi+IY52lYG6zrzsfjBhAp7B0STq
-         wd4Bs2fLxUMmaUdCpN6xAs2nfWC0K+eycY3htFiRjEZmK6Bz3iX17O5ZBNStxB2OmR
-         I+Rz4wz5R9YB0u+XBBbxVlbI3ixdhTPFswVR00hU=
+        b=kwm7mD3zf05JacqVEYGv2jqg4UYgSEvmLrueTcmnWj+y20uiyXwJ579D/oka7qWqq
+         FILF+eNA/VtO8RFKkilCzt8tiN9BApvtVxk1PLCHv1m2jCzw2ljehJr4xgMoLoUfgD
+         oOog3GpG4aKQghkWjtjL09WIPFAeeTDr9ehlk7FQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Freeman Liu <freeman.liu@unisoc.com>,
-        Baolin Wang <baolin.wang7@gmail.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.5 28/46] nvmem: sprd: Fix the block lock operation
-Date:   Tue,  7 Apr 2020 12:21:59 +0200
-Message-Id: <20200407101502.527377529@linuxfoundation.org>
+        stable@vger.kernel.org, William Dauchy <w.dauchy@criteo.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 03/29] net, ip_tunnel: fix interface lookup with no key
+Date:   Tue,  7 Apr 2020 12:22:00 +0200
+Message-Id: <20200407101452.411878897@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
+References: <20200407101452.046058399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Freeman Liu <freeman.liu@unisoc.com>
+From: William Dauchy <w.dauchy@criteo.com>
 
-commit c66ebde4d988b592e8f0008e04c47cc4950a49d3 upstream.
+[ Upstream commit 25629fdaff2ff509dd0b3f5ff93d70a75e79e0a1 ]
 
-According to the Spreadtrum eFuse specification, we should write 0 to
-the block to trigger the lock operation.
+when creating a new ipip interface with no local/remote configuration,
+the lookup is done with TUNNEL_NO_KEY flag, making it impossible to
+match the new interface (only possible match being fallback or metada
+case interface); e.g: `ip link add tunl1 type ipip dev eth0`
 
-Fixes: 096030e7f449 ("nvmem: sprd: Add Spreadtrum SoCs eFuse support")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Freeman Liu <freeman.liu@unisoc.com>
-Signed-off-by: Baolin Wang <baolin.wang7@gmail.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200323150007.7487-2-srinivas.kandagatla@linaro.org
+To fix this case, adding a flag check before the key comparison so we
+permit to match an interface with no local/remote config; it also avoids
+breaking possible userland tools relying on TUNNEL_NO_KEY flag and
+uninitialised key.
+
+context being on my side, I'm creating an extra ipip interface attached
+to the physical one, and moving it to a dedicated namespace.
+
+Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
+Signed-off-by: William Dauchy <w.dauchy@criteo.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/nvmem/sprd-efuse.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/ip_tunnel.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/nvmem/sprd-efuse.c
-+++ b/drivers/nvmem/sprd-efuse.c
-@@ -239,7 +239,7 @@ static int sprd_efuse_raw_prog(struct sp
- 		ret = -EBUSY;
- 	} else {
- 		sprd_efuse_set_prog_lock(efuse, lock);
--		writel(*data, efuse->base + SPRD_EFUSE_MEM(blk));
-+		writel(0, efuse->base + SPRD_EFUSE_MEM(blk));
- 		sprd_efuse_set_prog_lock(efuse, false);
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -142,11 +142,8 @@ struct ip_tunnel *ip_tunnel_lookup(struc
+ 			cand = t;
  	}
+ 
+-	if (flags & TUNNEL_NO_KEY)
+-		goto skip_key_lookup;
+-
+ 	hlist_for_each_entry_rcu(t, head, hash_node) {
+-		if (t->parms.i_key != key ||
++		if ((!(flags & TUNNEL_NO_KEY) && t->parms.i_key != key) ||
+ 		    t->parms.iph.saddr != 0 ||
+ 		    t->parms.iph.daddr != 0 ||
+ 		    !(t->dev->flags & IFF_UP))
+@@ -158,7 +155,6 @@ struct ip_tunnel *ip_tunnel_lookup(struc
+ 			cand = t;
+ 	}
+ 
+-skip_key_lookup:
+ 	if (cand)
+ 		return cand;
  
 
 
