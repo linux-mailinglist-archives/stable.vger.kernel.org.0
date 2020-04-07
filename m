@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A42A91A0B9D
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:28:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2D821A0BDE
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729081AbgDGK0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:26:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36988 "EHLO mail.kernel.org"
+        id S1728093AbgDGK3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:29:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729079AbgDGK0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:26:04 -0400
+        id S1728432AbgDGKXT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:23:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B88A32074F;
-        Tue,  7 Apr 2020 10:26:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98F9C20644;
+        Tue,  7 Apr 2020 10:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255164;
-        bh=lgSttysFDVvu+oC6gu+5HLnGkjnVdiiFpHo8cQiPQaU=;
+        s=default; t=1586254999;
+        bh=KN/RtJgBrXn5vFfRyb79eWSReJRlqg0mW2vgwy54kG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfxN0/j/ZtFb40VlZrBflaly3T9URCPTDlacyG9A27KQl4RropozbvS3lQ29GXQLl
-         JcDrbDKcVG88qmeod/7VkRW2BIsAfa/XTTHPLgd8N5GcEFOJ7b2zWZlBehWVxn1rFc
-         9oJJvrO2AX/NGHh2OXQ2ymJ2J08UENOaGGgqukog=
+        b=1vjWMt2MZMm4jwhQktqdmIul+0dd4+BePvv7umsT9xls1hX8k0AYhZ0twHF9wl62+
+         qYEZhqHE+7M7gcv9kTrvczBxEbzkOn1G0985B3pZj5v02CU/2XJzq6hNZ3y5g4hNb4
+         liE7gzqOcFmd1AOf6wB+kOkVCpmt09QtCwn+5hNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 01/29] ipv4: fix a RCU-list lock in fib_triestat_seq_show
-Date:   Tue,  7 Apr 2020 12:21:58 +0200
-Message-Id: <20200407101452.188484947@linuxfoundation.org>
+        stable@vger.kernel.org, Bibby Hsieh <bibby.hsieh@mediatek.com>,
+        CK Hu <ck.hu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Subject: [PATCH 5.4 26/36] soc: mediatek: knows_txdone needs to be set in Mediatek CMDQ helper
+Date:   Tue,  7 Apr 2020 12:21:59 +0200
+Message-Id: <20200407101457.599722726@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
-References: <20200407101452.046058399@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,63 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Bibby Hsieh <bibby.hsieh@mediatek.com>
 
-[ Upstream commit fbe4e0c1b298b4665ee6915266c9d6c5b934ef4a ]
+commit ce35e21d82bcac8b3fd5128888f9e233f8444293 upstream.
 
-fib_triestat_seq_show() calls hlist_for_each_entry_rcu(tb, head,
-tb_hlist) without rcu_read_lock() will trigger a warning,
+Mediatek CMDQ driver have a mechanism to do TXDONE_BY_ACK,
+so we should set knows_txdone.
 
- net/ipv4/fib_trie.c:2579 RCU-list traversed in non-reader section!!
+Fixes:576f1b4bc802 ("soc: mediatek: Add Mediatek CMDQ helper")
 
- other info that might help us debug this:
-
- rcu_scheduler_active = 2, debug_locks = 1
- 1 lock held by proc01/115277:
-  #0: c0000014507acf00 (&p->lock){+.+.}-{3:3}, at: seq_read+0x58/0x670
-
- Call Trace:
-  dump_stack+0xf4/0x164 (unreliable)
-  lockdep_rcu_suspicious+0x140/0x164
-  fib_triestat_seq_show+0x750/0x880
-  seq_read+0x1a0/0x670
-  proc_reg_read+0x10c/0x1b0
-  __vfs_read+0x3c/0x70
-  vfs_read+0xac/0x170
-  ksys_read+0x7c/0x140
-  system_call+0x5c/0x68
-
-Fix it by adding a pair of rcu_read_lock/unlock() and use
-cond_resched_rcu() to avoid the situation where walking of a large
-number of items  may prevent scheduling for a long time.
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
+Reviewed-by: CK Hu <ck.hu@mediatek.com>
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/fib_trie.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -2577,6 +2577,7 @@ static int fib_triestat_seq_show(struct
- 		   " %zd bytes, size of tnode: %zd bytes.\n",
- 		   LEAF_SIZE, TNODE_SIZE(0));
+---
+ drivers/soc/mediatek/mtk-cmdq-helper.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/soc/mediatek/mtk-cmdq-helper.c
++++ b/drivers/soc/mediatek/mtk-cmdq-helper.c
+@@ -38,6 +38,7 @@ struct cmdq_client *cmdq_mbox_create(str
+ 	client->pkt_cnt = 0;
+ 	client->client.dev = dev;
+ 	client->client.tx_block = false;
++	client->client.knows_txdone = true;
+ 	client->chan = mbox_request_channel(&client->client, index);
  
-+	rcu_read_lock();
- 	for (h = 0; h < FIB_TABLE_HASHSZ; h++) {
- 		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
- 		struct fib_table *tb;
-@@ -2596,7 +2597,9 @@ static int fib_triestat_seq_show(struct
- 			trie_show_usage(seq, t->stats);
- #endif
- 		}
-+		cond_resched_rcu();
- 	}
-+	rcu_read_unlock();
- 
- 	return 0;
- }
+ 	if (IS_ERR(client->chan)) {
 
 
