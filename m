@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 750831A0B22
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C221A0B34
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728610AbgDGKX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34012 "EHLO mail.kernel.org"
+        id S1728736AbgDGKYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:24:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728606AbgDGKX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:58 -0400
+        id S1728727AbgDGKY2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:24:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAD5B2082D;
-        Tue,  7 Apr 2020 10:23:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BED82074F;
+        Tue,  7 Apr 2020 10:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255038;
-        bh=HqEmlzxufOwa6YagG4mTNMv27CCEvyFSPzld7zaEp8o=;
+        s=default; t=1586255067;
+        bh=kbZl1uDjGDqe9P85bbeC5tlO3WXKxc6I56W8sgaOY54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sd2MZWRQdQSntVvEFreA4IaqCZkF1BPNhBwfTa+pG662s4jpYsitmduZXLbbIaQvp
-         mzGZ2GsxpAPmORs2N5AWLtR4WFoXiyiF8s65RWh5+m8I/hUpQv8hUAa7O/dIzZ/BsU
-         sLFlebY6EoD23Ct/xEZKzhD9Z6kSpf0lC4wwiPlU=
+        b=C7ZA8P+F1wM/Zwvg3hVVuKJm40PLWedTkOn6Gb9bM4HiFDN58BDqdmr03vuIvc6/+
+         p25bSMeLcnhimWz25nMI5dTdw4azOVTI7tgVlhofr4J/PmYWjizdD028qsS1uozYyu
+         LwleJr5i1bEA3hHpEKE8vWbsr5BPqk3qq1s0zS/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH 5.4 15/36] misc: rtsx: set correct pcr_ops for rts522A
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 17/46] padata: fix uninitialized return value in padata_replace()
 Date:   Tue,  7 Apr 2020 12:21:48 +0200
-Message-Id: <20200407101456.294777610@linuxfoundation.org>
+Message-Id: <20200407101501.345016605@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit 10cea23b6aae15e8324f4101d785687f2c514fe5 upstream.
+[ Upstream commit 41ccdbfd5427bbbf3ed58b16750113b38fad1780 ]
 
-rts522a should use rts522a_pcr_ops, which is
-diffrent with rts5227 in phy/hw init setting.
+According to Geert's report[0],
 
-Fixes: ce6a5acc9387 ("mfd: rtsx: Add support for rts522A")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200326032618.20472-1-yuehaibing@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  kernel/padata.c: warning: 'err' may be used uninitialized in this
+    function [-Wuninitialized]:  => 539:2
 
+Warning is seen only with older compilers on certain archs.  The
+runtime effect is potentially returning garbage down the stack when
+padata's cpumasks are modified before any pcrypt requests have run.
+
+Simplest fix is to initialize err to the success value.
+
+[0] http://lkml.kernel.org/r/20200210135506.11536-1-geert@linux-m68k.org
+
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: bbefa1dd6a6d ("crypto: pcrypt - Avoid deadlock by using per-instance padata queues")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cardreader/rts5227.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/padata.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/cardreader/rts5227.c
-+++ b/drivers/misc/cardreader/rts5227.c
-@@ -394,6 +394,7 @@ static const struct pcr_ops rts522a_pcr_
- void rts522a_init_params(struct rtsx_pcr *pcr)
+diff --git a/kernel/padata.c b/kernel/padata.c
+index fda7a7039422d..7bd37dd9ec55b 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -516,7 +516,7 @@ static int padata_replace(struct padata_instance *pinst)
  {
- 	rts5227_init_params(pcr);
-+	pcr->ops = &rts522a_pcr_ops;
- 	pcr->tx_initial_phase = SET_CLOCK_PHASE(20, 20, 11);
- 	pcr->reg_pm_ctrl3 = RTS522A_PM_CTRL3;
+ 	int notification_mask = 0;
+ 	struct padata_shell *ps;
+-	int err;
++	int err = 0;
  
+ 	pinst->flags |= PADATA_RESET;
+ 
+-- 
+2.20.1
+
 
 
