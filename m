@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A45EE1A0B6E
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD711A0B94
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729159AbgDGK0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38568 "EHLO mail.kernel.org"
+        id S1729174AbgDGK0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:26:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729157AbgDGK02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:26:28 -0400
+        id S1729173AbgDGK0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:26:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A23D2074F;
-        Tue,  7 Apr 2020 10:26:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8460F2074B;
+        Tue,  7 Apr 2020 10:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255188;
-        bh=AOAvaLVkDHeMRUUOp5dsa0b0RO3eEiCYm6DzGZdjcBU=;
+        s=default; t=1586255193;
+        bh=TcTIBYPO0IsFQBu/ex/IOcdF3ZlY9TxybumNre7+ifU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lj8GvnwLySwRQOjI36y6ONlUAFAp1kZnxeBe10GLTI7rL5TuQwC7RVhnNLKntL+wv
-         ODcHklJz3ICuzY4goPB75tvVGrqMwbLbqlpNjlEsQSzc4rKPr7KHPzr7VT4xe67XYE
-         DaSIpoSjmywz7y/enLe4xA9NTem79pNgZzxRRfgc=
+        b=uIHLE0t6VNwkNaVlmvJg9G3N85y5TYY2oZlMxNhwyuLaBPqB/M6D2eJcDYc0LawjA
+         Ks2XYE8qoEZ7NSOROrmCpvnjqhOsiLuSMmhnpbIeY8DG6cY65TKA5rhlOsrusp1k19
+         Q0KndsAw+v6tX9SPYbIgbVn+GCO7Ewi7unm49E/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.6 19/29] coresight: do not use the BIT() macro in the UAPI header
-Date:   Tue,  7 Apr 2020 12:22:16 +0200
-Message-Id: <20200407101454.349819058@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.6 20/29] mei: me: add cedar fork device ids
+Date:   Tue,  7 Apr 2020 12:22:17 +0200
+Message-Id: <20200407101454.505697498@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
 References: <20200407101452.046058399@linuxfoundation.org>
@@ -43,39 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Syromiatnikov <esyr@redhat.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 9b6eaaf3db5e5888df7bca7fed7752a90f7fd871 upstream.
+commit 99397d33b763dc554d118aaa38cc5abc6ce985de upstream.
 
-The BIT() macro definition is not available for the UAPI headers
-(moreover, it can be defined differently in the user space); replace
-its usage with the _BITUL() macro that is defined in <linux/const.h>.
+Add Cedar Fork (CDF) device ids, those belongs to the cannon point family.
 
-Fixes: 237483aa5cf4 ("coresight: stm: adding driver for CoreSight STM component")
-Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200324042213.GA10452@asgard.redhat.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20200324210730.17672-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/linux/coresight-stm.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/misc/mei/hw-me-regs.h |    2 ++
+ drivers/misc/mei/pci-me.c     |    2 ++
+ 2 files changed, 4 insertions(+)
 
---- a/include/uapi/linux/coresight-stm.h
-+++ b/include/uapi/linux/coresight-stm.h
-@@ -2,8 +2,10 @@
- #ifndef __UAPI_CORESIGHT_STM_H_
- #define __UAPI_CORESIGHT_STM_H_
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -87,6 +87,8 @@
+ #define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
+ #define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
  
--#define STM_FLAG_TIMESTAMPED   BIT(3)
--#define STM_FLAG_GUARANTEED    BIT(7)
-+#include <linux/const.h>
++#define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
 +
-+#define STM_FLAG_TIMESTAMPED   _BITUL(3)
-+#define STM_FLAG_GUARANTEED    _BITUL(7)
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
  
- /*
-  * The CoreSight STM supports guaranteed and invariant timing
+ #define MEI_DEV_ID_JSP_N      0x4DE0  /* Jasper Lake Point N */
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -111,6 +111,8 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH15_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_CDF, MEI_ME_PCH8_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
 
 
