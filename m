@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B03E1A0BCB
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D7311A0BE1
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728634AbgDGKYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:24:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34156 "EHLO mail.kernel.org"
+        id S1728341AbgDGKXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:23:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728274AbgDGKYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:24:04 -0400
+        id S1728336AbgDGKXA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:23:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B61B92078A;
-        Tue,  7 Apr 2020 10:24:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 167322074F;
+        Tue,  7 Apr 2020 10:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255043;
-        bh=hFSSaaFZs7iS34JeOV/LO3xxtt/qCl6SQ6F3A3HPIlg=;
+        s=default; t=1586254979;
+        bh=xmrT11w54ApBz4oohIkiyxhRNgVs9VCTrvI+89Llllc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1gdXcWvhkNJyaS5X5117n8a0wL+gWkvAXIBSyiHlRJ+ksDM9Ss6GeXDjppDtz/sZ
-         31KsChhaSDsSe8XN1dDRW/YcfrQyUP15hPais8nn+86Rnz9ppsdA+pXd7Jm3Uuvwb+
-         eFhICi6Pu+b8FRPfeAT6yMsGtoPS8MEatTnBDwQE=
+        b=0r9DP5/FW8qBH3/ok9vqIeBcC+clkm02C8M3+xqpP0o7hJ+fC8PsrTNaoS1/1cdek
+         xVDstaPtIbD7VdUPC3mWgT5TSqpnBO3yFTxXRhUT92XyeLF+MoZ6XCZmziYF4wNW3o
+         6JOEZYCAWjXsGEhx5kARF5GoovQvaGKEQ/AsJEOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 17/36] misc: pci_endpoint_test: Avoid using module parameter to determine irqtype
-Date:   Tue,  7 Apr 2020 12:21:50 +0200
-Message-Id: <20200407101456.596034502@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kelsey Skunberg <kelsey.skunberg@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.4 18/36] PCI: sysfs: Revert "rescan" file renames
+Date:   Tue,  7 Apr 2020 12:21:51 +0200
+Message-Id: <20200407101456.738796475@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
 References: <20200407101454.281052964@linuxfoundation.org>
@@ -43,109 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Kelsey Skunberg <kelsey.skunberg@gmail.com>
 
-commit b2ba9225e0313b1de631a44b7b48c109032bffec upstream.
+commit bd641fd8303a371e789e924291086268256766b0 upstream.
 
-commit e03327122e2c ("pci_endpoint_test: Add 2 ioctl commands")
-uses module parameter 'irqtype' in pci_endpoint_test_set_irq()
-to check if IRQ vectors of a particular type (MSI or MSI-X or
-LEGACY) is already allocated. However with multi-function devices,
-'irqtype' will not correctly reflect the IRQ type of the PCI device.
+We changed these sysfs filenames:
 
-Fix it here by adding 'irqtype' for each PCI device to show the
-IRQ type of a particular PCI device.
+  .../pci_bus/<domain:bus>/rescan  ->  .../pci_bus/<domain:bus>/bus_rescan
+  .../<domain:bus:dev.fn>/rescan   ->  .../<domain:bus:dev.fn>/dev_rescan
 
-Fixes: e03327122e2c ("pci_endpoint_test: Add 2 ioctl commands")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # v4.19+
+and Ruslan reported [1] that this broke a userspace application.
+
+Revert these name changes so both files are named "rescan" again.
+
+Note that we have to use __ATTR() to assign custom C symbols, i.e.,
+"struct device_attribute <symbol>".
+
+[1] https://lore.kernel.org/r/CAB=otbSYozS-ZfxB0nCiNnxcbqxwrHOSYxJJtDKa63KzXbXgpw@mail.gmail.com
+
+[bhelgaas: commit log, use __ATTR() both places so we don't have to rename
+the attributes]
+Fixes: 8bdfa145f582 ("PCI: sysfs: Define device attributes with DEVICE_ATTR*()")
+Fixes: 4e2b79436e4f ("PCI: sysfs: Change DEVICE_ATTR() to DEVICE_ATTR_WO()")
+Link: https://lore.kernel.org/r/20200325151708.32612-1-skunberg.kelsey@gmail.com
+Signed-off-by: Kelsey Skunberg <kelsey.skunberg@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org	# v5.4+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/pci_endpoint_test.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/pci/pci-sysfs.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/pci_endpoint_test.c
-+++ b/drivers/misc/pci_endpoint_test.c
-@@ -98,6 +98,7 @@ struct pci_endpoint_test {
- 	struct completion irq_raised;
- 	int		last_irq;
- 	int		num_irqs;
-+	int		irq_type;
- 	/* mutex to protect the ioctls */
- 	struct mutex	mutex;
- 	struct miscdevice miscdev;
-@@ -157,6 +158,7 @@ static void pci_endpoint_test_free_irq_v
- 	struct pci_dev *pdev = test->pdev;
- 
- 	pci_free_irq_vectors(pdev);
-+	test->irq_type = IRQ_TYPE_UNDEFINED;
- }
- 
- static bool pci_endpoint_test_alloc_irq_vectors(struct pci_endpoint_test *test,
-@@ -191,6 +193,8 @@ static bool pci_endpoint_test_alloc_irq_
- 		irq = 0;
- 		res = false;
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -464,7 +464,8 @@ static ssize_t dev_rescan_store(struct d
  	}
-+
-+	test->irq_type = type;
- 	test->num_irqs = irq;
- 
- 	return res;
-@@ -330,6 +334,7 @@ static bool pci_endpoint_test_copy(struc
- 	dma_addr_t orig_dst_phys_addr;
- 	size_t offset;
- 	size_t alignment = test->alignment;
-+	int irq_type = test->irq_type;
- 	u32 src_crc32;
- 	u32 dst_crc32;
- 
-@@ -426,6 +431,7 @@ static bool pci_endpoint_test_write(stru
- 	dma_addr_t orig_phys_addr;
- 	size_t offset;
- 	size_t alignment = test->alignment;
-+	int irq_type = test->irq_type;
- 	u32 crc32;
- 
- 	if (size > SIZE_MAX - alignment)
-@@ -494,6 +500,7 @@ static bool pci_endpoint_test_read(struc
- 	dma_addr_t orig_phys_addr;
- 	size_t offset;
- 	size_t alignment = test->alignment;
-+	int irq_type = test->irq_type;
- 	u32 crc32;
- 
- 	if (size > SIZE_MAX - alignment)
-@@ -555,7 +562,7 @@ static bool pci_endpoint_test_set_irq(st
- 		return false;
- 	}
- 
--	if (irq_type == req_irq_type)
-+	if (test->irq_type == req_irq_type)
- 		return true;
- 
- 	pci_endpoint_test_release_irq(test);
-@@ -567,12 +574,10 @@ static bool pci_endpoint_test_set_irq(st
- 	if (!pci_endpoint_test_request_irq(test))
- 		goto err;
- 
--	irq_type = req_irq_type;
- 	return true;
- 
- err:
- 	pci_endpoint_test_free_irq_vectors(test);
--	irq_type = IRQ_TYPE_UNDEFINED;
- 	return false;
+ 	return count;
  }
+-static DEVICE_ATTR_WO(dev_rescan);
++static struct device_attribute dev_attr_dev_rescan = __ATTR(rescan, 0200, NULL,
++							    dev_rescan_store);
  
-@@ -652,6 +657,7 @@ static int pci_endpoint_test_probe(struc
- 	test->test_reg_bar = 0;
- 	test->alignment = 0;
- 	test->pdev = pdev;
-+	test->irq_type = IRQ_TYPE_UNDEFINED;
+ static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
+ 			    const char *buf, size_t count)
+@@ -501,7 +502,8 @@ static ssize_t bus_rescan_store(struct d
+ 	}
+ 	return count;
+ }
+-static DEVICE_ATTR_WO(bus_rescan);
++static struct device_attribute dev_attr_bus_rescan = __ATTR(rescan, 0200, NULL,
++							    bus_rescan_store);
  
- 	if (no_msi)
- 		irq_type = IRQ_TYPE_LEGACY;
+ #if defined(CONFIG_PM) && defined(CONFIG_ACPI)
+ static ssize_t d3cold_allowed_store(struct device *dev,
 
 
