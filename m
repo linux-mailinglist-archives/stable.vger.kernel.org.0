@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F7FC1A0338
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 02:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E471A0335
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 02:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728181AbgDGAHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Apr 2020 20:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34964 "EHLO mail.kernel.org"
+        id S1728097AbgDGAHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Apr 2020 20:07:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727192AbgDGABj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Apr 2020 20:01:39 -0400
+        id S1727247AbgDGABk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Apr 2020 20:01:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FDEA2082D;
-        Tue,  7 Apr 2020 00:01:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9749620A8B;
+        Tue,  7 Apr 2020 00:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586217698;
-        bh=Tn71Trm0DME8p2CUNER4Dh2CEke6Q6TIQHnRwW+It9Q=;
+        s=default; t=1586217699;
+        bh=Zg0lXdbFYkI82DZL3HsOsGw1RamNs7bH/YilUYo10QM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzXtFBNR6t5AOE07gzlad/jyb7SqJtGTtTka+MFHFmppQN4mIrirUzaXGyf0jHQzl
-         dUbyGMV0EPviGcLtvn05MU9mia4yKlz8cxdDd1uecd4j3ywF6oY4WjuWtbEICTJU5T
-         XX7bApYOKSXANNMvzJVzFLQ/Zj36oBqInNpztuN0=
+        b=dEMdc21AW5Rx2x7z/2rKxDrLnaXgeokOB000LhORVYR9BY/M1233pEw/vUFlr90zo
+         2KuHE+NJroVn5szAWNWOp3AJQ7uFSyrQeCXIosGQgWeRHubrHjHWnGOTXCFEHt2Bfw
+         wVeQw6CQCl5by7aC4R7QK4l6D8DYMUSYRtuZesHU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yintian Tao <yttao@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+Cc:     Ilan Peer <ilan.peer@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
-        linaro-mm-sig@lists.linaro.org
-Subject: [PATCH AUTOSEL 5.5 31/35] drm/scheduler: fix rare NULL ptr race
-Date:   Mon,  6 Apr 2020 20:00:53 -0400
-Message-Id: <20200407000058.16423-31-sashal@kernel.org>
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 32/35] cfg80211: Do not warn on same channel at the end of CSA
+Date:   Mon,  6 Apr 2020 20:00:54 -0400
+Message-Id: <20200407000058.16423-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200407000058.16423-1-sashal@kernel.org>
 References: <20200407000058.16423-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,72 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yintian Tao <yttao@amd.com>
+From: Ilan Peer <ilan.peer@intel.com>
 
-[ Upstream commit 3c0fdf3302cb4f186c871684eac5c407a107e480 ]
+[ Upstream commit 05dcb8bb258575a8dd3499d0d78bd2db633c2b23 ]
 
-There is one one corner case at dma_fence_signal_locked
-which will raise the NULL pointer problem just like below.
-->dma_fence_signal
-    ->dma_fence_signal_locked
-	->test_and_set_bit
-here trigger dma_fence_release happen due to the zero of fence refcount.
+When cfg80211_update_assoc_bss_entry() is called, there is a
+verification that the BSS channel actually changed. As some APs use
+CSA also for bandwidth changes, this would result with a kernel
+warning.
 
-->dma_fence_put
-    ->dma_fence_release
-	->drm_sched_fence_release_scheduled
-	    ->call_rcu
-here make the union fled “cb_list” at finished fence
-to NULL because struct rcu_head contains two pointer
-which is same as struct list_head cb_list
+Fix this by removing the WARN_ON().
 
-Therefore, to hold the reference of finished fence at drm_sched_process_job
-to prevent the null pointer during finished fence dma_fence_signal
-
-[  732.912867] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[  732.914815] #PF: supervisor write access in kernel mode
-[  732.915731] #PF: error_code(0x0002) - not-present page
-[  732.916621] PGD 0 P4D 0
-[  732.917072] Oops: 0002 [#1] SMP PTI
-[  732.917682] CPU: 7 PID: 0 Comm: swapper/7 Tainted: G           OE     5.4.0-rc7 #1
-[  732.918980] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.8.2-0-g33fbe13 by qemu-project.org 04/01/2014
-[  732.920906] RIP: 0010:dma_fence_signal_locked+0x3e/0x100
-[  732.938569] Call Trace:
-[  732.939003]  <IRQ>
-[  732.939364]  dma_fence_signal+0x29/0x50
-[  732.940036]  drm_sched_fence_finished+0x12/0x20 [gpu_sched]
-[  732.940996]  drm_sched_process_job+0x34/0xa0 [gpu_sched]
-[  732.941910]  dma_fence_signal_locked+0x85/0x100
-[  732.942692]  dma_fence_signal+0x29/0x50
-[  732.943457]  amdgpu_fence_process+0x99/0x120 [amdgpu]
-[  732.944393]  sdma_v4_0_process_trap_irq+0x81/0xa0 [amdgpu]
-
-v2: hold the finished fence at drm_sched_process_job instead of
-    amdgpu_fence_process
-v3: resume the blank line
-
-Signed-off-by: Yintian Tao <yttao@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200326150855.96316ada0e8d.I6710376b1b4257e5f4712fc7ab16e2b638d512aa@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/scheduler/sched_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/wireless/scan.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/scheduler/sched_main.c b/drivers/gpu/drm/scheduler/sched_main.c
-index 3c57e84222ca9..5bb9feddbfd6b 100644
---- a/drivers/gpu/drm/scheduler/sched_main.c
-+++ b/drivers/gpu/drm/scheduler/sched_main.c
-@@ -632,7 +632,9 @@ static void drm_sched_process_job(struct dma_fence *f, struct dma_fence_cb *cb)
+diff --git a/net/wireless/scan.c b/net/wireless/scan.c
+index aef240fdf8df6..328402ab64a3f 100644
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -2022,7 +2022,11 @@ void cfg80211_update_assoc_bss_entry(struct wireless_dev *wdev,
  
- 	trace_drm_sched_process_job(s_fence);
+ 	spin_lock_bh(&rdev->bss_lock);
  
-+	dma_fence_get(&s_fence->finished);
- 	drm_sched_fence_finished(s_fence);
-+	dma_fence_put(&s_fence->finished);
- 	wake_up_interruptible(&sched->wake_up_worker);
- }
+-	if (WARN_ON(cbss->pub.channel == chan))
++	/*
++	 * Some APs use CSA also for bandwidth changes, i.e., without actually
++	 * changing the control channel, so no need to update in such a case.
++	 */
++	if (cbss->pub.channel == chan)
+ 		goto done;
  
+ 	/* use transmitting bss */
 -- 
 2.20.1
 
