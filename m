@@ -2,175 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8722B1A06B0
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 07:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B52181A06F5
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 08:04:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726030AbgDGFs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 01:48:56 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:41697 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725817AbgDGFsz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 01:48:55 -0400
-Received: by mail-pl1-f196.google.com with SMTP id d24so811598pll.8
-        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 22:48:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WlLOrsURRSM+h9SuQ1FzSnhs5xw/JNPc+G+rB36S9rE=;
-        b=qIIvKNNgitfEnLg7XrsCHzuTtZ+W2cwHSda5vfCcShWkN9Y9rQdMi/ZZJt4Hf6ovF0
-         Sf/tJEQM3CVbDiWGdCmYerJ4J80lcVpeb4lubvzTY5P9Hlroz4J8Zu4+Bk7Vpm4U/4oQ
-         n2qStworRwmxZ0txcaCM0OR+h2bfie7Yf47ero3tsfBq/+Ww3QULK7cwpnpvbyYkZcYM
-         F/rpRVEm8uHjJBQgWTczzRzRcKOk7NOrZrkHtL0tPjkRE2SpPSpnWpMv1lMwmqGjc5p2
-         3nrjsrbYeMNhKE46WcDqqu2dwnyX9iDF1WBhiDoVtKOivXOZt3cspJG1DnrH/uGXzC+C
-         VY2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WlLOrsURRSM+h9SuQ1FzSnhs5xw/JNPc+G+rB36S9rE=;
-        b=F6FZBp4vknVF9ISAdNSEaHe4z71PmWtVkIMSi1vkmrK7clGRrsaAbndAFhNka30HLm
-         CHxJ5FJjgoh1wHIRdCSFWFxPzQu3k/C3WTHpfLgYbSacIoNuX0WpxoXgPW4zqoroIb2L
-         mTdQWlBLSwOqd/KBzOQYDOr9XSgWbz/rkNQf7CkuFHj3f+eIBjK6SNkdJhauOKEEOYdM
-         9CSdSIxxucfgsTkxJ4gFvwOCORHG0h3kffAnT92NDJFsuN5Gm9dwnh9fqOTgtOoFAxi+
-         s9TvKKr8Sg+lT0xSpDtm77ilPtd2K8Xchu5Z6PgDhW5LCaJY9og7atoyuPQQdQjao5QY
-         5Ohg==
-X-Gm-Message-State: AGi0PuaAbA00HJASTdt+6sX4YYAWtlAfOJd0V0Hyl6yP+TXQv21uhSE4
-        kU7JxZG4saXKZDiXD4Lw+goWH1ZEX/8=
-X-Google-Smtp-Source: APiQypIAbf9ZdSP4YwnwARwt0C5EJQZglPAx/IX/5yAdcYHeX6lCJTy3Iu9SAHR1p6JwuZN4cCr/MA==
-X-Received: by 2002:a17:90a:350d:: with SMTP id q13mr705497pjb.171.1586238534591;
-        Mon, 06 Apr 2020 22:48:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g75sm562778pje.37.2020.04.06.22.48.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Apr 2020 22:48:54 -0700 (PDT)
-Message-ID: <5e8c1446.1c69fb81.7d277.23d4@mx.google.com>
-Date:   Mon, 06 Apr 2020 22:48:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726635AbgDGGEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 02:04:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34576 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725802AbgDGGEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 02:04:14 -0400
+Received: from sol.hsd1.ca.comcast.net (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A1D72051A;
+        Tue,  7 Apr 2020 06:04:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586239453;
+        bh=cESVjNv8wDERqvJRgrWmpES3qp0fDrI8i1y53OkBYME=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RPMDrS76dTeN3ibl4UBkEAH9iQzmcoFewH0QZtcCPI3A0TBk1bHgrH0ddnwZoGoYZ
+         JsY+QUGXwlA5jHXrf/wmYPzzAF4yFEfBp6BdReDfG/UQ5FzexdbWkyr3eQ7sCr05DI
+         3re4wuLS45eiicgrcvZWTats1nCxHEEIWlYXB30A=
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-crypto@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        "Martin K . Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH v2] crypto: algapi - Avoid spurious modprobe on LOADED
+Date:   Mon,  6 Apr 2020 23:02:40 -0700
+Message-Id: <20200407060240.175837-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.26.0
+In-Reply-To: <20200407051744.GA13037@gondor.apana.org.au>
+References: <20200407051744.GA13037@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.175-13-g7166081422ab
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 129 boots: 6 failed,
- 115 passed with 4 offline, 4 untried/unknown (v4.14.175-13-g7166081422ab)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 129 boots: 6 failed, 115 passed with 4 offline=
-, 4 untried/unknown (v4.14.175-13-g7166081422ab)
+From: Eric Biggers <ebiggers@google.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.175-13-g7166081422ab/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.175-13-g7166081422ab/
+Currently after any algorithm is registered and tested, there's an
+unnecessary request_module("cryptomgr") even if it's already loaded.
+Also, CRYPTO_MSG_ALG_LOADED is sent twice, and thus if the algorithm is
+"crct10dif", lib/crc-t10dif.c replaces the tfm twice rather than once.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.175-13-g7166081422ab
-Git Commit: 7166081422ab34b593f324ac24ceb3bbe3bb33e1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 75 unique boards, 21 SoC families, 18 builds out of 201
+This occurs because CRYPTO_MSG_ALG_LOADED is sent using
+crypto_probing_notify(), which tries to load "cryptomgr" if the
+notification is not handled (NOTIFY_DONE).  This doesn't make sense
+because "cryptomgr" doesn't handle this notification.
 
-Boot Regressions Detected:
+Fix this by using crypto_notify() instead of crypto_probing_notify().
 
-arm:
-
-    multi_v7_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-baylibre: new failure (last pass: v4.14.175-10-ge0066de56=
-999)
-          tegra20-iris-512:
-              lab-baylibre-seattle: new failure (last pass: v4.14.175-10-ge=
-0066de56999)
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 58 days (last pass: v4.14=
-.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 46 days (last pass: v4.14.170-141=
--g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
-
-    tegra_defconfig:
-        gcc-8:
-          tegra20-iris-512:
-              lab-baylibre-seattle: new failure (last pass: v4.14.175-10-ge=
-0066de56999)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.14.175-10-ge0066de5=
-6999)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          hip07-d05:
-              lab-collabora: new failure (last pass: v4.14.175-10-ge0066de5=
-6999)
-
-i386:
-
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-baylibre: new failure (last pass: v4.14.175-10-ge0066de56=
-999)
-
-Boot Failures Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            stih410-b2120: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            hip07-d05: 1 failed lab
-            meson-gxbb-p200: 1 failed lab
-            meson-gxm-q200: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
+Fixes: dd8b083f9a5e ("crypto: api - Introduce notifier for new crypto algorithms")
+Cc: <stable@vger.kernel.org> # v4.20+
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
-For more info write to <info@kernelci.org>
+ crypto/algapi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/crypto/algapi.c b/crypto/algapi.c
+index 69605e21af92..849254d7e627 100644
+--- a/crypto/algapi.c
++++ b/crypto/algapi.c
+@@ -403,7 +403,7 @@ static void crypto_wait_for_test(struct crypto_larval *larval)
+ 	err = wait_for_completion_killable(&larval->completion);
+ 	WARN_ON(err);
+ 	if (!err)
+-		crypto_probing_notify(CRYPTO_MSG_ALG_LOADED, larval);
++		crypto_notify(CRYPTO_MSG_ALG_LOADED, larval);
+ 
+ out:
+ 	crypto_larval_kill(&larval->alg);
+-- 
+2.26.0
+
