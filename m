@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8471A0B14
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 525441A0B96
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:28:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728495AbgDGKXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33382 "EHLO mail.kernel.org"
+        id S1729034AbgDGKZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:25:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728478AbgDGKXc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:32 -0400
+        id S1729028AbgDGKZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:25:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB2B32074B;
-        Tue,  7 Apr 2020 10:23:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2F242074F;
+        Tue,  7 Apr 2020 10:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255011;
-        bh=jofjR1UsY4XmO6hftHWB0RJ35cTeTLnamkyk1zHaLRM=;
+        s=default; t=1586255149;
+        bh=g4QXB8XmeXaAV5Qy/Wy6mIQ0soq0WjzqPuI3ozRtWV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vmWjPRISIxQK++dnhfc5duMG9TVuCVbh7JNL0jyTiv8nhA7k8rnFOGL9cWIZD0aRH
-         1Ff3WygbE+NtFpH/CaFYqLjs0Xpfoa60qMBEOI0BIEuuaqCdyGfAcDjBpeV3Iecc+v
-         j/CJ50xZcNSGw+peHID/jDWs7j/HTxfzXFN3DoDg=
+        b=p57e4gAD294oTjsE3xD1r+wAFOxzfRyqWmm8BmR9x7NSDHBjvE6uVQFAkqFU3YP3k
+         It2oxULPJbLRWvn5hFcZIjMneT8iEq1QTeHL8UzD4cjI0KC/n5hzX9tfgApJHf51w9
+         +x8KKO3TYu8mv8jmWyDYlKSuNiFD/gnks2FW99+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.4 30/36] iwlwifi: dbg: dont abort if sending DBGC_SUSPEND_RESUME fails
+        stable@vger.kernel.org, Geoffrey Allott <geoffrey@allott.email>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 32/46] ALSA: hda/ca0132 - Add Recon3Di quirk to handle integrated sound on EVGA X99 Classified motherboard
 Date:   Tue,  7 Apr 2020 12:22:03 +0200
-Message-Id: <20200407101458.123203444@linuxfoundation.org>
+Message-Id: <20200407101502.940016095@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,83 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Geoffrey Allott <geoffrey@allott.email>
 
-commit 699b760bd29edba736590fffef7654cb079c753e upstream.
+commit e9097e47e349b747dee50f935216de0ffb662962 upstream.
 
-If the firmware is in a bad state or not initialized fully, sending
-the DBGC_SUSPEND_RESUME command fails but we can still collect logs.
+I have a system which has an EVGA X99 Classified motherboard. The pin
+assignments for the HD Audio controller are not correct under Linux.
+Windows 10 works fine and informs me that it's using the Recon3Di
+driver, and on Linux, `cat
+/sys/class/sound/card0/device/subsystem_{vendor,device}` yields
 
-Instead of aborting the entire dump process, simply ignore the error.
-By removing the last callpoint that was checking the return value, we
-can also convert the function to return void.
+0x3842
+0x1038
 
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Fixes: 576058330f2d ("iwlwifi: dbg: support debug recording suspend resume command")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200306151129.dcec37b2efd4.I8dcd190431d110a6a0e88095ce93591ccfb3d78d@changeid
+This patch adds a corresponding entry to the quirk list.
+
+Signed-off-by: Geoffrey Allott <geoffrey@allott.email>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/a6cd56b678c00ce2db3685e4278919f2584f8244.camel@allott.email
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/fw/dbg.c |   15 +++++----------
- drivers/net/wireless/intel/iwlwifi/fw/dbg.h |    6 +++---
- 2 files changed, 8 insertions(+), 13 deletions(-)
+ sound/pci/hda/patch_ca0132.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-@@ -2311,10 +2311,7 @@ static void iwl_fw_dbg_collect_sync(stru
- 		goto out;
- 	}
- 
--	if (iwl_fw_dbg_stop_restart_recording(fwrt, &params, true)) {
--		IWL_ERR(fwrt, "Failed to stop DBGC recording, aborting dump\n");
--		goto out;
--	}
-+	iwl_fw_dbg_stop_restart_recording(fwrt, &params, true);
- 
- 	IWL_DEBUG_FW_INFO(fwrt, "WRT: Data collection start\n");
- 	if (iwl_trans_dbg_ini_valid(fwrt->trans))
-@@ -2480,14 +2477,14 @@ static int iwl_fw_dbg_restart_recording(
- 	return 0;
- }
- 
--int iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
--				      struct iwl_fw_dbg_params *params,
--				      bool stop)
-+void iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
-+				       struct iwl_fw_dbg_params *params,
-+				       bool stop)
- {
- 	int ret = 0;
- 
- 	if (test_bit(STATUS_FW_ERROR, &fwrt->trans->status))
--		return 0;
-+		return;
- 
- 	if (fw_has_capa(&fwrt->fw->ucode_capa,
- 			IWL_UCODE_TLV_CAPA_DBG_SUSPEND_RESUME_CMD_SUPP))
-@@ -2504,7 +2501,5 @@ int iwl_fw_dbg_stop_restart_recording(st
- 			iwl_fw_set_dbg_rec_on(fwrt);
- 	}
- #endif
--
--	return ret;
- }
- IWL_EXPORT_SYMBOL(iwl_fw_dbg_stop_restart_recording);
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
-@@ -263,9 +263,9 @@ _iwl_fw_dbg_trigger_simple_stop(struct i
- 	_iwl_fw_dbg_trigger_simple_stop((fwrt), (wdev),		\
- 					iwl_fw_dbg_get_trigger((fwrt)->fw,\
- 							       (trig)))
--int iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
--				      struct iwl_fw_dbg_params *params,
--				      bool stop);
-+void iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
-+				       struct iwl_fw_dbg_params *params,
-+				       bool stop);
- 
- #ifdef CONFIG_IWLWIFI_DEBUGFS
- static inline void iwl_fw_set_dbg_rec_on(struct iwl_fw_runtime *fwrt)
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -1180,6 +1180,7 @@ static const struct snd_pci_quirk ca0132
+ 	SND_PCI_QUIRK(0x1458, 0xA016, "Recon3Di", QUIRK_R3DI),
+ 	SND_PCI_QUIRK(0x1458, 0xA026, "Gigabyte G1.Sniper Z97", QUIRK_R3DI),
+ 	SND_PCI_QUIRK(0x1458, 0xA036, "Gigabyte GA-Z170X-Gaming 7", QUIRK_R3DI),
++	SND_PCI_QUIRK(0x3842, 0x1038, "EVGA X99 Classified", QUIRK_R3DI),
+ 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
+ 	SND_PCI_QUIRK(0x1102, 0x0051, "Sound Blaster AE-5", QUIRK_AE5),
+ 	{}
 
 
