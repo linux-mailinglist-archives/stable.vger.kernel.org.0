@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C5C91A0B2A
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 218F51A0BCA
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728662AbgDGKYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:24:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34286 "EHLO mail.kernel.org"
+        id S1728643AbgDGKYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:24:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728304AbgDGKYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:24:11 -0400
+        id S1728639AbgDGKYG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:24:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 334EC2078A;
-        Tue,  7 Apr 2020 10:24:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39B772082D;
+        Tue,  7 Apr 2020 10:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255050;
-        bh=mydvpf9JQotGF33zrvwujih4d2LyJw0bPk+qpk20hdk=;
+        s=default; t=1586255045;
+        bh=WWPBWH6R7vqAyfkKB/N+fKzsFhjvBeypNxeA9gpyPj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sZmTAfeT9hWp0dfOHp3h9U4lRbv7e66rCDqjp67S70yDtoooWdrK7Cmr4Rb2Ww3q6
-         XQ8T3qeQhTRGVrFnFxEdsnY1B6Z8Y/BfHrirC4coHrzxAUIEVh4+TXXa5hMe+HRQfc
-         MlsTqgMA2UdQobRRphyrurRNzUS/PtNnVrmApGmg=
+        b=uUVDIksD6F8QoTr+xiE0GBdyp0jzxDdQXADWCLqcyAjNKTVH35XJGKK2uFUa5rk0j
+         NjFz1ULRvWMNNTJLqKbChXgXCPZ/mki7ubm7MQm/DxJcDcurTP7tGi3I15pyka23yE
+         xstxUqUm3Jw0cFc9M1550fTzyaw50bt4lBUjV8Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mario Kleiner <mario.kleiner.de@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Len Brown <len.brown@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 10/46] drm/amd/display: Add link_rate quirk for Apple 15" MBP 2017
+Subject: [PATCH 5.4 08/36] tools/power turbostat: Fix missing SYS_LPI counter on some Chromebooks
 Date:   Tue,  7 Apr 2020 12:21:41 +0200
-Message-Id: <20200407101500.616555233@linuxfoundation.org>
+Message-Id: <20200407101455.377342847@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Kleiner <mario.kleiner.de@gmail.com>
+From: Len Brown <len.brown@intel.com>
 
-[ Upstream commit dec9de2ada523b344eb2428abfedf9d6cd0a0029 ]
+[ Upstream commit 1f81c5efc020314b2db30d77efe228b7e117750d ]
 
-This fixes a problem found on the MacBookPro 2017 Retina panel:
+Some Chromebook BIOS' do not export an ACPI LPIT, which is how
+Linux finds the residency counter for CPU and SYSTEM low power states,
+that is exports in /sys/devices/system/cpu/cpuidle/*residency_us
 
-The panel reports 10 bpc color depth in its EDID, and the
-firmware chooses link settings at boot which support enough
-bandwidth for 10 bpc (324000 kbit/sec aka LINK_RATE_RBR2
-aka 0xc), but the DP_MAX_LINK_RATE dpcd register only reports
-2.7 Gbps (multiplier value 0xa) as possible, in direct
-contradiction of what the firmware successfully set up.
+When these sysfs attributes are missing, check the debugfs attrubte
+from the pmc_core driver, which accesses the same counter value.
 
-This restricts the panel to 8 bpc, not providing the full
-color depth of the panel on Linux <= 5.5. Additionally, commit
-'4a8ca46bae8a ("drm/amd/display: Default max bpc to 16 for eDP")'
-introduced into Linux 5.6-rc1 will unclamp panel depth to
-its full 10 bpc, thereby requiring a eDP bandwidth for all
-modes that exceeds the bandwidth available and causes all modes
-to fail validation -> No modes for the laptop panel -> failure
-to set any mode -> Panel goes dark.
-
-This patch adds a quirk specific to the MBP 2017 15" Retina
-panel to override reported max link rate to the correct maximum
-of 0xc = LINK_RATE_RBR2 to fix the darkness and reduced display
-precision.
-
-Please apply for Linux 5.6+ to avoid regressing Apple MBP panel
-support.
-
-Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ tools/power/x86/turbostat/turbostat.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index 504055fc70e89..6f2b3ec17e7f0 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -2909,6 +2909,17 @@ static bool retrieve_link_cap(struct dc_link *link)
- 		sink_id.ieee_device_id,
- 		sizeof(sink_id.ieee_device_id));
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 78507cd479bb4..17e82eaf5c4f4 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -304,6 +304,10 @@ int *irqs_per_cpu;		/* indexed by cpu_num */
  
-+	/* Quirk Apple MBP 2017 15" Retina panel: Wrong DP_MAX_LINK_RATE */
-+	{
-+		uint8_t str_mbp_2017[] = { 101, 68, 21, 101, 98, 97 };
+ void setup_all_buffers(void);
+ 
++char *sys_lpi_file;
++char *sys_lpi_file_sysfs = "/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us";
++char *sys_lpi_file_debugfs = "/sys/kernel/debug/pmc_core/slp_s0_residency_usec";
 +
-+		if ((link->dpcd_caps.sink_dev_id == 0x0010fa) &&
-+		    !memcmp(link->dpcd_caps.sink_dev_id_str, str_mbp_2017,
-+			    sizeof(str_mbp_2017))) {
-+			link->reported_link_cap.link_rate = 0x0c;
-+		}
+ int cpu_is_not_present(int cpu)
+ {
+ 	return !CPU_ISSET_S(cpu, cpu_present_setsize, cpu_present_set);
+@@ -2916,8 +2920,6 @@ int snapshot_gfx_mhz(void)
+  *
+  * record snapshot of
+  * /sys/devices/system/cpu/cpuidle/low_power_idle_cpu_residency_us
+- *
+- * return 1 if config change requires a restart, else return 0
+  */
+ int snapshot_cpu_lpi_us(void)
+ {
+@@ -2941,17 +2943,14 @@ int snapshot_cpu_lpi_us(void)
+ /*
+  * snapshot_sys_lpi()
+  *
+- * record snapshot of
+- * /sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us
+- *
+- * return 1 if config change requires a restart, else return 0
++ * record snapshot of sys_lpi_file
+  */
+ int snapshot_sys_lpi_us(void)
+ {
+ 	FILE *fp;
+ 	int retval;
+ 
+-	fp = fopen_or_die("/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us", "r");
++	fp = fopen_or_die(sys_lpi_file, "r");
+ 
+ 	retval = fscanf(fp, "%lld", &cpuidle_cur_sys_lpi_us);
+ 	if (retval != 1) {
+@@ -4907,10 +4906,16 @@ void process_cpuid()
+ 	else
+ 		BIC_NOT_PRESENT(BIC_CPU_LPI);
+ 
+-	if (!access("/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us", R_OK))
++	if (!access(sys_lpi_file_sysfs, R_OK)) {
++		sys_lpi_file = sys_lpi_file_sysfs;
+ 		BIC_PRESENT(BIC_SYS_LPI);
+-	else
++	} else if (!access(sys_lpi_file_debugfs, R_OK)) {
++		sys_lpi_file = sys_lpi_file_debugfs;
++		BIC_PRESENT(BIC_SYS_LPI);
++	} else {
++		sys_lpi_file_sysfs = NULL;
+ 		BIC_NOT_PRESENT(BIC_SYS_LPI);
 +	}
-+
- 	core_link_read_dpcd(
- 		link,
- 		DP_SINK_HW_REVISION_START,
+ 
+ 	if (!quiet)
+ 		decode_misc_feature_control();
 -- 
 2.20.1
 
