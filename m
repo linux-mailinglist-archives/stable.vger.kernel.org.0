@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB93E1A0F34
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 16:31:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F561A0F39
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 16:31:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbgDGObZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 10:31:25 -0400
-Received: from nibbler.cm4all.net ([82.165.145.151]:47577 "EHLO
+        id S1729208AbgDGOb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 10:31:28 -0400
+Received: from nibbler.cm4all.net ([82.165.145.151]:47596 "EHLO
         nibbler.cm4all.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728573AbgDGObZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 10:31:25 -0400
-X-Greylist: delayed 496 seconds by postgrey-1.27 at vger.kernel.org; Tue, 07 Apr 2020 10:31:24 EDT
+        with ESMTP id S1729125AbgDGOb1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 10:31:27 -0400
 Received: from localhost (localhost [127.0.0.1])
-        by nibbler.cm4all.net (Postfix) with ESMTP id 9D533C00E8
-        for <stable@vger.kernel.org>; Tue,  7 Apr 2020 16:23:05 +0200 (CEST)
+        by nibbler.cm4all.net (Postfix) with ESMTP id D6F74C01AA
+        for <stable@vger.kernel.org>; Tue,  7 Apr 2020 16:23:07 +0200 (CEST)
 X-Virus-Scanned: Debian amavisd-new at nibbler.cm4all.net
 Received: from nibbler.cm4all.net ([127.0.0.1])
         by localhost (nibbler.cm4all.net [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id 6ZHPjxeilZVm for <stable@vger.kernel.org>;
-        Tue,  7 Apr 2020 16:23:05 +0200 (CEST)
+        with LMTP id 87pGE18QLGIk for <stable@vger.kernel.org>;
+        Tue,  7 Apr 2020 16:23:07 +0200 (CEST)
 Received: from zero.intern.cm-ag (zero.intern.cm-ag [172.30.16.10])
-        by nibbler.cm4all.net (Postfix) with SMTP id 715F2C0158
-        for <stable@vger.kernel.org>; Tue,  7 Apr 2020 16:23:05 +0200 (CEST)
-Received: (qmail 19653 invoked from network); 7 Apr 2020 17:35:18 +0200
+        by nibbler.cm4all.net (Postfix) with SMTP id A2358C01C0
+        for <stable@vger.kernel.org>; Tue,  7 Apr 2020 16:23:07 +0200 (CEST)
+Received: (qmail 19673 invoked from network); 7 Apr 2020 17:35:20 +0200
 Received: from unknown (HELO rabbit.intern.cm-ag) (172.30.3.1)
-  by zero.intern.cm-ag with SMTP; 7 Apr 2020 17:35:18 +0200
+  by zero.intern.cm-ag with SMTP; 7 Apr 2020 17:35:20 +0200
 Received: by rabbit.intern.cm-ag (Postfix, from userid 1023)
-        id 3558B46143D; Tue,  7 Apr 2020 16:23:05 +0200 (CEST)
+        id 6DDE746143D; Tue,  7 Apr 2020 16:23:07 +0200 (CEST)
 From:   Max Kellermann <mk@cm4all.com>
 To:     linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org,
         trond.myklebust@hammerspace.com
 Cc:     bfields@redhat.com, tytso@mit.edu, viro@zeniv.linux.org.uk,
         agruenba@redhat.com, linux-kernel@vger.kernel.org,
         Max Kellermann <mk@cm4all.com>, stable@vger.kernel.org
-Subject: [PATCH v3 1/4] fs/posix_acl: apply umask if superblock disables ACL support
-Date:   Tue,  7 Apr 2020 16:22:40 +0200
-Message-Id: <20200407142243.2032-1-mk@cm4all.com>
+Subject: [PATCH v3 2/4] fs/ext4/acl: apply umask if ACL support is disabled
+Date:   Tue,  7 Apr 2020 16:22:41 +0200
+Message-Id: <20200407142243.2032-2-mk@cm4all.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200407142243.2032-1-mk@cm4all.com>
+References: <20200407142243.2032-1-mk@cm4all.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -45,18 +46,13 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The function posix_acl_create() applies the umask only if the inode
-has no ACL (= NULL) or if ACLs are not supported by the filesystem
-driver (= -EOPNOTSUPP).
-
-However, this happens only after after the IS_POSIXACL() check
-succeeded.  If the superblock doesn't enable ACL support, umask will
-never be applied.  A filesystem which has no ACL support will of
-course not enable SB_POSIXACL, rendering the umask-applying code path
-unreachable.
+The function ext4_init_acl() calls posix_acl_create() which is
+responsible for applying the umask.  But without
+CONFIG_EXT4_FS_POSIX_ACL, ext4_init_acl() is an empty inline function,
+and nobody applies the umask.
 
 This fixes a bug which causes the umask to be ignored with O_TMPFILE
-on tmpfs:
+on ext4:
 
  https://github.com/MusicPlayerDaemon/MPD/issues/558
  https://bugs.gentoo.org/show_bug.cgi?id=686142#c3
@@ -66,29 +62,25 @@ Signed-off-by: Max Kellermann <mk@cm4all.com>
 Reviewed-by: J. Bruce Fields <bfields@redhat.com>
 Cc: stable@vger.kernel.org
 ---
- fs/posix_acl.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/ext4/acl.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/posix_acl.c b/fs/posix_acl.c
-index 249672bf54fe..e5e7a2295b99 100644
---- a/fs/posix_acl.c
-+++ b/fs/posix_acl.c
-@@ -589,9 +589,14 @@ posix_acl_create(struct inode *dir, umode_t *mode,
- 	*acl = NULL;
- 	*default_acl = NULL;
- 
--	if (S_ISLNK(*mode) || !IS_POSIXACL(dir))
-+	if (S_ISLNK(*mode))
- 		return 0;
- 
-+	if (!IS_POSIXACL(dir)) {
-+		*mode &= ~current_umask();
-+		return 0;
-+	}
+diff --git a/fs/ext4/acl.h b/fs/ext4/acl.h
+index 9b63f5416a2f..7f3b25b3fa6d 100644
+--- a/fs/ext4/acl.h
++++ b/fs/ext4/acl.h
+@@ -67,6 +67,11 @@ extern int ext4_init_acl(handle_t *, struct inode *, struct inode *);
+ static inline int
+ ext4_init_acl(handle_t *handle, struct inode *inode, struct inode *dir)
+ {
++	/* usually, the umask is applied by posix_acl_create(), but if
++	   ext4 ACL support is disabled at compile time, we need to do
++	   it here, because posix_acl_create() will never be called */
++	inode->i_mode &= ~current_umask();
 +
- 	p = get_acl(dir, ACL_TYPE_DEFAULT);
- 	if (!p || p == ERR_PTR(-EOPNOTSUPP)) {
- 		*mode &= ~current_umask();
+ 	return 0;
+ }
+ #endif  /* CONFIG_EXT4_FS_POSIX_ACL */
 -- 
 2.20.1
 
