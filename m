@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2291A0B07
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:23:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F17C1A0BB4
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728366AbgDGKXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32808 "EHLO mail.kernel.org"
+        id S1728799AbgDGKYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:24:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728373AbgDGKXH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:07 -0400
+        id S1728794AbgDGKYs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:24:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E2972074F;
-        Tue,  7 Apr 2020 10:23:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 177B620644;
+        Tue,  7 Apr 2020 10:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254986;
-        bh=TorpH4uEST+U3yxKOkCZL/m53n9xz2lDBNqCEdKUsyA=;
+        s=default; t=1586255087;
+        bh=xmrT11w54ApBz4oohIkiyxhRNgVs9VCTrvI+89Llllc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8jEBkmSIEXfQfV1A4+po1IfDfeDErInOkq/3vbU5A9ZiGthlX2u9XXyJs7XpFU60
-         lx6yisW9hqoVHwgOVBQa5e6i0q/TZ8aTv1n0HDM9iH4rXl/HGYigKvJeORdIVZvJBf
-         pFsaiv0XklYHeqtVAVBrSvzcL0WJDaFi2CZ/1A1M=
+        b=vofYaROWb4ihJ2e7KbU91cY0MGYvnbFWQvxSMnXmakhDhFBzzrAfgGywz8GHu4ZVh
+         DyX06QxuuDsvJfwFXtwqWgohjTl36NiKt6xDcZ5OMhUHV2dftIxT0Rx388ETCBKtFu
+         WdtsKNIL8nL8RZudOOy9ZANiIto34KTO8u13aIJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.4 21/36] nvmem: check for NULL reg_read and reg_write before dereferencing
-Date:   Tue,  7 Apr 2020 12:21:54 +0200
-Message-Id: <20200407101457.069282699@linuxfoundation.org>
+        Kelsey Skunberg <kelsey.skunberg@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.5 24/46] PCI: sysfs: Revert "rescan" file renames
+Date:   Tue,  7 Apr 2020 12:21:55 +0200
+Message-Id: <20200407101502.114243463@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+From: Kelsey Skunberg <kelsey.skunberg@gmail.com>
 
-commit 3c91ef69a3e94f78546b246225ed573fbf1735b4 upstream.
+commit bd641fd8303a371e789e924291086268256766b0 upstream.
 
-Return -EPERM if reg_read is NULL in bin_attr_nvmem_read() or if
-reg_write is NULL in bin_attr_nvmem_write().
+We changed these sysfs filenames:
 
-This prevents NULL dereferences such as the one described in
-03cd45d2e219 ("thunderbolt: Prevent crash if non-active NVMem file is
-read")
+  .../pci_bus/<domain:bus>/rescan  ->  .../pci_bus/<domain:bus>/bus_rescan
+  .../<domain:bus:dev.fn>/rescan   ->  .../<domain:bus:dev.fn>/dev_rescan
 
-Signed-off-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200310132257.23358-10-srinivas.kandagatla@linaro.org
+and Ruslan reported [1] that this broke a userspace application.
+
+Revert these name changes so both files are named "rescan" again.
+
+Note that we have to use __ATTR() to assign custom C symbols, i.e.,
+"struct device_attribute <symbol>".
+
+[1] https://lore.kernel.org/r/CAB=otbSYozS-ZfxB0nCiNnxcbqxwrHOSYxJJtDKa63KzXbXgpw@mail.gmail.com
+
+[bhelgaas: commit log, use __ATTR() both places so we don't have to rename
+the attributes]
+Fixes: 8bdfa145f582 ("PCI: sysfs: Define device attributes with DEVICE_ATTR*()")
+Fixes: 4e2b79436e4f ("PCI: sysfs: Change DEVICE_ATTR() to DEVICE_ATTR_WO()")
+Link: https://lore.kernel.org/r/20200325151708.32612-1-skunberg.kelsey@gmail.com
+Signed-off-by: Kelsey Skunberg <kelsey.skunberg@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org	# v5.4+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvmem/nvmem-sysfs.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/pci/pci-sysfs.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/nvmem/nvmem-sysfs.c
-+++ b/drivers/nvmem/nvmem-sysfs.c
-@@ -56,6 +56,9 @@ static ssize_t bin_attr_nvmem_read(struc
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -464,7 +464,8 @@ static ssize_t dev_rescan_store(struct d
+ 	}
+ 	return count;
+ }
+-static DEVICE_ATTR_WO(dev_rescan);
++static struct device_attribute dev_attr_dev_rescan = __ATTR(rescan, 0200, NULL,
++							    dev_rescan_store);
  
- 	count = round_down(count, nvmem->word_size);
+ static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
+ 			    const char *buf, size_t count)
+@@ -501,7 +502,8 @@ static ssize_t bus_rescan_store(struct d
+ 	}
+ 	return count;
+ }
+-static DEVICE_ATTR_WO(bus_rescan);
++static struct device_attribute dev_attr_bus_rescan = __ATTR(rescan, 0200, NULL,
++							    bus_rescan_store);
  
-+	if (!nvmem->reg_read)
-+		return -EPERM;
-+
- 	rc = nvmem->reg_read(nvmem->priv, pos, buf, count);
- 
- 	if (rc)
-@@ -90,6 +93,9 @@ static ssize_t bin_attr_nvmem_write(stru
- 
- 	count = round_down(count, nvmem->word_size);
- 
-+	if (!nvmem->reg_write)
-+		return -EPERM;
-+
- 	rc = nvmem->reg_write(nvmem->priv, pos, buf, count);
- 
- 	if (rc)
+ #if defined(CONFIG_PM) && defined(CONFIG_ACPI)
+ static ssize_t d3cold_allowed_store(struct device *dev,
 
 
