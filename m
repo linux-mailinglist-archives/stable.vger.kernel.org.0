@@ -2,128 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D481F1A16AA
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 22:20:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B6E1A16B5
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 22:23:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727237AbgDGUUl convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 7 Apr 2020 16:20:41 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:48531 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726740AbgDGUUl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 16:20:41 -0400
-Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tglx@linutronix.de>)
-        id 1jLui2-0004ak-1Y; Tue, 07 Apr 2020 22:20:34 +0200
-Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
-        id 595CA101273; Tue,  7 Apr 2020 22:20:33 +0200 (CEST)
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     Andy Lutomirski <luto@amacapital.net>,
-        Vivek Goyal <vgoyal@redhat.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
-In-Reply-To: <772A564B-3268-49F4-9AEA-CDA648F6131F@amacapital.net>
-References: <20200407172140.GB64635@redhat.com> <772A564B-3268-49F4-9AEA-CDA648F6131F@amacapital.net>
-Date:   Tue, 07 Apr 2020 22:20:33 +0200
-Message-ID: <87eeszjbe6.fsf@nanos.tec.linutronix.de>
+        id S1726329AbgDGUXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 16:23:07 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:36529 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726277AbgDGUXG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 16:23:06 -0400
+Received: by mail-pl1-f195.google.com with SMTP id g2so1668391plo.3
+        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 13:23:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=UXokoAGuLxiwUh1ak+Jll9I/TC40PlzzcgA8+hBf6RQ=;
+        b=iMDHdKprjraEaHicyDyZlT8zBuNcVB0JlqRGFt07oFTUumA9QdPNXsV83Qpn3li5Z9
+         3Dsg//7JxUdcb6t0Xh6Cb3DqYsV95RxE0v4xHLvMxjGlI1X/LqZr1a9bb+2ycuvquByK
+         pZmQi1/ONVyyR212H8MPMkDCQNwtLIYMdHp9GZzLFHpWqexgOmihXdKFy1VOEwOxORKd
+         cqPnUlZspWsLAUawsaT0NM0p8za5DPy1TWZ0C1q/iAbOEMeV7bfRLq8QxWypRA4L1IQX
+         jXm5WYvKxLr5k/muBRhD29J+BF+vKeCaQ6TxGWZYA/guQIDh0seFF+1wgNNY89HTeaug
+         a/Ew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=UXokoAGuLxiwUh1ak+Jll9I/TC40PlzzcgA8+hBf6RQ=;
+        b=AybosZnBxuBBTEOFkGMhg0ozTvlzRbT+3lC55tpTn3aCNFcXyBte5kNxJ6ow7OkRBF
+         rXrsmkHGqX1/CQYp3V2zi9qk+VwGBP55ugTPnSiGtHRHAs+aD1nci0wcr+aWu9HlF48u
+         S0FDZHwjZeJHFVBf8dIBcQMqFGI710UnwBdXW3u5ogGhYgi8vR5TQIE/SbMJePTKbxRU
+         YtRcXJwnJWo+iniGy4F7LbeOMVwNTmUS+zFXpIcVsfRm6ch/1NXOfHIQlMnvRqf9jT2E
+         q5RcFfjPjNTabKUKkbrADZA506RCqkaeAnXrAn+fynYoQRQ39qbWY+YbuQ2T1ovrzWmX
+         Jaag==
+X-Gm-Message-State: AGi0PuZOFilxcOGj3GC5zlMTdQiQtFW8s5L8e1NXMstAR0nyIchqGAfR
+        xnhliqQxwqT9NCp+W4Hc8BCRHyyggNo=
+X-Google-Smtp-Source: APiQypLXAxt3YCAmp2Z92lI5AN0KcczNRKdkO/Ay5g4FAjXDFr7s/BjKl6I2NgjF2KAcfu11jbsa8Q==
+X-Received: by 2002:a17:902:9347:: with SMTP id g7mr3308459plp.77.1586290985579;
+        Tue, 07 Apr 2020 13:23:05 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b133sm14927449pfb.180.2020.04.07.13.23.04
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Apr 2020 13:23:04 -0700 (PDT)
+Message-ID: <5e8ce128.1c69fb81.ad2b1.4cf2@mx.google.com>
+Date:   Tue, 07 Apr 2020 13:23:04 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.175-14-gca15f5517c01
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y boot: 132 boots: 3 failed,
+ 122 passed with 2 offline, 5 untried/unknown (v4.14.175-14-gca15f5517c01)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Andy Lutomirski <luto@amacapital.net> writes:
->> On Apr 7, 2020, at 10:21 AM, Vivek Goyal <vgoyal@redhat.com> wrote:
->> Whether interrupts are enabled or not check only happens before we decide
->> if async pf protocol should be followed or not. Once we decide to
->> send PAGE_NOT_PRESENT, later notification PAGE_READY does not check
->> if interrupts are enabled or not. And it kind of makes sense otherwise
->> guest process will wait infinitely to receive PAGE_READY.
->> 
->> I modified the code a bit to disable interrupt and wait 10 seconds (after
->> getting PAGE_NOT_PRESENT message). And I noticed that error async pf
->> got delivered after 10 seconds after enabling interrupts. So error
->> async pf was not lost because interrupts were disabled.
+stable-rc/linux-4.14.y boot: 132 boots: 3 failed, 122 passed with 2 offline=
+, 5 untried/unknown (v4.14.175-14-gca15f5517c01)
 
-Async PF is not the same as a real #PF. It just hijacked the #PF vector
-because someone thought this is a brilliant idea.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.175-14-gca15f5517c01/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.175-14-gca15f5517c01/
 
->> Havind said that, I thought disabling interrupts does not mask exceptions.
->> So page fault exception should have been delivered even with interrupts
->> disabled. Is that correct? May be there was no vm exit/entry during
->> those 10 seconds and that's why.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.175-14-gca15f5517c01
+Git Commit: ca15f5517c01c19340ef1b1f6c8139cb30f82b30
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 75 unique boards, 21 SoC families, 18 builds out of 201
 
-No. Async PF is not a real exception. It has interrupt semantics and it
-can only be injected when the guest has interrupts enabled. It's bad
-design.
+Boot Regressions Detected:
 
-> My point is that the entire async pf is nonsense. There are two types of events right now:
->
-> “Page not ready”: normally this isn’t even visible to the guest — the
-> guest just waits. With async pf, the idea is to try to tell the guest
-> that a particular instruction would block and the guest should do
-> something else instead. Sending a normal exception is a poor design,
-> though: the guest may not expect this instruction to cause an
-> exception. I think KVM should try to deliver an *interrupt* and, if it
-> can’t, then just block the guest.
+arm:
 
-That's pretty much what it does, just that it runs this through #PF and
-has the checks for interrupts disabled - i.e can't right now' around
-that. If it can't then KVM schedules the guest out until the situation
-has been resolved.
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 59 days (last pass: v4.14=
+.169-92-gb4137330c582 - first fail: v4.14.170-62-gd6856e4a2c23)
 
-> “Page ready”: this is a regular asynchronous notification just like,
-> say, a virtio completion. It should be an ordinary interrupt.  Some in
-> memory data structure should indicate which pages are ready.
->
-> “Page is malfunctioning” is tricky because you *must* deliver the
-> event. x86’s #MC is not exactly a masterpiece, but it does kind of
-> work.
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 47 days (last pass: v4.14.170-141=
+-g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
 
-Nooooo. This does not need #MC at all. Don't even think about it.
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.14.175-13-g71660814=
+22ab)
 
-The point is that the access to such a page is either happening in user
-space or in kernel space with a proper exception table fixup.
+Boot Failures Detected:
 
-That means a real #PF is perfectly fine. That can be injected any time
-and does not have the interrupt semantics of async PF.
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-So now lets assume we distangled async PF from #PF and made it a regular
-interrupt, then the following situation still needs to be dealt with:
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
+            meson-gxm-q200: 1 failed lab
 
-   guest -> access faults
+Offline Platforms:
 
-host -> injects async fault
+arm:
 
-   guest -> handles and blocks the task
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
 
-host figures out that the page does not exist anymore and now needs to
-fixup the situation.
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
 
-host -> injects async wakeup
-
-   guest -> returns from aysnc PF interrupt and retries the instruction
-            which faults again.
-
-host -> knows by now that this is a real fault and injects a proper #PF
-
-   guest -> #PF runs and either sends signal to user space or runs
-            the exception table fixup for a kernel fault.
-
-Thanks,
-
-        tglx
-
-
-
-
+---
+For more info write to <info@kernelci.org>
