@@ -2,79 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B52181A06F5
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 08:04:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE5741A06F9
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 08:05:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726635AbgDGGEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 02:04:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34576 "EHLO mail.kernel.org"
+        id S1726663AbgDGGFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 02:05:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725802AbgDGGEO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 02:04:14 -0400
-Received: from sol.hsd1.ca.comcast.net (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1725802AbgDGGFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 02:05:53 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A1D72051A;
-        Tue,  7 Apr 2020 06:04:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75F392051A;
+        Tue,  7 Apr 2020 06:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586239453;
-        bh=cESVjNv8wDERqvJRgrWmpES3qp0fDrI8i1y53OkBYME=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPMDrS76dTeN3ibl4UBkEAH9iQzmcoFewH0QZtcCPI3A0TBk1bHgrH0ddnwZoGoYZ
-         JsY+QUGXwlA5jHXrf/wmYPzzAF4yFEfBp6BdReDfG/UQ5FzexdbWkyr3eQ7sCr05DI
-         3re4wuLS45eiicgrcvZWTats1nCxHEEIWlYXB30A=
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     linux-crypto@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH v2] crypto: algapi - Avoid spurious modprobe on LOADED
-Date:   Mon,  6 Apr 2020 23:02:40 -0700
-Message-Id: <20200407060240.175837-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407051744.GA13037@gondor.apana.org.au>
-References: <20200407051744.GA13037@gondor.apana.org.au>
+        s=default; t=1586239553;
+        bh=nARBMLqLlzl6eTVf6Sc/qdE/Ejb4GF9yesU/8cTEqnI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=h/b2Jl/7ging3eXOdJmk9yihehSN3vLANY7G0mLkBfjvM7YvICYRhKq00yugHhYsf
+         bCvnbGHjbLyOzL1+zdkv/2uR6EpjJv1GH51i6anih8vGdoFLQT+/BiTogIpzwXdrpV
+         jQqAhSOxZFnkKd9lFHS35cZ12LZxQnSJ+WqjIVYE=
+Date:   Tue, 7 Apr 2020 08:05:49 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Maxime Bizon <mbizon@freebox.fr>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 4.9 040/102] net: dsa: Fix duplicate frames flooded by
+ learning
+Message-ID: <20200407060549.GA260872@kroah.com>
+References: <20200401161530.451355388@linuxfoundation.org>
+ <20200401161540.401786749@linuxfoundation.org>
+ <5b036a64-db51-d687-758f-c8b0a5b0c72b@gmail.com>
+ <20200407054227.GA257896@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200407054227.GA257896@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+On Tue, Apr 07, 2020 at 07:42:27AM +0200, Greg Kroah-Hartman wrote:
+> On Mon, Apr 06, 2020 at 05:42:16PM -0700, Florian Fainelli wrote:
+> > 
+> > 
+> > On 4/1/2020 9:17 AM, Greg Kroah-Hartman wrote:
+> > > From: Florian Fainelli <f.fainelli@gmail.com>
+> > > 
+> > > [ Upstream commit 0e62f543bed03a64495bd2651d4fe1aa4bcb7fe5 ]
+> > > 
+> > > When both the switch and the bridge are learning about new addresses,
+> > > switch ports attached to the bridge would see duplicate ARP frames
+> > > because both entities would attempt to send them.
+> > > 
+> > > Fixes: 5037d532b83d ("net: dsa: add Broadcom tag RX/TX handler")
+> > > Reported-by: Maxime Bizon <mbizon@freebox.fr>
+> > > Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> > > Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+> > > Signed-off-by: David S. Miller <davem@davemloft.net>
+> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > ---
+> > >  net/dsa/tag_brcm.c |    2 ++
+> > >  1 file changed, 2 insertions(+)
+> > > 
+> > > --- a/net/dsa/tag_brcm.c
+> > > +++ b/net/dsa/tag_brcm.c
+> > > @@ -84,6 +84,8 @@ static struct sk_buff *brcm_tag_xmit(str
+> > >  		brcm_tag[2] = BRCM_IG_DSTMAP2_MASK;
+> > >  	brcm_tag[3] = (1 << p->port) & BRCM_IG_DSTMAP1_MASK;
+> > >  
+> > > +	skb->offload_fwd_mark = 1;
+> > 
+> > This is incorrectly placed, the assignment should be in brcm_tag_rcv().
+> > It looks like only linux-4.9.y is affected. Sorry for not noticing this
+> > earlier. Do you want me to submit a correcting patch?
+> 
+> Yes please, that would make it easier for me.
 
-Currently after any algorithm is registered and tested, there's an
-unnecessary request_module("cryptomgr") even if it's already loaded.
-Also, CRYPTO_MSG_ALG_LOADED is sent twice, and thus if the algorithm is
-"crct10dif", lib/crc-t10dif.c replaces the tfm twice rather than once.
-
-This occurs because CRYPTO_MSG_ALG_LOADED is sent using
-crypto_probing_notify(), which tries to load "cryptomgr" if the
-notification is not handled (NOTIFY_DONE).  This doesn't make sense
-because "cryptomgr" doesn't handle this notification.
-
-Fix this by using crypto_notify() instead of crypto_probing_notify().
-
-Fixes: dd8b083f9a5e ("crypto: api - Introduce notifier for new crypto algorithms")
-Cc: <stable@vger.kernel.org> # v4.20+
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- crypto/algapi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/crypto/algapi.c b/crypto/algapi.c
-index 69605e21af92..849254d7e627 100644
---- a/crypto/algapi.c
-+++ b/crypto/algapi.c
-@@ -403,7 +403,7 @@ static void crypto_wait_for_test(struct crypto_larval *larval)
- 	err = wait_for_completion_killable(&larval->completion);
- 	WARN_ON(err);
- 	if (!err)
--		crypto_probing_notify(CRYPTO_MSG_ALG_LOADED, larval);
-+		crypto_notify(CRYPTO_MSG_ALG_LOADED, larval);
- 
- out:
- 	crypto_larval_kill(&larval->alg);
--- 
-2.26.0
-
+And you already did that, thanks!
