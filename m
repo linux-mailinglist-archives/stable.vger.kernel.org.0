@@ -2,76 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B1131A0B81
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9931A0BF2
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:30:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728599AbgDGK1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:27:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39578 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728482AbgDGK1M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:27:12 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFFF820801;
-        Tue,  7 Apr 2020 10:27:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255232;
-        bh=xGZH/xfyVGtNxM8KRokDTvG6RUGbGegXIurZFLA+fXg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFyTYpFrXkXMwaJSmOrH/UfCQ16BfofXQxCnmXpAjQGgInmVYDjsQJjltaq0xzJKO
-         lu2MSgunDncXKntxdRgkuUVRXyXWGvousAPc20VMK1zhLOhCTHEv/GY1/sEoMb21kt
-         Y7sxznITIuNwTndEFpuDjAjs8gQR18bRI7HliPAM=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bibby Hsieh <bibby.hsieh@mediatek.com>,
-        CK Hu <ck.hu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Subject: [PATCH 5.6 29/29] soc: mediatek: knows_txdone needs to be set in Mediatek CMDQ helper
-Date:   Tue,  7 Apr 2020 12:22:26 +0200
-Message-Id: <20200407101455.698732087@linuxfoundation.org>
-X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
-References: <20200407101452.046058399@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1728054AbgDGKap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:30:45 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:41267 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728075AbgDGKap (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 06:30:45 -0400
+Received: by mail-pf1-f195.google.com with SMTP id a24so595651pfc.8
+        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 03:30:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=4n8165PczMmynhsuyrpUmLL7rVF0SJtjoKSVmGf1cyQ=;
+        b=s+dqTowvncuxXlk3WBOeZBfuULsXy+CBSwVkelWlYUK4nNORZmWEgwY+DIU/ev9SnM
+         qkMO4UTCdQvTjl86Tt4tz7OyQvSunr9gfBHsQpsqVzSq2glphbpQNOOx9hSoNiSt/+Yl
+         Kd/BkT2AJ4r3jHn1NHzZgACC2EaJKQmyacV1vdY9mVlSTjMDu/6JyYHbH3QLRESLsAWD
+         jobedCpldDnRLhDR4obfDN/ax9b6FhgHRF11Np92Ft2+7amxuixoyv6eIKscpzIFrP6h
+         kGX270pNvIPUT3uHbToBTUBNEWJ9kGCkEpFNbZ/6cW0aRZqz/SLf6Vn8+46Zv9mg13RY
+         +CCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=4n8165PczMmynhsuyrpUmLL7rVF0SJtjoKSVmGf1cyQ=;
+        b=cLyYSi1neBqd5mOeLmwhEorWDAa8kDJnIo96mcdJd+iPQ/U8CS4A/T7UQUHkDm9bd/
+         g9sDmJ8955EtpchEozFlMdh1qiIOcdFkaQpNKtc1jG322H5lLKuYJIjeHvfHTifOIePV
+         j+/XQ0oM0KAAS4GyOyQwYgDtnBEQx4XqMYwRYPctXwAtYe8sK7MVhm8OMShI2uiUZ5SO
+         P3sVPdBnn2oMRp7nq5GfUOyLX+RMjR3kw7/JzFDOU+Oi5WWLTp7gml0KT40ZGbjSPvZO
+         nRRjchpZkO7y5wIUJQGqxrerP9LToqVRpT3w/CKyNsCzFGEC+IAnevMsciuo7WBsOo4G
+         Zn0w==
+X-Gm-Message-State: AGi0PuYS4+m4691HeR1cCwfpPlhesn76z1VxdyMy7dD/HQbO8jDV9Wwj
+        dWQ5ch/KG0Ut8705lHBL1Z1rjRm0P0Jym2dNsj4=
+X-Google-Smtp-Source: APiQypKD/ssQiKWwgUme76e0xIYertXh6TJNFomfgNoto8jArBMcNOmxIFr0MoZ0CqwSa/hYq1lCwvMpZy/JtHjzMko=
+X-Received: by 2002:aa7:9a01:: with SMTP id w1mr1907927pfj.256.1586255444514;
+ Tue, 07 Apr 2020 03:30:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a17:90a:9704:0:0:0:0 with HTTP; Tue, 7 Apr 2020 03:30:44
+ -0700 (PDT)
+Reply-To: sgt.annhester89@gmail.com
+From:   Ann <kaylinmanthey82@gmail.com>
+Date:   Tue, 7 Apr 2020 10:30:44 +0000
+Message-ID: <CAM0qh+840yuxzkyehzL9KuuzkG-XErwXwiaXz6fgJQfbfftckQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bibby Hsieh <bibby.hsieh@mediatek.com>
-
-commit ce35e21d82bcac8b3fd5128888f9e233f8444293 upstream.
-
-Mediatek CMDQ driver have a mechanism to do TXDONE_BY_ACK,
-so we should set knows_txdone.
-
-Fixes:576f1b4bc802 ("soc: mediatek: Add Mediatek CMDQ helper")
-
-Cc: stable@vger.kernel.org # v5.0+
-Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
-Reviewed-by: CK Hu <ck.hu@mediatek.com>
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/soc/mediatek/mtk-cmdq-helper.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/drivers/soc/mediatek/mtk-cmdq-helper.c
-+++ b/drivers/soc/mediatek/mtk-cmdq-helper.c
-@@ -78,6 +78,7 @@ struct cmdq_client *cmdq_mbox_create(str
- 	client->pkt_cnt = 0;
- 	client->client.dev = dev;
- 	client->client.tx_block = false;
-+	client->client.knows_txdone = true;
- 	client->chan = mbox_request_channel(&client->client, index);
- 
- 	if (IS_ERR(client->chan)) {
-
-
+Hello my dear,how long should I wait before you respond to my message
+after sending an email to you?,
