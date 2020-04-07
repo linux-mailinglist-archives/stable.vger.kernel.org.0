@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 218F51A0BCA
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC5E41A0BC9
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728643AbgDGKYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:24:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34202 "EHLO mail.kernel.org"
+        id S1728671AbgDGKYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:24:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728639AbgDGKYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:24:06 -0400
+        id S1728074AbgDGKYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:24:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39B772082D;
-        Tue,  7 Apr 2020 10:24:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76E4220771;
+        Tue,  7 Apr 2020 10:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255045;
-        bh=WWPBWH6R7vqAyfkKB/N+fKzsFhjvBeypNxeA9gpyPj0=;
+        s=default; t=1586255052;
+        bh=JZKbPbuU2UHbrb6VuFFKYu3d0IBGpuh9U6WpdN5Q95o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uUVDIksD6F8QoTr+xiE0GBdyp0jzxDdQXADWCLqcyAjNKTVH35XJGKK2uFUa5rk0j
-         NjFz1ULRvWMNNTJLqKbChXgXCPZ/mki7ubm7MQm/DxJcDcurTP7tGi3I15pyka23yE
-         xstxUqUm3Jw0cFc9M1550fTzyaw50bt4lBUjV8Sc=
+        b=TvOlca1HsKd4xEw5gsYlu9M+xYHtcKcwKN3i0rPV9UaInBJPSuQtFJMsrWbVMqTO2
+         qkpqw3v/SVmprwole43LJmBPyeZ9hVZ2C2jZcifh75oo9v6xYps0r/tHiAGJCG5HHD
+         UVDqG4h/slKbxYwI/moF3TGYPSL2z/6kd6X2DSWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Len Brown <len.brown@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/36] tools/power turbostat: Fix missing SYS_LPI counter on some Chromebooks
-Date:   Tue,  7 Apr 2020 12:21:41 +0200
-Message-Id: <20200407101455.377342847@linuxfoundation.org>
+Subject: [PATCH 5.5 11/46] drm/bochs: downgrade pci_request_region failure from error to warning
+Date:   Tue,  7 Apr 2020 12:21:42 +0200
+Message-Id: <20200407101500.722158177@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Brown <len.brown@intel.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-[ Upstream commit 1f81c5efc020314b2db30d77efe228b7e117750d ]
+[ Upstream commit 8c34cd1a7f089dc03933289c5d4a4d1489549828 ]
 
-Some Chromebook BIOS' do not export an ACPI LPIT, which is how
-Linux finds the residency counter for CPU and SYSTEM low power states,
-that is exports in /sys/devices/system/cpu/cpuidle/*residency_us
+Shutdown of firmware framebuffer has a bunch of problems.  Because
+of this the framebuffer region might still be reserved even after
+drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
 
-When these sysfs attributes are missing, check the debugfs attrubte
-from the pmc_core driver, which accesses the same counter value.
+Don't consider pci_request_region() failure for the framebuffer
+region as fatal error to workaround this issue.
 
-Signed-off-by: Len Brown <len.brown@intel.com>
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20200313084152.2734-1-kraxel@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/turbostat.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index 78507cd479bb4..17e82eaf5c4f4 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -304,6 +304,10 @@ int *irqs_per_cpu;		/* indexed by cpu_num */
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index e567bdfa2ab8e..bb1391784caf0 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -156,10 +156,8 @@ int bochs_hw_init(struct drm_device *dev)
+ 		size = min(size, mem);
+ 	}
  
- void setup_all_buffers(void);
+-	if (pci_request_region(pdev, 0, "bochs-drm") != 0) {
+-		DRM_ERROR("Cannot request framebuffer\n");
+-		return -EBUSY;
+-	}
++	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
++		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
  
-+char *sys_lpi_file;
-+char *sys_lpi_file_sysfs = "/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us";
-+char *sys_lpi_file_debugfs = "/sys/kernel/debug/pmc_core/slp_s0_residency_usec";
-+
- int cpu_is_not_present(int cpu)
- {
- 	return !CPU_ISSET_S(cpu, cpu_present_setsize, cpu_present_set);
-@@ -2916,8 +2920,6 @@ int snapshot_gfx_mhz(void)
-  *
-  * record snapshot of
-  * /sys/devices/system/cpu/cpuidle/low_power_idle_cpu_residency_us
-- *
-- * return 1 if config change requires a restart, else return 0
-  */
- int snapshot_cpu_lpi_us(void)
- {
-@@ -2941,17 +2943,14 @@ int snapshot_cpu_lpi_us(void)
- /*
-  * snapshot_sys_lpi()
-  *
-- * record snapshot of
-- * /sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us
-- *
-- * return 1 if config change requires a restart, else return 0
-+ * record snapshot of sys_lpi_file
-  */
- int snapshot_sys_lpi_us(void)
- {
- 	FILE *fp;
- 	int retval;
- 
--	fp = fopen_or_die("/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us", "r");
-+	fp = fopen_or_die(sys_lpi_file, "r");
- 
- 	retval = fscanf(fp, "%lld", &cpuidle_cur_sys_lpi_us);
- 	if (retval != 1) {
-@@ -4907,10 +4906,16 @@ void process_cpuid()
- 	else
- 		BIC_NOT_PRESENT(BIC_CPU_LPI);
- 
--	if (!access("/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us", R_OK))
-+	if (!access(sys_lpi_file_sysfs, R_OK)) {
-+		sys_lpi_file = sys_lpi_file_sysfs;
- 		BIC_PRESENT(BIC_SYS_LPI);
--	else
-+	} else if (!access(sys_lpi_file_debugfs, R_OK)) {
-+		sys_lpi_file = sys_lpi_file_debugfs;
-+		BIC_PRESENT(BIC_SYS_LPI);
-+	} else {
-+		sys_lpi_file_sysfs = NULL;
- 		BIC_NOT_PRESENT(BIC_SYS_LPI);
-+	}
- 
- 	if (!quiet)
- 		decode_misc_feature_control();
+ 	bochs->fb_map = ioremap(addr, size);
+ 	if (bochs->fb_map == NULL) {
 -- 
 2.20.1
 
