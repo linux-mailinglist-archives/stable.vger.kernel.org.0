@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3808A1A0BB6
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F8F01A0AF8
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:22:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728460AbgDGKY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:24:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35316 "EHLO mail.kernel.org"
+        id S1726562AbgDGKWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:22:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728829AbgDGKY4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:24:56 -0400
+        id S1725883AbgDGKWj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:22:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BA4220644;
-        Tue,  7 Apr 2020 10:24:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 011D020644;
+        Tue,  7 Apr 2020 10:22:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255095;
-        bh=+9/waoq6urivDfNZvIaeIMosuJ6pHCmjRRVUUlB8Uig=;
+        s=default; t=1586254957;
+        bh=Yes23aRlJ3lv9ES/aLXStRHl7yqUHk0MZHOigrmI3TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMG3VH7ScGv6b/gxvFtk1sCnJhMJ2BD+vZKMQmi0YuMCQhbVZgiio42W3oEeWNGhP
-         yRg8lnVLycIxMODYDvub/c8+Z0BJBUZsLTx252fe/gLfpjjGh0holGH6xfrveKtbaR
-         HXF9DIe5GC7Ta3Ro7tvBFNRfFT2Vn2a6Hq2LEsoU=
+        b=DQ11FSio7FCxzgkBsuLmkVxQeJfj9C3oSSpbsQsGISxTpef3tW0LcY6RTjgfiUZg2
+         xCkX1EQUis1yNQIrR8OmTsl6FoKuP16Qm6wXneSu+V4I9W+Yv5yitVyd/sWUEg1Edr
+         cvEGs6mohJ+PTT6xTd3x9tp4YWt0yVfMbhnCdhTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, William Dauchy <w.dauchy@criteo.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 03/46] net, ip_tunnel: fix interface lookup with no key
+        stable@vger.kernel.org, Roland Dreier <roland@purestorage.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Prabhath Sajeepa <psajeepa@purestorage.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 01/36] nvme-rdma: Avoid double freeing of async event data
 Date:   Tue,  7 Apr 2020 12:21:34 +0200
-Message-Id: <20200407101459.875071972@linuxfoundation.org>
+Message-Id: <20200407101454.484006015@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,54 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Dauchy <w.dauchy@criteo.com>
+From: Prabhath Sajeepa <psajeepa@purestorage.com>
 
-[ Upstream commit 25629fdaff2ff509dd0b3f5ff93d70a75e79e0a1 ]
+[ Upstream commit 9134ae2a2546cb96abddcd4469a79c77ee3a4480 ]
 
-when creating a new ipip interface with no local/remote configuration,
-the lookup is done with TUNNEL_NO_KEY flag, making it impossible to
-match the new interface (only possible match being fallback or metada
-case interface); e.g: `ip link add tunl1 type ipip dev eth0`
+The timeout of identify cmd, which is invoked as part of admin queue
+creation, can result in freeing of async event data both in
+nvme_rdma_timeout handler and error handling path of
+nvme_rdma_configure_admin queue thus causing NULL pointer reference.
+Call Trace:
+ ? nvme_rdma_setup_ctrl+0x223/0x800 [nvme_rdma]
+ nvme_rdma_create_ctrl+0x2ba/0x3f7 [nvme_rdma]
+ nvmf_dev_write+0xa54/0xcc6 [nvme_fabrics]
+ __vfs_write+0x1b/0x40
+ vfs_write+0xb2/0x1b0
+ ksys_write+0x61/0xd0
+ __x64_sys_write+0x1a/0x20
+ do_syscall_64+0x60/0x1e0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-To fix this case, adding a flag check before the key comparison so we
-permit to match an interface with no local/remote config; it also avoids
-breaking possible userland tools relying on TUNNEL_NO_KEY flag and
-uninitialised key.
-
-context being on my side, I'm creating an extra ipip interface attached
-to the physical one, and moving it to a dedicated namespace.
-
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Signed-off-by: William Dauchy <w.dauchy@criteo.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Roland Dreier <roland@purestorage.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Prabhath Sajeepa <psajeepa@purestorage.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_tunnel.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/nvme/host/rdma.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -142,11 +142,8 @@ struct ip_tunnel *ip_tunnel_lookup(struc
- 			cand = t;
- 	}
- 
--	if (flags & TUNNEL_NO_KEY)
--		goto skip_key_lookup;
--
- 	hlist_for_each_entry_rcu(t, head, hash_node) {
--		if (t->parms.i_key != key ||
-+		if ((!(flags & TUNNEL_NO_KEY) && t->parms.i_key != key) ||
- 		    t->parms.iph.saddr != 0 ||
- 		    t->parms.iph.daddr != 0 ||
- 		    !(t->dev->flags & IFF_UP))
-@@ -158,7 +155,6 @@ struct ip_tunnel *ip_tunnel_lookup(struc
- 			cand = t;
- 	}
- 
--skip_key_lookup:
- 	if (cand)
- 		return cand;
- 
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 4ff51da3b13fa..73e8475ddc8ab 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -850,9 +850,11 @@ out_free_tagset:
+ 	if (new)
+ 		blk_mq_free_tag_set(ctrl->ctrl.admin_tagset);
+ out_free_async_qe:
+-	nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
+-		sizeof(struct nvme_command), DMA_TO_DEVICE);
+-	ctrl->async_event_sqe.data = NULL;
++	if (ctrl->async_event_sqe.data) {
++		nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
++			sizeof(struct nvme_command), DMA_TO_DEVICE);
++		ctrl->async_event_sqe.data = NULL;
++	}
+ out_free_queue:
+ 	nvme_rdma_free_queue(&ctrl->queues[0]);
+ 	return error;
+-- 
+2.20.1
+
 
 
