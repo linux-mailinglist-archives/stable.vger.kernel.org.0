@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D22F81A0B18
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5507C1A0B65
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:26:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728541AbgDGKXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33556 "EHLO mail.kernel.org"
+        id S1729092AbgDGK0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:26:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728533AbgDGKXl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:41 -0400
+        id S1729079AbgDGK0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:26:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EBF42078C;
-        Tue,  7 Apr 2020 10:23:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39F7220771;
+        Tue,  7 Apr 2020 10:26:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255021;
-        bh=OTr7RM5lQrjJE8EzqxD/5LlOedA2SxaY+uJAxcNQoTU=;
+        s=default; t=1586255166;
+        bh=QAjVBsd8e5IbA+b+qruEdohp9CjMqPCmCzLociEPK+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2GvLhpBqGxosMDoOSfmy0w/d2kX+7aDB8CPU/5UATFE3q0H0yUJ+xRLD46nAH2IX
-         TylFh2s+7MTX4neEvHOJUFDoIEGJscyfTfKVvkkIEuK4YX6Q36PkN8q7DUp/UInI5p
-         j0SXCz6kmGiiFh3vzJoI68ODwf71jPmga/Lxqqkc=
+        b=pfbbyNGVdUPrWzoBiwBk5m146hNghYWWxiHES8iprjgbtainVmdmiMG4gTjHMnSKj
+         /8pC5dG4m/d8M/6zYI2KVcoyLSyCBfAAiHGhbxWpUi1q8fMplZa8gc4WD1jh2TIE/A
+         YrS0Rii0BH+eD2PmoRUoN8XKzS2bkEsRG4kwy8TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Volf <martin.volf.42@gmail.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5.4 34/36] i2c: i801: Do not add ICH_RES_IO_SMI for the iTCO_wdt device
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>, franky.lin@broadcom.com,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 10/29] brcmfmac: abort and release host after error
 Date:   Tue,  7 Apr 2020 12:22:07 +0200
-Message-Id: <20200407101458.567850603@linuxfoundation.org>
+Message-Id: <20200407101453.241931574@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
+References: <20200407101452.046058399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,135 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 04bbb97d1b732b2d197f103c5818f5c214a4cf81 upstream.
+[ Upstream commit 863844ee3bd38219c88e82966d1df36a77716f3e ]
 
-Martin noticed that nct6775 driver does not load properly on his system
-in v5.4+ kernels. The issue was bisected to commit b84398d6d7f9 ("i2c:
-i801: Use iTCO version 6 in Cannon Lake PCH and beyond") but it is
-likely not the culprit because the faulty code has been in the driver
-already since commit 9424693035a5 ("i2c: i801: Create iTCO device on
-newer Intel PCHs"). So more likely some commit that added PCI IDs of
-recent chipsets made the driver to create the iTCO_wdt device on Martins
-system.
+With commit 216b44000ada ("brcmfmac: Fix use after free in
+brcmf_sdio_readframes()") applied, we see locking timeouts in
+brcmf_sdio_watchdog_thread().
 
-The issue was debugged to be PCI configuration access to the PMC device
-that is not present. This returns all 1's when read and this caused the
-iTCO_wdt driver to accidentally request resourses used by nct6775.
+brcmfmac: brcmf_escan_timeout: timer expired
+INFO: task brcmf_wdog/mmc1:621 blocked for more than 120 seconds.
+Not tainted 4.19.94-07984-g24ff99a0f713 #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+brcmf_wdog/mmc1 D    0   621      2 0x00000000 last_sleep: 2440793077.  last_runnable: 2440766827
+[<c0aa1e60>] (__schedule) from [<c0aa2100>] (schedule+0x98/0xc4)
+[<c0aa2100>] (schedule) from [<c0853830>] (__mmc_claim_host+0x154/0x274)
+[<c0853830>] (__mmc_claim_host) from [<bf10c5b8>] (brcmf_sdio_watchdog_thread+0x1b0/0x1f8 [brcmfmac])
+[<bf10c5b8>] (brcmf_sdio_watchdog_thread [brcmfmac]) from [<c02570b8>] (kthread+0x178/0x180)
 
-It turns out that the SMI resource is only required for some ancient
-systems, not the ones supported by this driver. For this reason do not
-populate the SMI resource at all and drop all the related code. The
-driver now always populates the main I/O resource and only in case of SPT
-(Intel Sunrisepoint) compatible devices it adds another resource for the
-NO_REBOOT bit. These two resources are of different types so
-platform_get_resource() used by the iTCO_wdt driver continues to find
-the both resources at index 0.
+In addition to restarting or exiting the loop, it is also necessary to
+abort the command and to release the host.
 
-Link: https://lore.kernel.org/linux-hwmon/CAM1AHpQ4196tyD=HhBu-2donSsuogabkfP03v1YF26Q7_BgvgA@mail.gmail.com/
-Fixes: 9424693035a5 ("i2c: i801: Create iTCO device on newer Intel PCHs")
-[wsa: complete fix needs all of http://patchwork.ozlabs.org/project/linux-i2c/list/?series=160959&state=*]
-Reported-by: Martin Volf <martin.volf.42@gmail.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 216b44000ada ("brcmfmac: Fix use after free in brcmf_sdio_readframes()")
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Matthias Kaehlcke <mka@chromium.org>
+Cc: Brian Norris <briannorris@chromium.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: franky.lin@broadcom.com
+Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c |   45 +++++++++++-------------------------------
- 1 file changed, 12 insertions(+), 33 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -129,11 +129,6 @@
- #define TCOBASE		0x050
- #define TCOCTL		0x054
- 
--#define ACPIBASE		0x040
--#define ACPIBASE_SMI_OFF	0x030
--#define ACPICTRL		0x044
--#define ACPICTRL_EN		0x080
--
- #define SBREG_BAR		0x10
- #define SBREG_SMBCTRL		0xc6000c
- #define SBREG_SMBCTRL_DNV	0xcf000c
-@@ -1544,7 +1539,7 @@ i801_add_tco_spt(struct i801_priv *priv,
- 		pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, hidden);
- 	spin_unlock(&p2sb_spinlock);
- 
--	res = &tco_res[ICH_RES_MEM_OFF];
-+	res = &tco_res[1];
- 	if (pci_dev->device == PCI_DEVICE_ID_INTEL_DNV_SMBUS)
- 		res->start = (resource_size_t)base64_addr + SBREG_SMBCTRL_DNV;
- 	else
-@@ -1554,7 +1549,7 @@ i801_add_tco_spt(struct i801_priv *priv,
- 	res->flags = IORESOURCE_MEM;
- 
- 	return platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
--					tco_res, 3, &spt_tco_platform_data,
-+					tco_res, 2, &spt_tco_platform_data,
- 					sizeof(spt_tco_platform_data));
- }
- 
-@@ -1567,17 +1562,16 @@ static struct platform_device *
- i801_add_tco_cnl(struct i801_priv *priv, struct pci_dev *pci_dev,
- 		 struct resource *tco_res)
- {
--	return platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
--					tco_res, 2, &cnl_tco_platform_data,
--					sizeof(cnl_tco_platform_data));
-+	return platform_device_register_resndata(&pci_dev->dev,
-+			"iTCO_wdt", -1, tco_res, 1, &cnl_tco_platform_data,
-+			sizeof(cnl_tco_platform_data));
- }
- 
- static void i801_add_tco(struct i801_priv *priv)
- {
--	u32 base_addr, tco_base, tco_ctl, ctrl_val;
- 	struct pci_dev *pci_dev = priv->pci_dev;
--	struct resource tco_res[3], *res;
--	unsigned int devfn;
-+	struct resource tco_res[2], *res;
-+	u32 tco_base, tco_ctl;
- 
- 	/* If we have ACPI based watchdog use that instead */
- 	if (acpi_has_watchdog())
-@@ -1592,30 +1586,15 @@ static void i801_add_tco(struct i801_pri
- 		return;
- 
- 	memset(tco_res, 0, sizeof(tco_res));
--
--	res = &tco_res[ICH_RES_IO_TCO];
--	res->start = tco_base & ~1;
--	res->end = res->start + 32 - 1;
--	res->flags = IORESOURCE_IO;
--
- 	/*
--	 * Power Management registers.
-+	 * Always populate the main iTCO IO resource here. The second entry
-+	 * for NO_REBOOT MMIO is filled by the SPT specific function.
- 	 */
--	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 2);
--	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPIBASE, &base_addr);
--
--	res = &tco_res[ICH_RES_IO_SMI];
--	res->start = (base_addr & ~1) + ACPIBASE_SMI_OFF;
--	res->end = res->start + 3;
-+	res = &tco_res[0];
-+	res->start = tco_base & ~1;
-+	res->end = res->start + 32 - 1;
- 	res->flags = IORESOURCE_IO;
- 
--	/*
--	 * Enable the ACPI I/O space.
--	 */
--	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPICTRL, &ctrl_val);
--	ctrl_val |= ACPICTRL_EN;
--	pci_bus_write_config_dword(pci_dev->bus, devfn, ACPICTRL, ctrl_val);
--
- 	if (priv->features & FEATURE_TCO_CNL)
- 		priv->tco_pdev = i801_add_tco_cnl(priv, pci_dev, tco_res);
- 	else
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index f9047db6a11d8..3a08252f1a53f 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -1938,6 +1938,8 @@ static uint brcmf_sdio_readframes(struct brcmf_sdio *bus, uint maxframes)
+ 			if (brcmf_sdio_hdparse(bus, bus->rxhdr, &rd_new,
+ 					       BRCMF_SDIO_FT_NORMAL)) {
+ 				rd->len = 0;
++				brcmf_sdio_rxfail(bus, true, true);
++				sdio_release_host(bus->sdiodev->func1);
+ 				brcmu_pkt_buf_free_skb(pkt);
+ 				continue;
+ 			}
+-- 
+2.20.1
+
 
 
