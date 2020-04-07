@@ -2,76 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D231A0261
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 02:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AAC11A0394
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 02:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727469AbgDGADX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Apr 2020 20:03:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38682 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726339AbgDGADS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Apr 2020 20:03:18 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726436AbgDGATI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Apr 2020 20:19:08 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:43023 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726421AbgDGATI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Apr 2020 20:19:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586218747;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=O68wn4Pe4Xnq82stQk8cQ2xWIKc1fXmzXjPQY3YHR/c=;
+        b=EiHn//9q69D2IDfCT/t72wctk4Cay0NoRMxSHVtCBmoJJjGO1fuXTvgYVmZCxiffWtQ+WK
+        UhRsE3Miv2/HI75RLkY3qE+hYg/qL5Ys2bmpKS3wMDkgMv9+dEJ7x2Ds7vU/33g8mzKk9z
+        2bnX1/flX6z8YIU5FN3Z4qCmaUrg0Rk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-88-6xhVm4c-OSycWycwXboclQ-1; Mon, 06 Apr 2020 20:19:02 -0400
+X-MC-Unique: 6xhVm4c-OSycWycwXboclQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84C0B2080C;
-        Tue,  7 Apr 2020 00:03:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586217798;
-        bh=1Lqk+doDrlT/SrI8d8AftpDemtX1pC+rrvgWeYNetTI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9f/Zkbr7Kgu6gnRTNs3OKHc39jlGjWPUTV1TJ24Eww3EHmN1mvOUKPjCIzEEKuUw
-         mQv4z10/9RYFEfyMDmCB9au5Y+KHBsiwwSv/D35qnKwZQ0H9a4yrZgtMUFPyA4lctI
-         /dE2JZHZ6rT8gbAAwJFX1bcW3WNdMoJKQ0wTGWOk=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alain Volmat <avolmat@me.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 4/4] i2c: st: fix missing struct parameter description
-Date:   Mon,  6 Apr 2020 20:03:12 -0400
-Message-Id: <20200407000312.17447-4-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200407000312.17447-1-sashal@kernel.org>
-References: <20200407000312.17447-1-sashal@kernel.org>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 451E618C35A1;
+        Tue,  7 Apr 2020 00:19:01 +0000 (UTC)
+Received: from localhost (unknown [10.36.110.15])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id AA3D85E010;
+        Tue,  7 Apr 2020 00:18:58 +0000 (UTC)
+Date:   Tue, 7 Apr 2020 02:18:48 +0200
+From:   Stefano Brivio <sbrivio@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Phil Sutter <phil@nwl.cc>, netfilter-devel@vger.kernel.org,
+        coreteam@netfilter.org, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.5 27/35] netfilter: nf_tables: Allow set
+ back-ends to report partial overlaps on insertion
+Message-ID: <20200407021848.626df832@redhat.com>
+In-Reply-To: <20200407000058.16423-27-sashal@kernel.org>
+References: <20200407000058.16423-1-sashal@kernel.org>
+        <20200407000058.16423-27-sashal@kernel.org>
+Organization: Red Hat
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <avolmat@me.com>
+Hi Sasha,
 
-[ Upstream commit f491c6687332920e296d0209e366fe2ca7eab1c6 ]
+On Mon,  6 Apr 2020 20:00:49 -0400
+Sasha Levin <sashal@kernel.org> wrote:
 
-Fix a missing struct parameter description to allow
-warning free W=1 compilation.
+> From: Pablo Neira Ayuso <pablo@netfilter.org>
+> 
+> [ Upstream commit 8c2d45b2b65ca1f215244be1c600236e83f9815f ]
 
-Signed-off-by: Alain Volmat <avolmat@me.com>
-Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-st.c | 1 +
- 1 file changed, 1 insertion(+)
+This patch, together with 28/35 and 29/35 in this series, and all the
+equivalent patches for 5.4 and 4.19, that is:
+	[PATCH AUTOSEL 5.5 27/35] netfilter: nf_tables: Allow set back-ends to report partial overlaps on insertion
+	[PATCH AUTOSEL 5.5 28/35] netfilter: nft_set_rbtree: Introduce and use nft_rbtree_interval_start()
+	[PATCH AUTOSEL 5.5 29/35] netfilter: nft_set_rbtree: Detect partial overlaps on insertion
+	[PATCH AUTOSEL 5.4 24/32] netfilter: nf_tables: Allow set back-ends to report partial overlaps on insertion
+	[PATCH AUTOSEL 5.4 25/32] netfilter: nft_set_rbtree: Introduce and use nft_rbtree_interval_start()
+	[PATCH AUTOSEL 5.4 26/32] netfilter: nft_set_rbtree: Detect partial overlaps on insertion
+	[PATCH AUTOSEL 4.19 08/13] netfilter: nf_tables: Allow set back-ends to report partial overlaps on insertion
+	[PATCH AUTOSEL 4.19 09/13] netfilter: nft_set_rbtree: Introduce and use nft_rbtree_interval_start()
+	[PATCH AUTOSEL 4.19 10/13] netfilter: nft_set_rbtree: Detect partial overlaps on insertion
 
-diff --git a/drivers/i2c/busses/i2c-st.c b/drivers/i2c/busses/i2c-st.c
-index 25020ec777c97..ee0a7d3dd0c65 100644
---- a/drivers/i2c/busses/i2c-st.c
-+++ b/drivers/i2c/busses/i2c-st.c
-@@ -399,6 +399,7 @@ static void st_i2c_wr_fill_tx_fifo(struct st_i2c_dev *i2c_dev)
- /**
-  * st_i2c_rd_fill_tx_fifo() - Fill the Tx FIFO in read mode
-  * @i2c_dev: Controller's private data
-+ * @max: Maximum amount of data to fill into the Tx FIFO
-  *
-  * This functions fills the Tx FIFO with fixed pattern when
-  * in read mode to trigger clock.
+should only be backported together with nf.git commit
+	72239f2795fa ("netfilter: nft_set_rbtree: Drop spurious condition for overlap detection on insertion")
+
+as they would otherwise introduce a regression. In general, those changes
+are not really relevant before 5.6, as nft_set_pipapo wasn't there and the
+main purpose here is to make the nft_set_rbtree back-end consistent with it:
+they also prevent a malfunction in nft_set_rbtree itself, but nothing that
+would be triggered using 'nft' alone, and no memory badnesses or critical
+issues whatsoever. So it's also safe to drop them, in my opinion.
+
+Also patches for 4.14 and 4.9:
+	[PATCH AUTOSEL 4.14 6/9] netfilter: nf_tables: Allow set back-ends to report partial overlaps on insertion
+	[PATCH AUTOSEL 4.9 3/5] netfilter: nf_tables: Allow set back-ends to report partial overlaps on insertion
+
+can safely be dropped, because there are no set back-ends there, without
+the following patches, that use this way of reporting a partial overlap.
+
+I'm used to not Cc: stable on networking patches (Dave's net.git),
+but I guess I should instead if they go through nf.git (Pablo's tree),
+right?
+
 -- 
-2.20.1
+Stefano
 
