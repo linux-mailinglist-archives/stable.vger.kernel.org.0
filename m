@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A991A1237
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 18:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27D511A1238
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 18:55:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726426AbgDGQzy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 12:55:54 -0400
-Received: from mail-qk1-f201.google.com ([209.85.222.201]:47916 "EHLO
-        mail-qk1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726403AbgDGQzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 12:55:54 -0400
-Received: by mail-qk1-f201.google.com with SMTP id b21so34532qkl.14
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 09:55:52 -0700 (PDT)
+        id S1726436AbgDGQz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 12:55:57 -0400
+Received: from mail-wr1-f73.google.com ([209.85.221.73]:48417 "EHLO
+        mail-wr1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726403AbgDGQz5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 12:55:57 -0400
+Received: by mail-wr1-f73.google.com with SMTP id d1so2278934wru.15
+        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 09:55:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=yjDKGVlPpnEUO3ADPc9XMgVJd43HWkmb3UWH0/MepjQ=;
-        b=JazZJGEVDxWtzbE+rBhv7FUM0fcuY2nthdWsl72LwjAuRSXDtQsvOHhWd7S7BCvACp
-         E7icqritJUcVCSJEPi6R71rTKf5tQR1KY8HMmuFej0PTsiaFGH26BNIZE0bZZmgUK+7m
-         5A7QMtKJOGNFpG6kJp3KB6S+7kGHq5EGgQoLIK1Z4/sPmkV3qajhkXqWNP11yFjXG336
-         35YHQZ8cenvaqZPBTs+QcYDGgXBeUoMMwEqK/0tiD/CyBTBGQkOYEdIHmPaljnBqwCJr
-         m/0Ue6ELD0TwAM06/TMCS3JhnZvZ6ieF2UYIeSMY81F6nIVnXIFtTaXfxaVOkOLW9bwk
-         PuHg==
+        bh=Ru7N6lVHZUKQwaB/xq7ubldw30kehEeDJ6CHby+S89M=;
+        b=v3VF9dQo04jJFUN+jCZ/vzznpa9b6Fv2mogtHhW5CMi8EFqJ6X1St+mQsI4ZSF2Ysr
+         zyCdeam5US8QcNcNPOy5iWBjnk8kEl6hE29dDR7fJ7dk0ptHZ97OMGiuv636AOvTGgyP
+         FsfcIrh11Jeaa6Tqohjv0A+HQTwL7OWHf2SQ4BBaWF0s/oZQuScjUbIWXLL5ooX+w0TY
+         u7oLygF6rtQKVxtAmoGcubHYna9JZ8jHCaxoxFtk2CPENxRwiLHUVt+biuFLkLDdBlCa
+         kzVVHGltN8fQ1zH/d4VwbpPR3vHn1eBeFcOR7lF7AjEXY4E2d/ayPh9jNe60oHRV8Lk5
+         IzQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=yjDKGVlPpnEUO3ADPc9XMgVJd43HWkmb3UWH0/MepjQ=;
-        b=Lg2TgC9BsU6M4jdlVOmamN4dYJQQMBUwGE86tR1y/LlQR1hyKDSQj4MPzO3X/+M22X
-         Bv6i8izlfrzh+azUn+QfBkK+uO15mkUaLH23MlOaMgbKQ3nCjiRua1HLmLNkN6BkjULI
-         sW/9pOZz5mRxYPoHq4NpvQweN5a4NsvWQhbuf7EAg36blO6RqMSa7DNtF2LmecVk2pok
-         zJ+Oj65gubr0NLHQlxnVexBmeg8v/Z29I7CG9rUieWdz4gnLUwJuAGDfV8ysncwueaCr
-         rat/t1g8TL3XkCsloAOObfndvoEH/fwqJEcGCbheaI9BZYdPfL4SwW4yUZU/1vf5VTrj
-         75zw==
-X-Gm-Message-State: AGi0PuZ7buSbxym3kKPn0aZSdeKl6wczPKHEveXab0oeFv4qaHayQnaN
-        24Wr+kWjFN0N7zH2Hv14aXuNbZXIpbCuKw==
-X-Google-Smtp-Source: APiQypJUMSv/Cr+M38+eoRKa4Wlw7uVmC5EytT6E2smwKPnC04kbKsIPkUZaWKYvMLvHXKOluGfI91T9+itflA==
-X-Received: by 2002:a37:4ec1:: with SMTP id c184mr3259717qkb.0.1586278550785;
- Tue, 07 Apr 2020 09:55:50 -0700 (PDT)
-Date:   Tue,  7 Apr 2020 17:55:35 +0100
+        bh=Ru7N6lVHZUKQwaB/xq7ubldw30kehEeDJ6CHby+S89M=;
+        b=hyYZCbgm6UBrCoGIzE7pz0krZHD0tZpagajxxgzv8zLeCkLxdEJjzJAreTXKbNQhs1
+         tzMOO4DXgG3x+2ohghCyIoozj/x16nL/mhz4dyVw67NCJi4gF4S2UOzLOHWvcIhouK8t
+         Xh7mA7s6y+uadEaLsobYvS3rPsYyG1NVRcSeFPjKcAZ1qhxYtQRc1DaFNmB33a+vNBvs
+         hErOHvmxrkAC3QiSHmiuQXArSRECdWVPZpdiHy1ILYisTpoM2lbkhGMfYTst+dPKg3Uk
+         2YNzA9bG2xt+UYVrsD+osDa4tVnEbj9/fx2um+JuegJFqnoF3tN/DckHS28/9mDeiUKH
+         S+rw==
+X-Gm-Message-State: AGi0PuZacQF4d2OrcIrF4GToP44OKaugLhcOY5L5A5gZcGPAfCf5/TtM
+        fTQAh/zNjCfFQOmm6wtSQGBlTerJf0wnBQ==
+X-Google-Smtp-Source: APiQypIOQBIVs5ISnw04Zk9zQBkuGCvCJJiflmTZODlk8ouzHa2Qa2njmzyZ8tiIwf53iS0WoxF1+fZuvI2oKA==
+X-Received: by 2002:adf:a34d:: with SMTP id d13mr3629177wrb.389.1586278554723;
+ Tue, 07 Apr 2020 09:55:54 -0700 (PDT)
+Date:   Tue,  7 Apr 2020 17:55:36 +0100
 In-Reply-To: <CAGvU0Hn2U88Dy2MEP-ZTNvfrWaKF4XL9EtR+4iF5BZ6_GW3Tvg@mail.gmail.com>
-Message-Id: <20200407165539.161505-1-gprocida@google.com>
+Message-Id: <20200407165539.161505-2-gprocida@google.com>
 Mime-Version: 1.0
 References: <CAGvU0Hn2U88Dy2MEP-ZTNvfrWaKF4XL9EtR+4iF5BZ6_GW3Tvg@mail.gmail.com>
 X-Mailer: git-send-email 2.26.0.292.g33ef6b2f38-goog
-Subject: [PATCH 0/4] backport request for use-after-free blk_mq_queue_tag_busy_iter
+Subject: [PATCH 1/4] block: more locking around delayed work
 From:   Giuliano Procida <gprocida@google.com>
 To:     greg@kroah.com
 Cc:     stable@vger.kernel.org, Giuliano Procida <gprocida@google.com>
@@ -56,22 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Here are the patches for linux-4.4.y. Untested.
+commit 287922eb0b186e2a5bf54fdd04b734c25c90035c upstream.
 
-Regards,
-Giuliano.
+The upstream commit (block: defer timeouts to a workqueue) included
+various locking changes. The original commit message did not say
+anything about the extra locking. Perhaps this is only needed for
+workqueue callbacks and not timer callbacks. We assume it is needed
+here.
 
-Giuliano Procida (4):
-  block: more locking around delayed work
-  blk-mq: Allow timeouts to run while queue is freezing
-  blk-mq: sync things with blk_mq_queue_tag_busy_iter
-  blk-mq: Allow blocking queue tag iter callbacks
+This patch includes the locking changes but leaves timeouts using a
+timer.
 
- block/blk-mq-tag.c  |  7 ++++++-
- block/blk-mq.c      | 17 +++++++++++++++++
- block/blk-timeout.c |  3 +++
- 3 files changed, 26 insertions(+), 1 deletion(-)
+Both blk_mq_rq_timer and blk_rq_timed_out_timer will return without
+without doing any work if they cannot acquire the queue (without
+waiting).
 
+Signed-off-by: Giuliano Procida <gprocida@google.com>
+---
+ block/blk-mq.c      | 4 ++++
+ block/blk-timeout.c | 3 +++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 8649dbf06ce4..11a23bf73fd9 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -628,6 +628,9 @@ static void blk_mq_rq_timer(unsigned long priv)
+ 	};
+ 	int i;
+ 
++	if (blk_queue_enter(q, GFP_NOWAIT))
++		return;
++
+ 	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &data);
+ 
+ 	if (data.next_set) {
+@@ -642,6 +645,7 @@ static void blk_mq_rq_timer(unsigned long priv)
+ 				blk_mq_tag_idle(hctx);
+ 		}
+ 	}
++	blk_queue_exit(q);
+ }
+ 
+ /*
+diff --git a/block/blk-timeout.c b/block/blk-timeout.c
+index aa40aa93381b..2bc03df554a6 100644
+--- a/block/blk-timeout.c
++++ b/block/blk-timeout.c
+@@ -134,6 +134,8 @@ void blk_rq_timed_out_timer(unsigned long data)
+ 	struct request *rq, *tmp;
+ 	int next_set = 0;
+ 
++	if (blk_queue_enter(q, GFP_NOWAIT))
++		return;
+ 	spin_lock_irqsave(q->queue_lock, flags);
+ 
+ 	list_for_each_entry_safe(rq, tmp, &q->timeout_list, timeout_list)
+@@ -143,6 +145,7 @@ void blk_rq_timed_out_timer(unsigned long data)
+ 		mod_timer(&q->timeout, round_jiffies_up(next));
+ 
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
++	blk_queue_exit(q);
+ }
+ 
+ /**
 -- 
 2.26.0.292.g33ef6b2f38-goog
 
