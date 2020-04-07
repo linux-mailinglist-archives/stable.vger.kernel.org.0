@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CD711A0B94
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 211901A0B59
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729174AbgDGK0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:26:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38686 "EHLO mail.kernel.org"
+        id S1729002AbgDGKZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729173AbgDGK0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:26:33 -0400
+        id S1728992AbgDGKZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:25:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8460F2074B;
-        Tue,  7 Apr 2020 10:26:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 214AB2078A;
+        Tue,  7 Apr 2020 10:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255193;
-        bh=TcTIBYPO0IsFQBu/ex/IOcdF3ZlY9TxybumNre7+ifU=;
+        s=default; t=1586255139;
+        bh=nekBzOBwg7MSUfjgB1WlnAg8CmwfUXUhpErEo3+ryck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uIHLE0t6VNwkNaVlmvJg9G3N85y5TYY2oZlMxNhwyuLaBPqB/M6D2eJcDYc0LawjA
-         Ks2XYE8qoEZ7NSOROrmCpvnjqhOsiLuSMmhnpbIeY8DG6cY65TKA5rhlOsrusp1k19
-         Q0KndsAw+v6tX9SPYbIgbVn+GCO7Ewi7unm49E/w=
+        b=Yc6fNzoWI3kHBDrte4ztLgPpcUjpQZYD6BgKlDxhcEywLOQZiNNDYxX2fl7BotNy2
+         rJtx92mQnTDJ8yG9edRJjUWdUFRDfMREZ7Je5UiDyeXPViWaPi2i9t7BWzitQqpPzk
+         TscHrYgpkBRlcy1kGdU4+lUpBZqemTe164Ol8BAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.6 20/29] mei: me: add cedar fork device ids
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH 5.5 46/46] padata: always acquire cpu_hotplug_lock before pinst->lock
 Date:   Tue,  7 Apr 2020 12:22:17 +0200
-Message-Id: <20200407101454.505697498@linuxfoundation.org>
+Message-Id: <20200407101504.206060352@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
-References: <20200407101452.046058399@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit 99397d33b763dc554d118aaa38cc5abc6ce985de upstream.
+commit 38228e8848cd7dd86ccb90406af32de0cad24be3 upstream.
 
-Add Cedar Fork (CDF) device ids, those belongs to the cannon point family.
+lockdep complains when padata's paths to update cpumasks via CPU hotplug
+and sysfs are both taken:
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200324210730.17672-1-tomas.winkler@intel.com
+  # echo 0 > /sys/devices/system/cpu/cpu1/online
+  # echo ff > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
+
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.4.0-rc8-padata-cpuhp-v3+ #1 Not tainted
+  ------------------------------------------------------
+  bash/205 is trying to acquire lock:
+  ffffffff8286bcd0 (cpu_hotplug_lock.rw_sem){++++}, at: padata_set_cpumask+0x2b/0x120
+
+  but task is already holding lock:
+  ffff8880001abfa0 (&pinst->lock){+.+.}, at: padata_set_cpumask+0x26/0x120
+
+  which lock already depends on the new lock.
+
+padata doesn't take cpu_hotplug_lock and pinst->lock in a consistent
+order.  Which should be first?  CPU hotplug calls into padata with
+cpu_hotplug_lock already held, so it should have priority.
+
+Fixes: 6751fb3c0e0c ("padata: Use get_online_cpus/put_online_cpus")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/hw-me-regs.h |    2 ++
- drivers/misc/mei/pci-me.c     |    2 ++
- 2 files changed, 4 insertions(+)
+ kernel/padata.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -87,6 +87,8 @@
- #define MEI_DEV_ID_CMP_H      0x06e0  /* Comet Lake H */
- #define MEI_DEV_ID_CMP_H_3    0x06e4  /* Comet Lake H 3 (iTouch) */
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -643,8 +643,8 @@ int padata_set_cpumask(struct padata_ins
+ 	struct cpumask *serial_mask, *parallel_mask;
+ 	int err = -EINVAL;
  
-+#define MEI_DEV_ID_CDF        0x18D3  /* Cedar Fork */
-+
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
+-	mutex_lock(&pinst->lock);
+ 	get_online_cpus();
++	mutex_lock(&pinst->lock);
  
- #define MEI_DEV_ID_JSP_N      0x4DE0  /* Jasper Lake Point N */
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -111,6 +111,8 @@ static const struct pci_device_id mei_me
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC, MEI_ME_PCH15_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_MCC_4, MEI_ME_PCH8_CFG)},
+ 	switch (cpumask_type) {
+ 	case PADATA_CPU_PARALLEL:
+@@ -662,8 +662,8 @@ int padata_set_cpumask(struct padata_ins
+ 	err =  __padata_set_cpumasks(pinst, parallel_mask, serial_mask);
  
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CDF, MEI_ME_PCH8_CFG)},
-+
- 	/* required last entry */
- 	{0, }
- };
+ out:
+-	put_online_cpus();
+ 	mutex_unlock(&pinst->lock);
++	put_online_cpus();
+ 
+ 	return err;
+ }
 
 
