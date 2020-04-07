@@ -2,72 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D92F1A09D2
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 11:14:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A34C1A09E1
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 11:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725883AbgDGJO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 05:14:27 -0400
-Received: from mail-lf1-f54.google.com ([209.85.167.54]:40145 "EHLO
-        mail-lf1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726562AbgDGJO1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 05:14:27 -0400
-Received: by mail-lf1-f54.google.com with SMTP id j17so1776345lfe.7
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 02:14:25 -0700 (PDT)
+        id S1726725AbgDGJRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 05:17:42 -0400
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:40853 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725883AbgDGJRm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 05:17:42 -0400
+Received: by mail-pj1-f67.google.com with SMTP id kx8so481521pjb.5
+        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 02:17:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cogentembedded-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6OtopnAAEq7RcaO3cYzbThDgjEImIu/ZUC/MK9b+8Qk=;
-        b=N9VSIZQuml59Tid/3BT8Vv4Sl3yokkoCg6reujsWc0KVmCdZMyecSp/JlJ5bRFLMfx
-         3oEg5dE+ElyxX76iOxKMp8b439iMCs5lrNXjrIO3VqB+0WP4iInZWzceXD0wNI+VqQPk
-         n8LP6LTxMSNYh6XvAAoh/2rLEUZfgWzlTbFU+ThhE+qFEcYl3fTFc99sVuIHcvh2oRVo
-         F/7Y9Lj4MEndi2rtAbUwoyLYjzu10I+wrv0GkyOXtzYsT+h2jZyY4KZUOX/q6fLO2+Sk
-         crkqYg8AcOeIXQfefQQYKJRFd3hBg5pkw0LosD1pDaBbXt8u6BEY/WXxDULmROayJbJ5
-         VwNA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=GzYQHO3dOBXVmi7ok8kgG77XkQCXHqhkBDw4+j4Oz+4=;
+        b=I7VWp4hRDCteKI+lN/nBW1Z4rrbyx/hwQxvZxL3dzXUEjKjGAWaGaEmvusPxuRgADp
+         B+tlmzUTqJ2UMRbnHAd+WSLNL7DUBmUtQmM2BXk8cx5hscf5MLNR2rNSgx13DATbhLs4
+         rrOcRkrqz7IL7sUYZ+iwOaQ/IDE8kiV2w6aMUL3DkrLAxxyMb/WjvJmuYIdsGpAyPztb
+         RZ3r2PV3RX20FI9vz+jhhPBapqpRTqzdsqf0q1aHnPeZw+EQC8iXsH3ZkWoDuQwBKY7E
+         w8PH/99xiJHKOA9VlFl512jJqM32fy2qngPwErnKrLhDzYN6R0UaCjYe+vR27Gae6x+X
+         AGyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6OtopnAAEq7RcaO3cYzbThDgjEImIu/ZUC/MK9b+8Qk=;
-        b=q+5/VORe6J3Fb+KuM+xm4B84ykssTh+IdtBV+oJpBh9k8M1TnGVeYNZp3XAuMZHHo6
-         adj+zRXvWg6Sny6FQPgn69Z7JGSyENSpUDHDDtNKoh/aXNEd8CKQKGZyupZ3vpFdBR7E
-         4ZSHe/6VctflQBQfIUO4b4Gmawu4n8utzKX6MKq7xS9ci+BN/7DEpWHnRvDKsaiJEycu
-         q9EMqlvoNVUJBgJ0993fTC2+pylsST/NSKKxmLn5inaqXE5xOroSacEhAJUQ8GAKBcCL
-         ErzLkGKQkMEFlkigZsc4bxuhN6cErn+9ADMTKsk93RVLnu+mqkH2s0U3jY/qkB9LO9zY
-         wS5w==
-X-Gm-Message-State: AGi0PuYwzCeCCAd6vQMI38axD+WX7r+FeImNRJ3qCiTqakfd6J+chs/D
-        yZUIj5JL/+lKjrYIb4AVHhz4PgjIVkrPyg==
-X-Google-Smtp-Source: APiQypJGoa7tB+BMSHzRLxg2kNe/UtYrewh2+8LZfB0dIpTElAeYYLhQvYMMPeS2DRMexOD8gZbQCw==
-X-Received: by 2002:ac2:5559:: with SMTP id l25mr936737lfk.55.1586250864387;
-        Tue, 07 Apr 2020 02:14:24 -0700 (PDT)
-Received: from ?IPv6:2a00:1fa0:46df:46e6:40f1:f0a5:2488:8311? ([2a00:1fa0:46df:46e6:40f1:f0a5:2488:8311])
-        by smtp.gmail.com with ESMTPSA id m17sm11470733ljb.61.2020.04.07.02.14.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Apr 2020 02:14:23 -0700 (PDT)
-Subject: Re: [PATCH] libata: Return correct rc status in
- sata_pmp_eh_recover_pm() pwhen ATA_DFLAG_DETACH is set
-To:     Kai-Heng Feng <kai.heng.feng@canonical.com>, axboe@kernel.dk
-Cc:     linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20190327090254.10365-1-kai.heng.feng@canonical.com>
-From:   Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Message-ID: <6c0f9cd4-13a7-3f5c-020f-2401de9e42b7@cogentembedded.com>
-Date:   Tue, 7 Apr 2020 12:14:18 +0300
-User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=GzYQHO3dOBXVmi7ok8kgG77XkQCXHqhkBDw4+j4Oz+4=;
+        b=YPmVkZHTTQ+8VCUb4IXL8vtMYPaYtp76by6EW6uwKFaFfLQaHoaMznk+xP/as+jQaR
+         /b2CHIcfhIn5KkC80pN9KxBPD6EPWophqPwdbrh1NiU2caIziYAFm//oifBU0AcDYPEL
+         Ca7+aox7KwD1BRLzVpyCQg8ITj9e+RAhabUAVfITIzdnqslTsFNEjAuoVKpHErKFqsYA
+         LmDUn3JEGS5AQyFCSeSIxu+a8lGv0CSh7pLLx3SgQWA4zEWzGmGc/Bx5AA/DDa6M5wWO
+         n20lluX5ZI4XCFH6suVzlh/MunOXvDdi01uWqpyQjAxmeQyP9AVIYWd6AyWLeQ/JmCCb
+         cSEA==
+X-Gm-Message-State: AGi0PuYXYBdxw08tJNjQkSzvqi7wiTLPzBbzmakyyHlkoHfBJwi5eXPc
+        QaHciAiiL1QPA1dYXoEqjQCHzNpwUYU=
+X-Google-Smtp-Source: APiQypJy9E362MyQjHMrWdLxw/CDS5TLn6nBKiTm0vUZ1eJZF/i6DkZYuTp3TFngpATYo62h6qlKnA==
+X-Received: by 2002:a17:902:8c94:: with SMTP id t20mr1551586plo.170.1586251060938;
+        Tue, 07 Apr 2020 02:17:40 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m7sm1085784pjb.7.2020.04.07.02.17.39
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Apr 2020 02:17:40 -0700 (PDT)
+Message-ID: <5e8c4534.1c69fb81.304e.40fa@mx.google.com>
+Date:   Tue, 07 Apr 2020 02:17:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20190327090254.10365-1-kai.heng.feng@canonical.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.114-22-g6e19c6f2d265
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 117 boots: 3 failed,
+ 108 passed with 3 offline, 2 untried/unknown,
+ 1 conflict (v4.19.114-22-g6e19c6f2d265)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+stable-rc/linux-4.19.y boot: 117 boots: 3 failed, 108 passed with 3 offline=
+, 2 untried/unknown, 1 conflict (v4.19.114-22-g6e19c6f2d265)
 
-    s/pwhen/when/ in the subject? Also, I don't think "rc" is needed there...
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.114-22-g6e19c6f2d265/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.114-22-g6e19c6f2d265/
 
-MBR, Sergei
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.114-22-g6e19c6f2d265
+Git Commit: 6e19c6f2d2653aebd7d307ec43293f579e21604f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 76 unique boards, 21 SoC families, 20 builds out of 206
+
+Boot Regressions Detected:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8:
+          omap3-beagle-xm:
+              lab-baylibre: new failure (last pass: v4.19.114-13-gb06cec087=
+43b)
+
+    omap2plus_defconfig:
+        gcc-8:
+          omap4-panda:
+              lab-baylibre: new failure (last pass: v4.19.114-13-gb06cec087=
+43b)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 58 days (last pass: v4.19=
+.101 - first fail: v4.19.102-96-g0632821fe218)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 25 days (last pass: v4.19.108-87-=
+g624c124960e8 - first fail: v4.19.109)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-axg-s400:
+              lab-baylibre-seattle: new failure (last pass: v4.19.114-13-gb=
+06cec08743b)
+
+Boot Failures Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
+            stih410-b2120: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    omap2plus_defconfig:
+        omap4-panda:
+            lab-baylibre-seattle: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
