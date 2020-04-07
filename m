@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E172F1A0BE3
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42FA51A0BC8
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728330AbgDGKW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:22:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60838 "EHLO mail.kernel.org"
+        id S1728684AbgDGKYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:24:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728327AbgDGKW6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:22:58 -0400
+        id S1728676AbgDGKYQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:24:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D8B52074F;
-        Tue,  7 Apr 2020 10:22:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E87092078A;
+        Tue,  7 Apr 2020 10:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254977;
-        bh=YOtm7zAs79v1XBoTlS89YdTT4HhPrN1rh4uVtP3fu6A=;
+        s=default; t=1586255055;
+        bh=ZRHdGGkfhDo9JmWaKIaBpioaKTS8YGwYZySmOSLLH3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WgTD3CtxnxrAP3A/EGF4gg2IKOIGi+NHFuCGPul+oFBITNy9xf4YrdEn1L3hH61h5
-         a42l41hLLPUJWDdL1xJE22UkXsr3fTld6Vb5aYtv0v/LTw7kJ/4QyVRS23J26j7vUP
-         qFgT9gYrZvatRJxQVlAqTILiC3JrIFrQ7f+qdaOA=
+        b=d049EvBRcwCb+4h6bRJicubHGC72sTVYgi4h/9uib+R/5mdrGjbw0fTSfKyV/ZRZw
+         A86DrAkaRwwF330zinHa3/Dh8Ppass5mnb68u/R/Q8kXzLw8l6op+xU4WbFct5PE7o
+         QN5JZu1nXIQ+u9V/2Yg0CSQxcEudDrEH9RWdGLtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Len Brown <len.brown@intel.com>,
+        stable@vger.kernel.org,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/36] tools/power turbostat: Fix 32-bit capabilities warning
-Date:   Tue,  7 Apr 2020 12:21:42 +0200
-Message-Id: <20200407101455.518814105@linuxfoundation.org>
+Subject: [PATCH 5.5 12/46] initramfs: restore default compression behavior
+Date:   Tue,  7 Apr 2020 12:21:43 +0200
+Message-Id: <20200407101500.825524540@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,103 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Brown <len.brown@intel.com>
+From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 
-[ Upstream commit fcaa681c03ea82193e60d7f2cdfd94fbbcd4cae9 ]
+[ Upstream commit 785d74ec3bbf26ac7f6e92e6e96a259aec0f107a ]
 
-warning: `turbostat' uses 32-bit capabilities (legacy support in use)
+Even though INITRAMFS_SOURCE kconfig option isn't set in most of
+defconfigs it is used (set) extensively by various build systems.
+Commit f26661e12765 ("initramfs: make initramfs compression choice
+non-optional") has changed default compression mode. Previously we
+compress initramfs using available compression algorithm. Now
+we don't use any compression at all by default.
+It significantly increases the image size in case of build system
+chooses embedded initramfs. Initially I faced with this issue while
+using buildroot.
 
-Signed-off-by: Len Brown <len.brown@intel.com>
+As of today it's not possible to set preferred compression mode
+in target defconfig as this option depends on INITRAMFS_SOURCE
+being set. Modification of all build systems either doesn't look
+like good option.
+
+Let's instead rewrite initramfs compression mode choices list
+the way that "INITRAMFS_COMPRESSION_NONE" will be the last option
+in the list. In that case it will be chosen only if all other
+options (which implements any compression) are not available.
+
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/turbostat/Makefile    |  2 +-
- tools/power/x86/turbostat/turbostat.c | 46 +++++++++++++++++----------
- 2 files changed, 31 insertions(+), 17 deletions(-)
+ usr/Kconfig | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/tools/power/x86/turbostat/Makefile b/tools/power/x86/turbostat/Makefile
-index 13f1e8b9ac525..2b6551269e431 100644
---- a/tools/power/x86/turbostat/Makefile
-+++ b/tools/power/x86/turbostat/Makefile
-@@ -16,7 +16,7 @@ override CFLAGS +=	-D_FORTIFY_SOURCE=2
+diff --git a/usr/Kconfig b/usr/Kconfig
+index a6b68503d1774..a80cc79722745 100644
+--- a/usr/Kconfig
++++ b/usr/Kconfig
+@@ -131,17 +131,6 @@ choice
  
- %: %.c
- 	@mkdir -p $(BUILD_OUTPUT)
--	$(CC) $(CFLAGS) $< -o $(BUILD_OUTPUT)/$@ $(LDFLAGS)
-+	$(CC) $(CFLAGS) $< -o $(BUILD_OUTPUT)/$@ $(LDFLAGS) -lcap
+ 	  If in doubt, select 'None'
  
- .PHONY : clean
- clean :
-diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
-index 17e82eaf5c4f4..988326b67a916 100644
---- a/tools/power/x86/turbostat/turbostat.c
-+++ b/tools/power/x86/turbostat/turbostat.c
-@@ -30,7 +30,7 @@
- #include <sched.h>
- #include <time.h>
- #include <cpuid.h>
--#include <linux/capability.h>
-+#include <sys/capability.h>
- #include <errno.h>
- #include <math.h>
+-config INITRAMFS_COMPRESSION_NONE
+-	bool "None"
+-	help
+-	  Do not compress the built-in initramfs at all. This may sound wasteful
+-	  in space, but, you should be aware that the built-in initramfs will be
+-	  compressed at a later stage anyways along with the rest of the kernel,
+-	  on those architectures that support this. However, not compressing the
+-	  initramfs may lead to slightly higher memory consumption during a
+-	  short time at boot, while both the cpio image and the unpacked
+-	  filesystem image will be present in memory simultaneously
+-
+ config INITRAMFS_COMPRESSION_GZIP
+ 	bool "Gzip"
+ 	depends on RD_GZIP
+@@ -214,6 +203,17 @@ config INITRAMFS_COMPRESSION_LZ4
+ 	  If you choose this, keep in mind that most distros don't provide lz4
+ 	  by default which could cause a build failure.
  
-@@ -3150,28 +3150,42 @@ void check_dev_msr()
- 			err(-5, "no /dev/cpu/0/msr, Try \"# modprobe msr\" ");
- }
- 
--void check_permissions()
-+/*
-+ * check for CAP_SYS_RAWIO
-+ * return 0 on success
-+ * return 1 on fail
-+ */
-+int check_for_cap_sys_rawio(void)
- {
--	struct __user_cap_header_struct cap_header_data;
--	cap_user_header_t cap_header = &cap_header_data;
--	struct __user_cap_data_struct cap_data_data;
--	cap_user_data_t cap_data = &cap_data_data;
--	extern int capget(cap_user_header_t hdrp, cap_user_data_t datap);
--	int do_exit = 0;
--	char pathname[32];
-+	cap_t caps;
-+	cap_flag_value_t cap_flag_value;
- 
--	/* check for CAP_SYS_RAWIO */
--	cap_header->pid = getpid();
--	cap_header->version = _LINUX_CAPABILITY_VERSION;
--	if (capget(cap_header, cap_data) < 0)
--		err(-6, "capget(2) failed");
-+	caps = cap_get_proc();
-+	if (caps == NULL)
-+		err(-6, "cap_get_proc\n");
- 
--	if ((cap_data->effective & (1 << CAP_SYS_RAWIO)) == 0) {
--		do_exit++;
-+	if (cap_get_flag(caps, CAP_SYS_RAWIO, CAP_EFFECTIVE, &cap_flag_value))
-+		err(-6, "cap_get\n");
++config INITRAMFS_COMPRESSION_NONE
++	bool "None"
++	help
++	  Do not compress the built-in initramfs at all. This may sound wasteful
++	  in space, but, you should be aware that the built-in initramfs will be
++	  compressed at a later stage anyways along with the rest of the kernel,
++	  on those architectures that support this. However, not compressing the
++	  initramfs may lead to slightly higher memory consumption during a
++	  short time at boot, while both the cpio image and the unpacked
++	  filesystem image will be present in memory simultaneously
 +
-+	if (cap_flag_value != CAP_SET) {
- 		warnx("capget(CAP_SYS_RAWIO) failed,"
- 			" try \"# setcap cap_sys_rawio=ep %s\"", progname);
-+		return 1;
- 	}
+ endchoice
  
-+	if (cap_free(caps) == -1)
-+		err(-6, "cap_free\n");
-+
-+	return 0;
-+}
-+void check_permissions(void)
-+{
-+	int do_exit = 0;
-+	char pathname[32];
-+
-+	/* check for CAP_SYS_RAWIO */
-+	do_exit += check_for_cap_sys_rawio();
-+
- 	/* test file permissions */
- 	sprintf(pathname, "/dev/cpu/%d/msr", base_cpu);
- 	if (euidaccess(pathname, R_OK)) {
+ config INITRAMFS_COMPRESSION
 -- 
 2.20.1
 
