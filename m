@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7311A0BE1
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BD211A0BC3
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728341AbgDGKXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60896 "EHLO mail.kernel.org"
+        id S1728304AbgDGK24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:28:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728336AbgDGKXA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:00 -0400
+        id S1728755AbgDGKYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:24:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 167322074F;
-        Tue,  7 Apr 2020 10:22:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 329B82082F;
+        Tue,  7 Apr 2020 10:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254979;
-        bh=xmrT11w54ApBz4oohIkiyxhRNgVs9VCTrvI+89Llllc=;
+        s=default; t=1586255077;
+        bh=IefxS/Yc5ROgBysnlD7RBJzc6vlR8Ndpi0VarpK9QKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0r9DP5/FW8qBH3/ok9vqIeBcC+clkm02C8M3+xqpP0o7hJ+fC8PsrTNaoS1/1cdek
-         xVDstaPtIbD7VdUPC3mWgT5TSqpnBO3yFTxXRhUT92XyeLF+MoZ6XCZmziYF4wNW3o
-         6JOEZYCAWjXsGEhx5kARF5GoovQvaGKEQ/AsJEOs=
+        b=CLV8S4kK7BRuHHhJPAfe68j6YzXoMOYt6pCHR9/t2l6wbNwzethD+anUKvS/6aT+R
+         1ysR60zEZ3RwtvZsCajx03P55wIdKCGaSDiXGug42pkxXLtTn4RnMv/nHmK8s7x9aX
+         zp9/0nEKOHjsXDYmxYIzy/o3P6QSFTr1TnAlYfkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kelsey Skunberg <kelsey.skunberg@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 18/36] PCI: sysfs: Revert "rescan" file renames
+        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 20/46] XArray: Fix xa_find_next for large multi-index entries
 Date:   Tue,  7 Apr 2020 12:21:51 +0200
-Message-Id: <20200407101456.738796475@linuxfoundation.org>
+Message-Id: <20200407101501.673089011@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kelsey Skunberg <kelsey.skunberg@gmail.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit bd641fd8303a371e789e924291086268256766b0 upstream.
+[ Upstream commit bd40b17ca49d7d110adf456e647701ce74de2241 ]
 
-We changed these sysfs filenames:
+Coverity pointed out that xas_sibling() was shifting xa_offset without
+promoting it to an unsigned long first, so the shift could cause an
+overflow and we'd get the wrong answer.  The fix is obvious, and the
+new test-case provokes UBSAN to report an error:
+runtime error: shift exponent 60 is too large for 32-bit type 'int'
 
-  .../pci_bus/<domain:bus>/rescan  ->  .../pci_bus/<domain:bus>/bus_rescan
-  .../<domain:bus:dev.fn>/rescan   ->  .../<domain:bus:dev.fn>/dev_rescan
-
-and Ruslan reported [1] that this broke a userspace application.
-
-Revert these name changes so both files are named "rescan" again.
-
-Note that we have to use __ATTR() to assign custom C symbols, i.e.,
-"struct device_attribute <symbol>".
-
-[1] https://lore.kernel.org/r/CAB=otbSYozS-ZfxB0nCiNnxcbqxwrHOSYxJJtDKa63KzXbXgpw@mail.gmail.com
-
-[bhelgaas: commit log, use __ATTR() both places so we don't have to rename
-the attributes]
-Fixes: 8bdfa145f582 ("PCI: sysfs: Define device attributes with DEVICE_ATTR*()")
-Fixes: 4e2b79436e4f ("PCI: sysfs: Change DEVICE_ATTR() to DEVICE_ATTR_WO()")
-Link: https://lore.kernel.org/r/20200325151708.32612-1-skunberg.kelsey@gmail.com
-Signed-off-by: Kelsey Skunberg <kelsey.skunberg@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org	# v5.4+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 19c30f4dd092 ("XArray: Fix xa_find_after with multi-index entries")
+Reported-by: Bjorn Helgaas <bhelgaas@google.com>
+Reported-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-sysfs.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ lib/test_xarray.c | 18 ++++++++++++++++++
+ lib/xarray.c      |  3 ++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -464,7 +464,8 @@ static ssize_t dev_rescan_store(struct d
- 	}
- 	return count;
- }
--static DEVICE_ATTR_WO(dev_rescan);
-+static struct device_attribute dev_attr_dev_rescan = __ATTR(rescan, 0200, NULL,
-+							    dev_rescan_store);
+diff --git a/lib/test_xarray.c b/lib/test_xarray.c
+index 55c14e8c88591..8c7d7a8468b88 100644
+--- a/lib/test_xarray.c
++++ b/lib/test_xarray.c
+@@ -12,6 +12,9 @@
+ static unsigned int tests_run;
+ static unsigned int tests_passed;
  
- static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
- 			    const char *buf, size_t count)
-@@ -501,7 +502,8 @@ static ssize_t bus_rescan_store(struct d
++static const unsigned int order_limit =
++		IS_ENABLED(CONFIG_XARRAY_MULTI) ? BITS_PER_LONG : 1;
++
+ #ifndef XA_DEBUG
+ # ifdef __KERNEL__
+ void xa_dump(const struct xarray *xa) { }
+@@ -959,6 +962,20 @@ static noinline void check_multi_find_2(struct xarray *xa)
  	}
- 	return count;
  }
--static DEVICE_ATTR_WO(bus_rescan);
-+static struct device_attribute dev_attr_bus_rescan = __ATTR(rescan, 0200, NULL,
-+							    bus_rescan_store);
  
- #if defined(CONFIG_PM) && defined(CONFIG_ACPI)
- static ssize_t d3cold_allowed_store(struct device *dev,
++static noinline void check_multi_find_3(struct xarray *xa)
++{
++	unsigned int order;
++
++	for (order = 5; order < order_limit; order++) {
++		unsigned long index = 1UL << (order - 5);
++
++		XA_BUG_ON(xa, !xa_empty(xa));
++		xa_store_order(xa, 0, order - 4, xa_mk_index(0), GFP_KERNEL);
++		XA_BUG_ON(xa, xa_find_after(xa, &index, ULONG_MAX, XA_PRESENT));
++		xa_erase_index(xa, 0);
++	}
++}
++
+ static noinline void check_find_1(struct xarray *xa)
+ {
+ 	unsigned long i, j, k;
+@@ -1081,6 +1098,7 @@ static noinline void check_find(struct xarray *xa)
+ 	for (i = 2; i < 10; i++)
+ 		check_multi_find_1(xa, i);
+ 	check_multi_find_2(xa);
++	check_multi_find_3(xa);
+ }
+ 
+ /* See find_swap_entry() in mm/shmem.c */
+diff --git a/lib/xarray.c b/lib/xarray.c
+index 1d9fab7db8dad..acd1fad2e862a 100644
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -1839,7 +1839,8 @@ static bool xas_sibling(struct xa_state *xas)
+ 	if (!node)
+ 		return false;
+ 	mask = (XA_CHUNK_SIZE << node->shift) - 1;
+-	return (xas->xa_index & mask) > (xas->xa_offset << node->shift);
++	return (xas->xa_index & mask) >
++		((unsigned long)xas->xa_offset << node->shift);
+ }
+ 
+ /**
+-- 
+2.20.1
+
 
 
