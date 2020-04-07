@@ -2,110 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 083961A123C
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 18:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B77841A128C
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 19:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726444AbgDGQ4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 12:56:07 -0400
-Received: from mail-wm1-f73.google.com ([209.85.128.73]:55375 "EHLO
-        mail-wm1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726403AbgDGQ4H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 12:56:07 -0400
-Received: by mail-wm1-f73.google.com with SMTP id e16so1177736wmh.5
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 09:56:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=ICm9U3yZy/Ev7sKd+9OKUZakrAzUhKVeWWqfMgFPpQM=;
-        b=u/G+YiNz49YGzK/BWekqu7/L+5x8hBQe4fOW269mekCs0smq/nKvp+aMATTpJrwXzz
-         JGUr+KOKCk0krNm9hrHabeX9xFYirsA3qmgmJzn9a/PKA2+s6RBdWtsVFnMmKBGI598L
-         Q+fPl8PqQc1EwYjO2p91pmK9HFErg8KFUVzqzJsJuPnfIFvA+1lQ6rd57oCoijq05YjK
-         YftHq0k7+GltRRPoQ3BWdaaFfBNnrI82ZlGm0i2GaFXQK/1mlLCb/uBeZdABl/fWC/Cs
-         jkvUdQSjwHkQrquj6jMVJw2qVJ1tyd5PCo1OcRGNRM9eZpXq1jqhASQ9nu+a5xmUciIr
-         qQmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=ICm9U3yZy/Ev7sKd+9OKUZakrAzUhKVeWWqfMgFPpQM=;
-        b=SMZZPrgqKbREonfAJsZ3CeKEyxgVjH2W5uxjulyuqcK7p45b+ToKDfpxSvTPbvergt
-         DZ9cMVAAk+6fMARCJy6KmUcHL5X1aNZP8LF1V2hWz7RuqvR0tSjpqV5n3Cz6PpKVVAMN
-         RMDZ2sxsqfgOfRs9hZmprowrSU04PGpodEpx5WPy0S6QchHyBtGjE0AtrxXxXxU73vrr
-         xaCZE0ubgVeFQ9x6klTaC0tyQMEDP+sVXG+BBSVO6X45utsV48Tm58gTU+biUROf2i6z
-         E6FPTR7L/qXkSpDSx6iQxZGKpuJi9DHM9SAX/5X+sFvT9zVxVlJEQQ4zNol/mxh23LBs
-         V+Ow==
-X-Gm-Message-State: AGi0Pub7CCkBedeGNVEUlbYUw3OHvlhqcHUPPhaPO45zXaVL7eWNsErT
-        5KJz5X3NIXgijvoQLOEM5GMkF7mNb2nhlg==
-X-Google-Smtp-Source: APiQypKonT8sho7Fm5zQdHqP0SBns9B7Ah7mj/M/pcKg3iVfFFO2RoYl+SsxwPmpegFIhyxVhG0l2WEz7v7hlw==
-X-Received: by 2002:a5d:670f:: with SMTP id o15mr3669283wru.120.1586278564132;
- Tue, 07 Apr 2020 09:56:04 -0700 (PDT)
-Date:   Tue,  7 Apr 2020 17:55:39 +0100
-In-Reply-To: <CAGvU0Hn2U88Dy2MEP-ZTNvfrWaKF4XL9EtR+4iF5BZ6_GW3Tvg@mail.gmail.com>
-Message-Id: <20200407165539.161505-5-gprocida@google.com>
-Mime-Version: 1.0
-References: <CAGvU0Hn2U88Dy2MEP-ZTNvfrWaKF4XL9EtR+4iF5BZ6_GW3Tvg@mail.gmail.com>
-X-Mailer: git-send-email 2.26.0.292.g33ef6b2f38-goog
-Subject: [PATCH 4/4] blk-mq: Allow blocking queue tag iter callbacks
-From:   Giuliano Procida <gprocida@google.com>
-To:     greg@kroah.com
-Cc:     stable@vger.kernel.org, Giuliano Procida <gprocida@google.com>,
-        Jianchao Wang <jianchao.w.wang@oracle.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Jens Axboe <axboe@kernel.dk>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726483AbgDGRVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 13:21:46 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:33198 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726420AbgDGRVp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 13:21:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586280104;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Ucz9SaukjNH3KUxwG/Jha1WYhwEEYPbGhMm7KfE+q1I=;
+        b=ijEEfrwZZy1EKrsIXNBa28URouY2YagDhpOab19jfaQU7d2OzSx75soxG848DTDE5Ruifb
+        49dOxxfHAqUtnfld/YXgTNWplCoH8sg7EWw5TYMT6KkKvex+1KhWpXwZucCKyvrfaSTf6+
+        /twzfV852ceSRRwBEKGWegGM1fJajyA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-98-ADR7zu3nM5GZthsQxUQV7w-1; Tue, 07 Apr 2020 13:21:43 -0400
+X-MC-Unique: ADR7zu3nM5GZthsQxUQV7w-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ABC8D107ACCD;
+        Tue,  7 Apr 2020 17:21:41 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-115-142.rdu2.redhat.com [10.10.115.142])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8800D5DA60;
+        Tue,  7 Apr 2020 17:21:41 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 0A9B6220604; Tue,  7 Apr 2020 13:21:41 -0400 (EDT)
+Date:   Tue, 7 Apr 2020 13:21:40 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Andy Lutomirski <luto@amacapital.net>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+Message-ID: <20200407172140.GB64635@redhat.com>
+References: <6875DD55-2408-4216-B32A-9487A4FDEFD8@amacapital.net>
+ <FFD7EE84-05FB-46E4-8CA5-18DD49081B5B@amacapital.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <FFD7EE84-05FB-46E4-8CA5-18DD49081B5B@amacapital.net>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 530ca2c9bd6949c72c9b5cfc330cb3dbccaa3f5b upstream.
+On Mon, Apr 06, 2020 at 01:42:28PM -0700, Andy Lutomirski wrote:
+>=20
+> > On Apr 6, 2020, at 1:32 PM, Andy Lutomirski <luto@amacapital.net> wro=
+te:
+> >=20
+> > =EF=BB=BF
+> >> On Apr 6, 2020, at 1:25 PM, Peter Zijlstra <peterz@infradead.org> wr=
+ote:
+> >>=20
+> >> =EF=BB=BFOn Mon, Apr 06, 2020 at 03:09:51PM -0400, Vivek Goyal wrote=
+:
+> >>>> On Mon, Mar 09, 2020 at 09:22:15PM +0100, Peter Zijlstra wrote:
+> >>>>> On Mon, Mar 09, 2020 at 08:05:18PM +0100, Thomas Gleixner wrote:
+> >>>>>> Andy Lutomirski <luto@kernel.org> writes:
+> >>>>>=20
+> >>>>>>> I'm okay with the save/restore dance, I guess.  It's just yet m=
+ore
+> >>>>>>> entry crud to deal with architecture nastiness, except that thi=
+s
+> >>>>>>> nastiness is 100% software and isn't Intel/AMD's fault.
+> >>>>>>=20
+> >>>>>> And we can do it in C and don't have to fiddle with it in the AS=
+M
+> >>>>>> maze.
+> >>>>>=20
+> >>>>> Right; I'd still love to kill KVM_ASYNC_PF_SEND_ALWAYS though, ev=
+en if
+> >>>>> we do the save/restore in do_nmi(). That is some wild brain melt.=
+ Also,
+> >>>>> AFAIK none of the distros are actually shipping a PREEMPT=3Dy ker=
+nel
+> >>>>> anyway, so killing it shouldn't matter much.
+> >>>=20
+> >>> It will be nice if we can retain KVM_ASYNC_PF_SEND_ALWAYS. I have a=
+nother
+> >>> use case outside CONFIG_PREEMPT.
+> >>>=20
+> >>> I am trying to extend async pf interface to also report page fault =
+errors
+> >>> to the guest.
+> >>=20
+> >> Then please start over and design a sane ParaVirt Fault interface. T=
+he
+> >> current one is utter crap.
+> >=20
+> > Agreed. Don=E2=80=99t extend the current mechanism. Replace it.
+> >=20
+> > I would be happy to review a replacement. I=E2=80=99m not really exci=
+ted to review an extension of the current mess.  The current thing is bar=
+ely, if at all, correct.
+>=20
+> I read your patch. It cannot possibly be correct.  You need to decide w=
+hat happens if you get a memory failure when guest interrupts are off. If=
+ this happens, you can=E2=80=99t send #PF, but you also can=E2=80=99t jus=
+t swallow the error. The existing APF code is so messy that it=E2=80=99s =
+not at all obvious what your code ends up doing, but I=E2=80=99m pretty s=
+ure it doesn=E2=80=99t do anything sensible, especially since the ABI doe=
+sn=E2=80=99t have a sensible option.
 
-This change is a back-ported fix to the back-port of f5bbbbe4d6357,
-a439abbd6e707232b1f399e6df1a85ace42e8f9f.
+Hi Andy,
 
-A recent commit runs tag iterator callbacks under the rcu read lock,
-but existing callbacks do not satisfy the non-blocking requirement.
-The commit intended to prevent an iterator from accessing a queue that's
-being modified. This patch fixes the original issue by taking a queue
-reference instead of reading it, which allows callbacks to make blocking
-calls.
+I am not familiar with this KVM code and trying to understand it. I think
+error exception gets queued and gets delivered at some point of time, eve=
+n
+if interrupts are disabled at the time of exception. Most likely at the t=
+ime
+of next VM entry.
 
-Fixes: f5bbbbe4d6357 ("blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter")
-Acked-by: Jianchao Wang <jianchao.w.wang@oracle.com>
-Signed-off-by: Keith Busch <keith.busch@intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Giuliano Procida <gprocida@google.com>
----
- block/blk-mq-tag.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+Whether interrupts are enabled or not check only happens before we decide
+if async pf protocol should be followed or not. Once we decide to
+send PAGE_NOT_PRESENT, later notification PAGE_READY does not check
+if interrupts are enabled or not. And it kind of makes sense otherwise
+guest process will wait infinitely to receive PAGE_READY.
 
-diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
-index bf356de30134..c1c654319287 100644
---- a/block/blk-mq-tag.c
-+++ b/block/blk-mq-tag.c
-@@ -484,11 +484,8 @@ void blk_mq_queue_tag_busy_iter(struct request_queue *q, busy_iter_fn *fn,
- 	/*
- 	 * Avoid potential races with things like queue removal.
- 	 */
--	rcu_read_lock();
--	if (percpu_ref_is_zero(&q->q_usage_counter)) {
--		rcu_read_unlock();
-+	if (!percpu_ref_tryget(&q->q_usage_counter))
- 		return;
--	}
- 
- 	queue_for_each_hw_ctx(q, hctx, i) {
- 		struct blk_mq_tags *tags = hctx->tags;
-@@ -505,7 +502,7 @@ void blk_mq_queue_tag_busy_iter(struct request_queue *q, busy_iter_fn *fn,
- 		bt_for_each(hctx, &tags->bitmap_tags, tags->nr_reserved_tags, fn, priv,
- 		      false);
- 	}
--	rcu_read_unlock();
-+	blk_queue_exit(q);
- }
- 
- static unsigned int bt_unused_tags(struct blk_mq_bitmap_tags *bt)
--- 
-2.26.0.292.g33ef6b2f38-goog
+I modified the code a bit to disable interrupt and wait 10 seconds (after
+getting PAGE_NOT_PRESENT message). And I noticed that error async pf
+got delivered after 10 seconds after enabling interrupts. So error
+async pf was not lost because interrupts were disabled.
+
+Havind said that, I thought disabling interrupts does not mask exceptions=
+.
+So page fault exception should have been delivered even with interrupts
+disabled. Is that correct? May be there was no vm exit/entry during
+those 10 seconds and that's why.
+
+Thanks
+Vivek
 
