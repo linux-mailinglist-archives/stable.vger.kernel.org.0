@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 125501A0AFD
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:22:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 875D21A0BBB
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728266AbgDGKWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:22:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60462 "EHLO mail.kernel.org"
+        id S1728866AbgDGKZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728255AbgDGKWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:22:45 -0400
+        id S1728843AbgDGKZF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:25:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69BF32074F;
-        Tue,  7 Apr 2020 10:22:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85C4820644;
+        Tue,  7 Apr 2020 10:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586254964;
-        bh=JZKbPbuU2UHbrb6VuFFKYu3d0IBGpuh9U6WpdN5Q95o=;
+        s=default; t=1586255105;
+        bh=Fs02QOeqFeunLDhAhOWC8FGhC42gEBQwFYKZQ5UAcC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkVZFRCSAaIXxDSQ4nk2O6uiS+1h+CGqyM0boZev8rJvOyqKZO4f8hCFpb3AM4KOy
-         vac7EmXppem49t1R0t7EcOzXsOruhOAZS6TKC8NnOJK1izltV3jKZad01bN2Pyu2Pc
-         7kf47JntV6NncoTrMtVheC/QIalsQV+LV6E5aMtg=
+        b=Ah5OOGzKCvaOOTCZmFdvapXOu8pnIaRaSR2cv8yPfuvLJETfcFMfJZkO2Z7wHYxQD
+         aG+PieNbP+bPwszG3AXemGhIy7GTpWnFp6CwvtFVCbIjF9wVf3qZKjAE+PhMVv3O+x
+         5lrbyNL9AHjsMiIIkgHinzCDg8vQb7TDuumH03rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Roland Dreier <roland@purestorage.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Prabhath Sajeepa <psajeepa@purestorage.com>,
+        Keith Busch <kbusch@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/36] drm/bochs: downgrade pci_request_region failure from error to warning
-Date:   Tue,  7 Apr 2020 12:21:37 +0200
-Message-Id: <20200407101454.837793251@linuxfoundation.org>
+Subject: [PATCH 5.5 07/46] nvme-rdma: Avoid double freeing of async event data
+Date:   Tue,  7 Apr 2020 12:21:38 +0200
+Message-Id: <20200407101500.273308750@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Prabhath Sajeepa <psajeepa@purestorage.com>
 
-[ Upstream commit 8c34cd1a7f089dc03933289c5d4a4d1489549828 ]
+[ Upstream commit 9134ae2a2546cb96abddcd4469a79c77ee3a4480 ]
 
-Shutdown of firmware framebuffer has a bunch of problems.  Because
-of this the framebuffer region might still be reserved even after
-drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
+The timeout of identify cmd, which is invoked as part of admin queue
+creation, can result in freeing of async event data both in
+nvme_rdma_timeout handler and error handling path of
+nvme_rdma_configure_admin queue thus causing NULL pointer reference.
+Call Trace:
+ ? nvme_rdma_setup_ctrl+0x223/0x800 [nvme_rdma]
+ nvme_rdma_create_ctrl+0x2ba/0x3f7 [nvme_rdma]
+ nvmf_dev_write+0xa54/0xcc6 [nvme_fabrics]
+ __vfs_write+0x1b/0x40
+ vfs_write+0xb2/0x1b0
+ ksys_write+0x61/0xd0
+ __x64_sys_write+0x1a/0x20
+ do_syscall_64+0x60/0x1e0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Don't consider pci_request_region() failure for the framebuffer
-region as fatal error to workaround this issue.
-
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Link: http://patchwork.freedesktop.org/patch/msgid/20200313084152.2734-1-kraxel@redhat.com
+Reviewed-by: Roland Dreier <roland@purestorage.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Prabhath Sajeepa <psajeepa@purestorage.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/nvme/host/rdma.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-index e567bdfa2ab8e..bb1391784caf0 100644
---- a/drivers/gpu/drm/bochs/bochs_hw.c
-+++ b/drivers/gpu/drm/bochs/bochs_hw.c
-@@ -156,10 +156,8 @@ int bochs_hw_init(struct drm_device *dev)
- 		size = min(size, mem);
- 	}
- 
--	if (pci_request_region(pdev, 0, "bochs-drm") != 0) {
--		DRM_ERROR("Cannot request framebuffer\n");
--		return -EBUSY;
--	}
-+	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
-+		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
- 
- 	bochs->fb_map = ioremap(addr, size);
- 	if (bochs->fb_map == NULL) {
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 3e85c5cacefd2..0fe08c4dfd2f1 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -850,9 +850,11 @@ out_free_tagset:
+ 	if (new)
+ 		blk_mq_free_tag_set(ctrl->ctrl.admin_tagset);
+ out_free_async_qe:
+-	nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
+-		sizeof(struct nvme_command), DMA_TO_DEVICE);
+-	ctrl->async_event_sqe.data = NULL;
++	if (ctrl->async_event_sqe.data) {
++		nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
++			sizeof(struct nvme_command), DMA_TO_DEVICE);
++		ctrl->async_event_sqe.data = NULL;
++	}
+ out_free_queue:
+ 	nvme_rdma_free_queue(&ctrl->queues[0]);
+ 	return error;
 -- 
 2.20.1
 
