@@ -2,67 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D14C01A073A
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 08:26:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DF0C1A0774
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 08:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726934AbgDGG05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 02:26:57 -0400
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:50930 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726030AbgDGG05 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 02:26:57 -0400
-Received: by mail-pj1-f66.google.com with SMTP id v13so322508pjb.0
-        for <stable@vger.kernel.org>; Mon, 06 Apr 2020 23:26:56 -0700 (PDT)
+        id S1727226AbgDGGkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 02:40:16 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:37636 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726030AbgDGGkQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 02:40:16 -0400
+Received: by mail-pg1-f195.google.com with SMTP id r4so1253857pgg.4;
+        Mon, 06 Apr 2020 23:40:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=FS3G1ShJi4gT+C9XSPET6pEmKQVhbKi/xe3AKM9kl8w=;
-        b=bXvWxkwXOmKX7rm5V1HV3/fLIaJsQr8J9tmjlso+Ymj3CFEJ4s1Rv/YjoU0eNG22qA
-         qRs6SkIEPX/ePAop6EsyCXLKMfIJILpx/RA7dDXkHJSwvEjWVubodE1z4+C5df+0rpRi
-         IUmpe+clg9+jFKUEj8KhSCO+HHaCvufeFQIhh0lfc12VnAIzajgiVj8Apt99tfHoB3w/
-         6ADR5chtjI17Gc6L1Ep0cTrpSsQHCDlnjpUA798fQhSCXQgtkvmxr1dZHCBIea98Tjdo
-         7IMkRSMUxX+zRlLkU7Am57ec0H7yKQa+I4qDc6PuKuyw9K2f2onMZ6vt5xGOoxtEv6/M
-         yHEg==
+        bh=Fm6LJDmH7DpHAZWmJ7CtgnKu1qV4Pl1oU9w/s7UYiNc=;
+        b=r6Vz6eOsIhiT8PYQV8Gm/1nhdDnr4xPfN2AsBulNfdQV2EuHeBoN1SaNeghGd18hJq
+         SK8sySk68JNsgKq2JRu9Sgcy12RM/eOCPJR/OFAZT00pCWL5NIpbr962vB/PYssRmrzL
+         4HioGlTsN+xvZi1SPdgwh8gyNuj9PuaSsGKhw/CGtc+X3a56zIyxtTWIfabxPhsv8kbe
+         hhot1TxStK//JND9f/WXrjfIT1WpRUT2HKs6aBKWpJfXn3Vk3B0SYN4jHi79rVZzqB4e
+         udLTtfxKTRdyjVo3hSKxYLZNKQdV+9aDTFQayZMGGCDpQCJ+oR9oW9J8KqutdW43xWYZ
+         iaVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=FS3G1ShJi4gT+C9XSPET6pEmKQVhbKi/xe3AKM9kl8w=;
-        b=oA+NypsggtiwJmF1E1PJrIuLdBoE5ZcAw5OU36Un6UWlr6NWpS0VwWue18swSDto7L
-         7Hpw/q9vUSffvvkqYzAAP4As3QAwo2pRxL7SxW6nfpr2FBK92RrHKyQ95HUNK8uHR1Tl
-         yxvA9p5uRDdywf46DcnRfZlbT8QNHxnU1jLs3W2qnHeNRysbEa5OmbOvb9iqqqFv2+xW
-         tHF8P8KlIKUVST2dGmYF9C44up/qBgk7DmtURKFK9ECb17/gQxM5nRFFyDeDsZLG8nqt
-         zfifQzeEPcDWaMiuuQQrXSwr4IU/PJ8vTVgU+nCVS7NnOFeON2Eepe8RngBDXujAXSVJ
-         wQ7Q==
-X-Gm-Message-State: AGi0PuZaSWh8uGf+uyK4gElImSTwZa1YwA4dCAH14mFU1q9p5inCZR1C
-        zncSc6BKygXMqoFj6Z93nNCb411x
-X-Google-Smtp-Source: APiQypK1PqINDyWz56vaHNvXf6vjIo+mGPsFkDoaQZB7V6S9EmcS6z0cOWlFaJFhAz9DF8fNwnkUNQ==
-X-Received: by 2002:a17:90a:1acd:: with SMTP id p71mr988655pjp.112.1586240815477;
-        Mon, 06 Apr 2020 23:26:55 -0700 (PDT)
+        bh=Fm6LJDmH7DpHAZWmJ7CtgnKu1qV4Pl1oU9w/s7UYiNc=;
+        b=mFUlHyIJNOkJO6shh5P62pHcbvES2UXBjY1/6XaXWA5TsH0jPrIHTrQ2MpvyBNvDjp
+         ljYI8tiucOEfsv3ARDYCYm4JUSSTDj2T2aj6l3284mTOE9WTHnrL1meXrGMAoNpUJMPp
+         opkY1/XQko4puSMQWx/3oiAxO5Np0aROA6+SUkqOl9ODN3ZouHbQ5bfvC8LvY6WjORaj
+         dJDWvIybaOh2oX9pDPaHDzNaWBYZDMUtmqS+KMnigle3zhqjK48JYE3uIz15rHDvhBRT
+         2l8WVn185YyMo9PS59waQSIax5T57iRrRgja7VO/oTthehkBidZXGNBXaj7Sr2mbnbLF
+         gANg==
+X-Gm-Message-State: AGi0PuYo/lEi1dQu2uNRkJzTrTWst7MVlbO59nnSLqFOgTCtrZyGE8KJ
+        wSUk8tCY4HqSdO8EHyJWmLSt6p/z
+X-Google-Smtp-Source: APiQypK1+hQ+hBZG9UWboAxuUmwj3dA4Mm9U1VZjA5ind4vIZ1SgCpnzksadtHZegrQLLMp/J3Vo+A==
+X-Received: by 2002:a63:4c21:: with SMTP id z33mr553131pga.359.1586241614715;
+        Mon, 06 Apr 2020 23:40:14 -0700 (PDT)
 Received: from sultan-box.localdomain (static-198-54-129-52.cust.tzulo.com. [198.54.129.52])
-        by smtp.gmail.com with ESMTPSA id y9sm13554620pfo.135.2020.04.06.23.26.53
+        by smtp.gmail.com with ESMTPSA id iq23sm703764pjb.18.2020.04.06.23.40.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Apr 2020 23:26:54 -0700 (PDT)
+        Mon, 06 Apr 2020 23:40:14 -0700 (PDT)
 From:   Sultan Alsawaf <sultan@kerneltoast.com>
 X-Google-Original-From: Sultan Alsawaf
-To:     stable@vger.kernel.org
-Cc:     Jani Nikula <jani.nikula@linux.intel.com>,
+Cc:     Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org,
+        Jani Nikula <jani.nikula@linux.intel.com>,
         Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>,
         David Airlie <airlied@linux.ie>,
         Daniel Vetter <daniel@ffwll.ch>,
         Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.auld@intel.com>,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        Sultan Alsawaf <sultan@kerneltoast.com>
-Subject: [PATCH 1/1] drm/i915: Fix ref->mutex deadlock in i915_active_wait()
-Date:   Mon,  6 Apr 2020 23:26:22 -0700
-Message-Id: <20200407062622.6443-2-sultan@kerneltoast.com>
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v4] drm/i915: Synchronize active and retire callbacks
+Date:   Mon,  6 Apr 2020 23:40:06 -0700
+Message-Id: <20200407064007.7599-1-sultan@kerneltoast.com>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407062622.6443-1-sultan@kerneltoast.com>
-References: <20200407062622.6443-1-sultan@kerneltoast.com>
+In-Reply-To: <20200404024156.GA10382@sultan-box.localdomain>
+References: <20200404024156.GA10382@sultan-box.localdomain>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -70,126 +72,195 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-The following deadlock exists in i915_active_wait() due to a double lock
-on ref->mutex (call chain listed in order from top to bottom):
- i915_active_wait();
- mutex_lock_interruptible(&ref->mutex); <-- ref->mutex first acquired
- i915_active_request_retire();
- node_retire();
- active_retire();
- mutex_lock_nested(&ref->mutex, SINGLE_DEPTH_NESTING); <-- DEADLOCK
+Active and retire callbacks can run simultaneously, causing panics and
+mayhem. The most notable case is with the intel_context_pin/unpin race
+that causes ring and page table corruption. In 5.4, this race is more
+noticeable because intel_ring_unpin() sets ring->vaddr to NULL and
+causes a clean NULL-pointer-dereference panic, but in newer kernels this
+race goes unnoticed.
 
-Fix the deadlock by skipping the second ref->mutex lock when
-active_retire() is called through i915_active_request_retire().
+Here is an example of a crash caused by this race on 5.4:
+BUG: unable to handle page fault for address: 0000000000003448
+RIP: 0010:gen8_emit_flush_render+0x163/0x190
+Call Trace:
+ execlists_request_alloc+0x25/0x40
+ __i915_request_create+0x1f4/0x2c0
+ i915_request_create+0x71/0xc0
+ i915_gem_do_execbuffer+0xb98/0x1a80
+ ? preempt_count_add+0x68/0xa0
+ ? _raw_spin_lock+0x13/0x30
+ ? _raw_spin_unlock+0x16/0x30
+ i915_gem_execbuffer2_ioctl+0x1de/0x3c0
+ ? i915_gem_busy_ioctl+0x7f/0x1d0
+ ? i915_gem_execbuffer_ioctl+0x2d0/0x2d0
+ drm_ioctl_kernel+0xb2/0x100
+ drm_ioctl+0x209/0x360
+ ? i915_gem_execbuffer_ioctl+0x2d0/0x2d0
+ ksys_ioctl+0x87/0xc0
+ __x64_sys_ioctl+0x16/0x20
+ do_syscall_64+0x4e/0x150
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Protect the active and retire callbacks with their own lock to prevent
+them from running at the same time as one another.
 
 Fixes: 12c255b5dad1 ("drm/i915: Provide an i915_active.acquire callback")
-Cc: <stable@vger.kernel.org> # 5.4.x
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
 ---
- drivers/gpu/drm/i915/i915_active.c | 27 +++++++++++++++++++++++----
- drivers/gpu/drm/i915/i915_active.h |  4 ++--
- 2 files changed, 25 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/i915/i915_active.c       | 52 ++++++++++++++++++++----
+ drivers/gpu/drm/i915/i915_active.h       | 10 ++---
+ drivers/gpu/drm/i915/i915_active_types.h |  2 +
+ 3 files changed, 50 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/i915_active.c b/drivers/gpu/drm/i915/i915_active.c
-index 48e16ad93bbd..cfc77c08a273 100644
+index b0a499753526..5802233f71ec 100644
 --- a/drivers/gpu/drm/i915/i915_active.c
 +++ b/drivers/gpu/drm/i915/i915_active.c
-@@ -120,13 +120,17 @@ static inline void debug_active_assert(struct i915_active *ref) { }
+@@ -147,8 +147,22 @@ __active_retire(struct i915_active *ref)
+ 	spin_unlock_irqrestore(&ref->tree_lock, flags);
  
+ 	/* After the final retire, the entire struct may be freed */
+-	if (ref->retire)
+-		ref->retire(ref);
++	if (ref->retire) {
++		if (ref->active) {
++			bool freed = false;
++
++			/* Don't race with the active callback, and avoid UaF */
++			down_write(&ref->rwsem);
++			ref->freed = &freed;
++			ref->retire(ref);
++			if (!freed) {
++				ref->freed = NULL;
++				up_write(&ref->rwsem);
++			}
++		} else {
++			ref->retire(ref);
++		}
++	}
+ 
+ 	/* ... except if you wait on it, you must manage your own references! */
+ 	wake_up_var(ref);
+@@ -278,7 +292,8 @@ void __i915_active_init(struct i915_active *ref,
+ 			int (*active)(struct i915_active *ref),
+ 			void (*retire)(struct i915_active *ref),
+ 			struct lock_class_key *mkey,
+-			struct lock_class_key *wkey)
++			struct lock_class_key *wkey,
++			struct lock_class_key *rkey)
+ {
+ 	unsigned long bits;
+ 
+@@ -287,8 +302,13 @@ void __i915_active_init(struct i915_active *ref,
+ 	ref->flags = 0;
+ 	ref->active = active;
+ 	ref->retire = ptr_unpack_bits(retire, &bits, 2);
+-	if (bits & I915_ACTIVE_MAY_SLEEP)
++	ref->freed = NULL;
++	if (ref->active && ref->retire) {
++		__init_rwsem(&ref->rwsem, "i915_active.rwsem", rkey);
+ 		ref->flags |= I915_ACTIVE_RETIRE_SLEEPS;
++	} else if (bits & I915_ACTIVE_MAY_SLEEP) {
++		ref->flags |= I915_ACTIVE_RETIRE_SLEEPS;
++	}
+ 
+ 	spin_lock_init(&ref->tree_lock);
+ 	ref->tree = RB_ROOT;
+@@ -417,8 +437,20 @@ int i915_active_acquire(struct i915_active *ref)
+ 		return err;
+ 
+ 	if (likely(!i915_active_acquire_if_busy(ref))) {
+-		if (ref->active)
+-			err = ref->active(ref);
++		if (ref->active) {
++			if (ref->retire) {
++				/*
++				 * This can be a recursive call, and the mutex
++				 * above already protects from concurrent active
++				 * callbacks, so a read lock fits best.
++				 */
++				down_read(&ref->rwsem);
++				err = ref->active(ref);
++				up_read(&ref->rwsem);
++			} else {
++				err = ref->active(ref);
++			}
++		}
+ 		if (!err) {
+ 			spin_lock_irq(&ref->tree_lock); /* __active_retire() */
+ 			debug_active_activate(ref);
+@@ -502,16 +534,20 @@ int i915_request_await_active(struct i915_request *rq, struct i915_active *ref)
+ 	return err;
+ }
+ 
+-#if IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM)
+ void i915_active_fini(struct i915_active *ref)
+ {
++	if (ref->freed) {
++		*ref->freed = true;
++		up_write(&ref->rwsem);
++	}
++#if IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM)
+ 	debug_active_fini(ref);
+ 	GEM_BUG_ON(atomic_read(&ref->count));
+ 	GEM_BUG_ON(work_pending(&ref->work));
+ 	GEM_BUG_ON(!RB_EMPTY_ROOT(&ref->tree));
+ 	mutex_destroy(&ref->mutex);
+-}
  #endif
- 
-+#define I915_ACTIVE_RETIRE_NOLOCK BIT(0)
-+
- static void
- __active_retire(struct i915_active *ref)
- {
- 	struct active_node *it, *n;
- 	struct rb_root root;
- 	bool retire = false;
-+	unsigned long bits;
- 
-+	ref = ptr_unpack_bits(ref, &bits, 2);
- 	lockdep_assert_held(&ref->mutex);
- 
- 	/* return the unused nodes to our slabcache -- flushing the allocator */
-@@ -138,7 +142,8 @@ __active_retire(struct i915_active *ref)
- 		retire = true;
- 	}
- 
--	mutex_unlock(&ref->mutex);
-+	if (!(bits & I915_ACTIVE_RETIRE_NOLOCK))
-+		mutex_unlock(&ref->mutex);
- 	if (!retire)
- 		return;
- 
-@@ -155,13 +160,18 @@ __active_retire(struct i915_active *ref)
- static void
- active_retire(struct i915_active *ref)
- {
-+	struct i915_active *ref_packed = ref;
-+	unsigned long bits;
-+
-+	ref = ptr_unpack_bits(ref, &bits, 2);
- 	GEM_BUG_ON(!atomic_read(&ref->count));
- 	if (atomic_add_unless(&ref->count, -1, 1))
- 		return;
- 
- 	/* One active may be flushed from inside the acquire of another */
--	mutex_lock_nested(&ref->mutex, SINGLE_DEPTH_NESTING);
--	__active_retire(ref);
-+	if (!(bits & I915_ACTIVE_RETIRE_NOLOCK))
-+		mutex_lock_nested(&ref->mutex, SINGLE_DEPTH_NESTING);
-+	__active_retire(ref_packed);
- }
- 
- static void
-@@ -170,6 +180,14 @@ node_retire(struct i915_active_request *base, struct i915_request *rq)
- 	active_retire(node_from_active(base)->ref);
- }
- 
-+static void
-+node_retire_nolock(struct i915_active_request *base, struct i915_request *rq)
-+{
-+	struct i915_active *ref = node_from_active(base)->ref;
-+
-+	active_retire(ptr_pack_bits(ref, I915_ACTIVE_RETIRE_NOLOCK, 2));
 +}
-+
- static struct i915_active_request *
- active_instance(struct i915_active *ref, struct intel_timeline *tl)
- {
-@@ -421,7 +439,8 @@ int i915_active_wait(struct i915_active *ref)
- 			break;
- 		}
  
--		err = i915_active_request_retire(&it->base, BKL(ref));
-+		err = i915_active_request_retire(&it->base, BKL(ref),
-+						 node_retire_nolock);
- 		if (err)
- 			break;
- 	}
+ static inline bool is_idle_barrier(struct active_node *node, u64 idx)
+ {
 diff --git a/drivers/gpu/drm/i915/i915_active.h b/drivers/gpu/drm/i915/i915_active.h
-index f95058f99057..0ad7ef60d15f 100644
+index 51e1e854ca55..b684b1fdcc02 100644
 --- a/drivers/gpu/drm/i915/i915_active.h
 +++ b/drivers/gpu/drm/i915/i915_active.h
-@@ -309,7 +309,7 @@ i915_active_request_isset(const struct i915_active_request *active)
-  */
- static inline int __must_check
- i915_active_request_retire(struct i915_active_request *active,
--			   struct mutex *mutex)
-+			   struct mutex *mutex, i915_active_retire_fn retire)
- {
- 	struct i915_request *request;
- 	long ret;
-@@ -327,7 +327,7 @@ i915_active_request_retire(struct i915_active_request *active,
- 	list_del_init(&active->link);
- 	RCU_INIT_POINTER(active->request, NULL);
+@@ -153,14 +153,16 @@ void __i915_active_init(struct i915_active *ref,
+ 			int (*active)(struct i915_active *ref),
+ 			void (*retire)(struct i915_active *ref),
+ 			struct lock_class_key *mkey,
+-			struct lock_class_key *wkey);
++			struct lock_class_key *wkey,
++			struct lock_class_key *rkey);
  
--	active->retire(active, request);
-+	retire(active, request);
+ /* Specialise each class of i915_active to avoid impossible lockdep cycles. */
+ #define i915_active_init(ref, active, retire) do {		\
+ 	static struct lock_class_key __mkey;				\
+ 	static struct lock_class_key __wkey;				\
++	static struct lock_class_key __rkey;				\
+ 									\
+-	__i915_active_init(ref, active, retire, &__mkey, &__wkey);	\
++	__i915_active_init(ref, active, retire, &__mkey, &__wkey, &__rkey);	\
+ } while (0)
  
- 	return 0;
+ int i915_active_ref(struct i915_active *ref,
+@@ -200,11 +202,7 @@ i915_active_is_idle(const struct i915_active *ref)
+ 	return !atomic_read(&ref->count);
  }
+ 
+-#if IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM)
+ void i915_active_fini(struct i915_active *ref);
+-#else
+-static inline void i915_active_fini(struct i915_active *ref) { }
+-#endif
+ 
+ int i915_active_acquire_preallocate_barrier(struct i915_active *ref,
+ 					    struct intel_engine_cs *engine);
+diff --git a/drivers/gpu/drm/i915/i915_active_types.h b/drivers/gpu/drm/i915/i915_active_types.h
+index 6360c3e4b765..aaee2548cb19 100644
+--- a/drivers/gpu/drm/i915/i915_active_types.h
++++ b/drivers/gpu/drm/i915/i915_active_types.h
+@@ -32,6 +32,8 @@ struct active_node;
+ struct i915_active {
+ 	atomic_t count;
+ 	struct mutex mutex;
++	struct rw_semaphore rwsem;
++	bool *freed;
+ 
+ 	spinlock_t tree_lock;
+ 	struct active_node *cache;
 -- 
 2.26.0
 
