@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BD211A0BC3
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DDC91A0B05
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728304AbgDGK24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:28:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34964 "EHLO mail.kernel.org"
+        id S1728358AbgDGKXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:23:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728755AbgDGKYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:24:38 -0400
+        id S1728336AbgDGKXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:23:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 329B82082F;
-        Tue,  7 Apr 2020 10:24:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8217820771;
+        Tue,  7 Apr 2020 10:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255077;
-        bh=IefxS/Yc5ROgBysnlD7RBJzc6vlR8Ndpi0VarpK9QKA=;
+        s=default; t=1586254982;
+        bh=AOAvaLVkDHeMRUUOp5dsa0b0RO3eEiCYm6DzGZdjcBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CLV8S4kK7BRuHHhJPAfe68j6YzXoMOYt6pCHR9/t2l6wbNwzethD+anUKvS/6aT+R
-         1ysR60zEZ3RwtvZsCajx03P55wIdKCGaSDiXGug42pkxXLtTn4RnMv/nHmK8s7x9aX
-         zp9/0nEKOHjsXDYmxYIzy/o3P6QSFTr1TnAlYfkQ=
+        b=VrjRcHkQBSchuHhqaUkm+F5YhQm48OmtXk9PtgWPs+OBF7IJ4iU2cb2s7tg8YXcaq
+         IZcMX/RNMubhJalNEQFD/cScVnnwq8K5fkl/iiBlMQnbwTZgVi7ITNLx5dD8Jjqe5S
+         UN7FIMqHjs+vK+fqImvx8U7fQXnvM4tGU55k75JI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 20/46] XArray: Fix xa_find_next for large multi-index entries
-Date:   Tue,  7 Apr 2020 12:21:51 +0200
-Message-Id: <20200407101501.673089011@linuxfoundation.org>
+        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 5.4 19/36] coresight: do not use the BIT() macro in the UAPI header
+Date:   Tue,  7 Apr 2020 12:21:52 +0200
+Message-Id: <20200407101456.858020538@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,86 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Eugene Syromiatnikov <esyr@redhat.com>
 
-[ Upstream commit bd40b17ca49d7d110adf456e647701ce74de2241 ]
+commit 9b6eaaf3db5e5888df7bca7fed7752a90f7fd871 upstream.
 
-Coverity pointed out that xas_sibling() was shifting xa_offset without
-promoting it to an unsigned long first, so the shift could cause an
-overflow and we'd get the wrong answer.  The fix is obvious, and the
-new test-case provokes UBSAN to report an error:
-runtime error: shift exponent 60 is too large for 32-bit type 'int'
+The BIT() macro definition is not available for the UAPI headers
+(moreover, it can be defined differently in the user space); replace
+its usage with the _BITUL() macro that is defined in <linux/const.h>.
 
-Fixes: 19c30f4dd092 ("XArray: Fix xa_find_after with multi-index entries")
-Reported-by: Bjorn Helgaas <bhelgaas@google.com>
-Reported-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 237483aa5cf4 ("coresight: stm: adding driver for CoreSight STM component")
+Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20200324042213.GA10452@asgard.redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- lib/test_xarray.c | 18 ++++++++++++++++++
- lib/xarray.c      |  3 ++-
- 2 files changed, 20 insertions(+), 1 deletion(-)
+ include/uapi/linux/coresight-stm.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/lib/test_xarray.c b/lib/test_xarray.c
-index 55c14e8c88591..8c7d7a8468b88 100644
---- a/lib/test_xarray.c
-+++ b/lib/test_xarray.c
-@@ -12,6 +12,9 @@
- static unsigned int tests_run;
- static unsigned int tests_passed;
+--- a/include/uapi/linux/coresight-stm.h
++++ b/include/uapi/linux/coresight-stm.h
+@@ -2,8 +2,10 @@
+ #ifndef __UAPI_CORESIGHT_STM_H_
+ #define __UAPI_CORESIGHT_STM_H_
  
-+static const unsigned int order_limit =
-+		IS_ENABLED(CONFIG_XARRAY_MULTI) ? BITS_PER_LONG : 1;
+-#define STM_FLAG_TIMESTAMPED   BIT(3)
+-#define STM_FLAG_GUARANTEED    BIT(7)
++#include <linux/const.h>
 +
- #ifndef XA_DEBUG
- # ifdef __KERNEL__
- void xa_dump(const struct xarray *xa) { }
-@@ -959,6 +962,20 @@ static noinline void check_multi_find_2(struct xarray *xa)
- 	}
- }
++#define STM_FLAG_TIMESTAMPED   _BITUL(3)
++#define STM_FLAG_GUARANTEED    _BITUL(7)
  
-+static noinline void check_multi_find_3(struct xarray *xa)
-+{
-+	unsigned int order;
-+
-+	for (order = 5; order < order_limit; order++) {
-+		unsigned long index = 1UL << (order - 5);
-+
-+		XA_BUG_ON(xa, !xa_empty(xa));
-+		xa_store_order(xa, 0, order - 4, xa_mk_index(0), GFP_KERNEL);
-+		XA_BUG_ON(xa, xa_find_after(xa, &index, ULONG_MAX, XA_PRESENT));
-+		xa_erase_index(xa, 0);
-+	}
-+}
-+
- static noinline void check_find_1(struct xarray *xa)
- {
- 	unsigned long i, j, k;
-@@ -1081,6 +1098,7 @@ static noinline void check_find(struct xarray *xa)
- 	for (i = 2; i < 10; i++)
- 		check_multi_find_1(xa, i);
- 	check_multi_find_2(xa);
-+	check_multi_find_3(xa);
- }
- 
- /* See find_swap_entry() in mm/shmem.c */
-diff --git a/lib/xarray.c b/lib/xarray.c
-index 1d9fab7db8dad..acd1fad2e862a 100644
---- a/lib/xarray.c
-+++ b/lib/xarray.c
-@@ -1839,7 +1839,8 @@ static bool xas_sibling(struct xa_state *xas)
- 	if (!node)
- 		return false;
- 	mask = (XA_CHUNK_SIZE << node->shift) - 1;
--	return (xas->xa_index & mask) > (xas->xa_offset << node->shift);
-+	return (xas->xa_index & mask) >
-+		((unsigned long)xas->xa_offset << node->shift);
- }
- 
- /**
--- 
-2.20.1
-
+ /*
+  * The CoreSight STM supports guaranteed and invariant timing
 
 
