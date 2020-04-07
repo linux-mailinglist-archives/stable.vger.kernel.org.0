@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B3621A0B10
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EB2B1A0B8D
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728470AbgDGKXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:23:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33364 "EHLO mail.kernel.org"
+        id S1728674AbgDGK0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:26:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726637AbgDGKX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:23:29 -0400
+        id S1729231AbgDGK0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:26:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62E2120801;
-        Tue,  7 Apr 2020 10:23:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA1B62074B;
+        Tue,  7 Apr 2020 10:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255008;
-        bh=qAtiFLtErp5CaagbFlv5bSjeLFAc3rfDFA84TXWxh3o=;
+        s=default; t=1586255210;
+        bh=X5su88Ck+vcA/+euMXd0fYE+MAIfr2mwTk/13mbANOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RluvpUbkORqlBjLYiPDpzlT6r0V5jWeqGc963ymX38TkwXjbro6GLYSnkp5K35qdR
-         tbpizReATy0AE0AvD79SMV8C4Uge9fCS8ZrJVREOXwX5cdHo2Ud4Uj2A+VZKib5svw
-         Ue1NqXC0CmFDNiQaraGRw7Ryf39hvMFZRPfmbqFw=
+        b=YxpOmALmX9EO4ddfyWF9FCADLAhXyP+g/KH0fPVaEzPJUVVemfxgfePa1uRw3Z0tm
+         5wpoIq6HV3erAFxLtpcRrowPqhBoobIpzwrfydo1phay9DUOOd1EYjC+FXxV9mHFxq
+         YtitgZ4G4BTtn60bkXgSBxybTAbM9QqFor3IjstI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.4 29/36] iwlwifi: yoyo: dont add TLV offset when reading FIFOs
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        Marcelo Ricardo Leitner <mleitner@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+cea71eec5d6de256d54d@syzkaller.appspotmail.com
+Subject: [PATCH 5.6 05/29] sctp: fix refcount bug in sctp_wfree
 Date:   Tue,  7 Apr 2020 12:22:02 +0200
-Message-Id: <20200407101458.020363607@linuxfoundation.org>
+Message-Id: <20200407101452.619901149@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
-References: <20200407101454.281052964@linuxfoundation.org>
+In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
+References: <20200407101452.046058399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +45,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit a5688e600e78f9fc68102bf0fe5c797fc2826abe upstream.
+[ Upstream commit 5c3e82fe159622e46e91458c1a6509c321a62820 ]
 
-The TLV offset is only used to read registers, while the offset used for
-the FIFO addresses are hard coded in the driver and not given by the
-TLV.
+We should iterate over the datamsgs to move
+all chunks(skbs) to newsk.
 
-If we try to apply the TLV offset when reading the FIFOs, we'll read
-from invalid addresses, causing the driver to hang.
+The following case cause the bug:
+for the trouble SKB, it was in outq->transmitted list
 
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Fixes: 8d7dea25ada7 ("iwlwifi: dbg_ini: implement Rx fifos dump")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200306151129.fbab869c26fa.I4ddac20d02f9bce41855a816aa6855c89bc3874e@changeid
+sctp_outq_sack
+        sctp_check_transmitted
+                SKB was moved to outq->sacked list
+        then throw away the sack queue
+                SKB was deleted from outq->sacked
+(but it was held by datamsg at sctp_datamsg_to_asoc
+So, sctp_wfree was not called here)
+
+then migrate happened
+
+        sctp_for_each_tx_datachunk(
+        sctp_clear_owner_w);
+        sctp_assoc_migrate();
+        sctp_for_each_tx_datachunk(
+        sctp_set_owner_w);
+SKB was not in the outq, and was not changed to newsk
+
+finally
+
+__sctp_outq_teardown
+        sctp_chunk_put (for another skb)
+                sctp_datamsg_put
+                        __kfree_skb(msg->frag_list)
+                                sctp_wfree (for SKB)
+	SKB->sk was still oldsk (skb->sk != asoc->base.sk).
+
+Reported-and-tested-by: syzbot+cea71eec5d6de256d54d@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <mleitner@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/wireless/intel/iwlwifi/fw/dbg.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ net/sctp/socket.c |   31 +++++++++++++++++++++++--------
+ 1 file changed, 23 insertions(+), 8 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-@@ -8,7 +8,7 @@
-  * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of version 2 of the GNU General Public License as
-@@ -31,7 +31,7 @@
-  * Copyright(c) 2005 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-@@ -1373,11 +1373,7 @@ static int iwl_dump_ini_rxf_iter(struct
- 		goto out;
- 	}
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -147,29 +147,44 @@ static void sctp_clear_owner_w(struct sc
+ 	skb_orphan(chunk->skb);
+ }
  
--	/*
--	 * region register have absolute value so apply rxf offset after
--	 * reading the registers
--	 */
--	offs += rxf_data.offset;
-+	offs = rxf_data.offset;
++#define traverse_and_process()	\
++do {				\
++	msg = chunk->msg;	\
++	if (msg == prev_msg)	\
++		continue;	\
++	list_for_each_entry(c, &msg->chunks, frag_list) {	\
++		if ((clear && asoc->base.sk == c->skb->sk) ||	\
++		    (!clear && asoc->base.sk != c->skb->sk))	\
++			cb(c);	\
++	}			\
++	prev_msg = msg;		\
++} while (0)
++
+ static void sctp_for_each_tx_datachunk(struct sctp_association *asoc,
++				       bool clear,
+ 				       void (*cb)(struct sctp_chunk *))
  
- 	/* Lock fence */
- 	iwl_write_prph_no_grab(fwrt->trans, RXF_SET_FENCE_MODE + offs, 0x1);
+ {
++	struct sctp_datamsg *msg, *prev_msg = NULL;
+ 	struct sctp_outq *q = &asoc->outqueue;
++	struct sctp_chunk *chunk, *c;
+ 	struct sctp_transport *t;
+-	struct sctp_chunk *chunk;
+ 
+ 	list_for_each_entry(t, &asoc->peer.transport_addr_list, transports)
+ 		list_for_each_entry(chunk, &t->transmitted, transmitted_list)
+-			cb(chunk);
++			traverse_and_process();
+ 
+ 	list_for_each_entry(chunk, &q->retransmit, transmitted_list)
+-		cb(chunk);
++		traverse_and_process();
+ 
+ 	list_for_each_entry(chunk, &q->sacked, transmitted_list)
+-		cb(chunk);
++		traverse_and_process();
+ 
+ 	list_for_each_entry(chunk, &q->abandoned, transmitted_list)
+-		cb(chunk);
++		traverse_and_process();
+ 
+ 	list_for_each_entry(chunk, &q->out_chunk_list, list)
+-		cb(chunk);
++		traverse_and_process();
+ }
+ 
+ static void sctp_for_each_rx_skb(struct sctp_association *asoc, struct sock *sk,
+@@ -9574,9 +9589,9 @@ static int sctp_sock_migrate(struct sock
+ 	 * paths won't try to lock it and then oldsk.
+ 	 */
+ 	lock_sock_nested(newsk, SINGLE_DEPTH_NESTING);
+-	sctp_for_each_tx_datachunk(assoc, sctp_clear_owner_w);
++	sctp_for_each_tx_datachunk(assoc, true, sctp_clear_owner_w);
+ 	sctp_assoc_migrate(assoc, newsk);
+-	sctp_for_each_tx_datachunk(assoc, sctp_set_owner_w);
++	sctp_for_each_tx_datachunk(assoc, false, sctp_set_owner_w);
+ 
+ 	/* If the association on the newsk is already closed before accept()
+ 	 * is called, set RCV_SHUTDOWN flag.
 
 
