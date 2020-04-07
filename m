@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E8C1A0B9B
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:28:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D22F81A0B18
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:24:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729060AbgDGK0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:26:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S1728541AbgDGKXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729068AbgDGKZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:25:59 -0400
+        id S1728533AbgDGKXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:23:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC57C2074F;
-        Tue,  7 Apr 2020 10:25:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EBF42078C;
+        Tue,  7 Apr 2020 10:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255159;
-        bh=T/gxYwkr6ionYU18uJNrAb27pxUoEUdBjhg+6cFkrBE=;
+        s=default; t=1586255021;
+        bh=OTr7RM5lQrjJE8EzqxD/5LlOedA2SxaY+uJAxcNQoTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gD1Ka6J3FZEsXxCoy3ry5ZyQNWuTikxihuhpEZXfR9bujCDPGGYLUr4GpZAiRZuXz
-         1IN3Te/Hib8UbVsjF+WAyORCffy0ibvuhq8DZE2UhGiz5bur7suT9Cm/s6VchoZuhf
-         wozjvkHYLzmQhsAUyhinCQXd/lkIi+2+ZCubrrcs=
+        b=o2GvLhpBqGxosMDoOSfmy0w/d2kX+7aDB8CPU/5UATFE3q0H0yUJ+xRLD46nAH2IX
+         TylFh2s+7MTX4neEvHOJUFDoIEGJscyfTfKVvkkIEuK4YX6Q36PkN8q7DUp/UInI5p
+         j0SXCz6kmGiiFh3vzJoI68ODwf71jPmga/Lxqqkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.5 36/46] iwlwifi: yoyo: dont add TLV offset when reading FIFOs
+        stable@vger.kernel.org, Martin Volf <martin.volf.42@gmail.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 5.4 34/36] i2c: i801: Do not add ICH_RES_IO_SMI for the iTCO_wdt device
 Date:   Tue,  7 Apr 2020 12:22:07 +0200
-Message-Id: <20200407101503.317654678@linuxfoundation.org>
+Message-Id: <20200407101458.567850603@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +45,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit a5688e600e78f9fc68102bf0fe5c797fc2826abe upstream.
+commit 04bbb97d1b732b2d197f103c5818f5c214a4cf81 upstream.
 
-The TLV offset is only used to read registers, while the offset used for
-the FIFO addresses are hard coded in the driver and not given by the
-TLV.
+Martin noticed that nct6775 driver does not load properly on his system
+in v5.4+ kernels. The issue was bisected to commit b84398d6d7f9 ("i2c:
+i801: Use iTCO version 6 in Cannon Lake PCH and beyond") but it is
+likely not the culprit because the faulty code has been in the driver
+already since commit 9424693035a5 ("i2c: i801: Create iTCO device on
+newer Intel PCHs"). So more likely some commit that added PCI IDs of
+recent chipsets made the driver to create the iTCO_wdt device on Martins
+system.
 
-If we try to apply the TLV offset when reading the FIFOs, we'll read
-from invalid addresses, causing the driver to hang.
+The issue was debugged to be PCI configuration access to the PMC device
+that is not present. This returns all 1's when read and this caused the
+iTCO_wdt driver to accidentally request resourses used by nct6775.
 
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Fixes: 8d7dea25ada7 ("iwlwifi: dbg_ini: implement Rx fifos dump")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200306151129.fbab869c26fa.I4ddac20d02f9bce41855a816aa6855c89bc3874e@changeid
+It turns out that the SMI resource is only required for some ancient
+systems, not the ones supported by this driver. For this reason do not
+populate the SMI resource at all and drop all the related code. The
+driver now always populates the main I/O resource and only in case of SPT
+(Intel Sunrisepoint) compatible devices it adds another resource for the
+NO_REBOOT bit. These two resources are of different types so
+platform_get_resource() used by the iTCO_wdt driver continues to find
+the both resources at index 0.
+
+Link: https://lore.kernel.org/linux-hwmon/CAM1AHpQ4196tyD=HhBu-2donSsuogabkfP03v1YF26Q7_BgvgA@mail.gmail.com/
+Fixes: 9424693035a5 ("i2c: i801: Create iTCO device on newer Intel PCHs")
+[wsa: complete fix needs all of http://patchwork.ozlabs.org/project/linux-i2c/list/?series=160959&state=*]
+Reported-by: Martin Volf <martin.volf.42@gmail.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intel/iwlwifi/fw/dbg.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-i801.c |   45 +++++++++++-------------------------------
+ 1 file changed, 12 insertions(+), 33 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-@@ -8,7 +8,7 @@
-  * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of version 2 of the GNU General Public License as
-@@ -31,7 +31,7 @@
-  * Copyright(c) 2005 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-@@ -1407,11 +1407,7 @@ static int iwl_dump_ini_rxf_iter(struct
- 		goto out;
- 	}
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -129,11 +129,6 @@
+ #define TCOBASE		0x050
+ #define TCOCTL		0x054
+ 
+-#define ACPIBASE		0x040
+-#define ACPIBASE_SMI_OFF	0x030
+-#define ACPICTRL		0x044
+-#define ACPICTRL_EN		0x080
+-
+ #define SBREG_BAR		0x10
+ #define SBREG_SMBCTRL		0xc6000c
+ #define SBREG_SMBCTRL_DNV	0xcf000c
+@@ -1544,7 +1539,7 @@ i801_add_tco_spt(struct i801_priv *priv,
+ 		pci_bus_write_config_byte(pci_dev->bus, devfn, 0xe1, hidden);
+ 	spin_unlock(&p2sb_spinlock);
+ 
+-	res = &tco_res[ICH_RES_MEM_OFF];
++	res = &tco_res[1];
+ 	if (pci_dev->device == PCI_DEVICE_ID_INTEL_DNV_SMBUS)
+ 		res->start = (resource_size_t)base64_addr + SBREG_SMBCTRL_DNV;
+ 	else
+@@ -1554,7 +1549,7 @@ i801_add_tco_spt(struct i801_priv *priv,
+ 	res->flags = IORESOURCE_MEM;
+ 
+ 	return platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
+-					tco_res, 3, &spt_tco_platform_data,
++					tco_res, 2, &spt_tco_platform_data,
+ 					sizeof(spt_tco_platform_data));
+ }
+ 
+@@ -1567,17 +1562,16 @@ static struct platform_device *
+ i801_add_tco_cnl(struct i801_priv *priv, struct pci_dev *pci_dev,
+ 		 struct resource *tco_res)
+ {
+-	return platform_device_register_resndata(&pci_dev->dev, "iTCO_wdt", -1,
+-					tco_res, 2, &cnl_tco_platform_data,
+-					sizeof(cnl_tco_platform_data));
++	return platform_device_register_resndata(&pci_dev->dev,
++			"iTCO_wdt", -1, tco_res, 1, &cnl_tco_platform_data,
++			sizeof(cnl_tco_platform_data));
+ }
+ 
+ static void i801_add_tco(struct i801_priv *priv)
+ {
+-	u32 base_addr, tco_base, tco_ctl, ctrl_val;
+ 	struct pci_dev *pci_dev = priv->pci_dev;
+-	struct resource tco_res[3], *res;
+-	unsigned int devfn;
++	struct resource tco_res[2], *res;
++	u32 tco_base, tco_ctl;
+ 
+ 	/* If we have ACPI based watchdog use that instead */
+ 	if (acpi_has_watchdog())
+@@ -1592,30 +1586,15 @@ static void i801_add_tco(struct i801_pri
+ 		return;
+ 
+ 	memset(tco_res, 0, sizeof(tco_res));
+-
+-	res = &tco_res[ICH_RES_IO_TCO];
+-	res->start = tco_base & ~1;
+-	res->end = res->start + 32 - 1;
+-	res->flags = IORESOURCE_IO;
+-
+ 	/*
+-	 * Power Management registers.
++	 * Always populate the main iTCO IO resource here. The second entry
++	 * for NO_REBOOT MMIO is filled by the SPT specific function.
+ 	 */
+-	devfn = PCI_DEVFN(PCI_SLOT(pci_dev->devfn), 2);
+-	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPIBASE, &base_addr);
+-
+-	res = &tco_res[ICH_RES_IO_SMI];
+-	res->start = (base_addr & ~1) + ACPIBASE_SMI_OFF;
+-	res->end = res->start + 3;
++	res = &tco_res[0];
++	res->start = tco_base & ~1;
++	res->end = res->start + 32 - 1;
+ 	res->flags = IORESOURCE_IO;
  
 -	/*
--	 * region register have absolute value so apply rxf offset after
--	 * reading the registers
+-	 * Enable the ACPI I/O space.
 -	 */
--	offs += rxf_data.offset;
-+	offs = rxf_data.offset;
- 
- 	/* Lock fence */
- 	iwl_write_prph_no_grab(fwrt->trans, RXF_SET_FENCE_MODE + offs, 0x1);
+-	pci_bus_read_config_dword(pci_dev->bus, devfn, ACPICTRL, &ctrl_val);
+-	ctrl_val |= ACPICTRL_EN;
+-	pci_bus_write_config_dword(pci_dev->bus, devfn, ACPICTRL, ctrl_val);
+-
+ 	if (priv->features & FEATURE_TCO_CNL)
+ 		priv->tco_pdev = i801_add_tco_cnl(priv, pci_dev, tco_res);
+ 	else
 
 
