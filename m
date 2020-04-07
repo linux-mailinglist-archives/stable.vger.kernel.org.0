@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5E41A0BC9
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E172F1A0BE3
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:29:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728671AbgDGKYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:24:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34350 "EHLO mail.kernel.org"
+        id S1728330AbgDGKW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:22:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728074AbgDGKYN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:24:13 -0400
+        id S1728327AbgDGKW6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:22:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76E4220771;
-        Tue,  7 Apr 2020 10:24:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D8B52074F;
+        Tue,  7 Apr 2020 10:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255052;
-        bh=JZKbPbuU2UHbrb6VuFFKYu3d0IBGpuh9U6WpdN5Q95o=;
+        s=default; t=1586254977;
+        bh=YOtm7zAs79v1XBoTlS89YdTT4HhPrN1rh4uVtP3fu6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvOlca1HsKd4xEw5gsYlu9M+xYHtcKcwKN3i0rPV9UaInBJPSuQtFJMsrWbVMqTO2
-         qkpqw3v/SVmprwole43LJmBPyeZ9hVZ2C2jZcifh75oo9v6xYps0r/tHiAGJCG5HHD
-         UVDqG4h/slKbxYwI/moF3TGYPSL2z/6kd6X2DSWo=
+        b=WgTD3CtxnxrAP3A/EGF4gg2IKOIGi+NHFuCGPul+oFBITNy9xf4YrdEn1L3hH61h5
+         a42l41hLLPUJWDdL1xJE22UkXsr3fTld6Vb5aYtv0v/LTw7kJ/4QyVRS23J26j7vUP
+         qFgT9gYrZvatRJxQVlAqTILiC3JrIFrQ7f+qdaOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Len Brown <len.brown@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 11/46] drm/bochs: downgrade pci_request_region failure from error to warning
+Subject: [PATCH 5.4 09/36] tools/power turbostat: Fix 32-bit capabilities warning
 Date:   Tue,  7 Apr 2020 12:21:42 +0200
-Message-Id: <20200407101500.722158177@linuxfoundation.org>
+Message-Id: <20200407101455.518814105@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101454.281052964@linuxfoundation.org>
+References: <20200407101454.281052964@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Len Brown <len.brown@intel.com>
 
-[ Upstream commit 8c34cd1a7f089dc03933289c5d4a4d1489549828 ]
+[ Upstream commit fcaa681c03ea82193e60d7f2cdfd94fbbcd4cae9 ]
 
-Shutdown of firmware framebuffer has a bunch of problems.  Because
-of this the framebuffer region might still be reserved even after
-drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
+warning: `turbostat' uses 32-bit capabilities (legacy support in use)
 
-Don't consider pci_request_region() failure for the framebuffer
-region as fatal error to workaround this issue.
-
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Link: http://patchwork.freedesktop.org/patch/msgid/20200313084152.2734-1-kraxel@redhat.com
+Signed-off-by: Len Brown <len.brown@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ tools/power/x86/turbostat/Makefile    |  2 +-
+ tools/power/x86/turbostat/turbostat.c | 46 +++++++++++++++++----------
+ 2 files changed, 31 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-index e567bdfa2ab8e..bb1391784caf0 100644
---- a/drivers/gpu/drm/bochs/bochs_hw.c
-+++ b/drivers/gpu/drm/bochs/bochs_hw.c
-@@ -156,10 +156,8 @@ int bochs_hw_init(struct drm_device *dev)
- 		size = min(size, mem);
+diff --git a/tools/power/x86/turbostat/Makefile b/tools/power/x86/turbostat/Makefile
+index 13f1e8b9ac525..2b6551269e431 100644
+--- a/tools/power/x86/turbostat/Makefile
++++ b/tools/power/x86/turbostat/Makefile
+@@ -16,7 +16,7 @@ override CFLAGS +=	-D_FORTIFY_SOURCE=2
+ 
+ %: %.c
+ 	@mkdir -p $(BUILD_OUTPUT)
+-	$(CC) $(CFLAGS) $< -o $(BUILD_OUTPUT)/$@ $(LDFLAGS)
++	$(CC) $(CFLAGS) $< -o $(BUILD_OUTPUT)/$@ $(LDFLAGS) -lcap
+ 
+ .PHONY : clean
+ clean :
+diff --git a/tools/power/x86/turbostat/turbostat.c b/tools/power/x86/turbostat/turbostat.c
+index 17e82eaf5c4f4..988326b67a916 100644
+--- a/tools/power/x86/turbostat/turbostat.c
++++ b/tools/power/x86/turbostat/turbostat.c
+@@ -30,7 +30,7 @@
+ #include <sched.h>
+ #include <time.h>
+ #include <cpuid.h>
+-#include <linux/capability.h>
++#include <sys/capability.h>
+ #include <errno.h>
+ #include <math.h>
+ 
+@@ -3150,28 +3150,42 @@ void check_dev_msr()
+ 			err(-5, "no /dev/cpu/0/msr, Try \"# modprobe msr\" ");
+ }
+ 
+-void check_permissions()
++/*
++ * check for CAP_SYS_RAWIO
++ * return 0 on success
++ * return 1 on fail
++ */
++int check_for_cap_sys_rawio(void)
+ {
+-	struct __user_cap_header_struct cap_header_data;
+-	cap_user_header_t cap_header = &cap_header_data;
+-	struct __user_cap_data_struct cap_data_data;
+-	cap_user_data_t cap_data = &cap_data_data;
+-	extern int capget(cap_user_header_t hdrp, cap_user_data_t datap);
+-	int do_exit = 0;
+-	char pathname[32];
++	cap_t caps;
++	cap_flag_value_t cap_flag_value;
+ 
+-	/* check for CAP_SYS_RAWIO */
+-	cap_header->pid = getpid();
+-	cap_header->version = _LINUX_CAPABILITY_VERSION;
+-	if (capget(cap_header, cap_data) < 0)
+-		err(-6, "capget(2) failed");
++	caps = cap_get_proc();
++	if (caps == NULL)
++		err(-6, "cap_get_proc\n");
+ 
+-	if ((cap_data->effective & (1 << CAP_SYS_RAWIO)) == 0) {
+-		do_exit++;
++	if (cap_get_flag(caps, CAP_SYS_RAWIO, CAP_EFFECTIVE, &cap_flag_value))
++		err(-6, "cap_get\n");
++
++	if (cap_flag_value != CAP_SET) {
+ 		warnx("capget(CAP_SYS_RAWIO) failed,"
+ 			" try \"# setcap cap_sys_rawio=ep %s\"", progname);
++		return 1;
  	}
  
--	if (pci_request_region(pdev, 0, "bochs-drm") != 0) {
--		DRM_ERROR("Cannot request framebuffer\n");
--		return -EBUSY;
--	}
-+	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
-+		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
- 
- 	bochs->fb_map = ioremap(addr, size);
- 	if (bochs->fb_map == NULL) {
++	if (cap_free(caps) == -1)
++		err(-6, "cap_free\n");
++
++	return 0;
++}
++void check_permissions(void)
++{
++	int do_exit = 0;
++	char pathname[32];
++
++	/* check for CAP_SYS_RAWIO */
++	do_exit += check_for_cap_sys_rawio();
++
+ 	/* test file permissions */
+ 	sprintf(pathname, "/dev/cpu/%d/msr", base_cpu);
+ 	if (euidaccess(pathname, R_OK)) {
 -- 
 2.20.1
 
