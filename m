@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EA131A0B88
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 441E21A0B9A
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728709AbgDGK1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:27:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39302 "EHLO mail.kernel.org"
+        id S1729052AbgDGKZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:25:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729256AbgDGK1B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:27:01 -0400
+        id S1729060AbgDGKZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:25:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C53E20644;
-        Tue,  7 Apr 2020 10:26:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 589492074F;
+        Tue,  7 Apr 2020 10:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255219;
-        bh=P7iouULCpIAHpWLOd6Wjrgm7dXrqA8tQoL3jEOu3ql4=;
+        s=default; t=1586255156;
+        bh=5/sL9mCXly5jrq1A3Z9N4VVG6JUPKXdB9TUdv7LPc+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIh2c307cG7sLRuJmaQVWfsXuS9mdJripg8tX7hDuqujFtYenes7bG8DsM7MQuiKW
-         wS9++TRMhr/niLKy/vbpwDcAlWc2MdcW6dqXW9qQ4yyLaEFP0aga7zjVpUU2KkAiPj
-         6tK176Tzw7hWdBnJgVG9CH0hUs3uobRPTHYUroVU=
+        b=EIdUbJiJPT78BdFcL1S7HXCMq2aHT6E6mRM/jQNup6YOQTW0lBF0+eFq/oqyB2rxf
+         XMBQvH+gfRMj0WExnIWSnuQcI0Kg46FBOYRo85OWSKRRKR5v8A5cOCircp9Bpy/kJi
+         O/MnT+5Gf5Eh0xJ535n1TWlbrzskg6WomhjpsWvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 09/29] padata: fix uninitialized return value in padata_replace()
+        stable@vger.kernel.org,
+        Mordechay Goodstein <mordechay.goodstein@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>
+Subject: [PATCH 5.5 35/46] iwlwifi: consider HE capability when setting LDPC
 Date:   Tue,  7 Apr 2020 12:22:06 +0200
-Message-Id: <20200407101453.138259293@linuxfoundation.org>
+Message-Id: <20200407101503.219777386@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
-References: <20200407101452.046058399@linuxfoundation.org>
+In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
+References: <20200407101459.502593074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Mordechay Goodstein <mordechay.goodstein@intel.com>
 
-[ Upstream commit 41ccdbfd5427bbbf3ed58b16750113b38fad1780 ]
+commit cb377dfda1755b3bc01436755d866c8e5336a762 upstream.
 
-According to Geert's report[0],
+The AP may set the LDPC capability only in HE (IEEE80211_HE_PHY_CAP1),
+but we were checking it only in the HT capabilities.
 
-  kernel/padata.c: warning: 'err' may be used uninitialized in this
-    function [-Wuninitialized]:  => 539:2
+If we don't use this capability when required, the DSP gets the wrong
+configuration in HE and doesn't work properly.
 
-Warning is seen only with older compilers on certain archs.  The
-runtime effect is potentially returning garbage down the stack when
-padata's cpumasks are modified before any pcrypt requests have run.
+Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Fixes: befebbb30af0 ("iwlwifi: rs: consider LDPC capability in case of HE")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200306151128.492d167c1a25.I1ad1353dbbf6c99ae57814be750f41a1c9f7f4ac@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Simplest fix is to initialize err to the success value.
-
-[0] http://lkml.kernel.org/r/20200210135506.11536-1-geert@linux-m68k.org
-
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Fixes: bbefa1dd6a6d ("crypto: pcrypt - Avoid deadlock by using per-instance padata queues")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/padata.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 72777c10bb9cb..62082597d4a2a 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -512,7 +512,7 @@ static int padata_replace_one(struct padata_shell *ps)
- static int padata_replace(struct padata_instance *pinst)
- {
- 	struct padata_shell *ps;
--	int err;
-+	int err = 0;
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
+@@ -147,7 +147,11 @@ static u16 rs_fw_get_config_flags(struct
+ 	     (vht_ena && (vht_cap->cap & IEEE80211_VHT_CAP_RXLDPC))))
+ 		flags |= IWL_TLC_MNG_CFG_FLAGS_LDPC_MSK;
  
- 	pinst->flags |= PADATA_RESET;
- 
--- 
-2.20.1
-
+-	/* consider our LDPC support in case of HE */
++	/* consider LDPC support in case of HE */
++	if (he_cap->has_he && (he_cap->he_cap_elem.phy_cap_info[1] &
++	    IEEE80211_HE_PHY_CAP1_LDPC_CODING_IN_PAYLOAD))
++		flags |= IWL_TLC_MNG_CFG_FLAGS_LDPC_MSK;
++
+ 	if (sband->iftype_data && sband->iftype_data->he_cap.has_he &&
+ 	    !(sband->iftype_data->he_cap.he_cap_elem.phy_cap_info[1] &
+ 	     IEEE80211_HE_PHY_CAP1_LDPC_CODING_IN_PAYLOAD))
 
 
