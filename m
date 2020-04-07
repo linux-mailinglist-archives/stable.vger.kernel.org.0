@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E24D01A0B4D
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF1EC1A0B66
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:26:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728914AbgDGKZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:25:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35804 "EHLO mail.kernel.org"
+        id S1728744AbgDGK0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:26:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728911AbgDGKZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:25:18 -0400
+        id S1729101AbgDGK0K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:26:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0508D2074F;
-        Tue,  7 Apr 2020 10:25:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB4D02074F;
+        Tue,  7 Apr 2020 10:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255117;
-        bh=hHJhgpsWRpualoY12/XLaw4edCex+4GAUYWIyfeAsjA=;
+        s=default; t=1586255169;
+        bh=amCQ2S+k05Zy4Vn910YGXUE1vYiFDagnqxSn0kCFoi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gC2LJSFyqH3etd6zVgcwC4/pjfgss0eLgd5KufWF2eSDkNeIPLqmgaCcmZRjKOqL5
-         KEZwZT7RIczob31jENkhuxgEUk0BAsVWqXNI/UebxPM0GqUgjODYhJXT4QU17CNTx8
-         cGrfd+trSELQomgw8zocoDlG+6JdqK+7d0c2P4uE=
+        b=PpH0AZnnpM+okQxHzNxmv39qK0GmTLcgM8sMpVZ4CswiDHtW4ucT3IODNCjDYrC67
+         vJ/wJD9pM1RN7aLFHDJGz2F7dVdtIQLEogIEdlexsEHJEXYos9USphjCKhuzs2TOME
+         tyggtiySc6eEQyx6OoG+hQcmk799BkW81WaM4llo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.5 37/46] iwlwifi: dbg: dont abort if sending DBGC_SUSPEND_RESUME fails
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 11/29] bpf: Fix tnum constraints for 32-bit comparisons
 Date:   Tue,  7 Apr 2020 12:22:08 +0200
-Message-Id: <20200407101503.423514591@linuxfoundation.org>
+Message-Id: <20200407101453.370611188@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
+References: <20200407101452.046058399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,83 +45,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Jann Horn <jannh@google.com>
 
-commit 699b760bd29edba736590fffef7654cb079c753e upstream.
+[ Upstream commit 604dca5e3af1db98bd123b7bfc02b017af99e3a0 ]
 
-If the firmware is in a bad state or not initialized fully, sending
-the DBGC_SUSPEND_RESUME command fails but we can still collect logs.
+The BPF verifier tried to track values based on 32-bit comparisons by
+(ab)using the tnum state via 581738a681b6 ("bpf: Provide better register
+bounds after jmp32 instructions"). The idea is that after a check like
+this:
 
-Instead of aborting the entire dump process, simply ignore the error.
-By removing the last callpoint that was checking the return value, we
-can also convert the function to return void.
+    if ((u32)r0 > 3)
+      exit
 
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Fixes: 576058330f2d ("iwlwifi: dbg: support debug recording suspend resume command")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200306151129.dcec37b2efd4.I8dcd190431d110a6a0e88095ce93591ccfb3d78d@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We can't meaningfully constrain the arithmetic-range-based tracking, but
+we can update the tnum state to (value=0,mask=0xffff'ffff'0000'0003).
+However, the implementation from 581738a681b6 didn't compute the tnum
+constraint based on the fixed operand, but instead derives it from the
+arithmetic-range-based tracking. This means that after the following
+sequence of operations:
 
+    if (r0 >= 0x1'0000'0001)
+      exit
+    if ((u32)r0 > 7)
+      exit
+
+The verifier assumed that the lower half of r0 is in the range (0, 0)
+and apply the tnum constraint (value=0,mask=0xffff'ffff'0000'0000) thus
+causing the overall tnum to be (value=0,mask=0x1'0000'0000), which was
+incorrect. Provide a fixed implementation.
+
+Fixes: 581738a681b6 ("bpf: Provide better register bounds after jmp32 instructions")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200330160324.15259-3-daniel@iogearbox.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/dbg.c |   15 +++++----------
- drivers/net/wireless/intel/iwlwifi/fw/dbg.h |    6 +++---
- 2 files changed, 8 insertions(+), 13 deletions(-)
+ kernel/bpf/verifier.c | 108 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 72 insertions(+), 36 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-@@ -2491,10 +2491,7 @@ static void iwl_fw_dbg_collect_sync(stru
- 		goto out;
- 	}
- 
--	if (iwl_fw_dbg_stop_restart_recording(fwrt, &params, true)) {
--		IWL_ERR(fwrt, "Failed to stop DBGC recording, aborting dump\n");
--		goto out;
--	}
-+	iwl_fw_dbg_stop_restart_recording(fwrt, &params, true);
- 
- 	IWL_DEBUG_FW_INFO(fwrt, "WRT: Data collection start\n");
- 	if (iwl_trans_dbg_ini_valid(fwrt->trans))
-@@ -2659,14 +2656,14 @@ static int iwl_fw_dbg_restart_recording(
- 	return 0;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 5080469094afe..595b39eee6422 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5590,6 +5590,70 @@ static bool cmp_val_with_extended_s64(s64 sval, struct bpf_reg_state *reg)
+ 		reg->smax_value <= 0 && reg->smin_value >= S32_MIN);
  }
  
--int iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
--				      struct iwl_fw_dbg_params *params,
--				      bool stop)
-+void iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
-+				       struct iwl_fw_dbg_params *params,
-+				       bool stop)
- {
- 	int ret = 0;
- 
- 	if (test_bit(STATUS_FW_ERROR, &fwrt->trans->status))
--		return 0;
-+		return;
- 
- 	if (fw_has_capa(&fwrt->fw->ucode_capa,
- 			IWL_UCODE_TLV_CAPA_DBG_SUSPEND_RESUME_CMD_SUPP))
-@@ -2683,7 +2680,5 @@ int iwl_fw_dbg_stop_restart_recording(st
- 			iwl_fw_set_dbg_rec_on(fwrt);
- 	}
- #endif
++/* Constrain the possible values of @reg with unsigned upper bound @bound.
++ * If @is_exclusive, @bound is an exclusive limit, otherwise it is inclusive.
++ * If @is_jmp32, @bound is a 32-bit value that only constrains the low 32 bits
++ * of @reg.
++ */
++static void set_upper_bound(struct bpf_reg_state *reg, u64 bound, bool is_jmp32,
++			    bool is_exclusive)
++{
++	if (is_exclusive) {
++		/* There are no values for `reg` that make `reg<0` true. */
++		if (bound == 0)
++			return;
++		bound--;
++	}
++	if (is_jmp32) {
++		/* Constrain the register's value in the tnum representation.
++		 * For 64-bit comparisons this happens later in
++		 * __reg_bound_offset(), but for 32-bit comparisons, we can be
++		 * more precise than what can be derived from the updated
++		 * numeric bounds.
++		 */
++		struct tnum t = tnum_range(0, bound);
++
++		t.mask |= ~0xffffffffULL; /* upper half is unknown */
++		reg->var_off = tnum_intersect(reg->var_off, t);
++
++		/* Compute the 64-bit bound from the 32-bit bound. */
++		bound += gen_hi_max(reg->var_off);
++	}
++	reg->umax_value = min(reg->umax_value, bound);
++}
++
++/* Constrain the possible values of @reg with unsigned lower bound @bound.
++ * If @is_exclusive, @bound is an exclusive limit, otherwise it is inclusive.
++ * If @is_jmp32, @bound is a 32-bit value that only constrains the low 32 bits
++ * of @reg.
++ */
++static void set_lower_bound(struct bpf_reg_state *reg, u64 bound, bool is_jmp32,
++			    bool is_exclusive)
++{
++	if (is_exclusive) {
++		/* There are no values for `reg` that make `reg>MAX` true. */
++		if (bound == (is_jmp32 ? U32_MAX : U64_MAX))
++			return;
++		bound++;
++	}
++	if (is_jmp32) {
++		/* Constrain the register's value in the tnum representation.
++		 * For 64-bit comparisons this happens later in
++		 * __reg_bound_offset(), but for 32-bit comparisons, we can be
++		 * more precise than what can be derived from the updated
++		 * numeric bounds.
++		 */
++		struct tnum t = tnum_range(bound, U32_MAX);
++
++		t.mask |= ~0xffffffffULL; /* upper half is unknown */
++		reg->var_off = tnum_intersect(reg->var_off, t);
++
++		/* Compute the 64-bit bound from the 32-bit bound. */
++		bound += gen_hi_min(reg->var_off);
++	}
++	reg->umin_value = max(reg->umin_value, bound);
++}
++
+ /* Adjusts the register min/max values in the case that the dst_reg is the
+  * variable register that we are working on, and src_reg is a constant or we're
+  * simply doing a BPF_K check.
+@@ -5645,15 +5709,8 @@ static void reg_set_min_max(struct bpf_reg_state *true_reg,
+ 	case BPF_JGE:
+ 	case BPF_JGT:
+ 	{
+-		u64 false_umax = opcode == BPF_JGT ? val    : val - 1;
+-		u64 true_umin = opcode == BPF_JGT ? val + 1 : val;
 -
--	return ret;
- }
- IWL_EXPORT_SYMBOL(iwl_fw_dbg_stop_restart_recording);
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.h
-@@ -239,9 +239,9 @@ _iwl_fw_dbg_trigger_simple_stop(struct i
- 	_iwl_fw_dbg_trigger_simple_stop((fwrt), (wdev),		\
- 					iwl_fw_dbg_get_trigger((fwrt)->fw,\
- 							       (trig)))
--int iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
--				      struct iwl_fw_dbg_params *params,
--				      bool stop);
-+void iwl_fw_dbg_stop_restart_recording(struct iwl_fw_runtime *fwrt,
-+				       struct iwl_fw_dbg_params *params,
-+				       bool stop);
- 
- #ifdef CONFIG_IWLWIFI_DEBUGFS
- static inline void iwl_fw_set_dbg_rec_on(struct iwl_fw_runtime *fwrt)
+-		if (is_jmp32) {
+-			false_umax += gen_hi_max(false_reg->var_off);
+-			true_umin += gen_hi_min(true_reg->var_off);
+-		}
+-		false_reg->umax_value = min(false_reg->umax_value, false_umax);
+-		true_reg->umin_value = max(true_reg->umin_value, true_umin);
++		set_upper_bound(false_reg, val, is_jmp32, opcode == BPF_JGE);
++		set_lower_bound(true_reg, val, is_jmp32, opcode == BPF_JGT);
+ 		break;
+ 	}
+ 	case BPF_JSGE:
+@@ -5674,15 +5731,8 @@ static void reg_set_min_max(struct bpf_reg_state *true_reg,
+ 	case BPF_JLE:
+ 	case BPF_JLT:
+ 	{
+-		u64 false_umin = opcode == BPF_JLT ? val    : val + 1;
+-		u64 true_umax = opcode == BPF_JLT ? val - 1 : val;
+-
+-		if (is_jmp32) {
+-			false_umin += gen_hi_min(false_reg->var_off);
+-			true_umax += gen_hi_max(true_reg->var_off);
+-		}
+-		false_reg->umin_value = max(false_reg->umin_value, false_umin);
+-		true_reg->umax_value = min(true_reg->umax_value, true_umax);
++		set_lower_bound(false_reg, val, is_jmp32, opcode == BPF_JLE);
++		set_upper_bound(true_reg, val, is_jmp32, opcode == BPF_JLT);
+ 		break;
+ 	}
+ 	case BPF_JSLE:
+@@ -5757,15 +5807,8 @@ static void reg_set_min_max_inv(struct bpf_reg_state *true_reg,
+ 	case BPF_JGE:
+ 	case BPF_JGT:
+ 	{
+-		u64 false_umin = opcode == BPF_JGT ? val    : val + 1;
+-		u64 true_umax = opcode == BPF_JGT ? val - 1 : val;
+-
+-		if (is_jmp32) {
+-			false_umin += gen_hi_min(false_reg->var_off);
+-			true_umax += gen_hi_max(true_reg->var_off);
+-		}
+-		false_reg->umin_value = max(false_reg->umin_value, false_umin);
+-		true_reg->umax_value = min(true_reg->umax_value, true_umax);
++		set_lower_bound(false_reg, val, is_jmp32, opcode == BPF_JGE);
++		set_upper_bound(true_reg, val, is_jmp32, opcode == BPF_JGT);
+ 		break;
+ 	}
+ 	case BPF_JSGE:
+@@ -5783,15 +5826,8 @@ static void reg_set_min_max_inv(struct bpf_reg_state *true_reg,
+ 	case BPF_JLE:
+ 	case BPF_JLT:
+ 	{
+-		u64 false_umax = opcode == BPF_JLT ? val    : val - 1;
+-		u64 true_umin = opcode == BPF_JLT ? val + 1 : val;
+-
+-		if (is_jmp32) {
+-			false_umax += gen_hi_max(false_reg->var_off);
+-			true_umin += gen_hi_min(true_reg->var_off);
+-		}
+-		false_reg->umax_value = min(false_reg->umax_value, false_umax);
+-		true_reg->umin_value = max(true_reg->umin_value, true_umin);
++		set_upper_bound(false_reg, val, is_jmp32, opcode == BPF_JLE);
++		set_lower_bound(true_reg, val, is_jmp32, opcode == BPF_JLT);
+ 		break;
+ 	}
+ 	case BPF_JSLE:
+-- 
+2.20.1
+
 
 
