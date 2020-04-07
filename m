@@ -2,138 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 791251A1763
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 23:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4F81A1778
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 23:41:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726512AbgDGVbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 17:31:08 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:34322 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726416AbgDGVbI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 17:31:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586295067;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=qHR0CsCwZ0V31PL2BJqAGUsMlkV/uU0L7++NwyRQkxk=;
-        b=OAsq7+uXbTRmdURiYMEgrv+EKbYXGebLYPCISsSPyPNQtBqnpGuPMqqIbT6T5dGeKZyre3
-        n5brb2MZXFqTFzmSVwoiefDwp+p7sXeundxKsSXl7QsWi/HlpA8gA8slpFHBSgogVtnwH6
-        rsDTssyugF5yz3v7MqeauWBBU+lXKGw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-402-zJCwTx1xNny4xDdybgXr8A-1; Tue, 07 Apr 2020 17:31:03 -0400
-X-MC-Unique: zJCwTx1xNny4xDdybgXr8A-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BEC5E149C3;
-        Tue,  7 Apr 2020 21:31:01 +0000 (UTC)
-Received: from x1.localdomain.com (ovpn-112-63.ams2.redhat.com [10.36.112.63])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 51AC75C1B0;
-        Tue,  7 Apr 2020 21:31:00 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Maxim Mikityanskiy <maxtram95@gmail.com>,
-        "5 . 3+" <stable@vger.kernel.org>
-Subject: [PATCH] platform/x86: intel_int0002_vgpio: Only bind to the INT0002 dev when using s2idle
-Date:   Tue,  7 Apr 2020 23:30:58 +0200
-Message-Id: <20200407213058.62870-1-hdegoede@redhat.com>
-MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+        id S1726386AbgDGVlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 17:41:06 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:36611 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726395AbgDGVlF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 17:41:05 -0400
+Received: by mail-pl1-f194.google.com with SMTP id g2so1737184plo.3
+        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 14:41:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amacapital-net.20150623.gappssmtp.com; s=20150623;
+        h=content-transfer-encoding:from:mime-version:subject:date:message-id
+         :references:cc:in-reply-to:to;
+        bh=OcgTk0oacA9StsIDMl+6MhjFUtTMmS7Y+sK58xbpiSM=;
+        b=KWVxXLMhkFRjbkIywwN+E3RLvBIGNELGuOR4jyVlTKwqXyxfDd9nBQasDNSjdXkvET
+         anGDi3W5mgZapmRKxA+Jq0xEcZthsonsxXNPLJepozmIshSiXJ9LspNIYELsb6hSNL2+
+         flNDYA1yMrz2VKkIWFU7MFk3V23uF8HgblqnNZRef0XhdCJf8He39U4GNyM/nkfsdcUh
+         i3oxqo9Gakgf9586TGBIWDGQPDXyfyMrHwNjTzwa/31KJqiTWVJrxipiWAIlLfdxAT9j
+         AJKnmMp0zoOiUgVNiEBsmudWzjV0psLuKIMxzACIGxXl0CGVbtuhDtU7s22O9n/5ZwE/
+         RmRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:content-transfer-encoding:from:mime-version
+         :subject:date:message-id:references:cc:in-reply-to:to;
+        bh=OcgTk0oacA9StsIDMl+6MhjFUtTMmS7Y+sK58xbpiSM=;
+        b=LMH54StVrSGPp1bLgLqyxHMqb9GIJXmsx0bSTTfM43/5qMhTATdGFDzbR3cOgz8/CZ
+         mHUamP4ZSDYZK43lsYgEV5ARGj3YFx8wtoCA8NpPV4B6d7IAAxFkHdtp31S2XD7JIRQf
+         1QItaJF6mMrT7WZ75gJ/Md7skJQn++RGCNclKUcm6IqpN0xhzf9KgFP+lGRsV9VvMMx/
+         WLydIBXNHlqSbGmgU2T9KA+sXEfmTIOAk8wa/Q1AbxIVLtPxjeQlYZcOdaQEQ/i1Pl+w
+         J1uFHe+nSF0xYQmSRufHwejTpTx3FO4mpQZYQr2H7hkUst9qAVAtrrPrc02P+5jEIbQi
+         q3gw==
+X-Gm-Message-State: AGi0PuaCZ9nz+M8QUKecE2Sqf2n+D/v7z7165hmkjndL33YJcGCHJUCP
+        U+24t6jNrLrcAYmUB22qLyz2ng==
+X-Google-Smtp-Source: APiQypIoh33lPAe4PZp06efRPul89phzf54v7EFh9aB0eyJZ8JBRAOxgWh67Ibl3730J0Hw1rwbOcg==
+X-Received: by 2002:a17:90b:254:: with SMTP id fz20mr1507187pjb.27.1586295664414;
+        Tue, 07 Apr 2020 14:41:04 -0700 (PDT)
+Received: from ?IPv6:2601:646:c200:1ef2:a143:7d95:91a:a0ae? ([2601:646:c200:1ef2:a143:7d95:91a:a0ae])
+        by smtp.gmail.com with ESMTPSA id np4sm2542972pjb.48.2020.04.07.14.41.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Apr 2020 14:41:03 -0700 (PDT)
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+From:   Andy Lutomirski <luto@amacapital.net>
+Mime-Version: 1.0 (1.0)
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+Date:   Tue, 7 Apr 2020 14:41:02 -0700
+Message-Id: <B85606B0-71B5-4B7D-A892-293CB9C1B434@amacapital.net>
+References: <87eeszjbe6.fsf@nanos.tec.linutronix.de>
+Cc:     Vivek Goyal <vgoyal@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
+In-Reply-To: <87eeszjbe6.fsf@nanos.tec.linutronix.de>
+To:     Thomas Gleixner <tglx@linutronix.de>
+X-Mailer: iPhone Mail (17E255)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement
-irq_set_wake on Bay Trail") stopped passing irq_set_wake requests on to
-the parents IRQ because this was breaking suspend (causing immediate
-wakeups) on an Asus E202SA.
 
-This workaround for this issue is mostly fine, on most Cherry Trail
-devices where we need the INT0002 device for wakeups by e.g. USB kbds,
-the parent IRQ is shared with the ACPI SCI and that is marked as wakeup
-anyways.
 
-But not on all devices, specifically on a Medion Akoya E1239T there is
-no SCI at all, and because the irq_set_wake request is not passed on to
-the parent IRQ, wake up by the builtin USB kbd does not work here.
+> On Apr 7, 2020, at 1:20 PM, Thomas Gleixner <tglx@linutronix.de> wrote:
+>=20
+> =EF=BB=BFAndy Lutomirski <luto@amacapital.net> writes:
+>>>> On Apr 7, 2020, at 10:21 AM, Vivek Goyal <vgoyal@redhat.com> wrote:
+>>> Whether interrupts are enabled or not check only happens before we decid=
+e
+>>> if async pf protocol should be followed or not. Once we decide to
+>>> send PAGE_NOT_PRESENT, later notification PAGE_READY does not check
+>>> if interrupts are enabled or not. And it kind of makes sense otherwise
+>>> guest process will wait infinitely to receive PAGE_READY.
+>>>=20
+>>> I modified the code a bit to disable interrupt and wait 10 seconds (afte=
+r
+>>> getting PAGE_NOT_PRESENT message). And I noticed that error async pf
+>>> got delivered after 10 seconds after enabling interrupts. So error
+>>> async pf was not lost because interrupts were disabled.
+>=20
+> Async PF is not the same as a real #PF. It just hijacked the #PF vector
+> because someone thought this is a brilliant idea.
+>=20
+>>> Havind said that, I thought disabling interrupts does not mask exception=
+s.
+>>> So page fault exception should have been delivered even with interrupts
+>>> disabled. Is that correct? May be there was no vm exit/entry during
+>>> those 10 seconds and that's why.
+>=20
+> No. Async PF is not a real exception. It has interrupt semantics and it
+> can only be injected when the guest has interrupts enabled. It's bad
+> design.
+>=20
+>> My point is that the entire async pf is nonsense. There are two types of e=
+vents right now:
+>>=20
+>> =E2=80=9CPage not ready=E2=80=9D: normally this isn=E2=80=99t even visibl=
+e to the guest =E2=80=94 the
+>> guest just waits. With async pf, the idea is to try to tell the guest
+>> that a particular instruction would block and the guest should do
+>> something else instead. Sending a normal exception is a poor design,
+>> though: the guest may not expect this instruction to cause an
+>> exception. I think KVM should try to deliver an *interrupt* and, if it
+>> can=E2=80=99t, then just block the guest.
+>=20
+> That's pretty much what it does, just that it runs this through #PF and
+> has the checks for interrupts disabled - i.e can't right now' around
+> that. If it can't then KVM schedules the guest out until the situation
+> has been resolved.
+>=20
+>> =E2=80=9CPage ready=E2=80=9D: this is a regular asynchronous notification=
+ just like,
+>> say, a virtio completion. It should be an ordinary interrupt.  Some in
+>> memory data structure should indicate which pages are ready.
+>>=20
+>> =E2=80=9CPage is malfunctioning=E2=80=9D is tricky because you *must* del=
+iver the
+>> event. x86=E2=80=99s #MC is not exactly a masterpiece, but it does kind o=
+f
+>> work.
+>=20
+> Nooooo. This does not need #MC at all. Don't even think about it.
 
-So the workaround for the Asus E202SA immediate wake problem is causing
-problems elsewhere; and in hindsight it is not the correct fix,
-the Asus E202SA uses Airmont CPU cores, but this does not mean it is a
-Cherry Trail based device, Brasswell uses Airmont CPU cores too and this
-actually is a Braswell device.
+Yessssssssssss.  Please do think about it. :)
 
-Most (all?) Braswell devices use classic S3 mode suspend rather then
-s2idle suspend and in this case directly dealing with PME events as
-the INT0002 driver does likely is not the best idea, so that this is
-causing issues is not surprising.
+>=20
+> The point is that the access to such a page is either happening in user
+> space or in kernel space with a proper exception table fixup.
+>=20
+> That means a real #PF is perfectly fine. That can be injected any time
+> and does not have the interrupt semantics of async PF.
 
-Replace the workaround of not passing irq_set_wake requests on to the
-parents IRQ, by not binding to the INT0002 device when s2idle is not used=
-.
-This fixes USB kbd wakeups not working on some Cherry Trail devices,
-while still avoiding mucking with the wakeup flags on the Asus E202SA
-(and other Brasswell devices).
+The hypervisor has no way to distinguish between MOV-and-has-valid-stack-and=
+-extable-entry and MOV-definitely-can=E2=80=99t-fault-here.  Or, for that ma=
+tter, MOV-in-do_page_fault()-will-recurve-if-it-faults.
 
-Cc: Maxim Mikityanskiy <maxtram95@gmail.com>
-Cc: 5.3+ <stable@vger.kernel.org> # 5.3+
-Fixes: 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement i=
-rq_set_wake on Bay Trail")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/platform/x86/intel_int0002_vgpio.c | 18 +++++-------------
- 1 file changed, 5 insertions(+), 13 deletions(-)
+>=20
+> So now lets assume we distangled async PF from #PF and made it a regular
+> interrupt, then the following situation still needs to be dealt with:
+>=20
+>   guest -> access faults
+>=20
+> host -> injects async fault
+>=20
+>   guest -> handles and blocks the task
+>=20
+> host figures out that the page does not exist anymore and now needs to
+> fixup the situation.
+>=20
+> host -> injects async wakeup
+>=20
+>   guest -> returns from aysnc PF interrupt and retries the instruction
+>            which faults again.
+>=20
+> host -> knows by now that this is a real fault and injects a proper #PF
+>=20
+>   guest -> #PF runs and either sends signal to user space or runs
+>            the exception table fixup for a kernel fault.
 
-diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platfor=
-m/x86/intel_int0002_vgpio.c
-index 55f088f535e2..e8bec72d3823 100644
---- a/drivers/platform/x86/intel_int0002_vgpio.c
-+++ b/drivers/platform/x86/intel_int0002_vgpio.c
-@@ -143,21 +143,9 @@ static struct irq_chip int0002_byt_irqchip =3D {
- 	.irq_set_wake		=3D int0002_irq_set_wake,
- };
-=20
--static struct irq_chip int0002_cht_irqchip =3D {
--	.name			=3D DRV_NAME,
--	.irq_ack		=3D int0002_irq_ack,
--	.irq_mask		=3D int0002_irq_mask,
--	.irq_unmask		=3D int0002_irq_unmask,
--	/*
--	 * No set_wake, on CHT the IRQ is typically shared with the ACPI SCI
--	 * and we don't want to mess with the ACPI SCI irq settings.
--	 */
--	.flags			=3D IRQCHIP_SKIP_SET_WAKE,
--};
--
- static const struct x86_cpu_id int0002_cpu_ids[] =3D {
- 	INTEL_CPU_FAM6(ATOM_SILVERMONT, int0002_byt_irqchip),	/* Valleyview, Ba=
-y Trail  */
--	INTEL_CPU_FAM6(ATOM_AIRMONT, int0002_cht_irqchip),	/* Braswell, Cherry =
-Trail */
-+	INTEL_CPU_FAM6(ATOM_AIRMONT, int0002_byt_irqchip),	/* Braswell, Cherry =
-Trail */
- 	{}
- };
-=20
-@@ -181,6 +169,10 @@ static int int0002_probe(struct platform_device *pde=
-v)
- 	if (!cpu_id)
- 		return -ENODEV;
-=20
-+	/* We only need to directly deal with PMEs when using s2idle */
-+	if (!pm_suspend_default_s2idle())
-+		return -ENODEV;
-+
- 	irq =3D platform_get_irq(pdev, 0);
- 	if (irq < 0)
- 		return irq;
---=20
-2.26.0
+Or guest blows up because the fault could not be recovered using #PF.
 
+I can see two somewhat sane ways to make this work.
+
+1. Access to bad memory results in an async-page-not-present, except that,  i=
+t=E2=80=99s not deliverable, the guest is killed. Either that async-page-not=
+-present has a special flag saying =E2=80=9Cmemory failure=E2=80=9D or the e=
+ventual wakeup says =E2=80=9Cmemory failure=E2=80=9D.
+
+2. Access to bad memory results in #MC.  Sure, #MC is a turd, but it=E2=80=99=
+s an *architectural* turd. By all means, have a nice simple PV mechanism to t=
+ell the #MC code exactly what went wrong, but keep the overall flow the same=
+ as in the native case.
+
+I think I like #2 much better. It has another nice effect: a good implementa=
+tion will serve as a way to exercise the #MC code without needing to muck wi=
+th EINJ or with whatever magic Tony uses. The average kernel developer does n=
+ot have access to a box with testable memory failure reporting.
+
+>=20
+> Thanks,
+>=20
+>        tglx
+>=20
+>=20
+>=20
+>=20
