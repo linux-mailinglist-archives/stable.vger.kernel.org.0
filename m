@@ -2,57 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C9931A0BF2
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B29C1A0C25
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:42:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728054AbgDGKap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:30:45 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:41267 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728075AbgDGKap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 06:30:45 -0400
-Received: by mail-pf1-f195.google.com with SMTP id a24so595651pfc.8
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 03:30:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=4n8165PczMmynhsuyrpUmLL7rVF0SJtjoKSVmGf1cyQ=;
-        b=s+dqTowvncuxXlk3WBOeZBfuULsXy+CBSwVkelWlYUK4nNORZmWEgwY+DIU/ev9SnM
-         qkMO4UTCdQvTjl86Tt4tz7OyQvSunr9gfBHsQpsqVzSq2glphbpQNOOx9hSoNiSt/+Yl
-         Kd/BkT2AJ4r3jHn1NHzZgACC2EaJKQmyacV1vdY9mVlSTjMDu/6JyYHbH3QLRESLsAWD
-         jobedCpldDnRLhDR4obfDN/ax9b6FhgHRF11Np92Ft2+7amxuixoyv6eIKscpzIFrP6h
-         kGX270pNvIPUT3uHbToBTUBNEWJ9kGCkEpFNbZ/6cW0aRZqz/SLf6Vn8+46Zv9mg13RY
-         +CCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=4n8165PczMmynhsuyrpUmLL7rVF0SJtjoKSVmGf1cyQ=;
-        b=cLyYSi1neBqd5mOeLmwhEorWDAa8kDJnIo96mcdJd+iPQ/U8CS4A/T7UQUHkDm9bd/
-         g9sDmJ8955EtpchEozFlMdh1qiIOcdFkaQpNKtc1jG322H5lLKuYJIjeHvfHTifOIePV
-         j+/XQ0oM0KAAS4GyOyQwYgDtnBEQx4XqMYwRYPctXwAtYe8sK7MVhm8OMShI2uiUZ5SO
-         P3sVPdBnn2oMRp7nq5GfUOyLX+RMjR3kw7/JzFDOU+Oi5WWLTp7gml0KT40ZGbjSPvZO
-         nRRjchpZkO7y5wIUJQGqxrerP9LToqVRpT3w/CKyNsCzFGEC+IAnevMsciuo7WBsOo4G
-         Zn0w==
-X-Gm-Message-State: AGi0PuYS4+m4691HeR1cCwfpPlhesn76z1VxdyMy7dD/HQbO8jDV9Wwj
-        dWQ5ch/KG0Ut8705lHBL1Z1rjRm0P0Jym2dNsj4=
-X-Google-Smtp-Source: APiQypKD/ssQiKWwgUme76e0xIYertXh6TJNFomfgNoto8jArBMcNOmxIFr0MoZ0CqwSa/hYq1lCwvMpZy/JtHjzMko=
-X-Received: by 2002:aa7:9a01:: with SMTP id w1mr1907927pfj.256.1586255444514;
- Tue, 07 Apr 2020 03:30:44 -0700 (PDT)
+        id S1728075AbgDGKmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:42:04 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:47030 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725883AbgDGKmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 06:42:04 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jLlg8-0004LQ-Vs; Tue, 07 Apr 2020 12:42:01 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 93F871C0481;
+        Tue,  7 Apr 2020 12:42:00 +0200 (CEST)
+Date:   Tue, 07 Apr 2020 10:42:00 -0000
+From:   "tip-bot2 for Michael Kerrisk (man-pages)" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/urgent] time/namespace: Fix time_for_children symlink
+Cc:     Michael Kerrisk <mtk.manpages@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dmitry Safonov <dima@arista.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrei Vagin <avagin@gmail.com>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <a2418c48-ed80-3afe-116e-6611cb799557@gmail.com>
+References: <a2418c48-ed80-3afe-116e-6611cb799557@gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a17:90a:9704:0:0:0:0 with HTTP; Tue, 7 Apr 2020 03:30:44
- -0700 (PDT)
-Reply-To: sgt.annhester89@gmail.com
-From:   Ann <kaylinmanthey82@gmail.com>
-Date:   Tue, 7 Apr 2020 10:30:44 +0000
-Message-ID: <CAM0qh+840yuxzkyehzL9KuuzkG-XErwXwiaXz6fgJQfbfftckQ@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <158625612023.28353.17886180270911841813.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello my dear,how long should I wait before you respond to my message
-after sending an email to you?,
+The following commit has been merged into the timers/urgent branch of tip:
+
+Commit-ID:     b801f1e22c23c259d6a2c955efddd20370de19a6
+Gitweb:        https://git.kernel.org/tip/b801f1e22c23c259d6a2c955efddd20370de19a6
+Author:        Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
+AuthorDate:    Fri, 03 Apr 2020 14:11:39 +02:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Tue, 07 Apr 2020 12:37:21 +02:00
+
+time/namespace: Fix time_for_children symlink
+
+Looking at the contents of the /proc/PID/ns/time_for_children symlink shows
+an anomaly:
+
+$ ls -l /proc/self/ns/* |awk '{print $9, $10, $11}'
+...
+/proc/self/ns/pid -> pid:[4026531836]
+/proc/self/ns/pid_for_children -> pid:[4026531836]
+/proc/self/ns/time -> time:[4026531834]
+/proc/self/ns/time_for_children -> time_for_children:[4026531834]
+/proc/self/ns/user -> user:[4026531837]
+...
+
+The reference for 'time_for_children' should be a 'time' namespace, just as
+the reference for 'pid_for_children' is a 'pid' namespace.  In other words,
+the above time_for_children link should read:
+
+/proc/self/ns/time_for_children -> time:[4026531834]
+
+Fixes: 769071ac9f20 ("ns: Introduce Time Namespace")
+Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Dmitry Safonov <dima@arista.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Acked-by: Andrei Vagin <avagin@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/a2418c48-ed80-3afe-116e-6611cb799557@gmail.com
+---
+ kernel/time/namespace.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/kernel/time/namespace.c b/kernel/time/namespace.c
+index e6ba064..3b30288 100644
+--- a/kernel/time/namespace.c
++++ b/kernel/time/namespace.c
+@@ -447,6 +447,7 @@ const struct proc_ns_operations timens_operations = {
+ 
+ const struct proc_ns_operations timens_for_children_operations = {
+ 	.name		= "time_for_children",
++	.real_ns_name	= "time",
+ 	.type		= CLONE_NEWTIME,
+ 	.get		= timens_for_children_get,
+ 	.put		= timens_put,
