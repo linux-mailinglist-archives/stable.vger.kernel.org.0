@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C48CC1A0B99
-	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA131A0B88
+	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729045AbgDGKZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:25:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36670 "EHLO mail.kernel.org"
+        id S1728709AbgDGK1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:27:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729052AbgDGKZy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:25:54 -0400
+        id S1729256AbgDGK1B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:27:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED89B2074B;
-        Tue,  7 Apr 2020 10:25:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C53E20644;
+        Tue,  7 Apr 2020 10:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255154;
-        bh=CiDUe5Q2TUEW9mCUg7IqKdEful4ga79obeogsJc9u9Q=;
+        s=default; t=1586255219;
+        bh=P7iouULCpIAHpWLOd6Wjrgm7dXrqA8tQoL3jEOu3ql4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yBaiIVbwnMc7dh0RHU55VwOxrBeWNLt3hYSuyl6kSCjQkbrQO3mc+jF9DAK3VgCP3
-         IG4e+X8VAGHiNNRFecTv1Gw8N2vXcx1pTVycmJcdAkfLLlsDfI74jLxkjMY99N2yu1
-         yRprbCCWPfAuuTaew9gxGkNX69KFARMj2Z6++wcY=
+        b=JIh2c307cG7sLRuJmaQVWfsXuS9mdJripg8tX7hDuqujFtYenes7bG8DsM7MQuiKW
+         wS9++TRMhr/niLKy/vbpwDcAlWc2MdcW6dqXW9qQ4yyLaEFP0aga7zjVpUU2KkAiPj
+         6tK176Tzw7hWdBnJgVG9CH0hUs3uobRPTHYUroVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tariq Toukan <tariqt@mellanox.com>,
-        Boris Pismenny <borisp@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.5 34/46] net/mlx5e: kTLS, Fix wrong value in record tracker enum
-Date:   Tue,  7 Apr 2020 12:22:05 +0200
-Message-Id: <20200407101503.119978133@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 09/29] padata: fix uninitialized return value in padata_replace()
+Date:   Tue,  7 Apr 2020 12:22:06 +0200
+Message-Id: <20200407101453.138259293@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200407101459.502593074@linuxfoundation.org>
-References: <20200407101459.502593074@linuxfoundation.org>
+In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
+References: <20200407101452.046058399@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit f28ca65efa87b3fb8da3d69ca7cb1ebc0448de66 upstream.
+[ Upstream commit 41ccdbfd5427bbbf3ed58b16750113b38fad1780 ]
 
-Fix to match the HW spec: TRACKING state is 1, SEARCHING is 2.
-No real issue for now, as these values are not currently used.
+According to Geert's report[0],
 
-Fixes: d2ead1f360e8 ("net/mlx5e: Add kTLS TX HW offload support")
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Reviewed-by: Boris Pismenny <borisp@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  kernel/padata.c: warning: 'err' may be used uninitialized in this
+    function [-Wuninitialized]:  => 539:2
 
+Warning is seen only with older compilers on certain archs.  The
+runtime effect is potentially returning garbage down the stack when
+padata's cpumasks are modified before any pcrypt requests have run.
+
+Simplest fix is to initialize err to the success value.
+
+[0] http://lkml.kernel.org/r/20200210135506.11536-1-geert@linux-m68k.org
+
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: bbefa1dd6a6d ("crypto: pcrypt - Avoid deadlock by using per-instance padata queues")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/padata.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.h
-@@ -38,8 +38,8 @@ enum {
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 72777c10bb9cb..62082597d4a2a 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -512,7 +512,7 @@ static int padata_replace_one(struct padata_shell *ps)
+ static int padata_replace(struct padata_instance *pinst)
+ {
+ 	struct padata_shell *ps;
+-	int err;
++	int err = 0;
  
- enum {
- 	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_START     = 0,
--	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_SEARCHING = 1,
--	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_TRACKING  = 2,
-+	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_TRACKING  = 1,
-+	MLX5E_TLS_PROGRESS_PARAMS_RECORD_TRACKER_STATE_SEARCHING = 2,
- };
+ 	pinst->flags |= PADATA_RESET;
  
- struct mlx5e_ktls_offload_context_tx {
+-- 
+2.20.1
+
 
 
