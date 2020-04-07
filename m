@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D8D11A0B93
+	by mail.lfdr.de (Postfix) with ESMTP id 2991D1A0B92
 	for <lists+stable@lfdr.de>; Tue,  7 Apr 2020 12:27:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728810AbgDGK0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 06:26:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38748 "EHLO mail.kernel.org"
+        id S1729190AbgDGK0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 06:26:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728827AbgDGK0f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Apr 2020 06:26:35 -0400
+        id S1729187AbgDGK0i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Apr 2020 06:26:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F245F2074B;
-        Tue,  7 Apr 2020 10:26:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B79F2074F;
+        Tue,  7 Apr 2020 10:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586255195;
-        bh=d+xqoosQWAFmA/UHu9JFAwrIxg7k77vrafrDNJe0OWI=;
+        s=default; t=1586255197;
+        bh=TorpH4uEST+U3yxKOkCZL/m53n9xz2lDBNqCEdKUsyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPP8RbE5fhFpO3lKfdQDuynxc2z9GBiHmh2imtqYbbQDXJ2RLKogVprcLcmYYSLOK
-         ESmw0rBEeOIWwLlkjsep5fZnOn/cwCVgIjSAwDKkuuSTormhXjNZBr5RcUTN8+59ak
-         kJErf1b1gVAcMubXnX4QyiOOjiDjcE/YAGkOmd24=
+        b=1jiPTpMzHDbG7C2TyPedRaBPxNc+MC9WjyHr1Q8mb3UC/FTp48MaFHFeG55FobEV9
+         PnmLpGdHZZKbIhA95b27iOCm5eHQXo+j1873zCvB7hTiLntcgvyVtH/NCZeieD7lta
+         PSxLkwjWRyoQhbpshT46QFA/UY/v0F7J9xbMOq/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Khouloud Touil <ktouil@baylibre.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org,
+        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
         Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.6 21/29] nvmem: release the write-protect pin
-Date:   Tue,  7 Apr 2020 12:22:18 +0200
-Message-Id: <20200407101454.643321516@linuxfoundation.org>
+Subject: [PATCH 5.6 22/29] nvmem: check for NULL reg_read and reg_write before dereferencing
+Date:   Tue,  7 Apr 2020 12:22:19 +0200
+Message-Id: <20200407101454.761010846@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200407101452.046058399@linuxfoundation.org>
 References: <20200407101452.046058399@linuxfoundation.org>
@@ -45,37 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khouloud Touil <ktouil@baylibre.com>
+From: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
 
-commit a9c3766cb19cdadf2776aba41b64470002645894 upstream.
+commit 3c91ef69a3e94f78546b246225ed573fbf1735b4 upstream.
 
-Put the write-protect GPIO descriptor in nvmem_release() so that it can
-be automatically released when the associated device's reference count
-drops to 0.
+Return -EPERM if reg_read is NULL in bin_attr_nvmem_read() or if
+reg_write is NULL in bin_attr_nvmem_write().
 
-Fixes: 2a127da461a9 ("nvmem: add support for the write-protect pin")
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
+This prevents NULL dereferences such as the one described in
+03cd45d2e219 ("thunderbolt: Prevent crash if non-active NVMem file is
+read")
+
+Signed-off-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
 Cc: stable <stable@vger.kernel.org>
-[Bartosz: tweak the commit message]
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200310132257.23358-8-srinivas.kandagatla@linaro.org
+Link: https://lore.kernel.org/r/20200310132257.23358-10-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvmem/core.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvmem/nvmem-sysfs.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -72,6 +72,7 @@ static void nvmem_release(struct device
- 	struct nvmem_device *nvmem = to_nvmem_device(dev);
+--- a/drivers/nvmem/nvmem-sysfs.c
++++ b/drivers/nvmem/nvmem-sysfs.c
+@@ -56,6 +56,9 @@ static ssize_t bin_attr_nvmem_read(struc
  
- 	ida_simple_remove(&nvmem_ida, nvmem->id);
-+	gpiod_put(nvmem->wp_gpio);
- 	kfree(nvmem);
- }
+ 	count = round_down(count, nvmem->word_size);
  
++	if (!nvmem->reg_read)
++		return -EPERM;
++
+ 	rc = nvmem->reg_read(nvmem->priv, pos, buf, count);
+ 
+ 	if (rc)
+@@ -90,6 +93,9 @@ static ssize_t bin_attr_nvmem_write(stru
+ 
+ 	count = round_down(count, nvmem->word_size);
+ 
++	if (!nvmem->reg_write)
++		return -EPERM;
++
+ 	rc = nvmem->reg_write(nvmem->priv, pos, buf, count);
+ 
+ 	if (rc)
 
 
