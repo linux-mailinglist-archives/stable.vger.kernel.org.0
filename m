@@ -2,97 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37D961A193F
-	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 02:30:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F09D1A195B
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 02:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726477AbgDHAa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 20:30:27 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:57334 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726508AbgDHAaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 20:30:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586305823;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2MZBPDUxV9RhejRmNfB7mo4jhMQj38Op7zbCkOjFq48=;
-        b=FisQMVwgqk+QwiHEkbn6jdK0Kbd1WBvj96xXljwx59nz8XjQGsXWsvmmu+YWIu+zZkXJnW
-        UrI1P4KNe9qICM9+WJVkHj7bV95vWg0sAVNgaG5TTZjLcDwB/PqCzdsF2+nDjngj7qZWx3
-        nSxOvdkvB2CqcNk1FPBn3q+925dDBco=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-255-gGdLjWeiN1KEjDZhojeJ6g-1; Tue, 07 Apr 2020 20:30:21 -0400
-X-MC-Unique: gGdLjWeiN1KEjDZhojeJ6g-1
-Received: by mail-wm1-f69.google.com with SMTP id o5so1634875wmo.6
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 17:30:21 -0700 (PDT)
+        id S1726436AbgDHA6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 20:58:22 -0400
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:33398 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726428AbgDHA6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 20:58:21 -0400
+Received: by mail-pf1-f196.google.com with SMTP id c138so2273156pfc.0
+        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 17:58:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3lALvOTB8/ikgxtkmVBJzkLFK0q/rVFd0/XWXQpupLU=;
+        b=l69FOkBNBX4OVCjpYwQc2RqdIhT2T155M2wppjBPv4Lf8PQkEIbZ3dRdoRwGjWk34a
+         +vNVe+aO7ZFEubm48wldQqFSUbfZBvVHRZC8JCtZ2nATd0JHLlxL36GOqRSDcreKaXY3
+         BNoYrv9QT2AZA2B7dpwvtRy+LtpfRqqYWovBygaZuQ9ad0q0iyRXCe6uoLQ5zPLzXpSk
+         QhJMpud2EbB6xcGUfj3duLJ1ssUOeaEhQDg9ngyTQ5Oa6ol6wVAPArYkQ+NYcloNhICk
+         9O1yN73flEJar4MAQABUpHrW3WsY2PeTnvfdt/lk3UJmc5cPyewU5fpN/f6aIO+1nZmP
+         Ptbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2MZBPDUxV9RhejRmNfB7mo4jhMQj38Op7zbCkOjFq48=;
-        b=OW4s0WtC/phEIJEp9YrULXplvoXoP2WfX0+6ufY6U4YKjx1SYaIH+Ly51kggtUgBP9
-         rD+br/P4idoIDhP4xDTkjSlS4jsEr03cz/u4KIIzwE2m8qKTGjiU2I+1pKJa4fa6paae
-         cT3JtQ41qYj3n0aNizCZuLtEeM0h/3oDmfxIUu2/4Net1hpTsmjqJY+ReSONGXvcP0U+
-         xkVQwMlFoTjPmVIh/CjNBtFyiktYhIxJazCQJnPRXKIoHdJhbJ772lDbxZ9U6RfhtsLy
-         sEnrcW9Wc2/5ZYCQUPHhp2KTFtDSl+OpNQ4lqmzLsavEay/NttGMX97t6qGwbk0MYjnp
-         yPpA==
-X-Gm-Message-State: AGi0PuYyoubyj+Lb/ioiL9d0zfeFr/wwUANvrSSdaniyzXPdrOnxPUyX
-        5o2nxIjMCWfEPFvP2GVav416HwsZgfeLXwLy/8v4EX5spg5Dybe1iX4Gi5KARjL3sLm3IKtQ60H
-        FvMs61cS4d/DglQjx
-X-Received: by 2002:a5d:4085:: with SMTP id o5mr5042787wrp.327.1586305820545;
-        Tue, 07 Apr 2020 17:30:20 -0700 (PDT)
-X-Google-Smtp-Source: APiQypKoQMFSt24mcYF1v+WDBRR73pOTR2uHEj2ttnoL4Vy/+kjZdxsveaYn+BYQj9ifCX3Vaxkjhg==
-X-Received: by 2002:a5d:4085:: with SMTP id o5mr5042763wrp.327.1586305820293;
-        Tue, 07 Apr 2020 17:30:20 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:bd61:914:5c2f:2580? ([2001:b07:6468:f312:bd61:914:5c2f:2580])
-        by smtp.gmail.com with ESMTPSA id n124sm4772405wma.11.2020.04.07.17.30.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Apr 2020 17:30:19 -0700 (PDT)
-Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
-To:     Andy Lutomirski <luto@amacapital.net>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
-References: <2776fced-54c2-40eb-7921-1c68236c7f70@redhat.com>
- <0255CF03-D45D-45E0-BC61-79159B94ED44@amacapital.net>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <4c2499b0-a303-8d91-357e-99b78cbfdc23@redhat.com>
-Date:   Wed, 8 Apr 2020 02:30:18 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3lALvOTB8/ikgxtkmVBJzkLFK0q/rVFd0/XWXQpupLU=;
+        b=eTGGVH4Z1hHfOBqNzRauRImbsTkl+ioVKVqbi4qYNSBbCPDPPhJXt9bVmrn8SWwV46
+         zHDQKgqy0ueqRUy0UwLahml8sPD/SKVCSt4XnWmH72HQfwwU5t0vMfpetmKNjzwiMZDh
+         6VFyFXXHTeRCVSOG8/qcghDiSt0G7xWNm77KdLLKezFoStnURmFr+U50lKC4mnFgJTWV
+         EE9hljCdQslVdAgFbRMuR+RSguRAP95Mau/MdemVbBkPfpZf7NzKedC/bjakEJV2eMLo
+         z40zNvxn7aE/Mul3QPIsrR4VbArifPR6fyqIpaLZOjwa6knsNHJYuiIX46lDG2ewqe3y
+         DkJw==
+X-Gm-Message-State: AGi0Puatiu65xhyKnEQ1uFQqIyauW20DkGvYvj7/S9T68p0ST7v/qL0f
+        2v30DL41KYVi3FEoEli6jtHjyUo4/i8=
+X-Google-Smtp-Source: APiQypLIFswWGLUOtOvmHEgsGnT8bz2x0DfQ3otp/iFoIcRTTr/A9AUk0aD+nfeXhqsyuC0GU7W8Jg==
+X-Received: by 2002:a62:1a90:: with SMTP id a138mr5333015pfa.320.1586307500406;
+        Tue, 07 Apr 2020 17:58:20 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j24sm2711290pji.20.2020.04.07.17.58.19
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Apr 2020 17:58:19 -0700 (PDT)
+Message-ID: <5e8d21ab.1c69fb81.b0bcd.a5fb@mx.google.com>
+Date:   Tue, 07 Apr 2020 17:58:19 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <0255CF03-D45D-45E0-BC61-79159B94ED44@amacapital.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.218-17-ge3343a706244
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 96 boots: 3 failed,
+ 87 passed with 2 offline, 4 untried/unknown (v4.4.218-17-ge3343a706244)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08/04/20 00:29, Andy Lutomirski wrote:
->> I prefer #VE, but I can see how #MC has some appeal.  However, #VE has a
->> mechanism to avoid reentrancy, unlike #MC.  How would that be better
->> than the current mess with an NMI happening in the first few
->> instructions of the #PF handler?
->>
->>
-> It has to be an IST vector due to the possibility of hitting a memory failure right after SYSCALL.
+stable-rc/linux-4.4.y boot: 96 boots: 3 failed, 87 passed with 2 offline, 4=
+ untried/unknown (v4.4.218-17-ge3343a706244)
 
-Not if syscall clears IF, right?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.218-17-ge3343a706244/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.218-17-ge3343a706244/
 
-> I think #MC has a mechanism to prevent reentrancy to a limited extent. How does #VE avoid reentrancy?
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.218-17-ge3343a706244
+Git Commit: e3343a706244b81d54319c82c3347c66e26f66cc
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 18 SoC families, 17 builds out of 190
 
-In hardware, it has a flag word and delivers a vmexit instead of #VE if
-that word is not zero (see towards the end of 25.5.6.1 Convertible EPT
-Violations).  Here it would be the same except it would just do the page
-fault synchronously in the host.
+Boot Regressions Detected:
 
-Paolo
+arm:
 
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 59 days (last pass: v4.4.=
+212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 12 days (last pass: v4.4.216-127-=
+g955137020949 - first fail: v4.4.217)
+
+Boot Failures Detected:
+
+arm:
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
