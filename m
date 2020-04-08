@@ -2,166 +2,258 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA43E1A2174
-	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 14:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A1E31A219F
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 14:20:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727192AbgDHMMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Apr 2020 08:12:21 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:40133 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726521AbgDHMMU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 08:12:20 -0400
-Received: by mail-wr1-f67.google.com with SMTP id s8so7517434wrt.7;
-        Wed, 08 Apr 2020 05:12:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=4oBWtnB+AHmz4Nj8u6gcWza06OmPrpkuIS2H9Ro5sVM=;
-        b=UER6qfihxL/25HM0sbCl8NoXGLpvoBaJhn0C/a7sOYGwN++t+U4nxnJ36Ghcrvuh9J
-         Liy8Flxrt05qSGhbcVeX76xpyinM76Mi0dTOY4f0NZnJBgbdpvPB2/7m5ldkgYF91Kqg
-         0npcwqWIgZlZxaWjxZD24HsJaQFNQitnoY4aI7+dgZfjGh3JMGeJA7SiVMpktB0aKJku
-         8n1ba2CqrWLO84S/nWTQXJxhZk1ixAaZhg0v3DRq231yzK15b8X9avmxfYlKvV5UtMte
-         42yktEv5oGdX73iMQMKJ3oEmmLgqsexd0dkq8uRZSgkSJ97uShcxbHxZoxBOvsC9l1RH
-         5pjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=4oBWtnB+AHmz4Nj8u6gcWza06OmPrpkuIS2H9Ro5sVM=;
-        b=BW8YPKqM64mhpOQDqKQJqv93rN8it5LADvIbI9986kSuWT16UcULR/xEr9Eqf/GR7T
-         FyRUN3uzltICyQInCgfQgGqsVW1nigUerBVgpE28X6LFgIBYKrpUwOumYVba3WlyLliT
-         RIT3OHtd89zINUnzp+yVzI8DGO7fvuTtH662NTkmnz3SEAnwWn7RUW7UY9xPW95WXOqd
-         b4nerSaFNyn++tj5cMDCKEUMoCns5ssioTejBO/g4n2WgG+q1EfRjjWSZSciiRfiOK4i
-         5ybF/GaMMSjNVoTLZ5Sj4S3QNVLAs6QZvmbnzIoNm2Mt7JZ8ZmbuMGzgsesjLYKqEyA7
-         uNGA==
-X-Gm-Message-State: AGi0PuY/4fTJFx2AOD+LNU+5rLHy7OepB3673jCLazHdJpl9ePDUEAXZ
-        4JBNorpD+2qIPjhIHdS2gU7sQPL4IZrniNdhVC4=
-X-Google-Smtp-Source: APiQypL6mZfbVeqX2oW9O9VwevxlZXhVbfN7PwXL+V8tturb6+tilG9IrnX56wB1IKgk5BIy1aYEzPOwOkoazqTjSA4=
-X-Received: by 2002:adf:b6ab:: with SMTP id j43mr8243098wre.109.1586347937671;
- Wed, 08 Apr 2020 05:12:17 -0700 (PDT)
+        id S1728390AbgDHMUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Apr 2020 08:20:32 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:49648 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727126AbgDHMUc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 08:20:32 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jM9gt-00062n-Fp; Wed, 08 Apr 2020 14:20:23 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id E2D0F1C04D7;
+        Wed,  8 Apr 2020 14:20:22 +0200 (CEST)
+Date:   Wed, 08 Apr 2020 12:20:22 -0000
+From:   "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: perf/urgent] perf/core: Fix event cgroup tracking
+Cc:     <stable@vger.kernel.org>, Song Liu <songliubraving@fb.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200318193337.GB20760@hirez.programming.kicks-ass.net>
+References: <20200318193337.GB20760@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-References: <20200407213058.62870-1-hdegoede@redhat.com>
-In-Reply-To: <20200407213058.62870-1-hdegoede@redhat.com>
-From:   Maxim Mikityanskiy <maxtram95@gmail.com>
-Date:   Wed, 8 Apr 2020 15:11:51 +0300
-Message-ID: <CAKErNvqM9ax8RB+Hm0e70a_uk_Ok3KfSQDmy0q9jKFaAQM3Fsg@mail.gmail.com>
-Subject: Re: [PATCH] platform/x86: intel_int0002_vgpio: Only bind to the
- INT0002 dev when using s2idle
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "5 . 3+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <158634842257.28353.14335300348077819307.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 8, 2020 at 12:31 AM Hans de Goede <hdegoede@redhat.com> wrote:
->
-> Commit 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement
-> irq_set_wake on Bay Trail") stopped passing irq_set_wake requests on to
-> the parents IRQ because this was breaking suspend (causing immediate
-> wakeups) on an Asus E202SA.
->
-> This workaround for this issue is mostly fine, on most Cherry Trail
-> devices where we need the INT0002 device for wakeups by e.g. USB kbds,
-> the parent IRQ is shared with the ACPI SCI and that is marked as wakeup
-> anyways.
->
-> But not on all devices, specifically on a Medion Akoya E1239T there is
-> no SCI at all, and because the irq_set_wake request is not passed on to
-> the parent IRQ, wake up by the builtin USB kbd does not work here.
->
-> So the workaround for the Asus E202SA immediate wake problem is causing
-> problems elsewhere; and in hindsight it is not the correct fix,
-> the Asus E202SA uses Airmont CPU cores, but this does not mean it is a
-> Cherry Trail based device, Brasswell uses Airmont CPU cores too and this
-> actually is a Braswell device.
->
-> Most (all?) Braswell devices use classic S3 mode suspend rather then
-> s2idle suspend and in this case directly dealing with PME events as
-> the INT0002 driver does likely is not the best idea, so that this is
-> causing issues is not surprising.
->
-> Replace the workaround of not passing irq_set_wake requests on to the
-> parents IRQ, by not binding to the INT0002 device when s2idle is not used=
-.
-> This fixes USB kbd wakeups not working on some Cherry Trail devices,
-> while still avoiding mucking with the wakeup flags on the Asus E202SA
-> (and other Brasswell devices).
+The following commit has been merged into the perf/urgent branch of tip:
 
-I tested this patch over kernel 5.6.2 on Asus E202SA and didn't notice
-any regressions. Wakeup by opening lid, by pressing a button on
-keyboard, by USB keyboard =E2=80=94 all seem to work fine. So, if appropria=
-te:
+Commit-ID:     33238c50451596be86db1505ab65fee5172844d0
+Gitweb:        https://git.kernel.org/tip/33238c50451596be86db1505ab65fee5172844d0
+Author:        Peter Zijlstra <peterz@infradead.org>
+AuthorDate:    Wed, 18 Mar 2020 20:33:37 +01:00
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Wed, 08 Apr 2020 11:33:44 +02:00
 
-Tested-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+perf/core: Fix event cgroup tracking
 
-I have a question though. After your patch this driver will basically
-be a no-op on my laptop. Does it mean I don't even need it in the
-first place? What about the IRQ storm this driver is meant to deal
-with =E2=80=94 does it never happen on Braswell? What are the reproduction
-steps to verify my hardware is not affected? I have that INT0002
-device, so I'm worried it may cause issues if not bound to the driver.
+Song reports that installing cgroup events is broken since:
 
-> Cc: Maxim Mikityanskiy <maxtram95@gmail.com>
-> Cc: 5.3+ <stable@vger.kernel.org> # 5.3+
-> Fixes: 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement i=
-rq_set_wake on Bay Trail")
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/platform/x86/intel_int0002_vgpio.c | 18 +++++-------------
->  1 file changed, 5 insertions(+), 13 deletions(-)
->
-> diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platfor=
-m/x86/intel_int0002_vgpio.c
-> index 55f088f535e2..e8bec72d3823 100644
-> --- a/drivers/platform/x86/intel_int0002_vgpio.c
-> +++ b/drivers/platform/x86/intel_int0002_vgpio.c
-> @@ -143,21 +143,9 @@ static struct irq_chip int0002_byt_irqchip =3D {
->         .irq_set_wake           =3D int0002_irq_set_wake,
->  };
->
-> -static struct irq_chip int0002_cht_irqchip =3D {
-> -       .name                   =3D DRV_NAME,
-> -       .irq_ack                =3D int0002_irq_ack,
-> -       .irq_mask               =3D int0002_irq_mask,
-> -       .irq_unmask             =3D int0002_irq_unmask,
-> -       /*
-> -        * No set_wake, on CHT the IRQ is typically shared with the ACPI =
-SCI
-> -        * and we don't want to mess with the ACPI SCI irq settings.
-> -        */
-> -       .flags                  =3D IRQCHIP_SKIP_SET_WAKE,
-> -};
-> -
->  static const struct x86_cpu_id int0002_cpu_ids[] =3D {
->         INTEL_CPU_FAM6(ATOM_SILVERMONT, int0002_byt_irqchip),   /* Valley=
-view, Bay Trail  */
-> -       INTEL_CPU_FAM6(ATOM_AIRMONT, int0002_cht_irqchip),      /* Braswe=
-ll, Cherry Trail */
-> +       INTEL_CPU_FAM6(ATOM_AIRMONT, int0002_byt_irqchip),      /* Braswe=
-ll, Cherry Trail */
->         {}
->  };
->
-> @@ -181,6 +169,10 @@ static int int0002_probe(struct platform_device *pde=
-v)
->         if (!cpu_id)
->                 return -ENODEV;
->
-> +       /* We only need to directly deal with PMEs when using s2idle */
-> +       if (!pm_suspend_default_s2idle())
-> +               return -ENODEV;
-> +
->         irq =3D platform_get_irq(pdev, 0);
->         if (irq < 0)
->                 return irq;
-> --
-> 2.26.0
->
+  db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
+
+The problem being that cgroup events try to track cpuctx->cgrp even
+for disabled events, which is pointless and actively harmful since the
+above commit. Rework the code to have explicit enable/disable hooks
+for cgroup events, such that we can limit cgroup tracking to active
+events.
+
+More specifically, since the above commit disabled events are no
+longer added to their context from the 'right' CPU, and we can't
+access things like the current cgroup for a remote CPU.
+
+Cc: <stable@vger.kernel.org> # v5.5+
+Fixes: db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
+Reported-by: Song Liu <songliubraving@fb.com>
+Tested-by: Song Liu <songliubraving@fb.com>
+Reviewed-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200318193337.GB20760@hirez.programming.kicks-ass.net
+---
+ kernel/events/core.c | 70 ++++++++++++++++++++++++++-----------------
+ 1 file changed, 43 insertions(+), 27 deletions(-)
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 55e4441..7afd0b5 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -983,16 +983,10 @@ perf_cgroup_set_shadow_time(struct perf_event *event, u64 now)
+ 	event->shadow_ctx_time = now - t->timestamp;
+ }
+ 
+-/*
+- * Update cpuctx->cgrp so that it is set when first cgroup event is added and
+- * cleared when last cgroup event is removed.
+- */
+ static inline void
+-list_update_cgroup_event(struct perf_event *event,
+-			 struct perf_event_context *ctx, bool add)
++perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
+ {
+ 	struct perf_cpu_context *cpuctx;
+-	struct list_head *cpuctx_entry;
+ 
+ 	if (!is_cgroup_event(event))
+ 		return;
+@@ -1009,28 +1003,41 @@ list_update_cgroup_event(struct perf_event *event,
+ 	 * because if the first would mismatch, the second would not try again
+ 	 * and we would leave cpuctx->cgrp unset.
+ 	 */
+-	if (add && !cpuctx->cgrp) {
++	if (ctx->is_active && !cpuctx->cgrp) {
+ 		struct perf_cgroup *cgrp = perf_cgroup_from_task(current, ctx);
+ 
+ 		if (cgroup_is_descendant(cgrp->css.cgroup, event->cgrp->css.cgroup))
+ 			cpuctx->cgrp = cgrp;
+ 	}
+ 
+-	if (add && ctx->nr_cgroups++)
++	if (ctx->nr_cgroups++)
+ 		return;
+-	else if (!add && --ctx->nr_cgroups)
++
++	list_add(&cpuctx->cgrp_cpuctx_entry,
++			per_cpu_ptr(&cgrp_cpuctx_list, event->cpu));
++}
++
++static inline void
++perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
++{
++	struct perf_cpu_context *cpuctx;
++
++	if (!is_cgroup_event(event))
+ 		return;
+ 
+-	/* no cgroup running */
+-	if (!add)
++	/*
++	 * Because cgroup events are always per-cpu events,
++	 * @ctx == &cpuctx->ctx.
++	 */
++	cpuctx = container_of(ctx, struct perf_cpu_context, ctx);
++
++	if (--ctx->nr_cgroups)
++		return;
++
++	if (ctx->is_active && cpuctx->cgrp)
+ 		cpuctx->cgrp = NULL;
+ 
+-	cpuctx_entry = &cpuctx->cgrp_cpuctx_entry;
+-	if (add)
+-		list_add(cpuctx_entry,
+-			 per_cpu_ptr(&cgrp_cpuctx_list, event->cpu));
+-	else
+-		list_del(cpuctx_entry);
++	list_del(&cpuctx->cgrp_cpuctx_entry);
+ }
+ 
+ #else /* !CONFIG_CGROUP_PERF */
+@@ -1096,11 +1103,14 @@ static inline u64 perf_cgroup_event_time(struct perf_event *event)
+ }
+ 
+ static inline void
+-list_update_cgroup_event(struct perf_event *event,
+-			 struct perf_event_context *ctx, bool add)
++perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
+ {
+ }
+ 
++static inline void
++perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
++{
++}
+ #endif
+ 
+ /*
+@@ -1791,13 +1801,14 @@ list_add_event(struct perf_event *event, struct perf_event_context *ctx)
+ 		add_event_to_groups(event, ctx);
+ 	}
+ 
+-	list_update_cgroup_event(event, ctx, true);
+-
+ 	list_add_rcu(&event->event_entry, &ctx->event_list);
+ 	ctx->nr_events++;
+ 	if (event->attr.inherit_stat)
+ 		ctx->nr_stat++;
+ 
++	if (event->state > PERF_EVENT_STATE_OFF)
++		perf_cgroup_event_enable(event, ctx);
++
+ 	ctx->generation++;
+ }
+ 
+@@ -1976,8 +1987,6 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
+ 
+ 	event->attach_state &= ~PERF_ATTACH_CONTEXT;
+ 
+-	list_update_cgroup_event(event, ctx, false);
+-
+ 	ctx->nr_events--;
+ 	if (event->attr.inherit_stat)
+ 		ctx->nr_stat--;
+@@ -1994,8 +2003,10 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
+ 	 * of error state is by explicit re-enabling
+ 	 * of the event
+ 	 */
+-	if (event->state > PERF_EVENT_STATE_OFF)
++	if (event->state > PERF_EVENT_STATE_OFF) {
++		perf_cgroup_event_disable(event, ctx);
+ 		perf_event_set_state(event, PERF_EVENT_STATE_OFF);
++	}
+ 
+ 	ctx->generation++;
+ }
+@@ -2226,6 +2237,7 @@ event_sched_out(struct perf_event *event,
+ 
+ 	if (READ_ONCE(event->pending_disable) >= 0) {
+ 		WRITE_ONCE(event->pending_disable, -1);
++		perf_cgroup_event_disable(event, ctx);
+ 		state = PERF_EVENT_STATE_OFF;
+ 	}
+ 	perf_event_set_state(event, state);
+@@ -2363,6 +2375,7 @@ static void __perf_event_disable(struct perf_event *event,
+ 		event_sched_out(event, cpuctx, ctx);
+ 
+ 	perf_event_set_state(event, PERF_EVENT_STATE_OFF);
++	perf_cgroup_event_disable(event, ctx);
+ }
+ 
+ /*
+@@ -2746,7 +2759,7 @@ static int  __perf_install_in_context(void *info)
+ 	}
+ 
+ #ifdef CONFIG_CGROUP_PERF
+-	if (is_cgroup_event(event)) {
++	if (event->state > PERF_EVENT_STATE_OFF && is_cgroup_event(event)) {
+ 		/*
+ 		 * If the current cgroup doesn't match the event's
+ 		 * cgroup, we should not try to schedule it.
+@@ -2906,6 +2919,7 @@ static void __perf_event_enable(struct perf_event *event,
+ 		ctx_sched_out(ctx, cpuctx, EVENT_TIME);
+ 
+ 	perf_event_set_state(event, PERF_EVENT_STATE_INACTIVE);
++	perf_cgroup_event_enable(event, ctx);
+ 
+ 	if (!ctx->is_active)
+ 		return;
+@@ -3616,8 +3630,10 @@ static int merge_sched_in(struct perf_event *event, void *data)
+ 	}
+ 
+ 	if (event->state == PERF_EVENT_STATE_INACTIVE) {
+-		if (event->attr.pinned)
++		if (event->attr.pinned) {
++			perf_cgroup_event_disable(event, ctx);
+ 			perf_event_set_state(event, PERF_EVENT_STATE_ERROR);
++		}
+ 
+ 		*can_add_hw = 0;
+ 		ctx->rotate_necessary = 1;
