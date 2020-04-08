@@ -2,163 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22DD61A2717
-	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 18:24:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1671A2759
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 18:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730275AbgDHQYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Apr 2020 12:24:13 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:38908 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728473AbgDHQYN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 12:24:13 -0400
-Received: by mail-wm1-f67.google.com with SMTP id f20so57522wmh.3
-        for <stable@vger.kernel.org>; Wed, 08 Apr 2020 09:24:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=o1wXXAbri86QChEa50j3H0JwCub+mO1ccJpn2usVHv0=;
-        b=HYp5Bq75xxTmKkQ+MwniWHFEFiXu9DoFPzIjKWs0sTP35Z4+14iO0Ez2Itb5g6Yzf4
-         gGIW60ImXzKzNMVCeZNeLLmoYyzc/2bSB490taxtJsRyvN1rr5hsDcDs/Kxz6UI/Zg/g
-         PLn57TkhnsaZH3nq26pN7Agbq8A8eE+yjcgoU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=o1wXXAbri86QChEa50j3H0JwCub+mO1ccJpn2usVHv0=;
-        b=TbqY8hL+LmvvfUeJW1sE/ICnTr2TRO+shZVXFudCow+FIOJxt7f51jLAf9hM/Vw7Ev
-         SBDoJUjpjG2lzdw8fEyxX9KBwzM6QRz6QiCeCev27L27KjFKFh8bbXueQEw9NKTtET5t
-         gWA8kjN+I8VJPSXQBl4iC12VACupIkw+tsXMrxwr/dycNZLDp/F7mw47eI51X4QAGoTK
-         UsfG0Hd35cy3RwXxJpDuhEQnqtqqOujRKLXwBu9mJ9nhI0jlWD2BJltMeImQByrv6QqQ
-         +NZs2VEV8owwljQmEXgJ724tH+V69De81Q27aCtvxJecedJKywQXvRAGv8cMCUPslw1T
-         k1+A==
-X-Gm-Message-State: AGi0PuaJpiJlOivkEQ5K/cEFfXSxvp+H/E7bbY9MItmFjjnj86vvIvc8
-        HiGCqf5cdjf9j6PyPCtNQsoSGA==
-X-Google-Smtp-Source: APiQypKz8wOvsiwaQ6yZhKkaOvbAB1KfIjZ7OheWj1K9qwQtTAOpdj5ga9Ksu7zXCCdYCbGmsA9ZIg==
-X-Received: by 2002:a1c:7ed0:: with SMTP id z199mr5427573wmc.60.1586363049729;
-        Wed, 08 Apr 2020 09:24:09 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id m15sm47369wmc.35.2020.04.08.09.24.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Apr 2020 09:24:08 -0700 (PDT)
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-To:     DRI Development <dri-devel@lists.freedesktop.org>
-Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Daniel Stone <daniel@fooishbar.org>,
-        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
-        stable@vger.kernel.org, Daniel Stone <daniels@collabora.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH] drm: avoid spurious EBUSY due to nonblocking atomic modesets
-Date:   Wed,  8 Apr 2020 18:24:03 +0200
-Message-Id: <20200408162403.3616785-1-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.25.1
+        id S1730344AbgDHQlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Apr 2020 12:41:52 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:50183 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728209AbgDHQlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 12:41:52 -0400
+Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1jMDlp-0001ln-OL; Wed, 08 Apr 2020 18:41:45 +0200
+Received: by nanos.tec.linutronix.de (Postfix, from userid 1000)
+        id E278510069D; Wed,  8 Apr 2020 18:41:44 +0200 (CEST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+In-Reply-To: <20200408153824.GO20730@hirez.programming.kicks-ass.net>
+References: <20200407172140.GB64635@redhat.com> <772A564B-3268-49F4-9AEA-CDA648F6131F@amacapital.net> <87eeszjbe6.fsf@nanos.tec.linutronix.de> <ce81c95f-8674-4012-f307-8f32d0e386c2@redhat.com> <874ktukhku.fsf@nanos.tec.linutronix.de> <274f3d14-08ac-e5cc-0b23-e6e0274796c8@redhat.com> <87pncib06x.fsf@nanos.tec.linutronix.de> <20200408153824.GO20730@hirez.programming.kicks-ass.net>
+Date:   Wed, 08 Apr 2020 18:41:44 +0200
+Message-ID: <87h7xuaq0n.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When doing an atomic modeset with ALLOW_MODESET drivers are allowed to
-pull in arbitrary other resources, including CRTCs (e.g. when
-reconfiguring global resources).
+Peter Zijlstra <peterz@infradead.org> writes:
+> On Wed, Apr 08, 2020 at 03:01:58PM +0200, Thomas Gleixner wrote:
+>> And it comes with restrictions:
+>> 
+>>     The Do Other Stuff event can only be delivered when guest IF=1.
+>> 
+>>     If guest IF=0 then the host has to suspend the guest until the
+>>     situation is resolved.
+>> 
+>>     The 'Situation resolved' event must also wait for a guest IF=1 slot.
+>
+> Moo, can we pretty please already kill that ALWAYS and IF nonsense? That
+> results in that terrifyingly crap HLT loop. That needs to die with
+> extreme prejudice.
+>
+> So the host only inject these OMFG_DOS things when the guest is in
+> luserspace -- which it can see in the VMCS state IIRC. And then using
+> #VE for the make-it-go signal is far preferred over the currentl #PF
+> abuse.
 
-But in nonblocking mode userspace has then no idea this happened,
-which can lead to spurious EBUSY calls, both:
-- when that other CRTC is currently busy doing a page_flip the
-  ALLOW_MODESET commit can fail with an EBUSY
-- on the other CRTC a normal atomic flip can fail with EBUSY because
-  of the additional commit inserted by the kernel without userspace's
-  knowledge
+Yes, but this requires software based injection.
 
-For blocking commits this isn't a problem, because everyone else will
-just block until all the CRTC are reconfigured. Only thing userspace
-can notice is the dropped frames without any reason for why frames got
-dropped.
+>> If you just want to solve Viveks problem, then its good enough. I.e. the
+>> file truncation turns the EPT entries into #VE convertible entries and
+>> the guest #VE handler can figure it out. This one can be injected
+>> directly by the hardware, i.e. you don't need a VMEXIT.
+>
+> That sounds like something that doesn't actually need the whole
+> 'async'/do-something-else-for-a-while crap, right? It's a #PF trap from
+> kernel space where we need to report fail.
 
-Consensus is that we need new uapi to handle this properly, but no one
-has any idea what exactly the new uapi should look like. As a stop-gap
-plug this problem by demoting nonblocking commits which might cause
-issues by including CRTCs not in the original request to blocking
-commits.
+Fail or fixup via extable.
 
-v2: Add comments and a WARN_ON to enforce this only when allowed - we
-don't want to silently convert page flips into blocking plane updates
-just because the driver is buggy.
+>> If you want the opportunistic do other stuff mechanism, then #VE has
+>> exactly the same problems as the existing async "PF". It's not magicaly
+>> making that go away.
+>
+> We need to somehow have the guest teach the host how to tell if it can
+> inject that OMFG_DOS thing or not. Injecting it only to then instantly
+> exit again is stupid and expensive.
 
-v3: Fix inverted WARN_ON (Pekka).
+Not if the injection is actually done by the hardware. Then the guest
+handles #VE and tells the host what to do.
 
-References: https://lists.freedesktop.org/archives/dri-devel/2018-July/182281.html
-Bugzilla: https://gitlab.freedesktop.org/wayland/weston/issues/24#note_9568
-Cc: Daniel Stone <daniel@fooishbar.org>
-Cc: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
-Cc: stable@vger.kernel.org
-Reviewed-by: Daniel Stone <daniels@collabora.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
---
-Resending because last attempt failed CI and meanwhile the results are
-lost :-/
--Daniel
----
- drivers/gpu/drm/drm_atomic.c | 34 +++++++++++++++++++++++++++++++---
- 1 file changed, 31 insertions(+), 3 deletions(-)
+> Clearly we don't want to expose preempt_count and make that ABI, but is
+> there some way we can push a snippet of code to the host that instructs
+> the host how to determine if it can sleep or not? I realize that pushing
+> actual x86 .text is a giant security problem, so perhaps a snipped of
+> BPF that the host can verify, which it can run on the guest image ?
 
-diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
-index 965173fd0ac2..4f140ff6fb98 100644
---- a/drivers/gpu/drm/drm_atomic.c
-+++ b/drivers/gpu/drm/drm_atomic.c
-@@ -1362,15 +1362,43 @@ EXPORT_SYMBOL(drm_atomic_commit);
- int drm_atomic_nonblocking_commit(struct drm_atomic_state *state)
- {
- 	struct drm_mode_config *config = &state->dev->mode_config;
--	int ret;
-+	unsigned requested_crtc = 0;
-+	unsigned affected_crtc = 0;
-+	struct drm_crtc *crtc;
-+	struct drm_crtc_state *crtc_state;
-+	bool nonblocking = true;
-+	int ret, i;
-+
-+	/*
-+	 * For commits that allow modesets drivers can add other CRTCs to the
-+	 * atomic commit, e.g. when they need to reallocate global resources.
-+	 *
-+	 * But when userspace also requests a nonblocking commit then userspace
-+	 * cannot know that the commit affects other CRTCs, which can result in
-+	 * spurious EBUSY failures. Until we have better uapi plug this by
-+	 * demoting such commits to blocking mode.
-+	 */
-+	for_each_new_crtc_in_state(state, crtc, crtc_state, i)
-+		requested_crtc |= drm_crtc_mask(crtc);
- 
- 	ret = drm_atomic_check_only(state);
- 	if (ret)
- 		return ret;
- 
--	DRM_DEBUG_ATOMIC("committing %p nonblocking\n", state);
-+	for_each_new_crtc_in_state(state, crtc, crtc_state, i)
-+		affected_crtc |= drm_crtc_mask(crtc);
-+
-+	if (affected_crtc != requested_crtc) {
-+		/* adding other CRTC is only allowed for modeset commits */
-+		WARN_ON(!state->allow_modeset);
-+
-+		DRM_DEBUG_ATOMIC("demoting %p to blocking mode to avoid EBUSY\n", state);
-+		nonblocking = false;
-+	} else {
-+		DRM_DEBUG_ATOMIC("committing %p nonblocking\n", state);
-+	}
- 
--	return config->funcs->atomic_commit(state->dev, state, true);
-+	return config->funcs->atomic_commit(state->dev, state, nonblocking);
- }
- EXPORT_SYMBOL(drm_atomic_nonblocking_commit);
- 
--- 
-2.25.1
+*SHUDDER*
 
+> Make it a hard error (guest cpu dies) to inject the OMFG_DOS signal on a
+> context that cannot put the task to sleep.
+
+With the hardware based #VE and a hypercall which tells the host how to
+handle the EPT fixup (suspend the vcpu or let it continue and do the
+completion later) you don't have to play any games on the host. If the
+guest tells the host the wrong thing, then the guest will have to mop up
+the pieces.
+
+Thanks,
+
+        tglx
