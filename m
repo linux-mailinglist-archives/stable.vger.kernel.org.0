@@ -2,234 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B3481A2469
-	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 16:59:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BAA11A252A
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 17:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728797AbgDHO7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Apr 2020 10:59:12 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:44695 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727612AbgDHO7M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 10:59:12 -0400
-Received: by mail-pf1-f194.google.com with SMTP id b72so2496825pfb.11;
-        Wed, 08 Apr 2020 07:59:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iErtI+DbxKTgj+x4PqFz5xOX1uJj43iKC4UnTZq4iQs=;
-        b=eHd/Z/tZIHWzXX4nfIMZ/8KXkT0Yex/eR0DMpGDIkeifdODcZdvlnl8P5PxF44Ge8h
-         e5YdZfFJSHHzje2TZgdTInToUGYmDQlIGKePZ3WsS35xNWid9jkZ0kkMGtPe79Y7MX+F
-         qflcKeATsXfX0jBg7W3iSGHRdtjnJiWMyt2a2mITWedoWPgrCBn7IVfsu2LtVNqeYwil
-         skqMLZ3nDJ9XdiiFDPnSY/fyWy/FnM+q/lEDTyAYgWOE8DVaG1b1vhnVWjpTVGAvoG1n
-         nbleRWG5GE0/2NPGeuS5UL/Y2XsYG3zBWE1ngdKlm6qDPLuDxoXoAejS2YBgT29goZUu
-         5pzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iErtI+DbxKTgj+x4PqFz5xOX1uJj43iKC4UnTZq4iQs=;
-        b=MI6HtACX+yR+zUfbjFa9E2n6zY88sWRrQTnuByG7+Jl2D5+bUtInpeim/w4j7MWl/W
-         lCcpHOUqty1YfT0drC/qojxK5cfdshYEx1jCWelRFH7qwlIR4AV5JDAcKnK+dPcI/OAq
-         X3oqetr633T6UGQI4TLxZ9Qlp2OvWAfTkxETDJHy99QnvLG+bH7z7SeN6s+h//7lP4ht
-         u+hNRe7b6z0i2I3p8ZwDdUeEEWjmOSULHeoywj+h0lNhceXVcUIpq5FiO0iZraPn57Un
-         nqzDl+tex/17UCj44SWJVcYonziwK4wJkmDwMD+Ai3YUwSp5l7/oW8HIxyYDxxH2ONOX
-         1pPQ==
-X-Gm-Message-State: AGi0PuaUOdYpWlKjs9n/9VS9qVTNiBZtFGYY+MsnY7DKaV+WCf9iAtmw
-        3hLA6S0Iu4DgJYRh4OeTzeCVEinAdlE=
-X-Google-Smtp-Source: APiQypKt2ZrF57hA1wR3DlWK1Z6mTWQUTXLcFgMTpN+uhfutP+7Z1CbIKyUmP/QGvR52TWc2sKOqLQ==
-X-Received: by 2002:a65:5189:: with SMTP id h9mr7141339pgq.296.1586357949547;
-        Wed, 08 Apr 2020 07:59:09 -0700 (PDT)
-Received: from US-191-ENG0002.corp.onewacom.com (75-164-203-136.ptld.qwest.net. [75.164.203.136])
-        by smtp.gmail.com with ESMTPSA id m29sm15594256pgl.35.2020.04.08.07.59.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Apr 2020 07:59:08 -0700 (PDT)
-From:   "Gerecke, Jason" <killertofu@gmail.com>
-X-Google-Original-From: "Gerecke, Jason" <jason.gerecke@wacom.com>
-To:     linux-input@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>
-Cc:     Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Jason Gerecke <killertofu@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] Revert "HID: wacom: generic: read the number of expected touches on a per collection basis"
-Date:   Wed,  8 Apr 2020 07:58:37 -0700
-Message-Id: <20200408145837.21961-1-jason.gerecke@wacom.com>
-X-Mailer: git-send-email 2.26.0
+        id S1728369AbgDHPa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Apr 2020 11:30:56 -0400
+Received: from rcdn-iport-1.cisco.com ([173.37.86.72]:16997 "EHLO
+        rcdn-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728157AbgDHPa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 11:30:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=cisco.com; i=@cisco.com; l=1432; q=dns/txt; s=iport;
+  t=1586359855; x=1587569455;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=HNa7OJ2WcJfY1ilgfw6ARB5npT+JoQ/HDDGkoki5fpQ=;
+  b=dRwfLlw93qwYCl3oNSiQMJGtJuSwYMUj4xZ+nW5SdZiiH8ZdUdN0wy0C
+   vvqVmlCC/F7xtn3/sL5SpCXNnBKAXC5IAQdJdMuSnRDh3xHmKV1Cl3Vni
+   PiwqLFubilSdVnLnI9fxg+UD2Uac0ebFObaPMmm8W+SxxZSk/cudqzgik
+   w=;
+IronPort-PHdr: =?us-ascii?q?9a23=3A4GS7zBEst+9s9Ly4Dn26DJ1GYnJ96bzpIg4Y7I?=
+ =?us-ascii?q?YmgLtSc6Oluo7vJ1Hb+e4z1Q3SRYuO7fVChqKWqK3mVWEaqbe5+HEZON0pNV?=
+ =?us-ascii?q?cejNkO2QkpAcqLE0r+efLjaS03GNtLfFRk5Hq8d0NSHZW2ag=3D=3D?=
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: =?us-ascii?q?A0AYAABb7Y1e/40NJK1mGwEBAQEBAQE?=
+ =?us-ascii?q?FAQEBEQEBAwMBAQGBZwYBAQELAYFTUAWBRCAECyoKh1cDhFmGEYJfjyQTiGm?=
+ =?us-ascii?q?BLoEkA1QKAQEBDAEBLQIEAQGERAKCByQ0CQ4CAwEBCwEBBQEBAQIBBQRthVY?=
+ =?us-ascii?q?MhXABAQEBAxIVEwYBATcBCwQCAQgRBAEBAR4QFB4dCgQOBSKFUAMuAaV+AoE?=
+ =?us-ascii?q?5iGKBdDOCfwEBBYUyGIINCRSBJAGMMhqBQT+DbDU+hE6DRIIssTQKgj2XKSk?=
+ =?us-ascii?q?Om3qrZwIEAgQFAg4BAQWBUjmBV3AVO4JpUBgNkSIMF4NQg2uGanSBKY0ZAYE?=
+ =?us-ascii?q?PAQE?=
+X-IronPort-AV: E=Sophos;i="5.72,359,1580774400"; 
+   d="scan'208";a="743698732"
+Received: from alln-core-8.cisco.com ([173.36.13.141])
+  by rcdn-iport-1.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 08 Apr 2020 15:30:54 +0000
+Received: from XCH-ALN-004.cisco.com (xch-aln-004.cisco.com [173.36.7.14])
+        by alln-core-8.cisco.com (8.15.2/8.15.2) with ESMTPS id 038FUspN002298
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=FAIL);
+        Wed, 8 Apr 2020 15:30:54 GMT
+Received: from xhs-aln-001.cisco.com (173.37.135.118) by XCH-ALN-004.cisco.com
+ (173.36.7.14) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 8 Apr
+ 2020 10:30:54 -0500
+Received: from xhs-rtp-003.cisco.com (64.101.210.230) by xhs-aln-001.cisco.com
+ (173.37.135.118) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 8 Apr
+ 2020 10:30:53 -0500
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (64.101.32.56) by
+ xhs-rtp-003.cisco.com (64.101.210.230) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2 via Frontend Transport; Wed, 8 Apr 2020 11:30:53 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=lVFnCgmu7wQ6SovJKBIvM1amuAaRxw60eZSq3dF454RZ3s9ZXULd9/vM/a3Me69jxVrkINNLmOCwCjfUX8wzB08Ihy0ucR4hBz+d9NXUBUTk9l/r9Bo7W4sOMgDzesVpYUB9qrb3wvOfr/mLv4MxkMGPPepDSAH5a7zU6UPa53Yvnnb35K/nTpCBHm1krjI7aYscQ8rWodaYSS3leYIfgSFwh3iCxzSl2kTSAL50VL7E3RLAr+fSIleTaymXYavj+OlC6R13bscso2dxiqk/YamF4II+dFhBXjXVabrARCZJ/TuI0EIV0Uo8WXGewNTNitrhd9Tk9jSPPo0ZaMXUVQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HNa7OJ2WcJfY1ilgfw6ARB5npT+JoQ/HDDGkoki5fpQ=;
+ b=Nhwxpow0iKPuRjw8nEBaa0hwm4NftXt7f4+nhwVyek6Qi6AEHV70A8A854YBbiOB43zwRaBil38zsHhIA9HR5ikRmhjYSjkky74gv5P1Hnm04ceNMqL82KPITLbK/wULxSkmq46gCt4CTpFrJm8j//V2doOGX1Sr9xZqk8SMyxoCTs6ppP9ZZyalyXFizFz1zrKV6zrvbrgd3cvaxVO8aKNteXkeI3RiU3rpVbVRJKeX+/lZeLo6/Xwp4jvEnk8S3JdzO126O9HRDvo16fxnjOvzmJCFvbMAm0l55EC8BIbFtiMowHo8vKZRbl/zXewlAae5KzDoMi1eXw9cdNWctA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=cisco.com; dmarc=pass action=none header.from=cisco.com;
+ dkim=pass header.d=cisco.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cisco.onmicrosoft.com;
+ s=selector2-cisco-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=HNa7OJ2WcJfY1ilgfw6ARB5npT+JoQ/HDDGkoki5fpQ=;
+ b=fMJC8lXBtYt3sjDiIh7fWWund+mxV7Ew4n8BLr4syPbMyr1Lh19E4m/+QgRVZFc6WcVtBC3RRYBLHO12Al/4SU5KD1iqOSeCobaPObn6ld52g9eyioezP1vdprpa1IcaRcsrvgkJu+5MpaT1Ln36BO9A+uUbxywTPqvV/c7vvRI=
+Received: from BYAPR11MB3205.namprd11.prod.outlook.com (2603:10b6:a03:1e::32)
+ by BYAPR11MB3207.namprd11.prod.outlook.com (2603:10b6:a03:7c::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2878.20; Wed, 8 Apr
+ 2020 15:30:51 +0000
+Received: from BYAPR11MB3205.namprd11.prod.outlook.com
+ ([fe80::d015:3039:2595:7222]) by BYAPR11MB3205.namprd11.prod.outlook.com
+ ([fe80::d015:3039:2595:7222%7]) with mapi id 15.20.2878.018; Wed, 8 Apr 2020
+ 15:30:51 +0000
+From:   "Daniel Walker (danielwa)" <danielwa@cisco.com>
+To:     "Y.b. Lu" <yangbo.lu@nxp.com>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Shyam More (shymore)" <shymore@cisco.com>,
+        "xe-linux-external(mailer list)" <xe-linux-external@cisco.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: mmc: sdhci-of-esdhc: fix P2020 errata handling
+Thread-Topic: mmc: sdhci-of-esdhc: fix P2020 errata handling
+Thread-Index: AQHWDbqvwpRwv9diC0Cxyuj1OVrTeQ==
+Date:   Wed, 8 Apr 2020 15:30:51 +0000
+Message-ID: <20200408153037.GA27944@zorba>
+References: <20200331205007.GZ823@zorba>
+ <AM7PR04MB6885CDDD1ECEEAE7111C6201F8C90@AM7PR04MB6885.eurprd04.prod.outlook.com>
+ <20200401152635.GA823@zorba> <20200407163443.GK823@zorba>
+ <AM7PR04MB6885EBF5DA973DA083EF0E6BF8C00@AM7PR04MB6885.eurprd04.prod.outlook.com>
+In-Reply-To: <AM7PR04MB6885EBF5DA973DA083EF0E6BF8C00@AM7PR04MB6885.eurprd04.prod.outlook.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-Auto-Response-Suppress: DR, OOF, AutoReply
+X-MS-TNEF-Correlator: 
+user-agent: Mutt/1.9.4 (2018-02-28)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=danielwa@cisco.com; 
+x-originating-ip: [128.107.241.184]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 0b1b03e7-7075-48df-e827-08d7dbd1d1ed
+x-ms-traffictypediagnostic: BYAPR11MB3207:
+x-ld-processed: 5ae1af62-9505-4097-a69a-c1553ef7840e,ExtAddr
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BYAPR11MB3207DB22AD759156D338B7C2DDC00@BYAPR11MB3207.namprd11.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:4303;
+x-forefront-prvs: 0367A50BB1
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB3205.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10009020)(7916004)(4636009)(366004)(346002)(396003)(376002)(39860400002)(136003)(33716001)(33656002)(6916009)(86362001)(2906002)(5660300002)(8936002)(64756008)(53546011)(71200400001)(6512007)(76116006)(54906003)(478600001)(66476007)(186003)(9686003)(1076003)(81166007)(26005)(8676002)(66556008)(6486002)(4326008)(6506007)(66446008)(66946007)(316002)(81156014);DIR:OUT;SFP:1101;
+received-spf: None (protection.outlook.com: cisco.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: Vy9uHhwqTKHeh7T3g7PPNIip9L0sega26dd+9nJLlBsfKNLE0QBiSEnPNNsl6t1FYnmgHcJeSnjsoI2yIja2tf1/ePml9c2a03GNVMhlkLcAR9aSzPQ2+M6wep+vXgbBzUX0/H++qbvI6rE3QKa+30RuvhxG/WD3NZVlHbLCt14eGVma0Cm1ob0KqclzPZO+gdH9qaUZvT2qzRP56YnXIuHhQQvXcCrey/dyPbXXjVzzIYpCuh1HF1PEz9KQ9C3JLNGDakY5L7rpR+N6P2ay1XsxL/b1fvukehDhM47TqGVAWxR7ieXD8Ami9VFL/PRYD0gFDZk/khyUTzC1V1xGKCzJDTRB/su2bSeoC1FfFplrwi9vS7xJFN3SuJQdDHQhUrgaC1Z4YurlE2xUDviDnPDEBuSUJSyItsq7dpYRUStQM6g0J43/OJWeHeYuGiJm
+x-ms-exchange-antispam-messagedata: WgARxNQb/CPbMz22ZoNLdR/Y75hHEhs7BU7QDBoH0ku+TEvtguHki014IH8FsTMsr/CQjlFdWD55jGQO+mHNQAjBaqmWBmhrY4qepgDTR9p1C+WH3cQd3HEcr3BA/WrIhBR/CKBkXBwqdeClBLUxkw==
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <40D166562C727D4087A5B571FB0EEBE1@namprd11.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0b1b03e7-7075-48df-e827-08d7dbd1d1ed
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Apr 2020 15:30:51.1792
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 5ae1af62-9505-4097-a69a-c1553ef7840e
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: sFAcaVcxG2gDcupPyhBxhlmER6T07dVYWFoWXcc76bFyZdXz9atrCUA3EtdGgvTk1Vh88kENIt6Qp5+XkAqLRw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR11MB3207
+X-OriginatorOrg: cisco.com
+X-Outbound-SMTP-Client: 173.36.7.14, xch-aln-004.cisco.com
+X-Outbound-Node: alln-core-8.cisco.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+On Wed, Apr 08, 2020 at 05:53:52AM +0000, Y.b. Lu wrote:
+> Hi Daniel,
+>=20
+> > -----Original Message-----
+> > From: Daniel Walker (danielwa) <danielwa@cisco.com>
+> > Sent: Wednesday, April 8, 2020 12:35 AM
+> > To: Y.b. Lu <yangbo.lu@nxp.com>
+> > Cc: stable@vger.kernel.org; Shyam More (shymore) <shymore@cisco.com>;
+> > xe-linux-external(mailer list) <xe-linux-external@cisco.com>; Ulf Hanss=
+on
+> > <ulf.hansson@linaro.org>
+> > Subject: Re: mmc: sdhci-of-esdhc: fix P2020 errata handling
+> >=20
+> > On Wed, Apr 01, 2020 at 03:26:35PM +0000, Daniel Walker (danielwa) wrot=
+e:
+> > > On Wed, Apr 01, 2020 at 05:12:44AM +0000, Y.b. Lu wrote:
+> > > > Hi Daniel,
+> > > >
+> > > > Sorry for the trouble.
+> > > > I think you were saying below patch introduced issue for you.
+> > > > fe0acab mmc: sdhci-of-esdhc: fix P2020 errata handling
+> > >
+> > > Yes, this patch cased mmc to stop functioning on p2020.
+> > >
+> >=20
+> > Have you investigated this ?
+>=20
+> As I said, this patch was proper fix-up, fixing mistake which used host->=
+quirks2. It was host->quirks that should be used.
+> But after this patch, the other potential issues for P2020 appeared.
+=20
+Your including a change into stable which breaks p2020, that's not acceptab=
+le. If
+more changes are needed to make p2020 stable can you send those additional
+patches to stable also ?
 
-This reverts commit 15893fa40109f5e7c67eeb8da62267d0fdf0be9d.
+Otherwise we need to revert your current patch.
 
-The referenced commit broke pen and touch input for a variety of devices
-such as the Cintiq Pro 32. Affected devices may appear to work normally
-for a short amount of time, but eventually loose track of actual touch
-state and can leave touch arbitration enabled which prevents the pen
-from working. The commit is not itself required for any currently-available
-Bluetooth device, and so we revert it to correct the behavior of broken
-devices.
-
-This breakage occurs due to a mismatch between the order of collections
-and the order of usages on some devices. This commit tries to read the
-contact count before processing events, but will fail if the contact
-count does not occur prior to the first logical finger collection. This
-is the case for devices like the Cintiq Pro 32 which place the contact
-count at the very end of the report.
-
-Without the contact count set, touches will only be partially processed.
-The `wacom_wac_finger_slot` function will not open any slots since the
-number of contacts seen is greater than the expectation of 0, but we will
-still end up calling `input_mt_sync_frame` for each finger anyway. This
-can cause problems for userspace separate from the issue currently taking
-place in the kernel. Only once all of the individual finger collections
-have been processed do we finally get to the enclosing collection which
-contains the contact count. The value ends up being used for the *next*
-report, however.
-
-This delayed use of the contact count can cause the driver to loose track
-of the actual touch state and believe that there are contacts down when
-there aren't. This leaves touch arbitration enabled and prevents the pen
-from working. It can also cause userspace to incorrectly treat single-
-finger input as gestures.
-
-Link: https://github.com/linuxwacom/input-wacom/issues/146
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-Fixes: 15893fa40109 ("HID: wacom: generic: read the number of expected touches on a per collection basis")
-Cc: stable@vger.kernel.org # 5.3+
----
- drivers/hid/wacom_wac.c | 79 +++++++++--------------------------------
- 1 file changed, 16 insertions(+), 63 deletions(-)
-
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index d99a9d407671..96d00eba99c0 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2637,9 +2637,25 @@ static void wacom_wac_finger_pre_report(struct hid_device *hdev,
- 			case HID_DG_TIPSWITCH:
- 				hid_data->last_slot_field = equivalent_usage;
- 				break;
-+			case HID_DG_CONTACTCOUNT:
-+				hid_data->cc_report = report->id;
-+				hid_data->cc_index = i;
-+				hid_data->cc_value_index = j;
-+				break;
- 			}
- 		}
- 	}
-+
-+	if (hid_data->cc_report != 0 &&
-+	    hid_data->cc_index >= 0) {
-+		struct hid_field *field = report->field[hid_data->cc_index];
-+		int value = field->value[hid_data->cc_value_index];
-+		if (value)
-+			hid_data->num_expected = value;
-+	}
-+	else {
-+		hid_data->num_expected = wacom_wac->features.touch_max;
-+	}
- }
- 
- static void wacom_wac_finger_report(struct hid_device *hdev,
-@@ -2649,7 +2665,6 @@ static void wacom_wac_finger_report(struct hid_device *hdev,
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct input_dev *input = wacom_wac->touch_input;
- 	unsigned touch_max = wacom_wac->features.touch_max;
--	struct hid_data *hid_data = &wacom_wac->hid_data;
- 
- 	/* If more packets of data are expected, give us a chance to
- 	 * process them rather than immediately syncing a partial
-@@ -2663,7 +2678,6 @@ static void wacom_wac_finger_report(struct hid_device *hdev,
- 
- 	input_sync(input);
- 	wacom_wac->hid_data.num_received = 0;
--	hid_data->num_expected = 0;
- 
- 	/* keep touch state for pen event */
- 	wacom_wac->shared->touch_down = wacom_wac_finger_count_touches(wacom_wac);
-@@ -2738,73 +2752,12 @@ static void wacom_report_events(struct hid_device *hdev,
- 	}
- }
- 
--static void wacom_set_num_expected(struct hid_device *hdev,
--				   struct hid_report *report,
--				   int collection_index,
--				   struct hid_field *field,
--				   int field_index)
--{
--	struct wacom *wacom = hid_get_drvdata(hdev);
--	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
--	struct hid_data *hid_data = &wacom_wac->hid_data;
--	unsigned int original_collection_level =
--		hdev->collection[collection_index].level;
--	bool end_collection = false;
--	int i;
--
--	if (hid_data->num_expected)
--		return;
--
--	// find the contact count value for this segment
--	for (i = field_index; i < report->maxfield && !end_collection; i++) {
--		struct hid_field *field = report->field[i];
--		unsigned int field_level =
--			hdev->collection[field->usage[0].collection_index].level;
--		unsigned int j;
--
--		if (field_level != original_collection_level)
--			continue;
--
--		for (j = 0; j < field->maxusage; j++) {
--			struct hid_usage *usage = &field->usage[j];
--
--			if (usage->collection_index != collection_index) {
--				end_collection = true;
--				break;
--			}
--			if (wacom_equivalent_usage(usage->hid) == HID_DG_CONTACTCOUNT) {
--				hid_data->cc_report = report->id;
--				hid_data->cc_index = i;
--				hid_data->cc_value_index = j;
--
--				if (hid_data->cc_report != 0 &&
--				    hid_data->cc_index >= 0) {
--
--					struct hid_field *field =
--						report->field[hid_data->cc_index];
--					int value =
--						field->value[hid_data->cc_value_index];
--
--					if (value)
--						hid_data->num_expected = value;
--				}
--			}
--		}
--	}
--
--	if (hid_data->cc_report == 0 || hid_data->cc_index < 0)
--		hid_data->num_expected = wacom_wac->features.touch_max;
--}
--
- static int wacom_wac_collection(struct hid_device *hdev, struct hid_report *report,
- 			 int collection_index, struct hid_field *field,
- 			 int field_index)
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 
--	if (WACOM_FINGER_FIELD(field))
--		wacom_set_num_expected(hdev, report, collection_index, field,
--				       field_index);
- 	wacom_report_events(hdev, report, collection_index, field_index);
- 
- 	/*
--- 
-2.26.0
-
+Daniel=
