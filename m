@@ -2,117 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C203D1A2581
-	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 17:38:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22DD61A2717
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 18:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729495AbgDHPic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Apr 2020 11:38:32 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:44638 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728733AbgDHPib (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 11:38:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=xC074y/p1nAzD7enAbs41h9l8M7sWD/sq+pOy6inQow=; b=KqXDu8M8IypbmDOirZzt/98zFg
-        2pq2f067O6hcZJxbwtbx7LIwWzWaorrNBH4Fr9CbJtEWIpenZBDBNySuQK0gPYRzTJwxEUXMCTPp3
-        xnTpAR+/9OXx2mLkT4m0CyZre+bsHC2yd8t/xjReyV2cCzzSkqdDp9cQy/634qoEpjFgn6UL2SUJz
-        xiyHQMtvIhf6D5eP1GplYH7ZawEQvL16T7SokQH2E8PK66PvjNztdcT9C9j5Lc9n/wKXjtuhSYqEy
-        H9vLe1D6zbMCBAZQFj/jofWr/xonbUVjWFeTdHyPQY2UhE+DpxV248lbNKujyvtnesl5zIpRmjKMp
-        uzPcAy5g==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jMCmY-0006pB-FA; Wed, 08 Apr 2020 15:38:26 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id A39903062C2;
-        Wed,  8 Apr 2020 17:38:24 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 900262BB02700; Wed,  8 Apr 2020 17:38:24 +0200 (CEST)
-Date:   Wed, 8 Apr 2020 17:38:24 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
-Message-ID: <20200408153824.GO20730@hirez.programming.kicks-ass.net>
-References: <20200407172140.GB64635@redhat.com>
- <772A564B-3268-49F4-9AEA-CDA648F6131F@amacapital.net>
- <87eeszjbe6.fsf@nanos.tec.linutronix.de>
- <ce81c95f-8674-4012-f307-8f32d0e386c2@redhat.com>
- <874ktukhku.fsf@nanos.tec.linutronix.de>
- <274f3d14-08ac-e5cc-0b23-e6e0274796c8@redhat.com>
- <87pncib06x.fsf@nanos.tec.linutronix.de>
+        id S1730275AbgDHQYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Apr 2020 12:24:13 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:38908 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728473AbgDHQYN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 12:24:13 -0400
+Received: by mail-wm1-f67.google.com with SMTP id f20so57522wmh.3
+        for <stable@vger.kernel.org>; Wed, 08 Apr 2020 09:24:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=o1wXXAbri86QChEa50j3H0JwCub+mO1ccJpn2usVHv0=;
+        b=HYp5Bq75xxTmKkQ+MwniWHFEFiXu9DoFPzIjKWs0sTP35Z4+14iO0Ez2Itb5g6Yzf4
+         gGIW60ImXzKzNMVCeZNeLLmoYyzc/2bSB490taxtJsRyvN1rr5hsDcDs/Kxz6UI/Zg/g
+         PLn57TkhnsaZH3nq26pN7Agbq8A8eE+yjcgoU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=o1wXXAbri86QChEa50j3H0JwCub+mO1ccJpn2usVHv0=;
+        b=TbqY8hL+LmvvfUeJW1sE/ICnTr2TRO+shZVXFudCow+FIOJxt7f51jLAf9hM/Vw7Ev
+         SBDoJUjpjG2lzdw8fEyxX9KBwzM6QRz6QiCeCev27L27KjFKFh8bbXueQEw9NKTtET5t
+         gWA8kjN+I8VJPSXQBl4iC12VACupIkw+tsXMrxwr/dycNZLDp/F7mw47eI51X4QAGoTK
+         UsfG0Hd35cy3RwXxJpDuhEQnqtqqOujRKLXwBu9mJ9nhI0jlWD2BJltMeImQByrv6QqQ
+         +NZs2VEV8owwljQmEXgJ724tH+V69De81Q27aCtvxJecedJKywQXvRAGv8cMCUPslw1T
+         k1+A==
+X-Gm-Message-State: AGi0PuaJpiJlOivkEQ5K/cEFfXSxvp+H/E7bbY9MItmFjjnj86vvIvc8
+        HiGCqf5cdjf9j6PyPCtNQsoSGA==
+X-Google-Smtp-Source: APiQypKz8wOvsiwaQ6yZhKkaOvbAB1KfIjZ7OheWj1K9qwQtTAOpdj5ga9Ksu7zXCCdYCbGmsA9ZIg==
+X-Received: by 2002:a1c:7ed0:: with SMTP id z199mr5427573wmc.60.1586363049729;
+        Wed, 08 Apr 2020 09:24:09 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+        by smtp.gmail.com with ESMTPSA id m15sm47369wmc.35.2020.04.08.09.24.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Apr 2020 09:24:08 -0700 (PDT)
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+To:     DRI Development <dri-devel@lists.freedesktop.org>
+Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Daniel Stone <daniel@fooishbar.org>,
+        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
+        stable@vger.kernel.org, Daniel Stone <daniels@collabora.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: [PATCH] drm: avoid spurious EBUSY due to nonblocking atomic modesets
+Date:   Wed,  8 Apr 2020 18:24:03 +0200
+Message-Id: <20200408162403.3616785-1-daniel.vetter@ffwll.ch>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87pncib06x.fsf@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 08, 2020 at 03:01:58PM +0200, Thomas Gleixner wrote:
-> And it comes with restrictions:
-> 
->     The Do Other Stuff event can only be delivered when guest IF=1.
-> 
->     If guest IF=0 then the host has to suspend the guest until the
->     situation is resolved.
-> 
->     The 'Situation resolved' event must also wait for a guest IF=1 slot.
+When doing an atomic modeset with ALLOW_MODESET drivers are allowed to
+pull in arbitrary other resources, including CRTCs (e.g. when
+reconfiguring global resources).
 
-Moo, can we pretty please already kill that ALWAYS and IF nonsense? That
-results in that terrifyingly crap HLT loop. That needs to die with
-extreme prejudice.
+But in nonblocking mode userspace has then no idea this happened,
+which can lead to spurious EBUSY calls, both:
+- when that other CRTC is currently busy doing a page_flip the
+  ALLOW_MODESET commit can fail with an EBUSY
+- on the other CRTC a normal atomic flip can fail with EBUSY because
+  of the additional commit inserted by the kernel without userspace's
+  knowledge
 
-So the host only inject these OMFG_DOS things when the guest is in
-luserspace -- which it can see in the VMCS state IIRC. And then using
-#VE for the make-it-go signal is far preferred over the currentl #PF
-abuse.
+For blocking commits this isn't a problem, because everyone else will
+just block until all the CRTC are reconfigured. Only thing userspace
+can notice is the dropped frames without any reason for why frames got
+dropped.
 
-> > Page-not-present async page faults are almost a perfect match for the
-> > hardware use of #VE (and it might even be possible to let the
-> > processor deliver the exceptions).  There are other advantages:
-> >
-> > - the only real problem with using #PF (with or without
-> > KVM_ASYNC_PF_SEND_ALWAYS) seems to be the NMI reentrancy issue, which
-> > would not be there for #VE.
-> >
-> > - #VE are combined the right way with other exceptions (the
-> > benign/contributory/pagefault stuff)
-> >
-> > - adjusting KVM and Linux to use #VE instead of #PF would be less than
-> > 100 lines of code.
-> 
-> If you just want to solve Viveks problem, then its good enough. I.e. the
-> file truncation turns the EPT entries into #VE convertible entries and
-> the guest #VE handler can figure it out. This one can be injected
-> directly by the hardware, i.e. you don't need a VMEXIT.
+Consensus is that we need new uapi to handle this properly, but no one
+has any idea what exactly the new uapi should look like. As a stop-gap
+plug this problem by demoting nonblocking commits which might cause
+issues by including CRTCs not in the original request to blocking
+commits.
 
-That sounds like something that doesn't actually need the whole
-'async'/do-something-else-for-a-while crap, right? It's a #PF trap from
-kernel space where we need to report fail.
+v2: Add comments and a WARN_ON to enforce this only when allowed - we
+don't want to silently convert page flips into blocking plane updates
+just because the driver is buggy.
 
-> If you want the opportunistic do other stuff mechanism, then #VE has
-> exactly the same problems as the existing async "PF". It's not magicaly
-> making that go away.
+v3: Fix inverted WARN_ON (Pekka).
 
-We need to somehow have the guest teach the host how to tell if it can
-inject that OMFG_DOS thing or not. Injecting it only to then instantly
-exit again is stupid and expensive.
+References: https://lists.freedesktop.org/archives/dri-devel/2018-July/182281.html
+Bugzilla: https://gitlab.freedesktop.org/wayland/weston/issues/24#note_9568
+Cc: Daniel Stone <daniel@fooishbar.org>
+Cc: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Cc: stable@vger.kernel.org
+Reviewed-by: Daniel Stone <daniels@collabora.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+--
+Resending because last attempt failed CI and meanwhile the results are
+lost :-/
+-Daniel
+---
+ drivers/gpu/drm/drm_atomic.c | 34 +++++++++++++++++++++++++++++++---
+ 1 file changed, 31 insertions(+), 3 deletions(-)
 
-Clearly we don't want to expose preempt_count and make that ABI, but is
-there some way we can push a snippet of code to the host that instructs
-the host how to determine if it can sleep or not? I realize that pushing
-actual x86 .text is a giant security problem, so perhaps a snipped of
-BPF that the host can verify, which it can run on the guest image ?
+diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
+index 965173fd0ac2..4f140ff6fb98 100644
+--- a/drivers/gpu/drm/drm_atomic.c
++++ b/drivers/gpu/drm/drm_atomic.c
+@@ -1362,15 +1362,43 @@ EXPORT_SYMBOL(drm_atomic_commit);
+ int drm_atomic_nonblocking_commit(struct drm_atomic_state *state)
+ {
+ 	struct drm_mode_config *config = &state->dev->mode_config;
+-	int ret;
++	unsigned requested_crtc = 0;
++	unsigned affected_crtc = 0;
++	struct drm_crtc *crtc;
++	struct drm_crtc_state *crtc_state;
++	bool nonblocking = true;
++	int ret, i;
++
++	/*
++	 * For commits that allow modesets drivers can add other CRTCs to the
++	 * atomic commit, e.g. when they need to reallocate global resources.
++	 *
++	 * But when userspace also requests a nonblocking commit then userspace
++	 * cannot know that the commit affects other CRTCs, which can result in
++	 * spurious EBUSY failures. Until we have better uapi plug this by
++	 * demoting such commits to blocking mode.
++	 */
++	for_each_new_crtc_in_state(state, crtc, crtc_state, i)
++		requested_crtc |= drm_crtc_mask(crtc);
+ 
+ 	ret = drm_atomic_check_only(state);
+ 	if (ret)
+ 		return ret;
+ 
+-	DRM_DEBUG_ATOMIC("committing %p nonblocking\n", state);
++	for_each_new_crtc_in_state(state, crtc, crtc_state, i)
++		affected_crtc |= drm_crtc_mask(crtc);
++
++	if (affected_crtc != requested_crtc) {
++		/* adding other CRTC is only allowed for modeset commits */
++		WARN_ON(!state->allow_modeset);
++
++		DRM_DEBUG_ATOMIC("demoting %p to blocking mode to avoid EBUSY\n", state);
++		nonblocking = false;
++	} else {
++		DRM_DEBUG_ATOMIC("committing %p nonblocking\n", state);
++	}
+ 
+-	return config->funcs->atomic_commit(state->dev, state, true);
++	return config->funcs->atomic_commit(state->dev, state, nonblocking);
+ }
+ EXPORT_SYMBOL(drm_atomic_nonblocking_commit);
+ 
+-- 
+2.25.1
 
-Make it a hard error (guest cpu dies) to inject the OMFG_DOS signal on a
-context that cannot put the task to sleep.
