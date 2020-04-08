@@ -2,167 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1992E1A1DC2
-	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 11:04:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60AA61A1E09
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 11:31:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727763AbgDHJC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Apr 2020 05:02:59 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:37745 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726996AbgDHJC6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 05:02:58 -0400
-Received: by mail-lf1-f67.google.com with SMTP id t11so4564989lfe.4
-        for <stable@vger.kernel.org>; Wed, 08 Apr 2020 02:02:56 -0700 (PDT)
+        id S1726436AbgDHJb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Apr 2020 05:31:27 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:36243 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726605AbgDHJb1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 05:31:27 -0400
+Received: by mail-lf1-f65.google.com with SMTP id w145so4629249lff.3
+        for <stable@vger.kernel.org>; Wed, 08 Apr 2020 02:31:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=d6iX3xifVyFAZZxzZ+ZUkySaGBi3Nfi1aejj2DoGEWg=;
-        b=WejJV9De5yYmpbQSHuE9A8+FEboLDetyBsC280HOBYFm0tXAwFiV6NO8Bbsaml1Mja
-         OJHvW6bkAVOtPXZaljfwk9BmXRaj+hIY1dFnq9R2ODlz3UkdkaPXxm3jKZNZxx/wF6Iz
-         mxwXAZmIftqS7urAPwoiVZ3nPcT6gVpojnq3d9xGX3fdcCOmzC50Kgsg89CCQmnQWm69
-         pKebctLISCKWVMfQickOO2o4llpAcIKsIniwxa3zrNpaWw3RrXHo+jw6OXKCKSj7+IcI
-         HnZEBFf6bCLh5+r0DF6yOBr396gndna1dQBSctYp15nf8EewSHGvR2vjGL2+r5c+qFqq
-         lliQ==
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=U4FOr2RB0Xkp5M31fPJH/yewnv/w+8CnOr9geW5TqdQ=;
+        b=usEOvHbEb3uhYdWzO7P06VtHwKYVXajG3/Yh8MHLDPWNHQGsOWWz3oYULJfVn7D5GL
+         nbCAkFDURSXxt4IUtmJxll/BMSayX57NuQWZNGvTo/rLSJy5VmLfqiOggukdSQP8CFfL
+         uUrQ+mAesLXmNiW70T6Uq/CK/dBRsZzSb8j7hC2bcHVUG3jsO0fT/OKOEAv4HkZX3OZ4
+         j+lU5zR2x9cQrCW8UAa9XCh1cp2BeR4jnIEjFtzbqlZqKAUHIsr95c6/dy5d8yizgBIq
+         5LRuvcVIuKKbHJxHmM5em7KpHHgvyoSieMG4cgQgrJF1ZK79yLqOwU9r2lW6u4oDK31I
+         Q/jA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=d6iX3xifVyFAZZxzZ+ZUkySaGBi3Nfi1aejj2DoGEWg=;
-        b=fe0WnMUVpfFHmOFW171SRCjRKYxtez8gHYnkOMmSl3WCmUcWpmNpCqpq/ksUJSO6N/
-         mqU1PCAO3uYrLW7TtFuO5iZxvz7Yw0DqpDc7VyluX4HgC2R0KV+L9OBHd9SdD4SUtXqF
-         bhYKJ38KqHmRKxLqFN4SsKOijr5pI0T7GTX5D5kjkEsXJyluXhuodd88GaE5ZkAwsARy
-         p44emkZpvdfYA0lrD+mWsScgj53px9yVh8IFxnc0N+D0th1B2+S34hAevC7h43R47XCX
-         23IqVupKVtU/3QySdrsYAaTeyV+TFOnR7R+yYUTzmG9tLZGFpXsSU1WOld7RC29hIvQI
-         ZV+Q==
-X-Gm-Message-State: AGi0PuZi6kpfQWL8fYQopEijr+07gTOq0LU4Ne7R+/5cPIdYJlmWw+xB
-        hq6MUgtTziyw3JKsD/Ejq7IzQbaj320sMly7b+Gs6g==
-X-Google-Smtp-Source: APiQypKtuXbC/0SaIYR34BcjSWaVVCQ4GdK68V++lxooJonwaDdpORlnb2LYnLa3elwbSjB5oasLBsbhUqy+C2Lae8Y=
-X-Received: by 2002:a19:5e46:: with SMTP id z6mr3709533lfi.74.1586336575176;
- Wed, 08 Apr 2020 02:02:55 -0700 (PDT)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=U4FOr2RB0Xkp5M31fPJH/yewnv/w+8CnOr9geW5TqdQ=;
+        b=Vz4VQhXhvWmbWKsHZem6UyPCIg+7E27CP5/PolnbNkIKJU8BCUvBFZntOXIZgQrYpa
+         ILSHm/q9hN4U4McJzwb2SQs0T5KTnFC2m3jjGHcPaJIZ+WZBbYfo//VwhgIbcFj7BK/g
+         5nvGSGv6HyBHJM2w3fp3/H2AoI/c9Ph4j0AqVbXhDYBzjVAyj56pJLM6xih5B/ElnHNC
+         G3B7ZabKacxLd4ZMUVjyfLE4UWw7TM4yoozbGWdBV7S4I2IFWLF+HMoEbLSV8ili90bh
+         bsbOtEwqI1BEXPOa0rA6B2iuH3vKTc1qEzbThhxJVJRC8A6tE97iKKshQHMJQ7j6TJyO
+         OOTg==
+X-Gm-Message-State: AGi0Puavb7iNL+gRWkIg4+2SEKTeR9dsrXEzoXRwbF9gukCIc9MuReRO
+        Yt8GnAM6BtYDzHlT8SFi85eNDLGFa+4cIMNK36KAkDbrAy8=
+X-Google-Smtp-Source: APiQypKhYSCDUEJUEVy9hktqxHqR/v62qoq+zVwHHwdUO5fOqzCLwr/JZd03yKJMY7UVU9Il3O/JZ2fUDlSTweBlnaY=
+X-Received: by 2002:ac2:4da7:: with SMTP id h7mr3527277lfe.95.1586338283132;
+ Wed, 08 Apr 2020 02:31:23 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200407154800.629167305@linuxfoundation.org>
-In-Reply-To: <20200407154800.629167305@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 8 Apr 2020 14:32:43 +0530
-Message-ID: <CA+G9fYtuotK1_BvxXED+em-dnZqkCvACpR86q59DqpBBx9rPfQ@mail.gmail.com>
-Subject: Re: [PATCH 5.5 00/48] 5.5.16-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+Date:   Wed, 8 Apr 2020 15:01:11 +0530
+Message-ID: <CA+G9fYtYRc_mKPDN-Gryw7fhjPNGBUP=KemTXaXR6UBU94M3hw@mail.gmail.com>
+Subject: WARNING: events/ipi.h:36 suspicious rcu_dereference_check() usage!
+To:     linux- stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>
+Cc:     Masami Hiramatsu <masami.hiramatsu@linaro.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Shuah Khan <shuah@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        rcu@vger.kernel.org, lkft-triage@lists.linaro.org,
+        Leo Yan <leo.yan@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>, zanussi@kernel.org,
+        svens@linux.ibm.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 Apr 2020 at 22:09, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.5.16 release.
-> There are 48 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 09 Apr 2020 15:46:32 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.5.16-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.5.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On arm64 qemu_arm64, juno-r2 and dragonboard-410c while running kselftest ftrace
+on stable rc 5.5.1-rc1 to till today 5.5.16-rc2 and 5.6  found this
+kernel warning.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+[  386.349099] kselftest: Running tests in ftrace
+[  393.984018]
+[  393.984290] =============================
+[  393.984781] WARNING: suspicious RCU usage
+[  393.988690] 5.6.3-rc2 #1 Not tainted
+[  393.992679] -----------------------------
+[  393.996327] /usr/src/kernel/include/trace/events/ipi.h:36
+suspicious rcu_dereference_check() usage!
+[  394.000241]
+[  394.000241] other info that might help us debug this:
+[  394.000241]
+[  394.009094]
+[  394.009094] RCU used illegally from idle CPU!
+[  394.009094] rcu_scheduler_active = 2, debug_locks = 1
+[  394.017084] RCU used illegally from extended quiescent state!
+[  394.028187] 1 lock held by swapper/3/0:
+[  394.033826]  #0: ffff80001237b6a8 (max_trace_lock){....}, at:
+check_critical_timing+0x7c/0x1a8
+[  394.037480]
+[  394.037480] stack backtrace:
+[  394.046158] CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.6.3-rc2 #1
+[  394.050584] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
+[  394.056663] Call trace:
+[  394.063515]  dump_backtrace+0x0/0x1e0
+[  394.065686]  show_stack+0x24/0x30
+[  394.069505]  dump_stack+0xe8/0x150
+[  394.072805]  lockdep_rcu_suspicious+0xcc/0x110
+[  394.076106]  arch_irq_work_raise+0x208/0x210
+[  394.080533]  __irq_work_queue_local+0x5c/0x80
+[  394.084959]  irq_work_queue+0x38/0x78
+[  394.089212]  __update_max_tr+0x150/0x218
+[  394.092858]  update_max_tr_single.part.82+0x98/0x100
+[  394.096851]  update_max_tr_single+0x1c/0x28
+[  394.101798]  check_critical_timing+0x198/0x1a8
+[  394.105705]  stop_critical_timings+0x128/0x148
+[  394.110221]  cpuidle_enter_state+0x74/0x4f8
+[  394.114645]  cpuidle_enter+0x3c/0x50
+[  394.118726]  call_cpuidle+0x44/0x80
+[  394.122542]  do_idle+0x22c/0x2d0
+[  394.125755]  cpu_startup_entry+0x28/0x48
+[  394.129229]  secondary_start_kernel+0x1b4/0x210
 
-Summary
-------------------------------------------------------------------------
 
-kernel: 5.5.16-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.5.y
-git commit: f921e13beada3f84cf4323f3ba7f6bdf70bedc8a
-git describe: v5.5.15-49-gf921e13beada
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.5-oe/bui=
-ld/v5.5.15-49-gf921e13beada
+metadata:
+  git branch: linux-5.5.y and linux-5.6.y
+  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+  kernel-config:
+http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/juno/lkft/linux-stable-rc-5.5/65/config
 
-No regressions (compared to build v5.5.15)
+Full test log,
+5.6 test logs,
+https://lkft.validation.linaro.org/scheduler/job/1350627#L12612
+https://lkft.validation.linaro.org/scheduler/job/1350731#L9509
 
-No fixes (compared to build v5.5.15)
+5.5 test logs,
+https://lkft.validation.linaro.org/scheduler/job/1322704#L9777
+https://lkft.validation.linaro.org/scheduler/job/1153369#L9745
+https://lkft.validation.linaro.org/scheduler/job/1351155#L8982
+https://lkft.validation.linaro.org/scheduler/job/1351065#L12349
 
-Ran 22716 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* perf
-* v4l2-compliance
-* ltp-commands-tests
-* ltp-dio-tests
-* ltp-fs-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-open-posix-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* spectre-meltdown-checker-test
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
+--
 Linaro LKFT
 https://lkft.linaro.org
