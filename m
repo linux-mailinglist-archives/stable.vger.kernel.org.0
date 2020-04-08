@@ -2,30 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C3D1A1F4E
+	by mail.lfdr.de (Postfix) with ESMTP id BA7BD1A1F4F
 	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 12:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728366AbgDHK6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728369AbgDHK6c (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 8 Apr 2020 06:58:32 -0400
-Received: from mx2.suse.de ([195.135.220.15]:36090 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:36110 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728353AbgDHK6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Apr 2020 06:58:31 -0400
+        id S1728207AbgDHK6c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Apr 2020 06:58:32 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 627C2AD06;
-        Wed,  8 Apr 2020 10:58:27 +0000 (UTC)
+        by mx2.suse.de (Postfix) with ESMTP id 1F16FAD57;
+        Wed,  8 Apr 2020 10:58:28 +0000 (UTC)
 From:   Luis Henriques <lhenriques@suse.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     Jeff Layton <jlayton@kernel.org>,
         Ilya Dryomov <idryomov@gmail.com>, ceph-devel@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+98704a51af8e3d9425a9@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
         Luis Henriques <lhenriques@suse.com>
-Subject: [PATCH 4.14,4.19 2/2] ceph: canonicalize server path in place
-Date:   Wed,  8 Apr 2020 11:58:42 +0100
-Message-Id: <20200408105844.21840-5-lhenriques@suse.com>
+Subject: [PATCH 5.4 1/2] ceph: remove the extra slashes in the server path
+Date:   Wed,  8 Apr 2020 11:58:43 +0100
+Message-Id: <20200408105844.21840-6-lhenriques@suse.com>
 In-Reply-To: <20200408105844.21840-1-lhenriques@suse.com>
 References: <20200408105844.21840-1-lhenriques@suse.com>
 MIME-Version: 1.0
@@ -35,223 +34,242 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Dryomov <idryomov@gmail.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-commit b27a939e8376a3f1ed09b9c33ef44d20f18ec3d0 upstream.
+commit 4fbc0c711b2464ee1551850b85002faae0b775d5 upstream.
 
-syzbot reported that 4fbc0c711b24 ("ceph: remove the extra slashes in
-the server path") had caused a regression where an allocation could be
-done under a spinlock -- compare_mount_options() is called by sget_fc()
-with sb_lock held.
+It's possible to pass the mount helper a server path that has more
+than one contiguous slash character. For example:
 
-We don't really need the supplied server path, so canonicalize it
-in place and compare it directly.  To make this work, the leading
-slash is kept around and the logic in ceph_real_mount() to skip it
-is restored.  CEPH_MSG_CLIENT_SESSION now reports the same (i.e.
-canonicalized) path, with the leading slash of course.
+  $ mount -t ceph 192.168.195.165:40176:/// /mnt/cephfs/
 
-Fixes: 4fbc0c711b24 ("ceph: remove the extra slashes in the server path")
-Reported-by: syzbot+98704a51af8e3d9425a9@syzkaller.appspotmail.com
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+In the MDS server side the extra slashes of the server path will be
+treated as snap dir, and then we can get the following debug logs:
+
+  ceph:  mount opening path //
+  ceph:  open_root_inode opening '//'
+  ceph:  fill_trace 0000000059b8a3bc is_dentry 0 is_target 1
+  ceph:  alloc_inode 00000000dc4ca00b
+  ceph:  get_inode created new inode 00000000dc4ca00b 1.ffffffffffffffff ino 1
+  ceph:  get_inode on 1=1.ffffffffffffffff got 00000000dc4ca00b
+
+And then when creating any new file or directory under the mount
+point, we can hit the following BUG_ON in ceph_fill_trace():
+
+  BUG_ON(ceph_snap(dir) != dvino.snap);
+
+Have the client ignore the extra slashes in the server path when
+mounting. This will also canonicalize the path, so that identical mounts
+can be consilidated.
+
+1) "//mydir1///mydir//"
+2) "/mydir1/mydir"
+3) "/mydir1/mydir/"
+
+Regardless of the internal treatment of these paths, the kernel still
+stores the original string including the leading '/' for presentation
+to userland.
+
+URL: https://tracker.ceph.com/issues/42771
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
 Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Luis Henriques <lhenriques@suse.com>
 ---
- fs/ceph/super.c | 118 +++++++++++-------------------------------------
- fs/ceph/super.h |   2 +-
- 2 files changed, 28 insertions(+), 92 deletions(-)
+ fs/ceph/super.c | 120 ++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 101 insertions(+), 19 deletions(-)
 
 diff --git a/fs/ceph/super.c b/fs/ceph/super.c
-index 712e4a15cb3e..18e967089aeb 100644
+index 62fc7d46032e..54b50452ec1e 100644
 --- a/fs/ceph/super.c
 +++ b/fs/ceph/super.c
-@@ -205,6 +205,26 @@ static match_table_t fsopt_tokens = {
- 	{-1, NULL}
- };
+@@ -106,7 +106,6 @@ static int ceph_statfs(struct dentry *dentry, struct kstatfs *buf)
+ 	return 0;
+ }
  
-+/*
-+ * Remove adjacent slashes and then the trailing slash, unless it is
-+ * the only remaining character.
-+ *
-+ * E.g. "//dir1////dir2///" --> "/dir1/dir2", "///" --> "/".
-+ */
-+static void canonicalize_path(char *path)
-+{
-+	int i, j = 0;
-+
-+	for (i = 0; path[i] != '\0'; i++) {
-+		if (path[i] != '/' || j < 1 || path[j - 1] != '/')
-+			path[j++] = path[i];
-+	}
-+
-+	if (j > 1 && path[j - 1] == '/')
-+		j--;
-+	path[j] = '\0';
-+}
-+
- static int parse_fsopt_token(char *c, void *private)
+-
+ static int ceph_sync_fs(struct super_block *sb, int wait)
  {
- 	struct ceph_mount_options *fsopt = private;
-@@ -398,73 +418,6 @@ static int strcmp_null(const char *s1, const char *s2)
+ 	struct ceph_fs_client *fsc = ceph_sb_to_client(sb);
+@@ -430,6 +429,73 @@ static int strcmp_null(const char *s1, const char *s2)
  	return strcmp(s1, s2);
  }
  
--/**
-- * path_remove_extra_slash - Remove the extra slashes in the server path
-- * @server_path: the server path and could be NULL
-- *
-- * Return NULL if the path is NULL or only consists of "/", or a string
-- * without any extra slashes including the leading slash(es) and the
-- * slash(es) at the end of the server path, such as:
-- * "//dir1////dir2///" --> "dir1/dir2"
-- */
--static char *path_remove_extra_slash(const char *server_path)
--{
--	const char *path = server_path;
--	const char *cur, *end;
--	char *buf, *p;
--	int len;
--
--	/* if the server path is omitted */
--	if (!path)
--		return NULL;
--
--	/* remove all the leading slashes */
--	while (*path == '/')
--		path++;
--
--	/* if the server path only consists of slashes */
--	if (*path == '\0')
--		return NULL;
--
--	len = strlen(path);
--
--	buf = kmalloc(len + 1, GFP_KERNEL);
--	if (!buf)
--		return ERR_PTR(-ENOMEM);
--
--	end = path + len;
--	p = buf;
--	do {
--		cur = strchr(path, '/');
--		if (!cur)
--			cur = end;
--
--		len = cur - path;
--
--		/* including one '/' */
--		if (cur != end)
--			len += 1;
--
--		memcpy(p, path, len);
--		p += len;
--
--		while (cur <= end && *cur == '/')
--			cur++;
--		path = cur;
--	} while (path < end);
--
--	*p = '\0';
--
--	/*
--	 * remove the last slash if there has and just to make sure that
--	 * we will get something like "dir1/dir2"
--	 */
--	if (*(--p) == '/')
--		*p = '\0';
--
--	return buf;
--}
--
++/**
++ * path_remove_extra_slash - Remove the extra slashes in the server path
++ * @server_path: the server path and could be NULL
++ *
++ * Return NULL if the path is NULL or only consists of "/", or a string
++ * without any extra slashes including the leading slash(es) and the
++ * slash(es) at the end of the server path, such as:
++ * "//dir1////dir2///" --> "dir1/dir2"
++ */
++static char *path_remove_extra_slash(const char *server_path)
++{
++	const char *path = server_path;
++	const char *cur, *end;
++	char *buf, *p;
++	int len;
++
++	/* if the server path is omitted */
++	if (!path)
++		return NULL;
++
++	/* remove all the leading slashes */
++	while (*path == '/')
++		path++;
++
++	/* if the server path only consists of slashes */
++	if (*path == '\0')
++		return NULL;
++
++	len = strlen(path);
++
++	buf = kmalloc(len + 1, GFP_KERNEL);
++	if (!buf)
++		return ERR_PTR(-ENOMEM);
++
++	end = path + len;
++	p = buf;
++	do {
++		cur = strchr(path, '/');
++		if (!cur)
++			cur = end;
++
++		len = cur - path;
++
++		/* including one '/' */
++		if (cur != end)
++			len += 1;
++
++		memcpy(p, path, len);
++		p += len;
++
++		while (cur <= end && *cur == '/')
++			cur++;
++		path = cur;
++	} while (path < end);
++
++	*p = '\0';
++
++	/*
++	 * remove the last slash if there has and just to make sure that
++	 * we will get something like "dir1/dir2"
++	 */
++	if (*(--p) == '/')
++		*p = '\0';
++
++	return buf;
++}
++
  static int compare_mount_options(struct ceph_mount_options *new_fsopt,
  				 struct ceph_options *new_opt,
  				 struct ceph_fs_client *fsc)
-@@ -472,7 +425,6 @@ static int compare_mount_options(struct ceph_mount_options *new_fsopt,
+@@ -437,6 +503,7 @@ static int compare_mount_options(struct ceph_mount_options *new_fsopt,
  	struct ceph_mount_options *fsopt1 = new_fsopt;
  	struct ceph_mount_options *fsopt2 = fsc->mount_options;
  	int ofs = offsetof(struct ceph_mount_options, snapdir_name);
--	char *p1, *p2;
++	char *p1, *p2;
  	int ret;
  
  	ret = memcmp(fsopt1, fsopt2, ofs);
-@@ -482,21 +434,12 @@ static int compare_mount_options(struct ceph_mount_options *new_fsopt,
- 	ret = strcmp_null(fsopt1->snapdir_name, fsopt2->snapdir_name);
- 	if (ret)
- 		return ret;
-+
+@@ -449,9 +516,21 @@ static int compare_mount_options(struct ceph_mount_options *new_fsopt,
  	ret = strcmp_null(fsopt1->mds_namespace, fsopt2->mds_namespace);
  	if (ret)
  		return ret;
- 
--	p1 = path_remove_extra_slash(fsopt1->server_path);
--	if (IS_ERR(p1))
--		return PTR_ERR(p1);
--	p2 = path_remove_extra_slash(fsopt2->server_path);
--	if (IS_ERR(p2)) {
--		kfree(p1);
--		return PTR_ERR(p2);
--	}
--	ret = strcmp_null(p1, p2);
--	kfree(p1);
--	kfree(p2);
-+	ret = strcmp_null(fsopt1->server_path, fsopt2->server_path);
+-	ret = strcmp_null(fsopt1->server_path, fsopt2->server_path);
++
++	p1 = path_remove_extra_slash(fsopt1->server_path);
++	if (IS_ERR(p1))
++		return PTR_ERR(p1);
++	p2 = path_remove_extra_slash(fsopt2->server_path);
++	if (IS_ERR(p2)) {
++		kfree(p1);
++		return PTR_ERR(p2);
++	}
++	ret = strcmp_null(p1, p2);
++	kfree(p1);
++	kfree(p2);
  	if (ret)
  		return ret;
- 
-@@ -564,6 +507,8 @@ static int parse_mount_options(struct ceph_mount_options **pfsopt,
- 			err = -ENOMEM;
- 			goto out;
- 		}
 +
-+		canonicalize_path(fsopt->server_path);
+ 	ret = strcmp_null(fsopt1->fscache_uniq, fsopt2->fscache_uniq);
+ 	if (ret)
+ 		return ret;
+@@ -507,12 +586,14 @@ static int parse_mount_options(struct ceph_mount_options **pfsopt,
+ 	 */
+ 	dev_name_end = strchr(dev_name, '/');
+ 	if (dev_name_end) {
+-		if (strlen(dev_name_end) > 1) {
+-			fsopt->server_path = kstrdup(dev_name_end, GFP_KERNEL);
+-			if (!fsopt->server_path) {
+-				err = -ENOMEM;
+-				goto out;
+-			}
++		/*
++		 * The server_path will include the whole chars from userland
++		 * including the leading '/'.
++		 */
++		fsopt->server_path = kstrdup(dev_name_end, GFP_KERNEL);
++		if (!fsopt->server_path) {
++			err = -ENOMEM;
++			goto out;
+ 		}
  	} else {
  		dev_name_end = dev_name + strlen(dev_name);
- 	}
-@@ -990,7 +935,9 @@ static struct dentry *ceph_real_mount(struct ceph_fs_client *fsc)
+@@ -842,7 +923,6 @@ static void destroy_caches(void)
+ 	ceph_fscache_unregister();
+ }
+ 
+-
+ /*
+  * ceph_umount_begin - initiate forced umount.  Tear down down the
+  * mount, skipping steps that may hang while waiting for server(s).
+@@ -929,9 +1009,6 @@ static struct dentry *open_root_dentry(struct ceph_fs_client *fsc,
+ 	return root;
+ }
+ 
+-
+-
+-
+ /*
+  * mount: join the ceph cluster, and open root directory.
+  */
+@@ -945,7 +1022,7 @@ static struct dentry *ceph_real_mount(struct ceph_fs_client *fsc)
  	mutex_lock(&fsc->client->mount_mutex);
  
  	if (!fsc->sb->s_root) {
--		const char *path, *p;
-+		const char *path = fsc->mount_options->server_path ?
-+				     fsc->mount_options->server_path + 1 : "";
-+
+-		const char *path;
++		const char *path, *p;
  		err = __ceph_open_session(fsc->client, started);
  		if (err < 0)
  			goto out;
-@@ -1002,16 +949,6 @@ static struct dentry *ceph_real_mount(struct ceph_fs_client *fsc)
+@@ -957,17 +1034,22 @@ static struct dentry *ceph_real_mount(struct ceph_fs_client *fsc)
  				goto out;
  		}
  
--		p = path_remove_extra_slash(fsc->mount_options->server_path);
--		if (IS_ERR(p)) {
--			err = PTR_ERR(p);
--			goto out;
--		}
--		/* if the server path is omitted or just consists of '/' */
--		if (!p)
+-		if (!fsc->mount_options->server_path) {
 -			path = "";
--		else
--			path = p;
- 		dout("mount opening path '%s'\n", path);
+-			dout("mount opening path \\t\n");
+-		} else {
+-			path = fsc->mount_options->server_path + 1;
+-			dout("mount opening path %s\n", path);
++		p = path_remove_extra_slash(fsc->mount_options->server_path);
++		if (IS_ERR(p)) {
++			err = PTR_ERR(p);
++			goto out;
+ 		}
++		/* if the server path is omitted or just consists of '/' */
++		if (!p)
++			path = "";
++		else
++			path = p;
++		dout("mount opening path '%s'\n", path);
  
- 		err = ceph_fs_debugfs_init(fsc);
-@@ -1019,7 +956,6 @@ static struct dentry *ceph_real_mount(struct ceph_fs_client *fsc)
- 			goto out;
+ 		ceph_fs_debugfs_init(fsc);
  
  		root = open_root_dentry(fsc, path, started);
--		kfree(p);
++		kfree(p);
  		if (IS_ERR(root)) {
  			err = PTR_ERR(root);
  			goto out;
-diff --git a/fs/ceph/super.h b/fs/ceph/super.h
-index 8d3eabf06d66..65da12ff5449 100644
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -86,7 +86,7 @@ struct ceph_mount_options {
- 
- 	char *snapdir_name;   /* default ".snap" */
- 	char *mds_namespace;  /* default NULL */
--	char *server_path;    /* default  "/" */
-+	char *server_path;    /* default NULL (means "/") */
- 	char *fscache_uniq;   /* default NULL */
- };
- 
