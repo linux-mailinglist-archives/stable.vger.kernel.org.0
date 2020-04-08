@@ -2,137 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CD191A1923
-	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 02:10:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D961A193F
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 02:30:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726469AbgDHAKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 20:10:42 -0400
-Received: from mail-pj1-f68.google.com ([209.85.216.68]:39219 "EHLO
-        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726416AbgDHAKm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 20:10:42 -0400
-Received: by mail-pj1-f68.google.com with SMTP id z3so431275pjr.4
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 17:10:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+kRNsI1CRfjSqG6p3dccojwhxGFScUzxmHkf7qqLnN4=;
-        b=SbOhOqWfjUnqBpR55b9HBzDLE/S69wSvpTokai+5l2s3bQPNpy4M8WJr8Myr7x3FQT
-         TB5esZEHyAxdbJy3dhA+JK57XdtNGVpKVomGJKIEydHkxTenxSxfkpLaOVebEqwOG6GU
-         eOo7ra2YPvWlUV0zVJWZqtRYAxpM17aPdzY+T/RQ6cvwc7SawI5aDKXK69kyR1aurRTP
-         7LfXgWcZ/1UXLe+wSb9DKRZ67lBdEcoMSshyDOKYbOxlNudjbfzGZA0HcRT5loPYIS9q
-         dwpFkaSyz65/fiLIB9nkDxXy1Ge+uSI8AXKXy3ZN/nDzT9g7HhCc1IwYT3jeb6dOxQMC
-         XKIA==
+        id S1726477AbgDHAa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 20:30:27 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:57334 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726508AbgDHAaY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 20:30:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586305823;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2MZBPDUxV9RhejRmNfB7mo4jhMQj38Op7zbCkOjFq48=;
+        b=FisQMVwgqk+QwiHEkbn6jdK0Kbd1WBvj96xXljwx59nz8XjQGsXWsvmmu+YWIu+zZkXJnW
+        UrI1P4KNe9qICM9+WJVkHj7bV95vWg0sAVNgaG5TTZjLcDwB/PqCzdsF2+nDjngj7qZWx3
+        nSxOvdkvB2CqcNk1FPBn3q+925dDBco=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-255-gGdLjWeiN1KEjDZhojeJ6g-1; Tue, 07 Apr 2020 20:30:21 -0400
+X-MC-Unique: gGdLjWeiN1KEjDZhojeJ6g-1
+Received: by mail-wm1-f69.google.com with SMTP id o5so1634875wmo.6
+        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 17:30:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+kRNsI1CRfjSqG6p3dccojwhxGFScUzxmHkf7qqLnN4=;
-        b=UCmF1QEt2intuR58i9CHf45N9/3H0ZosXqcNCruPRAEEdAux2Z/H/pLxE4/hZehROK
-         OE89jRdF2TWI1ULSzB6fqlPNbL+KHmbRxm/bGztRlqdYAlz/iIumRpe3b3NR4xRs+X+X
-         ocElnQ3Z49bpW8B0pmFmjqnU1wwzzCA/u2VaBCQP86z8Jf3Sh7HHPaqITBMbxejqb4ge
-         djQ6++NUuqZJ/KWSCTPueo4pw6nncgKmLo2vOgvNSPhqjEQQaKnwt7ZUcLy2JZcaTglt
-         NJ7abM/qBZL4TPYzcoeKC5cNF0PU6JYcoDK3jNMGKpP5PDOqtWr//Pv5FHvnnNGdezga
-         BSjw==
-X-Gm-Message-State: AGi0PuZzd7W9JBxi8yuhNYQH/UUBfRfF+1nFgRi203bduptT6ZERKX4Z
-        M/pyw7ggnquEoNWv3jm3F1blXhSYJb8=
-X-Google-Smtp-Source: APiQypIMFSS+buM5VpBJGBe7AEzJZC70r4pZvqDz7fTaS9xGAcTWz4Tbf61w+yKKF97mvr+Emg/P7Q==
-X-Received: by 2002:a17:90a:240e:: with SMTP id h14mr2058716pje.5.1586304641535;
-        Tue, 07 Apr 2020 17:10:41 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i14sm14176488pgh.47.2020.04.07.17.10.40
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2020 17:10:40 -0700 (PDT)
-Message-ID: <5e8d1680.1c69fb81.3a450.f845@mx.google.com>
-Date:   Tue, 07 Apr 2020 17:10:40 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2MZBPDUxV9RhejRmNfB7mo4jhMQj38Op7zbCkOjFq48=;
+        b=OW4s0WtC/phEIJEp9YrULXplvoXoP2WfX0+6ufY6U4YKjx1SYaIH+Ly51kggtUgBP9
+         rD+br/P4idoIDhP4xDTkjSlS4jsEr03cz/u4KIIzwE2m8qKTGjiU2I+1pKJa4fa6paae
+         cT3JtQ41qYj3n0aNizCZuLtEeM0h/3oDmfxIUu2/4Net1hpTsmjqJY+ReSONGXvcP0U+
+         xkVQwMlFoTjPmVIh/CjNBtFyiktYhIxJazCQJnPRXKIoHdJhbJ772lDbxZ9U6RfhtsLy
+         sEnrcW9Wc2/5ZYCQUPHhp2KTFtDSl+OpNQ4lqmzLsavEay/NttGMX97t6qGwbk0MYjnp
+         yPpA==
+X-Gm-Message-State: AGi0PuYyoubyj+Lb/ioiL9d0zfeFr/wwUANvrSSdaniyzXPdrOnxPUyX
+        5o2nxIjMCWfEPFvP2GVav416HwsZgfeLXwLy/8v4EX5spg5Dybe1iX4Gi5KARjL3sLm3IKtQ60H
+        FvMs61cS4d/DglQjx
+X-Received: by 2002:a5d:4085:: with SMTP id o5mr5042787wrp.327.1586305820545;
+        Tue, 07 Apr 2020 17:30:20 -0700 (PDT)
+X-Google-Smtp-Source: APiQypKoQMFSt24mcYF1v+WDBRR73pOTR2uHEj2ttnoL4Vy/+kjZdxsveaYn+BYQj9ifCX3Vaxkjhg==
+X-Received: by 2002:a5d:4085:: with SMTP id o5mr5042763wrp.327.1586305820293;
+        Tue, 07 Apr 2020 17:30:20 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:bd61:914:5c2f:2580? ([2001:b07:6468:f312:bd61:914:5c2f:2580])
+        by smtp.gmail.com with ESMTPSA id n124sm4772405wma.11.2020.04.07.17.30.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Apr 2020 17:30:19 -0700 (PDT)
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+To:     Andy Lutomirski <luto@amacapital.net>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
+References: <2776fced-54c2-40eb-7921-1c68236c7f70@redhat.com>
+ <0255CF03-D45D-45E0-BC61-79159B94ED44@amacapital.net>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <4c2499b0-a303-8d91-357e-99b78cbfdc23@redhat.com>
+Date:   Wed, 8 Apr 2020 02:30:18 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.114-29-g4b947bfa2cba
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 145 boots: 1 failed,
- 136 passed with 3 offline, 5 untried/unknown (v4.19.114-29-g4b947bfa2cba)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <0255CF03-D45D-45E0-BC61-79159B94ED44@amacapital.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 145 boots: 1 failed, 136 passed with 3 offline=
-, 5 untried/unknown (v4.19.114-29-g4b947bfa2cba)
+On 08/04/20 00:29, Andy Lutomirski wrote:
+>> I prefer #VE, but I can see how #MC has some appeal.  However, #VE has a
+>> mechanism to avoid reentrancy, unlike #MC.  How would that be better
+>> than the current mess with an NMI happening in the first few
+>> instructions of the #PF handler?
+>>
+>>
+> It has to be an IST vector due to the possibility of hitting a memory failure right after SYSCALL.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.114-29-g4b947bfa2cba/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.114-29-g4b947bfa2cba/
+Not if syscall clears IF, right?
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.114-29-g4b947bfa2cba
-Git Commit: 4b947bfa2cbae18c6fe052e9ca43c83f567fde2e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 84 unique boards, 22 SoC families, 19 builds out of 206
+> I think #MC has a mechanism to prevent reentrancy to a limited extent. How does #VE avoid reentrancy?
 
-Boot Regressions Detected:
+In hardware, it has a flag word and delivers a vmexit instead of #VE if
+that word is not zero (see towards the end of 25.5.6.1 Convertible EPT
+Violations).  Here it would be the same except it would just do the page
+fault synchronously in the host.
 
-arm:
+Paolo
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 59 days (last pass: v4.19=
-.101 - first fail: v4.19.102-96-g0632821fe218)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 25 days (last pass: v4.19.108-87-=
-g624c124960e8 - first fail: v4.19.109)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.19.114-25-g1afec3f9=
-643a)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v4.19.114-25-g1=
-afec3f9643a)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
