@@ -2,130 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 910AE1A2A79
-	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 22:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFD051A2AE5
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 23:15:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727817AbgDHUea (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Apr 2020 16:34:30 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:31217 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726891AbgDHUea (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 16:34:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586378069;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=151LHWUJtSDB+75+jyNegOreKhf7IJmTVrlaiuCLhsY=;
-        b=eO6BSIeQ4gPcDLDradVB9tbQEtIGRvOeKxuGm8y0VTjQ1geaYWAAMAZzdSK0HMvSQCM+uO
-        b4fC81yR3M2VFowQib/EKHFgc59pYXFp7pxVaASeRSTLSXnk6AdPWsWSwrY3i7tnaeUTuL
-        kZwePcFj+fhLGuvzi1eIueN8mSGkiow=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-357-1QQRLG7LOPa-SnRwx8FAtA-1; Wed, 08 Apr 2020 16:34:27 -0400
-X-MC-Unique: 1QQRLG7LOPa-SnRwx8FAtA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 16B04107B114;
-        Wed,  8 Apr 2020 20:34:26 +0000 (UTC)
-Received: from horse.redhat.com (ovpn-115-85.rdu2.redhat.com [10.10.115.85])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DAA125DA84;
-        Wed,  8 Apr 2020 20:34:25 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 4583D2202B8; Wed,  8 Apr 2020 16:34:25 -0400 (EDT)
-Date:   Wed, 8 Apr 2020 16:34:25 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
-Message-ID: <20200408203425.GD93547@redhat.com>
-References: <20200407172140.GB64635@redhat.com>
- <772A564B-3268-49F4-9AEA-CDA648F6131F@amacapital.net>
- <87eeszjbe6.fsf@nanos.tec.linutronix.de>
- <ce81c95f-8674-4012-f307-8f32d0e386c2@redhat.com>
- <874ktukhku.fsf@nanos.tec.linutronix.de>
- <274f3d14-08ac-e5cc-0b23-e6e0274796c8@redhat.com>
- <20200408153413.GA11322@linux.intel.com>
- <ce28e893-2ed0-ea6f-6c36-b08bb0d814f2@redhat.com>
- <87d08hc0vz.fsf@nanos.tec.linutronix.de>
+        id S1727798AbgDHVPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Apr 2020 17:15:00 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:40526 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728043AbgDHVPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Apr 2020 17:15:00 -0400
+Received: by mail-lj1-f194.google.com with SMTP id 142so4696719ljj.7
+        for <stable@vger.kernel.org>; Wed, 08 Apr 2020 14:14:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=tatDUkEu74fJwPgLRw2JZ+S0O3CWrMQzKjdHk2GEH4c=;
+        b=ZCJNoBCZFsc4OT/9i1qz85T2vqFB754V8LwcT9UtL7kperRB0ACYsy9mwUhTMOwdTZ
+         cyQIo+ysWh7Xu2ZnUStxeozjPNVYxyF/sjojmf/jmD2/NHrfZy72cD82mFPs3G2o0Hqf
+         LZeDKiFF50stQUT8aTCHhIfZ+qMj4bo1DHtwc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tatDUkEu74fJwPgLRw2JZ+S0O3CWrMQzKjdHk2GEH4c=;
+        b=eH3s73hxd4ZiNYdzvF5GgRtJgSSSrOPqfXfQKqdk/J0L8wPSkgYA+tSBexVt059WMx
+         pUnkCmQEtyGz+HSq5+Eokn0W10S93D9ZvR+uKUJpb4BSuqbIY0UJfQZupgMZx7Hs+21Z
+         S6u1iutPsj1eZ6lWYMZ9wiy0cRJgdHA9nJ4UTGXABcMvgMoYiN3vLFZHKmUw9pButs5q
+         RMBXOg1bYr8/BTtQS5V/fSK5PaYY/fNJUfTdeK2uKEFjTQExUi34vNkXLw7YRpEDCrsd
+         X1PKO3ALucBzcZaSgSPAcHVb8POVUsRPqwrbzpgpuI9u6BOPGKBPB9hM60uTH2n560w4
+         WSnA==
+X-Gm-Message-State: AGi0PuY+Wvk4wDk5Zu0orS2iXbnVi+vUdiR5aRTP6LkcHZ0fyFqJISHZ
+        i2EQvF3xkp5mzPqIMir4Ifdnxa2Lahc=
+X-Google-Smtp-Source: APiQypIxRapSrWqO0IC4PMj5tY/VxLmDL2lMMs/jH1QEfdB2WZD01nwoSAj483su5mPTnjB32LTZDQ==
+X-Received: by 2002:a2e:a0d8:: with SMTP id f24mr6114102ljm.270.1586380495935;
+        Wed, 08 Apr 2020 14:14:55 -0700 (PDT)
+Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com. [209.85.208.175])
+        by smtp.gmail.com with ESMTPSA id j16sm13990169ljg.98.2020.04.08.14.14.54
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Apr 2020 14:14:54 -0700 (PDT)
+Received: by mail-lj1-f175.google.com with SMTP id q22so5496825ljg.0
+        for <stable@vger.kernel.org>; Wed, 08 Apr 2020 14:14:54 -0700 (PDT)
+X-Received: by 2002:a2e:a58e:: with SMTP id m14mr6104348ljp.204.1586380494037;
+ Wed, 08 Apr 2020 14:14:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87d08hc0vz.fsf@nanos.tec.linutronix.de>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+References: <20200406200254.a69ebd9e08c4074e41ddebaf@linux-foundation.org>
+ <20200407031042.8o-fYMox-%akpm@linux-foundation.org> <CAHk-=wi1h-wBC3Kg2qBhs_R1UGyocGq0cT1eO+12pwBsO+d1ww@mail.gmail.com>
+ <20200408202630.GA1666@paulmck-ThinkPad-P72>
+In-Reply-To: <20200408202630.GA1666@paulmck-ThinkPad-P72>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Wed, 8 Apr 2020 14:14:38 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wicuF-BZj9b_Dbv+Ev8FT4XqULj2qMpkaUgEokNir345A@mail.gmail.com>
+Message-ID: <CAHk-=wicuF-BZj9b_Dbv+Ev8FT4XqULj2qMpkaUgEokNir345A@mail.gmail.com>
+Subject: Re: [patch 125/166] lib/list: prevent compiler reloads inside 'safe'
+ list iteration
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        David Laight <David.Laight@aculab.com>,
+        Marco Elver <elver@google.com>, Linux-MM <linux-mm@kvack.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        mm-commits@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 08, 2020 at 08:01:36PM +0200, Thomas Gleixner wrote:
-> Paolo Bonzini <pbonzini@redhat.com> writes:
-> > On 08/04/20 17:34, Sean Christopherson wrote:
-> >> On Wed, Apr 08, 2020 at 10:23:58AM +0200, Paolo Bonzini wrote:
-> >>> Page-not-present async page faults are almost a perfect match for the
-> >>> hardware use of #VE (and it might even be possible to let the processor
-> >>> deliver the exceptions).
-> >> 
-> >> My "async" page fault knowledge is limited, but if the desired behavior is
-> >> to reflect a fault into the guest for select EPT Violations, then yes,
-> >> enabling EPT Violation #VEs in hardware is doable.  The big gotcha is that
-> >> KVM needs to set the suppress #VE bit for all EPTEs when allocating a new
-> >> MMU page, otherwise not-present faults on zero-initialized EPTEs will get
-> >> reflected.
-> >> 
-> >> Attached a patch that does the prep work in the MMU.  The VMX usage would be:
-> >> 
-> >> 	kvm_mmu_set_spte_init_value(VMX_EPT_SUPPRESS_VE_BIT);
-> >> 
-> >> when EPT Violation #VEs are enabled.  It's 64-bit only as it uses stosq to
-> >> initialize EPTEs.  32-bit could also be supported by doing memcpy() from
-> >> a static page.
-> >
-> > The complication is that (at least according to the current ABI) we
-> > would not want #VE to kick if the guest currently has IF=0 (and possibly
-> > CPL=0).  But the ABI is not set in stone, and anyway the #VE protocol is
-> > a decent one and worth using as a base for whatever PV protocol we design.
-> 
-> Forget the current pf async semantics (or the lack of). You really want
-> to start from scratch and igore the whole thing.
-> 
-> The charm of #VE is that the hardware can inject it and it's not nesting
-> until the guest cleared the second word in the VE information area. If
-> that word is not 0 then you get a regular vmexit where you suspend the
-> vcpu until the nested problem is solved.
+On Wed, Apr 8, 2020 at 1:26 PM Paul E. McKenney <paulmck@kernel.org> wrote:
+>
+> OK, it sounds like we need to specify what needs to be present in this
+> sort of commit log.
 
-So IIUC, only one process on a vcpu could affort to relinquish cpu to
-another task. If next task also triggers EPT violation, that will result
-in VM exit (as previous #VE is not complete yet) and vcpu will be halted.
+That would have helped.
 
-> 
-> So you really don't worry about the guest CPU state at all. The guest
-> side #VE handler has to decide what it wants from the host depending on
-> it's internal state:
-> 
->      - Suspend me and resume once the EPT fail is solved
-> 
->      - Let me park the failing task and tell me once you resolved the
->        problem.
-> 
-> That's pretty straight forward and avoids the whole nonsense which the
-> current mess contains. It completely avoids the allocation stuff as well
-> as you need to use a PV page where the guest copies the VE information
-> to.
-> 
-> The notification that a problem has been resolved needs to go through a
-> separate vector which still has the IF=1 requirement obviously.
+But in this case, after having looked more at it, it wasn't that the
+commit log was not sufficient, it was that the change was wrong.
 
-How is this vector decided between guest and host. Failure to fault in
-page will be communicated through same vector?
+With a better commit log and a pointer to the KCSAN report, I would
+have been able to make a better judgment call earlier, and not have
+had to ask for more information.
 
-Thanks
-Vivek
+But once I figured out what the problem was, it was clear that
 
+ (a) what the i915 driver does is at a minimum questionable, and quite
+likely actively buggy
+
+ (b) even if it's not buggy in the i915 driver, changing the list
+traversal macros to use READ_ONCE() would hide other places where it
+most definitely is buggy.
+
+> o       The KCSAN splat, optionally including file/line numbers.
+
+I do think that the KCSAN splat - very preferably simplified and with
+explanations - should basically always be included if KCSAN was the
+reason.
+
+Of course, the "simplified and with explanations" may be simplified to
+the point where none of the original splat even remains. Those splats
+aren't so legible that anybody should feel like they should be
+included.
+
+Put another way: an analysis that is so thorough that it makes the raw
+splat data pointless is a *good* thing, and if that means that no
+splat is needed, all the better.
+
+> o       Detailed description of the problem this splat identifies, for
+>         example, the code might fail to acquire a necessary lock, a plain
+>         load might vulnerable to compiler optimizations, and so on.
+
+See above: if the description is detailed enough, then the splat
+itself becomes much less interesting.
+
+But in this case, for example, it's worth pointing out that the "safe"
+list accessors are used all over the kernel, and they are very much
+_not_ thread-safe. The "safe" in them is purely about the current
+thread removing an entry, not some kind of general thread-safeness.
+
+Which is why I decided I really hated that patch - it basically would
+make KCSAN unable to find _real_ races elsewhere, because it hid a
+very special race in the i915 driver.
+
+So I started out with the "that can't be right" kind of general
+feeling of uneasiness about the patch. I ended up with a much more
+specific "no, that's very much not right" and no amount of commit log
+should have saved it.
+
+As mentioned, I suspect that the i915 driver could actually use the
+RCU-safe list walkers. Their particular use is not about RCU per se,
+but it has some very similar rules about walking a list concurrently
+with somebody adding an entry to it.
+
+And the RCU list walkers do end up doing special things to load the
+next pointer.
+
+Whether we want to say - and document - that "ok, the RCU list walkers
+are also useful for this non-RCU use case" in general might be worth
+discussing.
+
+It may be that the i915 use case is so special that it's only worth
+documenting there.
+
+              Linus
