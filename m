@@ -2,91 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BB441A19D7
-	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 04:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F07751A19E5
+	for <lists+stable@lfdr.de>; Wed,  8 Apr 2020 04:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726443AbgDHCNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Apr 2020 22:13:31 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25432 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726416AbgDHCNb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 22:13:31 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03822tkG038499
-        for <stable@vger.kernel.org>; Tue, 7 Apr 2020 22:13:30 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30920a4n21-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 22:13:30 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <ajd@linux.ibm.com>;
-        Wed, 8 Apr 2020 03:13:04 +0100
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (9.149.109.198)
-        by e06smtp01.uk.ibm.com (192.168.101.131) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Wed, 8 Apr 2020 03:13:03 +0100
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0382DNgS42205258
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 8 Apr 2020 02:13:23 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BB4D952052;
-        Wed,  8 Apr 2020 02:13:23 +0000 (GMT)
-Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 69F125204E;
-        Wed,  8 Apr 2020 02:13:23 +0000 (GMT)
-Received: from [9.206.210.25] (unknown [9.206.210.25])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-        (No client certificate requested)
-        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id A7FD3A01DF;
-        Wed,  8 Apr 2020 12:13:17 +1000 (AEST)
-Subject: Re: [PATCH] cxl: Rework error message for incompatible slots
-To:     Frederic Barrat <fbarrat@linux.ibm.com>,
-        linuxppc-dev@lists.ozlabs.org, christophe_lombard@fr.ibm.com
-Cc:     stable@vger.kernel.org
-References: <20200407115601.25453-1-fbarrat@linux.ibm.com>
-From:   Andrew Donnellan <ajd@linux.ibm.com>
-Date:   Wed, 8 Apr 2020 12:13:21 +1000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        id S1726420AbgDHCUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Apr 2020 22:20:49 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:42419 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726416AbgDHCUs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Apr 2020 22:20:48 -0400
+Received: by mail-pg1-f196.google.com with SMTP id g6so2633945pgs.9
+        for <stable@vger.kernel.org>; Tue, 07 Apr 2020 19:20:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xe1hwpYbO9JHlWSHZ0nFsfMfERhkjRGVCSq3Avgt88E=;
+        b=Cfyc3YPSDD0wY4h6LmgdWTj2slErGqNzopY/4vk67hSIeLMyvKu9wg5ntUdU31+KZ6
+         NMN8/U7Q0RU5oOrXmjZEqjG0AyANk0Lv67MCJcei3fr+MI34VRQMIjBJmRW3eTLEbDi4
+         fb1z3EAJkwaoSr/v3mnlROVa5gpZh4KriioUCdIu1l7TxiyQy+34GhWsnioYjlv9WkHA
+         XVmSQonzrzlnQ5EJFvUVoV4jFFNu4U9ZUH4Z/yeDuPiyGyNu+POkzOUd+b1OC3vciLXP
+         KQFfCf3cruwKySw1FBpwQjWsyDFNAoycMW6pkeRrEhKufbO94Mefmhh46DBLdbKZaGKQ
+         9htQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xe1hwpYbO9JHlWSHZ0nFsfMfERhkjRGVCSq3Avgt88E=;
+        b=I+qQ5lnIPfLDISL6ejgNvkV2XAcv3oO6H7JieCycL67vj0Q/y8BPrPWimH3cUUQGA7
+         5i48LM86ncy5abNZch7AnCIBnc1ui2dCUJX2PdmUxwJ3ObLzDgul3msSo+NRpQktGJGs
+         YkbFCtExgh1xkA50X4l6zY1JC5183mkc/IQXemt2I/j4qTiI2GBsMKbRt7eWbcqO5GCi
+         SOE78rCJnCzHuiXna5EwdPqIp4qmYcDF8q3lZxy0IuDRA00vwiLMOM4a1HJLWoMcK4HN
+         LmRTsRAtKNiGau+qM9SJ+a0BBJUe6WItqCjdRyHvs4eWXzbGAWmJC2ODHPuBPLmffuHe
+         wqjw==
+X-Gm-Message-State: AGi0PuYDn3CW0zJRtJnPw1fcrfV2xQHdWJE1k84VNaPjnjkly9a/BmaK
+        bEzysBwZUHqZJbt3Z+m6flHkWyU8pJw=
+X-Google-Smtp-Source: APiQypKdG+9U8lcLirF7/yvodVPpxzoQ+4k8icYuMv+LJn7raNjXENVefe7Yd6oVnnf66XhV1A52Aw==
+X-Received: by 2002:a62:520a:: with SMTP id g10mr5259779pfb.271.1586312447699;
+        Tue, 07 Apr 2020 19:20:47 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s65sm8438314pgs.30.2020.04.07.19.20.46
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Apr 2020 19:20:47 -0700 (PDT)
+Message-ID: <5e8d34ff.1c69fb81.ab20d.4a6f@mx.google.com>
+Date:   Tue, 07 Apr 2020 19:20:47 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200407115601.25453-1-fbarrat@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-x-cbid: 20040802-4275-0000-0000-000003BBAFDC
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 20040802-4276-0000-0000-000038D1125E
-Message-Id: <9e4cab1e-aa93-981d-9576-d475c93bb2e7@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
- definitions=2020-04-07_10:2020-04-07,2020-04-07 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
- mlxlogscore=691 adultscore=0 priorityscore=1501 clxscore=1011
- malwarescore=0 impostorscore=0 mlxscore=0 lowpriorityscore=0
- suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2003020000 definitions=main-2004080012
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.30-39-g23c04177b89f
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y boot: 166 boots: 2 failed,
+ 155 passed with 3 offline, 6 untried/unknown (v5.4.30-39-g23c04177b89f)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/4/20 9:56 pm, Frederic Barrat wrote:
-> Improve the error message shown if a capi adapter is plugged on a
-> capi-incompatible slot directly under the PHB (no intermediate switch).
-> 
-> Fixes: 5632874311db ("cxl: Add support for POWER9 DD2")
-> Cc: stable@vger.kernel.org # 4.14+
-> Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
+stable-rc/linux-5.4.y boot: 166 boots: 2 failed, 155 passed with 3 offline,=
+ 6 untried/unknown (v5.4.30-39-g23c04177b89f)
 
-Seems fine to me, not sure if it needs to go to stable but I suppose 
-this could be causing actual confusion out in the field?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.30-39-g23c04177b89f/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.30-39-g23c04177b89f/
 
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.30-39-g23c04177b89f
+Git Commit: 23c04177b89f23d80a3b5dfa54a4babfc32bea3b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 102 unique boards, 25 SoC families, 20 builds out of 200
 
+Boot Regressions Detected:
 
--- 
-Andrew Donnellan              OzLabs, ADL Canberra
-ajd@linux.ibm.com             IBM Australia Limited
+arm:
 
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 59 days (last pass: v5.4.=
+17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: new failure (last pass: v5.4.30-37-g40da5db79b5=
+5)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.4.30-37-g40da5db79b=
+55)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-axg-s400:
+              lab-baylibre-seattle: new failure (last pass: v5.4.30-37-g40d=
+a5db79b55)
+          sun50i-h6-orangepi-3:
+              lab-clabbe: new failure (last pass: v5.4.30-37-g40da5db79b55)
+
+Boot Failures Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            stih410-b2120: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
