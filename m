@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07BB21A2D27
-	for <lists+stable@lfdr.de>; Thu,  9 Apr 2020 03:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D50631A2D35
+	for <lists+stable@lfdr.de>; Thu,  9 Apr 2020 03:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726536AbgDIBDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Apr 2020 21:03:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
+        id S1726539AbgDIBL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Apr 2020 21:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726527AbgDIBDM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Apr 2020 21:03:12 -0400
+        id S1726534AbgDIBL4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Apr 2020 21:11:56 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C23F2078E;
-        Thu,  9 Apr 2020 01:03:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 479A92078E;
+        Thu,  9 Apr 2020 01:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586394191;
-        bh=yFe0bDb3GRU2UIlglMnHan32F7Rf73lSWqIAytH1pJY=;
+        s=default; t=1586394716;
+        bh=1nhY7y5PZKRVoDuZRoJJ06/1gDFTPOdnrEHPNG+Oi2o=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=1iERrRoYLShSLKMkh1ScyVqbJa+0RWyAiFet14v+wRAvl/V1qFJlOG1U+aWnJeMn4
-         2HSHxcmPXxosrOonojXKew0YwUOIy/bisDfDSwI/Tm7k+4Au0nXEDCTrmdlsn62CLi
-         Lno6dY4Tu9YGjv/WOs6p0Lp/bWBhl0aPyxkJTF7c=
-Date:   Wed, 08 Apr 2020 18:03:11 -0700
+        b=ds8W9VIqISySakyotvKSUwxpWkaPCSz6OuSLtgKR5OJgttGxRWUW8zSiGxSDB5m++
+         t63XFvypbcg+Eqaa2b+YVYZlx4az3vHv7AjEdfkVwiqsmULVZRgHJZCOxSN6weza1y
+         LBmbIrfGjWF7IWdrDNMDUohyhWals6fnLx8iQ4VE=
+Date:   Wed, 08 Apr 2020 18:11:55 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     chris@chris-wilson.co.uk, David.Laight@ACULAB.COM,
-        elver@google.com, mark.rutland@arm.com, mm-commits@vger.kernel.org,
-        paulmck@kernel.org, rdunlap@infradead.org, stable@vger.kernel.org
-Subject:  [nacked]
- list-prevent-compiler-reloads-inside-safe-list-iteration.patch removed from
- -mm tree
-Message-ID: <20200409010311._VBPnmIWD%akpm@linux-foundation.org>
+To:     chge@linux.alibaba.com, gechangwei@live.cn, ghe@suse.com,
+        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        junxiao.bi@oracle.com, mark@fasheh.com, mm-commits@vger.kernel.org,
+        piaojun@huawei.com, stable@vger.kernel.org
+Subject:  + ocfs2-no-need-try-to-truncate-file-beyond-i_size.patch
+ added to -mm tree
+Message-ID: <20200409011155.OUS6Ryqyg%akpm@linux-foundation.org>
 In-Reply-To: <20200406200254.a69ebd9e08c4074e41ddebaf@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
@@ -41,144 +41,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: lib/list: prevent compiler reloads inside 'safe' list iteration
-has been removed from the -mm tree.  Its filename was
-     list-prevent-compiler-reloads-inside-safe-list-iteration.patch
+     Subject: ocfs2: no need try to truncate file beyond i_size
+has been added to the -mm tree.  Its filename is
+     ocfs2-no-need-try-to-truncate-file-beyond-i_size.patch
 
-This patch was dropped because it was nacked
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/ocfs2-no-need-try-to-truncate-file-beyond-i_size.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/ocfs2-no-need-try-to-truncate-file-beyond-i_size.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
 ------------------------------------------------------
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Subject: lib/list: prevent compiler reloads inside 'safe' list iteration
+From: Changwei Ge <chge@linux.alibaba.com>
+Subject: ocfs2: no need try to truncate file beyond i_size
 
-Instruct the compiler to read the next element in the list iteration
-once, and that it is not allowed to reload the value from the stale
-element later. This is important as during the course of the safe
-iteration, the stale element may be poisoned (unbeknownst to the
-compiler).
+Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
+exceed inode size.  Ocfs2 now does't allow that offset beyond inode size. 
+This restriction is not necessary and voilates fallocate(2) semantics.
 
-This helps prevent kcsan warnings over 'unsafe' conduct in releasing the
-list elements during list_for_each_entry_safe() and friends.
+If fallocate(2) offset is beyond inode size, just return success and do
+nothing further.
 
-Link: http://lkml.kernel.org/r/20200310092119.14965-1-chris@chris-wilson.co.uk
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Marco Elver <elver@google.com>
+Otherwise, ocfs2 will crash the kernel.
+
+kernel BUG at fs/ocfs2//alloc.c:7264!
+ ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
+ ? ocfs2_read_blocks+0x2f3/0x5f0 [ocfs2]
+ ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
+ ? ocfs2_read_inode_block+0x10/0x20 [ocfs2]
+ ? ocfs2_allocate_extend_trans+0x1a0/0x1a0 [ocfs2]
+ __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
+ ocfs2_fallocate+0x83/0xa0 [ocfs2]
+ ? __audit_syscall_entry+0xb8/0x100
+ ? __sb_start_write+0x3b/0x70
+ vfs_fallocate+0x148/0x230
+ SyS_fallocate+0x48/0x80
+ do_syscall_64+0x79/0x170
+
+Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
+Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/list.h |   50 +++++++++++++++++++++++++++++------------
- 1 file changed, 36 insertions(+), 14 deletions(-)
+ fs/ocfs2/alloc.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/linux/list.h~list-prevent-compiler-reloads-inside-safe-list-iteration
-+++ a/include/linux/list.h
-@@ -537,6 +537,17 @@ static inline void list_splice_tail_init
- 	list_entry((pos)->member.next, typeof(*(pos)), member)
+--- a/fs/ocfs2/alloc.c~ocfs2-no-need-try-to-truncate-file-beyond-i_size
++++ a/fs/ocfs2/alloc.c
+@@ -7402,6 +7402,10 @@ int ocfs2_truncate_inline(struct inode *
+ 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
+ 	struct ocfs2_inline_data *idata = &di->id2.i_data;
  
- /**
-+ * list_next_entry_safe - get the next element in list [once]
-+ * @pos:	the type * to cursor
-+ * @member:	the name of the list_head within the struct.
-+ *
-+ * Like list_next_entry() but prevents the compiler from reloading the
-+ * next element.
-+ */
-+#define list_next_entry_safe(pos, member) \
-+	list_entry(READ_ONCE((pos)->member.next), typeof(*(pos)), member)
++	/* No need to punch hole beyond i_size. */
++	if (start >= i_size_read(inode))
++		return 0;
 +
-+/**
-  * list_prev_entry - get the prev element in list
-  * @pos:	the type * to cursor
-  * @member:	the name of the list_head within the struct.
-@@ -545,6 +556,17 @@ static inline void list_splice_tail_init
- 	list_entry((pos)->member.prev, typeof(*(pos)), member)
+ 	if (end > i_size_read(inode))
+ 		end = i_size_read(inode);
  
- /**
-+ * list_prev_entry_safe - get the prev element in list [once]
-+ * @pos:	the type * to cursor
-+ * @member:	the name of the list_head within the struct.
-+ *
-+ * Like list_prev_entry() but prevents the compiler from reloading the
-+ * previous element.
-+ */
-+#define list_prev_entry_safe(pos, member) \
-+	list_entry(READ_ONCE((pos)->member.prev), typeof(*(pos)), member)
-+
-+/**
-  * list_for_each	-	iterate over a list
-  * @pos:	the &struct list_head to use as a loop cursor.
-  * @head:	the head for your list.
-@@ -686,9 +708,9 @@ static inline void list_splice_tail_init
-  */
- #define list_for_each_entry_safe(pos, n, head, member)			\
- 	for (pos = list_first_entry(head, typeof(*pos), member),	\
--		n = list_next_entry(pos, member);			\
-+		n = list_next_entry_safe(pos, member);			\
- 	     &pos->member != (head); 					\
--	     pos = n, n = list_next_entry(n, member))
-+	     pos = n, n = list_next_entry_safe(n, member))
- 
- /**
-  * list_for_each_entry_safe_continue - continue list iteration safe against removal
-@@ -700,11 +722,11 @@ static inline void list_splice_tail_init
-  * Iterate over list of given type, continuing after current point,
-  * safe against removal of list entry.
-  */
--#define list_for_each_entry_safe_continue(pos, n, head, member) 		\
--	for (pos = list_next_entry(pos, member), 				\
--		n = list_next_entry(pos, member);				\
--	     &pos->member != (head);						\
--	     pos = n, n = list_next_entry(n, member))
-+#define list_for_each_entry_safe_continue(pos, n, head, member) 	\
-+	for (pos = list_next_entry(pos, member), 			\
-+		n = list_next_entry_safe(pos, member);			\
-+	     &pos->member != (head);					\
-+	     pos = n, n = list_next_entry_safe(n, member))
- 
- /**
-  * list_for_each_entry_safe_from - iterate over list from current point safe against removal
-@@ -716,10 +738,10 @@ static inline void list_splice_tail_init
-  * Iterate over list of given type from current point, safe against
-  * removal of list entry.
-  */
--#define list_for_each_entry_safe_from(pos, n, head, member) 			\
--	for (n = list_next_entry(pos, member);					\
--	     &pos->member != (head);						\
--	     pos = n, n = list_next_entry(n, member))
-+#define list_for_each_entry_safe_from(pos, n, head, member) 		\
-+	for (n = list_next_entry_safe(pos, member);			\
-+	     &pos->member != (head);					\
-+	     pos = n, n = list_next_entry_safe(n, member))
- 
- /**
-  * list_for_each_entry_safe_reverse - iterate backwards over list safe against removal
-@@ -733,9 +755,9 @@ static inline void list_splice_tail_init
-  */
- #define list_for_each_entry_safe_reverse(pos, n, head, member)		\
- 	for (pos = list_last_entry(head, typeof(*pos), member),		\
--		n = list_prev_entry(pos, member);			\
-+		n = list_prev_entry_safe(pos, member);			\
- 	     &pos->member != (head); 					\
--	     pos = n, n = list_prev_entry(n, member))
-+	     pos = n, n = list_prev_entry_safe(n, member))
- 
- /**
-  * list_safe_reset_next - reset a stale list_for_each_entry_safe loop
-@@ -750,7 +772,7 @@ static inline void list_splice_tail_init
-  * completing the current iteration of the loop body.
-  */
- #define list_safe_reset_next(pos, n, member)				\
--	n = list_next_entry(pos, member)
-+	n = list_next_entry_safe(pos, member)
- 
- /*
-  * Double linked lists with a single pointer list head.
 _
 
-Patches currently in -mm which might be from chris@chris-wilson.co.uk are
+Patches currently in -mm which might be from chge@linux.alibaba.com are
 
+ocfs2-no-need-try-to-truncate-file-beyond-i_size.patch
 
