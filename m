@@ -2,79 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 280981A3310
-	for <lists+stable@lfdr.de>; Thu,  9 Apr 2020 13:17:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B19A1A3360
+	for <lists+stable@lfdr.de>; Thu,  9 Apr 2020 13:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726638AbgDILR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 07:17:57 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:33185 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725828AbgDILR5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Apr 2020 07:17:57 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 10967764;
-        Thu,  9 Apr 2020 07:17:57 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 09 Apr 2020 07:17:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=de/lbpEpFyNaHsA18YeQgWJbcM7
-        Hi9JtgJjSBMzRoLs=; b=m8w0VTgWpNvaDjs2s0zWW1PFH69r8Mfag/uqGmWSt7g
-        oUiAy72i9Q2PMnvUjPFm2K8CYUzYE4aIa7smEoNaIs0NSw2g9v5FST0fiobiv18c
-        IVzyhC2w3Tv5l9MzlnlstRo0TJpXGefnDxSCD6Ref2kjt0cMWouhyMv53a3Fu55v
-        SyHehqWkP7gaymkjb/upY7tBKbSwgkRck0fmOKXU0VKHVGaK97dFcvbanLoJ2Ofo
-        S96uuXYnPLfggjDnZnews2qseprAqLD055m/myA4cT7jEmkyIp9adBhTyxqmVshb
-        HLLtkdFvL7HPe4g8PfxEydUM/PwDLbL02e6ZTSvkP+A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=de/lbp
-        EpFyNaHsA18YeQgWJbcM7Hi9JtgJjSBMzRoLs=; b=KHtMNzg0rHB+NHguyUYaTT
-        9u3Mm6O8VXm4zLqnIW8bk2TZq10f6AUsgJLCUkNnFD/lpg8t6c3SJRZ+TMO3SMGg
-        upGuWVuGjAP7iiUImR9wysc0yfjbpc9O+tDTrEIdo3llQViYu92p9glETxTdHI51
-        fSXZfUfuJsMmjlaRSBj/o5S+7TBfxM5v4YvZltw4jscelcclTACb2UYm/Y+WetdG
-        jkayHzafFJGRMYsEkviAxaEPoPNlrxvfb5lQvDSfz3/jq+rj0Rih39HYAmApeCzu
-        3N7Kwl2n8nz/h6sKyVCactenPB/3mMMVHm+SXA7SNlT4sFIpBdqG8GnTILG5L7Tw
-        ==
-X-ME-Sender: <xms:ZASPXszXqJK8h3lep_guAprWxHhlxCCcxvMOdQ5wzmaaaLaawiuQbA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelgdeffecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledruddtje
-    enucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgv
-    gheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:ZASPXoBsp9Z3Elw9em0mtSggOqt1wZ9Prvlttc39Ugc6ezYTU0p1fw>
-    <xmx:ZASPXjWi1y2UxA-9uCDDl9QJg7ad4YDrcRSLxx3tmbukIFRSbKmOMA>
-    <xmx:ZASPXihpPMGo30qfgew_4P0u-gZ2dI4DSJn_XXU3DZ-8M-tyDvEx2Q>
-    <xmx:ZASPXjd0rI5Fi1n92rmOtGoKQ2BRA9BVEGBbW_1RpnikmnUYzrl3GA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1A551328005E;
-        Thu,  9 Apr 2020 07:17:56 -0400 (EDT)
-Date:   Thu, 9 Apr 2020 13:17:54 +0200
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20200409111754.GA1356936@kroah.com>
-References: <20200408.150548.292797985737973347.davem@davemloft.net>
+        id S1726502AbgDILnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 07:43:39 -0400
+Received: from esa6.hc3370-68.iphmx.com ([216.71.155.175]:45665 "EHLO
+        esa6.hc3370-68.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725987AbgDILnj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Apr 2020 07:43:39 -0400
+X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Thu, 09 Apr 2020 07:43:39 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=citrix.com; s=securemail; t=1586432619;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=dnROBck2MmsFtNlpz/IkbmQXUbQm4A1CETm+vG0i0OU=;
+  b=bjd6U7mmVhuhDlUko8UnXkJ+P5A9p2rU/KvEn8iS4Zk8G9BRpOCzp2ND
+   0UxB0YamxiSsIzcS2NGJXe6fYTtpWsq1s96lLq4nn7d53iK/sJ5mLXkxL
+   TurnLpnUGqfRQWLjohj/rp4S67T7a+X/wxar+cMtHIe81KwQclpx/IR2S
+   8=;
+Authentication-Results: esa6.hc3370-68.iphmx.com; dkim=none (message not signed) header.i=none; spf=None smtp.pra=andrew.cooper3@citrix.com; spf=Pass smtp.mailfrom=Andrew.Cooper3@citrix.com; spf=None smtp.helo=postmaster@mail.citrix.com
+Received-SPF: None (esa6.hc3370-68.iphmx.com: no sender
+  authenticity information available from domain of
+  andrew.cooper3@citrix.com) identity=pra;
+  client-ip=162.221.158.21; receiver=esa6.hc3370-68.iphmx.com;
+  envelope-from="Andrew.Cooper3@citrix.com";
+  x-sender="andrew.cooper3@citrix.com";
+  x-conformance=sidf_compatible
+Received-SPF: Pass (esa6.hc3370-68.iphmx.com: domain of
+  Andrew.Cooper3@citrix.com designates 162.221.158.21 as
+  permitted sender) identity=mailfrom;
+  client-ip=162.221.158.21; receiver=esa6.hc3370-68.iphmx.com;
+  envelope-from="Andrew.Cooper3@citrix.com";
+  x-sender="Andrew.Cooper3@citrix.com";
+  x-conformance=sidf_compatible; x-record-type="v=spf1";
+  x-record-text="v=spf1 ip4:209.167.231.154 ip4:178.63.86.133
+  ip4:195.66.111.40/30 ip4:85.115.9.32/28 ip4:199.102.83.4
+  ip4:192.28.146.160 ip4:192.28.146.107 ip4:216.52.6.88
+  ip4:216.52.6.188 ip4:162.221.158.21 ip4:162.221.156.83
+  ip4:168.245.78.127 ~all"
+Received-SPF: None (esa6.hc3370-68.iphmx.com: no sender
+  authenticity information available from domain of
+  postmaster@mail.citrix.com) identity=helo;
+  client-ip=162.221.158.21; receiver=esa6.hc3370-68.iphmx.com;
+  envelope-from="Andrew.Cooper3@citrix.com";
+  x-sender="postmaster@mail.citrix.com";
+  x-conformance=sidf_compatible
+IronPort-SDR: mMtBJu/58+SwnHmY2rBetlSq7vlbSSSqGjkKx2ICCOzCZF7qaw0N7dsxlOsNOPN1VAUsj2A3JI
+ ICGEpfkGBnyPiZqR7H+TUQWC1px3RqAfta/6HgJo0+H7omcD1vLEDihb9TLL1B5mRwvPPxUjkd
+ NKUWe+AOwuxyPSabiAwUg6bWJvjsqf0MMl+/rd/CM1NgUIVvQYMR1oyfLLLbzFS6VmBsf27c72
+ xY3+DJo3aFib0wW6oz3BnUpeEHLfX55cUkonXVg1grKmUKASfqzPoWqvlVcKACTAmZ2R5yXMnj
+ fEA=
+X-SBRS: 2.7
+X-MesageID: 15829938
+X-Ironport-Server: esa6.hc3370-68.iphmx.com
+X-Remote-IP: 162.221.158.21
+X-Policy: $RELAYED
+X-IronPort-AV: E=Sophos;i="5.72,362,1580792400"; 
+   d="scan'208";a="15829938"
+Subject: Re: [PATCH v2] x86/kvm: Disable KVM_ASYNC_PF_SEND_ALWAYS
+To:     Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+CC:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        "Peter Zijlstra" <peterz@infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        kvm list <kvm@vger.kernel.org>, stable <stable@vger.kernel.org>
+References: <20200407172140.GB64635@redhat.com>
+ <772A564B-3268-49F4-9AEA-CDA648F6131F@amacapital.net>
+ <87eeszjbe6.fsf@nanos.tec.linutronix.de>
+ <ce81c95f-8674-4012-f307-8f32d0e386c2@redhat.com>
+ <874ktukhku.fsf@nanos.tec.linutronix.de>
+ <274f3d14-08ac-e5cc-0b23-e6e0274796c8@redhat.com>
+ <20200408153413.GA11322@linux.intel.com>
+ <ce28e893-2ed0-ea6f-6c36-b08bb0d814f2@redhat.com>
+ <87d08hc0vz.fsf@nanos.tec.linutronix.de>
+ <CALCETrWG2Y4SPmVkugqgjZcMfpQiq=YgsYBmWBm1hj_qx3JNVQ@mail.gmail.com>
+From:   Andrew Cooper <andrew.cooper3@citrix.com>
+Message-ID: <5e79facb-292d-eeae-b860-81a0bee9ef4c@citrix.com>
+Date:   Thu, 9 Apr 2020 12:36:27 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200408.150548.292797985737973347.davem@davemloft.net>
+In-Reply-To: <CALCETrWG2Y4SPmVkugqgjZcMfpQiq=YgsYBmWBm1hj_qx3JNVQ@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-GB
+X-ClientProxiedBy: AMSPEX02CAS01.citrite.net (10.69.22.112) To
+ AMSPEX02CL01.citrite.net (10.69.22.125)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 08, 2020 at 03:05:48PM -0700, David Miller wrote:
-> 
-> Please queue up the following networking bug fixes for v5.5 and v5.6
-> -stable, respectively.
-> 
-> Also, there is a Realtek PHY patch attached which should be queued up
-> for v5.4.
+On 09/04/2020 05:50, Andy Lutomirski wrote:
+> On Wed, Apr 8, 2020 at 11:01 AM Thomas Gleixner <tglx@linutronix.de> wrote:
+>> Paolo Bonzini <pbonzini@redhat.com> writes:
+>>> On 08/04/20 17:34, Sean Christopherson wrote:
+>>>> On Wed, Apr 08, 2020 at 10:23:58AM +0200, Paolo Bonzini wrote:
+>>>>> Page-not-present async page faults are almost a perfect match for the
+>>>>> hardware use of #VE (and it might even be possible to let the processor
+>>>>> deliver the exceptions).
+>>>> My "async" page fault knowledge is limited, but if the desired behavior is
+>>>> to reflect a fault into the guest for select EPT Violations, then yes,
+>>>> enabling EPT Violation #VEs in hardware is doable.  The big gotcha is that
+>>>> KVM needs to set the suppress #VE bit for all EPTEs when allocating a new
+>>>> MMU page, otherwise not-present faults on zero-initialized EPTEs will get
+>>>> reflected.
+>>>>
+>>>> Attached a patch that does the prep work in the MMU.  The VMX usage would be:
+>>>>
+>>>>      kvm_mmu_set_spte_init_value(VMX_EPT_SUPPRESS_VE_BIT);
+>>>>
+>>>> when EPT Violation #VEs are enabled.  It's 64-bit only as it uses stosq to
+>>>> initialize EPTEs.  32-bit could also be supported by doing memcpy() from
+>>>> a static page.
+>>> The complication is that (at least according to the current ABI) we
+>>> would not want #VE to kick if the guest currently has IF=0 (and possibly
+>>> CPL=0).  But the ABI is not set in stone, and anyway the #VE protocol is
+>>> a decent one and worth using as a base for whatever PV protocol we design.
+>> Forget the current pf async semantics (or the lack of). You really want
+>> to start from scratch and igore the whole thing.
+>>
+>> The charm of #VE is that the hardware can inject it and it's not nesting
+>> until the guest cleared the second word in the VE information area. If
+>> that word is not 0 then you get a regular vmexit where you suspend the
+>> vcpu until the nested problem is solved.
+> Can you point me at where the SDM says this?
 
-All now queued up, thanks!
+Vol3 25.5.6.1 Convertible EPT Violations
 
-greg k-h
+> Anyway, I see two problems with #VE, one big and one small.  The small
+> (or maybe small) one is that any fancy protocol where the guest
+> returns from an exception by doing, logically:
+>
+> Hey I'm done;  /* MOV somewhere, hypercall, MOV to CR4, whatever */
+> IRET;
+>
+> is fundamentally racy.  After we say we're done and before IRET, we
+> can be recursively reentered.  Hi, NMI!
+
+Correct.  There is no way to atomically end the #VE handler.  (This
+causes "fun" even when using #VE for its intended purpose.)
+
+~Andrew
