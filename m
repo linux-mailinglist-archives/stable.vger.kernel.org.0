@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E16151A4089
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ED2E1A4083
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726899AbgDJD4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:56:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33814 "EHLO mail.kernel.org"
+        id S1728638AbgDJDto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:49:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728624AbgDJDtm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:49:42 -0400
+        id S1728631AbgDJDto (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:49:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2004E20B1F;
-        Fri, 10 Apr 2020 03:49:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 408B020936;
+        Fri, 10 Apr 2020 03:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490582;
-        bh=Ikc0AYvLKTZZv4VYpqWl7cUBvSOW5ZMNjoOQKDLh2aA=;
+        s=default; t=1586490583;
+        bh=Gf392KoCBUhgkrXocXreLB3YDk6gRHSO655nXvCucgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RlS3E8Sn4wqddE2IZtsQpsCJq0t6fvsG6COpxD5wyIAH1tvcGLDIt8bFN8qm2eSYb
-         AfZqdFL+YyC7i+05KiIBkTSmXn415/vUB/OPrfryk4RxUHuJ5NxIoN9R7eQbSl7Rgb
-         yTajNtPvxPC8uTiDJKx0/RFvx9q5MUnqmYmPmHkU=
+        b=aUKL5Q8fz39zfTP25OOlOs1GOgNB+D1oBUHwcz4WbqT33wtLO5NoM7G4tn7cXJGTz
+         eKdY0c6rAIJupfFRSaP0ACcuUwUIVvGPzNIDGZBJL20VlVOABMArIidxtPlVyVbSab
+         bFNpxHHgFaQqLCyuxNOsatAzKzpVKQMCoZY79keI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Fan <peng.fan@nxp.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 28/46] cpufreq: imx6q: fix error handling
-Date:   Thu,  9 Apr 2020 23:48:51 -0400
-Message-Id: <20200410034909.8922-28-sashal@kernel.org>
+Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 29/46] x86/boot: Use unsigned comparison for addresses
+Date:   Thu,  9 Apr 2020 23:48:52 -0400
+Message-Id: <20200410034909.8922-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034909.8922-1-sashal@kernel.org>
 References: <20200410034909.8922-1-sashal@kernel.org>
@@ -44,54 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit 3646f50a3838c5949a89ecbdb868497cdc05b8fd ]
+[ Upstream commit 81a34892c2c7c809f9c4e22c5ac936ae673fb9a2 ]
 
-When speed checking failed, direclty jumping to put_node label
-is not correct. Need jump to out_free_opp to avoid resources leak.
+The load address is compared with LOAD_PHYSICAL_ADDR using a signed
+comparison currently (using jge instruction).
 
-Fixes: 2733fb0d0699 ("cpufreq: imx6q: read OCOTP through nvmem for imx6ul/imx6ull")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+When loading a 64-bit kernel using the new efi32_pe_entry() point added by:
+
+  97aa276579b2 ("efi/x86: Add true mixed mode entry point into .compat section")
+
+using Qemu with -m 3072, the firmware actually loads us above 2Gb,
+resulting in a very early crash.
+
+Use the JAE instruction to perform a unsigned comparison instead, as physical
+addresses should be considered unsigned.
+
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20200301230436.2246909-6-nivedita@alum.mit.edu
+Link: https://lore.kernel.org/r/20200308080859.21568-14-ardb@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/imx6q-cpufreq.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/x86/boot/compressed/head_32.S | 2 +-
+ arch/x86/boot/compressed/head_64.S | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpufreq/imx6q-cpufreq.c b/drivers/cpufreq/imx6q-cpufreq.c
-index 1fcbbd53a48a2..edef3399c9794 100644
---- a/drivers/cpufreq/imx6q-cpufreq.c
-+++ b/drivers/cpufreq/imx6q-cpufreq.c
-@@ -381,23 +381,24 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
- 		goto put_reg;
- 	}
- 
-+	/* Because we have added the OPPs here, we must free them */
-+	free_opp = true;
-+
- 	if (of_machine_is_compatible("fsl,imx6ul") ||
- 	    of_machine_is_compatible("fsl,imx6ull")) {
- 		ret = imx6ul_opp_check_speed_grading(cpu_dev);
- 		if (ret) {
- 			if (ret == -EPROBE_DEFER)
--				goto put_node;
-+				goto out_free_opp;
- 
- 			dev_err(cpu_dev, "failed to read ocotp: %d\n",
- 				ret);
--			goto put_node;
-+			goto out_free_opp;
- 		}
- 	} else {
- 		imx6q_opp_check_speed_grading(cpu_dev);
- 	}
- 
--	/* Because we have added the OPPs here, we must free them */
--	free_opp = true;
- 	num = dev_pm_opp_get_opp_count(cpu_dev);
- 	if (num < 0) {
- 		ret = num;
+diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
+index 5e30eaaf8576f..70ffce98c5683 100644
+--- a/arch/x86/boot/compressed/head_32.S
++++ b/arch/x86/boot/compressed/head_32.S
+@@ -106,7 +106,7 @@ ENTRY(startup_32)
+ 	notl	%eax
+ 	andl    %eax, %ebx
+ 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
+-	jge	1f
++	jae	1f
+ #endif
+ 	movl	$LOAD_PHYSICAL_ADDR, %ebx
+ 1:
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index e9a7f7cadb121..07d2002da642a 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -106,7 +106,7 @@ ENTRY(startup_32)
+ 	notl	%eax
+ 	andl	%eax, %ebx
+ 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
+-	jge	1f
++	jae	1f
+ #endif
+ 	movl	$LOAD_PHYSICAL_ADDR, %ebx
+ 1:
+@@ -297,7 +297,7 @@ ENTRY(startup_64)
+ 	notq	%rax
+ 	andq	%rax, %rbp
+ 	cmpq	$LOAD_PHYSICAL_ADDR, %rbp
+-	jge	1f
++	jae	1f
+ #endif
+ 	movq	$LOAD_PHYSICAL_ADDR, %rbp
+ 1:
 -- 
 2.20.1
 
