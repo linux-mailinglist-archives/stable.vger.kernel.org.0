@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7052F1A4134
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8CF21A413A
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727994AbgDJDsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:48:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59238 "EHLO mail.kernel.org"
+        id S1728022AbgDJDsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:48:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726687AbgDJDsE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:48:04 -0400
+        id S1728018AbgDJDsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:48:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC55A2137B;
-        Fri, 10 Apr 2020 03:48:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C774C2145D;
+        Fri, 10 Apr 2020 03:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490484;
-        bh=waxjwsUxMpAJQV3TodVhI9ljrf0utE6GoyP7N1UZFnE=;
+        s=default; t=1586490485;
+        bh=3UjQVSicJ7z1E7lK3tpNSkw0cHKIFbCY3jGJKT13Kv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYVxAW3g9xPBnNZikz0T2jy/rWpH3ZmyR8U/ca376sItnnRgFJsTmMjZKe2pyvXXu
-         HZZesHVC1IduKo1qiW3wnL+3qVZesP4ivAuij+C2XG6VYQvscIsbonDYvjyvVLU3J3
-         8KaO4CHNNoGZVtfT1bO7/bh79t2sIUVLY/HKHrQk=
+        b=DldbQVnm+vifTLWBeZlD02unaXCic91E2+1YSMtZ1Xz2FWUntkj8Q/ctV6ICKF0yj
+         WCBlfE20kDvAXABU2wEKVdoWzcbEjyK5Y0+RvSDdXzoNNMoRS0Efm6GvtY5PX9aQTQ
+         IdFcRLBh6nA+sNoiPHQlJwtZCz4tVt/W42G80SwQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ajay Gupta <ajayg@nvidia.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+Cc:     Ajay Singh <ajay.kathat@microchip.com>,
+        kbuild test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 03/56] usb: ucsi: ccg: disable runtime pm during fw flashing
-Date:   Thu,  9 Apr 2020 23:47:07 -0400
-Message-Id: <20200410034800.8381-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.5 04/56] staging: wilc1000: avoid double unlocking of 'wilc->hif_cs' mutex
+Date:   Thu,  9 Apr 2020 23:47:08 -0400
+Message-Id: <20200410034800.8381-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034800.8381-1-sashal@kernel.org>
 References: <20200410034800.8381-1-sashal@kernel.org>
@@ -44,43 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajay Gupta <ajayg@nvidia.com>
+From: Ajay Singh <ajay.kathat@microchip.com>
 
-[ Upstream commit 57a5e5f936be583d2c6cef3661c169e3ea4bf922 ]
+[ Upstream commit 6c411581caef6e3b2c286871641018364c6db50a ]
 
-Ucsi ppm is unregistered during fw flashing so disable
-runtime pm also and reenable after fw flashing is completed
-and ppm is re-registered.
+Possible double unlocking of 'wilc->hif_cs' mutex was identified by
+smatch [1]. Removed the extra call to release_bus() in
+wilc_wlan_handle_txq() which was missed in earlier commit fdc2ac1aafc6
+("staging: wilc1000: support suspend/resume functionality").
 
-Signed-off-by: Ajay Gupta <ajayg@nvidia.com>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20200217144913.55330-3-heikki.krogerus@linux.intel.com
+[1]. https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org/thread/NOEVW7C3GV74EWXJO3XX6VT2NKVB2HMT/
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Ajay Singh <ajay.kathat@microchip.com>
+Link: https://lore.kernel.org/r/20200221170120.15739-1-ajay.kathat@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/ucsi/ucsi_ccg.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/wilc1000/wlan.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/usb/typec/ucsi/ucsi_ccg.c b/drivers/usb/typec/ucsi/ucsi_ccg.c
-index 3370b3fc37b10..bd374cea3ba6c 100644
---- a/drivers/usb/typec/ucsi/ucsi_ccg.c
-+++ b/drivers/usb/typec/ucsi/ucsi_ccg.c
-@@ -1032,6 +1032,7 @@ static int ccg_restart(struct ucsi_ccg *uc)
- 		return status;
- 	}
- 
-+	pm_runtime_enable(uc->dev);
- 	return 0;
- }
- 
-@@ -1047,6 +1048,7 @@ static void ccg_update_firmware(struct work_struct *work)
- 
- 	if (flash_mode != FLASH_NOT_NEEDED) {
- 		ucsi_unregister(uc->ucsi);
-+		pm_runtime_disable(uc->dev);
- 		free_irq(uc->irq, uc);
- 
- 		ccg_fw_update(uc, flash_mode);
+diff --git a/drivers/staging/wilc1000/wlan.c b/drivers/staging/wilc1000/wlan.c
+index d3de76126b787..3098399741d7b 100644
+--- a/drivers/staging/wilc1000/wlan.c
++++ b/drivers/staging/wilc1000/wlan.c
+@@ -578,7 +578,6 @@ int wilc_wlan_handle_txq(struct wilc *wilc, u32 *txq_count)
+ 				entries = ((reg >> 3) & 0x3f);
+ 				break;
+ 			}
+-			release_bus(wilc, WILC_BUS_RELEASE_ALLOW_SLEEP);
+ 		} while (--timeout);
+ 		if (timeout <= 0) {
+ 			ret = func->hif_write_reg(wilc, WILC_HOST_VMM_CTL, 0x0);
 -- 
 2.20.1
 
