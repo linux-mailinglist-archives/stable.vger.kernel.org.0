@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8FE21A438E
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 10:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C126B1A4392
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 10:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725914AbgDJIdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Apr 2020 04:33:55 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:59914 "EHLO
+        id S1725861AbgDJIfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Apr 2020 04:35:40 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:59961 "EHLO
         fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725913AbgDJIdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Apr 2020 04:33:55 -0400
+        with ESMTP id S1725858AbgDJIfk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Apr 2020 04:35:40 -0400
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20860545-1500050 
-        for multiple; Fri, 10 Apr 2020 09:33:49 +0100
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20860556-1500050 
+        for multiple; Fri, 10 Apr 2020 09:35:38 +0100
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <ickle@x201s.alporthouse.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
 Subject: [PATCH] agp/intel: Reinforce the barrier after GTT updates
-Date:   Fri, 10 Apr 2020 09:33:47 +0100
-Message-Id: <20200410083347.25128-1-chris@chris-wilson.co.uk>
+Date:   Fri, 10 Apr 2020 09:35:35 +0100
+Message-Id: <20200410083535.25464-1-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200410083347.25128-1-chris@chris-wilson.co.uk>
+References: <20200410083347.25128-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
-
-From: Chris Wilson <ickle@x201s.alporthouse.com>
 
 After changing the timing between GTT updates and execution on the GPU,
 we started seeing sporadic failures on Ironlake. These were narrowed
