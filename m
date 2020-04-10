@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D87E1A40E6
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4B9E1A3EEE
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726712AbgDJDqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:46:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56612 "EHLO mail.kernel.org"
+        id S1726706AbgDJDql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:46:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726082AbgDJDqk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:46:40 -0400
+        id S1726701AbgDJDql (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:46:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59F4620BED;
-        Fri, 10 Apr 2020 03:46:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1B6520CC7;
+        Fri, 10 Apr 2020 03:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490400;
-        bh=veCBmgdRybGO47FNkFF3zVpn19J+P2jgtZGRswXSyFg=;
+        s=default; t=1586490401;
+        bh=YoydgxVY04JUElx6pTX1WVnIwMMo7Gnp01oStplhfd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=grMnufgF/5rJDnhlgTHbr6X8mVDtQE+5ejGB+douOLT9mqr5UWg9DLkMMXwx9Yy7i
-         xnZp8bIkODz64Mn9eIFNduUe2GfW/z+VX9LWrRZIPCTFRCeb+hi8nDPV/y9ttPQ/uT
-         JcIZpXpAPxxAzUMVQtqo/yTWO+4FhHRz/YAt5Y6k=
+        b=QfDuU9ztnGp46tQbTvbJs1R/NhbP3red+60Z+ftBz6Jj27Wm38vPy2WRgHY/is9N9
+         awjIXbBdyoMnKoq8LnFHmcu7nWKNjfSnJPgM5BnnTnM8JoHa/l8Cmrx0q4RJ/SPJ1f
+         Bp/Q41qk/yZbsCEYV+h3grwED25Fx6BY6dyBKKi8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ajay Singh <ajay.kathat@microchip.com>,
-        kbuild test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.6 04/68] staging: wilc1000: avoid double unlocking of 'wilc->hif_cs' mutex
-Date:   Thu,  9 Apr 2020 23:45:29 -0400
-Message-Id: <20200410034634.7731-4-sashal@kernel.org>
+Cc:     Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Helen Koike <helen.koike@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 05/68] media: vimc: streamer: fix memory leak in vimc subdevs if kthread_run fails
+Date:   Thu,  9 Apr 2020 23:45:30 -0400
+Message-Id: <20200410034634.7731-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034634.7731-1-sashal@kernel.org>
 References: <20200410034634.7731-1-sashal@kernel.org>
@@ -46,39 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajay Singh <ajay.kathat@microchip.com>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 6c411581caef6e3b2c286871641018364c6db50a ]
+[ Upstream commit ceeb2e6166dddf3c9757abbbf84032027e2fa2d2 ]
 
-Possible double unlocking of 'wilc->hif_cs' mutex was identified by
-smatch [1]. Removed the extra call to release_bus() in
-wilc_wlan_handle_txq() which was missed in earlier commit fdc2ac1aafc6
-("staging: wilc1000: support suspend/resume functionality").
+In case kthread_run fails, the vimc subdevices
+should be notified that streaming stopped so they can
+release the memory for the streaming. Also, kthread should be
+set to NULL.
 
-[1]. https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org/thread/NOEVW7C3GV74EWXJO3XX6VT2NKVB2HMT/
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Ajay Singh <ajay.kathat@microchip.com>
-Link: https://lore.kernel.org/r/20200221170120.15739-1-ajay.kathat@microchip.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Acked-by: Helen Koike <helen.koike@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wilc1000/wlan.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/platform/vimc/vimc-streamer.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/wilc1000/wlan.c b/drivers/staging/wilc1000/wlan.c
-index 601e4d1345d24..05b8adfe001da 100644
---- a/drivers/staging/wilc1000/wlan.c
-+++ b/drivers/staging/wilc1000/wlan.c
-@@ -572,7 +572,6 @@ int wilc_wlan_handle_txq(struct wilc *wilc, u32 *txq_count)
- 				entries = ((reg >> 3) & 0x3f);
- 				break;
- 			}
--			release_bus(wilc, WILC_BUS_RELEASE_ALLOW_SLEEP);
- 		} while (--timeout);
- 		if (timeout <= 0) {
- 			ret = func->hif_write_reg(wilc, WILC_HOST_VMM_CTL, 0x0);
+diff --git a/drivers/media/platform/vimc/vimc-streamer.c b/drivers/media/platform/vimc/vimc-streamer.c
+index cd6b55433c9ee..43e494df61d88 100644
+--- a/drivers/media/platform/vimc/vimc-streamer.c
++++ b/drivers/media/platform/vimc/vimc-streamer.c
+@@ -207,8 +207,13 @@ int vimc_streamer_s_stream(struct vimc_stream *stream,
+ 		stream->kthread = kthread_run(vimc_streamer_thread, stream,
+ 					      "vimc-streamer thread");
+ 
+-		if (IS_ERR(stream->kthread))
+-			return PTR_ERR(stream->kthread);
++		if (IS_ERR(stream->kthread)) {
++			ret = PTR_ERR(stream->kthread);
++			dev_err(ved->dev, "kthread_run failed with %d\n", ret);
++			vimc_streamer_pipeline_terminate(stream);
++			stream->kthread = NULL;
++			return ret;
++		}
+ 
+ 	} else {
+ 		if (!stream->kthread)
 -- 
 2.20.1
 
