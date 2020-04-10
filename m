@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 389811A404C
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A2DB1A404A
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729102AbgDJDyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729092AbgDJDyl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Apr 2020 23:54:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34836 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726740AbgDJDuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:50:20 -0400
+        id S1728854AbgDJDuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:50:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74B2F2173E;
-        Fri, 10 Apr 2020 03:50:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9866B21841;
+        Fri, 10 Apr 2020 03:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490620;
-        bh=vDbC//cFoiarsCOyRPOI0FBifzs1I3USmWge+kKgjaU=;
+        s=default; t=1586490621;
+        bh=i4Ubgx2oHuF1MCV7P/oM4IGjdCeU53Aw8AY1hqvYb3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0IzQ1Mu0KZYVTC3DiUWuvwYlryAx4dCstdy54EY8DKxrqw9Hp6v/klthpJzngeY0m
-         vh/uThUzRCnSMijHuQIMASg1v5CyOw/BfRXDa2Ytjg+j5XscIYriFCMd2NU/rvM2B7
-         E+jX6aoqB84TjBOUIlIenbE8As24XiY/WGUGE7sc=
+        b=KSuiAlh2QFf03B/ZXAduKCxDIOoZrF0BD0UjY3xF6eWbARE509td9JfrEo25D9c9A
+         K08ZRdA6wwJVo/w4pd+xqKQxnvicg3lMZTc+9FleO4zU9dyMWVH0qj+GdWKY7bVZwS
+         Y63dhfX/y2g41UJMFaSmQXEWt+Zy+C5hCm5gmvK0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        kbuild test robot <lkp@intel.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/32] selftests/x86/ptrace_syscall_32: Fix no-vDSO segfault
-Date:   Thu,  9 Apr 2020 23:49:45 -0400
-Message-Id: <20200410035005.9371-12-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 13/32] PCI/switchtec: Fix init_completion race condition with poll_wait()
+Date:   Thu,  9 Apr 2020 23:49:46 -0400
+Message-Id: <20200410035005.9371-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410035005.9371-1-sashal@kernel.org>
 References: <20200410035005.9371-1-sashal@kernel.org>
@@ -44,40 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 630b99ab60aa972052a4202a1ff96c7e45eb0054 ]
+[ Upstream commit efbdc769601f4d50018bf7ca50fc9f7c67392ece ]
 
-If AT_SYSINFO is not present, don't try to call a NULL pointer.
+The call to init_completion() in mrpc_queue_cmd() can theoretically
+race with the call to poll_wait() in switchtec_dev_poll().
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/faaf688265a7e1a5b944d6f8bc0f6368158306d3.1584052409.git.luto@kernel.org
+  poll()			write()
+    switchtec_dev_poll()   	  switchtec_dev_write()
+      poll_wait(&s->comp.wait);      mrpc_queue_cmd()
+			               init_completion(&s->comp)
+				         init_waitqueue_head(&s->comp.wait)
+
+To my knowledge, no one has hit this bug.
+
+Fix this by using reinit_completion() instead of init_completion() in
+mrpc_queue_cmd().
+
+Fixes: 080b47def5e5 ("MicroSemi Switchtec management interface driver")
+
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lkml.kernel.org/r/20200313183608.2646-1-logang@deltatee.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/x86/ptrace_syscall.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/pci/switch/switchtec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/x86/ptrace_syscall.c b/tools/testing/selftests/x86/ptrace_syscall.c
-index 6f22238f32173..12aaa063196e7 100644
---- a/tools/testing/selftests/x86/ptrace_syscall.c
-+++ b/tools/testing/selftests/x86/ptrace_syscall.c
-@@ -414,8 +414,12 @@ int main()
+diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
+index 43431816412c1..291c0074ad6f4 100644
+--- a/drivers/pci/switch/switchtec.c
++++ b/drivers/pci/switch/switchtec.c
+@@ -147,7 +147,7 @@ static int mrpc_queue_cmd(struct switchtec_user *stuser)
+ 	kref_get(&stuser->kref);
+ 	stuser->read_len = sizeof(stuser->data);
+ 	stuser_set_state(stuser, MRPC_QUEUED);
+-	init_completion(&stuser->comp);
++	reinit_completion(&stuser->comp);
+ 	list_add_tail(&stuser->list, &stdev->mrpc_queue);
  
- #if defined(__i386__) && (!defined(__GLIBC__) || __GLIBC__ > 2 || __GLIBC_MINOR__ >= 16)
- 	vsyscall32 = (void *)getauxval(AT_SYSINFO);
--	printf("[RUN]\tCheck AT_SYSINFO return regs\n");
--	test_sys32_regs(do_full_vsyscall32);
-+	if (vsyscall32) {
-+		printf("[RUN]\tCheck AT_SYSINFO return regs\n");
-+		test_sys32_regs(do_full_vsyscall32);
-+	} else {
-+		printf("[SKIP]\tAT_SYSINFO is not available\n");
-+	}
- #endif
- 
- 	test_ptrace_syscall_restart();
+ 	mrpc_cmd_submit(stdev);
 -- 
 2.20.1
 
