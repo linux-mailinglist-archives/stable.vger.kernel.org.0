@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7CB1A410E
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0873D1A413F
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727706AbgDJDrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:47:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58412 "EHLO mail.kernel.org"
+        id S1725990AbgDJEBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Apr 2020 00:01:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727699AbgDJDrc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:47:32 -0400
+        id S1727732AbgDJDre (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:47:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48DEC20CC7;
-        Fri, 10 Apr 2020 03:47:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56BAC20B1F;
+        Fri, 10 Apr 2020 03:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490452;
-        bh=kkvZbA2vkPiq5mVjy9hdXDb2Jqew+F4v57ty+HGHEU4=;
+        s=default; t=1586490454;
+        bh=qGGHLgI69/UcAs4ENrIAU9SzHDP6u/Wk4UVoOLBeRrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X/c6OG+6b3/oMHFuMrQQzIWi60l7XmEh4b7Iv+0ITEVmOTIWB39bzsIWMnT6fNreN
-         9rD/fj+fZsTzlwCZX410zSKdke3pyCgxycAPGC4+J0loA7+GatKpyLkcRCTTTSgAxN
-         JlVwxOCqXyHeAEnPDJLylAvpq4Bzlxmrv0985650=
+        b=HvlX7oqSGsjjE6ArTb+6GyeFNIZgF9sIJ2ZB+R9dJz9fxLsLVTfKoI1bXSgl7ugfc
+         F8IKScY3IsUcx8Lpw6AWHXLcSntsBihUp+lX8mvgTKjBzcMiWg8d+l0ok4oDn1q/Om
+         mTMaVoNfXHm1fDP8tztYaRAnEe2Fcsi6ffvyQmq0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 48/68] x86/boot: Use unsigned comparison for addresses
-Date:   Thu,  9 Apr 2020 23:46:13 -0400
-Message-Id: <20200410034634.7731-48-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 49/68] efi/x86: Ignore the memory attributes table on i386
+Date:   Thu,  9 Apr 2020 23:46:14 -0400
+Message-Id: <20200410034634.7731-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034634.7731-1-sashal@kernel.org>
 References: <20200410034634.7731-1-sashal@kernel.org>
@@ -43,69 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 81a34892c2c7c809f9c4e22c5ac936ae673fb9a2 ]
+[ Upstream commit dd09fad9d2caad2325a39b766ce9e79cfc690184 ]
 
-The load address is compared with LOAD_PHYSICAL_ADDR using a signed
-comparison currently (using jge instruction).
+Commit:
 
-When loading a 64-bit kernel using the new efi32_pe_entry() point added by:
+  3a6b6c6fb23667fa ("efi: Make EFI_MEMORY_ATTRIBUTES_TABLE initialization common across all architectures")
 
-  97aa276579b2 ("efi/x86: Add true mixed mode entry point into .compat section")
+moved the call to efi_memattr_init() from ARM specific to the generic
+EFI init code, in order to be able to apply the restricted permissions
+described in that table on x86 as well.
 
-using Qemu with -m 3072, the firmware actually loads us above 2Gb,
-resulting in a very early crash.
+We never enabled this feature fully on i386, and so mapping and
+reserving this table is pointless. However, due to the early call to
+memblock_reserve(), the memory bookkeeping gets confused to the point
+where it produces the splat below when we try to map the memory later
+on:
 
-Use the JAE instruction to perform a unsigned comparison instead, as physical
-addresses should be considered unsigned.
+  ------------[ cut here ]------------
+  ioremap on RAM at 0x3f251000 - 0x3fa1afff
+  WARNING: CPU: 0 PID: 0 at arch/x86/mm/ioremap.c:166 __ioremap_caller ...
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.20.0 #48
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
+  EIP: __ioremap_caller.constprop.0+0x249/0x260
+  Code: 90 0f b7 05 4e 38 40 de 09 45 e0 e9 09 ff ff ff 90 8d 45 ec c6 05 ...
+  EAX: 00000029 EBX: 00000000 ECX: de59c228 EDX: 00000001
+  ESI: 3f250fff EDI: 00000000 EBP: de3edf20 ESP: de3edee0
+  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00200296
+  CR0: 80050033 CR2: ffd17000 CR3: 1e58c000 CR4: 00040690
+  Call Trace:
+   ioremap_cache+0xd/0x10
+   ? old_map_region+0x72/0x9d
+   old_map_region+0x72/0x9d
+   efi_map_region+0x8/0xa
+   efi_enter_virtual_mode+0x260/0x43b
+   start_kernel+0x329/0x3aa
+   i386_start_kernel+0xa7/0xab
+   startup_32_smp+0x164/0x168
+  ---[ end trace e15ccf6b9f356833 ]---
 
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Let's work around this by disregarding the memory attributes table
+altogether on i386, which does not result in a loss of functionality
+or protection, given that we never consumed the contents.
+
+Fixes: 3a6b6c6fb23667fa ("efi: Make EFI_MEMORY_ATTRIBUTES_TABLE ... ")
+Tested-by: Arvind Sankar <nivedita@alum.mit.edu>
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20200301230436.2246909-6-nivedita@alum.mit.edu
-Link: https://lore.kernel.org/r/20200308080859.21568-14-ardb@kernel.org
+Link: https://lore.kernel.org/r/20200304165917.5893-1-ardb@kernel.org
+Link: https://lore.kernel.org/r/20200308080859.21568-21-ardb@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/head_32.S | 2 +-
- arch/x86/boot/compressed/head_64.S | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/firmware/efi/efi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
-index 73f17d0544dd5..7f7e8b8518fec 100644
---- a/arch/x86/boot/compressed/head_32.S
-+++ b/arch/x86/boot/compressed/head_32.S
-@@ -106,7 +106,7 @@ SYM_FUNC_START(startup_32)
- 	notl	%eax
- 	andl    %eax, %ebx
- 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
--	jge	1f
-+	jae	1f
- #endif
- 	movl	$LOAD_PHYSICAL_ADDR, %ebx
- 1:
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 1f1f6c8139b38..afde2aa8382e9 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -106,7 +106,7 @@ SYM_FUNC_START(startup_32)
- 	notl	%eax
- 	andl	%eax, %ebx
- 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
--	jge	1f
-+	jae	1f
- #endif
- 	movl	$LOAD_PHYSICAL_ADDR, %ebx
- 1:
-@@ -296,7 +296,7 @@ SYM_CODE_START(startup_64)
- 	notq	%rax
- 	andq	%rax, %rbp
- 	cmpq	$LOAD_PHYSICAL_ADDR, %rbp
--	jge	1f
-+	jae	1f
- #endif
- 	movq	$LOAD_PHYSICAL_ADDR, %rbp
- 1:
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index 21ea99f651134..77cb95f70ed66 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -570,7 +570,7 @@ int __init efi_config_parse_tables(void *config_tables, int count, int sz,
+ 		}
+ 	}
+ 
+-	if (efi_enabled(EFI_MEMMAP))
++	if (!IS_ENABLED(CONFIG_X86_32) && efi_enabled(EFI_MEMMAP))
+ 		efi_memattr_init();
+ 
+ 	efi_tpm_eventlog_init();
 -- 
 2.20.1
 
