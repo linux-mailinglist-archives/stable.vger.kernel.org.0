@@ -2,39 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 938F91A4038
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67C6A1A4033
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728030AbgDJDx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35188 "EHLO mail.kernel.org"
+        id S1728904AbgDJDxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:53:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726822AbgDJDuc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:50:32 -0400
+        id S1727421AbgDJDue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:50:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C67EB214DB;
-        Fri, 10 Apr 2020 03:50:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41E252137B;
+        Fri, 10 Apr 2020 03:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490632;
-        bh=pYYnWNXIOOVYT3paGvt0+fyCX+Hzf57UqsPRpVa5kcM=;
+        s=default; t=1586490633;
+        bh=XfqmjOKddebMk936+XpvKyvLVvAAWP+nY1UnIBLuIiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JAs3QQ4KEgMe1q+wqKDi1UKpfCyeJl7afBJve1+m3wAPeA/ugbCcpMmaLKS16EA3K
-         eI0pdFVj1CDDkrBSijBj0g1xkhYEDtlZqxKDb5oKOWvG9ZTgniqzJhB2Hf9t+L95Mz
-         cUPSINwZ8csKA+6xubTMhGsrA4LJbzjJ/keKKSqk=
+        b=mjY07IxE3T0/fmUV8YOIFKzWL9TKxhOiDgSzjoTJXfUtLe2QjYiP1tq6veQW24mT3
+         4jdnh6VF5N7c+tvR1rO5jUdU8UI04PPGc7uhYFCgi1Gw+2CN3kuV/Shd8xsuK1Vuz3
+         kgxdRprxFmKo2rMca06/Z+q/G69OQAzaEc3HbJXc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neil Armstrong <narmstrong@baylibre.com>,
-        Dongjin Kim <tobetter@gmail.com>,
-        Jianxin Pan <jianxin.pan@amlogic.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Jun Li <lijun.kernel@gmail.com>, Tim <elatllat@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 23/32] usb: dwc3: core: add support for disabling SS instances in park mode
-Date:   Thu,  9 Apr 2020 23:49:56 -0400
-Message-Id: <20200410035005.9371-23-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 24/32] irqchip/gic-v4: Provide irq_retrigger to avoid circular locking dependency
+Date:   Thu,  9 Apr 2020 23:49:57 -0400
+Message-Id: <20200410035005.9371-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410035005.9371-1-sashal@kernel.org>
 References: <20200410035005.9371-1-sashal@kernel.org>
@@ -47,97 +41,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 7ba6b09fda5e0cb741ee56f3264665e0edc64822 ]
+[ Upstream commit 7809f7011c3bce650e502a98afeb05961470d865 ]
 
-In certain circumstances, the XHCI SuperSpeed instance in park mode
-can fail to recover, thus on Amlogic G12A/G12B/SM1 SoCs when there is high
-load on the single XHCI SuperSpeed instance, the controller can crash like:
- xhci-hcd xhci-hcd.0.auto: xHCI host not responding to stop endpoint command.
- xhci-hcd xhci-hcd.0.auto: Host halt failed, -110
- xhci-hcd xhci-hcd.0.auto: xHCI host controller not responding, assume dead
- xhci-hcd xhci-hcd.0.auto: xHCI host not responding to stop endpoint command.
- hub 2-1.1:1.0: hub_ext_port_status failed (err = -22)
- xhci-hcd xhci-hcd.0.auto: HC died; cleaning up
- usb 2-1.1-port1: cannot reset (err = -22)
+On a very heavily loaded D05 with GICv4, I managed to trigger the
+following lockdep splat:
 
-Setting the PARKMODE_DISABLE_SS bit in the DWC3_USB3_GUCTL1 mitigates
-the issue. The bit is described as :
-"When this bit is set to '1' all SS bus instances in park mode are disabled"
+[ 6022.598864] ======================================================
+[ 6022.605031] WARNING: possible circular locking dependency detected
+[ 6022.611200] 5.6.0-rc4-00026-geee7c7b0f498 #680 Tainted: G            E
+[ 6022.618061] ------------------------------------------------------
+[ 6022.624227] qemu-system-aar/7569 is trying to acquire lock:
+[ 6022.629789] ffff042f97606808 (&p->pi_lock){-.-.}, at: try_to_wake_up+0x54/0x7a0
+[ 6022.637102]
+[ 6022.637102] but task is already holding lock:
+[ 6022.642921] ffff002fae424cf0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x5c/0x98
+[ 6022.651350]
+[ 6022.651350] which lock already depends on the new lock.
+[ 6022.651350]
+[ 6022.659512]
+[ 6022.659512] the existing dependency chain (in reverse order) is:
+[ 6022.666980]
+[ 6022.666980] -> #2 (&irq_desc_lock_class){-.-.}:
+[ 6022.672983]        _raw_spin_lock_irqsave+0x50/0x78
+[ 6022.677848]        __irq_get_desc_lock+0x5c/0x98
+[ 6022.682453]        irq_set_vcpu_affinity+0x40/0xc0
+[ 6022.687236]        its_make_vpe_non_resident+0x6c/0xb8
+[ 6022.692364]        vgic_v4_put+0x54/0x70
+[ 6022.696273]        vgic_v3_put+0x20/0xd8
+[ 6022.700183]        kvm_vgic_put+0x30/0x48
+[ 6022.704182]        kvm_arch_vcpu_put+0x34/0x50
+[ 6022.708614]        kvm_sched_out+0x34/0x50
+[ 6022.712700]        __schedule+0x4bc/0x7f8
+[ 6022.716697]        schedule+0x50/0xd8
+[ 6022.720347]        kvm_arch_vcpu_ioctl_run+0x5f0/0x978
+[ 6022.725473]        kvm_vcpu_ioctl+0x3d4/0x8f8
+[ 6022.729820]        ksys_ioctl+0x90/0xd0
+[ 6022.733642]        __arm64_sys_ioctl+0x24/0x30
+[ 6022.738074]        el0_svc_common.constprop.3+0xa8/0x1e8
+[ 6022.743373]        do_el0_svc+0x28/0x88
+[ 6022.747198]        el0_svc+0x14/0x40
+[ 6022.750761]        el0_sync_handler+0x124/0x2b8
+[ 6022.755278]        el0_sync+0x140/0x180
+[ 6022.759100]
+[ 6022.759100] -> #1 (&rq->lock){-.-.}:
+[ 6022.764143]        _raw_spin_lock+0x38/0x50
+[ 6022.768314]        task_fork_fair+0x40/0x128
+[ 6022.772572]        sched_fork+0xe0/0x210
+[ 6022.776484]        copy_process+0x8c4/0x18d8
+[ 6022.780742]        _do_fork+0x88/0x6d8
+[ 6022.784478]        kernel_thread+0x64/0x88
+[ 6022.788563]        rest_init+0x30/0x270
+[ 6022.792390]        arch_call_rest_init+0x14/0x1c
+[ 6022.796995]        start_kernel+0x498/0x4c4
+[ 6022.801164]
+[ 6022.801164] -> #0 (&p->pi_lock){-.-.}:
+[ 6022.806382]        __lock_acquire+0xdd8/0x15c8
+[ 6022.810813]        lock_acquire+0xd0/0x218
+[ 6022.814896]        _raw_spin_lock_irqsave+0x50/0x78
+[ 6022.819761]        try_to_wake_up+0x54/0x7a0
+[ 6022.824018]        wake_up_process+0x1c/0x28
+[ 6022.828276]        wakeup_softirqd+0x38/0x40
+[ 6022.832533]        __tasklet_schedule_common+0xc4/0xf0
+[ 6022.837658]        __tasklet_schedule+0x24/0x30
+[ 6022.842176]        check_irq_resend+0xc8/0x158
+[ 6022.846609]        irq_startup+0x74/0x128
+[ 6022.850606]        __enable_irq+0x6c/0x78
+[ 6022.854602]        enable_irq+0x54/0xa0
+[ 6022.858431]        its_make_vpe_non_resident+0xa4/0xb8
+[ 6022.863557]        vgic_v4_put+0x54/0x70
+[ 6022.867469]        kvm_arch_vcpu_blocking+0x28/0x38
+[ 6022.872336]        kvm_vcpu_block+0x48/0x490
+[ 6022.876594]        kvm_handle_wfx+0x18c/0x310
+[ 6022.880938]        handle_exit+0x138/0x198
+[ 6022.885022]        kvm_arch_vcpu_ioctl_run+0x4d4/0x978
+[ 6022.890148]        kvm_vcpu_ioctl+0x3d4/0x8f8
+[ 6022.894494]        ksys_ioctl+0x90/0xd0
+[ 6022.898317]        __arm64_sys_ioctl+0x24/0x30
+[ 6022.902748]        el0_svc_common.constprop.3+0xa8/0x1e8
+[ 6022.908046]        do_el0_svc+0x28/0x88
+[ 6022.911871]        el0_svc+0x14/0x40
+[ 6022.915434]        el0_sync_handler+0x124/0x2b8
+[ 6022.919951]        el0_sync+0x140/0x180
+[ 6022.923773]
+[ 6022.923773] other info that might help us debug this:
+[ 6022.923773]
+[ 6022.931762] Chain exists of:
+[ 6022.931762]   &p->pi_lock --> &rq->lock --> &irq_desc_lock_class
+[ 6022.931762]
+[ 6022.942101]  Possible unsafe locking scenario:
+[ 6022.942101]
+[ 6022.948007]        CPU0                    CPU1
+[ 6022.952523]        ----                    ----
+[ 6022.957039]   lock(&irq_desc_lock_class);
+[ 6022.961036]                                lock(&rq->lock);
+[ 6022.966595]                                lock(&irq_desc_lock_class);
+[ 6022.973109]   lock(&p->pi_lock);
+[ 6022.976324]
+[ 6022.976324]  *** DEADLOCK ***
 
-Synopsys explains:
-The GUCTL1.PARKMODE_DISABLE_SS is only available in
-dwc_usb3 controller running in host mode.
-This should not be set for other IPs.
-This can be disabled by default based on IP, but I recommend to have a
-property to enable this feature for devices that need this.
+This is happening because we have a pending doorbell that requires
+retrigger. As SW retriggering is done in a tasklet, we trigger the
+circular dependency above.
 
-CC: Dongjin Kim <tobetter@gmail.com>
-Cc: Jianxin Pan <jianxin.pan@amlogic.com>
-Cc: Thinh Nguyen <thinhn@synopsys.com>
-Cc: Jun Li <lijun.kernel@gmail.com>
-Reported-by: Tim <elatllat@gmail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+The easy cop-out is to provide a retrigger callback that doesn't
+require acquiring any extra lock.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200310184921.23552-5-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c | 5 +++++
- drivers/usb/dwc3/core.h | 4 ++++
- 2 files changed, 9 insertions(+)
+ drivers/irqchip/irq-gic-v3-its.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 6666d2a52bf56..60d08269ad9a0 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -981,6 +981,9 @@ static int dwc3_core_init(struct dwc3 *dwc)
- 		if (dwc->dis_tx_ipgap_linecheck_quirk)
- 			reg |= DWC3_GUCTL1_TX_IPGAP_LINECHECK_DIS;
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index f9b73336a39ee..fe7d63cdfb1d7 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -2858,12 +2858,18 @@ static int its_vpe_set_irqchip_state(struct irq_data *d,
+ 	return 0;
+ }
  
-+		if (dwc->parkmode_disable_ss_quirk)
-+			reg |= DWC3_GUCTL1_PARKMODE_DISABLE_SS;
++static int its_vpe_retrigger(struct irq_data *d)
++{
++	return !its_vpe_set_irqchip_state(d, IRQCHIP_STATE_PENDING, true);
++}
 +
- 		dwc3_writel(dwc->regs, DWC3_GUCTL1, reg);
- 	}
- 
-@@ -1287,6 +1290,8 @@ static void dwc3_get_properties(struct dwc3 *dwc)
- 				"snps,dis-del-phy-power-chg-quirk");
- 	dwc->dis_tx_ipgap_linecheck_quirk = device_property_read_bool(dev,
- 				"snps,dis-tx-ipgap-linecheck-quirk");
-+	dwc->parkmode_disable_ss_quirk = device_property_read_bool(dev,
-+				"snps,parkmode-disable-ss-quirk");
- 
- 	dwc->tx_de_emphasis_quirk = device_property_read_bool(dev,
- 				"snps,tx_de_emphasis_quirk");
-diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
-index 131028501752b..e34308d64619e 100644
---- a/drivers/usb/dwc3/core.h
-+++ b/drivers/usb/dwc3/core.h
-@@ -242,6 +242,7 @@
- #define DWC3_GUCTL_HSTINAUTORETRY	BIT(14)
- 
- /* Global User Control 1 Register */
-+#define DWC3_GUCTL1_PARKMODE_DISABLE_SS	BIT(17)
- #define DWC3_GUCTL1_TX_IPGAP_LINECHECK_DIS	BIT(28)
- #define DWC3_GUCTL1_DEV_L1_EXIT_BY_HW	BIT(24)
- 
-@@ -992,6 +993,8 @@ struct dwc3_scratchpad_array {
-  *			change quirk.
-  * @dis_tx_ipgap_linecheck_quirk: set if we disable u2mac linestate
-  *			check during HS transmit.
-+ * @parkmode_disable_ss_quirk: set if we need to disable all SuperSpeed
-+ *			instances in park mode.
-  * @tx_de_emphasis_quirk: set if we enable Tx de-emphasis quirk
-  * @tx_de_emphasis: Tx de-emphasis value
-  * 	0	- -6dB de-emphasis
-@@ -1163,6 +1166,7 @@ struct dwc3 {
- 	unsigned		dis_u2_freeclk_exists_quirk:1;
- 	unsigned		dis_del_phy_power_chg_quirk:1;
- 	unsigned		dis_tx_ipgap_linecheck_quirk:1;
-+	unsigned		parkmode_disable_ss_quirk:1;
- 
- 	unsigned		tx_de_emphasis_quirk:1;
- 	unsigned		tx_de_emphasis:2;
+ static struct irq_chip its_vpe_irq_chip = {
+ 	.name			= "GICv4-vpe",
+ 	.irq_mask		= its_vpe_mask_irq,
+ 	.irq_unmask		= its_vpe_unmask_irq,
+ 	.irq_eoi		= irq_chip_eoi_parent,
+ 	.irq_set_affinity	= its_vpe_set_affinity,
++	.irq_retrigger		= its_vpe_retrigger,
+ 	.irq_set_irqchip_state	= its_vpe_set_irqchip_state,
+ 	.irq_set_vcpu_affinity	= its_vpe_set_vcpu_affinity,
+ };
 -- 
 2.20.1
 
