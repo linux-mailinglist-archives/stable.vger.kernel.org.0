@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03C951A41AC
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 791B51A415A
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727104AbgDJD7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:59:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60090 "EHLO mail.kernel.org"
+        id S1728199AbgDJDsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:48:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728188AbgDJDsa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:48:30 -0400
+        id S1726878AbgDJDsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:48:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FC81214D8;
-        Fri, 10 Apr 2020 03:48:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42E8D21556;
+        Fri, 10 Apr 2020 03:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490510;
-        bh=r3EaPMwV0p6JcapleCkt9G0+Er8yoqBCX2k8wvPVHwc=;
+        s=default; t=1586490511;
+        bh=JuRk7IwZErEkQs154JWgYaEIehaHU2r9Jj03bNGW2qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E0SXrltMnBi8Egu3vVqda/q4A5/Kuou4Pxtl2VsBGES+iiW8/GqT6NlyKtQ/JTJrp
-         7UDNUmVQaOhQJjG7V+RmdpLjAmLJZo8ceOsUuW21io3JJUpA99cdvJTqcf7pinoLaX
-         JhMI/Idqmkd0+zQLv/83IwvoiCM/z2wPGHtPQRrk=
+        b=A20o1UNHqc69sdWaiqDGWbENp4kJ466HBGwJ3V1NRtYJzOPwJbhsU1eSgWEwzddK/
+         kugDGhjxdmTULuGHCqZskiiemW8h3waEX1UNJ+ss+FXYwGwKzr7zVi0GYFo8IhQXHo
+         pjLneP1IWPOfMK83/5NpgRbij0ZaBAU+exLmabL0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Tretter <m.tretter@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.5 25/56] media: allegro: fix type of gop_length in channel_create message
-Date:   Thu,  9 Apr 2020 23:47:29 -0400
-Message-Id: <20200410034800.8381-25-sashal@kernel.org>
+Cc:     Michael Wang <yun.wang@linux.alibaba.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 26/56] sched: Avoid scale real weight down to zero
+Date:   Thu,  9 Apr 2020 23:47:30 -0400
+Message-Id: <20200410034800.8381-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034800.8381-1-sashal@kernel.org>
 References: <20200410034800.8381-1-sashal@kernel.org>
@@ -45,42 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Tretter <m.tretter@pengutronix.de>
+From: Michael Wang <yun.wang@linux.alibaba.com>
 
-[ Upstream commit 8277815349327b8e65226eb58ddb680f90c2c0c0 ]
+[ Upstream commit 26cf52229efc87e2effa9d788f9b33c40fb3358a ]
 
-The gop_length field is actually only u16 and there are two more u8
-fields in the message:
+During our testing, we found a case that shares no longer
+working correctly, the cgroup topology is like:
 
-- the number of consecutive b-frames
-- frequency of golden frames
+  /sys/fs/cgroup/cpu/A		(shares=102400)
+  /sys/fs/cgroup/cpu/A/B	(shares=2)
+  /sys/fs/cgroup/cpu/A/B/C	(shares=1024)
 
-Fix the message and thus fix the configuration of the GOP length.
+  /sys/fs/cgroup/cpu/D		(shares=1024)
+  /sys/fs/cgroup/cpu/D/E	(shares=1024)
+  /sys/fs/cgroup/cpu/D/E/F	(shares=1024)
 
-Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The same benchmark is running in group C & F, no other tasks are
+running, the benchmark is capable to consumed all the CPUs.
+
+We suppose the group C will win more CPU resources since it could
+enjoy all the shares of group A, but it's F who wins much more.
+
+The reason is because we have group B with shares as 2, since
+A->cfs_rq.load.weight == B->se.load.weight == B->shares/nr_cpus,
+so A->cfs_rq.load.weight become very small.
+
+And in calc_group_shares() we calculate shares as:
+
+  load = max(scale_load_down(cfs_rq->load.weight), cfs_rq->avg.load_avg);
+  shares = (tg_shares * load) / tg_weight;
+
+Since the 'cfs_rq->load.weight' is too small, the load become 0
+after scale down, although 'tg_shares' is 102400, shares of the se
+which stand for group A on root cfs_rq become 2.
+
+While the se of D on root cfs_rq is far more bigger than 2, so it
+wins the battle.
+
+Thus when scale_load_down() scale real weight down to 0, it's no
+longer telling the real story, the caller will have the wrong
+information and the calculation will be buggy.
+
+This patch add check in scale_load_down(), so the real weight will
+be >= MIN_SHARES after scale, after applied the group C wins as
+expected.
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/38e8e212-59a1-64b2-b247-b6d0b52d8dc1@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/allegro-dvt/allegro-core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/sched/sched.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/allegro-dvt/allegro-core.c b/drivers/staging/media/allegro-dvt/allegro-core.c
-index 6f0cd07847863..c5a262a12e401 100644
---- a/drivers/staging/media/allegro-dvt/allegro-core.c
-+++ b/drivers/staging/media/allegro-dvt/allegro-core.c
-@@ -393,7 +393,10 @@ struct mcu_msg_create_channel {
- 	u32 freq_ird;
- 	u32 freq_lt;
- 	u32 gdr_mode;
--	u32 gop_length;
-+	u16 gop_length;
-+	u8 num_b;
-+	u8 freq_golden_ref;
-+
- 	u32 unknown39;
- 
- 	u32 subframe_latency;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 280a3c7359355..0502ea8e0e62a 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -118,7 +118,13 @@ extern long calc_load_fold_active(struct rq *this_rq, long adjust);
+ #ifdef CONFIG_64BIT
+ # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT + SCHED_FIXEDPOINT_SHIFT)
+ # define scale_load(w)		((w) << SCHED_FIXEDPOINT_SHIFT)
+-# define scale_load_down(w)	((w) >> SCHED_FIXEDPOINT_SHIFT)
++# define scale_load_down(w) \
++({ \
++	unsigned long __w = (w); \
++	if (__w) \
++		__w = max(2UL, __w >> SCHED_FIXEDPOINT_SHIFT); \
++	__w; \
++})
+ #else
+ # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT)
+ # define scale_load(w)		(w)
 -- 
 2.20.1
 
