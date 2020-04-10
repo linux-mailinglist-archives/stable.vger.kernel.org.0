@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3171A4B95
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 23:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 096E71A4B96
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 23:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726646AbgDJVcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Apr 2020 17:32:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46070 "EHLO mail.kernel.org"
+        id S1726650AbgDJVcU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Apr 2020 17:32:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726582AbgDJVcS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Apr 2020 17:32:18 -0400
+        id S1726582AbgDJVcU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Apr 2020 17:32:20 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92E8520753;
-        Fri, 10 Apr 2020 21:32:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BABFD20936;
+        Fri, 10 Apr 2020 21:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586554336;
-        bh=WRe7kV3lhUCdTQYUsHgLOqTVX+XkxJ9DIyWyNEGVShg=;
+        s=default; t=1586554340;
+        bh=0fIlDT5NiITLoRiD3U0UD6TiCwNXseNC8+Gt48gQQF0=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=GGIaX8QG2QAoGFU52jscBeZoES7VPlftAOI3JYbcvTOEGRymeLWqKivgN6ur4+5mS
-         rgdB5VQy8xQmmEHcMXZGApJ2fUJpb/Q/ROs7R+OET7jtXPF6mPc+0L9WSYoK3uKgKo
-         8VTYLCpe8PObwvXllc/KF+SIf8J+hwIlyumT6mpI=
-Date:   Fri, 10 Apr 2020 14:32:16 -0700
+        b=A9BBea+d8vz8y4lEs15ToCBipFTySyPtWSV/9DZuNrjCJ6/dAsfs6csEfS+DK+Z6I
+         UFHMpNFK9eXUcuc/A2pMbgEgJCaVC3RCqBpm05g4vlgHM1Z42C1f8KkV5T8HPpt+de
+         nbfGP/toxJOUkmPb4mcZu0e8sFeKbIZvd9baDzOo=
+Date:   Fri, 10 Apr 2020 14:32:19 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, anton@tuxera.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, simon@tuxera.com,
+To:     akpm@linux-foundation.org, chris@chrisdown.name,
+        hannes@cmpxchg.org, kuba@kernel.org, linux-mm@kvack.org,
+        mhocko@suse.com, mm-commits@vger.kernel.org,
         stable@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 01/35] hfsplus: fix crash and filesystem
- corruption when deleting files
-Message-ID: <20200410213216.yyMwFshfU%akpm@linux-foundation.org>
+Subject:  [patch 02/35] mm, memcg: do not high throttle allocators
+ based on wraparound
+Message-ID: <20200410213219.Qt50SPoTu%akpm@linux-foundation.org>
 In-Reply-To: <20200410143047.bf34a933ce1affdc042c7c80@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
@@ -38,48 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Gander <simon@tuxera.com>
-Subject: hfsplus: fix crash and filesystem corruption when deleting files
+From: Jakub Kicinski <kuba@kernel.org>
+Subject: mm, memcg: do not high throttle allocators based on wraparound
 
-When removing files containing extended attributes, the hfsplus driver may
-remove the wrong entries from the attributes b-tree, causing major
-filesystem damage and in some cases even kernel crashes.
+If a cgroup violates its memory.high constraints, we may end up unduly
+penalising it.  For example, for the following hierarchy:
 
-To remove a file, all its extended attributes have to be removed as well. 
-The driver does this by looking up all keys in the attributes b-tree with
-the cnid of the file.  Each of these entries then gets deleted using the
-key used for searching, which doesn't contain the attribute's name when it
-should.  Since the key doesn't contain the name, the deletion routine will
-not find the correct entry and instead remove the one in front of it.  If
-parent nodes have to be modified, these become corrupt as well.  This
-causes invalid links and unsorted entries that not even macOS's fsck_hfs
-is able to fix.
+A:   max high, 20 usage
+A/B: 9 high, 10 usage
+A/C: max high, 10 usage
 
-To fix this, modify the search key before an entry is deleted from the
-attributes b-tree by copying the found entry's key into the search key,
-therefore ensuring that the correct entry gets removed from the tree.
+We would end up doing the following calculation below when calculating
+high delay for A/B:
 
-Link: http://lkml.kernel.org/r/20200327155541.1521-1-simon@tuxera.com
-Signed-off-by: Simon Gander <simon@tuxera.com>
-Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
+A/B: 10 - 9 = 1...
+A:   20 - PAGE_COUNTER_MAX = 21, so set max_overage to 21.
+
+This gets worse with higher disparities in usage in the parent.
+
+I have no idea how this disappeared from the final version of the patch,
+but it is certainly Not Good(tm).  This wasn't obvious in testing because,
+for a simple cgroup hierarchy with only one child, the result is usually
+roughly the same.  It's only in more complex hierarchies that things go
+really awry (although still, the effects are limited to a maximum of 2
+seconds in schedule_timeout_killable at a maximum).
+
+[chris@chrisdown.name: changelog]
+Link: http://lkml.kernel.org/r/20200331152424.GA1019937@chrisdown.name
+Fixes: e26733e0d0ec ("mm, memcg: throttle allocators based on ancestral memory.high")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Chris Down <chris@chrisdown.name>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org>	[5.4.x]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/hfsplus/attributes.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ mm/memcontrol.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/hfsplus/attributes.c~hfsplus-fix-crash-and-filesystem-corruption-when-deleting-files
-+++ a/fs/hfsplus/attributes.c
-@@ -292,6 +292,10 @@ static int __hfsplus_delete_attr(struct
- 		return -ENOENT;
- 	}
+--- a/mm/memcontrol.c~mm-memcg-do-not-high-throttle-allocators-based-on-wraparound
++++ a/mm/memcontrol.c
+@@ -2336,6 +2336,9 @@ static unsigned long calculate_high_dela
+ 		usage = page_counter_read(&memcg->memory);
+ 		high = READ_ONCE(memcg->high);
  
-+	/* Avoid btree corruption */
-+	hfs_bnode_read(fd->bnode, fd->search_key,
-+			fd->keyoffset, fd->keylength);
++		if (usage <= high)
++			continue;
 +
- 	err = hfs_brec_remove(fd);
- 	if (err)
- 		return err;
+ 		/*
+ 		 * Prevent division by 0 in overage calculation by acting as if
+ 		 * it was a threshold of 1 page
 _
