@@ -2,92 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 254C61A47BD
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 17:04:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E90D1A4735
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 16:15:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726203AbgDJPE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Apr 2020 11:04:57 -0400
-Received: from 9.mo178.mail-out.ovh.net ([46.105.75.45]:39734 "EHLO
-        9.mo178.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726049AbgDJPE4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Apr 2020 11:04:56 -0400
-X-Greylist: delayed 4197 seconds by postgrey-1.27 at vger.kernel.org; Fri, 10 Apr 2020 11:04:55 EDT
-Received: from player716.ha.ovh.net (unknown [10.110.171.131])
-        by mo178.mail-out.ovh.net (Postfix) with ESMTP id D69349A618
-        for <stable@vger.kernel.org>; Fri, 10 Apr 2020 15:47:11 +0200 (CEST)
-Received: from etezian.org (213-243-141-64.bb.dnainternet.fi [213.243.141.64])
-        (Authenticated sender: andi@etezian.org)
-        by player716.ha.ovh.net (Postfix) with ESMTPSA id 634EA113C45CA;
-        Fri, 10 Apr 2020 13:47:08 +0000 (UTC)
-Date:   Fri, 10 Apr 2020 16:47:02 +0300
-From:   Andi Shyti <andi@etezian.org>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH] agp/intel: Reinforce the barrier after GTT
- updates
-Message-ID: <20200410134702.GA264232@jack.zhora.eu>
-References: <20200410083347.25128-1-chris@chris-wilson.co.uk>
- <20200410083535.25464-1-chris@chris-wilson.co.uk>
+        id S1726145AbgDJOPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Apr 2020 10:15:15 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:44448 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726080AbgDJOPO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Apr 2020 10:15:14 -0400
+Received: by mail-pg1-f194.google.com with SMTP id n13so1021797pgp.11
+        for <stable@vger.kernel.org>; Fri, 10 Apr 2020 07:15:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=xO1FGU/icOILvFWOuncN4qsCUUWcHUB8OtOA1cu0N2s=;
+        b=madjR8lVVZWyxrotIaHC0bT7FQ2An1oDP3ZXfBfiILzK4xThy0fM1zhiX7VVmdyK3H
+         gNBIHZrdhbrCiJXzq/zYD2s1e9tE1x5v4YS8v2cjYSQuSblt0ydKI2Xw66nAFNHjm54d
+         yBbwnbU8nzSx+vllURI3zBEkd7p+qY/pMhdmvsPI3tgyXw3UCxReqB2lwwX1fPObnVX3
+         j1CS6wA7oCL9jjw3AGF0Rjd18AXgK5wKrjV+aJzaYE/oWlQUFtR4JBNyZoUvxDcAqUmW
+         uaM+rIVwCbtNVpajzEwZEgDFIm+JCU46Cq29tsp+hV/IbymG9aazFmlGE+2pN1pQz3oF
+         iKoA==
+X-Gm-Message-State: AGi0PuYgHG0rI3hd+ap+sDRzVZ+I6bmfmvIlJXyPgWmj9ZLuSHNoB9X8
+        KxRhjiBhc4cfqZkrHuUCXZo=
+X-Google-Smtp-Source: APiQypJSCa9K9MnX8xss6uk3WdmwEdOYIYI5gQFTkBUq5NrSTxzecl4NUnAlt9445YegA/m/FHQj1Q==
+X-Received: by 2002:a65:53cf:: with SMTP id z15mr4747258pgr.367.1586528112467;
+        Fri, 10 Apr 2020 07:15:12 -0700 (PDT)
+Received: from sultan-box.localdomain (static-198-54-129-52.cust.tzulo.com. [198.54.129.52])
+        by smtp.gmail.com with ESMTPSA id t126sm902648pfb.29.2020.04.10.07.15.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Apr 2020 07:15:11 -0700 (PDT)
+Date:   Fri, 10 Apr 2020 07:15:08 -0700
+From:   Sultan Alsawaf <sultan@kerneltoast.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH v2] drm/i915: Fix ref->mutex deadlock in
+ i915_active_wait()
+Message-ID: <20200410141508.GA2025@sultan-box.localdomain>
+References: <20200407065210.GA263852@kroah.com>
+ <20200407071809.3148-1-sultan@kerneltoast.com>
+ <20200410090838.GD1691838@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200410083535.25464-1-chris@chris-wilson.co.uk>
-X-Ovh-Tracer-Id: 8709680207301296649
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduhedrvddvgdejtdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughisegvthgviihirghnrdhorhhgqeenucfkpheptddrtddrtddrtddpvddufedrvdegfedrudeguddrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmohguvgepshhmthhpqdhouhhtpdhhvghlohepphhlrgihvghrjeduiedrhhgrrdhovhhhrdhnvghtpdhinhgvtheptddrtddrtddrtddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+In-Reply-To: <20200410090838.GD1691838@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chris,
-
-> After changing the timing between GTT updates and execution on the GPU,
-> we started seeing sporadic failures on Ironlake. These were narrowed
-> down to being an insufficiently strong enough barrier/delay after
-> updating the GTT and scheduling execution on the GPU. By forcing the
-> uncached read, and adding the missing barrier for the singular
-> insert_page (relocation paths), the sporadic failures go away.
+On Fri, Apr 10, 2020 at 11:08:38AM +0200, Greg KH wrote:
+> On Tue, Apr 07, 2020 at 12:18:09AM -0700, Sultan Alsawaf wrote:
+> > From: Sultan Alsawaf <sultan@kerneltoast.com>
+> > 
+> > The following deadlock exists in i915_active_wait() due to a double lock
+> > on ref->mutex (call chain listed in order from top to bottom):
+> >  i915_active_wait();
+> >  mutex_lock_interruptible(&ref->mutex); <-- ref->mutex first acquired
+> >  i915_active_request_retire();
+> >  node_retire();
+> >  active_retire();
+> >  mutex_lock_nested(&ref->mutex, SINGLE_DEPTH_NESTING); <-- DEADLOCK
+> > 
+> > Fix the deadlock by skipping the second ref->mutex lock when
+> > active_retire() is called through i915_active_request_retire().
+> > 
+> > Note that this bug only affects 5.4 and has since been fixed in 5.5.
+> > Normally, a backport of the fix from 5.5 would be in order, but the
+> > patch set that fixes this deadlock involves massive changes that are
+> > neither feasible nor desirable for backporting [1][2][3]. Therefore,
+> > this small patch was made to address the deadlock specifically for 5.4.
+> > 
+> > [1] 274cbf20fd10 ("drm/i915: Push the i915_active.retire into a worker")
+> > [2] 093b92287363 ("drm/i915: Split i915_active.mutex into an irq-safe spinlock for the rbtree")
+> > [3] 750bde2fd4ff ("drm/i915: Serialise with remote retirement")
+> > 
+> > Fixes: 12c255b5dad1 ("drm/i915: Provide an i915_active.acquire callback")
+> > Cc: <stable@vger.kernel.org> # 5.4.x
+> > Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+> > ---
+> >  drivers/gpu/drm/i915/i915_active.c | 27 +++++++++++++++++++++++----
+> >  drivers/gpu/drm/i915/i915_active.h |  4 ++--
+> >  2 files changed, 25 insertions(+), 6 deletions(-)
 > 
-> Fixes: 983d308cb8f6 ("agp/intel: Serialise after GTT updates")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: stable@vger.kernel.org # v4.0+
-
-Acked-by: Andi Shyti <andi.shyti@intel.com>
-
-Andi
-
-> ---
->  drivers/char/agp/intel-gtt.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+> Now queued up, thanks.
 > 
-> diff --git a/drivers/char/agp/intel-gtt.c b/drivers/char/agp/intel-gtt.c
-> index 66a62d17a3f5..3d42fc4290bc 100644
-> --- a/drivers/char/agp/intel-gtt.c
-> +++ b/drivers/char/agp/intel-gtt.c
-> @@ -846,6 +846,7 @@ void intel_gtt_insert_page(dma_addr_t addr,
->  			   unsigned int flags)
->  {
->  	intel_private.driver->write_entry(addr, pg, flags);
-> +	readl(intel_private.gtt + pg);
->  	if (intel_private.driver->chipset_flush)
->  		intel_private.driver->chipset_flush();
->  }
-> @@ -871,7 +872,7 @@ void intel_gtt_insert_sg_entries(struct sg_table *st,
->  			j++;
->  		}
->  	}
-> -	wmb();
-> +	readl(intel_private.gtt + j - 1);
->  	if (intel_private.driver->chipset_flush)
->  		intel_private.driver->chipset_flush();
->  }
-> @@ -1105,6 +1106,7 @@ static void i9xx_cleanup(void)
->  
->  static void i9xx_chipset_flush(void)
->  {
-> +	wmb();
->  	if (intel_private.i9xx_flush_page)
->  		writel(1, intel_private.i9xx_flush_page);
->  }
+> greg k-h
+
+Hi Greg,
+
+Thanks for queuing this! However, you queued the v1 version of the patch instead
+of v2. Please pick the v2 version instead.
+
+Thanks,
+Sultan
