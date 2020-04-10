@@ -2,56 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96EB81A451C
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 12:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 254C61A47BD
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 17:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726059AbgDJKUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Apr 2020 06:20:40 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46772 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725930AbgDJKUk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Apr 2020 06:20:40 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 59D04ABAD;
-        Fri, 10 Apr 2020 10:20:38 +0000 (UTC)
-Date:   Fri, 10 Apr 2020 11:20:59 +0100
-From:   Luis Henriques <lhenriques@suse.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>, ceph-devel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 0/2] stable CephFS backports
-Message-ID: <20200410102059.GA18283@suse.com>
-References: <20200408105844.21840-1-lhenriques@suse.com>
- <20200410091410.GF1691838@kroah.com>
+        id S1726203AbgDJPE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Apr 2020 11:04:57 -0400
+Received: from 9.mo178.mail-out.ovh.net ([46.105.75.45]:39734 "EHLO
+        9.mo178.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726049AbgDJPE4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Apr 2020 11:04:56 -0400
+X-Greylist: delayed 4197 seconds by postgrey-1.27 at vger.kernel.org; Fri, 10 Apr 2020 11:04:55 EDT
+Received: from player716.ha.ovh.net (unknown [10.110.171.131])
+        by mo178.mail-out.ovh.net (Postfix) with ESMTP id D69349A618
+        for <stable@vger.kernel.org>; Fri, 10 Apr 2020 15:47:11 +0200 (CEST)
+Received: from etezian.org (213-243-141-64.bb.dnainternet.fi [213.243.141.64])
+        (Authenticated sender: andi@etezian.org)
+        by player716.ha.ovh.net (Postfix) with ESMTPSA id 634EA113C45CA;
+        Fri, 10 Apr 2020 13:47:08 +0000 (UTC)
+Date:   Fri, 10 Apr 2020 16:47:02 +0300
+From:   Andi Shyti <andi@etezian.org>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH] agp/intel: Reinforce the barrier after GTT
+ updates
+Message-ID: <20200410134702.GA264232@jack.zhora.eu>
+References: <20200410083347.25128-1-chris@chris-wilson.co.uk>
+ <20200410083535.25464-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200410091410.GF1691838@kroah.com>
+In-Reply-To: <20200410083535.25464-1-chris@chris-wilson.co.uk>
+X-Ovh-Tracer-Id: 8709680207301296649
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduhedrvddvgdejtdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughisegvthgviihirghnrdhorhhgqeenucfkpheptddrtddrtddrtddpvddufedrvdegfedrudeguddrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmohguvgepshhmthhpqdhouhhtpdhhvghlohepphhlrgihvghrjeduiedrhhgrrdhovhhhrdhnvghtpdhinhgvtheptddrtddrtddrtddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 10, 2020 at 11:14:10AM +0200, Greg Kroah-Hartman wrote:
-> On Wed, Apr 08, 2020 at 11:58:38AM +0100, Luis Henriques wrote:
-> > Hi!
-> > 
-> > Please pick the backports for the following upstream commits:
-> > 
-> >   4fbc0c711b24 "ceph: remove the extra slashes in the server path"
-> >   b27a939e8376 "ceph: canonicalize server path in place"
-> > 
-> > They fix an ancient bug that can be reproduced in kernels as old as 4.9 (I
-> > couldn't reproduced it with 4.4).
+Hi Chris,
+
+> After changing the timing between GTT updates and execution on the GPU,
+> we started seeing sporadic failures on Ironlake. These were narrowed
+> down to being an insufficiently strong enough barrier/delay after
+> updating the GTT and scheduling execution on the GPU. By forcing the
+> uncached read, and adding the missing barrier for the singular
+> insert_page (relocation paths), the sporadic failures go away.
 > 
-> All now queued up, including for 5.5.y, thanks.
+> Fixes: 983d308cb8f6 ("agp/intel: Serialise after GTT updates")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: stable@vger.kernel.org # v4.0+
 
-Awesome, thanks.  And sorry, I forgot to mention in the cover-letter that
-5.5 was a clean cherry-pick.
+Acked-by: Andi Shyti <andi.shyti@intel.com>
 
-Cheers,
---
-Luís
+Andi
+
+> ---
+>  drivers/char/agp/intel-gtt.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/char/agp/intel-gtt.c b/drivers/char/agp/intel-gtt.c
+> index 66a62d17a3f5..3d42fc4290bc 100644
+> --- a/drivers/char/agp/intel-gtt.c
+> +++ b/drivers/char/agp/intel-gtt.c
+> @@ -846,6 +846,7 @@ void intel_gtt_insert_page(dma_addr_t addr,
+>  			   unsigned int flags)
+>  {
+>  	intel_private.driver->write_entry(addr, pg, flags);
+> +	readl(intel_private.gtt + pg);
+>  	if (intel_private.driver->chipset_flush)
+>  		intel_private.driver->chipset_flush();
+>  }
+> @@ -871,7 +872,7 @@ void intel_gtt_insert_sg_entries(struct sg_table *st,
+>  			j++;
+>  		}
+>  	}
+> -	wmb();
+> +	readl(intel_private.gtt + j - 1);
+>  	if (intel_private.driver->chipset_flush)
+>  		intel_private.driver->chipset_flush();
+>  }
+> @@ -1105,6 +1106,7 @@ static void i9xx_cleanup(void)
+>  
+>  static void i9xx_chipset_flush(void)
+>  {
+> +	wmb();
+>  	if (intel_private.i9xx_flush_page)
+>  		writel(1, intel_private.i9xx_flush_page);
+>  }
