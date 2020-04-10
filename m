@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A91821A414A
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 290AC1A414C
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728108AbgDJDsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:48:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59512 "EHLO mail.kernel.org"
+        id S1728122AbgDJDsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:48:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726684AbgDJDsQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:48:16 -0400
+        id S1728110AbgDJDsR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:48:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB77A21473;
-        Fri, 10 Apr 2020 03:48:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C29E2145D;
+        Fri, 10 Apr 2020 03:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490495;
-        bh=4FfjHUzoXOQuHsFmCwjdJHNFyyAOjk/AM8IR/EFRMnM=;
+        s=default; t=1586490497;
+        bh=zrlF1T55Zp8RBkwf0vAGxoyyMKYpXfj8FOGIZ2PSuqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEKgPRhEzmQMazvEKBDDjz7vetyHuO6cfPtvFsmePtb2ww8rn4bnom4cw2r2paL8K
-         xAy5zs+LIkL76JrBsFQjdtQdAex44dXC35InrKSt28iT9OVzvb3VOuns/O3jtRxxKq
-         KxWjpoOsITVdwwxF2z7GwLBf57KN+gOrzXwWbFnY=
+        b=xj0woNIBbPJtiKTG2LPFCVLIZeV1pbiBFRT5NhoNaRmveNtSRr39ps7C4qQzgveeD
+         sBM8j3OFZBjNnLJo9Mo1WexW38WSgeY5Q7JHGz4nv09X4vzeQNH6gIsCtyA9Xg5gFX
+         l0f0R1V4ceMOxvbcdhzgxYAuBxe2K4IQGyDAwEbw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Johannes Thumshirn <jth@kernel.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 12/56] null_blk: Handle null_add_dev() failures properly
-Date:   Thu,  9 Apr 2020 23:47:16 -0400
-Message-Id: <20200410034800.8381-12-sashal@kernel.org>
+Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 13/56] null_blk: fix spurious IO errors after failed past-wp access
+Date:   Thu,  9 Apr 2020 23:47:17 -0400
+Message-Id: <20200410034800.8381-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034800.8381-1-sashal@kernel.org>
 References: <20200410034800.8381-1-sashal@kernel.org>
@@ -48,62 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-[ Upstream commit 9b03b713082a31a5b90e0a893c72aa620e255c26 ]
+[ Upstream commit ff77042296d0a54535ddf74412c5ae92cb4ec76a ]
 
-If null_add_dev() fails then null_del_dev() is called with a NULL argument.
-Make null_del_dev() handle this scenario correctly. This patch fixes the
-following KASAN complaint:
+Steps to reproduce:
 
-null-ptr-deref in null_del_dev+0x28/0x280 [null_blk]
-Read of size 8 at addr 0000000000000000 by task find/1062
+	BLKRESETZONE zone 0
 
-Call Trace:
- dump_stack+0xa5/0xe6
- __kasan_report.cold+0x65/0x99
- kasan_report+0x16/0x20
- __asan_load8+0x58/0x90
- null_del_dev+0x28/0x280 [null_blk]
- nullb_group_drop_item+0x7e/0xa0 [null_blk]
- client_drop_item+0x53/0x80 [configfs]
- configfs_rmdir+0x395/0x4e0 [configfs]
- vfs_rmdir+0xb6/0x220
- do_rmdir+0x238/0x2c0
- __x64_sys_unlinkat+0x75/0x90
- do_syscall_64+0x6f/0x2f0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+	// force EIO
+	pwrite(fd, buf, 4096, 4096);
 
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Cc: Johannes Thumshirn <jth@kernel.org>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>
+	[issue more IO including zone ioctls]
+
+It will start failing randomly including IO to unrelated zones because of
+->error "reuse". Trigger can be partition detection as well if test is not
+run immediately which is even more entertaining.
+
+The fix is of course to clear ->error where necessary.
+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk_main.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/block/null_blk_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
-index 97bb53d7fa348..635904bfcf777 100644
+index 635904bfcf777..0cafad09c9b29 100644
 --- a/drivers/block/null_blk_main.c
 +++ b/drivers/block/null_blk_main.c
-@@ -1432,7 +1432,12 @@ static void cleanup_queues(struct nullb *nullb)
+@@ -605,6 +605,7 @@ static struct nullb_cmd *__alloc_cmd(struct nullb_queue *nq)
+ 	if (tag != -1U) {
+ 		cmd = &nq->cmds[tag];
+ 		cmd->tag = tag;
++		cmd->error = BLK_STS_OK;
+ 		cmd->nq = nq;
+ 		if (nq->dev->irqmode == NULL_IRQ_TIMER) {
+ 			hrtimer_init(&cmd->timer, CLOCK_MONOTONIC,
+@@ -1385,6 +1386,7 @@ static blk_status_t null_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		cmd->timer.function = null_cmd_timer_expired;
+ 	}
+ 	cmd->rq = bd->rq;
++	cmd->error = BLK_STS_OK;
+ 	cmd->nq = nq;
  
- static void null_del_dev(struct nullb *nullb)
- {
--	struct nullb_device *dev = nullb->dev;
-+	struct nullb_device *dev;
-+
-+	if (!nullb)
-+		return;
-+
-+	dev = nullb->dev;
- 
- 	ida_simple_remove(&nullb_indexes, nullb->index);
- 
+ 	blk_mq_start_request(bd->rq);
 -- 
 2.20.1
 
