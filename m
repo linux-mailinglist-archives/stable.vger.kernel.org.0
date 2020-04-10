@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A301A41B0
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:16:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 896111A3F63
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:55:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728643AbgDJD7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:59:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59880 "EHLO mail.kernel.org"
+        id S1728186AbgDJDsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:48:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726864AbgDJDsZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:48:25 -0400
+        id S1726680AbgDJDs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:48:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A097C20BED;
-        Fri, 10 Apr 2020 03:48:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D66AB20CC7;
+        Fri, 10 Apr 2020 03:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490505;
-        bh=rcjh3l3DjFWYTa13HVk4wQSTUrOgmQ2s6RvdNQnB9Cg=;
+        s=default; t=1586490506;
+        bh=wprIwHv1JZkm3EJGqwxjmXb8VZw70uVnlQHdiVFQVO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vcPUQvRCP2u6oPw6h4/pgP2zIdw7zKt6Pyowe6/STSR1bq52SRucvrueg/65rRASP
-         ILh5KVzkw2qpU95nDRoC7OtgfzeorcYud5tNPLmUO/Xd8PSjdYmugkKXEhX1dRpWoV
-         edEVs3Na9B7U/lLGSj5EGR3jtGPvgp5ubpR0yGYQ=
+        b=Lm2m/aT+s7wWGasKi8TsEIXelqThWHryM5AECgB0h4Ht4SASABHAZ4CtJowbMDryI
+         7TEMt09np9Mek7G75uAjPAyuaFuHczgZpMSUFUuScXDodRKoH40KqaHsQBUfYrPlQC
+         c/2xf7prEyUsh5E+pZVxiahMC8VAqosfMFDk3UKs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Bob Liu <bob.liu@oracle.com>, Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 20/56] block: keep bdi->io_pages in sync with max_sectors_kb for stacked devices
-Date:   Thu,  9 Apr 2020 23:47:24 -0400
-Message-Id: <20200410034800.8381-20-sashal@kernel.org>
+Cc:     Taehee Yoo <ap420073@gmail.com>, kbuild test robot <lkp@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 21/56] debugfs: Check module state before warning in {full/open}_proxy_open()
+Date:   Thu,  9 Apr 2020 23:47:25 -0400
+Message-Id: <20200410034800.8381-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034800.8381-1-sashal@kernel.org>
 References: <20200410034800.8381-1-sashal@kernel.org>
@@ -44,46 +43,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit e74d93e96d721c4297f2a900ad0191890d2fc2b0 ]
+[ Upstream commit 275678e7a9be6a0ea9c1bb493e48abf2f4a01be5 ]
 
-Field bdi->io_pages added in commit 9491ae4aade6 ("mm: don't cap request
-size based on read-ahead setting") removes unneeded split of read requests.
+When the module is being removed, the module state is set to
+MODULE_STATE_GOING. At this point, try_module_get() fails.
+And when {full/open}_proxy_open() is being called,
+it calls try_module_get() to try to hold module reference count.
+If it fails, it warns about the possibility of debugfs file leak.
 
-Stacked drivers do not call blk_queue_max_hw_sectors(). Instead they set
-limits of their devices by blk_set_stacking_limits() + disk_stack_limits().
-Field bio->io_pages stays zero until user set max_sectors_kb via sysfs.
+If {full/open}_proxy_open() is called while the module is being removed,
+it fails to hold the module.
+So, It warns about debugfs file leak. But it is not the debugfs file
+leak case. So, this patch just adds module state checking routine
+in the {full/open}_proxy_open().
 
-This patch updates io_pages after merging limits in disk_stack_limits().
+Test commands:
+    #SHELL1
+    while :
+    do
+        modprobe netdevsim
+        echo 1 > /sys/bus/netdevsim/new_device
+        modprobe -rv netdevsim
+    done
 
-Commit c6d6e9b0f6b4 ("dm: do not allow readahead to limit IO size") fixed
-the same problem for device-mapper devices, this one fixes MD RAIDs.
+    #SHELL2
+    while :
+    do
+        cat /sys/kernel/debug/netdevsim/netdevsim1/ports/0/ipsec
+    done
 
-Fixes: 9491ae4aade6 ("mm: don't cap request size based on read-ahead setting")
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Splat looks like:
+[  298.766738][T14664] debugfs file owner did not clean up at exit: ipsec
+[  298.766766][T14664] WARNING: CPU: 2 PID: 14664 at fs/debugfs/file.c:312 full_proxy_open+0x10f/0x650
+[  298.768595][T14664] Modules linked in: netdevsim(-) openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 n][  298.771343][T14664] CPU: 2 PID: 14664 Comm: cat Tainted: G        W         5.5.0+ #1
+[  298.772373][T14664] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[  298.773545][T14664] RIP: 0010:full_proxy_open+0x10f/0x650
+[  298.774247][T14664] Code: 48 c1 ea 03 80 3c 02 00 0f 85 c1 04 00 00 49 8b 3c 24 e8 e4 b5 78 ff 84 c0 75 2d 4c 89 ee 48
+[  298.776782][T14664] RSP: 0018:ffff88805b7df9b8 EFLAGS: 00010282[  298.777583][T14664] RAX: dffffc0000000008 RBX: ffff8880511725c0 RCX: 0000000000000000
+[  298.778610][T14664] RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffff8880540c5c14
+[  298.779637][T14664] RBP: 0000000000000000 R08: fffffbfff15235ad R09: 0000000000000000
+[  298.780664][T14664] R10: 0000000000000001 R11: 0000000000000000 R12: ffffffffc06b5000
+[  298.781702][T14664] R13: ffff88804c234a88 R14: ffff88804c22dd00 R15: ffffffff8a1b5660
+[  298.782722][T14664] FS:  00007fafa13a8540(0000) GS:ffff88806c800000(0000) knlGS:0000000000000000
+[  298.783845][T14664] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  298.784672][T14664] CR2: 00007fafa0e9cd10 CR3: 000000004b286005 CR4: 00000000000606e0
+[  298.785739][T14664] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  298.786769][T14664] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  298.787785][T14664] Call Trace:
+[  298.788237][T14664]  do_dentry_open+0x63c/0xf50
+[  298.788872][T14664]  ? open_proxy_open+0x270/0x270
+[  298.789524][T14664]  ? __x64_sys_fchdir+0x180/0x180
+[  298.790169][T14664]  ? inode_permission+0x65/0x390
+[  298.790832][T14664]  path_openat+0xc45/0x2680
+[  298.791425][T14664]  ? save_stack+0x69/0x80
+[  298.791988][T14664]  ? save_stack+0x19/0x80
+[  298.792544][T14664]  ? path_mountpoint+0x2e0/0x2e0
+[  298.793233][T14664]  ? check_chain_key+0x236/0x5d0
+[  298.793910][T14664]  ? sched_clock_cpu+0x18/0x170
+[  298.794527][T14664]  ? find_held_lock+0x39/0x1d0
+[  298.795153][T14664]  do_filp_open+0x16a/0x260
+[ ... ]
+
+Fixes: 9fd4dcece43a ("debugfs: prevent access to possibly dead file_operations at file open")
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Link: https://lore.kernel.org/r/20200218043150.29447-1-ap420073@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-settings.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/debugfs/file.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/block/blk-settings.c b/block/blk-settings.c
-index c8eda2e7b91e4..be1dca0103a45 100644
---- a/block/blk-settings.c
-+++ b/block/blk-settings.c
-@@ -664,6 +664,9 @@ void disk_stack_limits(struct gendisk *disk, struct block_device *bdev,
- 		printk(KERN_NOTICE "%s: Warning: Device %s is misaligned\n",
- 		       top, bottom);
- 	}
-+
-+	t->backing_dev_info->io_pages =
-+		t->limits.max_sectors >> (PAGE_SHIFT - 9);
- }
- EXPORT_SYMBOL(disk_stack_limits);
+diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
+index 18eeeb093a688..331d4071a8560 100644
+--- a/fs/debugfs/file.c
++++ b/fs/debugfs/file.c
+@@ -175,8 +175,13 @@ static int open_proxy_open(struct inode *inode, struct file *filp)
+ 	if (r)
+ 		goto out;
  
+-	real_fops = fops_get(real_fops);
+-	if (!real_fops) {
++	if (!fops_get(real_fops)) {
++#ifdef MODULE
++		if (real_fops->owner &&
++		    real_fops->owner->state == MODULE_STATE_GOING)
++			goto out;
++#endif
++
+ 		/* Huh? Module did not clean up after itself at exit? */
+ 		WARN(1, "debugfs file owner did not clean up at exit: %pd",
+ 			dentry);
+@@ -305,8 +310,13 @@ static int full_proxy_open(struct inode *inode, struct file *filp)
+ 	if (r)
+ 		goto out;
+ 
+-	real_fops = fops_get(real_fops);
+-	if (!real_fops) {
++	if (!fops_get(real_fops)) {
++#ifdef MODULE
++		if (real_fops->owner &&
++		    real_fops->owner->state == MODULE_STATE_GOING)
++			goto out;
++#endif
++
+ 		/* Huh? Module did not cleanup after itself at exit? */
+ 		WARN(1, "debugfs file owner did not clean up at exit: %pd",
+ 			dentry);
 -- 
 2.20.1
 
