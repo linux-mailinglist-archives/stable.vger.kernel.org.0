@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31ADF1A41B9
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:16:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE7431A3F5F
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728371AbgDJD7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:59:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59654 "EHLO mail.kernel.org"
+        id S1728154AbgDJDsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:48:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728137AbgDJDsT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:48:19 -0400
+        id S1728110AbgDJDsU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:48:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D244420CC7;
-        Fri, 10 Apr 2020 03:48:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4383A21473;
+        Fri, 10 Apr 2020 03:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490499;
-        bh=0XrRqotfepK3zUNWdd8fnIccrvPnNVyNdW6GWO8JWtQ=;
+        s=default; t=1586490500;
+        bh=aj+C3qty4HdDe8GL8geUEloqbIzbEgqKD6KeLaYq//Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkS9Ecexy10VU35f198dJ0j5M2XOSQ9xkohSIUGYVr0F0wl6hPcxdWoV9XV+kENAc
-         W0c5OZD0ehqDHddM9gb932nzxTpneQdIDE9caopAFIkkckxkmRl/agn8asP2yqKVXQ
-         kxarXbwIypMmi0/KDkCDh+eEu4HZQLHMStONewao=
+        b=FoHe3yZhagQ+JOYKaCIUnUu+nhBFtExVTpR6gF++GMkDibncCk2xzLfSIRO71TCtQ
+         6oYSaaFrHnfUesJ5gkiaLg6TmNvRo+YYzehpb15pJR7NJT0mfF50PDk4iXPrMyfSUb
+         6hn+O+fiC6y1115zBHZVDc0DvsR4Ck7frhlMweH0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        devel@driverdev.osuosl.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 15/56] media: imx: imx7-media-csi: Fix video field handling
-Date:   Thu,  9 Apr 2020 23:47:19 -0400
-Message-Id: <20200410034800.8381-15-sashal@kernel.org>
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 16/56] xhci: bail out early if driver can't accress host in resume
+Date:   Thu,  9 Apr 2020 23:47:20 -0400
+Message-Id: <20200410034800.8381-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034800.8381-1-sashal@kernel.org>
 References: <20200410034800.8381-1-sashal@kernel.org>
@@ -46,49 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit f7b8488bd39ae8feced4dfbb41cf1431277b893f ]
+[ Upstream commit 72ae194704da212e2ec312ab182a96799d070755 ]
 
-Commit 4791bd7d6adc ("media: imx: Try colorimetry at both sink and
-source pads") reworked the way that formats are set on the sink pad of
-the CSI subdevice, and accidentally removed video field handling.
-Restore it by defaulting to V4L2_FIELD_NONE if the field value isn't
-supported, with the only two supported value being V4L2_FIELD_NONE and
-V4L2_FIELD_INTERLACED.
+Bail out early if the xHC host needs to be reset at resume
+but driver can't access xHC PCI registers.
 
-Fixes: 4791bd7d6adc ("media: imx: Try colorimetry at both sink and source pads")
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+If xhci driver already fails to reset the controller then there
+is no point in attempting to free, re-initialize, re-allocate and
+re-start the host. If failure to access the host is detected later,
+failing the resume, xhci interrupts will be double freed
+when remove is called.
+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200312144517.1593-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-media-csi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/xhci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
-index db30e2c70f2fe..f45920b3137e4 100644
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -1009,6 +1009,7 @@ static int imx7_csi_try_fmt(struct imx7_csi *csi,
- 		sdformat->format.width = in_fmt->width;
- 		sdformat->format.height = in_fmt->height;
- 		sdformat->format.code = in_fmt->code;
-+		sdformat->format.field = in_fmt->field;
- 		*cc = in_cc;
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index dbac0fa9748d5..fe38275363e0f 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1157,8 +1157,10 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+ 		xhci_dbg(xhci, "Stop HCD\n");
+ 		xhci_halt(xhci);
+ 		xhci_zero_64b_regs(xhci);
+-		xhci_reset(xhci);
++		retval = xhci_reset(xhci);
+ 		spin_unlock_irq(&xhci->lock);
++		if (retval)
++			return retval;
+ 		xhci_cleanup_msix(xhci);
  
- 		sdformat->format.colorspace = in_fmt->colorspace;
-@@ -1023,6 +1024,9 @@ static int imx7_csi_try_fmt(struct imx7_csi *csi,
- 							 false);
- 			sdformat->format.code = (*cc)->codes[0];
- 		}
-+
-+		if (sdformat->format.field != V4L2_FIELD_INTERLACED)
-+			sdformat->format.field = V4L2_FIELD_NONE;
- 		break;
- 	default:
- 		return -EINVAL;
+ 		xhci_dbg(xhci, "// Disabling event ring interrupts\n");
 -- 
 2.20.1
 
