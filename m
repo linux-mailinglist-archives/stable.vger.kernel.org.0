@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43FD71A4012
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 608911A3FEA
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727028AbgDJDwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:52:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36316 "EHLO mail.kernel.org"
+        id S1729140AbgDJDvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:51:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729128AbgDJDvN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:51:13 -0400
+        id S1729132AbgDJDvP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:51:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 157E421655;
-        Fri, 10 Apr 2020 03:51:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AE04206C0;
+        Fri, 10 Apr 2020 03:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490673;
-        bh=nVOpzHyiyppnNvj1+1Etp1vvzi0VnZVACvXG8DhwaHo=;
+        s=default; t=1586490674;
+        bh=vbESkDHBh4yFSWsX62jVfb3pKRSU4GYw/tznxABimHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OA3Mw06A9tgkbsIiPWXUqILxPYxb/EJRToG5uKRziXoF5wRivbWoEosEovAuFRBdD
-         HN9APHmEvzO0o5VUkTjKYifySDuJoOw1YVuntmgQkuaF/MLxxNl6SYCbvKs7uxyGbG
-         iJxPx3Qat7dQb6Wk04RANHdmKY/kdArMFlrj7OaM=
+        b=VDfHYAFz7n0O+5lEiSEv7zZFZVjL/glVFIly2bc9QqCzyaFmEMoOyMDgBO/q26O+O
+         RA7eNAV7UvAPBRNA/Tn3g9ZbSzQmMphju7krIvKaah1rKJ1goTTQg8xa/a+nAdCCYy
+         yln33i5392mT3F2CO3mY+0E1t92iR2aPwNG0Gb4Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Wang <yun.wang@linux.alibaba.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 2/9] sched: Avoid scale real weight down to zero
-Date:   Thu,  9 Apr 2020 23:51:03 -0400
-Message-Id: <20200410035111.9938-2-sashal@kernel.org>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        kbuild test robot <lkp@intel.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 3/9] selftests/x86/ptrace_syscall_32: Fix no-vDSO segfault
+Date:   Thu,  9 Apr 2020 23:51:04 -0400
+Message-Id: <20200410035111.9938-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410035111.9938-1-sashal@kernel.org>
 References: <20200410035111.9938-1-sashal@kernel.org>
@@ -44,80 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Wang <yun.wang@linux.alibaba.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit 26cf52229efc87e2effa9d788f9b33c40fb3358a ]
+[ Upstream commit 630b99ab60aa972052a4202a1ff96c7e45eb0054 ]
 
-During our testing, we found a case that shares no longer
-working correctly, the cgroup topology is like:
+If AT_SYSINFO is not present, don't try to call a NULL pointer.
 
-  /sys/fs/cgroup/cpu/A		(shares=102400)
-  /sys/fs/cgroup/cpu/A/B	(shares=2)
-  /sys/fs/cgroup/cpu/A/B/C	(shares=1024)
-
-  /sys/fs/cgroup/cpu/D		(shares=1024)
-  /sys/fs/cgroup/cpu/D/E	(shares=1024)
-  /sys/fs/cgroup/cpu/D/E/F	(shares=1024)
-
-The same benchmark is running in group C & F, no other tasks are
-running, the benchmark is capable to consumed all the CPUs.
-
-We suppose the group C will win more CPU resources since it could
-enjoy all the shares of group A, but it's F who wins much more.
-
-The reason is because we have group B with shares as 2, since
-A->cfs_rq.load.weight == B->se.load.weight == B->shares/nr_cpus,
-so A->cfs_rq.load.weight become very small.
-
-And in calc_group_shares() we calculate shares as:
-
-  load = max(scale_load_down(cfs_rq->load.weight), cfs_rq->avg.load_avg);
-  shares = (tg_shares * load) / tg_weight;
-
-Since the 'cfs_rq->load.weight' is too small, the load become 0
-after scale down, although 'tg_shares' is 102400, shares of the se
-which stand for group A on root cfs_rq become 2.
-
-While the se of D on root cfs_rq is far more bigger than 2, so it
-wins the battle.
-
-Thus when scale_load_down() scale real weight down to 0, it's no
-longer telling the real story, the caller will have the wrong
-information and the calculation will be buggy.
-
-This patch add check in scale_load_down(), so the real weight will
-be >= MIN_SHARES after scale, after applied the group C wins as
-expected.
-
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lkml.kernel.org/r/38e8e212-59a1-64b2-b247-b6d0b52d8dc1@linux.alibaba.com
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/faaf688265a7e1a5b944d6f8bc0f6368158306d3.1584052409.git.luto@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/sched.h | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ tools/testing/selftests/x86/ptrace_syscall.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 15c08752926b0..819bd5fb02647 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -73,7 +73,13 @@ static inline void update_idle_core(struct rq *rq) { }
- #ifdef CONFIG_64BIT
- # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT + SCHED_FIXEDPOINT_SHIFT)
- # define scale_load(w)		((w) << SCHED_FIXEDPOINT_SHIFT)
--# define scale_load_down(w)	((w) >> SCHED_FIXEDPOINT_SHIFT)
-+# define scale_load_down(w) \
-+({ \
-+	unsigned long __w = (w); \
-+	if (__w) \
-+		__w = max(2UL, __w >> SCHED_FIXEDPOINT_SHIFT); \
-+	__w; \
-+})
- #else
- # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT)
- # define scale_load(w)		(w)
+diff --git a/tools/testing/selftests/x86/ptrace_syscall.c b/tools/testing/selftests/x86/ptrace_syscall.c
+index 1e3da137a8bb9..5390c827a359e 100644
+--- a/tools/testing/selftests/x86/ptrace_syscall.c
++++ b/tools/testing/selftests/x86/ptrace_syscall.c
+@@ -413,8 +413,12 @@ int main()
+ 
+ #if defined(__i386__) && (!defined(__GLIBC__) || __GLIBC__ > 2 || __GLIBC_MINOR__ >= 16)
+ 	vsyscall32 = (void *)getauxval(AT_SYSINFO);
+-	printf("[RUN]\tCheck AT_SYSINFO return regs\n");
+-	test_sys32_regs(do_full_vsyscall32);
++	if (vsyscall32) {
++		printf("[RUN]\tCheck AT_SYSINFO return regs\n");
++		test_sys32_regs(do_full_vsyscall32);
++	} else {
++		printf("[SKIP]\tAT_SYSINFO is not available\n");
++	}
+ #endif
+ 
+ 	test_ptrace_syscall_restart();
 -- 
 2.20.1
 
