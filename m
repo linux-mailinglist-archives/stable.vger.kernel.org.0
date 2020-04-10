@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A2DB1A404A
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 129101A4047
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729092AbgDJDyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:54:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34846 "EHLO mail.kernel.org"
+        id S1726595AbgDJDyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:54:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728854AbgDJDuV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:50:21 -0400
+        id S1728865AbgDJDuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:50:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9866B21841;
-        Fri, 10 Apr 2020 03:50:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFEE320CC7;
+        Fri, 10 Apr 2020 03:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490621;
-        bh=i4Ubgx2oHuF1MCV7P/oM4IGjdCeU53Aw8AY1hqvYb3w=;
+        s=default; t=1586490622;
+        bh=u7f2pqtpVNbs8a/p06LRN9rLRFe4gO8tJL2WMQuS9X0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSuiAlh2QFf03B/ZXAduKCxDIOoZrF0BD0UjY3xF6eWbARE509td9JfrEo25D9c9A
-         K08ZRdA6wwJVo/w4pd+xqKQxnvicg3lMZTc+9FleO4zU9dyMWVH0qj+GdWKY7bVZwS
-         Y63dhfX/y2g41UJMFaSmQXEWt+Zy+C5hCm5gmvK0=
+        b=Kxm5u+Xqh3aSAwYUXvE6nLJZAk5358CVPkXaKhNIBTCdFGqyLPHPXG0+jgS8E13XC
+         RbxJJkA1mpClVso1njbXhxznEG9KPCrLyTuI1fgMRzPjtnUylBbm9lk1Ac0oN7KlQY
+         c6IrKKvkY5HYyb49FYHpiSA91igQWSp3HRDkKbyg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Logan Gunthorpe <logang@deltatee.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 13/32] PCI/switchtec: Fix init_completion race condition with poll_wait()
-Date:   Thu,  9 Apr 2020 23:49:46 -0400
-Message-Id: <20200410035005.9371-13-sashal@kernel.org>
+Cc:     Matt Ranostay <matt.ranostay@konsulko.com>, rdunlap@infradead.org,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 14/32] media: i2c: video-i2c: fix build errors due to 'imply hwmon'
+Date:   Thu,  9 Apr 2020 23:49:47 -0400
+Message-Id: <20200410035005.9371-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410035005.9371-1-sashal@kernel.org>
 References: <20200410035005.9371-1-sashal@kernel.org>
@@ -46,50 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Matt Ranostay <matt.ranostay@konsulko.com>
 
-[ Upstream commit efbdc769601f4d50018bf7ca50fc9f7c67392ece ]
+[ Upstream commit 64d4fc9926f09861a35d8f0f7d81f056e6d5af7b ]
 
-The call to init_completion() in mrpc_queue_cmd() can theoretically
-race with the call to poll_wait() in switchtec_dev_poll().
+Fix build fault when CONFIG_HWMON is a module, and CONFIG_VIDEO_I2C
+as builtin. This is due to 'imply hwmon' in the respective Kconfig.
 
-  poll()			write()
-    switchtec_dev_poll()   	  switchtec_dev_write()
-      poll_wait(&s->comp.wait);      mrpc_queue_cmd()
-			               init_completion(&s->comp)
-				         init_waitqueue_head(&s->comp.wait)
+Issue build log:
 
-To my knowledge, no one has hit this bug.
+ld: drivers/media/i2c/video-i2c.o: in function `amg88xx_hwmon_init':
+video-i2c.c:(.text+0x2e1): undefined reference to `devm_hwmon_device_register_with_info
 
-Fix this by using reinit_completion() instead of init_completion() in
-mrpc_queue_cmd().
-
-Fixes: 080b47def5e5 ("MicroSemi Switchtec management interface driver")
-
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Link: https://lkml.kernel.org/r/20200313183608.2646-1-logang@deltatee.com
+Cc: rdunlap@infradead.org
+Fixes: acbea6798955 (media: video-i2c: add hwmon support for amg88xx)
+Signed-off-by: Matt Ranostay <matt.ranostay@konsulko.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/switch/switchtec.c | 2 +-
+ drivers/media/i2c/video-i2c.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
-index 43431816412c1..291c0074ad6f4 100644
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -147,7 +147,7 @@ static int mrpc_queue_cmd(struct switchtec_user *stuser)
- 	kref_get(&stuser->kref);
- 	stuser->read_len = sizeof(stuser->data);
- 	stuser_set_state(stuser, MRPC_QUEUED);
--	init_completion(&stuser->comp);
-+	reinit_completion(&stuser->comp);
- 	list_add_tail(&stuser->list, &stdev->mrpc_queue);
+diff --git a/drivers/media/i2c/video-i2c.c b/drivers/media/i2c/video-i2c.c
+index f27d294dcbef5..dd50acc085d89 100644
+--- a/drivers/media/i2c/video-i2c.c
++++ b/drivers/media/i2c/video-i2c.c
+@@ -105,7 +105,7 @@ static int amg88xx_xfer(struct video_i2c_data *data, char *buf)
+ 	return (ret == 2) ? 0 : -EIO;
+ }
  
- 	mrpc_cmd_submit(stdev);
+-#if IS_ENABLED(CONFIG_HWMON)
++#if IS_REACHABLE(CONFIG_HWMON)
+ 
+ static const u32 amg88xx_temp_config[] = {
+ 	HWMON_T_INPUT,
 -- 
 2.20.1
 
