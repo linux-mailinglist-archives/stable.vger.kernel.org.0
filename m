@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 153821A4126
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5171A4123
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbgDJDrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:47:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58884 "EHLO mail.kernel.org"
+        id S1727411AbgDJEAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Apr 2020 00:00:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727913AbgDJDru (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:47:50 -0400
+        id S1727922AbgDJDrv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:47:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1793C20B1F;
-        Fri, 10 Apr 2020 03:47:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5441920936;
+        Fri, 10 Apr 2020 03:47:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490469;
-        bh=jTqXNIZrq7M+ps/+ixzZuFQUeMQw87aF7obAZ7PZc74=;
+        s=default; t=1586490471;
+        bh=Q94W4PNVVIVvfaXdckSluT+xUIuuKaVxxd873MZ9eYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nit4vhFIR0HULlqRTvmrKJYf9t//6TwjDPESRMWbkQkOgH2XHaWweT76z2AT1UYOS
-         Vp7g2Vwr6rtbalOgiDEYngSZAozb7nDEnJmG0gherr/jeeh/c2pQwBbhYZy2rP0GwT
-         iO3oIw6gkTkUwZ8GcoyVZ7Htg+TnyEbVHPd7I4tM=
+        b=BxfSpspvphw6dlEIU2rzoLZKcxvpOzMVsJAYpSZHDZki0B5tIORHHenwXYjWfpOQH
+         zbE176bNqaeXP7+p1XcTJGtxSn1DFuCfuVx2WSo3ocPntUlaxHUQTpNqkIFef0fYm7
+         0OZ6glrWOgaXfYbA9nRMPfR9RtLgiIg7r4UqJQew=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 62/68] staging: mt7621-pci: avoid to poweroff the phy for slot one
-Date:   Thu,  9 Apr 2020 23:46:27 -0400
-Message-Id: <20200410034634.7731-62-sashal@kernel.org>
+Cc:     Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Wang Wang <wangwang2@huawei.com>,
+        Feilong Lin <linfeilong@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 63/68] block, bfq: fix use-after-free in bfq_idle_slice_timer_body
+Date:   Thu,  9 Apr 2020 23:46:28 -0400
+Message-Id: <20200410034634.7731-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034634.7731-1-sashal@kernel.org>
 References: <20200410034634.7731-1-sashal@kernel.org>
@@ -45,87 +46,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
 
-[ Upstream commit 5737cfe87a9c242ad0f60b34b5ac1688770a9236 ]
+[ Upstream commit 2f95fa5c955d0a9987ffdc3a095e2f4e62c5f2a9 ]
 
-Phy for slot 0 and 1 is shared and handled properly in slot 0.
-If there is only one port in use,(slot 0) we shall not call the
-'phy_power_off' function with an invalid slot because kernel
-will crash with an unaligned access fault like the following:
+In bfq_idle_slice_timer func, bfqq = bfqd->in_service_queue is
+not in bfqd-lock critical section. The bfqq, which is not
+equal to NULL in bfq_idle_slice_timer, may be freed after passing
+to bfq_idle_slice_timer_body. So we will access the freed memory.
 
-mt7621-pci 1e140000.pcie: Error applying setting, reverse things back
-mt7621-pci-phy 1e149000.pcie-phy: PHY for 0xbe149000 (dual port = 1)
-mt7621-pci-phy 1e14a000.pcie-phy: PHY for 0xbe14a000 (dual port = 0)
-mt7621-pci-phy 1e149000.pcie-phy: Xtal is 40MHz
-mt7621-pci-phy 1e14a000.pcie-phy: Xtal is 40MHz
-mt7621-pci 1e140000.pcie: pcie1 no card, disable it (RST & CLK)
-Unhandled kernel unaligned access[#1]:
-CPU: 3 PID: 111 Comm: kworker/3:2 Not tainted 5.6.0-rc3-00347-g825c6f470c62-dirty #9
-Workqueue: events deferred_probe_work_func
-$ 0   : 00000000 00000001 5f60d043 8fe1ba80
-$ 4   : 0000010d 01eb9000 00000000 00000000
-$ 8   : 294b4c00 80940000 00000008 000000ce
-$12   : 2e303030 00000000 00000000 65696370
-$16   : ffffffed 0000010d 8e373cd0 8214c1e0
-$20   : 00000000 82144c80 82144680 8214c250
-$24   : 00000018 803ef8f4
-$28   : 8e372000 8e373c60 8214c080 803940e8
-Hi    : 00000125
-Lo    : 122f2000
-epc   : 807b3328 mutex_lock+0x8/0x44
-ra    : 803940e8 phy_power_off+0x28/0xb0
-Status: 1100fc03        KERNEL EXL IE
-Cause : 00800010 (ExcCode 04)
-BadVA : 0000010d
-PrId  : 0001992f (MIPS 1004Kc)
-Modules linked in:
-Process kworker/3:2 (pid: 111, threadinfo=(ptrval), task=(ptrval), tls=00000000)
-Stack : 8e373cd0 803fe4f4 8e372000 8e373c90 8214c080 804fde1c 8e373c98 808d62f4
-         8e373c78 00000000 8214c254 804fe648 1e160000 804f27b8 00000001 808d62f4
-         00000000 00000001 8214c228 808d62f4 80930000 809a0000 8fd47e10 808d63d4
-         808d62d4 8fd47e10 808d0000 808d0000 8e373cd0 8e373cd0 809e2a74 809db510
-         809db510 00000006 00000001 00000000 00000000 00000000 01000000 1e1440ff
-         ...
-Call Trace:
-[<807b3328>] mutex_lock+0x8/0x44
-[<803940e8>] phy_power_off+0x28/0xb0
-[<804fe648>] mt7621_pci_probe+0xc20/0xd18
-[<80402ab8>] platform_drv_probe+0x40/0x94
-[<80400a74>] really_probe+0x104/0x364
-[<803feb74>] bus_for_each_drv+0x84/0xdc
-[<80400924>] __device_attach+0xdc/0x120
-[<803ffb5c>] bus_probe_device+0xa0/0xbc
-[<80400124>] deferred_probe_work_func+0x7c/0xbc
-[<800420e8>] process_one_work+0x230/0x450
-[<80042638>] worker_thread+0x330/0x5fc
-[<80048eb0>] kthread+0x12c/0x134
-[<80007438>] ret_from_kernel_thread+0x14/0x1c
-Code: 24050002  27bdfff8  8f830000 <c0850000> 14a00005  00000000  00600825  e0810000  1020fffa
+In addition, considering the bfqq may be in race, we should
+firstly check whether bfqq is in service before doing something
+on it in bfq_idle_slice_timer_body func. If the bfqq in race is
+not in service, it means the bfqq has been expired through
+__bfq_bfqq_expire func, and wait_request flags has been cleared in
+__bfq_bfqd_reset_in_service func. So we do not need to re-clear the
+wait_request of bfqq which is not in service.
 
-Fixes: bf516f413f4e ("staging: mt7621-pci: use only two phys from device tree")
-Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Link: https://lore.kernel.org/r/20200320153837.20415-1-sergio.paracuellos@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+KASAN log is given as follows:
+[13058.354613] ==================================================================
+[13058.354640] BUG: KASAN: use-after-free in bfq_idle_slice_timer+0xac/0x290
+[13058.354644] Read of size 8 at addr ffffa02cf3e63f78 by task fork13/19767
+[13058.354646]
+[13058.354655] CPU: 96 PID: 19767 Comm: fork13
+[13058.354661] Call trace:
+[13058.354667]  dump_backtrace+0x0/0x310
+[13058.354672]  show_stack+0x28/0x38
+[13058.354681]  dump_stack+0xd8/0x108
+[13058.354687]  print_address_description+0x68/0x2d0
+[13058.354690]  kasan_report+0x124/0x2e0
+[13058.354697]  __asan_load8+0x88/0xb0
+[13058.354702]  bfq_idle_slice_timer+0xac/0x290
+[13058.354707]  __hrtimer_run_queues+0x298/0x8b8
+[13058.354710]  hrtimer_interrupt+0x1b8/0x678
+[13058.354716]  arch_timer_handler_phys+0x4c/0x78
+[13058.354722]  handle_percpu_devid_irq+0xf0/0x558
+[13058.354731]  generic_handle_irq+0x50/0x70
+[13058.354735]  __handle_domain_irq+0x94/0x110
+[13058.354739]  gic_handle_irq+0x8c/0x1b0
+[13058.354742]  el1_irq+0xb8/0x140
+[13058.354748]  do_wp_page+0x260/0xe28
+[13058.354752]  __handle_mm_fault+0x8ec/0x9b0
+[13058.354756]  handle_mm_fault+0x280/0x460
+[13058.354762]  do_page_fault+0x3ec/0x890
+[13058.354765]  do_mem_abort+0xc0/0x1b0
+[13058.354768]  el0_da+0x24/0x28
+[13058.354770]
+[13058.354773] Allocated by task 19731:
+[13058.354780]  kasan_kmalloc+0xe0/0x190
+[13058.354784]  kasan_slab_alloc+0x14/0x20
+[13058.354788]  kmem_cache_alloc_node+0x130/0x440
+[13058.354793]  bfq_get_queue+0x138/0x858
+[13058.354797]  bfq_get_bfqq_handle_split+0xd4/0x328
+[13058.354801]  bfq_init_rq+0x1f4/0x1180
+[13058.354806]  bfq_insert_requests+0x264/0x1c98
+[13058.354811]  blk_mq_sched_insert_requests+0x1c4/0x488
+[13058.354818]  blk_mq_flush_plug_list+0x2d4/0x6e0
+[13058.354826]  blk_flush_plug_list+0x230/0x548
+[13058.354830]  blk_finish_plug+0x60/0x80
+[13058.354838]  read_pages+0xec/0x2c0
+[13058.354842]  __do_page_cache_readahead+0x374/0x438
+[13058.354846]  ondemand_readahead+0x24c/0x6b0
+[13058.354851]  page_cache_sync_readahead+0x17c/0x2f8
+[13058.354858]  generic_file_buffered_read+0x588/0xc58
+[13058.354862]  generic_file_read_iter+0x1b4/0x278
+[13058.354965]  ext4_file_read_iter+0xa8/0x1d8 [ext4]
+[13058.354972]  __vfs_read+0x238/0x320
+[13058.354976]  vfs_read+0xbc/0x1c0
+[13058.354980]  ksys_read+0xdc/0x1b8
+[13058.354984]  __arm64_sys_read+0x50/0x60
+[13058.354990]  el0_svc_common+0xb4/0x1d8
+[13058.354994]  el0_svc_handler+0x50/0xa8
+[13058.354998]  el0_svc+0x8/0xc
+[13058.354999]
+[13058.355001] Freed by task 19731:
+[13058.355007]  __kasan_slab_free+0x120/0x228
+[13058.355010]  kasan_slab_free+0x10/0x18
+[13058.355014]  kmem_cache_free+0x288/0x3f0
+[13058.355018]  bfq_put_queue+0x134/0x208
+[13058.355022]  bfq_exit_icq_bfqq+0x164/0x348
+[13058.355026]  bfq_exit_icq+0x28/0x40
+[13058.355030]  ioc_exit_icq+0xa0/0x150
+[13058.355035]  put_io_context_active+0x250/0x438
+[13058.355038]  exit_io_context+0xd0/0x138
+[13058.355045]  do_exit+0x734/0xc58
+[13058.355050]  do_group_exit+0x78/0x220
+[13058.355054]  __wake_up_parent+0x0/0x50
+[13058.355058]  el0_svc_common+0xb4/0x1d8
+[13058.355062]  el0_svc_handler+0x50/0xa8
+[13058.355066]  el0_svc+0x8/0xc
+[13058.355067]
+[13058.355071] The buggy address belongs to the object at ffffa02cf3e63e70#012 which belongs to the cache bfq_queue of size 464
+[13058.355075] The buggy address is located 264 bytes inside of#012 464-byte region [ffffa02cf3e63e70, ffffa02cf3e64040)
+[13058.355077] The buggy address belongs to the page:
+[13058.355083] page:ffff7e80b3cf9800 count:1 mapcount:0 mapping:ffff802db5c90780 index:0xffffa02cf3e606f0 compound_mapcount: 0
+[13058.366175] flags: 0x2ffffe0000008100(slab|head)
+[13058.370781] raw: 2ffffe0000008100 ffff7e80b53b1408 ffffa02d730c1c90 ffff802db5c90780
+[13058.370787] raw: ffffa02cf3e606f0 0000000000370023 00000001ffffffff 0000000000000000
+[13058.370789] page dumped because: kasan: bad access detected
+[13058.370791]
+[13058.370792] Memory state around the buggy address:
+[13058.370797]  ffffa02cf3e63e00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fb fb
+[13058.370801]  ffffa02cf3e63e80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[13058.370805] >ffffa02cf3e63f00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[13058.370808]                                                                 ^
+[13058.370811]  ffffa02cf3e63f80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[13058.370815]  ffffa02cf3e64000: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[13058.370817] ==================================================================
+[13058.370820] Disabling lock debugging due to kernel taint
+
+Here, we directly pass the bfqd to bfq_idle_slice_timer_body func.
+--
+V2->V3: rewrite the comment as suggested by Paolo Valente
+V1->V2: add one comment, and add Fixes and Reported-by tag.
+
+Fixes: aee69d78d ("block, bfq: introduce the BFQ-v0 I/O scheduler as an extra scheduler")
+Acked-by: Paolo Valente <paolo.valente@linaro.org>
+Reported-by: Wang Wang <wangwang2@huawei.com>
+Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Signed-off-by: Feilong Lin <linfeilong@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/mt7621-pci/pci-mt7621.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/mt7621-pci/pci-mt7621.c b/drivers/staging/mt7621-pci/pci-mt7621.c
-index 3633c924848ec..a1dafec0890a9 100644
---- a/drivers/staging/mt7621-pci/pci-mt7621.c
-+++ b/drivers/staging/mt7621-pci/pci-mt7621.c
-@@ -485,7 +485,8 @@ static void mt7621_pcie_init_ports(struct mt7621_pcie *pcie)
- 		if (!mt7621_pcie_port_is_linkup(port)) {
- 			dev_err(dev, "pcie%d no card, disable it (RST & CLK)\n",
- 				slot);
--			phy_power_off(port->phy);
-+			if (slot != 1)
-+				phy_power_off(port->phy);
- 			mt7621_control_assert(port);
- 			mt7621_pcie_port_clk_disable(port);
- 			port->enabled = false;
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 8c436abfaf14f..4a44c7f194353 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -6215,20 +6215,28 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
+ 	return bfqq;
+ }
+ 
+-static void bfq_idle_slice_timer_body(struct bfq_queue *bfqq)
++static void
++bfq_idle_slice_timer_body(struct bfq_data *bfqd, struct bfq_queue *bfqq)
+ {
+-	struct bfq_data *bfqd = bfqq->bfqd;
+ 	enum bfqq_expiration reason;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&bfqd->lock, flags);
+-	bfq_clear_bfqq_wait_request(bfqq);
+ 
++	/*
++	 * Considering that bfqq may be in race, we should firstly check
++	 * whether bfqq is in service before doing something on it. If
++	 * the bfqq in race is not in service, it has already been expired
++	 * through __bfq_bfqq_expire func and its wait_request flags has
++	 * been cleared in __bfq_bfqd_reset_in_service func.
++	 */
+ 	if (bfqq != bfqd->in_service_queue) {
+ 		spin_unlock_irqrestore(&bfqd->lock, flags);
+ 		return;
+ 	}
+ 
++	bfq_clear_bfqq_wait_request(bfqq);
++
+ 	if (bfq_bfqq_budget_timeout(bfqq))
+ 		/*
+ 		 * Also here the queue can be safely expired
+@@ -6273,7 +6281,7 @@ static enum hrtimer_restart bfq_idle_slice_timer(struct hrtimer *timer)
+ 	 * early.
+ 	 */
+ 	if (bfqq)
+-		bfq_idle_slice_timer_body(bfqq);
++		bfq_idle_slice_timer_body(bfqd, bfqq);
+ 
+ 	return HRTIMER_NORESTART;
+ }
 -- 
 2.20.1
 
