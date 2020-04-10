@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4C81A417C
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B5631A4178
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:16:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728344AbgDJDss (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728347AbgDJDss (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Apr 2020 23:48:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60482 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728337AbgDJDsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:48:46 -0400
+        id S1728321AbgDJDsr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:48:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE00F20B1F;
-        Fri, 10 Apr 2020 03:48:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9A0920CC7;
+        Fri, 10 Apr 2020 03:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490526;
-        bh=skWxrDeaTk6+jv+cXjW6TzCDWVjh/oty9QB9S9uiJkE=;
+        s=default; t=1586490527;
+        bh=ILBexfunqW4Rk3vCQKONkC5vXgBaBzCpnGtoBUoYB6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMKxHIkHvAORcvEoGK5pqQhLg2E1YYAuoVQfbmCp1EepNnERaGU2C80UIdHLQCq9T
-         TLuNU0ThhJ9wja7e1GDH+157CW4vaw1wZSj6xF99wSWKbW9xGBKsx7pK0xlRxh7nCi
-         3cl9FT6VUgvFPYyW0m26OSjfn8FRynL127m92n34=
+        b=EIDM+/Fl7kVPyZdVyK/52PGGKlQ6Dr32yoCX2tTewwc0uLcAaxM9Mf6Hp2QepGivZ
+         PHk7egE9PSoZtrbP71yXckkdojTzD5CM9R1Q+JYTV0JtpCx+kF2CQ563kVCKlOh78Y
+         bQ/yrLeArMZkjLahRHq45hOkUHJ2RZ2VZlyJUIIk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 39/56] genirq/irqdomain: Check pointer in irq_domain_alloc_irqs_hierarchy()
-Date:   Thu,  9 Apr 2020 23:47:43 -0400
-Message-Id: <20200410034800.8381-39-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        syzbot+d44e1b26ce5c3e77458d@syzkaller.appspotmail.com,
+        Ming Lei <ming.lei@redhat.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Johannes Thumshirn <jth@kernel.org>,
+        Hannes Reinecke <hare@suse.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 40/56] blk-mq: Keep set->nr_hw_queues and set->map[].nr_queues in sync
+Date:   Thu,  9 Apr 2020 23:47:44 -0400
+Message-Id: <20200410034800.8381-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034800.8381-1-sashal@kernel.org>
 References: <20200410034800.8381-1-sashal@kernel.org>
@@ -43,64 +49,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 87f2d1c662fa1761359fdf558246f97e484d177a ]
+[ Upstream commit 6e66b49392419f3fe134e1be583323ef75da1e4b ]
 
-irq_domain_alloc_irqs_hierarchy() has 3 call sites in the compilation unit
-but only one of them checks for the pointer which is being dereferenced
-inside the called function. Move the check into the function. This allows
-for catching the error instead of the following crash:
+blk_mq_map_queues() and multiple .map_queues() implementations expect that
+set->map[HCTX_TYPE_DEFAULT].nr_queues is set to the number of hardware
+queues. Hence set .nr_queues before calling these functions. This patch
+fixes the following kernel warning:
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-PC is at 0x0
-LR is at gpiochip_hierarchy_irq_domain_alloc+0x11f/0x140
-...
-[<c06c23ff>] (gpiochip_hierarchy_irq_domain_alloc)
-[<c0462a89>] (__irq_domain_alloc_irqs)
-[<c0462dad>] (irq_create_fwspec_mapping)
-[<c06c2251>] (gpiochip_to_irq)
-[<c06c1c9b>] (gpiod_to_irq)
-[<bf973073>] (gpio_irqs_init [gpio_irqs])
-[<bf974048>] (gpio_irqs_exit+0xecc/0xe84 [gpio_irqs])
-Code: bad PC value
+WARNING: CPU: 0 PID: 2501 at include/linux/cpumask.h:137
+Call Trace:
+ blk_mq_run_hw_queue+0x19d/0x350 block/blk-mq.c:1508
+ blk_mq_run_hw_queues+0x112/0x1a0 block/blk-mq.c:1525
+ blk_mq_requeue_work+0x502/0x780 block/blk-mq.c:775
+ process_one_work+0x9af/0x1740 kernel/workqueue.c:2269
+ worker_thread+0x98/0xe40 kernel/workqueue.c:2415
+ kthread+0x361/0x430 kernel/kthread.c:255
 
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200306174720.82604-1-alexander.sverdlin@nokia.com
+Fixes: ed76e329d74a ("blk-mq: abstract out queue map") # v5.0
+Reported-by: syzbot+d44e1b26ce5c3e77458d@syzkaller.appspotmail.com
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Cc: Johannes Thumshirn <jth@kernel.org>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/irqdomain.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ block/blk-mq.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index 480df36597206..c776b8e86fbcc 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -1293,6 +1293,11 @@ int irq_domain_alloc_irqs_hierarchy(struct irq_domain *domain,
- 				    unsigned int irq_base,
- 				    unsigned int nr_irqs, void *arg)
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 51ff4852d34bc..8391e8e2a5044 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2964,6 +2964,14 @@ static int blk_mq_alloc_rq_maps(struct blk_mq_tag_set *set)
+ 
+ static int blk_mq_update_queue_map(struct blk_mq_tag_set *set)
  {
-+	if (!domain->ops->alloc) {
-+		pr_debug("domain->ops->alloc() is NULL\n");
-+		return -ENOSYS;
-+	}
++	/*
++	 * blk_mq_map_queues() and multiple .map_queues() implementations
++	 * expect that set->map[HCTX_TYPE_DEFAULT].nr_queues is set to the
++	 * number of hardware queues.
++	 */
++	if (set->nr_maps == 1)
++		set->map[HCTX_TYPE_DEFAULT].nr_queues = set->nr_hw_queues;
 +
- 	return domain->ops->alloc(domain, irq_base, nr_irqs, arg);
- }
+ 	if (set->ops->map_queues && !is_kdump_kernel()) {
+ 		int i;
  
-@@ -1330,11 +1335,6 @@ int __irq_domain_alloc_irqs(struct irq_domain *domain, int irq_base,
- 			return -EINVAL;
- 	}
- 
--	if (!domain->ops->alloc) {
--		pr_debug("domain->ops->alloc() is NULL\n");
--		return -ENOSYS;
--	}
--
- 	if (realloc && irq_base >= 0) {
- 		virq = irq_base;
- 	} else {
 -- 
 2.20.1
 
