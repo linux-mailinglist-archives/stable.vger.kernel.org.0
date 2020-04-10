@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 900B71A40A4
+	by mail.lfdr.de (Postfix) with ESMTP id 26C681A40A3
 	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728753AbgDJD4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728560AbgDJD4x (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Apr 2020 23:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33398 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728546AbgDJDt0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:49:26 -0400
+        id S1728552AbgDJDt1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:49:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E84B206C0;
-        Fri, 10 Apr 2020 03:49:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDEAD21473;
+        Fri, 10 Apr 2020 03:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490566;
-        bh=UnZbhbDBQCF/67WHGwIv0Ii6fJDazwVK16eoI7KevQ8=;
+        s=default; t=1586490567;
+        bh=rcjh3l3DjFWYTa13HVk4wQSTUrOgmQ2s6RvdNQnB9Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDwmfj62N5p7YaZ5Cev0RG5MyEu+ciFO/4tmDwMeY09Iqpd/tgMTfZBhLJsQS2Nop
-         NUFm4mar+5SPjk8LcWoR9kCqvLhyJ5ZtYNXLhCVYXoXvC9lBSpepN4HRoG8eoibBMj
-         QXk6T3Xomdm/BcfuI3Z+8D5dUwm0l+2lwPoKiIxg=
+        b=gBl1ezq/R6KgTx+XmOQMjQj2X8kCrpzrZWX51oKOb2qxsFJihyCtHnqYFJIMEls9X
+         93hZGGkaVQ9gI+kWAH35Fm9rLOUIn8S4HpMVNu4ZCguZ/iLIkllLcoVa2g4hIrHg6a
+         6AOmXcoHOMDYMLgpCF2jTiv86O9I1dB89NSsGTeo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Hellstrom <thellstrom@vmware.com>,
-        Borislav Petkov <bp@suse.de>, Christoph Hellwig <hch@lst.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.4 13/46] dma-mapping: Fix dma_pgprot() for unencrypted coherent pages
-Date:   Thu,  9 Apr 2020 23:48:36 -0400
-Message-Id: <20200410034909.8922-13-sashal@kernel.org>
+Cc:     Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Bob Liu <bob.liu@oracle.com>, Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 14/46] block: keep bdi->io_pages in sync with max_sectors_kb for stacked devices
+Date:   Thu,  9 Apr 2020 23:48:37 -0400
+Message-Id: <20200410034909.8922-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034909.8922-1-sashal@kernel.org>
 References: <20200410034909.8922-1-sashal@kernel.org>
@@ -45,45 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellstrom <thellstrom@vmware.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-[ Upstream commit 17c4a2ae15a7aaefe84bdb271952678c5c9cd8e1 ]
+[ Upstream commit e74d93e96d721c4297f2a900ad0191890d2fc2b0 ]
 
-When dma_mmap_coherent() sets up a mapping to unencrypted coherent memory
-under SEV encryption and sometimes under SME encryption, it will actually
-set up an encrypted mapping rather than an unencrypted, causing devices
-that DMAs from that memory to read encrypted contents. Fix this.
+Field bdi->io_pages added in commit 9491ae4aade6 ("mm: don't cap request
+size based on read-ahead setting") removes unneeded split of read requests.
 
-When force_dma_unencrypted() returns true, the linear kernel map of the
-coherent pages have had the encryption bit explicitly cleared and the
-page content is unencrypted. Make sure that any additional PTEs we set
-up to these pages also have the encryption bit cleared by having
-dma_pgprot() return a protection with the encryption bit cleared in this
-case.
+Stacked drivers do not call blk_queue_max_hw_sectors(). Instead they set
+limits of their devices by blk_set_stacking_limits() + disk_stack_limits().
+Field bio->io_pages stays zero until user set max_sectors_kb via sysfs.
 
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lkml.kernel.org/r/20200304114527.3636-3-thomas_os@shipmail.org
+This patch updates io_pages after merging limits in disk_stack_limits().
+
+Commit c6d6e9b0f6b4 ("dm: do not allow readahead to limit IO size") fixed
+the same problem for device-mapper devices, this one fixes MD RAIDs.
+
+Fixes: 9491ae4aade6 ("mm: don't cap request size based on read-ahead setting")
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reviewed-by: Bob Liu <bob.liu@oracle.com>
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/mapping.c | 2 ++
- 1 file changed, 2 insertions(+)
+ block/blk-settings.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
-index d9334f31a5afb..8682a5305cb36 100644
---- a/kernel/dma/mapping.c
-+++ b/kernel/dma/mapping.c
-@@ -169,6 +169,8 @@ EXPORT_SYMBOL(dma_get_sgtable_attrs);
-  */
- pgprot_t dma_pgprot(struct device *dev, pgprot_t prot, unsigned long attrs)
- {
-+	if (force_dma_unencrypted(dev))
-+		prot = pgprot_decrypted(prot);
- 	if (dev_is_dma_coherent(dev) ||
- 	    (IS_ENABLED(CONFIG_DMA_NONCOHERENT_CACHE_SYNC) &&
-              (attrs & DMA_ATTR_NON_CONSISTENT)))
+diff --git a/block/blk-settings.c b/block/blk-settings.c
+index c8eda2e7b91e4..be1dca0103a45 100644
+--- a/block/blk-settings.c
++++ b/block/blk-settings.c
+@@ -664,6 +664,9 @@ void disk_stack_limits(struct gendisk *disk, struct block_device *bdev,
+ 		printk(KERN_NOTICE "%s: Warning: Device %s is misaligned\n",
+ 		       top, bottom);
+ 	}
++
++	t->backing_dev_info->io_pages =
++		t->limits.max_sectors >> (PAGE_SHIFT - 9);
+ }
+ EXPORT_SYMBOL(disk_stack_limits);
+ 
 -- 
 2.20.1
 
