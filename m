@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1D8B1A40A2
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F5F1A409F
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726669AbgDJD4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:56:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33516 "EHLO mail.kernel.org"
+        id S1728151AbgDJD4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:56:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728560AbgDJDt3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:49:29 -0400
+        id S1727829AbgDJDta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:49:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A3D5212CC;
-        Fri, 10 Apr 2020 03:49:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F1AD21556;
+        Fri, 10 Apr 2020 03:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490569;
-        bh=7RdBcKbcSA8txvE3ou1/hXYhwhq2DHXO8rive13W17M=;
+        s=default; t=1586490570;
+        bh=gXuLcjnFmu7I8/9QP80Zfyjgrdu24JxyI56rH78YD5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKuh0dL2nTJkhA5e5W6l/3UKKIE/ush1t2Zw8t3fa+M/DJiNEX8Alfr0vbUixJ0aW
-         k94c39NvK/76nwFdhYnbPFKsmhhPdAgZYtLiSRGYjOt+GKPScATlI5ecyg122P7aBw
-         xxE95ZbDAfi34DTB8VgH935p5GbBXPMTZjrt0iY0=
+        b=h5wq9mO+r6irpedb5vlc/8AxJq2EAhruzyh8rXTuOnNdI/qUsMu4CTv/xcmo0L0p5
+         vI7TYJ3LTuUZvD2dHWNrtMdkufeyKUBkgO3o8MFp393eBmk3XdhbIGsn+yAfxvGLtz
+         1MZUeq3ZLO6F+GG5V53a09+JU2U0FkXO3uyVHBh4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sungbo Eo <mans0n@gorani.run>, Marc Zyngier <maz@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 16/46] irqchip/versatile-fpga: Handle chained IRQs properly
-Date:   Thu,  9 Apr 2020 23:48:39 -0400
-Message-Id: <20200410034909.8922-16-sashal@kernel.org>
+Cc:     "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 17/46] time/sched_clock: Expire timer in hardirq context
+Date:   Thu,  9 Apr 2020 23:48:40 -0400
+Message-Id: <20200410034909.8922-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034909.8922-1-sashal@kernel.org>
 References: <20200410034909.8922-1-sashal@kernel.org>
@@ -43,67 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungbo Eo <mans0n@gorani.run>
+From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
 
-[ Upstream commit 486562da598c59e9f835b551d7cf19507de2d681 ]
+[ Upstream commit 2c8bd58812ee3dbf0d78b566822f7eacd34bdd7b ]
 
-Enclose the chained handler with chained_irq_{enter,exit}(), so that the
-muxed interrupts get properly acked.
+To minimize latency, PREEMPT_RT kernels expires hrtimers in preemptible
+softirq context by default. This can be overriden by marking the timer's
+expiry with HRTIMER_MODE_HARD.
 
-This patch also fixes a reboot bug on OX820 SoC, where the jiffies timer
-interrupt is never acked. The kernel waits a clock tick forever in
-calibrate_delay_converge(), which leads to a boot hang.
+sched_clock_timer is missing this annotation: if its callback is preempted
+and the duration of the preemption exceeds the wrap around time of the
+underlying clocksource, sched clock will get out of sync.
 
-Fixes: c41b16f8c9d9 ("ARM: integrator/versatile: consolidate FPGA IRQ handling code")
-Signed-off-by: Sungbo Eo <mans0n@gorani.run>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200319023448.1479701-1-mans0n@gorani.run
+Mark the sched_clock_timer for expiry in hard interrupt context.
+
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20200309181529.26558-1-a.darwish@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-versatile-fpga.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ kernel/time/sched_clock.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/irqchip/irq-versatile-fpga.c b/drivers/irqchip/irq-versatile-fpga.c
-index 928858dada756..70e2cfff8175f 100644
---- a/drivers/irqchip/irq-versatile-fpga.c
-+++ b/drivers/irqchip/irq-versatile-fpga.c
-@@ -6,6 +6,7 @@
- #include <linux/irq.h>
- #include <linux/io.h>
- #include <linux/irqchip.h>
-+#include <linux/irqchip/chained_irq.h>
- #include <linux/irqchip/versatile-fpga.h>
- #include <linux/irqdomain.h>
- #include <linux/module.h>
-@@ -68,12 +69,16 @@ static void fpga_irq_unmask(struct irq_data *d)
+diff --git a/kernel/time/sched_clock.c b/kernel/time/sched_clock.c
+index dbd69052eaa66..a5538dd76a819 100644
+--- a/kernel/time/sched_clock.c
++++ b/kernel/time/sched_clock.c
+@@ -207,7 +207,8 @@ sched_clock_register(u64 (*read)(void), int bits, unsigned long rate)
  
- static void fpga_irq_handle(struct irq_desc *desc)
- {
-+	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	struct fpga_irq_data *f = irq_desc_get_handler_data(desc);
--	u32 status = readl(f->base + IRQ_STATUS);
-+	u32 status;
-+
-+	chained_irq_enter(chip, desc);
- 
-+	status = readl(f->base + IRQ_STATUS);
- 	if (status == 0) {
- 		do_bad_IRQ(desc);
--		return;
-+		goto out;
+ 	if (sched_clock_timer.function != NULL) {
+ 		/* update timeout for clock wrap */
+-		hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
++		hrtimer_start(&sched_clock_timer, cd.wrap_kt,
++			      HRTIMER_MODE_REL_HARD);
  	}
  
- 	do {
-@@ -82,6 +87,9 @@ static void fpga_irq_handle(struct irq_desc *desc)
- 		status &= ~(1 << irq);
- 		generic_handle_irq(irq_find_mapping(f->domain, irq));
- 	} while (status);
-+
-+out:
-+	chained_irq_exit(chip, desc);
+ 	r = rate;
+@@ -251,9 +252,9 @@ void __init generic_sched_clock_init(void)
+ 	 * Start the timer to keep sched_clock() properly updated and
+ 	 * sets the initial epoch.
+ 	 */
+-	hrtimer_init(&sched_clock_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	hrtimer_init(&sched_clock_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
+ 	sched_clock_timer.function = sched_clock_poll;
+-	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
++	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL_HARD);
  }
  
  /*
+@@ -290,7 +291,7 @@ void sched_clock_resume(void)
+ 	struct clock_read_data *rd = &cd.read_data[0];
+ 
+ 	rd->epoch_cyc = cd.actual_read_sched_clock();
+-	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
++	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL_HARD);
+ 	rd->read_sched_clock = cd.actual_read_sched_clock;
+ }
+ 
 -- 
 2.20.1
 
