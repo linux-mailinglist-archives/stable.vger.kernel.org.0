@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E90D1A4735
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 16:15:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 427611A4746
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 16:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726145AbgDJOPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Apr 2020 10:15:15 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:44448 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726080AbgDJOPO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Apr 2020 10:15:14 -0400
-Received: by mail-pg1-f194.google.com with SMTP id n13so1021797pgp.11
-        for <stable@vger.kernel.org>; Fri, 10 Apr 2020 07:15:12 -0700 (PDT)
+        id S1726142AbgDJORm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Apr 2020 10:17:42 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:37253 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726009AbgDJORm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Apr 2020 10:17:42 -0400
+Received: by mail-pf1-f195.google.com with SMTP id u65so1105668pfb.4
+        for <stable@vger.kernel.org>; Fri, 10 Apr 2020 07:17:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=xO1FGU/icOILvFWOuncN4qsCUUWcHUB8OtOA1cu0N2s=;
-        b=madjR8lVVZWyxrotIaHC0bT7FQ2An1oDP3ZXfBfiILzK4xThy0fM1zhiX7VVmdyK3H
-         gNBIHZrdhbrCiJXzq/zYD2s1e9tE1x5v4YS8v2cjYSQuSblt0ydKI2Xw66nAFNHjm54d
-         yBbwnbU8nzSx+vllURI3zBEkd7p+qY/pMhdmvsPI3tgyXw3UCxReqB2lwwX1fPObnVX3
-         j1CS6wA7oCL9jjw3AGF0Rjd18AXgK5wKrjV+aJzaYE/oWlQUFtR4JBNyZoUvxDcAqUmW
-         uaM+rIVwCbtNVpajzEwZEgDFIm+JCU46Cq29tsp+hV/IbymG9aazFmlGE+2pN1pQz3oF
-         iKoA==
-X-Gm-Message-State: AGi0PuYgHG0rI3hd+ap+sDRzVZ+I6bmfmvIlJXyPgWmj9ZLuSHNoB9X8
-        KxRhjiBhc4cfqZkrHuUCXZo=
-X-Google-Smtp-Source: APiQypJSCa9K9MnX8xss6uk3WdmwEdOYIYI5gQFTkBUq5NrSTxzecl4NUnAlt9445YegA/m/FHQj1Q==
-X-Received: by 2002:a65:53cf:: with SMTP id z15mr4747258pgr.367.1586528112467;
-        Fri, 10 Apr 2020 07:15:12 -0700 (PDT)
+        bh=phSmRmK8df1FHnQ5vNeBAAQ75z9yd9I/uZBVXE2qr20=;
+        b=JJ3cmeqC55Z864BmdE9QNPwjAEzPNTKJ3Kadgen4vwqWZXJdd2pv/sgrUGjhFI0fBE
+         CE8FOu61KpzNji6jSItw9c5w7WdcwE8G9WonZfMuytvVp+oD5LalRvNfN9c4M+ZHIPNo
+         Z5yo55CUqXQvCQcd8LS6URgh8qiuNlB3GvhojNYuMI3+vcbZFzOUDXH9olEnLiqh17tN
+         LFMRPW68mbYEeRZUN4Rhs0AD7QnNXEW72MFt3Xn/0r6Va7asIfnxRYStsJ3S4Aa4Ph1O
+         sPHIF9RY/FSEQRN35CwVdjNFop7hzJhUhQGTyneZvTdFyOLfQcKJCVbAZdcQEXem3lD5
+         mQjA==
+X-Gm-Message-State: AGi0PubDOSVYR2mlR9Jj8td9rux1/IrsJm8jqLN8PdyyUbNmj2ASsUAt
+        MtvD9mAoROyr5WY4K7UCBBw=
+X-Google-Smtp-Source: APiQypJeGWMtEkYgrzBPjdIl7sj2PdpafWKmiZDlFKA/qWp0FO3nWji0ifyG/uz4StCCWE0/jA2S/g==
+X-Received: by 2002:a63:f403:: with SMTP id g3mr4880072pgi.47.1586528262067;
+        Fri, 10 Apr 2020 07:17:42 -0700 (PDT)
 Received: from sultan-box.localdomain (static-198-54-129-52.cust.tzulo.com. [198.54.129.52])
-        by smtp.gmail.com with ESMTPSA id t126sm902648pfb.29.2020.04.10.07.15.10
+        by smtp.gmail.com with ESMTPSA id s9sm1841879pjr.5.2020.04.10.07.17.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Apr 2020 07:15:11 -0700 (PDT)
-Date:   Fri, 10 Apr 2020 07:15:08 -0700
+        Fri, 10 Apr 2020 07:17:41 -0700 (PDT)
+Date:   Fri, 10 Apr 2020 07:17:38 -0700
 From:   Sultan Alsawaf <sultan@kerneltoast.com>
 To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>,
@@ -45,7 +45,7 @@ Cc:     stable@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>,
         intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
 Subject: Re: [PATCH v2] drm/i915: Fix ref->mutex deadlock in
  i915_active_wait()
-Message-ID: <20200410141508.GA2025@sultan-box.localdomain>
+Message-ID: <20200410141738.GB2025@sultan-box.localdomain>
 References: <20200407065210.GA263852@kroah.com>
  <20200407071809.3148-1-sultan@kerneltoast.com>
  <20200410090838.GD1691838@kroah.com>
@@ -96,10 +96,10 @@ On Fri, Apr 10, 2020 at 11:08:38AM +0200, Greg KH wrote:
 > 
 > greg k-h
 
-Hi Greg,
-
-Thanks for queuing this! However, you queued the v1 version of the patch instead
-of v2. Please pick the v2 version instead.
+I'm sorry, I meant the v3 [1]. Apologies for the confusion. The v3 was picked
+into Ubuntu so that's what we're rolling with.
 
 Thanks,
 Sultan
+
+[1] https://lore.kernel.org/stable/20200407203222.2493-1-sultan@kerneltoast.com
