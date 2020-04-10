@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36F241A411A
+	by mail.lfdr.de (Postfix) with ESMTP id AB7131A411C
 	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727855AbgDJDro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:47:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58722 "EHLO mail.kernel.org"
+        id S1727867AbgDJDrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:47:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727847AbgDJDro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:47:44 -0400
+        id S1727859AbgDJDrp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:47:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5AE521655;
-        Fri, 10 Apr 2020 03:47:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A68E920936;
+        Fri, 10 Apr 2020 03:47:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490464;
-        bh=30hy3yBwfYpGQ3YmwExCQUUPvJUTtZHkZv+HN2q/6M4=;
+        s=default; t=1586490465;
+        bh=HfNeRFiC2zUx8WJjFYhP6dY0KTPulHcHSfWzbYvafII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfcjtCQuWq5xX4jLjk8yXLzXtMTDzGD+CI+Zi2TVaX/vV0hmMLNMrCg4nX0h8O3EQ
-         q24/2F02gDNfNTv4CiNDSWJQXy2FTWtPHKMW6XCFyxFFN8cjwO+3eOiEh7d2rQz8Kw
-         p+DXDxFmkMjKfZp3/5dE+lRIyFVv/PADheYw9/YA=
+        b=bUn1C2dzujcCm/uQR7nD9tMD8ehInaC2s8E8qHwQNH3KM3c5zy92uVmZPeiBkKq03
+         fcV7CUPeSTCXohVe7ZF76VtN1F15Vpuft0EPJ0Z5rveYwLFvHGi7mmowuaETstzQuF
+         psE8DDI7UNl54fjhOFE4PDA72ph66S9JAlIGNn9c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 57/68] irqchip/gic-v4: Provide irq_retrigger to avoid circular locking dependency
-Date:   Thu,  9 Apr 2020 23:46:22 -0400
-Message-Id: <20200410034634.7731-57-sashal@kernel.org>
+Cc:     Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 58/68] md: check arrays is suspended in mddev_detach before call quiesce operations
+Date:   Thu,  9 Apr 2020 23:46:23 -0400
+Message-Id: <20200410034634.7731-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034634.7731-1-sashal@kernel.org>
 References: <20200410034634.7731-1-sashal@kernel.org>
@@ -41,143 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-[ Upstream commit 7809f7011c3bce650e502a98afeb05961470d865 ]
+[ Upstream commit 6b40bec3b13278d21fa6c1ae7a0bdf2e550eed5f ]
 
-On a very heavily loaded D05 with GICv4, I managed to trigger the
-following lockdep splat:
+Don't call quiesce(1) and quiesce(0) if array is already suspended,
+otherwise in level_store, the array is writable after mddev_detach
+in below part though the intention is to make array writable after
+resume.
 
-[ 6022.598864] ======================================================
-[ 6022.605031] WARNING: possible circular locking dependency detected
-[ 6022.611200] 5.6.0-rc4-00026-geee7c7b0f498 #680 Tainted: G            E
-[ 6022.618061] ------------------------------------------------------
-[ 6022.624227] qemu-system-aar/7569 is trying to acquire lock:
-[ 6022.629789] ffff042f97606808 (&p->pi_lock){-.-.}, at: try_to_wake_up+0x54/0x7a0
-[ 6022.637102]
-[ 6022.637102] but task is already holding lock:
-[ 6022.642921] ffff002fae424cf0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x5c/0x98
-[ 6022.651350]
-[ 6022.651350] which lock already depends on the new lock.
-[ 6022.651350]
-[ 6022.659512]
-[ 6022.659512] the existing dependency chain (in reverse order) is:
-[ 6022.666980]
-[ 6022.666980] -> #2 (&irq_desc_lock_class){-.-.}:
-[ 6022.672983]        _raw_spin_lock_irqsave+0x50/0x78
-[ 6022.677848]        __irq_get_desc_lock+0x5c/0x98
-[ 6022.682453]        irq_set_vcpu_affinity+0x40/0xc0
-[ 6022.687236]        its_make_vpe_non_resident+0x6c/0xb8
-[ 6022.692364]        vgic_v4_put+0x54/0x70
-[ 6022.696273]        vgic_v3_put+0x20/0xd8
-[ 6022.700183]        kvm_vgic_put+0x30/0x48
-[ 6022.704182]        kvm_arch_vcpu_put+0x34/0x50
-[ 6022.708614]        kvm_sched_out+0x34/0x50
-[ 6022.712700]        __schedule+0x4bc/0x7f8
-[ 6022.716697]        schedule+0x50/0xd8
-[ 6022.720347]        kvm_arch_vcpu_ioctl_run+0x5f0/0x978
-[ 6022.725473]        kvm_vcpu_ioctl+0x3d4/0x8f8
-[ 6022.729820]        ksys_ioctl+0x90/0xd0
-[ 6022.733642]        __arm64_sys_ioctl+0x24/0x30
-[ 6022.738074]        el0_svc_common.constprop.3+0xa8/0x1e8
-[ 6022.743373]        do_el0_svc+0x28/0x88
-[ 6022.747198]        el0_svc+0x14/0x40
-[ 6022.750761]        el0_sync_handler+0x124/0x2b8
-[ 6022.755278]        el0_sync+0x140/0x180
-[ 6022.759100]
-[ 6022.759100] -> #1 (&rq->lock){-.-.}:
-[ 6022.764143]        _raw_spin_lock+0x38/0x50
-[ 6022.768314]        task_fork_fair+0x40/0x128
-[ 6022.772572]        sched_fork+0xe0/0x210
-[ 6022.776484]        copy_process+0x8c4/0x18d8
-[ 6022.780742]        _do_fork+0x88/0x6d8
-[ 6022.784478]        kernel_thread+0x64/0x88
-[ 6022.788563]        rest_init+0x30/0x270
-[ 6022.792390]        arch_call_rest_init+0x14/0x1c
-[ 6022.796995]        start_kernel+0x498/0x4c4
-[ 6022.801164]
-[ 6022.801164] -> #0 (&p->pi_lock){-.-.}:
-[ 6022.806382]        __lock_acquire+0xdd8/0x15c8
-[ 6022.810813]        lock_acquire+0xd0/0x218
-[ 6022.814896]        _raw_spin_lock_irqsave+0x50/0x78
-[ 6022.819761]        try_to_wake_up+0x54/0x7a0
-[ 6022.824018]        wake_up_process+0x1c/0x28
-[ 6022.828276]        wakeup_softirqd+0x38/0x40
-[ 6022.832533]        __tasklet_schedule_common+0xc4/0xf0
-[ 6022.837658]        __tasklet_schedule+0x24/0x30
-[ 6022.842176]        check_irq_resend+0xc8/0x158
-[ 6022.846609]        irq_startup+0x74/0x128
-[ 6022.850606]        __enable_irq+0x6c/0x78
-[ 6022.854602]        enable_irq+0x54/0xa0
-[ 6022.858431]        its_make_vpe_non_resident+0xa4/0xb8
-[ 6022.863557]        vgic_v4_put+0x54/0x70
-[ 6022.867469]        kvm_arch_vcpu_blocking+0x28/0x38
-[ 6022.872336]        kvm_vcpu_block+0x48/0x490
-[ 6022.876594]        kvm_handle_wfx+0x18c/0x310
-[ 6022.880938]        handle_exit+0x138/0x198
-[ 6022.885022]        kvm_arch_vcpu_ioctl_run+0x4d4/0x978
-[ 6022.890148]        kvm_vcpu_ioctl+0x3d4/0x8f8
-[ 6022.894494]        ksys_ioctl+0x90/0xd0
-[ 6022.898317]        __arm64_sys_ioctl+0x24/0x30
-[ 6022.902748]        el0_svc_common.constprop.3+0xa8/0x1e8
-[ 6022.908046]        do_el0_svc+0x28/0x88
-[ 6022.911871]        el0_svc+0x14/0x40
-[ 6022.915434]        el0_sync_handler+0x124/0x2b8
-[ 6022.919951]        el0_sync+0x140/0x180
-[ 6022.923773]
-[ 6022.923773] other info that might help us debug this:
-[ 6022.923773]
-[ 6022.931762] Chain exists of:
-[ 6022.931762]   &p->pi_lock --> &rq->lock --> &irq_desc_lock_class
-[ 6022.931762]
-[ 6022.942101]  Possible unsafe locking scenario:
-[ 6022.942101]
-[ 6022.948007]        CPU0                    CPU1
-[ 6022.952523]        ----                    ----
-[ 6022.957039]   lock(&irq_desc_lock_class);
-[ 6022.961036]                                lock(&rq->lock);
-[ 6022.966595]                                lock(&irq_desc_lock_class);
-[ 6022.973109]   lock(&p->pi_lock);
-[ 6022.976324]
-[ 6022.976324]  *** DEADLOCK ***
+	mddev_suspend(mddev);
+	mddev_detach(mddev);
+	...
+	mddev_resume(mddev);
 
-This is happening because we have a pending doorbell that requires
-retrigger. As SW retriggering is done in a tasklet, we trigger the
-circular dependency above.
+And it also causes calltrace as follows in [1].
 
-The easy cop-out is to provide a retrigger callback that doesn't
-require acquiring any extra lock.
+[48005.653834] WARNING: CPU: 1 PID: 45380 at kernel/kthread.c:510 kthread_park+0x77/0x90
+[...]
+[48005.653976] CPU: 1 PID: 45380 Comm: mdadm Tainted: G           OE     5.4.10-arch1-1 #1
+[48005.653979] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./J4105-ITX, BIOS P1.40 08/06/2018
+[48005.653984] RIP: 0010:kthread_park+0x77/0x90
+[48005.654015] Call Trace:
+[48005.654039]  r5l_quiesce+0x3c/0x70 [raid456]
+[48005.654052]  raid5_quiesce+0x228/0x2e0 [raid456]
+[48005.654073]  mddev_detach+0x30/0x70 [md_mod]
+[48005.654090]  level_store+0x202/0x670 [md_mod]
+[48005.654099]  ? security_capable+0x40/0x60
+[48005.654114]  md_attr_store+0x7b/0xc0 [md_mod]
+[48005.654123]  kernfs_fop_write+0xce/0x1b0
+[48005.654132]  vfs_write+0xb6/0x1a0
+[48005.654138]  ksys_write+0x67/0xe0
+[48005.654146]  do_syscall_64+0x4e/0x140
+[48005.654155]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[48005.654161] RIP: 0033:0x7fa0c8737497
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200310184921.23552-5-maz@kernel.org
+[1]: https://bugzilla.kernel.org/show_bug.cgi?id=206161
+
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/md/md.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index da883a6910284..7c8f65c9c32de 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -3679,12 +3679,18 @@ static int its_vpe_set_irqchip_state(struct irq_data *d,
- 	return 0;
- }
- 
-+static int its_vpe_retrigger(struct irq_data *d)
-+{
-+	return !its_vpe_set_irqchip_state(d, IRQCHIP_STATE_PENDING, true);
-+}
-+
- static struct irq_chip its_vpe_irq_chip = {
- 	.name			= "GICv4-vpe",
- 	.irq_mask		= its_vpe_mask_irq,
- 	.irq_unmask		= its_vpe_unmask_irq,
- 	.irq_eoi		= irq_chip_eoi_parent,
- 	.irq_set_affinity	= its_vpe_set_affinity,
-+	.irq_retrigger		= its_vpe_retrigger,
- 	.irq_set_irqchip_state	= its_vpe_set_irqchip_state,
- 	.irq_set_vcpu_affinity	= its_vpe_set_vcpu_affinity,
- };
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 469f551863bea..0b30ada971c14 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6184,7 +6184,7 @@ EXPORT_SYMBOL_GPL(md_stop_writes);
+ static void mddev_detach(struct mddev *mddev)
+ {
+ 	md_bitmap_wait_behind_writes(mddev);
+-	if (mddev->pers && mddev->pers->quiesce) {
++	if (mddev->pers && mddev->pers->quiesce && !mddev->suspended) {
+ 		mddev->pers->quiesce(mddev, 1);
+ 		mddev->pers->quiesce(mddev, 0);
+ 	}
 -- 
 2.20.1
 
