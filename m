@@ -2,173 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E790B1A47D9
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 17:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2E2F1A4863
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 18:26:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726082AbgDJP1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Apr 2020 11:27:37 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:38426 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726080AbgDJP1h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Apr 2020 11:27:37 -0400
-Received: by mail-pf1-f196.google.com with SMTP id c21so1173939pfo.5
-        for <stable@vger.kernel.org>; Fri, 10 Apr 2020 08:27:35 -0700 (PDT)
+        id S1726689AbgDJQ0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Apr 2020 12:26:30 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:42181 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726234AbgDJQ03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Apr 2020 12:26:29 -0400
+Received: by mail-oi1-f196.google.com with SMTP id e4so1787418oig.9
+        for <stable@vger.kernel.org>; Fri, 10 Apr 2020 09:26:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=xwwwVLK0oILSngv688DLdSFHSXSem3phGmin4VS1Obk=;
-        b=XmRRnoC7NwLJ6USHRfYZLDhk56jvG2goNYHCPxtGcCV4NqgEiiHTg63/F1+4w2joac
-         Mm3RO32sWnq76+cFM0LPvgn6CUHeT8jasbRAF0mEt2I2z8rgTL+o2k1AEY0DgXSY93p/
-         fxKQyx1ztLp10ZGyw9ZDStLEaT2MpfpUDC0f1LTqGnY75INlhn+0+c2RWESPH87Dnuw+
-         Q0j0fyCut0QF1tGYVWCILXyFrIw8zyuuI+42YMBZmUG9rvGR580MN+IGnvmTDpBv5bJm
-         oqzTIVjg1sXPYfgotxRRzOWAkg+NycxZleZcLzXZyhHnknY9t4TztNwolOs7pizLI+zv
-         nwCw==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=yMpjPxGLH2Lp2A4mAz8ncaxXmDPUVi4Uv45pydJcVpE=;
+        b=kuywN1klF3kBcJFwWdJ5ijaZAm+7utN3CT2xbbOKo0hdFunF60vX+2OTdGiWqQDzyB
+         /c5UIni7YWWpnEyFGbWYryN+NJkGWUg6axBuEC//gAgOjVcZml1B58XL8q1p2ER5uQar
+         hnUs3jKdxIMZjfN0XJIlCMoFVIjlbVAsWNAs/ZIIQDRT9QS5evCuVaHBhwdMGw+73ekN
+         c5GV4iy+scAFfCAKFuWKZj1Wwp7iNKk/TmUb1amSqhBMxLZeMUSai++DcBgA5CnAtzEM
+         S2jm3GMt7afBQSNUkMPnd+RQ5HMbH2IN0KIXb3tDH4vZTS2ZDh40rJ/GNjI5IJmN68nZ
+         KKuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=xwwwVLK0oILSngv688DLdSFHSXSem3phGmin4VS1Obk=;
-        b=cI4LCoR/8Yran4CiRJcGMDWmTrAovLa4K4ywvBPsea2w3q1y+LWUgj6dDe6dwvBe/q
-         Ts7cIbYj/fYSAtCOV8ceSetId4W9EHLaX2JledDKNrh8X9VBiUg2EPtDw+3Gv2mDhh3M
-         5iGvyNnWRoa99dqQwDxzEwCbDSdsdJXWpPWX88wGBY2fIRttmatF/73XbrymOrPvs1OH
-         eH1qlojTxdAmaYZ0mEAedk1LxYbjplD+vmntf4grcY1eqOeve4Ou0Jw5d52Hv5zs+Xqi
-         kz82WvPMRLx76VkSrJpmgNXbXCxjIqH889I9kN1pWj+Es6d24iVqJvWLnKvOk8/Vczpp
-         TYcg==
-X-Gm-Message-State: AGi0PuZ8KsLri7HQnuW0jIWKkxaGQhGUOEDWMBmGVvRC9GmND32l1i7y
-        nZW5NUISvY8KtZaijqY+lbq+hl1o
-X-Google-Smtp-Source: APiQypIJK2xSDOe6BSfMMo1bdYLevs23kPLHKs8RLa0FUPnKh8A5guZfQBZ+Xid/YJqnUSn7IHAG2A==
-X-Received: by 2002:a62:b603:: with SMTP id j3mr5176168pff.208.1586532454662;
-        Fri, 10 Apr 2020 08:27:34 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id x123sm2013465pfd.39.2020.04.10.08.27.33
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 10 Apr 2020 08:27:34 -0700 (PDT)
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH v4.14.y] acpi/nfit: Fix bus command validation
-Date:   Fri, 10 Apr 2020 08:27:31 -0700
-Message-Id: <20200410152731.85430-1-linux@roeck-us.net>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=yMpjPxGLH2Lp2A4mAz8ncaxXmDPUVi4Uv45pydJcVpE=;
+        b=obZZEBpqyr6n/jOGic73SJD6feu8Dwkpom/qGN0r1nqOO3EUfSIzvk+QsOUD0bdZGY
+         XNmHsDGlxmUKOiWe552Kx7ATEaA8OnXvjAXqX4UZlx1K1yLL16/U/rRizbWHakPb8vXp
+         M7j8J7FzwUslZsuG3oVDpLPpbaNulsM0VeFrP6eUkmiZkVV/aY2HI9f1ZFAVaSEhY8kk
+         SDbzcM1djo24ZkwzY2f3UHkiB6d1WPLmuVqa3AnrPEBU5LNAHhoDVOPVburwblPexMLG
+         a2YC9ldtb/UcBCuqOQyanTHwmZCiUgLXA5lBDPAs3P+rGOn8vYSQT0ab7LLKKSNDUCn2
+         hXTQ==
+X-Gm-Message-State: AGi0PuZlDRDnpwRiL2oC63+YSHqsEBTm/vrsqvtOGGq4/GzTe9TM5ub6
+        wVhCF+MPMXzwuPgpKMbRk47+S6YmdriGdoXeHKZA8g==
+X-Google-Smtp-Source: APiQypLwu3CIER9GRUCXG/kaBErHqHIU1JKtWh1Oqv6yRwp2XcMnJ2Wqf+F/NUj5ULxwn4dcYERJFvFH0f97UW/gKwI=
+X-Received: by 2002:aca:682:: with SMTP id 124mr3967570oig.69.1586535987677;
+ Fri, 10 Apr 2020 09:26:27 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200410034634.7731-1-sashal@kernel.org> <20200410034634.7731-14-sashal@kernel.org>
+ <20200410062931.GD1663372@kroah.com> <CAGETcx9Kp6JvuyF770XKsMTCY6=rC2zuBTG07oB18bya0owgWw@mail.gmail.com>
+ <20200410065227.GA1665508@kroah.com>
+In-Reply-To: <20200410065227.GA1665508@kroah.com>
+From:   Saravana Kannan <saravanak@google.com>
+Date:   Fri, 10 Apr 2020 09:25:51 -0700
+Message-ID: <CAGETcx8RBjr6rzR7=m6LuA=OQOT2Hh4ioPndUP8mkpYLve+6yw@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.6 14/68] driver core: Reevaluate
+ dev->links.need_for_probe as suppliers are added
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+On Thu, Apr 9, 2020 at 11:52 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Apr 09, 2020 at 11:39:55PM -0700, Saravana Kannan wrote:
+> > On Thu, Apr 9, 2020 at 11:29 PM Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > On Thu, Apr 09, 2020 at 11:45:39PM -0400, Sasha Levin wrote:
+> > > > From: Saravana Kannan <saravanak@google.com>
+> > > >
+> > > > [ Upstream commit 1745d299af5b373abad08fa29bff0d31dc6aff21 ]
+> > > >
+> > > > A previous patch 03324507e66c ("driver core: Allow
+> > > > fwnode_operations.add_links to differentiate errors") forgot to update
+> > > > all call sites to fwnode_operations.add_links. This patch fixes that.
+> > > >
+> > > > Legend:
+> > > > -> Denotes RHS is an optional/potential supplier for LHS
+> > > > => Denotes RHS is a mandatory supplier for LHS
+> > > >
+> > > > Example:
+> > > >
+> > > > Device A => Device X
+> > > > Device A -> Device Y
+> > > >
+> > > > Before this patch:
+> > > > 1. Device A is added.
+> > > > 2. Device A is marked as waiting for mandatory suppliers
+> > > > 3. Device X is added
+> > > > 4. Device A is left marked as waiting for mandatory suppliers
+> > > >
+> > > > Step 4 is wrong since all mandatory suppliers of Device A have been
+> > > > added.
+> > > >
+> > > > After this patch:
+> > > > 1. Device A is added.
+> > > > 2. Device A is marked as waiting for mandatory suppliers
+> > > > 3. Device X is added
+> > > > 4. Device A is no longer considered as waiting for mandatory suppliers
+> > > >
+> > > > This is the correct behavior.
+> > > >
+> > > > Fixes: 03324507e66c ("driver core: Allow fwnode_operations.add_links to differentiate errors")
+> > > > Signed-off-by: Saravana Kannan <saravanak@google.com>
+> > > > Link: https://lore.kernel.org/r/20200222014038.180923-2-saravanak@google.com
+> > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > > ---
+> > > >  drivers/base/core.c | 8 ++++++--
+> > > >  1 file changed, 6 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/base/core.c b/drivers/base/core.c
+> > > > index dbb0f9130f42d..d32a3aefff32f 100644
+> > > > --- a/drivers/base/core.c
+> > > > +++ b/drivers/base/core.c
+> > > > @@ -523,9 +523,13 @@ static void device_link_add_missing_supplier_links(void)
+> > > >
+> > > >       mutex_lock(&wfs_lock);
+> > > >       list_for_each_entry_safe(dev, tmp, &wait_for_suppliers,
+> > > > -                              links.needs_suppliers)
+> > > > -             if (!fwnode_call_int_op(dev->fwnode, add_links, dev))
+> > > > +                              links.needs_suppliers) {
+> > > > +             int ret = fwnode_call_int_op(dev->fwnode, add_links, dev);
+> > > > +             if (!ret)
+> > > >                       list_del_init(&dev->links.needs_suppliers);
+> > > > +             else if (ret != -ENODEV)
+> > > > +                     dev->links.need_for_probe = false;
+> > > > +     }
+> > > >       mutex_unlock(&wfs_lock);
+> > > >  }
+> > >
+> > > For some reason this wasn't for stable kernels, but I can't remember.
+> >
+> > It *is* for stable kernels too. It is an actual bug that's fixable in
+> > stable kernels. I think this might have been the one patch that I
+> > bundled into an unrelated series, but called it out as an unrelated
+> > bug. Maybe my wording in that email threw you off?
+>
+> I think it did, sorry.  So no problem adding this to the stable trees so
+> I can go add it right now?
 
-[ Upstream commit ebe9f6f19d80d8978d16078dff3d5bd93ad8d102 ]
+Yes, please do.
 
-Commit 11189c1089da "acpi/nfit: Fix command-supported detection" broke
-ND_CMD_CALL for bus-level commands. The "func = cmd" assumption is only
-valid for:
-
-    ND_CMD_ARS_CAP
-    ND_CMD_ARS_START
-    ND_CMD_ARS_STATUS
-    ND_CMD_CLEAR_ERROR
-
-The function number otherwise needs to be pulled from the command
-payload for:
-
-    NFIT_CMD_TRANSLATE_SPA
-    NFIT_CMD_ARS_INJECT_SET
-    NFIT_CMD_ARS_INJECT_CLEAR
-    NFIT_CMD_ARS_INJECT_GET
-
-Update cmd_to_func() for the bus case and call it in the common path.
-
-Fixes: 11189c1089da ("acpi/nfit: Fix command-supported detection")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Reported-by: Grzegorz Burzynski <grzegorz.burzynski@intel.com>
-Tested-by: Jeff Moyer <jmoyer@redhat.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-[groeck: backport to v4.14.y: adjust for missing commit 4b27db7e26cdb]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
-Commit 11189c1089da ("acpi/nfit: Fix command-supported detection")
-has been applied to v4.14.y as commit 1c285c34a509, but not its fix.
-
-This patch has already been applied to v4.19.y. v5.4.y and later are
-not affected.
-
- drivers/acpi/nfit/core.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
-index 05fb821c2558..68205002f561 100644
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -214,7 +214,7 @@ static int cmd_to_func(struct nfit_mem *nfit_mem, unsigned int cmd,
- 	if (call_pkg) {
- 		int i;
- 
--		if (nfit_mem->family != call_pkg->nd_family)
-+		if (nfit_mem && nfit_mem->family != call_pkg->nd_family)
- 			return -ENOTTY;
- 
- 		for (i = 0; i < ARRAY_SIZE(call_pkg->nd_reserved2); i++)
-@@ -223,6 +223,10 @@ static int cmd_to_func(struct nfit_mem *nfit_mem, unsigned int cmd,
- 		return call_pkg->nd_command;
- 	}
- 
-+	/* In the !call_pkg case, bus commands == bus functions */
-+	if (!nfit_mem)
-+		return cmd;
-+
- 	/* Linux ND commands == NVDIMM_FAMILY_INTEL function numbers */
- 	if (nfit_mem->family == NVDIMM_FAMILY_INTEL)
- 		return cmd;
-@@ -238,6 +242,7 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
- 		unsigned int cmd, void *buf, unsigned int buf_len, int *cmd_rc)
- {
- 	struct acpi_nfit_desc *acpi_desc = to_acpi_nfit_desc(nd_desc);
-+	struct nfit_mem *nfit_mem = nvdimm_provider_data(nvdimm);
- 	union acpi_object in_obj, in_buf, *out_obj;
- 	const struct nd_cmd_desc *desc = NULL;
- 	struct device *dev = acpi_desc->dev;
-@@ -252,18 +257,18 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
- 	if (cmd_rc)
- 		*cmd_rc = -EINVAL;
- 
-+	if (cmd == ND_CMD_CALL)
-+		call_pkg = buf;
-+	func = cmd_to_func(nfit_mem, cmd, call_pkg);
-+	if (func < 0)
-+		return func;
-+
- 	if (nvdimm) {
--		struct nfit_mem *nfit_mem = nvdimm_provider_data(nvdimm);
- 		struct acpi_device *adev = nfit_mem->adev;
- 
- 		if (!adev)
- 			return -ENOTTY;
- 
--		if (cmd == ND_CMD_CALL)
--			call_pkg = buf;
--		func = cmd_to_func(nfit_mem, cmd, call_pkg);
--		if (func < 0)
--			return func;
- 		dimm_name = nvdimm_name(nvdimm);
- 		cmd_name = nvdimm_cmd_name(cmd);
- 		cmd_mask = nvdimm_cmd_mask(nvdimm);
-@@ -274,12 +279,9 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
- 	} else {
- 		struct acpi_device *adev = to_acpi_dev(acpi_desc);
- 
--		func = cmd;
- 		cmd_name = nvdimm_bus_cmd_name(cmd);
- 		cmd_mask = nd_desc->cmd_mask;
--		dsm_mask = cmd_mask;
--		if (cmd == ND_CMD_CALL)
--			dsm_mask = nd_desc->bus_dsm_mask;
-+		dsm_mask = nd_desc->bus_dsm_mask;
- 		desc = nd_cmd_bus_desc(cmd);
- 		guid = to_nfit_uuid(NFIT_DEV_BUS);
- 		handle = adev->handle;
--- 
-2.17.1
-
+-Saravana
