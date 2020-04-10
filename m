@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ECA61A403E
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 723301A403A
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728913AbgDJDyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:54:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35132 "EHLO mail.kernel.org"
+        id S1728324AbgDJDyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:54:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728910AbgDJDua (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:50:30 -0400
+        id S1728913AbgDJDub (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:50:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49480206C0;
-        Fri, 10 Apr 2020 03:50:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6361B20B1F;
+        Fri, 10 Apr 2020 03:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490630;
-        bh=nVtLNzcB5rwLaJSW7grsfccpshBFrNYp6ZC60q4Kl0g=;
+        s=default; t=1586490631;
+        bh=T1GNoPyTHZ1PaVzQb4ooxNBlzo/+yHyLeyswMPyouKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aqtjfz199jwGgCPmY3bbEdk7G7RwsSjOW67cEI5J2mJx8QBkzcdfteYd9jYkVMT00
-         0rPxwce+N33PuUsJa5jaPN1dnHJKQ5XE3PlNnVd+pI7ztp7kVKz0fnkljOiujgNTT9
-         BVRoO9548lLGhGfFzwM7eeWUJsaTupqRuLxJnA90=
+        b=jpSvAEwh7IX3Y4i180XoUZ4JptpEib2j1oHqTYScgY5YB6yUZn6NXdmthhUleEl4M
+         C2T1CZ7srsyiet/QfW6CHTYwrUquZ0x3vazcuYrXdUnqAMpkycou+AQNaNtqptcQZT
+         JmlDsawPTCGurbYOMDpDycuU4+xmqOW0mKTG2szM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sahitya Tummala <stummala@codeaurora.org>,
-        Pradeep P V K <ppvk@codeaurora.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 21/32] block: Fix use-after-free issue accessing struct io_cq
-Date:   Thu,  9 Apr 2020 23:49:54 -0400
-Message-Id: <20200410035005.9371-21-sashal@kernel.org>
+Cc:     Dongchun Zhu <dongchun.zhu@mediatek.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 22/32] media: i2c: ov5695: Fix power on and off sequences
+Date:   Thu,  9 Apr 2020 23:49:55 -0400
+Message-Id: <20200410035005.9371-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410035005.9371-1-sashal@kernel.org>
 References: <20200410035005.9371-1-sashal@kernel.org>
@@ -44,113 +47,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sahitya Tummala <stummala@codeaurora.org>
+From: Dongchun Zhu <dongchun.zhu@mediatek.com>
 
-[ Upstream commit 30a2da7b7e225ef6c87a660419ea04d3cef3f6a7 ]
+[ Upstream commit f1a64f56663e9d03e509439016dcbddd0166b2da ]
 
-There is a potential race between ioc_release_fn() and
-ioc_clear_queue() as shown below, due to which below kernel
-crash is observed. It also can result into use-after-free
-issue.
+From the measured hardware signal, OV5695 reset pin goes high for a
+short period of time during boot-up. From the sensor specification, the
+reset pin is active low and the DT binding defines the pin as active
+low, which means that the values set by the driver are inverted and thus
+the value requested in probe ends up high.
 
-context#1:				context#2:
-ioc_release_fn()			__ioc_clear_queue() gets the same icq
-->spin_lock(&ioc->lock);		->spin_lock(&ioc->lock);
-->ioc_destroy_icq(icq);
-  ->list_del_init(&icq->q_node);
-  ->call_rcu(&icq->__rcu_head,
-  	icq_free_icq_rcu);
-->spin_unlock(&ioc->lock);
-					->ioc_destroy_icq(icq);
-					  ->hlist_del_init(&icq->ioc_node);
-					  This results into below crash as this memory
-					  is now used by icq->__rcu_head in context#1.
-					  There is a chance that icq could be free'd
-					  as well.
+Fix it by changing probe to request the reset GPIO initialized to high,
+which makes the initial state of the physical signal low.
 
-22150.386550:   <6> Unable to handle kernel write to read-only memory
-at virtual address ffffffaa8d31ca50
-...
-Call trace:
-22150.607350:   <2>  ioc_destroy_icq+0x44/0x110
-22150.611202:   <2>  ioc_clear_queue+0xac/0x148
-22150.615056:   <2>  blk_cleanup_queue+0x11c/0x1a0
-22150.619174:   <2>  __scsi_remove_device+0xdc/0x128
-22150.623465:   <2>  scsi_forget_host+0x2c/0x78
-22150.627315:   <2>  scsi_remove_host+0x7c/0x2a0
-22150.631257:   <2>  usb_stor_disconnect+0x74/0xc8
-22150.635371:   <2>  usb_unbind_interface+0xc8/0x278
-22150.639665:   <2>  device_release_driver_internal+0x198/0x250
-22150.644897:   <2>  device_release_driver+0x24/0x30
-22150.649176:   <2>  bus_remove_device+0xec/0x140
-22150.653204:   <2>  device_del+0x270/0x460
-22150.656712:   <2>  usb_disable_device+0x120/0x390
-22150.660918:   <2>  usb_disconnect+0xf4/0x2e0
-22150.664684:   <2>  hub_event+0xd70/0x17e8
-22150.668197:   <2>  process_one_work+0x210/0x480
-22150.672222:   <2>  worker_thread+0x32c/0x4c8
+In addition, DOVDD rising must occur before DVDD rising from spec., but
+regulator_bulk_enable() API enables all the regulators asynchronously.
+Use an explicit loops of regulator_enable() instead.
 
-Fix this by adding a new ICQ_DESTROYED flag in ioc_destroy_icq() to
-indicate this icq is once marked as destroyed. Also, ensure
-__ioc_clear_queue() is accessing icq within rcu_read_lock/unlock so
-that icq doesn't get free'd up while it is still using it.
+For power off sequence, it is required that DVDD falls first. Given the
+bulk API does not give any guarantee about the order of regulators,
+change the driver to use regulator_disable() instead.
 
-Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
-Co-developed-by: Pradeep P V K <ppvk@codeaurora.org>
-Signed-off-by: Pradeep P V K <ppvk@codeaurora.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The sensor also requires a delay between reset high and first I2C
+transaction, which was assumed to be 8192 XVCLK cycles, but 1ms is
+recommended by the vendor. Fix this as well.
+
+Signed-off-by: Dongchun Zhu <dongchun.zhu@mediatek.com>
+Signed-off-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-ioc.c           | 7 +++++++
- include/linux/iocontext.h | 1 +
- 2 files changed, 8 insertions(+)
+ drivers/media/i2c/ov5695.c | 49 ++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 18 deletions(-)
 
-diff --git a/block/blk-ioc.c b/block/blk-ioc.c
-index 01580f88fcb39..4c810969c3e2f 100644
---- a/block/blk-ioc.c
-+++ b/block/blk-ioc.c
-@@ -87,6 +87,7 @@ static void ioc_destroy_icq(struct io_cq *icq)
- 	 * making it impossible to determine icq_cache.  Record it in @icq.
- 	 */
- 	icq->__rcu_icq_cache = et->icq_cache;
-+	icq->flags |= ICQ_DESTROYED;
- 	call_rcu(&icq->__rcu_head, icq_free_icq_rcu);
+diff --git a/drivers/media/i2c/ov5695.c b/drivers/media/i2c/ov5695.c
+index 5d107c53364d6..be242bb8fefcd 100644
+--- a/drivers/media/i2c/ov5695.c
++++ b/drivers/media/i2c/ov5695.c
+@@ -974,16 +974,9 @@ static int ov5695_s_stream(struct v4l2_subdev *sd, int on)
+ 	return ret;
  }
  
-@@ -230,15 +231,21 @@ static void __ioc_clear_queue(struct list_head *icq_list)
+-/* Calculate the delay in us by clock rate and clock cycles */
+-static inline u32 ov5695_cal_delay(u32 cycles)
+-{
+-	return DIV_ROUND_UP(cycles, OV5695_XVCLK_FREQ / 1000 / 1000);
+-}
+-
+ static int __ov5695_power_on(struct ov5695 *ov5695)
  {
- 	unsigned long flags;
+-	int ret;
+-	u32 delay_us;
++	int i, ret;
+ 	struct device *dev = &ov5695->client->dev;
  
-+	rcu_read_lock();
- 	while (!list_empty(icq_list)) {
- 		struct io_cq *icq = list_entry(icq_list->next,
- 					       struct io_cq, q_node);
- 		struct io_context *ioc = icq->ioc;
+ 	ret = clk_prepare_enable(ov5695->xvclk);
+@@ -994,21 +987,28 @@ static int __ov5695_power_on(struct ov5695 *ov5695)
  
- 		spin_lock_irqsave(&ioc->lock, flags);
-+		if (icq->flags & ICQ_DESTROYED) {
-+			spin_unlock_irqrestore(&ioc->lock, flags);
-+			continue;
+ 	gpiod_set_value_cansleep(ov5695->reset_gpio, 1);
+ 
+-	ret = regulator_bulk_enable(OV5695_NUM_SUPPLIES, ov5695->supplies);
+-	if (ret < 0) {
+-		dev_err(dev, "Failed to enable regulators\n");
+-		goto disable_clk;
++	/*
++	 * The hardware requires the regulators to be powered on in order,
++	 * so enable them one by one.
++	 */
++	for (i = 0; i < OV5695_NUM_SUPPLIES; i++) {
++		ret = regulator_enable(ov5695->supplies[i].consumer);
++		if (ret) {
++			dev_err(dev, "Failed to enable %s: %d\n",
++				ov5695->supplies[i].supply, ret);
++			goto disable_reg_clk;
 +		}
- 		ioc_destroy_icq(icq);
- 		spin_unlock_irqrestore(&ioc->lock, flags);
  	}
-+	rcu_read_unlock();
+ 
+ 	gpiod_set_value_cansleep(ov5695->reset_gpio, 0);
+ 
+-	/* 8192 cycles prior to first SCCB transaction */
+-	delay_us = ov5695_cal_delay(8192);
+-	usleep_range(delay_us, delay_us * 2);
++	usleep_range(1000, 1200);
+ 
+ 	return 0;
+ 
+-disable_clk:
++disable_reg_clk:
++	for (--i; i >= 0; i--)
++		regulator_disable(ov5695->supplies[i].consumer);
+ 	clk_disable_unprepare(ov5695->xvclk);
+ 
+ 	return ret;
+@@ -1016,9 +1016,22 @@ static int __ov5695_power_on(struct ov5695 *ov5695)
+ 
+ static void __ov5695_power_off(struct ov5695 *ov5695)
+ {
++	struct device *dev = &ov5695->client->dev;
++	int i, ret;
++
+ 	clk_disable_unprepare(ov5695->xvclk);
+ 	gpiod_set_value_cansleep(ov5695->reset_gpio, 1);
+-	regulator_bulk_disable(OV5695_NUM_SUPPLIES, ov5695->supplies);
++
++	/*
++	 * The hardware requires the regulators to be powered off in order,
++	 * so disable them one by one.
++	 */
++	for (i = OV5695_NUM_SUPPLIES - 1; i >= 0; i--) {
++		ret = regulator_disable(ov5695->supplies[i].consumer);
++		if (ret)
++			dev_err(dev, "Failed to disable %s: %d\n",
++				ov5695->supplies[i].supply, ret);
++	}
  }
  
- /**
-diff --git a/include/linux/iocontext.h b/include/linux/iocontext.h
-index dba15ca8e60bc..1dcd9198beb7f 100644
---- a/include/linux/iocontext.h
-+++ b/include/linux/iocontext.h
-@@ -8,6 +8,7 @@
+ static int __maybe_unused ov5695_runtime_resume(struct device *dev)
+@@ -1288,7 +1301,7 @@ static int ov5695_probe(struct i2c_client *client,
+ 	if (clk_get_rate(ov5695->xvclk) != OV5695_XVCLK_FREQ)
+ 		dev_warn(dev, "xvclk mismatched, modes are based on 24MHz\n");
  
- enum {
- 	ICQ_EXITED		= 1 << 2,
-+	ICQ_DESTROYED		= 1 << 3,
- };
- 
- /*
+-	ov5695->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_LOW);
++	ov5695->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(ov5695->reset_gpio)) {
+ 		dev_err(dev, "Failed to get reset-gpios\n");
+ 		return -EINVAL;
 -- 
 2.20.1
 
