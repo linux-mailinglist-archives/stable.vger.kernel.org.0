@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1451A400F
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4335A1A3FEC
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726752AbgDJDwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:52:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36382 "EHLO mail.kernel.org"
+        id S1729155AbgDJDvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:51:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728506AbgDJDvQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:51:16 -0400
+        id S1729150AbgDJDvR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:51:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40CB4215A4;
-        Fri, 10 Apr 2020 03:51:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BB58206C0;
+        Fri, 10 Apr 2020 03:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490676;
-        bh=69OB8wXKOxwKkXELlIwaMk0gi4EzRqKoBvI16VoEw8s=;
+        s=default; t=1586490677;
+        bh=TwbeNkf9wh9yqk/pHfVPa0QM9C0aKBP8I7YXCSMXwFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iWZgPkAuwWdwqRyI9SDQvy4Wi/rFmfUp3nZuhdqeLFafFfP/R/FgeRkCrWJvHV1Ii
-         2Yhb9JBZEQ5PXwx/85BpGCZEbTP/5an9TojFL5AEIpA6Gxu5aRumoHJdaDbLEv3Aj5
-         pQrYjyEF3Ve+5xpkbPWuBVpmGAbpo6POLdL/Ru3c=
+        b=Z9KKZT6w3qHSUx6xs6oBoP80yfHxZaOHfxOkH10toJjUMNyABfEKFUxu7YBInvjRZ
+         YDkB3kXCFVLwLUYfjFaLeYfimsI/+gBRLSjaQgm8GsLAqnoF4D0gpEPWDDpdfdj5j9
+         DZhTF7AyWY3F0rDhXs+Qiqv0ZqtYjid8iTsjCHIg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.9 5/9] gfs2: Don't demote a glock until its revokes are written
-Date:   Thu,  9 Apr 2020 23:51:06 -0400
-Message-Id: <20200410035111.9938-5-sashal@kernel.org>
+Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 6/9] x86/boot: Use unsigned comparison for addresses
+Date:   Thu,  9 Apr 2020 23:51:07 -0400
+Message-Id: <20200410035111.9938-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410035111.9938-1-sashal@kernel.org>
 References: <20200410035111.9938-1-sashal@kernel.org>
@@ -43,44 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit df5db5f9ee112e76b5202fbc331f990a0fc316d6 ]
+[ Upstream commit 81a34892c2c7c809f9c4e22c5ac936ae673fb9a2 ]
 
-Before this patch, run_queue would demote glocks based on whether
-there are any more holders. But if the glock has pending revokes that
-haven't been written to the media, giving up the glock might end in
-file system corruption if the revokes never get written due to
-io errors, node crashes and fences, etc. In that case, another node
-will replay the metadata blocks associated with the glock, but
-because the revoke was never written, it could replay that block
-even though the glock had since been granted to another node who
-might have made changes.
+The load address is compared with LOAD_PHYSICAL_ADDR using a signed
+comparison currently (using jge instruction).
 
-This patch changes the logic in run_queue so that it never demotes
-a glock until its count of pending revokes reaches zero.
+When loading a 64-bit kernel using the new efi32_pe_entry() point added by:
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Reviewed-by: Andreas Gruenbacher <agruenba@redhat.com>
+  97aa276579b2 ("efi/x86: Add true mixed mode entry point into .compat section")
+
+using Qemu with -m 3072, the firmware actually loads us above 2Gb,
+resulting in a very early crash.
+
+Use the JAE instruction to perform a unsigned comparison instead, as physical
+addresses should be considered unsigned.
+
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20200301230436.2246909-6-nivedita@alum.mit.edu
+Link: https://lore.kernel.org/r/20200308080859.21568-14-ardb@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/boot/compressed/head_32.S | 2 +-
+ arch/x86/boot/compressed/head_64.S | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index efd44d5645d83..adc1a97cfe96d 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -548,6 +548,9 @@ __acquires(&gl->gl_lockref.lock)
- 			goto out_unlock;
- 		if (nonblock)
- 			goto out_sched;
-+		smp_mb();
-+		if (atomic_read(&gl->gl_revokes) != 0)
-+			goto out_sched;
- 		set_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags);
- 		GLOCK_BUG_ON(gl, gl->gl_demote_state == LM_ST_EXCLUSIVE);
- 		gl->gl_target = gl->gl_demote_state;
+diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
+index fd0b6a272dd5b..7532f6f536774 100644
+--- a/arch/x86/boot/compressed/head_32.S
++++ b/arch/x86/boot/compressed/head_32.S
+@@ -170,7 +170,7 @@ preferred_addr:
+ 	notl	%eax
+ 	andl    %eax, %ebx
+ 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
+-	jge	1f
++	jae	1f
+ #endif
+ 	movl	$LOAD_PHYSICAL_ADDR, %ebx
+ 1:
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index 9e3a183561a9a..3fac2d133e4ec 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -104,7 +104,7 @@ ENTRY(startup_32)
+ 	notl	%eax
+ 	andl	%eax, %ebx
+ 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
+-	jge	1f
++	jae	1f
+ #endif
+ 	movl	$LOAD_PHYSICAL_ADDR, %ebx
+ 1:
+@@ -339,7 +339,7 @@ preferred_addr:
+ 	notq	%rax
+ 	andq	%rax, %rbp
+ 	cmpq	$LOAD_PHYSICAL_ADDR, %rbp
+-	jge	1f
++	jae	1f
+ #endif
+ 	movq	$LOAD_PHYSICAL_ADDR, %rbp
+ 1:
 -- 
 2.20.1
 
