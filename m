@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AE881A3FDE
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79C551A3FE1
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729077AbgDJDvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:51:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36092 "EHLO mail.kernel.org"
+        id S1729026AbgDJDvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:51:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729072AbgDJDvE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:51:04 -0400
+        id S1728433AbgDJDvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:51:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED28B21655;
-        Fri, 10 Apr 2020 03:51:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D006E214D8;
+        Fri, 10 Apr 2020 03:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490664;
-        bh=IEmHJ0+oWUsdPbe5mSVSh1U50jpKuCMgd3Fdn1BbhVg=;
+        s=default; t=1586490665;
+        bh=fGa1F75DEYELh4aoD7E6/3JJRIt6E7i/qM4gmszt1Jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IVIpExWxeCKbvQlmIp4Mn8ZQrGDJQNJr1vgOR2BsTuV3tUWTYFI78o47GCGtAJ7Pq
-         dBMrgHYItSnpQPM3iJgSnZp5EIzblkdbsjdnF6Qhx/FXBtI9Qc2HusiwfI7g1POmDk
-         aAB6W/h7PqbCSYcazfRF0kreFcDMjIKTCp85LOjY=
+        b=vVFwYOHgixprBL4TowFrBjLZBUKc9C5Rq71e+hi3Wp/llP8UZ5DoSWFZAPV5VgCM0
+         1tmn4DSPTgc9IreaT/udezFmvjuCOGLEkEhjepQNMjBelrmRgxbstoRHwyXClo6/tl
+         X3Ov0xS3l8cg0Ft7/aSlgZwHgg7jAuEgQr69Jqlk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 17/22] irqchip/gic-v4: Provide irq_retrigger to avoid circular locking dependency
-Date:   Thu,  9 Apr 2020 23:50:39 -0400
-Message-Id: <20200410035044.9698-17-sashal@kernel.org>
+Cc:     Boqun Feng <boqun.feng@gmail.com>, Qian Cai <cai@lca.pw>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 18/22] locking/lockdep: Avoid recursion in lockdep_count_{for,back}ward_deps()
+Date:   Thu,  9 Apr 2020 23:50:40 -0400
+Message-Id: <20200410035044.9698-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410035044.9698-1-sashal@kernel.org>
 References: <20200410035044.9698-1-sashal@kernel.org>
@@ -41,143 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit 7809f7011c3bce650e502a98afeb05961470d865 ]
+[ Upstream commit 25016bd7f4caf5fc983bbab7403d08e64cba3004 ]
 
-On a very heavily loaded D05 with GICv4, I managed to trigger the
-following lockdep splat:
+Qian Cai reported a bug when PROVE_RCU_LIST=y, and read on /proc/lockdep
+triggered a warning:
 
-[ 6022.598864] ======================================================
-[ 6022.605031] WARNING: possible circular locking dependency detected
-[ 6022.611200] 5.6.0-rc4-00026-geee7c7b0f498 #680 Tainted: G            E
-[ 6022.618061] ------------------------------------------------------
-[ 6022.624227] qemu-system-aar/7569 is trying to acquire lock:
-[ 6022.629789] ffff042f97606808 (&p->pi_lock){-.-.}, at: try_to_wake_up+0x54/0x7a0
-[ 6022.637102]
-[ 6022.637102] but task is already holding lock:
-[ 6022.642921] ffff002fae424cf0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x5c/0x98
-[ 6022.651350]
-[ 6022.651350] which lock already depends on the new lock.
-[ 6022.651350]
-[ 6022.659512]
-[ 6022.659512] the existing dependency chain (in reverse order) is:
-[ 6022.666980]
-[ 6022.666980] -> #2 (&irq_desc_lock_class){-.-.}:
-[ 6022.672983]        _raw_spin_lock_irqsave+0x50/0x78
-[ 6022.677848]        __irq_get_desc_lock+0x5c/0x98
-[ 6022.682453]        irq_set_vcpu_affinity+0x40/0xc0
-[ 6022.687236]        its_make_vpe_non_resident+0x6c/0xb8
-[ 6022.692364]        vgic_v4_put+0x54/0x70
-[ 6022.696273]        vgic_v3_put+0x20/0xd8
-[ 6022.700183]        kvm_vgic_put+0x30/0x48
-[ 6022.704182]        kvm_arch_vcpu_put+0x34/0x50
-[ 6022.708614]        kvm_sched_out+0x34/0x50
-[ 6022.712700]        __schedule+0x4bc/0x7f8
-[ 6022.716697]        schedule+0x50/0xd8
-[ 6022.720347]        kvm_arch_vcpu_ioctl_run+0x5f0/0x978
-[ 6022.725473]        kvm_vcpu_ioctl+0x3d4/0x8f8
-[ 6022.729820]        ksys_ioctl+0x90/0xd0
-[ 6022.733642]        __arm64_sys_ioctl+0x24/0x30
-[ 6022.738074]        el0_svc_common.constprop.3+0xa8/0x1e8
-[ 6022.743373]        do_el0_svc+0x28/0x88
-[ 6022.747198]        el0_svc+0x14/0x40
-[ 6022.750761]        el0_sync_handler+0x124/0x2b8
-[ 6022.755278]        el0_sync+0x140/0x180
-[ 6022.759100]
-[ 6022.759100] -> #1 (&rq->lock){-.-.}:
-[ 6022.764143]        _raw_spin_lock+0x38/0x50
-[ 6022.768314]        task_fork_fair+0x40/0x128
-[ 6022.772572]        sched_fork+0xe0/0x210
-[ 6022.776484]        copy_process+0x8c4/0x18d8
-[ 6022.780742]        _do_fork+0x88/0x6d8
-[ 6022.784478]        kernel_thread+0x64/0x88
-[ 6022.788563]        rest_init+0x30/0x270
-[ 6022.792390]        arch_call_rest_init+0x14/0x1c
-[ 6022.796995]        start_kernel+0x498/0x4c4
-[ 6022.801164]
-[ 6022.801164] -> #0 (&p->pi_lock){-.-.}:
-[ 6022.806382]        __lock_acquire+0xdd8/0x15c8
-[ 6022.810813]        lock_acquire+0xd0/0x218
-[ 6022.814896]        _raw_spin_lock_irqsave+0x50/0x78
-[ 6022.819761]        try_to_wake_up+0x54/0x7a0
-[ 6022.824018]        wake_up_process+0x1c/0x28
-[ 6022.828276]        wakeup_softirqd+0x38/0x40
-[ 6022.832533]        __tasklet_schedule_common+0xc4/0xf0
-[ 6022.837658]        __tasklet_schedule+0x24/0x30
-[ 6022.842176]        check_irq_resend+0xc8/0x158
-[ 6022.846609]        irq_startup+0x74/0x128
-[ 6022.850606]        __enable_irq+0x6c/0x78
-[ 6022.854602]        enable_irq+0x54/0xa0
-[ 6022.858431]        its_make_vpe_non_resident+0xa4/0xb8
-[ 6022.863557]        vgic_v4_put+0x54/0x70
-[ 6022.867469]        kvm_arch_vcpu_blocking+0x28/0x38
-[ 6022.872336]        kvm_vcpu_block+0x48/0x490
-[ 6022.876594]        kvm_handle_wfx+0x18c/0x310
-[ 6022.880938]        handle_exit+0x138/0x198
-[ 6022.885022]        kvm_arch_vcpu_ioctl_run+0x4d4/0x978
-[ 6022.890148]        kvm_vcpu_ioctl+0x3d4/0x8f8
-[ 6022.894494]        ksys_ioctl+0x90/0xd0
-[ 6022.898317]        __arm64_sys_ioctl+0x24/0x30
-[ 6022.902748]        el0_svc_common.constprop.3+0xa8/0x1e8
-[ 6022.908046]        do_el0_svc+0x28/0x88
-[ 6022.911871]        el0_svc+0x14/0x40
-[ 6022.915434]        el0_sync_handler+0x124/0x2b8
-[ 6022.919951]        el0_sync+0x140/0x180
-[ 6022.923773]
-[ 6022.923773] other info that might help us debug this:
-[ 6022.923773]
-[ 6022.931762] Chain exists of:
-[ 6022.931762]   &p->pi_lock --> &rq->lock --> &irq_desc_lock_class
-[ 6022.931762]
-[ 6022.942101]  Possible unsafe locking scenario:
-[ 6022.942101]
-[ 6022.948007]        CPU0                    CPU1
-[ 6022.952523]        ----                    ----
-[ 6022.957039]   lock(&irq_desc_lock_class);
-[ 6022.961036]                                lock(&rq->lock);
-[ 6022.966595]                                lock(&irq_desc_lock_class);
-[ 6022.973109]   lock(&p->pi_lock);
-[ 6022.976324]
-[ 6022.976324]  *** DEADLOCK ***
+  [ ] DEBUG_LOCKS_WARN_ON(current->hardirqs_enabled)
+  ...
+  [ ] Call Trace:
+  [ ]  lock_is_held_type+0x5d/0x150
+  [ ]  ? rcu_lockdep_current_cpu_online+0x64/0x80
+  [ ]  rcu_read_lock_any_held+0xac/0x100
+  [ ]  ? rcu_read_lock_held+0xc0/0xc0
+  [ ]  ? __slab_free+0x421/0x540
+  [ ]  ? kasan_kmalloc+0x9/0x10
+  [ ]  ? __kmalloc_node+0x1d7/0x320
+  [ ]  ? kvmalloc_node+0x6f/0x80
+  [ ]  __bfs+0x28a/0x3c0
+  [ ]  ? class_equal+0x30/0x30
+  [ ]  lockdep_count_forward_deps+0x11a/0x1a0
 
-This is happening because we have a pending doorbell that requires
-retrigger. As SW retriggering is done in a tasklet, we trigger the
-circular dependency above.
+The warning got triggered because lockdep_count_forward_deps() call
+__bfs() without current->lockdep_recursion being set, as a result
+a lockdep internal function (__bfs()) is checked by lockdep, which is
+unexpected, and the inconsistency between the irq-off state and the
+state traced by lockdep caused the warning.
 
-The easy cop-out is to provide a retrigger callback that doesn't
-require acquiring any extra lock.
+Apart from this warning, lockdep internal functions like __bfs() should
+always be protected by current->lockdep_recursion to avoid potential
+deadlocks and data inconsistency, therefore add the
+current->lockdep_recursion on-and-off section to protect __bfs() in both
+lockdep_count_forward_deps() and lockdep_count_backward_deps()
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200310184921.23552-5-maz@kernel.org
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200312151258.128036-1-boqun.feng@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/locking/lockdep.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index 799df1e598db3..84b23d902d5b8 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2591,12 +2591,18 @@ static int its_vpe_set_irqchip_state(struct irq_data *d,
- 	return 0;
- }
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 90a3469a7a888..03e3ab61a2edd 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -1297,9 +1297,11 @@ unsigned long lockdep_count_forward_deps(struct lock_class *class)
+ 	this.class = class;
  
-+static int its_vpe_retrigger(struct irq_data *d)
-+{
-+	return !its_vpe_set_irqchip_state(d, IRQCHIP_STATE_PENDING, true);
-+}
-+
- static struct irq_chip its_vpe_irq_chip = {
- 	.name			= "GICv4-vpe",
- 	.irq_mask		= its_vpe_mask_irq,
- 	.irq_unmask		= its_vpe_unmask_irq,
- 	.irq_eoi		= irq_chip_eoi_parent,
- 	.irq_set_affinity	= its_vpe_set_affinity,
-+	.irq_retrigger		= its_vpe_retrigger,
- 	.irq_set_irqchip_state	= its_vpe_set_irqchip_state,
- 	.irq_set_vcpu_affinity	= its_vpe_set_vcpu_affinity,
- };
+ 	raw_local_irq_save(flags);
++	current->lockdep_recursion = 1;
+ 	arch_spin_lock(&lockdep_lock);
+ 	ret = __lockdep_count_forward_deps(&this);
+ 	arch_spin_unlock(&lockdep_lock);
++	current->lockdep_recursion = 0;
+ 	raw_local_irq_restore(flags);
+ 
+ 	return ret;
+@@ -1324,9 +1326,11 @@ unsigned long lockdep_count_backward_deps(struct lock_class *class)
+ 	this.class = class;
+ 
+ 	raw_local_irq_save(flags);
++	current->lockdep_recursion = 1;
+ 	arch_spin_lock(&lockdep_lock);
+ 	ret = __lockdep_count_backward_deps(&this);
+ 	arch_spin_unlock(&lockdep_lock);
++	current->lockdep_recursion = 0;
+ 	raw_local_irq_restore(flags);
+ 
+ 	return ret;
 -- 
 2.20.1
 
