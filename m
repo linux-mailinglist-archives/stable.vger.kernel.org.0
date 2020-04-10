@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E17FD1A4068
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96B881A4065
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728765AbgDJDuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:50:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34382 "EHLO mail.kernel.org"
+        id S1726924AbgDJDuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:50:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728752AbgDJDuB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:50:01 -0400
+        id S1728769AbgDJDuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:50:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7353120BED;
-        Fri, 10 Apr 2020 03:50:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C11820CC7;
+        Fri, 10 Apr 2020 03:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490601;
-        bh=UvqpvL2EV4UnpoXXEwi/oSxZiUT7lftlgu3mMdrpfkc=;
+        s=default; t=1586490602;
+        bh=S+7+beaz5/RJ0NAlCU5OJ+8QC+v+mGFfrqkrr2LeSro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzihmek2iJTqeOgeWC+b8cOj2TRgr62GR8MKULDQNmD3V6Mqd9VRG/9DQmepmRznm
-         xkIv6XYfm7lXDBVAfhQLTKLBqUTfNLg32gLIAgRFd7sBZYc2JsvyaKH8bmE6qydMEp
-         +vIhp5B+o44NMtIKNi0mze59PVI9L9ZiMGjH0qLs=
+        b=Mu/BJqr+AYCl5Kivh6cHWHATWSbNhSRO3WjoRKM3HNWN1BY6XDD73axvFhcr54U5z
+         39v9SfV5HmUnOcsjhdNIyHke5N8CjDxlSmm+Bv9CsRgmahX1lMAkJwAxL4lJEcE/MO
+         xFpCjwQvjdyRh4YGa0Xclqx3uQC1PhW9SwqZOQuY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
+Cc:     Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 44/46] btrfs: remove a BUG_ON() from merge_reloc_roots()
-Date:   Thu,  9 Apr 2020 23:49:07 -0400
-Message-Id: <20200410034909.8922-44-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 45/46] btrfs: restart relocate_tree_blocks properly
+Date:   Thu,  9 Apr 2020 23:49:08 -0400
+Message-Id: <20200410034909.8922-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034909.8922-1-sashal@kernel.org>
 References: <20200410034909.8922-1-sashal@kernel.org>
@@ -45,73 +45,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 7b7b74315b24dc064bc1c683659061c3d48f8668 ]
+[ Upstream commit 50dbbb71c79df89532ec41d118d59386e5a877e3 ]
 
-This was pretty subtle, we default to reloc roots having 0 root refs, so
-if we crash in the middle of the relocation they can just be deleted.
-If we successfully complete the relocation operations we'll set our root
-refs to 1 in prepare_to_merge() and then go on to merge_reloc_roots().
+There are two bugs here, but fixing them independently would just result
+in pain if you happened to bisect between the two patches.
 
-At prepare_to_merge() time if any of the reloc roots have a 0 reference
-still, we will remove that reloc root from our reloc root rb tree, and
-then clean it up later.
+First is how we handle the -EAGAIN from relocate_tree_block().  We don't
+set error, unless we happen to be the first node, which makes no sense,
+I have no idea what the code was trying to accomplish here.
 
-However this only happens if we successfully start a transaction.  If
-we've aborted previously we will skip this step completely, and only
-have reloc roots with a reference count of 0, but were never properly
-removed from the reloc control's rb tree.
+We in fact _do_ want err set here so that we know we need to restart in
+relocate_block_group().  Also we need finish_pending_nodes() to not
+actually call link_to_upper(), because we didn't actually relocate the
+block.
 
-This isn't a problem per-se, our references are held by the list the
-reloc roots are on, and by the original root the reloc root belongs to.
-If we end up in this situation all the reloc roots will be added to the
-dirty_reloc_list, and then properly dropped at that point.  The reloc
-control will be free'd and the rb tree is no longer used.
+And then if we do get -EAGAIN we do not want to set our backref cache
+last_trans to the one before ours.  This would force us to update our
+backref cache if we didn't cross transaction ids, which would mean we'd
+have some nodes updated to their new_bytenr, but still able to find
+their old bytenr because we're searching the same commit root as the
+last time we went through relocate_tree_blocks.
 
-There were two options when fixing this, one was to remove the BUG_ON(),
-the other was to make prepare_to_merge() handle the case where we
-couldn't start a trans handle.
+Fixing these two things keeps us from panicing when we start breaking
+out of relocate_tree_blocks() either for delayed ref flushing or enospc.
 
-IMO this is the cleaner solution.  I started with handling the error in
-prepare_to_merge(), but it turned out super ugly.  And in the end this
-BUG_ON() simply doesn't matter, the cleanup was happening properly, we
-were just panicing because this BUG_ON() only matters in the success
-case.  So I've opted to just remove it and add a comment where it was.
-
-Reviewed-by: Qu Wenruo <wqu@suse.com>
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/relocation.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ fs/btrfs/relocation.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
 diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index 4abdf3ec81c18..e1337598d15ea 100644
+index e1337598d15ea..e3ba1c12008a9 100644
 --- a/fs/btrfs/relocation.c
 +++ b/fs/btrfs/relocation.c
-@@ -2562,7 +2562,21 @@ void merge_reloc_roots(struct reloc_control *rc)
- 			free_reloc_roots(&reloc_roots);
+@@ -3176,9 +3176,8 @@ int relocate_tree_blocks(struct btrfs_trans_handle *trans,
+ 		ret = relocate_tree_block(trans, rc, node, &block->key,
+ 					  path);
+ 		if (ret < 0) {
+-			if (ret != -EAGAIN || &block->rb_node == rb_first(blocks))
+-				err = ret;
+-			goto out;
++			err = ret;
++			break;
+ 		}
  	}
- 
--	BUG_ON(!RB_EMPTY_ROOT(&rc->reloc_root_tree.rb_root));
-+	/*
-+	 * We used to have
-+	 *
-+	 * BUG_ON(!RB_EMPTY_ROOT(&rc->reloc_root_tree.rb_root));
-+	 *
-+	 * here, but it's wrong.  If we fail to start the transaction in
-+	 * prepare_to_merge() we will have only 0 ref reloc roots, none of which
-+	 * have actually been removed from the reloc_root_tree rb tree.  This is
-+	 * fine because we're bailing here, and we hold a reference on the root
-+	 * for the list that holds it, so these roots will be cleaned up when we
-+	 * do the reloc_dirty_list afterwards.  Meanwhile the root->reloc_root
-+	 * will be cleaned up on unmount.
-+	 *
-+	 * The remaining nodes will be cleaned up by free_reloc_control.
-+	 */
- }
- 
- static void free_block_list(struct rb_root *blocks)
+ out:
+@@ -4154,12 +4153,6 @@ static noinline_for_stack int relocate_block_group(struct reloc_control *rc)
+ 		if (!RB_EMPTY_ROOT(&blocks)) {
+ 			ret = relocate_tree_blocks(trans, rc, &blocks);
+ 			if (ret < 0) {
+-				/*
+-				 * if we fail to relocate tree blocks, force to update
+-				 * backref cache when committing transaction.
+-				 */
+-				rc->backref_cache.last_trans = trans->transid - 1;
+-
+ 				if (ret != -EAGAIN) {
+ 					err = ret;
+ 					break;
 -- 
 2.20.1
 
