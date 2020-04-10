@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 115181A4154
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7151A41AF
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:16:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728182AbgDJDs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:48:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59998 "EHLO mail.kernel.org"
+        id S1727612AbgDJD7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:59:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726839AbgDJDs1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:48:27 -0400
+        id S1728180AbgDJDs3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:48:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0BFF216FD;
-        Fri, 10 Apr 2020 03:48:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D2CC2166E;
+        Fri, 10 Apr 2020 03:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490507;
-        bh=Dxv9GWgwYfpM4ZleMavZeL7T7rb9/AIQg6B8qLU2Pao=;
+        s=default; t=1586490508;
+        bh=7RdBcKbcSA8txvE3ou1/hXYhwhq2DHXO8rive13W17M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCL4ydLva/QusgsHkh+HenAXvD1Dwz2m9KvkRFsfcie9FEQGBRfMWg8sGZur+fX2Q
-         PDapxpTxGNFtgbIyHvHHSkJB6QJnUZefPAOEiXu4Fb0BLDrhhoH4D28rUk9SUfuglg
-         TfxIZol22gdmV+HFHj7u2/V0HKXI4y8WnMLIC02Y=
+        b=jSRcvTZZik2PoTmyjFyR20DhEJvbQafiou+zBTzqkyhGZkNdEm3UQsfe34RvIc0gh
+         IcrwCcKP6HvINjAsnTEN1t8admvWrsQLVh7Jv1aOkW/zNR318cKsW4uFBvrl5g+Ogy
+         jKK9SOGinF1TxALyJPH0CJcIOo5vSgk+8Qn2rOkA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Michael Walle <michael@walle.cc>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 22/56] spi: spi-fsl-dspi: Avoid NULL pointer in dspi_slave_abort for non-DMA mode
-Date:   Thu,  9 Apr 2020 23:47:26 -0400
-Message-Id: <20200410034800.8381-22-sashal@kernel.org>
+Cc:     Sungbo Eo <mans0n@gorani.run>, Marc Zyngier <maz@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 23/56] irqchip/versatile-fpga: Handle chained IRQs properly
+Date:   Thu,  9 Apr 2020 23:47:27 -0400
+Message-Id: <20200410034800.8381-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034800.8381-1-sashal@kernel.org>
 References: <20200410034800.8381-1-sashal@kernel.org>
@@ -44,40 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Sungbo Eo <mans0n@gorani.run>
 
-[ Upstream commit 3d6224e63be39ff26cf416492cb3923cd3d07dd0 ]
+[ Upstream commit 486562da598c59e9f835b551d7cf19507de2d681 ]
 
-The driver does not create the dspi->dma structure unless operating in
-DSPI_DMA_MODE, so it makes sense to check for that.
+Enclose the chained handler with chained_irq_{enter,exit}(), so that the
+muxed interrupts get properly acked.
 
-Fixes: f4b323905d8b ("spi: Introduce dspi_slave_abort() function for NXP's dspi SPI driver")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Tested-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20200318001603.9650-8-olteanv@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch also fixes a reboot bug on OX820 SoC, where the jiffies timer
+interrupt is never acked. The kernel waits a clock tick forever in
+calibrate_delay_converge(), which leads to a boot hang.
+
+Fixes: c41b16f8c9d9 ("ARM: integrator/versatile: consolidate FPGA IRQ handling code")
+Signed-off-by: Sungbo Eo <mans0n@gorani.run>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200319023448.1479701-1-mans0n@gorani.run
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-dspi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-versatile-fpga.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index 8428b69c858bc..a534b8af27b8d 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -1021,8 +1021,10 @@ static int dspi_slave_abort(struct spi_master *master)
- 	 * Terminate all pending DMA transactions for the SPI working
- 	 * in SLAVE mode.
- 	 */
--	dmaengine_terminate_sync(dspi->dma->chan_rx);
--	dmaengine_terminate_sync(dspi->dma->chan_tx);
-+	if (dspi->devtype_data->trans_mode == DSPI_DMA_MODE) {
-+		dmaengine_terminate_sync(dspi->dma->chan_rx);
-+		dmaengine_terminate_sync(dspi->dma->chan_tx);
-+	}
+diff --git a/drivers/irqchip/irq-versatile-fpga.c b/drivers/irqchip/irq-versatile-fpga.c
+index 928858dada756..70e2cfff8175f 100644
+--- a/drivers/irqchip/irq-versatile-fpga.c
++++ b/drivers/irqchip/irq-versatile-fpga.c
+@@ -6,6 +6,7 @@
+ #include <linux/irq.h>
+ #include <linux/io.h>
+ #include <linux/irqchip.h>
++#include <linux/irqchip/chained_irq.h>
+ #include <linux/irqchip/versatile-fpga.h>
+ #include <linux/irqdomain.h>
+ #include <linux/module.h>
+@@ -68,12 +69,16 @@ static void fpga_irq_unmask(struct irq_data *d)
  
- 	/* Clear the internal DSPI RX and TX FIFO buffers */
- 	regmap_update_bits(dspi->regmap, SPI_MCR,
+ static void fpga_irq_handle(struct irq_desc *desc)
+ {
++	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	struct fpga_irq_data *f = irq_desc_get_handler_data(desc);
+-	u32 status = readl(f->base + IRQ_STATUS);
++	u32 status;
++
++	chained_irq_enter(chip, desc);
+ 
++	status = readl(f->base + IRQ_STATUS);
+ 	if (status == 0) {
+ 		do_bad_IRQ(desc);
+-		return;
++		goto out;
+ 	}
+ 
+ 	do {
+@@ -82,6 +87,9 @@ static void fpga_irq_handle(struct irq_desc *desc)
+ 		status &= ~(1 << irq);
+ 		generic_handle_irq(irq_find_mapping(f->domain, irq));
+ 	} while (status);
++
++out:
++	chained_irq_exit(chip, desc);
+ }
+ 
+ /*
 -- 
 2.20.1
 
