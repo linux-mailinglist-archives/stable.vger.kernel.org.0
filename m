@@ -2,144 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C43601A3DD4
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 03:50:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CDB61A3EDE
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726082AbgDJBuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 21:50:14 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:38833 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725987AbgDJBuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Apr 2020 21:50:14 -0400
-Received: by mail-pg1-f193.google.com with SMTP id p8so362167pgi.5
-        for <stable@vger.kernel.org>; Thu, 09 Apr 2020 18:50:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+pPorZqj/jQfCH1qDoarSl4CcJohI91UiHlj9Wt3Zog=;
-        b=OvM4IKj3L6LwSz6Rt7l141o18ZKYCCoYoZI/pYoPygqgOaTatDDzWAnyq8/Pv7b3Xg
-         MfhE6Emv46VMwR6OP0ORcgHZ7l4N/OkuckVvMQo8LisI6yXsADWw7xIuHcsv23Nrlm4v
-         FrnYaQwG7F4H/k0oow0e2YC1tUWdK1sFD5meFQZlM4yIgJtQr4yy93+wREzeEvMjTWq0
-         DZetCMxC0hJurUiw7rJUZfytU91EkxHVKiyRrW0/bFEpk5oEXktdQmm+OECm7RkQg9Qh
-         cjreRaQ5XTqRsXMeucHSof2CHLz57NMWoZSQbp3H+z9KTKBW9rfWUo5J17TwwFp+ac+b
-         tm9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+pPorZqj/jQfCH1qDoarSl4CcJohI91UiHlj9Wt3Zog=;
-        b=htMaKrD0T5U2E0lnpbjz/o08XQZugPB4wqgOmhU8HJnEeA6m4PDzLG1eLiER00brIb
-         0TLj/J5OyapZWiKj0aP24TEbLXkoJjbCrC4d4C/q8a/Ed3NMMb37K2W0RRAntG2/vcrL
-         G6G/ugJ2RqjxTGrud97YBzTPq461wA4cLcF79G3e/wxFa39hyHkQFwu+CqRMjF15eMBd
-         gZoH1qab8eqUdzPx3a3DySZvXXeiQxrmZlIjwU8zSPPy9F5/lnu8FecWKG4Y9i3nD0LY
-         Qqk42nDoYgZGA2vMqQGL318qWb5+T8ePilNf0aaYdzFF1iZ/UeO9E+TOypXSDjwHtVKb
-         sdKw==
-X-Gm-Message-State: AGi0PuYby11Mp14N/IZFVXWr2k4ocbGluqReVdNVNsytcNGguILZJPA3
-        lFWkpzzZ0utjcjNr0cS5z0HkbaHrxxY=
-X-Google-Smtp-Source: APiQypLh73AIABm8Ef/eWhZUpRSZzNOimC1eLj8Hkwb/Ws5+W973xMdPvZVuJXDMcJNICMcB7Q06TQ==
-X-Received: by 2002:a65:67c7:: with SMTP id b7mr2269520pgs.345.1586483412589;
-        Thu, 09 Apr 2020 18:50:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h71sm341162pge.32.2020.04.09.18.50.11
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Apr 2020 18:50:11 -0700 (PDT)
-Message-ID: <5e8fd0d3.1c69fb81.27c16.1467@mx.google.com>
-Date:   Thu, 09 Apr 2020 18:50:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726638AbgDJDqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:46:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56494 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726082AbgDJDqg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:46:36 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2CBE20936;
+        Fri, 10 Apr 2020 03:46:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586490396;
+        bh=AL4Duf7m5IvoTTD4d2+gCaDhn7bLAW1D0iwX6syCWJw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=CVPqHkZ1K/ERlREdTqvk8eiNtwkATH6e3qmGz2NAuSZw1rSJ+FcBFqPP45x55dinu
+         0j+WXTV5kB8s8cZapgpX9HJpaxPWmlKRV/eGHBG6kW7jE47o0CJBBxQZa0EokXV31C
+         ZAAyfBHD1fmZoeBp0xYwupz4ZMNKj2I8aQvyoRcQ=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 01/68] cpufreq: imx6q: Fixes unwanted cpu overclocking on i.MX6ULL
+Date:   Thu,  9 Apr 2020 23:45:26 -0400
+Message-Id: <20200410034634.7731-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.30-54-g6f04e8ca5355
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y boot: 164 boots: 2 failed,
- 153 passed with 3 offline, 6 untried/unknown (v5.4.30-54-g6f04e8ca5355)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y boot: 164 boots: 2 failed, 153 passed with 3 offline,=
- 6 untried/unknown (v5.4.30-54-g6f04e8ca5355)
+From: Christoph Niedermaier <cniedermaier@dh-electronics.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.30-54-g6f04e8ca5355/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.30-54-g6f04e8ca5355/
+[ Upstream commit 36eb7dc1bd42fe5f850329c893768ff89b696fba ]
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.30-54-g6f04e8ca5355
-Git Commit: 6f04e8ca5355b84edfdd022f0bb4dc18200341ef
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 101 unique boards, 25 SoC families, 20 builds out of 200
+imx6ul_opp_check_speed_grading is called for both i.MX6UL and i.MX6ULL.
+Since the i.MX6ULL was introduced to a separate ocotp compatible node
+later, it is possible that the i.MX6ULL has also dtbs with
+"fsl,imx6ull-ocotp". On a system without nvmem-cell speed grade a
+missing check on this node causes a driver fail without considering
+the cpu speed grade.
 
-Boot Regressions Detected:
+This patch prevents unwanted cpu overclocking on i.MX6ULL with compatible
+node "fsl,imx6ull-ocotp" in old dtbs without nvmem-cell speed grade.
 
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 61 days (last pass: v5.4.=
-17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 2 days (last pass: v5.4.30-37-g40=
-da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.4.30-39-g23c04177b8=
-9f)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v5.4.30-39-g23c=
-04177b89f)
-          meson-g12b-a311d-khadas-vim3:
-              lab-baylibre: new failure (last pass: v5.4.30-39-g23c04177b89=
-f)
-
-Boot Failures Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            stih410-b2120: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
+Fixes: 2733fb0d0699 ("cpufreq: imx6q: read OCOTP through nvmem for imx6ul/imx6ull")
+Signed-off-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/cpufreq/imx6q-cpufreq.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/cpufreq/imx6q-cpufreq.c b/drivers/cpufreq/imx6q-cpufreq.c
+index 648a09a1778a3..1fcbbd53a48a2 100644
+--- a/drivers/cpufreq/imx6q-cpufreq.c
++++ b/drivers/cpufreq/imx6q-cpufreq.c
+@@ -280,6 +280,9 @@ static int imx6ul_opp_check_speed_grading(struct device *dev)
+ 		void __iomem *base;
+ 
+ 		np = of_find_compatible_node(NULL, NULL, "fsl,imx6ul-ocotp");
++		if (!np)
++			np = of_find_compatible_node(NULL, NULL,
++						     "fsl,imx6ull-ocotp");
+ 		if (!np)
+ 			return -ENOENT;
+ 
+-- 
+2.20.1
+
