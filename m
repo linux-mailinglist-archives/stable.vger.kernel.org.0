@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72EDB1A40F0
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBA341A3EF5
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726846AbgDJDqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726834AbgDJDqu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Apr 2020 23:46:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56958 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726821AbgDJDqt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:46:49 -0400
+        id S1726759AbgDJDqu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:46:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CED320BED;
-        Fri, 10 Apr 2020 03:46:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8843720936;
+        Fri, 10 Apr 2020 03:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490409;
-        bh=u8YqO5KRkDMJkvpaDUQlB5lQevXHKx6UCjjbjXQemGU=;
+        s=default; t=1586490410;
+        bh=67CmsBXhGdHoYKLS1PHocYKFpEGu9O35WeIeUEMuhKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FyehbGI3uKjc/GZqo3fKv7NKyuTxGogTcBsEaUy737dVauoUXEbgJKYQlQREV76dY
-         DieQNIysfQ3M/iI/FTUHFWwlRULY0rOlYo3PwI+OMG6t7CBzkbDX6vkZYArM0jkoXl
-         zJE5lVgAYyBOiGla1b0Pxr/9Vz9jsx+Q3f78jtG8=
+        b=SyUv5s2KAq7pAWLPWtXnkD2lul4aEnaGGG+6mjs9Zeior6yyoBcJxSREtz27JVtB+
+         gu8OgeEWy9ivuSGIYrMYg6cu+H2ECCoC4M+EM3I6Bwst2+NJSyLU2Bt/5yNvqky3g3
+         6kc9rXYEsze/YxdHWJE79lOrYB85MSjGjCY1NQv4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mohammad Rasim <mohammad.rasim96@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 11/68] media: arm64: dts: amlogic: add rc-videostrong-kii-pro keymap
-Date:   Thu,  9 Apr 2020 23:45:36 -0400
-Message-Id: <20200410034634.7731-11-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 12/68] usb: phy: tegra: Include proper GPIO consumer header to fix compile testing
+Date:   Thu,  9 Apr 2020 23:45:37 -0400
+Message-Id: <20200410034634.7731-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034634.7731-1-sashal@kernel.org>
 References: <20200410034634.7731-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,33 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohammad Rasim <mohammad.rasim96@gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 806d06161af045dba29f3c7747550c93b2ea3ca9 ]
+[ Upstream commit 9cb9322a26ae84424c3e16e58617b3d8962fdbbb ]
 
-videostrong kii pro comes with a nec rc, add the keymap to the dts
+The driver uses only GPIO Descriptor Consumer Interface so include
+proper header.  This fixes compile test failures (e.g. on i386):
 
-Signed-off-by: Mohammad Rasim <mohammad.rasim96@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+    drivers/usb/phy/phy-tegra-usb.c: In function ‘ulpi_phy_power_on’:
+    drivers/usb/phy/phy-tegra-usb.c:695:2: error:
+        implicit declaration of function ‘gpiod_set_value_cansleep’ [-Werror=implicit-function-declaration]
+    drivers/usb/phy/phy-tegra-usb.c: In function ‘tegra_usb_phy_probe’:
+    drivers/usb/phy/phy-tegra-usb.c:1167:11: error:
+        implicit declaration of function ‘devm_gpiod_get_from_of_node’ [-Werror=implicit-function-declaration]
+
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/1583234960-24909-1-git-send-email-krzk@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/phy/phy-tegra-usb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-index 2f1f829450a29..6c9cc45fb417e 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-@@ -76,3 +76,7 @@
- 		};
- 	};
- };
-+
-+&ir {
-+	linux,rc-map-name = "rc-videostrong-kii-pro";
-+};
+diff --git a/drivers/usb/phy/phy-tegra-usb.c b/drivers/usb/phy/phy-tegra-usb.c
+index 6153cc35aba0d..cffe2aced4884 100644
+--- a/drivers/usb/phy/phy-tegra-usb.c
++++ b/drivers/usb/phy/phy-tegra-usb.c
+@@ -12,12 +12,11 @@
+ #include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/export.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/iopoll.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+-#include <linux/of_gpio.h>
+ #include <linux/platform_device.h>
+ #include <linux/resource.h>
+ #include <linux/slab.h>
 -- 
 2.20.1
 
