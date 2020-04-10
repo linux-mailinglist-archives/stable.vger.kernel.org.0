@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BCAA1A3FF3
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA711A4006
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 05:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729186AbgDJDvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Apr 2020 23:51:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36642 "EHLO mail.kernel.org"
+        id S1726834AbgDJDwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Apr 2020 23:52:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729180AbgDJDvX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:51:23 -0400
+        id S1729184AbgDJDvZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:51:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1499D20936;
-        Fri, 10 Apr 2020 03:51:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18F0B215A4;
+        Fri, 10 Apr 2020 03:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490683;
-        bh=We/vyhe2cfJd2qfF9pcHX4vqYU/yzKoy1e/YSwJxI2k=;
-        h=From:To:Cc:Subject:Date:From;
-        b=GspE30Q3rosI7bHxd1C1XyS8Hv8rqHUYAolNlKXSikB0UVN8ZXsGyt518M9RHMqsb
-         UKfzylvBUA3Zmh4COaObYY3G4VmnazoqG3ih46hhEICxP26z9IDDwbqv2wDdBrFtSv
-         bZjUSLAmnA7qVodGMy63WiMU6HvPlRW9lya7RaSE=
+        s=default; t=1586490684;
+        bh=rXNVyeTWN1PwcxtA3YxF+ZGQmp65KQpCYuDUWuHLwSU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=WqzpMYVN1imC2Uj6RacOPWtHii+iFL1R9ndRW174JgqENgZ2QRNDYfuPhMVfnK4LJ
+         AupWoYv7MLH+/VP6Phz8rnHabjMFbud3vjqMc1O+lxu6ucZdYn0dKEdvAuJEko0DyY
+         vX3rykbDyIEqhY8g5fFp0PZWpsmajG8m5F8OHpNQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sungbo Eo <mans0n@gorani.run>, Marc Zyngier <maz@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 1/8] irqchip/versatile-fpga: Handle chained IRQs properly
-Date:   Thu,  9 Apr 2020 23:51:14 -0400
-Message-Id: <20200410035122.10065-1-sashal@kernel.org>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        kbuild test robot <lkp@intel.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 2/8] selftests/x86/ptrace_syscall_32: Fix no-vDSO segfault
+Date:   Thu,  9 Apr 2020 23:51:15 -0400
+Message-Id: <20200410035122.10065-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200410035122.10065-1-sashal@kernel.org>
+References: <20200410035122.10065-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,67 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungbo Eo <mans0n@gorani.run>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit 486562da598c59e9f835b551d7cf19507de2d681 ]
+[ Upstream commit 630b99ab60aa972052a4202a1ff96c7e45eb0054 ]
 
-Enclose the chained handler with chained_irq_{enter,exit}(), so that the
-muxed interrupts get properly acked.
+If AT_SYSINFO is not present, don't try to call a NULL pointer.
 
-This patch also fixes a reboot bug on OX820 SoC, where the jiffies timer
-interrupt is never acked. The kernel waits a clock tick forever in
-calibrate_delay_converge(), which leads to a boot hang.
-
-Fixes: c41b16f8c9d9 ("ARM: integrator/versatile: consolidate FPGA IRQ handling code")
-Signed-off-by: Sungbo Eo <mans0n@gorani.run>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200319023448.1479701-1-mans0n@gorani.run
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/faaf688265a7e1a5b944d6f8bc0f6368158306d3.1584052409.git.luto@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-versatile-fpga.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ tools/testing/selftests/x86/ptrace_syscall.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/irqchip/irq-versatile-fpga.c b/drivers/irqchip/irq-versatile-fpga.c
-index cadf104e30746..c18f6bdd03b12 100644
---- a/drivers/irqchip/irq-versatile-fpga.c
-+++ b/drivers/irqchip/irq-versatile-fpga.c
-@@ -5,6 +5,7 @@
- #include <linux/irq.h>
- #include <linux/io.h>
- #include <linux/irqchip.h>
-+#include <linux/irqchip/chained_irq.h>
- #include <linux/irqchip/versatile-fpga.h>
- #include <linux/irqdomain.h>
- #include <linux/module.h>
-@@ -67,12 +68,16 @@ static void fpga_irq_unmask(struct irq_data *d)
+diff --git a/tools/testing/selftests/x86/ptrace_syscall.c b/tools/testing/selftests/x86/ptrace_syscall.c
+index 5105b49cd8aa5..8b3c1236f04dc 100644
+--- a/tools/testing/selftests/x86/ptrace_syscall.c
++++ b/tools/testing/selftests/x86/ptrace_syscall.c
+@@ -284,8 +284,12 @@ int main()
  
- static void fpga_irq_handle(struct irq_desc *desc)
- {
-+	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	struct fpga_irq_data *f = irq_desc_get_handler_data(desc);
--	u32 status = readl(f->base + IRQ_STATUS);
-+	u32 status;
-+
-+	chained_irq_enter(chip, desc);
+ #if defined(__i386__) && (!defined(__GLIBC__) || __GLIBC__ > 2 || __GLIBC_MINOR__ >= 16)
+ 	vsyscall32 = (void *)getauxval(AT_SYSINFO);
+-	printf("[RUN]\tCheck AT_SYSINFO return regs\n");
+-	test_sys32_regs(do_full_vsyscall32);
++	if (vsyscall32) {
++		printf("[RUN]\tCheck AT_SYSINFO return regs\n");
++		test_sys32_regs(do_full_vsyscall32);
++	} else {
++		printf("[SKIP]\tAT_SYSINFO is not available\n");
++	}
+ #endif
  
-+	status = readl(f->base + IRQ_STATUS);
- 	if (status == 0) {
- 		do_bad_IRQ(desc);
--		return;
-+		goto out;
- 	}
- 
- 	do {
-@@ -81,6 +86,9 @@ static void fpga_irq_handle(struct irq_desc *desc)
- 		status &= ~(1 << irq);
- 		generic_handle_irq(irq_find_mapping(f->domain, irq));
- 	} while (status);
-+
-+out:
-+	chained_irq_exit(chip, desc);
- }
- 
- /*
+ 	test_ptrace_syscall_restart();
 -- 
 2.20.1
 
