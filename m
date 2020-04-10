@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C91A11A41B4
-	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 491CD1A41B5
+	for <lists+stable@lfdr.de>; Fri, 10 Apr 2020 06:16:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728462AbgDJD7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727220AbgDJD7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Apr 2020 23:59:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59786 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726767AbgDJDsX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Apr 2020 23:48:23 -0400
+        id S1728172AbgDJDsY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Apr 2020 23:48:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BAF521473;
-        Fri, 10 Apr 2020 03:48:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C7D320936;
+        Fri, 10 Apr 2020 03:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586490503;
-        bh=XSrdZZPRrkydDSI2Cfmq4du3S4DhEDyE4bvHKeeTGCc=;
+        s=default; t=1586490504;
+        bh=bLaYknW8xJkpruAeW9vzpZ0HesbH5LKBqP1T/qNO/0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iml/QOLbpBnd+08ULGN/HfG2UGUUHf0PJhXQSBs5AiuamtCKSaryvtOqUtviIjNce
-         3JMcLYCLseyeYOI9OlaLRQsOeiKj2KPbYjiyxZQAgMTrYI5M03CYst8YUtxaNgO0Jx
-         ywYfwnR6UzNy0KgCPU4P3KiUZtId8wqhAJdHOxP4=
+        b=f3SrJ2/1DJAQ6a1cHbfvF8A8WkiJB5CXODmLx8v/oB2VyuztXdo1lYd5K8jDgN0jF
+         9Z2ny94tz4d6hniUxTF9Xz/015POXDREyUKOl8ZzlUe3MjW8ZSdhoib04MJA+F2b3h
+         JpnL+TRafV2g0tCb1vZORLvlRC4EnOUQwY97ES9Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Thomas Hellstrom <thellstrom@vmware.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>, Christoph Hellwig <hch@lst.de>,
         Tom Lendacky <thomas.lendacky@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 18/56] x86: Don't let pgprot_modify() change the page encryption bit
-Date:   Thu,  9 Apr 2020 23:47:22 -0400
-Message-Id: <20200410034800.8381-18-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.5 19/56] dma-mapping: Fix dma_pgprot() for unencrypted coherent pages
+Date:   Thu,  9 Apr 2020 23:47:23 -0400
+Message-Id: <20200410034800.8381-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200410034800.8381-1-sashal@kernel.org>
 References: <20200410034800.8381-1-sashal@kernel.org>
@@ -47,65 +47,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Hellstrom <thellstrom@vmware.com>
 
-[ Upstream commit 6db73f17c5f155dbcfd5e48e621c706270b84df0 ]
+[ Upstream commit 17c4a2ae15a7aaefe84bdb271952678c5c9cd8e1 ]
 
-When SEV or SME is enabled and active, vm_get_page_prot() typically
-returns with the encryption bit set. This means that users of
-pgprot_modify(, vm_get_page_prot()) (mprotect_fixup(), do_mmap()) end up
-with a value of vma->vm_pg_prot that is not consistent with the intended
-protection of the PTEs.
+When dma_mmap_coherent() sets up a mapping to unencrypted coherent memory
+under SEV encryption and sometimes under SME encryption, it will actually
+set up an encrypted mapping rather than an unencrypted, causing devices
+that DMAs from that memory to read encrypted contents. Fix this.
 
-This is also important for fault handlers that rely on the VMA
-vm_page_prot to set the page protection. Fix this by not allowing
-pgprot_modify() to change the encryption bit, similar to how it's done
-for PAT bits.
+When force_dma_unencrypted() returns true, the linear kernel map of the
+coherent pages have had the encryption bit explicitly cleared and the
+page content is unencrypted. Make sure that any additional PTEs we set
+up to these pages also have the encryption bit cleared by having
+dma_pgprot() return a protection with the encryption bit cleared in this
+case.
 
 Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Link: https://lkml.kernel.org/r/20200304114527.3636-2-thomas_os@shipmail.org
+Link: https://lkml.kernel.org/r/20200304114527.3636-3-thomas_os@shipmail.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/pgtable.h       | 7 +++++--
- arch/x86/include/asm/pgtable_types.h | 2 +-
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ kernel/dma/mapping.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
-index ad97dc1551959..9de80cbdd887e 100644
---- a/arch/x86/include/asm/pgtable.h
-+++ b/arch/x86/include/asm/pgtable.h
-@@ -624,12 +624,15 @@ static inline pmd_t pmd_modify(pmd_t pmd, pgprot_t newprot)
- 	return __pmd(val);
- }
- 
--/* mprotect needs to preserve PAT bits when updating vm_page_prot */
-+/*
-+ * mprotect needs to preserve PAT and encryption bits when updating
-+ * vm_page_prot
-+ */
- #define pgprot_modify pgprot_modify
- static inline pgprot_t pgprot_modify(pgprot_t oldprot, pgprot_t newprot)
- {
- 	pgprotval_t preservebits = pgprot_val(oldprot) & _PAGE_CHG_MASK;
--	pgprotval_t addbits = pgprot_val(newprot);
-+	pgprotval_t addbits = pgprot_val(newprot) & ~_PAGE_CHG_MASK;
- 	return __pgprot(preservebits | addbits);
- }
- 
-diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
-index b5e49e6bac635..8267dd426b152 100644
---- a/arch/x86/include/asm/pgtable_types.h
-+++ b/arch/x86/include/asm/pgtable_types.h
-@@ -123,7 +123,7 @@
+diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
+index 12ff766ec1fa3..98e3d873792ea 100644
+--- a/kernel/dma/mapping.c
++++ b/kernel/dma/mapping.c
+@@ -154,6 +154,8 @@ EXPORT_SYMBOL(dma_get_sgtable_attrs);
   */
- #define _PAGE_CHG_MASK	(PTE_PFN_MASK | _PAGE_PCD | _PAGE_PWT |		\
- 			 _PAGE_SPECIAL | _PAGE_ACCESSED | _PAGE_DIRTY |	\
--			 _PAGE_SOFT_DIRTY | _PAGE_DEVMAP)
-+			 _PAGE_SOFT_DIRTY | _PAGE_DEVMAP | _PAGE_ENC)
- #define _HPAGE_CHG_MASK (_PAGE_CHG_MASK | _PAGE_PSE)
- 
- /*
+ pgprot_t dma_pgprot(struct device *dev, pgprot_t prot, unsigned long attrs)
+ {
++	if (force_dma_unencrypted(dev))
++		prot = pgprot_decrypted(prot);
+ 	if (dev_is_dma_coherent(dev) ||
+ 	    (IS_ENABLED(CONFIG_DMA_NONCOHERENT_CACHE_SYNC) &&
+              (attrs & DMA_ATTR_NON_CONSISTENT)))
 -- 
 2.20.1
 
