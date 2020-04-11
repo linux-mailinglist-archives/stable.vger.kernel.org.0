@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8BBB1A5994
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:38:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF3A1A5990
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbgDKXhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:37:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45358 "EHLO mail.kernel.org"
+        id S1730652AbgDKXg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:36:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728923AbgDKXI2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:08:28 -0400
+        id S1727040AbgDKXI3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:08:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 352B8215A4;
-        Sat, 11 Apr 2020 23:08:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AAD021835;
+        Sat, 11 Apr 2020 23:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646508;
-        bh=FfamKzqmR4LfhcqSTESZFmZZwbrdUr1VXq7zFKsE2JM=;
+        s=default; t=1586646509;
+        bh=s4vRQIJwcxkL6l2FldF0HlhnWS37JsVCYYVOD5lTqjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DO7namsLkkF6U4osujMphNGkBKYClv7l0HbqJHpB7jGEPWEWA3YxZVQQJ7PSFvGT8
-         r1XR86bJggnj0JZT/oFJpD6Bl7PKc/Vhk0p2K+MjvibM9QiYSeXn5WMZgz7WZ1nlvF
-         sHCw6JCFFlqv5k0xbhPS+YoIES7P/xtKNquyT0hQ=
+        b=N6QS8TvnS9OwRHruvz1jucCejeZVVfT5XzVdxONzKn2LYtJYnAWWo5ql/AFtcLaN1
+         +jVi3wxGev2iaa7PVd5Mqm5SLRZcro1D4hawq0outzVT5ggGJHYNmp7FR2WeolPolU
+         oGIzRZ38Mn8xlLFYt0ZnzKdAx2MjiRGUQwNeagVA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yixian Liu <liuyixian@huawei.com>,
-        Salil Mehta <salil.mehta@huawei.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 067/121] RDMA/hns: Add the workqueue framework for flush cqe handler
-Date:   Sat, 11 Apr 2020 19:06:12 -0400
-Message-Id: <20200411230706.23855-67-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 068/121] mt76: mt7603: fix input validation issues for powersave-filtered frames
+Date:   Sat, 11 Apr 2020 19:06:13 -0400
+Message-Id: <20200411230706.23855-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -44,156 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yixian Liu <liuyixian@huawei.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit ffd541d45726341c1830ff595fd7352b6d1cfbcd ]
+[ Upstream commit d55aa5e17461b8b423adae376978032c4a10a1d8 ]
 
-HiP08 RoCE hardware lacks ability(a known hardware problem) to flush
-outstanding WQEs if QP state gets into errored mode for some reason.  To
-overcome this hardware problem and as a workaround, when QP is detected to
-be in errored state during various legs like post send, post receive etc
-[1], flush needs to be performed from the driver.
+Before extracting the tid out of the packet, check if it was qos-data.
+Only accept tid values 0-7
+Also, avoid accepting the hardware queue as skb queue mapping, it could
+lead to an overrun. Instead, derive the hardware queue from the tid number,
+in order to avoid issues with packets being filtered multiple times.
+This also fixes a mismatch between hardware and software queue indexes.
 
-The earlier patch[1] sent to solve the hardware limitation explained in
-the cover-letter had a bug in the software flushing leg. It acquired mutex
-while modifying QP state to errored state and while conveying it to the
-hardware using the mailbox. This caused leg to sleep while holding
-spin-lock and caused crash.
-
-Suggested Solution:
-we have proposed to defer the flushing of the QP in the Errored state
-using the workqueue to get around with the limitation of our hardware.
-
-This patch adds the framework of the workqueue and the flush handler
-function.
-
-[1] https://patchwork.kernel.org/patch/10534271/
-
-Link: https://lore.kernel.org/r/1580983005-13899-2-git-send-email-liuyixian@huawei.com
-Signed-off-by: Yixian Liu <liuyixian@huawei.com>
-Reviewed-by: Salil Mehta <salil.mehta@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_device.h | 20 ++++++-----
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c  |  3 +-
- drivers/infiniband/hw/hns/hns_roce_qp.c     | 37 +++++++++++++++++++++
- 3 files changed, 49 insertions(+), 11 deletions(-)
+ .../net/wireless/mediatek/mt76/mt7603/dma.c   | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_device.h b/drivers/infiniband/hw/hns/hns_roce_device.h
-index 416341ada1723..424362760a2fc 100644
---- a/drivers/infiniband/hw/hns/hns_roce_device.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_device.h
-@@ -637,6 +637,15 @@ struct hns_roce_rinl_buf {
- 	u32			 wqe_cnt;
- };
- 
-+struct hns_roce_work {
-+	struct hns_roce_dev *hr_dev;
-+	struct work_struct work;
-+	u32 qpn;
-+	u32 cqn;
-+	int event_type;
-+	int sub_type;
-+};
-+
- struct hns_roce_qp {
- 	struct ib_qp		ibqp;
- 	struct hns_roce_buf	hr_buf;
-@@ -680,6 +689,7 @@ struct hns_roce_qp {
- 	struct hns_roce_sge	sge;
- 	u32			next_sge;
- 
-+	struct hns_roce_work	flush_work;
- 	struct hns_roce_rinl_buf rq_inl_buf;
- };
- 
-@@ -896,15 +906,6 @@ struct hns_roce_caps {
- 	u64		flags;
- };
- 
--struct hns_roce_work {
--	struct hns_roce_dev *hr_dev;
--	struct work_struct work;
--	u32 qpn;
--	u32 cqn;
--	int event_type;
--	int sub_type;
--};
--
- struct hns_roce_dfx_hw {
- 	int (*query_cqc_info)(struct hns_roce_dev *hr_dev, u32 cqn,
- 			      int *buffer);
-@@ -1219,6 +1220,7 @@ struct ib_qp *hns_roce_create_qp(struct ib_pd *ib_pd,
- 				 struct ib_udata *udata);
- int hns_roce_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
- 		       int attr_mask, struct ib_udata *udata);
-+void init_flush_work(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp);
- void *get_recv_wqe(struct hns_roce_qp *hr_qp, int n);
- void *get_send_wqe(struct hns_roce_qp *hr_qp, int n);
- void *get_send_extend_sge(struct hns_roce_qp *hr_qp, int n);
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 87186446dffb9..c17e1b7f412a0 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -5968,8 +5968,7 @@ static int hns_roce_v2_init_eq_table(struct hns_roce_dev *hr_dev)
- 		goto err_request_irq_fail;
- 	}
- 
--	hr_dev->irq_workq =
--		create_singlethread_workqueue("hns_roce_irq_workqueue");
-+	hr_dev->irq_workq = alloc_ordered_workqueue("hns_roce_irq_workq", 0);
- 	if (!hr_dev->irq_workq) {
- 		dev_err(dev, "Create irq workqueue failed!\n");
- 		ret = -ENOMEM;
-diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
-index a6565b6748014..88ccfa37069ba 100644
---- a/drivers/infiniband/hw/hns/hns_roce_qp.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
-@@ -43,6 +43,43 @@
- 
- #define SQP_NUM				(2 * HNS_ROCE_MAX_PORTS)
- 
-+static void flush_work_handle(struct work_struct *work)
-+{
-+	struct hns_roce_work *flush_work = container_of(work,
-+					struct hns_roce_work, work);
-+	struct hns_roce_qp *hr_qp = container_of(flush_work,
-+					struct hns_roce_qp, flush_work);
-+	struct device *dev = flush_work->hr_dev->dev;
-+	struct ib_qp_attr attr;
-+	int attr_mask;
-+	int ret;
-+
-+	attr_mask = IB_QP_STATE;
-+	attr.qp_state = IB_QPS_ERR;
-+
-+	ret = hns_roce_modify_qp(&hr_qp->ibqp, &attr, attr_mask, NULL);
-+	if (ret)
-+		dev_err(dev, "Modify QP to error state failed(%d) during CQE flush\n",
-+			ret);
-+
-+	/*
-+	 * make sure we signal QP destroy leg that flush QP was completed
-+	 * so that it can safely proceed ahead now and destroy QP
-+	 */
-+	if (atomic_dec_and_test(&hr_qp->refcount))
-+		complete(&hr_qp->free);
-+}
-+
-+void init_flush_work(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp)
-+{
-+	struct hns_roce_work *flush_work = &hr_qp->flush_work;
-+
-+	flush_work->hr_dev = hr_dev;
-+	INIT_WORK(&flush_work->work, flush_work_handle);
-+	atomic_inc(&hr_qp->refcount);
-+	queue_work(hr_dev->irq_workq, &flush_work->work);
-+}
-+
- void hns_roce_qp_event(struct hns_roce_dev *hr_dev, u32 qpn, int event_type)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/dma.c b/drivers/net/wireless/mediatek/mt76/mt7603/dma.c
+index a6ab73060aada..57428467fe967 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7603/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7603/dma.c
+@@ -30,6 +30,16 @@ mt7603_init_tx_queue(struct mt7603_dev *dev, struct mt76_sw_queue *q,
+ static void
+ mt7603_rx_loopback_skb(struct mt7603_dev *dev, struct sk_buff *skb)
  {
- 	struct device *dev = hr_dev->dev;
++	static const u8 tid_to_ac[8] = {
++		IEEE80211_AC_BE,
++		IEEE80211_AC_BK,
++		IEEE80211_AC_BK,
++		IEEE80211_AC_BE,
++		IEEE80211_AC_VI,
++		IEEE80211_AC_VI,
++		IEEE80211_AC_VO,
++		IEEE80211_AC_VO
++	};
+ 	__le32 *txd = (__le32 *)skb->data;
+ 	struct ieee80211_hdr *hdr;
+ 	struct ieee80211_sta *sta;
+@@ -38,7 +48,7 @@ mt7603_rx_loopback_skb(struct mt7603_dev *dev, struct sk_buff *skb)
+ 	void *priv;
+ 	int idx;
+ 	u32 val;
+-	u8 tid;
++	u8 tid = 0;
+ 
+ 	if (skb->len < MT_TXD_SIZE + sizeof(struct ieee80211_hdr))
+ 		goto free;
+@@ -56,15 +66,16 @@ mt7603_rx_loopback_skb(struct mt7603_dev *dev, struct sk_buff *skb)
+ 
+ 	priv = msta = container_of(wcid, struct mt7603_sta, wcid);
+ 	val = le32_to_cpu(txd[0]);
+-	skb_set_queue_mapping(skb, FIELD_GET(MT_TXD0_Q_IDX, val));
+-
+ 	val &= ~(MT_TXD0_P_IDX | MT_TXD0_Q_IDX);
+ 	val |= FIELD_PREP(MT_TXD0_Q_IDX, MT_TX_HW_QUEUE_MGMT);
+ 	txd[0] = cpu_to_le32(val);
+ 
+ 	sta = container_of(priv, struct ieee80211_sta, drv_priv);
+ 	hdr = (struct ieee80211_hdr *)&skb->data[MT_TXD_SIZE];
+-	tid = *ieee80211_get_qos_ctl(hdr) & IEEE80211_QOS_CTL_TID_MASK;
++	if (ieee80211_is_data_qos(hdr->frame_control))
++		tid = *ieee80211_get_qos_ctl(hdr) &
++		      IEEE80211_QOS_CTL_TAG1D_MASK;
++	skb_set_queue_mapping(skb, tid_to_ac[tid]);
+ 	ieee80211_sta_set_buffered(sta, tid, true);
+ 
+ 	spin_lock_bh(&dev->ps_lock);
 -- 
 2.20.1
 
