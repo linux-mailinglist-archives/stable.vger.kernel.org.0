@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89AEB1A5181
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E7D61A511B
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:23:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727009AbgDKMQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:16:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50234 "EHLO mail.kernel.org"
+        id S1728390AbgDKMTK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:19:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727932AbgDKMQD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:16:03 -0400
+        id S1728150AbgDKMTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:19:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5070020787;
-        Sat, 11 Apr 2020 12:16:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E0FD20644;
+        Sat, 11 Apr 2020 12:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607363;
-        bh=Mlp4dDH4817TWo87N825RTd3ZoZFTS3zh2EnLg9Wzlw=;
+        s=default; t=1586607546;
+        bh=IsHu1Q2jQ/y3A3ru+z2NHMuipfGeub4vJR0w79s8IMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNfNqBCJkmLq444Hj20QG8xQ53aZh+cq/OOdvA0gHySnFmJOsxYQOD3SZelEaMPh1
-         +UoRonGSn+3db4ehFH8fjZ+A1QOD0QVEcXzrTqEF3y+WFT815KGY8zLL78O+0JQ8tZ
-         5dL7tNZFL9cntXJ6XTIOgcgO/YrIzCLE0xAFKCug=
+        b=z/4DX0WUTypUJGtanPI7uHPbMrzRIen2lzG1JazHHJuwGbp7JtgTOBlin+r6V6alC
+         J++8fUeWKFsGhWE/uMy3FCiSnUf/bREtVnPsqP9yGbiK1AXU+Naq2ESgn/HlY6wShn
+         u1oFMDqgtQ0ZdSKvZW1RS8oyj9QrgMqPAS2ThVk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+98704a51af8e3d9425a9@syzkaller.appspotmail.com,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Luis Henriques <lhenriques@suse.com>
-Subject: [PATCH 4.19 43/54] ceph: canonicalize server path in place
+        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Ren=C3=A9=20van=20Dorst?= <opensource@vdorst.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 05/44] net: dsa: mt7530: fix null pointer dereferencing in port5 setup
 Date:   Sat, 11 Apr 2020 14:09:25 +0200
-Message-Id: <20200411115512.886093392@linuxfoundation.org>
+Message-Id: <20200411115457.320502993@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
-References: <20200411115508.284500414@linuxfoundation.org>
+In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
+References: <20200411115456.934174282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,222 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Dryomov <idryomov@gmail.com>
+From: Chuanhong Guo <gch981213@gmail.com>
 
-commit b27a939e8376a3f1ed09b9c33ef44d20f18ec3d0 upstream.
+[ Upstream commit 0452800f6db4ed0a42ffb15867c0acfd68829f6a ]
 
-syzbot reported that 4fbc0c711b24 ("ceph: remove the extra slashes in
-the server path") had caused a regression where an allocation could be
-done under a spinlock -- compare_mount_options() is called by sget_fc()
-with sb_lock held.
+The 2nd gmac of mediatek soc ethernet may not be connected to a PHY
+and a phy-handle isn't always available.
+Unfortunately, mt7530 dsa driver assumes that the 2nd gmac is always
+connected to switch port 5 and setup mt7530 according to phy address
+of 2nd gmac node, causing null pointer dereferencing when phy-handle
+isn't defined in dts.
+This commit fix this setup code by checking return value of
+of_parse_phandle before using it.
 
-We don't really need the supplied server path, so canonicalize it
-in place and compare it directly.  To make this work, the leading
-slash is kept around and the logic in ceph_real_mount() to skip it
-is restored.  CEPH_MSG_CLIENT_SESSION now reports the same (i.e.
-canonicalized) path, with the leading slash of course.
-
-Fixes: 4fbc0c711b24 ("ceph: remove the extra slashes in the server path")
-Reported-by: syzbot+98704a51af8e3d9425a9@syzkaller.appspotmail.com
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Luis Henriques <lhenriques@suse.com>
+Fixes: 38f790a80560 ("net: dsa: mt7530: Add support for port 5")
+Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: René van Dorst <opensource@vdorst.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/super.c |  118 ++++++++++++--------------------------------------------
- fs/ceph/super.h |    2 
- 2 files changed, 28 insertions(+), 92 deletions(-)
+ drivers/net/dsa/mt7530.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ceph/super.c
-+++ b/fs/ceph/super.c
-@@ -205,6 +205,26 @@ static match_table_t fsopt_tokens = {
- 	{-1, NULL}
- };
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -1355,6 +1355,9 @@ mt7530_setup(struct dsa_switch *ds)
+ 				continue;
  
-+/*
-+ * Remove adjacent slashes and then the trailing slash, unless it is
-+ * the only remaining character.
-+ *
-+ * E.g. "//dir1////dir2///" --> "/dir1/dir2", "///" --> "/".
-+ */
-+static void canonicalize_path(char *path)
-+{
-+	int i, j = 0;
+ 			phy_node = of_parse_phandle(mac_np, "phy-handle", 0);
++			if (!phy_node)
++				continue;
 +
-+	for (i = 0; path[i] != '\0'; i++) {
-+		if (path[i] != '/' || j < 1 || path[j - 1] != '/')
-+			path[j++] = path[i];
-+	}
-+
-+	if (j > 1 && path[j - 1] == '/')
-+		j--;
-+	path[j] = '\0';
-+}
-+
- static int parse_fsopt_token(char *c, void *private)
- {
- 	struct ceph_mount_options *fsopt = private;
-@@ -398,73 +418,6 @@ static int strcmp_null(const char *s1, c
- 	return strcmp(s1, s2);
- }
- 
--/**
-- * path_remove_extra_slash - Remove the extra slashes in the server path
-- * @server_path: the server path and could be NULL
-- *
-- * Return NULL if the path is NULL or only consists of "/", or a string
-- * without any extra slashes including the leading slash(es) and the
-- * slash(es) at the end of the server path, such as:
-- * "//dir1////dir2///" --> "dir1/dir2"
-- */
--static char *path_remove_extra_slash(const char *server_path)
--{
--	const char *path = server_path;
--	const char *cur, *end;
--	char *buf, *p;
--	int len;
--
--	/* if the server path is omitted */
--	if (!path)
--		return NULL;
--
--	/* remove all the leading slashes */
--	while (*path == '/')
--		path++;
--
--	/* if the server path only consists of slashes */
--	if (*path == '\0')
--		return NULL;
--
--	len = strlen(path);
--
--	buf = kmalloc(len + 1, GFP_KERNEL);
--	if (!buf)
--		return ERR_PTR(-ENOMEM);
--
--	end = path + len;
--	p = buf;
--	do {
--		cur = strchr(path, '/');
--		if (!cur)
--			cur = end;
--
--		len = cur - path;
--
--		/* including one '/' */
--		if (cur != end)
--			len += 1;
--
--		memcpy(p, path, len);
--		p += len;
--
--		while (cur <= end && *cur == '/')
--			cur++;
--		path = cur;
--	} while (path < end);
--
--	*p = '\0';
--
--	/*
--	 * remove the last slash if there has and just to make sure that
--	 * we will get something like "dir1/dir2"
--	 */
--	if (*(--p) == '/')
--		*p = '\0';
--
--	return buf;
--}
--
- static int compare_mount_options(struct ceph_mount_options *new_fsopt,
- 				 struct ceph_options *new_opt,
- 				 struct ceph_fs_client *fsc)
-@@ -472,7 +425,6 @@ static int compare_mount_options(struct
- 	struct ceph_mount_options *fsopt1 = new_fsopt;
- 	struct ceph_mount_options *fsopt2 = fsc->mount_options;
- 	int ofs = offsetof(struct ceph_mount_options, snapdir_name);
--	char *p1, *p2;
- 	int ret;
- 
- 	ret = memcmp(fsopt1, fsopt2, ofs);
-@@ -482,21 +434,12 @@ static int compare_mount_options(struct
- 	ret = strcmp_null(fsopt1->snapdir_name, fsopt2->snapdir_name);
- 	if (ret)
- 		return ret;
-+
- 	ret = strcmp_null(fsopt1->mds_namespace, fsopt2->mds_namespace);
- 	if (ret)
- 		return ret;
- 
--	p1 = path_remove_extra_slash(fsopt1->server_path);
--	if (IS_ERR(p1))
--		return PTR_ERR(p1);
--	p2 = path_remove_extra_slash(fsopt2->server_path);
--	if (IS_ERR(p2)) {
--		kfree(p1);
--		return PTR_ERR(p2);
--	}
--	ret = strcmp_null(p1, p2);
--	kfree(p1);
--	kfree(p2);
-+	ret = strcmp_null(fsopt1->server_path, fsopt2->server_path);
- 	if (ret)
- 		return ret;
- 
-@@ -564,6 +507,8 @@ static int parse_mount_options(struct ce
- 			err = -ENOMEM;
- 			goto out;
- 		}
-+
-+		canonicalize_path(fsopt->server_path);
- 	} else {
- 		dev_name_end = dev_name + strlen(dev_name);
- 	}
-@@ -990,7 +935,9 @@ static struct dentry *ceph_real_mount(st
- 	mutex_lock(&fsc->client->mount_mutex);
- 
- 	if (!fsc->sb->s_root) {
--		const char *path, *p;
-+		const char *path = fsc->mount_options->server_path ?
-+				     fsc->mount_options->server_path + 1 : "";
-+
- 		err = __ceph_open_session(fsc->client, started);
- 		if (err < 0)
- 			goto out;
-@@ -1002,16 +949,6 @@ static struct dentry *ceph_real_mount(st
- 				goto out;
- 		}
- 
--		p = path_remove_extra_slash(fsc->mount_options->server_path);
--		if (IS_ERR(p)) {
--			err = PTR_ERR(p);
--			goto out;
--		}
--		/* if the server path is omitted or just consists of '/' */
--		if (!p)
--			path = "";
--		else
--			path = p;
- 		dout("mount opening path '%s'\n", path);
- 
- 		err = ceph_fs_debugfs_init(fsc);
-@@ -1019,7 +956,6 @@ static struct dentry *ceph_real_mount(st
- 			goto out;
- 
- 		root = open_root_dentry(fsc, path, started);
--		kfree(p);
- 		if (IS_ERR(root)) {
- 			err = PTR_ERR(root);
- 			goto out;
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -86,7 +86,7 @@ struct ceph_mount_options {
- 
- 	char *snapdir_name;   /* default ".snap" */
- 	char *mds_namespace;  /* default NULL */
--	char *server_path;    /* default  "/" */
-+	char *server_path;    /* default NULL (means "/") */
- 	char *fscache_uniq;   /* default NULL */
- };
- 
+ 			if (phy_node->parent == priv->dev->of_node->parent) {
+ 				ret = of_get_phy_mode(mac_np, &interface);
+ 				if (ret && ret != -ENODEV)
 
 
