@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 944EE1A51B1
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:27:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B15301A5196
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726951AbgDKM1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:27:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47668 "EHLO mail.kernel.org"
+        id S1727757AbgDKMPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:15:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727180AbgDKMOU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:14:20 -0400
+        id S1727709AbgDKMPL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:15:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5505A20644;
-        Sat, 11 Apr 2020 12:14:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1877120787;
+        Sat, 11 Apr 2020 12:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607259;
+        s=default; t=1586607310;
         bh=XMf7QVap6ODLiVJo0XE8+jiJoxTHwXWjdNCTTv0ulBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlhIySmmepDmafWVbuw3y4tAqlbGdc/X9vDACkCTwUo8K620Q2o01mdoNh4BnhJGZ
-         LfXKBn3SCgu/+mvUpI6gsejP+M5jmdBfpe1SV6iBetV+vuJE3OEBVK5+6tGR2E76fC
-         uVl4yPlibWcRGVZ2xuCSh/Ny2FmZ+us0SMdPcTqw=
+        b=PKvLsbRXrHVVQQRyyrZ8qRYubb5cdFXv33M7H8n9Bbx9XkCo68/y8reHpTLCV46IJ
+         o/T9McH4xenGAzlnlJ1huINGfr8txpCT+A5GpqAMKPsumnuIsEsJ0EXqHI+148VVr6
+         Wwt3nmDQDzruTpTzWmHq17oktt+nD7UvJP0gKwt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
         Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/38] initramfs: restore default compression behavior
+Subject: [PATCH 4.19 08/54] initramfs: restore default compression behavior
 Date:   Sat, 11 Apr 2020 14:08:50 +0200
-Message-Id: <20200411115438.559376676@linuxfoundation.org>
+Message-Id: <20200411115509.125222779@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
-References: <20200411115437.795556138@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
