@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 374FC1A59C9
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A84B81A59CE
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:39:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728745AbgDKXHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:07:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44072 "EHLO mail.kernel.org"
+        id S1729128AbgDKXi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:38:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728740AbgDKXHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:07:49 -0400
+        id S1727417AbgDKXHu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:07:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DFC52173E;
-        Sat, 11 Apr 2020 23:07:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9E4D20708;
+        Sat, 11 Apr 2020 23:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646469;
-        bh=S6TKNCCtj26VouFt79OMxAj/QJCUGWiEe3uRGuZdZhk=;
+        s=default; t=1586646470;
+        bh=T8J+MMG9EPBEQFUhl3aCaPbEQ5QEWJdKjSSl4hDp0I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TFtCaI+Y1MasLkRxaLAbhRzWfeZAxyYm4mvPOAPgCYnDZupxQLqsmyh/D8Kr3K/Pd
-         +pjmkp7T7aaegKF8QYREAh+04KJHlBCCBH6TmeAnWSfmp5m3F4SlZAHJIeOjT1NDCk
-         7Th3X1+wXP0SxnNFLp4rRacNMVzCxuA+G+NkbSi0=
+        b=Js6Myz557ZFlzxMxpT+DUrbh647jkDU6jtsGhgdMI/wpSzv6oPcDF9RxiP3bS1tgA
+         /Oq1AJnqZsqOYDgFLFpdvk/3z4zN7ls2OikxY/yaTFk72m6wLNi4S5OfL0lwsIgdmO
+         +ww7h4eEJYsje0ZD3lkG1AGkY0zSjPOj2+oKYPnk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rocky Liao <rjliao@codeaurora.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 036/121] Bluetooth: btqca: Fix the NVM baudrate tag offcet for wcn3991
-Date:   Sat, 11 Apr 2020 19:05:41 -0400
-Message-Id: <20200411230706.23855-36-sashal@kernel.org>
+Cc:     Aric Cyr <aric.cyr@amd.com>, Anthony Koo <Anthony.Koo@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 037/121] drm/amd/display: Only round InfoFrame refresh rates
+Date:   Sat, 11 Apr 2020 19:05:42 -0400
+Message-Id: <20200411230706.23855-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -44,62 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rocky Liao <rjliao@codeaurora.org>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit b63882549b2bf2979cb1506bdf783edf8b45c613 ]
+[ Upstream commit 3fc6376ed6f2f67bc9fb0c7a3cf07967d6aa6216 ]
 
-The baudrate set byte of wcn3991 in the NVM tag is byte 1, not byte 2.
-This patch will set correct byte for wcn3991.
+[Why]
+When calculating nominal refresh rates, don't round.
+Only the VSIF needs to be rounded.
 
-Signed-off-by: Rocky Liao <rjliao@codeaurora.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+[How]
+Revert rounding change for nominal and just round when forming the
+FreeSync VSIF.
+
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btqca.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/modules/freesync/freesync.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/bluetooth/btqca.c b/drivers/bluetooth/btqca.c
-index ec69e5dd7bd3e..a16845c0751d3 100644
---- a/drivers/bluetooth/btqca.c
-+++ b/drivers/bluetooth/btqca.c
-@@ -139,7 +139,7 @@ int qca_send_pre_shutdown_cmd(struct hci_dev *hdev)
- EXPORT_SYMBOL_GPL(qca_send_pre_shutdown_cmd);
+diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+index d9ea4ae690af6..592ad78f731fd 100644
+--- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
++++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+@@ -524,12 +524,12 @@ static void build_vrr_infopacket_data(const struct mod_vrr_params *vrr,
+ 		infopacket->sb[6] |= 0x04;
  
- static void qca_tlv_check_data(struct qca_fw_config *config,
--				const struct firmware *fw)
-+		const struct firmware *fw, enum qca_btsoc_type soc_type)
- {
- 	const u8 *data;
- 	u32 type_len;
-@@ -148,6 +148,7 @@ static void qca_tlv_check_data(struct qca_fw_config *config,
- 	struct tlv_type_hdr *tlv;
- 	struct tlv_type_patch *tlv_patch;
- 	struct tlv_type_nvm *tlv_nvm;
-+	uint8_t nvm_baud_rate = config->user_baud_rate;
+ 	/* PB7 = FreeSync Minimum refresh rate (Hz) */
+-	infopacket->sb[7] = (unsigned char)(vrr->min_refresh_in_uhz / 1000000);
++	infopacket->sb[7] = (unsigned char)((vrr->min_refresh_in_uhz + 500000) / 1000000);
  
- 	tlv = (struct tlv_type_hdr *)fw->data;
+ 	/* PB8 = FreeSync Maximum refresh rate (Hz)
+ 	 * Note: We should never go above the field rate of the mode timing set.
+ 	 */
+-	infopacket->sb[8] = (unsigned char)(vrr->max_refresh_in_uhz / 1000000);
++	infopacket->sb[8] = (unsigned char)((vrr->max_refresh_in_uhz + 500000) / 1000000);
  
-@@ -216,7 +217,10 @@ static void qca_tlv_check_data(struct qca_fw_config *config,
- 				tlv_nvm->data[0] |= 0x80;
  
- 				/* UART Baud Rate */
--				tlv_nvm->data[2] = config->user_baud_rate;
-+				if (soc_type == QCA_WCN3991)
-+					tlv_nvm->data[1] = nvm_baud_rate;
-+				else
-+					tlv_nvm->data[2] = nvm_baud_rate;
+ 	//FreeSync HDR
+@@ -747,10 +747,6 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 	nominal_field_rate_in_uhz =
+ 			mod_freesync_calc_nominal_field_rate(stream);
  
- 				break;
+-	/* Rounded to the nearest Hz */
+-	nominal_field_rate_in_uhz = 1000000ULL *
+-			div_u64(nominal_field_rate_in_uhz + 500000, 1000000);
+-
+ 	min_refresh_in_uhz = in_config->min_refresh_in_uhz;
+ 	max_refresh_in_uhz = in_config->max_refresh_in_uhz;
  
-@@ -354,7 +358,7 @@ static int qca_download_firmware(struct hci_dev *hdev,
- 		return ret;
- 	}
- 
--	qca_tlv_check_data(config, fw);
-+	qca_tlv_check_data(config, fw, soc_type);
- 
- 	segment = fw->data;
- 	remain = fw->size;
 -- 
 2.20.1
 
