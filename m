@@ -2,49 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92A481A5123
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:24:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C571A50ED
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728108AbgDKMSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:18:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53066 "EHLO mail.kernel.org"
+        id S1728828AbgDKMWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:22:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727611AbgDKMSJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:18:09 -0400
+        id S1728015AbgDKMVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:21:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 828ED20692;
-        Sat, 11 Apr 2020 12:18:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24E8D20644;
+        Sat, 11 Apr 2020 12:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607489;
-        bh=7yGJFcolgmwcxqxKCI4kgj3glSFDqggc9AflDB3xpq8=;
+        s=default; t=1586607680;
+        bh=sZNG7zph7/w0mKXrXaRvWNUrnikRbDELWru8OvLv/v4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlhCMd71yW5Jq0fTyiYrth+VnNmfvd0wtlR8XBZKq8nbrsBGECT4wUJOOPaKjhJuM
-         3XWwQhLr4KS2YGm4DEPO1hfySdVOfUI7pDCZkohqmFqATo/RvlxjVsFl0uG5RN+ez/
-         q1Hsvmk5zJue47RUG4otRBeDzlauP2GZo2ikcbnM=
+        b=AvUSLuzii7hXrPg1BSMT5AZ/VsPp4zitJI0WseT2U97Yy2jWf2YPWEDgOj0TrLr6Q
+         ksKWqzXFN6SzhjhRIDctjNuHGjCCQC2yC2vvaF/NC69eHgN2j+yCmnY6uXHW8gQth5
+         e96N7VrPbiEWTTyOS18CE643mPTUyPzMqjlpiIrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+adb15cf8c2798e4e0db4@syzkaller.appspotmail.com,
-        syzbot+e5579222b6a3edd96522@syzkaller.appspotmail.com,
-        syzbot+4b628fcc748474003457@syzkaller.appspotmail.com,
-        syzbot+29ee8f76017ce6cf03da@syzkaller.appspotmail.com,
-        syzbot+6956235342b7317ec564@syzkaller.appspotmail.com,
-        syzbot+b358909d8d01556b790b@syzkaller.appspotmail.com,
-        syzbot+6b46b135602a3f3ac99e@syzkaller.appspotmail.com,
-        syzbot+8458d13b13562abf6b77@syzkaller.appspotmail.com,
-        syzbot+bd034f3fdc0402e942ed@syzkaller.appspotmail.com,
-        syzbot+c92378b32760a4eef756@syzkaller.appspotmail.com,
-        syzbot+68b44a1597636e0b342c@syzkaller.appspotmail.com,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 33/41] RDMA/ucma: Put a lock around every call to the rdma_cm layer
+        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Ren=C3=A9=20van=20Dorst?= <opensource@vdorst.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 05/38] net: dsa: mt7530: fix null pointer dereferencing in port5 setup
 Date:   Sat, 11 Apr 2020 14:09:42 +0200
-Message-Id: <20200411115506.483604326@linuxfoundation.org>
+Message-Id: <20200411115459.998115250@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
-References: <20200411115504.124035693@linuxfoundation.org>
+In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
+References: <20200411115459.324496182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,280 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Chuanhong Guo <gch981213@gmail.com>
 
-commit 7c11910783a1ea17e88777552ef146cace607b3c upstream.
+[ Upstream commit 0452800f6db4ed0a42ffb15867c0acfd68829f6a ]
 
-The rdma_cm must be used single threaded.
+The 2nd gmac of mediatek soc ethernet may not be connected to a PHY
+and a phy-handle isn't always available.
+Unfortunately, mt7530 dsa driver assumes that the 2nd gmac is always
+connected to switch port 5 and setup mt7530 according to phy address
+of 2nd gmac node, causing null pointer dereferencing when phy-handle
+isn't defined in dts.
+This commit fix this setup code by checking return value of
+of_parse_phandle before using it.
 
-This appears to be a bug in the design, as it does have lots of locking
-that seems like it should allow concurrency. However, when it is all said
-and done every single place that uses the cma_exch() scheme is broken, and
-all the unlocked reads from the ucma of the cm_id data are wrong too.
-
-syzkaller has been finding endless bugs related to this.
-
-Fixing this in any elegant way is some enormous amount of work. Take a
-very big hammer and put a mutex around everything to do with the
-ucma_context at the top of every syscall.
-
-Fixes: 75216638572f ("RDMA/cma: Export rdma cm interface to userspace")
-Link: https://lore.kernel.org/r/20200218210432.GA31966@ziepe.ca
-Reported-by: syzbot+adb15cf8c2798e4e0db4@syzkaller.appspotmail.com
-Reported-by: syzbot+e5579222b6a3edd96522@syzkaller.appspotmail.com
-Reported-by: syzbot+4b628fcc748474003457@syzkaller.appspotmail.com
-Reported-by: syzbot+29ee8f76017ce6cf03da@syzkaller.appspotmail.com
-Reported-by: syzbot+6956235342b7317ec564@syzkaller.appspotmail.com
-Reported-by: syzbot+b358909d8d01556b790b@syzkaller.appspotmail.com
-Reported-by: syzbot+6b46b135602a3f3ac99e@syzkaller.appspotmail.com
-Reported-by: syzbot+8458d13b13562abf6b77@syzkaller.appspotmail.com
-Reported-by: syzbot+bd034f3fdc0402e942ed@syzkaller.appspotmail.com
-Reported-by: syzbot+c92378b32760a4eef756@syzkaller.appspotmail.com
-Reported-by: syzbot+68b44a1597636e0b342c@syzkaller.appspotmail.com
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 38f790a80560 ("net: dsa: mt7530: Add support for port 5")
+Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: René van Dorst <opensource@vdorst.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/infiniband/core/ucma.c |   49 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 47 insertions(+), 2 deletions(-)
+ drivers/net/dsa/mt7530.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/infiniband/core/ucma.c
-+++ b/drivers/infiniband/core/ucma.c
-@@ -91,6 +91,7 @@ struct ucma_context {
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -1356,6 +1356,9 @@ mt7530_setup(struct dsa_switch *ds)
+ 				continue;
  
- 	struct ucma_file	*file;
- 	struct rdma_cm_id	*cm_id;
-+	struct mutex		mutex;
- 	u64			uid;
- 
- 	struct list_head	list;
-@@ -216,6 +217,7 @@ static struct ucma_context *ucma_alloc_c
- 	init_completion(&ctx->comp);
- 	INIT_LIST_HEAD(&ctx->mc_list);
- 	ctx->file = file;
-+	mutex_init(&ctx->mutex);
- 
- 	if (xa_alloc(&ctx_table, &ctx->id, ctx, xa_limit_32b, GFP_KERNEL))
- 		goto error;
-@@ -589,6 +591,7 @@ static int ucma_free_ctx(struct ucma_con
- 	}
- 
- 	events_reported = ctx->events_reported;
-+	mutex_destroy(&ctx->mutex);
- 	kfree(ctx);
- 	return events_reported;
- }
-@@ -658,7 +661,10 @@ static ssize_t ucma_bind_ip(struct ucma_
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_bind_addr(ctx->cm_id, (struct sockaddr *) &cmd.addr);
-+	mutex_unlock(&ctx->mutex);
+ 			phy_node = of_parse_phandle(mac_np, "phy-handle", 0);
++			if (!phy_node)
++				continue;
 +
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -681,7 +687,9 @@ static ssize_t ucma_bind(struct ucma_fil
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_bind_addr(ctx->cm_id, (struct sockaddr *) &cmd.addr);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -705,8 +713,10 @@ static ssize_t ucma_resolve_ip(struct uc
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_resolve_addr(ctx->cm_id, (struct sockaddr *) &cmd.src_addr,
- 				(struct sockaddr *) &cmd.dst_addr, cmd.timeout_ms);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -731,8 +741,10 @@ static ssize_t ucma_resolve_addr(struct
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_resolve_addr(ctx->cm_id, (struct sockaddr *) &cmd.src_addr,
- 				(struct sockaddr *) &cmd.dst_addr, cmd.timeout_ms);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -752,7 +764,9 @@ static ssize_t ucma_resolve_route(struct
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_resolve_route(ctx->cm_id, cmd.timeout_ms);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -841,6 +855,7 @@ static ssize_t ucma_query_route(struct u
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	memset(&resp, 0, sizeof resp);
- 	addr = (struct sockaddr *) &ctx->cm_id->route.addr.src_addr;
- 	memcpy(&resp.src_addr, addr, addr->sa_family == AF_INET ?
-@@ -864,6 +879,7 @@ static ssize_t ucma_query_route(struct u
- 		ucma_copy_iw_route(&resp, &ctx->cm_id->route);
- 
- out:
-+	mutex_unlock(&ctx->mutex);
- 	if (copy_to_user(u64_to_user_ptr(cmd.response),
- 			 &resp, sizeof(resp)))
- 		ret = -EFAULT;
-@@ -1014,6 +1030,7 @@ static ssize_t ucma_query(struct ucma_fi
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	switch (cmd.option) {
- 	case RDMA_USER_CM_QUERY_ADDR:
- 		ret = ucma_query_addr(ctx, response, out_len);
-@@ -1028,6 +1045,7 @@ static ssize_t ucma_query(struct ucma_fi
- 		ret = -ENOSYS;
- 		break;
- 	}
-+	mutex_unlock(&ctx->mutex);
- 
- 	ucma_put_ctx(ctx);
- 	return ret;
-@@ -1068,7 +1086,9 @@ static ssize_t ucma_connect(struct ucma_
- 		return PTR_ERR(ctx);
- 
- 	ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_connect(ctx->cm_id, &conn_param);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1089,7 +1109,9 @@ static ssize_t ucma_listen(struct ucma_f
- 
- 	ctx->backlog = cmd.backlog > 0 && cmd.backlog < max_backlog ?
- 		       cmd.backlog : max_backlog;
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_listen(ctx->cm_id, ctx->backlog);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1112,13 +1134,17 @@ static ssize_t ucma_accept(struct ucma_f
- 	if (cmd.conn_param.valid) {
- 		ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
- 		mutex_lock(&file->mut);
-+		mutex_lock(&ctx->mutex);
- 		ret = __rdma_accept(ctx->cm_id, &conn_param, NULL);
-+		mutex_unlock(&ctx->mutex);
- 		if (!ret)
- 			ctx->uid = cmd.uid;
- 		mutex_unlock(&file->mut);
--	} else
-+	} else {
-+		mutex_lock(&ctx->mutex);
- 		ret = __rdma_accept(ctx->cm_id, NULL, NULL);
--
-+		mutex_unlock(&ctx->mutex);
-+	}
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1137,7 +1163,9 @@ static ssize_t ucma_reject(struct ucma_f
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_reject(ctx->cm_id, cmd.private_data, cmd.private_data_len);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1156,7 +1184,9 @@ static ssize_t ucma_disconnect(struct uc
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_disconnect(ctx->cm_id);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1187,7 +1217,9 @@ static ssize_t ucma_init_qp_attr(struct
- 	resp.qp_attr_mask = 0;
- 	memset(&qp_attr, 0, sizeof qp_attr);
- 	qp_attr.qp_state = cmd.qp_state;
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_init_qp_attr(ctx->cm_id, &qp_attr, &resp.qp_attr_mask);
-+	mutex_unlock(&ctx->mutex);
- 	if (ret)
- 		goto out;
- 
-@@ -1273,9 +1305,13 @@ static int ucma_set_ib_path(struct ucma_
- 		struct sa_path_rec opa;
- 
- 		sa_convert_path_ib_to_opa(&opa, &sa_path);
-+		mutex_lock(&ctx->mutex);
- 		ret = rdma_set_ib_path(ctx->cm_id, &opa);
-+		mutex_unlock(&ctx->mutex);
- 	} else {
-+		mutex_lock(&ctx->mutex);
- 		ret = rdma_set_ib_path(ctx->cm_id, &sa_path);
-+		mutex_unlock(&ctx->mutex);
- 	}
- 	if (ret)
- 		return ret;
-@@ -1308,7 +1344,9 @@ static int ucma_set_option_level(struct
- 
- 	switch (level) {
- 	case RDMA_OPTION_ID:
-+		mutex_lock(&ctx->mutex);
- 		ret = ucma_set_option_id(ctx, optname, optval, optlen);
-+		mutex_unlock(&ctx->mutex);
- 		break;
- 	case RDMA_OPTION_IB:
- 		ret = ucma_set_option_ib(ctx, optname, optval, optlen);
-@@ -1368,8 +1406,10 @@ static ssize_t ucma_notify(struct ucma_f
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	if (ctx->cm_id->device)
- 		ret = rdma_notify(ctx->cm_id, (enum ib_event_type)cmd.event);
-+	mutex_unlock(&ctx->mutex);
- 
- 	ucma_put_ctx(ctx);
- 	return ret;
-@@ -1412,8 +1452,10 @@ static ssize_t ucma_process_join(struct
- 	mc->join_state = join_state;
- 	mc->uid = cmd->uid;
- 	memcpy(&mc->addr, addr, cmd->addr_size);
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_join_multicast(ctx->cm_id, (struct sockaddr *)&mc->addr,
- 				  join_state, mc);
-+	mutex_unlock(&ctx->mutex);
- 	if (ret)
- 		goto err2;
- 
-@@ -1513,7 +1555,10 @@ static ssize_t ucma_leave_multicast(stru
- 		goto out;
- 	}
- 
-+	mutex_lock(&mc->ctx->mutex);
- 	rdma_leave_multicast(mc->ctx->cm_id, (struct sockaddr *) &mc->addr);
-+	mutex_unlock(&mc->ctx->mutex);
-+
- 	mutex_lock(&mc->ctx->file->mut);
- 	ucma_cleanup_mc_events(mc);
- 	list_del(&mc->list);
+ 			if (phy_node->parent == priv->dev->of_node->parent) {
+ 				ret = of_get_phy_mode(mac_np, &interface);
+ 				if (ret && ret != -ENODEV)
 
 
