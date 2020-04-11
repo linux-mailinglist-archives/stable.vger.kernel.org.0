@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E92891A502A
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:15:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E43C1A51EA
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726865AbgDKMO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:14:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48652 "EHLO mail.kernel.org"
+        id S1726965AbgDKML3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:11:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728076AbgDKMO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:14:58 -0400
+        id S1726964AbgDKML2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:11:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 078EA20787;
-        Sat, 11 Apr 2020 12:14:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6821820787;
+        Sat, 11 Apr 2020 12:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607298;
-        bh=jAAXTDtXNw7GX4YyP022FtCivU3zuV/OGlJLKJqnpE4=;
+        s=default; t=1586607087;
+        bh=XfWmbngJg4IFQC3KppLZCh1786ZhpbZMns+PxUj0ehc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vNvOClG77JvgvPQqUHXnbFBdFngsG6X8uBU5nXxchnmABSYSiQEXzwR+bAABbs4Ba
-         8rQaT+NGx8jEYr7fzyj4BY7gAPwCGtZ4xAht99v8ENUpgJdccgangRy4M2sKy8D37h
-         xkOZxXO9xBWOC8/e0tAVPTIn+suhnxwm25iL6ARE=
+        b=djG6MRzeGdF9K58DsRJmK1x65C5zrpRhkztiN+YJ0J76R0USHMm9iE9C1d3wg8+2V
+         edS2LY3oxuXUYJX7jbR0QMNfJmU0EGAGwMEtIKbHnwgBcsJ6QVIpAWJMUe5fOCGkMd
+         ZS010T9PfFg5pUc9r+W5WJvMQN9ttsY9FiDgznL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Marcelo Ricardo Leitner <mleitner@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+cea71eec5d6de256d54d@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 03/54] sctp: fix refcount bug in sctp_wfree
-Date:   Sat, 11 Apr 2020 14:08:45 +0200
-Message-Id: <20200411115508.593027768@linuxfoundation.org>
+        stable@vger.kernel.org, Entropy Moe <3ntr0py1337@gmail.com>,
+        syzbot+b055b1a6b2b958707a21@syzkaller.appspotmail.com,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Lee Schermerhorn <lee.schermerhorn@hp.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 16/29] mm: mempolicy: require at least one nodeid for MPOL_PREFERRED
+Date:   Sat, 11 Apr 2020 14:08:46 +0200
+Message-Id: <20200411115410.585657222@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
-References: <20200411115508.284500414@linuxfoundation.org>
+In-Reply-To: <20200411115407.651296755@linuxfoundation.org>
+References: <20200411115407.651296755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,115 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 5c3e82fe159622e46e91458c1a6509c321a62820 ]
+commit aa9f7d5172fac9bf1f09e678c35e287a40a7b7dd upstream.
 
-We should iterate over the datamsgs to move
-all chunks(skbs) to newsk.
+Using an empty (malformed) nodelist that is not caught during mount option
+parsing leads to a stack-out-of-bounds access.
 
-The following case cause the bug:
-for the trouble SKB, it was in outq->transmitted list
+The option string that was used was: "mpol=prefer:,".  However,
+MPOL_PREFERRED requires a single node number, which is not being provided
+here.
 
-sctp_outq_sack
-        sctp_check_transmitted
-                SKB was moved to outq->sacked list
-        then throw away the sack queue
-                SKB was deleted from outq->sacked
-(but it was held by datamsg at sctp_datamsg_to_asoc
-So, sctp_wfree was not called here)
+Add a check that 'nodes' is not empty after parsing for MPOL_PREFERRED's
+nodeid.
 
-then migrate happened
-
-        sctp_for_each_tx_datachunk(
-        sctp_clear_owner_w);
-        sctp_assoc_migrate();
-        sctp_for_each_tx_datachunk(
-        sctp_set_owner_w);
-SKB was not in the outq, and was not changed to newsk
-
-finally
-
-__sctp_outq_teardown
-        sctp_chunk_put (for another skb)
-                sctp_datamsg_put
-                        __kfree_skb(msg->frag_list)
-                                sctp_wfree (for SKB)
-	SKB->sk was still oldsk (skb->sk != asoc->base.sk).
-
-Reported-and-tested-by: syzbot+cea71eec5d6de256d54d@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <mleitner@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 095f1fc4ebf3 ("mempolicy: rework shmem mpol parsing and display")
+Reported-by: Entropy Moe <3ntr0py1337@gmail.com>
+Reported-by: syzbot+b055b1a6b2b958707a21@syzkaller.appspotmail.com
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: syzbot+b055b1a6b2b958707a21@syzkaller.appspotmail.com
+Cc: Lee Schermerhorn <lee.schermerhorn@hp.com>
+Link: http://lkml.kernel.org/r/89526377-7eb6-b662-e1d8-4430928abde9@infradead.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sctp/socket.c |   31 +++++++++++++++++++++++--------
- 1 file changed, 23 insertions(+), 8 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -165,29 +165,44 @@ static void sctp_clear_owner_w(struct sc
- 	skb_orphan(chunk->skb);
- }
- 
-+#define traverse_and_process()	\
-+do {				\
-+	msg = chunk->msg;	\
-+	if (msg == prev_msg)	\
-+		continue;	\
-+	list_for_each_entry(c, &msg->chunks, frag_list) {	\
-+		if ((clear && asoc->base.sk == c->skb->sk) ||	\
-+		    (!clear && asoc->base.sk != c->skb->sk))	\
-+			cb(c);	\
-+	}			\
-+	prev_msg = msg;		\
-+} while (0)
-+
- static void sctp_for_each_tx_datachunk(struct sctp_association *asoc,
-+				       bool clear,
- 				       void (*cb)(struct sctp_chunk *))
- 
- {
-+	struct sctp_datamsg *msg, *prev_msg = NULL;
- 	struct sctp_outq *q = &asoc->outqueue;
-+	struct sctp_chunk *chunk, *c;
- 	struct sctp_transport *t;
--	struct sctp_chunk *chunk;
- 
- 	list_for_each_entry(t, &asoc->peer.transport_addr_list, transports)
- 		list_for_each_entry(chunk, &t->transmitted, transmitted_list)
--			cb(chunk);
-+			traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->retransmit, transmitted_list)
--		cb(chunk);
-+		traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->sacked, transmitted_list)
--		cb(chunk);
-+		traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->abandoned, transmitted_list)
--		cb(chunk);
-+		traverse_and_process();
- 
- 	list_for_each_entry(chunk, &q->out_chunk_list, list)
--		cb(chunk);
-+		traverse_and_process();
- }
- 
- static void sctp_for_each_rx_skb(struct sctp_association *asoc, struct sock *sk,
-@@ -8899,9 +8914,9 @@ static void sctp_sock_migrate(struct soc
- 	 * paths won't try to lock it and then oldsk.
- 	 */
- 	lock_sock_nested(newsk, SINGLE_DEPTH_NESTING);
--	sctp_for_each_tx_datachunk(assoc, sctp_clear_owner_w);
-+	sctp_for_each_tx_datachunk(assoc, true, sctp_clear_owner_w);
- 	sctp_assoc_migrate(assoc, newsk);
--	sctp_for_each_tx_datachunk(assoc, sctp_set_owner_w);
-+	sctp_for_each_tx_datachunk(assoc, false, sctp_set_owner_w);
- 
- 	/* If the association on the newsk is already closed before accept()
- 	 * is called, set RCV_SHUTDOWN flag.
+---
+ mm/mempolicy.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2725,7 +2725,9 @@ int mpol_parse_str(char *str, struct mem
+ 	switch (mode) {
+ 	case MPOL_PREFERRED:
+ 		/*
+-		 * Insist on a nodelist of one node only
++		 * Insist on a nodelist of one node only, although later
++		 * we use first_node(nodes) to grab a single node, so here
++		 * nodelist (or nodes) cannot be empty.
+ 		 */
+ 		if (nodelist) {
+ 			char *rest = nodelist;
+@@ -2733,6 +2735,8 @@ int mpol_parse_str(char *str, struct mem
+ 				rest++;
+ 			if (*rest)
+ 				goto out;
++			if (nodes_empty(nodes))
++				goto out;
+ 		}
+ 		break;
+ 	case MPOL_INTERLEAVE:
 
 
