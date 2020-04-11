@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B3261A5659
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 145541A5637
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730525AbgDKXO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:14:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57036 "EHLO mail.kernel.org"
+        id S1730339AbgDKXPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:15:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730315AbgDKXO5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:14:57 -0400
+        id S1730082AbgDKXO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:14:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67DC62166E;
-        Sat, 11 Apr 2020 23:14:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E12420787;
+        Sat, 11 Apr 2020 23:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646897;
-        bh=TCPpYRXbWQZVxGNuf4xAXSp9wt5ndlQG7Sne2Fu2/rE=;
+        s=default; t=1586646899;
+        bh=G3UUIHyg7xSxPYcVcLYBK8Zfu2gVBd/q3PMHYp8s44I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhCk3palO7V6zxJbnTHpHXM4OjYXJ7/eWyk7wOHF9SD9lHI/FMcs4VvlFrvOgBjIH
-         NufEAxzbAqmfAruPiXVFUI4rPGbRb1ZhE2UtzimxS3c9XgOTVisRjFflLyCJ4S9Od8
-         eJ/Ip62SkV/AggU7MsulW46zHf+j2oQEbIXgyZPI=
+        b=wxXM3FzuI8ztVk3zO/jVKpX3cgXyBxl3bbQTRbeCqM6cZXFL2P04vmhQULMvynQvC
+         4kh8e2j79VylXJ8t3VlNTYKgXR85DlfWj2jJYsEB4/ac6ZiKilMk7+MKTqEIan/z1y
+         sXSFNvEWyoAvFXOR3mmtSbfdONg1yFFj9csMUvpA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 08/16] net: intel: e1000e: fix possible sleep-in-atomic-context bugs in e1000e_get_hw_semaphore()
-Date:   Sat, 11 Apr 2020 19:14:38 -0400
-Message-Id: <20200411231447.27182-8-sashal@kernel.org>
+Cc:     Wen Yang <wen.yang99@zte.com.cn>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        dri-devel@lists.freedesktop.org,
+        Markus Elfring <Markus.Elfring@web.de>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 09/16] drm/omap: fix possible object reference leak
+Date:   Sat, 11 Apr 2020 19:14:39 -0400
+Message-Id: <20200411231447.27182-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231447.27182-1-sashal@kernel.org>
 References: <20200411231447.27182-1-sashal@kernel.org>
@@ -45,79 +51,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit 2e05f756c7099c8991142382648a37b0d4c85943 ]
+[ Upstream commit 47340e46f34a3b1d80e40b43ae3d7a8da34a3541 ]
 
-The driver may sleep while holding a spinlock.
-The function call path (from bottom to top) in Linux 4.19 is:
+The call to of_find_matching_node returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-drivers/net/ethernet/intel/e1000e/mac.c, 1366:
-	usleep_range in e1000e_get_hw_semaphore
-drivers/net/ethernet/intel/e1000e/80003es2lan.c, 322:
-	e1000e_get_hw_semaphore in e1000_release_swfw_sync_80003es2lan
-drivers/net/ethernet/intel/e1000e/80003es2lan.c, 197:
-	e1000_release_swfw_sync_80003es2lan in e1000_release_phy_80003es2lan
-drivers/net/ethernet/intel/e1000e/netdev.c, 4883:
-	(FUNC_PTR) e1000_release_phy_80003es2lan in e1000e_update_phy_stats
-drivers/net/ethernet/intel/e1000e/netdev.c, 4917:
-	e1000e_update_phy_stats in e1000e_update_stats
-drivers/net/ethernet/intel/e1000e/netdev.c, 5945:
-	e1000e_update_stats in e1000e_get_stats64
-drivers/net/ethernet/intel/e1000e/netdev.c, 5944:
-	spin_lock in e1000e_get_stats64
+Detected by coccinelle with the following warnings:
+drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c:212:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 209, but without a corresponding object release within this function.
+drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c:237:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 209, but without a corresponding object release within this function.
 
-drivers/net/ethernet/intel/e1000e/mac.c, 1384:
-	usleep_range in e1000e_get_hw_semaphore
-drivers/net/ethernet/intel/e1000e/80003es2lan.c, 322:
-	e1000e_get_hw_semaphore in e1000_release_swfw_sync_80003es2lan
-drivers/net/ethernet/intel/e1000e/80003es2lan.c, 197:
-	e1000_release_swfw_sync_80003es2lan in e1000_release_phy_80003es2lan
-drivers/net/ethernet/intel/e1000e/netdev.c, 4883:
-	(FUNC_PTR) e1000_release_phy_80003es2lan in e1000e_update_phy_stats
-drivers/net/ethernet/intel/e1000e/netdev.c, 4917:
-	e1000e_update_phy_stats in e1000e_update_stats
-drivers/net/ethernet/intel/e1000e/netdev.c, 5945:
-	e1000e_update_stats in e1000e_get_stats64
-drivers/net/ethernet/intel/e1000e/netdev.c, 5944:
-	spin_lock in e1000e_get_stats64
-
-(FUNC_PTR) means a function pointer is called.
-
-To fix these bugs, usleep_range() is replaced with udelay().
-
-These bugs are found by a static analysis tool STCheck written by myself.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Markus Elfring <Markus.Elfring@web.de>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1554692313-28882-2-git-send-email-wen.yang99@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/mac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/omap2/dss/omapdss-boot-init.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/mac.c b/drivers/net/ethernet/intel/e1000e/mac.c
-index fe133f33a6c6a..e0b187dc37385 100644
---- a/drivers/net/ethernet/intel/e1000e/mac.c
-+++ b/drivers/net/ethernet/intel/e1000e/mac.c
-@@ -1386,7 +1386,7 @@ s32 e1000e_get_hw_semaphore(struct e1000_hw *hw)
- 		if (!(swsm & E1000_SWSM_SMBI))
- 			break;
+diff --git a/drivers/video/fbdev/omap2/dss/omapdss-boot-init.c b/drivers/video/fbdev/omap2/dss/omapdss-boot-init.c
+index 8b6f6d5fdd68b..43186fa8a13c9 100644
+--- a/drivers/video/fbdev/omap2/dss/omapdss-boot-init.c
++++ b/drivers/video/fbdev/omap2/dss/omapdss-boot-init.c
+@@ -194,7 +194,7 @@ static int __init omapdss_boot_init(void)
+ 	dss = of_find_matching_node(NULL, omapdss_of_match);
  
--		usleep_range(50, 100);
-+		udelay(100);
- 		i++;
+ 	if (dss == NULL || !of_device_is_available(dss))
+-		return 0;
++		goto put_node;
+ 
+ 	omapdss_walk_device(dss, true);
+ 
+@@ -221,6 +221,8 @@ static int __init omapdss_boot_init(void)
+ 		kfree(n);
  	}
  
-@@ -1404,7 +1404,7 @@ s32 e1000e_get_hw_semaphore(struct e1000_hw *hw)
- 		if (er32(SWSM) & E1000_SWSM_SWESMBI)
- 			break;
++put_node:
++	of_node_put(dss);
+ 	return 0;
+ }
  
--		usleep_range(50, 100);
-+		udelay(100);
- 	}
- 
- 	if (i == timeout) {
 -- 
 2.20.1
 
