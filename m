@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB2E1A51A5
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E0C61A51E8
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728060AbgDKMOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48528 "EHLO mail.kernel.org"
+        id S1726902AbgDKMLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:11:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727273AbgDKMOy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:14:54 -0400
+        id S1726897AbgDKMLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:11:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 329A12084D;
-        Sat, 11 Apr 2020 12:14:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57DA621556;
+        Sat, 11 Apr 2020 12:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607293;
-        bh=qEGibT5UAijc/0Xz1y1e509D0RA9GeicJPNQYYQutp4=;
+        s=default; t=1586607075;
+        bh=+9WqP6F2txrTCyX3djXpG0aBr2o6hpehnbb7t0xhKTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ykLvzrtDpIquLljUE7u95blBfI1Z6OsU6k2/3aPPIeHiiLmmBICf22R54VbwjP7Sx
-         s35ZTJ8/T4L9YylbV24ew89+mBUcrKCevqtS0SjKAYDO/BaWaMZpuzslnUruFFFw+y
-         jV5io4Cq1EGLvZqXC4GvCOQ1gCAZar9UlohjCyjQ=
+        b=WHfx4Ao6ByUFRC7yO0OuWB7NDM9a42FDGVZX2OYUnrStiX5kfmMbOMVSgRZp33iHT
+         JpXr7A/VELpcD14Q+5iSCGvTeO5aEzMCNk5A7BwOTifNhQIx2gv/4ThYYsObWNBT6o
+         LWqGhyXXM1dF69KDBuHKNMR7htDOrG2p65GdgD8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 4.19 15/54] misc: pci_endpoint_test: Fix to support > 10 pci-endpoint-test devices
+        stable@vger.kernel.org, Avihai Horon <avihaih@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.4 27/29] RDMA/cm: Update num_paths in cma_resolve_iboe_route error flow
 Date:   Sat, 11 Apr 2020 14:08:57 +0200
-Message-Id: <20200411115509.847419848@linuxfoundation.org>
+Message-Id: <20200411115412.378244525@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
-References: <20200411115508.284500414@linuxfoundation.org>
+In-Reply-To: <20200411115407.651296755@linuxfoundation.org>
+References: <20200411115407.651296755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +45,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Avihai Horon <avihaih@mellanox.com>
 
-commit 6b443e5c80b67a7b8a85b33d052d655ef9064e90 upstream.
+commit 987914ab841e2ec281a35b54348ab109b4c0bb4e upstream.
 
-Adding more than 10 pci-endpoint-test devices results in
-"kobject_add_internal failed for pci-endpoint-test.1 with -EEXIST, don't
-try to register things with the same name in the same directory". This
-is because commit 2c156ac71c6b ("misc: Add host side PCI driver for PCI
-test function device") limited the length of the "name" to 20 characters.
-Change the length of the name to 24 in order to support upto 10000
-pci-endpoint-test devices.
+After a successful allocation of path_rec, num_paths is set to 1, but any
+error after such allocation will leave num_paths uncleared.
 
-Fixes: 2c156ac71c6b ("misc: Add host side PCI driver for PCI test function device")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # v4.14+
+This causes to de-referencing a NULL pointer later on. Hence, num_paths
+needs to be set back to 0 if such an error occurs.
+
+The following crash from syzkaller revealed it.
+
+  kasan: CONFIG_KASAN_INLINE enabled
+  kasan: GPF could be caused by NULL-ptr deref or user memory access
+  general protection fault: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
+  CPU: 0 PID: 357 Comm: syz-executor060 Not tainted 4.18.0+ #311
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+  rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
+  RIP: 0010:ib_copy_path_rec_to_user+0x94/0x3e0
+  Code: f1 f1 f1 f1 c7 40 0c 00 00 f4 f4 65 48 8b 04 25 28 00 00 00 48 89
+  45 c8 31 c0 e8 d7 60 24 ff 48 8d 7b 4c 48 89 f8 48 c1 e8 03 <42> 0f b6
+  14 30 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85
+  RSP: 0018:ffff88006586f980 EFLAGS: 00010207
+  RAX: 0000000000000009 RBX: 0000000000000000 RCX: 1ffff1000d5fe475
+  RDX: ffff8800621e17c0 RSI: ffffffff820d45f9 RDI: 000000000000004c
+  RBP: ffff88006586fa50 R08: ffffed000cb0df73 R09: ffffed000cb0df72
+  R10: ffff88006586fa70 R11: ffffed000cb0df73 R12: 1ffff1000cb0df30
+  R13: ffff88006586fae8 R14: dffffc0000000000 R15: ffff88006aff2200
+  FS: 00000000016fc880(0000) GS:ffff88006d000000(0000)
+  knlGS:0000000000000000
+  CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000020000040 CR3: 0000000063fec000 CR4: 00000000000006b0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+  ? ib_copy_path_rec_from_user+0xcc0/0xcc0
+  ? __mutex_unlock_slowpath+0xfc/0x670
+  ? wait_for_completion+0x3b0/0x3b0
+  ? ucma_query_route+0x818/0xc60
+  ucma_query_route+0x818/0xc60
+  ? ucma_listen+0x1b0/0x1b0
+  ? sched_clock_cpu+0x18/0x1d0
+  ? sched_clock_cpu+0x18/0x1d0
+  ? ucma_listen+0x1b0/0x1b0
+  ? ucma_write+0x292/0x460
+  ucma_write+0x292/0x460
+  ? ucma_close_id+0x60/0x60
+  ? sched_clock_cpu+0x18/0x1d0
+  ? sched_clock_cpu+0x18/0x1d0
+  __vfs_write+0xf7/0x620
+  ? ucma_close_id+0x60/0x60
+  ? kernel_read+0x110/0x110
+  ? time_hardirqs_on+0x19/0x580
+  ? lock_acquire+0x18b/0x3a0
+  ? finish_task_switch+0xf3/0x5d0
+  ? _raw_spin_unlock_irq+0x29/0x40
+  ? _raw_spin_unlock_irq+0x29/0x40
+  ? finish_task_switch+0x1be/0x5d0
+  ? __switch_to_asm+0x34/0x70
+  ? __switch_to_asm+0x40/0x70
+  ? security_file_permission+0x172/0x1e0
+  vfs_write+0x192/0x460
+  ksys_write+0xc6/0x1a0
+  ? __ia32_sys_read+0xb0/0xb0
+  ? entry_SYSCALL_64_after_hwframe+0x3e/0xbe
+  ? do_syscall_64+0x1d/0x470
+  do_syscall_64+0x9e/0x470
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: 3c86aa70bf67 ("RDMA/cm: Add RDMA CM support for IBoE devices")
+Link: https://lore.kernel.org/r/20200318101741.47211-1-leon@kernel.org
+Signed-off-by: Avihai Horon <avihaih@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/pci_endpoint_test.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/cma.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/misc/pci_endpoint_test.c
-+++ b/drivers/misc/pci_endpoint_test.c
-@@ -636,7 +636,7 @@ static int pci_endpoint_test_probe(struc
- {
- 	int err;
- 	int id;
--	char name[20];
-+	char name[24];
- 	enum pci_barno bar;
- 	void __iomem *base;
- 	struct device *dev = &pdev->dev;
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -2378,6 +2378,7 @@ static int cma_resolve_iboe_route(struct
+ err2:
+ 	kfree(route->path_rec);
+ 	route->path_rec = NULL;
++	route->num_paths = 0;
+ err1:
+ 	kfree(work);
+ 	return ret;
 
 
