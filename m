@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 773731A5A7A
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:43:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49FFA1A5A7D
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728348AbgDKXGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:06:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41410 "EHLO mail.kernel.org"
+        id S1727881AbgDKXnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:43:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728337AbgDKXGP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:06:15 -0400
+        id S1728345AbgDKXGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:06:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A67A621744;
-        Sat, 11 Apr 2020 23:06:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05CC8215A4;
+        Sat, 11 Apr 2020 23:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646375;
-        bh=i9OQRqz18EKYo98AmcF8sbyidSFaViJ8xiK2FLqYuco=;
+        s=default; t=1586646376;
+        bh=8YlxmXhqaYAD4a3m07ZqOuwuPg5n5IiQeuI6H483C5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wdFDzVgjKK9GVGe7xyvRzM2BPckT11NVmeOw9qLvdKbBYuIJHKI0rArX5pXTXAL0j
-         NYcj/ONb4+Po18YQ+RPMK+i1I4QRz410ACxXgqDKXTL7MxQ7dc/3HPjiWBG3UitMn2
-         Jw2jMuPvf6p92tT/9UwueFAsy74LN4aQHc4nx6+I=
+        b=lYsmKe/ygiYZqrGah3bzgFoc6l6CAEQsvIp07encInpgOG1rgE5YF8xhph4qpgg1c
+         NI/UUSxQqURnAQpiC4TPLptj4sRxgVrbtNFHNSK8SSmIoxp8ZdV4OxyH8TKipaDUwB
+         tjQqoqtNMDlDXjT4DisUdTWjyjZ8yiiaIKuKWLis=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 117/149] netfilter: nf_tables: silence a RCU-list warning in nft_table_lookup()
-Date:   Sat, 11 Apr 2020 19:03:14 -0400
-Message-Id: <20200411230347.22371-117-sashal@kernel.org>
+Cc:     Rohit Maheshwari <rohitm@chelsio.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 118/149] crypto/chtls: Fix chtls crash in connection cleanup
+Date:   Sat, 11 Apr 2020 19:03:15 -0400
+Message-Id: <20200411230347.22371-118-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -45,61 +43,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Rohit Maheshwari <rohitm@chelsio.com>
 
-[ Upstream commit 0a6a9515fe390976cd762c52d8d4f446d7a14285 ]
+[ Upstream commit 3a0a978389234995b64a8b8fbe343115bffb1551 ]
 
-It is safe to traverse &net->nft.tables with &net->nft.commit_mutex
-held using list_for_each_entry_rcu(). Silence the PROVE_RCU_LIST false
-positive,
+There is a possibility that cdev is removed before CPL_ABORT_REQ_RSS
+is fully processed, so it's better to save it in skb.
 
-WARNING: suspicious RCU usage
-net/netfilter/nf_tables_api.c:523 RCU-list traversed in non-reader section!!
+Added checks in handling the flow correctly, which suggests connection reset
+request is sent to HW, wait for HW to respond.
 
-other info that might help us debug this:
-
-rcu_scheduler_active = 2, debug_locks = 1
-1 lock held by iptables/1384:
- #0: ffffffff9745c4a8 (&net->nft.commit_mutex){+.+.}, at: nf_tables_valid_genid+0x25/0x60 [nf_tables]
-
-Call Trace:
- dump_stack+0xa1/0xea
- lockdep_rcu_suspicious+0x103/0x10d
- nft_table_lookup.part.0+0x116/0x120 [nf_tables]
- nf_tables_newtable+0x12c/0x7d0 [nf_tables]
- nfnetlink_rcv_batch+0x559/0x1190 [nfnetlink]
- nfnetlink_rcv+0x1da/0x210 [nfnetlink]
- netlink_unicast+0x306/0x460
- netlink_sendmsg+0x44b/0x770
- ____sys_sendmsg+0x46b/0x4a0
- ___sys_sendmsg+0x138/0x1a0
- __sys_sendmsg+0xb6/0x130
- __x64_sys_sendmsg+0x48/0x50
- do_syscall_64+0x69/0xf4
- entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/crypto/chelsio/chtls/chtls_cm.c | 29 +++++++++++++++++++++----
+ 1 file changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index d11f1a74d43c9..f09d15e7fe2b2 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -520,7 +520,8 @@ static struct nft_table *nft_table_lookup(const struct net *net,
- 	if (nla == NULL)
- 		return ERR_PTR(-EINVAL);
+diff --git a/drivers/crypto/chelsio/chtls/chtls_cm.c b/drivers/crypto/chelsio/chtls/chtls_cm.c
+index 9b2745ad9e380..d5720a8594435 100644
+--- a/drivers/crypto/chelsio/chtls/chtls_cm.c
++++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
+@@ -445,6 +445,7 @@ void chtls_destroy_sock(struct sock *sk)
+ 	chtls_purge_write_queue(sk);
+ 	free_tls_keyid(sk);
+ 	kref_put(&csk->kref, chtls_sock_release);
++	csk->cdev = NULL;
+ 	sk->sk_prot = &tcp_prot;
+ 	sk->sk_prot->destroy(sk);
+ }
+@@ -759,8 +760,10 @@ static void chtls_release_resources(struct sock *sk)
+ 		csk->l2t_entry = NULL;
+ 	}
  
--	list_for_each_entry_rcu(table, &net->nft.tables, list) {
-+	list_for_each_entry_rcu(table, &net->nft.tables, list,
-+				lockdep_is_held(&net->nft.commit_mutex)) {
- 		if (!nla_strcmp(nla, table->name) &&
- 		    table->family == family &&
- 		    nft_active_genmask(table, genmask))
+-	cxgb4_remove_tid(tids, csk->port_id, tid, sk->sk_family);
+-	sock_put(sk);
++	if (sk->sk_state != TCP_SYN_SENT) {
++		cxgb4_remove_tid(tids, csk->port_id, tid, sk->sk_family);
++		sock_put(sk);
++	}
+ }
+ 
+ static void chtls_conn_done(struct sock *sk)
+@@ -1716,6 +1719,9 @@ static void chtls_peer_close(struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct chtls_sock *csk = rcu_dereference_sk_user_data(sk);
+ 
++	if (csk_flag_nochk(csk, CSK_ABORT_RPL_PENDING))
++		goto out;
++
+ 	sk->sk_shutdown |= RCV_SHUTDOWN;
+ 	sock_set_flag(sk, SOCK_DONE);
+ 
+@@ -1748,6 +1754,7 @@ static void chtls_peer_close(struct sock *sk, struct sk_buff *skb)
+ 		else
+ 			sk_wake_async(sk, SOCK_WAKE_WAITD, POLL_IN);
+ 	}
++out:
+ 	kfree_skb(skb);
+ }
+ 
+@@ -1758,6 +1765,10 @@ static void chtls_close_con_rpl(struct sock *sk, struct sk_buff *skb)
+ 	struct tcp_sock *tp;
+ 
+ 	csk = rcu_dereference_sk_user_data(sk);
++
++	if (csk_flag_nochk(csk, CSK_ABORT_RPL_PENDING))
++		goto out;
++
+ 	tp = tcp_sk(sk);
+ 
+ 	tp->snd_una = ntohl(rpl->snd_nxt) - 1;  /* exclude FIN */
+@@ -1787,6 +1798,7 @@ static void chtls_close_con_rpl(struct sock *sk, struct sk_buff *skb)
+ 	default:
+ 		pr_info("close_con_rpl in bad state %d\n", sk->sk_state);
+ 	}
++out:
+ 	kfree_skb(skb);
+ }
+ 
+@@ -1896,6 +1908,7 @@ static void chtls_send_abort_rpl(struct sock *sk, struct sk_buff *skb,
+ 	}
+ 
+ 	set_abort_rpl_wr(reply_skb, tid, status);
++	kfree_skb(skb);
+ 	set_wr_txq(reply_skb, CPL_PRIORITY_DATA, queue);
+ 	if (csk_conn_inline(csk)) {
+ 		struct l2t_entry *e = csk->l2t_entry;
+@@ -1906,7 +1919,6 @@ static void chtls_send_abort_rpl(struct sock *sk, struct sk_buff *skb,
+ 		}
+ 	}
+ 	cxgb4_ofld_send(cdev->lldi->ports[0], reply_skb);
+-	kfree_skb(skb);
+ }
+ 
+ /*
+@@ -2008,7 +2020,8 @@ static void chtls_abort_req_rss(struct sock *sk, struct sk_buff *skb)
+ 		chtls_conn_done(sk);
+ 	}
+ 
+-	chtls_send_abort_rpl(sk, skb, csk->cdev, rst_status, queue);
++	chtls_send_abort_rpl(sk, skb, BLOG_SKB_CB(skb)->cdev,
++			     rst_status, queue);
+ }
+ 
+ static void chtls_abort_rpl_rss(struct sock *sk, struct sk_buff *skb)
+@@ -2042,6 +2055,7 @@ static int chtls_conn_cpl(struct chtls_dev *cdev, struct sk_buff *skb)
+ 	struct cpl_peer_close *req = cplhdr(skb) + RSS_HDR;
+ 	void (*fn)(struct sock *sk, struct sk_buff *skb);
+ 	unsigned int hwtid = GET_TID(req);
++	struct chtls_sock *csk;
+ 	struct sock *sk;
+ 	u8 opcode;
+ 
+@@ -2051,6 +2065,8 @@ static int chtls_conn_cpl(struct chtls_dev *cdev, struct sk_buff *skb)
+ 	if (!sk)
+ 		goto rel_skb;
+ 
++	csk = sk->sk_user_data;
++
+ 	switch (opcode) {
+ 	case CPL_PEER_CLOSE:
+ 		fn = chtls_peer_close;
+@@ -2059,6 +2075,11 @@ static int chtls_conn_cpl(struct chtls_dev *cdev, struct sk_buff *skb)
+ 		fn = chtls_close_con_rpl;
+ 		break;
+ 	case CPL_ABORT_REQ_RSS:
++		/*
++		 * Save the offload device in the skb, we may process this
++		 * message after the socket has closed.
++		 */
++		BLOG_SKB_CB(skb)->cdev = csk->cdev;
+ 		fn = chtls_abort_req_rss;
+ 		break;
+ 	case CPL_ABORT_RPL_RSS:
 -- 
 2.20.1
 
