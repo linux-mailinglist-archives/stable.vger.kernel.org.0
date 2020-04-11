@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C2EF1A55B8
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 331941A57FD
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:27:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730007AbgDKXLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:11:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51512 "EHLO mail.kernel.org"
+        id S1728321AbgDKX12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729998AbgDKXLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730004AbgDKXLs (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 11 Apr 2020 19:11:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D341F2173E;
-        Sat, 11 Apr 2020 23:11:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E295920708;
+        Sat, 11 Apr 2020 23:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646707;
-        bh=QlHYEWGn7a3elbcxUrFdddKG91fI9pOgb+Q8z/TN5D8=;
+        s=default; t=1586646708;
+        bh=ItIerm0IvevocM6ZWbkjcXQ/Hlr+P9DsYTmiUBPKb5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F41oMMAyhgLyiNPxOMPtFPo4DZ8dujRbgei9zGgdVTMHSrjWj2SSVHJw6P97cDQsz
-         1fu4laxC9RmKWNL9OqyA1pGjf3FrxwiR2csCpf9iR8nNhktqTzADBOLBmnqwS5pwKj
-         GtgBMUxTwHFLH5neoKezlzvvKhruS5/hRB03XJXo=
+        b=C1eLUf7gih4x1YOPNZU7TEIvQA6EnJtERThHQCUuGh7A16L/SZk9DHx/y3XtAxfuh
+         r0bKsAjPY2yUBhIUIFf5yotzS/j1JWQKWoogX61Kk4tr/+eu8s0db8PjnIn6cbRijE
+         9nfCoBOQJY9gZzjQ0JE+oYswmr5bzOW9snkREchI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 099/108] rtc: cmos: Use spin_lock_irqsave() in cmos_interrupt()
-Date:   Sat, 11 Apr 2020 19:09:34 -0400
-Message-Id: <20200411230943.24951-99-sashal@kernel.org>
+Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>, Jan Kara <jack@suse.cz>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 100/108] powerpc/book3s64: Fix error handling in mm_iommu_do_alloc()
+Date:   Sat, 11 Apr 2020 19:09:35 -0400
+Message-Id: <20200411230943.24951-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,142 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-[ Upstream commit 66e4f4a9cc389b277e187c115a285fad2cba5485 ]
+[ Upstream commit c4b78169e3667413184c9a20e11b5832288a109f ]
 
-cmos_interrupt() isn't always called from hardirq context, so
-we must use spin_lock_irqsave() & co.
+The last jump to free_exit in mm_iommu_do_alloc() happens after page
+pointers in struct mm_iommu_table_group_mem_t were already converted to
+physical addresses. Thus calling put_page() on these physical addresses
+will likely crash.
 
-================================
-WARNING: inconsistent lock state
-5.6.0-rc2-CI-CI_DRM_7981+ #1 Tainted: G     U
---------------------------------
-inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
-rtcwake/4315 [HC0[0]:SC0[0]:HE1:SE1] takes:
-ffffffff82635198 (rtc_lock){?...}, at: cmos_interrupt+0x18/0x100
-{IN-HARDIRQ-W} state was registered at:
-  lock_acquire+0xa7/0x1c0
-  _raw_spin_lock+0x2a/0x40
-  cmos_interrupt+0x18/0x100
-  rtc_handler+0x75/0xc0
-  acpi_ev_fixed_event_detect+0xf9/0x132
-  acpi_ev_sci_xrupt_handler+0xb/0x28
-  acpi_irq+0x13/0x30
-  __handle_irq_event_percpu+0x41/0x2c0
-  handle_irq_event_percpu+0x2b/0x70
-  handle_irq_event+0x2f/0x50
-  handle_fasteoi_irq+0x8e/0x150
-  do_IRQ+0x7e/0x160
-  ret_from_intr+0x0/0x35
-  mwait_idle+0x7e/0x200
-  do_idle+0x1bb/0x260
-  cpu_startup_entry+0x14/0x20
-  start_secondary+0x15f/0x1b0
-  secondary_startup_64+0xa4/0xb0
-irq event stamp: 42003
-hardirqs last  enabled at (42003): [<ffffffff81a36567>] _raw_spin_unlock_irqrestore+0x47/0x60
-hardirqs last disabled at (42002): [<ffffffff81a362ed>] _raw_spin_lock_irqsave+0xd/0x50
-softirqs last  enabled at (41848): [<ffffffff81e00385>] __do_softirq+0x385/0x47f
-softirqs last disabled at (41841): [<ffffffff810bab3a>] irq_exit+0xba/0xc0
+This moves the loop which calculates the pageshift and converts page
+struct pointers to physical addresses later after the point when
+we cannot fail; thus eliminating the need to convert pointers back.
 
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(rtc_lock);
-  <Interrupt>
-    lock(rtc_lock);
-
- *** DEADLOCK ***
-
-6 locks held by rtcwake/4315:
- #0: ffff888175dc9408 (sb_writers#5){.+.+}, at: vfs_write+0x1a4/0x1d0
- #1: ffff88817406ca80 (&of->mutex){+.+.}, at: kernfs_fop_write+0xdd/0x1b0
- #2: ffff888179be85e0 (kn->count#236){.+.+}, at: kernfs_fop_write+0xe6/0x1b0
- #3: ffffffff82641e00 (system_transition_mutex){+.+.}, at: pm_suspend+0xb3/0x3b0
- #4: ffffffff826b3ee0 (acpi_scan_lock){+.+.}, at: acpi_suspend_begin+0x47/0x80
- #5: ffff888178fc3960 (&dev->mutex){....}, at: device_resume+0x92/0x1c0
-
-stack backtrace:
-CPU: 3 PID: 4315 Comm: rtcwake Tainted: G     U            5.6.0-rc2-CI-CI_DRM_7981+ #1
-Hardware name: Google Soraka/Soraka, BIOS MrChromebox-4.10 08/25/2019
-Call Trace:
- dump_stack+0x71/0x9b
- mark_lock+0x49a/0x500
- ? print_shortest_lock_dependencies+0x200/0x200
- __lock_acquire+0x6d4/0x15d0
- ? __lock_acquire+0x460/0x15d0
- lock_acquire+0xa7/0x1c0
- ? cmos_interrupt+0x18/0x100
- _raw_spin_lock+0x2a/0x40
- ? cmos_interrupt+0x18/0x100
- cmos_interrupt+0x18/0x100
- cmos_resume+0x1fd/0x290
- ? __acpi_pm_set_device_wakeup+0x24/0x100
- pnp_bus_resume+0x5e/0x90
- ? pnp_bus_suspend+0x10/0x10
- dpm_run_callback+0x64/0x280
- device_resume+0xd4/0x1c0
- ? dpm_watchdog_set+0x60/0x60
- dpm_resume+0x106/0x410
- ? dpm_resume_early+0x38c/0x3e0
- dpm_resume_end+0x8/0x10
- suspend_devices_and_enter+0x16f/0xbe0
- ? rcu_read_lock_sched_held+0x4d/0x80
- pm_suspend+0x344/0x3b0
- state_store+0x78/0xe0
- kernfs_fop_write+0x112/0x1b0
- vfs_write+0xb9/0x1d0
- ksys_write+0x9f/0xe0
- do_syscall_64+0x4f/0x220
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7ff934307154
-Code: 89 02 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 8d 05 b1 07 2e 00 8b 00 85 c0 75 13 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 54 f3 c3 66 90 41 54 55 49 89 d4 53 48 89 f5
-RSP: 002b:00007ffe2647c168 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007ff934307154
-RDX: 0000000000000004 RSI: 000055de3ec4e5a0 RDI: 000000000000000a
-RBP: 000055de3ec4e5a0 R08: 000055de3ec4c5e0 R09: 00007ff9349f3740
-R10: 000055de3ec4a010 R11: 0000000000000246 R12: 000055de3ec4c500
-R13: 0000000000000004 R14: 00007ff9345df2a0 R15: 00007ff9345de760
-
-Fixes: c6d3a278cc12 ("rtc: cmos: acknowledge ACPI driven wake alarms upon resume")
-Fixes: 311ee9c151ad ("rtc: cmos: allow using ACPI for RTC alarm instead of HPET")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://lore.kernel.org/r/20200221144739.11746-1-ville.syrjala@linux.intel.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: eb9d7a62c386 ("powerpc/mm_iommu: Fix potential deadlock")
+Reported-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191223060351.26359-1-aik@ozlabs.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-cmos.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/mm/book3s64/iommu_api.c | 39 +++++++++++++++-------------
+ 1 file changed, 21 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index cb28bbdc9e17f..ecbe89b039ee6 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -649,10 +649,11 @@ static struct cmos_rtc	cmos_rtc;
- 
- static irqreturn_t cmos_interrupt(int irq, void *p)
- {
-+	unsigned long	flags;
- 	u8		irqstat;
- 	u8		rtc_control;
- 
--	spin_lock(&rtc_lock);
-+	spin_lock_irqsave(&rtc_lock, flags);
- 
- 	/* When the HPET interrupt handler calls us, the interrupt
- 	 * status is passed as arg1 instead of the irq number.  But
-@@ -686,7 +687,7 @@ static irqreturn_t cmos_interrupt(int irq, void *p)
- 			hpet_mask_rtc_irq_bit(RTC_AIE);
- 		CMOS_READ(RTC_INTR_FLAGS);
+diff --git a/arch/powerpc/mm/book3s64/iommu_api.c b/arch/powerpc/mm/book3s64/iommu_api.c
+index 56cc845205779..ef164851738b8 100644
+--- a/arch/powerpc/mm/book3s64/iommu_api.c
++++ b/arch/powerpc/mm/book3s64/iommu_api.c
+@@ -121,24 +121,6 @@ static long mm_iommu_do_alloc(struct mm_struct *mm, unsigned long ua,
+ 		goto free_exit;
  	}
--	spin_unlock(&rtc_lock);
-+	spin_unlock_irqrestore(&rtc_lock, flags);
  
- 	if (is_intr(irqstat)) {
- 		rtc_update_irq(p, 1, irqstat);
+-	pageshift = PAGE_SHIFT;
+-	for (i = 0; i < entries; ++i) {
+-		struct page *page = mem->hpages[i];
+-
+-		/*
+-		 * Allow to use larger than 64k IOMMU pages. Only do that
+-		 * if we are backed by hugetlb.
+-		 */
+-		if ((mem->pageshift > PAGE_SHIFT) && PageHuge(page))
+-			pageshift = page_shift(compound_head(page));
+-		mem->pageshift = min(mem->pageshift, pageshift);
+-		/*
+-		 * We don't need struct page reference any more, switch
+-		 * to physical address.
+-		 */
+-		mem->hpas[i] = page_to_pfn(page) << PAGE_SHIFT;
+-	}
+-
+ good_exit:
+ 	atomic64_set(&mem->mapped, 1);
+ 	mem->used = 1;
+@@ -158,6 +140,27 @@ static long mm_iommu_do_alloc(struct mm_struct *mm, unsigned long ua,
+ 		}
+ 	}
+ 
++	if (mem->dev_hpa == MM_IOMMU_TABLE_INVALID_HPA) {
++		/*
++		 * Allow to use larger than 64k IOMMU pages. Only do that
++		 * if we are backed by hugetlb. Skip device memory as it is not
++		 * backed with page structs.
++		 */
++		pageshift = PAGE_SHIFT;
++		for (i = 0; i < entries; ++i) {
++			struct page *page = mem->hpages[i];
++
++			if ((mem->pageshift > PAGE_SHIFT) && PageHuge(page))
++				pageshift = page_shift(compound_head(page));
++			mem->pageshift = min(mem->pageshift, pageshift);
++			/*
++			 * We don't need struct page reference any more, switch
++			 * to physical address.
++			 */
++			mem->hpas[i] = page_to_pfn(page) << PAGE_SHIFT;
++		}
++	}
++
+ 	list_add_rcu(&mem->next, &mm->context.iommu_group_mem_list);
+ 
+ 	mutex_unlock(&mem_list_mutex);
 -- 
 2.20.1
 
