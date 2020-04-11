@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C941A58D8
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 672DE1A58D4
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:32:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728938AbgDKXJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47958 "EHLO mail.kernel.org"
+        id S1728999AbgDKXcl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:32:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729386AbgDKXJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:09:58 -0400
+        id S1729393AbgDKXJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:09:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E64D620757;
-        Sat, 11 Apr 2020 23:09:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4563320787;
+        Sat, 11 Apr 2020 23:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646598;
-        bh=o6LxklEs3CFqmUorRxPG7hw5z/Wv2HackpuNmTleWZ0=;
+        s=default; t=1586646600;
+        bh=feWiSaDs4TCqbLvcliEgFp07dy9mV1+go9/DXaD0w8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJciSYHYlPysVbPW/iExEvsdIj54jKAQqFXat0D4/V71TrjcJ8lTMyjGYFv+LgQ0m
-         I1RPXqISWJrjMS98uV5vmMGNYhNHpqcnB0n+8uz1bIscCb1HD/dKlus0Uv+/pllYTS
-         MNl38oqpgMbo/98ysfa1sGyu3pwFgXko7poV951o=
+        b=RkEkOyBu5Xe9nAVsmkTVkjZ3TIsEplzBlQqDBV5zqaz/xgRBhbhJTLnIt/v4JmTmm
+         8oufQyXyQFt7bsWCKJ6qg4EVXgNzg50zJ28pRCDigMNHhddo4GIAhC+CQywUCdEOgi
+         3pk2EWPjrGjAbS39GcFOi6py5gZj6sfpByR1/gKs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 012/108] drm/amd/display: Explicitly disable triplebuffer flips
-Date:   Sat, 11 Apr 2020 19:08:07 -0400
-Message-Id: <20200411230943.24951-12-sashal@kernel.org>
+Cc:     Jason Gunthorpe <jgg@mellanox.com>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 013/108] RDMA/bnxt_re: Fix lifetimes in bnxt_re_task
+Date:   Sat, 11 Apr 2020 19:08:08 -0400
+Message-Id: <20200411230943.24951-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -46,48 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 2d673560b7b83f8fe4163610f35c51b4d095525c ]
+[ Upstream commit 8a6c61704746d3a1e004e054504ae8d98ed95697 ]
 
-[Why]
-This is enabled by default on Renoir but there's userspace/API support
-to actually make use of this.
+A work queue cannot just rely on the ib_device not being freed, it must
+hold a kref on the memory so that the BNXT_RE_FLAG_IBDEV_REGISTERED check
+works.
 
-Since we're not passing this down through surface updates, let's
-explicitly disable this for now.
-
-This fixes "dcn20_program_front_end_for_ctx" warnings associated with
-incorrect/unexpected programming sequences performed while this is
-enabled.
-
-[How]
-Disable it at the topmost level in DM in case anyone tries to flip this
-to enabled for any of the other ASICs like Navi10/14.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
+Link: https://lore.kernel.org/r/1584117207-2664-3-git-send-email-selvin.xavier@broadcom.com
+Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/bnxt_re/main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 360c87ba45956..1b54744b1ba07 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2391,6 +2391,9 @@ static int amdgpu_dm_initialize_drm_device(struct amdgpu_device *adev)
- 	if (adev->asic_type != CHIP_CARRIZO && adev->asic_type != CHIP_STONEY)
- 		dm->dc->debug.disable_stutter = amdgpu_pp_feature_mask & PP_STUTTER_MODE ? false : true;
+diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
+index 27e2df44d043d..cf51f2606877c 100644
+--- a/drivers/infiniband/hw/bnxt_re/main.c
++++ b/drivers/infiniband/hw/bnxt_re/main.c
+@@ -1584,6 +1584,7 @@ static void bnxt_re_task(struct work_struct *work)
+ 	smp_mb__before_atomic();
+ 	atomic_dec(&rdev->sched_count);
+ exit:
++	put_device(&rdev->ibdev.dev);
+ 	kfree(re_work);
+ }
  
-+	/* No userspace support. */
-+	dm->dc->debug.disable_tri_buf = true;
-+
- 	return 0;
- fail:
- 	kfree(aencoder);
+@@ -1660,6 +1661,7 @@ static int bnxt_re_netdev_event(struct notifier_block *notifier,
+ 		/* Allocate for the deferred task */
+ 		re_work = kzalloc(sizeof(*re_work), GFP_ATOMIC);
+ 		if (re_work) {
++			get_device(&rdev->ibdev.dev);
+ 			re_work->rdev = rdev;
+ 			re_work->event = event;
+ 			re_work->vlan_dev = (real_dev == netdev ?
 -- 
 2.20.1
 
