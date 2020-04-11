@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B01E1A55D6
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:13:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD7AA1A55D3
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:13:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728749AbgDKXMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730188AbgDKXMe (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 11 Apr 2020 19:12:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52708 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730178AbgDKXMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:12:31 -0400
+        id S1730184AbgDKXMc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:12:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3CD120CC7;
-        Sat, 11 Apr 2020 23:12:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9A1E20787;
+        Sat, 11 Apr 2020 23:12:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646751;
-        bh=SEjjAxhYtlEasn8TNgdMDhJjvDb3li6yLyOzpg9ulos=;
+        s=default; t=1586646752;
+        bh=hSS7szUCZeaop0dkXIYSvoocnotPfQ/8xvQnIKAGgPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f58YXIadyhFG764Ml3bEPIXm6TX4byYdxT4btUcldFMJyL8EC4jkMWz1/bppSR8VC
-         jgQUXRFvGPhIS+SwQ2kjr6PoqjA8+kqMwh41X9ApViKPASvnUtbdHRFJYYoa7oc+tI
-         KuWM99ZkVAsmfCexH7I2q1m9eEdBk8AfZ1afCinM=
+        b=fEm73dZjB5Ohq9Fw5xUdp0PT3k7NoyptpR8whFr4JdFKp315X7aUnAWJroCGA/fPI
+         iJllUBZA22bsEeO+VmjV/vCpkYT1Y20YOb79BvMVhhvHbzYFbae/tGGCb+ZqSiBguS
+         /WJ6tEjHkh2d0QX3My+680iq202wlnThZYGTEyN8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 23/66] crypto: chelsio - Endianess bug in create_authenc_wr
-Date:   Sat, 11 Apr 2020 19:11:20 -0400
-Message-Id: <20200411231203.25933-23-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 24/66] RDMA/rxe: Fix configuration of atomic queue pair attributes
+Date:   Sat, 11 Apr 2020 19:11:21 -0400
+Message-Id: <20200411231203.25933-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231203.25933-1-sashal@kernel.org>
 References: <20200411231203.25933-1-sashal@kernel.org>
@@ -43,70 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit ff462ddfd95b915345c3c7c037c3bfafdc58bae7 ]
+[ Upstream commit fb3063d31995cc4cf1d47a406bb61d6fb1b1d58d ]
 
-kctx_len = (ntohl(KEY_CONTEXT_CTX_LEN_V(aeadctx->key_ctx_hdr)) << 4)
-                - sizeof(chcr_req->key_ctx);
-can't possibly be endian-safe.  Look: ->key_ctx_hdr is __be32.  And
-KEY_CONTEXT_CTX_LEN_V is "shift up by 24 bits".  On little-endian hosts it
-sees
-	b0 b1 b2 b3
-in memory, inteprets that into b0 + (b1 << 8) + (b2 << 16) + (b3 << 24),
-shifts up by 24, resulting in b0 << 24, does ntohl (byteswap on l-e),
-gets b0 and shifts that up by 4.  So we get b0 * 16 - sizeof(...).
+From the comment above the definition of the roundup_pow_of_two() macro:
 
-Sounds reasonable, but on b-e we get
-b3 + (b2 << 8) + (b1 << 16) + (b0 << 24), shift up by 24,
-yielding b3 << 24, do ntohl (no-op on b-e) and then shift up by 4.
-Resulting in b3 << 28 - sizeof(...), i.e. slightly under b3 * 256M.
+     The result is undefined when n == 0.
 
-Then we increase it some more and pass to alloc_skb() as size.
-Somehow I doubt that we really want a quarter-gigabyte skb allocation
-here...
+Hence only pass positive values to roundup_pow_of_two(). This patch fixes
+the following UBSAN complaint:
 
-Note that when you are building those values in
-#define  FILL_KEY_CTX_HDR(ck_size, mk_size, d_ck, opad, ctx_len) \
-                htonl(KEY_CONTEXT_VALID_V(1) | \
-                      KEY_CONTEXT_CK_SIZE_V((ck_size)) | \
-                      KEY_CONTEXT_MK_SIZE_V(mk_size) | \
-                      KEY_CONTEXT_DUAL_CK_V((d_ck)) | \
-                      KEY_CONTEXT_OPAD_PRESENT_V((opad)) | \
-                      KEY_CONTEXT_SALT_PRESENT_V(1) | \
-                      KEY_CONTEXT_CTX_LEN_V((ctx_len)))
-ctx_len ends up in the first octet (i.e. b0 in the above), which
-matches the current behaviour on l-e.  If that's the intent, this
-thing should've been
-        kctx_len = (KEY_CONTEXT_CTX_LEN_G(ntohl(aeadctx->key_ctx_hdr)) << 4)
-                - sizeof(chcr_req->key_ctx);
-instead - fetch after ntohl() we get (b0 << 24) + (b1 << 16) + (b2 << 8) + b3,
-shift it down by 24 (b0), resuling in b0 * 16 - sizeof(...) both on l-e and
-on b-e.
+  UBSAN: Undefined behaviour in ./include/linux/log2.h:57:13
+  shift exponent 64 is too large for 64-bit type 'long unsigned int'
+  Call Trace:
+   dump_stack+0xa5/0xe6
+   ubsan_epilogue+0x9/0x26
+   __ubsan_handle_shift_out_of_bounds.cold+0x4c/0xf9
+   rxe_qp_from_attr.cold+0x37/0x5d [rdma_rxe]
+   rxe_modify_qp+0x59/0x70 [rdma_rxe]
+   _ib_modify_qp+0x5aa/0x7c0 [ib_core]
+   ib_modify_qp+0x3b/0x50 [ib_core]
+   cma_modify_qp_rtr+0x234/0x260 [rdma_cm]
+   __rdma_accept+0x1a7/0x650 [rdma_cm]
+   nvmet_rdma_cm_handler+0x1286/0x14cd [nvmet_rdma]
+   cma_cm_event_handler+0x6b/0x330 [rdma_cm]
+   cma_ib_req_handler+0xe60/0x22d0 [rdma_cm]
+   cm_process_work+0x30/0x140 [ib_cm]
+   cm_req_handler+0x11f4/0x1cd0 [ib_cm]
+   cm_work_handler+0xb8/0x344e [ib_cm]
+   process_one_work+0x569/0xb60
+   worker_thread+0x7a/0x5d0
+   kthread+0x1e6/0x210
+   ret_from_fork+0x24/0x30
 
-PS: when sparse warns you about endianness problems, it might be worth checking
-if there really is something wrong.  And I don't mean "slap __force cast on it"...
-
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Link: https://lore.kernel.org/r/20200217205714.26937-1-bvanassche@acm.org
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/chelsio/chcr_algo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
-index c435f89f34e37..8b68ccc137c53 100644
---- a/drivers/crypto/chelsio/chcr_algo.c
-+++ b/drivers/crypto/chelsio/chcr_algo.c
-@@ -2298,7 +2298,7 @@ static struct sk_buff *create_authenc_wr(struct aead_request *req,
- 	dnents += MIN_AUTH_SG; // For IV
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 230697fa31fe3..8a22ab8b29e9b 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -583,15 +583,16 @@ int rxe_qp_from_attr(struct rxe_qp *qp, struct ib_qp_attr *attr, int mask,
+ 	int err;
  
- 	dst_size = get_space_for_phys_dsgl(dnents);
--	kctx_len = (ntohl(KEY_CONTEXT_CTX_LEN_V(aeadctx->key_ctx_hdr)) << 4)
-+	kctx_len = (KEY_CONTEXT_CTX_LEN_G(ntohl(aeadctx->key_ctx_hdr)) << 4)
- 		- sizeof(chcr_req->key_ctx);
- 	transhdr_len = CIPHER_TRANSHDR_SIZE(kctx_len, dst_size);
- 	reqctx->imm = (transhdr_len + assoclen + IV + req->cryptlen) <
+ 	if (mask & IB_QP_MAX_QP_RD_ATOMIC) {
+-		int max_rd_atomic = __roundup_pow_of_two(attr->max_rd_atomic);
++		int max_rd_atomic = attr->max_rd_atomic ?
++			roundup_pow_of_two(attr->max_rd_atomic) : 0;
+ 
+ 		qp->attr.max_rd_atomic = max_rd_atomic;
+ 		atomic_set(&qp->req.rd_atomic, max_rd_atomic);
+ 	}
+ 
+ 	if (mask & IB_QP_MAX_DEST_RD_ATOMIC) {
+-		int max_dest_rd_atomic =
+-			__roundup_pow_of_two(attr->max_dest_rd_atomic);
++		int max_dest_rd_atomic = attr->max_dest_rd_atomic ?
++			roundup_pow_of_two(attr->max_dest_rd_atomic) : 0;
+ 
+ 		qp->attr.max_dest_rd_atomic = max_dest_rd_atomic;
+ 
 -- 
 2.20.1
 
