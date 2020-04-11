@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD2481A591B
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7171A591F
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729156AbgDKXJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:09:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46830 "EHLO mail.kernel.org"
+        id S1728950AbgDKXeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:34:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729148AbgDKXJO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:09:14 -0400
+        id S1729151AbgDKXJP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:09:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A31AE214D8;
-        Sat, 11 Apr 2020 23:09:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE5A1217D8;
+        Sat, 11 Apr 2020 23:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646554;
-        bh=5dpFX36ulwAFfK6+EtSvRlqV9/JL9zotlrJl7FJdqqQ=;
+        s=default; t=1586646555;
+        bh=ORdiuhU2dCCpWV3CRgYE5CPAYMKh4bXPE412c+Clh64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLvBJ9Xr/ZlEGLjCogjYXNy3+/S0ZIQN/lXmDr2fJqF7h8zyIaV72p9CDasdfZVAY
-         9bA0Kl2JebKaITrvK8I/pv1JBFm2MQiF7ms/YoF8HeURGf3YyfKnI9wn/7K78ZVPpa
-         pSwWJIECkpZyIPSi4Rg9z37ZX8Njey3VLg9nPh9g=
+        b=RqnI/5bdbMeenQfw7a33DXRi2f02VYgmGXwPZFra9umL3umLazi75EfgllSMSNb4v
+         C8j7tmaQOplK9/Z3aNSDdqzDleNbSwhPQDwNPVSBmtdhCrCo4VGVD4Kpy7wuhsdzVl
+         BtmX8HsjVYhjxXxgimQcM+oz6VD7wvfG0RJE1qgg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Himanshu Madhani <hmadhani@marvell.com>,
+Cc:     Joe Carnuccio <joe.carnuccio@cavium.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 104/121] scsi: qla2xxx: Fix control flags for login/logout IOCB
-Date:   Sat, 11 Apr 2020 19:06:49 -0400
-Message-Id: <20200411230706.23855-104-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 105/121] scsi: qla2xxx: Fix qla2x00_echo_test() based on ISP type
+Date:   Sat, 11 Apr 2020 19:06:50 -0400
+Message-Id: <20200411230706.23855-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -43,67 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Himanshu Madhani <hmadhani@marvell.com>
+From: Joe Carnuccio <joe.carnuccio@cavium.com>
 
-[ Upstream commit 419ae5fe73e50084fa794934fb62fab34f564b7c ]
+[ Upstream commit 83cfd3dc002fc730387a1ec5fa0d4097cc31ee9f ]
 
-This patch fixes control flag options for login/logout IOCB.
+Ths patch fixes MBX in-direction for setting right bits for
+qla2x00_echo_test()
 
-Link: https://lore.kernel.org/r/20200212214436.25532-23-hmadhani@marvell.com
+Link: https://lore.kernel.org/r/20200212214436.25532-19-hmadhani@marvell.com
+Signed-off-by: Joe Carnuccio <joe.carnuccio@cavium.com>
 Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_iocb.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_mbx.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
-index 8b050f0b43330..b0e1bf9abe218 100644
---- a/drivers/scsi/qla2xxx/qla_iocb.c
-+++ b/drivers/scsi/qla2xxx/qla_iocb.c
-@@ -2362,6 +2362,8 @@ qla24xx_login_iocb(srb_t *sp, struct logio_entry_24xx *logio)
- 	struct srb_iocb *lio = &sp->u.iocb_cmd;
+diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
+index f0846ce0c4da4..0e8426e1e1149 100644
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -5173,10 +5173,11 @@ qla2x00_echo_test(scsi_qla_host_t *vha, struct msg_echo_lb *mreq,
+ 		mcp->out_mb |= MBX_2;
  
- 	logio->entry_type = LOGINOUT_PORT_IOCB_TYPE;
-+	logio->control_flags = cpu_to_le16(LCF_COMMAND_PLOGI);
-+
- 	if (lio->u.logio.flags & SRB_LOGIN_PRLI_ONLY) {
- 		logio->control_flags = cpu_to_le16(LCF_COMMAND_PRLI);
- 	} else {
-@@ -2912,7 +2914,6 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
- 	sp->fcport = fcport;
+ 	mcp->in_mb = MBX_0;
+-	if (IS_QLA24XX_TYPE(ha) || IS_QLA25XX(ha) ||
+-	    IS_CNA_CAPABLE(ha) || IS_QLA2031(ha))
++	if (IS_CNA_CAPABLE(ha) || IS_QLA24XX_TYPE(ha) || IS_QLA25XX(ha) ||
++	    IS_QLA2031(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
+ 		mcp->in_mb |= MBX_1;
+-	if (IS_CNA_CAPABLE(ha) || IS_QLA2031(ha))
++	if (IS_CNA_CAPABLE(ha) || IS_QLA2031(ha) || IS_QLA27XX(ha) ||
++	    IS_QLA28XX(ha))
+ 		mcp->in_mb |= MBX_3;
  
- 	elsio->timeout = qla2x00_els_dcmd2_iocb_timeout;
--	init_completion(&elsio->u.els_plogi.comp);
- 	if (wait)
- 		sp->flags = SRB_WAKEUP_ON_COMP;
- 
-@@ -2922,7 +2923,7 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
- 	elsio->u.els_plogi.tx_size = elsio->u.els_plogi.rx_size = DMA_POOL_SIZE;
- 
- 	ptr = elsio->u.els_plogi.els_plogi_pyld =
--	    dma_alloc_coherent(&ha->pdev->dev, DMA_POOL_SIZE,
-+	    dma_alloc_coherent(&ha->pdev->dev, elsio->u.els_plogi.tx_size,
- 		&elsio->u.els_plogi.els_plogi_pyld_dma, GFP_KERNEL);
- 
- 	if (!elsio->u.els_plogi.els_plogi_pyld) {
-@@ -2931,7 +2932,7 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
- 	}
- 
- 	resp_ptr = elsio->u.els_plogi.els_resp_pyld =
--	    dma_alloc_coherent(&ha->pdev->dev, DMA_POOL_SIZE,
-+	    dma_alloc_coherent(&ha->pdev->dev, elsio->u.els_plogi.rx_size,
- 		&elsio->u.els_plogi.els_resp_pyld_dma, GFP_KERNEL);
- 
- 	if (!elsio->u.els_plogi.els_resp_pyld) {
-@@ -2955,6 +2956,7 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
- 	    (uint8_t *)elsio->u.els_plogi.els_plogi_pyld,
- 	    sizeof(*elsio->u.els_plogi.els_plogi_pyld));
- 
-+	init_completion(&elsio->u.els_plogi.comp);
- 	rval = qla2x00_start_sp(sp);
- 	if (rval != QLA_SUCCESS) {
- 		rval = QLA_FUNCTION_FAILED;
+ 	mcp->tov = MBX_TOV_SECONDS;
 -- 
 2.20.1
 
