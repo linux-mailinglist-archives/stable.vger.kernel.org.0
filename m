@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 969971A5AF4
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C55D1A5ACA
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728266AbgDKXpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:45:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39850 "EHLO mail.kernel.org"
+        id S1727221AbgDKXpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:45:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727991AbgDKXFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:35 -0400
+        id S1728014AbgDKXFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1025620708;
-        Sat, 11 Apr 2020 23:05:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DA5321835;
+        Sat, 11 Apr 2020 23:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646334;
-        bh=joOxo1Zr/oT1gUdgtaRz8hThdw45IxDOqajylLDLVvs=;
+        s=default; t=1586646336;
+        bh=vqZt/R4WXAM/m2lpLTkGB8OPfcd/fgDe3x/TvWkAJI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpPxBLcRiYtciYR/f4whJOwE9hUKJWaUi8A3jnNZTwlinDibZwhhJVzg28ODzr0hW
-         9LWkTtu5urhakrHVsNAgNW3PHkIiuPyX0vdRC7+qh/IZEOf+F7InwtQ9O1Q/EmNTmG
-         FTgUDCID/OeGQ/Mi9daGHFGZrJA5Rwk5MiMCQ3wY=
+        b=dZxz3G+1mrP0QRxDcqahmApXHOjb9XST9olYPfpOnJkn7N579v5sYlUedC8IKwk/m
+         suro5/46KtZSxbnS454sKGH3MVux0K6his1YXiM72RkYJZA3DEWoQcz28OqtfIIch3
+         gbJmqvx+9SU9cCKk8Z7B6hHvJ/KH+syMZwmcUDe4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Sameer Pujar <spujar@nvidia.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.6 086/149] ASoC: soc-pcm: fix regression in soc_new_pcm()
-Date:   Sat, 11 Apr 2020 19:02:43 -0400
-Message-Id: <20200411230347.22371-86-sashal@kernel.org>
+Cc:     Aric Cyr <aric.cyr@amd.com>,
+        Joshua Aberback <Joshua.Aberback@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 087/149] drm/amd/display: dal_ddc_i2c_payloads_create can fail causing panic
+Date:   Sat, 11 Apr 2020 19:02:44 -0400
+Message-Id: <20200411230347.22371-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -45,74 +47,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit a4877a6fb2bd2e356a5eaacd86d6b6d69ff84e69 ]
+[ Upstream commit 6a6c4a4d459ecacc9013c45dcbf2bc9747fdbdbd ]
 
-Commit af4bac11531f ("ASoC: soc-pcm: crash in snd_soc_dapm_new_dai")
-swapped the SNDRV_PCM_STREAM_* parameter in the
-snd_soc_dai_stream_valid(cpu_dai, ...) checks. But that works only
-for codec2codec links. For normal links it breaks registration of
-playback/capture-only PCM devices.
+[Why]
+Since the i2c payload allocation can fail need to check return codes
 
-E.g. on qcom/apq8016_sbc there is usually one playback-only and one
-capture-only PCM device, but they disappeared after the commit.
+[How]
+Clean up i2c payload allocations and check for errors
 
-The codec2codec case was added in commit a342031cdd08
-("ASoC: create pcm for codec2codec links as well") as an extra check
-(e.g. `playback = playback && cpu_playback->channels_min`).
-
-We should be able to simplify the code by checking directly for
-the correct stream type in the loop.
-This also fixes the regression because we check for PLAYBACK for
-both codec and cpu dai again when codec2codec is not used.
-
-Fixes: af4bac11531f ("ASoC: soc-pcm: crash in snd_soc_dapm_new_dai")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Tested-by: Jerome Brunet <jbrunet@baylibre.com>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
-Cc: Jerome Brunet <jbrunet@baylibre.com>
-Cc: Sameer Pujar <spujar@nvidia.com>
-Link: https://lore.kernel.org/r/20200218103824.26708-1-stephan@gerhold.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Reviewed-by: Joshua Aberback <Joshua.Aberback@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ .../gpu/drm/amd/display/dc/core/dc_link_ddc.c | 52 +++++++++----------
+ 1 file changed, 25 insertions(+), 27 deletions(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 2c59b3688ca01..a08ebbf5a37f3 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -2888,22 +2888,19 @@ int soc_new_pcm(struct snd_soc_pcm_runtime *rtd, int num)
- 		capture = rtd->dai_link->dpcm_capture;
- 	} else {
- 		/* Adapt stream for codec2codec links */
--		struct snd_soc_pcm_stream *cpu_capture = rtd->dai_link->params ?
--			&cpu_dai->driver->playback : &cpu_dai->driver->capture;
--		struct snd_soc_pcm_stream *cpu_playback = rtd->dai_link->params ?
--			&cpu_dai->driver->capture : &cpu_dai->driver->playback;
-+		int cpu_capture = rtd->dai_link->params ?
-+			SNDRV_PCM_STREAM_PLAYBACK : SNDRV_PCM_STREAM_CAPTURE;
-+		int cpu_playback = rtd->dai_link->params ?
-+			SNDRV_PCM_STREAM_CAPTURE : SNDRV_PCM_STREAM_PLAYBACK;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+index a49c10d5df26b..2d0524f677c7c 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+@@ -126,22 +126,16 @@ struct aux_payloads {
+ 	struct vector payloads;
+ };
  
- 		for_each_rtd_codec_dai(rtd, i, codec_dai) {
- 			if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_PLAYBACK) &&
--			    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_CAPTURE))
-+			    snd_soc_dai_stream_valid(cpu_dai,   cpu_playback))
- 				playback = 1;
- 			if (snd_soc_dai_stream_valid(codec_dai, SNDRV_PCM_STREAM_CAPTURE) &&
--			    snd_soc_dai_stream_valid(cpu_dai,   SNDRV_PCM_STREAM_PLAYBACK))
-+			    snd_soc_dai_stream_valid(cpu_dai,   cpu_capture))
- 				capture = 1;
- 		}
+-static struct i2c_payloads *dal_ddc_i2c_payloads_create(struct dc_context *ctx, uint32_t count)
++static bool dal_ddc_i2c_payloads_create(
++		struct dc_context *ctx,
++		struct i2c_payloads *payloads,
++		uint32_t count)
+ {
+-	struct i2c_payloads *payloads;
 -
--		capture = capture && cpu_capture->channels_min;
--		playback = playback && cpu_playback->channels_min;
- 	}
+-	payloads = kzalloc(sizeof(struct i2c_payloads), GFP_KERNEL);
+-
+-	if (!payloads)
+-		return NULL;
+-
+ 	if (dal_vector_construct(
+ 		&payloads->payloads, ctx, count, sizeof(struct i2c_payload)))
+-		return payloads;
+-
+-	kfree(payloads);
+-	return NULL;
++		return true;
  
- 	if (rtd->dai_link->playback_only) {
++	return false;
+ }
+ 
+ static struct i2c_payload *dal_ddc_i2c_payloads_get(struct i2c_payloads *p)
+@@ -154,14 +148,12 @@ static uint32_t dal_ddc_i2c_payloads_get_count(struct i2c_payloads *p)
+ 	return p->payloads.count;
+ }
+ 
+-static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads **p)
++static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads *p)
+ {
+-	if (!p || !*p)
++	if (!p)
+ 		return;
+-	dal_vector_destruct(&(*p)->payloads);
+-	kfree(*p);
+-	*p = NULL;
+ 
++	dal_vector_destruct(&p->payloads);
+ }
+ 
+ #define DDC_MIN(a, b) (((a) < (b)) ? (a) : (b))
+@@ -524,9 +516,13 @@ bool dal_ddc_service_query_ddc_data(
+ 
+ 	uint32_t payloads_num = write_payloads + read_payloads;
+ 
++
+ 	if (write_size > EDID_SEGMENT_SIZE || read_size > EDID_SEGMENT_SIZE)
+ 		return false;
+ 
++	if (!payloads_num)
++		return false;
++
+ 	/*TODO: len of payload data for i2c and aux is uint8!!!!,
+ 	 *  but we want to read 256 over i2c!!!!*/
+ 	if (dal_ddc_service_is_in_aux_transaction_mode(ddc)) {
+@@ -557,23 +553,25 @@ bool dal_ddc_service_query_ddc_data(
+ 			ret = dal_ddc_submit_aux_command(ddc, &payload);
+ 		}
+ 	} else {
+-		struct i2c_payloads *payloads =
+-			dal_ddc_i2c_payloads_create(ddc->ctx, payloads_num);
++		struct i2c_command command = {0};
++		struct i2c_payloads payloads;
++
++		if (!dal_ddc_i2c_payloads_create(ddc->ctx, &payloads, payloads_num))
++			return false;
+ 
+-		struct i2c_command command = {
+-			.payloads = dal_ddc_i2c_payloads_get(payloads),
+-			.number_of_payloads = 0,
+-			.engine = DDC_I2C_COMMAND_ENGINE,
+-			.speed = ddc->ctx->dc->caps.i2c_speed_in_khz };
++		command.payloads = dal_ddc_i2c_payloads_get(&payloads);
++		command.number_of_payloads = 0;
++		command.engine = DDC_I2C_COMMAND_ENGINE;
++		command.speed = ddc->ctx->dc->caps.i2c_speed_in_khz;
+ 
+ 		dal_ddc_i2c_payloads_add(
+-			payloads, address, write_size, write_buf, true);
++			&payloads, address, write_size, write_buf, true);
+ 
+ 		dal_ddc_i2c_payloads_add(
+-			payloads, address, read_size, read_buf, false);
++			&payloads, address, read_size, read_buf, false);
+ 
+ 		command.number_of_payloads =
+-			dal_ddc_i2c_payloads_get_count(payloads);
++			dal_ddc_i2c_payloads_get_count(&payloads);
+ 
+ 		ret = dm_helpers_submit_i2c(
+ 				ddc->ctx,
 -- 
 2.20.1
 
