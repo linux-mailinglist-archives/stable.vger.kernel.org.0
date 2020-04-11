@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3D9E1A515F
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 746651A5185
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727228AbgDKMR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:17:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52154 "EHLO mail.kernel.org"
+        id S1728369AbgDKMZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727709AbgDKMR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:17:28 -0400
+        id S1728039AbgDKMQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:16:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1A412137B;
-        Sat, 11 Apr 2020 12:17:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 852FE20692;
+        Sat, 11 Apr 2020 12:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607448;
-        bh=42PQLC+0/YnbJz5vlF0xzSva+GES0qEzk294mCEwS9s=;
+        s=default; t=1586607383;
+        bh=tUsy8aF3aWK+tl2tlF53A4wyBaFqQHwl9Hs+toAEKpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIMByxrC8nti0Y3CMkN4g4X7v6Q6iLD9dyPrpIbPbTlEFV1MKTGRSs2Gt4jM/6p9J
-         75HNgSNq/iydu9WLDPRp0y1teuY/Gyv+bU7MqbGlN4XndaORvit3Q76d7qDliTeLiz
-         KZfrksB1lr7aeH+TZpGWHW8jBnx9vZy5xs663E+4=
+        b=oVvZWNlI1bhVtXViaflGG4P2qLxYF3MXhArsg/XAJCNDV2+w7TaMwi0gZL+SYrv9H
+         x1/PRkGqwLtRlejGXnM4gn0S7ZMVmmUGk2YIysreN8g3AUVfRf6Jgux3fqfcNP9+TY
+         uA6tIZyoyqGxz8oVLvfVhLvXrl6HXeBr+Phz4keM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 23/41] platform/x86: intel_int0002_vgpio: Use acpi_register_wakeup_handler()
+        stable@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.19 50/54] drm/msm: stop abusing dma_map/unmap for cache
 Date:   Sat, 11 Apr 2020 14:09:32 +0200
-Message-Id: <20200411115505.707389647@linuxfoundation.org>
+Message-Id: <20200411115513.709554942@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
-References: <20200411115504.124035693@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +47,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Rob Clark <robdclark@chromium.org>
 
-commit 767191db8220db29f78c031f4d27375173c336d5 upstream.
+commit 0036bc73ccbe7e600a3468bf8e8879b122252274 upstream.
 
-The Power Management Events (PMEs) the INT0002 driver listens for get
-signalled by the Power Management Controller (PMC) using the same IRQ
-as used for the ACPI SCI.
+Recently splats like this started showing up:
 
-Since commit fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from
-waking up the system") the SCI triggering, without there being a wakeup
-cause recognized by the ACPI sleep code, will no longer wakeup the system.
+   WARNING: CPU: 4 PID: 251 at drivers/iommu/dma-iommu.c:451 __iommu_dma_unmap+0xb8/0xc0
+   Modules linked in: ath10k_snoc ath10k_core fuse msm ath mac80211 uvcvideo cfg80211 videobuf2_vmalloc videobuf2_memops vide
+   CPU: 4 PID: 251 Comm: kworker/u16:4 Tainted: G        W         5.2.0-rc5-next-20190619+ #2317
+   Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN23WW(V1.06) 10/25/2018
+   Workqueue: msm msm_gem_free_work [msm]
+   pstate: 80c00005 (Nzcv daif +PAN +UAO)
+   pc : __iommu_dma_unmap+0xb8/0xc0
+   lr : __iommu_dma_unmap+0x54/0xc0
+   sp : ffff0000119abce0
+   x29: ffff0000119abce0 x28: 0000000000000000
+   x27: ffff8001f9946648 x26: ffff8001ec271068
+   x25: 0000000000000000 x24: ffff8001ea3580a8
+   x23: ffff8001f95ba010 x22: ffff80018e83ba88
+   x21: ffff8001e548f000 x20: fffffffffffff000
+   x19: 0000000000001000 x18: 00000000c00001fe
+   x17: 0000000000000000 x16: 0000000000000000
+   x15: ffff000015b70068 x14: 0000000000000005
+   x13: 0003142cc1be1768 x12: 0000000000000001
+   x11: ffff8001f6de9100 x10: 0000000000000009
+   x9 : ffff000015b78000 x8 : 0000000000000000
+   x7 : 0000000000000001 x6 : fffffffffffff000
+   x5 : 0000000000000fff x4 : ffff00001065dbc8
+   x3 : 000000000000000d x2 : 0000000000001000
+   x1 : fffffffffffff000 x0 : 0000000000000000
+   Call trace:
+    __iommu_dma_unmap+0xb8/0xc0
+    iommu_dma_unmap_sg+0x98/0xb8
+    put_pages+0x5c/0xf0 [msm]
+    msm_gem_free_work+0x10c/0x150 [msm]
+    process_one_work+0x1e0/0x330
+    worker_thread+0x40/0x438
+    kthread+0x12c/0x130
+    ret_from_fork+0x10/0x18
+   ---[ end trace afc0dc5ab81a06bf ]---
 
-This breaks PMEs / wakeups signalled to the INT0002 driver, the system
-never leaves the s2idle_loop() now.
+Not quite sure what triggered that, but we really shouldn't be abusing
+dma_{map,unmap}_sg() for cache maint.
 
-Use acpi_register_wakeup_handler() to register a function which checks
-the GPE0a_STS register for a PME and trigger a wakeup when a PME has
-been signalled.
-
-Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system")
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Tested-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190630124735.27786-1-robdclark@gmail.com
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/intel_int0002_vgpio.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/msm/msm_gem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/platform/x86/intel_int0002_vgpio.c
-+++ b/drivers/platform/x86/intel_int0002_vgpio.c
-@@ -127,6 +127,14 @@ static irqreturn_t int0002_irq(int irq,
- 	return IRQ_HANDLED;
- }
+--- a/drivers/gpu/drm/msm/msm_gem.c
++++ b/drivers/gpu/drm/msm/msm_gem.c
+@@ -108,7 +108,7 @@ static struct page **get_pages(struct dr
+ 		 * because display controller, GPU, etc. are not coherent:
+ 		 */
+ 		if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
+-			dma_map_sg(dev->dev, msm_obj->sgt->sgl,
++			dma_sync_sg_for_device(dev->dev, msm_obj->sgt->sgl,
+ 					msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
+ 	}
  
-+static bool int0002_check_wake(void *data)
-+{
-+	u32 gpe_sts_reg;
-+
-+	gpe_sts_reg = inl(GPE0A_STS_PORT);
-+	return (gpe_sts_reg & GPE0A_PME_B0_STS_BIT);
-+}
-+
- static struct irq_chip int0002_byt_irqchip = {
- 	.name			= DRV_NAME,
- 	.irq_ack		= int0002_irq_ack,
-@@ -220,6 +228,7 @@ static int int0002_probe(struct platform
- 
- 	gpiochip_set_chained_irqchip(chip, irq_chip, irq, NULL);
- 
-+	acpi_register_wakeup_handler(irq, int0002_check_wake, NULL);
- 	device_init_wakeup(dev, true);
- 	return 0;
- }
-@@ -227,6 +236,7 @@ static int int0002_probe(struct platform
- static int int0002_remove(struct platform_device *pdev)
- {
- 	device_init_wakeup(&pdev->dev, false);
-+	acpi_unregister_wakeup_handler(int0002_check_wake, NULL);
- 	return 0;
- }
+@@ -138,7 +138,7 @@ static void put_pages(struct drm_gem_obj
+ 			 * GPU, etc. are not coherent:
+ 			 */
+ 			if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
+-				dma_unmap_sg(obj->dev->dev, msm_obj->sgt->sgl,
++				dma_sync_sg_for_cpu(obj->dev->dev, msm_obj->sgt->sgl,
+ 					     msm_obj->sgt->nents,
+ 					     DMA_BIDIRECTIONAL);
  
 
 
