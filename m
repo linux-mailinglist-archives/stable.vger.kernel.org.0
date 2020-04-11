@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 888ED1A51D2
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E631A1A518E
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727555AbgDKMNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:13:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45748 "EHLO mail.kernel.org"
+        id S1727045AbgDKMP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:15:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727519AbgDKMM5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:12:57 -0400
+        id S1727181AbgDKMPZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:15:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A9C52137B;
-        Sat, 11 Apr 2020 12:12:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B29C21655;
+        Sat, 11 Apr 2020 12:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607177;
-        bh=Ze3Solw7zeQMxLzSuBF1iYBKIpVumy97S5Ml9Xe/vYY=;
+        s=default; t=1586607325;
+        bh=bUKIwhqr/I1zZj3MIfidzAKGc3BlyDNM+bhRPyedYz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E5OlzSTZ0S8KXbz14OburP92qW+oSVHLiaM9CERkKjsv0hOQWklmEpPl1ewLs3AVQ
-         4BGSFG4Uj3qeiARwC3hCminQ8RqzJJPLNXgCuUDFtVcAX/uVHVF2DhMnMzAHzTnndj
-         a95aVmy7+tz5lLvvHeAxqLHFI0r3cdIjrvREbUcg=
+        b=YjyakbU3x04TquuqK0aPptmvK9v2A++njv3YTnZ+/U9p3X3t5O+3eeTsBv+WSwQGm
+         jiq9YJl75nYCGk74lWztaoh7jlkrQM+vFk/zetlJFgC0CDHAQnJtX/OV1wusP2M0kK
+         typbdsFF6I0fSCJlDsZjo9YtFS5+PrOoQooJBXpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.9 31/32] usb: dwc3: dont set gadget->is_otg flag
+        stable@vger.kernel.org, Moshe Levi <moshele@mellanox.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        Marcelo Ricardo Leitner <mleitner@redhat.com>,
+        netdev@vger.kernel.org, Jarod Wilson <jarod@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 28/54] ipv6: dont auto-add link-local address to lag ports
 Date:   Sat, 11 Apr 2020 14:09:10 +0200
-Message-Id: <20200411115422.811567810@linuxfoundation.org>
+Message-Id: <20200411115511.324846089@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
-References: <20200411115418.455500023@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Jarod Wilson <jarod@redhat.com>
 
-commit c09b73cfac2a9317f1104169045c519c6021aa1d upstream.
+[ Upstream commit 744fdc8233f6aa9582ce08a51ca06e59796a3196 ]
 
-This reverts
-commit 6a4290cc28be1 ("usb: dwc3: gadget: set the OTG flag in dwc3 gadget driver.")
+Bonding slave and team port devices should not have link-local addresses
+automatically added to them, as it can interfere with openvswitch being
+able to properly add tc ingress.
 
-We don't yet support any of the OTG mechanisms (HNP/SRP/ADP)
-and are not setting gadget->otg_caps, so don't set gadget->is_otg
-flag.
+Basic reproducer, courtesy of Marcelo:
 
-If we do then we end up publishing a OTG1.0 descriptor in
-the gadget descriptor which causes device enumeration to fail
-if we are connected to a host with CONFIG_USB_OTG enabled.
+$ ip link add name bond0 type bond
+$ ip link set dev ens2f0np0 master bond0
+$ ip link set dev ens2f1np2 master bond0
+$ ip link set dev bond0 up
+$ ip a s
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN
+group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host
+       valid_lft forever preferred_lft forever
+2: ens2f0np0: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 1500 qdisc
+mq master bond0 state UP group default qlen 1000
+    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
+5: ens2f1np2: <NO-CARRIER,BROADCAST,MULTICAST,SLAVE,UP> mtu 1500 qdisc
+mq master bond0 state DOWN group default qlen 1000
+    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
+11: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc
+noqueue state UP group default qlen 1000
+    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::20f:53ff:fe2f:ea40/64 scope link
+       valid_lft forever preferred_lft forever
 
-Host side log without this patch
+(above trimmed to relevant entries, obviously)
 
-[   96.720453] usb 1-1: new high-speed USB device number 2 using xhci-hcd
-[   96.901391] usb 1-1: Dual-Role OTG device on non-HNP port
-[   96.907552] usb 1-1: set a_alt_hnp_support failed: -32
-[   97.060447] usb 1-1: new high-speed USB device number 3 using xhci-hcd
-[   97.241378] usb 1-1: Dual-Role OTG device on non-HNP port
-[   97.247536] usb 1-1: set a_alt_hnp_support failed: -32
-[   97.253606] usb usb1-port1: attempt power cycle
-[   97.960449] usb 1-1: new high-speed USB device number 4 using xhci-hcd
-[   98.141383] usb 1-1: Dual-Role OTG device on non-HNP port
-[   98.147540] usb 1-1: set a_alt_hnp_support failed: -32
-[   98.300453] usb 1-1: new high-speed USB device number 5 using xhci-hcd
-[   98.481391] usb 1-1: Dual-Role OTG device on non-HNP port
-[   98.487545] usb 1-1: set a_alt_hnp_support failed: -32
-[   98.493532] usb usb1-port1: unable to enumerate USB device
+$ sysctl net.ipv6.conf.ens2f0np0.addr_gen_mode=0
+net.ipv6.conf.ens2f0np0.addr_gen_mode = 0
+$ sysctl net.ipv6.conf.ens2f1np2.addr_gen_mode=0
+net.ipv6.conf.ens2f1np2.addr_gen_mode = 0
 
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+$ ip a l ens2f0np0
+2: ens2f0np0: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 1500 qdisc
+mq master bond0 state UP group default qlen 1000
+    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::20f:53ff:fe2f:ea40/64 scope link tentative
+       valid_lft forever preferred_lft forever
+$ ip a l ens2f1np2
+5: ens2f1np2: <NO-CARRIER,BROADCAST,MULTICAST,SLAVE,UP> mtu 1500 qdisc
+mq master bond0 state DOWN group default qlen 1000
+    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::20f:53ff:fe2f:ea40/64 scope link tentative
+       valid_lft forever preferred_lft forever
+
+Looks like addrconf_sysctl_addr_gen_mode() bypasses the original "is
+this a slave interface?" check added by commit c2edacf80e15, and
+results in an address getting added, while w/the proposed patch added,
+no address gets added. This simply adds the same gating check to another
+code path, and thus should prevent the same devices from erroneously
+obtaining an ipv6 link-local address.
+
+Fixes: d35a00b8e33d ("net/ipv6: allow sysctl to change link-local address generation mode")
+Reported-by: Moshe Levi <moshele@mellanox.com>
+CC: Stephen Hemminger <stephen@networkplumber.org>
+CC: Marcelo Ricardo Leitner <mleitner@redhat.com>
+CC: netdev@vger.kernel.org
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    1 -
- 1 file changed, 1 deletion(-)
+ net/ipv6/addrconf.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2996,7 +2996,6 @@ int dwc3_gadget_init(struct dwc3 *dwc)
- 	dwc->gadget.speed		= USB_SPEED_UNKNOWN;
- 	dwc->gadget.sg_supported	= true;
- 	dwc->gadget.name		= "dwc3-gadget";
--	dwc->gadget.is_otg		= dwc->dr_mode == USB_DR_MODE_OTG;
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3241,6 +3241,10 @@ static void addrconf_addr_gen(struct ine
+ 	if (netif_is_l3_master(idev->dev))
+ 		return;
  
- 	/*
- 	 * FIXME We might be setting max_speed to <SUPER, however versions
++	/* no link local addresses on devices flagged as slaves */
++	if (idev->dev->flags & IFF_SLAVE)
++		return;
++
+ 	ipv6_addr_set(&addr, htonl(0xFE800000), 0, 0, 0);
+ 
+ 	switch (idev->cnf.addr_gen_mode) {
 
 
