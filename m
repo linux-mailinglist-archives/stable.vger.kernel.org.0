@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD751A54B2
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:07:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DAF1A5A44
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728500AbgDKXGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:06:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
+        id S1728502AbgDKXGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:06:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728486AbgDKXGn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:06:43 -0400
+        id S1727602AbgDKXGo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:06:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA7B521744;
-        Sat, 11 Apr 2020 23:06:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D17F217D8;
+        Sat, 11 Apr 2020 23:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646402;
-        bh=utJayNYThibBc2EP1ygCW7H1/tgMWGD8ZFeUNZo3nNw=;
+        s=default; t=1586646404;
+        bh=/GonmYKtW5Cf9hF+Kz8M2dBkwVtojYdg7j4tQNIOrPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e7RbWiyK2Gk5cvHThDxY3cuXGLzLQQOzrZ0n1P4BpZsQb4JmW1QXOAxtZK7pXZ8pR
-         +MQ43bWuxCuJalPqxqRr06dYaj4jv39IePwZ3DZ34JqRaDVl+/pJeLyoRgBJ50MVC4
-         d9hOf7xKn7nmQLYxidh5PaCdWC5zW8lfTunaejXA=
+        b=oG3GcSW1kOouDZDsoGhIJdxj6God/q4pH6rqvFxY6TphqZwJt9Ly6nQLeRRpgBdiS
+         I9F6Fqv/MjUMPmMGV9ng0A0tF/dn+Sh50NVbx+qAQI232cmdDL9sQXQRTK2vFAI/l5
+         r8091uYLd+jQFm3W35G9/Xk5blha4hSpLJxGf4ts=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>, Jan Kara <jack@suse.cz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.6 139/149] powerpc/book3s64: Fix error handling in mm_iommu_do_alloc()
-Date:   Sat, 11 Apr 2020 19:03:36 -0400
-Message-Id: <20200411230347.22371-139-sashal@kernel.org>
+Cc:     Stephen Boyd <swboyd@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 140/149] drivers: qcom: rpmh-rsc: Use rcuidle tracepoints for rpmh
+Date:   Sat, 11 Apr 2020 19:03:37 -0400
+Message-Id: <20200411230347.22371-140-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -43,86 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit c4b78169e3667413184c9a20e11b5832288a109f ]
+[ Upstream commit efde2659b0fe835732047357b2902cca14f054d9 ]
 
-The last jump to free_exit in mm_iommu_do_alloc() happens after page
-pointers in struct mm_iommu_table_group_mem_t were already converted to
-physical addresses. Thus calling put_page() on these physical addresses
-will likely crash.
+This tracepoint is hit now that we call into the rpmh code from the cpu
+idle path. Let's move this to be an rcuidle tracepoint so that we avoid
+the RCU idle splat below
 
-This moves the loop which calculates the pageshift and converts page
-struct pointers to physical addresses later after the point when
-we cannot fail; thus eliminating the need to convert pointers back.
+ =============================
+ WARNING: suspicious RCU usage
+ 5.4.10 #68 Tainted: G S
+ -----------------------------
+ drivers/soc/qcom/trace-rpmh.h:72 suspicious rcu_dereference_check() usage!
 
-Fixes: eb9d7a62c386 ("powerpc/mm_iommu: Fix potential deadlock")
-Reported-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191223060351.26359-1-aik@ozlabs.ru
+ other info that might help us debug this:
+
+ RCU used illegally from idle CPU!
+ rcu_scheduler_active = 2, debug_locks = 1
+ RCU used illegally from extended quiescent state!
+ 5 locks held by swapper/2/0:
+  #0: ffffff81745d6ee8 (&(&genpd->slock)->rlock){+.+.}, at: genpd_lock_spin+0x1c/0x2c
+  #1: ffffff81745da6e8 (&(&genpd->slock)->rlock/1){....}, at: genpd_lock_nested_spin+0x24/0x34
+  #2: ffffff8174f2ca20 (&(&genpd->slock)->rlock/2){....}, at: genpd_lock_nested_spin+0x24/0x34
+  #3: ffffff8174f2c300 (&(&drv->client.cache_lock)->rlock){....}, at: rpmh_flush+0x48/0x24c
+  #4: ffffff8174f2c150 (&(&tcs->lock)->rlock){+.+.}, at: rpmh_rsc_write_ctrl_data+0x74/0x270
+
+ stack backtrace:
+ CPU: 2 PID: 0 Comm: swapper/2 Tainted: G S                5.4.10 #68
+ Call trace:
+  dump_backtrace+0x0/0x174
+  show_stack+0x20/0x2c
+  dump_stack+0xc8/0x124
+  lockdep_rcu_suspicious+0xe4/0x104
+  __tcs_buffer_write+0x230/0x2d0
+  rpmh_rsc_write_ctrl_data+0x210/0x270
+  rpmh_flush+0x84/0x24c
+  rpmh_domain_power_off+0x78/0x98
+  _genpd_power_off+0x40/0xc0
+  genpd_power_off+0x168/0x208
+  genpd_power_off+0x1e0/0x208
+  genpd_power_off+0x1e0/0x208
+  genpd_runtime_suspend+0x1ac/0x220
+  __rpm_callback+0x70/0xfc
+  rpm_callback+0x34/0x8c
+  rpm_suspend+0x218/0x4a4
+  __pm_runtime_suspend+0x88/0xac
+  psci_enter_domain_idle_state+0x3c/0xb4
+  cpuidle_enter_state+0xb8/0x284
+  cpuidle_enter+0x38/0x4c
+  call_cpuidle+0x3c/0x68
+  do_idle+0x194/0x260
+  cpu_startup_entry+0x24/0x28
+  secondary_start_kernel+0x150/0x15c
+
+Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Fixes: a65a397f2451 ("cpuidle: psci: Add support for PM domains by using genpd")
+Reported-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20200115013751.249588-1-swboyd@chromium.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/iommu_api.c | 39 +++++++++++++++-------------
- 1 file changed, 21 insertions(+), 18 deletions(-)
+ drivers/soc/qcom/rpmh-rsc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/book3s64/iommu_api.c b/arch/powerpc/mm/book3s64/iommu_api.c
-index eba73ebd8ae57..fa05bbd1f6829 100644
---- a/arch/powerpc/mm/book3s64/iommu_api.c
-+++ b/arch/powerpc/mm/book3s64/iommu_api.c
-@@ -121,24 +121,6 @@ static long mm_iommu_do_alloc(struct mm_struct *mm, unsigned long ua,
- 		goto free_exit;
+diff --git a/drivers/soc/qcom/rpmh-rsc.c b/drivers/soc/qcom/rpmh-rsc.c
+index e278fc11fe5cf..b71822131f598 100644
+--- a/drivers/soc/qcom/rpmh-rsc.c
++++ b/drivers/soc/qcom/rpmh-rsc.c
+@@ -277,7 +277,7 @@ static void __tcs_buffer_write(struct rsc_drv *drv, int tcs_id, int cmd_id,
+ 		write_tcs_cmd(drv, RSC_DRV_CMD_MSGID, tcs_id, j, msgid);
+ 		write_tcs_cmd(drv, RSC_DRV_CMD_ADDR, tcs_id, j, cmd->addr);
+ 		write_tcs_cmd(drv, RSC_DRV_CMD_DATA, tcs_id, j, cmd->data);
+-		trace_rpmh_send_msg(drv, tcs_id, j, msgid, cmd);
++		trace_rpmh_send_msg_rcuidle(drv, tcs_id, j, msgid, cmd);
  	}
  
--	pageshift = PAGE_SHIFT;
--	for (i = 0; i < entries; ++i) {
--		struct page *page = mem->hpages[i];
--
--		/*
--		 * Allow to use larger than 64k IOMMU pages. Only do that
--		 * if we are backed by hugetlb.
--		 */
--		if ((mem->pageshift > PAGE_SHIFT) && PageHuge(page))
--			pageshift = page_shift(compound_head(page));
--		mem->pageshift = min(mem->pageshift, pageshift);
--		/*
--		 * We don't need struct page reference any more, switch
--		 * to physical address.
--		 */
--		mem->hpas[i] = page_to_pfn(page) << PAGE_SHIFT;
--	}
--
- good_exit:
- 	atomic64_set(&mem->mapped, 1);
- 	mem->used = 1;
-@@ -158,6 +140,27 @@ static long mm_iommu_do_alloc(struct mm_struct *mm, unsigned long ua,
- 		}
- 	}
- 
-+	if (mem->dev_hpa == MM_IOMMU_TABLE_INVALID_HPA) {
-+		/*
-+		 * Allow to use larger than 64k IOMMU pages. Only do that
-+		 * if we are backed by hugetlb. Skip device memory as it is not
-+		 * backed with page structs.
-+		 */
-+		pageshift = PAGE_SHIFT;
-+		for (i = 0; i < entries; ++i) {
-+			struct page *page = mem->hpages[i];
-+
-+			if ((mem->pageshift > PAGE_SHIFT) && PageHuge(page))
-+				pageshift = page_shift(compound_head(page));
-+			mem->pageshift = min(mem->pageshift, pageshift);
-+			/*
-+			 * We don't need struct page reference any more, switch
-+			 * to physical address.
-+			 */
-+			mem->hpas[i] = page_to_pfn(page) << PAGE_SHIFT;
-+		}
-+	}
-+
- 	list_add_rcu(&mem->next, &mm->context.iommu_group_mem_list);
- 
- 	mutex_unlock(&mem_list_mutex);
+ 	write_tcs_reg(drv, RSC_DRV_CMD_WAIT_FOR_CMPL, tcs_id, cmd_complete);
 -- 
 2.20.1
 
