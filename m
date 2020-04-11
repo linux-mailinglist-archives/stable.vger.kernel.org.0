@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 399E91A5813
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5CC61A581E
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729914AbgDKXL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:11:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51062 "EHLO mail.kernel.org"
+        id S1728873AbgDKXL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:11:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729897AbgDKXL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728318AbgDKXL0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 11 Apr 2020 19:11:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E45E20708;
-        Sat, 11 Apr 2020 23:11:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30E2520757;
+        Sat, 11 Apr 2020 23:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646685;
-        bh=MqyD9zdeR5UXFjZcJaSPxPiJeyorcEhYhdepL/MsS2M=;
+        s=default; t=1586646687;
+        bh=qo2ZHyUi66j0tqXWaYvkyM6LsRj4q/IBMJjsAjoCAPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDeo6mSHy1iICcVqUC8UIzh4/+YUmn7/TQL8wL0Wcm3cazjdo967ZgW1Rq3o2ElHS
-         MYz3j4dg4V2BYdnYpw6otM/K14jYTsxEttEC0JBX6qlYeTEpwsGj825YbDkwMmB4tk
-         9GDDjRjJNaJAmwcgkDSMkc96bE3CFfgA1ujdDjCs=
+        b=KjjtKSW7bp86CMf3R6/WVGDVx/Xp0thdjz0vr/WfzcfrApFQJoUZDCNhARHZfr2EH
+         oPWvxjzbs3S9Ivdm76XvfHHLIOw3zuqiOo13Gw4zTECex74BKVmWEQf7o2OGBsoXq8
+         Gtu2FMFrh7H1BS4yWAXPptwK8vraXICTRAMmyXnw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 081/108] xfs: prohibit fs freezing when using empty transactions
-Date:   Sat, 11 Apr 2020 19:09:16 -0400
-Message-Id: <20200411230943.24951-81-sashal@kernel.org>
+Cc:     Avihai Horon <avihaih@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 082/108] RDMA/cm: Update num_paths in cma_resolve_iboe_route error flow
+Date:   Sat, 11 Apr 2020 19:09:17 -0400
+Message-Id: <20200411230943.24951-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -43,134 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Avihai Horon <avihaih@mellanox.com>
 
-[ Upstream commit 27fb5a72f50aa770dd38b0478c07acacef97e3e7 ]
+[ Upstream commit 987914ab841e2ec281a35b54348ab109b4c0bb4e ]
 
-I noticed that fsfreeze can take a very long time to freeze an XFS if
-there happens to be a GETFSMAP caller running in the background.  I also
-happened to notice the following in dmesg:
+After a successful allocation of path_rec, num_paths is set to 1, but any
+error after such allocation will leave num_paths uncleared.
 
-------------[ cut here ]------------
-WARNING: CPU: 2 PID: 43492 at fs/xfs/xfs_super.c:853 xfs_quiesce_attr+0x83/0x90 [xfs]
-Modules linked in: xfs libcrc32c ip6t_REJECT nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 ip_set_hash_ip ip_set_hash_net xt_tcpudp xt_set ip_set_hash_mac ip_set nfnetlink ip6table_filter ip6_tables bfq iptable_filter sch_fq_codel ip_tables x_tables nfsv4 af_packet [last unloaded: xfs]
-CPU: 2 PID: 43492 Comm: xfs_io Not tainted 5.6.0-rc4-djw #rc4
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.10.2-1ubuntu1 04/01/2014
-RIP: 0010:xfs_quiesce_attr+0x83/0x90 [xfs]
-Code: 7c 07 00 00 85 c0 75 22 48 89 df 5b e9 96 c1 00 00 48 c7 c6 b0 2d 38 a0 48 89 df e8 57 64 ff ff 8b 83 7c 07 00 00 85 c0 74 de <0f> 0b 48 89 df 5b e9 72 c1 00 00 66 90 0f 1f 44 00 00 41 55 41 54
-RSP: 0018:ffffc900030f3e28 EFLAGS: 00010202
-RAX: 0000000000000001 RBX: ffff88802ac54000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff81e4a6f0 RDI: 00000000ffffffff
-RBP: ffff88807859f070 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000010 R12: 0000000000000000
-R13: ffff88807859f388 R14: ffff88807859f4b8 R15: ffff88807859f5e8
-FS:  00007fad1c6c0fc0(0000) GS:ffff88807e000000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f0c7d237000 CR3: 0000000077f01003 CR4: 00000000001606a0
-Call Trace:
- xfs_fs_freeze+0x25/0x40 [xfs]
- freeze_super+0xc8/0x180
- do_vfs_ioctl+0x70b/0x750
- ? __fget_files+0x135/0x210
- ksys_ioctl+0x3a/0xb0
- __x64_sys_ioctl+0x16/0x20
- do_syscall_64+0x50/0x1a0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+This causes to de-referencing a NULL pointer later on. Hence, num_paths
+needs to be set back to 0 if such an error occurs.
 
-These two things appear to be related.  The assertion trips when another
-thread initiates a fsmap request (which uses an empty transaction) after
-the freezer waited for m_active_trans to hit zero but before the the
-freezer executes the WARN_ON just prior to calling xfs_log_quiesce.
+The following crash from syzkaller revealed it.
 
-The lengthy delays in freezing happen because the freezer calls
-xfs_wait_buftarg to clean out the buffer lru list.  Meanwhile, the
-GETFSMAP caller is continuing to grab and release buffers, which means
-that it can take a very long time for the buffer lru list to empty out.
+  kasan: CONFIG_KASAN_INLINE enabled
+  kasan: GPF could be caused by NULL-ptr deref or user memory access
+  general protection fault: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
+  CPU: 0 PID: 357 Comm: syz-executor060 Not tainted 4.18.0+ #311
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+  rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
+  RIP: 0010:ib_copy_path_rec_to_user+0x94/0x3e0
+  Code: f1 f1 f1 f1 c7 40 0c 00 00 f4 f4 65 48 8b 04 25 28 00 00 00 48 89
+  45 c8 31 c0 e8 d7 60 24 ff 48 8d 7b 4c 48 89 f8 48 c1 e8 03 <42> 0f b6
+  14 30 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85
+  RSP: 0018:ffff88006586f980 EFLAGS: 00010207
+  RAX: 0000000000000009 RBX: 0000000000000000 RCX: 1ffff1000d5fe475
+  RDX: ffff8800621e17c0 RSI: ffffffff820d45f9 RDI: 000000000000004c
+  RBP: ffff88006586fa50 R08: ffffed000cb0df73 R09: ffffed000cb0df72
+  R10: ffff88006586fa70 R11: ffffed000cb0df73 R12: 1ffff1000cb0df30
+  R13: ffff88006586fae8 R14: dffffc0000000000 R15: ffff88006aff2200
+  FS: 00000000016fc880(0000) GS:ffff88006d000000(0000)
+  knlGS:0000000000000000
+  CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000020000040 CR3: 0000000063fec000 CR4: 00000000000006b0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+  ? ib_copy_path_rec_from_user+0xcc0/0xcc0
+  ? __mutex_unlock_slowpath+0xfc/0x670
+  ? wait_for_completion+0x3b0/0x3b0
+  ? ucma_query_route+0x818/0xc60
+  ucma_query_route+0x818/0xc60
+  ? ucma_listen+0x1b0/0x1b0
+  ? sched_clock_cpu+0x18/0x1d0
+  ? sched_clock_cpu+0x18/0x1d0
+  ? ucma_listen+0x1b0/0x1b0
+  ? ucma_write+0x292/0x460
+  ucma_write+0x292/0x460
+  ? ucma_close_id+0x60/0x60
+  ? sched_clock_cpu+0x18/0x1d0
+  ? sched_clock_cpu+0x18/0x1d0
+  __vfs_write+0xf7/0x620
+  ? ucma_close_id+0x60/0x60
+  ? kernel_read+0x110/0x110
+  ? time_hardirqs_on+0x19/0x580
+  ? lock_acquire+0x18b/0x3a0
+  ? finish_task_switch+0xf3/0x5d0
+  ? _raw_spin_unlock_irq+0x29/0x40
+  ? _raw_spin_unlock_irq+0x29/0x40
+  ? finish_task_switch+0x1be/0x5d0
+  ? __switch_to_asm+0x34/0x70
+  ? __switch_to_asm+0x40/0x70
+  ? security_file_permission+0x172/0x1e0
+  vfs_write+0x192/0x460
+  ksys_write+0xc6/0x1a0
+  ? __ia32_sys_read+0xb0/0xb0
+  ? entry_SYSCALL_64_after_hwframe+0x3e/0xbe
+  ? do_syscall_64+0x1d/0x470
+  do_syscall_64+0x9e/0x470
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-We fix both of these races by calling sb_start_write to obtain freeze
-protection while using empty transactions for GETFSMAP and for metadata
-scrubbing.  The other two users occur during mount, during which time we
-cannot fs freeze.
-
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Fixes: 3c86aa70bf67 ("RDMA/cm: Add RDMA CM support for IBoE devices")
+Link: https://lore.kernel.org/r/20200318101741.47211-1-leon@kernel.org
+Signed-off-by: Avihai Horon <avihaih@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/scrub/scrub.c | 9 +++++++++
- fs/xfs/xfs_fsmap.c   | 9 +++++++++
- fs/xfs/xfs_trans.c   | 5 +++++
- 3 files changed, 23 insertions(+)
+ drivers/infiniband/core/cma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/xfs/scrub/scrub.c b/fs/xfs/scrub/scrub.c
-index 15c8c5f3f688d..720bef5779989 100644
---- a/fs/xfs/scrub/scrub.c
-+++ b/fs/xfs/scrub/scrub.c
-@@ -167,6 +167,7 @@ xchk_teardown(
- 			xfs_irele(sc->ip);
- 		sc->ip = NULL;
- 	}
-+	sb_end_write(sc->mp->m_super);
- 	if (sc->flags & XCHK_REAPING_DISABLED)
- 		xchk_start_reaping(sc);
- 	if (sc->flags & XCHK_HAS_QUOTAOFFLOCK) {
-@@ -489,6 +490,14 @@ xfs_scrub_metadata(
- 	sc.ops = &meta_scrub_ops[sm->sm_type];
- 	sc.sick_mask = xchk_health_mask_for_scrub_type(sm->sm_type);
- retry_op:
-+	/*
-+	 * If freeze runs concurrently with a scrub, the freeze can be delayed
-+	 * indefinitely as we walk the filesystem and iterate over metadata
-+	 * buffers.  Freeze quiesces the log (which waits for the buffer LRU to
-+	 * be emptied) and that won't happen while checking is running.
-+	 */
-+	sb_start_write(mp->m_super);
-+
- 	/* Set up for the operation. */
- 	error = sc.ops->setup(&sc, ip);
- 	if (error)
-diff --git a/fs/xfs/xfs_fsmap.c b/fs/xfs/xfs_fsmap.c
-index d082143feb5ab..c13754e119be1 100644
---- a/fs/xfs/xfs_fsmap.c
-+++ b/fs/xfs/xfs_fsmap.c
-@@ -895,6 +895,14 @@ xfs_getfsmap(
- 	info.format_arg = arg;
- 	info.head = head;
- 
-+	/*
-+	 * If fsmap runs concurrently with a scrub, the freeze can be delayed
-+	 * indefinitely as we walk the rmapbt and iterate over metadata
-+	 * buffers.  Freeze quiesces the log (which waits for the buffer LRU to
-+	 * be emptied) and that won't happen while we're reading buffers.
-+	 */
-+	sb_start_write(mp->m_super);
-+
- 	/* For each device we support... */
- 	for (i = 0; i < XFS_GETFSMAP_DEVS; i++) {
- 		/* Is this device within the range the user asked for? */
-@@ -934,6 +942,7 @@ xfs_getfsmap(
- 
- 	if (tp)
- 		xfs_trans_cancel(tp);
-+	sb_end_write(mp->m_super);
- 	head->fmh_oflags = FMH_OF_DEV_T;
- 	return error;
- }
-diff --git a/fs/xfs/xfs_trans.c b/fs/xfs/xfs_trans.c
-index f4795fdb7389c..b32a66452d441 100644
---- a/fs/xfs/xfs_trans.c
-+++ b/fs/xfs/xfs_trans.c
-@@ -306,6 +306,11 @@ xfs_trans_alloc(
-  *
-  * Note the zero-length reservation; this transaction MUST be cancelled
-  * without any dirty data.
-+ *
-+ * Callers should obtain freeze protection to avoid two conflicts with fs
-+ * freezing: (1) having active transactions trip the m_active_trans ASSERTs;
-+ * and (2) grabbing buffers at the same time that freeze is trying to drain
-+ * the buffer LRU list.
-  */
- int
- xfs_trans_alloc_empty(
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 6c12da176981f..4947dc6b35b7a 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -2911,6 +2911,7 @@ static int cma_resolve_iboe_route(struct rdma_id_private *id_priv)
+ err2:
+ 	kfree(route->path_rec);
+ 	route->path_rec = NULL;
++	route->num_paths = 0;
+ err1:
+ 	kfree(work);
+ 	return ret;
 -- 
 2.20.1
 
