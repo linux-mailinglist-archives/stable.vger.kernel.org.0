@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0239B1A510A
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEBB31A5188
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728923AbgDKMUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:20:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55860 "EHLO mail.kernel.org"
+        id S1728495AbgDKMZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:25:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728929AbgDKMUH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:20:07 -0400
+        id S1727173AbgDKMQU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:16:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4AB120644;
-        Sat, 11 Apr 2020 12:20:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21E3E2084D;
+        Sat, 11 Apr 2020 12:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607607;
-        bh=EmfY0OTG7JZDE8KriKilKrAHF7WbXWBGs5/1e/lrTow=;
+        s=default; t=1586607380;
+        bh=D7XvoFat6Y1aaR78hihBtrrJf1Mq8fezeVUfL892XaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJzVYaYmkzDh88xwbDyOCT/KiQpwdZQy+QjP7qfyQ7jEfWiDaOqT9vYenlnFGwIWg
-         9JUwzpnCOFUJbrP5ws+1LKibAOAYdsfpIW8bomQQT4FSBZ8y7/MfoETdqgnJ8VgdqO
-         pFo+J2wZ7uN8o4uAryYhJ7zvVOlqlYXyc7EZlohw=
+        b=GAkJCynojTPYGelPuoeqZBh9VnpaYMF8B61Sh8rA5tbqHbo98Xp6ZQk5NXiS1waow
+         dVjA1GNRPxXjjXbboRf1r5kUgV6aDTSIB+B+dLZci17KvSVM0eyfVbyaznmwTmLu3t
+         ns+3ZLvODaaujbKvnuxTJaZ+1xWUf+QEyj7oi+SY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Palethorpe <rpalethorpe@suse.com>,
-        Kees Cook <keescook@chromium.org>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, security@kernel.org, wg@grandegger.com,
-        mkl@pengutronix.de, davem@davemloft.net
-Subject: [PATCH 5.5 10/44] slcan: Dont transmit uninitialized stack data in padding
-Date:   Sat, 11 Apr 2020 14:09:30 +0200
-Message-Id: <20200411115457.729173605@linuxfoundation.org>
+        stable@vger.kernel.org, Taniya Das <tdas@codeaurora.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.19 49/54] clk: qcom: rcg: Return failure for RCG update
+Date:   Sat, 11 Apr 2020 14:09:31 +0200
+Message-Id: <20200411115513.623424955@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
-References: <20200411115456.934174282@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Palethorpe <rpalethorpe@suse.com>
+From: Taniya Das <tdas@codeaurora.org>
 
-[ Upstream commit b9258a2cece4ec1f020715fe3554bc2e360f6264 ]
+commit 21ea4b62e1f3dc258001a68da98c9663a9dbd6c7 upstream.
 
-struct can_frame contains some padding which is not explicitly zeroed in
-slc_bump. This uninitialized data will then be transmitted if the stack
-initialization hardening feature is not enabled (CONFIG_INIT_STACK_ALL).
+In case of update config failure, return -EBUSY, so that consumers could
+handle the failure gracefully.
 
-This commit just zeroes the whole struct including the padding.
-
-Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
-Fixes: a1044e36e457 ("can: add slcan driver for serial/USB-serial CAN adapters")
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: linux-can@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: security@kernel.org
-Cc: wg@grandegger.com
-Cc: mkl@pengutronix.de
-Cc: davem@davemloft.net
-Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Taniya Das <tdas@codeaurora.org>
+Link: https://lkml.kernel.org/r/1557339895-21952-2-git-send-email-tdas@codeaurora.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/can/slcan.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/net/can/slcan.c
-+++ b/drivers/net/can/slcan.c
-@@ -148,7 +148,7 @@ static void slc_bump(struct slcan *sl)
- 	u32 tmpid;
- 	char *cmd = sl->rbuff;
+---
+ drivers/clk/qcom/clk-rcg2.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/clk/qcom/clk-rcg2.c
++++ b/drivers/clk/qcom/clk-rcg2.c
+@@ -105,7 +105,7 @@ static int update_config(struct clk_rcg2
+ 	}
  
--	cf.can_id = 0;
-+	memset(&cf, 0, sizeof(cf));
+ 	WARN(1, "%s: rcg didn't update its configuration.", name);
+-	return 0;
++	return -EBUSY;
+ }
  
- 	switch (*cmd) {
- 	case 'r':
-@@ -187,8 +187,6 @@ static void slc_bump(struct slcan *sl)
- 	else
- 		return;
- 
--	*(u64 *) (&cf.data) = 0; /* clear payload */
--
- 	/* RTR frames may have a dlc > 0 but they never have any data bytes */
- 	if (!(cf.can_id & CAN_RTR_FLAG)) {
- 		for (i = 0; i < cf.can_dlc; i++) {
+ static int clk_rcg2_set_parent(struct clk_hw *hw, u8 index)
 
 
