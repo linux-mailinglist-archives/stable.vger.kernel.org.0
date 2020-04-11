@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2FBC1A50E4
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C2C1A50DE
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:22:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729197AbgDKMVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58194 "EHLO mail.kernel.org"
+        id S1728346AbgDKMVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:21:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729194AbgDKMVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:21:47 -0400
+        id S1728753AbgDKMVu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:21:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8635206A1;
-        Sat, 11 Apr 2020 12:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E89820787;
+        Sat, 11 Apr 2020 12:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607707;
-        bh=fWWgd++w5d5wM+5pDefxm+BxNOy2Hr3EQBKHzfzIztQ=;
+        s=default; t=1586607709;
+        bh=ElJsnMUL0Khr6Wza5lm53pGJ2Tiz6oBqjvuuA8eOtGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i585IPp7i9XpImHPd7j8BJSyxdqzsE1CORhG3ztd2cSnS3hl67PlDTAfhhEzrxPih
-         8Cf9fTSLmhvgs92s5JQ2QEZyHp9aKlEiip8pj6KPu1Xc2IyleYrylPhr1FwaqLI1bC
-         6kEfFNS5YUkPXkbTgZJiBoxn6aaaXctRCVIb1RQs=
+        b=ddr/k9zed27OTO/j6OZQCJogIP52WIyJT8cUbu/GiAfJJ2j//aUtJGxgOeSwJ9lFk
+         3pAoGWXAOZKFggMWJpmpHBCAOdTyebdRZu2KOOVjfwPic1ipUBSB5lscdBDBs4Qp1u
+         +II4Exa7h7A6uQhY8uqLN+iMD/VQ08J6BE48vD5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+732528bae351682f1f27@syzkaller.appspotmail.com,
-        Qiujun Huang <hqjagain@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.6 36/38] fbcon: fix null-ptr-deref in fbcon_switch
-Date:   Sat, 11 Apr 2020 14:10:13 +0200
-Message-Id: <20200411115503.399629661@linuxfoundation.org>
+        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        syzbot <syzbot+538d1957ce178382a394@syzkaller.appspotmail.com>
+Subject: [PATCH 5.6 37/38] io-uring: drop completion when removing file
+Date:   Sat, 11 Apr 2020 14:10:14 +0200
+Message-Id: <20200411115503.466914576@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
 References: <20200411115459.324496182@linuxfoundation.org>
@@ -46,58 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Hillf Danton <hdanton@sina.com>
 
-commit b139f8b00db4a8ea75a4174346eafa48041aa489 upstream.
+commit 4afdb733b1606c6cb86e7833f9335f4870cf7ddd upstream.
 
-Set logo_shown to FBCON_LOGO_CANSHOW when the vc was deallocated.
+A case of task hung was reported by syzbot,
 
-syzkaller report: https://lkml.org/lkml/2020/3/27/403
-general protection fault, probably for non-canonical address
-0xdffffc000000006c: 0000 [#1] SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000360-0x0000000000000367]
-RIP: 0010:fbcon_switch+0x28f/0x1740
-drivers/video/fbdev/core/fbcon.c:2260
-
+INFO: task syz-executor975:9880 blocked for more than 143 seconds.
+      Not tainted 5.6.0-rc6-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+syz-executor975 D27576  9880   9878 0x80004000
 Call Trace:
-redraw_screen+0x2a8/0x770 drivers/tty/vt/vt.c:1008
-vc_do_resize+0xfe7/0x1360 drivers/tty/vt/vt.c:1295
-fbcon_init+0x1221/0x1ab0 drivers/video/fbdev/core/fbcon.c:1219
-visual_init+0x305/0x5c0 drivers/tty/vt/vt.c:1062
-do_bind_con_driver+0x536/0x890 drivers/tty/vt/vt.c:3542
-do_take_over_console+0x453/0x5b0 drivers/tty/vt/vt.c:4122
-do_fbcon_takeover+0x10b/0x210 drivers/video/fbdev/core/fbcon.c:588
-fbcon_fb_registered+0x26b/0x340 drivers/video/fbdev/core/fbcon.c:3259
-do_register_framebuffer drivers/video/fbdev/core/fbmem.c:1664 [inline]
-register_framebuffer+0x56e/0x980 drivers/video/fbdev/core/fbmem.c:1832
-dlfb_usb_probe.cold+0x1743/0x1ba3 drivers/video/fbdev/udlfb.c:1735
-usb_probe_interface+0x310/0x800 drivers/usb/core/driver.c:374
+ schedule+0xd0/0x2a0 kernel/sched/core.c:4154
+ schedule_timeout+0x6db/0xba0 kernel/time/timer.c:1871
+ do_wait_for_common kernel/sched/completion.c:83 [inline]
+ __wait_for_common kernel/sched/completion.c:104 [inline]
+ wait_for_common kernel/sched/completion.c:115 [inline]
+ wait_for_completion+0x26a/0x3c0 kernel/sched/completion.c:136
+ io_queue_file_removal+0x1af/0x1e0 fs/io_uring.c:5826
+ __io_sqe_files_update.isra.0+0x3a1/0xb00 fs/io_uring.c:5867
+ io_sqe_files_update fs/io_uring.c:5918 [inline]
+ __io_uring_register+0x377/0x2c00 fs/io_uring.c:7131
+ __do_sys_io_uring_register fs/io_uring.c:7202 [inline]
+ __se_sys_io_uring_register fs/io_uring.c:7184 [inline]
+ __x64_sys_io_uring_register+0x192/0x560 fs/io_uring.c:7184
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-accessing vc_cons[logo_shown].d->vc_top causes the bug.
+and bisect pointed to 05f3fb3c5397 ("io_uring: avoid ring quiesce for
+fixed file set unregister and update").
 
-Reported-by: syzbot+732528bae351682f1f27@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200329085647.25133-1-hqjagain@gmail.com
+It is down to the order that we wait for work done before flushing it
+while nobody is likely going to wake us up.
+
+We can drop that completion on stack as flushing work itself is a sync
+operation we need and no more is left behind it.
+
+To that end, io_file_put::done is re-used for indicating if it can be
+freed in the workqueue worker context.
+
+Reported-and-Inspired-by: syzbot <syzbot+538d1957ce178382a394@syzkaller.appspotmail.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/video/fbdev/core/fbcon.c |    3 +++
- 1 file changed, 3 insertions(+)
+Rename ->done to ->free_pfile
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -1283,6 +1283,9 @@ finished:
- 	if (!con_is_bound(&fb_con))
- 		fbcon_exit();
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+---
+ fs/io_uring.c |   13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5607,7 +5607,7 @@ static void io_ring_file_put(struct io_r
+ struct io_file_put {
+ 	struct llist_node llist;
+ 	struct file *file;
+-	struct completion *done;
++	bool free_pfile;
+ };
  
-+	if (vc->vc_num == logo_shown)
-+		logo_shown = FBCON_LOGO_CANSHOW;
-+
- 	return;
- }
+ static void io_ring_file_ref_flush(struct fixed_file_data *data)
+@@ -5618,9 +5618,7 @@ static void io_ring_file_ref_flush(struc
+ 	while ((node = llist_del_all(&data->put_llist)) != NULL) {
+ 		llist_for_each_entry_safe(pfile, tmp, node, llist) {
+ 			io_ring_file_put(data->ctx, pfile->file);
+-			if (pfile->done)
+-				complete(pfile->done);
+-			else
++			if (pfile->free_pfile)
+ 				kfree(pfile);
+ 		}
+ 	}
+@@ -5820,7 +5818,6 @@ static bool io_queue_file_removal(struct
+ 				  struct file *file)
+ {
+ 	struct io_file_put *pfile, pfile_stack;
+-	DECLARE_COMPLETION_ONSTACK(done);
  
+ 	/*
+ 	 * If we fail allocating the struct we need for doing async reomval
+@@ -5829,15 +5826,15 @@ static bool io_queue_file_removal(struct
+ 	pfile = kzalloc(sizeof(*pfile), GFP_KERNEL);
+ 	if (!pfile) {
+ 		pfile = &pfile_stack;
+-		pfile->done = &done;
+-	}
++		pfile->free_pfile = false;
++	} else
++		pfile->free_pfile = true;
+ 
+ 	pfile->file = file;
+ 	llist_add(&pfile->llist, &data->put_llist);
+ 
+ 	if (pfile == &pfile_stack) {
+ 		percpu_ref_switch_to_atomic(&data->refs, io_atomic_switch);
+-		wait_for_completion(&done);
+ 		flush_work(&data->ref_work);
+ 		return false;
+ 	}
 
 
