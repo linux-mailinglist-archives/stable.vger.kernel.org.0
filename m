@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E50C1A51B9
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2731A5036
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbgDKMN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:13:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47114 "EHLO mail.kernel.org"
+        id S1727641AbgDKMPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:15:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726979AbgDKMNz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:13:55 -0400
+        id S1726913AbgDKMPd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:15:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C4102084D;
-        Sat, 11 Apr 2020 12:13:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2E6721556;
+        Sat, 11 Apr 2020 12:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607235;
-        bh=Jttk726tXOUzFy4Zy+whTq1rsrkJW0mjXnvp9/CaKi0=;
+        s=default; t=1586607332;
+        bh=+E7nHQNtNavTflFgXsFcr/2lLc/xEjcHb705tglUxoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TcLyqa3GypCWXmTKwD1fLgtn25pv0E8muEXfL5x6UplKIBAXvyzfnau9qYeTsYjI+
-         HSIGU3EK/tsjUKZsIiRYDKWVV6p2YaciC8S1mw1+4iQjgbVwa0WbBrH5tP9phf0aKM
-         Ws6+NsfWn30qyPCfnsZCWWMnQrsWZbEbCOT7SJFA=
+        b=04t5qJfME0yLvwhhhiHK5Qqs//CWLKgnrx0JzKyINE+mth5nks9Zj6f65OvVuPZnD
+         EdLv92+lxJbPHSAkDZWQZfVC5C1FSjrQUTjyK32Y9/3xIf7NXeDwMLx1PYN8cxm8Rd
+         Dvz6JPl43+072AS5MXLvBPrmBZktXFILAI2Jaxeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4496e82090657320efc6@syzkaller.appspotmail.com,
-        Qiujun Huang <hqjagain@gmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.14 29/38] Bluetooth: RFCOMM: fix ODEBUG bug in rfcomm_dev_ioctl
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 31/54] net: phy: micrel: kszphy_resume(): add delay after genphy_resume() before accessing PHY registers
 Date:   Sat, 11 Apr 2020 14:09:13 +0200
-Message-Id: <20200411115440.754001578@linuxfoundation.org>
+Message-Id: <20200411115511.571968882@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
-References: <20200411115437.795556138@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit 71811cac8532b2387b3414f7cd8fe9e497482864 upstream.
+[ Upstream commit 6110dff776f7fa65c35850ef65b41d3b39e2fac2 ]
 
-Needn't call 'rfcomm_dlc_put' here, because 'rfcomm_dlc_exists' didn't
-increase dlc->refcnt.
+After the power-down bit is cleared, the chip internally triggers a
+global reset. According to the KSZ9031 documentation, we have to wait at
+least 1ms for the reset to finish.
 
-Reported-by: syzbot+4496e82090657320efc6@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+If the chip is accessed during reset, read will return 0xffff, while
+write will be ignored. Depending on the system performance and MDIO bus
+speed, we may or may not run in to this issue.
+
+This bug was discovered on an iMX6QP system with KSZ9031 PHY and
+attached PHY interrupt line. If IRQ was used, the link status update was
+lost. In polling mode, the link status update was always correct.
+
+The investigation showed, that during a read-modify-write access, the
+read returned 0xffff (while the chip was still in reset) and
+corresponding write hit the chip _after_ reset and triggered (due to the
+0xffff) another reset in an undocumented bit (register 0x1f, bit 1),
+resulting in the next write being lost due to the new reset cycle.
+
+This patch fixes the issue by adding a 1...2 ms sleep after the
+genphy_resume().
+
+Fixes: 836384d2501d ("net: phy: micrel: Add specific suspend")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/bluetooth/rfcomm/tty.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/phy/micrel.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/bluetooth/rfcomm/tty.c
-+++ b/net/bluetooth/rfcomm/tty.c
-@@ -413,10 +413,8 @@ static int __rfcomm_create_dev(struct so
- 		dlc = rfcomm_dlc_exists(&req.src, &req.dst, req.channel);
- 		if (IS_ERR(dlc))
- 			return PTR_ERR(dlc);
--		else if (dlc) {
--			rfcomm_dlc_put(dlc);
-+		if (dlc)
- 			return -EBUSY;
--		}
- 		dlc = rfcomm_dlc_alloc(GFP_KERNEL);
- 		if (!dlc)
- 			return -ENOMEM;
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -29,6 +29,7 @@
+ #include <linux/micrel_phy.h>
+ #include <linux/of.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ 
+ /* Operation Mode Strap Override */
+ #define MII_KSZPHY_OMSO				0x16
+@@ -738,6 +739,12 @@ static int kszphy_resume(struct phy_devi
+ 
+ 	genphy_resume(phydev);
+ 
++	/* After switching from power-down to normal mode, an internal global
++	 * reset is automatically generated. Wait a minimum of 1 ms before
++	 * read/write access to the PHY registers.
++	 */
++	usleep_range(1000, 2000);
++
+ 	ret = kszphy_config_reset(phydev);
+ 	if (ret)
+ 		return ret;
 
 
