@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A831A5B2E
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92AC31A5B29
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727376AbgDKXEn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:04:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38290 "EHLO mail.kernel.org"
+        id S1727421AbgDKXEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:04:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727361AbgDKXEn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:04:43 -0400
+        id S1727405AbgDKXEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:04:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75C12214D8;
-        Sat, 11 Apr 2020 23:04:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 833A920787;
+        Sat, 11 Apr 2020 23:04:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646283;
-        bh=A6KO02u9HP+jDAo+joquhsaqmcvlEcEHNFs8Fwa8mA0=;
+        s=default; t=1586646284;
+        bh=ybjTsOup/wVUgDeBclGS000nrzXwThoMwgWWbsl6W68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLH2/BqniR7QpE6CAhmjJTH22BNSrrzpVyfxtl0Kq98XaAphI16e9P5lqyHuhw37P
-         olLOtfZWrWW6QA4glKjZ4mHIwjVcNQrUwRnucDIgw6gjnmP6T6SoMmh9V3VrOnA/ox
-         vroaEzB0rHE9u+VafufOf+ge69FyjS7xPzuhzGE4=
+        b=poEKIaGEpTeQqq7O/++RYAVUSTdZQIvc5vFuCwkPdPBcBvNuyWkTdW3i+LbV/tdLT
+         kpy/kij53si78/sjtcGwQdV1PkS+zZq3tUrfLLwC+jRJKWgxIR8LEYF6t1/GQHZQAg
+         2J6iiDD15hRMbxrCYBtuL5O7q1yVByMftz3WCstk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rocky Liao <rjliao@codeaurora.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 045/149] Bluetooth: hci_qca: Not send vendor pre-shutdown command for QCA Rome
-Date:   Sat, 11 Apr 2020 19:02:02 -0400
-Message-Id: <20200411230347.22371-45-sashal@kernel.org>
+Cc:     Aric Cyr <aric.cyr@amd.com>, Anthony Koo <Anthony.Koo@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 046/149] drm/amd/display: Only round InfoFrame refresh rates
+Date:   Sat, 11 Apr 2020 19:02:03 -0400
+Message-Id: <20200411230347.22371-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -44,39 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rocky Liao <rjliao@codeaurora.org>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit 4f9ed5bd63dc16d061cdeb00eeff9d56e86a6beb ]
+[ Upstream commit 3fc6376ed6f2f67bc9fb0c7a3cf07967d6aa6216 ]
 
-QCA Rome doesn't support the pre-shutdown vendor hci command, this patch
-will check the soc type in qca_power_off() and only send this command
-for wcn399x.
+[Why]
+When calculating nominal refresh rates, don't round.
+Only the VSIF needs to be rounded.
 
-Fixes: ae563183b647 ("Bluetooth: hci_qca: Enable power off/on support during hci down/up for QCA Rome")
-Signed-off-by: Rocky Liao <rjliao@codeaurora.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+[How]
+Revert rounding change for nominal and just round when forming the
+FreeSync VSIF.
+
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_qca.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/modules/freesync/freesync.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
-index d6e0c99ee5eb1..7e5a097bd0ed8 100644
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -1726,9 +1726,11 @@ static int qca_power_off(struct hci_dev *hdev)
- {
- 	struct hci_uart *hu = hci_get_drvdata(hdev);
- 	struct qca_data *qca = hu->priv;
-+	enum qca_btsoc_type soc_type = qca_soc_type(hu);
+diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+index b9992ebf77a62..4e542826cd269 100644
+--- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
++++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+@@ -524,12 +524,12 @@ static void build_vrr_infopacket_data(const struct mod_vrr_params *vrr,
+ 		infopacket->sb[6] |= 0x04;
  
- 	/* Stop sending shutdown command if soc crashes. */
--	if (qca->memdump_state == QCA_MEMDUMP_IDLE) {
-+	if (qca_is_wcn399x(soc_type)
-+		&& qca->memdump_state == QCA_MEMDUMP_IDLE) {
- 		qca_send_pre_shutdown_cmd(hdev);
- 		usleep_range(8000, 10000);
- 	}
+ 	/* PB7 = FreeSync Minimum refresh rate (Hz) */
+-	infopacket->sb[7] = (unsigned char)(vrr->min_refresh_in_uhz / 1000000);
++	infopacket->sb[7] = (unsigned char)((vrr->min_refresh_in_uhz + 500000) / 1000000);
+ 
+ 	/* PB8 = FreeSync Maximum refresh rate (Hz)
+ 	 * Note: We should never go above the field rate of the mode timing set.
+ 	 */
+-	infopacket->sb[8] = (unsigned char)(vrr->max_refresh_in_uhz / 1000000);
++	infopacket->sb[8] = (unsigned char)((vrr->max_refresh_in_uhz + 500000) / 1000000);
+ 
+ 
+ 	//FreeSync HDR
+@@ -747,10 +747,6 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 	nominal_field_rate_in_uhz =
+ 			mod_freesync_calc_nominal_field_rate(stream);
+ 
+-	/* Rounded to the nearest Hz */
+-	nominal_field_rate_in_uhz = 1000000ULL *
+-			div_u64(nominal_field_rate_in_uhz + 500000, 1000000);
+-
+ 	min_refresh_in_uhz = in_config->min_refresh_in_uhz;
+ 	max_refresh_in_uhz = in_config->max_refresh_in_uhz;
+ 
 -- 
 2.20.1
 
