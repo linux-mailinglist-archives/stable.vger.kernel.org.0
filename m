@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD09C1A5B78
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2E281A540D
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:04:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727015AbgDKXEG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:04:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37162 "EHLO mail.kernel.org"
+        id S1727023AbgDKXEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:04:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727003AbgDKXEF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:04:05 -0400
+        id S1727018AbgDKXEG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:04:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE4BD20CC7;
-        Sat, 11 Apr 2020 23:04:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2101721744;
+        Sat, 11 Apr 2020 23:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646245;
-        bh=+SBA0XhMzOshW8jg8TBRbsF8qYtpY+TLwOsmsXZQle8=;
+        s=default; t=1586646247;
+        bh=J+3YkxKcZRYQRP+VnnMnH98zYMcjPCiYFjdt5zVCiu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWjnO+yCtqI3NPpd7H5mylLTMtSyWr9s49y42JcXGOP+WFrnZWu5462a+QfeoKsgB
-         q43THH2bCge0N0smKsWtSuvVJKNQGXmctZmttWi+Ffoo8NvpkZPdhvvoGJFquIWp9s
-         MeVcOxuwF7zGrlaFQ1PiQkkvapWSKcGsibAc4sVM=
+        b=GNGqvAP1vsVZiNED0wN66wA/RbYMC0lFOnH/7s3M41AcsUw164zEZLn/tF4aAEmQ4
+         aezUKA1cWQqskN561XamZ0ESs27StxPlTTDCXmFqBqbL+KqBW16Gsb3s7qWNehb/+e
+         rQj0CaZOqFWAGrAA4ygHQlkaOIHeiXUdGF3m6USk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leonid Maksymchuk <leonmaxx@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        acpi4asus-user@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 014/149] platform/x86: asus_wmi: Fix return value of fan_boost_mode_store
-Date:   Sat, 11 Apr 2020 19:01:31 -0400
-Message-Id: <20200411230347.22371-14-sashal@kernel.org>
+Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 015/149] drm/amd/display: Explicitly disable triplebuffer flips
+Date:   Sat, 11 Apr 2020 19:01:32 -0400
+Message-Id: <20200411230347.22371-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -45,39 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leonid Maksymchuk <leonmaxx@gmail.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit edeee341fd6c1099de357c517af215bee2c6f766 ]
+[ Upstream commit 2d673560b7b83f8fe4163610f35c51b4d095525c ]
 
-Function fan_boost_mode_store returns 0 if store is successful,
-this leads to infinite loop after any write to it's sysfs entry:
+[Why]
+This is enabled by default on Renoir but there's userspace/API support
+to actually make use of this.
 
-# echo 0 >/sys/devices/platform/asus-nb-wmi/fan_boost_mode
+Since we're not passing this down through surface updates, let's
+explicitly disable this for now.
 
-This command never ends, one CPU core is at 100% utilization.
-This patch fixes this by returning size of written data.
+This fixes "dcn20_program_front_end_for_ctx" warnings associated with
+incorrect/unexpected programming sequences performed while this is
+enabled.
 
-Fixes: b096f626a682 ("platform/x86: asus-wmi: Switch fan boost mode")
-Signed-off-by: Leonid Maksymchuk <leonmaxx@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+[How]
+Disable it at the topmost level in DM in case anyone tries to flip this
+to enabled for any of the other ASICs like Navi10/14.
+
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-wmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index 612ef55262268..e5d35987c048a 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -1719,7 +1719,7 @@ static ssize_t fan_boost_mode_store(struct device *dev,
- 	asus->fan_boost_mode = new_mode;
- 	fan_boost_mode_write(asus);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index b9853fd724d60..f2850f5b0808c 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2909,6 +2909,9 @@ static int amdgpu_dm_initialize_drm_device(struct amdgpu_device *adev)
+ 	if (adev->asic_type != CHIP_CARRIZO && adev->asic_type != CHIP_STONEY)
+ 		dm->dc->debug.disable_stutter = amdgpu_pp_feature_mask & PP_STUTTER_MODE ? false : true;
  
--	return result;
-+	return count;
- }
- 
- // Fan boost mode: 0 - normal, 1 - overboost, 2 - silent
++	/* No userspace support. */
++	dm->dc->debug.disable_tri_buf = true;
++
+ 	return 0;
+ fail:
+ 	kfree(aencoder);
 -- 
 2.20.1
 
