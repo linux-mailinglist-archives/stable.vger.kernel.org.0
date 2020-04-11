@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 459211A579F
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E9BC1A57C1
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730177AbgDKXM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52630 "EHLO mail.kernel.org"
+        id S1728434AbgDKXYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:24:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729568AbgDKXM3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:12:29 -0400
+        id S1727365AbgDKXMa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:12:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51E4A20787;
-        Sat, 11 Apr 2020 23:12:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89860216FD;
+        Sat, 11 Apr 2020 23:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646749;
-        bh=Pzk753ttBnPULrgcv1Ia+ix0c6xqkGzhYsndfaY9kwc=;
+        s=default; t=1586646750;
+        bh=xqdDMXafI/lJR1TnjvBCsxh6zD3S8/yOI985BQtRjFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xnqL/GnG4iFl4Qze/mOkNUkDj2IKaPxkomyt720RmIDebw6aaEDAJESID0eK3iToT
-         wjm7UIJRhbSOamS7RSQDbfrztEBIxgMDEuV0woIR5wc/GUw0mbnP4/nmz6AGDPwM/u
-         1xMLhsQLrEWIMNUmxwN0IMQN+L53wm27XaHPgxto=
+        b=Qa1PGx5gF67vJY5KXXp+HPOADof9kMgqkTfhdqPfs/bOu615mV9SCsKSolud51sVY
+         fYmyg7OIUt0QG5sEhBnhYENtpUhYbrjSfxR8ZaXWBNVMAoeIXU+MNIaXj0yvMohXQC
+         BFUmUhd1K3tiIm/akgwgLg6b/CIjIyeW3xW+kD40=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Parav Pandit <parav@mellanox.com>, Mark Bloch <markb@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 21/66] IB/mlx5: Fix missing congestion control debugfs on rep rdma device
-Date:   Sat, 11 Apr 2020 19:11:18 -0400
-Message-Id: <20200411231203.25933-21-sashal@kernel.org>
+Cc:     Alain Michaud <alainm@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 22/66] Bluetooth: guard against controllers sending zero'd events
+Date:   Sat, 11 Apr 2020 19:11:19 -0400
+Message-Id: <20200411231203.25933-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231203.25933-1-sashal@kernel.org>
 References: <20200411231203.25933-1-sashal@kernel.org>
@@ -44,41 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@mellanox.com>
+From: Alain Michaud <alainm@chromium.org>
 
-[ Upstream commit 79db784e794b6e7b7fb9b1dd464a34e4c0c039af ]
+[ Upstream commit 08bb4da90150e2a225f35e0f642cdc463958d696 ]
 
-Cited commit missed to include low level congestion control related
-debugfs stage initialization.  This resulted in missing debugfs entries
-for cc_params of a RDMA device.
+Some controllers have been observed to send zero'd events under some
+conditions.  This change guards against this condition as well as adding
+a trace to facilitate diagnosability of this condition.
 
-Add them back.
-
-Fixes: b5ca15ad7e61 ("IB/mlx5: Add proper representors support")
-Link: https://lore.kernel.org/r/20200227125407.99803-1-leon@kernel.org
-Signed-off-by: Parav Pandit <parav@mellanox.com>
-Reviewed-by: Mark Bloch <markb@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Alain Michaud <alainm@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/bluetooth/hci_event.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index 2db34f7b5ced1..c9983838e3493 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -6288,6 +6288,9 @@ static const struct mlx5_ib_profile nic_rep_profile = {
- 	STAGE_CREATE(MLX5_IB_STAGE_COUNTERS,
- 		     mlx5_ib_stage_counters_init,
- 		     mlx5_ib_stage_counters_cleanup),
-+	STAGE_CREATE(MLX5_IB_STAGE_CONG_DEBUGFS,
-+		     mlx5_ib_stage_cong_debugfs_init,
-+		     mlx5_ib_stage_cong_debugfs_cleanup),
- 	STAGE_CREATE(MLX5_IB_STAGE_UAR,
- 		     mlx5_ib_stage_uar_init,
- 		     mlx5_ib_stage_uar_cleanup),
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 3e7badb3ac2d5..93d077328c6ab 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5718,6 +5718,11 @@ void hci_event_packet(struct hci_dev *hdev, struct sk_buff *skb)
+ 	u8 status = 0, event = hdr->evt, req_evt = 0;
+ 	u16 opcode = HCI_OP_NOP;
+ 
++	if (!event) {
++		bt_dev_warn(hdev, "Received unexpected HCI Event 00000000");
++		goto done;
++	}
++
+ 	if (hdev->sent_cmd && bt_cb(hdev->sent_cmd)->hci.req_event == event) {
+ 		struct hci_command_hdr *cmd_hdr = (void *) hdev->sent_cmd->data;
+ 		opcode = __le16_to_cpu(cmd_hdr->opcode);
+@@ -5929,6 +5934,7 @@ void hci_event_packet(struct hci_dev *hdev, struct sk_buff *skb)
+ 		req_complete_skb(hdev, status, opcode, orig_skb);
+ 	}
+ 
++done:
+ 	kfree_skb(orig_skb);
+ 	kfree_skb(skb);
+ 	hdev->stat.evt_rx++;
 -- 
 2.20.1
 
