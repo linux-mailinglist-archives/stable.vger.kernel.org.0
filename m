@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 456A21A58A4
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:31:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 156021A589C
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728517AbgDKXb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:31:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48570 "EHLO mail.kernel.org"
+        id S1729539AbgDKXKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:10:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728415AbgDKXKT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:10:19 -0400
+        id S1726955AbgDKXKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:10:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C51D2173E;
-        Sat, 11 Apr 2020 23:10:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E61D720787;
+        Sat, 11 Apr 2020 23:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646619;
-        bh=gp1hTmekrKQ5jnlM2xi6A48oQqXWOVZwwmo8eo8OPTY=;
+        s=default; t=1586646620;
+        bh=LQ4h+thA4Q0WQ90awzjA8B/VB9vG17MgHA+KOwlQRvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhyZlR/bnAgU0nqRV/0w6IhumDgJmLkqDXg/PhHgciQCb+7bD+3QBDo8GE2hCeVvE
-         3WSmaLYQtS1p/aPwKRfIa+uc4aN7PW5JlkUFwPuMt08UFioKwrZSq+tjbirAT2mU5W
-         HPo0p1zS1ZfSGSb3ptZh7uTI4yjJsY07u/rdfgpE=
+        b=TzQms8z4uELmLyQsaWe11BS2XQQ2AnBizoFoPWxUb1YLSnE9/oqflZJ4Inw2RNwpa
+         EosudnCTJnPsqNAggXiJgppth07SkkdbwF4qoZ5wut10tiUP0WB9BlVHDy2a9ifT2I
+         Hq/mg6Lt/NDhSsbmpAzuJWL6SaHHX9LKHLMMF3H8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Bernstein <eric.bernstein@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 029/108] drm/amd/display: Fix default logger mask definition
-Date:   Sat, 11 Apr 2020 19:08:24 -0400
-Message-Id: <20200411230943.24951-29-sashal@kernel.org>
+Cc:     Parav Pandit <parav@mellanox.com>, Mark Bloch <markb@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 030/108] IB/mlx5: Fix missing congestion control debugfs on rep rdma device
+Date:   Sat, 11 Apr 2020 19:08:25 -0400
+Message-Id: <20200411230943.24951-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -46,99 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Bernstein <eric.bernstein@amd.com>
+From: Parav Pandit <parav@mellanox.com>
 
-[ Upstream commit ccb6af1e25830e5601b6beacc698390f0245316f ]
+[ Upstream commit 79db784e794b6e7b7fb9b1dd464a34e4c0c039af ]
 
-[Why]
-Logger mask was updated to uint64_t, however default mask definition was
-not updated for unsigned long long
+Cited commit missed to include low level congestion control related
+debugfs stage initialization.  This resulted in missing debugfs entries
+for cc_params of a RDMA device.
 
-[How]
-Update DC_DEFAULT_LOG_MASK to support uint64_t type
+Add them back.
 
-Signed-off-by: Eric Bernstein <eric.bernstein@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: b5ca15ad7e61 ("IB/mlx5: Add proper representors support")
+Link: https://lore.kernel.org/r/20200227125407.99803-1-leon@kernel.org
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Mark Bloch <markb@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/include/logger_types.h    | 63 ++++++++++---------
- 1 file changed, 32 insertions(+), 31 deletions(-)
+ drivers/infiniband/hw/mlx5/main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/include/logger_types.h b/drivers/gpu/drm/amd/display/include/logger_types.h
-index 2b219cdb13ad4..e0fcc0ce677e7 100644
---- a/drivers/gpu/drm/amd/display/include/logger_types.h
-+++ b/drivers/gpu/drm/amd/display/include/logger_types.h
-@@ -130,36 +130,37 @@ enum dc_log_type {
- #define DC_MIN_LOG_MASK ((1 << LOG_ERROR) | \
- 		(1 << LOG_DETECTION_EDID_PARSER))
- 
--#define DC_DEFAULT_LOG_MASK ((1 << LOG_ERROR) | \
--		(1 << LOG_WARNING) | \
--		(1 << LOG_EVENT_MODE_SET) | \
--		(1 << LOG_EVENT_DETECTION) | \
--		(1 << LOG_EVENT_LINK_TRAINING) | \
--		(1 << LOG_EVENT_LINK_LOSS) | \
--		(1 << LOG_EVENT_UNDERFLOW) | \
--		(1 << LOG_RESOURCE) | \
--		(1 << LOG_FEATURE_OVERRIDE) | \
--		(1 << LOG_DETECTION_EDID_PARSER) | \
--		(1 << LOG_DC) | \
--		(1 << LOG_HW_HOTPLUG) | \
--		(1 << LOG_HW_SET_MODE) | \
--		(1 << LOG_HW_RESUME_S3) | \
--		(1 << LOG_HW_HPD_IRQ) | \
--		(1 << LOG_SYNC) | \
--		(1 << LOG_BANDWIDTH_VALIDATION) | \
--		(1 << LOG_MST) | \
--		(1 << LOG_DETECTION_DP_CAPS) | \
--		(1 << LOG_BACKLIGHT)) | \
--		(1 << LOG_I2C_AUX) | \
--		(1 << LOG_IF_TRACE) | \
--		(1 << LOG_DTN) /* | \
--		(1 << LOG_DEBUG) | \
--		(1 << LOG_BIOS) | \
--		(1 << LOG_SURFACE) | \
--		(1 << LOG_SCALER) | \
--		(1 << LOG_DML) | \
--		(1 << LOG_HW_LINK_TRAINING) | \
--		(1 << LOG_HW_AUDIO)| \
--		(1 << LOG_BANDWIDTH_CALCS)*/
-+#define DC_DEFAULT_LOG_MASK ((1ULL << LOG_ERROR) | \
-+		(1ULL << LOG_WARNING) | \
-+		(1ULL << LOG_EVENT_MODE_SET) | \
-+		(1ULL << LOG_EVENT_DETECTION) | \
-+		(1ULL << LOG_EVENT_LINK_TRAINING) | \
-+		(1ULL << LOG_EVENT_LINK_LOSS) | \
-+		(1ULL << LOG_EVENT_UNDERFLOW) | \
-+		(1ULL << LOG_RESOURCE) | \
-+		(1ULL << LOG_FEATURE_OVERRIDE) | \
-+		(1ULL << LOG_DETECTION_EDID_PARSER) | \
-+		(1ULL << LOG_DC) | \
-+		(1ULL << LOG_HW_HOTPLUG) | \
-+		(1ULL << LOG_HW_SET_MODE) | \
-+		(1ULL << LOG_HW_RESUME_S3) | \
-+		(1ULL << LOG_HW_HPD_IRQ) | \
-+		(1ULL << LOG_SYNC) | \
-+		(1ULL << LOG_BANDWIDTH_VALIDATION) | \
-+		(1ULL << LOG_MST) | \
-+		(1ULL << LOG_DETECTION_DP_CAPS) | \
-+		(1ULL << LOG_BACKLIGHT)) | \
-+		(1ULL << LOG_I2C_AUX) | \
-+		(1ULL << LOG_IF_TRACE) | \
-+		(1ULL << LOG_HDMI_FRL) | \
-+		(1ULL << LOG_DTN) /* | \
-+		(1ULL << LOG_DEBUG) | \
-+		(1ULL << LOG_BIOS) | \
-+		(1ULL << LOG_SURFACE) | \
-+		(1ULL << LOG_SCALER) | \
-+		(1ULL << LOG_DML) | \
-+		(1ULL << LOG_HW_LINK_TRAINING) | \
-+		(1ULL << LOG_HW_AUDIO)| \
-+		(1ULL << LOG_BANDWIDTH_CALCS)*/
- 
- #endif /* __DAL_LOGGER_TYPES_H__ */
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index 0a160fd1383ae..e18f8e7029046 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -6833,6 +6833,9 @@ const struct mlx5_ib_profile uplink_rep_profile = {
+ 	STAGE_CREATE(MLX5_IB_STAGE_COUNTERS,
+ 		     mlx5_ib_stage_counters_init,
+ 		     mlx5_ib_stage_counters_cleanup),
++	STAGE_CREATE(MLX5_IB_STAGE_CONG_DEBUGFS,
++		     mlx5_ib_stage_cong_debugfs_init,
++		     mlx5_ib_stage_cong_debugfs_cleanup),
+ 	STAGE_CREATE(MLX5_IB_STAGE_UAR,
+ 		     mlx5_ib_stage_uar_init,
+ 		     mlx5_ib_stage_uar_cleanup),
 -- 
 2.20.1
 
