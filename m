@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 198D01A5925
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:35:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE71F1A5513
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729140AbgDKXJL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:09:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46758 "EHLO mail.kernel.org"
+        id S1729145AbgDKXJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:09:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729132AbgDKXJK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:09:10 -0400
+        id S1728076AbgDKXJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:09:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06AD020787;
-        Sat, 11 Apr 2020 23:09:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D69D20708;
+        Sat, 11 Apr 2020 23:09:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646550;
-        bh=omF1iRanyQ8S752QBPEFo8RD9YAGvCRHuHarTQ18A/E=;
+        s=default; t=1586646552;
+        bh=BuT+U3bSnltRoLUw4bLKl1iPe6gDp2CGnADnaOvLaGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=riGlpz6tKtUpfJSYKkfW0PMVhBRX1tPMm6ldywOiC0KrsZlCGSiwB+aGR8s2Xgt/G
-         vRTsCc42ZBttBItDMTh39xSUwCELgiYvXrk2ZLgTCarfON7RpVwFvsCn+JRQWfXQ5P
-         Q24afZ8fWPuNt6uYnVolkRwXO1d+bSpDXcaAP200=
+        b=1eEN1Fbtet4vlVm4DU46J1iSdc6/Q9i3eiuR2CdoK1bjZw9oXuvuUyMr+VChiGAuF
+         tdveL62/lXc1ZR0eOfFq1RVb2XZ3qm3u2GtfPMeq2PK3jdIMso6Bz+eiA+jVliylNq
+         gVNMU+ZYm2bL2cApalkFnnRXK0CxwpabPpLbaaq4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Patrick Daly <pdaly@codeaurora.org>,
-        "Isaac J . Manjarres" <isaacm@codeaurora.org>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 101/121] of: of_reserved_mem: Increase limit on number of reserved regions
-Date:   Sat, 11 Apr 2020 19:06:46 -0400
-Message-Id: <20200411230706.23855-101-sashal@kernel.org>
+Cc:     Etienne Carriere <etienne.carriere@st.com>,
+        Amelie Delaunay <amelie.delaunay@st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 102/121] dmaengine: stm32-dma: use reset controller only at probe time
+Date:   Sat, 11 Apr 2020 19:06:47 -0400
+Message-Id: <20200411230706.23855-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -44,42 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Daly <pdaly@codeaurora.org>
+From: Etienne Carriere <etienne.carriere@st.com>
 
-[ Upstream commit 632c99084052aef1c9dcfe43d2720306026d6d21 ]
+[ Upstream commit 8cf1e0fc50fcc25021567bb2755580504c57c83a ]
 
-Certain SoCs need to support a large amount of reserved memory
-regions. For example, Qualcomm's SM8150 SoC requires that 20
-regions of memory be reserved for a variety of reasons (e.g.
-loading a peripheral subsystem's firmware image into a
-particular space).
+Remove reset controller reference from device instance since it is
+used only at probe time.
 
-When adding more reserved memory regions to cater to different
-usecases, the remaining number of reserved memory regions--12
-to be exact--becomes too small. Thus, double the existing
-limit of reserved memory regions.
-
-Signed-off-by: Patrick Daly <pdaly@codeaurora.org>
-Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Etienne Carriere <etienne.carriere@st.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+Link: https://lore.kernel.org/r/20200129153628.29329-3-amelie.delaunay@st.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/of_reserved_mem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/stm32-dma.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 6bd610ee2cd73..1a84bc0d5fa80 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -22,7 +22,7 @@
- #include <linux/slab.h>
- #include <linux/memblock.h>
+diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
+index 5989b08935211..ff34a10fc8d89 100644
+--- a/drivers/dma/stm32-dma.c
++++ b/drivers/dma/stm32-dma.c
+@@ -207,7 +207,6 @@ struct stm32_dma_device {
+ 	struct dma_device ddev;
+ 	void __iomem *base;
+ 	struct clk *clk;
+-	struct reset_control *rst;
+ 	bool mem2mem;
+ 	struct stm32_dma_chan chan[STM32_DMA_MAX_CHANNELS];
+ };
+@@ -1275,6 +1274,7 @@ static int stm32_dma_probe(struct platform_device *pdev)
+ 	struct dma_device *dd;
+ 	const struct of_device_id *match;
+ 	struct resource *res;
++	struct reset_control *rst;
+ 	int i, ret;
  
--#define MAX_RESERVED_REGIONS	32
-+#define MAX_RESERVED_REGIONS	64
- static struct reserved_mem reserved_mem[MAX_RESERVED_REGIONS];
- static int reserved_mem_count;
+ 	match = of_match_device(stm32_dma_of_match, &pdev->dev);
+@@ -1309,11 +1309,11 @@ static int stm32_dma_probe(struct platform_device *pdev)
+ 	dmadev->mem2mem = of_property_read_bool(pdev->dev.of_node,
+ 						"st,mem2mem");
  
+-	dmadev->rst = devm_reset_control_get(&pdev->dev, NULL);
+-	if (!IS_ERR(dmadev->rst)) {
+-		reset_control_assert(dmadev->rst);
++	rst = devm_reset_control_get(&pdev->dev, NULL);
++	if (!IS_ERR(rst)) {
++		reset_control_assert(rst);
+ 		udelay(2);
+-		reset_control_deassert(dmadev->rst);
++		reset_control_deassert(rst);
+ 	}
+ 
+ 	dma_cap_set(DMA_SLAVE, dd->cap_mask);
 -- 
 2.20.1
 
