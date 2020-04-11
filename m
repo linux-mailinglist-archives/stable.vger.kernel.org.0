@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6004A1A59DA
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA091A54CD
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:08:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728767AbgDKXjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:39:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43790 "EHLO mail.kernel.org"
+        id S1728707AbgDKXHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:07:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728164AbgDKXHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:07:40 -0400
+        id S1727950AbgDKXHm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:07:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EB862173E;
-        Sat, 11 Apr 2020 23:07:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 628C921D79;
+        Sat, 11 Apr 2020 23:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646461;
-        bh=rxTEkZE/qzuNHsnmwj0H4/iT7J3HTtkntHYrbIhjhRc=;
+        s=default; t=1586646462;
+        bh=BKf3iIX73R4r0oBGdSc7QByrmK7Ju23hXMr5gIH46tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gERVlpJgEcsp127ZqHGt9rL3S5LwxGsn7pM5+A+0DM5Ym6pisgXF6i6xk4SHjzhPi
-         g61kzewwVP/4JctR+YGVdWHgeEhp8tG2IuWUON7Ot/a8+FdxgF+BWU/yJfnDt79Fa3
-         AKtwFuqM0p6W7VAg2xUizYYP6ilKdMBL+bf5fUB4=
+        b=HtmntEDh1qZLf/CSAXn9wWY95wnQtuUXp39kq67wpLuXT0vBAjEahhfKzfs/RVbXC
+         iYOvpMami/mMfFcOzLPLKx6oBMErDODCo/DRvn3BJQIV937wBN8verKPCrndSyZULT
+         R3mQRPUWGVrXgek/Ty6xrPirgPtc+eHtMVA3SiI8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vlad Buslov <vladbu@mellanox.com>, Roi Dayan <roid@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 029/121] net/mlx5e: Init ethtool steering for representors
-Date:   Sat, 11 Apr 2020 19:05:34 -0400
-Message-Id: <20200411230706.23855-29-sashal@kernel.org>
+Cc:     Martin Leung <martin.leung@amd.com>, Aric Cyr <Aric.Cyr@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 030/121] drm/amd/display: writing stereo polarity register if swapped
+Date:   Sat, 11 Apr 2020 19:05:35 -0400
+Message-Id: <20200411230706.23855-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -43,37 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@mellanox.com>
+From: Martin Leung <martin.leung@amd.com>
 
-[ Upstream commit 6783e8b29f636383af293a55336f036bc7ad5619 ]
+[ Upstream commit e592e85f3378246dd66b861fa60ef803d8cece6b ]
 
-During transition to uplink representors the code responsible for
-initializing ethtool steering functionality wasn't added to representor
-init rx routine. This causes NULL pointer dereference during configuration
-of network flow classification rule with ethtool (only possible to
-reproduce with next commit in this series which registers necessary ethtool
-callbacks).
+[why]
+on some displays that prefer swapped polarity we were seeing L/R images
+swapped because OTG_STEREO_SYNC_OUTPUT_POLARITY would always be mapped
+to 0
 
-Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
+[how]
+fix initial dal3 implementation to properly update the polarity field
+according to the crtc_stereo_flags (same as
+OTG_STEREO_EYE_FLAG_POLARITY)
+
+Signed-off-by: Martin Leung <martin.leung@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-index f175cb24bb671..62c3a2e884912 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -1630,6 +1630,8 @@ static int mlx5e_init_rep_rx(struct mlx5e_priv *priv)
- 	if (err)
- 		goto err_destroy_ttc_table;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+index dabccbd49ad4a..1d6956cc3a011 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+@@ -1185,7 +1185,7 @@ static void optc1_enable_stereo(struct timing_generator *optc,
+ 			REG_UPDATE_3(OTG_STEREO_CONTROL,
+ 				OTG_STEREO_EN, stereo_en,
+ 				OTG_STEREO_SYNC_OUTPUT_LINE_NUM, 0,
+-				OTG_STEREO_SYNC_OUTPUT_POLARITY, 0);
++				OTG_STEREO_SYNC_OUTPUT_POLARITY, flags->RIGHT_EYE_POLARITY == 0 ? 0 : 1);
  
-+	mlx5e_ethtool_init_steering(priv);
-+
- 	return 0;
- 
- err_destroy_ttc_table:
+ 		if (flags->PROGRAM_POLARITY)
+ 			REG_UPDATE(OTG_STEREO_CONTROL,
 -- 
 2.20.1
 
