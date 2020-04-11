@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1EF81A516E
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B031A5053
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:16:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728330AbgDKMZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:25:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50974 "EHLO mail.kernel.org"
+        id S1728268AbgDKMQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:16:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727788AbgDKMQj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:16:39 -0400
+        id S1728277AbgDKMQm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:16:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7085420692;
-        Sat, 11 Apr 2020 12:16:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D35EC20644;
+        Sat, 11 Apr 2020 12:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607399;
-        bh=WLjTGfAMIh/dxbygmZhyz+9HAKYXuj2WS8AFJSWjkck=;
+        s=default; t=1586607402;
+        bh=zqqPdjzMKrT6Dsh6rmrY0HhxAfJoVgJZbT7J3DgNKKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/CJL9xZErB6US2fSGzXl3U67ugv05eOfR7tEQdCtWN8Jfc9hqI0pGcMptWrveV1v
-         IdKp5S/EBiiMt4YUTGN2yVhgoXybluv+MoUX+mBX7Z5QZkh9+NsZrVYvNxvRCwkkLs
-         AQufKc4ERsCgdQ7dWVqPhUVZnfLIHbE9hZyJDfTw=
+        b=aUW9hxMtamTf2BgSL8a2OQoOw93nnt9RvTaVhm4mnBdLmCKvq1ddZm8eicIS3uq/h
+         yZcbLmhCjN3tYLNTAiK828BsKESavLQyV/h51rweEysYmEKShlNXJD5Qu0XeW9xQDy
+         NJd7UQqJzJHLFXYE82C93By3eiUqpGWU6n8cOOM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>
-Subject: [PATCH 4.19 22/54] rxrpc: Fix sendmsg(MSG_WAITALL) handling
-Date:   Sat, 11 Apr 2020 14:09:04 +0200
-Message-Id: <20200411115510.720343132@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Amritha Nambiar <amritha.nambiar@intel.com>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Sridhar Samudrala <sridhar.samudrala@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 23/54] net: Fix Tx hash bound checking
+Date:   Sat, 11 Apr 2020 14:09:05 +0200
+Message-Id: <20200411115510.815232090@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
 References: <20200411115508.284500414@linuxfoundation.org>
@@ -42,34 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Amritha Nambiar <amritha.nambiar@intel.com>
 
-commit 498b577660f08cef5d9e78e0ed6dcd4c0939e98c upstream.
+commit 6e11d1578fba8d09d03a286740ffcf336d53928c upstream.
 
-Fix the handling of sendmsg() with MSG_WAITALL for userspace to round the
-timeout for when a signal occurs up to at least two jiffies as a 1 jiffy
-timeout may end up being effectively 0 if jiffies wraps at the wrong time.
+Fixes the lower and upper bounds when there are multiple TCs and
+traffic is on the the same TC on the same device.
 
-Fixes: bc5e3a546d55 ("rxrpc: Use MSG_WAITALL to tell sendmsg() to temporarily ignore signals")
-Signed-off-by: David Howells <dhowells@redhat.com>
+The lower bound is represented by 'qoffset' and the upper limit for
+hash value is 'qcount + qoffset'. This gives a clean Rx to Tx queue
+mapping when there are multiple TCs, as the queue indices for upper TCs
+will be offset by 'qoffset'.
+
+v2: Fixed commit description based on comments.
+
+Fixes: 1b837d489e06 ("net: Revoke export for __skb_tx_hash, update it to just be static skb_tx_hash")
+Fixes: eadec877ce9c ("net: Add support for subordinate traffic classes to netdev_pick_tx")
+Signed-off-by: Amritha Nambiar <amritha.nambiar@intel.com>
+Reviewed-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Reviewed-by: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/rxrpc/sendmsg.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/dev.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/rxrpc/sendmsg.c
-+++ b/net/rxrpc/sendmsg.c
-@@ -62,8 +62,8 @@ static int rxrpc_wait_for_tx_window_noni
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -2854,6 +2854,8 @@ static u16 skb_tx_hash(const struct net_
  
- 	rtt = READ_ONCE(call->peer->rtt);
- 	rtt2 = nsecs_to_jiffies64(rtt) * 2;
--	if (rtt2 < 1)
--		rtt2 = 1;
-+	if (rtt2 < 2)
-+		rtt2 = 2;
- 
- 	timeout = rtt2;
- 	tx_start = READ_ONCE(call->tx_hard_ack);
+ 	if (skb_rx_queue_recorded(skb)) {
+ 		hash = skb_get_rx_queue(skb);
++		if (hash >= qoffset)
++			hash -= qoffset;
+ 		while (unlikely(hash >= qcount))
+ 			hash -= qcount;
+ 		return hash + qoffset;
 
 
