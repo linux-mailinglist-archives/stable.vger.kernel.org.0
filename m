@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B98D1A55E4
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:13:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B7B1A5787
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:23:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730271AbgDKXMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
+        id S1729772AbgDKXXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730261AbgDKXMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:12:51 -0400
+        id S1729952AbgDKXMx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:12:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6F4721841;
-        Sat, 11 Apr 2020 23:12:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57BCA20708;
+        Sat, 11 Apr 2020 23:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646770;
-        bh=0LJGZBnlKyTbrb6WTN4LcFXLTqTu1DZR3oWb3ykYops=;
+        s=default; t=1586646772;
+        bh=itg1s6VtlJSOWazowbUTIiqPiILOQB28by7yQK0ieJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWAGjjo9VeRo+PSg+1bXRl89IuTMDBIlmD2jYCzpgDxMAoOgC7QmD/k1Sm+MW+Ih1
-         K/U6XV5uqi4TIr0Pvabo5erHylGb7FH0V9YmbquCxtDaDPUqbYNEtpRd7Ts56rsRXa
-         fXBW0hCwjorjjpJV1xBP+t00pdO/g85d7QCUEMC4=
+        b=uLWGncwCAm5PX2afRy3iBF+KLWB/xIoDyGAX5KkYyadz5+F73jUvHDdqSUTPaiZWt
+         4wSK7CsLbZQZmgcjna6YFKEi7QCfagCn08TV+SOWCSji+83usa+6e5EaNxE3tD80xb
+         5X5hK/XPWDI4NcRbzeVLaEW9JlXRRBTMQzQoYsbU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aric Cyr <aric.cyr@amd.com>,
-        Joshua Aberback <Joshua.Aberback@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 39/66] drm/amd/display: dal_ddc_i2c_payloads_create can fail causing panic
-Date:   Sat, 11 Apr 2020 19:11:36 -0400
-Message-Id: <20200411231203.25933-39-sashal@kernel.org>
+Cc:     Jason Gunthorpe <jgg@mellanox.com>,
+        syzbot+adb15cf8c2798e4e0db4@syzkaller.appspotmail.com,
+        syzbot+e5579222b6a3edd96522@syzkaller.appspotmail.com,
+        syzbot+4b628fcc748474003457@syzkaller.appspotmail.com,
+        syzbot+29ee8f76017ce6cf03da@syzkaller.appspotmail.com,
+        syzbot+6956235342b7317ec564@syzkaller.appspotmail.com,
+        syzbot+b358909d8d01556b790b@syzkaller.appspotmail.com,
+        syzbot+6b46b135602a3f3ac99e@syzkaller.appspotmail.com,
+        syzbot+8458d13b13562abf6b77@syzkaller.appspotmail.com,
+        syzbot+bd034f3fdc0402e942ed@syzkaller.appspotmail.com,
+        syzbot+c92378b32760a4eef756@syzkaller.appspotmail.com,
+        syzbot+68b44a1597636e0b342c@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 40/66] RDMA/ucma: Put a lock around every call to the rdma_cm layer
+Date:   Sat, 11 Apr 2020 19:11:37 -0400
+Message-Id: <20200411231203.25933-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231203.25933-1-sashal@kernel.org>
 References: <20200411231203.25933-1-sashal@kernel.org>
@@ -47,127 +53,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aric Cyr <aric.cyr@amd.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 6a6c4a4d459ecacc9013c45dcbf2bc9747fdbdbd ]
+[ Upstream commit 7c11910783a1ea17e88777552ef146cace607b3c ]
 
-[Why]
-Since the i2c payload allocation can fail need to check return codes
+The rdma_cm must be used single threaded.
 
-[How]
-Clean up i2c payload allocations and check for errors
+This appears to be a bug in the design, as it does have lots of locking
+that seems like it should allow concurrency. However, when it is all said
+and done every single place that uses the cma_exch() scheme is broken, and
+all the unlocked reads from the ucma of the cm_id data are wrong too.
 
-Signed-off-by: Aric Cyr <aric.cyr@amd.com>
-Reviewed-by: Joshua Aberback <Joshua.Aberback@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Acked-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+syzkaller has been finding endless bugs related to this.
+
+Fixing this in any elegant way is some enormous amount of work. Take a
+very big hammer and put a mutex around everything to do with the
+ucma_context at the top of every syscall.
+
+Fixes: 75216638572f ("RDMA/cma: Export rdma cm interface to userspace")
+Link: https://lore.kernel.org/r/20200218210432.GA31966@ziepe.ca
+Reported-by: syzbot+adb15cf8c2798e4e0db4@syzkaller.appspotmail.com
+Reported-by: syzbot+e5579222b6a3edd96522@syzkaller.appspotmail.com
+Reported-by: syzbot+4b628fcc748474003457@syzkaller.appspotmail.com
+Reported-by: syzbot+29ee8f76017ce6cf03da@syzkaller.appspotmail.com
+Reported-by: syzbot+6956235342b7317ec564@syzkaller.appspotmail.com
+Reported-by: syzbot+b358909d8d01556b790b@syzkaller.appspotmail.com
+Reported-by: syzbot+6b46b135602a3f3ac99e@syzkaller.appspotmail.com
+Reported-by: syzbot+8458d13b13562abf6b77@syzkaller.appspotmail.com
+Reported-by: syzbot+bd034f3fdc0402e942ed@syzkaller.appspotmail.com
+Reported-by: syzbot+c92378b32760a4eef756@syzkaller.appspotmail.com
+Reported-by: syzbot+68b44a1597636e0b342c@syzkaller.appspotmail.com
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/core/dc_link_ddc.c | 52 +++++++++----------
- 1 file changed, 25 insertions(+), 27 deletions(-)
+ drivers/infiniband/core/ucma.c | 49 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 47 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
-index 46c9cb47a96e5..145af3bb2dfcb 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
-@@ -127,22 +127,16 @@ struct aux_payloads {
- 	struct vector payloads;
- };
+diff --git a/drivers/infiniband/core/ucma.c b/drivers/infiniband/core/ucma.c
+index 01d68ed46c1b6..2acc30c3d5b2d 100644
+--- a/drivers/infiniband/core/ucma.c
++++ b/drivers/infiniband/core/ucma.c
+@@ -89,6 +89,7 @@ struct ucma_context {
  
--static struct i2c_payloads *dal_ddc_i2c_payloads_create(struct dc_context *ctx, uint32_t count)
-+static bool dal_ddc_i2c_payloads_create(
-+		struct dc_context *ctx,
-+		struct i2c_payloads *payloads,
-+		uint32_t count)
- {
--	struct i2c_payloads *payloads;
--
--	payloads = kzalloc(sizeof(struct i2c_payloads), GFP_KERNEL);
--
--	if (!payloads)
--		return NULL;
--
- 	if (dal_vector_construct(
- 		&payloads->payloads, ctx, count, sizeof(struct i2c_payload)))
--		return payloads;
--
--	kfree(payloads);
--	return NULL;
-+		return true;
+ 	struct ucma_file	*file;
+ 	struct rdma_cm_id	*cm_id;
++	struct mutex		mutex;
+ 	u64			uid;
  
-+	return false;
+ 	struct list_head	list;
+@@ -215,6 +216,7 @@ static struct ucma_context *ucma_alloc_ctx(struct ucma_file *file)
+ 	init_completion(&ctx->comp);
+ 	INIT_LIST_HEAD(&ctx->mc_list);
+ 	ctx->file = file;
++	mutex_init(&ctx->mutex);
+ 
+ 	mutex_lock(&mut);
+ 	ctx->id = idr_alloc(&ctx_idr, ctx, 0, 0, GFP_KERNEL);
+@@ -596,6 +598,7 @@ static int ucma_free_ctx(struct ucma_context *ctx)
+ 	}
+ 
+ 	events_reported = ctx->events_reported;
++	mutex_destroy(&ctx->mutex);
+ 	kfree(ctx);
+ 	return events_reported;
  }
+@@ -665,7 +668,10 @@ static ssize_t ucma_bind_ip(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
  
- static struct i2c_payload *dal_ddc_i2c_payloads_get(struct i2c_payloads *p)
-@@ -155,14 +149,12 @@ static uint32_t dal_ddc_i2c_payloads_get_count(struct i2c_payloads *p)
- 	return p->payloads.count;
- }
- 
--static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads **p)
-+static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads *p)
- {
--	if (!p || !*p)
-+	if (!p)
- 		return;
--	dal_vector_destruct(&(*p)->payloads);
--	kfree(*p);
--	*p = NULL;
- 
-+	dal_vector_destruct(&p->payloads);
- }
- 
- static struct aux_payloads *dal_ddc_aux_payloads_create(struct dc_context *ctx, uint32_t count)
-@@ -580,9 +572,13 @@ bool dal_ddc_service_query_ddc_data(
- 
- 	uint32_t payloads_num = write_payloads + read_payloads;
- 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_bind_addr(ctx->cm_id, (struct sockaddr *) &cmd.addr);
++	mutex_unlock(&ctx->mutex);
 +
- 	if (write_size > EDID_SEGMENT_SIZE || read_size > EDID_SEGMENT_SIZE)
- 		return false;
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -688,7 +694,9 @@ static ssize_t ucma_bind(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
  
-+	if (!payloads_num)
-+		return false;
-+
- 	/*TODO: len of payload data for i2c and aux is uint8!!!!,
- 	 *  but we want to read 256 over i2c!!!!*/
- 	if (dal_ddc_service_is_in_aux_transaction_mode(ddc)) {
-@@ -613,23 +609,25 @@ bool dal_ddc_service_query_ddc_data(
- 		dal_ddc_aux_payloads_destroy(&payloads);
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_bind_addr(ctx->cm_id, (struct sockaddr *) &cmd.addr);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -712,8 +720,10 @@ static ssize_t ucma_resolve_ip(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
  
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_resolve_addr(ctx->cm_id, (struct sockaddr *) &cmd.src_addr,
+ 				(struct sockaddr *) &cmd.dst_addr, cmd.timeout_ms);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -738,8 +748,10 @@ static ssize_t ucma_resolve_addr(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_resolve_addr(ctx->cm_id, (struct sockaddr *) &cmd.src_addr,
+ 				(struct sockaddr *) &cmd.dst_addr, cmd.timeout_ms);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -759,7 +771,9 @@ static ssize_t ucma_resolve_route(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_resolve_route(ctx->cm_id, cmd.timeout_ms);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -848,6 +862,7 @@ static ssize_t ucma_query_route(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	memset(&resp, 0, sizeof resp);
+ 	addr = (struct sockaddr *) &ctx->cm_id->route.addr.src_addr;
+ 	memcpy(&resp.src_addr, addr, addr->sa_family == AF_INET ?
+@@ -871,6 +886,7 @@ static ssize_t ucma_query_route(struct ucma_file *file,
+ 		ucma_copy_iw_route(&resp, &ctx->cm_id->route);
+ 
+ out:
++	mutex_unlock(&ctx->mutex);
+ 	if (copy_to_user(u64_to_user_ptr(cmd.response),
+ 			 &resp, sizeof(resp)))
+ 		ret = -EFAULT;
+@@ -1022,6 +1038,7 @@ static ssize_t ucma_query(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	switch (cmd.option) {
+ 	case RDMA_USER_CM_QUERY_ADDR:
+ 		ret = ucma_query_addr(ctx, response, out_len);
+@@ -1036,6 +1053,7 @@ static ssize_t ucma_query(struct ucma_file *file,
+ 		ret = -ENOSYS;
+ 		break;
+ 	}
++	mutex_unlock(&ctx->mutex);
+ 
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+@@ -1076,7 +1094,9 @@ static ssize_t ucma_connect(struct ucma_file *file, const char __user *inbuf,
+ 		return PTR_ERR(ctx);
+ 
+ 	ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_connect(ctx->cm_id, &conn_param);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1097,7 +1117,9 @@ static ssize_t ucma_listen(struct ucma_file *file, const char __user *inbuf,
+ 
+ 	ctx->backlog = cmd.backlog > 0 && cmd.backlog < max_backlog ?
+ 		       cmd.backlog : max_backlog;
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_listen(ctx->cm_id, ctx->backlog);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1120,13 +1142,17 @@ static ssize_t ucma_accept(struct ucma_file *file, const char __user *inbuf,
+ 	if (cmd.conn_param.valid) {
+ 		ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
+ 		mutex_lock(&file->mut);
++		mutex_lock(&ctx->mutex);
+ 		ret = __rdma_accept(ctx->cm_id, &conn_param, NULL);
++		mutex_unlock(&ctx->mutex);
+ 		if (!ret)
+ 			ctx->uid = cmd.uid;
+ 		mutex_unlock(&file->mut);
+-	} else
++	} else {
++		mutex_lock(&ctx->mutex);
+ 		ret = __rdma_accept(ctx->cm_id, NULL, NULL);
+-
++		mutex_unlock(&ctx->mutex);
++	}
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1145,7 +1171,9 @@ static ssize_t ucma_reject(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_reject(ctx->cm_id, cmd.private_data, cmd.private_data_len);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1164,7 +1192,9 @@ static ssize_t ucma_disconnect(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_disconnect(ctx->cm_id);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1195,7 +1225,9 @@ static ssize_t ucma_init_qp_attr(struct ucma_file *file,
+ 	resp.qp_attr_mask = 0;
+ 	memset(&qp_attr, 0, sizeof qp_attr);
+ 	qp_attr.qp_state = cmd.qp_state;
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_init_qp_attr(ctx->cm_id, &qp_attr, &resp.qp_attr_mask);
++	mutex_unlock(&ctx->mutex);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -1274,9 +1306,13 @@ static int ucma_set_ib_path(struct ucma_context *ctx,
+ 		struct sa_path_rec opa;
+ 
+ 		sa_convert_path_ib_to_opa(&opa, &sa_path);
++		mutex_lock(&ctx->mutex);
+ 		ret = rdma_set_ib_path(ctx->cm_id, &opa);
++		mutex_unlock(&ctx->mutex);
  	} else {
--		struct i2c_payloads *payloads =
--			dal_ddc_i2c_payloads_create(ddc->ctx, payloads_num);
-+		struct i2c_command command = {0};
-+		struct i2c_payloads payloads;
++		mutex_lock(&ctx->mutex);
+ 		ret = rdma_set_ib_path(ctx->cm_id, &sa_path);
++		mutex_unlock(&ctx->mutex);
+ 	}
+ 	if (ret)
+ 		return ret;
+@@ -1309,7 +1345,9 @@ static int ucma_set_option_level(struct ucma_context *ctx, int level,
  
--		struct i2c_command command = {
--			.payloads = dal_ddc_i2c_payloads_get(payloads),
--			.number_of_payloads = 0,
--			.engine = DDC_I2C_COMMAND_ENGINE,
--			.speed = ddc->ctx->dc->caps.i2c_speed_in_khz };
-+		if (!dal_ddc_i2c_payloads_create(ddc->ctx, &payloads, payloads_num))
-+			return false;
+ 	switch (level) {
+ 	case RDMA_OPTION_ID:
++		mutex_lock(&ctx->mutex);
+ 		ret = ucma_set_option_id(ctx, optname, optval, optlen);
++		mutex_unlock(&ctx->mutex);
+ 		break;
+ 	case RDMA_OPTION_IB:
+ 		ret = ucma_set_option_ib(ctx, optname, optval, optlen);
+@@ -1369,8 +1407,10 @@ static ssize_t ucma_notify(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	if (ctx->cm_id->device)
+ 		ret = rdma_notify(ctx->cm_id, (enum ib_event_type)cmd.event);
++	mutex_unlock(&ctx->mutex);
+ 
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+@@ -1413,8 +1453,10 @@ static ssize_t ucma_process_join(struct ucma_file *file,
+ 	mc->join_state = join_state;
+ 	mc->uid = cmd->uid;
+ 	memcpy(&mc->addr, addr, cmd->addr_size);
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_join_multicast(ctx->cm_id, (struct sockaddr *)&mc->addr,
+ 				  join_state, mc);
++	mutex_unlock(&ctx->mutex);
+ 	if (ret)
+ 		goto err2;
+ 
+@@ -1518,7 +1560,10 @@ static ssize_t ucma_leave_multicast(struct ucma_file *file,
+ 		goto out;
+ 	}
+ 
++	mutex_lock(&mc->ctx->mutex);
+ 	rdma_leave_multicast(mc->ctx->cm_id, (struct sockaddr *) &mc->addr);
++	mutex_unlock(&mc->ctx->mutex);
 +
-+		command.payloads = dal_ddc_i2c_payloads_get(&payloads);
-+		command.number_of_payloads = 0;
-+		command.engine = DDC_I2C_COMMAND_ENGINE;
-+		command.speed = ddc->ctx->dc->caps.i2c_speed_in_khz;
- 
- 		dal_ddc_i2c_payloads_add(
--			payloads, address, write_size, write_buf, true);
-+			&payloads, address, write_size, write_buf, true);
- 
- 		dal_ddc_i2c_payloads_add(
--			payloads, address, read_size, read_buf, false);
-+			&payloads, address, read_size, read_buf, false);
- 
- 		command.number_of_payloads =
--			dal_ddc_i2c_payloads_get_count(payloads);
-+			dal_ddc_i2c_payloads_get_count(&payloads);
- 
- 		ret = dm_helpers_submit_i2c(
- 				ddc->ctx,
+ 	mutex_lock(&mc->ctx->file->mut);
+ 	ucma_cleanup_mc_events(mc);
+ 	list_del(&mc->list);
 -- 
 2.20.1
 
