@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 355401A5854
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:29:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B25541A5853
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:29:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729763AbgDKX32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:29:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50232 "EHLO mail.kernel.org"
+        id S1730006AbgDKX3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:29:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729760AbgDKXLC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:11:02 -0400
+        id S1729763AbgDKXLE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:11:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B49A20787;
-        Sat, 11 Apr 2020 23:11:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDE2B20708;
+        Sat, 11 Apr 2020 23:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646662;
-        bh=GIEKuAB7s/9IVjXTZcyPCqV0JvHIW/FNUMj4+l00vTQ=;
+        s=default; t=1586646664;
+        bh=flNWI2rqEkwXumb5U+jMSBqr5JotjHTWX7/n12VkmrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ptVoHVjqHGuZSdEGAaHFiOHpFuxUhOrAvnlNDP2/rvD6qBHfrYqaAB9VOdYgFRhc3
-         huZQr485yP6xYjfkdJlBhi4hA5E3Lag2Yjg0K4uEG5jx2ZvMqHEezi+6sErpvOGp6a
-         djW19kHxdy8Z+YSh3xK4g2ndqEY2S5hQmkyitCeI=
+        b=xLsMyVyknUbgTkuIYjf/ZcnWo6xpfRKhzAB8HQmAVObHKHhOSbehTUndCvgytTryB
+         tlcQJKbErSrNyKHIDV2rFARuajL5mdOzlkjPcxcqNQt7ofjPslQaiSWc4boPToniWB
+         ip8L2WWJ/TT1b8qehkFMDPKh/sHDag8zhRbf19eo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 063/108] drm/omap: dss: Cleanup DSS ports on initialisation failure
-Date:   Sat, 11 Apr 2020 19:08:58 -0400
-Message-Id: <20200411230943.24951-63-sashal@kernel.org>
+Cc:     Jason Gunthorpe <jgg@mellanox.com>,
+        syzbot+adb15cf8c2798e4e0db4@syzkaller.appspotmail.com,
+        syzbot+e5579222b6a3edd96522@syzkaller.appspotmail.com,
+        syzbot+4b628fcc748474003457@syzkaller.appspotmail.com,
+        syzbot+29ee8f76017ce6cf03da@syzkaller.appspotmail.com,
+        syzbot+6956235342b7317ec564@syzkaller.appspotmail.com,
+        syzbot+b358909d8d01556b790b@syzkaller.appspotmail.com,
+        syzbot+6b46b135602a3f3ac99e@syzkaller.appspotmail.com,
+        syzbot+8458d13b13562abf6b77@syzkaller.appspotmail.com,
+        syzbot+bd034f3fdc0402e942ed@syzkaller.appspotmail.com,
+        syzbot+c92378b32760a4eef756@syzkaller.appspotmail.com,
+        syzbot+68b44a1597636e0b342c@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 064/108] RDMA/ucma: Put a lock around every call to the rdma_cm layer
+Date:   Sat, 11 Apr 2020 19:08:59 -0400
+Message-Id: <20200411230943.24951-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -47,120 +53,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 2a0a3ae17d36fa86dcf7c8e8d7b7f056ebd6c064 ]
+[ Upstream commit 7c11910783a1ea17e88777552ef146cace607b3c ]
 
-When the DSS initialises its output DPI and SDI ports, failures don't
-clean up previous successfully initialised ports. This can lead to
-resource leak or memory corruption. Fix it.
+The rdma_cm must be used single threaded.
 
-Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200226112514.12455-22-laurent.pinchart@ideasonboard.com
+This appears to be a bug in the design, as it does have lots of locking
+that seems like it should allow concurrency. However, when it is all said
+and done every single place that uses the cma_exch() scheme is broken, and
+all the unlocked reads from the ucma of the cm_id data are wrong too.
+
+syzkaller has been finding endless bugs related to this.
+
+Fixing this in any elegant way is some enormous amount of work. Take a
+very big hammer and put a mutex around everything to do with the
+ucma_context at the top of every syscall.
+
+Fixes: 75216638572f ("RDMA/cma: Export rdma cm interface to userspace")
+Link: https://lore.kernel.org/r/20200218210432.GA31966@ziepe.ca
+Reported-by: syzbot+adb15cf8c2798e4e0db4@syzkaller.appspotmail.com
+Reported-by: syzbot+e5579222b6a3edd96522@syzkaller.appspotmail.com
+Reported-by: syzbot+4b628fcc748474003457@syzkaller.appspotmail.com
+Reported-by: syzbot+29ee8f76017ce6cf03da@syzkaller.appspotmail.com
+Reported-by: syzbot+6956235342b7317ec564@syzkaller.appspotmail.com
+Reported-by: syzbot+b358909d8d01556b790b@syzkaller.appspotmail.com
+Reported-by: syzbot+6b46b135602a3f3ac99e@syzkaller.appspotmail.com
+Reported-by: syzbot+8458d13b13562abf6b77@syzkaller.appspotmail.com
+Reported-by: syzbot+bd034f3fdc0402e942ed@syzkaller.appspotmail.com
+Reported-by: syzbot+c92378b32760a4eef756@syzkaller.appspotmail.com
+Reported-by: syzbot+68b44a1597636e0b342c@syzkaller.appspotmail.com
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/dss/dss.c | 43 +++++++++++++++++++------------
- 1 file changed, 26 insertions(+), 17 deletions(-)
+ drivers/infiniband/core/ucma.c | 49 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 47 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
-index 4bdd63b571002..ac93dae2a9c84 100644
---- a/drivers/gpu/drm/omapdrm/dss/dss.c
-+++ b/drivers/gpu/drm/omapdrm/dss/dss.c
-@@ -1151,46 +1151,38 @@ static const struct dss_features dra7xx_dss_feats = {
- 	.has_lcd_clk_src	=	true,
- };
+diff --git a/drivers/infiniband/core/ucma.c b/drivers/infiniband/core/ucma.c
+index 0274e9b704be5..f4f79f1292b91 100644
+--- a/drivers/infiniband/core/ucma.c
++++ b/drivers/infiniband/core/ucma.c
+@@ -91,6 +91,7 @@ struct ucma_context {
  
--static int dss_init_ports(struct dss_device *dss)
-+static void __dss_uninit_ports(struct dss_device *dss, unsigned int num_ports)
- {
- 	struct platform_device *pdev = dss->pdev;
- 	struct device_node *parent = pdev->dev.of_node;
- 	struct device_node *port;
- 	unsigned int i;
--	int r;
+ 	struct ucma_file	*file;
+ 	struct rdma_cm_id	*cm_id;
++	struct mutex		mutex;
+ 	u64			uid;
  
--	for (i = 0; i < dss->feat->num_ports; i++) {
-+	for (i = 0; i < num_ports; i++) {
- 		port = of_graph_get_port_by_id(parent, i);
- 		if (!port)
- 			continue;
+ 	struct list_head	list;
+@@ -216,6 +217,7 @@ static struct ucma_context *ucma_alloc_ctx(struct ucma_file *file)
+ 	init_completion(&ctx->comp);
+ 	INIT_LIST_HEAD(&ctx->mc_list);
+ 	ctx->file = file;
++	mutex_init(&ctx->mutex);
  
- 		switch (dss->feat->ports[i]) {
- 		case OMAP_DISPLAY_TYPE_DPI:
--			r = dpi_init_port(dss, pdev, port, dss->feat->model);
--			if (r)
--				return r;
-+			dpi_uninit_port(port);
- 			break;
--
- 		case OMAP_DISPLAY_TYPE_SDI:
--			r = sdi_init_port(dss, pdev, port);
--			if (r)
--				return r;
-+			sdi_uninit_port(port);
- 			break;
--
- 		default:
- 			break;
- 		}
+ 	if (xa_alloc(&ctx_table, &ctx->id, ctx, xa_limit_32b, GFP_KERNEL))
+ 		goto error;
+@@ -589,6 +591,7 @@ static int ucma_free_ctx(struct ucma_context *ctx)
  	}
--
--	return 0;
+ 
+ 	events_reported = ctx->events_reported;
++	mutex_destroy(&ctx->mutex);
+ 	kfree(ctx);
+ 	return events_reported;
  }
+@@ -658,7 +661,10 @@ static ssize_t ucma_bind_ip(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
  
--static void dss_uninit_ports(struct dss_device *dss)
-+static int dss_init_ports(struct dss_device *dss)
- {
- 	struct platform_device *pdev = dss->pdev;
- 	struct device_node *parent = pdev->dev.of_node;
- 	struct device_node *port;
--	int i;
-+	unsigned int i;
-+	int r;
- 
- 	for (i = 0; i < dss->feat->num_ports; i++) {
- 		port = of_graph_get_port_by_id(parent, i);
-@@ -1199,15 +1191,32 @@ static void dss_uninit_ports(struct dss_device *dss)
- 
- 		switch (dss->feat->ports[i]) {
- 		case OMAP_DISPLAY_TYPE_DPI:
--			dpi_uninit_port(port);
-+			r = dpi_init_port(dss, pdev, port, dss->feat->model);
-+			if (r)
-+				goto error;
- 			break;
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_bind_addr(ctx->cm_id, (struct sockaddr *) &cmd.addr);
++	mutex_unlock(&ctx->mutex);
 +
- 		case OMAP_DISPLAY_TYPE_SDI:
--			sdi_uninit_port(port);
-+			r = sdi_init_port(dss, pdev, port);
-+			if (r)
-+				goto error;
- 			break;
-+
- 		default:
- 			break;
- 		}
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -681,7 +687,9 @@ static ssize_t ucma_bind(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_bind_addr(ctx->cm_id, (struct sockaddr *) &cmd.addr);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -705,8 +713,10 @@ static ssize_t ucma_resolve_ip(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_resolve_addr(ctx->cm_id, (struct sockaddr *) &cmd.src_addr,
+ 				(struct sockaddr *) &cmd.dst_addr, cmd.timeout_ms);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -731,8 +741,10 @@ static ssize_t ucma_resolve_addr(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_resolve_addr(ctx->cm_id, (struct sockaddr *) &cmd.src_addr,
+ 				(struct sockaddr *) &cmd.dst_addr, cmd.timeout_ms);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -752,7 +764,9 @@ static ssize_t ucma_resolve_route(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_resolve_route(ctx->cm_id, cmd.timeout_ms);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -841,6 +855,7 @@ static ssize_t ucma_query_route(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	memset(&resp, 0, sizeof resp);
+ 	addr = (struct sockaddr *) &ctx->cm_id->route.addr.src_addr;
+ 	memcpy(&resp.src_addr, addr, addr->sa_family == AF_INET ?
+@@ -864,6 +879,7 @@ static ssize_t ucma_query_route(struct ucma_file *file,
+ 		ucma_copy_iw_route(&resp, &ctx->cm_id->route);
+ 
+ out:
++	mutex_unlock(&ctx->mutex);
+ 	if (copy_to_user(u64_to_user_ptr(cmd.response),
+ 			 &resp, sizeof(resp)))
+ 		ret = -EFAULT;
+@@ -1014,6 +1030,7 @@ static ssize_t ucma_query(struct ucma_file *file,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	switch (cmd.option) {
+ 	case RDMA_USER_CM_QUERY_ADDR:
+ 		ret = ucma_query_addr(ctx, response, out_len);
+@@ -1028,6 +1045,7 @@ static ssize_t ucma_query(struct ucma_file *file,
+ 		ret = -ENOSYS;
+ 		break;
  	}
-+
-+	return 0;
-+
-+error:
-+	__dss_uninit_ports(dss, i);
-+	return r;
-+}
-+
-+static void dss_uninit_ports(struct dss_device *dss)
-+{
-+	__dss_uninit_ports(dss, dss->feat->num_ports);
- }
++	mutex_unlock(&ctx->mutex);
  
- static int dss_video_pll_probe(struct dss_device *dss)
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+@@ -1068,7 +1086,9 @@ static ssize_t ucma_connect(struct ucma_file *file, const char __user *inbuf,
+ 		return PTR_ERR(ctx);
+ 
+ 	ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_connect(ctx->cm_id, &conn_param);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1089,7 +1109,9 @@ static ssize_t ucma_listen(struct ucma_file *file, const char __user *inbuf,
+ 
+ 	ctx->backlog = cmd.backlog > 0 && cmd.backlog < max_backlog ?
+ 		       cmd.backlog : max_backlog;
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_listen(ctx->cm_id, ctx->backlog);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1112,13 +1134,17 @@ static ssize_t ucma_accept(struct ucma_file *file, const char __user *inbuf,
+ 	if (cmd.conn_param.valid) {
+ 		ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
+ 		mutex_lock(&file->mut);
++		mutex_lock(&ctx->mutex);
+ 		ret = __rdma_accept(ctx->cm_id, &conn_param, NULL);
++		mutex_unlock(&ctx->mutex);
+ 		if (!ret)
+ 			ctx->uid = cmd.uid;
+ 		mutex_unlock(&file->mut);
+-	} else
++	} else {
++		mutex_lock(&ctx->mutex);
+ 		ret = __rdma_accept(ctx->cm_id, NULL, NULL);
+-
++		mutex_unlock(&ctx->mutex);
++	}
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1137,7 +1163,9 @@ static ssize_t ucma_reject(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_reject(ctx->cm_id, cmd.private_data, cmd.private_data_len);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1156,7 +1184,9 @@ static ssize_t ucma_disconnect(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_disconnect(ctx->cm_id);
++	mutex_unlock(&ctx->mutex);
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+ }
+@@ -1187,7 +1217,9 @@ static ssize_t ucma_init_qp_attr(struct ucma_file *file,
+ 	resp.qp_attr_mask = 0;
+ 	memset(&qp_attr, 0, sizeof qp_attr);
+ 	qp_attr.qp_state = cmd.qp_state;
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_init_qp_attr(ctx->cm_id, &qp_attr, &resp.qp_attr_mask);
++	mutex_unlock(&ctx->mutex);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -1273,9 +1305,13 @@ static int ucma_set_ib_path(struct ucma_context *ctx,
+ 		struct sa_path_rec opa;
+ 
+ 		sa_convert_path_ib_to_opa(&opa, &sa_path);
++		mutex_lock(&ctx->mutex);
+ 		ret = rdma_set_ib_path(ctx->cm_id, &opa);
++		mutex_unlock(&ctx->mutex);
+ 	} else {
++		mutex_lock(&ctx->mutex);
+ 		ret = rdma_set_ib_path(ctx->cm_id, &sa_path);
++		mutex_unlock(&ctx->mutex);
+ 	}
+ 	if (ret)
+ 		return ret;
+@@ -1308,7 +1344,9 @@ static int ucma_set_option_level(struct ucma_context *ctx, int level,
+ 
+ 	switch (level) {
+ 	case RDMA_OPTION_ID:
++		mutex_lock(&ctx->mutex);
+ 		ret = ucma_set_option_id(ctx, optname, optval, optlen);
++		mutex_unlock(&ctx->mutex);
+ 		break;
+ 	case RDMA_OPTION_IB:
+ 		ret = ucma_set_option_ib(ctx, optname, optval, optlen);
+@@ -1368,8 +1406,10 @@ static ssize_t ucma_notify(struct ucma_file *file, const char __user *inbuf,
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
+ 
++	mutex_lock(&ctx->mutex);
+ 	if (ctx->cm_id->device)
+ 		ret = rdma_notify(ctx->cm_id, (enum ib_event_type)cmd.event);
++	mutex_unlock(&ctx->mutex);
+ 
+ 	ucma_put_ctx(ctx);
+ 	return ret;
+@@ -1412,8 +1452,10 @@ static ssize_t ucma_process_join(struct ucma_file *file,
+ 	mc->join_state = join_state;
+ 	mc->uid = cmd->uid;
+ 	memcpy(&mc->addr, addr, cmd->addr_size);
++	mutex_lock(&ctx->mutex);
+ 	ret = rdma_join_multicast(ctx->cm_id, (struct sockaddr *)&mc->addr,
+ 				  join_state, mc);
++	mutex_unlock(&ctx->mutex);
+ 	if (ret)
+ 		goto err2;
+ 
+@@ -1513,7 +1555,10 @@ static ssize_t ucma_leave_multicast(struct ucma_file *file,
+ 		goto out;
+ 	}
+ 
++	mutex_lock(&mc->ctx->mutex);
+ 	rdma_leave_multicast(mc->ctx->cm_id, (struct sockaddr *) &mc->addr);
++	mutex_unlock(&mc->ctx->mutex);
++
+ 	mutex_lock(&mc->ctx->file->mut);
+ 	ucma_cleanup_mc_events(mc);
+ 	list_del(&mc->list);
 -- 
 2.20.1
 
