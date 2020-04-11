@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C6B41A585C
+	by mail.lfdr.de (Postfix) with ESMTP id 81A581A585D
 	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:29:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729742AbgDKXLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729737AbgDKXLA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 11 Apr 2020 19:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50058 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729721AbgDKXK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:10:58 -0400
+        id S1729246AbgDKXK7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:10:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F9F5216FD;
-        Sat, 11 Apr 2020 23:10:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9865C21924;
+        Sat, 11 Apr 2020 23:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646658;
-        bh=+GD6PLPiFpHNPiHz6Rnj1FDTwvjkiSNpc5Zoh+iL6l4=;
+        s=default; t=1586646659;
+        bh=j7Y74wBYzbYdiPB2ZGWXKhrRT4g6qM8+fdvfvY24KyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABuPB077GaUkRFPWbPWTGqd8olzTYuu4QpF7TgEH8SGJRq3R0ZauHF0PUT2i/xpHD
-         kJIVsVgMiQ0a7YjAht4qtx8bjsOUqO0m4krd3dHvk3c7gBU+AgIXYqjdeoXx6g6s+F
-         9bJyT5G/NO54SW/vuwwHgSn5CnHhOAjGtZ1TBGro=
+        b=FpHkorfBhPekSm7u3Q+MfDd0de3mqe4TGrWDc/YFrfU544OQ4oM9wI09Xv1R0FaFV
+         eR9adCzpyDMsbZA1duYl4qH9B019lxNXdpAsF5L/NXXbpMaBp8uo2CNmSWkITjs34N
+         C19K7zTzd8kRNipG2yytdEuvNtIWsTWPbfvCr8wY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 060/108] mt76: mt7603: fix input validation issues for powersave-filtered frames
-Date:   Sat, 11 Apr 2020 19:08:55 -0400
-Message-Id: <20200411230943.24951-60-sashal@kernel.org>
+Cc:     Aric Cyr <aric.cyr@amd.com>,
+        Joshua Aberback <Joshua.Aberback@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 061/108] drm/amd/display: dal_ddc_i2c_payloads_create can fail causing panic
+Date:   Sat, 11 Apr 2020 19:08:56 -0400
+Message-Id: <20200411230943.24951-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -44,73 +47,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit d55aa5e17461b8b423adae376978032c4a10a1d8 ]
+[ Upstream commit 6a6c4a4d459ecacc9013c45dcbf2bc9747fdbdbd ]
 
-Before extracting the tid out of the packet, check if it was qos-data.
-Only accept tid values 0-7
-Also, avoid accepting the hardware queue as skb queue mapping, it could
-lead to an overrun. Instead, derive the hardware queue from the tid number,
-in order to avoid issues with packets being filtered multiple times.
-This also fixes a mismatch between hardware and software queue indexes.
+[Why]
+Since the i2c payload allocation can fail need to check return codes
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+[How]
+Clean up i2c payload allocations and check for errors
+
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Reviewed-by: Joshua Aberback <Joshua.Aberback@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/mediatek/mt76/mt7603/dma.c   | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ .../gpu/drm/amd/display/dc/core/dc_link_ddc.c | 52 +++++++++----------
+ 1 file changed, 25 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/dma.c b/drivers/net/wireless/mediatek/mt76/mt7603/dma.c
-index 24d82a20d046d..86820cf31bb34 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7603/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7603/dma.c
-@@ -30,6 +30,16 @@ mt7603_init_tx_queue(struct mt7603_dev *dev, struct mt76_sw_queue *q,
- static void
- mt7603_rx_loopback_skb(struct mt7603_dev *dev, struct sk_buff *skb)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+index 51991bf26a93c..4c90d68db2307 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+@@ -126,22 +126,16 @@ struct aux_payloads {
+ 	struct vector payloads;
+ };
+ 
+-static struct i2c_payloads *dal_ddc_i2c_payloads_create(struct dc_context *ctx, uint32_t count)
++static bool dal_ddc_i2c_payloads_create(
++		struct dc_context *ctx,
++		struct i2c_payloads *payloads,
++		uint32_t count)
  {
-+	static const u8 tid_to_ac[8] = {
-+		IEEE80211_AC_BE,
-+		IEEE80211_AC_BK,
-+		IEEE80211_AC_BK,
-+		IEEE80211_AC_BE,
-+		IEEE80211_AC_VI,
-+		IEEE80211_AC_VI,
-+		IEEE80211_AC_VO,
-+		IEEE80211_AC_VO
-+	};
- 	__le32 *txd = (__le32 *)skb->data;
- 	struct ieee80211_hdr *hdr;
- 	struct ieee80211_sta *sta;
-@@ -38,7 +48,7 @@ mt7603_rx_loopback_skb(struct mt7603_dev *dev, struct sk_buff *skb)
- 	void *priv;
- 	int idx;
- 	u32 val;
--	u8 tid;
-+	u8 tid = 0;
- 
- 	if (skb->len < MT_TXD_SIZE + sizeof(struct ieee80211_hdr))
- 		goto free;
-@@ -56,15 +66,16 @@ mt7603_rx_loopback_skb(struct mt7603_dev *dev, struct sk_buff *skb)
- 
- 	priv = msta = container_of(wcid, struct mt7603_sta, wcid);
- 	val = le32_to_cpu(txd[0]);
--	skb_set_queue_mapping(skb, FIELD_GET(MT_TXD0_Q_IDX, val));
+-	struct i2c_payloads *payloads;
 -
- 	val &= ~(MT_TXD0_P_IDX | MT_TXD0_Q_IDX);
- 	val |= FIELD_PREP(MT_TXD0_Q_IDX, MT_TX_HW_QUEUE_MGMT);
- 	txd[0] = cpu_to_le32(val);
+-	payloads = kzalloc(sizeof(struct i2c_payloads), GFP_KERNEL);
+-
+-	if (!payloads)
+-		return NULL;
+-
+ 	if (dal_vector_construct(
+ 		&payloads->payloads, ctx, count, sizeof(struct i2c_payload)))
+-		return payloads;
+-
+-	kfree(payloads);
+-	return NULL;
++		return true;
  
- 	sta = container_of(priv, struct ieee80211_sta, drv_priv);
- 	hdr = (struct ieee80211_hdr *)&skb->data[MT_TXD_SIZE];
--	tid = *ieee80211_get_qos_ctl(hdr) & IEEE80211_QOS_CTL_TID_MASK;
-+	if (ieee80211_is_data_qos(hdr->frame_control))
-+		tid = *ieee80211_get_qos_ctl(hdr) &
-+		      IEEE80211_QOS_CTL_TAG1D_MASK;
-+	skb_set_queue_mapping(skb, tid_to_ac[tid]);
- 	ieee80211_sta_set_buffered(sta, tid, true);
++	return false;
+ }
  
- 	spin_lock_bh(&dev->ps_lock);
+ static struct i2c_payload *dal_ddc_i2c_payloads_get(struct i2c_payloads *p)
+@@ -154,14 +148,12 @@ static uint32_t dal_ddc_i2c_payloads_get_count(struct i2c_payloads *p)
+ 	return p->payloads.count;
+ }
+ 
+-static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads **p)
++static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads *p)
+ {
+-	if (!p || !*p)
++	if (!p)
+ 		return;
+-	dal_vector_destruct(&(*p)->payloads);
+-	kfree(*p);
+-	*p = NULL;
+ 
++	dal_vector_destruct(&p->payloads);
+ }
+ 
+ #define DDC_MIN(a, b) (((a) < (b)) ? (a) : (b))
+@@ -521,9 +513,13 @@ bool dal_ddc_service_query_ddc_data(
+ 
+ 	uint32_t payloads_num = write_payloads + read_payloads;
+ 
++
+ 	if (write_size > EDID_SEGMENT_SIZE || read_size > EDID_SEGMENT_SIZE)
+ 		return false;
+ 
++	if (!payloads_num)
++		return false;
++
+ 	/*TODO: len of payload data for i2c and aux is uint8!!!!,
+ 	 *  but we want to read 256 over i2c!!!!*/
+ 	if (dal_ddc_service_is_in_aux_transaction_mode(ddc)) {
+@@ -556,23 +552,25 @@ bool dal_ddc_service_query_ddc_data(
+ 
+ 		ret = dc_link_aux_transfer_with_retries(ddc, &read_payload);
+ 	} else {
+-		struct i2c_payloads *payloads =
+-			dal_ddc_i2c_payloads_create(ddc->ctx, payloads_num);
++		struct i2c_command command = {0};
++		struct i2c_payloads payloads;
++
++		if (!dal_ddc_i2c_payloads_create(ddc->ctx, &payloads, payloads_num))
++			return false;
+ 
+-		struct i2c_command command = {
+-			.payloads = dal_ddc_i2c_payloads_get(payloads),
+-			.number_of_payloads = 0,
+-			.engine = DDC_I2C_COMMAND_ENGINE,
+-			.speed = ddc->ctx->dc->caps.i2c_speed_in_khz };
++		command.payloads = dal_ddc_i2c_payloads_get(&payloads);
++		command.number_of_payloads = 0;
++		command.engine = DDC_I2C_COMMAND_ENGINE;
++		command.speed = ddc->ctx->dc->caps.i2c_speed_in_khz;
+ 
+ 		dal_ddc_i2c_payloads_add(
+-			payloads, address, write_size, write_buf, true);
++			&payloads, address, write_size, write_buf, true);
+ 
+ 		dal_ddc_i2c_payloads_add(
+-			payloads, address, read_size, read_buf, false);
++			&payloads, address, read_size, read_buf, false);
+ 
+ 		command.number_of_payloads =
+-			dal_ddc_i2c_payloads_get_count(payloads);
++			dal_ddc_i2c_payloads_get_count(&payloads);
+ 
+ 		ret = dm_helpers_submit_i2c(
+ 				ddc->ctx,
 -- 
 2.20.1
 
