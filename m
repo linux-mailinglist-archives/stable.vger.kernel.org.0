@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B26D41A59F3
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EEA91A59EE
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726975AbgDKXHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:07:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43458 "EHLO mail.kernel.org"
+        id S1727121AbgDKXHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:07:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727118AbgDKXHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:07:30 -0400
+        id S1726987AbgDKXHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:07:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77FA520CC7;
-        Sat, 11 Apr 2020 23:07:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C208721835;
+        Sat, 11 Apr 2020 23:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646450;
-        bh=aTLNkP4zHRU3FL6en2irtAzjfe1lGeTvTobACzJD3yg=;
+        s=default; t=1586646451;
+        bh=CRiXgscH+ZKZ9pRj2XDP4s9GCiKOL2N1mPI5QL3opjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GEDvm6SyyXfcS2jZAzjkRJAso0YOq/1BGX2Itl9gyiPy4Z9JA2WHaV8dSv2vkTE5Z
-         WDSX5eIkEVRrphbTs8APnSd2wpf2hFgLapEiJ6ic2GxMOxSeDKRBl5CiKFGbEhuu42
-         RGgKN0dtYR0qE/RwX667PqRHLPwa8E+6ZQDLgvo0=
+        b=z+45AwBk73eJvuD5y0VskJnpOPmRISStCSkb1/aATJUCGwOwwGg01vIosSu1LAKdX
+         pKJLDlF7rbARIcaw84Ts/litEOhLj3zwtjdn9ov6hkg3KgKzsNLmGRNIx/XjSHQ0ht
+         bqxkonJX1dLrIMN0/3YIxy7oIwX5u7atsSjgHgV8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>,
-        Wenbo Zhang <ethercflow@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 020/121] libbpf: Ignore incompatible types with matching name during CO-RE relocation
-Date:   Sat, 11 Apr 2020 19:05:25 -0400
-Message-Id: <20200411230706.23855-20-sashal@kernel.org>
+Cc:     Arindam Nath <arindam.nath@amd.com>, Jon Mason <jdmason@kudzu.us>,
+        Sasha Levin <sashal@kernel.org>, linux-ntb@googlegroups.com
+Subject: [PATCH AUTOSEL 5.5 021/121] NTB: set peer_sta within event handler itself
+Date:   Sat, 11 Apr 2020 19:05:26 -0400
+Message-Id: <20200411230706.23855-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -46,43 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Arindam Nath <arindam.nath@amd.com>
 
-[ Upstream commit d121e1d34b72c4975ff0340901d926c0aaf98174 ]
+[ Upstream commit 2465b87ce36ea2dbd97e5fb58a0efd284c9f687e ]
 
-When finding target type candidates, ignore forward declarations, functions,
-and other named types of incompatible kind. Not doing this can cause false
-errors.  See [0] for one such case (due to struct pt_regs forward
-declaration).
+amd_ack_smu() should only set the corresponding
+bits into SMUACK register. Setting the bitmask
+of peer_sta should be done within the event handler.
+They are two different things, and so should be
+handled differently and at different places.
 
-  [0] https://github.com/iovisor/bcc/pull/2806#issuecomment-598543645
-
-Fixes: ddc7c3042614 ("libbpf: implement BPF CO-RE offset relocation algorithm")
-Reported-by: Wenbo Zhang <ethercflow@gmail.com>
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20200313172336.1879637-3-andriin@fb.com
+Signed-off-by: Arindam Nath <arindam.nath@amd.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/ntb/hw/amd/ntb_hw_amd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 6d1bb761a544c..cff248e1f1434 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -2737,6 +2737,10 @@ static struct ids_vec *bpf_core_find_cands(const struct btf *local_btf,
- 		if (str_is_empty(targ_name))
- 			continue;
+diff --git a/drivers/ntb/hw/amd/ntb_hw_amd.c b/drivers/ntb/hw/amd/ntb_hw_amd.c
+index e52b300b2f5b7..119cfd89afddc 100644
+--- a/drivers/ntb/hw/amd/ntb_hw_amd.c
++++ b/drivers/ntb/hw/amd/ntb_hw_amd.c
+@@ -493,8 +493,6 @@ static void amd_ack_smu(struct amd_ntb_dev *ndev, u32 bit)
+ 	reg = readl(mmio + AMD_SMUACK_OFFSET);
+ 	reg |= bit;
+ 	writel(reg, mmio + AMD_SMUACK_OFFSET);
+-
+-	ndev->peer_sta |= bit;
+ }
  
-+		t = skip_mods_and_typedefs(targ_btf, i, NULL);
-+		if (!btf_is_composite(t) && !btf_is_array(t))
-+			continue;
-+
- 		targ_essent_len = bpf_core_essential_name_len(targ_name);
- 		if (targ_essent_len != local_essent_len)
- 			continue;
+ static void amd_handle_event(struct amd_ntb_dev *ndev, int vec)
+@@ -512,9 +510,11 @@ static void amd_handle_event(struct amd_ntb_dev *ndev, int vec)
+ 	status &= AMD_EVENT_INTMASK;
+ 	switch (status) {
+ 	case AMD_PEER_FLUSH_EVENT:
++		ndev->peer_sta |= AMD_PEER_FLUSH_EVENT;
+ 		dev_info(dev, "Flush is done.\n");
+ 		break;
+ 	case AMD_PEER_RESET_EVENT:
++		ndev->peer_sta |= AMD_PEER_RESET_EVENT;
+ 		amd_ack_smu(ndev, AMD_PEER_RESET_EVENT);
+ 
+ 		/* link down first */
+@@ -527,6 +527,7 @@ static void amd_handle_event(struct amd_ntb_dev *ndev, int vec)
+ 	case AMD_PEER_PMETO_EVENT:
+ 	case AMD_LINK_UP_EVENT:
+ 	case AMD_LINK_DOWN_EVENT:
++		ndev->peer_sta |= status;
+ 		amd_ack_smu(ndev, status);
+ 
+ 		/* link down */
+@@ -540,6 +541,7 @@ static void amd_handle_event(struct amd_ntb_dev *ndev, int vec)
+ 		if (status & 0x1)
+ 			dev_info(dev, "Wakeup is done.\n");
+ 
++		ndev->peer_sta |= AMD_PEER_D0_EVENT;
+ 		amd_ack_smu(ndev, AMD_PEER_D0_EVENT);
+ 
+ 		/* start a timer to poll link status */
 -- 
 2.20.1
 
