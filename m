@@ -2,317 +2,217 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D76061A4FB5
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4A21A4FE9
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:12:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726801AbgDKMLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42726 "EHLO mail.kernel.org"
+        id S1727441AbgDKMMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:12:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726720AbgDKMK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:10:58 -0400
+        id S1727427AbgDKMMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:12:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5C3E20787;
-        Sat, 11 Apr 2020 12:10:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A2DB2173E;
+        Sat, 11 Apr 2020 12:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607056;
-        bh=0lrFH0n9Ij3mmcRCJY2XGS15SgAh/Dr7fwW22MbFbhM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0F2zWiKZ4/K9Oex/SWTr6jyVXjFtkmrhkYEWEheNhOgTa2gfwj07SqLFmLmiUvqLV
-         9DOauzNRwP6lGmGQTnCVfqdlFu263NN7iZi2ZJLv60WcgNwjQMExPYxC/D9U4VZBdl
-         f7L9kqrwqvWmabIILwU8ZAok0GM22LtqII0Qfil8=
+        s=default; t=1586607165;
+        bh=FKOMjrMZBpKnFrwZEeKngY5jBJgAIF7bWoV+AGe/hQA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=rODgJzo8TUyfqVaQjcIugSR4L9ynREUDFRALXRoQxtPsW+78bYlI2JL9rNIQKQuH/
+         2C9r5VgGWlXhxFBOa5RBzie/IxYvN1TGSM1yvB6OxF+2tRLY3Uy4B1fWWCAPa0AlKO
+         3Ydimph8xLzc2cJ/9WyU79fh40J2SoDVQNb1lxRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
-        "David S. Miller" <davem@davemloft.net>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.4 09/29] l2tp: fix duplicate session creation
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.9 00/32] 4.9.219-rc1 review
 Date:   Sat, 11 Apr 2020 14:08:39 +0200
-Message-Id: <20200411115409.210027991@linuxfoundation.org>
+Message-Id: <20200411115418.455500023@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115407.651296755@linuxfoundation.org>
-References: <20200411115407.651296755@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.219-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.219-rc1
+X-KernelTest-Deadline: 2020-04-13T11:54+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <g.nault@alphalink.fr>
+This is the start of the stable review cycle for the 4.9.219 release.
+There are 32 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit dbdbc73b44782e22b3b4b6e8b51e7a3d245f3086 upstream.
+Responses should be made by Mon, 13 Apr 2020 11:51:28 +0000.
+Anything received after that time might be too late.
 
-l2tp_session_create() relies on its caller for checking for duplicate
-sessions. This is racy since a session can be concurrently inserted
-after the caller's verification.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.219-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-Fix this by letting l2tp_session_create() verify sessions uniqueness
-upon insertion. Callers need to be adapted to check for
-l2tp_session_create()'s return code instead of calling
-l2tp_session_find().
+thanks,
 
-pppol2tp_connect() is a bit special because it has to work on existing
-sessions (if they're not connected) or to create a new session if none
-is found. When acting on a preexisting session, a reference must be
-held or it could go away on us. So we have to use l2tp_session_get()
-instead of l2tp_session_find() and drop the reference before exiting.
+greg k-h
 
-Fixes: d9e31d17ceba ("l2tp: Add L2TP ethernet pseudowire support")
-Fixes: fd558d186df2 ("l2tp: Split pppol2tp patch into separate l2tp and ppp parts")
-Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/l2tp/l2tp_core.c |   70 ++++++++++++++++++++++++++++++++++++++-------------
- net/l2tp/l2tp_eth.c  |   10 +------
- net/l2tp/l2tp_ppp.c  |   60 +++++++++++++++++++++----------------------
- 3 files changed, 84 insertions(+), 56 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -377,6 +377,48 @@ struct l2tp_session *l2tp_session_find_b
- }
- EXPORT_SYMBOL_GPL(l2tp_session_find_by_ifname);
- 
-+static int l2tp_session_add_to_tunnel(struct l2tp_tunnel *tunnel,
-+				      struct l2tp_session *session)
-+{
-+	struct l2tp_session *session_walk;
-+	struct hlist_head *g_head;
-+	struct hlist_head *head;
-+	struct l2tp_net *pn;
-+
-+	head = l2tp_session_id_hash(tunnel, session->session_id);
-+
-+	write_lock_bh(&tunnel->hlist_lock);
-+	hlist_for_each_entry(session_walk, head, hlist)
-+		if (session_walk->session_id == session->session_id)
-+			goto exist;
-+
-+	if (tunnel->version == L2TP_HDR_VER_3) {
-+		pn = l2tp_pernet(tunnel->l2tp_net);
-+		g_head = l2tp_session_id_hash_2(l2tp_pernet(tunnel->l2tp_net),
-+						session->session_id);
-+
-+		spin_lock_bh(&pn->l2tp_session_hlist_lock);
-+		hlist_for_each_entry(session_walk, g_head, global_hlist)
-+			if (session_walk->session_id == session->session_id)
-+				goto exist_glob;
-+
-+		hlist_add_head_rcu(&session->global_hlist, g_head);
-+		spin_unlock_bh(&pn->l2tp_session_hlist_lock);
-+	}
-+
-+	hlist_add_head(&session->hlist, head);
-+	write_unlock_bh(&tunnel->hlist_lock);
-+
-+	return 0;
-+
-+exist_glob:
-+	spin_unlock_bh(&pn->l2tp_session_hlist_lock);
-+exist:
-+	write_unlock_bh(&tunnel->hlist_lock);
-+
-+	return -EEXIST;
-+}
-+
- /* Lookup a tunnel by id
-  */
- struct l2tp_tunnel *l2tp_tunnel_find(struct net *net, u32 tunnel_id)
-@@ -1792,6 +1834,7 @@ EXPORT_SYMBOL_GPL(l2tp_session_set_heade
- struct l2tp_session *l2tp_session_create(int priv_size, struct l2tp_tunnel *tunnel, u32 session_id, u32 peer_session_id, struct l2tp_session_cfg *cfg)
- {
- 	struct l2tp_session *session;
-+	int err;
- 
- 	session = kzalloc(sizeof(struct l2tp_session) + priv_size, GFP_KERNEL);
- 	if (session != NULL) {
-@@ -1847,6 +1890,13 @@ struct l2tp_session *l2tp_session_create
- 
- 		l2tp_session_set_header_len(session, tunnel->version);
- 
-+		err = l2tp_session_add_to_tunnel(tunnel, session);
-+		if (err) {
-+			kfree(session);
-+
-+			return ERR_PTR(err);
-+		}
-+
- 		/* Bump the reference count. The session context is deleted
- 		 * only when this drops to zero.
- 		 */
-@@ -1856,28 +1906,14 @@ struct l2tp_session *l2tp_session_create
- 		/* Ensure tunnel socket isn't deleted */
- 		sock_hold(tunnel->sock);
- 
--		/* Add session to the tunnel's hash list */
--		write_lock_bh(&tunnel->hlist_lock);
--		hlist_add_head(&session->hlist,
--			       l2tp_session_id_hash(tunnel, session_id));
--		write_unlock_bh(&tunnel->hlist_lock);
--
--		/* And to the global session list if L2TPv3 */
--		if (tunnel->version != L2TP_HDR_VER_2) {
--			struct l2tp_net *pn = l2tp_pernet(tunnel->l2tp_net);
--
--			spin_lock_bh(&pn->l2tp_session_hlist_lock);
--			hlist_add_head_rcu(&session->global_hlist,
--					   l2tp_session_id_hash_2(pn, session_id));
--			spin_unlock_bh(&pn->l2tp_session_hlist_lock);
--		}
--
- 		/* Ignore management session in session count value */
- 		if (session->session_id != 0)
- 			atomic_inc(&l2tp_session_count);
-+
-+		return session;
- 	}
- 
--	return session;
-+	return ERR_PTR(-ENOMEM);
- }
- EXPORT_SYMBOL_GPL(l2tp_session_create);
- 
---- a/net/l2tp/l2tp_eth.c
-+++ b/net/l2tp/l2tp_eth.c
-@@ -223,12 +223,6 @@ static int l2tp_eth_create(struct net *n
- 		goto out;
- 	}
- 
--	session = l2tp_session_find(net, tunnel, session_id);
--	if (session) {
--		rc = -EEXIST;
--		goto out;
--	}
--
- 	if (cfg->ifname) {
- 		dev = dev_get_by_name(net, cfg->ifname);
- 		if (dev) {
-@@ -242,8 +236,8 @@ static int l2tp_eth_create(struct net *n
- 
- 	session = l2tp_session_create(sizeof(*spriv), tunnel, session_id,
- 				      peer_session_id, cfg);
--	if (!session) {
--		rc = -ENOMEM;
-+	if (IS_ERR(session)) {
-+		rc = PTR_ERR(session);
- 		goto out;
- 	}
- 
---- a/net/l2tp/l2tp_ppp.c
-+++ b/net/l2tp/l2tp_ppp.c
-@@ -600,6 +600,7 @@ static int pppol2tp_connect(struct socke
- 	int error = 0;
- 	u32 tunnel_id, peer_tunnel_id;
- 	u32 session_id, peer_session_id;
-+	bool drop_refcnt = false;
- 	int ver = 2;
- 	int fd;
- 
-@@ -708,36 +709,36 @@ static int pppol2tp_connect(struct socke
- 	if (tunnel->peer_tunnel_id == 0)
- 		tunnel->peer_tunnel_id = peer_tunnel_id;
- 
--	/* Create session if it doesn't already exist. We handle the
--	 * case where a session was previously created by the netlink
--	 * interface by checking that the session doesn't already have
--	 * a socket and its tunnel socket are what we expect. If any
--	 * of those checks fail, return EEXIST to the caller.
--	 */
--	session = l2tp_session_find(sock_net(sk), tunnel, session_id);
--	if (session == NULL) {
--		/* Default MTU must allow space for UDP/L2TP/PPP
--		 * headers.
-+	session = l2tp_session_get(sock_net(sk), tunnel, session_id, false);
-+	if (session) {
-+		drop_refcnt = true;
-+		ps = l2tp_session_priv(session);
-+
-+		/* Using a pre-existing session is fine as long as it hasn't
-+		 * been connected yet.
- 		 */
--		cfg.mtu = cfg.mru = 1500 - PPPOL2TP_HEADER_OVERHEAD;
-+		if (ps->sock) {
-+			error = -EEXIST;
-+			goto end;
-+		}
- 
--		/* Allocate and initialize a new session context. */
--		session = l2tp_session_create(sizeof(struct pppol2tp_session),
--					      tunnel, session_id,
--					      peer_session_id, &cfg);
--		if (session == NULL) {
--			error = -ENOMEM;
-+		/* consistency checks */
-+		if (ps->tunnel_sock != tunnel->sock) {
-+			error = -EEXIST;
- 			goto end;
- 		}
- 	} else {
--		ps = l2tp_session_priv(session);
--		error = -EEXIST;
--		if (ps->sock != NULL)
--			goto end;
-+		/* Default MTU must allow space for UDP/L2TP/PPP headers */
-+		cfg.mtu = 1500 - PPPOL2TP_HEADER_OVERHEAD;
-+		cfg.mru = cfg.mtu;
- 
--		/* consistency checks */
--		if (ps->tunnel_sock != tunnel->sock)
-+		session = l2tp_session_create(sizeof(struct pppol2tp_session),
-+					      tunnel, session_id,
-+					      peer_session_id, &cfg);
-+		if (IS_ERR(session)) {
-+			error = PTR_ERR(session);
- 			goto end;
-+		}
- 	}
- 
- 	/* Associate session with its PPPoL2TP socket */
-@@ -802,6 +803,8 @@ out_no_ppp:
- 		  session->name);
- 
- end:
-+	if (drop_refcnt)
-+		l2tp_session_dec_refcount(session);
- 	release_sock(sk);
- 
- 	return error;
-@@ -829,12 +832,6 @@ static int pppol2tp_session_create(struc
- 	if (tunnel->sock == NULL)
- 		goto out;
- 
--	/* Check that this session doesn't already exist */
--	error = -EEXIST;
--	session = l2tp_session_find(net, tunnel, session_id);
--	if (session != NULL)
--		goto out;
--
- 	/* Default MTU values. */
- 	if (cfg->mtu == 0)
- 		cfg->mtu = 1500 - PPPOL2TP_HEADER_OVERHEAD;
-@@ -842,12 +839,13 @@ static int pppol2tp_session_create(struc
- 		cfg->mru = cfg->mtu;
- 
- 	/* Allocate and initialize a new session context. */
--	error = -ENOMEM;
- 	session = l2tp_session_create(sizeof(struct pppol2tp_session),
- 				      tunnel, session_id,
- 				      peer_session_id, cfg);
--	if (session == NULL)
-+	if (IS_ERR(session)) {
-+		error = PTR_ERR(session);
- 		goto out;
-+	}
- 
- 	ps = l2tp_session_priv(session);
- 	ps->tunnel_sock = tunnel->sock;
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.219-rc1
+
+Hans Verkuil <hans.verkuil@cisco.com>
+    drm_dp_mst_topology: fix broken drm_dp_sideband_parse_remote_dpcd_read()
+
+Roger Quadros <rogerq@ti.com>
+    usb: dwc3: don't set gadget->is_otg flag
+
+Arun KS <arunks@codeaurora.org>
+    arm64: Fix size of __early_cpu_boot_status
+
+Rob Clark <robdclark@chromium.org>
+    drm/msm: stop abusing dma_map/unmap for cache
+
+Taniya Das <tdas@codeaurora.org>
+    clk: qcom: rcg: Return failure for RCG update
+
+Avihai Horon <avihaih@mellanox.com>
+    RDMA/cm: Update num_paths in cma_resolve_iboe_route error flow
+
+Qiujun Huang <hqjagain@gmail.com>
+    Bluetooth: RFCOMM: fix ODEBUG bug in rfcomm_dev_ioctl
+
+Ilya Dryomov <idryomov@gmail.com>
+    ceph: canonicalize server path in place
+
+Xiubo Li <xiubli@redhat.com>
+    ceph: remove the extra slashes in the server path
+
+Kaike Wan <kaike.wan@intel.com>
+    IB/hfi1: Fix memory leaks in sysfs registration and unregistration
+
+Kaike Wan <kaike.wan@intel.com>
+    IB/hfi1: Call kobject_put() when kobject_init_and_add() fails
+
+Paul Cercueil <paul@crapouillou.net>
+    ASoC: jz4740-i2s: Fix divider written at incorrect offset in register
+
+David Ahern <dsahern@kernel.org>
+    tools/accounting/getdelays.c: fix netlink attribute length
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: always use batched entropy for get_random_u{32,64}
+
+Oleksij Rempel <o.rempel@pengutronix.de>
+    net: phy: micrel: kszphy_resume(): add delay after genphy_resume() before accessing PHY registers
+
+Richard Palethorpe <rpalethorpe@suse.com>
+    slcan: Don't transmit uninitialized stack data in padding
+
+Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+    net: stmmac: dwmac1000: fix out-of-bounds mac address reg setting
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: dsa: bcm_sf2: Ensure correct sub-node is parsed
+
+Randy Dunlap <rdunlap@infradead.org>
+    mm: mempolicy: require at least one nodeid for MPOL_PREFERRED
+
+Daniel Jordan <daniel.m.jordan@oracle.com>
+    padata: always acquire cpu_hotplug_lock before pinst->lock
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: dsa: tag_brcm: Fix skb->fwd_offload_mark location
+
+Eugene Syromiatnikov <esyr@redhat.com>
+    coresight: do not use the BIT() macro in the UAPI header
+
+Keith Busch <keith.busch@intel.com>
+    blk-mq: Allow blocking queue tag iter callbacks
+
+Jianchao Wang <jianchao.w.wang@oracle.com>
+    blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter
+
+Lucas Stach <l.stach@pengutronix.de>
+    drm/etnaviv: replace MMU flush marker with flush sequence
+
+Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+    sctp: fix possibly using a bad saddr with a given dst
+
+Qiujun Huang <hqjagain@gmail.com>
+    sctp: fix refcount bug in sctp_wfree
+
+William Dauchy <w.dauchy@criteo.com>
+    net, ip_tunnel: fix interface lookup with no key
+
+Qian Cai <cai@lca.pw>
+    ipv4: fix a RCU-list lock in fib_triestat_seq_show
+
+Gerd Hoffmann <kraxel@redhat.com>
+    drm/bochs: downgrade pci_request_region failure from error to warning
+
+Guillaume Nault <g.nault@alphalink.fr>
+    l2tp: fix race between l2tp_session_delete() and l2tp_tunnel_closeall()
+
+Guillaume Nault <g.nault@alphalink.fr>
+    l2tp: ensure sessions are freed after their PPPOL2TP socket
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm64/kernel/head.S                           |  2 +-
+ block/blk-mq-tag.c                                 |  9 +++-
+ block/blk-mq.c                                     |  4 ++
+ drivers/char/random.c                              | 10 +---
+ drivers/clk/qcom/clk-rcg2.c                        |  2 +-
+ drivers/gpu/drm/bochs/bochs_hw.c                   |  6 +--
+ drivers/gpu/drm/drm_dp_mst_topology.c              |  1 +
+ drivers/gpu/drm/etnaviv/etnaviv_buffer.c           | 10 ++--
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.c              |  2 +-
+ drivers/gpu/drm/etnaviv/etnaviv_gpu.h              |  1 +
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.c              |  6 +--
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.h              |  2 +-
+ drivers/gpu/drm/msm/msm_gem.c                      |  4 +-
+ drivers/infiniband/core/cma.c                      |  1 +
+ drivers/infiniband/hw/hfi1/sysfs.c                 | 26 ++++++++---
+ drivers/net/can/slcan.c                            |  4 +-
+ drivers/net/dsa/bcm_sf2.c                          |  7 ++-
+ .../net/ethernet/stmicro/stmmac/dwmac1000_core.c   |  2 +-
+ drivers/net/phy/micrel.c                           |  7 +++
+ drivers/usb/dwc3/gadget.c                          |  1 -
+ fs/ceph/super.c                                    | 54 ++++++++++++++--------
+ fs/ceph/super.h                                    |  2 +-
+ include/uapi/linux/coresight-stm.h                 |  6 ++-
+ kernel/padata.c                                    |  4 +-
+ mm/mempolicy.c                                     |  6 ++-
+ net/bluetooth/rfcomm/tty.c                         |  4 +-
+ net/dsa/tag_brcm.c                                 |  4 +-
+ net/ipv4/fib_trie.c                                |  3 ++
+ net/ipv4/ip_tunnel.c                               |  6 +--
+ net/l2tp/l2tp_core.c                               |  6 +++
+ net/l2tp/l2tp_core.h                               |  1 +
+ net/l2tp/l2tp_ppp.c                                |  8 ++--
+ net/sctp/ipv6.c                                    | 20 +++++---
+ net/sctp/protocol.c                                | 28 +++++++----
+ net/sctp/socket.c                                  | 31 +++++++++----
+ sound/soc/jz4740/jz4740-i2s.c                      |  2 +-
+ tools/accounting/getdelays.c                       |  2 +-
+ 38 files changed, 193 insertions(+), 105 deletions(-)
 
 
