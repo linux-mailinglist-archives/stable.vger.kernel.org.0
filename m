@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3C8F1A512F
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2030A1A5162
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728673AbgDKMSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:18:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53876 "EHLO mail.kernel.org"
+        id S1728448AbgDKMRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:17:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728667AbgDKMSr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:18:47 -0400
+        id S1728442AbgDKMRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:17:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D5FB20692;
-        Sat, 11 Apr 2020 12:18:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA23F20787;
+        Sat, 11 Apr 2020 12:17:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607527;
-        bh=XK80WFjCFM0+ej1+ead99YTMoIFBiX/cPmEjWmGYqzI=;
+        s=default; t=1586607455;
+        bh=x+E2xz4xkcBrixnVfWase73ISMftFL+eb6NjsKnyOLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oW5CPjTuJI+NPlfcj64Uk2qFjwBlQdKh3TZeohHIPpxl3EIXoteAdEZwp63aowy1L
-         ZRPmldFixCk3LJaoTL26Q517ToUOSvaMs81ZJg5LMqvfWsLaajdWaPQYnYlG/lV1bc
-         vTU8gORyZUt91Nk9x3H38W+yViVAo/SplpghoIAM=
+        b=T1ZbmG/0/6nLk7y5D02AQMi4J+Qr3QEIq/BV+mVg2skpcshozLmiw2u1nWRcE2CVe
+         ZxZG25CqIHLVi+QdEpkTmmq0YJvBlIaTfQrOlj9y3FNI/B0x0M7wd60qJPZJBdBMFZ
+         3exbzTx1gzgna653ZLcRREevpIvyP4JgYoPoT/gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 15/44] net: phy: at803x: fix clock sink configuration on ATH8030 and ATH8035
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Kaike Wan <kaike.wan@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.4 26/41] IB/hfi1: Fix memory leaks in sysfs registration and unregistration
 Date:   Sat, 11 Apr 2020 14:09:35 +0200
-Message-Id: <20200411115458.182861396@linuxfoundation.org>
+Message-Id: <20200411115505.936874183@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
-References: <20200411115456.934174282@linuxfoundation.org>
+In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
+References: <20200411115504.124035693@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Kaike Wan <kaike.wan@intel.com>
 
-[ Upstream commit b1f4c209d84057b6d40b939b6e4404854271d797 ]
+commit 5c15abc4328ad696fa61e2f3604918ed0c207755 upstream.
 
-The masks in priv->clk_25m_reg and priv->clk_25m_mask are one-bits-set
-for the values that comprise the fields, not zero-bits-set.
+When the hfi1 driver is unloaded, kmemleak will report the following
+issue:
 
-This patch fixes the clock frequency configuration for ATH8030 and
-ATH8035 Atheros PHYs by removing the erroneous "~".
+unreferenced object 0xffff8888461a4c08 (size 8):
+comm "kworker/0:0", pid 5, jiffies 4298601264 (age 2047.134s)
+hex dump (first 8 bytes):
+73 64 6d 61 30 00 ff ff sdma0...
+backtrace:
+[<00000000311a6ef5>] kvasprintf+0x62/0xd0
+[<00000000ade94d9f>] kobject_set_name_vargs+0x1c/0x90
+[<0000000060657dbb>] kobject_init_and_add+0x5d/0xb0
+[<00000000346fe72b>] 0xffffffffa0c5ecba
+[<000000006cfc5819>] 0xffffffffa0c866b9
+[<0000000031c65580>] 0xffffffffa0c38e87
+[<00000000e9739b3f>] local_pci_probe+0x41/0x80
+[<000000006c69911d>] work_for_cpu_fn+0x16/0x20
+[<00000000601267b5>] process_one_work+0x171/0x380
+[<0000000049a0eefa>] worker_thread+0x1d1/0x3f0
+[<00000000909cf2b9>] kthread+0xf8/0x130
+[<0000000058f5f874>] ret_from_fork+0x35/0x40
 
-To reproduce this bug, configure the PHY  with the device tree binding
-"qca,clk-out-frequency" and remove the machine specific PHY fixups.
+This patch fixes the issue by:
 
-Fixes: 2f664823a47021 ("net: phy: at803x: add device tree binding")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reported-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
-Tested-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+- Releasing dd->per_sdma[i].kobject in hfi1_unregister_sysfs().
+  - This will fix the memory leak.
+
+- Calling kobject_put() to unwind operations only for those entries in
+   dd->per_sdma[] whose operations have succeeded (including the current
+   one that has just failed) in hfi1_verbs_register_sysfs().
+
+Cc: <stable@vger.kernel.org>
+Fixes: 0cb2aa690c7e ("IB/hfi1: Add sysfs interface for affinity setup")
+Link: https://lore.kernel.org/r/20200326163807.21129.27371.stgit@awfm-01.aw.intel.com
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/phy/at803x.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/phy/at803x.c
-+++ b/drivers/net/phy/at803x.c
-@@ -425,8 +425,8 @@ static int at803x_parse_dt(struct phy_de
- 		 */
- 		if (at803x_match_phy_id(phydev, ATH8030_PHY_ID) ||
- 		    at803x_match_phy_id(phydev, ATH8035_PHY_ID)) {
--			priv->clk_25m_reg &= ~AT8035_CLK_OUT_MASK;
--			priv->clk_25m_mask &= ~AT8035_CLK_OUT_MASK;
-+			priv->clk_25m_reg &= AT8035_CLK_OUT_MASK;
-+			priv->clk_25m_mask &= AT8035_CLK_OUT_MASK;
- 		}
- 	}
+---
+ drivers/infiniband/hw/hfi1/sysfs.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+--- a/drivers/infiniband/hw/hfi1/sysfs.c
++++ b/drivers/infiniband/hw/hfi1/sysfs.c
+@@ -856,8 +856,13 @@ int hfi1_verbs_register_sysfs(struct hfi
+ 
+ 	return 0;
+ bail:
+-	for (i = 0; i < dd->num_sdma; i++)
+-		kobject_del(&dd->per_sdma[i].kobj);
++	/*
++	 * The function kobject_put() will call kobject_del() if the kobject
++	 * has been added successfully. The sysfs files created under the
++	 * kobject directory will also be removed during the process.
++	 */
++	for (; i >= 0; i--)
++		kobject_put(&dd->per_sdma[i].kobj);
+ 
+ 	return ret;
+ }
+@@ -870,6 +875,10 @@ void hfi1_verbs_unregister_sysfs(struct
+ 	struct hfi1_pportdata *ppd;
+ 	int i;
+ 
++	/* Unwind operations in hfi1_verbs_register_sysfs() */
++	for (i = 0; i < dd->num_sdma; i++)
++		kobject_put(&dd->per_sdma[i].kobj);
++
+ 	for (i = 0; i < dd->num_pports; i++) {
+ 		ppd = &dd->pport[i];
  
 
 
