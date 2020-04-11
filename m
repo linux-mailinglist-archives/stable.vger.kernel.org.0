@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 827791A5789
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B98D1A55E4
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729944AbgDKXMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:12:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53370 "EHLO mail.kernel.org"
+        id S1730271AbgDKXMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:12:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730255AbgDKXMt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:12:49 -0400
+        id S1730261AbgDKXMv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:12:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0F9A20CC7;
-        Sat, 11 Apr 2020 23:12:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6F4721841;
+        Sat, 11 Apr 2020 23:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646769;
-        bh=i9gxExS+y61Jh1kWHem0h4HuFrd8LANVfyJ9gZaCcn0=;
+        s=default; t=1586646770;
+        bh=0LJGZBnlKyTbrb6WTN4LcFXLTqTu1DZR3oWb3ykYops=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ggu85g9OciioGqiHiwvhTyRCMv1EmzGQ/n92s0il4zuRG9sPAwE6srzTTzkGrCG+Q
-         ki1l9KsETzdQ++nZhyws2sJGpNa4v1/G/JKRjpmkt6KwJgLATJV/vLo6ET7kxwVRIg
-         nVP7kfaJuYRXLeVkW99LTXFQYWQ4wDW7o3Uj8AKM=
+        b=OWAGjjo9VeRo+PSg+1bXRl89IuTMDBIlmD2jYCzpgDxMAoOgC7QmD/k1Sm+MW+Ih1
+         K/U6XV5uqi4TIr0Pvabo5erHylGb7FH0V9YmbquCxtDaDPUqbYNEtpRd7Ts56rsRXa
+         fXBW0hCwjorjjpJV1xBP+t00pdO/g85d7QCUEMC4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 38/66] rsi: fix null pointer dereference during rsi_shutdown()
-Date:   Sat, 11 Apr 2020 19:11:35 -0400
-Message-Id: <20200411231203.25933-38-sashal@kernel.org>
+Cc:     Aric Cyr <aric.cyr@amd.com>,
+        Joshua Aberback <Joshua.Aberback@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 39/66] drm/amd/display: dal_ddc_i2c_payloads_create can fail causing panic
+Date:   Sat, 11 Apr 2020 19:11:36 -0400
+Message-Id: <20200411231203.25933-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231203.25933-1-sashal@kernel.org>
 References: <20200411231203.25933-1-sashal@kernel.org>
@@ -44,43 +47,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kepplinger <martin.kepplinger@puri.sm>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit 16bbc3eb83728c03138191a5d23d84d38175fa26 ]
+[ Upstream commit 6a6c4a4d459ecacc9013c45dcbf2bc9747fdbdbd ]
 
-Appearently the hw pointer can be NULL while the module is loaded and
-in that case rsi_shutdown() crashes due to the unconditional dereference.
+[Why]
+Since the i2c payload allocation can fail need to check return codes
 
-Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[How]
+Clean up i2c payload allocations and check for errors
+
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Reviewed-by: Joshua Aberback <Joshua.Aberback@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_sdio.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ .../gpu/drm/amd/display/dc/core/dc_link_ddc.c | 52 +++++++++----------
+ 1 file changed, 25 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_sdio.c b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-index 81cc1044532d1..fee43cd882f8f 100644
---- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-@@ -1357,12 +1357,15 @@ static void rsi_shutdown(struct device *dev)
- 	struct rsi_91x_sdiodev *sdev =
- 		(struct rsi_91x_sdiodev *)adapter->rsi_dev;
- 	struct ieee80211_hw *hw = adapter->hw;
--	struct cfg80211_wowlan *wowlan = hw->wiphy->wowlan_config;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+index 46c9cb47a96e5..145af3bb2dfcb 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+@@ -127,22 +127,16 @@ struct aux_payloads {
+ 	struct vector payloads;
+ };
  
- 	rsi_dbg(ERR_ZONE, "SDIO Bus shutdown =====>\n");
+-static struct i2c_payloads *dal_ddc_i2c_payloads_create(struct dc_context *ctx, uint32_t count)
++static bool dal_ddc_i2c_payloads_create(
++		struct dc_context *ctx,
++		struct i2c_payloads *payloads,
++		uint32_t count)
+ {
+-	struct i2c_payloads *payloads;
+-
+-	payloads = kzalloc(sizeof(struct i2c_payloads), GFP_KERNEL);
+-
+-	if (!payloads)
+-		return NULL;
+-
+ 	if (dal_vector_construct(
+ 		&payloads->payloads, ctx, count, sizeof(struct i2c_payload)))
+-		return payloads;
+-
+-	kfree(payloads);
+-	return NULL;
++		return true;
  
--	if (rsi_config_wowlan(adapter, wowlan))
--		rsi_dbg(ERR_ZONE, "Failed to configure WoWLAN\n");
-+	if (hw) {
-+		struct cfg80211_wowlan *wowlan = hw->wiphy->wowlan_config;
++	return false;
+ }
+ 
+ static struct i2c_payload *dal_ddc_i2c_payloads_get(struct i2c_payloads *p)
+@@ -155,14 +149,12 @@ static uint32_t dal_ddc_i2c_payloads_get_count(struct i2c_payloads *p)
+ 	return p->payloads.count;
+ }
+ 
+-static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads **p)
++static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads *p)
+ {
+-	if (!p || !*p)
++	if (!p)
+ 		return;
+-	dal_vector_destruct(&(*p)->payloads);
+-	kfree(*p);
+-	*p = NULL;
+ 
++	dal_vector_destruct(&p->payloads);
+ }
+ 
+ static struct aux_payloads *dal_ddc_aux_payloads_create(struct dc_context *ctx, uint32_t count)
+@@ -580,9 +572,13 @@ bool dal_ddc_service_query_ddc_data(
+ 
+ 	uint32_t payloads_num = write_payloads + read_payloads;
+ 
 +
-+		if (rsi_config_wowlan(adapter, wowlan))
-+			rsi_dbg(ERR_ZONE, "Failed to configure WoWLAN\n");
-+	}
+ 	if (write_size > EDID_SEGMENT_SIZE || read_size > EDID_SEGMENT_SIZE)
+ 		return false;
  
- 	if (IS_ENABLED(CONFIG_RSI_COEX) && adapter->priv->coex_mode > 1 &&
- 	    adapter->priv->bt_adapter) {
++	if (!payloads_num)
++		return false;
++
+ 	/*TODO: len of payload data for i2c and aux is uint8!!!!,
+ 	 *  but we want to read 256 over i2c!!!!*/
+ 	if (dal_ddc_service_is_in_aux_transaction_mode(ddc)) {
+@@ -613,23 +609,25 @@ bool dal_ddc_service_query_ddc_data(
+ 		dal_ddc_aux_payloads_destroy(&payloads);
+ 
+ 	} else {
+-		struct i2c_payloads *payloads =
+-			dal_ddc_i2c_payloads_create(ddc->ctx, payloads_num);
++		struct i2c_command command = {0};
++		struct i2c_payloads payloads;
+ 
+-		struct i2c_command command = {
+-			.payloads = dal_ddc_i2c_payloads_get(payloads),
+-			.number_of_payloads = 0,
+-			.engine = DDC_I2C_COMMAND_ENGINE,
+-			.speed = ddc->ctx->dc->caps.i2c_speed_in_khz };
++		if (!dal_ddc_i2c_payloads_create(ddc->ctx, &payloads, payloads_num))
++			return false;
++
++		command.payloads = dal_ddc_i2c_payloads_get(&payloads);
++		command.number_of_payloads = 0;
++		command.engine = DDC_I2C_COMMAND_ENGINE;
++		command.speed = ddc->ctx->dc->caps.i2c_speed_in_khz;
+ 
+ 		dal_ddc_i2c_payloads_add(
+-			payloads, address, write_size, write_buf, true);
++			&payloads, address, write_size, write_buf, true);
+ 
+ 		dal_ddc_i2c_payloads_add(
+-			payloads, address, read_size, read_buf, false);
++			&payloads, address, read_size, read_buf, false);
+ 
+ 		command.number_of_payloads =
+-			dal_ddc_i2c_payloads_get_count(payloads);
++			dal_ddc_i2c_payloads_get_count(&payloads);
+ 
+ 		ret = dm_helpers_submit_i2c(
+ 				ddc->ctx,
 -- 
 2.20.1
 
