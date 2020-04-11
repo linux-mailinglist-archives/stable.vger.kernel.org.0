@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 687451A5201
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB32F1A4FE7
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727289AbgDKM3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:29:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43656 "EHLO mail.kernel.org"
+        id S1727349AbgDKMMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:12:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726988AbgDKMLd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:11:33 -0400
+        id S1727369AbgDKMMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:12:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E4E2215A4;
-        Sat, 11 Apr 2020 12:11:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93B93216FD;
+        Sat, 11 Apr 2020 12:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607092;
-        bh=GDBkdFyQwNJy3s7hikLvymUoDDGW7i4bveuG7EFg1oA=;
+        s=default; t=1586607163;
+        bh=du34FuSZ/93isxJl6ceSMUx6+clIj0/Chgs4FwB6Bf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2IGMiB6iPrXY87/YrTqVhpZ8W20afLAL8TzHXSTSoBEiu9DsbPoJQ0r6XXhDg35yh
-         UCt8r4Ogc89QOW0yNz7cRPrLyvkjb2bVea4n3BhWbBFc2zJW1AxMZ+WiUSQgx5flsq
-         wKjIcn8eXZ9LuXzETpmUsWP4xWLoN1CrR8F/X+4s=
+        b=RBup08jiylVsZc9KThzn2w7/3P6G8qThfKrirvyn/E/voRiJaxUU+iGjSVYpqq55h
+         Kaw0nh/SfA2/+vjDTvLBp0jlufxetizMZ2fbjJJfu9gJEa2wHjAM8Ihyoc1J6Xivsp
+         Ohopm0LURrwfAOjmmliilxRR+ZbAmnegRWFeHoeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Palethorpe <rpalethorpe@suse.com>,
-        Kees Cook <keescook@chromium.org>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, security@kernel.org, wg@grandegger.com,
-        mkl@pengutronix.de, davem@davemloft.net
-Subject: [PATCH 4.4 18/29] slcan: Dont transmit uninitialized stack data in padding
+        stable@vger.kernel.org, Jianchao Wang <jianchao.w.wang@oracle.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Giuliano Procida <gprocida@google.com>
+Subject: [PATCH 4.9 09/32] blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter
 Date:   Sat, 11 Apr 2020 14:08:48 +0200
-Message-Id: <20200411115411.003822206@linuxfoundation.org>
+Message-Id: <20200411115419.710747345@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115407.651296755@linuxfoundation.org>
-References: <20200411115407.651296755@linuxfoundation.org>
+In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
+References: <20200411115418.455500023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Palethorpe <rpalethorpe@suse.com>
+From: Jianchao Wang <jianchao.w.wang@oracle.com>
 
-[ Upstream commit b9258a2cece4ec1f020715fe3554bc2e360f6264 ]
+commit f5bbbbe4d63577026f908a809f22f5fd5a90ea1f upstream.
 
-struct can_frame contains some padding which is not explicitly zeroed in
-slc_bump. This uninitialized data will then be transmitted if the stack
-initialization hardening feature is not enabled (CONFIG_INIT_STACK_ALL).
+For blk-mq, part_in_flight/rw will invoke blk_mq_in_flight/rw to
+account the inflight requests. It will access the queue_hw_ctx and
+nr_hw_queues w/o any protection. When updating nr_hw_queues and
+blk_mq_in_flight/rw occur concurrently, panic comes up.
 
-This commit just zeroes the whole struct including the padding.
+Before update nr_hw_queues, the q will be frozen. So we could use
+q_usage_counter to avoid the race. percpu_ref_is_zero is used here
+so that we will not miss any in-flight request. The access to
+nr_hw_queues and queue_hw_ctx in blk_mq_queue_tag_busy_iter are
+under rcu critical section, __blk_mq_update_nr_hw_queues could use
+synchronize_rcu to ensure the zeroed q_usage_counter to be globally
+visible.
 
-Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
-Fixes: a1044e36e457 ("can: add slcan driver for serial/USB-serial CAN adapters")
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: linux-can@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: security@kernel.org
-Cc: wg@grandegger.com
-Cc: mkl@pengutronix.de
-Cc: davem@davemloft.net
-Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jianchao Wang <jianchao.w.wang@oracle.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Giuliano Procida <gprocida@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/can/slcan.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/net/can/slcan.c
-+++ b/drivers/net/can/slcan.c
-@@ -147,7 +147,7 @@ static void slc_bump(struct slcan *sl)
- 	u32 tmpid;
- 	char *cmd = sl->rbuff;
+---
+ block/blk-mq-tag.c |   14 +++++++++++++-
+ block/blk-mq.c     |    4 ++++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
+
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -336,6 +336,18 @@ void blk_mq_queue_tag_busy_iter(struct r
+ 	struct blk_mq_hw_ctx *hctx;
+ 	int i;
  
--	cf.can_id = 0;
-+	memset(&cf, 0, sizeof(cf));
++	/*
++	 * __blk_mq_update_nr_hw_queues will update the nr_hw_queues and
++	 * queue_hw_ctx after freeze the queue. So we could use q_usage_counter
++	 * to avoid race with it. __blk_mq_update_nr_hw_queues will users
++	 * synchronize_rcu to ensure all of the users go out of the critical
++	 * section below and see zeroed q_usage_counter.
++	 */
++	rcu_read_lock();
++	if (percpu_ref_is_zero(&q->q_usage_counter)) {
++		rcu_read_unlock();
++		return;
++	}
  
- 	switch (*cmd) {
- 	case 'r':
-@@ -186,8 +186,6 @@ static void slc_bump(struct slcan *sl)
- 	else
- 		return;
- 
--	*(u64 *) (&cf.data) = 0; /* clear payload */
+ 	queue_for_each_hw_ctx(q, hctx, i) {
+ 		struct blk_mq_tags *tags = hctx->tags;
+@@ -351,7 +363,7 @@ void blk_mq_queue_tag_busy_iter(struct r
+ 			bt_for_each(hctx, &tags->breserved_tags, fn, priv, true);
+ 		bt_for_each(hctx, &tags->bitmap_tags, fn, priv, false);
+ 	}
 -
- 	/* RTR frames may have a dlc > 0 but they never have any data bytes */
- 	if (!(cf.can_id & CAN_RTR_FLAG)) {
- 		for (i = 0; i < cf.can_dlc; i++) {
++	rcu_read_unlock();
+ }
+ 
+ static unsigned int bt_unused_tags(const struct sbitmap_queue *bt)
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2346,6 +2346,10 @@ void blk_mq_update_nr_hw_queues(struct b
+ 
+ 	list_for_each_entry(q, &set->tag_list, tag_set_list)
+ 		blk_mq_unfreeze_queue(q);
++	/*
++	 * Sync with blk_mq_queue_tag_busy_iter.
++	 */
++	synchronize_rcu();
+ }
+ EXPORT_SYMBOL_GPL(blk_mq_update_nr_hw_queues);
+ 
 
 
