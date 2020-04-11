@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E13081A5B1C
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0640F1A5AD7
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728035AbgDKXrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:47:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38738 "EHLO mail.kernel.org"
+        id S1727709AbgDKXFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:05:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727674AbgDKXFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:00 -0400
+        id S1727526AbgDKXFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80DD220CC7;
-        Sat, 11 Apr 2020 23:04:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3E66216FD;
+        Sat, 11 Apr 2020 23:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646300;
-        bh=Lk0FH0lxVXv++fPdDN7OxF8LF0M1mPpDYUBrXDZkqfA=;
+        s=default; t=1586646301;
+        bh=vr0eU8N+DcfIEeHCMZcV+a3ZvG1NoSo5bc/6p6NwcV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=idn9TOqDzkIbn8CuZe4T8TSMCscU4OnWzG7DCzlfut9H+oIcvFeff55JlZcLgSSbY
-         AWnCiYwBLkx6qwRkrn6vu7a6EXjRhva1Nuz3qQd/s2rR6MfKsAPZLBzAgIC7boIA/Q
-         eDRI7+wGyRGVT4U3zgQbjKGAn5B7ukQP84YQnwLo=
+        b=0erG1o+q5ty8XN/leqFe+f4PPIbB7S7zcjGNkSVYyd3A7a35uw032jqhPNVRMh3ow
+         9wffVw0wzOsHTPvS4pO07ZCk3JW3Hoq/P4D4g+RiFG8eHUY0zc4OnrBfO3D02+C+BC
+         a15Wp3V5qppZr2KbiAnVBbtZGL17rYAUrm2PyYak=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Samuel Holland <samuel@sholland.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 059/149] drm/sun4i: dsi: Use NULL to signify "no panel"
-Date:   Sat, 11 Apr 2020 19:02:16 -0400
-Message-Id: <20200411230347.22371-59-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 060/149] mt76: mt7615: disable 5 GHz on MT7622
+Date:   Sat, 11 Apr 2020 19:02:17 -0400
+Message-Id: <20200411230347.22371-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -45,75 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 0e4e3fb4901d19f49e5c0a582f383b10dda8d1c5 ]
+[ Upstream commit c3ad5e9d00af19c53dec1d8ae647a78ac377b593 ]
 
-The continued use of an ERR_PTR to signify "no panel" outside of
-sun6i_dsi_attach is confusing because it is a double negative. Because
-the connector always reports itself as connected, there is also the
-possibility of sending an ERR_PTR to drm_panel_get_modes(), which would
-crash.
+It is not supported by the chip, so avoid issues with potentially wrong
+EEPROM configurations.
 
-Solve both of these by only storing the panel pointer if it is valid.
-
-Fixes: 133add5b5ad4 ("drm/sun4i: Add Allwinner A31 MIPI-DSI controller support")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200211072858.30784-2-samuel@sholland.org
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-index a75fcb1131724..9bd3c97ff3e68 100644
---- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-+++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-@@ -749,7 +749,7 @@ static void sun6i_dsi_encoder_enable(struct drm_encoder *encoder)
- 	phy_configure(dsi->dphy, &opts);
- 	phy_power_on(dsi->dphy);
- 
--	if (!IS_ERR(dsi->panel))
-+	if (dsi->panel)
- 		drm_panel_prepare(dsi->panel);
- 
- 	/*
-@@ -764,7 +764,7 @@ static void sun6i_dsi_encoder_enable(struct drm_encoder *encoder)
- 	 * ordering on the panels I've tested it with, so I guess this
- 	 * will do for now, until that IP is better understood.
- 	 */
--	if (!IS_ERR(dsi->panel))
-+	if (dsi->panel)
- 		drm_panel_enable(dsi->panel);
- 
- 	sun6i_dsi_start(dsi, DSI_START_HSC);
-@@ -780,7 +780,7 @@ static void sun6i_dsi_encoder_disable(struct drm_encoder *encoder)
- 
- 	DRM_DEBUG_DRIVER("Disabling DSI output\n");
- 
--	if (!IS_ERR(dsi->panel)) {
-+	if (dsi->panel) {
- 		drm_panel_disable(dsi->panel);
- 		drm_panel_unprepare(dsi->panel);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c b/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
+index 17e277bf39e0f..cb05a07135a03 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/eeprom.c
+@@ -111,6 +111,9 @@ static void mt7615_eeprom_parse_hw_cap(struct mt7615_dev *dev)
+ 		break;
  	}
-@@ -942,11 +942,13 @@ static int sun6i_dsi_attach(struct mipi_dsi_host *host,
- 			    struct mipi_dsi_device *device)
- {
- 	struct sun6i_dsi *dsi = host_to_sun6i_dsi(host);
-+	struct drm_panel *panel = of_drm_find_panel(device->dev.of_node);
  
-+	if (IS_ERR(panel))
-+		return PTR_ERR(panel);
++	if (is_mt7622(&dev->mt76))
++		dev->mt76.cap.has_5ghz = false;
 +
-+	dsi->panel = panel;
- 	dsi->device = device;
--	dsi->panel = of_drm_find_panel(device->dev.of_node);
--	if (IS_ERR(dsi->panel))
--		return PTR_ERR(dsi->panel);
- 
- 	dev_info(host->dev, "Attached device %s\n", device->name);
- 
+ 	/* read tx-rx mask from eeprom */
+ 	val = mt76_rr(dev, MT_TOP_STRAP_STA);
+ 	max_nss = val & MT_TOP_3NSS ? 3 : 4;
 -- 
 2.20.1
 
