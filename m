@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40D7D1A5745
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6061A5742
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729827AbgDKXVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:21:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54438 "EHLO mail.kernel.org"
+        id S1729881AbgDKXVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:21:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730406AbgDKXNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:13:21 -0400
+        id S1728984AbgDKXNW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:13:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 366A2215A4;
-        Sat, 11 Apr 2020 23:13:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49463216FD;
+        Sat, 11 Apr 2020 23:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646801;
-        bh=EJJYPMO/omX9zksJelxXmq7BJ/RipcrEznjWiBtysuA=;
+        s=default; t=1586646803;
+        bh=HEPakGFgPTlgqZbRu2P3gVLUQ+Nd5md9KaeGpSWPW2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ve+iQWqKhzuiewoq8Z1M2xroi59Wz66n/cbow38hSYcug2jKiDKBUY4DiZnfP90F/
-         M5qRC1RMAbcrqCBfz9evwRYxFsYe4T7jbUx/UTUGXJMDG/jPl40Fu/T1PxnxwIn5uQ
-         Z61/821ruQyngV97OAAraffbtBPG9RZARii+Cvmg=
+        b=NJlO8l0YdZu1gL8SgEmzOUVn0P6f8seWIlZtmHSsY6J4NjZUtZGjAzRIter/NXNys
+         gE0Do8Dc6/Is/eolWBoz1B3rNDXzlgMR40ut1WheSjmUJK3hBIjVHaYg//417nAUUf
+         do+HY6UIWTlxySVkosMja3rsyyRYMuYv96PnWgD8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 64/66] ext4: avoid ENOSPC when avoiding to reuse recently deleted inodes
-Date:   Sat, 11 Apr 2020 19:12:01 -0400
-Message-Id: <20200411231203.25933-64-sashal@kernel.org>
+Cc:     Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 65/66] svcrdma: Fix leak of transport addresses
+Date:   Sat, 11 Apr 2020 19:12:02 -0400
+Message-Id: <20200411231203.25933-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231203.25933-1-sashal@kernel.org>
 References: <20200411231203.25933-1-sashal@kernel.org>
@@ -42,72 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit d05466b27b19af8e148376590ed54d289b607f0a ]
+[ Upstream commit 1a33d8a284b1e85e03b8c7b1ea8fb985fccd1d71 ]
 
-When ext4 is running on a filesystem without a journal, it tries not to
-reuse recently deleted inodes to provide better chances for filesystem
-recovery in case of crash. However this logic forbids reuse of freed
-inodes for up to 5 minutes and especially for filesystems with smaller
-number of inodes can lead to ENOSPC errors returned when allocating new
-inodes.
+Kernel memory leak detected:
 
-Fix the problem by allowing to reuse recently deleted inode if there's
-no other inode free in the scanned range.
+unreferenced object 0xffff888849cdf480 (size 8):
+  comm "kworker/u8:3", pid 2086, jiffies 4297898756 (age 4269.856s)
+  hex dump (first 8 bytes):
+    30 00 cd 49 88 88 ff ff                          0..I....
+  backtrace:
+    [<00000000acfc370b>] __kmalloc_track_caller+0x137/0x183
+    [<00000000a2724354>] kstrdup+0x2b/0x43
+    [<0000000082964f84>] xprt_rdma_format_addresses+0x114/0x17d [rpcrdma]
+    [<00000000dfa6ed00>] xprt_setup_rdma_bc+0xc0/0x10c [rpcrdma]
+    [<0000000073051a83>] xprt_create_transport+0x3f/0x1a0 [sunrpc]
+    [<0000000053531a8e>] rpc_create+0x118/0x1cd [sunrpc]
+    [<000000003a51b5f8>] setup_callback_client+0x1a5/0x27d [nfsd]
+    [<000000001bd410af>] nfsd4_process_cb_update.isra.7+0x16c/0x1ac [nfsd]
+    [<000000007f4bbd56>] nfsd4_run_cb_work+0x4c/0xbd [nfsd]
+    [<0000000055c5586b>] process_one_work+0x1b2/0x2fe
+    [<00000000b1e3e8ef>] worker_thread+0x1a6/0x25a
+    [<000000005205fb78>] kthread+0xf6/0xfb
+    [<000000006d2dc057>] ret_from_fork+0x3a/0x50
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200318121317.31941-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Introduce a call to xprt_rdma_free_addresses() similar to the way
+that the TCP backchannel releases a transport's peer address
+strings.
+
+Fixes: 5d252f90a800 ("svcrdma: Add class for RDMA backwards direction transport")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ialloc.c | 23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ net/sunrpc/xprtrdma/svc_rdma_backchannel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ext4/ialloc.c b/fs/ext4/ialloc.c
-index dafa7e4aaecb9..659ee9c34b0b1 100644
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -714,21 +714,34 @@ static int recently_deleted(struct super_block *sb, ext4_group_t group, int ino)
- static int find_inode_bit(struct super_block *sb, ext4_group_t group,
- 			  struct buffer_head *bitmap, unsigned long *ino)
+diff --git a/net/sunrpc/xprtrdma/svc_rdma_backchannel.c b/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
+index b9827665ff355..d183d4aee822c 100644
+--- a/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
+@@ -256,6 +256,7 @@ xprt_rdma_bc_put(struct rpc_xprt *xprt)
  {
-+	bool check_recently_deleted = EXT4_SB(sb)->s_journal == NULL;
-+	unsigned long recently_deleted_ino = EXT4_INODES_PER_GROUP(sb);
-+
- next:
- 	*ino = ext4_find_next_zero_bit((unsigned long *)
- 				       bitmap->b_data,
- 				       EXT4_INODES_PER_GROUP(sb), *ino);
- 	if (*ino >= EXT4_INODES_PER_GROUP(sb))
--		return 0;
-+		goto not_found;
+ 	dprintk("svcrdma: %s: xprt %p\n", __func__, xprt);
  
--	if ((EXT4_SB(sb)->s_journal == NULL) &&
--	    recently_deleted(sb, group, *ino)) {
-+	if (check_recently_deleted && recently_deleted(sb, group, *ino)) {
-+		recently_deleted_ino = *ino;
- 		*ino = *ino + 1;
- 		if (*ino < EXT4_INODES_PER_GROUP(sb))
- 			goto next;
--		return 0;
-+		goto not_found;
- 	}
--
-+	return 1;
-+not_found:
-+	if (recently_deleted_ino >= EXT4_INODES_PER_GROUP(sb))
-+		return 0;
-+	/*
-+	 * Not reusing recently deleted inodes is mostly a preference. We don't
-+	 * want to report ENOSPC or skew allocation patterns because of that.
-+	 * So return even recently deleted inode if we could find better in the
-+	 * given range.
-+	 */
-+	*ino = recently_deleted_ino;
- 	return 1;
++	xprt_rdma_free_addresses(xprt);
+ 	xprt_free(xprt);
+ 	module_put(THIS_MODULE);
  }
- 
 -- 
 2.20.1
 
