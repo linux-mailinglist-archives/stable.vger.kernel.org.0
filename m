@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09AAE1A500A
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:14:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C798D1A515A
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726719AbgDKMNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:13:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46928 "EHLO mail.kernel.org"
+        id S1728377AbgDKMRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:17:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726760AbgDKMNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:13:48 -0400
+        id S1728387AbgDKMRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:17:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFB3520787;
-        Sat, 11 Apr 2020 12:13:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BE6520787;
+        Sat, 11 Apr 2020 12:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607228;
-        bh=9/F1HgN1yJlGKSkllksxsM4rLDTTAM51nN0ITD+mQ4A=;
+        s=default; t=1586607438;
+        bh=oDOR3nIjgOc1MJbGlBKDQMZunaN6N06rFE3HEbc8H3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wczh+E5m5JD0Mf20635jD5YrmDVwYFtZvfh5fOk/XOQdJ9aZ6k6/zsm3ooWZXfg49
-         0V9f+NuMxL7uLo1GEHRNFkmS+HiA/N7IM4YBS7ffm6YJsfRhA4B+S6dYTfJX7sNRLg
-         Dj4ejRj7XfKlGVmYiTdCtYXH398P6yT7ZDdWtxXU=
+        b=0euV8sRDp40v6TIl/0E403/TZZKhk0/uooXcatH2a5GygAhU+LaiAAZpsXf3xkDne
+         09Wo3S1OP2+uVVaUUwrkcG+W/P25th9NTo86jat8rEkIuJ29D60tnMiuavdi6NhgnK
+         YchVJNiIyLSmYzlrWIL1N2Lgy0Tc6IrIkijfizb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.14 26/38] IB/hfi1: Fix memory leaks in sysfs registration and unregistration
-Date:   Sat, 11 Apr 2020 14:09:10 +0200
-Message-Id: <20200411115440.545010044@linuxfoundation.org>
+        stable@vger.kernel.org, Herat Ramani <herat@chelsio.com>,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 02/41] cxgb4: fix MPS index overwrite when setting MAC address
+Date:   Sat, 11 Apr 2020 14:09:11 +0200
+Message-Id: <20200411115504.288266729@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
-References: <20200411115437.795556138@linuxfoundation.org>
+In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
+References: <20200411115504.124035693@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,81 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Herat Ramani <herat@chelsio.com>
 
-commit 5c15abc4328ad696fa61e2f3604918ed0c207755 upstream.
+[ Upstream commit 41aa8561ca3fc5748391f08cc5f3e561923da52c ]
 
-When the hfi1 driver is unloaded, kmemleak will report the following
-issue:
+cxgb4_update_mac_filt() earlier requests firmware to add a new MAC
+address into MPS TCAM. The MPS TCAM index returned by firmware is
+stored in pi->xact_addr_filt. However, the saved MPS TCAM index gets
+overwritten again with the return value of cxgb4_update_mac_filt(),
+which is wrong.
 
-unreferenced object 0xffff8888461a4c08 (size 8):
-comm "kworker/0:0", pid 5, jiffies 4298601264 (age 2047.134s)
-hex dump (first 8 bytes):
-73 64 6d 61 30 00 ff ff sdma0...
-backtrace:
-[<00000000311a6ef5>] kvasprintf+0x62/0xd0
-[<00000000ade94d9f>] kobject_set_name_vargs+0x1c/0x90
-[<0000000060657dbb>] kobject_init_and_add+0x5d/0xb0
-[<00000000346fe72b>] 0xffffffffa0c5ecba
-[<000000006cfc5819>] 0xffffffffa0c866b9
-[<0000000031c65580>] 0xffffffffa0c38e87
-[<00000000e9739b3f>] local_pci_probe+0x41/0x80
-[<000000006c69911d>] work_for_cpu_fn+0x16/0x20
-[<00000000601267b5>] process_one_work+0x171/0x380
-[<0000000049a0eefa>] worker_thread+0x1d1/0x3f0
-[<00000000909cf2b9>] kthread+0xf8/0x130
-[<0000000058f5f874>] ret_from_fork+0x35/0x40
+When trying to update to another MAC address later, the wrong MPS TCAM
+index is sent to firmware, which causes firmware to return error,
+because it's not the same MPS TCAM index that firmware had sent
+earlier to driver.
 
-This patch fixes the issue by:
+So, fix by removing the wrong overwrite being done after call to
+cxgb4_update_mac_filt().
 
-- Releasing dd->per_sdma[i].kobject in hfi1_unregister_sysfs().
-  - This will fix the memory leak.
-
-- Calling kobject_put() to unwind operations only for those entries in
-   dd->per_sdma[] whose operations have succeeded (including the current
-   one that has just failed) in hfi1_verbs_register_sysfs().
-
-Cc: <stable@vger.kernel.org>
-Fixes: 0cb2aa690c7e ("IB/hfi1: Add sysfs interface for affinity setup")
-Link: https://lore.kernel.org/r/20200326163807.21129.27371.stgit@awfm-01.aw.intel.com
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 3f8cfd0d95e6 ("cxgb4/cxgb4vf: Program hash region for {t4/t4vf}_change_mac()")
+Signed-off-by: Herat Ramani <herat@chelsio.com>
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/infiniband/hw/hfi1/sysfs.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/infiniband/hw/hfi1/sysfs.c
-+++ b/drivers/infiniband/hw/hfi1/sysfs.c
-@@ -861,8 +861,13 @@ bail:
- 	for (i = 0; i < ARRAY_SIZE(hfi1_attributes); ++i)
- 		device_remove_file(&dev->dev, hfi1_attributes[i]);
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+@@ -3032,7 +3032,6 @@ static int cxgb_set_mac_addr(struct net_
+ 		return ret;
  
--	for (i = 0; i < dd->num_sdma; i++)
--		kobject_del(&dd->per_sdma[i].kobj);
-+	/*
-+	 * The function kobject_put() will call kobject_del() if the kobject
-+	 * has been added successfully. The sysfs files created under the
-+	 * kobject directory will also be removed during the process.
-+	 */
-+	for (; i >= 0; i--)
-+		kobject_put(&dd->per_sdma[i].kobj);
- 
- 	return ret;
+ 	memcpy(dev->dev_addr, addr->sa_data, dev->addr_len);
+-	pi->xact_addr_filt = ret;
+ 	return 0;
  }
-@@ -875,6 +880,10 @@ void hfi1_verbs_unregister_sysfs(struct
- 	struct hfi1_pportdata *ppd;
- 	int i;
- 
-+	/* Unwind operations in hfi1_verbs_register_sysfs() */
-+	for (i = 0; i < dd->num_sdma; i++)
-+		kobject_put(&dd->per_sdma[i].kobj);
-+
- 	for (i = 0; i < dd->num_pports; i++) {
- 		ppd = &dd->pport[i];
  
 
 
