@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57A731A4FE4
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:12:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E92891A502A
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:15:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727338AbgDKMMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:12:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45262 "EHLO mail.kernel.org"
+        id S1726865AbgDKMO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:14:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727327AbgDKMMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:12:36 -0400
+        id S1728076AbgDKMO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:14:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 530FE20787;
-        Sat, 11 Apr 2020 12:12:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 078EA20787;
+        Sat, 11 Apr 2020 12:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607155;
-        bh=xzhvwRAq+oWnVwbnHw9vQWW4I6JixS6yMNMOPycY3Ek=;
+        s=default; t=1586607298;
+        bh=jAAXTDtXNw7GX4YyP022FtCivU3zuV/OGlJLKJqnpE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AgX92/RduRUAIBFe98c7VNBuVPBYKkiQDaHH/TzjX2Z2E9VkEZW1bBdV2tPMPnplS
-         KXe1Zz/BADjOK+2Tml0FXqExJtM/qjlkdJjnI5AblnpT4Hq2ggKNeBaqBL0undDL+w
-         +P150ePD98fkS9978+D/FnYOkEfF37t5QhF1sABQ=
+        b=vNvOClG77JvgvPQqUHXnbFBdFngsG6X8uBU5nXxchnmABSYSiQEXzwR+bAABbs4Ba
+         8rQaT+NGx8jEYr7fzyj4BY7gAPwCGtZ4xAht99v8ENUpgJdccgangRy4M2sKy8D37h
+         xkOZxXO9xBWOC8/e0tAVPTIn+suhnxwm25iL6ARE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Marcelo Ricardo Leitner <mleitner@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         syzbot+cea71eec5d6de256d54d@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 06/32] sctp: fix refcount bug in sctp_wfree
+Subject: [PATCH 4.19 03/54] sctp: fix refcount bug in sctp_wfree
 Date:   Sat, 11 Apr 2020 14:08:45 +0200
-Message-Id: <20200411115419.383050247@linuxfoundation.org>
+Message-Id: <20200411115508.593027768@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
-References: <20200411115418.455500023@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -92,7 +92,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/sctp/socket.c
 +++ b/net/sctp/socket.c
-@@ -173,29 +173,44 @@ static void sctp_clear_owner_w(struct sc
+@@ -165,29 +165,44 @@ static void sctp_clear_owner_w(struct sc
  	skb_orphan(chunk->skb);
  }
  
@@ -142,8 +142,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +		traverse_and_process();
  }
  
- /* Verify that this is a valid address. */
-@@ -7878,9 +7893,9 @@ static void sctp_sock_migrate(struct soc
+ static void sctp_for_each_rx_skb(struct sctp_association *asoc, struct sock *sk,
+@@ -8899,9 +8914,9 @@ static void sctp_sock_migrate(struct soc
  	 * paths won't try to lock it and then oldsk.
  	 */
  	lock_sock_nested(newsk, SINGLE_DEPTH_NESTING);
