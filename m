@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 343E81A51B4
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:27:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0149E1A5174
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726973AbgDKMOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:14:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47290 "EHLO mail.kernel.org"
+        id S1728139AbgDKMPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:15:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726824AbgDKMOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:14:02 -0400
+        id S1728121AbgDKMPh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:15:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6597C2166E;
-        Sat, 11 Apr 2020 12:14:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A88C020644;
+        Sat, 11 Apr 2020 12:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607242;
-        bh=iGsE+U9DnD/v9N3Au/gt5Nukp6ciVSTUMneMAPVjTu0=;
+        s=default; t=1586607337;
+        bh=GDBkdFyQwNJy3s7hikLvymUoDDGW7i4bveuG7EFg1oA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+2MpP16fX5cSiNz8UmH2vlfhCeVurkiW3rGG+yEn3OBagNUVPwJNQtBBAh20ow03
-         fdBc1aDkTZ5xX2FxiaxdYk0ne5/svgc4przJTSY9fGmWSssEpwkta+u42jumBxfxsC
-         w934MKbIunfv/LEJzuxcISxEVDqczE7P+TQ3PRCQ=
+        b=RAoNy7kQ3vIl7pO8qEiQt0rezIPfKGBgLNDH9vRo5kvhjrG6FbQW3lGRMYWCItZCN
+         092lpeSkQ8G9yuD+lFzO/im9PMwBQDAFTq3fPoLuz16+1z6m27Xay5x6nHlao/FG8S
+         5ijyIYI+ycnKBctWkvWgBkI0IXJbQOgP4BIDIEOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+732528bae351682f1f27@syzkaller.appspotmail.com,
-        Qiujun Huang <hqjagain@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.14 31/38] fbcon: fix null-ptr-deref in fbcon_switch
+        stable@vger.kernel.org, Richard Palethorpe <rpalethorpe@suse.com>,
+        Kees Cook <keescook@chromium.org>, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org, security@kernel.org, wg@grandegger.com,
+        mkl@pengutronix.de, davem@davemloft.net
+Subject: [PATCH 4.19 33/54] slcan: Dont transmit uninitialized stack data in padding
 Date:   Sat, 11 Apr 2020 14:09:15 +0200
-Message-Id: <20200411115440.870083532@linuxfoundation.org>
+Message-Id: <20200411115511.772234226@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
-References: <20200411115437.795556138@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,58 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Richard Palethorpe <rpalethorpe@suse.com>
 
-commit b139f8b00db4a8ea75a4174346eafa48041aa489 upstream.
+[ Upstream commit b9258a2cece4ec1f020715fe3554bc2e360f6264 ]
 
-Set logo_shown to FBCON_LOGO_CANSHOW when the vc was deallocated.
+struct can_frame contains some padding which is not explicitly zeroed in
+slc_bump. This uninitialized data will then be transmitted if the stack
+initialization hardening feature is not enabled (CONFIG_INIT_STACK_ALL).
 
-syzkaller report: https://lkml.org/lkml/2020/3/27/403
-general protection fault, probably for non-canonical address
-0xdffffc000000006c: 0000 [#1] SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000360-0x0000000000000367]
-RIP: 0010:fbcon_switch+0x28f/0x1740
-drivers/video/fbdev/core/fbcon.c:2260
+This commit just zeroes the whole struct including the padding.
 
-Call Trace:
-redraw_screen+0x2a8/0x770 drivers/tty/vt/vt.c:1008
-vc_do_resize+0xfe7/0x1360 drivers/tty/vt/vt.c:1295
-fbcon_init+0x1221/0x1ab0 drivers/video/fbdev/core/fbcon.c:1219
-visual_init+0x305/0x5c0 drivers/tty/vt/vt.c:1062
-do_bind_con_driver+0x536/0x890 drivers/tty/vt/vt.c:3542
-do_take_over_console+0x453/0x5b0 drivers/tty/vt/vt.c:4122
-do_fbcon_takeover+0x10b/0x210 drivers/video/fbdev/core/fbcon.c:588
-fbcon_fb_registered+0x26b/0x340 drivers/video/fbdev/core/fbcon.c:3259
-do_register_framebuffer drivers/video/fbdev/core/fbmem.c:1664 [inline]
-register_framebuffer+0x56e/0x980 drivers/video/fbdev/core/fbmem.c:1832
-dlfb_usb_probe.cold+0x1743/0x1ba3 drivers/video/fbdev/udlfb.c:1735
-usb_probe_interface+0x310/0x800 drivers/usb/core/driver.c:374
-
-accessing vc_cons[logo_shown].d->vc_top causes the bug.
-
-Reported-by: syzbot+732528bae351682f1f27@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200329085647.25133-1-hqjagain@gmail.com
+Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
+Fixes: a1044e36e457 ("can: add slcan driver for serial/USB-serial CAN adapters")
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: linux-can@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: security@kernel.org
+Cc: wg@grandegger.com
+Cc: mkl@pengutronix.de
+Cc: davem@davemloft.net
+Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/video/fbdev/core/fbcon.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/can/slcan.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -1221,6 +1221,9 @@ finished:
- 	if (!con_is_bound(&fb_con))
- 		fbcon_exit();
+--- a/drivers/net/can/slcan.c
++++ b/drivers/net/can/slcan.c
+@@ -147,7 +147,7 @@ static void slc_bump(struct slcan *sl)
+ 	u32 tmpid;
+ 	char *cmd = sl->rbuff;
  
-+	if (vc->vc_num == logo_shown)
-+		logo_shown = FBCON_LOGO_CANSHOW;
-+
- 	return;
- }
+-	cf.can_id = 0;
++	memset(&cf, 0, sizeof(cf));
  
+ 	switch (*cmd) {
+ 	case 'r':
+@@ -186,8 +186,6 @@ static void slc_bump(struct slcan *sl)
+ 	else
+ 		return;
+ 
+-	*(u64 *) (&cf.data) = 0; /* clear payload */
+-
+ 	/* RTR frames may have a dlc > 0 but they never have any data bytes */
+ 	if (!(cf.can_id & CAN_RTR_FLAG)) {
+ 		for (i = 0; i < cf.can_dlc; i++) {
 
 
