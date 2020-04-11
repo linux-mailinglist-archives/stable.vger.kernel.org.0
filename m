@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23DBE1A501B
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24F231A4FD0
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727930AbgDKMOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:14:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47788 "EHLO mail.kernel.org"
+        id S1727085AbgDKML4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727923AbgDKMOZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:14:25 -0400
+        id S1727081AbgDKMLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:11:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D1EE20644;
-        Sat, 11 Apr 2020 12:14:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F2CE20787;
+        Sat, 11 Apr 2020 12:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607264;
-        bh=ClpNK7YaIusq5vXPWRiHoqLn7u4LMOODQtE2gj3vpCk=;
+        s=default; t=1586607114;
+        bh=N6vnlwzfy981sr4ZKV+FhqXf2JGvNBnllb4Y0XzO7jE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1FC+rkMI/vDLrhWsdESUYJUhpkgyY+vbGP/UFsXj6sSKzaRh2KAEBSxOK/++vHZ3
-         35zC7rK8PaidnrhZ5mrmVYmdCY1Z+DponJBaPmH3vkmWS2YP/ahGpMX4D2VX/eyIu2
-         Hs6I+kd1hDbYYlbco4MlcAk6DA+RLviZgAAwPZxg=
+        b=Th7b7lFbhYMGZjRVsWY70uxIHpzKQ8DDo3SyHZG/KV+jV4aCOMWA5vvgX4TOEfMMJ
+         VdJjqTRL/8dcEZm/JbTCV0nHe6M+QG0x9Jo333n6LIeHHnZ1bMDprHzm2MnkwFqmL1
+         /DGjMFMVVWV4zO2aEGQtwAO47QA0BLZtKHf03Ddo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Robert Beckett <bob.beckett@collabora.com>
-Subject: [PATCH 4.14 08/38] drm/etnaviv: replace MMU flush marker with flush sequence
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH 4.9 13/32] padata: always acquire cpu_hotplug_lock before pinst->lock
 Date:   Sat, 11 Apr 2020 14:08:52 +0200
-Message-Id: <20200411115438.750099499@linuxfoundation.org>
+Message-Id: <20200411115420.038161644@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
-References: <20200411115437.795556138@linuxfoundation.org>
+In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
+References: <20200411115418.455500023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,144 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit 4900dda90af2cb13bc1d4c12ce94b98acc8fe64e upstream.
+commit 38228e8848cd7dd86ccb90406af32de0cad24be3 upstream.
 
-If a MMU is shared between multiple GPUs, all of them need to flush their
-TLBs, so a single marker that gets reset on the first flush won't do.
-Replace the flush marker with a sequence number, so that it's possible to
-check if the TLB is in sync with the current page table state for each GPU.
+lockdep complains when padata's paths to update cpumasks via CPU hotplug
+and sysfs are both taken:
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Reviewed-by: Guido Günther <agx@sigxcpu.org>
-Signed-off-by: Robert Beckett <bob.beckett@collabora.com>
+  # echo 0 > /sys/devices/system/cpu/cpu1/online
+  # echo ff > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
+
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.4.0-rc8-padata-cpuhp-v3+ #1 Not tainted
+  ------------------------------------------------------
+  bash/205 is trying to acquire lock:
+  ffffffff8286bcd0 (cpu_hotplug_lock.rw_sem){++++}, at: padata_set_cpumask+0x2b/0x120
+
+  but task is already holding lock:
+  ffff8880001abfa0 (&pinst->lock){+.+.}, at: padata_set_cpumask+0x26/0x120
+
+  which lock already depends on the new lock.
+
+padata doesn't take cpu_hotplug_lock and pinst->lock in a consistent
+order.  Which should be first?  CPU hotplug calls into padata with
+cpu_hotplug_lock already held, so it should have priority.
+
+Fixes: 6751fb3c0e0c ("padata: Use get_online_cpus/put_online_cpus")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/etnaviv/etnaviv_buffer.c |   10 ++++++----
- drivers/gpu/drm/etnaviv/etnaviv_gpu.c    |    2 +-
- drivers/gpu/drm/etnaviv/etnaviv_gpu.h    |    1 +
- drivers/gpu/drm/etnaviv/etnaviv_mmu.c    |    8 ++++----
- drivers/gpu/drm/etnaviv/etnaviv_mmu.h    |    2 +-
- 5 files changed, 13 insertions(+), 10 deletions(-)
+ kernel/padata.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_buffer.c
-@@ -258,6 +258,8 @@ void etnaviv_buffer_queue(struct etnaviv
- 	unsigned int waitlink_offset = buffer->user_size - 16;
- 	u32 return_target, return_dwords;
- 	u32 link_target, link_dwords;
-+	unsigned int new_flush_seq = READ_ONCE(gpu->mmu->flush_seq);
-+	bool need_flush = gpu->flush_seq != new_flush_seq;
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -614,8 +614,8 @@ int padata_set_cpumask(struct padata_ins
+ 	struct cpumask *serial_mask, *parallel_mask;
+ 	int err = -EINVAL;
  
- 	if (drm_debug & DRM_UT_DRIVER)
- 		etnaviv_buffer_dump(gpu, buffer, 0, 0x50);
-@@ -270,14 +272,14 @@ void etnaviv_buffer_queue(struct etnaviv
- 	 * need to append a mmu flush load state, followed by a new
- 	 * link to this buffer - a total of four additional words.
- 	 */
--	if (gpu->mmu->need_flush || gpu->switch_context) {
-+	if (need_flush || gpu->switch_context) {
- 		u32 target, extra_dwords;
+-	mutex_lock(&pinst->lock);
+ 	get_online_cpus();
++	mutex_lock(&pinst->lock);
  
- 		/* link command */
- 		extra_dwords = 1;
+ 	switch (cpumask_type) {
+ 	case PADATA_CPU_PARALLEL:
+@@ -633,8 +633,8 @@ int padata_set_cpumask(struct padata_ins
+ 	err =  __padata_set_cpumasks(pinst, parallel_mask, serial_mask);
  
- 		/* flush command */
--		if (gpu->mmu->need_flush) {
-+		if (need_flush) {
- 			if (gpu->mmu->version == ETNAVIV_IOMMU_V1)
- 				extra_dwords += 1;
- 			else
-@@ -290,7 +292,7 @@ void etnaviv_buffer_queue(struct etnaviv
+ out:
+-	put_online_cpus();
+ 	mutex_unlock(&pinst->lock);
++	put_online_cpus();
  
- 		target = etnaviv_buffer_reserve(gpu, buffer, extra_dwords);
- 
--		if (gpu->mmu->need_flush) {
-+		if (need_flush) {
- 			/* Add the MMU flush */
- 			if (gpu->mmu->version == ETNAVIV_IOMMU_V1) {
- 				CMD_LOAD_STATE(buffer, VIVS_GL_FLUSH_MMU,
-@@ -310,7 +312,7 @@ void etnaviv_buffer_queue(struct etnaviv
- 					SYNC_RECIPIENT_PE);
- 			}
- 
--			gpu->mmu->need_flush = false;
-+			gpu->flush_seq = new_flush_seq;
- 		}
- 
- 		if (gpu->switch_context) {
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.c
-@@ -1353,7 +1353,7 @@ int etnaviv_gpu_submit(struct etnaviv_gp
- 	gpu->active_fence = submit->fence->seqno;
- 
- 	if (gpu->lastctx != cmdbuf->ctx) {
--		gpu->mmu->need_flush = true;
-+		gpu->mmu->flush_seq++;
- 		gpu->switch_context = true;
- 		gpu->lastctx = cmdbuf->ctx;
- 	}
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
-@@ -138,6 +138,7 @@ struct etnaviv_gpu {
- 
- 	struct etnaviv_iommu *mmu;
- 	struct etnaviv_cmdbuf_suballoc *cmdbuf_suballoc;
-+	unsigned int flush_seq;
- 
- 	/* Power Control: */
- 	struct clk *clk_bus;
---- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-@@ -132,7 +132,7 @@ static int etnaviv_iommu_find_iova(struc
- 		 */
- 		if (mmu->last_iova) {
- 			mmu->last_iova = 0;
--			mmu->need_flush = true;
-+			mmu->flush_seq++;
- 			continue;
- 		}
- 
-@@ -246,7 +246,7 @@ int etnaviv_iommu_map_gem(struct etnaviv
- 	}
- 
- 	list_add_tail(&mapping->mmu_node, &mmu->mappings);
--	mmu->need_flush = true;
-+	mmu->flush_seq++;
- 	mutex_unlock(&mmu->lock);
- 
- 	return ret;
-@@ -264,7 +264,7 @@ void etnaviv_iommu_unmap_gem(struct etna
- 		etnaviv_iommu_remove_mapping(mmu, mapping);
- 
- 	list_del(&mapping->mmu_node);
--	mmu->need_flush = true;
-+	mmu->flush_seq++;
- 	mutex_unlock(&mmu->lock);
+ 	return err;
  }
- 
-@@ -346,7 +346,7 @@ int etnaviv_iommu_get_suballoc_va(struct
- 			return ret;
- 		}
- 		mmu->last_iova = vram_node->start + size;
--		gpu->mmu->need_flush = true;
-+		mmu->flush_seq++;
- 		mutex_unlock(&mmu->lock);
- 
- 		*iova = (u32)vram_node->start;
---- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.h
-@@ -44,7 +44,7 @@ struct etnaviv_iommu {
- 	struct list_head mappings;
- 	struct drm_mm mm;
- 	u32 last_iova;
--	bool need_flush;
-+	unsigned int flush_seq;
- };
- 
- struct etnaviv_gem_object;
 
 
