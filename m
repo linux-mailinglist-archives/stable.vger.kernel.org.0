@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01C191A5AE7
+	by mail.lfdr.de (Postfix) with ESMTP id D42871A5AE9
 	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727908AbgDKXFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727906AbgDKXFU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 11 Apr 2020 19:05:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39220 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727896AbgDKXFS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:18 -0400
+        id S1727905AbgDKXFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1F392166E;
-        Sat, 11 Apr 2020 23:05:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2B1D20708;
+        Sat, 11 Apr 2020 23:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646318;
-        bh=qEoARqz4/n5PdvblnFfRlp7Dyltg2aXrVy7LZo+J3Go=;
+        s=default; t=1586646319;
+        bh=JVCRg00qyN38+Kp/WP5eK6VO6v1UbC+S0gqc9TyclDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgCyGmbZintb8ejUvmPH7OU3uqKYiJPOeNIzAmMVs5A7W/eExoDzeJZLr8zTyty/X
-         dtUzkgONOZKDEnrO7ti2BLBiiDgjC2mpB3z0uK02I37xJMSxMf3bjRxEp3LzMueUk+
-         KmIezcJQGyfr9ti95FvfG3mwv1jTuY3YIgc1SxRY=
+        b=ONt+Lv5oCvVpUBj7Q6hLfeHCwk2nAhhUYfXx+/BVqJbZDixcxwI+PTW/Eecc4Cy/s
+         /Slq8C08PxFjTmujUpmN8w3wiVnLPHPqHRUSYBOHCXraVOBAb6F/Q9tuMw2YL/i/VM
+         zJlQ/eSiwvoVZ+FRWvPNw4kHitVSF/C3aTOQtmBY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrea Righi <righi.andrea@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Peter Rosin <peda@axentia.se>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 073/149] fbdev: potential information leak in do_fb_ioctl()
-Date:   Sat, 11 Apr 2020 19:02:30 -0400
-Message-Id: <20200411230347.22371-73-sashal@kernel.org>
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+        Emil Velikov <emil.velikov@collabora.com>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 074/149] drm/crc: Actually allow to change the crc source
+Date:   Sat, 11 Apr 2020 19:02:31 -0400
+Message-Id: <20200411230347.22371-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -55,48 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit d3d19d6fc5736a798b118971935ce274f7deaa82 ]
+[ Upstream commit 3cb6d8e5cf9811a62e27f366fd1c05f90310a8fd ]
 
-The "fix" struct has a 2 byte hole after ->ywrapstep and the
-"fix = info->fix;" assignment doesn't necessarily clear it.  It depends
-on the compiler.  The solution is just to replace the assignment with an
-memcpy().
+Oops.
 
-Fixes: 1f5e31d7e55a ("fbmem: don't call copy_from/to_user() with mutex held")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrea Righi <righi.andrea@gmail.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Peter Rosin <peda@axentia.se>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200113100132.ixpaymordi24n3av@kili.mountain
+Fixes: 9edbf1fa600a ("drm: Add API for capturing frame CRCs")
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190821203835.18314-1-daniel.vetter@ffwll.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmem.c | 2 +-
+ drivers/gpu/drm/drm_debugfs_crc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
-index d04554959ea7e..bb8d8dbc0461c 100644
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1115,7 +1115,7 @@ static long do_fb_ioctl(struct fb_info *info, unsigned int cmd,
- 		break;
- 	case FBIOGET_FSCREENINFO:
- 		lock_fb_info(info);
--		fix = info->fix;
-+		memcpy(&fix, &info->fix, sizeof(fix));
- 		if (info->flags & FBINFO_HIDE_SMEM_START)
- 			fix.smem_start = 0;
- 		unlock_fb_info(info);
+diff --git a/drivers/gpu/drm/drm_debugfs_crc.c b/drivers/gpu/drm/drm_debugfs_crc.c
+index e22b812c4b802..5d67a41f7c3a8 100644
+--- a/drivers/gpu/drm/drm_debugfs_crc.c
++++ b/drivers/gpu/drm/drm_debugfs_crc.c
+@@ -372,7 +372,7 @@ void drm_debugfs_crtc_crc_add(struct drm_crtc *crtc)
+ 
+ 	crc_ent = debugfs_create_dir("crc", crtc->debugfs_entry);
+ 
+-	debugfs_create_file("control", S_IRUGO, crc_ent, crtc,
++	debugfs_create_file("control", S_IRUGO | S_IWUSR, crc_ent, crtc,
+ 			    &drm_crtc_crc_control_fops);
+ 	debugfs_create_file("data", S_IRUGO, crc_ent, crtc,
+ 			    &drm_crtc_crc_data_fops);
 -- 
 2.20.1
 
