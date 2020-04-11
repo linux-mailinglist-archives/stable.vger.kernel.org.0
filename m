@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11B7B1A5AFC
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA3F1A5AF1
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728316AbgDKXpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:45:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39676 "EHLO mail.kernel.org"
+        id S1727999AbgDKXFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:05:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727986AbgDKXF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:29 -0400
+        id S1727991AbgDKXFa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D617221835;
-        Sat, 11 Apr 2020 23:05:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3105120708;
+        Sat, 11 Apr 2020 23:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646328;
-        bh=nakkXGfNLVDozxCTevxo+JWMDbSpXrDWS5PkJAF2ipA=;
+        s=default; t=1586646329;
+        bh=9UiT+54dkE2BzQLulbKxri8KD5FKEpDi5HFaU1OOVk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mboQ15BFxYb9hSZq1FQZnfnSp+QdpJGfTsOW/pBemzI6J8Hw/6PNLX9RaPmLqScGe
-         5XWc0ifsMwqaCuGCtSH9AuRVOeBVrGYgcJPDcZ2o5/ZcVenf8p4ftD58YsY13xihGl
-         Oq86HyEPQztIKiOCDFwBWVSowyZBLfh5ueUhi9Go=
+        b=M/3gLdKI+o5Czm0yxwtvQblkEMXMuOLVHdcThahf+jEqOJ5xhUNhHiedGPmgDGq9R
+         VtLdMqSZ21Eci6a+fec8KgIigKS5VY8Hb2KVWGjRIEB0EZYvxQcH5BhHLmWrM6u2Dq
+         sSzgKsyBMa3SutiXhj0UiplN6ANbf37/HURoqqk8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tzung-Bi Shih <tzungbi@google.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 081/149] ASoC: mediatek: mt8183-da7219: pull TDM GPIO pins down when probed
-Date:   Sat, 11 Apr 2020 19:02:38 -0400
-Message-Id: <20200411230347.22371-81-sashal@kernel.org>
+Cc:     Yixian Liu <liuyixian@huawei.com>,
+        Salil Mehta <salil.mehta@huawei.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 082/149] RDMA/hns: Add the workqueue framework for flush cqe handler
+Date:   Sat, 11 Apr 2020 19:02:39 -0400
+Message-Id: <20200411230347.22371-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -45,165 +44,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@google.com>
+From: Yixian Liu <liuyixian@huawei.com>
 
-[ Upstream commit 8726ee6148fe24e2b29d4a961ad95c4ff8025d1d ]
+[ Upstream commit ffd541d45726341c1830ff595fd7352b6d1cfbcd ]
 
-1. Switch TDM GPIO pins according to playback on or off.
-2. Pull TDM GPIO pins down when probed to avoid current leakage.
+HiP08 RoCE hardware lacks ability(a known hardware problem) to flush
+outstanding WQEs if QP state gets into errored mode for some reason.  To
+overcome this hardware problem and as a workaround, when QP is detected to
+be in errored state during various legs like post send, post receive etc
+[1], flush needs to be performed from the driver.
 
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
-Link: https://lore.kernel.org/r/20200213112003.2.I1d568b0c99742c6e755d051aadfd52e4be3cc0a5@changeid
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The earlier patch[1] sent to solve the hardware limitation explained in
+the cover-letter had a bug in the software flushing leg. It acquired mutex
+while modifying QP state to errored state and while conveying it to the
+hardware using the mailbox. This caused leg to sleep while holding
+spin-lock and caused crash.
+
+Suggested Solution:
+we have proposed to defer the flushing of the QP in the Errored state
+using the workqueue to get around with the limitation of our hardware.
+
+This patch adds the framework of the workqueue and the flush handler
+function.
+
+[1] https://patchwork.kernel.org/patch/10534271/
+
+Link: https://lore.kernel.org/r/1580983005-13899-2-git-send-email-liuyixian@huawei.com
+Signed-off-by: Yixian Liu <liuyixian@huawei.com>
+Reviewed-by: Salil Mehta <salil.mehta@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../mediatek/mt8183/mt8183-da7219-max98357.c  | 104 +++++++++++++++++-
- 1 file changed, 98 insertions(+), 6 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_device.h | 20 ++++++-----
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c  |  3 +-
+ drivers/infiniband/hw/hns/hns_roce_qp.c     | 37 +++++++++++++++++++++
+ 3 files changed, 49 insertions(+), 11 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
-index c65493721e90d..a3974b0a90157 100644
---- a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
-+++ b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
-@@ -18,6 +18,22 @@
- 
- static struct snd_soc_jack headset_jack;
- 
-+enum PINCTRL_PIN_STATE {
-+	PIN_STATE_DEFAULT = 0,
-+	PIN_TDM_OUT_ON,
-+	PIN_TDM_OUT_OFF,
-+	PIN_STATE_MAX
-+};
-+
-+static const char * const mt8183_pin_str[PIN_STATE_MAX] = {
-+	"default", "aud_tdm_out_on", "aud_tdm_out_off",
-+};
-+
-+struct mt8183_da7219_max98357_priv {
-+	struct pinctrl *pinctrl;
-+	struct pinctrl_state *pin_states[PIN_STATE_MAX];
-+};
-+
- static int mt8183_mt6358_i2s_hw_params(struct snd_pcm_substream *substream,
- 				       struct snd_pcm_hw_params *params)
- {
-@@ -204,6 +220,47 @@ SND_SOC_DAILINK_DEFS(tdm,
- 	DAILINK_COMP_ARRAY(COMP_DUMMY()),
- 	DAILINK_COMP_ARRAY(COMP_EMPTY()));
- 
-+static int mt8183_da7219_tdm_startup(struct snd_pcm_substream *substream)
-+{
-+	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-+	struct mt8183_da7219_max98357_priv *priv =
-+		snd_soc_card_get_drvdata(rtd->card);
-+	int ret;
-+
-+	if (IS_ERR(priv->pin_states[PIN_TDM_OUT_ON]))
-+		return PTR_ERR(priv->pin_states[PIN_TDM_OUT_ON]);
-+
-+	ret = pinctrl_select_state(priv->pinctrl,
-+				   priv->pin_states[PIN_TDM_OUT_ON]);
-+	if (ret)
-+		dev_err(rtd->card->dev, "%s failed to select state %d\n",
-+			__func__, ret);
-+
-+	return ret;
-+}
-+
-+static void mt8183_da7219_tdm_shutdown(struct snd_pcm_substream *substream)
-+{
-+	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-+	struct mt8183_da7219_max98357_priv *priv =
-+		snd_soc_card_get_drvdata(rtd->card);
-+	int ret;
-+
-+	if (IS_ERR(priv->pin_states[PIN_TDM_OUT_OFF]))
-+		return;
-+
-+	ret = pinctrl_select_state(priv->pinctrl,
-+				   priv->pin_states[PIN_TDM_OUT_OFF]);
-+	if (ret)
-+		dev_err(rtd->card->dev, "%s failed to select state %d\n",
-+			__func__, ret);
-+}
-+
-+static struct snd_soc_ops mt8183_da7219_tdm_ops = {
-+	.startup = mt8183_da7219_tdm_startup,
-+	.shutdown = mt8183_da7219_tdm_shutdown,
-+};
-+
- static struct snd_soc_dai_link mt8183_da7219_max98357_dai_links[] = {
- 	/* FE */
- 	{
-@@ -353,6 +410,8 @@ static struct snd_soc_dai_link mt8183_da7219_max98357_dai_links[] = {
- 		.no_pcm = 1,
- 		.dpcm_playback = 1,
- 		.ignore_suspend = 1,
-+		.be_hw_params_fixup = mt8183_i2s_hw_params_fixup,
-+		.ops = &mt8183_da7219_tdm_ops,
- 		SND_SOC_DAILINK_REG(tdm),
- 	},
+diff --git a/drivers/infiniband/hw/hns/hns_roce_device.h b/drivers/infiniband/hw/hns/hns_roce_device.h
+index a7c4ff975c289..a089d47354391 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_device.h
++++ b/drivers/infiniband/hw/hns/hns_roce_device.h
+@@ -641,6 +641,15 @@ struct hns_roce_rinl_buf {
+ 	u32			 wqe_cnt;
  };
-@@ -409,7 +468,7 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
- 	struct snd_soc_card *card = &mt8183_da7219_max98357_card;
- 	struct device_node *platform_node;
- 	struct snd_soc_dai_link *dai_link;
--	struct pinctrl *default_pins;
-+	struct mt8183_da7219_max98357_priv *priv;
- 	int ret, i;
  
- 	card->dev = &pdev->dev;
-@@ -443,12 +502,45 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
- 		return ret;
++struct hns_roce_work {
++	struct hns_roce_dev *hr_dev;
++	struct work_struct work;
++	u32 qpn;
++	u32 cqn;
++	int event_type;
++	int sub_type;
++};
++
+ struct hns_roce_qp {
+ 	struct ib_qp		ibqp;
+ 	struct hns_roce_buf	hr_buf;
+@@ -684,6 +693,7 @@ struct hns_roce_qp {
+ 	struct hns_roce_sge	sge;
+ 	u32			next_sge;
+ 
++	struct hns_roce_work	flush_work;
+ 	struct hns_roce_rinl_buf rq_inl_buf;
+ 	struct list_head	node;		/* all qps are on a list */
+ 	struct list_head	rq_node;	/* all recv qps are on a list */
+@@ -906,15 +916,6 @@ struct hns_roce_caps {
+ 	u16		default_ceq_arm_st;
+ };
+ 
+-struct hns_roce_work {
+-	struct hns_roce_dev *hr_dev;
+-	struct work_struct work;
+-	u32 qpn;
+-	u32 cqn;
+-	int event_type;
+-	int sub_type;
+-};
+-
+ struct hns_roce_dfx_hw {
+ 	int (*query_cqc_info)(struct hns_roce_dev *hr_dev, u32 cqn,
+ 			      int *buffer);
+@@ -1237,6 +1238,7 @@ struct ib_qp *hns_roce_create_qp(struct ib_pd *ib_pd,
+ 				 struct ib_udata *udata);
+ int hns_roce_modify_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
+ 		       int attr_mask, struct ib_udata *udata);
++void init_flush_work(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp);
+ void *get_recv_wqe(struct hns_roce_qp *hr_qp, int n);
+ void *get_send_wqe(struct hns_roce_qp *hr_qp, int n);
+ void *get_send_extend_sge(struct hns_roce_qp *hr_qp, int n);
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 12c4cd8e9378c..950c604a6fcb4 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -6292,8 +6292,7 @@ static int hns_roce_v2_init_eq_table(struct hns_roce_dev *hr_dev)
+ 		goto err_request_irq_fail;
  	}
  
--	default_pins =
--		devm_pinctrl_get_select(&pdev->dev, PINCTRL_STATE_DEFAULT);
--	if (IS_ERR(default_pins)) {
--		dev_err(&pdev->dev, "%s set pins failed\n",
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	snd_soc_card_set_drvdata(card, priv);
-+
-+	priv->pinctrl = devm_pinctrl_get(&pdev->dev);
-+	if (IS_ERR(priv->pinctrl)) {
-+		dev_err(&pdev->dev, "%s devm_pinctrl_get failed\n",
- 			__func__);
--		return PTR_ERR(default_pins);
-+		return PTR_ERR(priv->pinctrl);
-+	}
-+
-+	for (i = 0; i < PIN_STATE_MAX; i++) {
-+		priv->pin_states[i] = pinctrl_lookup_state(priv->pinctrl,
-+							   mt8183_pin_str[i]);
-+		if (IS_ERR(priv->pin_states[i])) {
-+			ret = PTR_ERR(priv->pin_states[i]);
-+			dev_info(&pdev->dev, "%s Can't find pin state %s %d\n",
-+				 __func__, mt8183_pin_str[i], ret);
-+		}
-+	}
-+
-+	if (!IS_ERR(priv->pin_states[PIN_TDM_OUT_OFF])) {
-+		ret = pinctrl_select_state(priv->pinctrl,
-+					   priv->pin_states[PIN_TDM_OUT_OFF]);
-+		if (ret)
-+			dev_info(&pdev->dev,
-+				 "%s failed to select state %d\n",
-+				 __func__, ret);
-+	}
-+
-+	if (!IS_ERR(priv->pin_states[PIN_STATE_DEFAULT])) {
-+		ret = pinctrl_select_state(priv->pinctrl,
-+					   priv->pin_states[PIN_STATE_DEFAULT]);
-+		if (ret)
-+			dev_info(&pdev->dev,
-+				 "%s failed to select state %d\n",
-+				 __func__, ret);
- 	}
+-	hr_dev->irq_workq =
+-		create_singlethread_workqueue("hns_roce_irq_workqueue");
++	hr_dev->irq_workq = alloc_ordered_workqueue("hns_roce_irq_workq", 0);
+ 	if (!hr_dev->irq_workq) {
+ 		dev_err(dev, "Create irq workqueue failed!\n");
+ 		ret = -ENOMEM;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index 3257ad11be482..dab73140c5c29 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -43,6 +43,43 @@
  
- 	return ret;
+ #define SQP_NUM				(2 * HNS_ROCE_MAX_PORTS)
+ 
++static void flush_work_handle(struct work_struct *work)
++{
++	struct hns_roce_work *flush_work = container_of(work,
++					struct hns_roce_work, work);
++	struct hns_roce_qp *hr_qp = container_of(flush_work,
++					struct hns_roce_qp, flush_work);
++	struct device *dev = flush_work->hr_dev->dev;
++	struct ib_qp_attr attr;
++	int attr_mask;
++	int ret;
++
++	attr_mask = IB_QP_STATE;
++	attr.qp_state = IB_QPS_ERR;
++
++	ret = hns_roce_modify_qp(&hr_qp->ibqp, &attr, attr_mask, NULL);
++	if (ret)
++		dev_err(dev, "Modify QP to error state failed(%d) during CQE flush\n",
++			ret);
++
++	/*
++	 * make sure we signal QP destroy leg that flush QP was completed
++	 * so that it can safely proceed ahead now and destroy QP
++	 */
++	if (atomic_dec_and_test(&hr_qp->refcount))
++		complete(&hr_qp->free);
++}
++
++void init_flush_work(struct hns_roce_dev *hr_dev, struct hns_roce_qp *hr_qp)
++{
++	struct hns_roce_work *flush_work = &hr_qp->flush_work;
++
++	flush_work->hr_dev = hr_dev;
++	INIT_WORK(&flush_work->work, flush_work_handle);
++	atomic_inc(&hr_qp->refcount);
++	queue_work(hr_dev->irq_workq, &flush_work->work);
++}
++
+ void hns_roce_qp_event(struct hns_roce_dev *hr_dev, u32 qpn, int event_type)
+ {
+ 	struct device *dev = hr_dev->dev;
 -- 
 2.20.1
 
