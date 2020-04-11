@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44DD41A5AE3
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAAA31A5B07
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727865AbgDKXFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39110 "EHLO mail.kernel.org"
+        id S1727145AbgDKXqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:46:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727851AbgDKXFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:13 -0400
+        id S1727857AbgDKXFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AB7D214D8;
-        Sat, 11 Apr 2020 23:05:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5367320708;
+        Sat, 11 Apr 2020 23:05:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646313;
-        bh=6ujQpcxIGithtYCTLKGJdniW/4CHxY9NdvXu1hLNzmU=;
+        s=default; t=1586646315;
+        bh=bFF9EsdK7yStviCyRh8hGWO7jXX9/SlPzVbpZfSucu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kL81xW8Tm5coN1QxiZzoEFvudor1y/QlYPgrMSH6ZTb1F0XD6+8psJksCDwTi9a8J
-         Xjy5iaGLyk4Q8IEchBts44xnV0C3H9P7Ll3cWE7lN6y5ZzPkY7ZPPK1Ox436Dpe82o
-         5BYKUZIK98JOjgCqjRhyeNFaNa4Ncgo+FABK5oEU=
+        b=pjBHkYY7FMOs3UrKXewe1O4X8N2LjpK/SyMQdKCiJqvJ7H3IAk6hcuZbwq4d7jIOt
+         UauDG86gy/JB77ta12ZVAWUbn7MxaTeyBU5hT+VOoXb0g5YhqQZ3SBnlCZV8wj8Mj7
+         lVQZoTr8f9uKwMFVmFjbMdApWtqeyiOc4Ri13AYQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve Grubb <sgrubb@redhat.com>, Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, linux-audit@redhat.com
-Subject: [PATCH AUTOSEL 5.6 070/149] audit: CONFIG_CHANGE don't log internal bookkeeping as an event
-Date:   Sat, 11 Apr 2020 19:02:27 -0400
-Message-Id: <20200411230347.22371-70-sashal@kernel.org>
+Cc:     Sergey Shatunov <me@prok.pw>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 071/149] Bluetooth: btusb: Add support for 13d3:3548 Realtek 8822CE device
+Date:   Sat, 11 Apr 2020 19:02:28 -0400
+Message-Id: <20200411230347.22371-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -42,47 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Grubb <sgrubb@redhat.com>
+From: Sergey Shatunov <me@prok.pw>
 
-[ Upstream commit 70b3eeed49e8190d97139806f6fbaf8964306cdb ]
+[ Upstream commit eb3939e386ec8df6049697d388298590231ac79c ]
 
-Common Criteria calls out for any action that modifies the audit trail to
-be recorded. That usually is interpreted to mean insertion or removal of
-rules. It is not required to log modification of the inode information
-since the watch is still in effect. Additionally, if the rule is a never
-rule and the underlying file is one they do not want events for, they
-get an event for this bookkeeping update against their wishes.
+The ASUS FX505DV laptop contains RTL8822CE device with an
+associated BT chip using a USB ID of 13d3:3548.
+This patch add fw download support for it.
 
-Since no device/inode info is logged at insertion and no device/inode
-information is logged on update, there is nothing meaningful being
-communicated to the admin by the CONFIG_CHANGE updated_rules event. One
-can assume that the rule was not "modified" because it is still watching
-the intended target. If the device or inode cannot be resolved, then
-audit_panic is called which is sufficient.
+T:  Bus=03 Lev=01 Prnt=01 Port=03 Cnt=03 Dev#=  4 Spd=12   MxCh= 0
+D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=13d3 ProdID=3548 Rev= 0.00
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+S:  SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
 
-The correct resolution is to drop logging config_update events since
-the watch is still in effect but just on another unknown inode.
-
-Signed-off-by: Steve Grubb <sgrubb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Sergey Shatunov <me@prok.pw>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit_watch.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/bluetooth/btusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
-index 4508d5e0cf696..8a8fd732ff6d0 100644
---- a/kernel/audit_watch.c
-+++ b/kernel/audit_watch.c
-@@ -302,8 +302,6 @@ static void audit_update_watch(struct audit_parent *parent,
- 			if (oentry->rule.exe)
- 				audit_remove_mark(oentry->rule.exe);
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index f5924f3e8b8d8..fa207b7150128 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -387,6 +387,7 @@ static const struct usb_device_id blacklist_table[] = {
  
--			audit_watch_log_rule_change(r, owatch, "updated_rules");
--
- 			call_rcu(&oentry->rcu, audit_free_rule_rcu);
- 		}
+ 	/* Additional Realtek 8822CE Bluetooth devices */
+ 	{ USB_DEVICE(0x04ca, 0x4005), .driver_info = BTUSB_REALTEK },
++	{ USB_DEVICE(0x13d3, 0x3548), .driver_info = BTUSB_REALTEK },
  
+ 	/* Silicon Wave based devices */
+ 	{ USB_DEVICE(0x0c10, 0x0000), .driver_info = BTUSB_SWAVE },
 -- 
 2.20.1
 
