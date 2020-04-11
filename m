@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F98D1A5094
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE871A50FF
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726794AbgDKMTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:19:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54674 "EHLO mail.kernel.org"
+        id S1729011AbgDKMU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:20:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728278AbgDKMTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:19:18 -0400
+        id S1727608AbgDKMU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:20:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2243220644;
-        Sat, 11 Apr 2020 12:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B50920644;
+        Sat, 11 Apr 2020 12:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607558;
-        bh=c23UkYVsFZ4nUcoUxIyofAFnV0Q+OY8d9mDK8UqYR34=;
+        s=default; t=1586607626;
+        bh=KHHMwlUXQPyIsuBKNs5unVDwjd4W0sEXnD9GFZGIhkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WoTPmKms57ZZJnV3mHaYEBSr1dw1WeIXUIJTDUqmaZJXdjieLFZXhTR4g8E4ihlAe
-         ekAcbKoCYUzEfTfXa1lHGEtqYT7MEneRN0GNgaETu4Md0T4ompm+2LE1xniPV1Wqev
-         J8S9c7+njTKKZ372O8l7zyJQ/z4XbtLhCI0vh8HI=
+        b=aC9QcyMnok7n7MNLS3hYiDptqBResqZSncC4c3JmknkTUhQLutoqylBYsh01jCqG8
+         KKbFF1s3xEBHrYuNo0ZBR173JLhp8onuZYC9+9E8W20rDId8VUYUag3XhLaIfy/3zx
+         Zp7su3j8PKfuJcunviugJ56p+UUdgB8blZWHs/sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avihai Horon <avihaih@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.5 27/44] RDMA/cm: Update num_paths in cma_resolve_iboe_route error flow
-Date:   Sat, 11 Apr 2020 14:09:47 +0200
-Message-Id: <20200411115459.434449295@linuxfoundation.org>
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jason Wang <jasowang@redhat.com>, Will Deacon <will@kernel.org>
+Subject: [PATCH 5.6 11/38] tun: Dont put_page() for all negative return values from XDP program
+Date:   Sat, 11 Apr 2020 14:09:48 +0200
+Message-Id: <20200411115500.547343594@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
-References: <20200411115456.934174282@linuxfoundation.org>
+In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
+References: <20200411115459.324496182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,96 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avihai Horon <avihaih@mellanox.com>
+From: Will Deacon <will@kernel.org>
 
-commit 987914ab841e2ec281a35b54348ab109b4c0bb4e upstream.
+[ Upstream commit bee348907d19d654e8524d3a946dcd25b693aa7e ]
 
-After a successful allocation of path_rec, num_paths is set to 1, but any
-error after such allocation will leave num_paths uncleared.
+When an XDP program is installed, tun_build_skb() grabs a reference to
+the current page fragment page if the program returns XDP_REDIRECT or
+XDP_TX. However, since tun_xdp_act() passes through negative return
+values from the XDP program, it is possible to trigger the error path by
+mistake and accidentally drop a reference to the fragments page without
+taking one, leading to a spurious free. This is believed to be the cause
+of some KASAN use-after-free reports from syzbot [1], although without a
+reproducer it is not possible to confirm whether this patch fixes the
+problem.
 
-This causes to de-referencing a NULL pointer later on. Hence, num_paths
-needs to be set back to 0 if such an error occurs.
+Ensure that we only drop a reference to the fragments page if the XDP
+transmit or redirect operations actually fail.
 
-The following crash from syzkaller revealed it.
+[1] https://syzkaller.appspot.com/bug?id=e76a6af1be4acd727ff6bbca669833f98cbf5d95
 
-  kasan: CONFIG_KASAN_INLINE enabled
-  kasan: GPF could be caused by NULL-ptr deref or user memory access
-  general protection fault: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-  CPU: 0 PID: 357 Comm: syz-executor060 Not tainted 4.18.0+ #311
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-  rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
-  RIP: 0010:ib_copy_path_rec_to_user+0x94/0x3e0
-  Code: f1 f1 f1 f1 c7 40 0c 00 00 f4 f4 65 48 8b 04 25 28 00 00 00 48 89
-  45 c8 31 c0 e8 d7 60 24 ff 48 8d 7b 4c 48 89 f8 48 c1 e8 03 <42> 0f b6
-  14 30 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85
-  RSP: 0018:ffff88006586f980 EFLAGS: 00010207
-  RAX: 0000000000000009 RBX: 0000000000000000 RCX: 1ffff1000d5fe475
-  RDX: ffff8800621e17c0 RSI: ffffffff820d45f9 RDI: 000000000000004c
-  RBP: ffff88006586fa50 R08: ffffed000cb0df73 R09: ffffed000cb0df72
-  R10: ffff88006586fa70 R11: ffffed000cb0df73 R12: 1ffff1000cb0df30
-  R13: ffff88006586fae8 R14: dffffc0000000000 R15: ffff88006aff2200
-  FS: 00000000016fc880(0000) GS:ffff88006d000000(0000)
-  knlGS:0000000000000000
-  CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000020000040 CR3: 0000000063fec000 CR4: 00000000000006b0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-  ? ib_copy_path_rec_from_user+0xcc0/0xcc0
-  ? __mutex_unlock_slowpath+0xfc/0x670
-  ? wait_for_completion+0x3b0/0x3b0
-  ? ucma_query_route+0x818/0xc60
-  ucma_query_route+0x818/0xc60
-  ? ucma_listen+0x1b0/0x1b0
-  ? sched_clock_cpu+0x18/0x1d0
-  ? sched_clock_cpu+0x18/0x1d0
-  ? ucma_listen+0x1b0/0x1b0
-  ? ucma_write+0x292/0x460
-  ucma_write+0x292/0x460
-  ? ucma_close_id+0x60/0x60
-  ? sched_clock_cpu+0x18/0x1d0
-  ? sched_clock_cpu+0x18/0x1d0
-  __vfs_write+0xf7/0x620
-  ? ucma_close_id+0x60/0x60
-  ? kernel_read+0x110/0x110
-  ? time_hardirqs_on+0x19/0x580
-  ? lock_acquire+0x18b/0x3a0
-  ? finish_task_switch+0xf3/0x5d0
-  ? _raw_spin_unlock_irq+0x29/0x40
-  ? _raw_spin_unlock_irq+0x29/0x40
-  ? finish_task_switch+0x1be/0x5d0
-  ? __switch_to_asm+0x34/0x70
-  ? __switch_to_asm+0x40/0x70
-  ? security_file_permission+0x172/0x1e0
-  vfs_write+0x192/0x460
-  ksys_write+0xc6/0x1a0
-  ? __ia32_sys_read+0xb0/0xb0
-  ? entry_SYSCALL_64_after_hwframe+0x3e/0xbe
-  ? do_syscall_64+0x1d/0x470
-  do_syscall_64+0x9e/0x470
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fixes: 3c86aa70bf67 ("RDMA/cm: Add RDMA CM support for IBoE devices")
-Link: https://lore.kernel.org/r/20200318101741.47211-1-leon@kernel.org
-Signed-off-by: Avihai Horon <avihaih@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+CC: Eric Dumazet <edumazet@google.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Fixes: 8ae1aff0b331 ("tuntap: split out XDP logic")
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/infiniband/core/cma.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/tun.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2938,6 +2938,7 @@ static int cma_resolve_iboe_route(struct
- err2:
- 	kfree(route->path_rec);
- 	route->path_rec = NULL;
-+	route->num_paths = 0;
- err1:
- 	kfree(work);
- 	return ret;
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1715,8 +1715,12 @@ static struct sk_buff *tun_build_skb(str
+ 			alloc_frag->offset += buflen;
+ 		}
+ 		err = tun_xdp_act(tun, xdp_prog, &xdp, act);
+-		if (err < 0)
+-			goto err_xdp;
++		if (err < 0) {
++			if (act == XDP_REDIRECT || act == XDP_TX)
++				put_page(alloc_frag->page);
++			goto out;
++		}
++
+ 		if (err == XDP_REDIRECT)
+ 			xdp_do_flush();
+ 		if (err != XDP_PASS)
+@@ -1730,8 +1734,6 @@ static struct sk_buff *tun_build_skb(str
+ 
+ 	return __tun_build_skb(tfile, alloc_frag, buf, buflen, len, pad);
+ 
+-err_xdp:
+-	put_page(alloc_frag->page);
+ out:
+ 	rcu_read_unlock();
+ 	local_bh_enable();
 
 
