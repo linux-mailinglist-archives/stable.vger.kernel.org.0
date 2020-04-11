@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 498FA1A504D
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 300FD1A512E
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728244AbgDKMQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:16:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50680 "EHLO mail.kernel.org"
+        id S1728663AbgDKMSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:18:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728230AbgDKMQZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:16:25 -0400
+        id S1728637AbgDKMSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:18:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB62620644;
-        Sat, 11 Apr 2020 12:16:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B278620692;
+        Sat, 11 Apr 2020 12:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607385;
-        bh=dpfyoqYK+cIid3t/XNrCEQrJnEpFdEWoOdbgFnCpj9E=;
+        s=default; t=1586607525;
+        bh=B3GBhkh1zFQdO+Yd14yu8K4EowbDYm982dglZ62IBU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ueH+lVx8n4v5MHMBRB8+uwjseSy7LSwMm0PwViGH6YBdUEztiGo9KztJJh5qOy7rw
-         9a9GBkPvaeGKOsU19PKDGZhr5jwLvzlQBob53sZy3FQiu8+8ntB7CyV9RK784fn0Zj
-         YC6yXBvo7GIwuHnQXaepRpabJzbz/yJ30fAmzu+Q=
+        b=C0xcQIkxfFst6fbC/WNRNAbVA5Cvhh4bsbVYJtfHefoB0JVtaRs3xOCQYNMJC+Qjc
+         3TEWDmp/v8qbgGNWwqLy5/p5tS9qipS3uvKZv4FJKXV1cjOOkv2xUmiRpJpVRFzg8C
+         EuX97sciz/j2DpdcHtY8ImygJCI3C8U/LKVS6g9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Arun KS <arunks@codeaurora.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.19 51/54] arm64: Fix size of __early_cpu_boot_status
-Date:   Sat, 11 Apr 2020 14:09:33 +0200
-Message-Id: <20200411115513.777221979@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 14/44] cxgb4: free MQPRIO resources in shutdown path
+Date:   Sat, 11 Apr 2020 14:09:34 +0200
+Message-Id: <20200411115458.100740804@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
-References: <20200411115508.284500414@linuxfoundation.org>
+In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
+References: <20200411115456.934174282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun KS <arunks@codeaurora.org>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-commit 61cf61d81e326163ce1557ceccfca76e11d0e57c upstream.
+[ Upstream commit cef8dac96bc108633f5090bb3a9988d734dc1ee0 ]
 
-__early_cpu_boot_status is of type long. Use quad
-assembler directive to allocate proper size.
+Perform missing MQPRIO resource cleanup in PCI shutdown path. Also,
+fix MQPRIO MSIX bitmap leak in resource cleanup.
 
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Arun KS <arunks@codeaurora.org>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: b1396c2bd675 ("cxgb4: parse and configure TC-MQPRIO offload")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/kernel/head.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c      |    4 +++
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c |   23 +++++++++++++++++++
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.h |    1 
+ 3 files changed, 28 insertions(+)
 
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -667,7 +667,7 @@ ENTRY(__boot_cpu_mode)
-  * with MMU turned off.
-  */
- ENTRY(__early_cpu_boot_status)
--	.long 	0
-+	.quad 	0
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+@@ -6651,6 +6651,10 @@ static void shutdown_one(struct pci_dev
+ 			if (adapter->port[i]->reg_state == NETREG_REGISTERED)
+ 				cxgb_close(adapter->port[i]);
  
- 	.popsection
++		rtnl_lock();
++		cxgb4_mqprio_stop_offload(adapter);
++		rtnl_unlock();
++
+ 		if (is_uld(adapter)) {
+ 			detach_ulds(adapter);
+ 			t4_uld_clean_up(adapter);
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c
+@@ -301,6 +301,7 @@ static void cxgb4_mqprio_free_hw_resourc
+ 			cxgb4_clear_msix_aff(eorxq->msix->vec,
+ 					     eorxq->msix->aff_mask);
+ 			free_irq(eorxq->msix->vec, &eorxq->rspq);
++			cxgb4_free_msix_idx_in_bmap(adap, eorxq->msix->idx);
+ 		}
  
+ 		free_rspq_fl(adap, &eorxq->rspq, &eorxq->fl);
+@@ -611,6 +612,28 @@ out:
+ 	return ret;
+ }
+ 
++void cxgb4_mqprio_stop_offload(struct adapter *adap)
++{
++	struct cxgb4_tc_port_mqprio *tc_port_mqprio;
++	struct net_device *dev;
++	u8 i;
++
++	if (!adap->tc_mqprio || !adap->tc_mqprio->port_mqprio)
++		return;
++
++	for_each_port(adap, i) {
++		dev = adap->port[i];
++		if (!dev)
++			continue;
++
++		tc_port_mqprio = &adap->tc_mqprio->port_mqprio[i];
++		if (!tc_port_mqprio->mqprio.qopt.num_tc)
++			continue;
++
++		cxgb4_mqprio_disable_offload(dev);
++	}
++}
++
+ int cxgb4_init_tc_mqprio(struct adapter *adap)
+ {
+ 	struct cxgb4_tc_port_mqprio *tc_port_mqprio, *port_mqprio;
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.h
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.h
+@@ -38,6 +38,7 @@ struct cxgb4_tc_mqprio {
+ 
+ int cxgb4_setup_tc_mqprio(struct net_device *dev,
+ 			  struct tc_mqprio_qopt_offload *mqprio);
++void cxgb4_mqprio_stop_offload(struct adapter *adap);
+ int cxgb4_init_tc_mqprio(struct adapter *adap);
+ void cxgb4_cleanup_tc_mqprio(struct adapter *adap);
+ #endif /* __CXGB4_TC_MQPRIO_H__ */
 
 
