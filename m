@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC7171A5A5B
+	by mail.lfdr.de (Postfix) with ESMTP id 679FB1A5A5A
 	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729721AbgDKXml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728620AbgDKXml (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 11 Apr 2020 19:42:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42030 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728448AbgDKXGf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:06:35 -0400
+        id S1728457AbgDKXGg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:06:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 778CE20708;
-        Sat, 11 Apr 2020 23:06:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96D0821D79;
+        Sat, 11 Apr 2020 23:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646395;
-        bh=6cpDHra3VK6YBdwU4Vw65HnX8418eynO67K/MYj2dL0=;
+        s=default; t=1586646396;
+        bh=YwOEWJys0ZVCDYmhC/244uFd8fv9w4ppVjzDJ/nl4ZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCXt9MjY4o+fWS4tV0bA6y70SKXbAFi/Er5Q02iw7uChoupCDMbFD6mO9yzNa9CsM
-         s/bwiH3KeLH2f00Q1+iS3bxV7SEdc4pSSFzz6tEU3H8Rw66RespzqZmj8HLngLmqqx
-         ULWoAzx1SOZJatFqvPAPxPGIvqt6wXAi4ImZC5Ew=
+        b=NO15dSQmtHhTlmmU+3Cd7c4Eq8Y6Nk3BHDhfbZEICIq08tfBC00jsjwaPJ1mfd2H4
+         bS2P0tZvfMGB5GvunmA2ldZV/HN+Mg1wKyJFvH2keIeBrS3jo73yiyJB/mVinU8DDW
+         39VL2+sB52rJfZRSDJHZ1pcrFbevBYLbqvgbu7Lc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 133/149] ARM: shmobile: Enable ARM_GLOBAL_TIMER on Cortex-A9 MPCore SoCs
-Date:   Sat, 11 Apr 2020 19:03:30 -0400
-Message-Id: <20200411230347.22371-133-sashal@kernel.org>
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Michael Srba <Michael.Srba@seznam.cz>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 134/149] arm64: dts: qcom: msm8916-samsung-a2015: Reserve Samsung firmware memory
+Date:   Sat, 11 Apr 2020 19:03:31 -0400
+Message-Id: <20200411230347.22371-134-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -44,76 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 408324a3c5383716939eea8096a0f999a0665f7e ]
+[ Upstream commit 8f4a7a00c1019df72cda3002643fb5823ef39183 ]
 
-SH-Mobile AG5 and R-Car H1 SoCs are based on the Cortex-A9 MPCore, which
-includes a global timer.
+At the moment, writing large amounts of data to the eMMC causes the device
+to freeze. The symptoms vary, sometimes the device reboots immediately,
+but usually it will just get stuck.
 
-Enable the ARM global timer on these SoCs, which will be used for:
-  - the scheduler clock, improving scheduler accuracy from 10 ms to 3 or
-    4 ns,
-  - delay loops, allowing removal of calls to shmobile_init_delay() from
-    the corresponding machine vectors.
+It turns out that the issue is not actually related to the eMMC:
+Apparently, Samsung has made some modifications to the TrustZone firmware.
+These require additional memory which is reserved at 0x85500000-0x86000000.
+The downstream kernel describes this memory reservation as:
 
-Note that when using an old DTB lacking the global timer, the kernel
-will still work.  However, loops-per-jiffies will no longer be preset,
-and the delay loop will need to be calibrated during boot.
+/* Additionally Reserved 6MB for TIMA and Increased the TZ app size
+ * by 2MB [total 8 MB ]
+ */
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20191211135222.26770-5-geert+renesas@glider.be
+This suggests that it is used for additional TZ apps, although the extra
+memory is actually 11 MB instead of the 8 MB mentioned in the comment.
+
+Writing to the protected memory causes the kernel to crash or freeze.
+In our case, writing to the eMMC causes the disk cache to fill
+the available RAM, until the kernel eventually crashes
+when attempting to use the reserved memory.
+
+Add the additional memory as reserved-memory to fix this problem.
+
+Fixes: 1329c1ab0730 ("arm64: dts: qcom: Add device tree for Samsung Galaxy A3U/A5U")
+Reported-by: Michael Srba <Michael.Srba@seznam.cz>
+Tested-by: Michael Srba <Michael.Srba@seznam.cz> # a3u
+Tested-by: Stephan Gerhold <stephan@gerhold.net> # a5u
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20191231112511.83342-1-stephan@gerhold.net
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-shmobile/setup-r8a7779.c | 1 -
- arch/arm/mach-shmobile/setup-sh73a0.c  | 1 -
- drivers/soc/renesas/Kconfig            | 2 ++
- 3 files changed, 2 insertions(+), 2 deletions(-)
+ .../arm64/boot/dts/qcom/msm8916-samsung-a2015-common.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm/mach-shmobile/setup-r8a7779.c b/arch/arm/mach-shmobile/setup-r8a7779.c
-index b13ec9088ce53..86406e3f9b22e 100644
---- a/arch/arm/mach-shmobile/setup-r8a7779.c
-+++ b/arch/arm/mach-shmobile/setup-r8a7779.c
-@@ -72,7 +72,6 @@ static const char *const r8a7779_compat_dt[] __initconst = {
- DT_MACHINE_START(R8A7779_DT, "Generic R8A7779 (Flattened Device Tree)")
- 	.smp		= smp_ops(r8a7779_smp_ops),
- 	.map_io		= r8a7779_map_io,
--	.init_early	= shmobile_init_delay,
- 	.init_irq	= r8a7779_init_irq_dt,
- 	.init_late	= shmobile_init_late,
- 	.dt_compat	= r8a7779_compat_dt,
-diff --git a/arch/arm/mach-shmobile/setup-sh73a0.c b/arch/arm/mach-shmobile/setup-sh73a0.c
-index cc08aa7522447..eb4a62fa42895 100644
---- a/arch/arm/mach-shmobile/setup-sh73a0.c
-+++ b/arch/arm/mach-shmobile/setup-sh73a0.c
-@@ -56,7 +56,6 @@ static const char *const sh73a0_boards_compat_dt[] __initconst = {
- DT_MACHINE_START(SH73A0_DT, "Generic SH73A0 (Flattened Device Tree)")
- 	.smp		= smp_ops(sh73a0_smp_ops),
- 	.map_io		= sh73a0_map_io,
--	.init_early	= shmobile_init_delay,
- 	.init_machine	= sh73a0_generic_init,
- 	.init_late	= shmobile_init_late,
- 	.dt_compat	= sh73a0_boards_compat_dt,
-diff --git a/drivers/soc/renesas/Kconfig b/drivers/soc/renesas/Kconfig
-index ba2b8b51d2d98..de5cfe3fddd33 100644
---- a/drivers/soc/renesas/Kconfig
-+++ b/drivers/soc/renesas/Kconfig
-@@ -116,6 +116,7 @@ config ARCH_R8A7779
- 	bool "R-Car H1 (R8A77790)"
- 	select ARCH_RCAR_GEN1
- 	select ARM_ERRATA_754322
-+	select ARM_GLOBAL_TIMER
- 	select HAVE_ARM_SCU if SMP
- 	select HAVE_ARM_TWD if SMP
- 	select SYSC_R8A7779
-@@ -163,6 +164,7 @@ config ARCH_SH73A0
- 	bool "SH-Mobile AG5 (R8A73A00)"
- 	select ARCH_RMOBILE
- 	select ARM_ERRATA_754322
-+	select ARM_GLOBAL_TIMER
- 	select HAVE_ARM_SCU if SMP
- 	select HAVE_ARM_TWD if SMP
- 	select RENESAS_INTC_IRQPIN
+diff --git a/arch/arm64/boot/dts/qcom/msm8916-samsung-a2015-common.dtsi b/arch/arm64/boot/dts/qcom/msm8916-samsung-a2015-common.dtsi
+index bd1eb3eeca53f..43c5e0f882f14 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916-samsung-a2015-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916-samsung-a2015-common.dtsi
+@@ -15,6 +15,14 @@
+ 		stdout-path = "serial0";
+ 	};
+ 
++	reserved-memory {
++		/* Additional memory used by Samsung firmware modifications */
++		tz-apps@85500000 {
++			reg = <0x0 0x85500000 0x0 0xb00000>;
++			no-map;
++		};
++	};
++
+ 	soc {
+ 		sdhci@7824000 {
+ 			status = "okay";
 -- 
 2.20.1
 
