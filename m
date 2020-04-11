@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F871A5B83
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB701A5B68
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:50:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727464AbgDKXuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:50:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S1727059AbgDKXEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:04:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727035AbgDKXEM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:04:12 -0400
+        id S1727048AbgDKXEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:04:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5609521744;
-        Sat, 11 Apr 2020 23:04:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 682AF2173E;
+        Sat, 11 Apr 2020 23:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646253;
-        bh=bWe9TyO+BEOJERZoFu6CknnWm3u8T2fd8Nn4tYI6FTQ=;
+        s=default; t=1586646254;
+        bh=xiyflRifsOXsJLL/7BvIprL3s/32ge0KuHtMipDMcBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2oR9YrSJIsm0S1ldKwMK7Flq6RG332P2rnhx0ljUHz3Oe7qqFTV6GI3wk3ff4+rli
-         +tHAAKMljRK2pgRjAfjoOGjDes+kIozbi6VyjaqFfzPgRC6T2k2o1CNrSHZhMAHY+U
-         jS+4QyLnXfV0qGo8Xemf9qy8dzqbRJzzrGb9F2ZQ=
+        b=BkswcVO+b8bdQ//LhbWfue42Oy1wGaSO9jof4eognFA9WHp2tnYlmsCR92dJKGWRU
+         Utrx2mOdvdugl0aqEBXCmv8TgHTo6ZTUkfu7A8ZXuSiXpIWvY0bdtP71jsGooXCAH5
+         hADqNIktLEMPY5OXdtpEajPEk/Y6Zx+Fsn8xYLww=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jason Gunthorpe <jgg@mellanox.com>,
         Leon Romanovsky <leonro@mellanox.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 020/149] RDMA/cm: Fix ordering of xa_alloc_cyclic() in ib_create_cm_id()
-Date:   Sat, 11 Apr 2020 19:01:37 -0400
-Message-Id: <20200411230347.22371-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 021/149] RDMA/cm: Add missing locking around id.state in cm_dup_req_handler
+Date:   Sat, 11 Apr 2020 19:01:38 -0400
+Message-Id: <20200411230347.22371-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -45,92 +45,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit e8dc4e885c459343970b25acd9320fe9ee5492e7 ]
+[ Upstream commit d1de9a88074b66482443f0cd91618d7b51a7c9b6 ]
 
-xa_alloc_cyclic() is a SMP release to be paired with some later acquire
-during xa_load() as part of cm_acquire_id().
-
-As such, xa_alloc_cyclic() must be done after the cm_id is fully
-initialized, in particular, it absolutely must be after the
-refcount_set(), otherwise the refcount_inc() in cm_acquire_id() may not
-see the set.
-
-As there are several cases where a reader will be able to use the
-id.local_id after cm_acquire_id in the IB_CM_IDLE state there needs to be
-an unfortunate split into a NULL allocate and a finalizing xa_store.
+All accesses to id.state must be done under the spinlock.
 
 Fixes: a977049dacde ("[PATCH] IB: Add the kernel CM implementation")
-Link: https://lore.kernel.org/r/20200310092545.251365-2-leon@kernel.org
+Link: https://lore.kernel.org/r/20200310092545.251365-10-leon@kernel.org
 Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cm.c | 27 +++++++++++----------------
- 1 file changed, 11 insertions(+), 16 deletions(-)
+ drivers/infiniband/core/cm.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index 15e99a8884275..3b2b9a3546a13 100644
+index 3b2b9a3546a13..f3a845c100384 100644
 --- a/drivers/infiniband/core/cm.c
 +++ b/drivers/infiniband/core/cm.c
-@@ -572,18 +572,6 @@ static int cm_init_av_by_path(struct sa_path_rec *path,
- 	return 0;
- }
+@@ -1833,8 +1833,12 @@ static void cm_dup_req_handler(struct cm_work *work,
+ 			counter[CM_REQ_COUNTER]);
  
--static int cm_alloc_id(struct cm_id_private *cm_id_priv)
--{
--	int err;
--	u32 id;
--
--	err = xa_alloc_cyclic_irq(&cm.local_id_table, &id, cm_id_priv,
--			xa_limit_32b, &cm.local_id_next, GFP_KERNEL);
--
--	cm_id_priv->id.local_id = (__force __be32)id ^ cm.random_id_operand;
--	return err;
--}
--
- static u32 cm_local_id(__be32 local_id)
- {
- 	return (__force u32) (local_id ^ cm.random_id_operand);
-@@ -825,6 +813,7 @@ struct ib_cm_id *ib_create_cm_id(struct ib_device *device,
- 				 void *context)
- {
- 	struct cm_id_private *cm_id_priv;
-+	u32 id;
- 	int ret;
+ 	/* Quick state check to discard duplicate REQs. */
+-	if (cm_id_priv->id.state == IB_CM_REQ_RCVD)
++	spin_lock_irq(&cm_id_priv->lock);
++	if (cm_id_priv->id.state == IB_CM_REQ_RCVD) {
++		spin_unlock_irq(&cm_id_priv->lock);
+ 		return;
++	}
++	spin_unlock_irq(&cm_id_priv->lock);
  
- 	cm_id_priv = kzalloc(sizeof *cm_id_priv, GFP_KERNEL);
-@@ -836,9 +825,6 @@ struct ib_cm_id *ib_create_cm_id(struct ib_device *device,
- 	cm_id_priv->id.cm_handler = cm_handler;
- 	cm_id_priv->id.context = context;
- 	cm_id_priv->id.remote_cm_qpn = 1;
--	ret = cm_alloc_id(cm_id_priv);
--	if (ret)
--		goto error;
- 
- 	spin_lock_init(&cm_id_priv->lock);
- 	init_completion(&cm_id_priv->comp);
-@@ -847,11 +833,20 @@ struct ib_cm_id *ib_create_cm_id(struct ib_device *device,
- 	INIT_LIST_HEAD(&cm_id_priv->altr_list);
- 	atomic_set(&cm_id_priv->work_count, -1);
- 	refcount_set(&cm_id_priv->refcount, 1);
-+
-+	ret = xa_alloc_cyclic_irq(&cm.local_id_table, &id, NULL, xa_limit_32b,
-+				  &cm.local_id_next, GFP_KERNEL);
-+	if (ret)
-+		goto error;
-+	cm_id_priv->id.local_id = (__force __be32)id ^ cm.random_id_operand;
-+	xa_store_irq(&cm.local_id_table, cm_local_id(cm_id_priv->id.local_id),
-+		     cm_id_priv, GFP_KERNEL);
-+
- 	return &cm_id_priv->id;
- 
- error:
- 	kfree(cm_id_priv);
--	return ERR_PTR(-ENOMEM);
-+	return ERR_PTR(ret);
- }
- EXPORT_SYMBOL(ib_create_cm_id);
- 
+ 	ret = cm_alloc_response_msg(work->port, work->mad_recv_wc, &msg);
+ 	if (ret)
 -- 
 2.20.1
 
