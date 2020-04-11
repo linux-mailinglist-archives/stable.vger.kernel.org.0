@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84CEB1A505E
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75D741A5116
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:23:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726793AbgDKMRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:17:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51680 "EHLO mail.kernel.org"
+        id S1728817AbgDKMTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:19:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728363AbgDKMRJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:17:09 -0400
+        id S1728808AbgDKMTc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:19:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C8BC20644;
-        Sat, 11 Apr 2020 12:17:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DE2F2084D;
+        Sat, 11 Apr 2020 12:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607428;
-        bh=JYLApusJ2vZ0Fk5B+rq4ZitGLZMDKMrcIp+WZ7wLTKY=;
+        s=default; t=1586607573;
+        bh=ac9LB+mggSg1L55NuykFTX4QFSdgB8uLvduZC4UzgWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UL//3BU/JLd9cG6Su8faxoFjcoR3b8WdgFDSEsx5ma+4moBOipu9PqZZIrEZGT5KH
-         5YjbNCxOwR2fS8KsLEQc7duTBiHVhDMqcMK/maMetEvqDoKSfymlXqKqvpqX47QIjP
-         C4tn1JEYQBKeEsUAMl6LojPlOPTizNN7rqZicZoc=
+        b=vxROhwuCWALl10m6xCyJ8cuTvdbN41vcSRceo2XD+3K6EoTN/NJUuMmMFk1X0gjFX
+         5Xi7rOYIr1KFqr/Uym7l80eklQlk3P/tOmc3mRS0tPMa/idS5EifjBWFMP5wCAssRG
+         UhKkcGsHzUuOETTQ/t6tbCUcOaX7tHNQNJnAzTCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 16/41] random: always use batched entropy for get_random_u{32,64}
-Date:   Sat, 11 Apr 2020 14:09:25 +0200
-Message-Id: <20200411115505.212960460@linuxfoundation.org>
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.5 06/44] net: phy: micrel: kszphy_resume(): add delay after genphy_resume() before accessing PHY registers
+Date:   Sat, 11 Apr 2020 14:09:26 +0200
+Message-Id: <20200411115457.413602141@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
-References: <20200411115504.124035693@linuxfoundation.org>
+In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
+References: <20200411115456.934174282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit 69efea712f5b0489e67d07565aad5c94e09a3e52 upstream.
+[ Upstream commit 6110dff776f7fa65c35850ef65b41d3b39e2fac2 ]
 
-It turns out that RDRAND is pretty slow. Comparing these two
-constructions:
+After the power-down bit is cleared, the chip internally triggers a
+global reset. According to the KSZ9031 documentation, we have to wait at
+least 1ms for the reset to finish.
 
-  for (i = 0; i < CHACHA_BLOCK_SIZE; i += sizeof(ret))
-    arch_get_random_long(&ret);
+If the chip is accessed during reset, read will return 0xffff, while
+write will be ignored. Depending on the system performance and MDIO bus
+speed, we may or may not run in to this issue.
 
-and
+This bug was discovered on an iMX6QP system with KSZ9031 PHY and
+attached PHY interrupt line. If IRQ was used, the link status update was
+lost. In polling mode, the link status update was always correct.
 
-  long buf[CHACHA_BLOCK_SIZE / sizeof(long)];
-  extract_crng((u8 *)buf);
+The investigation showed, that during a read-modify-write access, the
+read returned 0xffff (while the chip was still in reset) and
+corresponding write hit the chip _after_ reset and triggered (due to the
+0xffff) another reset in an undocumented bit (register 0x1f, bit 1),
+resulting in the next write being lost due to the new reset cycle.
 
-it amortizes out to 352 cycles per long for the top one and 107 cycles
-per long for the bottom one, on Coffee Lake Refresh, Intel Core i9-9880H.
+This patch fixes the issue by adding a 1...2 ms sleep after the
+genphy_resume().
 
-And importantly, the top one has the drawback of not benefiting from the
-real rng, whereas the bottom one has all the nice benefits of using our
-own chacha rng. As get_random_u{32,64} gets used in more places (perhaps
-beyond what it was originally intended for when it was introduced as
-get_random_{int,long} back in the md5 monstrosity era), it seems like it
-might be a good thing to strengthen its posture a tiny bit. Doing this
-should only be stronger and not any weaker because that pool is already
-initialized with a bunch of rdrand data (when available). This way, we
-get the benefits of the hardware rng as well as our own rng.
-
-Another benefit of this is that we no longer hit pitfalls of the recent
-stream of AMD bugs in RDRAND. One often used code pattern for various
-things is:
-
-  do {
-  	val = get_random_u32();
-  } while (hash_table_contains_key(val));
-
-That recent AMD bug rendered that pattern useless, whereas we're really
-very certain that chacha20 output will give pretty distributed numbers,
-no matter what.
-
-So, this simplification seems better both from a security perspective
-and from a performance perspective.
-
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200221201037.30231-1-Jason@zx2c4.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 836384d2501d ("net: phy: micrel: Add specific suspend")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/char/random.c |   20 ++++----------------
- 1 file changed, 4 insertions(+), 16 deletions(-)
+ drivers/net/phy/micrel.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -2358,11 +2358,11 @@ struct batched_entropy {
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -25,6 +25,7 @@
+ #include <linux/micrel_phy.h>
+ #include <linux/of.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
  
- /*
-  * Get a random word for internal kernel use only. The quality of the random
-- * number is either as good as RDRAND or as good as /dev/urandom, with the
-- * goal of being quite fast and not depleting entropy. In order to ensure
-+ * number is good as /dev/urandom, but there is no backtrack protection, with
-+ * the goal of being quite fast and not depleting entropy. In order to ensure
-  * that the randomness provided by this function is okay, the function
-- * wait_for_random_bytes() should be called and return 0 at least once
-- * at any point prior.
-+ * wait_for_random_bytes() should be called and return 0 at least once at any
-+ * point prior.
-  */
- static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u64) = {
- 	.batch_lock	= __SPIN_LOCK_UNLOCKED(batched_entropy_u64.lock),
-@@ -2375,15 +2375,6 @@ u64 get_random_u64(void)
- 	struct batched_entropy *batch;
- 	static void *previous;
+ /* Operation Mode Strap Override */
+ #define MII_KSZPHY_OMSO				0x16
+@@ -902,6 +903,12 @@ static int kszphy_resume(struct phy_devi
  
--#if BITS_PER_LONG == 64
--	if (arch_get_random_long((unsigned long *)&ret))
--		return ret;
--#else
--	if (arch_get_random_long((unsigned long *)&ret) &&
--	    arch_get_random_long((unsigned long *)&ret + 1))
--	    return ret;
--#endif
--
- 	warn_unseeded_randomness(&previous);
+ 	genphy_resume(phydev);
  
- 	batch = raw_cpu_ptr(&batched_entropy_u64);
-@@ -2408,9 +2399,6 @@ u32 get_random_u32(void)
- 	struct batched_entropy *batch;
- 	static void *previous;
- 
--	if (arch_get_random_int(&ret))
--		return ret;
--
- 	warn_unseeded_randomness(&previous);
- 
- 	batch = raw_cpu_ptr(&batched_entropy_u32);
++	/* After switching from power-down to normal mode, an internal global
++	 * reset is automatically generated. Wait a minimum of 1 ms before
++	 * read/write access to the PHY registers.
++	 */
++	usleep_range(1000, 2000);
++
+ 	ret = kszphy_config_reset(phydev);
+ 	if (ret)
+ 		return ret;
 
 
