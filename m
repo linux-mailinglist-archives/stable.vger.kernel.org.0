@@ -2,135 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 233631A4F90
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 13:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 108B11A4F92
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 13:41:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726037AbgDKLk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 07:40:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40090 "EHLO mail.kernel.org"
+        id S1726129AbgDKLlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 07:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725951AbgDKLk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 07:40:56 -0400
+        id S1725951AbgDKLlj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 07:41:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D65CD20673;
-        Sat, 11 Apr 2020 11:40:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F160020673;
+        Sat, 11 Apr 2020 11:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586605254;
-        bh=0hqthX4ZQuVKvIIygQ1q8gib8slwFI0Ft6NypT/lDe4=;
+        s=default; t=1586605299;
+        bh=7Xgm9xSwBs283LmTMtfx7PeoquvCMwsBjOqqJE2OhAY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jp4xlb+HBnHTfbPbu1owXKye5X383kgiOc3QR26yzujt2bAoDJeiKRzpoR1CyZWH7
-         l8ru6x/rOgqs6tCYxPIpKOi5PM/6JQ+uvwpcxjpA35pXgxfLJJmE4r+EzKOTrXteQV
-         VN7hnMZMW7sTSkDVsJQULlgNo0moNFBEJ+AWZsi0=
-Date:   Sat, 11 Apr 2020 13:40:52 +0200
+        b=ZphxNtwtIcZ+2BwVMmVd3L1cMSfHw51mAWJaBPVB15BiITGBY62GIyLpay7gMqjvv
+         DdbVWLs+pIPbL0GET+B4xkhATdjHA2qW6g2HxvlEAfgt9kZVWWL8NNPXRZ8C0djvX6
+         zJgRHzd+bFTHz5OHBgUfZ/hBLdiTLU/w4adpwHuU=
+Date:   Sat, 11 Apr 2020 13:41:37 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Saravana Kannan <saravanak@google.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH AUTOSEL 5.6 14/68] driver core: Reevaluate
- dev->links.need_for_probe as suppliers are added
-Message-ID: <20200411114052.GC2606747@kroah.com>
-References: <20200410034634.7731-1-sashal@kernel.org>
- <20200410034634.7731-14-sashal@kernel.org>
- <20200410062931.GD1663372@kroah.com>
- <CAGETcx9Kp6JvuyF770XKsMTCY6=rC2zuBTG07oB18bya0owgWw@mail.gmail.com>
- <20200410065227.GA1665508@kroah.com>
- <CAGETcx8RBjr6rzR7=m6LuA=OQOT2Hh4ioPndUP8mkpYLve+6yw@mail.gmail.com>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v4.14.y] acpi/nfit: Fix bus command validation
+Message-ID: <20200411114137.GD2606747@kroah.com>
+References: <20200410152731.85430-1-linux@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAGETcx8RBjr6rzR7=m6LuA=OQOT2Hh4ioPndUP8mkpYLve+6yw@mail.gmail.com>
+In-Reply-To: <20200410152731.85430-1-linux@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 10, 2020 at 09:25:51AM -0700, Saravana Kannan wrote:
-> On Thu, Apr 9, 2020 at 11:52 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Thu, Apr 09, 2020 at 11:39:55PM -0700, Saravana Kannan wrote:
-> > > On Thu, Apr 9, 2020 at 11:29 PM Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Thu, Apr 09, 2020 at 11:45:39PM -0400, Sasha Levin wrote:
-> > > > > From: Saravana Kannan <saravanak@google.com>
-> > > > >
-> > > > > [ Upstream commit 1745d299af5b373abad08fa29bff0d31dc6aff21 ]
-> > > > >
-> > > > > A previous patch 03324507e66c ("driver core: Allow
-> > > > > fwnode_operations.add_links to differentiate errors") forgot to update
-> > > > > all call sites to fwnode_operations.add_links. This patch fixes that.
-> > > > >
-> > > > > Legend:
-> > > > > -> Denotes RHS is an optional/potential supplier for LHS
-> > > > > => Denotes RHS is a mandatory supplier for LHS
-> > > > >
-> > > > > Example:
-> > > > >
-> > > > > Device A => Device X
-> > > > > Device A -> Device Y
-> > > > >
-> > > > > Before this patch:
-> > > > > 1. Device A is added.
-> > > > > 2. Device A is marked as waiting for mandatory suppliers
-> > > > > 3. Device X is added
-> > > > > 4. Device A is left marked as waiting for mandatory suppliers
-> > > > >
-> > > > > Step 4 is wrong since all mandatory suppliers of Device A have been
-> > > > > added.
-> > > > >
-> > > > > After this patch:
-> > > > > 1. Device A is added.
-> > > > > 2. Device A is marked as waiting for mandatory suppliers
-> > > > > 3. Device X is added
-> > > > > 4. Device A is no longer considered as waiting for mandatory suppliers
-> > > > >
-> > > > > This is the correct behavior.
-> > > > >
-> > > > > Fixes: 03324507e66c ("driver core: Allow fwnode_operations.add_links to differentiate errors")
-> > > > > Signed-off-by: Saravana Kannan <saravanak@google.com>
-> > > > > Link: https://lore.kernel.org/r/20200222014038.180923-2-saravanak@google.com
-> > > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > > > ---
-> > > > >  drivers/base/core.c | 8 ++++++--
-> > > > >  1 file changed, 6 insertions(+), 2 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/base/core.c b/drivers/base/core.c
-> > > > > index dbb0f9130f42d..d32a3aefff32f 100644
-> > > > > --- a/drivers/base/core.c
-> > > > > +++ b/drivers/base/core.c
-> > > > > @@ -523,9 +523,13 @@ static void device_link_add_missing_supplier_links(void)
-> > > > >
-> > > > >       mutex_lock(&wfs_lock);
-> > > > >       list_for_each_entry_safe(dev, tmp, &wait_for_suppliers,
-> > > > > -                              links.needs_suppliers)
-> > > > > -             if (!fwnode_call_int_op(dev->fwnode, add_links, dev))
-> > > > > +                              links.needs_suppliers) {
-> > > > > +             int ret = fwnode_call_int_op(dev->fwnode, add_links, dev);
-> > > > > +             if (!ret)
-> > > > >                       list_del_init(&dev->links.needs_suppliers);
-> > > > > +             else if (ret != -ENODEV)
-> > > > > +                     dev->links.need_for_probe = false;
-> > > > > +     }
-> > > > >       mutex_unlock(&wfs_lock);
-> > > > >  }
-> > > >
-> > > > For some reason this wasn't for stable kernels, but I can't remember.
-> > >
-> > > It *is* for stable kernels too. It is an actual bug that's fixable in
-> > > stable kernels. I think this might have been the one patch that I
-> > > bundled into an unrelated series, but called it out as an unrelated
-> > > bug. Maybe my wording in that email threw you off?
-> >
-> > I think it did, sorry.  So no problem adding this to the stable trees so
-> > I can go add it right now?
+On Fri, Apr 10, 2020 at 08:27:31AM -0700, Guenter Roeck wrote:
+> From: Dan Williams <dan.j.williams@intel.com>
 > 
-> Yes, please do.
+> [ Upstream commit ebe9f6f19d80d8978d16078dff3d5bd93ad8d102 ]
+> 
+> Commit 11189c1089da "acpi/nfit: Fix command-supported detection" broke
+> ND_CMD_CALL for bus-level commands. The "func = cmd" assumption is only
+> valid for:
+> 
+>     ND_CMD_ARS_CAP
+>     ND_CMD_ARS_START
+>     ND_CMD_ARS_STATUS
+>     ND_CMD_CLEAR_ERROR
+> 
+> The function number otherwise needs to be pulled from the command
+> payload for:
+> 
+>     NFIT_CMD_TRANSLATE_SPA
+>     NFIT_CMD_ARS_INJECT_SET
+>     NFIT_CMD_ARS_INJECT_CLEAR
+>     NFIT_CMD_ARS_INJECT_GET
+> 
+> Update cmd_to_func() for the bus case and call it in the common path.
+> 
+> Fixes: 11189c1089da ("acpi/nfit: Fix command-supported detection")
+> Cc: <stable@vger.kernel.org>
+> Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+> Reported-by: Grzegorz Burzynski <grzegorz.burzynski@intel.com>
+> Tested-by: Jeff Moyer <jmoyer@redhat.com>
+> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> [groeck: backport to v4.14.y: adjust for missing commit 4b27db7e26cdb]
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> Commit 11189c1089da ("acpi/nfit: Fix command-supported detection")
+> has been applied to v4.14.y as commit 1c285c34a509, but not its fix.
+> 
+> This patch has already been applied to v4.19.y. v5.4.y and later are
+> not affected.
+> 
+>  drivers/acpi/nfit/core.c | 24 +++++++++++++-----------
+>  1 file changed, 13 insertions(+), 11 deletions(-)
 
-Thanks, now queued up.
+Now queued up, thanks.
 
 greg k-h
