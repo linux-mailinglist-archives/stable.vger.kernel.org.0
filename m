@@ -2,95 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E4A61A4F8D
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 13:40:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 233631A4F90
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 13:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726054AbgDKLkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 07:40:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39790 "EHLO mail.kernel.org"
+        id S1726037AbgDKLk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 07:40:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725951AbgDKLkA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 07:40:00 -0400
+        id S1725951AbgDKLk4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 07:40:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7294B214D8;
-        Sat, 11 Apr 2020 11:39:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D65CD20673;
+        Sat, 11 Apr 2020 11:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586605199;
-        bh=SvpS8ofQxG/gfKVKsdp7xkFw2sUtzxdRCV1XrE9Gqfw=;
+        s=default; t=1586605254;
+        bh=0hqthX4ZQuVKvIIygQ1q8gib8slwFI0Ft6NypT/lDe4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JG9Kg4Bh3+8Rb9Ffl8S4nSejTh7pjxl6ypKqEQ/xOm8pj/3cQNmkKO+nl9p6L0GLV
-         a482gx74YHVD/7z045tVuYbDoTVcE1fhljsaaQ6Wy73J8N45zv1tMb2W0HeDWKFJnw
-         1IxcDdgsSjthxah8uFTvXmHdvD7UYBtBeIjgm81g=
-Date:   Sat, 11 Apr 2020 13:39:57 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sultan Alsawaf <sultan@kerneltoast.com>
-Cc:     stable@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH v2] drm/i915: Fix ref->mutex deadlock in
- i915_active_wait()
-Message-ID: <20200411113957.GB2606747@kroah.com>
-References: <20200407065210.GA263852@kroah.com>
- <20200407071809.3148-1-sultan@kerneltoast.com>
- <20200410090838.GD1691838@kroah.com>
- <20200410141738.GB2025@sultan-box.localdomain>
+        b=jp4xlb+HBnHTfbPbu1owXKye5X383kgiOc3QR26yzujt2bAoDJeiKRzpoR1CyZWH7
+         l8ru6x/rOgqs6tCYxPIpKOi5PM/6JQ+uvwpcxjpA35pXgxfLJJmE4r+EzKOTrXteQV
+         VN7hnMZMW7sTSkDVsJQULlgNo0moNFBEJ+AWZsi0=
+Date:   Sat, 11 Apr 2020 13:40:52 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Saravana Kannan <saravanak@google.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.6 14/68] driver core: Reevaluate
+ dev->links.need_for_probe as suppliers are added
+Message-ID: <20200411114052.GC2606747@kroah.com>
+References: <20200410034634.7731-1-sashal@kernel.org>
+ <20200410034634.7731-14-sashal@kernel.org>
+ <20200410062931.GD1663372@kroah.com>
+ <CAGETcx9Kp6JvuyF770XKsMTCY6=rC2zuBTG07oB18bya0owgWw@mail.gmail.com>
+ <20200410065227.GA1665508@kroah.com>
+ <CAGETcx8RBjr6rzR7=m6LuA=OQOT2Hh4ioPndUP8mkpYLve+6yw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200410141738.GB2025@sultan-box.localdomain>
+In-Reply-To: <CAGETcx8RBjr6rzR7=m6LuA=OQOT2Hh4ioPndUP8mkpYLve+6yw@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 10, 2020 at 07:17:38AM -0700, Sultan Alsawaf wrote:
-> On Fri, Apr 10, 2020 at 11:08:38AM +0200, Greg KH wrote:
-> > On Tue, Apr 07, 2020 at 12:18:09AM -0700, Sultan Alsawaf wrote:
-> > > From: Sultan Alsawaf <sultan@kerneltoast.com>
-> > > 
-> > > The following deadlock exists in i915_active_wait() due to a double lock
-> > > on ref->mutex (call chain listed in order from top to bottom):
-> > >  i915_active_wait();
-> > >  mutex_lock_interruptible(&ref->mutex); <-- ref->mutex first acquired
-> > >  i915_active_request_retire();
-> > >  node_retire();
-> > >  active_retire();
-> > >  mutex_lock_nested(&ref->mutex, SINGLE_DEPTH_NESTING); <-- DEADLOCK
-> > > 
-> > > Fix the deadlock by skipping the second ref->mutex lock when
-> > > active_retire() is called through i915_active_request_retire().
-> > > 
-> > > Note that this bug only affects 5.4 and has since been fixed in 5.5.
-> > > Normally, a backport of the fix from 5.5 would be in order, but the
-> > > patch set that fixes this deadlock involves massive changes that are
-> > > neither feasible nor desirable for backporting [1][2][3]. Therefore,
-> > > this small patch was made to address the deadlock specifically for 5.4.
-> > > 
-> > > [1] 274cbf20fd10 ("drm/i915: Push the i915_active.retire into a worker")
-> > > [2] 093b92287363 ("drm/i915: Split i915_active.mutex into an irq-safe spinlock for the rbtree")
-> > > [3] 750bde2fd4ff ("drm/i915: Serialise with remote retirement")
-> > > 
-> > > Fixes: 12c255b5dad1 ("drm/i915: Provide an i915_active.acquire callback")
-> > > Cc: <stable@vger.kernel.org> # 5.4.x
-> > > Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
-> > > ---
-> > >  drivers/gpu/drm/i915/i915_active.c | 27 +++++++++++++++++++++++----
-> > >  drivers/gpu/drm/i915/i915_active.h |  4 ++--
-> > >  2 files changed, 25 insertions(+), 6 deletions(-)
-> > 
-> > Now queued up, thanks.
-> > 
-> > greg k-h
+On Fri, Apr 10, 2020 at 09:25:51AM -0700, Saravana Kannan wrote:
+> On Thu, Apr 9, 2020 at 11:52 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Thu, Apr 09, 2020 at 11:39:55PM -0700, Saravana Kannan wrote:
+> > > On Thu, Apr 9, 2020 at 11:29 PM Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > On Thu, Apr 09, 2020 at 11:45:39PM -0400, Sasha Levin wrote:
+> > > > > From: Saravana Kannan <saravanak@google.com>
+> > > > >
+> > > > > [ Upstream commit 1745d299af5b373abad08fa29bff0d31dc6aff21 ]
+> > > > >
+> > > > > A previous patch 03324507e66c ("driver core: Allow
+> > > > > fwnode_operations.add_links to differentiate errors") forgot to update
+> > > > > all call sites to fwnode_operations.add_links. This patch fixes that.
+> > > > >
+> > > > > Legend:
+> > > > > -> Denotes RHS is an optional/potential supplier for LHS
+> > > > > => Denotes RHS is a mandatory supplier for LHS
+> > > > >
+> > > > > Example:
+> > > > >
+> > > > > Device A => Device X
+> > > > > Device A -> Device Y
+> > > > >
+> > > > > Before this patch:
+> > > > > 1. Device A is added.
+> > > > > 2. Device A is marked as waiting for mandatory suppliers
+> > > > > 3. Device X is added
+> > > > > 4. Device A is left marked as waiting for mandatory suppliers
+> > > > >
+> > > > > Step 4 is wrong since all mandatory suppliers of Device A have been
+> > > > > added.
+> > > > >
+> > > > > After this patch:
+> > > > > 1. Device A is added.
+> > > > > 2. Device A is marked as waiting for mandatory suppliers
+> > > > > 3. Device X is added
+> > > > > 4. Device A is no longer considered as waiting for mandatory suppliers
+> > > > >
+> > > > > This is the correct behavior.
+> > > > >
+> > > > > Fixes: 03324507e66c ("driver core: Allow fwnode_operations.add_links to differentiate errors")
+> > > > > Signed-off-by: Saravana Kannan <saravanak@google.com>
+> > > > > Link: https://lore.kernel.org/r/20200222014038.180923-2-saravanak@google.com
+> > > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > > > ---
+> > > > >  drivers/base/core.c | 8 ++++++--
+> > > > >  1 file changed, 6 insertions(+), 2 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/base/core.c b/drivers/base/core.c
+> > > > > index dbb0f9130f42d..d32a3aefff32f 100644
+> > > > > --- a/drivers/base/core.c
+> > > > > +++ b/drivers/base/core.c
+> > > > > @@ -523,9 +523,13 @@ static void device_link_add_missing_supplier_links(void)
+> > > > >
+> > > > >       mutex_lock(&wfs_lock);
+> > > > >       list_for_each_entry_safe(dev, tmp, &wait_for_suppliers,
+> > > > > -                              links.needs_suppliers)
+> > > > > -             if (!fwnode_call_int_op(dev->fwnode, add_links, dev))
+> > > > > +                              links.needs_suppliers) {
+> > > > > +             int ret = fwnode_call_int_op(dev->fwnode, add_links, dev);
+> > > > > +             if (!ret)
+> > > > >                       list_del_init(&dev->links.needs_suppliers);
+> > > > > +             else if (ret != -ENODEV)
+> > > > > +                     dev->links.need_for_probe = false;
+> > > > > +     }
+> > > > >       mutex_unlock(&wfs_lock);
+> > > > >  }
+> > > >
+> > > > For some reason this wasn't for stable kernels, but I can't remember.
+> > >
+> > > It *is* for stable kernels too. It is an actual bug that's fixable in
+> > > stable kernels. I think this might have been the one patch that I
+> > > bundled into an unrelated series, but called it out as an unrelated
+> > > bug. Maybe my wording in that email threw you off?
+> >
+> > I think it did, sorry.  So no problem adding this to the stable trees so
+> > I can go add it right now?
 > 
-> I'm sorry, I meant the v3 [1]. Apologies for the confusion. The v3 was picked
-> into Ubuntu so that's what we're rolling with.
+> Yes, please do.
 
-Ok, thanks, hopefully now I picked upthe right one...
+Thanks, now queued up.
 
 greg k-h
