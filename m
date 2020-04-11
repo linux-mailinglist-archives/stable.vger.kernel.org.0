@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B39E1A51BE
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D419D1A516A
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727864AbgDKMNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:13:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46694 "EHLO mail.kernel.org"
+        id S1728284AbgDKMQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:16:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727857AbgDKMNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:13:40 -0400
+        id S1726899AbgDKMQo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:16:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26C2620787;
-        Sat, 11 Apr 2020 12:13:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46C2920644;
+        Sat, 11 Apr 2020 12:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607218;
-        bh=4+TtjYr36O5SbE+Sa5S/2ejVsVC84drhWt7x+7rn2KI=;
+        s=default; t=1586607404;
+        bh=nBp8M//Wwkue4wWaCuCCtoO0nyJNfejoIKWOMt6EWGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdLWCXDH+Xm3utHomGh88ktGpQTVAuRfyk5diU0JxcMciFMAiDLYzoIW1Zk7NxrpG
-         WvABPJf1f+nL/sxR6sOCZVklkQPWOLwsq659qWyAGIEcSKrPEIAQ6racbHyjQ3Ss+R
-         m/qzGWcw9noL3/fhkKd/1tYW85JqcOmJM0D4LMgo=
+        b=O7icK7Ib7lVZSe0+Kqjl0FMOa+zXDYCqx4r4nGd3PAf45c25Fi1uFTLWE53BrWoaq
+         N6/TivjyeTzvNPas2IQjP7faREsSVKkcMEysUY0sx9SQUWwzPVoX0ZND/WUYkvRXEK
+         P0Mi54RMTWDc/xiQLEtBm78SLf3URRauGGPx4/M4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yafang Shao <laoar.shao@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Shailabh Nagar <nagar@watson.ibm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 22/38] tools/accounting/getdelays.c: fix netlink attribute length
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH 4.19 24/54] padata: always acquire cpu_hotplug_lock before pinst->lock
 Date:   Sat, 11 Apr 2020 14:09:06 +0200
-Message-Id: <20200411115440.214490533@linuxfoundation.org>
+Message-Id: <20200411115510.950406190@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
-References: <20200411115437.795556138@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit 4054ab64e29bb05b3dfe758fff3c38a74ba753bb upstream.
+commit 38228e8848cd7dd86ccb90406af32de0cad24be3 upstream.
 
-A recent change to the netlink code: 6e237d099fac ("netlink: Relax attr
-validation for fixed length types") logs a warning when programs send
-messages with invalid attributes (e.g., wrong length for a u32).  Yafang
-reported this error message for tools/accounting/getdelays.c.
+lockdep complains when padata's paths to update cpumasks via CPU hotplug
+and sysfs are both taken:
 
-send_cmd() is wrongly adding 1 to the attribute length.  As noted in
-include/uapi/linux/netlink.h nla_len should be NLA_HDRLEN + payload
-length, so drop the +1.
+  # echo 0 > /sys/devices/system/cpu/cpu1/online
+  # echo ff > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
 
-Fixes: 9e06d3f9f6b1 ("per task delay accounting taskstats interface: documentation fix")
-Reported-by: Yafang Shao <laoar.shao@gmail.com>
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Yafang Shao <laoar.shao@gmail.com>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200327173111.63922-1-dsahern@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.4.0-rc8-padata-cpuhp-v3+ #1 Not tainted
+  ------------------------------------------------------
+  bash/205 is trying to acquire lock:
+  ffffffff8286bcd0 (cpu_hotplug_lock.rw_sem){++++}, at: padata_set_cpumask+0x2b/0x120
+
+  but task is already holding lock:
+  ffff8880001abfa0 (&pinst->lock){+.+.}, at: padata_set_cpumask+0x26/0x120
+
+  which lock already depends on the new lock.
+
+padata doesn't take cpu_hotplug_lock and pinst->lock in a consistent
+order.  Which should be first?  CPU hotplug calls into padata with
+cpu_hotplug_lock already held, so it should have priority.
+
+Fixes: 6751fb3c0e0c ("padata: Use get_online_cpus/put_online_cpus")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/accounting/getdelays.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/padata.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/accounting/getdelays.c
-+++ b/tools/accounting/getdelays.c
-@@ -136,7 +136,7 @@ static int send_cmd(int sd, __u16 nlmsg_
- 	msg.g.version = 0x1;
- 	na = (struct nlattr *) GENLMSG_DATA(&msg);
- 	na->nla_type = nla_type;
--	na->nla_len = nla_len + 1 + NLA_HDRLEN;
-+	na->nla_len = nla_len + NLA_HDRLEN;
- 	memcpy(NLA_DATA(na), nla_data, nla_len);
- 	msg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -671,8 +671,8 @@ int padata_set_cpumask(struct padata_ins
+ 	struct cpumask *serial_mask, *parallel_mask;
+ 	int err = -EINVAL;
  
+-	mutex_lock(&pinst->lock);
+ 	get_online_cpus();
++	mutex_lock(&pinst->lock);
+ 
+ 	switch (cpumask_type) {
+ 	case PADATA_CPU_PARALLEL:
+@@ -690,8 +690,8 @@ int padata_set_cpumask(struct padata_ins
+ 	err =  __padata_set_cpumasks(pinst, parallel_mask, serial_mask);
+ 
+ out:
+-	put_online_cpus();
+ 	mutex_unlock(&pinst->lock);
++	put_online_cpus();
+ 
+ 	return err;
+ }
 
 
