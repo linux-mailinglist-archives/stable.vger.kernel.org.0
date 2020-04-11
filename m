@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF711A5126
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F98D1A5094
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:19:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728595AbgDKMSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:18:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53268 "EHLO mail.kernel.org"
+        id S1726794AbgDKMTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:19:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728564AbgDKMSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:18:21 -0400
+        id S1728278AbgDKMTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:19:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BE6C20692;
-        Sat, 11 Apr 2020 12:18:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2243220644;
+        Sat, 11 Apr 2020 12:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607501;
-        bh=si/5L5aBCOmz5fCXhPA3GghvYAVm3te4zHrc+nXHuUY=;
+        s=default; t=1586607558;
+        bh=c23UkYVsFZ4nUcoUxIyofAFnV0Q+OY8d9mDK8UqYR34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdnZN2PbdR/tTfGLh9/7wveImx+4Hw3TKfePJkxN4VvHGhEcLmTOxMi1H/QxO12z2
-         zeEzdaMD2/DQhsAehyNnc+fSf4TIgcFshuJrO8AazqS6G/OT9cmI8zLettvTJz/E00
-         AVgx5kA86AY95kb8NdR80NEKs7h6RhGkgbW6SlWk=
+        b=WoTPmKms57ZZJnV3mHaYEBSr1dw1WeIXUIJTDUqmaZJXdjieLFZXhTR4g8E4ihlAe
+         ekAcbKoCYUzEfTfXa1lHGEtqYT7MEneRN0GNgaETu4Md0T4ompm+2LE1xniPV1Wqev
+         J8S9c7+njTKKZ372O8l7zyJQ/z4XbtLhCI0vh8HI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d44e1b26ce5c3e77458d@syzkaller.appspotmail.com,
-        Bart Van Assche <bvanassche@acm.org>,
-        Ming Lei <ming.lei@redhat.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Johannes Thumshirn <jth@kernel.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 38/41] blk-mq: Keep set->nr_hw_queues and set->map[].nr_queues in sync
+        stable@vger.kernel.org, Avihai Horon <avihaih@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.5 27/44] RDMA/cm: Update num_paths in cma_resolve_iboe_route error flow
 Date:   Sat, 11 Apr 2020 14:09:47 +0200
-Message-Id: <20200411115506.857351630@linuxfoundation.org>
+Message-Id: <20200411115459.434449295@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
-References: <20200411115504.124035693@linuxfoundation.org>
+In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
+References: <20200411115456.934174282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,56 +45,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Avihai Horon <avihaih@mellanox.com>
 
-commit 6e66b49392419f3fe134e1be583323ef75da1e4b upstream.
+commit 987914ab841e2ec281a35b54348ab109b4c0bb4e upstream.
 
-blk_mq_map_queues() and multiple .map_queues() implementations expect that
-set->map[HCTX_TYPE_DEFAULT].nr_queues is set to the number of hardware
-queues. Hence set .nr_queues before calling these functions. This patch
-fixes the following kernel warning:
+After a successful allocation of path_rec, num_paths is set to 1, but any
+error after such allocation will leave num_paths uncleared.
 
-WARNING: CPU: 0 PID: 2501 at include/linux/cpumask.h:137
-Call Trace:
- blk_mq_run_hw_queue+0x19d/0x350 block/blk-mq.c:1508
- blk_mq_run_hw_queues+0x112/0x1a0 block/blk-mq.c:1525
- blk_mq_requeue_work+0x502/0x780 block/blk-mq.c:775
- process_one_work+0x9af/0x1740 kernel/workqueue.c:2269
- worker_thread+0x98/0xe40 kernel/workqueue.c:2415
- kthread+0x361/0x430 kernel/kthread.c:255
+This causes to de-referencing a NULL pointer later on. Hence, num_paths
+needs to be set back to 0 if such an error occurs.
 
-Fixes: ed76e329d74a ("blk-mq: abstract out queue map") # v5.0
-Reported-by: syzbot+d44e1b26ce5c3e77458d@syzkaller.appspotmail.com
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Cc: Johannes Thumshirn <jth@kernel.org>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The following crash from syzkaller revealed it.
+
+  kasan: CONFIG_KASAN_INLINE enabled
+  kasan: GPF could be caused by NULL-ptr deref or user memory access
+  general protection fault: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
+  CPU: 0 PID: 357 Comm: syz-executor060 Not tainted 4.18.0+ #311
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+  rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
+  RIP: 0010:ib_copy_path_rec_to_user+0x94/0x3e0
+  Code: f1 f1 f1 f1 c7 40 0c 00 00 f4 f4 65 48 8b 04 25 28 00 00 00 48 89
+  45 c8 31 c0 e8 d7 60 24 ff 48 8d 7b 4c 48 89 f8 48 c1 e8 03 <42> 0f b6
+  14 30 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85
+  RSP: 0018:ffff88006586f980 EFLAGS: 00010207
+  RAX: 0000000000000009 RBX: 0000000000000000 RCX: 1ffff1000d5fe475
+  RDX: ffff8800621e17c0 RSI: ffffffff820d45f9 RDI: 000000000000004c
+  RBP: ffff88006586fa50 R08: ffffed000cb0df73 R09: ffffed000cb0df72
+  R10: ffff88006586fa70 R11: ffffed000cb0df73 R12: 1ffff1000cb0df30
+  R13: ffff88006586fae8 R14: dffffc0000000000 R15: ffff88006aff2200
+  FS: 00000000016fc880(0000) GS:ffff88006d000000(0000)
+  knlGS:0000000000000000
+  CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000020000040 CR3: 0000000063fec000 CR4: 00000000000006b0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+  ? ib_copy_path_rec_from_user+0xcc0/0xcc0
+  ? __mutex_unlock_slowpath+0xfc/0x670
+  ? wait_for_completion+0x3b0/0x3b0
+  ? ucma_query_route+0x818/0xc60
+  ucma_query_route+0x818/0xc60
+  ? ucma_listen+0x1b0/0x1b0
+  ? sched_clock_cpu+0x18/0x1d0
+  ? sched_clock_cpu+0x18/0x1d0
+  ? ucma_listen+0x1b0/0x1b0
+  ? ucma_write+0x292/0x460
+  ucma_write+0x292/0x460
+  ? ucma_close_id+0x60/0x60
+  ? sched_clock_cpu+0x18/0x1d0
+  ? sched_clock_cpu+0x18/0x1d0
+  __vfs_write+0xf7/0x620
+  ? ucma_close_id+0x60/0x60
+  ? kernel_read+0x110/0x110
+  ? time_hardirqs_on+0x19/0x580
+  ? lock_acquire+0x18b/0x3a0
+  ? finish_task_switch+0xf3/0x5d0
+  ? _raw_spin_unlock_irq+0x29/0x40
+  ? _raw_spin_unlock_irq+0x29/0x40
+  ? finish_task_switch+0x1be/0x5d0
+  ? __switch_to_asm+0x34/0x70
+  ? __switch_to_asm+0x40/0x70
+  ? security_file_permission+0x172/0x1e0
+  vfs_write+0x192/0x460
+  ksys_write+0xc6/0x1a0
+  ? __ia32_sys_read+0xb0/0xb0
+  ? entry_SYSCALL_64_after_hwframe+0x3e/0xbe
+  ? do_syscall_64+0x1d/0x470
+  do_syscall_64+0x9e/0x470
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: 3c86aa70bf67 ("RDMA/cm: Add RDMA CM support for IBoE devices")
+Link: https://lore.kernel.org/r/20200318101741.47211-1-leon@kernel.org
+Signed-off-by: Avihai Horon <avihaih@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-mq.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/infiniband/core/cma.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -3007,6 +3007,14 @@ static int blk_mq_alloc_rq_maps(struct b
- 
- static int blk_mq_update_queue_map(struct blk_mq_tag_set *set)
- {
-+	/*
-+	 * blk_mq_map_queues() and multiple .map_queues() implementations
-+	 * expect that set->map[HCTX_TYPE_DEFAULT].nr_queues is set to the
-+	 * number of hardware queues.
-+	 */
-+	if (set->nr_maps == 1)
-+		set->map[HCTX_TYPE_DEFAULT].nr_queues = set->nr_hw_queues;
-+
- 	if (set->ops->map_queues && !is_kdump_kernel()) {
- 		int i;
- 
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -2938,6 +2938,7 @@ static int cma_resolve_iboe_route(struct
+ err2:
+ 	kfree(route->path_rec);
+ 	route->path_rec = NULL;
++	route->num_paths = 0;
+ err1:
+ 	kfree(work);
+ 	return ret;
 
 
