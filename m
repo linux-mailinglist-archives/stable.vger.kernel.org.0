@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 412071A4FE6
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:12:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E481A51C8
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727363AbgDKMMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:12:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45316 "EHLO mail.kernel.org"
+        id S1727817AbgDKMNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:13:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727349AbgDKMMi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:12:38 -0400
+        id S1727806AbgDKMNb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:13:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA576214D8;
-        Sat, 11 Apr 2020 12:12:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF8A821835;
+        Sat, 11 Apr 2020 12:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607158;
-        bh=ZqHvatSPzRk+QCybljXT7i9Cn32I8PBiHPd4xHlCI08=;
+        s=default; t=1586607211;
+        bh=8b6+SjPVlptKlpHpNs5BryqjkHoJs5ngMdVdKcZM1GY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hnGHG6MKbe6rgkIYufV06+RDePMwwhWJ/BPzR6sN9rVIjp1YKW+B8ijxQba8JLnLQ
-         oPVeA2FJn7pJn7zyuxVWGp/0L+EmdPx9761NMWlPptdqaVVfyygCFF1shogLc0nSb3
-         dX/I2q5jN+glLoKDCemZHSpLYQGYXrzC/GWHWIpM=
+        b=UzvoKZw+2FKeFUlF9IQBl8MlIx8VUDOu00KM0zp7WvMlRBVA+k0P/jZ2XeHC3dJ0s
+         UjxzZA2s6tK3ofi0e2H32+QsbJDT8A2TNg8nL9KGDgNyshK4RxHLhGX53y1iuRwG6A
+         MA7iRWk3H+M8J2Bdt5+dyCrqm86R8/cBYNtd2Tow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jin Meng <meng.a.jin@nokia-sbell.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, William Dauchy <w.dauchy@criteo.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 07/32] sctp: fix possibly using a bad saddr with a given dst
+Subject: [PATCH 4.14 02/38] net, ip_tunnel: fix interface lookup with no key
 Date:   Sat, 11 Apr 2020 14:08:46 +0200
-Message-Id: <20200411115419.504610902@linuxfoundation.org>
+Message-Id: <20200411115437.998346755@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
-References: <20200411115418.455500023@linuxfoundation.org>
+In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
+References: <20200411115437.795556138@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,187 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: William Dauchy <w.dauchy@criteo.com>
 
-[ Upstream commit 582eea230536a6f104097dd46205822005d5fe3a ]
+[ Upstream commit 25629fdaff2ff509dd0b3f5ff93d70a75e79e0a1 ]
 
-Under certain circumstances, depending on the order of addresses on the
-interfaces, it could be that sctp_v[46]_get_dst() would return a dst
-with a mismatched struct flowi.
+when creating a new ipip interface with no local/remote configuration,
+the lookup is done with TUNNEL_NO_KEY flag, making it impossible to
+match the new interface (only possible match being fallback or metada
+case interface); e.g: `ip link add tunl1 type ipip dev eth0`
 
-For example, if when walking through the bind addresses and the first
-one is not a match, it saves the dst as a fallback (added in
-410f03831c07), but not the flowi. Then if the next one is also not a
-match, the previous dst will be returned but with the flowi information
-for the 2nd address, which is wrong.
+To fix this case, adding a flag check before the key comparison so we
+permit to match an interface with no local/remote config; it also avoids
+breaking possible userland tools relying on TUNNEL_NO_KEY flag and
+uninitialised key.
 
-The fix is to use a locally stored flowi that can be used for such
-attempts, and copy it to the parameter only in case it is a possible
-match, together with the corresponding dst entry.
+context being on my side, I'm creating an extra ipip interface attached
+to the physical one, and moving it to a dedicated namespace.
 
-The patch updates IPv6 code mostly just to be in sync. Even though the issue
-is also present there, it fallback is not expected to work with IPv6.
-
-Fixes: 410f03831c07 ("sctp: add routing output fallback")
-Reported-by: Jin Meng <meng.a.jin@nokia-sbell.com>
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Tested-by: Xin Long <lucien.xin@gmail.com>
+Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
+Signed-off-by: William Dauchy <w.dauchy@criteo.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/ipv6.c     |   20 ++++++++++++++------
- net/sctp/protocol.c |   28 +++++++++++++++++++---------
- 2 files changed, 33 insertions(+), 15 deletions(-)
+ net/ipv4/ip_tunnel.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/net/sctp/ipv6.c
-+++ b/net/sctp/ipv6.c
-@@ -235,7 +235,8 @@ static void sctp_v6_get_dst(struct sctp_
- {
- 	struct sctp_association *asoc = t->asoc;
- 	struct dst_entry *dst = NULL;
--	struct flowi6 *fl6 = &fl->u.ip6;
-+	struct flowi _fl;
-+	struct flowi6 *fl6 = &_fl.u.ip6;
- 	struct sctp_bind_addr *bp;
- 	struct ipv6_pinfo *np = inet6_sk(sk);
- 	struct sctp_sockaddr_entry *laddr;
-@@ -245,7 +246,7 @@ static void sctp_v6_get_dst(struct sctp_
- 	__u8 matchlen = 0;
- 	sctp_scope_t scope;
- 
--	memset(fl6, 0, sizeof(struct flowi6));
-+	memset(&_fl, 0, sizeof(_fl));
- 	fl6->daddr = daddr->v6.sin6_addr;
- 	fl6->fl6_dport = daddr->v6.sin6_port;
- 	fl6->flowi6_proto = IPPROTO_SCTP;
-@@ -269,8 +270,11 @@ static void sctp_v6_get_dst(struct sctp_
- 	rcu_read_unlock();
- 
- 	dst = ip6_dst_lookup_flow(sk, fl6, final_p);
--	if (!asoc || saddr)
-+	if (!asoc || saddr) {
-+		t->dst = dst;
-+		memcpy(fl, &_fl, sizeof(_fl));
- 		goto out;
-+	}
- 
- 	bp = &asoc->base.bind_addr;
- 	scope = sctp_scope(daddr);
-@@ -293,6 +297,8 @@ static void sctp_v6_get_dst(struct sctp_
- 			if ((laddr->a.sa.sa_family == AF_INET6) &&
- 			    (sctp_v6_cmp_addr(&dst_saddr, &laddr->a))) {
- 				rcu_read_unlock();
-+				t->dst = dst;
-+				memcpy(fl, &_fl, sizeof(_fl));
- 				goto out;
- 			}
- 		}
-@@ -331,6 +337,8 @@ static void sctp_v6_get_dst(struct sctp_
- 			if (!IS_ERR_OR_NULL(dst))
- 				dst_release(dst);
- 			dst = bdst;
-+			t->dst = dst;
-+			memcpy(fl, &_fl, sizeof(_fl));
- 			break;
- 		}
- 
-@@ -344,6 +352,8 @@ static void sctp_v6_get_dst(struct sctp_
- 			dst_release(dst);
- 		dst = bdst;
- 		matchlen = bmatchlen;
-+		t->dst = dst;
-+		memcpy(fl, &_fl, sizeof(_fl));
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -155,11 +155,8 @@ struct ip_tunnel *ip_tunnel_lookup(struc
+ 			cand = t;
  	}
- 	rcu_read_unlock();
  
-@@ -352,14 +362,12 @@ out:
- 		struct rt6_info *rt;
- 
- 		rt = (struct rt6_info *)dst;
--		t->dst = dst;
- 		t->dst_cookie = rt6_get_cookie(rt);
- 		pr_debug("rt6_dst:%pI6/%d rt6_src:%pI6\n",
- 			 &rt->rt6i_dst.addr, rt->rt6i_dst.plen,
--			 &fl6->saddr);
-+			 &fl->u.ip6.saddr);
- 	} else {
- 		t->dst = NULL;
+-	if (flags & TUNNEL_NO_KEY)
+-		goto skip_key_lookup;
 -
- 		pr_debug("no route\n");
- 	}
- }
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -430,14 +430,15 @@ static void sctp_v4_get_dst(struct sctp_
- {
- 	struct sctp_association *asoc = t->asoc;
- 	struct rtable *rt;
--	struct flowi4 *fl4 = &fl->u.ip4;
-+	struct flowi _fl;
-+	struct flowi4 *fl4 = &_fl.u.ip4;
- 	struct sctp_bind_addr *bp;
- 	struct sctp_sockaddr_entry *laddr;
- 	struct dst_entry *dst = NULL;
- 	union sctp_addr *daddr = &t->ipaddr;
- 	union sctp_addr dst_saddr;
- 
--	memset(fl4, 0x0, sizeof(struct flowi4));
-+	memset(&_fl, 0x0, sizeof(_fl));
- 	fl4->daddr  = daddr->v4.sin_addr.s_addr;
- 	fl4->fl4_dport = daddr->v4.sin_port;
- 	fl4->flowi4_proto = IPPROTO_SCTP;
-@@ -455,8 +456,11 @@ static void sctp_v4_get_dst(struct sctp_
- 		 &fl4->saddr);
- 
- 	rt = ip_route_output_key(sock_net(sk), fl4);
--	if (!IS_ERR(rt))
-+	if (!IS_ERR(rt)) {
- 		dst = &rt->dst;
-+		t->dst = dst;
-+		memcpy(fl, &_fl, sizeof(_fl));
-+	}
- 
- 	/* If there is no association or if a source address is passed, no
- 	 * more validation is required.
-@@ -519,27 +523,33 @@ static void sctp_v4_get_dst(struct sctp_
- 		odev = __ip_dev_find(sock_net(sk), laddr->a.v4.sin_addr.s_addr,
- 				     false);
- 		if (!odev || odev->ifindex != fl4->flowi4_oif) {
--			if (!dst)
-+			if (!dst) {
- 				dst = &rt->dst;
--			else
-+				t->dst = dst;
-+				memcpy(fl, &_fl, sizeof(_fl));
-+			} else {
- 				dst_release(&rt->dst);
-+			}
- 			continue;
- 		}
- 
- 		dst_release(dst);
- 		dst = &rt->dst;
-+		t->dst = dst;
-+		memcpy(fl, &_fl, sizeof(_fl));
- 		break;
+ 	hlist_for_each_entry_rcu(t, head, hash_node) {
+-		if (t->parms.i_key != key ||
++		if ((!(flags & TUNNEL_NO_KEY) && t->parms.i_key != key) ||
+ 		    t->parms.iph.saddr != 0 ||
+ 		    t->parms.iph.daddr != 0 ||
+ 		    !(t->dev->flags & IFF_UP))
+@@ -171,7 +168,6 @@ struct ip_tunnel *ip_tunnel_lookup(struc
+ 			cand = t;
  	}
  
- out_unlock:
- 	rcu_read_unlock();
- out:
--	t->dst = dst;
--	if (dst)
-+	if (dst) {
- 		pr_debug("rt_dst:%pI4, rt_src:%pI4\n",
--			 &fl4->daddr, &fl4->saddr);
--	else
-+			 &fl->u.ip4.daddr, &fl->u.ip4.saddr);
-+	} else {
-+		t->dst = NULL;
- 		pr_debug("no route\n");
-+	}
- }
+-skip_key_lookup:
+ 	if (cand)
+ 		return cand;
  
- /* For v4, the source address is cached in the route entry(dst). So no need
 
 
