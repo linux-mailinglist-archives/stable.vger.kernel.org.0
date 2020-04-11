@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3A391A5B27
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF4BF1A5441
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:05:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726866AbgDKXsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:48:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38380 "EHLO mail.kernel.org"
+        id S1727480AbgDKXEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:04:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727455AbgDKXEr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:04:47 -0400
+        id S1727474AbgDKXEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:04:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 612DB21841;
-        Sat, 11 Apr 2020 23:04:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DB6920CC7;
+        Sat, 11 Apr 2020 23:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646287;
-        bh=8ptZVCFTIZ8LNWVXi9vx8vE/lsQ5Q5Q54zsB+Abm2dQ=;
+        s=default; t=1586646288;
+        bh=AkaNifXui+usapZRPzwxcFjxfd8TaQuZOKjCKUXSmrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ACVPDwtsuZxv7EoBS8YtnI0lP2FMhSe0r+2py+qOzQSmw58GMRODk1l8gn6zXXalO
-         1RXyUimcs9Vt8Xu2FsMaKe5tv0adVUU3OTo/oCgdzYq95cNhL3zObF1481n4uQfguP
-         lnn+jwi0WsAKC7ge+UZPiuPODLDLXmcsFFACDLhI=
+        b=pHy+wqkjWmAVs+Ncu+/uK0ev4atFs9Qd45Gam9y0YGYRcQPtQ2PopSyagY+m6+w6s
+         EVwQm0H3OaPbrnVGIBEEDGT0fErdR0TtbFd2r38hud8AVlYLIsg76GYQMjZgk8HODn
+         2PIJ7x2K9rFKVBZNGg3RBiFX/hCoVfnzZwuaiyg4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 048/149] crypto: chelsio - Endianess bug in create_authenc_wr
-Date:   Sat, 11 Apr 2020 19:02:05 -0400
-Message-Id: <20200411230347.22371-48-sashal@kernel.org>
+Cc:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 049/149] drm/panel: simple: fix osd070t1718_19ts sync drive edge
+Date:   Sat, 11 Apr 2020 19:02:06 -0400
+Message-Id: <20200411230347.22371-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -43,70 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
-[ Upstream commit ff462ddfd95b915345c3c7c037c3bfafdc58bae7 ]
+[ Upstream commit fb0629eeeedb6622c16da1aa76a4520daf9a46e2 ]
 
-kctx_len = (ntohl(KEY_CONTEXT_CTX_LEN_V(aeadctx->key_ctx_hdr)) << 4)
-                - sizeof(chcr_req->key_ctx);
-can't possibly be endian-safe.  Look: ->key_ctx_hdr is __be32.  And
-KEY_CONTEXT_CTX_LEN_V is "shift up by 24 bits".  On little-endian hosts it
-sees
-	b0 b1 b2 b3
-in memory, inteprets that into b0 + (b1 << 8) + (b2 << 16) + (b3 << 24),
-shifts up by 24, resulting in b0 << 24, does ntohl (byteswap on l-e),
-gets b0 and shifts that up by 4.  So we get b0 * 16 - sizeof(...).
+The panel datasheet says that the panel samples at falling edge, but
+does not say anything about h/v sync signals. Testing shows that if the
+sync signals are driven on falling edge, the picture on the panel will
+be slightly shifted right.
 
-Sounds reasonable, but on b-e we get
-b3 + (b2 << 8) + (b1 << 16) + (b0 << 24), shift up by 24,
-yielding b3 << 24, do ntohl (no-op on b-e) and then shift up by 4.
-Resulting in b3 << 28 - sizeof(...), i.e. slightly under b3 * 256M.
+Setting sync drive edge to the same as data drive edge fixes this issue.
 
-Then we increase it some more and pass to alloc_skb() as size.
-Somehow I doubt that we really want a quarter-gigabyte skb allocation
-here...
-
-Note that when you are building those values in
-#define  FILL_KEY_CTX_HDR(ck_size, mk_size, d_ck, opad, ctx_len) \
-                htonl(KEY_CONTEXT_VALID_V(1) | \
-                      KEY_CONTEXT_CK_SIZE_V((ck_size)) | \
-                      KEY_CONTEXT_MK_SIZE_V(mk_size) | \
-                      KEY_CONTEXT_DUAL_CK_V((d_ck)) | \
-                      KEY_CONTEXT_OPAD_PRESENT_V((opad)) | \
-                      KEY_CONTEXT_SALT_PRESENT_V(1) | \
-                      KEY_CONTEXT_CTX_LEN_V((ctx_len)))
-ctx_len ends up in the first octet (i.e. b0 in the above), which
-matches the current behaviour on l-e.  If that's the intent, this
-thing should've been
-        kctx_len = (KEY_CONTEXT_CTX_LEN_G(ntohl(aeadctx->key_ctx_hdr)) << 4)
-                - sizeof(chcr_req->key_ctx);
-instead - fetch after ntohl() we get (b0 << 24) + (b1 << 16) + (b2 << 8) + b3,
-shift it down by 24 (b0), resuling in b0 * 16 - sizeof(...) both on l-e and
-on b-e.
-
-PS: when sparse warns you about endianness problems, it might be worth checking
-if there really is something wrong.  And I don't mean "slap __force cast on it"...
-
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191114093950.4101-4-tomi.valkeinen@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/chelsio/chcr_algo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/panel/panel-simple.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
-index b4b9b22125d17..ad18124d0acb1 100644
---- a/drivers/crypto/chelsio/chcr_algo.c
-+++ b/drivers/crypto/chelsio/chcr_algo.c
-@@ -2351,7 +2351,7 @@ static struct sk_buff *create_authenc_wr(struct aead_request *req,
- 	snents = sg_nents_xlen(req->src, req->assoclen + req->cryptlen,
- 			       CHCR_SRC_SG_SIZE, 0);
- 	dst_size = get_space_for_phys_dsgl(dnents);
--	kctx_len = (ntohl(KEY_CONTEXT_CTX_LEN_V(aeadctx->key_ctx_hdr)) << 4)
-+	kctx_len = (KEY_CONTEXT_CTX_LEN_G(ntohl(aeadctx->key_ctx_hdr)) << 4)
- 		- sizeof(chcr_req->key_ctx);
- 	transhdr_len = CIPHER_TRANSHDR_SIZE(kctx_len, dst_size);
- 	reqctx->imm = (transhdr_len + req->assoclen + req->cryptlen) <
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index e14c14ac62b53..417bbe9984606 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -2464,7 +2464,8 @@ static const struct panel_desc osddisplays_osd070t1718_19ts = {
+ 		.height = 91,
+ 	},
+ 	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
+-	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE,
++	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE |
++		DRM_BUS_FLAG_SYNC_DRIVE_POSEDGE,
+ 	.connector_type = DRM_MODE_CONNECTOR_DPI,
+ };
+ 
 -- 
 2.20.1
 
