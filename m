@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 771441A4FFD
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:13:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45DCD1A51F3
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727763AbgDKMNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46266 "EHLO mail.kernel.org"
+        id S1727195AbgDKMMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:12:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727757AbgDKMNW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:13:22 -0400
+        id S1727192AbgDKMMQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:12:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 501AE2173E;
-        Sat, 11 Apr 2020 12:13:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4E0920787;
+        Sat, 11 Apr 2020 12:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607201;
-        bh=KgQI/IEdw7z0FxlePfn7h13qgfWjmrpXaevxOhYSAlE=;
+        s=default; t=1586607136;
+        bh=s0u7lDLLVe++4Weesyk9XvhvqRchgRX/r1SYmiD7pWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VyfYb+YYS/Wu2MGop3/EqDwt8f/CnP3ZyKPz2Y/yDLLjkQatLWXEJ9svp38KrMJP/
-         1tZNahDvEtz3hqjDruOhSPaVgyukp+694OLiCPz4+qEOvKTwnSM+vzafNEHX6JpWz5
-         VbE/mc0lduML7Vgc49AD00GCtZTCZvp3DorfJOCI=
+        b=tp6x0WWthpBvUgUE0Vt34DQGhKv4sjeVKzgSwxfGbsniPe2RFMPJWamkUhsk+qTxJ
+         3a1GOCnWXWgbQQecdi+JW3I1wgrWa91/SsYbeUEXElIUpNwvNbKNkp+DKCxqvz1J25
+         jWQH9WjtCpex4vGOOkQO3nFDlgMxcZ1ReEDPDSS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 16/38] net: dsa: bcm_sf2: Ensure correct sub-node is parsed
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 21/32] ASoC: jz4740-i2s: Fix divider written at incorrect offset in register
 Date:   Sat, 11 Apr 2020 14:09:00 +0200
-Message-Id: <20200411115439.585127343@linuxfoundation.org>
+Message-Id: <20200411115421.513567057@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
-References: <20200411115437.795556138@linuxfoundation.org>
+In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
+References: <20200411115418.455500023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit afa3b592953bfaecfb4f2f335ec5f935cff56804 ]
+commit 9401d5aa328e64617d87abd59af1c91cace4c3e4 upstream.
 
-When the bcm_sf2 was converted into a proper platform device driver and
-used the new dsa_register_switch() interface, we would still be parsing
-the legacy DSA node that contained all the port information since the
-platform firmware has intentionally maintained backward and forward
-compatibility to client programs. Ensure that we do parse the correct
-node, which is "ports" per the revised DSA binding.
+The 4-bit divider value was written at offset 8, while the jz4740
+programming manual locates it at offset 0.
 
-Fixes: d9338023fb8e ("net: dsa: bcm_sf2: Make it a real platform device driver")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 26b0aad80a86 ("ASoC: jz4740: Add dynamic sampling rate support to jz4740-i2s")
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200306222931.39664-2-paul@crapouillou.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/dsa/bcm_sf2.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -1112,6 +1112,7 @@ static int bcm_sf2_sw_probe(struct platf
- 	const struct bcm_sf2_of_data *data;
- 	struct b53_platform_data *pdata;
- 	struct dsa_switch_ops *ops;
-+	struct device_node *ports;
- 	struct bcm_sf2_priv *priv;
- 	struct b53_device *dev;
- 	struct dsa_switch *ds;
-@@ -1174,7 +1175,11 @@ static int bcm_sf2_sw_probe(struct platf
- 	 */
- 	set_bit(0, priv->cfp.used);
+---
+ sound/soc/jz4740/jz4740-i2s.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/sound/soc/jz4740/jz4740-i2s.c
++++ b/sound/soc/jz4740/jz4740-i2s.c
+@@ -92,7 +92,7 @@
+ #define JZ_AIC_I2S_STATUS_BUSY BIT(2)
  
--	bcm_sf2_identify_ports(priv, dn->child);
-+	ports = of_find_node_by_name(dn, "ports");
-+	if (ports) {
-+		bcm_sf2_identify_ports(priv, ports);
-+		of_node_put(ports);
-+	}
- 
- 	priv->irq0 = irq_of_parse_and_map(dn, 0);
- 	priv->irq1 = irq_of_parse_and_map(dn, 1);
+ #define JZ_AIC_CLK_DIV_MASK 0xf
+-#define I2SDIV_DV_SHIFT 8
++#define I2SDIV_DV_SHIFT 0
+ #define I2SDIV_DV_MASK (0xf << I2SDIV_DV_SHIFT)
+ #define I2SDIV_IDV_SHIFT 8
+ #define I2SDIV_IDV_MASK (0xf << I2SDIV_IDV_SHIFT)
 
 
