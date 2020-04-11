@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7987F1A50EC
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C12BE1A5125
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:24:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729143AbgDKMV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:21:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57696 "EHLO mail.kernel.org"
+        id S1728611AbgDKMSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:18:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728961AbgDKMV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:21:26 -0400
+        id S1728564AbgDKMSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:18:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A324214D8;
-        Sat, 11 Apr 2020 12:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF71020692;
+        Sat, 11 Apr 2020 12:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607685;
-        bh=SLxe7vui/sy4bL9CxI8nH4037eviKppUqHtZ57BTB3g=;
+        s=default; t=1586607496;
+        bh=Jttk726tXOUzFy4Zy+whTq1rsrkJW0mjXnvp9/CaKi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h9UidwObZsgQsuQAJG2WfghUCmFy+3ZqsNfW2JN3DqYSUhHuae9ODN06Yi0AiqdQ8
-         zhiwDc1ZJvStxE2g/3jmjCW7NoZ2YIPz5TKw2PeMiVPyIqxx8vBySVJ6SgRFXk1zYC
-         pkmja5U4sVXvzjYBPl/TtwYP6VfcwZCp7qH0kvro=
+        b=nCCMRmJjFuxRjFb3rD8kzkDKEwei0TVf4ed2TV1GsldcN70k0rhl+nomdBUn72bCY
+         vuonQUO5of9LMnl+VVP68rNjP2PwhBTGc8gOhttVhFhyhfokN5J7YWKbWx/GwSHekZ
+         EBtV6i9mti0JasmsYJWlTBEfIrxzOU9Nm8Y5OuUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+46f513c3033d592409d2@syzkaller.appspotmail.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 07/38] net_sched: add a temporary refcnt for struct tcindex_data
-Date:   Sat, 11 Apr 2020 14:09:44 +0200
-Message-Id: <20200411115500.140451725@linuxfoundation.org>
+        syzbot+4496e82090657320efc6@syzkaller.appspotmail.com,
+        Qiujun Huang <hqjagain@gmail.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.4 36/41] Bluetooth: RFCOMM: fix ODEBUG bug in rfcomm_dev_ioctl
+Date:   Sat, 11 Apr 2020 14:09:45 +0200
+Message-Id: <20200411115506.718633162@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
-References: <20200411115459.324496182@linuxfoundation.org>
+In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
+References: <20200411115504.124035693@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,197 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-[ Upstream commit 304e024216a802a7dc8ba75d36de82fa136bbf3e ]
+commit 71811cac8532b2387b3414f7cd8fe9e497482864 upstream.
 
-Although we intentionally use an ordered workqueue for all tc
-filter works, the ordering is not guaranteed by RCU work,
-given that tcf_queue_work() is esstenially a call_rcu().
+Needn't call 'rfcomm_dlc_put' here, because 'rfcomm_dlc_exists' didn't
+increase dlc->refcnt.
 
-This problem is demostrated by Thomas:
-
-  CPU 0:
-    tcf_queue_work()
-      tcf_queue_work(&r->rwork, tcindex_destroy_rexts_work);
-
-  -> Migration to CPU 1
-
-  CPU 1:
-     tcf_queue_work(&p->rwork, tcindex_destroy_work);
-
-so the 2nd work could be queued before the 1st one, which leads
-to a free-after-free.
-
-Enforcing this order in RCU work is hard as it requires to change
-RCU code too. Fortunately we can workaround this problem in tcindex
-filter by taking a temporary refcnt, we only refcnt it right before
-we begin to destroy it. This simplifies the code a lot as a full
-refcnt requires much more changes in tcindex_set_parms().
-
-Reported-by: syzbot+46f513c3033d592409d2@syzkaller.appspotmail.com
-Fixes: 3d210534cc93 ("net_sched: fix a race condition in tcindex_destroy()")
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Paul E. McKenney <paulmck@kernel.org>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot+4496e82090657320efc6@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/cls_tcindex.c |   44 ++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 38 insertions(+), 6 deletions(-)
 
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -11,6 +11,7 @@
- #include <linux/skbuff.h>
- #include <linux/errno.h>
- #include <linux/slab.h>
-+#include <linux/refcount.h>
- #include <net/act_api.h>
- #include <net/netlink.h>
- #include <net/pkt_cls.h>
-@@ -26,9 +27,12 @@
- #define DEFAULT_HASH_SIZE	64	/* optimized for diffserv */
- 
- 
-+struct tcindex_data;
-+
- struct tcindex_filter_result {
- 	struct tcf_exts		exts;
- 	struct tcf_result	res;
-+	struct tcindex_data	*p;
- 	struct rcu_work		rwork;
- };
- 
-@@ -49,6 +53,7 @@ struct tcindex_data {
- 	u32 hash;		/* hash table size; 0 if undefined */
- 	u32 alloc_hash;		/* allocated size */
- 	u32 fall_through;	/* 0: only classify if explicit match */
-+	refcount_t refcnt;	/* a temporary refcnt for perfect hash */
- 	struct rcu_work rwork;
- };
- 
-@@ -57,6 +62,20 @@ static inline int tcindex_filter_is_set(
- 	return tcf_exts_has_actions(&r->exts) || r->res.classid;
- }
- 
-+static void tcindex_data_get(struct tcindex_data *p)
-+{
-+	refcount_inc(&p->refcnt);
-+}
-+
-+static void tcindex_data_put(struct tcindex_data *p)
-+{
-+	if (refcount_dec_and_test(&p->refcnt)) {
-+		kfree(p->perfect);
-+		kfree(p->h);
-+		kfree(p);
-+	}
-+}
-+
- static struct tcindex_filter_result *tcindex_lookup(struct tcindex_data *p,
- 						    u16 key)
- {
-@@ -141,6 +160,7 @@ static void __tcindex_destroy_rexts(stru
- {
- 	tcf_exts_destroy(&r->exts);
- 	tcf_exts_put_net(&r->exts);
-+	tcindex_data_put(r->p);
- }
- 
- static void tcindex_destroy_rexts_work(struct work_struct *work)
-@@ -212,6 +232,8 @@ found:
- 		else
- 			__tcindex_destroy_fexts(f);
- 	} else {
-+		tcindex_data_get(p);
-+
- 		if (tcf_exts_get_net(&r->exts))
- 			tcf_queue_work(&r->rwork, tcindex_destroy_rexts_work);
- 		else
-@@ -228,9 +250,7 @@ static void tcindex_destroy_work(struct
- 					      struct tcindex_data,
- 					      rwork);
- 
--	kfree(p->perfect);
--	kfree(p->h);
--	kfree(p);
-+	tcindex_data_put(p);
- }
- 
- static inline int
-@@ -248,9 +268,11 @@ static const struct nla_policy tcindex_p
- };
- 
- static int tcindex_filter_result_init(struct tcindex_filter_result *r,
-+				      struct tcindex_data *p,
- 				      struct net *net)
- {
- 	memset(r, 0, sizeof(*r));
-+	r->p = p;
- 	return tcf_exts_init(&r->exts, net, TCA_TCINDEX_ACT,
- 			     TCA_TCINDEX_POLICE);
- }
-@@ -290,6 +312,7 @@ static int tcindex_alloc_perfect_hash(st
- 				    TCA_TCINDEX_ACT, TCA_TCINDEX_POLICE);
- 		if (err < 0)
- 			goto errout;
-+		cp->perfect[i].p = cp;
- 	}
- 
- 	return 0;
-@@ -334,6 +357,7 @@ tcindex_set_parms(struct net *net, struc
- 	cp->alloc_hash = p->alloc_hash;
- 	cp->fall_through = p->fall_through;
- 	cp->tp = tp;
-+	refcount_set(&cp->refcnt, 1); /* Paired with tcindex_destroy_work() */
- 
- 	if (tb[TCA_TCINDEX_HASH])
- 		cp->hash = nla_get_u32(tb[TCA_TCINDEX_HASH]);
-@@ -366,7 +390,7 @@ tcindex_set_parms(struct net *net, struc
- 	}
- 	cp->h = p->h;
- 
--	err = tcindex_filter_result_init(&new_filter_result, net);
-+	err = tcindex_filter_result_init(&new_filter_result, cp, net);
- 	if (err < 0)
- 		goto errout_alloc;
- 	if (old_r)
-@@ -434,7 +458,7 @@ tcindex_set_parms(struct net *net, struc
- 			goto errout_alloc;
- 		f->key = handle;
- 		f->next = NULL;
--		err = tcindex_filter_result_init(&f->result, net);
-+		err = tcindex_filter_result_init(&f->result, cp, net);
- 		if (err < 0) {
- 			kfree(f);
- 			goto errout_alloc;
-@@ -447,7 +471,7 @@ tcindex_set_parms(struct net *net, struc
- 	}
- 
- 	if (old_r && old_r != r) {
--		err = tcindex_filter_result_init(old_r, net);
-+		err = tcindex_filter_result_init(old_r, cp, net);
- 		if (err < 0) {
- 			kfree(f);
- 			goto errout_alloc;
-@@ -571,6 +595,14 @@ static void tcindex_destroy(struct tcf_p
- 		for (i = 0; i < p->hash; i++) {
- 			struct tcindex_filter_result *r = p->perfect + i;
- 
-+			/* tcf_queue_work() does not guarantee the ordering we
-+			 * want, so we have to take this refcnt temporarily to
-+			 * ensure 'p' is freed after all tcindex_filter_result
-+			 * here. Imperfect hash does not need this, because it
-+			 * uses linked lists rather than an array.
-+			 */
-+			tcindex_data_get(p);
-+
- 			tcf_unbind_filter(tp, &r->res);
- 			if (tcf_exts_get_net(&r->exts))
- 				tcf_queue_work(&r->rwork,
+---
+ net/bluetooth/rfcomm/tty.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+--- a/net/bluetooth/rfcomm/tty.c
++++ b/net/bluetooth/rfcomm/tty.c
+@@ -413,10 +413,8 @@ static int __rfcomm_create_dev(struct so
+ 		dlc = rfcomm_dlc_exists(&req.src, &req.dst, req.channel);
+ 		if (IS_ERR(dlc))
+ 			return PTR_ERR(dlc);
+-		else if (dlc) {
+-			rfcomm_dlc_put(dlc);
++		if (dlc)
+ 			return -EBUSY;
+-		}
+ 		dlc = rfcomm_dlc_alloc(GFP_KERNEL);
+ 		if (!dlc)
+ 			return -ENOMEM;
 
 
