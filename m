@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDEBC1A5A09
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:41:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 747531A5A1B
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:41:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727894AbgDKXHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:07:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42994 "EHLO mail.kernel.org"
+        id S1728849AbgDKXkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:40:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728603AbgDKXHQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:07:16 -0400
+        id S1728606AbgDKXHR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:07:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C80EB2173E;
-        Sat, 11 Apr 2020 23:07:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F19F720708;
+        Sat, 11 Apr 2020 23:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646436;
-        bh=Txgz4lOrhJ5uaiOxVZfhkWtIl+jiHFZS5RGWrb+HtJs=;
+        s=default; t=1586646437;
+        bh=s9qANytsOfkyFxVEfILbbK+MZLjEYum/Vx6saCO1g3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T1qMCqzrN1FYOS2Ku0Q77ZCmI+gwb6I316ymbxcqFQ3V+SRxGPiNJ9tcQP61EGuHL
-         0O6NTVzb2yUsK9MK2Q3Ojw+kLA/9LiIJRSa0T/7icAn2C5fcrWXGEC5yqgKAsVmct4
-         jvfVvXlHsDsbH3pFa9PlSD6CbxJsuwbvfNnoP7po=
+        b=b6SAiB4nu3PXh451RAPIEvLeDwXFUUzaoJB3W4yQH5eAt4z24YsviP5LHwV5NWxKq
+         Itq3EHPcn4BWGDHZk9k4/ewCNwgZpjwZ7gmYl1Gs92FCru4m4TxznCzb8roGcCI2V5
+         sGcyo9XDy08FpxKo2WbH5eRbZiKg5jQMFPH4ZH1o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 008/121] serial: 8250_omap: Fix sleeping function called from invalid context during probe
-Date:   Sat, 11 Apr 2020 19:05:13 -0400
-Message-Id: <20200411230706.23855-8-sashal@kernel.org>
+Cc:     Shannon Nelson <snelson@pensando.io>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 009/121] ionic: check for NULL structs on teardown
+Date:   Sat, 11 Apr 2020 19:05:14 -0400
+Message-Id: <20200411230706.23855-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -44,88 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 4ce35a3617c0ac758c61122b2218b6c8c9ac9398 ]
+[ Upstream commit a4674f34711b96b65bdc4d54eca88d2fd123bbc6 ]
 
-When booting j721e the following bug is printed:
+Make sure the queue structs exist before trying to tear
+them down to make for safer error recovery.
 
-[    1.154821] BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
-[    1.154827] in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 12, name: kworker/0:1
-[    1.154832] 3 locks held by kworker/0:1/12:
-[    1.154836]  #0: ffff000840030728 ((wq_completion)events){+.+.}, at: process_one_work+0x1d4/0x6e8
-[    1.154852]  #1: ffff80001214fdd8 (deferred_probe_work){+.+.}, at: process_one_work+0x1d4/0x6e8
-[    1.154860]  #2: ffff00084060b170 (&dev->mutex){....}, at: __device_attach+0x38/0x138
-[    1.154872] irq event stamp: 63096
-[    1.154881] hardirqs last  enabled at (63095): [<ffff800010b74318>] _raw_spin_unlock_irqrestore+0x70/0x78
-[    1.154887] hardirqs last disabled at (63096): [<ffff800010b740d8>] _raw_spin_lock_irqsave+0x28/0x80
-[    1.154893] softirqs last  enabled at (62254): [<ffff800010080c88>] _stext+0x488/0x564
-[    1.154899] softirqs last disabled at (62247): [<ffff8000100fdb3c>] irq_exit+0x114/0x140
-[    1.154906] CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.6.0-rc6-next-20200318-00094-g45e4089b0bd3 #221
-[    1.154911] Hardware name: Texas Instruments K3 J721E SoC (DT)
-[    1.154917] Workqueue: events deferred_probe_work_func
-[    1.154923] Call trace:
-[    1.154928]  dump_backtrace+0x0/0x190
-[    1.154933]  show_stack+0x14/0x20
-[    1.154940]  dump_stack+0xe0/0x148
-[    1.154946]  ___might_sleep+0x150/0x1f0
-[    1.154952]  __might_sleep+0x4c/0x80
-[    1.154957]  wait_for_completion_timeout+0x40/0x140
-[    1.154964]  ti_sci_set_device_state+0xa0/0x158
-[    1.154969]  ti_sci_cmd_get_device_exclusive+0x14/0x20
-[    1.154977]  ti_sci_dev_start+0x34/0x50
-[    1.154984]  genpd_runtime_resume+0x78/0x1f8
-[    1.154991]  __rpm_callback+0x3c/0x140
-[    1.154996]  rpm_callback+0x20/0x80
-[    1.155001]  rpm_resume+0x568/0x758
-[    1.155007]  __pm_runtime_resume+0x44/0xb0
-[    1.155013]  omap8250_probe+0x2b4/0x508
-[    1.155019]  platform_drv_probe+0x50/0xa0
-[    1.155023]  really_probe+0xd4/0x318
-[    1.155028]  driver_probe_device+0x54/0xe8
-[    1.155033]  __device_attach_driver+0x80/0xb8
-[    1.155039]  bus_for_each_drv+0x74/0xc0
-[    1.155044]  __device_attach+0xdc/0x138
-[    1.155049]  device_initial_probe+0x10/0x18
-[    1.155053]  bus_probe_device+0x98/0xa0
-[    1.155058]  deferred_probe_work_func+0x74/0xb0
-[    1.155063]  process_one_work+0x280/0x6e8
-[    1.155068]  worker_thread+0x48/0x430
-[    1.155073]  kthread+0x108/0x138
-[    1.155079]  ret_from_fork+0x10/0x18
-
-To fix the bug we need to first call pm_runtime_enable() prior to any
-pm_runtime calls.
-
-Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200320125200.6772-1-peter.ujfalusi@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0f3154e6bcb3 ("ionic: Add Tx and Rx handling")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/pensando/ionic/ionic_lif.c   | 26 ++++++++++---------
+ .../net/ethernet/pensando/ionic/ionic_main.c  |  7 ++++-
+ 2 files changed, 20 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 836e736ae188b..2624b5d083366 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -1234,6 +1234,7 @@ static int omap8250_probe(struct platform_device *pdev)
- 	spin_lock_init(&priv->rx_dma_lock);
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+index ef82587133696..f3b164e4585eb 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -318,19 +318,21 @@ static void ionic_qcqs_free(struct ionic_lif *lif)
+ 		lif->adminqcq = NULL;
+ 	}
  
- 	device_init_wakeup(&pdev->dev, true);
-+	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_use_autosuspend(&pdev->dev);
+-	for (i = 0; i < lif->nxqs; i++)
+-		if (lif->rxqcqs[i].stats)
+-			devm_kfree(dev, lif->rxqcqs[i].stats);
+-
+-	devm_kfree(dev, lif->rxqcqs);
+-	lif->rxqcqs = NULL;
+-
+-	for (i = 0; i < lif->nxqs; i++)
+-		if (lif->txqcqs[i].stats)
+-			devm_kfree(dev, lif->txqcqs[i].stats);
++	if (lif->rxqcqs) {
++		for (i = 0; i < lif->nxqs; i++)
++			if (lif->rxqcqs[i].stats)
++				devm_kfree(dev, lif->rxqcqs[i].stats);
++		devm_kfree(dev, lif->rxqcqs);
++		lif->rxqcqs = NULL;
++	}
  
- 	/*
-@@ -1247,7 +1248,6 @@ static int omap8250_probe(struct platform_device *pdev)
- 		pm_runtime_set_autosuspend_delay(&pdev->dev, -1);
+-	devm_kfree(dev, lif->txqcqs);
+-	lif->txqcqs = NULL;
++	if (lif->txqcqs) {
++		for (i = 0; i < lif->nxqs; i++)
++			if (lif->txqcqs[i].stats)
++				devm_kfree(dev, lif->txqcqs[i].stats);
++		devm_kfree(dev, lif->txqcqs);
++		lif->txqcqs = NULL;
++	}
+ }
  
- 	pm_runtime_irq_safe(&pdev->dev);
--	pm_runtime_enable(&pdev->dev);
+ static void ionic_link_qcq_interrupts(struct ionic_qcq *src_qcq,
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_main.c b/drivers/net/ethernet/pensando/ionic/ionic_main.c
+index 3590ea7fd88a3..ab30448176c26 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_main.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_main.c
+@@ -236,11 +236,16 @@ static void ionic_adminq_cb(struct ionic_queue *q,
  
- 	pm_runtime_get_sync(&pdev->dev);
+ static int ionic_adminq_post(struct ionic_lif *lif, struct ionic_admin_ctx *ctx)
+ {
+-	struct ionic_queue *adminq = &lif->adminqcq->q;
++	struct ionic_queue *adminq;
+ 	int err = 0;
  
+ 	WARN_ON(in_interrupt());
+ 
++	if (!lif->adminqcq)
++		return -EIO;
++
++	adminq = &lif->adminqcq->q;
++
+ 	spin_lock(&lif->adminq_lock);
+ 	if (!ionic_q_has_space(adminq, 1)) {
+ 		err = -ENOSPC;
 -- 
 2.20.1
 
