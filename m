@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B0A1A5906
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:34:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 146BD1A5521
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:09:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727361AbgDKXeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:34:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47158 "EHLO mail.kernel.org"
+        id S1729238AbgDKXJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:09:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729228AbgDKXJZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:09:25 -0400
+        id S1729231AbgDKXJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:09:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F50D216FD;
-        Sat, 11 Apr 2020 23:09:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE51221744;
+        Sat, 11 Apr 2020 23:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646565;
-        bh=ItIerm0IvevocM6ZWbkjcXQ/Hlr+P9DsYTmiUBPKb5A=;
+        s=default; t=1586646566;
+        bh=b8AGve6QsN7S5z6hZ5RO+3duXtCICqIIFesS5kE2Seo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOYWQoRB+DCOnVBoItuLSPaL6YFv0L2d3ohc4GLvQqv/F7wj86j9jZ7PicPZAAUeN
-         DgN45YCzzHhloqaR8L7Y8NNkiayUc7N9zYDnjC6xFLaqkgDhwAAYfnR4LQH/tO2oVe
-         xNoK3sdXe72iipbcwo4yu1MGberNuAzqSfxVmPuU=
+        b=IGnQTuqa4vbpWbGuMjffiXvTbnKibbUCPvkACfkaMZbZRgjZCXuAfy3wxBtACxjgy
+         l47aIIcsST48RtTCs1ZtmQJMPzzXi0p453NawMX2NWUMzVab2V4fOfootafB5FjJjo
+         5A8CjNRhjOj8Ogk34Azbnpf+XQOuPguGiTmpTAWI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>, Jan Kara <jack@suse.cz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.5 113/121] powerpc/book3s64: Fix error handling in mm_iommu_do_alloc()
-Date:   Sat, 11 Apr 2020 19:06:58 -0400
-Message-Id: <20200411230706.23855-113-sashal@kernel.org>
+Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 114/121] arm64: dts: qcom: msm8998-mtp: Disable funnel 4 and 5
+Date:   Sat, 11 Apr 2020 19:06:59 -0400
+Message-Id: <20200411230706.23855-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -43,86 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit c4b78169e3667413184c9a20e11b5832288a109f ]
+[ Upstream commit 3498d9c05f804414c4645a2c0bba0187630fe5f0 ]
 
-The last jump to free_exit in mm_iommu_do_alloc() happens after page
-pointers in struct mm_iommu_table_group_mem_t were already converted to
-physical addresses. Thus calling put_page() on these physical addresses
-will likely crash.
+Disable Coresight funnel 4 and 5, for now, as these causes the MTP to
+crash when clock late_initcall disables unused clocks.
 
-This moves the loop which calculates the pageshift and converts page
-struct pointers to physical addresses later after the point when
-we cannot fail; thus eliminating the need to convert pointers back.
-
-Fixes: eb9d7a62c386 ("powerpc/mm_iommu: Fix potential deadlock")
-Reported-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191223060351.26359-1-aik@ozlabs.ru
+Reviewed-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20200308055445.1992189-1-bjorn.andersson@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/iommu_api.c | 39 +++++++++++++++-------------
- 1 file changed, 21 insertions(+), 18 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8998-mtp.dtsi | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/mm/book3s64/iommu_api.c b/arch/powerpc/mm/book3s64/iommu_api.c
-index 56cc845205779..ef164851738b8 100644
---- a/arch/powerpc/mm/book3s64/iommu_api.c
-+++ b/arch/powerpc/mm/book3s64/iommu_api.c
-@@ -121,24 +121,6 @@ static long mm_iommu_do_alloc(struct mm_struct *mm, unsigned long ua,
- 		goto free_exit;
- 	}
+diff --git a/arch/arm64/boot/dts/qcom/msm8998-mtp.dtsi b/arch/arm64/boot/dts/qcom/msm8998-mtp.dtsi
+index e08fcb426bbf8..38cc7cb347b74 100644
+--- a/arch/arm64/boot/dts/qcom/msm8998-mtp.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8998-mtp.dtsi
+@@ -95,11 +95,15 @@
+ };
  
--	pageshift = PAGE_SHIFT;
--	for (i = 0; i < entries; ++i) {
--		struct page *page = mem->hpages[i];
--
--		/*
--		 * Allow to use larger than 64k IOMMU pages. Only do that
--		 * if we are backed by hugetlb.
--		 */
--		if ((mem->pageshift > PAGE_SHIFT) && PageHuge(page))
--			pageshift = page_shift(compound_head(page));
--		mem->pageshift = min(mem->pageshift, pageshift);
--		/*
--		 * We don't need struct page reference any more, switch
--		 * to physical address.
--		 */
--		mem->hpas[i] = page_to_pfn(page) << PAGE_SHIFT;
--	}
--
- good_exit:
- 	atomic64_set(&mem->mapped, 1);
- 	mem->used = 1;
-@@ -158,6 +140,27 @@ static long mm_iommu_do_alloc(struct mm_struct *mm, unsigned long ua,
- 		}
- 	}
+ &funnel4 {
+-	status = "okay";
++	// FIXME: Figure out why clock late_initcall crashes the board with
++	// this enabled.
++	// status = "okay";
+ };
  
-+	if (mem->dev_hpa == MM_IOMMU_TABLE_INVALID_HPA) {
-+		/*
-+		 * Allow to use larger than 64k IOMMU pages. Only do that
-+		 * if we are backed by hugetlb. Skip device memory as it is not
-+		 * backed with page structs.
-+		 */
-+		pageshift = PAGE_SHIFT;
-+		for (i = 0; i < entries; ++i) {
-+			struct page *page = mem->hpages[i];
-+
-+			if ((mem->pageshift > PAGE_SHIFT) && PageHuge(page))
-+				pageshift = page_shift(compound_head(page));
-+			mem->pageshift = min(mem->pageshift, pageshift);
-+			/*
-+			 * We don't need struct page reference any more, switch
-+			 * to physical address.
-+			 */
-+			mem->hpas[i] = page_to_pfn(page) << PAGE_SHIFT;
-+		}
-+	}
-+
- 	list_add_rcu(&mem->next, &mm->context.iommu_group_mem_list);
+ &funnel5 {
+-	status = "okay";
++	// FIXME: Figure out why clock late_initcall crashes the board with
++	// this enabled.
++	// status = "okay";
+ };
  
- 	mutex_unlock(&mem_list_mutex);
+ &pm8005_lsid1 {
 -- 
 2.20.1
 
