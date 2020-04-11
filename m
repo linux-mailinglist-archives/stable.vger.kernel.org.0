@@ -2,42 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 426EB1A54E6
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:08:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 616121A597E
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:38:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728874AbgDKXIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:08:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44786 "EHLO mail.kernel.org"
+        id S1728800AbgDKXIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:08:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728873AbgDKXIN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:08:13 -0400
+        id S1728877AbgDKXIO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:08:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78F9D20708;
-        Sat, 11 Apr 2020 23:08:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 163DF20787;
+        Sat, 11 Apr 2020 23:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646493;
-        bh=Wzja1lnSxcvyujKbql1QcN7eEshT9Y47jqXMe56SKFg=;
+        s=default; t=1586646494;
+        bh=6ujQpcxIGithtYCTLKGJdniW/4CHxY9NdvXu1hLNzmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aEp8QaJ1iMJyVG8+baFTrFMfmablEiJXAg5oh0ZZCUBX6OXFaCKItopIW7/p6W4UQ
-         MmpexLgaqfAi7NUpWanKidoO7MBPWZ3SeICWB5fmxAT8H+2D2zY3vR4xJXSEc7fHN9
-         8ZgRHKjAMZf1lDtY07WFONwEvrhbwh0+VBVbVuYA=
+        b=XkSfLtQm4EJ3UrEhxjS01KvuOX9Vm7xrIShz8fw8Tg2zYqSQNT36hbbuvekGaHO2A
+         SVrWH3gWhFH6cFI6FcX1CnMt1UlpWxYaXHszDc/+lc0rRg+CuB4QaycB0gF3MklvrJ
+         bi4QCF43QDwI0XccFXed52eKn1j8tPQb0xj1VgDM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Yang <wen.yang99@zte.com.cn>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        dri-devel@lists.freedesktop.org,
-        Markus Elfring <Markus.Elfring@web.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 056/121] drm/omap: fix possible object reference leak
-Date:   Sat, 11 Apr 2020 19:06:01 -0400
-Message-Id: <20200411230706.23855-56-sashal@kernel.org>
+Cc:     Steve Grubb <sgrubb@redhat.com>, Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>, linux-audit@redhat.com
+Subject: [PATCH AUTOSEL 5.5 057/121] audit: CONFIG_CHANGE don't log internal bookkeeping as an event
+Date:   Sat, 11 Apr 2020 19:06:02 -0400
+Message-Id: <20200411230706.23855-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -50,57 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Steve Grubb <sgrubb@redhat.com>
 
-[ Upstream commit 47340e46f34a3b1d80e40b43ae3d7a8da34a3541 ]
+[ Upstream commit 70b3eeed49e8190d97139806f6fbaf8964306cdb ]
 
-The call to of_find_matching_node returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+Common Criteria calls out for any action that modifies the audit trail to
+be recorded. That usually is interpreted to mean insertion or removal of
+rules. It is not required to log modification of the inode information
+since the watch is still in effect. Additionally, if the rule is a never
+rule and the underlying file is one they do not want events for, they
+get an event for this bookkeeping update against their wishes.
 
-Detected by coccinelle with the following warnings:
-drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c:212:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 209, but without a corresponding object release within this function.
-drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c:237:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 209, but without a corresponding object release within this function.
+Since no device/inode info is logged at insertion and no device/inode
+information is logged on update, there is nothing meaningful being
+communicated to the admin by the CONFIG_CHANGE updated_rules event. One
+can assume that the rule was not "modified" because it is still watching
+the intended target. If the device or inode cannot be resolved, then
+audit_panic is called which is sufficient.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Markus Elfring <Markus.Elfring@web.de>
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1554692313-28882-2-git-send-email-wen.yang99@zte.com.cn
+The correct resolution is to drop logging config_update events since
+the watch is still in effect but just on another unknown inode.
+
+Signed-off-by: Steve Grubb <sgrubb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/audit_watch.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c b/drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c
-index 31502857f013d..ce67891eedd46 100644
---- a/drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c
-+++ b/drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c
-@@ -192,7 +192,7 @@ static int __init omapdss_boot_init(void)
- 	dss = of_find_matching_node(NULL, omapdss_of_match);
+diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
+index 4508d5e0cf696..8a8fd732ff6d0 100644
+--- a/kernel/audit_watch.c
++++ b/kernel/audit_watch.c
+@@ -302,8 +302,6 @@ static void audit_update_watch(struct audit_parent *parent,
+ 			if (oentry->rule.exe)
+ 				audit_remove_mark(oentry->rule.exe);
  
- 	if (dss == NULL || !of_device_is_available(dss))
--		return 0;
-+		goto put_node;
- 
- 	omapdss_walk_device(dss, true);
- 
-@@ -217,6 +217,8 @@ static int __init omapdss_boot_init(void)
- 		kfree(n);
- 	}
- 
-+put_node:
-+	of_node_put(dss);
- 	return 0;
- }
+-			audit_watch_log_rule_change(r, owatch, "updated_rules");
+-
+ 			call_rcu(&oentry->rcu, audit_free_rule_rcu);
+ 		}
  
 -- 
 2.20.1
