@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3962F1A50B7
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 742681A5118
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:23:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726702AbgDKMUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:20:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56520 "EHLO mail.kernel.org"
+        id S1728415AbgDKMT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:19:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728755AbgDKMUb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:20:31 -0400
+        id S1728792AbgDKMTZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:19:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2876B214D8;
-        Sat, 11 Apr 2020 12:20:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F9202084D;
+        Sat, 11 Apr 2020 12:19:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607631;
-        bh=3sS5jXXx6ZF2Le/23RlQPKycIQN78NGDCBu/YWwXf7s=;
+        s=default; t=1586607565;
+        bh=G/fsmouMPqeGL+ojewb25nKuHbsV2AApGz5o0aVaTkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+XssYxXkJ8WziwQmuwHcwIFQArFjB0JndZsPPtmVv8Dc3ntud1aOWVSsX9x78BWb
-         cC5Ly2ZBsXdUr4VG8Oc/EMx9787PUPv7KTAynkdiqssi+hsWxZwwQr5RPTGlME8XHr
-         F5J5rLToYwUFMh8WTyHHv20YbA7w/fcfhgFj1+oA=
+        b=heQzgtpS8dR14ArPZsboeNfH/SX9e8XBn2vfLBrKrbIDtN8+2wJDScblRXBvsmNo+
+         UCcMtz2IiLJlYnIVeL27/cYBjmTOLGKMfEXVbDTEUtiEhsTkefVNXwzqYhN/Z+FwzQ
+         uPmThnLwwbFxAWsEq+DfYF+be3nOiiau+g4sI21k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 5.6 13/38] r8169: change back SG and TSO to be disabled by default
+        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>
+Subject: [PATCH 5.5 30/44] driver core: Reevaluate dev->links.need_for_probe as suppliers are added
 Date:   Sat, 11 Apr 2020 14:09:50 +0200
-Message-Id: <20200411115500.723791266@linuxfoundation.org>
+Message-Id: <20200411115459.715810444@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
-References: <20200411115459.324496182@linuxfoundation.org>
+In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
+References: <20200411115456.934174282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Saravana Kannan <saravanak@google.com>
 
-[ Upstream commit 95099c569a9fdbe186a27447dfa8a5a0562d4b7f ]
+commit 1745d299af5b373abad08fa29bff0d31dc6aff21 upstream.
 
-There has been a number of reports that using SG/TSO on different chip
-versions results in tx timeouts. However for a lot of people SG/TSO
-works fine. Therefore disable both features by default, but allow users
-to enable them. Use at own risk!
+A previous patch 03324507e66c ("driver core: Allow
+fwnode_operations.add_links to differentiate errors") forgot to update
+all call sites to fwnode_operations.add_links. This patch fixes that.
 
-Fixes: 93681cd7d94f ("r8169: enable HW csum and TSO")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Legend:
+-> Denotes RHS is an optional/potential supplier for LHS
+=> Denotes RHS is a mandatory supplier for LHS
+
+Example:
+
+Device A => Device X
+Device A -> Device Y
+
+Before this patch:
+1. Device A is added.
+2. Device A is marked as waiting for mandatory suppliers
+3. Device X is added
+4. Device A is left marked as waiting for mandatory suppliers
+
+Step 4 is wrong since all mandatory suppliers of Device A have been
+added.
+
+After this patch:
+1. Device A is added.
+2. Device A is marked as waiting for mandatory suppliers
+3. Device X is added
+4. Device A is no longer considered as waiting for mandatory suppliers
+
+This is the correct behavior.
+
+Fixes: 03324507e66c ("driver core: Allow fwnode_operations.add_links to differentiate errors")
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Link: https://lore.kernel.org/r/20200222014038.180923-2-saravanak@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/realtek/r8169_main.c |   34 ++++++++++++++----------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -5549,12 +5549,10 @@ static int rtl_init_one(struct pci_dev *
+---
+ drivers/base/core.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -523,9 +523,13 @@ static void device_link_add_missing_supp
  
- 	netif_napi_add(dev, &tp->napi, rtl8169_poll, NAPI_POLL_WEIGHT);
- 
--	dev->features |= NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO |
--		NETIF_F_RXCSUM | NETIF_F_HW_VLAN_CTAG_TX |
--		NETIF_F_HW_VLAN_CTAG_RX;
--	dev->hw_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO |
--		NETIF_F_RXCSUM | NETIF_F_HW_VLAN_CTAG_TX |
--		NETIF_F_HW_VLAN_CTAG_RX;
-+	dev->features |= NETIF_F_IP_CSUM | NETIF_F_RXCSUM |
-+			 NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_CTAG_RX;
-+	dev->hw_features = NETIF_F_IP_CSUM | NETIF_F_RXCSUM |
-+			   NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_CTAG_RX;
- 	dev->vlan_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO |
- 		NETIF_F_HIGHDMA;
- 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
-@@ -5572,25 +5570,25 @@ static int rtl_init_one(struct pci_dev *
- 		dev->hw_features &= ~NETIF_F_HW_VLAN_CTAG_RX;
- 
- 	if (rtl_chip_supports_csum_v2(tp)) {
--		dev->hw_features |= NETIF_F_IPV6_CSUM | NETIF_F_TSO6;
--		dev->features |= NETIF_F_IPV6_CSUM | NETIF_F_TSO6;
-+		dev->hw_features |= NETIF_F_IPV6_CSUM;
-+		dev->features |= NETIF_F_IPV6_CSUM;
+ 	mutex_lock(&wfs_lock);
+ 	list_for_each_entry_safe(dev, tmp, &wait_for_suppliers,
+-				 links.needs_suppliers)
+-		if (!fwnode_call_int_op(dev->fwnode, add_links, dev))
++				 links.needs_suppliers) {
++		int ret = fwnode_call_int_op(dev->fwnode, add_links, dev);
++		if (!ret)
+ 			list_del_init(&dev->links.needs_suppliers);
++		else if (ret != -ENODEV)
++			dev->links.need_for_probe = false;
 +	}
-+
-+	/* There has been a number of reports that using SG/TSO results in
-+	 * tx timeouts. However for a lot of people SG/TSO works fine.
-+	 * Therefore disable both features by default, but allow users to
-+	 * enable them. Use at own risk!
-+	 */
-+	if (rtl_chip_supports_csum_v2(tp)) {
-+		dev->hw_features |= NETIF_F_SG | NETIF_F_TSO | NETIF_F_TSO6;
- 		dev->gso_max_size = RTL_GSO_MAX_SIZE_V2;
- 		dev->gso_max_segs = RTL_GSO_MAX_SEGS_V2;
- 	} else {
-+		dev->hw_features |= NETIF_F_SG | NETIF_F_TSO;
- 		dev->gso_max_size = RTL_GSO_MAX_SIZE_V1;
- 		dev->gso_max_segs = RTL_GSO_MAX_SEGS_V1;
- 	}
- 
--	/* RTL8168e-vl and one RTL8168c variant are known to have a
--	 * HW issue with TSO.
--	 */
--	if (tp->mac_version == RTL_GIGA_MAC_VER_34 ||
--	    tp->mac_version == RTL_GIGA_MAC_VER_22) {
--		dev->vlan_features &= ~(NETIF_F_ALL_TSO | NETIF_F_SG);
--		dev->hw_features &= ~(NETIF_F_ALL_TSO | NETIF_F_SG);
--		dev->features &= ~(NETIF_F_ALL_TSO | NETIF_F_SG);
--	}
--
- 	dev->hw_features |= NETIF_F_RXALL;
- 	dev->hw_features |= NETIF_F_RXFCS;
+ 	mutex_unlock(&wfs_lock);
+ }
  
 
 
