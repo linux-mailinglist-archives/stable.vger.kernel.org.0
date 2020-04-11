@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 820CB1A57DD
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 887781A5791
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:25:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbgDKXZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:25:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51832 "EHLO mail.kernel.org"
+        id S1730091AbgDKXML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:12:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730045AbgDKXL6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:11:58 -0400
+        id S1730067AbgDKXMF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:12:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8351C2173E;
-        Sat, 11 Apr 2020 23:11:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF02620708;
+        Sat, 11 Apr 2020 23:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646718;
-        bh=9AgB5xU8/OmGvwSeCAS7bDIEocxLDpLkEL0FnpXfADc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+F9mD/qczaZGiS1T5/esUPAS0+EewNPwc9mJxY9dvLwr4Wgd5c+HTGIp3jJVp/QJ
-         fMZ47FmwDl0TUOwGDICVps4WGJUdsf7QQ7SVdBgSXdtSXNfD4x/6FvQnkzOVDdPXev
-         2f40oxhthB+CTQYkL/N7CZNLXS0lTs+LcC+WUslE=
+        s=default; t=1586646725;
+        bh=GvIy7VMOBVjJCLIBOncPcXpcMFRxp+6HGu4EVePeFhw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=I6Jw4Btnrbf0JL3uWoJe8zAkpiKPZUfhjeqpg4xmvH9aRSBvNYTnPWp+dyC0h5PHC
+         r081t9DEOvtBumO2v6VgUPfinO216fliErglUcp4g/KC7YLB31g1MnV8rpxg2opHdk
+         4ukMuZgVm3ZgmGuL9wmy23bcDfS8xWEKfwof7NyY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikel Rychliski <mikel@mikelr.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 108/108] PCI: Use ioremap(), not phys_to_virt() for platform ROM
-Date:   Sat, 11 Apr 2020 19:09:43 -0400
-Message-Id: <20200411230943.24951-108-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/66] net: wan: wanxl: use allow to pass CROSS_COMPILE_M68k for rebuilding firmware
+Date:   Sat, 11 Apr 2020 19:10:58 -0400
+Message-Id: <20200411231203.25933-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
-References: <20200411230943.24951-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,241 +41,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikel Rychliski <mikel@mikelr.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 72e0ef0e5f067fd991f702f0b2635d911d0cf208 ]
+[ Upstream commit 63b903dfebdea92aa92ad337d8451a6fbfeabf9d ]
 
-On some EFI systems, the video BIOS is provided by the EFI firmware.  The
-boot stub code stores the physical address of the ROM image in pdev->rom.
-Currently we attempt to access this pointer using phys_to_virt(), which
-doesn't work with CONFIG_HIGHMEM.
+As far as I understood from the Kconfig help text, this build rule is
+used to rebuild the driver firmware, which runs on an old m68k-based
+chip. So, you need m68k tools for the firmware rebuild.
 
-On these systems, attempting to load the radeon module on a x86_32 kernel
-can result in the following:
+wanxl.c is a PCI driver, but CONFIG_M68K does not select CONFIG_HAVE_PCI.
+So, you cannot enable CONFIG_WANXL_BUILD_FIRMWARE for ARCH=m68k. In other
+words, ifeq ($(ARCH),m68k) is false here.
 
-  BUG: unable to handle page fault for address: 3e8ed03c
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  *pde = 00000000
-  Oops: 0000 [#1] PREEMPT SMP
-  CPU: 0 PID: 317 Comm: systemd-udevd Not tainted 5.6.0-rc3-next-20200228 #2
-  Hardware name: Apple Computer, Inc. MacPro1,1/Mac-F4208DC8, BIOS     MP11.88Z.005C.B08.0707021221 07/02/07
-  EIP: radeon_get_bios+0x5ed/0xe50 [radeon]
-  Code: 00 00 84 c0 0f 85 12 fd ff ff c7 87 64 01 00 00 00 00 00 00 8b 47 08 8b 55 b0 e8 1e 83 e1 d6 85 c0 74 1a 8b 55 c0 85 d2 74 13 <80> 38 55 75 0e 80 78 01 aa 0f 84 a4 03 00 00 8d 74 26 00 68 dc 06
-  EAX: 3e8ed03c EBX: 00000000 ECX: 3e8ed03c EDX: 00010000
-  ESI: 00040000 EDI: eec04000 EBP: eef3fc60 ESP: eef3fbe0
-  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010206
-  CR0: 80050033 CR2: 3e8ed03c CR3: 2ec77000 CR4: 000006d0
-  Call Trace:
-   r520_init+0x26/0x240 [radeon]
-   radeon_device_init+0x533/0xa50 [radeon]
-   radeon_driver_load_kms+0x80/0x220 [radeon]
-   drm_dev_register+0xa7/0x180 [drm]
-   radeon_pci_probe+0x10f/0x1a0 [radeon]
-   pci_device_probe+0xd4/0x140
+I am keeping the dead code for now, but rebuilding the firmware requires
+'as68k' and 'ld68k', which I do not have in hand.
 
-Fix the issue by updating all drivers which can access a platform provided
-ROM. Instead of calling the helper function pci_platform_rom() which uses
-phys_to_virt(), call ioremap() directly on the pdev->rom.
+Instead, the kernel.org m68k GCC [1] successfully built it.
 
-radeon_read_platform_bios() previously directly accessed an __iomem
-pointer. Avoid this by calling memcpy_fromio() instead of kmemdup().
+Allowing a user to pass in CROSS_COMPILE_M68K= is handier.
 
-pci_platform_rom() now has no remaining callers, so remove it.
+[1] https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/9.2.0/x86_64-gcc-9.2.0-nolibc-m68k-linux.tar.xz
 
-Link: https://lore.kernel.org/r/20200319021623.5426-1-mikel@mikelr.com
-Signed-off-by: Mikel Rychliski <mikel@mikelr.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c      | 31 +++++++++++--------
- .../drm/nouveau/nvkm/subdev/bios/shadowpci.c  | 17 ++++++++--
- drivers/gpu/drm/radeon/radeon_bios.c          | 30 +++++++++++-------
- drivers/pci/rom.c                             | 17 ----------
- include/linux/pci.h                           |  1 -
- 5 files changed, 52 insertions(+), 44 deletions(-)
+ drivers/net/wan/Kconfig  |  2 +-
+ drivers/net/wan/Makefile | 12 ++++++------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
-index 50dff69a0f6e3..b1172d93c99c3 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bios.c
-@@ -192,30 +192,35 @@ static bool amdgpu_read_bios_from_rom(struct amdgpu_device *adev)
+diff --git a/drivers/net/wan/Kconfig b/drivers/net/wan/Kconfig
+index 4e9fe75d70675..21190dfbabb16 100644
+--- a/drivers/net/wan/Kconfig
++++ b/drivers/net/wan/Kconfig
+@@ -199,7 +199,7 @@ config WANXL_BUILD_FIRMWARE
+ 	depends on WANXL && !PREVENT_FIRMWARE_BUILD
+ 	help
+ 	  Allows you to rebuild firmware run by the QUICC processor.
+-	  It requires as68k, ld68k and hexdump programs.
++	  It requires m68k toolchains and hexdump programs.
  
- static bool amdgpu_read_platform_bios(struct amdgpu_device *adev)
- {
--	uint8_t __iomem *bios;
--	size_t size;
-+	phys_addr_t rom = adev->pdev->rom;
-+	size_t romlen = adev->pdev->romlen;
-+	void __iomem *bios;
+ 	  You should never need this option, say N.
  
- 	adev->bios = NULL;
+diff --git a/drivers/net/wan/Makefile b/drivers/net/wan/Makefile
+index 9532e69fda878..c21b7345b50b1 100644
+--- a/drivers/net/wan/Makefile
++++ b/drivers/net/wan/Makefile
+@@ -41,17 +41,17 @@ $(obj)/wanxl.o:	$(obj)/wanxlfw.inc
  
--	bios = pci_platform_rom(adev->pdev, &size);
--	if (!bios) {
-+	if (!rom || romlen == 0)
- 		return false;
--	}
+ ifeq ($(CONFIG_WANXL_BUILD_FIRMWARE),y)
+ ifeq ($(ARCH),m68k)
+-  AS68K = $(AS)
+-  LD68K = $(LD)
++  M68KAS = $(AS)
++  M68KLD = $(LD)
+ else
+-  AS68K = as68k
+-  LD68K = ld68k
++  M68KAS = $(CROSS_COMPILE_M68K)as
++  M68KLD = $(CROSS_COMPILE_M68K)ld
+ endif
  
--	adev->bios = kzalloc(size, GFP_KERNEL);
--	if (adev->bios == NULL)
-+	adev->bios = kzalloc(romlen, GFP_KERNEL);
-+	if (!adev->bios)
- 		return false;
+ quiet_cmd_build_wanxlfw = BLD FW  $@
+       cmd_build_wanxlfw = \
+-	$(CPP) -D__ASSEMBLY__ -Wp,-MD,$(depfile) -I$(srctree)/include/uapi $< | $(AS68K) -m68360 -o $(obj)/wanxlfw.o; \
+-	$(LD68K) --oformat binary -Ttext 0x1000 $(obj)/wanxlfw.o -o $(obj)/wanxlfw.bin; \
++	$(CPP) -D__ASSEMBLY__ -Wp,-MD,$(depfile) -I$(srctree)/include/uapi $< | $(M68KAS) -m68360 -o $(obj)/wanxlfw.o; \
++	$(M68KLD) --oformat binary -Ttext 0x1000 $(obj)/wanxlfw.o -o $(obj)/wanxlfw.bin; \
+ 	hexdump -ve '"\n" 16/1 "0x%02X,"' $(obj)/wanxlfw.bin | sed 's/0x  ,//g;1s/^/static const u8 firmware[]={/;$$s/,$$/\n};\n/' >$(obj)/wanxlfw.inc; \
+ 	rm -f $(obj)/wanxlfw.bin $(obj)/wanxlfw.o
  
--	memcpy_fromio(adev->bios, bios, size);
-+	bios = ioremap(rom, romlen);
-+	if (!bios)
-+		goto free_bios;
- 
--	if (!check_atom_bios(adev->bios, size)) {
--		kfree(adev->bios);
--		return false;
--	}
-+	memcpy_fromio(adev->bios, bios, romlen);
-+	iounmap(bios);
- 
--	adev->bios_size = size;
-+	if (!check_atom_bios(adev->bios, romlen))
-+		goto free_bios;
-+
-+	adev->bios_size = romlen;
- 
- 	return true;
-+free_bios:
-+	kfree(adev->bios);
-+	return false;
- }
- 
- #ifdef CONFIG_ACPI
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadowpci.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadowpci.c
-index 9b91da09dc5f8..8d9812a51ef63 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadowpci.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/shadowpci.c
-@@ -101,9 +101,13 @@ platform_init(struct nvkm_bios *bios, const char *name)
- 	else
- 		return ERR_PTR(-ENODEV);
- 
-+	if (!pdev->rom || pdev->romlen == 0)
-+		return ERR_PTR(-ENODEV);
-+
- 	if ((priv = kmalloc(sizeof(*priv), GFP_KERNEL))) {
-+		priv->size = pdev->romlen;
- 		if (ret = -ENODEV,
--		    (priv->rom = pci_platform_rom(pdev, &priv->size)))
-+		    (priv->rom = ioremap(pdev->rom, pdev->romlen)))
- 			return priv;
- 		kfree(priv);
- 	}
-@@ -111,11 +115,20 @@ platform_init(struct nvkm_bios *bios, const char *name)
- 	return ERR_PTR(ret);
- }
- 
-+static void
-+platform_fini(void *data)
-+{
-+	struct priv *priv = data;
-+
-+	iounmap(priv->rom);
-+	kfree(priv);
-+}
-+
- const struct nvbios_source
- nvbios_platform = {
- 	.name = "PLATFORM",
- 	.init = platform_init,
--	.fini = (void(*)(void *))kfree,
-+	.fini = platform_fini,
- 	.read = pcirom_read,
- 	.rw = true,
- };
-diff --git a/drivers/gpu/drm/radeon/radeon_bios.c b/drivers/gpu/drm/radeon/radeon_bios.c
-index 4d1490fbb0750..756a50e8aff20 100644
---- a/drivers/gpu/drm/radeon/radeon_bios.c
-+++ b/drivers/gpu/drm/radeon/radeon_bios.c
-@@ -108,25 +108,33 @@ static bool radeon_read_bios(struct radeon_device *rdev)
- 
- static bool radeon_read_platform_bios(struct radeon_device *rdev)
- {
--	uint8_t __iomem *bios;
--	size_t size;
-+	phys_addr_t rom = rdev->pdev->rom;
-+	size_t romlen = rdev->pdev->romlen;
-+	void __iomem *bios;
- 
- 	rdev->bios = NULL;
- 
--	bios = pci_platform_rom(rdev->pdev, &size);
--	if (!bios) {
-+	if (!rom || romlen == 0)
- 		return false;
--	}
- 
--	if (size == 0 || bios[0] != 0x55 || bios[1] != 0xaa) {
-+	rdev->bios = kzalloc(romlen, GFP_KERNEL);
-+	if (!rdev->bios)
- 		return false;
--	}
--	rdev->bios = kmemdup(bios, size, GFP_KERNEL);
--	if (rdev->bios == NULL) {
--		return false;
--	}
-+
-+	bios = ioremap(rom, romlen);
-+	if (!bios)
-+		goto free_bios;
-+
-+	memcpy_fromio(rdev->bios, bios, romlen);
-+	iounmap(bios);
-+
-+	if (rdev->bios[0] != 0x55 || rdev->bios[1] != 0xaa)
-+		goto free_bios;
- 
- 	return true;
-+free_bios:
-+	kfree(rdev->bios);
-+	return false;
- }
- 
- #ifdef CONFIG_ACPI
-diff --git a/drivers/pci/rom.c b/drivers/pci/rom.c
-index 137bf0cee897c..8fc9a4e911e3a 100644
---- a/drivers/pci/rom.c
-+++ b/drivers/pci/rom.c
-@@ -195,20 +195,3 @@ void pci_unmap_rom(struct pci_dev *pdev, void __iomem *rom)
- 		pci_disable_rom(pdev);
- }
- EXPORT_SYMBOL(pci_unmap_rom);
--
--/**
-- * pci_platform_rom - provides a pointer to any ROM image provided by the
-- * platform
-- * @pdev: pointer to pci device struct
-- * @size: pointer to receive size of pci window over ROM
-- */
--void __iomem *pci_platform_rom(struct pci_dev *pdev, size_t *size)
--{
--	if (pdev->rom && pdev->romlen) {
--		*size = pdev->romlen;
--		return phys_to_virt((phys_addr_t)pdev->rom);
--	}
--
--	return NULL;
--}
--EXPORT_SYMBOL(pci_platform_rom);
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index f39f22f9ee474..e92bd9b32f369 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -1216,7 +1216,6 @@ int pci_enable_rom(struct pci_dev *pdev);
- void pci_disable_rom(struct pci_dev *pdev);
- void __iomem __must_check *pci_map_rom(struct pci_dev *pdev, size_t *size);
- void pci_unmap_rom(struct pci_dev *pdev, void __iomem *rom);
--void __iomem __must_check *pci_platform_rom(struct pci_dev *pdev, size_t *size);
- 
- /* Power management related routines */
- int pci_save_state(struct pci_dev *dev);
 -- 
 2.20.1
 
