@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F21D91A507B
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:18:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7987F1A50EC
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728552AbgDKMSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:18:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53142 "EHLO mail.kernel.org"
+        id S1729143AbgDKMV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:21:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728560AbgDKMSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:18:14 -0400
+        id S1728961AbgDKMV0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:21:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CEDE21556;
-        Sat, 11 Apr 2020 12:18:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A324214D8;
+        Sat, 11 Apr 2020 12:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607493;
-        bh=xJ7M76o/m9pVIZjSHyNqEgjefGdDV7ixNMHggwbFHuo=;
+        s=default; t=1586607685;
+        bh=SLxe7vui/sy4bL9CxI8nH4037eviKppUqHtZ57BTB3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ekyA5t2sjMs92Ajy4pAwr4yyQVgLXOKzo/JyXnd3XyLTgvesFRYaDibpl9OrsVNFo
-         VnUZchDRPrb9z/5qY4ruaLhd8T9mZF2osHeQ1OkJ0tEmEBZ89ZygI0rVWAfIrN72ne
-         xWyZm3WiLn9LOnNeAQwOwJ65Bm1r5T8dHiF+67e0=
+        b=h9UidwObZsgQsuQAJG2WfghUCmFy+3ZqsNfW2JN3DqYSUhHuae9ODN06Yi0AiqdQ8
+         zhiwDc1ZJvStxE2g/3jmjCW7NoZ2YIPz5TKw2PeMiVPyIqxx8vBySVJ6SgRFXk1zYC
+         pkmja5U4sVXvzjYBPl/TtwYP6VfcwZCp7qH0kvro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+55de90ab5f44172b0c90@syzkaller.appspotmail.com,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 35/41] RDMA/siw: Fix passive connection establishment
+        syzbot+46f513c3033d592409d2@syzkaller.appspotmail.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 07/38] net_sched: add a temporary refcnt for struct tcindex_data
 Date:   Sat, 11 Apr 2020 14:09:44 +0200
-Message-Id: <20200411115506.633641076@linuxfoundation.org>
+Message-Id: <20200411115500.140451725@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
-References: <20200411115504.124035693@linuxfoundation.org>
+In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
+References: <20200411115459.324496182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,209 +49,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-commit 33fb27fd54465c74cbffba6315b2f043e90cec4c upstream.
+[ Upstream commit 304e024216a802a7dc8ba75d36de82fa136bbf3e ]
 
-Holding the rtnl_lock while iterating a devices interface address list
-potentially causes deadlocks with the cma_netdev_callback. While this was
-implemented to limit the scope of a wildcard listen to addresses of the
-current device only, a better solution limits the scope of the socket to
-the device. This completely avoiding locking, and also results in
-significant code simplification.
+Although we intentionally use an ordered workqueue for all tc
+filter works, the ordering is not guaranteed by RCU work,
+given that tcf_queue_work() is esstenially a call_rcu().
 
-Fixes: c421651fa229 ("RDMA/siw: Add missing rtnl_lock around access to ifa")
-Link: https://lore.kernel.org/r/20200228173534.26815-1-bmt@zurich.ibm.com
-Reported-by: syzbot+55de90ab5f44172b0c90@syzkaller.appspotmail.com
-Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+This problem is demostrated by Thomas:
+
+  CPU 0:
+    tcf_queue_work()
+      tcf_queue_work(&r->rwork, tcindex_destroy_rexts_work);
+
+  -> Migration to CPU 1
+
+  CPU 1:
+     tcf_queue_work(&p->rwork, tcindex_destroy_work);
+
+so the 2nd work could be queued before the 1st one, which leads
+to a free-after-free.
+
+Enforcing this order in RCU work is hard as it requires to change
+RCU code too. Fortunately we can workaround this problem in tcindex
+filter by taking a temporary refcnt, we only refcnt it right before
+we begin to destroy it. This simplifies the code a lot as a full
+refcnt requires much more changes in tcindex_set_parms().
+
+Reported-by: syzbot+46f513c3033d592409d2@syzkaller.appspotmail.com
+Fixes: 3d210534cc93 ("net_sched: fix a race condition in tcindex_destroy()")
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/infiniband/sw/siw/siw_cm.c |  145 +++++++------------------------------
- 1 file changed, 31 insertions(+), 114 deletions(-)
+ net/sched/cls_tcindex.c |   44 ++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 38 insertions(+), 6 deletions(-)
 
---- a/drivers/infiniband/sw/siw/siw_cm.c
-+++ b/drivers/infiniband/sw/siw/siw_cm.c
-@@ -1783,14 +1783,23 @@ int siw_reject(struct iw_cm_id *id, cons
- 	return 0;
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -11,6 +11,7 @@
+ #include <linux/skbuff.h>
+ #include <linux/errno.h>
+ #include <linux/slab.h>
++#include <linux/refcount.h>
+ #include <net/act_api.h>
+ #include <net/netlink.h>
+ #include <net/pkt_cls.h>
+@@ -26,9 +27,12 @@
+ #define DEFAULT_HASH_SIZE	64	/* optimized for diffserv */
+ 
+ 
++struct tcindex_data;
++
+ struct tcindex_filter_result {
+ 	struct tcf_exts		exts;
+ 	struct tcf_result	res;
++	struct tcindex_data	*p;
+ 	struct rcu_work		rwork;
+ };
+ 
+@@ -49,6 +53,7 @@ struct tcindex_data {
+ 	u32 hash;		/* hash table size; 0 if undefined */
+ 	u32 alloc_hash;		/* allocated size */
+ 	u32 fall_through;	/* 0: only classify if explicit match */
++	refcount_t refcnt;	/* a temporary refcnt for perfect hash */
+ 	struct rcu_work rwork;
+ };
+ 
+@@ -57,6 +62,20 @@ static inline int tcindex_filter_is_set(
+ 	return tcf_exts_has_actions(&r->exts) || r->res.classid;
  }
  
--static int siw_listen_address(struct iw_cm_id *id, int backlog,
--			      struct sockaddr *laddr, int addr_family)
-+/*
-+ * siw_create_listen - Create resources for a listener's IWCM ID @id
-+ *
-+ * Starts listen on the socket address id->local_addr.
-+ *
-+ */
-+int siw_create_listen(struct iw_cm_id *id, int backlog)
- {
- 	struct socket *s;
- 	struct siw_cep *cep = NULL;
- 	struct siw_device *sdev = to_siw_dev(id->device);
-+	int addr_family = id->local_addr.ss_family;
- 	int rv = 0, s_val;
- 
-+	if (addr_family != AF_INET && addr_family != AF_INET6)
-+		return -EAFNOSUPPORT;
++static void tcindex_data_get(struct tcindex_data *p)
++{
++	refcount_inc(&p->refcnt);
++}
 +
- 	rv = sock_create(addr_family, SOCK_STREAM, IPPROTO_TCP, &s);
- 	if (rv < 0)
- 		return rv;
-@@ -1805,9 +1814,25 @@ static int siw_listen_address(struct iw_
- 		siw_dbg(id->device, "setsockopt error: %d\n", rv);
- 		goto error;
- 	}
--	rv = s->ops->bind(s, laddr, addr_family == AF_INET ?
--				    sizeof(struct sockaddr_in) :
--				    sizeof(struct sockaddr_in6));
-+	if (addr_family == AF_INET) {
-+		struct sockaddr_in *laddr = &to_sockaddr_in(id->local_addr);
-+
-+		/* For wildcard addr, limit binding to current device only */
-+		if (ipv4_is_zeronet(laddr->sin_addr.s_addr))
-+			s->sk->sk_bound_dev_if = sdev->netdev->ifindex;
-+
-+		rv = s->ops->bind(s, (struct sockaddr *)laddr,
-+				  sizeof(struct sockaddr_in));
-+	} else {
-+		struct sockaddr_in6 *laddr = &to_sockaddr_in6(id->local_addr);
-+
-+		/* For wildcard addr, limit binding to current device only */
-+		if (ipv6_addr_any(&laddr->sin6_addr))
-+			s->sk->sk_bound_dev_if = sdev->netdev->ifindex;
-+
-+		rv = s->ops->bind(s, (struct sockaddr *)laddr,
-+				  sizeof(struct sockaddr_in6));
++static void tcindex_data_put(struct tcindex_data *p)
++{
++	if (refcount_dec_and_test(&p->refcnt)) {
++		kfree(p->perfect);
++		kfree(p->h);
++		kfree(p);
 +	}
- 	if (rv) {
- 		siw_dbg(id->device, "socket bind error: %d\n", rv);
- 		goto error;
-@@ -1866,7 +1891,7 @@ static int siw_listen_address(struct iw_
- 	list_add_tail(&cep->listenq, (struct list_head *)id->provider_data);
- 	cep->state = SIW_EPSTATE_LISTENING;
- 
--	siw_dbg(id->device, "Listen at laddr %pISp\n", laddr);
-+	siw_dbg(id->device, "Listen at laddr %pISp\n", &id->local_addr);
- 
- 	return 0;
- 
-@@ -1924,114 +1949,6 @@ static void siw_drop_listeners(struct iw
- 	}
++}
++
+ static struct tcindex_filter_result *tcindex_lookup(struct tcindex_data *p,
+ 						    u16 key)
+ {
+@@ -141,6 +160,7 @@ static void __tcindex_destroy_rexts(stru
+ {
+ 	tcf_exts_destroy(&r->exts);
+ 	tcf_exts_put_net(&r->exts);
++	tcindex_data_put(r->p);
  }
  
--/*
-- * siw_create_listen - Create resources for a listener's IWCM ID @id
-- *
-- * Listens on the socket addresses id->local_addr and id->remote_addr.
-- *
-- * If the listener's @id provides a specific local IP address, at most one
-- * listening socket is created and associated with @id.
-- *
-- * If the listener's @id provides the wildcard (zero) local IP address,
-- * a separate listen is performed for each local IP address of the device
-- * by creating a listening socket and binding to that local IP address.
-- *
-- */
--int siw_create_listen(struct iw_cm_id *id, int backlog)
--{
--	struct net_device *dev = to_siw_dev(id->device)->netdev;
--	int rv = 0, listeners = 0;
--
--	siw_dbg(id->device, "backlog %d\n", backlog);
--
--	/*
--	 * For each attached address of the interface, create a
--	 * listening socket, if id->local_addr is the wildcard
--	 * IP address or matches the IP address.
--	 */
--	if (id->local_addr.ss_family == AF_INET) {
--		struct in_device *in_dev = in_dev_get(dev);
--		struct sockaddr_in s_laddr, *s_raddr;
--		const struct in_ifaddr *ifa;
--
--		if (!in_dev) {
--			rv = -ENODEV;
--			goto out;
--		}
--		memcpy(&s_laddr, &id->local_addr, sizeof(s_laddr));
--		s_raddr = (struct sockaddr_in *)&id->remote_addr;
--
--		siw_dbg(id->device,
--			"laddr %pI4:%d, raddr %pI4:%d\n",
--			&s_laddr.sin_addr, ntohs(s_laddr.sin_port),
--			&s_raddr->sin_addr, ntohs(s_raddr->sin_port));
--
--		rtnl_lock();
--		in_dev_for_each_ifa_rtnl(ifa, in_dev) {
--			if (ipv4_is_zeronet(s_laddr.sin_addr.s_addr) ||
--			    s_laddr.sin_addr.s_addr == ifa->ifa_address) {
--				s_laddr.sin_addr.s_addr = ifa->ifa_address;
--
--				rv = siw_listen_address(id, backlog,
--						(struct sockaddr *)&s_laddr,
--						AF_INET);
--				if (!rv)
--					listeners++;
--			}
--		}
--		rtnl_unlock();
--		in_dev_put(in_dev);
--	} else if (id->local_addr.ss_family == AF_INET6) {
--		struct inet6_dev *in6_dev = in6_dev_get(dev);
--		struct inet6_ifaddr *ifp;
--		struct sockaddr_in6 *s_laddr = &to_sockaddr_in6(id->local_addr),
--			*s_raddr = &to_sockaddr_in6(id->remote_addr);
--
--		if (!in6_dev) {
--			rv = -ENODEV;
--			goto out;
--		}
--		siw_dbg(id->device,
--			"laddr %pI6:%d, raddr %pI6:%d\n",
--			&s_laddr->sin6_addr, ntohs(s_laddr->sin6_port),
--			&s_raddr->sin6_addr, ntohs(s_raddr->sin6_port));
--
--		rtnl_lock();
--		list_for_each_entry(ifp, &in6_dev->addr_list, if_list) {
--			if (ifp->flags & (IFA_F_TENTATIVE | IFA_F_DEPRECATED))
--				continue;
--			if (ipv6_addr_any(&s_laddr->sin6_addr) ||
--			    ipv6_addr_equal(&s_laddr->sin6_addr, &ifp->addr)) {
--				struct sockaddr_in6 bind_addr  = {
--					.sin6_family = AF_INET6,
--					.sin6_port = s_laddr->sin6_port,
--					.sin6_flowinfo = 0,
--					.sin6_addr = ifp->addr,
--					.sin6_scope_id = dev->ifindex };
--
--				rv = siw_listen_address(id, backlog,
--						(struct sockaddr *)&bind_addr,
--						AF_INET6);
--				if (!rv)
--					listeners++;
--			}
--		}
--		rtnl_unlock();
--		in6_dev_put(in6_dev);
--	} else {
--		rv = -EAFNOSUPPORT;
--	}
--out:
--	if (listeners)
--		rv = 0;
--	else if (!rv)
--		rv = -EINVAL;
--
--	siw_dbg(id->device, "%s\n", rv ? "FAIL" : "OK");
--
--	return rv;
--}
--
- int siw_destroy_listen(struct iw_cm_id *id)
+ static void tcindex_destroy_rexts_work(struct work_struct *work)
+@@ -212,6 +232,8 @@ found:
+ 		else
+ 			__tcindex_destroy_fexts(f);
+ 	} else {
++		tcindex_data_get(p);
++
+ 		if (tcf_exts_get_net(&r->exts))
+ 			tcf_queue_work(&r->rwork, tcindex_destroy_rexts_work);
+ 		else
+@@ -228,9 +250,7 @@ static void tcindex_destroy_work(struct
+ 					      struct tcindex_data,
+ 					      rwork);
+ 
+-	kfree(p->perfect);
+-	kfree(p->h);
+-	kfree(p);
++	tcindex_data_put(p);
+ }
+ 
+ static inline int
+@@ -248,9 +268,11 @@ static const struct nla_policy tcindex_p
+ };
+ 
+ static int tcindex_filter_result_init(struct tcindex_filter_result *r,
++				      struct tcindex_data *p,
+ 				      struct net *net)
  {
- 	if (!id->provider_data) {
+ 	memset(r, 0, sizeof(*r));
++	r->p = p;
+ 	return tcf_exts_init(&r->exts, net, TCA_TCINDEX_ACT,
+ 			     TCA_TCINDEX_POLICE);
+ }
+@@ -290,6 +312,7 @@ static int tcindex_alloc_perfect_hash(st
+ 				    TCA_TCINDEX_ACT, TCA_TCINDEX_POLICE);
+ 		if (err < 0)
+ 			goto errout;
++		cp->perfect[i].p = cp;
+ 	}
+ 
+ 	return 0;
+@@ -334,6 +357,7 @@ tcindex_set_parms(struct net *net, struc
+ 	cp->alloc_hash = p->alloc_hash;
+ 	cp->fall_through = p->fall_through;
+ 	cp->tp = tp;
++	refcount_set(&cp->refcnt, 1); /* Paired with tcindex_destroy_work() */
+ 
+ 	if (tb[TCA_TCINDEX_HASH])
+ 		cp->hash = nla_get_u32(tb[TCA_TCINDEX_HASH]);
+@@ -366,7 +390,7 @@ tcindex_set_parms(struct net *net, struc
+ 	}
+ 	cp->h = p->h;
+ 
+-	err = tcindex_filter_result_init(&new_filter_result, net);
++	err = tcindex_filter_result_init(&new_filter_result, cp, net);
+ 	if (err < 0)
+ 		goto errout_alloc;
+ 	if (old_r)
+@@ -434,7 +458,7 @@ tcindex_set_parms(struct net *net, struc
+ 			goto errout_alloc;
+ 		f->key = handle;
+ 		f->next = NULL;
+-		err = tcindex_filter_result_init(&f->result, net);
++		err = tcindex_filter_result_init(&f->result, cp, net);
+ 		if (err < 0) {
+ 			kfree(f);
+ 			goto errout_alloc;
+@@ -447,7 +471,7 @@ tcindex_set_parms(struct net *net, struc
+ 	}
+ 
+ 	if (old_r && old_r != r) {
+-		err = tcindex_filter_result_init(old_r, net);
++		err = tcindex_filter_result_init(old_r, cp, net);
+ 		if (err < 0) {
+ 			kfree(f);
+ 			goto errout_alloc;
+@@ -571,6 +595,14 @@ static void tcindex_destroy(struct tcf_p
+ 		for (i = 0; i < p->hash; i++) {
+ 			struct tcindex_filter_result *r = p->perfect + i;
+ 
++			/* tcf_queue_work() does not guarantee the ordering we
++			 * want, so we have to take this refcnt temporarily to
++			 * ensure 'p' is freed after all tcindex_filter_result
++			 * here. Imperfect hash does not need this, because it
++			 * uses linked lists rather than an array.
++			 */
++			tcindex_data_get(p);
++
+ 			tcf_unbind_filter(tp, &r->res);
+ 			if (tcf_exts_get_net(&r->exts))
+ 				tcf_queue_work(&r->rwork,
 
 
