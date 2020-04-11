@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6FC1A50BB
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:20:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F00CB1A509B
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:19:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729042AbgDKMUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:20:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56630 "EHLO mail.kernel.org"
+        id S1728809AbgDKMTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:19:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728760AbgDKMUh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:20:37 -0400
+        id S1728332AbgDKMTb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:19:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFEA9206A1;
-        Sat, 11 Apr 2020 12:20:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34A012084D;
+        Sat, 11 Apr 2020 12:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607636;
-        bh=XK80WFjCFM0+ej1+ead99YTMoIFBiX/cPmEjWmGYqzI=;
+        s=default; t=1586607570;
+        bh=4+TtjYr36O5SbE+Sa5S/2ejVsVC84drhWt7x+7rn2KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZpQVOlov85o6a4Jpje6fpzNZSC+NXST6W7Xh6zMwJQo2W76KqXsfMtsbBDY61w6Vi
-         VBPvn2McvHb5VDYTEh8CceEVXumJQe8QtwsBnDDRcCUFZpDorLZiJnL6zdbcY8VdN2
-         +AbZkORDoMx2rohk64kBGeEfimhjM6wkgI8gv8P8=
+        b=cNTQoHLt19DhNu2EQSx5CAsQFwkBHYyTezcxGcXrjAk0aj18Mfjcs2H4FFqzmH6LI
+         PFvef6e00aC7z7FoAjOinpyQsO94OJMby6d7aBkTP1Nw5r9PjX9JfiGG9I8rC9Mkbp
+         d1bypCeZAEg48Cpn9FWF750/WwjMxVNiaRWZjBh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 15/38] net: phy: at803x: fix clock sink configuration on ATH8030 and ATH8035
+        stable@vger.kernel.org, Yafang Shao <laoar.shao@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Shailabh Nagar <nagar@watson.ibm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.5 32/44] tools/accounting/getdelays.c: fix netlink attribute length
 Date:   Sat, 11 Apr 2020 14:09:52 +0200
-Message-Id: <20200411115500.870484118@linuxfoundation.org>
+Message-Id: <20200411115500.063880779@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
-References: <20200411115459.324496182@linuxfoundation.org>
+In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
+References: <20200411115456.934174282@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: David Ahern <dsahern@kernel.org>
 
-[ Upstream commit b1f4c209d84057b6d40b939b6e4404854271d797 ]
+commit 4054ab64e29bb05b3dfe758fff3c38a74ba753bb upstream.
 
-The masks in priv->clk_25m_reg and priv->clk_25m_mask are one-bits-set
-for the values that comprise the fields, not zero-bits-set.
+A recent change to the netlink code: 6e237d099fac ("netlink: Relax attr
+validation for fixed length types") logs a warning when programs send
+messages with invalid attributes (e.g., wrong length for a u32).  Yafang
+reported this error message for tools/accounting/getdelays.c.
 
-This patch fixes the clock frequency configuration for ATH8030 and
-ATH8035 Atheros PHYs by removing the erroneous "~".
+send_cmd() is wrongly adding 1 to the attribute length.  As noted in
+include/uapi/linux/netlink.h nla_len should be NLA_HDRLEN + payload
+length, so drop the +1.
 
-To reproduce this bug, configure the PHY  with the device tree binding
-"qca,clk-out-frequency" and remove the machine specific PHY fixups.
-
-Fixes: 2f664823a47021 ("net: phy: at803x: add device tree binding")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reported-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
-Tested-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9e06d3f9f6b1 ("per task delay accounting taskstats interface: documentation fix")
+Reported-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Yafang Shao <laoar.shao@gmail.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200327173111.63922-1-dsahern@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/phy/at803x.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/phy/at803x.c
-+++ b/drivers/net/phy/at803x.c
-@@ -425,8 +425,8 @@ static int at803x_parse_dt(struct phy_de
- 		 */
- 		if (at803x_match_phy_id(phydev, ATH8030_PHY_ID) ||
- 		    at803x_match_phy_id(phydev, ATH8035_PHY_ID)) {
--			priv->clk_25m_reg &= ~AT8035_CLK_OUT_MASK;
--			priv->clk_25m_mask &= ~AT8035_CLK_OUT_MASK;
-+			priv->clk_25m_reg &= AT8035_CLK_OUT_MASK;
-+			priv->clk_25m_mask &= AT8035_CLK_OUT_MASK;
- 		}
- 	}
+---
+ tools/accounting/getdelays.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/tools/accounting/getdelays.c
++++ b/tools/accounting/getdelays.c
+@@ -136,7 +136,7 @@ static int send_cmd(int sd, __u16 nlmsg_
+ 	msg.g.version = 0x1;
+ 	na = (struct nlattr *) GENLMSG_DATA(&msg);
+ 	na->nla_type = nla_type;
+-	na->nla_len = nla_len + 1 + NLA_HDRLEN;
++	na->nla_len = nla_len + NLA_HDRLEN;
+ 	memcpy(NLA_DATA(na), nla_data, nla_len);
+ 	msg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
  
 
 
