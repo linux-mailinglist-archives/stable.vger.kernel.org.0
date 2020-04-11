@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C421A516B
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E50541A51F9
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727003AbgDKMQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:16:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50918 "EHLO mail.kernel.org"
+        id S1726879AbgDKM2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:28:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728268AbgDKMQh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:16:37 -0400
+        id S1727233AbgDKMMY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:12:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CAC220644;
-        Sat, 11 Apr 2020 12:16:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24D9C215A4;
+        Sat, 11 Apr 2020 12:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607397;
-        bh=xacCaSjYPsHBVqZkGGRHnwwdd/qhSoItzvcjxjYZf0E=;
+        s=default; t=1586607143;
+        bh=FcdJVVEq8CmZcnqI0D3HsC3RfT7erIPVkgkxj+RYtp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KpICZ0XdtQ7y4TXTA6cvpmnz/Uojx9w4E8iAfU8mCQSX4RjJj9IbHtZI+UqKhMKbA
-         VTHgIEYHXt+iF6y+udDXzVZFojorzkKJ9hpQhh+zNyEv4xW9hFeX+CloBAaUNOK2DW
-         +K8PfGlcS2PoDbL0y2k8jCWXMgqVrRJOrs66n+Io=
+        b=CoCNRBUC2a/c71N7dFxc/ui/X4n04CZ3T9K8we0y5GODo+YY2up0PiMUyk7zZBp8f
+         U/KN1urDYRHNsOAkRexcnUV/TEHKklGNvHd0WMtkCGl9Qc1TLoRUT3FJNxx4utlHUa
+         14DbPyg6sRuIP8xoEnbD5sUUISlVwCpWQF+i982k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geoffrey Allott <geoffrey@allott.email>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 21/54] ALSA: hda/ca0132 - Add Recon3Di quirk to handle integrated sound on EVGA X99 Classified motherboard
+        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Luis Henriques <lhenriques@suse.com>
+Subject: [PATCH 4.9 24/32] ceph: remove the extra slashes in the server path
 Date:   Sat, 11 Apr 2020 14:09:03 +0200
-Message-Id: <20200411115510.609102571@linuxfoundation.org>
+Message-Id: <20200411115422.001067703@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
-References: <20200411115508.284500414@linuxfoundation.org>
+In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
+References: <20200411115418.455500023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,238 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geoffrey Allott <geoffrey@allott.email>
+From: Xiubo Li <xiubli@redhat.com>
 
-commit e9097e47e349b747dee50f935216de0ffb662962 upstream.
+commit 4fbc0c711b2464ee1551850b85002faae0b775d5 upstream.
 
-I have a system which has an EVGA X99 Classified motherboard. The pin
-assignments for the HD Audio controller are not correct under Linux.
-Windows 10 works fine and informs me that it's using the Recon3Di
-driver, and on Linux, `cat
-/sys/class/sound/card0/device/subsystem_{vendor,device}` yields
+It's possible to pass the mount helper a server path that has more
+than one contiguous slash character. For example:
 
-0x3842
-0x1038
+  $ mount -t ceph 192.168.195.165:40176:/// /mnt/cephfs/
 
-This patch adds a corresponding entry to the quirk list.
+In the MDS server side the extra slashes of the server path will be
+treated as snap dir, and then we can get the following debug logs:
 
-Signed-off-by: Geoffrey Allott <geoffrey@allott.email>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/a6cd56b678c00ce2db3685e4278919f2584f8244.camel@allott.email
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  ceph:  mount opening path //
+  ceph:  open_root_inode opening '//'
+  ceph:  fill_trace 0000000059b8a3bc is_dentry 0 is_target 1
+  ceph:  alloc_inode 00000000dc4ca00b
+  ceph:  get_inode created new inode 00000000dc4ca00b 1.ffffffffffffffff ino 1
+  ceph:  get_inode on 1=1.ffffffffffffffff got 00000000dc4ca00b
+
+And then when creating any new file or directory under the mount
+point, we can hit the following BUG_ON in ceph_fill_trace():
+
+  BUG_ON(ceph_snap(dir) != dvino.snap);
+
+Have the client ignore the extra slashes in the server path when
+mounting. This will also canonicalize the path, so that identical mounts
+can be consilidated.
+
+1) "//mydir1///mydir//"
+2) "/mydir1/mydir"
+3) "/mydir1/mydir/"
+
+Regardless of the internal treatment of these paths, the kernel still
+stores the original string including the leading '/' for presentation
+to userland.
+
+URL: https://tracker.ceph.com/issues/42771
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/pci/hda/patch_ca0132.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ceph/super.c |  118 ++++++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 99 insertions(+), 19 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -1069,6 +1069,7 @@ static const struct snd_pci_quirk ca0132
- 	SND_PCI_QUIRK(0x1458, 0xA016, "Recon3Di", QUIRK_R3DI),
- 	SND_PCI_QUIRK(0x1458, 0xA026, "Gigabyte G1.Sniper Z97", QUIRK_R3DI),
- 	SND_PCI_QUIRK(0x1458, 0xA036, "Gigabyte GA-Z170X-Gaming 7", QUIRK_R3DI),
-+	SND_PCI_QUIRK(0x3842, 0x1038, "EVGA X99 Classified", QUIRK_R3DI),
- 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
- 	{}
- };
+--- a/fs/ceph/super.c
++++ b/fs/ceph/super.c
+@@ -85,7 +85,6 @@ static int ceph_statfs(struct dentry *de
+ 	return 0;
+ }
+ 
+-
+ static int ceph_sync_fs(struct super_block *sb, int wait)
+ {
+ 	struct ceph_fs_client *fsc = ceph_sb_to_client(sb);
+@@ -321,6 +320,73 @@ static int strcmp_null(const char *s1, c
+ 	return strcmp(s1, s2);
+ }
+ 
++/**
++ * path_remove_extra_slash - Remove the extra slashes in the server path
++ * @server_path: the server path and could be NULL
++ *
++ * Return NULL if the path is NULL or only consists of "/", or a string
++ * without any extra slashes including the leading slash(es) and the
++ * slash(es) at the end of the server path, such as:
++ * "//dir1////dir2///" --> "dir1/dir2"
++ */
++static char *path_remove_extra_slash(const char *server_path)
++{
++	const char *path = server_path;
++	const char *cur, *end;
++	char *buf, *p;
++	int len;
++
++	/* if the server path is omitted */
++	if (!path)
++		return NULL;
++
++	/* remove all the leading slashes */
++	while (*path == '/')
++		path++;
++
++	/* if the server path only consists of slashes */
++	if (*path == '\0')
++		return NULL;
++
++	len = strlen(path);
++
++	buf = kmalloc(len + 1, GFP_KERNEL);
++	if (!buf)
++		return ERR_PTR(-ENOMEM);
++
++	end = path + len;
++	p = buf;
++	do {
++		cur = strchr(path, '/');
++		if (!cur)
++			cur = end;
++
++		len = cur - path;
++
++		/* including one '/' */
++		if (cur != end)
++			len += 1;
++
++		memcpy(p, path, len);
++		p += len;
++
++		while (cur <= end && *cur == '/')
++			cur++;
++		path = cur;
++	} while (path < end);
++
++	*p = '\0';
++
++	/*
++	 * remove the last slash if there has and just to make sure that
++	 * we will get something like "dir1/dir2"
++	 */
++	if (*(--p) == '/')
++		*p = '\0';
++
++	return buf;
++}
++
+ static int compare_mount_options(struct ceph_mount_options *new_fsopt,
+ 				 struct ceph_options *new_opt,
+ 				 struct ceph_fs_client *fsc)
+@@ -328,6 +394,7 @@ static int compare_mount_options(struct
+ 	struct ceph_mount_options *fsopt1 = new_fsopt;
+ 	struct ceph_mount_options *fsopt2 = fsc->mount_options;
+ 	int ofs = offsetof(struct ceph_mount_options, snapdir_name);
++	char *p1, *p2;
+ 	int ret;
+ 
+ 	ret = memcmp(fsopt1, fsopt2, ofs);
+@@ -341,7 +408,17 @@ static int compare_mount_options(struct
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = strcmp_null(fsopt1->server_path, fsopt2->server_path);
++	p1 = path_remove_extra_slash(fsopt1->server_path);
++	if (IS_ERR(p1))
++		return PTR_ERR(p1);
++	p2 = path_remove_extra_slash(fsopt2->server_path);
++	if (IS_ERR(p2)) {
++		kfree(p1);
++		return PTR_ERR(p2);
++	}
++	ret = strcmp_null(p1, p2);
++	kfree(p1);
++	kfree(p2);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -396,12 +473,14 @@ static int parse_mount_options(struct ce
+ 	 */
+ 	dev_name_end = strchr(dev_name, '/');
+ 	if (dev_name_end) {
+-		if (strlen(dev_name_end) > 1) {
+-			fsopt->server_path = kstrdup(dev_name_end, GFP_KERNEL);
+-			if (!fsopt->server_path) {
+-				err = -ENOMEM;
+-				goto out;
+-			}
++		/*
++		 * The server_path will include the whole chars from userland
++		 * including the leading '/'.
++		 */
++		fsopt->server_path = kstrdup(dev_name_end, GFP_KERNEL);
++		if (!fsopt->server_path) {
++			err = -ENOMEM;
++			goto out;
+ 		}
+ 	} else {
+ 		dev_name_end = dev_name + strlen(dev_name);
+@@ -725,7 +804,6 @@ static void destroy_caches(void)
+ 	ceph_fscache_unregister();
+ }
+ 
+-
+ /*
+  * ceph_umount_begin - initiate forced umount.  Tear down down the
+  * mount, skipping steps that may hang while waiting for server(s).
+@@ -812,9 +890,6 @@ out:
+ 	return root;
+ }
+ 
+-
+-
+-
+ /*
+  * mount: join the ceph cluster, and open root directory.
+  */
+@@ -828,24 +903,29 @@ static struct dentry *ceph_real_mount(st
+ 	mutex_lock(&fsc->client->mount_mutex);
+ 
+ 	if (!fsc->sb->s_root) {
+-		const char *path;
++		const char *path, *p;
+ 		err = __ceph_open_session(fsc->client, started);
+ 		if (err < 0)
+ 			goto out;
+ 
+-		if (!fsc->mount_options->server_path) {
+-			path = "";
+-			dout("mount opening path \\t\n");
+-		} else {
+-			path = fsc->mount_options->server_path + 1;
+-			dout("mount opening path %s\n", path);
++		p = path_remove_extra_slash(fsc->mount_options->server_path);
++		if (IS_ERR(p)) {
++			err = PTR_ERR(p);
++			goto out;
+ 		}
++		/* if the server path is omitted or just consists of '/' */
++		if (!p)
++			path = "";
++		else
++			path = p;
++		dout("mount opening path '%s'\n", path);
+ 
+ 		err = ceph_fs_debugfs_init(fsc);
+ 		if (err < 0)
+ 			goto out;
+ 
+ 		root = open_root_dentry(fsc, path, started);
++		kfree(p);
+ 		if (IS_ERR(root)) {
+ 			err = PTR_ERR(root);
+ 			goto out;
 
 
