@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2030A1A5162
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A17651A5170
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728448AbgDKMRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:17:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52294 "EHLO mail.kernel.org"
+        id S1726872AbgDKMQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:16:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728442AbgDKMRg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:17:36 -0400
+        id S1726643AbgDKMQa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:16:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA23F20787;
-        Sat, 11 Apr 2020 12:17:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C19CF20644;
+        Sat, 11 Apr 2020 12:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607455;
-        bh=x+E2xz4xkcBrixnVfWase73ISMftFL+eb6NjsKnyOLY=;
+        s=default; t=1586607390;
+        bh=LBQh2jSmXbzmkaoK4ZF56odHDu/7JiZOCyaPgfGhdfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T1ZbmG/0/6nLk7y5D02AQMi4J+Qr3QEIq/BV+mVg2skpcshozLmiw2u1nWRcE2CVe
-         ZxZG25CqIHLVi+QdEpkTmmq0YJvBlIaTfQrOlj9y3FNI/B0x0M7wd60qJPZJBdBMFZ
-         3exbzTx1gzgna653ZLcRREevpIvyP4JgYoPoT/gg=
+        b=Is4R43PBaY8aK8xZGRZ5DW43wHwRBtzPZGETQfyI2dxPJvYKkOh7Ah73p3gbopRpe
+         VRQuTQCMzJiiWNxu8RS/2h0VcaEbgTeBMynM0lWs+8uHXs2gv3rsv8pQxnc8HgdXrm
+         MM/UdlVf4AXdFJqd15CB9n3JWIQ2UsGBsgDod5Lc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.4 26/41] IB/hfi1: Fix memory leaks in sysfs registration and unregistration
+        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.19 53/54] usb: dwc3: dont set gadget->is_otg flag
 Date:   Sat, 11 Apr 2020 14:09:35 +0200
-Message-Id: <20200411115505.936874183@linuxfoundation.org>
+Message-Id: <20200411115513.920621450@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
-References: <20200411115504.124035693@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,81 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Roger Quadros <rogerq@ti.com>
 
-commit 5c15abc4328ad696fa61e2f3604918ed0c207755 upstream.
+commit c09b73cfac2a9317f1104169045c519c6021aa1d upstream.
 
-When the hfi1 driver is unloaded, kmemleak will report the following
-issue:
+This reverts
+commit 6a4290cc28be1 ("usb: dwc3: gadget: set the OTG flag in dwc3 gadget driver.")
 
-unreferenced object 0xffff8888461a4c08 (size 8):
-comm "kworker/0:0", pid 5, jiffies 4298601264 (age 2047.134s)
-hex dump (first 8 bytes):
-73 64 6d 61 30 00 ff ff sdma0...
-backtrace:
-[<00000000311a6ef5>] kvasprintf+0x62/0xd0
-[<00000000ade94d9f>] kobject_set_name_vargs+0x1c/0x90
-[<0000000060657dbb>] kobject_init_and_add+0x5d/0xb0
-[<00000000346fe72b>] 0xffffffffa0c5ecba
-[<000000006cfc5819>] 0xffffffffa0c866b9
-[<0000000031c65580>] 0xffffffffa0c38e87
-[<00000000e9739b3f>] local_pci_probe+0x41/0x80
-[<000000006c69911d>] work_for_cpu_fn+0x16/0x20
-[<00000000601267b5>] process_one_work+0x171/0x380
-[<0000000049a0eefa>] worker_thread+0x1d1/0x3f0
-[<00000000909cf2b9>] kthread+0xf8/0x130
-[<0000000058f5f874>] ret_from_fork+0x35/0x40
+We don't yet support any of the OTG mechanisms (HNP/SRP/ADP)
+and are not setting gadget->otg_caps, so don't set gadget->is_otg
+flag.
 
-This patch fixes the issue by:
+If we do then we end up publishing a OTG1.0 descriptor in
+the gadget descriptor which causes device enumeration to fail
+if we are connected to a host with CONFIG_USB_OTG enabled.
 
-- Releasing dd->per_sdma[i].kobject in hfi1_unregister_sysfs().
-  - This will fix the memory leak.
+Host side log without this patch
 
-- Calling kobject_put() to unwind operations only for those entries in
-   dd->per_sdma[] whose operations have succeeded (including the current
-   one that has just failed) in hfi1_verbs_register_sysfs().
+[   96.720453] usb 1-1: new high-speed USB device number 2 using xhci-hcd
+[   96.901391] usb 1-1: Dual-Role OTG device on non-HNP port
+[   96.907552] usb 1-1: set a_alt_hnp_support failed: -32
+[   97.060447] usb 1-1: new high-speed USB device number 3 using xhci-hcd
+[   97.241378] usb 1-1: Dual-Role OTG device on non-HNP port
+[   97.247536] usb 1-1: set a_alt_hnp_support failed: -32
+[   97.253606] usb usb1-port1: attempt power cycle
+[   97.960449] usb 1-1: new high-speed USB device number 4 using xhci-hcd
+[   98.141383] usb 1-1: Dual-Role OTG device on non-HNP port
+[   98.147540] usb 1-1: set a_alt_hnp_support failed: -32
+[   98.300453] usb 1-1: new high-speed USB device number 5 using xhci-hcd
+[   98.481391] usb 1-1: Dual-Role OTG device on non-HNP port
+[   98.487545] usb 1-1: set a_alt_hnp_support failed: -32
+[   98.493532] usb usb1-port1: unable to enumerate USB device
 
-Cc: <stable@vger.kernel.org>
-Fixes: 0cb2aa690c7e ("IB/hfi1: Add sysfs interface for affinity setup")
-Link: https://lore.kernel.org/r/20200326163807.21129.27371.stgit@awfm-01.aw.intel.com
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/infiniband/hw/hfi1/sysfs.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/gadget.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/infiniband/hw/hfi1/sysfs.c
-+++ b/drivers/infiniband/hw/hfi1/sysfs.c
-@@ -856,8 +856,13 @@ int hfi1_verbs_register_sysfs(struct hfi
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3166,7 +3166,6 @@ int dwc3_gadget_init(struct dwc3 *dwc)
+ 	dwc->gadget.speed		= USB_SPEED_UNKNOWN;
+ 	dwc->gadget.sg_supported	= true;
+ 	dwc->gadget.name		= "dwc3-gadget";
+-	dwc->gadget.is_otg		= dwc->dr_mode == USB_DR_MODE_OTG;
  
- 	return 0;
- bail:
--	for (i = 0; i < dd->num_sdma; i++)
--		kobject_del(&dd->per_sdma[i].kobj);
-+	/*
-+	 * The function kobject_put() will call kobject_del() if the kobject
-+	 * has been added successfully. The sysfs files created under the
-+	 * kobject directory will also be removed during the process.
-+	 */
-+	for (; i >= 0; i--)
-+		kobject_put(&dd->per_sdma[i].kobj);
- 
- 	return ret;
- }
-@@ -870,6 +875,10 @@ void hfi1_verbs_unregister_sysfs(struct
- 	struct hfi1_pportdata *ppd;
- 	int i;
- 
-+	/* Unwind operations in hfi1_verbs_register_sysfs() */
-+	for (i = 0; i < dd->num_sdma; i++)
-+		kobject_put(&dd->per_sdma[i].kobj);
-+
- 	for (i = 0; i < dd->num_pports; i++) {
- 		ppd = &dd->pport[i];
- 
+ 	/*
+ 	 * FIXME We might be setting max_speed to <SUPER, however versions
 
 
