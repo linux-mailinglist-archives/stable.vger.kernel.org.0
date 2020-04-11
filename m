@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76EE41A585F
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:29:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 402BC1A5575
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:11:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729725AbgDKXKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:10:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49894 "EHLO mail.kernel.org"
+        id S1729752AbgDKXLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:11:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729721AbgDKXKy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:10:54 -0400
+        id S1729007AbgDKXK4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:10:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF02D217D8;
-        Sat, 11 Apr 2020 23:10:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E565020708;
+        Sat, 11 Apr 2020 23:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646654;
-        bh=F3GZCkfuTpePzhtk5oZ3eLfLVs1Pby/rMwXEm7QXV5w=;
+        s=default; t=1586646655;
+        bh=BxXLBpgwH6EXg66oe1ub4AhqhGU8Fy3XgguV6DuFB0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYIEwmzyqKKf1XBMfrgHVNZLu9MoxhSXAITuyAqFB4t8igB0gPP2dkcDW6jGJdjVd
-         5GOge6zk38pWY6vdVZ5h0jCyDL+mrMCqterHmVBShvpdDRqAD9PHPRTgrO4IWd5M61
-         HQl3r1jr9JfALNZifesIoTpGfRuWp4xVkkpK5X6k=
+        b=yHwH6CAynFviEbkoM7yYtYG5BL53ua60q/BYdcMy8pPAQ8sePaRhg37i7yRtDBwz9
+         6yDq00Xh4YR9CfluJ1ouzMoGsHL8+JmJwKlS8NdDI+QU1gY7psaqXeOr6MS2xZwXdR
+         p/a+L5hVZRQpX1N1E4LkadxnJrbeqfVqKJ0o422U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 057/108] rsi: fix null pointer dereference during rsi_shutdown()
-Date:   Sat, 11 Apr 2020 19:08:52 -0400
-Message-Id: <20200411230943.24951-57-sashal@kernel.org>
+Cc:     Tzung-Bi Shih <tzungbi@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 058/108] ASoC: mediatek: mt8183-da7219: pull TDM GPIO pins down when probed
+Date:   Sat, 11 Apr 2020 19:08:53 -0400
+Message-Id: <20200411230943.24951-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -44,43 +45,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kepplinger <martin.kepplinger@puri.sm>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit 16bbc3eb83728c03138191a5d23d84d38175fa26 ]
+[ Upstream commit 8726ee6148fe24e2b29d4a961ad95c4ff8025d1d ]
 
-Appearently the hw pointer can be NULL while the module is loaded and
-in that case rsi_shutdown() crashes due to the unconditional dereference.
+1. Switch TDM GPIO pins according to playback on or off.
+2. Pull TDM GPIO pins down when probed to avoid current leakage.
 
-Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Link: https://lore.kernel.org/r/20200213112003.2.I1d568b0c99742c6e755d051aadfd52e4be3cc0a5@changeid
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_sdio.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ .../mediatek/mt8183/mt8183-da7219-max98357.c  | 104 +++++++++++++++++-
+ 1 file changed, 98 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_sdio.c b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-index 1bebba4e85273..5d6143a551877 100644
---- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-@@ -1468,12 +1468,15 @@ static void rsi_shutdown(struct device *dev)
- 	struct rsi_91x_sdiodev *sdev =
- 		(struct rsi_91x_sdiodev *)adapter->rsi_dev;
- 	struct ieee80211_hw *hw = adapter->hw;
--	struct cfg80211_wowlan *wowlan = hw->wiphy->wowlan_config;
+diff --git a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
+index 43f99e59a0786..897a7bc4d3f3f 100644
+--- a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
++++ b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
+@@ -18,6 +18,22 @@
  
- 	rsi_dbg(ERR_ZONE, "SDIO Bus shutdown =====>\n");
+ static struct snd_soc_jack headset_jack;
  
--	if (rsi_config_wowlan(adapter, wowlan))
--		rsi_dbg(ERR_ZONE, "Failed to configure WoWLAN\n");
-+	if (hw) {
-+		struct cfg80211_wowlan *wowlan = hw->wiphy->wowlan_config;
++enum PINCTRL_PIN_STATE {
++	PIN_STATE_DEFAULT = 0,
++	PIN_TDM_OUT_ON,
++	PIN_TDM_OUT_OFF,
++	PIN_STATE_MAX
++};
 +
-+		if (rsi_config_wowlan(adapter, wowlan))
-+			rsi_dbg(ERR_ZONE, "Failed to configure WoWLAN\n");
-+	}
++static const char * const mt8183_pin_str[PIN_STATE_MAX] = {
++	"default", "aud_tdm_out_on", "aud_tdm_out_off",
++};
++
++struct mt8183_da7219_max98357_priv {
++	struct pinctrl *pinctrl;
++	struct pinctrl_state *pin_states[PIN_STATE_MAX];
++};
++
+ static int mt8183_mt6358_i2s_hw_params(struct snd_pcm_substream *substream,
+ 				       struct snd_pcm_hw_params *params)
+ {
+@@ -204,6 +220,47 @@ SND_SOC_DAILINK_DEFS(tdm,
+ 	DAILINK_COMP_ARRAY(COMP_DUMMY()),
+ 	DAILINK_COMP_ARRAY(COMP_EMPTY()));
  
- 	if (IS_ENABLED(CONFIG_RSI_COEX) && adapter->priv->coex_mode > 1 &&
- 	    adapter->priv->bt_adapter) {
++static int mt8183_da7219_tdm_startup(struct snd_pcm_substream *substream)
++{
++	struct snd_soc_pcm_runtime *rtd = substream->private_data;
++	struct mt8183_da7219_max98357_priv *priv =
++		snd_soc_card_get_drvdata(rtd->card);
++	int ret;
++
++	if (IS_ERR(priv->pin_states[PIN_TDM_OUT_ON]))
++		return PTR_ERR(priv->pin_states[PIN_TDM_OUT_ON]);
++
++	ret = pinctrl_select_state(priv->pinctrl,
++				   priv->pin_states[PIN_TDM_OUT_ON]);
++	if (ret)
++		dev_err(rtd->card->dev, "%s failed to select state %d\n",
++			__func__, ret);
++
++	return ret;
++}
++
++static void mt8183_da7219_tdm_shutdown(struct snd_pcm_substream *substream)
++{
++	struct snd_soc_pcm_runtime *rtd = substream->private_data;
++	struct mt8183_da7219_max98357_priv *priv =
++		snd_soc_card_get_drvdata(rtd->card);
++	int ret;
++
++	if (IS_ERR(priv->pin_states[PIN_TDM_OUT_OFF]))
++		return;
++
++	ret = pinctrl_select_state(priv->pinctrl,
++				   priv->pin_states[PIN_TDM_OUT_OFF]);
++	if (ret)
++		dev_err(rtd->card->dev, "%s failed to select state %d\n",
++			__func__, ret);
++}
++
++static struct snd_soc_ops mt8183_da7219_tdm_ops = {
++	.startup = mt8183_da7219_tdm_startup,
++	.shutdown = mt8183_da7219_tdm_shutdown,
++};
++
+ static struct snd_soc_dai_link mt8183_da7219_max98357_dai_links[] = {
+ 	/* FE */
+ 	{
+@@ -353,6 +410,8 @@ static struct snd_soc_dai_link mt8183_da7219_max98357_dai_links[] = {
+ 		.no_pcm = 1,
+ 		.dpcm_playback = 1,
+ 		.ignore_suspend = 1,
++		.be_hw_params_fixup = mt8183_i2s_hw_params_fixup,
++		.ops = &mt8183_da7219_tdm_ops,
+ 		SND_SOC_DAILINK_REG(tdm),
+ 	},
+ };
+@@ -409,7 +468,7 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
+ 	struct snd_soc_card *card = &mt8183_da7219_max98357_card;
+ 	struct device_node *platform_node;
+ 	struct snd_soc_dai_link *dai_link;
+-	struct pinctrl *default_pins;
++	struct mt8183_da7219_max98357_priv *priv;
+ 	int ret, i;
+ 
+ 	card->dev = &pdev->dev;
+@@ -443,12 +502,45 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	default_pins =
+-		devm_pinctrl_get_select(&pdev->dev, PINCTRL_STATE_DEFAULT);
+-	if (IS_ERR(default_pins)) {
+-		dev_err(&pdev->dev, "%s set pins failed\n",
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	snd_soc_card_set_drvdata(card, priv);
++
++	priv->pinctrl = devm_pinctrl_get(&pdev->dev);
++	if (IS_ERR(priv->pinctrl)) {
++		dev_err(&pdev->dev, "%s devm_pinctrl_get failed\n",
+ 			__func__);
+-		return PTR_ERR(default_pins);
++		return PTR_ERR(priv->pinctrl);
++	}
++
++	for (i = 0; i < PIN_STATE_MAX; i++) {
++		priv->pin_states[i] = pinctrl_lookup_state(priv->pinctrl,
++							   mt8183_pin_str[i]);
++		if (IS_ERR(priv->pin_states[i])) {
++			ret = PTR_ERR(priv->pin_states[i]);
++			dev_info(&pdev->dev, "%s Can't find pin state %s %d\n",
++				 __func__, mt8183_pin_str[i], ret);
++		}
++	}
++
++	if (!IS_ERR(priv->pin_states[PIN_TDM_OUT_OFF])) {
++		ret = pinctrl_select_state(priv->pinctrl,
++					   priv->pin_states[PIN_TDM_OUT_OFF]);
++		if (ret)
++			dev_info(&pdev->dev,
++				 "%s failed to select state %d\n",
++				 __func__, ret);
++	}
++
++	if (!IS_ERR(priv->pin_states[PIN_STATE_DEFAULT])) {
++		ret = pinctrl_select_state(priv->pinctrl,
++					   priv->pin_states[PIN_STATE_DEFAULT]);
++		if (ret)
++			dev_info(&pdev->dev,
++				 "%s failed to select state %d\n",
++				 __func__, ret);
+ 	}
+ 
+ 	return ret;
 -- 
 2.20.1
 
