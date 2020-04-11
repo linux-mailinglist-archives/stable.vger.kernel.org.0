@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7972D1A51DD
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 261CE1A4FAD
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726673AbgDKMKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:10:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42246 "EHLO mail.kernel.org"
+        id S1726691AbgDKMKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:10:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726091AbgDKMKk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:10:40 -0400
+        id S1726091AbgDKMKm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:10:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCCA02084D;
-        Sat, 11 Apr 2020 12:10:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CE91216FD;
+        Sat, 11 Apr 2020 12:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607039;
-        bh=ZhPfXwdhyzdj32voEjkcU8CfMlM/xNaQVegWyaKUHX4=;
+        s=default; t=1586607041;
+        bh=8b6+SjPVlptKlpHpNs5BryqjkHoJs5ngMdVdKcZM1GY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F654Ntsv1baM+3XxpHOvJ6zq14VeBtPcfAJQSqZY95fb9bolGJ42K3Nl6yfGnLnE5
-         fgAirp8oIYzOs2fehwZxa6OeDYacTBs8rngUj1OIFnpTK97aCO1GMvzoKs6HNcpCU9
-         n9RmPTkUphT3Pgfg1kr0PwleBlLm1PZWf+NDU+VY=
+        b=1veeKAYThIbsm7l827a0wZfVyMRS6s98CRLXr5DKMh2RR6Xu/se0yKNoEMmUKGxt9
+         yHedxaSum6Cr07b9GUAhi0IDmC8H2doGjq5SmvHIchxSD5TzBMV7IPQ/2K7SqmnSfp
+         DEIjEFQVfriip/qpkNaFcOucJOF4RETOiRxrIbSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, William Dauchy <w.dauchy@criteo.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 02/29] ipv4: fix a RCU-list lock in fib_triestat_seq_show
-Date:   Sat, 11 Apr 2020 14:08:32 +0200
-Message-Id: <20200411115407.957243103@linuxfoundation.org>
+Subject: [PATCH 4.4 03/29] net, ip_tunnel: fix interface lookup with no key
+Date:   Sat, 11 Apr 2020 14:08:33 +0200
+Message-Id: <20200411115408.202310059@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200411115407.651296755@linuxfoundation.org>
 References: <20200411115407.651296755@linuxfoundation.org>
@@ -44,63 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: William Dauchy <w.dauchy@criteo.com>
 
-[ Upstream commit fbe4e0c1b298b4665ee6915266c9d6c5b934ef4a ]
+[ Upstream commit 25629fdaff2ff509dd0b3f5ff93d70a75e79e0a1 ]
 
-fib_triestat_seq_show() calls hlist_for_each_entry_rcu(tb, head,
-tb_hlist) without rcu_read_lock() will trigger a warning,
+when creating a new ipip interface with no local/remote configuration,
+the lookup is done with TUNNEL_NO_KEY flag, making it impossible to
+match the new interface (only possible match being fallback or metada
+case interface); e.g: `ip link add tunl1 type ipip dev eth0`
 
- net/ipv4/fib_trie.c:2579 RCU-list traversed in non-reader section!!
+To fix this case, adding a flag check before the key comparison so we
+permit to match an interface with no local/remote config; it also avoids
+breaking possible userland tools relying on TUNNEL_NO_KEY flag and
+uninitialised key.
 
- other info that might help us debug this:
+context being on my side, I'm creating an extra ipip interface attached
+to the physical one, and moving it to a dedicated namespace.
 
- rcu_scheduler_active = 2, debug_locks = 1
- 1 lock held by proc01/115277:
-  #0: c0000014507acf00 (&p->lock){+.+.}-{3:3}, at: seq_read+0x58/0x670
-
- Call Trace:
-  dump_stack+0xf4/0x164 (unreliable)
-  lockdep_rcu_suspicious+0x140/0x164
-  fib_triestat_seq_show+0x750/0x880
-  seq_read+0x1a0/0x670
-  proc_reg_read+0x10c/0x1b0
-  __vfs_read+0x3c/0x70
-  vfs_read+0xac/0x170
-  ksys_read+0x7c/0x140
-  system_call+0x5c/0x68
-
-Fix it by adding a pair of rcu_read_lock/unlock() and use
-cond_resched_rcu() to avoid the situation where walking of a large
-number of items  may prevent scheduling for a long time.
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
+Signed-off-by: William Dauchy <w.dauchy@criteo.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_trie.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/ipv4/ip_tunnel.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -2230,6 +2230,7 @@ static int fib_triestat_seq_show(struct
- 		   " %Zd bytes, size of tnode: %Zd bytes.\n",
- 		   LEAF_SIZE, TNODE_SIZE(0));
- 
-+	rcu_read_lock();
- 	for (h = 0; h < FIB_TABLE_HASHSZ; h++) {
- 		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
- 		struct fib_table *tb;
-@@ -2249,7 +2250,9 @@ static int fib_triestat_seq_show(struct
- 			trie_show_usage(seq, t->stats);
- #endif
- 		}
-+		cond_resched_rcu();
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -155,11 +155,8 @@ struct ip_tunnel *ip_tunnel_lookup(struc
+ 			cand = t;
  	}
-+	rcu_read_unlock();
  
- 	return 0;
- }
+-	if (flags & TUNNEL_NO_KEY)
+-		goto skip_key_lookup;
+-
+ 	hlist_for_each_entry_rcu(t, head, hash_node) {
+-		if (t->parms.i_key != key ||
++		if ((!(flags & TUNNEL_NO_KEY) && t->parms.i_key != key) ||
+ 		    t->parms.iph.saddr != 0 ||
+ 		    t->parms.iph.daddr != 0 ||
+ 		    !(t->dev->flags & IFF_UP))
+@@ -171,7 +168,6 @@ struct ip_tunnel *ip_tunnel_lookup(struc
+ 			cand = t;
+ 	}
+ 
+-skip_key_lookup:
+ 	if (cand)
+ 		return cand;
+ 
 
 
