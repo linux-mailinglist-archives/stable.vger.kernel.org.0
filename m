@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 170151A561F
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:14:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F7D21A56B6
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730705AbgDKXOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:14:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55900 "EHLO mail.kernel.org"
+        id S1730713AbgDKXOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:14:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730694AbgDKXOQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:14:16 -0400
+        id S1730003AbgDKXOR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:14:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9287A216FD;
-        Sat, 11 Apr 2020 23:14:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C64F92166E;
+        Sat, 11 Apr 2020 23:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646856;
-        bh=8M7YTR0w/rNREVOYoFx094SOSmfYh2D9WI0+662ulWg=;
+        s=default; t=1586646857;
+        bh=VvQd+tj3uTHlKY1SGES39RT8WMf9mUvSjdMBNaes3Fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2pLim0NMhUjJkzd6KwTxp585FmB3AdQcMVvnASD39wgcretqgIznQ/L2xP388n/T9
-         toMvzSEb+7DsB7iTf/y+wK9/N6te8mmzpLg8IURksGHrcQOWaiE3utCKmRkJWpDrvk
-         SRt/9lYfNmZDuKKZOsjRoH4iEe6sjx73SR/cbUKA=
+        b=08ZwWWocyUyY1mF/eT8oNjLsG9wPvj32o7wkSV18vl+fNiRKU6Sb9t1EtSULatGs2
+         /qaw/nd+SfQ8L4MabM/ZnNsTXbdNJpBvLm+DyK6ONlqGbQdyJFFTxbq752Izw5jDf0
+         wRbm31+6MuuVtCWhcqMTFkJLYQnA0rwPfnIXUKSY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 02/26] net: phy: probe PHY drivers synchronously
-Date:   Sat, 11 Apr 2020 19:13:49 -0400
-Message-Id: <20200411231413.26911-2-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 03/26] serial: 8250_omap: Fix sleeping function called from invalid context during probe
+Date:   Sat, 11 Apr 2020 19:13:50 -0400
+Message-Id: <20200411231413.26911-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231413.26911-1-sashal@kernel.org>
 References: <20200411231413.26911-1-sashal@kernel.org>
@@ -45,57 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit 16983507742cbcaa5592af530872a82e82fb9c51 ]
+[ Upstream commit 4ce35a3617c0ac758c61122b2218b6c8c9ac9398 ]
 
-If we have scenarios like
+When booting j721e the following bug is printed:
 
-mdiobus_register()
-	-> loads PHY driver module(s)
-	-> registers PHY driver(s)
-	-> may schedule async probe
-phydev = mdiobus_get_phy()
-<phydev action involving PHY driver>
+[    1.154821] BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
+[    1.154827] in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 12, name: kworker/0:1
+[    1.154832] 3 locks held by kworker/0:1/12:
+[    1.154836]  #0: ffff000840030728 ((wq_completion)events){+.+.}, at: process_one_work+0x1d4/0x6e8
+[    1.154852]  #1: ffff80001214fdd8 (deferred_probe_work){+.+.}, at: process_one_work+0x1d4/0x6e8
+[    1.154860]  #2: ffff00084060b170 (&dev->mutex){....}, at: __device_attach+0x38/0x138
+[    1.154872] irq event stamp: 63096
+[    1.154881] hardirqs last  enabled at (63095): [<ffff800010b74318>] _raw_spin_unlock_irqrestore+0x70/0x78
+[    1.154887] hardirqs last disabled at (63096): [<ffff800010b740d8>] _raw_spin_lock_irqsave+0x28/0x80
+[    1.154893] softirqs last  enabled at (62254): [<ffff800010080c88>] _stext+0x488/0x564
+[    1.154899] softirqs last disabled at (62247): [<ffff8000100fdb3c>] irq_exit+0x114/0x140
+[    1.154906] CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.6.0-rc6-next-20200318-00094-g45e4089b0bd3 #221
+[    1.154911] Hardware name: Texas Instruments K3 J721E SoC (DT)
+[    1.154917] Workqueue: events deferred_probe_work_func
+[    1.154923] Call trace:
+[    1.154928]  dump_backtrace+0x0/0x190
+[    1.154933]  show_stack+0x14/0x20
+[    1.154940]  dump_stack+0xe0/0x148
+[    1.154946]  ___might_sleep+0x150/0x1f0
+[    1.154952]  __might_sleep+0x4c/0x80
+[    1.154957]  wait_for_completion_timeout+0x40/0x140
+[    1.154964]  ti_sci_set_device_state+0xa0/0x158
+[    1.154969]  ti_sci_cmd_get_device_exclusive+0x14/0x20
+[    1.154977]  ti_sci_dev_start+0x34/0x50
+[    1.154984]  genpd_runtime_resume+0x78/0x1f8
+[    1.154991]  __rpm_callback+0x3c/0x140
+[    1.154996]  rpm_callback+0x20/0x80
+[    1.155001]  rpm_resume+0x568/0x758
+[    1.155007]  __pm_runtime_resume+0x44/0xb0
+[    1.155013]  omap8250_probe+0x2b4/0x508
+[    1.155019]  platform_drv_probe+0x50/0xa0
+[    1.155023]  really_probe+0xd4/0x318
+[    1.155028]  driver_probe_device+0x54/0xe8
+[    1.155033]  __device_attach_driver+0x80/0xb8
+[    1.155039]  bus_for_each_drv+0x74/0xc0
+[    1.155044]  __device_attach+0xdc/0x138
+[    1.155049]  device_initial_probe+0x10/0x18
+[    1.155053]  bus_probe_device+0x98/0xa0
+[    1.155058]  deferred_probe_work_func+0x74/0xb0
+[    1.155063]  process_one_work+0x280/0x6e8
+[    1.155068]  worker_thread+0x48/0x430
+[    1.155073]  kthread+0x108/0x138
+[    1.155079]  ret_from_fork+0x10/0x18
 
-or
+To fix the bug we need to first call pm_runtime_enable() prior to any
+pm_runtime calls.
 
-phydev = phy_device_create()
-	-> loads PHY driver module
-	-> registers PHY driver
-	-> may schedule async probe
-<phydev action involving PHY driver>
-
-then we expect the PHY driver to be bound to the phydev when triggering
-the action. This may not be the case in case of asynchronous probing.
-Therefore ensure that PHY drivers are probed synchronously.
-
-Default still is sync probing, except async probing is explicitly
-requested. I saw some comments that the intention is to promote
-async probing for more parallelism in boot process and want to be
-prepared for the case that the default is changed to async probing.
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20200320125200.6772-1-peter.ujfalusi@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/8250/8250_omap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 2f55873060220..8252df3779829 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -1744,6 +1744,7 @@ int phy_driver_register(struct phy_driver *new_driver, struct module *owner)
- 	new_driver->mdiodrv.driver.probe = phy_probe;
- 	new_driver->mdiodrv.driver.remove = phy_remove;
- 	new_driver->mdiodrv.driver.owner = owner;
-+	new_driver->mdiodrv.driver.probe_type = PROBE_FORCE_SYNCHRONOUS;
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index a3adf21f9dcec..7d4680ef5307d 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -1194,11 +1194,11 @@ static int omap8250_probe(struct platform_device *pdev)
+ 	spin_lock_init(&priv->rx_dma_lock);
  
- 	retval = driver_register(&new_driver->mdiodrv.driver);
- 	if (retval) {
+ 	device_init_wakeup(&pdev->dev, true);
++	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_set_autosuspend_delay(&pdev->dev, -1);
+ 
+ 	pm_runtime_irq_safe(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
+ 
+ 	pm_runtime_get_sync(&pdev->dev);
+ 
 -- 
 2.20.1
 
