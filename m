@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6C91A5134
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAD2B1A5142
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:24:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727224AbgDKMXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54104 "EHLO mail.kernel.org"
+        id S1728263AbgDKMRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:17:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728702AbgDKMS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:18:57 -0400
+        id S1727582AbgDKMRv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:17:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B273F20644;
-        Sat, 11 Apr 2020 12:18:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E73220673;
+        Sat, 11 Apr 2020 12:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607537;
-        bh=gEa7ZsGQJJwe1Lbv3f9ZrcIEEZjZ69oRQJWfv5TR+Lc=;
+        s=default; t=1586607469;
+        bh=DelRnnfitD8DFupggQP7ZHvuuUpyQlAHwyYb4axTYcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJJVsV7JRUE2Hwm7+P3Mw6bQbYE42uw5+QoxpT3YohBc+JkpsKYfqGEE7q7ZENNzH
-         842wt0i/6t7YgHyOAidKskRhqR03K7nZKoxYNE9DJ7KmxTxKgZj21vdae60mh6njWA
-         jd2xHgHzBFKUHUljdWZkuCTr4Yp87tzwlfoQUv24=
+        b=HqBClu8LXN+G3BbIhGN/OZ46GrwdnweshPKULilySJZ1j19n6DlHB7MPeQjy0MLYB
+         v3a9zLocpJZ2Gl3dvTvJgs+3zHm6aB1khjl+JErcYIchDZfD932rB3rhJ2yuVdIb6p
+         UaFm2PsYg3TL5ZiIhOjhKVDldjFJLOO2KBl85U/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yury Norov <yury.norov@gmail.com>,
-        Allison Randal <allison@lohutok.net>,
-        Joe Perches <joe@perches.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 19/44] uapi: rename ext2_swab() to swab() and share globally in swab.h
-Date:   Sat, 11 Apr 2020 14:09:39 +0200
-Message-Id: <20200411115458.679771748@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+98704a51af8e3d9425a9@syzkaller.appspotmail.com,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Luis Henriques <lhenriques@suse.com>
+Subject: [PATCH 5.4 31/41] ceph: canonicalize server path in place
+Date:   Sat, 11 Apr 2020 14:09:40 +0200
+Message-Id: <20200411115506.291405841@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
-References: <20200411115456.934174282@linuxfoundation.org>
+In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
+References: <20200411115504.124035693@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,109 +46,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yury Norov <yury.norov@gmail.com>
+From: Ilya Dryomov <idryomov@gmail.com>
 
-commit d5767057c9a76a29f073dad66b7fa12a90e8c748 upstream.
+commit b27a939e8376a3f1ed09b9c33ef44d20f18ec3d0 upstream.
 
-ext2_swab() is defined locally in lib/find_bit.c However it is not
-specific to ext2, neither to bitmaps.
+syzbot reported that 4fbc0c711b24 ("ceph: remove the extra slashes in
+the server path") had caused a regression where an allocation could be
+done under a spinlock -- compare_mount_options() is called by sget_fc()
+with sb_lock held.
 
-There are many potential users of it, so rename it to just swab() and
-move to include/uapi/linux/swab.h
+We don't really need the supplied server path, so canonicalize it
+in place and compare it directly.  To make this work, the leading
+slash is kept around and the logic in ceph_real_mount() to skip it
+is restored.  CEPH_MSG_CLIENT_SESSION now reports the same (i.e.
+canonicalized) path, with the leading slash of course.
 
-ABI guarantees that size of unsigned long corresponds to BITS_PER_LONG,
-therefore drop unneeded cast.
-
-Link: http://lkml.kernel.org/r/20200103202846.21616-1-yury.norov@gmail.com
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
-Cc: Allison Randal <allison@lohutok.net>
-Cc: Joe Perches <joe@perches.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: William Breathitt Gray <vilhelm.gray@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 4fbc0c711b24 ("ceph: remove the extra slashes in the server path")
+Reported-by: syzbot+98704a51af8e3d9425a9@syzkaller.appspotmail.com
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/swab.h      |    1 +
- include/uapi/linux/swab.h |   10 ++++++++++
- lib/find_bit.c            |   16 ++--------------
- 3 files changed, 13 insertions(+), 14 deletions(-)
+ fs/ceph/super.c |  118 ++++++++++++--------------------------------------------
+ fs/ceph/super.h |    2 
+ 2 files changed, 28 insertions(+), 92 deletions(-)
 
---- a/include/linux/swab.h
-+++ b/include/linux/swab.h
-@@ -7,6 +7,7 @@
- # define swab16 __swab16
- # define swab32 __swab32
- # define swab64 __swab64
-+# define swab __swab
- # define swahw32 __swahw32
- # define swahb32 __swahb32
- # define swab16p __swab16p
---- a/include/uapi/linux/swab.h
-+++ b/include/uapi/linux/swab.h
-@@ -4,6 +4,7 @@
+--- a/fs/ceph/super.c
++++ b/fs/ceph/super.c
+@@ -214,6 +214,26 @@ static match_table_t fsopt_tokens = {
+ 	{-1, NULL}
+ };
  
- #include <linux/types.h>
- #include <linux/compiler.h>
-+#include <asm/bitsperlong.h>
- #include <asm/swab.h>
- 
- /*
-@@ -132,6 +133,15 @@ static inline __attribute_const__ __u32
- 	__fswab64(x))
- #endif
- 
-+static __always_inline unsigned long __swab(const unsigned long y)
++/*
++ * Remove adjacent slashes and then the trailing slash, unless it is
++ * the only remaining character.
++ *
++ * E.g. "//dir1////dir2///" --> "/dir1/dir2", "///" --> "/".
++ */
++static void canonicalize_path(char *path)
 +{
-+#if BITS_PER_LONG == 64
-+	return __swab64(y);
-+#else /* BITS_PER_LONG == 32 */
-+	return __swab32(y);
-+#endif
++	int i, j = 0;
++
++	for (i = 0; path[i] != '\0'; i++) {
++		if (path[i] != '/' || j < 1 || path[j - 1] != '/')
++			path[j++] = path[i];
++	}
++
++	if (j > 1 && path[j - 1] == '/')
++		j--;
++	path[j] = '\0';
 +}
 +
- /**
-  * __swahw32 - return a word-swapped 32-bit value
-  * @x: value to wordswap
---- a/lib/find_bit.c
-+++ b/lib/find_bit.c
-@@ -149,18 +149,6 @@ EXPORT_SYMBOL(find_last_bit);
+ static int parse_fsopt_token(char *c, void *private)
+ {
+ 	struct ceph_mount_options *fsopt = private;
+@@ -429,73 +449,6 @@ static int strcmp_null(const char *s1, c
+ 	return strcmp(s1, s2);
+ }
  
- #ifdef __BIG_ENDIAN
- 
--/* include/linux/byteorder does not support "unsigned long" type */
--static inline unsigned long ext2_swab(const unsigned long y)
+-/**
+- * path_remove_extra_slash - Remove the extra slashes in the server path
+- * @server_path: the server path and could be NULL
+- *
+- * Return NULL if the path is NULL or only consists of "/", or a string
+- * without any extra slashes including the leading slash(es) and the
+- * slash(es) at the end of the server path, such as:
+- * "//dir1////dir2///" --> "dir1/dir2"
+- */
+-static char *path_remove_extra_slash(const char *server_path)
 -{
--#if BITS_PER_LONG == 64
--	return (unsigned long) __swab64((u64) y);
--#elif BITS_PER_LONG == 32
--	return (unsigned long) __swab32((u32) y);
--#else
--#error BITS_PER_LONG not defined
--#endif
+-	const char *path = server_path;
+-	const char *cur, *end;
+-	char *buf, *p;
+-	int len;
+-
+-	/* if the server path is omitted */
+-	if (!path)
+-		return NULL;
+-
+-	/* remove all the leading slashes */
+-	while (*path == '/')
+-		path++;
+-
+-	/* if the server path only consists of slashes */
+-	if (*path == '\0')
+-		return NULL;
+-
+-	len = strlen(path);
+-
+-	buf = kmalloc(len + 1, GFP_KERNEL);
+-	if (!buf)
+-		return ERR_PTR(-ENOMEM);
+-
+-	end = path + len;
+-	p = buf;
+-	do {
+-		cur = strchr(path, '/');
+-		if (!cur)
+-			cur = end;
+-
+-		len = cur - path;
+-
+-		/* including one '/' */
+-		if (cur != end)
+-			len += 1;
+-
+-		memcpy(p, path, len);
+-		p += len;
+-
+-		while (cur <= end && *cur == '/')
+-			cur++;
+-		path = cur;
+-	} while (path < end);
+-
+-	*p = '\0';
+-
+-	/*
+-	 * remove the last slash if there has and just to make sure that
+-	 * we will get something like "dir1/dir2"
+-	 */
+-	if (*(--p) == '/')
+-		*p = '\0';
+-
+-	return buf;
 -}
 -
- #if !defined(find_next_bit_le) || !defined(find_next_zero_bit_le)
- static inline unsigned long _find_next_bit_le(const unsigned long *addr1,
- 		const unsigned long *addr2, unsigned long nbits,
-@@ -177,7 +165,7 @@ static inline unsigned long _find_next_b
- 	tmp ^= invert;
+ static int compare_mount_options(struct ceph_mount_options *new_fsopt,
+ 				 struct ceph_options *new_opt,
+ 				 struct ceph_fs_client *fsc)
+@@ -503,7 +456,6 @@ static int compare_mount_options(struct
+ 	struct ceph_mount_options *fsopt1 = new_fsopt;
+ 	struct ceph_mount_options *fsopt2 = fsc->mount_options;
+ 	int ofs = offsetof(struct ceph_mount_options, snapdir_name);
+-	char *p1, *p2;
+ 	int ret;
  
- 	/* Handle 1st word. */
--	tmp &= ext2_swab(BITMAP_FIRST_WORD_MASK(start));
-+	tmp &= swab(BITMAP_FIRST_WORD_MASK(start));
- 	start = round_down(start, BITS_PER_LONG);
+ 	ret = memcmp(fsopt1, fsopt2, ofs);
+@@ -513,21 +465,12 @@ static int compare_mount_options(struct
+ 	ret = strcmp_null(fsopt1->snapdir_name, fsopt2->snapdir_name);
+ 	if (ret)
+ 		return ret;
++
+ 	ret = strcmp_null(fsopt1->mds_namespace, fsopt2->mds_namespace);
+ 	if (ret)
+ 		return ret;
  
- 	while (!tmp) {
-@@ -191,7 +179,7 @@ static inline unsigned long _find_next_b
- 		tmp ^= invert;
+-	p1 = path_remove_extra_slash(fsopt1->server_path);
+-	if (IS_ERR(p1))
+-		return PTR_ERR(p1);
+-	p2 = path_remove_extra_slash(fsopt2->server_path);
+-	if (IS_ERR(p2)) {
+-		kfree(p1);
+-		return PTR_ERR(p2);
+-	}
+-	ret = strcmp_null(p1, p2);
+-	kfree(p1);
+-	kfree(p2);
++	ret = strcmp_null(fsopt1->server_path, fsopt2->server_path);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -595,6 +538,8 @@ static int parse_mount_options(struct ce
+ 			err = -ENOMEM;
+ 			goto out;
+ 		}
++
++		canonicalize_path(fsopt->server_path);
+ 	} else {
+ 		dev_name_end = dev_name + strlen(dev_name);
  	}
+@@ -1022,7 +967,9 @@ static struct dentry *ceph_real_mount(st
+ 	mutex_lock(&fsc->client->mount_mutex);
  
--	return min(start + __ffs(ext2_swab(tmp)), nbits);
-+	return min(start + __ffs(swab(tmp)), nbits);
- }
- #endif
+ 	if (!fsc->sb->s_root) {
+-		const char *path, *p;
++		const char *path = fsc->mount_options->server_path ?
++				     fsc->mount_options->server_path + 1 : "";
++
+ 		err = __ceph_open_session(fsc->client, started);
+ 		if (err < 0)
+ 			goto out;
+@@ -1034,22 +981,11 @@ static struct dentry *ceph_real_mount(st
+ 				goto out;
+ 		}
+ 
+-		p = path_remove_extra_slash(fsc->mount_options->server_path);
+-		if (IS_ERR(p)) {
+-			err = PTR_ERR(p);
+-			goto out;
+-		}
+-		/* if the server path is omitted or just consists of '/' */
+-		if (!p)
+-			path = "";
+-		else
+-			path = p;
+ 		dout("mount opening path '%s'\n", path);
+ 
+ 		ceph_fs_debugfs_init(fsc);
+ 
+ 		root = open_root_dentry(fsc, path, started);
+-		kfree(p);
+ 		if (IS_ERR(root)) {
+ 			err = PTR_ERR(root);
+ 			goto out;
+--- a/fs/ceph/super.h
++++ b/fs/ceph/super.h
+@@ -92,7 +92,7 @@ struct ceph_mount_options {
+ 
+ 	char *snapdir_name;   /* default ".snap" */
+ 	char *mds_namespace;  /* default NULL */
+-	char *server_path;    /* default  "/" */
++	char *server_path;    /* default NULL (means "/") */
+ 	char *fscache_uniq;   /* default NULL */
+ };
  
 
 
