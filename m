@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18CDD1A576C
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5A671A5763
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728042AbgDKXWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:22:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54222 "EHLO mail.kernel.org"
+        id S1730303AbgDKXNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:13:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730368AbgDKXNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:13:14 -0400
+        id S1730370AbgDKXNQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:13:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04D2B20708;
-        Sat, 11 Apr 2020 23:13:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17741216FD;
+        Sat, 11 Apr 2020 23:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646794;
-        bh=Nor3LFQx5gasX/TffxXutfOivoR3WUsiFJPiv1MKceg=;
+        s=default; t=1586646796;
+        bh=tGOQQ9djfq9Q6LbI8RPsPUKkrC6zjvSHm/Qh17ZVSTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxKlm8zRYOcG8MJaHfEWDNPVmuVtuds7byNvMxGib2HRQSEATTfCZDHNI+TFju0m8
-         n/0UIyUwhrLZnB+Wr1dfwqJPtbfXY6bmj6iq7YxP3O0De2LxQhqulZZxlZxjHuVgrd
-         3vvyrNY8GQ/4JCYXnC4r9+MCrVgoXWoIBcVtynco=
+        b=gk4xj1xI6X0TVfCM+43J8sMsHHDq8PBQgSYn4pCMeO3s4e+Q29lzTALRs0WLTthMC
+         w7XqN/+Vz+qG66Ysqa7HMOYjWy76d96ytME3AuOy9HZQ9F3+JKrfAw5hXLOtmwtxmc
+         dWyOmWx7BSj9wAxoW6u7QjQRK8U4uIFEHdzo1+xQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Himanshu Madhani <hmadhani@marvell.com>,
+Cc:     Can Guo <cang@codeaurora.org>, Hongwu Su <hongwus@codeaurora.org>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        Bean Huo <beanhuo@micron.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 58/66] scsi: qla2xxx: Fix control flags for login/logout IOCB
-Date:   Sat, 11 Apr 2020 19:11:55 -0400
-Message-Id: <20200411231203.25933-58-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 59/66] scsi: ufs: Fix ufshcd_hold() caused scheduling while atomic
+Date:   Sat, 11 Apr 2020 19:11:56 -0400
+Message-Id: <20200411231203.25933-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231203.25933-1-sashal@kernel.org>
 References: <20200411231203.25933-1-sashal@kernel.org>
@@ -43,67 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Himanshu Madhani <hmadhani@marvell.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 419ae5fe73e50084fa794934fb62fab34f564b7c ]
+[ Upstream commit c63d6099a7959ecc919b2549dc6b71f53521f819 ]
 
-This patch fixes control flag options for login/logout IOCB.
+The async version of ufshcd_hold(async == true), which is only called in
+queuecommand path as for now, is expected to work in atomic context, thus
+it should not sleep or schedule out. When it runs into the condition that
+clocks are ON but link is still in hibern8 state, it should bail out
+without flushing the clock ungate work.
 
-Link: https://lore.kernel.org/r/20200212214436.25532-23-hmadhani@marvell.com
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Fixes: f2a785ac2312 ("scsi: ufshcd: Fix race between clk scaling and ungate work")
+Link: https://lore.kernel.org/r/1581392451-28743-6-git-send-email-cang@codeaurora.org
+Reviewed-by: Hongwu Su <hongwus@codeaurora.org>
+Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_iocb.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
-index 7e47321e003c8..f07aa045f3f93 100644
---- a/drivers/scsi/qla2xxx/qla_iocb.c
-+++ b/drivers/scsi/qla2xxx/qla_iocb.c
-@@ -2224,6 +2224,8 @@ qla24xx_login_iocb(srb_t *sp, struct logio_entry_24xx *logio)
- 	struct srb_iocb *lio = &sp->u.iocb_cmd;
- 
- 	logio->entry_type = LOGINOUT_PORT_IOCB_TYPE;
-+	logio->control_flags = cpu_to_le16(LCF_COMMAND_PLOGI);
-+
- 	if (lio->u.logio.flags & SRB_LOGIN_PRLI_ONLY) {
- 		logio->control_flags = cpu_to_le16(LCF_COMMAND_PRLI);
- 	} else {
-@@ -2663,7 +2665,6 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
- 	sp->fcport = fcport;
- 
- 	elsio->timeout = qla2x00_els_dcmd2_iocb_timeout;
--	init_completion(&elsio->u.els_plogi.comp);
- 	if (wait)
- 		sp->flags = SRB_WAKEUP_ON_COMP;
- 
-@@ -2673,7 +2674,7 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
- 	elsio->u.els_plogi.tx_size = elsio->u.els_plogi.rx_size = DMA_POOL_SIZE;
- 
- 	ptr = elsio->u.els_plogi.els_plogi_pyld =
--	    dma_alloc_coherent(&ha->pdev->dev, DMA_POOL_SIZE,
-+	    dma_alloc_coherent(&ha->pdev->dev, elsio->u.els_plogi.tx_size,
- 		&elsio->u.els_plogi.els_plogi_pyld_dma, GFP_KERNEL);
- 	ptr_dma = elsio->u.els_plogi.els_plogi_pyld_dma;
- 
-@@ -2683,7 +2684,7 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
- 	}
- 
- 	resp_ptr = elsio->u.els_plogi.els_resp_pyld =
--	    dma_alloc_coherent(&ha->pdev->dev, DMA_POOL_SIZE,
-+	    dma_alloc_coherent(&ha->pdev->dev, elsio->u.els_plogi.rx_size,
- 		&elsio->u.els_plogi.els_resp_pyld_dma, GFP_KERNEL);
- 
- 	if (!elsio->u.els_plogi.els_resp_pyld) {
-@@ -2707,6 +2708,7 @@ qla24xx_els_dcmd2_iocb(scsi_qla_host_t *vha, int els_opcode,
- 	    (uint8_t *)elsio->u.els_plogi.els_plogi_pyld,
- 	    sizeof(*elsio->u.els_plogi.els_plogi_pyld));
- 
-+	init_completion(&elsio->u.els_plogi.comp);
- 	rval = qla2x00_start_sp(sp);
- 	if (rval != QLA_SUCCESS) {
- 		rval = QLA_FUNCTION_FAILED;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index b3dee24917a86..d91209ba18c86 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1563,6 +1563,11 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
+ 		 */
+ 		if (ufshcd_can_hibern8_during_gating(hba) &&
+ 		    ufshcd_is_link_hibern8(hba)) {
++			if (async) {
++				rc = -EAGAIN;
++				hba->clk_gating.active_reqs--;
++				break;
++			}
+ 			spin_unlock_irqrestore(hba->host->host_lock, flags);
+ 			flush_work(&hba->clk_gating.ungate_work);
+ 			spin_lock_irqsave(hba->host->host_lock, flags);
 -- 
 2.20.1
 
