@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F7D1A572E
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:21:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEFF51A572A
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729391AbgDKXVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:21:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54672 "EHLO mail.kernel.org"
+        id S1730158AbgDKXU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:20:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730446AbgDKXNb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:13:31 -0400
+        id S1729765AbgDKXNc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:13:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67043216FD;
-        Sat, 11 Apr 2020 23:13:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88FBE21744;
+        Sat, 11 Apr 2020 23:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646811;
-        bh=6GX4RpHXR1sDEMB1nZDvmEiCVW14iqvcgVwFIHLQbXI=;
+        s=default; t=1586646812;
+        bh=EwabVwJVuMwwj07DslH218fSfFsyXeDyKZMeNlvoJeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CaL9QmUHEcwwHyPHa+tZHu7wJGYwOMGb7T2i1szooV974nMuuDqJFROxzlHMxbqqr
-         vtNhDaPuj8z0ZghdJgIPWOM6sY68Uiw8y9sMlPdDy09C4q3RGeWs1WBWxCigDVi4fY
-         L2w41pD+7dMrFkptxaC5CiY7S1jxbL4zcAWhTFU4=
+        b=QpYuIBQlUih8iQnu+4ZAqymBUP7ePK2v2k1hOjLgwB1NNO/tLsZRKRlHqEYqDLG3I
+         5KPTXoZrQ6Ne+PO7QPJGDd303UE7vYFbim3eoVkiQvAJ1MxJMggN63YhUlEL+1n0+7
+         In1oGOzOGu5oEnAGsGhLlWqfIGqKuc6Nxz7FZ44s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhu Yanjun <yanjunz@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 03/37] RDMA/rxe: Set sys_image_guid to be aligned with HW IB devices
-Date:   Sat, 11 Apr 2020 19:12:52 -0400
-Message-Id: <20200411231327.26550-3-sashal@kernel.org>
+Cc:     Haibo Chen <haibo.chen@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/37] mmc: sdhci: do not enable card detect interrupt for gpio cd type
+Date:   Sat, 11 Apr 2020 19:12:53 -0400
+Message-Id: <20200411231327.26550-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231327.26550-1-sashal@kernel.org>
 References: <20200411231327.26550-1-sashal@kernel.org>
@@ -44,53 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjunz@mellanox.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit d0ca2c35dd15a3d989955caec02beea02f735ee6 ]
+[ Upstream commit e65bb38824711559844ba932132f417bc5a355e2 ]
 
-The RXE driver doesn't set sys_image_guid and user space applications see
-zeros. This causes to pyverbs tests to fail with the following traceback,
-because the IBTA spec requires to have valid sys_image_guid.
+Except SDHCI_QUIRK_BROKEN_CARD_DETECTION and MMC_CAP_NONREMOVABLE,
+we also do not need to handle controller native card detect interrupt
+for gpio cd type.
+If we wrong enabled the card detect interrupt for gpio case, it will
+cause a lot of unexpected card detect interrupts during data transfer
+which should not happen.
 
- Traceback (most recent call last):
-   File "./tests/test_device.py", line 51, in test_query_device
-     self.verify_device_attr(attr)
-   File "./tests/test_device.py", line 74, in verify_device_attr
-     assert attr.sys_image_guid != 0
-
-In order to fix it, set sys_image_guid to be equal to node_guid.
-
-Before:
- 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
- 0000:0000:0000:0000
-
-After:
- 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
- 5054:00ff:feaa:5363
-
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20200323112800.1444784-1-leon@kernel.org
-Signed-off-by: Zhu Yanjun <yanjunz@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/1582100563-20555-2-git-send-email-haibo.chen@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/sdhci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe.c b/drivers/infiniband/sw/rxe/rxe.c
-index 8c3d30b3092d4..2c9e616cfe0e8 100644
---- a/drivers/infiniband/sw/rxe/rxe.c
-+++ b/drivers/infiniband/sw/rxe/rxe.c
-@@ -126,6 +126,8 @@ static int rxe_init_device_param(struct rxe_dev *rxe)
- 	rxe->attr.max_fast_reg_page_list_len	= RXE_MAX_FMR_PAGE_LIST_LEN;
- 	rxe->attr.max_pkeys			= RXE_MAX_PKEYS;
- 	rxe->attr.local_ca_ack_delay		= RXE_LOCAL_CA_ACK_DELAY;
-+	addrconf_addr_eui48((unsigned char *)&rxe->attr.sys_image_guid,
-+			rxe->ndev->dev_addr);
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index 4f1c884c0b508..33028099d3a01 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -133,7 +133,7 @@ static void sdhci_set_card_detection(struct sdhci_host *host, bool enable)
+ 	u32 present;
  
- 	rxe->max_ucontext			= RXE_MAX_UCONTEXT;
+ 	if ((host->quirks & SDHCI_QUIRK_BROKEN_CARD_DETECTION) ||
+-	    !mmc_card_is_removable(host->mmc))
++	    !mmc_card_is_removable(host->mmc) || mmc_can_gpio_cd(host->mmc))
+ 		return;
  
+ 	if (enable) {
 -- 
 2.20.1
 
