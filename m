@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B3CC1A5914
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF0FF1A5517
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728274AbgDKXJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:09:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46884 "EHLO mail.kernel.org"
+        id S1728339AbgDKXJU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:09:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729173AbgDKXJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:09:17 -0400
+        id S1729179AbgDKXJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:09:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3E9D216FD;
-        Sat, 11 Apr 2020 23:09:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F37620787;
+        Sat, 11 Apr 2020 23:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646557;
-        bh=fDSd34PBPzhwVwoX+CKkeAQM9GR8iiPfzQBw9iG9avU=;
+        s=default; t=1586646558;
+        bh=bLaxZ/NPHfxZjt73Vwsa8VK6rr+4Q8qM2jSIuZG+Jkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lUOP8I9zyt6LFl6ykkxhAXmN/qorCdARVvJcPDqYmB5CxiGGS70OWNveJ2NcD2iy3
-         SHmo5ja9q4RZMd/lXEQJWpIJp7HUEzPCojJrZnrESGNGev7QCbmQlPm5u1oYenhRZ2
-         Q1DBgRZdmAMKPztU0bDY+nKWXKtm6JLpcuUGojrg=
+        b=iZx9JwaJW+1ZB/LStIl307VuGlUww9LCwtpuAPTuvUIV1qI846vEhntbE/r4yqn8B
+         QZiHjD2c147sARoHar+MlGVfOZimVHfaX6Y44Pus+/OhHBVCqKQpk8wftTWDOSzlSC
+         usSINQZ4GwcVOsZDc7gLXrqIA3WgKCuyKfwNTQpA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Can Guo <cang@codeaurora.org>, Hongwu Su <hongwus@codeaurora.org>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Bean Huo <beanhuo@micron.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 106/121] scsi: ufs: Fix ufshcd_hold() caused scheduling while atomic
-Date:   Sat, 11 Apr 2020 19:06:51 -0400
-Message-Id: <20200411230706.23855-106-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 107/121] ARM: shmobile: Enable ARM_GLOBAL_TIMER on Cortex-A9 MPCore SoCs
+Date:   Sat, 11 Apr 2020 19:06:52 -0400
+Message-Id: <20200411230706.23855-107-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -48,45 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit c63d6099a7959ecc919b2549dc6b71f53521f819 ]
+[ Upstream commit 408324a3c5383716939eea8096a0f999a0665f7e ]
 
-The async version of ufshcd_hold(async == true), which is only called in
-queuecommand path as for now, is expected to work in atomic context, thus
-it should not sleep or schedule out. When it runs into the condition that
-clocks are ON but link is still in hibern8 state, it should bail out
-without flushing the clock ungate work.
+SH-Mobile AG5 and R-Car H1 SoCs are based on the Cortex-A9 MPCore, which
+includes a global timer.
 
-Fixes: f2a785ac2312 ("scsi: ufshcd: Fix race between clk scaling and ungate work")
-Link: https://lore.kernel.org/r/1581392451-28743-6-git-send-email-cang@codeaurora.org
-Reviewed-by: Hongwu Su <hongwus@codeaurora.org>
-Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Enable the ARM global timer on these SoCs, which will be used for:
+  - the scheduler clock, improving scheduler accuracy from 10 ms to 3 or
+    4 ns,
+  - delay loops, allowing removal of calls to shmobile_init_delay() from
+    the corresponding machine vectors.
+
+Note that when using an old DTB lacking the global timer, the kernel
+will still work.  However, loops-per-jiffies will no longer be preset,
+and the delay loop will need to be calibrated during boot.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20191211135222.26770-5-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/mach-shmobile/setup-r8a7779.c | 1 -
+ arch/arm/mach-shmobile/setup-sh73a0.c  | 1 -
+ drivers/soc/renesas/Kconfig            | 2 ++
+ 3 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 5340a980d24b8..04f161b50660a 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1542,6 +1542,11 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
- 		 */
- 		if (ufshcd_can_hibern8_during_gating(hba) &&
- 		    ufshcd_is_link_hibern8(hba)) {
-+			if (async) {
-+				rc = -EAGAIN;
-+				hba->clk_gating.active_reqs--;
-+				break;
-+			}
- 			spin_unlock_irqrestore(hba->host->host_lock, flags);
- 			flush_work(&hba->clk_gating.ungate_work);
- 			spin_lock_irqsave(hba->host->host_lock, flags);
+diff --git a/arch/arm/mach-shmobile/setup-r8a7779.c b/arch/arm/mach-shmobile/setup-r8a7779.c
+index b13ec9088ce53..86406e3f9b22e 100644
+--- a/arch/arm/mach-shmobile/setup-r8a7779.c
++++ b/arch/arm/mach-shmobile/setup-r8a7779.c
+@@ -72,7 +72,6 @@ static const char *const r8a7779_compat_dt[] __initconst = {
+ DT_MACHINE_START(R8A7779_DT, "Generic R8A7779 (Flattened Device Tree)")
+ 	.smp		= smp_ops(r8a7779_smp_ops),
+ 	.map_io		= r8a7779_map_io,
+-	.init_early	= shmobile_init_delay,
+ 	.init_irq	= r8a7779_init_irq_dt,
+ 	.init_late	= shmobile_init_late,
+ 	.dt_compat	= r8a7779_compat_dt,
+diff --git a/arch/arm/mach-shmobile/setup-sh73a0.c b/arch/arm/mach-shmobile/setup-sh73a0.c
+index cc08aa7522447..eb4a62fa42895 100644
+--- a/arch/arm/mach-shmobile/setup-sh73a0.c
++++ b/arch/arm/mach-shmobile/setup-sh73a0.c
+@@ -56,7 +56,6 @@ static const char *const sh73a0_boards_compat_dt[] __initconst = {
+ DT_MACHINE_START(SH73A0_DT, "Generic SH73A0 (Flattened Device Tree)")
+ 	.smp		= smp_ops(sh73a0_smp_ops),
+ 	.map_io		= sh73a0_map_io,
+-	.init_early	= shmobile_init_delay,
+ 	.init_machine	= sh73a0_generic_init,
+ 	.init_late	= shmobile_init_late,
+ 	.dt_compat	= sh73a0_boards_compat_dt,
+diff --git a/drivers/soc/renesas/Kconfig b/drivers/soc/renesas/Kconfig
+index f93492b72c04e..60072242fa6e1 100644
+--- a/drivers/soc/renesas/Kconfig
++++ b/drivers/soc/renesas/Kconfig
+@@ -116,6 +116,7 @@ config ARCH_R8A7779
+ 	bool "R-Car H1 (R8A77790)"
+ 	select ARCH_RCAR_GEN1
+ 	select ARM_ERRATA_754322
++	select ARM_GLOBAL_TIMER
+ 	select HAVE_ARM_SCU if SMP
+ 	select HAVE_ARM_TWD if SMP
+ 	select SYSC_R8A7779
+@@ -163,6 +164,7 @@ config ARCH_SH73A0
+ 	bool "SH-Mobile AG5 (R8A73A00)"
+ 	select ARCH_RMOBILE
+ 	select ARM_ERRATA_754322
++	select ARM_GLOBAL_TIMER
+ 	select HAVE_ARM_SCU if SMP
+ 	select HAVE_ARM_TWD if SMP
+ 	select RENESAS_INTC_IRQPIN
 -- 
 2.20.1
 
