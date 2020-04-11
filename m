@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BCE21A5A0C
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:41:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D9041A5A17
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728619AbgDKXHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:07:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43042 "EHLO mail.kernel.org"
+        id S1730894AbgDKXkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:40:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728617AbgDKXHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:07:18 -0400
+        id S1726980AbgDKXHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:07:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04A5A20CC7;
-        Sat, 11 Apr 2020 23:07:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2883F20787;
+        Sat, 11 Apr 2020 23:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646438;
-        bh=Xa8XY9xeIv+I6U6BatoPV/MfhAyhOXvj4mnF/TaDUDg=;
+        s=default; t=1586646439;
+        bh=bzCuW902nz0mB4MhiJs3S5FEoSQDKiLAcYzvLglFqcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e2JM6BZIzifewHjM8I8oT13/jc6LRXI4nIhWq+UQ/2dk7uAK0XpBZ8eSYPcFNTipn
-         /eNrspSLlWTRa5GrDBsy/2jdTBlcuklZr4lJ8Sz0Y1ReT2lbfcJmCq7YXdymy+gpXl
-         q9luqZE6EZffbAr9RJe4rMGZng0Pn8LVEWjZyQFo=
+        b=fvudUei5jgZC7Bbypwy3kOtgNUL7RI2eg6FFGSFntBguWcdD9gfGHmg7aDwM7rh/H
+         4jKIw98dP2DkTTOzisb9x3WP4A+TCvK2XrHhQ8OLbye/PNVdlbbyy6NLRZXwv5y+fU
+         s5TllrMmHuGDLgaea0s5pobwe/ywiYsnlotJnKl4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 010/121] net: phy: mscc: accept all RGMII species in vsc85xx_mac_if_set
-Date:   Sat, 11 Apr 2020 19:05:15 -0400
-Message-Id: <20200411230706.23855-10-sashal@kernel.org>
+Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 011/121] tools/power/x86/intel-speed-select: Fix mailbox usage for CLOS_PM_QOS_CONFIG
+Date:   Sat, 11 Apr 2020 19:05:16 -0400
+Message-Id: <20200411230706.23855-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -44,37 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit da206d65f2b293274f8082a26da4e43a1610da54 ]
+[ Upstream commit 8ddbda76245f5d10e00020db34455404019efc91 ]
 
-The helper for configuring the pinout of the MII side of the PHY should
-do so irrespective of whether RGMII delays are used or not. So accept
-the ID, TXID and RXID variants as well, not just the no-delay RGMII
-variant.
+Even for the products using MMIO, this message needs to be sent via
+mail box. The previous fix done for this didn't properly address this.
+That fix simply removed sending command via MMIO, but still didn't
+trigger sending via mailbox.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Add additional condition to check for CLOS_PM_QOS_CONFIG, when MMIO
+is supported on a platform.
+
+Fixes: cd0e63706549 (tools/power/x86/intel-speed-select: Use mailbox for CLOS_PM_QOS_CONFIG)
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mscc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/power/x86/intel-speed-select/isst-config.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/mscc.c b/drivers/net/phy/mscc.c
-index 3e38d15a67c64..411c9af3ebc89 100644
---- a/drivers/net/phy/mscc.c
-+++ b/drivers/net/phy/mscc.c
-@@ -824,6 +824,9 @@ static int vsc85xx_mac_if_set(struct phy_device *phydev,
- 	reg_val = phy_read(phydev, MSCC_PHY_EXT_PHY_CNTL_1);
- 	reg_val &= ~(MAC_IF_SELECTION_MASK);
- 	switch (interface) {
-+	case PHY_INTERFACE_MODE_RGMII_TXID:
-+	case PHY_INTERFACE_MODE_RGMII_RXID:
-+	case PHY_INTERFACE_MODE_RGMII_ID:
- 	case PHY_INTERFACE_MODE_RGMII:
- 		reg_val |= (MAC_IF_SELECTION_RGMII << MAC_IF_SELECTION_POS);
- 		break;
+diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
+index 944183f9ed5a3..f7ad1c65c86e0 100644
+--- a/tools/power/x86/intel-speed-select/isst-config.c
++++ b/tools/power/x86/intel-speed-select/isst-config.c
+@@ -571,7 +571,8 @@ int isst_send_mbox_command(unsigned int cpu, unsigned char command,
+ 		"mbox_send: cpu:%d command:%x sub_command:%x parameter:%x req_data:%x\n",
+ 		cpu, command, sub_command, parameter, req_data);
+ 
+-	if (isst_platform_info.mmio_supported && command == CONFIG_CLOS) {
++	if (isst_platform_info.mmio_supported && command == CONFIG_CLOS &&
++	    sub_command != CLOS_PM_QOS_CONFIG) {
+ 		unsigned int value;
+ 		int write = 0;
+ 		int clos_id, core_id, ret = 0;
 -- 
 2.20.1
 
