@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BFCA1A5B7E
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D0071A5B66
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728063AbgDKXuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:50:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37534 "EHLO mail.kernel.org"
+        id S1727548AbgDKXt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:49:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727052AbgDKXEP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:04:15 -0400
+        id S1727064AbgDKXEQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:04:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85C9021924;
-        Sat, 11 Apr 2020 23:04:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8315214D8;
+        Sat, 11 Apr 2020 23:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646255;
-        bh=/SDnD2eq8+OiMeGXkOs2RH6/El94rXKUQzFr8/5uLIw=;
+        s=default; t=1586646256;
+        bh=b9PSEA+YG/1WY21aDwSoSP7Lj/mwh9DIxAkoaspyNac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syQsqRuHXP9KaJQK2HjI0nGY82sFV7flSFENXdGlWzScNlhI40SY5/XOy1uiK8Yqb
-         UlhyMHaBZMJ0+RMhH96QZXctmGxhf5QuVGmziKBNysHvRG6eVF1fd1ZATDDfWQSS2O
-         hNl7t/gHxbrFZV4NgMkgNao1LJPAB3np5FL1xx1o=
+        b=cVIYHio23RN4BzYBpS9VtpxCDtuSlMVnIDGUz1V2B8PouGi3q4w2ZmdY2+CM361RB
+         +VRyIHFPRiQvsUE6j0gXo/of6n4w7bQCLiXdC2B3iVoBVOBFywdwJ3tR98SiFvPu3/
+         dGqCBNl5tw4soaBdCo+l1unDZ/Eq64nXNjhcdgsg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 022/149] selftests/bpf: Fix test_progs's parsing of test numbers
-Date:   Sat, 11 Apr 2020 19:01:39 -0400
-Message-Id: <20200411230347.22371-22-sashal@kernel.org>
+Cc:     Hawking Zhang <Hawking.Zhang@amd.com>, Monk Liu <monk.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 023/149] drm/amdgpu: check GFX RAS capability before reset counters
+Date:   Sat, 11 Apr 2020 19:01:40 -0400
+Message-Id: <20200411230347.22371-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -46,62 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Hawking Zhang <Hawking.Zhang@amd.com>
 
-[ Upstream commit fc32490bff855a539d253c8a52c5a1ba51d1325a ]
+[ Upstream commit 06dcd7eb83ee65382305ce48686e3dadaad42088 ]
 
-When specifying disjoint set of tests, test_progs doesn't set skipped test's
-array elements to false. This leads to spurious execution of tests that should
-have been skipped. Fix it by explicitly initializing them to false.
+disallow the logical to be enabled on platforms that
+don't support gfx ras at this stage, like sriov skus,
+dgpu with legacy ras.etc
 
-Fixes: 3a516a0a3a7b ("selftests/bpf: add sub-tests support for test_progs")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20200314013932.4035712-2-andriin@fb.com
+Signed-off-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Reviewed-by: Monk Liu <monk.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_progs.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 3 +++
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_4.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
-index bab1e6f1d8f13..709b6d43bbed9 100644
---- a/tools/testing/selftests/bpf/test_progs.c
-+++ b/tools/testing/selftests/bpf/test_progs.c
-@@ -408,7 +408,7 @@ static int parse_str_list(const char *s, struct str_set *set)
- 
- int parse_num_list(const char *s, struct test_selector *sel)
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 889154a78c4a8..beba9c596c493 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -6326,6 +6326,9 @@ static void gfx_v9_0_clear_ras_edc_counter(struct amdgpu_device *adev)
  {
--	int i, set_len = 0, num, start = 0, end = -1;
-+	int i, set_len = 0, new_len, num, start = 0, end = -1;
- 	bool *set = NULL, *tmp, parsing_end = false;
- 	char *next;
+ 	int i, j, k;
  
-@@ -443,18 +443,19 @@ int parse_num_list(const char *s, struct test_selector *sel)
- 			return -EINVAL;
++	if (!amdgpu_ras_is_supported(adev, AMDGPU_RAS_BLOCK__GFX))
++		return;
++
+ 	/* read back registers to clear the counters */
+ 	mutex_lock(&adev->grbm_idx_mutex);
+ 	for (i = 0; i < ARRAY_SIZE(gfx_v9_0_edc_counter_regs); i++) {
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_4.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_4.c
+index f099f13d7f1e9..9955532345ec0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_4.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_4.c
+@@ -897,6 +897,9 @@ void gfx_v9_4_clear_ras_edc_counter(struct amdgpu_device *adev)
+ {
+ 	int i, j, k;
  
- 		if (end + 1 > set_len) {
--			set_len = end + 1;
--			tmp = realloc(set, set_len);
-+			new_len = end + 1;
-+			tmp = realloc(set, new_len);
- 			if (!tmp) {
- 				free(set);
- 				return -ENOMEM;
- 			}
-+			for (i = set_len; i < start; i++)
-+				tmp[i] = false;
- 			set = tmp;
-+			set_len = new_len;
- 		}
--		for (i = start; i <= end; i++) {
-+		for (i = start; i <= end; i++)
- 			set[i] = true;
--		}
--
- 	}
- 
- 	if (!set)
++	if (!amdgpu_ras_is_supported(adev, AMDGPU_RAS_BLOCK__GFX))
++		return;
++
+ 	mutex_lock(&adev->grbm_idx_mutex);
+ 	for (i = 0; i < ARRAY_SIZE(gfx_v9_4_edc_counter_regs); i++) {
+ 		for (j = 0; j < gfx_v9_4_edc_counter_regs[i].se_num; j++) {
 -- 
 2.20.1
 
