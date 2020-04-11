@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 309431A51F5
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E02261A4FFE
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727212AbgDKMMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:12:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
+        id S1727783AbgDKMNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:13:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727208AbgDKMMT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:12:19 -0400
+        id S1727778AbgDKMNX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:13:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 465942084D;
-        Sat, 11 Apr 2020 12:12:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABDE421744;
+        Sat, 11 Apr 2020 12:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607138;
-        bh=Qdm/TA6OboJv4benEq37ts+ME43IhFu7UjDCA2hrRlA=;
+        s=default; t=1586607204;
+        bh=1qgwLKUC+YvoDSNa1hxeng6qS2w1FMUiVSiNGKdEzuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ikwtp/tsAK9PgohKYluLidWT+2bEbucgPhEIhTfjmZg3pupSwII/+jkT63w23XBuY
-         kTe25ItzbsaQ/8m7Bhx+c1M/zmvxy+Hc9neqTjnhdXEmkm0TCpI0ZgnS6FdyL6RPSB
-         bQ8pn2VUNrkJmgZ1NJD86tHla3HXFVt2j5Km5f3Y=
+        b=DH8SnowycqDIwc4VvquQLrKEJeDPb+LEfgShdV6P9Pz8zOZFKs7CxVYkES9hwjpCU
+         rpViUgfh3uw5pWbGQTTm0eMAA2wyOwfeb7CXqCxvvKsATJfdxCD5KpXLwdAP/GiGJi
+         o2i8v1hxd5V94dqg7nz7TTzMPFaT+6017Dl8V31I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.9 22/32] IB/hfi1: Call kobject_put() when kobject_init_and_add() fails
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 17/38] net: phy: micrel: kszphy_resume(): add delay after genphy_resume() before accessing PHY registers
 Date:   Sat, 11 Apr 2020 14:09:01 +0200
-Message-Id: <20200411115421.654848751@linuxfoundation.org>
+Message-Id: <20200411115439.658166481@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
-References: <20200411115418.455500023@linuxfoundation.org>
+In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
+References: <20200411115437.795556138@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,78 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit dfb5394f804ed4fcea1fc925be275a38d66712ab upstream.
+[ Upstream commit 6110dff776f7fa65c35850ef65b41d3b39e2fac2 ]
 
-When kobject_init_and_add() returns an error in the function
-hfi1_create_port_files(), the function kobject_put() is not called for the
-corresponding kobject, which potentially leads to memory leak.
+After the power-down bit is cleared, the chip internally triggers a
+global reset. According to the KSZ9031 documentation, we have to wait at
+least 1ms for the reset to finish.
 
-This patch fixes the issue by calling kobject_put() even if
-kobject_init_and_add() fails.
+If the chip is accessed during reset, read will return 0xffff, while
+write will be ignored. Depending on the system performance and MDIO bus
+speed, we may or may not run in to this issue.
 
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200326163813.21129.44280.stgit@awfm-01.aw.intel.com
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+This bug was discovered on an iMX6QP system with KSZ9031 PHY and
+attached PHY interrupt line. If IRQ was used, the link status update was
+lost. In polling mode, the link status update was always correct.
+
+The investigation showed, that during a read-modify-write access, the
+read returned 0xffff (while the chip was still in reset) and
+corresponding write hit the chip _after_ reset and triggered (due to the
+0xffff) another reset in an undocumented bit (register 0x1f, bit 1),
+resulting in the next write being lost due to the new reset cycle.
+
+This patch fixes the issue by adding a 1...2 ms sleep after the
+genphy_resume().
+
+Fixes: 836384d2501d ("net: phy: micrel: Add specific suspend")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/infiniband/hw/hfi1/sysfs.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/phy/micrel.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/infiniband/hw/hfi1/sysfs.c
-+++ b/drivers/infiniband/hw/hfi1/sysfs.c
-@@ -670,7 +670,11 @@ int hfi1_create_port_files(struct ib_dev
- 		dd_dev_err(dd,
- 			   "Skipping sc2vl sysfs info, (err %d) port %u\n",
- 			   ret, port_num);
--		goto bail;
-+		/*
-+		 * Based on the documentation for kobject_init_and_add(), the
-+		 * caller should call kobject_put even if this call fails.
-+		 */
-+		goto bail_sc2vl;
- 	}
- 	kobject_uevent(&ppd->sc2vl_kobj, KOBJ_ADD);
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -29,6 +29,7 @@
+ #include <linux/micrel_phy.h>
+ #include <linux/of.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
  
-@@ -680,7 +684,7 @@ int hfi1_create_port_files(struct ib_dev
- 		dd_dev_err(dd,
- 			   "Skipping sl2sc sysfs info, (err %d) port %u\n",
- 			   ret, port_num);
--		goto bail_sc2vl;
-+		goto bail_sl2sc;
- 	}
- 	kobject_uevent(&ppd->sl2sc_kobj, KOBJ_ADD);
+ /* Operation Mode Strap Override */
+ #define MII_KSZPHY_OMSO				0x16
+@@ -727,6 +728,12 @@ static int kszphy_resume(struct phy_devi
  
-@@ -690,7 +694,7 @@ int hfi1_create_port_files(struct ib_dev
- 		dd_dev_err(dd,
- 			   "Skipping vl2mtu sysfs info, (err %d) port %u\n",
- 			   ret, port_num);
--		goto bail_sl2sc;
-+		goto bail_vl2mtu;
- 	}
- 	kobject_uevent(&ppd->vl2mtu_kobj, KOBJ_ADD);
+ 	genphy_resume(phydev);
  
-@@ -700,7 +704,7 @@ int hfi1_create_port_files(struct ib_dev
- 		dd_dev_err(dd,
- 			   "Skipping Congestion Control sysfs info, (err %d) port %u\n",
- 			   ret, port_num);
--		goto bail_vl2mtu;
-+		goto bail_cc;
- 	}
- 
- 	kobject_uevent(&ppd->pport_cc_kobj, KOBJ_ADD);
-@@ -738,7 +742,6 @@ bail_sl2sc:
- 	kobject_put(&ppd->sl2sc_kobj);
- bail_sc2vl:
- 	kobject_put(&ppd->sc2vl_kobj);
--bail:
- 	return ret;
- }
- 
++	/* After switching from power-down to normal mode, an internal global
++	 * reset is automatically generated. Wait a minimum of 1 ms before
++	 * read/write access to the PHY registers.
++	 */
++	usleep_range(1000, 2000);
++
+ 	ret = kszphy_config_reset(phydev);
+ 	if (ret)
+ 		return ret;
 
 
