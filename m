@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 014F81A5794
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:25:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8B811A55C7
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:13:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730103AbgDKXMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:12:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52164 "EHLO mail.kernel.org"
+        id S1730108AbgDKXMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:12:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729701AbgDKXMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:12:12 -0400
+        id S1729220AbgDKXMN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:12:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB676216FD;
-        Sat, 11 Apr 2020 23:12:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFCFD215A4;
+        Sat, 11 Apr 2020 23:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646732;
-        bh=4mKEhK51gM1N5fc6QfhQWUi5yHTul4dwyuvmSusVWvk=;
+        s=default; t=1586646733;
+        bh=7e+lmk/j9ahmLbPN8IdAVtxZF4+xs2Crkur5y87gkOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lqvLAXk88Pw/jYFhErKQ7Le7tvtpYkoqxquA7nKIgSlBQvTHYbq22EtgG56TlqbRT
-         7CTnQPQ1PcDMpda+BoDarDLIDs8VaxsQq5mVtbRelLgA/f5X7vHH3flJFGG8APx1NY
-         4qyO6Nyrmn2ouFSR5vdpHFdvWQZjqNyIaKIJbyPY=
+        b=qKsISCHWfagA9sJaufaGQMWxXUH7Sejj+l4j5HOc3lZRWIAPh/4zBJVgWTLFVYOP0
+         ja3Le+LyqWqM1yJkA2y/zahmmC3s6tkuJrfbVSYs0VqVWZGnpxLYrSXvtWmrx8NMDH
+         dncSjkfE2ATzYMUOQhB3HdXqgpaVHWD7Y4BcHAkk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jason Gunthorpe <jgg@mellanox.com>,
-        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 07/66] RDMA/bnxt_re: Fix lifetimes in bnxt_re_task
-Date:   Sat, 11 Apr 2020 19:11:04 -0400
-Message-Id: <20200411231203.25933-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 08/66] RDMA/cm: Add missing locking around id.state in cm_dup_req_handler
+Date:   Sat, 11 Apr 2020 19:11:05 -0400
+Message-Id: <20200411231203.25933-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231203.25933-1-sashal@kernel.org>
 References: <20200411231203.25933-1-sashal@kernel.org>
@@ -45,41 +45,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 8a6c61704746d3a1e004e054504ae8d98ed95697 ]
+[ Upstream commit d1de9a88074b66482443f0cd91618d7b51a7c9b6 ]
 
-A work queue cannot just rely on the ib_device not being freed, it must
-hold a kref on the memory so that the BNXT_RE_FLAG_IBDEV_REGISTERED check
-works.
+All accesses to id.state must be done under the spinlock.
 
-Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
-Link: https://lore.kernel.org/r/1584117207-2664-3-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Fixes: a977049dacde ("[PATCH] IB: Add the kernel CM implementation")
+Link: https://lore.kernel.org/r/20200310092545.251365-10-leon@kernel.org
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/core/cm.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
-index 589b0d4677d52..75fe489a70b0c 100644
---- a/drivers/infiniband/hw/bnxt_re/main.c
-+++ b/drivers/infiniband/hw/bnxt_re/main.c
-@@ -1505,6 +1505,7 @@ static void bnxt_re_task(struct work_struct *work)
- 	smp_mb__before_atomic();
- 	atomic_dec(&rdev->sched_count);
- exit:
-+	put_device(&rdev->ibdev.dev);
- 	kfree(re_work);
- }
+diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
+index 64f206e11d497..7251068b6af0f 100644
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -1812,8 +1812,12 @@ static void cm_dup_req_handler(struct cm_work *work,
+ 			counter[CM_REQ_COUNTER]);
  
-@@ -1581,6 +1582,7 @@ static int bnxt_re_netdev_event(struct notifier_block *notifier,
- 		/* Allocate for the deferred task */
- 		re_work = kzalloc(sizeof(*re_work), GFP_ATOMIC);
- 		if (re_work) {
-+			get_device(&rdev->ibdev.dev);
- 			re_work->rdev = rdev;
- 			re_work->event = event;
- 			re_work->vlan_dev = (real_dev == netdev ?
+ 	/* Quick state check to discard duplicate REQs. */
+-	if (cm_id_priv->id.state == IB_CM_REQ_RCVD)
++	spin_lock_irq(&cm_id_priv->lock);
++	if (cm_id_priv->id.state == IB_CM_REQ_RCVD) {
++		spin_unlock_irq(&cm_id_priv->lock);
+ 		return;
++	}
++	spin_unlock_irq(&cm_id_priv->lock);
+ 
+ 	ret = cm_alloc_response_msg(work->port, work->mad_recv_wc, &msg);
+ 	if (ret)
 -- 
 2.20.1
 
