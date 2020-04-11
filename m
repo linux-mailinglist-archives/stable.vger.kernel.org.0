@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B345A1A5951
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38F3A1A596A
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728474AbgDKXIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:08:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
+        id S1727939AbgDKXgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728961AbgDKXIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:08:38 -0400
+        id S1728002AbgDKXIj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:08:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E876C20708;
-        Sat, 11 Apr 2020 23:08:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 283B221835;
+        Sat, 11 Apr 2020 23:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646518;
-        bh=Qc1MszDvtFX47QFUVjupcSqhvLXQ5E4E7d2btWtC4YE=;
+        s=default; t=1586646520;
+        bh=dYxTGFLO18XEoHMGcD97ucFQmH0G9hApwYyAukMl4HE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dG2qY4XkrQFUQ45BR8rNLt11SOJXjEV4RANRuA27qaTMHjipLBkGYZrhF6V9A7U4L
-         PvDi9RbkmIRCEfd3+8NMQG1vmbC2xsUhrkoBXCz1iAgmRC5Uw8XxViH3mMqjTLGt0H
-         QcfgUZDqbSoxW+6ochyQVeqmlTacN66sdjkFz5gA=
+        b=MRn7RCzl2GuYCtgoy6Stp4hpKa/oxv1zBSRBZzyHLQCSL6Sy1P4CrKr4BJNlfUI+L
+         kXmxDk9v/5bZm3vAv9jJqzMFuJiliuLTXC0aO2KA+NoPglmkjtUDSgpEKt4CJ1XYdV
+         MmPSDInbfO3T2kW9N8AlL4YlabfwUxP1S8nc3gwk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bernard Metzler <bmt@zurich.ibm.com>,
-        syzbot+55de90ab5f44172b0c90@syzkaller.appspotmail.com,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 075/121] RDMA/siw: Fix passive connection establishment
-Date:   Sat, 11 Apr 2020 19:06:20 -0400
-Message-Id: <20200411230706.23855-75-sashal@kernel.org>
+Cc:     Qiujun Huang <hqjagain@gmail.com>,
+        syzbot+4496e82090657320efc6@syzkaller.appspotmail.com,
+        Hillf Danton <hdanton@sina.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 076/121] Bluetooth: RFCOMM: fix ODEBUG bug in rfcomm_dev_ioctl
+Date:   Sat, 11 Apr 2020 19:06:21 -0400
+Message-Id: <20200411230706.23855-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -45,203 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Metzler <bmt@zurich.ibm.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-[ Upstream commit 33fb27fd54465c74cbffba6315b2f043e90cec4c ]
+[ Upstream commit 71811cac8532b2387b3414f7cd8fe9e497482864 ]
 
-Holding the rtnl_lock while iterating a devices interface address list
-potentially causes deadlocks with the cma_netdev_callback. While this was
-implemented to limit the scope of a wildcard listen to addresses of the
-current device only, a better solution limits the scope of the socket to
-the device. This completely avoiding locking, and also results in
-significant code simplification.
+Needn't call 'rfcomm_dlc_put' here, because 'rfcomm_dlc_exists' didn't
+increase dlc->refcnt.
 
-Fixes: c421651fa229 ("RDMA/siw: Add missing rtnl_lock around access to ifa")
-Link: https://lore.kernel.org/r/20200228173534.26815-1-bmt@zurich.ibm.com
-Reported-by: syzbot+55de90ab5f44172b0c90@syzkaller.appspotmail.com
-Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
-Signed-off-by: Bernard Metzler <bmt@zurich.ibm.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reported-by: syzbot+4496e82090657320efc6@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_cm.c | 137 +++++++----------------------
- 1 file changed, 31 insertions(+), 106 deletions(-)
+ net/bluetooth/rfcomm/tty.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_cm.c b/drivers/infiniband/sw/siw/siw_cm.c
-index ac86363ce1a24..b7d459ba499d8 100644
---- a/drivers/infiniband/sw/siw/siw_cm.c
-+++ b/drivers/infiniband/sw/siw/siw_cm.c
-@@ -1769,14 +1769,23 @@ int siw_reject(struct iw_cm_id *id, const void *pdata, u8 pd_len)
- 	return 0;
- }
- 
--static int siw_listen_address(struct iw_cm_id *id, int backlog,
--			      struct sockaddr *laddr, int addr_family)
-+/*
-+ * siw_create_listen - Create resources for a listener's IWCM ID @id
-+ *
-+ * Starts listen on the socket address id->local_addr.
-+ *
-+ */
-+int siw_create_listen(struct iw_cm_id *id, int backlog)
- {
- 	struct socket *s;
- 	struct siw_cep *cep = NULL;
- 	struct siw_device *sdev = to_siw_dev(id->device);
-+	int addr_family = id->local_addr.ss_family;
- 	int rv = 0, s_val;
- 
-+	if (addr_family != AF_INET && addr_family != AF_INET6)
-+		return -EAFNOSUPPORT;
-+
- 	rv = sock_create(addr_family, SOCK_STREAM, IPPROTO_TCP, &s);
- 	if (rv < 0)
- 		return rv;
-@@ -1791,9 +1800,25 @@ static int siw_listen_address(struct iw_cm_id *id, int backlog,
- 		siw_dbg(id->device, "setsockopt error: %d\n", rv);
- 		goto error;
- 	}
--	rv = s->ops->bind(s, laddr, addr_family == AF_INET ?
--				    sizeof(struct sockaddr_in) :
--				    sizeof(struct sockaddr_in6));
-+	if (addr_family == AF_INET) {
-+		struct sockaddr_in *laddr = &to_sockaddr_in(id->local_addr);
-+
-+		/* For wildcard addr, limit binding to current device only */
-+		if (ipv4_is_zeronet(laddr->sin_addr.s_addr))
-+			s->sk->sk_bound_dev_if = sdev->netdev->ifindex;
-+
-+		rv = s->ops->bind(s, (struct sockaddr *)laddr,
-+				  sizeof(struct sockaddr_in));
-+	} else {
-+		struct sockaddr_in6 *laddr = &to_sockaddr_in6(id->local_addr);
-+
-+		/* For wildcard addr, limit binding to current device only */
-+		if (ipv6_addr_any(&laddr->sin6_addr))
-+			s->sk->sk_bound_dev_if = sdev->netdev->ifindex;
-+
-+		rv = s->ops->bind(s, (struct sockaddr *)laddr,
-+				  sizeof(struct sockaddr_in6));
-+	}
- 	if (rv) {
- 		siw_dbg(id->device, "socket bind error: %d\n", rv);
- 		goto error;
-@@ -1852,7 +1877,7 @@ static int siw_listen_address(struct iw_cm_id *id, int backlog,
- 	list_add_tail(&cep->listenq, (struct list_head *)id->provider_data);
- 	cep->state = SIW_EPSTATE_LISTENING;
- 
--	siw_dbg(id->device, "Listen at laddr %pISp\n", laddr);
-+	siw_dbg(id->device, "Listen at laddr %pISp\n", &id->local_addr);
- 
- 	return 0;
- 
-@@ -1910,106 +1935,6 @@ static void siw_drop_listeners(struct iw_cm_id *id)
- 	}
- }
- 
--/*
-- * siw_create_listen - Create resources for a listener's IWCM ID @id
-- *
-- * Listens on the socket address id->local_addr.
-- *
-- * If the listener's @id provides a specific local IP address, at most one
-- * listening socket is created and associated with @id.
-- *
-- * If the listener's @id provides the wildcard (zero) local IP address,
-- * a separate listen is performed for each local IP address of the device
-- * by creating a listening socket and binding to that local IP address.
-- *
-- */
--int siw_create_listen(struct iw_cm_id *id, int backlog)
--{
--	struct net_device *dev = to_siw_dev(id->device)->netdev;
--	int rv = 0, listeners = 0;
--
--	siw_dbg(id->device, "backlog %d\n", backlog);
--
--	/*
--	 * For each attached address of the interface, create a
--	 * listening socket, if id->local_addr is the wildcard
--	 * IP address or matches the IP address.
--	 */
--	if (id->local_addr.ss_family == AF_INET) {
--		struct in_device *in_dev = in_dev_get(dev);
--		struct sockaddr_in s_laddr;
--		const struct in_ifaddr *ifa;
--
--		if (!in_dev) {
--			rv = -ENODEV;
--			goto out;
+diff --git a/net/bluetooth/rfcomm/tty.c b/net/bluetooth/rfcomm/tty.c
+index 0c7d31c6c18cc..a58584949a955 100644
+--- a/net/bluetooth/rfcomm/tty.c
++++ b/net/bluetooth/rfcomm/tty.c
+@@ -413,10 +413,8 @@ static int __rfcomm_create_dev(struct sock *sk, void __user *arg)
+ 		dlc = rfcomm_dlc_exists(&req.src, &req.dst, req.channel);
+ 		if (IS_ERR(dlc))
+ 			return PTR_ERR(dlc);
+-		else if (dlc) {
+-			rfcomm_dlc_put(dlc);
++		if (dlc)
+ 			return -EBUSY;
 -		}
--		memcpy(&s_laddr, &id->local_addr, sizeof(s_laddr));
--
--		siw_dbg(id->device, "laddr %pISp\n", &s_laddr);
--
--		rtnl_lock();
--		in_dev_for_each_ifa_rtnl(ifa, in_dev) {
--			if (ipv4_is_zeronet(s_laddr.sin_addr.s_addr) ||
--			    s_laddr.sin_addr.s_addr == ifa->ifa_address) {
--				s_laddr.sin_addr.s_addr = ifa->ifa_address;
--
--				rv = siw_listen_address(id, backlog,
--						(struct sockaddr *)&s_laddr,
--						AF_INET);
--				if (!rv)
--					listeners++;
--			}
--		}
--		rtnl_unlock();
--		in_dev_put(in_dev);
--	} else if (id->local_addr.ss_family == AF_INET6) {
--		struct inet6_dev *in6_dev = in6_dev_get(dev);
--		struct inet6_ifaddr *ifp;
--		struct sockaddr_in6 *s_laddr = &to_sockaddr_in6(id->local_addr);
--
--		if (!in6_dev) {
--			rv = -ENODEV;
--			goto out;
--		}
--		siw_dbg(id->device, "laddr %pISp\n", &s_laddr);
--
--		rtnl_lock();
--		list_for_each_entry(ifp, &in6_dev->addr_list, if_list) {
--			if (ifp->flags & (IFA_F_TENTATIVE | IFA_F_DEPRECATED))
--				continue;
--			if (ipv6_addr_any(&s_laddr->sin6_addr) ||
--			    ipv6_addr_equal(&s_laddr->sin6_addr, &ifp->addr)) {
--				struct sockaddr_in6 bind_addr  = {
--					.sin6_family = AF_INET6,
--					.sin6_port = s_laddr->sin6_port,
--					.sin6_flowinfo = 0,
--					.sin6_addr = ifp->addr,
--					.sin6_scope_id = dev->ifindex };
--
--				rv = siw_listen_address(id, backlog,
--						(struct sockaddr *)&bind_addr,
--						AF_INET6);
--				if (!rv)
--					listeners++;
--			}
--		}
--		rtnl_unlock();
--		in6_dev_put(in6_dev);
--	} else {
--		rv = -EAFNOSUPPORT;
--	}
--out:
--	if (listeners)
--		rv = 0;
--	else if (!rv)
--		rv = -EINVAL;
--
--	siw_dbg(id->device, "%s\n", rv ? "FAIL" : "OK");
--
--	return rv;
--}
--
- int siw_destroy_listen(struct iw_cm_id *id)
- {
- 	if (!id->provider_data) {
+ 		dlc = rfcomm_dlc_alloc(GFP_KERNEL);
+ 		if (!dlc)
+ 			return -ENOMEM;
 -- 
 2.20.1
 
