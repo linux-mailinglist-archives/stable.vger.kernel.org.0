@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F5FD1A5857
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:29:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 355401A5854
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:29:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728366AbgDKX3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:29:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50174 "EHLO mail.kernel.org"
+        id S1729763AbgDKX32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:29:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729753AbgDKXLA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:11:00 -0400
+        id S1729760AbgDKXLC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:11:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 038A32192A;
-        Sat, 11 Apr 2020 23:10:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B49A20787;
+        Sat, 11 Apr 2020 23:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646661;
-        bh=gxcoV2qpI5IWHpmQs+fyevwYN5HNxlyLXon5O6O47ZQ=;
+        s=default; t=1586646662;
+        bh=GIEKuAB7s/9IVjXTZcyPCqV0JvHIW/FNUMj4+l00vTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKl3PKc0kchAvaYBJ1gjdx/i2Apl9VTFPV8pgEOtk5VrdzmGr0gGWf8mU0eaMqFUQ
-         MkhnWPc3x6giA8Sp/btfkxq0zxvkVn/KeN+nQmcWeDx/0wOljFtywrWixF/qinWX4l
-         e+gFoGSu2efIKX8UtBK0tZhwCW0RO0/gPB/E3lHg=
+        b=ptVoHVjqHGuZSdEGAaHFiOHpFuxUhOrAvnlNDP2/rvD6qBHfrYqaAB9VOdYgFRhc3
+         huZQr485yP6xYjfkdJlBhi4hA5E3Lag2Yjg0K4uEG5jx2ZvMqHEezi+6sErpvOGp6a
+         djW19kHxdy8Z+YSh3xK4g2ndqEY2S5hQmkyitCeI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peikang Zhang <peikang.zhang@amd.com>, Aric Cyr <Aric.Cyr@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 062/108] drm/amd/display: System crashes when add_ptb_to_table() gets called
-Date:   Sat, 11 Apr 2020 19:08:57 -0400
-Message-Id: <20200411230943.24951-62-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 063/108] drm/omap: dss: Cleanup DSS ports on initialisation failure
+Date:   Sat, 11 Apr 2020 19:08:58 -0400
+Message-Id: <20200411230943.24951-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -46,76 +47,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peikang Zhang <peikang.zhang@amd.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 0062972b9d9f888d0273c6496769d02e8f509135 ]
+[ Upstream commit 2a0a3ae17d36fa86dcf7c8e8d7b7f056ebd6c064 ]
 
-[Why]
-Unused VMIDs were not evicted correctly
+When the DSS initialises its output DPI and SDI ports, failures don't
+clean up previous successfully initialised ports. This can lead to
+resource leak or memory corruption. Fix it.
 
-[How]
-1. evict_vmids() logic was fixed;
-2. Added boundary check for add_ptb_to_table() and
-   clear_entry_from_vmid_table() to avoid crash caused by array out of
-   boundary;
-3. For mod_vmid_get_for_ptb(), vimd is changed from unsigned to signed
-   due to vimd is signed.
-
-Signed-off-by: Peikang Zhang <peikang.zhang@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Acked-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200226112514.12455-22-laurent.pinchart@ideasonboard.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/modules/vmid/vmid.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/omapdrm/dss/dss.c | 43 +++++++++++++++++++------------
+ 1 file changed, 26 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/vmid/vmid.c b/drivers/gpu/drm/amd/display/modules/vmid/vmid.c
-index f0a153704f6e0..00f132f8ad55d 100644
---- a/drivers/gpu/drm/amd/display/modules/vmid/vmid.c
-+++ b/drivers/gpu/drm/amd/display/modules/vmid/vmid.c
-@@ -40,14 +40,18 @@ struct core_vmid {
+diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
+index 4bdd63b571002..ac93dae2a9c84 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dss.c
++++ b/drivers/gpu/drm/omapdrm/dss/dss.c
+@@ -1151,46 +1151,38 @@ static const struct dss_features dra7xx_dss_feats = {
+ 	.has_lcd_clk_src	=	true,
+ };
  
- static void add_ptb_to_table(struct core_vmid *core_vmid, unsigned int vmid, uint64_t ptb)
+-static int dss_init_ports(struct dss_device *dss)
++static void __dss_uninit_ports(struct dss_device *dss, unsigned int num_ports)
  {
--	core_vmid->ptb_assigned_to_vmid[vmid] = ptb;
--	core_vmid->num_vmids_available--;
-+	if (vmid < MAX_VMID) {
-+		core_vmid->ptb_assigned_to_vmid[vmid] = ptb;
-+		core_vmid->num_vmids_available--;
-+	}
- }
+ 	struct platform_device *pdev = dss->pdev;
+ 	struct device_node *parent = pdev->dev.of_node;
+ 	struct device_node *port;
+ 	unsigned int i;
+-	int r;
  
- static void clear_entry_from_vmid_table(struct core_vmid *core_vmid, unsigned int vmid)
- {
--	core_vmid->ptb_assigned_to_vmid[vmid] = 0;
--	core_vmid->num_vmids_available++;
-+	if (vmid < MAX_VMID) {
-+		core_vmid->ptb_assigned_to_vmid[vmid] = 0;
-+		core_vmid->num_vmids_available++;
-+	}
- }
+-	for (i = 0; i < dss->feat->num_ports; i++) {
++	for (i = 0; i < num_ports; i++) {
+ 		port = of_graph_get_port_by_id(parent, i);
+ 		if (!port)
+ 			continue;
  
- static void evict_vmids(struct core_vmid *core_vmid)
-@@ -57,7 +61,7 @@ static void evict_vmids(struct core_vmid *core_vmid)
- 
- 	// At this point any positions with value 0 are unused vmids, evict them
- 	for (i = 1; i < core_vmid->num_vmid; i++) {
--		if (ord & (1u << i))
-+		if (!(ord & (1u << i)))
- 			clear_entry_from_vmid_table(core_vmid, i);
+ 		switch (dss->feat->ports[i]) {
+ 		case OMAP_DISPLAY_TYPE_DPI:
+-			r = dpi_init_port(dss, pdev, port, dss->feat->model);
+-			if (r)
+-				return r;
++			dpi_uninit_port(port);
+ 			break;
+-
+ 		case OMAP_DISPLAY_TYPE_SDI:
+-			r = sdi_init_port(dss, pdev, port);
+-			if (r)
+-				return r;
++			sdi_uninit_port(port);
+ 			break;
+-
+ 		default:
+ 			break;
+ 		}
  	}
+-
+-	return 0;
  }
-@@ -91,7 +95,7 @@ static int get_next_available_vmid(struct core_vmid *core_vmid)
- uint8_t mod_vmid_get_for_ptb(struct mod_vmid *mod_vmid, uint64_t ptb)
- {
- 	struct core_vmid *core_vmid = MOD_VMID_TO_CORE(mod_vmid);
--	unsigned int vmid = 0;
-+	int vmid = 0;
  
- 	// Physical address gets vmid 0
- 	if (ptb == 0)
+-static void dss_uninit_ports(struct dss_device *dss)
++static int dss_init_ports(struct dss_device *dss)
+ {
+ 	struct platform_device *pdev = dss->pdev;
+ 	struct device_node *parent = pdev->dev.of_node;
+ 	struct device_node *port;
+-	int i;
++	unsigned int i;
++	int r;
+ 
+ 	for (i = 0; i < dss->feat->num_ports; i++) {
+ 		port = of_graph_get_port_by_id(parent, i);
+@@ -1199,15 +1191,32 @@ static void dss_uninit_ports(struct dss_device *dss)
+ 
+ 		switch (dss->feat->ports[i]) {
+ 		case OMAP_DISPLAY_TYPE_DPI:
+-			dpi_uninit_port(port);
++			r = dpi_init_port(dss, pdev, port, dss->feat->model);
++			if (r)
++				goto error;
+ 			break;
++
+ 		case OMAP_DISPLAY_TYPE_SDI:
+-			sdi_uninit_port(port);
++			r = sdi_init_port(dss, pdev, port);
++			if (r)
++				goto error;
+ 			break;
++
+ 		default:
+ 			break;
+ 		}
+ 	}
++
++	return 0;
++
++error:
++	__dss_uninit_ports(dss, i);
++	return r;
++}
++
++static void dss_uninit_ports(struct dss_device *dss)
++{
++	__dss_uninit_ports(dss, dss->feat->num_ports);
+ }
+ 
+ static int dss_video_pll_probe(struct dss_device *dss)
 -- 
 2.20.1
 
