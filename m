@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49FFA1A5A7D
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C97FE1A5A7B
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727881AbgDKXnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728323AbgDKXnd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 11 Apr 2020 19:43:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41434 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728345AbgDKXGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727070AbgDKXGR (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 11 Apr 2020 19:06:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05CC8215A4;
-        Sat, 11 Apr 2020 23:06:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C1C6217D8;
+        Sat, 11 Apr 2020 23:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646376;
-        bh=8YlxmXhqaYAD4a3m07ZqOuwuPg5n5IiQeuI6H483C5A=;
+        s=default; t=1586646378;
+        bh=vkkBVzW/sRQX6NVpM58Zt+UhlaswQDSkXRNwMThHjj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYsmKe/ygiYZqrGah3bzgFoc6l6CAEQsvIp07encInpgOG1rgE5YF8xhph4qpgg1c
-         NI/UUSxQqURnAQpiC4TPLptj4sRxgVrbtNFHNSK8SSmIoxp8ZdV4OxyH8TKipaDUwB
-         tjQqoqtNMDlDXjT4DisUdTWjyjZ8yiiaIKuKWLis=
+        b=abKp1SR72Rn+z1P+EY7C0Y1ecCBSKjUbWx6ihXlnHvi4jgjGp8UYTux2a6cB60ECy
+         rdm9W+LKckN/yW+Xx907hWz5G4i1fm5lFEswwtG10LPMSi/ipmz9D3stl97jL7zzGb
+         UrAQCS6DjwqpkU4iqTDnEWjg72vBAYdkJ7yLAC4M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rohit Maheshwari <rohitm@chelsio.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 118/149] crypto/chtls: Fix chtls crash in connection cleanup
-Date:   Sat, 11 Apr 2020 19:03:15 -0400
-Message-Id: <20200411230347.22371-118-sashal@kernel.org>
+Cc:     Olivier Moysan <olivier.moysan@st.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 119/149] ASoC: stm32: spdifrx: fix regmap status check
+Date:   Sat, 11 Apr 2020 19:03:16 -0400
+Message-Id: <20200411230347.22371-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -43,140 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohit Maheshwari <rohitm@chelsio.com>
+From: Olivier Moysan <olivier.moysan@st.com>
 
-[ Upstream commit 3a0a978389234995b64a8b8fbe343115bffb1551 ]
+[ Upstream commit a168dae5ea14283e8992d5282237bb0d6a3e1c06 ]
 
-There is a possibility that cdev is removed before CPL_ABORT_REQ_RSS
-is fully processed, so it's better to save it in skb.
+Release resources when exiting on error.
 
-Added checks in handling the flow correctly, which suggests connection reset
-request is sent to HW, wait for HW to respond.
+Fixes: 1a5c0b28fc56 ("ASoC: stm32: spdifrx: manage identification registers")
 
-Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
+Link: https://lore.kernel.org/r/20200318144125.9163-2-olivier.moysan@st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_cm.c | 29 +++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+ sound/soc/stm/stm32_spdifrx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/crypto/chelsio/chtls/chtls_cm.c b/drivers/crypto/chelsio/chtls/chtls_cm.c
-index 9b2745ad9e380..d5720a8594435 100644
---- a/drivers/crypto/chelsio/chtls/chtls_cm.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
-@@ -445,6 +445,7 @@ void chtls_destroy_sock(struct sock *sk)
- 	chtls_purge_write_queue(sk);
- 	free_tls_keyid(sk);
- 	kref_put(&csk->kref, chtls_sock_release);
-+	csk->cdev = NULL;
- 	sk->sk_prot = &tcp_prot;
- 	sk->sk_prot->destroy(sk);
- }
-@@ -759,8 +760,10 @@ static void chtls_release_resources(struct sock *sk)
- 		csk->l2t_entry = NULL;
- 	}
+diff --git a/sound/soc/stm/stm32_spdifrx.c b/sound/soc/stm/stm32_spdifrx.c
+index 3769d9ce5dbef..e6e75897cce83 100644
+--- a/sound/soc/stm/stm32_spdifrx.c
++++ b/sound/soc/stm/stm32_spdifrx.c
+@@ -1009,6 +1009,8 @@ static int stm32_spdifrx_probe(struct platform_device *pdev)
  
--	cxgb4_remove_tid(tids, csk->port_id, tid, sk->sk_family);
--	sock_put(sk);
-+	if (sk->sk_state != TCP_SYN_SENT) {
-+		cxgb4_remove_tid(tids, csk->port_id, tid, sk->sk_family);
-+		sock_put(sk);
-+	}
- }
+ 	if (idr == SPDIFRX_IPIDR_NUMBER) {
+ 		ret = regmap_read(spdifrx->regmap, STM32_SPDIFRX_VERR, &ver);
++		if (ret)
++			goto error;
  
- static void chtls_conn_done(struct sock *sk)
-@@ -1716,6 +1719,9 @@ static void chtls_peer_close(struct sock *sk, struct sk_buff *skb)
- {
- 	struct chtls_sock *csk = rcu_dereference_sk_user_data(sk);
- 
-+	if (csk_flag_nochk(csk, CSK_ABORT_RPL_PENDING))
-+		goto out;
-+
- 	sk->sk_shutdown |= RCV_SHUTDOWN;
- 	sock_set_flag(sk, SOCK_DONE);
- 
-@@ -1748,6 +1754,7 @@ static void chtls_peer_close(struct sock *sk, struct sk_buff *skb)
- 		else
- 			sk_wake_async(sk, SOCK_WAKE_WAITD, POLL_IN);
- 	}
-+out:
- 	kfree_skb(skb);
- }
- 
-@@ -1758,6 +1765,10 @@ static void chtls_close_con_rpl(struct sock *sk, struct sk_buff *skb)
- 	struct tcp_sock *tp;
- 
- 	csk = rcu_dereference_sk_user_data(sk);
-+
-+	if (csk_flag_nochk(csk, CSK_ABORT_RPL_PENDING))
-+		goto out;
-+
- 	tp = tcp_sk(sk);
- 
- 	tp->snd_una = ntohl(rpl->snd_nxt) - 1;  /* exclude FIN */
-@@ -1787,6 +1798,7 @@ static void chtls_close_con_rpl(struct sock *sk, struct sk_buff *skb)
- 	default:
- 		pr_info("close_con_rpl in bad state %d\n", sk->sk_state);
- 	}
-+out:
- 	kfree_skb(skb);
- }
- 
-@@ -1896,6 +1908,7 @@ static void chtls_send_abort_rpl(struct sock *sk, struct sk_buff *skb,
- 	}
- 
- 	set_abort_rpl_wr(reply_skb, tid, status);
-+	kfree_skb(skb);
- 	set_wr_txq(reply_skb, CPL_PRIORITY_DATA, queue);
- 	if (csk_conn_inline(csk)) {
- 		struct l2t_entry *e = csk->l2t_entry;
-@@ -1906,7 +1919,6 @@ static void chtls_send_abort_rpl(struct sock *sk, struct sk_buff *skb,
- 		}
- 	}
- 	cxgb4_ofld_send(cdev->lldi->ports[0], reply_skb);
--	kfree_skb(skb);
- }
- 
- /*
-@@ -2008,7 +2020,8 @@ static void chtls_abort_req_rss(struct sock *sk, struct sk_buff *skb)
- 		chtls_conn_done(sk);
- 	}
- 
--	chtls_send_abort_rpl(sk, skb, csk->cdev, rst_status, queue);
-+	chtls_send_abort_rpl(sk, skb, BLOG_SKB_CB(skb)->cdev,
-+			     rst_status, queue);
- }
- 
- static void chtls_abort_rpl_rss(struct sock *sk, struct sk_buff *skb)
-@@ -2042,6 +2055,7 @@ static int chtls_conn_cpl(struct chtls_dev *cdev, struct sk_buff *skb)
- 	struct cpl_peer_close *req = cplhdr(skb) + RSS_HDR;
- 	void (*fn)(struct sock *sk, struct sk_buff *skb);
- 	unsigned int hwtid = GET_TID(req);
-+	struct chtls_sock *csk;
- 	struct sock *sk;
- 	u8 opcode;
- 
-@@ -2051,6 +2065,8 @@ static int chtls_conn_cpl(struct chtls_dev *cdev, struct sk_buff *skb)
- 	if (!sk)
- 		goto rel_skb;
- 
-+	csk = sk->sk_user_data;
-+
- 	switch (opcode) {
- 	case CPL_PEER_CLOSE:
- 		fn = chtls_peer_close;
-@@ -2059,6 +2075,11 @@ static int chtls_conn_cpl(struct chtls_dev *cdev, struct sk_buff *skb)
- 		fn = chtls_close_con_rpl;
- 		break;
- 	case CPL_ABORT_REQ_RSS:
-+		/*
-+		 * Save the offload device in the skb, we may process this
-+		 * message after the socket has closed.
-+		 */
-+		BLOG_SKB_CB(skb)->cdev = csk->cdev;
- 		fn = chtls_abort_req_rss;
- 		break;
- 	case CPL_ABORT_RPL_RSS:
+ 		dev_dbg(&pdev->dev, "SPDIFRX version: %lu.%lu registered\n",
+ 			FIELD_GET(SPDIFRX_VERR_MAJ_MASK, ver),
 -- 
 2.20.1
 
