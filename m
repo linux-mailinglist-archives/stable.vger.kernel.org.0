@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA781A58C3
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E751A58C7
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:32:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728727AbgDKXKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:10:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48268 "EHLO mail.kernel.org"
+        id S1728753AbgDKXcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:32:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727215AbgDKXKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:10:09 -0400
+        id S1728027AbgDKXKK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:10:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D830320787;
-        Sat, 11 Apr 2020 23:10:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D37621835;
+        Sat, 11 Apr 2020 23:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646609;
-        bh=L7usoMfa+pEQiXXtn3sfbAzram5W8WNwR3FcHvNx+yM=;
+        s=default; t=1586646610;
+        bh=hC0tRT7s7FAtnQHhA5C5oJkGKpQ3PjHd2+By1rljjAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q97KD400Lry9yB7UvWoRjGPrJNNjGr8Qr0zXeTsPx4exA02ONk35a7ilCOCB3RLLe
-         PV4Xox5tBnb27jlN2niLvRQn1/y5qHcqGe8xw/zsBuEmFwxXTgQ4gpifnhkuqeW+QX
-         demHtmfzklhXXBP2xKhVcDL2Wr4xq8ZL6sJIOXps=
+        b=fzUQOozYlHq2OUGDkaSJHbNtnFWYcJdBCHQ90gzXokwXpseCu8ysEwheyjVaeSSW1
+         qWQuS74L3iJdcv1FyP+3BBRN0O2ioUz2jD+m3CNcx2UVwaHuzS/M3htP3x14CiTmO3
+         re24u89Kdkhn8R/l4+IFtrUc48j9O2ohO+ETv1I4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Howard Chung <howardchung@google.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 021/108] Bluetooth: L2CAP: handle l2cap config request during open state
-Date:   Sat, 11 Apr 2020 19:08:16 -0400
-Message-Id: <20200411230943.24951-21-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 022/108] drm/tegra: dc: Release PM and RGB output when client's registration fails
+Date:   Sat, 11 Apr 2020 19:08:17 -0400
+Message-Id: <20200411230943.24951-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -44,173 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Howard Chung <howardchung@google.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 96298f640104e4cd9a913a6e50b0b981829b94ff ]
+[ Upstream commit 0411ea89a689531e1829fdf8af3747646c02c721 ]
 
-According to Core Spec Version 5.2 | Vol 3, Part A 6.1.5,
-the incoming L2CAP_ConfigReq should be handled during
-OPEN state.
+Runtime PM and RGB output need to be released when host1x client
+registration fails. The releasing is missed in the code, let's correct it.
 
-The section below shows the btmon trace when running
-L2CAP/COS/CFD/BV-12-C before and after this change.
-
-=== Before ===
-...
-> ACL Data RX: Handle 256 flags 0x02 dlen 12                #22
-      L2CAP: Connection Request (0x02) ident 2 len 4
-        PSM: 1 (0x0001)
-        Source CID: 65
-< ACL Data TX: Handle 256 flags 0x00 dlen 16                #23
-      L2CAP: Connection Response (0x03) ident 2 len 8
-        Destination CID: 64
-        Source CID: 65
-        Result: Connection successful (0x0000)
-        Status: No further information available (0x0000)
-< ACL Data TX: Handle 256 flags 0x00 dlen 12                #24
-      L2CAP: Configure Request (0x04) ident 2 len 4
-        Destination CID: 65
-        Flags: 0x0000
-> HCI Event: Number of Completed Packets (0x13) plen 5      #25
-        Num handles: 1
-        Handle: 256
-        Count: 1
-> HCI Event: Number of Completed Packets (0x13) plen 5      #26
-        Num handles: 1
-        Handle: 256
-        Count: 1
-> ACL Data RX: Handle 256 flags 0x02 dlen 16                #27
-      L2CAP: Configure Request (0x04) ident 3 len 8
-        Destination CID: 64
-        Flags: 0x0000
-        Option: Unknown (0x10) [hint]
-        01 00                                            ..
-< ACL Data TX: Handle 256 flags 0x00 dlen 18                #28
-      L2CAP: Configure Response (0x05) ident 3 len 10
-        Source CID: 65
-        Flags: 0x0000
-        Result: Success (0x0000)
-        Option: Maximum Transmission Unit (0x01) [mandatory]
-          MTU: 672
-> HCI Event: Number of Completed Packets (0x13) plen 5      #29
-        Num handles: 1
-        Handle: 256
-        Count: 1
-> ACL Data RX: Handle 256 flags 0x02 dlen 14                #30
-      L2CAP: Configure Response (0x05) ident 2 len 6
-        Source CID: 64
-        Flags: 0x0000
-        Result: Success (0x0000)
-> ACL Data RX: Handle 256 flags 0x02 dlen 20                #31
-      L2CAP: Configure Request (0x04) ident 3 len 12
-        Destination CID: 64
-        Flags: 0x0000
-        Option: Unknown (0x10) [hint]
-        01 00 91 02 11 11                                ......
-< ACL Data TX: Handle 256 flags 0x00 dlen 14                #32
-      L2CAP: Command Reject (0x01) ident 3 len 6
-        Reason: Invalid CID in request (0x0002)
-        Destination CID: 64
-        Source CID: 65
-> HCI Event: Number of Completed Packets (0x13) plen 5      #33
-        Num handles: 1
-        Handle: 256
-        Count: 1
-...
-=== After ===
-...
-> ACL Data RX: Handle 256 flags 0x02 dlen 12               #22
-      L2CAP: Connection Request (0x02) ident 2 len 4
-        PSM: 1 (0x0001)
-        Source CID: 65
-< ACL Data TX: Handle 256 flags 0x00 dlen 16               #23
-      L2CAP: Connection Response (0x03) ident 2 len 8
-        Destination CID: 64
-        Source CID: 65
-        Result: Connection successful (0x0000)
-        Status: No further information available (0x0000)
-< ACL Data TX: Handle 256 flags 0x00 dlen 12               #24
-      L2CAP: Configure Request (0x04) ident 2 len 4
-        Destination CID: 65
-        Flags: 0x0000
-> HCI Event: Number of Completed Packets (0x13) plen 5     #25
-        Num handles: 1
-        Handle: 256
-        Count: 1
-> HCI Event: Number of Completed Packets (0x13) plen 5     #26
-        Num handles: 1
-        Handle: 256
-        Count: 1
-> ACL Data RX: Handle 256 flags 0x02 dlen 16               #27
-      L2CAP: Configure Request (0x04) ident 3 len 8
-        Destination CID: 64
-        Flags: 0x0000
-        Option: Unknown (0x10) [hint]
-        01 00                                            ..
-< ACL Data TX: Handle 256 flags 0x00 dlen 18               #28
-      L2CAP: Configure Response (0x05) ident 3 len 10
-        Source CID: 65
-        Flags: 0x0000
-        Result: Success (0x0000)
-        Option: Maximum Transmission Unit (0x01) [mandatory]
-          MTU: 672
-> HCI Event: Number of Completed Packets (0x13) plen 5     #29
-        Num handles: 1
-        Handle: 256
-        Count: 1
-> ACL Data RX: Handle 256 flags 0x02 dlen 14               #30
-      L2CAP: Configure Response (0x05) ident 2 len 6
-        Source CID: 64
-        Flags: 0x0000
-        Result: Success (0x0000)
-> ACL Data RX: Handle 256 flags 0x02 dlen 20               #31
-      L2CAP: Configure Request (0x04) ident 3 len 12
-        Destination CID: 64
-        Flags: 0x0000
-        Option: Unknown (0x10) [hint]
-        01 00 91 02 11 11                                .....
-< ACL Data TX: Handle 256 flags 0x00 dlen 18               #32
-      L2CAP: Configure Response (0x05) ident 3 len 10
-        Source CID: 65
-        Flags: 0x0000
-        Result: Success (0x0000)
-        Option: Maximum Transmission Unit (0x01) [mandatory]
-          MTU: 672
-< ACL Data TX: Handle 256 flags 0x00 dlen 12               #33
-      L2CAP: Configure Request (0x04) ident 3 len 4
-        Destination CID: 65
-        Flags: 0x0000
-> HCI Event: Number of Completed Packets (0x13) plen 5     #34
-        Num handles: 1
-        Handle: 256
-        Count: 1
-> HCI Event: Number of Completed Packets (0x13) plen 5     #35
-        Num handles: 1
-        Handle: 256
-        Count: 1
-...
-
-Signed-off-by: Howard Chung <howardchung@google.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/tegra/dc.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index a845786258a0b..2f3e437faedbc 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -4131,7 +4131,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
- 		return 0;
+diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
+index fbf57bc3cdaba..6dbbd238f60be 100644
+--- a/drivers/gpu/drm/tegra/dc.c
++++ b/drivers/gpu/drm/tegra/dc.c
+@@ -2496,10 +2496,16 @@ static int tegra_dc_probe(struct platform_device *pdev)
+ 	if (err < 0) {
+ 		dev_err(&pdev->dev, "failed to register host1x client: %d\n",
+ 			err);
+-		return err;
++		goto disable_pm;
  	}
  
--	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2) {
-+	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2 &&
-+	    chan->state != BT_CONNECTED) {
- 		cmd_reject_invalid_cid(conn, cmd->ident, chan->scid,
- 				       chan->dcid);
- 		goto unlock;
+ 	return 0;
++
++disable_pm:
++	pm_runtime_disable(&pdev->dev);
++	tegra_dc_rgb_remove(dc);
++
++	return err;
+ }
+ 
+ static int tegra_dc_remove(struct platform_device *pdev)
 -- 
 2.20.1
 
