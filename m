@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F2A1A5049
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:16:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4514D1A515B
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727920AbgDKMQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50408 "EHLO mail.kernel.org"
+        id S1726932AbgDKMRV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:17:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727528AbgDKMQN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:16:13 -0400
+        id S1728392AbgDKMRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:17:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCE8E2084D;
-        Sat, 11 Apr 2020 12:16:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DA5E2084D;
+        Sat, 11 Apr 2020 12:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607373;
-        bh=Jttk726tXOUzFy4Zy+whTq1rsrkJW0mjXnvp9/CaKi0=;
+        s=default; t=1586607441;
+        bh=4+TtjYr36O5SbE+Sa5S/2ejVsVC84drhWt7x+7rn2KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMlUKTXeqEWBGod6wgAvObK0U/AdDz0ZL0tD3LepP55ikEQxwVwnRJ3Q3JrEBV0Tt
-         TzdVus5bNOFZYOiqQ/xRJklH6SVPSA2hOZ8yjS2lduLQw9/iiFz7+eDRl3DzMTPaUc
-         6cD+yB9wD+PG9rPJPJv61O3vJXLOyNANsV4JF4/8=
+        b=zCM58+YA6gse6BfBBIknkw7XrPO6/OAxbQusD0+JLCZtLCEXzoQggMwxPjWRiCj2T
+         BW6eKsuhd5W8AdkKhEeosCjh3z0GYXsFlfT/BHZ3O0rHXK1GxQ7O9gHacbMfZca9+N
+         BGcmqkZaYOPMn1bnpEIUYPe+zVSs+iPxnP5A2WOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4496e82090657320efc6@syzkaller.appspotmail.com,
-        Qiujun Huang <hqjagain@gmail.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.19 46/54] Bluetooth: RFCOMM: fix ODEBUG bug in rfcomm_dev_ioctl
-Date:   Sat, 11 Apr 2020 14:09:28 +0200
-Message-Id: <20200411115513.335400701@linuxfoundation.org>
+        stable@vger.kernel.org, Yafang Shao <laoar.shao@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Shailabh Nagar <nagar@watson.ibm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 20/41] tools/accounting/getdelays.c: fix netlink attribute length
+Date:   Sat, 11 Apr 2020 14:09:29 +0200
+Message-Id: <20200411115505.474005814@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
-References: <20200411115508.284500414@linuxfoundation.org>
+In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
+References: <20200411115504.124035693@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: David Ahern <dsahern@kernel.org>
 
-commit 71811cac8532b2387b3414f7cd8fe9e497482864 upstream.
+commit 4054ab64e29bb05b3dfe758fff3c38a74ba753bb upstream.
 
-Needn't call 'rfcomm_dlc_put' here, because 'rfcomm_dlc_exists' didn't
-increase dlc->refcnt.
+A recent change to the netlink code: 6e237d099fac ("netlink: Relax attr
+validation for fixed length types") logs a warning when programs send
+messages with invalid attributes (e.g., wrong length for a u32).  Yafang
+reported this error message for tools/accounting/getdelays.c.
 
-Reported-by: syzbot+4496e82090657320efc6@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+send_cmd() is wrongly adding 1 to the attribute length.  As noted in
+include/uapi/linux/netlink.h nla_len should be NLA_HDRLEN + payload
+length, so drop the +1.
+
+Fixes: 9e06d3f9f6b1 ("per task delay accounting taskstats interface: documentation fix")
+Reported-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Yafang Shao <laoar.shao@gmail.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200327173111.63922-1-dsahern@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/rfcomm/tty.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ tools/accounting/getdelays.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/rfcomm/tty.c
-+++ b/net/bluetooth/rfcomm/tty.c
-@@ -413,10 +413,8 @@ static int __rfcomm_create_dev(struct so
- 		dlc = rfcomm_dlc_exists(&req.src, &req.dst, req.channel);
- 		if (IS_ERR(dlc))
- 			return PTR_ERR(dlc);
--		else if (dlc) {
--			rfcomm_dlc_put(dlc);
-+		if (dlc)
- 			return -EBUSY;
--		}
- 		dlc = rfcomm_dlc_alloc(GFP_KERNEL);
- 		if (!dlc)
- 			return -ENOMEM;
+--- a/tools/accounting/getdelays.c
++++ b/tools/accounting/getdelays.c
+@@ -136,7 +136,7 @@ static int send_cmd(int sd, __u16 nlmsg_
+ 	msg.g.version = 0x1;
+ 	na = (struct nlattr *) GENLMSG_DATA(&msg);
+ 	na->nla_type = nla_type;
+-	na->nla_len = nla_len + 1 + NLA_HDRLEN;
++	na->nla_len = nla_len + NLA_HDRLEN;
+ 	memcpy(NLA_DATA(na), nla_data, nla_len);
+ 	msg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
+ 
 
 
