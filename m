@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA2C1A592B
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:35:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 198D01A5925
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728911AbgDKXe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:34:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46718 "EHLO mail.kernel.org"
+        id S1729140AbgDKXJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:09:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729127AbgDKXJJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:09:09 -0400
+        id S1729132AbgDKXJK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:09:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6479218AC;
-        Sat, 11 Apr 2020 23:09:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06AD020787;
+        Sat, 11 Apr 2020 23:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646549;
-        bh=lQRj8VNsJOOF8DfDzvqCyTjDoXlEsrTKzjTgMDofYVU=;
+        s=default; t=1586646550;
+        bh=omF1iRanyQ8S752QBPEFo8RD9YAGvCRHuHarTQ18A/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuL2ZBlyiMMxtLPrbvDSfpgUcjF79k4iFWKIV1BxEp4yLfbBfcoOQjqbBRiBKgI6c
-         t8Pbu4uuRpARHFlTJAjeYlfRQw3+a/P8Nf4VirfBGhZlFnD2OKpJwRcOnjLcOy7gj+
-         wHQOwWpLjKzKb2fLVIQFPKmckwsHze6x34O0vgpQ=
+        b=riGlpz6tKtUpfJSYKkfW0PMVhBRX1tPMm6ldywOiC0KrsZlCGSiwB+aGR8s2Xgt/G
+         vRTsCc42ZBttBItDMTh39xSUwCELgiYvXrk2ZLgTCarfON7RpVwFvsCn+JRQWfXQ5P
+         Q24afZ8fWPuNt6uYnVolkRwXO1d+bSpDXcaAP200=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 100/121] scsi: qla2xxx: fix FW resource count values
-Date:   Sat, 11 Apr 2020 19:06:45 -0400
-Message-Id: <20200411230706.23855-100-sashal@kernel.org>
+Cc:     Patrick Daly <pdaly@codeaurora.org>,
+        "Isaac J . Manjarres" <isaacm@codeaurora.org>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 101/121] of: of_reserved_mem: Increase limit on number of reserved regions
+Date:   Sat, 11 Apr 2020 19:06:46 -0400
+Message-Id: <20200411230706.23855-101-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -44,53 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Patrick Daly <pdaly@codeaurora.org>
 
-[ Upstream commit ce1ee122e0f048fc67c1259489f0802a28049bfd ]
+[ Upstream commit 632c99084052aef1c9dcfe43d2720306026d6d21 ]
 
-This patch fixes issue where current and original exchanges count
-were swapped for intiator and targets.
+Certain SoCs need to support a large amount of reserved memory
+regions. For example, Qualcomm's SM8150 SoC requires that 20
+regions of memory be reserved for a variety of reasons (e.g.
+loading a peripheral subsystem's firmware image into a
+particular space).
 
-Also fix IOCB count for current and original which were swapped.
+When adding more reserved memory regions to cater to different
+usecases, the remaining number of reserved memory regions--12
+to be exact--becomes too small. Thus, double the existing
+limit of reserved memory regions.
 
-Link: https://lore.kernel.org/r/20200226224022.24518-9-hmadhani@marvell.com
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Patrick Daly <pdaly@codeaurora.org>
+Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_dfs.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/of/of_reserved_mem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_dfs.c b/drivers/scsi/qla2xxx/qla_dfs.c
-index 0a6fb359f4d5e..e62b2115235e1 100644
---- a/drivers/scsi/qla2xxx/qla_dfs.c
-+++ b/drivers/scsi/qla2xxx/qla_dfs.c
-@@ -134,11 +134,11 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
- 	} else {
- 		seq_puts(s, "FW Resource count\n\n");
- 		seq_printf(s, "Original TGT exchg count[%d]\n", mb[1]);
--		seq_printf(s, "current TGT exchg count[%d]\n", mb[2]);
--		seq_printf(s, "original Initiator Exchange count[%d]\n", mb[3]);
--		seq_printf(s, "Current Initiator Exchange count[%d]\n", mb[6]);
--		seq_printf(s, "Original IOCB count[%d]\n", mb[7]);
--		seq_printf(s, "Current IOCB count[%d]\n", mb[10]);
-+		seq_printf(s, "Current TGT exchg count[%d]\n", mb[2]);
-+		seq_printf(s, "Current Initiator Exchange count[%d]\n", mb[3]);
-+		seq_printf(s, "Original Initiator Exchange count[%d]\n", mb[6]);
-+		seq_printf(s, "Current IOCB count[%d]\n", mb[7]);
-+		seq_printf(s, "Original IOCB count[%d]\n", mb[10]);
- 		seq_printf(s, "MAX VP count[%d]\n", mb[11]);
- 		seq_printf(s, "MAX FCF count[%d]\n", mb[12]);
- 		seq_printf(s, "Current free pageable XCB buffer cnt[%d]\n",
-@@ -149,7 +149,6 @@ qla_dfs_fw_resource_cnt_show(struct seq_file *s, void *unused)
- 		    mb[22]);
- 		seq_printf(s, "Original Target fast XCB buffer cnt[%d]\n",
- 		    mb[23]);
--
- 	}
+diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
+index 6bd610ee2cd73..1a84bc0d5fa80 100644
+--- a/drivers/of/of_reserved_mem.c
++++ b/drivers/of/of_reserved_mem.c
+@@ -22,7 +22,7 @@
+ #include <linux/slab.h>
+ #include <linux/memblock.h>
  
- 	return 0;
+-#define MAX_RESERVED_REGIONS	32
++#define MAX_RESERVED_REGIONS	64
+ static struct reserved_mem reserved_mem[MAX_RESERVED_REGIONS];
+ static int reserved_mem_count;
+ 
 -- 
 2.20.1
 
