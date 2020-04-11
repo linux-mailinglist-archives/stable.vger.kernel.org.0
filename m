@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEFB21A5B35
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF731A5B37
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727334AbgDKXEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:04:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38208 "EHLO mail.kernel.org"
+        id S1727321AbgDKXEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:04:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727269AbgDKXEj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:04:39 -0400
+        id S1727314AbgDKXEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:04:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E5A7215A4;
-        Sat, 11 Apr 2020 23:04:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41C2621744;
+        Sat, 11 Apr 2020 23:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646279;
-        bh=trlwDwThN8VpndS+Dosau8+WGoHbHcbywweE9WxjASU=;
+        s=default; t=1586646280;
+        bh=S6TKNCCtj26VouFt79OMxAj/QJCUGWiEe3uRGuZdZhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WATsBN2IA4yLD5aPmOkGZ0YlZgyoEivtEjnSTloxHGpSqzBQSgeJOiLIN11pr/e4V
-         6qnxhLlK9Aa1TDzUKYLOQ+9Wxq6i5hS/Q6f/DsvJJo//TjVeFTFRGY+jcRgdbSI1ZQ
-         4sMQFAcZEI17+9r4fDYjo9spzuLq8IVfHQC86QW4=
+        b=Lz8BnSDtGK6qw8soZ0jQLurvrRdMhV1JHmBdJlibBDJjy++nJmsOXkSio8U6/bCDH
+         KbpWYz0pFLWJy8vQb2kxKcMYWVVk8DKzOCWshlBWQ/pijvQ74ZiD0xnN3CcUKuMguZ
+         jlPvIukoRvp3/Oy3AUil14+pUsgbXirTjB7KEEHc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 042/149] libbpf: Fix handling of optional field_name in btf_dump__emit_type_decl
-Date:   Sat, 11 Apr 2020 19:01:59 -0400
-Message-Id: <20200411230347.22371-42-sashal@kernel.org>
+Cc:     Rocky Liao <rjliao@codeaurora.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 043/149] Bluetooth: btqca: Fix the NVM baudrate tag offcet for wcn3991
+Date:   Sat, 11 Apr 2020 19:02:00 -0400
+Message-Id: <20200411230347.22371-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -44,35 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Rocky Liao <rjliao@codeaurora.org>
 
-[ Upstream commit 320a36063e1441210106aa33997ad3770d4c86b4 ]
+[ Upstream commit b63882549b2bf2979cb1506bdf783edf8b45c613 ]
 
-Internal functions, used by btf_dump__emit_type_decl(), assume field_name is
-never going to be NULL. Ensure it's always the case.
+The baudrate set byte of wcn3991 in the NVM tag is byte 1, not byte 2.
+This patch will set correct byte for wcn3991.
 
-Fixes: 9f81654eebe8 ("libbpf: Expose BTF-to-C type declaration emitting API")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200303180800.3303471-1-andriin@fb.com
+Signed-off-by: Rocky Liao <rjliao@codeaurora.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf_dump.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bluetooth/btqca.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
-index bd09ed1710f12..dc451e4de5ad4 100644
---- a/tools/lib/bpf/btf_dump.c
-+++ b/tools/lib/bpf/btf_dump.c
-@@ -1030,7 +1030,7 @@ int btf_dump__emit_type_decl(struct btf_dump *d, __u32 id,
- 	if (!OPTS_VALID(opts, btf_dump_emit_type_decl_opts))
- 		return -EINVAL;
+diff --git a/drivers/bluetooth/btqca.c b/drivers/bluetooth/btqca.c
+index ec69e5dd7bd3e..a16845c0751d3 100644
+--- a/drivers/bluetooth/btqca.c
++++ b/drivers/bluetooth/btqca.c
+@@ -139,7 +139,7 @@ int qca_send_pre_shutdown_cmd(struct hci_dev *hdev)
+ EXPORT_SYMBOL_GPL(qca_send_pre_shutdown_cmd);
  
--	fname = OPTS_GET(opts, field_name, NULL);
-+	fname = OPTS_GET(opts, field_name, "");
- 	lvl = OPTS_GET(opts, indent_level, 0);
- 	btf_dump_emit_type_decl(d, id, fname, lvl);
- 	return 0;
+ static void qca_tlv_check_data(struct qca_fw_config *config,
+-				const struct firmware *fw)
++		const struct firmware *fw, enum qca_btsoc_type soc_type)
+ {
+ 	const u8 *data;
+ 	u32 type_len;
+@@ -148,6 +148,7 @@ static void qca_tlv_check_data(struct qca_fw_config *config,
+ 	struct tlv_type_hdr *tlv;
+ 	struct tlv_type_patch *tlv_patch;
+ 	struct tlv_type_nvm *tlv_nvm;
++	uint8_t nvm_baud_rate = config->user_baud_rate;
+ 
+ 	tlv = (struct tlv_type_hdr *)fw->data;
+ 
+@@ -216,7 +217,10 @@ static void qca_tlv_check_data(struct qca_fw_config *config,
+ 				tlv_nvm->data[0] |= 0x80;
+ 
+ 				/* UART Baud Rate */
+-				tlv_nvm->data[2] = config->user_baud_rate;
++				if (soc_type == QCA_WCN3991)
++					tlv_nvm->data[1] = nvm_baud_rate;
++				else
++					tlv_nvm->data[2] = nvm_baud_rate;
+ 
+ 				break;
+ 
+@@ -354,7 +358,7 @@ static int qca_download_firmware(struct hci_dev *hdev,
+ 		return ret;
+ 	}
+ 
+-	qca_tlv_check_data(config, fw);
++	qca_tlv_check_data(config, fw, soc_type);
+ 
+ 	segment = fw->data;
+ 	remain = fw->size;
 -- 
 2.20.1
 
