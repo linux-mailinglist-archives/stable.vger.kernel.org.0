@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D201A5A2E
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B411A5A2B
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729790AbgDKXla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:41:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42466 "EHLO mail.kernel.org"
+        id S1727191AbgDKXHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728529AbgDKXGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:06:52 -0400
+        id S1728535AbgDKXGx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:06:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7AD120CC7;
-        Sat, 11 Apr 2020 23:06:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9A93216FD;
+        Sat, 11 Apr 2020 23:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646412;
-        bh=6+bWPDXJPSzVT3DAvVk4z5aXpF04J4dNJSc3XKD31JY=;
+        s=default; t=1586646413;
+        bh=rjytP4Nsb3o8SYY72ku2H/NNEttzxHpHq53ChREMXFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPjYbIB9LIPJCUOol58YJWYYNzdpNNgOIKh9V6jcBCD03CO+S4t9UY0URalsOWhdt
-         kDIsLxl8FiVsse0awnYGm7foS+CRUTRviTCS1ZTSKwszF8u40d0sRaBfgI6bYQKwPd
-         ny6xFE41CFouVVdsVsBt9KTB/mvtWQn1mgApjZrw=
+        b=nlO77yEQWkUuUGFBAe5TyPY/Hqy6khi8DFLoTnfcBjAaN8CUHmWs9J6fwmWpttShw
+         OUwLfUxJN7GLNsRQnjVOa6hiwhBl6stPjwcKBv4O3e/MHJ9jW1rMtvqbSnZGGfiw/p
+         9y0mG7oLdvkHRRRvAmtSo9mpTaCJ9RFRaEtWCE1M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 147/149] svcrdma: Fix leak of transport addresses
-Date:   Sat, 11 Apr 2020 19:03:44 -0400
-Message-Id: <20200411230347.22371-147-sashal@kernel.org>
+Cc:     Leonard Crestez <leonard.crestez@nxp.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 148/149] rtc: imx-sc: Align imx sc msg structs to 4
+Date:   Sat, 11 Apr 2020 19:03:45 -0400
+Message-Id: <20200411230347.22371-148-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -43,54 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Leonard Crestez <leonard.crestez@nxp.com>
 
-[ Upstream commit 1a33d8a284b1e85e03b8c7b1ea8fb985fccd1d71 ]
+[ Upstream commit a29de86521d8a80cb0b426638d4e38707cafa2e2 ]
 
-Kernel memory leak detected:
+The imx SC api strongly assumes that messages are composed out of
+4-bytes words but some of our message structs have odd sizeofs.
 
-unreferenced object 0xffff888849cdf480 (size 8):
-  comm "kworker/u8:3", pid 2086, jiffies 4297898756 (age 4269.856s)
-  hex dump (first 8 bytes):
-    30 00 cd 49 88 88 ff ff                          0..I....
-  backtrace:
-    [<00000000acfc370b>] __kmalloc_track_caller+0x137/0x183
-    [<00000000a2724354>] kstrdup+0x2b/0x43
-    [<0000000082964f84>] xprt_rdma_format_addresses+0x114/0x17d [rpcrdma]
-    [<00000000dfa6ed00>] xprt_setup_rdma_bc+0xc0/0x10c [rpcrdma]
-    [<0000000073051a83>] xprt_create_transport+0x3f/0x1a0 [sunrpc]
-    [<0000000053531a8e>] rpc_create+0x118/0x1cd [sunrpc]
-    [<000000003a51b5f8>] setup_callback_client+0x1a5/0x27d [nfsd]
-    [<000000001bd410af>] nfsd4_process_cb_update.isra.7+0x16c/0x1ac [nfsd]
-    [<000000007f4bbd56>] nfsd4_run_cb_work+0x4c/0xbd [nfsd]
-    [<0000000055c5586b>] process_one_work+0x1b2/0x2fe
-    [<00000000b1e3e8ef>] worker_thread+0x1a6/0x25a
-    [<000000005205fb78>] kthread+0xf6/0xfb
-    [<000000006d2dc057>] ret_from_fork+0x3a/0x50
+This produces many oopses with CONFIG_KASAN=y.
 
-Introduce a call to xprt_rdma_free_addresses() similar to the way
-that the TCP backchannel releases a transport's peer address
-strings.
+Fix by marking with __aligned(4).
 
-Fixes: 5d252f90a800 ("svcrdma: Add class for RDMA backwards direction transport")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: a3094fc1a15e ("rtc: imx-sc: add rtc alarm support")
+Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
+Link: https://lore.kernel.org/r/13404bac8360852d86c61fad5ae5f0c91ffc4cb6.1582216144.git.leonard.crestez@nxp.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/svc_rdma_backchannel.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-imx-sc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/xprtrdma/svc_rdma_backchannel.c b/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-index 908e78bb87c64..c4fb930779a92 100644
---- a/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-@@ -250,6 +250,7 @@ xprt_rdma_bc_put(struct rpc_xprt *xprt)
+diff --git a/drivers/rtc/rtc-imx-sc.c b/drivers/rtc/rtc-imx-sc.c
+index cf2c12107f2b8..a5f59e6f862e0 100644
+--- a/drivers/rtc/rtc-imx-sc.c
++++ b/drivers/rtc/rtc-imx-sc.c
+@@ -37,7 +37,7 @@ struct imx_sc_msg_timer_rtc_set_alarm {
+ 	u8 hour;
+ 	u8 min;
+ 	u8 sec;
+-} __packed;
++} __packed __aligned(4);
+ 
+ static int imx_sc_rtc_read_time(struct device *dev, struct rtc_time *tm)
  {
- 	dprintk("svcrdma: %s: xprt %p\n", __func__, xprt);
- 
-+	xprt_rdma_free_addresses(xprt);
- 	xprt_free(xprt);
- }
- 
 -- 
 2.20.1
 
