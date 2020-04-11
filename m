@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 238821A5B92
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9BBC1A5409
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbgDKXuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:50:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36780 "EHLO mail.kernel.org"
+        id S1726975AbgDKXEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:04:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726952AbgDKXD6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:03:58 -0400
+        id S1726955AbgDKXEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:04:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADDA5215A4;
-        Sat, 11 Apr 2020 23:03:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E82FF20787;
+        Sat, 11 Apr 2020 23:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646238;
-        bh=j1cRBblQCG02gUIxMscXDXWGc/AgQQBiwxzn7Rg1LW0=;
+        s=default; t=1586646239;
+        bh=VGMX2JZdxn3VGh4KvPjOqmJObZXODeTcPwHj39y31io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3oc4zDzCcv+5z+AqsCafdHJboJxRiSazdD9f3fqCYS7KzHGtQWWYxlxisb6Y5FoX
-         8X+dRTrIm0eeaFN+Fn3T2xcZnSrHxUjmRy/1ChEmhHnqzfPpY8EdSTAx7GeY6seXSo
-         Pvu9VTqqFe4MkFOF2gBH74H3NM5SOMoUZdIZVZCg=
+        b=YZGbHx6L+HA3K66lVoMZvPuuF16Gro/Olx4enF/P5P3gQgmrroNiSvjV9lXkeCtj8
+         c/WoxCt4gScrrQ0fws2WgfpaU42HvOdx43mcnfBxrbPDQr1uM7BiRJkBY64+NZi6AJ
+         lvLSbFHN+fZ52bNXKrnBtDUZ3qnTPljTZl72s2I8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Haibo Chen <haibo.chen@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 008/149] mmc: sdhci: do not enable card detect interrupt for gpio cd type
-Date:   Sat, 11 Apr 2020 19:01:25 -0400
-Message-Id: <20200411230347.22371-8-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 009/149] serial: 8250_omap: Fix sleeping function called from invalid context during probe
+Date:   Sat, 11 Apr 2020 19:01:26 -0400
+Message-Id: <20200411230347.22371-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -45,40 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit e65bb38824711559844ba932132f417bc5a355e2 ]
+[ Upstream commit 4ce35a3617c0ac758c61122b2218b6c8c9ac9398 ]
 
-Except SDHCI_QUIRK_BROKEN_CARD_DETECTION and MMC_CAP_NONREMOVABLE,
-we also do not need to handle controller native card detect interrupt
-for gpio cd type.
-If we wrong enabled the card detect interrupt for gpio case, it will
-cause a lot of unexpected card detect interrupts during data transfer
-which should not happen.
+When booting j721e the following bug is printed:
 
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/1582100563-20555-2-git-send-email-haibo.chen@nxp.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+[    1.154821] BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
+[    1.154827] in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 12, name: kworker/0:1
+[    1.154832] 3 locks held by kworker/0:1/12:
+[    1.154836]  #0: ffff000840030728 ((wq_completion)events){+.+.}, at: process_one_work+0x1d4/0x6e8
+[    1.154852]  #1: ffff80001214fdd8 (deferred_probe_work){+.+.}, at: process_one_work+0x1d4/0x6e8
+[    1.154860]  #2: ffff00084060b170 (&dev->mutex){....}, at: __device_attach+0x38/0x138
+[    1.154872] irq event stamp: 63096
+[    1.154881] hardirqs last  enabled at (63095): [<ffff800010b74318>] _raw_spin_unlock_irqrestore+0x70/0x78
+[    1.154887] hardirqs last disabled at (63096): [<ffff800010b740d8>] _raw_spin_lock_irqsave+0x28/0x80
+[    1.154893] softirqs last  enabled at (62254): [<ffff800010080c88>] _stext+0x488/0x564
+[    1.154899] softirqs last disabled at (62247): [<ffff8000100fdb3c>] irq_exit+0x114/0x140
+[    1.154906] CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.6.0-rc6-next-20200318-00094-g45e4089b0bd3 #221
+[    1.154911] Hardware name: Texas Instruments K3 J721E SoC (DT)
+[    1.154917] Workqueue: events deferred_probe_work_func
+[    1.154923] Call trace:
+[    1.154928]  dump_backtrace+0x0/0x190
+[    1.154933]  show_stack+0x14/0x20
+[    1.154940]  dump_stack+0xe0/0x148
+[    1.154946]  ___might_sleep+0x150/0x1f0
+[    1.154952]  __might_sleep+0x4c/0x80
+[    1.154957]  wait_for_completion_timeout+0x40/0x140
+[    1.154964]  ti_sci_set_device_state+0xa0/0x158
+[    1.154969]  ti_sci_cmd_get_device_exclusive+0x14/0x20
+[    1.154977]  ti_sci_dev_start+0x34/0x50
+[    1.154984]  genpd_runtime_resume+0x78/0x1f8
+[    1.154991]  __rpm_callback+0x3c/0x140
+[    1.154996]  rpm_callback+0x20/0x80
+[    1.155001]  rpm_resume+0x568/0x758
+[    1.155007]  __pm_runtime_resume+0x44/0xb0
+[    1.155013]  omap8250_probe+0x2b4/0x508
+[    1.155019]  platform_drv_probe+0x50/0xa0
+[    1.155023]  really_probe+0xd4/0x318
+[    1.155028]  driver_probe_device+0x54/0xe8
+[    1.155033]  __device_attach_driver+0x80/0xb8
+[    1.155039]  bus_for_each_drv+0x74/0xc0
+[    1.155044]  __device_attach+0xdc/0x138
+[    1.155049]  device_initial_probe+0x10/0x18
+[    1.155053]  bus_probe_device+0x98/0xa0
+[    1.155058]  deferred_probe_work_func+0x74/0xb0
+[    1.155063]  process_one_work+0x280/0x6e8
+[    1.155068]  worker_thread+0x48/0x430
+[    1.155073]  kthread+0x108/0x138
+[    1.155079]  ret_from_fork+0x10/0x18
+
+To fix the bug we need to first call pm_runtime_enable() prior to any
+pm_runtime calls.
+
+Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20200320125200.6772-1-peter.ujfalusi@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci.c | 2 +-
+ drivers/tty/serial/8250/8250_omap.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index 63db84481dff2..d94759d7392d5 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -153,7 +153,7 @@ static void sdhci_set_card_detection(struct sdhci_host *host, bool enable)
- 	u32 present;
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index 6f343ca08440f..c066cf37778f8 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -1231,6 +1231,7 @@ static int omap8250_probe(struct platform_device *pdev)
+ 	spin_lock_init(&priv->rx_dma_lock);
  
- 	if ((host->quirks & SDHCI_QUIRK_BROKEN_CARD_DETECTION) ||
--	    !mmc_card_is_removable(host->mmc))
-+	    !mmc_card_is_removable(host->mmc) || mmc_can_gpio_cd(host->mmc))
- 		return;
+ 	device_init_wakeup(&pdev->dev, true);
++	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
  
- 	if (enable) {
+ 	/*
+@@ -1244,7 +1245,6 @@ static int omap8250_probe(struct platform_device *pdev)
+ 		pm_runtime_set_autosuspend_delay(&pdev->dev, -1);
+ 
+ 	pm_runtime_irq_safe(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
+ 
+ 	pm_runtime_get_sync(&pdev->dev);
+ 
 -- 
 2.20.1
 
