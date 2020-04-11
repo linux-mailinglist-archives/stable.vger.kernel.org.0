@@ -2,129 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A191B1A53BA
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 22:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0658C1A53CE
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 23:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726802AbgDKUnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 16:43:21 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:44356 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726563AbgDKUnU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Apr 2020 16:43:20 -0400
-Received: by mail-pg1-f196.google.com with SMTP id n13so2588571pgp.11;
-        Sat, 11 Apr 2020 13:43:18 -0700 (PDT)
+        id S1726689AbgDKVhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 17:37:24 -0400
+Received: from mail-pj1-f66.google.com ([209.85.216.66]:52579 "EHLO
+        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726204AbgDKVhX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Apr 2020 17:37:23 -0400
+Received: by mail-pj1-f66.google.com with SMTP id ng8so2217575pjb.2
+        for <stable@vger.kernel.org>; Sat, 11 Apr 2020 14:37:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=4MIQH9G8QYHmFAoOfqSy4LixupAzOsr5IEucTgv53/U=;
-        b=SPDVHg7eoriTp3oMJJD5oLmcNb+Gm0gxtBcctT5A4X3EQbyDnfI3XPAP8frR7d2HmI
-         ljlghVp0z3Lv6eXMFkavmZ7bebbyGzK9pTlXk2QbPJQnluRv3bBgGpyxHl9YXG0AZW5D
-         4ku/9Mq/uxoSQL5CZa6niksZlmuEnolCP+DzmFJtxdh8fw8Q30gi+Vn4q7ocAFueDDlk
-         IxaNnFvx5cM2wpQmhJiyLWbNZhU9nsfPm0v/RMz3Xx6jh/AJxjGfUyBUefXUyi6DyILj
-         pp07p7SP5Wf5t8oTj4Rl3CnBkDT6fUuhQrKCQGrSeWBJVgp/cCijzp0p3W1BXaq8ldKR
-         +YOA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fvtMeRxrwOKnTtF3beAPwO99cg1cjjI1HYUqwbOql/c=;
+        b=RbLXM4/rThhJiRSAXjYyD3U4jUqQ7J2KRKRvkARBhHwXQLUAVksmDSmZwUQmDhrqVF
+         RXv2FgqZGbeKqV5PC+PiJrKc9B5VaqURZPJXJANWspPGvly4HQ4s5yBMvNrFqu6H5LeV
+         HYmNgckCX3ZSglsa4Z3f2vFsRsBoZ+8cLvqD4AsuRKUcDkjyGIPovF4GTdESZOXTl8XA
+         n9+HYR9b5JtH5qJOQIexEvhQzQuP1TKmXH0IU01kYGHP5tNE4kDxFuwc595GlleTp2it
+         Cdi55DdVugkMCa5LjD8JF8WvHMXmIcSyyZmb1XqfAzfJMD6jIIELMT1o7RBocvBLt/gS
+         /Urw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=4MIQH9G8QYHmFAoOfqSy4LixupAzOsr5IEucTgv53/U=;
-        b=LRh9ZPKEXSGHnsDkI9SHslp8Hqor1aIRYM5tyJUfxpZCFf85fz0BgyocDFNCt/Kt3H
-         90lVrQVRAVvzwNJyok9gQztyjr7H/HQ5BI9M2xeS9iyVHeiWYuLtGkHqRBpnGzL7nkyn
-         djjNX2KbqC1WRWFqkym0xl+u2ScjeXiVTPopuoapqGnetl9f394bmk4gbTY+iC7szTm2
-         2UvFz//61RApf0/KSY6xzbv+o+iNz/UZ6+FYsP8PWP/J/6VNc6Wjx8WUD3E28WFbmHgc
-         bzrWAIMf5XaRUiiHxDxmoNyfpqC8xizBlO4dh/+5YxiwISafze6jN7rCf3HOfn8MLW+g
-         QtAA==
-X-Gm-Message-State: AGi0PuYe2dDrtRBzx3dFH7qR3bb5+zInsNCZmxEHO0LddRb+WXEIBp3n
-        p7MHwD4jz10MRXcK16ZmlzNWu6Nj
-X-Google-Smtp-Source: APiQypLjRHyUoijqCySAQT5t605EeoekV8KGws+RkeptKOrZzPdm3TQ+2/SartwFrwWrw4cduHRvhw==
-X-Received: by 2002:a63:b256:: with SMTP id t22mr9849426pgo.92.1586637798011;
-        Sat, 11 Apr 2020 13:43:18 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j22sm5176121pjy.11.2020.04.11.13.43.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 11 Apr 2020 13:43:17 -0700 (PDT)
-Subject: Re: [PATCH 5.6 00/38] 5.6.4-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200411115459.324496182@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <001e15f7-a755-82ca-0c43-aa8c0c2ab573@roeck-us.net>
-Date:   Sat, 11 Apr 2020 13:43:16 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fvtMeRxrwOKnTtF3beAPwO99cg1cjjI1HYUqwbOql/c=;
+        b=rsQsqZKiNRn2BizXa6KVXEFkdoDDNAGng8ZwzdSGrJPHuy8j7v+vG7dYctnnop4IZ2
+         I3ilUkZ77ZEsnxcILh6qduLGdlCtKahGHe1Lg+cuJFSJyyiZTevS5aMhZiMy/vzrDksI
+         lHsZIpRK3d0WlCbXRkM96eQ6kwn9t4kfYYf4cpm8ESE9510QnBW79o09mvCQW1fzlyDe
+         dAc+qHt/FWo/d2NKPz3BE9FfR8KQt5steXQyguddav4gjbk8g2wUQEkUCS/2YrMzuFfp
+         /Oogbvce5/T7RN5KNrBkS1Mp5UayQJg/1Hwzq+a6jBc1mc0GmV/KBvsUml1mbtLtBJ6I
+         Fiuw==
+X-Gm-Message-State: AGi0PuZ+3dUv3pYbab508PvFuq+p9598S0TNa8rd5Y9a05jS6MSYbHuj
+        XAUk4VF/ygNRiBAIdyhepOYaRWFL4Ek=
+X-Google-Smtp-Source: APiQypI399xAJBGjJEPtq6Gw1QSUlwoO9wPSssg4jrmd3gSj6AMLQv4eLd4vOyJbxcGKJKpel+a/8Q==
+X-Received: by 2002:a17:90a:3767:: with SMTP id u94mr13448648pjb.23.1586641042929;
+        Sat, 11 Apr 2020 14:37:22 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p1sm5036272pjr.40.2020.04.11.14.37.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 11 Apr 2020 14:37:22 -0700 (PDT)
+Message-ID: <5e923892.1c69fb81.e4990.02cb@mx.google.com>
+Date:   Sat, 11 Apr 2020 14:37:22 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.30-81-gf163418797b9
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y boot: 160 boots: 2 failed,
+ 151 passed with 2 offline, 5 untried/unknown (v5.4.30-81-gf163418797b9)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/11/20 5:09 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.6.4 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Mon, 13 Apr 2020 11:51:28 +0000.
-> Anything received after that time might be too late.
-> 
+stable-rc/linux-5.4.y boot: 160 boots: 2 failed, 151 passed with 2 offline,=
+ 5 untried/unknown (v5.4.30-81-gf163418797b9)
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 428 pass: 428 fail: 0
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.30-81-gf163418797b9/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.30-81-gf163418797b9/
 
-Guenter
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.30-81-gf163418797b9
+Git Commit: f163418797b9310a9eb4a73c3d0214a7cb415a12
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 99 unique boards, 25 SoC families, 20 builds out of 200
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 63 days (last pass: v5.4.=
+17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 3 days (last pass: v5.4.30-37-g40=
+da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxm-q200:
+              lab-baylibre: new failure (last pass: v5.4.30-54-g6f04e8ca535=
+5)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
