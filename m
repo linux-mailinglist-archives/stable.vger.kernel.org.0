@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B85C1A547E
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48EF01A5AEA
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727911AbgDKXFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:05:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39360 "EHLO mail.kernel.org"
+        id S1727920AbgDKXFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:05:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726867AbgDKXFV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:21 -0400
+        id S1727915AbgDKXFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F24D214D8;
-        Sat, 11 Apr 2020 23:05:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BBF820708;
+        Sat, 11 Apr 2020 23:05:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646321;
-        bh=aOg7yz/O9sc4pMrxXz59A+WsZv+fsfV4MvjWc2Ckh/Y=;
+        s=default; t=1586646322;
+        bh=JKifc22C2UL+b3jQWkj/4fHSC1WFMr8V0XiS/e49728=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lY9goaorNI/gGLE6DD+ws56+XmdPk0PtO9NBS34y7hTdTSuE5Ee7YFyh3otoC9WJ4
-         762cTx4C2c9VbYwoaJknmvs1XYiwX3gRv7CSWBnxFHqeRRayixxPK7Erwg3FX/s8Oc
-         UTGVTKJ1YY/tnGEADR6mZaAvd1BfZKkHuvWdGPS4=
+        b=oVc6z6KOWxmyqUfZv6HxlBp3GIc4/NUvhh3TK+Jeqz+3wctpfC1S1FdFj0k7L8moX
+         LoZX6InOyjo8WB+98rnY6VMEwWhVlz3bhS80kHrZQ7MguDsr6meItUgqb10sprHb4f
+         zfagxb83FWhkTgnKPWd0qwiy8J2gz7YaFBXx4Uws=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Tom St Denis <tom.stdenis@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
+Cc:     Peikang Zhang <peikang.zhang@amd.com>, Jun Lei <Jun.Lei@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.6 075/149] drm/amdgpu: fix parentheses in amdgpu_vm_update_ptes
-Date:   Sat, 11 Apr 2020 19:02:32 -0400
-Message-Id: <20200411230347.22371-75-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 076/149] drm/amd/display: dc_get_vmid_use_vector() crashes when get called
+Date:   Sat, 11 Apr 2020 19:02:33 -0400
+Message-Id: <20200411230347.22371-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,35 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Peikang Zhang <peikang.zhang@amd.com>
 
-[ Upstream commit bfcd6c69e4c3f73f2f92b997983537f9a3ac3b29 ]
+[ Upstream commit 68bbca15e7062f4ae16531e29893f78d0b4840b6 ]
 
-For the root PD mask can be 0xffffffff as well which would
-overrun to 0 if we don't cast it before we add one.
+[Why]
+int i can go out of boundary which will cause crash
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Tested-by: Tom St Denis <tom.stdenis@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+[How]
+Fixed the maximum value of i to avoid i going out of boundary
+
+Signed-off-by: Peikang Zhang <peikang.zhang@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 2 +-
+ drivers/gpu/drm/amd/display/dc/core/dc_vm_helper.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-index d16231d6a790b..67e7422032265 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -1498,7 +1498,7 @@ static int amdgpu_vm_update_ptes(struct amdgpu_vm_update_params *params,
- 		incr = (uint64_t)AMDGPU_GPU_PAGE_SIZE << shift;
- 		mask = amdgpu_vm_entries_mask(adev, cursor.level);
- 		pe_start = ((cursor.pfn >> shift) & mask) * 8;
--		entry_end = (uint64_t)(mask + 1) << shift;
-+		entry_end = ((uint64_t)mask + 1) << shift;
- 		entry_end += cursor.pfn & ~(entry_end - 1);
- 		entry_end = min(entry_end, end);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_vm_helper.c b/drivers/gpu/drm/amd/display/dc/core/dc_vm_helper.c
+index a96d8de9380e6..f2b39ec35c898 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_vm_helper.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_vm_helper.c
+@@ -62,7 +62,7 @@ int dc_get_vmid_use_vector(struct dc *dc)
+ 	int i;
+ 	int in_use = 0;
  
+-	for (i = 0; i < dc->vm_helper->num_vmid; i++)
++	for (i = 0; i < MAX_HUBP; i++)
+ 		in_use |= dc->vm_helper->hubp_vmid_usage[i].vmid_usage[0]
+ 			| dc->vm_helper->hubp_vmid_usage[i].vmid_usage[1];
+ 	return in_use;
 -- 
 2.20.1
 
