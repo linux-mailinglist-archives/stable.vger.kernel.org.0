@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 921041A5AC3
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4C11A5AB9
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726983AbgDKXpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:45:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40172 "EHLO mail.kernel.org"
+        id S1726884AbgDKXFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:05:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726991AbgDKXFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:43 -0400
+        id S1728061AbgDKXFo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B90B3214D8;
-        Sat, 11 Apr 2020 23:05:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E03EA21D7E;
+        Sat, 11 Apr 2020 23:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646343;
-        bh=BA1wD0MQngE1+OqOCXzhdFMDL6m9GfMjTw4r8v0uF80=;
+        s=default; t=1586646344;
+        bh=DdOrStogyBn3qrKrdJtlOEpR6sizzEzYXH79mucax5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYJWC2X5hmv9n9ZWr1/0mLRAleepWhLbrPojLaOlXlVR/UGTPDfr0pAav689EMJCS
-         mOUZYlRtCPPxdptRQLTLugIEybLVu54NXwokNsdKCGNBXG93aTB+9ok4MLwBjlvcTY
-         2j5M334K26wWg/hTaMKrqqB8JFtGtONs06zpn1tA=
+        b=O6oETVtUjsF3xFmdDMElHyJo+1toUzhMQw78TOIIJGJGjnq25Vob9Gz7o4jShWvu5
+         71pnu5dwhLEuC7X66k8bDXfzoYKJUxJk9XZv0X4l/cHdz057uK58WuG4FhMc1D+qea
+         xVM2PI4TwAyKyI1gaZqQiPg3wrUVrqhKqn2FWIk0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arun Easi <aeasi@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 092/149] scsi: qla2xxx: Handle NVME status iocb correctly
-Date:   Sat, 11 Apr 2020 19:02:49 -0400
-Message-Id: <20200411230347.22371-92-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Christoph Hellwig <hch@infradead.org>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 093/149] xfs: fix an undefined behaviour in _da3_path_shift
+Date:   Sat, 11 Apr 2020 19:02:50 -0400
+Message-Id: <20200411230347.22371-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -44,106 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 3d582b34992ba2fe4065f01019f0c08d12916faa ]
+[ Upstream commit 4982bff1ace1196843f55536fcd4cc119738fe39 ]
 
-Certain state flags bit combinations are not checked and not handled
-correctly. Plus, do not log a normal underrun situation where there is
-no frame drop.
+In xfs_da3_path_shift() "blk" can be assigned to state->path.blk[-1] if
+state->path.active is 1 (which is a valid state) when it tries to add an
+entry to a single dir leaf block and then to shift forward to see if
+there's a sibling block that would be a better place to put the new
+entry. This causes a UBSAN warning given negative array indices are
+undefined behavior in C. In practice the warning is entirely harmless
+given that "blk" is never dereferenced in this case, but it is still
+better to fix up the warning and slightly improve the code.
 
-Link: https://lore.kernel.org/r/20200226224022.24518-17-hmadhani@marvell.com
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+ UBSAN: Undefined behaviour in fs/xfs/libxfs/xfs_da_btree.c:1989:14
+ index -1 is out of range for type 'xfs_da_state_blk_t [5]'
+ Call trace:
+  dump_backtrace+0x0/0x2c8
+  show_stack+0x20/0x2c
+  dump_stack+0xe8/0x150
+  __ubsan_handle_out_of_bounds+0xe4/0xfc
+  xfs_da3_path_shift+0x860/0x86c [xfs]
+  xfs_da3_node_lookup_int+0x7c8/0x934 [xfs]
+  xfs_dir2_node_addname+0x2c8/0xcd0 [xfs]
+  xfs_dir_createname+0x348/0x38c [xfs]
+  xfs_create+0x6b0/0x8b4 [xfs]
+  xfs_generic_create+0x12c/0x1f8 [xfs]
+  xfs_vn_mknod+0x3c/0x4c [xfs]
+  xfs_vn_create+0x34/0x44 [xfs]
+  do_last+0xd4c/0x10c8
+  path_openat+0xbc/0x2f4
+  do_filp_open+0x74/0xf4
+  do_sys_openat2+0x98/0x180
+  __arm64_sys_openat+0xf8/0x170
+  do_el0_svc+0x170/0x240
+  el0_sync_handler+0x150/0x250
+  el0_sync+0x164/0x180
+
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c | 47 ++++++++++++++++++++++++++++------
- 1 file changed, 39 insertions(+), 8 deletions(-)
+ fs/xfs/libxfs/xfs_da_btree.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index e40705d38cea7..afaf9d483cd29 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -1910,6 +1910,7 @@ static void qla24xx_nvme_iocb_entry(scsi_qla_host_t *vha, struct req_que *req,
- 	struct nvmefc_fcp_req *fd;
- 	uint16_t        ret = QLA_SUCCESS;
- 	uint16_t	comp_status = le16_to_cpu(sts->comp_status);
-+	int		logit = 0;
+diff --git a/fs/xfs/libxfs/xfs_da_btree.c b/fs/xfs/libxfs/xfs_da_btree.c
+index 875e04f82541f..e864c3d47f60a 100644
+--- a/fs/xfs/libxfs/xfs_da_btree.c
++++ b/fs/xfs/libxfs/xfs_da_btree.c
+@@ -1986,7 +1986,8 @@ xfs_da3_path_shift(
+ 	ASSERT(path != NULL);
+ 	ASSERT((path->active > 0) && (path->active < XFS_DA_NODE_MAXDEPTH));
+ 	level = (path->active-1) - 1;	/* skip bottom layer in path */
+-	for (blk = &path->blk[level]; level >= 0; blk--, level--) {
++	for (; level >= 0; level--) {
++		blk = &path->blk[level];
+ 		xfs_da3_node_hdr_from_disk(dp->i_mount, &nodehdr,
+ 					   blk->bp->b_addr);
  
- 	iocb = &sp->u.iocb_cmd;
- 	fcport = sp->fcport;
-@@ -1920,6 +1921,12 @@ static void qla24xx_nvme_iocb_entry(scsi_qla_host_t *vha, struct req_que *req,
- 	if (unlikely(iocb->u.nvme.aen_op))
- 		atomic_dec(&sp->vha->hw->nvme_active_aen_cnt);
- 
-+	if (unlikely(comp_status != CS_COMPLETE))
-+		logit = 1;
-+
-+	fd->transferred_length = fd->payload_length -
-+	    le32_to_cpu(sts->residual_len);
-+
- 	/*
- 	 * State flags: Bit 6 and 0.
- 	 * If 0 is set, we don't care about 6.
-@@ -1930,8 +1937,20 @@ static void qla24xx_nvme_iocb_entry(scsi_qla_host_t *vha, struct req_que *req,
- 	 */
- 	if (!(state_flags & (SF_FCP_RSP_DMA | SF_NVME_ERSP))) {
- 		iocb->u.nvme.rsp_pyld_len = 0;
--	} else if ((state_flags & SF_FCP_RSP_DMA)) {
-+	} else if ((state_flags & (SF_FCP_RSP_DMA | SF_NVME_ERSP)) ==
-+			(SF_FCP_RSP_DMA | SF_NVME_ERSP)) {
-+		/* Response already DMA'd to fd->rspaddr. */
- 		iocb->u.nvme.rsp_pyld_len = le16_to_cpu(sts->nvme_rsp_pyld_len);
-+	} else if ((state_flags & SF_FCP_RSP_DMA)) {
-+		/*
-+		 * Non-zero value in first 12 bytes of NVMe_RSP IU, treat this
-+		 * as an error.
-+		 */
-+		iocb->u.nvme.rsp_pyld_len = 0;
-+		fd->transferred_length = 0;
-+		ql_dbg(ql_dbg_io, fcport->vha, 0x307a,
-+			"Unexpected values in NVMe_RSP IU.\n");
-+		logit = 1;
- 	} else if (state_flags & SF_NVME_ERSP) {
- 		uint32_t *inbuf, *outbuf;
- 		uint16_t iter;
-@@ -1954,16 +1973,28 @@ static void qla24xx_nvme_iocb_entry(scsi_qla_host_t *vha, struct req_que *req,
- 		iter = iocb->u.nvme.rsp_pyld_len >> 2;
- 		for (; iter; iter--)
- 			*outbuf++ = swab32(*inbuf++);
--	} else { /* unhandled case */
--	    ql_log(ql_log_warn, fcport->vha, 0x503a,
--		"NVME-%s error. Unhandled state_flags of %x\n",
--		sp->name, state_flags);
- 	}
- 
--	fd->transferred_length = fd->payload_length -
--	    le32_to_cpu(sts->residual_len);
-+	if (state_flags & SF_NVME_ERSP) {
-+		struct nvme_fc_ersp_iu *rsp_iu = fd->rspaddr;
-+		u32 tgt_xfer_len;
- 
--	if (unlikely(comp_status != CS_COMPLETE))
-+		tgt_xfer_len = be32_to_cpu(rsp_iu->xfrd_len);
-+		if (fd->transferred_length != tgt_xfer_len) {
-+			ql_dbg(ql_dbg_io, fcport->vha, 0x3079,
-+				"Dropped frame(s) detected (sent/rcvd=%u/%u).\n",
-+				tgt_xfer_len, fd->transferred_length);
-+			logit = 1;
-+		} else if (comp_status == CS_DATA_UNDERRUN) {
-+			/*
-+			 * Do not log if this is just an underflow and there
-+			 * is no data loss.
-+			 */
-+			logit = 0;
-+		}
-+	}
-+
-+	if (unlikely(logit))
- 		ql_log(ql_log_warn, fcport->vha, 0x5060,
- 		   "NVME-%s ERR Handling - hdl=%x status(%x) tr_len:%x resid=%x  ox_id=%x\n",
- 		   sp->name, sp->handle, comp_status,
 -- 
 2.20.1
 
