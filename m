@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A6731A5152
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15A2C1A517C
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728323AbgDKMQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:16:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51402 "EHLO mail.kernel.org"
+        id S1728203AbgDKMPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:15:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728160AbgDKMQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:16:57 -0400
+        id S1728202AbgDKMPv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:15:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57B4B20644;
-        Sat, 11 Apr 2020 12:16:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41E1C21744;
+        Sat, 11 Apr 2020 12:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607416;
-        bh=EmfY0OTG7JZDE8KriKilKrAHF7WbXWBGs5/1e/lrTow=;
+        s=default; t=1586607351;
+        bh=fGQ3NIWRcW6xTVFkaMNy4C8P5PvXObkGaNqnFg7hcjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EknbZN8V4zl/2D7qudtICkum+53KytjJkKejc23m1PbcK9fTPbAGL6W7Qq+SX/46V
-         0G6DYkQjMexd9t14sfTsYmO9Lerv+0cldQffvxnaZE9x14v2hbDU08eLYxFFCzZSvu
-         QPjIrrc8ISzE1VNuWC9rIqXIPT6qDQnnO1r3fpKI=
+        b=A2XfWeKXAQIaX7E1SWhvBxbvBawWwcDoQPwJWMJR1JxzefKVEq2ar5D3iOvUvcJo9
+         y+y6sZ+v6K7KPGgmWgo1xA5oECWxPckD+koW1D7x5ldViKnJN4iO15ST8knBAZ7Zu3
+         uTUVmHTRlpqo5GNJjtydY3E5zbMcjJmMegZgXxR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Palethorpe <rpalethorpe@suse.com>,
-        Kees Cook <keescook@chromium.org>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, security@kernel.org, wg@grandegger.com,
-        mkl@pengutronix.de, davem@davemloft.net
-Subject: [PATCH 5.4 11/41] slcan: Dont transmit uninitialized stack data in padding
+        stable@vger.kernel.org,
+        PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>,
+        Martin Kaiser <martin@kaiser.cx>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 38/54] hwrng: imx-rngc - fix an error path
 Date:   Sat, 11 Apr 2020 14:09:20 +0200
-Message-Id: <20200411115504.898395559@linuxfoundation.org>
+Message-Id: <20200411115512.341196553@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
-References: <20200411115504.124035693@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Palethorpe <rpalethorpe@suse.com>
+From: Martin Kaiser <martin@kaiser.cx>
 
-[ Upstream commit b9258a2cece4ec1f020715fe3554bc2e360f6264 ]
+commit 47a1f8e8b3637ff5f7806587883d7d94068d9ee8 upstream.
 
-struct can_frame contains some padding which is not explicitly zeroed in
-slc_bump. This uninitialized data will then be transmitted if the stack
-initialization hardening feature is not enabled (CONFIG_INIT_STACK_ALL).
+Make sure that the rngc interrupt is masked if the rngc self test fails.
+Self test failure means that probe fails as well. Interrupts should be
+masked in this case, regardless of the error.
 
-This commit just zeroes the whole struct including the padding.
-
-Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
-Fixes: a1044e36e457 ("can: add slcan driver for serial/USB-serial CAN adapters")
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: linux-can@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: security@kernel.org
-Cc: wg@grandegger.com
-Cc: mkl@pengutronix.de
-Cc: davem@davemloft.net
-Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: 1d5449445bd0 ("hwrng: mx-rngc - add a driver for Freescale RNGC")
+Reviewed-by: PrasannaKumar Muralidharan <prasannatsmkumar@gmail.com>
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/can/slcan.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/net/can/slcan.c
-+++ b/drivers/net/can/slcan.c
-@@ -148,7 +148,7 @@ static void slc_bump(struct slcan *sl)
- 	u32 tmpid;
- 	char *cmd = sl->rbuff;
+---
+ drivers/char/hw_random/imx-rngc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--- a/drivers/char/hw_random/imx-rngc.c
++++ b/drivers/char/hw_random/imx-rngc.c
+@@ -111,8 +111,10 @@ static int imx_rngc_self_test(struct imx
+ 		return -ETIMEDOUT;
+ 	}
  
--	cf.can_id = 0;
-+	memset(&cf, 0, sizeof(cf));
+-	if (rngc->err_reg != 0)
++	if (rngc->err_reg != 0) {
++		imx_rngc_irq_mask_clear(rngc);
+ 		return -EIO;
++	}
  
- 	switch (*cmd) {
- 	case 'r':
-@@ -187,8 +187,6 @@ static void slc_bump(struct slcan *sl)
- 	else
- 		return;
- 
--	*(u64 *) (&cf.data) = 0; /* clear payload */
--
- 	/* RTR frames may have a dlc > 0 but they never have any data bytes */
- 	if (!(cf.can_id & CAN_RTR_FLAG)) {
- 		for (i = 0; i < cf.can_dlc; i++) {
+ 	return 0;
+ }
 
 
