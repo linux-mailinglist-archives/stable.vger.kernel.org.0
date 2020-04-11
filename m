@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20DF21A5155
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:25:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 152881A5180
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728350AbgDKMRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51584 "EHLO mail.kernel.org"
+        id S1728228AbgDKMP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:15:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728181AbgDKMRE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:17:04 -0400
+        id S1728222AbgDKMP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:15:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97EAD20692;
-        Sat, 11 Apr 2020 12:17:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88EF520787;
+        Sat, 11 Apr 2020 12:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607424;
-        bh=43PTV1RJIcy3DrgRfaIJb5QuhUb2LTSBZASiS8wq7uI=;
+        s=default; t=1586607359;
+        bh=9/F1HgN1yJlGKSkllksxsM4rLDTTAM51nN0ITD+mQ4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mK76+ROtvza8wVwADZxvdoXVBZ21fjSFQ1VBugDKlgH0MOFEhR2AWpWlsJ/SkYhk0
-         wagh/QOSUqjMAuh25nyzQXXweYGzbOo4Gp2TCbTp2Yk2hkOri2BLLDiRkCtGurykaG
-         n/Xul1tNV246l5XDe4K+pmd0Gqx5GPeTeuuJImKQ=
+        b=Htw6t2qu9PYhmekiuW2t2rdqtu1t83oMGRDWEl3is8X3MZZhFyOqBDEi3Nvg2GcsI
+         CgjT6UcmAwuEKIscYfWSFz0ceVvhUPn5NtqBIsvpLiKWRW2+JAY1pbLRvDOK8ZQnK1
+         QKqeuiFO/X2Q0UIJDYy7PJZKANDutXQzvi9PiRQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH 5.4 14/41] r8169: change back SG and TSO to be disabled by default
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Kaike Wan <kaike.wan@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.19 41/54] IB/hfi1: Fix memory leaks in sysfs registration and unregistration
 Date:   Sat, 11 Apr 2020 14:09:23 +0200
-Message-Id: <20200411115505.093276503@linuxfoundation.org>
+Message-Id: <20200411115512.696605410@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
-References: <20200411115504.124035693@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Kaike Wan <kaike.wan@intel.com>
 
-[ Upstream commit 95099c569a9fdbe186a27447dfa8a5a0562d4b7f ]
+commit 5c15abc4328ad696fa61e2f3604918ed0c207755 upstream.
 
-There has been a number of reports that using SG/TSO on different chip
-versions results in tx timeouts. However for a lot of people SG/TSO
-works fine. Therefore disable both features by default, but allow users
-to enable them. Use at own risk!
+When the hfi1 driver is unloaded, kmemleak will report the following
+issue:
 
-Fixes: 93681cd7d94f ("r8169: enable HW csum and TSO")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+unreferenced object 0xffff8888461a4c08 (size 8):
+comm "kworker/0:0", pid 5, jiffies 4298601264 (age 2047.134s)
+hex dump (first 8 bytes):
+73 64 6d 61 30 00 ff ff sdma0...
+backtrace:
+[<00000000311a6ef5>] kvasprintf+0x62/0xd0
+[<00000000ade94d9f>] kobject_set_name_vargs+0x1c/0x90
+[<0000000060657dbb>] kobject_init_and_add+0x5d/0xb0
+[<00000000346fe72b>] 0xffffffffa0c5ecba
+[<000000006cfc5819>] 0xffffffffa0c866b9
+[<0000000031c65580>] 0xffffffffa0c38e87
+[<00000000e9739b3f>] local_pci_probe+0x41/0x80
+[<000000006c69911d>] work_for_cpu_fn+0x16/0x20
+[<00000000601267b5>] process_one_work+0x171/0x380
+[<0000000049a0eefa>] worker_thread+0x1d1/0x3f0
+[<00000000909cf2b9>] kthread+0xf8/0x130
+[<0000000058f5f874>] ret_from_fork+0x35/0x40
+
+This patch fixes the issue by:
+
+- Releasing dd->per_sdma[i].kobject in hfi1_unregister_sysfs().
+  - This will fix the memory leak.
+
+- Calling kobject_put() to unwind operations only for those entries in
+   dd->per_sdma[] whose operations have succeeded (including the current
+   one that has just failed) in hfi1_verbs_register_sysfs().
+
+Cc: <stable@vger.kernel.org>
+Fixes: 0cb2aa690c7e ("IB/hfi1: Add sysfs interface for affinity setup")
+Link: https://lore.kernel.org/r/20200326163807.21129.27371.stgit@awfm-01.aw.intel.com
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/realtek/r8169_main.c |   34 ++++++++++++++----------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -7167,12 +7167,10 @@ static int rtl_init_one(struct pci_dev *
+---
+ drivers/infiniband/hw/hfi1/sysfs.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+--- a/drivers/infiniband/hw/hfi1/sysfs.c
++++ b/drivers/infiniband/hw/hfi1/sysfs.c
+@@ -861,8 +861,13 @@ bail:
+ 	for (i = 0; i < ARRAY_SIZE(hfi1_attributes); ++i)
+ 		device_remove_file(&dev->dev, hfi1_attributes[i]);
  
- 	netif_napi_add(dev, &tp->napi, rtl8169_poll, NAPI_POLL_WEIGHT);
- 
--	dev->features |= NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO |
--		NETIF_F_RXCSUM | NETIF_F_HW_VLAN_CTAG_TX |
--		NETIF_F_HW_VLAN_CTAG_RX;
--	dev->hw_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO |
--		NETIF_F_RXCSUM | NETIF_F_HW_VLAN_CTAG_TX |
--		NETIF_F_HW_VLAN_CTAG_RX;
-+	dev->features |= NETIF_F_IP_CSUM | NETIF_F_RXCSUM |
-+			 NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_CTAG_RX;
-+	dev->hw_features = NETIF_F_IP_CSUM | NETIF_F_RXCSUM |
-+			   NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_CTAG_RX;
- 	dev->vlan_features = NETIF_F_SG | NETIF_F_IP_CSUM | NETIF_F_TSO |
- 		NETIF_F_HIGHDMA;
- 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
-@@ -7190,25 +7188,25 @@ static int rtl_init_one(struct pci_dev *
- 		dev->hw_features &= ~NETIF_F_HW_VLAN_CTAG_RX;
- 
- 	if (rtl_chip_supports_csum_v2(tp)) {
--		dev->hw_features |= NETIF_F_IPV6_CSUM | NETIF_F_TSO6;
--		dev->features |= NETIF_F_IPV6_CSUM | NETIF_F_TSO6;
-+		dev->hw_features |= NETIF_F_IPV6_CSUM;
-+		dev->features |= NETIF_F_IPV6_CSUM;
-+	}
-+
-+	/* There has been a number of reports that using SG/TSO results in
-+	 * tx timeouts. However for a lot of people SG/TSO works fine.
-+	 * Therefore disable both features by default, but allow users to
-+	 * enable them. Use at own risk!
+-	for (i = 0; i < dd->num_sdma; i++)
+-		kobject_del(&dd->per_sdma[i].kobj);
++	/*
++	 * The function kobject_put() will call kobject_del() if the kobject
++	 * has been added successfully. The sysfs files created under the
++	 * kobject directory will also be removed during the process.
 +	 */
-+	if (rtl_chip_supports_csum_v2(tp)) {
-+		dev->hw_features |= NETIF_F_SG | NETIF_F_TSO | NETIF_F_TSO6;
- 		dev->gso_max_size = RTL_GSO_MAX_SIZE_V2;
- 		dev->gso_max_segs = RTL_GSO_MAX_SEGS_V2;
- 	} else {
-+		dev->hw_features |= NETIF_F_SG | NETIF_F_TSO;
- 		dev->gso_max_size = RTL_GSO_MAX_SIZE_V1;
- 		dev->gso_max_segs = RTL_GSO_MAX_SEGS_V1;
- 	}
++	for (; i >= 0; i--)
++		kobject_put(&dd->per_sdma[i].kobj);
  
--	/* RTL8168e-vl and one RTL8168c variant are known to have a
--	 * HW issue with TSO.
--	 */
--	if (tp->mac_version == RTL_GIGA_MAC_VER_34 ||
--	    tp->mac_version == RTL_GIGA_MAC_VER_22) {
--		dev->vlan_features &= ~(NETIF_F_ALL_TSO | NETIF_F_SG);
--		dev->hw_features &= ~(NETIF_F_ALL_TSO | NETIF_F_SG);
--		dev->features &= ~(NETIF_F_ALL_TSO | NETIF_F_SG);
--	}
--
- 	dev->hw_features |= NETIF_F_RXALL;
- 	dev->hw_features |= NETIF_F_RXFCS;
+ 	return ret;
+ }
+@@ -875,6 +880,10 @@ void hfi1_verbs_unregister_sysfs(struct
+ 	struct hfi1_pportdata *ppd;
+ 	int i;
+ 
++	/* Unwind operations in hfi1_verbs_register_sysfs() */
++	for (i = 0; i < dd->num_sdma; i++)
++		kobject_put(&dd->per_sdma[i].kobj);
++
+ 	for (i = 0; i < dd->num_pports; i++) {
+ 		ppd = &dd->pport[i];
  
 
 
