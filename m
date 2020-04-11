@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7171A591F
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3CC1A5914
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728950AbgDKXeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:34:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46866 "EHLO mail.kernel.org"
+        id S1728274AbgDKXJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:09:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729151AbgDKXJP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:09:15 -0400
+        id S1729173AbgDKXJR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:09:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE5A1217D8;
-        Sat, 11 Apr 2020 23:09:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3E9D216FD;
+        Sat, 11 Apr 2020 23:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646555;
-        bh=ORdiuhU2dCCpWV3CRgYE5CPAYMKh4bXPE412c+Clh64=;
+        s=default; t=1586646557;
+        bh=fDSd34PBPzhwVwoX+CKkeAQM9GR8iiPfzQBw9iG9avU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqnI/5bdbMeenQfw7a33DXRi2f02VYgmGXwPZFra9umL3umLazi75EfgllSMSNb4v
-         C8j7tmaQOplK9/Z3aNSDdqzDleNbSwhPQDwNPVSBmtdhCrCo4VGVD4Kpy7wuhsdzVl
-         BtmX8HsjVYhjxXxgimQcM+oz6VD7wvfG0RJE1qgg=
+        b=lUOP8I9zyt6LFl6ykkxhAXmN/qorCdARVvJcPDqYmB5CxiGGS70OWNveJ2NcD2iy3
+         SHmo5ja9q4RZMd/lXEQJWpIJp7HUEzPCojJrZnrESGNGev7QCbmQlPm5u1oYenhRZ2
+         Q1DBgRZdmAMKPztU0bDY+nKWXKtm6JLpcuUGojrg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joe Carnuccio <joe.carnuccio@cavium.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
+Cc:     Can Guo <cang@codeaurora.org>, Hongwu Su <hongwus@codeaurora.org>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        Bean Huo <beanhuo@micron.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 105/121] scsi: qla2xxx: Fix qla2x00_echo_test() based on ISP type
-Date:   Sat, 11 Apr 2020 19:06:50 -0400
-Message-Id: <20200411230706.23855-105-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 106/121] scsi: ufs: Fix ufshcd_hold() caused scheduling while atomic
+Date:   Sat, 11 Apr 2020 19:06:51 -0400
+Message-Id: <20200411230706.23855-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -44,41 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Carnuccio <joe.carnuccio@cavium.com>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 83cfd3dc002fc730387a1ec5fa0d4097cc31ee9f ]
+[ Upstream commit c63d6099a7959ecc919b2549dc6b71f53521f819 ]
 
-Ths patch fixes MBX in-direction for setting right bits for
-qla2x00_echo_test()
+The async version of ufshcd_hold(async == true), which is only called in
+queuecommand path as for now, is expected to work in atomic context, thus
+it should not sleep or schedule out. When it runs into the condition that
+clocks are ON but link is still in hibern8 state, it should bail out
+without flushing the clock ungate work.
 
-Link: https://lore.kernel.org/r/20200212214436.25532-19-hmadhani@marvell.com
-Signed-off-by: Joe Carnuccio <joe.carnuccio@cavium.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Fixes: f2a785ac2312 ("scsi: ufshcd: Fix race between clk scaling and ungate work")
+Link: https://lore.kernel.org/r/1581392451-28743-6-git-send-email-cang@codeaurora.org
+Reviewed-by: Hongwu Su <hongwus@codeaurora.org>
+Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
-index f0846ce0c4da4..0e8426e1e1149 100644
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -5173,10 +5173,11 @@ qla2x00_echo_test(scsi_qla_host_t *vha, struct msg_echo_lb *mreq,
- 		mcp->out_mb |= MBX_2;
- 
- 	mcp->in_mb = MBX_0;
--	if (IS_QLA24XX_TYPE(ha) || IS_QLA25XX(ha) ||
--	    IS_CNA_CAPABLE(ha) || IS_QLA2031(ha))
-+	if (IS_CNA_CAPABLE(ha) || IS_QLA24XX_TYPE(ha) || IS_QLA25XX(ha) ||
-+	    IS_QLA2031(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
- 		mcp->in_mb |= MBX_1;
--	if (IS_CNA_CAPABLE(ha) || IS_QLA2031(ha))
-+	if (IS_CNA_CAPABLE(ha) || IS_QLA2031(ha) || IS_QLA27XX(ha) ||
-+	    IS_QLA28XX(ha))
- 		mcp->in_mb |= MBX_3;
- 
- 	mcp->tov = MBX_TOV_SECONDS;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 5340a980d24b8..04f161b50660a 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1542,6 +1542,11 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
+ 		 */
+ 		if (ufshcd_can_hibern8_during_gating(hba) &&
+ 		    ufshcd_is_link_hibern8(hba)) {
++			if (async) {
++				rc = -EAGAIN;
++				hba->clk_gating.active_reqs--;
++				break;
++			}
+ 			spin_unlock_irqrestore(hba->host->host_lock, flags);
+ 			flush_work(&hba->clk_gating.ungate_work);
+ 			spin_lock_irqsave(hba->host->host_lock, flags);
 -- 
 2.20.1
 
