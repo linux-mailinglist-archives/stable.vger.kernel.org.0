@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 080991A54C2
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:07:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B177A1A5A11
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727751AbgDKXHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:07:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43154 "EHLO mail.kernel.org"
+        id S1728271AbgDKXk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:40:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728617AbgDKXHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:07:22 -0400
+        id S1728637AbgDKXHX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:07:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54A1D20708;
-        Sat, 11 Apr 2020 23:07:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A565F20787;
+        Sat, 11 Apr 2020 23:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646442;
-        bh=1pVOCMCEVPxh4yJmQWbxZpQ34McUxLlzYHjsDA4Nuxs=;
+        s=default; t=1586646443;
+        bh=+YDiGepaO4y8+wKyEMkFm3lHtg1QfBUwMTS32hogJK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FyPh+wsKV/Q0M9cHgkWwvu6MAHKU7rzyG6u26W7dX4s36nmC3eZvOcw6pGQqEYp5H
-         pFQ1cyvuemtVS6nL79CT5xWqMUn/Ed1sE/noVXacqwx0IBFQm1DqHI/ZzzDX2tWzPS
-         vja69CAwk+n+l3zLB2M+pRqD0+dcDO8XGVOLHerY=
+        b=tsFRl5RWkLYEP4hEj1qb+RrWXWtmlAK3ryT1XhI+cXjNI0KsOQfztZ9Be4pb87yz1
+         2PDXPs/17yIEwPHfU8HOZGob81it0BB7h5QGJEs/PuGfMHgrIlR/LcgGApRzSdcZpM
+         /qWjLvlCmFGg587/MMX5jW2Ckoh2a0Bu1WND7rVI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 013/121] drm/amd/display: Explicitly disable triplebuffer flips
-Date:   Sat, 11 Apr 2020 19:05:18 -0400
-Message-Id: <20200411230706.23855-13-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 014/121] HID: lg-g15: Do not fail the probe when we fail to disable F# emulation
+Date:   Sat, 11 Apr 2020 19:05:19 -0400
+Message-Id: <20200411230706.23855-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230706.23855-1-sashal@kernel.org>
 References: <20200411230706.23855-1-sashal@kernel.org>
@@ -46,48 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2d673560b7b83f8fe4163610f35c51b4d095525c ]
+[ Upstream commit b8a75eaddae9410767c7d95a1c5f3a547aae7b81 ]
 
-[Why]
-This is enabled by default on Renoir but there's userspace/API support
-to actually make use of this.
+By default the G1-G12 keys on the Logitech gaming keyboards send
+F1 - F12 when in "generic HID" mode.
 
-Since we're not passing this down through surface updates, let's
-explicitly disable this for now.
+The first thing the hid-lg-g15 driver does is disable this behavior.
 
-This fixes "dcn20_program_front_end_for_ctx" warnings associated with
-incorrect/unexpected programming sequences performed while this is
-enabled.
+We have received a bugreport that this does not work when the keyboard
+is connected through an Aten KVM switch. Using a gaming keyboard with
+a KVM is a bit weird setup, but still we can try to fail a bit more
+gracefully here.
 
-[How]
-Disable it at the topmost level in DM in case anyone tries to flip this
-to enabled for any of the other ASICs like Navi10/14.
+On the G510 keyboards the same USB-interface which is used for the gaming
+keys is also used for the media-keys. Before this commit we would call
+hid_hw_stop() on failure to disable the F# emulation and then exit the
+probe method with an error code.
 
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This not only causes us to not handle the gaming-keys, but this also
+breaks the media keys which is a regression compared to the situation
+when these keyboards where handled by the generic hidinput driver.
+
+This commit changes the error handling to clear the hiddev drvdata
+(to disable our .raw_event handler) and then returning from the probe
+method with success.
+
+The net result of this is that, when connected through a KVM, things
+work as well as they did before the hid-lg-g15 driver was introduced.
+
+Fixes: ad4203f5a243 ("HID: lg-g15: Add support for the G510 keyboards' gaming keys")
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1806321
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-lg-g15.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 803e59d974111..fb1efdde7a49d 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2481,6 +2481,9 @@ static int amdgpu_dm_initialize_drm_device(struct amdgpu_device *adev)
- 	if (adev->asic_type != CHIP_CARRIZO && adev->asic_type != CHIP_STONEY)
- 		dm->dc->debug.disable_stutter = amdgpu_pp_feature_mask & PP_STUTTER_MODE ? false : true;
+diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
+index 8a9268a5c66aa..ad4b5412a9f49 100644
+--- a/drivers/hid/hid-lg-g15.c
++++ b/drivers/hid/hid-lg-g15.c
+@@ -803,8 +803,10 @@ static int lg_g15_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
  
-+	/* No userspace support. */
-+	dm->dc->debug.disable_tri_buf = true;
-+
- 	return 0;
- fail:
- 	kfree(aencoder);
+ 	if (ret < 0) {
+-		hid_err(hdev, "Error disabling keyboard emulation for the G-keys\n");
+-		goto error_hw_stop;
++		hid_err(hdev, "Error %d disabling keyboard emulation for the G-keys, falling back to generic hid-input driver\n",
++			ret);
++		hid_set_drvdata(hdev, NULL);
++		return 0;
+ 	}
+ 
+ 	/* Get initial brightness levels */
 -- 
 2.20.1
 
