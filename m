@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0AB71A5B0E
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0F6F1A5B0C
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728159AbgDKXqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:46:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38980 "EHLO mail.kernel.org"
+        id S1727547AbgDKXqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:46:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727823AbgDKXFJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:09 -0400
+        id S1726689AbgDKXFL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 287E02166E;
-        Sat, 11 Apr 2020 23:05:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64D4120787;
+        Sat, 11 Apr 2020 23:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646310;
-        bh=vcMK00SX1SQoKbQ2sWRXizpxI4voNpuTBMeu82d7DlM=;
+        s=default; t=1586646311;
+        bh=K7zwUITdBLR4r8jCBQwmIbnYlFoD5S4Q3pLZJNuKCbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=go0WxNdBN0nA2gMPvZcq67y8c7xT6/dn7M1CpdcZrRoLwpGLKBg2QyGaRk4dI1PIT
-         U2uVlAYsU2pEGgIRqbBbG8gqer7d6PtY/h5Ok2Cv0fDcIMxeZTtCFnSkuKKkAX/RLs
-         melf4D12DrPVF7Faw7OUi5D7Hhl7qvIoNcF254Uw=
+        b=zy+ii8ndF9GnVLIideKVWiLoJXvHmWRWUysDem2hyVvK6Rit8cC7TBCewnTuFp3bE
+         NCdGcsDB1+1xFKLpRcbLihaGdvAVu6Fz9IN9yg2zVUJT6bLF4pVINDhv9aucMsxCuD
+         GAPrpcfCZjkWIHPMRSf7u8paPQ1ailMIXP6p32eU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tzu-En Huang <tehuang@realtek.com>,
-        Yan-Hsuan Chuang <yhchuang@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 067/149] rtw88: 8822c: update power sequence to v16
-Date:   Sat, 11 Apr 2020 19:02:24 -0400
-Message-Id: <20200411230347.22371-67-sashal@kernel.org>
+Cc:     Martin Leung <martin.leung@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 068/149] drm/amd/display: always apply T7/T9 delay logic
+Date:   Sat, 11 Apr 2020 19:02:25 -0400
+Message-Id: <20200411230347.22371-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -45,36 +46,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzu-En Huang <tehuang@realtek.com>
+From: Martin Leung <martin.leung@amd.com>
 
-[ Upstream commit 8299adec99b29f341f0ee4269f1ce70ca8508e78 ]
+[ Upstream commit cb8348fec250e517b5facb4cab3125ddc597f9aa ]
 
-Fix switching xtal mode leads to BT USB error issue.
+[why]
+before we exit early in edp_reciever_ready if we detect that panel
+is not edp or below rev 1.2. This will skip the backlight/t7 delay panel
+patch.
 
-Signed-off-by: Tzu-En Huang <tehuang@realtek.com>
-Signed-off-by: Yan-Hsuan Chuang <yhchuang@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[how]
+edit logic to ensure panel patch is applied regardless of edp rev.
+
+Signed-off-by: Martin Leung <martin.leung@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/rtw8822c.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ .../drm/amd/display/dc/core/dc_link_hwss.c    | 56 ++++++++++---------
+ 1 file changed, 29 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/rtw8822c.c b/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-index 3865097696d40..d49c8b697e4fc 100644
---- a/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-@@ -3544,6 +3544,11 @@ static struct rtw_pwr_seq_cmd trans_cardemu_to_act_8822c[] = {
- 	 RTW_PWR_INTF_ALL_MSK,
- 	 RTW_PWR_ADDR_MAC,
- 	 RTW_PWR_CMD_WRITE, BIT(2), BIT(2)},
-+	{0x1064,
-+	 RTW_PWR_CUT_ALL_MSK,
-+	 RTW_PWR_INTF_ALL_MSK,
-+	 RTW_PWR_ADDR_MAC,
-+	 RTW_PWR_CMD_WRITE, BIT(1), BIT(1)},
- 	{0xFFFF,
- 	 RTW_PWR_CUT_ALL_MSK,
- 	 RTW_PWR_INTF_ALL_MSK,
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
+index ddb8550457672..58634f191a55d 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
+@@ -153,18 +153,19 @@ bool edp_receiver_ready_T9(struct dc_link *link)
+ 	unsigned char edpRev = 0;
+ 	enum dc_status result = DC_OK;
+ 	result = core_link_read_dpcd(link, DP_EDP_DPCD_REV, &edpRev, sizeof(edpRev));
+-	if (edpRev < DP_EDP_12)
+-		return true;
+-	/* start from eDP version 1.2, SINK_STAUS indicate the sink is ready.*/
+-	do {
+-		sinkstatus = 1;
+-		result = core_link_read_dpcd(link, DP_SINK_STATUS, &sinkstatus, sizeof(sinkstatus));
+-		if (sinkstatus == 0)
+-			break;
+-		if (result != DC_OK)
+-			break;
+-		udelay(100); //MAx T9
+-	} while (++tries < 50);
++
++     /* start from eDP version 1.2, SINK_STAUS indicate the sink is ready.*/
++	if (result == DC_OK && edpRev >= DP_EDP_12) {
++		do {
++			sinkstatus = 1;
++			result = core_link_read_dpcd(link, DP_SINK_STATUS, &sinkstatus, sizeof(sinkstatus));
++			if (sinkstatus == 0)
++				break;
++			if (result != DC_OK)
++				break;
++			udelay(100); //MAx T9
++		} while (++tries < 50);
++	}
+ 
+ 	if (link->local_sink->edid_caps.panel_patch.extra_delay_backlight_off > 0)
+ 		udelay(link->local_sink->edid_caps.panel_patch.extra_delay_backlight_off * 1000);
+@@ -183,21 +184,22 @@ bool edp_receiver_ready_T7(struct dc_link *link)
+ 	unsigned long long time_taken_in_ns = 0;
+ 
+ 	result = core_link_read_dpcd(link, DP_EDP_DPCD_REV, &edpRev, sizeof(edpRev));
+-	if (result == DC_OK && edpRev < DP_EDP_12)
+-		return true;
+-	/* start from eDP version 1.2, SINK_STAUS indicate the sink is ready.*/
+-	enter_timestamp = dm_get_timestamp(link->ctx);
+-	do {
+-		sinkstatus = 0;
+-		result = core_link_read_dpcd(link, DP_SINK_STATUS, &sinkstatus, sizeof(sinkstatus));
+-		if (sinkstatus == 1)
+-			break;
+-		if (result != DC_OK)
+-			break;
+-		udelay(25);
+-		finish_timestamp = dm_get_timestamp(link->ctx);
+-		time_taken_in_ns = dm_get_elapse_time_in_ns(link->ctx, finish_timestamp, enter_timestamp);
+-	} while (time_taken_in_ns < 50 * 1000000); //MAx T7 is 50ms
++
++	if (result == DC_OK && edpRev >= DP_EDP_12) {
++		/* start from eDP version 1.2, SINK_STAUS indicate the sink is ready.*/
++		enter_timestamp = dm_get_timestamp(link->ctx);
++		do {
++			sinkstatus = 0;
++			result = core_link_read_dpcd(link, DP_SINK_STATUS, &sinkstatus, sizeof(sinkstatus));
++			if (sinkstatus == 1)
++				break;
++			if (result != DC_OK)
++				break;
++			udelay(25);
++			finish_timestamp = dm_get_timestamp(link->ctx);
++			time_taken_in_ns = dm_get_elapse_time_in_ns(link->ctx, finish_timestamp, enter_timestamp);
++		} while (time_taken_in_ns < 50 * 1000000); //MAx T7 is 50ms
++	}
+ 
+ 	if (link->local_sink->edid_caps.panel_patch.extra_t7_ms > 0)
+ 		udelay(link->local_sink->edid_caps.panel_patch.extra_t7_ms * 1000);
 -- 
 2.20.1
 
