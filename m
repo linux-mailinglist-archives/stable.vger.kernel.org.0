@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 795721A5844
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F0E21A5846
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:29:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729861AbgDKXLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:11:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50754 "EHLO mail.kernel.org"
+        id S1728655AbgDKX2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:28:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728957AbgDKXLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:11:17 -0400
+        id S1729067AbgDKXLS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:11:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F01A620CC7;
-        Sat, 11 Apr 2020 23:11:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 355A721744;
+        Sat, 11 Apr 2020 23:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646676;
-        bh=wS3jFTMM2C4qr3WLroCLDV8LJ8TkwN/96ofrMrcEvqQ=;
+        s=default; t=1586646677;
+        bh=Z7dgUuRJ5r5MEhPXnn9GB8HCCPn69NV8rnhdFrkPRt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PShKxyJuqDRFJ9sSUQ1buuW7vNtLlL9XO8ENozNo7g7wruWwR2D6V9foICHzmclLm
-         bxjyHE00x7pR84Lzk7P77Tf4Txij98TEv5mOi1eb6//1El9arLvZ+/+i/XODo/1RSA
-         +eTLi8MviqPIhtOHlgVXpgvXoJARzCws4IBTEWQk=
+        b=UPyG1T8cGnKDpv9aZj0AKLGfOZPFJl5w3VFKS4i1dv6HUCrU4Kt4W1xj4TxS6LYBG
+         yHl5+Lzl1devB08vD9mbhw/K8BdE7f3TNmlyaub2rlmHWo95/W+6EUXR+X4KIQ5z63
+         mMB2FWD0dn9idyTJDBdPBVKfZhay7Pj0C3Kf4ua8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 074/108] drm/msm: devcoredump should dump MSM_SUBMIT_BO_DUMP buffers
-Date:   Sat, 11 Apr 2020 19:09:09 -0400
-Message-Id: <20200411230943.24951-74-sashal@kernel.org>
+Cc:     Kevin Hao <haokexin@gmail.com>, Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 075/108] i2c: dev: Fix the race between the release of i2c_dev and cdev
+Date:   Sat, 11 Apr 2020 19:09:10 -0400
+Message-Id: <20200411230943.24951-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -44,116 +42,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Kevin Hao <haokexin@gmail.com>
 
-[ Upstream commit e515af8d4a6f18f96c360724568a7497868101a8 ]
+[ Upstream commit 1413ef638abae4ab5621901cf4d8ef08a4a48ba6 ]
 
-Also log buffers with the DUMP flag set, to ensure we capture all useful
-cmdstream in crashdump state with modern mesa.
+The struct cdev is embedded in the struct i2c_dev. In the current code,
+we would free the i2c_dev struct directly in put_i2c_dev(), but the
+cdev is manged by a kobject, and the release of it is not predictable.
+So it is very possible that the i2c_dev is freed before the cdev is
+entirely released. We can easily get the following call trace with
+CONFIG_DEBUG_KOBJECT_RELEASE and CONFIG_DEBUG_OBJECTS_TIMERS enabled.
+  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x38
+  WARNING: CPU: 19 PID: 1 at lib/debugobjects.c:325 debug_print_object+0xb0/0xf0
+  Modules linked in:
+  CPU: 19 PID: 1 Comm: swapper/0 Tainted: G        W         5.2.20-yocto-standard+ #120
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  pstate: 80c00089 (Nzcv daIf +PAN +UAO)
+  pc : debug_print_object+0xb0/0xf0
+  lr : debug_print_object+0xb0/0xf0
+  sp : ffff00001292f7d0
+  x29: ffff00001292f7d0 x28: ffff800b82151788
+  x27: 0000000000000001 x26: ffff800b892c0000
+  x25: ffff0000124a2558 x24: 0000000000000000
+  x23: ffff00001107a1d8 x22: ffff0000116b5088
+  x21: ffff800bdc6afca8 x20: ffff000012471ae8
+  x19: ffff00001168f2c8 x18: 0000000000000010
+  x17: 00000000fd6f304b x16: 00000000ee79de43
+  x15: ffff800bc0e80568 x14: 79616c6564203a74
+  x13: 6e6968207473696c x12: 5f72656d6974203a
+  x11: ffff0000113f0018 x10: 0000000000000000
+  x9 : 000000000000001f x8 : 0000000000000000
+  x7 : ffff0000101294cc x6 : 0000000000000000
+  x5 : 0000000000000000 x4 : 0000000000000001
+  x3 : 00000000ffffffff x2 : 0000000000000000
+  x1 : 387fc15c8ec0f200 x0 : 0000000000000000
+  Call trace:
+   debug_print_object+0xb0/0xf0
+   __debug_check_no_obj_freed+0x19c/0x228
+   debug_check_no_obj_freed+0x1c/0x28
+   kfree+0x250/0x440
+   put_i2c_dev+0x68/0x78
+   i2cdev_detach_adapter+0x60/0xc8
+   i2cdev_notifier_call+0x3c/0x70
+   notifier_call_chain+0x8c/0xe8
+   blocking_notifier_call_chain+0x64/0x88
+   device_del+0x74/0x380
+   device_unregister+0x54/0x78
+   i2c_del_adapter+0x278/0x2d0
+   unittest_i2c_bus_remove+0x3c/0x80
+   platform_drv_remove+0x30/0x50
+   device_release_driver_internal+0xf4/0x1c0
+   driver_detach+0x58/0xa0
+   bus_remove_driver+0x84/0xd8
+   driver_unregister+0x34/0x60
+   platform_driver_unregister+0x20/0x30
+   of_unittest_overlay+0x8d4/0xbe0
+   of_unittest+0xae8/0xb3c
+   do_one_initcall+0xac/0x450
+   do_initcall_level+0x208/0x224
+   kernel_init_freeable+0x2d8/0x36c
+   kernel_init+0x18/0x108
+   ret_from_fork+0x10/0x1c
+  irq event stamp: 3934661
+  hardirqs last  enabled at (3934661): [<ffff00001009fa04>] debug_exception_exit+0x4c/0x58
+  hardirqs last disabled at (3934660): [<ffff00001009fb14>] debug_exception_enter+0xa4/0xe0
+  softirqs last  enabled at (3934654): [<ffff000010081d94>] __do_softirq+0x46c/0x628
+  softirqs last disabled at (3934649): [<ffff0000100b4a1c>] irq_exit+0x104/0x118
 
-Otherwise we miss out on the contents of "state object" cmdstream
-buffers.
+This is a common issue when using cdev embedded in a struct.
+Fortunately, we already have a mechanism to solve this kind of issue.
+Please see commit 233ed09d7fda ("chardev: add helper function to
+register char devs with a struct device") for more detail.
 
-v2: add missing 'inline'
+In this patch, we choose to embed the struct device into the i2c_dev,
+and use the API provided by the commit 233ed09d7fda to make sure that
+the release of i2c_dev and cdev are in sequence.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gem.h | 10 ++++++++++
- drivers/gpu/drm/msm/msm_gpu.c | 28 +++++++++++++++++++++++-----
- drivers/gpu/drm/msm/msm_rd.c  |  8 +-------
- 3 files changed, 34 insertions(+), 12 deletions(-)
+ drivers/i2c/i2c-dev.c | 48 +++++++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem.h b/drivers/gpu/drm/msm/msm_gem.h
-index 9e0953c2b7cea..dcee0e223ed86 100644
---- a/drivers/gpu/drm/msm/msm_gem.h
-+++ b/drivers/gpu/drm/msm/msm_gem.h
-@@ -160,4 +160,14 @@ struct msm_gem_submit {
- 	} bos[0];
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 2ea4585d18c5e..94beacc41302f 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -40,7 +40,7 @@
+ struct i2c_dev {
+ 	struct list_head list;
+ 	struct i2c_adapter *adap;
+-	struct device *dev;
++	struct device dev;
+ 	struct cdev cdev;
  };
  
-+/* helper to determine of a buffer in submit should be dumped, used for both
-+ * devcoredump and debugfs cmdstream dumping:
-+ */
-+static inline bool
-+should_dump(struct msm_gem_submit *submit, int idx)
-+{
-+	extern bool rd_full;
-+	return rd_full || (submit->bos[idx].flags & MSM_SUBMIT_BO_DUMP);
-+}
-+
- #endif /* __MSM_GEM_H__ */
-diff --git a/drivers/gpu/drm/msm/msm_gpu.c b/drivers/gpu/drm/msm/msm_gpu.c
-index edd45f434ccd6..aea93e5035758 100644
---- a/drivers/gpu/drm/msm/msm_gpu.c
-+++ b/drivers/gpu/drm/msm/msm_gpu.c
-@@ -355,16 +355,34 @@ static void msm_gpu_crashstate_capture(struct msm_gpu *gpu,
- 	state->cmd = kstrdup(cmd, GFP_KERNEL);
- 
- 	if (submit) {
--		int i;
--
--		state->bos = kcalloc(submit->nr_cmds,
-+		int i, nr = 0;
-+
-+		/* count # of buffers to dump: */
-+		for (i = 0; i < submit->nr_bos; i++)
-+			if (should_dump(submit, i))
-+				nr++;
-+		/* always dump cmd bo's, but don't double count them: */
-+		for (i = 0; i < submit->nr_cmds; i++)
-+			if (!should_dump(submit, submit->cmd[i].idx))
-+				nr++;
-+
-+		state->bos = kcalloc(nr,
- 			sizeof(struct msm_gpu_state_bo), GFP_KERNEL);
- 
-+		for (i = 0; i < submit->nr_bos; i++) {
-+			if (should_dump(submit, i)) {
-+				msm_gpu_crashstate_get_bo(state, submit->bos[i].obj,
-+					submit->bos[i].iova, submit->bos[i].flags);
-+			}
-+		}
-+
- 		for (i = 0; state->bos && i < submit->nr_cmds; i++) {
- 			int idx = submit->cmd[i].idx;
- 
--			msm_gpu_crashstate_get_bo(state, submit->bos[idx].obj,
--				submit->bos[idx].iova, submit->bos[idx].flags);
-+			if (!should_dump(submit, submit->cmd[i].idx)) {
-+				msm_gpu_crashstate_get_bo(state, submit->bos[idx].obj,
-+					submit->bos[idx].iova, submit->bos[idx].flags);
-+			}
- 		}
- 	}
- 
-diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
-index c7832a951039f..4acebaefaed74 100644
---- a/drivers/gpu/drm/msm/msm_rd.c
-+++ b/drivers/gpu/drm/msm/msm_rd.c
-@@ -43,7 +43,7 @@
- #include "msm_gpu.h"
- #include "msm_gem.h"
- 
--static bool rd_full = false;
-+bool rd_full = false;
- MODULE_PARM_DESC(rd_full, "If true, $debugfs/.../rd will snapshot all buffer contents");
- module_param_named(rd_full, rd_full, bool, 0600);
- 
-@@ -333,12 +333,6 @@ static void snapshot_buf(struct msm_rd_state *rd,
- 	msm_gem_put_vaddr(&obj->base);
+@@ -84,12 +84,14 @@ static struct i2c_dev *get_free_i2c_dev(struct i2c_adapter *adap)
+ 	return i2c_dev;
  }
  
--static bool
--should_dump(struct msm_gem_submit *submit, int idx)
--{
--	return rd_full || (submit->bos[idx].flags & MSM_SUBMIT_BO_DUMP);
--}
+-static void put_i2c_dev(struct i2c_dev *i2c_dev)
++static void put_i2c_dev(struct i2c_dev *i2c_dev, bool del_cdev)
+ {
+ 	spin_lock(&i2c_dev_list_lock);
+ 	list_del(&i2c_dev->list);
+ 	spin_unlock(&i2c_dev_list_lock);
+-	kfree(i2c_dev);
++	if (del_cdev)
++		cdev_device_del(&i2c_dev->cdev, &i2c_dev->dev);
++	put_device(&i2c_dev->dev);
+ }
+ 
+ static ssize_t name_show(struct device *dev,
+@@ -628,6 +630,14 @@ static const struct file_operations i2cdev_fops = {
+ 
+ static struct class *i2c_dev_class;
+ 
++static void i2cdev_dev_release(struct device *dev)
++{
++	struct i2c_dev *i2c_dev;
++
++	i2c_dev = container_of(dev, struct i2c_dev, dev);
++	kfree(i2c_dev);
++}
++
+ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
+ {
+ 	struct i2c_adapter *adap;
+@@ -644,27 +654,23 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
+ 
+ 	cdev_init(&i2c_dev->cdev, &i2cdev_fops);
+ 	i2c_dev->cdev.owner = THIS_MODULE;
+-	res = cdev_add(&i2c_dev->cdev, MKDEV(I2C_MAJOR, adap->nr), 1);
+-	if (res)
+-		goto error_cdev;
 -
- /* called under struct_mutex */
- void msm_rd_dump_submit(struct msm_rd_state *rd, struct msm_gem_submit *submit,
- 		const char *fmt, ...)
+-	/* register this i2c device with the driver core */
+-	i2c_dev->dev = device_create(i2c_dev_class, &adap->dev,
+-				     MKDEV(I2C_MAJOR, adap->nr), NULL,
+-				     "i2c-%d", adap->nr);
+-	if (IS_ERR(i2c_dev->dev)) {
+-		res = PTR_ERR(i2c_dev->dev);
+-		goto error;
++
++	device_initialize(&i2c_dev->dev);
++	i2c_dev->dev.devt = MKDEV(I2C_MAJOR, adap->nr);
++	i2c_dev->dev.class = i2c_dev_class;
++	i2c_dev->dev.parent = &adap->dev;
++	i2c_dev->dev.release = i2cdev_dev_release;
++	dev_set_name(&i2c_dev->dev, "i2c-%d", adap->nr);
++
++	res = cdev_device_add(&i2c_dev->cdev, &i2c_dev->dev);
++	if (res) {
++		put_i2c_dev(i2c_dev, false);
++		return res;
+ 	}
+ 
+ 	pr_debug("i2c-dev: adapter [%s] registered as minor %d\n",
+ 		 adap->name, adap->nr);
+ 	return 0;
+-error:
+-	cdev_del(&i2c_dev->cdev);
+-error_cdev:
+-	put_i2c_dev(i2c_dev);
+-	return res;
+ }
+ 
+ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
+@@ -680,9 +686,7 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
+ 	if (!i2c_dev) /* attach_adapter must have failed */
+ 		return 0;
+ 
+-	cdev_del(&i2c_dev->cdev);
+-	put_i2c_dev(i2c_dev);
+-	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
++	put_i2c_dev(i2c_dev, true);
+ 
+ 	pr_debug("i2c-dev: adapter [%s] unregistered\n", adap->name);
+ 	return 0;
 -- 
 2.20.1
 
