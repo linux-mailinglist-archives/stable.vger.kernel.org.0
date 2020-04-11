@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE5EE1A56E9
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED0511A56E1
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:20:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730022AbgDKXTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:19:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55428 "EHLO mail.kernel.org"
+        id S1727930AbgDKXTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:19:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730635AbgDKXN7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:13:59 -0400
+        id S1730636AbgDKXOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:14:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6200215A4;
-        Sat, 11 Apr 2020 23:13:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E191621841;
+        Sat, 11 Apr 2020 23:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646839;
-        bh=7LYKt0FSsSfMmBKisjUpbUPSckbTl4TjeNRfR0FDIRA=;
+        s=default; t=1586646840;
+        bh=zg7yQ0tIo0mkHFpJNcf+g6QkEEgEZDL9PefIGJlKWrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvZT+XJHTHgKqojNQirwfjPS/2q6074Z6a8mLvw5hexYAOH7Qw9LXcWeOYVnCcKPH
-         7unqtiedc32uf9trMwrVqv500FF0DKgWkwvlI0ieQ8McXVrQN0bnVA4yAH2ig9wEmt
-         shaFnhMhFANqPyKj1QXf6uimWkHwDKr6PLxbS9o4=
+        b=cC627y5cTCOkNhs+sZmsldbWjILKtoyEAaGcGGqtTUzC90dTAW/oh32jjOFqoHUdD
+         ExPT95TthUTzmLRB36upXAdJNZ4pTWf7OoBgm9cd/9Y6svDAQ9/0ffPxQPPHXHczzd
+         MiswpivlFXENzxSobV6Re7xuWeDP33smtwMlim0U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagar Biradar <Sagar.Biradar@microchip.com>,
-        Balsundar P <balsundar.p@microsemi.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 27/37] scsi: aacraid: Disabling TM path and only processing IOP reset
-Date:   Sat, 11 Apr 2020 19:13:16 -0400
-Message-Id: <20200411231327.26550-27-sashal@kernel.org>
+Cc:     Kevin Hao <haokexin@gmail.com>, Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 28/37] i2c: dev: Fix the race between the release of i2c_dev and cdev
+Date:   Sat, 11 Apr 2020 19:13:17 -0400
+Message-Id: <20200411231327.26550-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231327.26550-1-sashal@kernel.org>
 References: <20200411231327.26550-1-sashal@kernel.org>
@@ -44,124 +42,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagar Biradar <Sagar.Biradar@microchip.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-[ Upstream commit bef18d308a2215eff8c3411a23d7f34604ce56c3 ]
+[ Upstream commit 1413ef638abae4ab5621901cf4d8ef08a4a48ba6 ]
 
-Fixes the occasional adapter panic when sg_reset is issued with -d, -t, -b
-and -H flags.  Removal of command type HBA_IU_TYPE_SCSI_TM_REQ in
-aac_hba_send since iu_type, request_id and fib_flags are not populated.
-Device and target reset handlers are made to send TMF commands only when
-reset_state is 0.
+The struct cdev is embedded in the struct i2c_dev. In the current code,
+we would free the i2c_dev struct directly in put_i2c_dev(), but the
+cdev is manged by a kobject, and the release of it is not predictable.
+So it is very possible that the i2c_dev is freed before the cdev is
+entirely released. We can easily get the following call trace with
+CONFIG_DEBUG_KOBJECT_RELEASE and CONFIG_DEBUG_OBJECTS_TIMERS enabled.
+  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x38
+  WARNING: CPU: 19 PID: 1 at lib/debugobjects.c:325 debug_print_object+0xb0/0xf0
+  Modules linked in:
+  CPU: 19 PID: 1 Comm: swapper/0 Tainted: G        W         5.2.20-yocto-standard+ #120
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  pstate: 80c00089 (Nzcv daIf +PAN +UAO)
+  pc : debug_print_object+0xb0/0xf0
+  lr : debug_print_object+0xb0/0xf0
+  sp : ffff00001292f7d0
+  x29: ffff00001292f7d0 x28: ffff800b82151788
+  x27: 0000000000000001 x26: ffff800b892c0000
+  x25: ffff0000124a2558 x24: 0000000000000000
+  x23: ffff00001107a1d8 x22: ffff0000116b5088
+  x21: ffff800bdc6afca8 x20: ffff000012471ae8
+  x19: ffff00001168f2c8 x18: 0000000000000010
+  x17: 00000000fd6f304b x16: 00000000ee79de43
+  x15: ffff800bc0e80568 x14: 79616c6564203a74
+  x13: 6e6968207473696c x12: 5f72656d6974203a
+  x11: ffff0000113f0018 x10: 0000000000000000
+  x9 : 000000000000001f x8 : 0000000000000000
+  x7 : ffff0000101294cc x6 : 0000000000000000
+  x5 : 0000000000000000 x4 : 0000000000000001
+  x3 : 00000000ffffffff x2 : 0000000000000000
+  x1 : 387fc15c8ec0f200 x0 : 0000000000000000
+  Call trace:
+   debug_print_object+0xb0/0xf0
+   __debug_check_no_obj_freed+0x19c/0x228
+   debug_check_no_obj_freed+0x1c/0x28
+   kfree+0x250/0x440
+   put_i2c_dev+0x68/0x78
+   i2cdev_detach_adapter+0x60/0xc8
+   i2cdev_notifier_call+0x3c/0x70
+   notifier_call_chain+0x8c/0xe8
+   blocking_notifier_call_chain+0x64/0x88
+   device_del+0x74/0x380
+   device_unregister+0x54/0x78
+   i2c_del_adapter+0x278/0x2d0
+   unittest_i2c_bus_remove+0x3c/0x80
+   platform_drv_remove+0x30/0x50
+   device_release_driver_internal+0xf4/0x1c0
+   driver_detach+0x58/0xa0
+   bus_remove_driver+0x84/0xd8
+   driver_unregister+0x34/0x60
+   platform_driver_unregister+0x20/0x30
+   of_unittest_overlay+0x8d4/0xbe0
+   of_unittest+0xae8/0xb3c
+   do_one_initcall+0xac/0x450
+   do_initcall_level+0x208/0x224
+   kernel_init_freeable+0x2d8/0x36c
+   kernel_init+0x18/0x108
+   ret_from_fork+0x10/0x1c
+  irq event stamp: 3934661
+  hardirqs last  enabled at (3934661): [<ffff00001009fa04>] debug_exception_exit+0x4c/0x58
+  hardirqs last disabled at (3934660): [<ffff00001009fb14>] debug_exception_enter+0xa4/0xe0
+  softirqs last  enabled at (3934654): [<ffff000010081d94>] __do_softirq+0x46c/0x628
+  softirqs last disabled at (3934649): [<ffff0000100b4a1c>] irq_exit+0x104/0x118
 
-Link: https://lore.kernel.org/r/1581553771-25796-1-git-send-email-Sagar.Biradar@microchip.com
-Reviewed-by: Sagar Biradar <Sagar.Biradar@microchip.com>
-Signed-off-by: Sagar Biradar <Sagar.Biradar@microchip.com>
-Signed-off-by: Balsundar P <balsundar.p@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This is a common issue when using cdev embedded in a struct.
+Fortunately, we already have a mechanism to solve this kind of issue.
+Please see commit 233ed09d7fda ("chardev: add helper function to
+register char devs with a struct device") for more detail.
+
+In this patch, we choose to embed the struct device into the i2c_dev,
+and use the API provided by the commit 233ed09d7fda to make sure that
+the release of i2c_dev and cdev are in sequence.
+
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aacraid/commsup.c |  2 +-
- drivers/scsi/aacraid/linit.c   | 34 +++++++++++++++++++++++++---------
- 2 files changed, 26 insertions(+), 10 deletions(-)
+ drivers/i2c/i2c-dev.c | 48 +++++++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/scsi/aacraid/commsup.c b/drivers/scsi/aacraid/commsup.c
-index a284527999c55..65a5cd6a5f961 100644
---- a/drivers/scsi/aacraid/commsup.c
-+++ b/drivers/scsi/aacraid/commsup.c
-@@ -771,7 +771,7 @@ int aac_hba_send(u8 command, struct fib *fibptr, fib_callback callback,
- 		hbacmd->request_id =
- 			cpu_to_le32((((u32)(fibptr - dev->fibs)) << 2) + 1);
- 		fibptr->flags |= FIB_CONTEXT_FLAG_SCSI_CMD;
--	} else if (command != HBA_IU_TYPE_SCSI_TM_REQ)
-+	} else
- 		return -EINVAL;
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index eaa312bc3a3ce..c4066276eb7b9 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -47,7 +47,7 @@
+ struct i2c_dev {
+ 	struct list_head list;
+ 	struct i2c_adapter *adap;
+-	struct device *dev;
++	struct device dev;
+ 	struct cdev cdev;
+ };
  
+@@ -91,12 +91,14 @@ static struct i2c_dev *get_free_i2c_dev(struct i2c_adapter *adap)
+ 	return i2c_dev;
+ }
  
-diff --git a/drivers/scsi/aacraid/linit.c b/drivers/scsi/aacraid/linit.c
-index 053a31c5485f3..e0e728d0dd5e7 100644
---- a/drivers/scsi/aacraid/linit.c
-+++ b/drivers/scsi/aacraid/linit.c
-@@ -736,7 +736,11 @@ static int aac_eh_abort(struct scsi_cmnd* cmd)
- 		status = aac_hba_send(HBA_IU_TYPE_SCSI_TM_REQ, fib,
- 				  (fib_callback) aac_hba_callback,
- 				  (void *) cmd);
--
-+		if (status != -EINPROGRESS) {
-+			aac_fib_complete(fib);
-+			aac_fib_free(fib);
-+			return ret;
-+		}
- 		/* Wait up to 15 secs for completion */
- 		for (count = 0; count < 15; ++count) {
- 			if (cmd->SCp.sent_command) {
-@@ -915,11 +919,11 @@ static int aac_eh_dev_reset(struct scsi_cmnd *cmd)
+-static void put_i2c_dev(struct i2c_dev *i2c_dev)
++static void put_i2c_dev(struct i2c_dev *i2c_dev, bool del_cdev)
+ {
+ 	spin_lock(&i2c_dev_list_lock);
+ 	list_del(&i2c_dev->list);
+ 	spin_unlock(&i2c_dev_list_lock);
+-	kfree(i2c_dev);
++	if (del_cdev)
++		cdev_device_del(&i2c_dev->cdev, &i2c_dev->dev);
++	put_device(&i2c_dev->dev);
+ }
  
- 	info = &aac->hba_map[bus][cid];
+ static ssize_t name_show(struct device *dev,
+@@ -542,6 +544,14 @@ static const struct file_operations i2cdev_fops = {
  
--	if (info->devtype != AAC_DEVTYPE_NATIVE_RAW &&
--	    info->reset_state > 0)
-+	if (!(info->devtype == AAC_DEVTYPE_NATIVE_RAW &&
-+	 !(info->reset_state > 0)))
- 		return FAILED;
+ static struct class *i2c_dev_class;
  
--	pr_err("%s: Host adapter reset request. SCSI hang ?\n",
-+	pr_err("%s: Host device reset request. SCSI hang ?\n",
- 	       AAC_DRIVERNAME);
- 
- 	fib = aac_fib_alloc(aac);
-@@ -934,7 +938,12 @@ static int aac_eh_dev_reset(struct scsi_cmnd *cmd)
- 	status = aac_hba_send(command, fib,
- 			      (fib_callback) aac_tmf_callback,
- 			      (void *) info);
--
-+	if (status != -EINPROGRESS) {
-+		info->reset_state = 0;
-+		aac_fib_complete(fib);
-+		aac_fib_free(fib);
-+		return ret;
-+	}
- 	/* Wait up to 15 seconds for completion */
- 	for (count = 0; count < 15; ++count) {
- 		if (info->reset_state == 0) {
-@@ -973,11 +982,11 @@ static int aac_eh_target_reset(struct scsi_cmnd *cmd)
- 
- 	info = &aac->hba_map[bus][cid];
- 
--	if (info->devtype != AAC_DEVTYPE_NATIVE_RAW &&
--	    info->reset_state > 0)
-+	if (!(info->devtype == AAC_DEVTYPE_NATIVE_RAW &&
-+	 !(info->reset_state > 0)))
- 		return FAILED;
- 
--	pr_err("%s: Host adapter reset request. SCSI hang ?\n",
-+	pr_err("%s: Host target reset request. SCSI hang ?\n",
- 	       AAC_DRIVERNAME);
- 
- 	fib = aac_fib_alloc(aac);
-@@ -994,6 +1003,13 @@ static int aac_eh_target_reset(struct scsi_cmnd *cmd)
- 			      (fib_callback) aac_tmf_callback,
- 			      (void *) info);
- 
-+	if (status != -EINPROGRESS) {
-+		info->reset_state = 0;
-+		aac_fib_complete(fib);
-+		aac_fib_free(fib);
-+		return ret;
-+	}
++static void i2cdev_dev_release(struct device *dev)
++{
++	struct i2c_dev *i2c_dev;
 +
- 	/* Wait up to 15 seconds for completion */
- 	for (count = 0; count < 15; ++count) {
- 		if (info->reset_state <= 0) {
-@@ -1046,7 +1062,7 @@ static int aac_eh_bus_reset(struct scsi_cmnd* cmd)
- 		}
++	i2c_dev = container_of(dev, struct i2c_dev, dev);
++	kfree(i2c_dev);
++}
++
+ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
+ {
+ 	struct i2c_adapter *adap;
+@@ -558,27 +568,23 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
+ 
+ 	cdev_init(&i2c_dev->cdev, &i2cdev_fops);
+ 	i2c_dev->cdev.owner = THIS_MODULE;
+-	res = cdev_add(&i2c_dev->cdev, MKDEV(I2C_MAJOR, adap->nr), 1);
+-	if (res)
+-		goto error_cdev;
+-
+-	/* register this i2c device with the driver core */
+-	i2c_dev->dev = device_create(i2c_dev_class, &adap->dev,
+-				     MKDEV(I2C_MAJOR, adap->nr), NULL,
+-				     "i2c-%d", adap->nr);
+-	if (IS_ERR(i2c_dev->dev)) {
+-		res = PTR_ERR(i2c_dev->dev);
+-		goto error;
++
++	device_initialize(&i2c_dev->dev);
++	i2c_dev->dev.devt = MKDEV(I2C_MAJOR, adap->nr);
++	i2c_dev->dev.class = i2c_dev_class;
++	i2c_dev->dev.parent = &adap->dev;
++	i2c_dev->dev.release = i2cdev_dev_release;
++	dev_set_name(&i2c_dev->dev, "i2c-%d", adap->nr);
++
++	res = cdev_device_add(&i2c_dev->cdev, &i2c_dev->dev);
++	if (res) {
++		put_i2c_dev(i2c_dev, false);
++		return res;
  	}
  
--	pr_err("%s: Host adapter reset request. SCSI hang ?\n", AAC_DRIVERNAME);
-+	pr_err("%s: Host bus reset request. SCSI hang ?\n", AAC_DRIVERNAME);
+ 	pr_debug("i2c-dev: adapter [%s] registered as minor %d\n",
+ 		 adap->name, adap->nr);
+ 	return 0;
+-error:
+-	cdev_del(&i2c_dev->cdev);
+-error_cdev:
+-	put_i2c_dev(i2c_dev);
+-	return res;
+ }
  
- 	/*
- 	 * Check the health of the controller
+ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
+@@ -594,9 +600,7 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
+ 	if (!i2c_dev) /* attach_adapter must have failed */
+ 		return 0;
+ 
+-	cdev_del(&i2c_dev->cdev);
+-	put_i2c_dev(i2c_dev);
+-	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
++	put_i2c_dev(i2c_dev, true);
+ 
+ 	pr_debug("i2c-dev: adapter [%s] unregistered\n", adap->name);
+ 	return 0;
 -- 
 2.20.1
 
