@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB32F1A4FE7
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:12:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA361A5015
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:14:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727349AbgDKMMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:12:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45422 "EHLO mail.kernel.org"
+        id S1727910AbgDKMOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:14:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727369AbgDKMMm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:12:42 -0400
+        id S1727180AbgDKMOP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:14:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93B93216FD;
-        Sat, 11 Apr 2020 12:12:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8001E21556;
+        Sat, 11 Apr 2020 12:14:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607163;
-        bh=du34FuSZ/93isxJl6ceSMUx6+clIj0/Chgs4FwB6Bf0=;
+        s=default; t=1586607255;
+        bh=KJ6sRbv1chySN6yp+1UruY8GwiqBm3pvJ/VFblOSj6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBup08jiylVsZc9KThzn2w7/3P6G8qThfKrirvyn/E/voRiJaxUU+iGjSVYpqq55h
-         Kaw0nh/SfA2/+vjDTvLBp0jlufxetizMZ2fbjJJfu9gJEa2wHjAM8Ihyoc1J6Xivsp
-         Ohopm0LURrwfAOjmmliilxRR+ZbAmnegRWFeHoeA=
+        b=Eri0kOzNpWaHWI89qBFIZFmOVX/aZKHd6Ja77aXaVLq4kfmZmkwMJA0FivgB8TWwr
+         Y7hyXq33vh5/txO44g3zQzYHf9o6CX5/FtRL4E780RlMD8SXVXJmud2WLplBozC3RW
+         iBWZwnODfCXVhkFMXscNWL+kSDCKyX75UTxmYHRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianchao Wang <jianchao.w.wang@oracle.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.9 09/32] blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter
+        stable@vger.kernel.org, Jin Meng <meng.a.jin@nokia-sbell.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 04/38] sctp: fix possibly using a bad saddr with a given dst
 Date:   Sat, 11 Apr 2020 14:08:48 +0200
-Message-Id: <20200411115419.710747345@linuxfoundation.org>
+Message-Id: <20200411115438.236519246@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
-References: <20200411115418.455500023@linuxfoundation.org>
+In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
+References: <20200411115437.795556138@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianchao Wang <jianchao.w.wang@oracle.com>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-commit f5bbbbe4d63577026f908a809f22f5fd5a90ea1f upstream.
+[ Upstream commit 582eea230536a6f104097dd46205822005d5fe3a ]
 
-For blk-mq, part_in_flight/rw will invoke blk_mq_in_flight/rw to
-account the inflight requests. It will access the queue_hw_ctx and
-nr_hw_queues w/o any protection. When updating nr_hw_queues and
-blk_mq_in_flight/rw occur concurrently, panic comes up.
+Under certain circumstances, depending on the order of addresses on the
+interfaces, it could be that sctp_v[46]_get_dst() would return a dst
+with a mismatched struct flowi.
 
-Before update nr_hw_queues, the q will be frozen. So we could use
-q_usage_counter to avoid the race. percpu_ref_is_zero is used here
-so that we will not miss any in-flight request. The access to
-nr_hw_queues and queue_hw_ctx in blk_mq_queue_tag_busy_iter are
-under rcu critical section, __blk_mq_update_nr_hw_queues could use
-synchronize_rcu to ensure the zeroed q_usage_counter to be globally
-visible.
+For example, if when walking through the bind addresses and the first
+one is not a match, it saves the dst as a fallback (added in
+410f03831c07), but not the flowi. Then if the next one is also not a
+match, the previous dst will be returned but with the flowi information
+for the 2nd address, which is wrong.
 
-Signed-off-by: Jianchao Wang <jianchao.w.wang@oracle.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Giuliano Procida <gprocida@google.com>
+The fix is to use a locally stored flowi that can be used for such
+attempts, and copy it to the parameter only in case it is a possible
+match, together with the corresponding dst entry.
+
+The patch updates IPv6 code mostly just to be in sync. Even though the issue
+is also present there, it fallback is not expected to work with IPv6.
+
+Fixes: 410f03831c07 ("sctp: add routing output fallback")
+Reported-by: Jin Meng <meng.a.jin@nokia-sbell.com>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Tested-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- block/blk-mq-tag.c |   14 +++++++++++++-
- block/blk-mq.c     |    4 ++++
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ net/sctp/ipv6.c     |   20 ++++++++++++++------
+ net/sctp/protocol.c |   28 +++++++++++++++++++---------
+ 2 files changed, 33 insertions(+), 15 deletions(-)
 
---- a/block/blk-mq-tag.c
-+++ b/block/blk-mq-tag.c
-@@ -336,6 +336,18 @@ void blk_mq_queue_tag_busy_iter(struct r
- 	struct blk_mq_hw_ctx *hctx;
- 	int i;
+--- a/net/sctp/ipv6.c
++++ b/net/sctp/ipv6.c
+@@ -235,7 +235,8 @@ static void sctp_v6_get_dst(struct sctp_
+ {
+ 	struct sctp_association *asoc = t->asoc;
+ 	struct dst_entry *dst = NULL;
+-	struct flowi6 *fl6 = &fl->u.ip6;
++	struct flowi _fl;
++	struct flowi6 *fl6 = &_fl.u.ip6;
+ 	struct sctp_bind_addr *bp;
+ 	struct ipv6_pinfo *np = inet6_sk(sk);
+ 	struct sctp_sockaddr_entry *laddr;
+@@ -245,7 +246,7 @@ static void sctp_v6_get_dst(struct sctp_
+ 	enum sctp_scope scope;
+ 	__u8 matchlen = 0;
  
-+	/*
-+	 * __blk_mq_update_nr_hw_queues will update the nr_hw_queues and
-+	 * queue_hw_ctx after freeze the queue. So we could use q_usage_counter
-+	 * to avoid race with it. __blk_mq_update_nr_hw_queues will users
-+	 * synchronize_rcu to ensure all of the users go out of the critical
-+	 * section below and see zeroed q_usage_counter.
-+	 */
-+	rcu_read_lock();
-+	if (percpu_ref_is_zero(&q->q_usage_counter)) {
-+		rcu_read_unlock();
-+		return;
+-	memset(fl6, 0, sizeof(struct flowi6));
++	memset(&_fl, 0, sizeof(_fl));
+ 	fl6->daddr = daddr->v6.sin6_addr;
+ 	fl6->fl6_dport = daddr->v6.sin6_port;
+ 	fl6->flowi6_proto = IPPROTO_SCTP;
+@@ -271,8 +272,11 @@ static void sctp_v6_get_dst(struct sctp_
+ 	rcu_read_unlock();
+ 
+ 	dst = ip6_dst_lookup_flow(sk, fl6, final_p);
+-	if (!asoc || saddr)
++	if (!asoc || saddr) {
++		t->dst = dst;
++		memcpy(fl, &_fl, sizeof(_fl));
+ 		goto out;
 +	}
  
- 	queue_for_each_hw_ctx(q, hctx, i) {
- 		struct blk_mq_tags *tags = hctx->tags;
-@@ -351,7 +363,7 @@ void blk_mq_queue_tag_busy_iter(struct r
- 			bt_for_each(hctx, &tags->breserved_tags, fn, priv, true);
- 		bt_for_each(hctx, &tags->bitmap_tags, fn, priv, false);
+ 	bp = &asoc->base.bind_addr;
+ 	scope = sctp_scope(daddr);
+@@ -295,6 +299,8 @@ static void sctp_v6_get_dst(struct sctp_
+ 			if ((laddr->a.sa.sa_family == AF_INET6) &&
+ 			    (sctp_v6_cmp_addr(&dst_saddr, &laddr->a))) {
+ 				rcu_read_unlock();
++				t->dst = dst;
++				memcpy(fl, &_fl, sizeof(_fl));
+ 				goto out;
+ 			}
+ 		}
+@@ -333,6 +339,8 @@ static void sctp_v6_get_dst(struct sctp_
+ 			if (!IS_ERR_OR_NULL(dst))
+ 				dst_release(dst);
+ 			dst = bdst;
++			t->dst = dst;
++			memcpy(fl, &_fl, sizeof(_fl));
+ 			break;
+ 		}
+ 
+@@ -346,6 +354,8 @@ static void sctp_v6_get_dst(struct sctp_
+ 			dst_release(dst);
+ 		dst = bdst;
+ 		matchlen = bmatchlen;
++		t->dst = dst;
++		memcpy(fl, &_fl, sizeof(_fl));
  	}
+ 	rcu_read_unlock();
+ 
+@@ -354,14 +364,12 @@ out:
+ 		struct rt6_info *rt;
+ 
+ 		rt = (struct rt6_info *)dst;
+-		t->dst = dst;
+ 		t->dst_cookie = rt6_get_cookie(rt);
+ 		pr_debug("rt6_dst:%pI6/%d rt6_src:%pI6\n",
+ 			 &rt->rt6i_dst.addr, rt->rt6i_dst.plen,
+-			 &fl6->saddr);
++			 &fl->u.ip6.saddr);
+ 	} else {
+ 		t->dst = NULL;
 -
-+	rcu_read_unlock();
+ 		pr_debug("no route\n");
+ 	}
+ }
+--- a/net/sctp/protocol.c
++++ b/net/sctp/protocol.c
+@@ -435,14 +435,15 @@ static void sctp_v4_get_dst(struct sctp_
+ {
+ 	struct sctp_association *asoc = t->asoc;
+ 	struct rtable *rt;
+-	struct flowi4 *fl4 = &fl->u.ip4;
++	struct flowi _fl;
++	struct flowi4 *fl4 = &_fl.u.ip4;
+ 	struct sctp_bind_addr *bp;
+ 	struct sctp_sockaddr_entry *laddr;
+ 	struct dst_entry *dst = NULL;
+ 	union sctp_addr *daddr = &t->ipaddr;
+ 	union sctp_addr dst_saddr;
+ 
+-	memset(fl4, 0x0, sizeof(struct flowi4));
++	memset(&_fl, 0x0, sizeof(_fl));
+ 	fl4->daddr  = daddr->v4.sin_addr.s_addr;
+ 	fl4->fl4_dport = daddr->v4.sin_port;
+ 	fl4->flowi4_proto = IPPROTO_SCTP;
+@@ -460,8 +461,11 @@ static void sctp_v4_get_dst(struct sctp_
+ 		 &fl4->saddr);
+ 
+ 	rt = ip_route_output_key(sock_net(sk), fl4);
+-	if (!IS_ERR(rt))
++	if (!IS_ERR(rt)) {
+ 		dst = &rt->dst;
++		t->dst = dst;
++		memcpy(fl, &_fl, sizeof(_fl));
++	}
+ 
+ 	/* If there is no association or if a source address is passed, no
+ 	 * more validation is required.
+@@ -524,27 +528,33 @@ static void sctp_v4_get_dst(struct sctp_
+ 		odev = __ip_dev_find(sock_net(sk), laddr->a.v4.sin_addr.s_addr,
+ 				     false);
+ 		if (!odev || odev->ifindex != fl4->flowi4_oif) {
+-			if (!dst)
++			if (!dst) {
+ 				dst = &rt->dst;
+-			else
++				t->dst = dst;
++				memcpy(fl, &_fl, sizeof(_fl));
++			} else {
+ 				dst_release(&rt->dst);
++			}
+ 			continue;
+ 		}
+ 
+ 		dst_release(dst);
+ 		dst = &rt->dst;
++		t->dst = dst;
++		memcpy(fl, &_fl, sizeof(_fl));
+ 		break;
+ 	}
+ 
+ out_unlock:
+ 	rcu_read_unlock();
+ out:
+-	t->dst = dst;
+-	if (dst)
++	if (dst) {
+ 		pr_debug("rt_dst:%pI4, rt_src:%pI4\n",
+-			 &fl4->daddr, &fl4->saddr);
+-	else
++			 &fl->u.ip4.daddr, &fl->u.ip4.saddr);
++	} else {
++		t->dst = NULL;
+ 		pr_debug("no route\n");
++	}
  }
  
- static unsigned int bt_unused_tags(const struct sbitmap_queue *bt)
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2346,6 +2346,10 @@ void blk_mq_update_nr_hw_queues(struct b
- 
- 	list_for_each_entry(q, &set->tag_list, tag_set_list)
- 		blk_mq_unfreeze_queue(q);
-+	/*
-+	 * Sync with blk_mq_queue_tag_busy_iter.
-+	 */
-+	synchronize_rcu();
- }
- EXPORT_SYMBOL_GPL(blk_mq_update_nr_hw_queues);
- 
+ /* For v4, the source address is cached in the route entry(dst). So no need
 
 
