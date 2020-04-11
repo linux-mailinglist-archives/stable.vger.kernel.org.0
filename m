@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BCF71A5AAA
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 120BF1A5AB0
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728187AbgDKXF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:05:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40678 "EHLO mail.kernel.org"
+        id S1728567AbgDKXoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:44:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728180AbgDKXFz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:55 -0400
+        id S1728185AbgDKXF5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 091FC20787;
-        Sat, 11 Apr 2020 23:05:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32D9D20CC7;
+        Sat, 11 Apr 2020 23:05:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646355;
-        bh=ymIorrYieqsCNqFIdMm/hvn6WBU04UNSBOfIym/fxmI=;
+        s=default; t=1586646356;
+        bh=8igxApwsLq39H74gfCyfuvfi8ORTEdsEEXAGtUCQ/9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Sgn1oSNzA7FCZRYo2YPSv5qJVu8XW6qWA8j91cRbt4DAnaNhNy84aORcvNZFap7u
-         +Iymi4p1dAj3/U/ijP+twemvU7er2yZQYsAiLZ6Zn60keneJzQ2T9yqdIg9MZG6qjR
-         nugSof5I3it8nYRhbF3YdBPJQ9UiQg7Zi5mmqZfE=
+        b=Jns8ZeJmo1dzXILg34rpPvu41IPfCmzLweZMqQlj0fvPSm4KF8vYGa5hFQx0MvWoK
+         di/NafSfqgNSF+3sLB/U3ayXKy1p7Xb0+EPLuG9p9tG815sXazaXnsqvj9vfJZNtZ+
+         0f64IamEG56e6qOmDvxf/iq3wEACQLcbD09F04Fw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 102/149] selftests: KVM: s390: fix early guest crash
-Date:   Sat, 11 Apr 2020 19:02:59 -0400
-Message-Id: <20200411230347.22371-102-sashal@kernel.org>
+Cc:     Jason Gunthorpe <jgg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 103/149] RDMA/cm: Remove a race freeing timewait_info
+Date:   Sat, 11 Apr 2020 19:03:00 -0400
+Message-Id: <20200411230347.22371-103-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -44,64 +43,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 41cbed5b07b5f6ca4ae567059ae7f0ffad1fd454 ]
+[ Upstream commit bede86a39d9dc3387ac00dcb8e1ac221676b2f25 ]
 
-The guest crashes very early due to changes in the control registers
-used by dynamic address translation. Let us use different registers
-that will not crash the guest.
+When creating a cm_id during REQ the id immediately becomes visible to the
+other MAD handlers, and shortly after the state is moved to IB_CM_REQ_RCVD
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This allows cm_rej_handler() to run concurrently and free the work:
+
+        CPU 0                                CPU1
+ cm_req_handler()
+  ib_create_cm_id()
+  cm_match_req()
+    id_priv->state = IB_CM_REQ_RCVD
+                                       cm_rej_handler()
+                                         cm_acquire_id()
+                                         spin_lock(&id_priv->lock)
+                                         switch (id_priv->state)
+  					   case IB_CM_REQ_RCVD:
+                                            cm_reset_to_idle()
+                                             kfree(id_priv->timewait_info);
+   goto destroy
+  destroy:
+    kfree(id_priv->timewait_info);
+                                             id_priv->timewait_info = NULL
+
+Causing a double free or worse.
+
+Do not free the timewait_info without also holding the
+id_priv->lock. Simplify this entire flow by making the free unconditional
+during cm_destroy_id() and removing the confusing special case error
+unwind during creation of the timewait_info.
+
+This also fixes a leak of the timewait if cm_destroy_id() is called in
+IB_CM_ESTABLISHED with an XRC TGT QP. The state machine will be left in
+ESTABLISHED while it needed to transition through IB_CM_TIMEWAIT to
+release the timewait pointer.
+
+Also fix a leak of the timewait_info if the caller mis-uses the API and
+does ib_send_cm_reqs().
+
+Fixes: a977049dacde ("[PATCH] IB: Add the kernel CM implementation")
+Link: https://lore.kernel.org/r/20200310092545.251365-4-leon@kernel.org
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/s390x/resets.c | 27 +++++++++++-----------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/infiniband/core/cm.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
-index 1485bc6c8999f..cbb343ad5d424 100644
---- a/tools/testing/selftests/kvm/s390x/resets.c
-+++ b/tools/testing/selftests/kvm/s390x/resets.c
-@@ -23,25 +23,24 @@ struct kvm_run *run;
- struct kvm_sync_regs *regs;
- static uint64_t regs_null[16];
+diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
+index f3a845c100384..180f945a92390 100644
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -1055,14 +1055,22 @@ static void cm_destroy_id(struct ib_cm_id *cm_id, int err)
+ 		break;
+ 	}
  
--static uint64_t crs[16] = { 0x40000ULL,
--			    0x42000ULL,
--			    0, 0, 0, 0, 0,
--			    0x43000ULL,
--			    0, 0, 0, 0, 0,
--			    0x44000ULL,
--			    0, 0
--};
--
- static void guest_code_initial(void)
- {
--	/* Round toward 0 */
--	uint32_t fpc = 0x11;
-+	/* set several CRs to "safe" value */
-+	unsigned long cr2_59 = 0x10;	/* enable guarded storage */
-+	unsigned long cr8_63 = 0x1;	/* monitor mask = 1 */
-+	unsigned long cr10 = 1;		/* PER START */
-+	unsigned long cr11 = -1;	/* PER END */
-+
+-	spin_lock_irq(&cm.lock);
++	spin_lock_irq(&cm_id_priv->lock);
++	spin_lock(&cm.lock);
++	/* Required for cleanup paths related cm_req_handler() */
++	if (cm_id_priv->timewait_info) {
++		cm_cleanup_timewait(cm_id_priv->timewait_info);
++		kfree(cm_id_priv->timewait_info);
++		cm_id_priv->timewait_info = NULL;
++	}
+ 	if (!list_empty(&cm_id_priv->altr_list) &&
+ 	    (!cm_id_priv->altr_send_port_not_ready))
+ 		list_del(&cm_id_priv->altr_list);
+ 	if (!list_empty(&cm_id_priv->prim_list) &&
+ 	    (!cm_id_priv->prim_send_port_not_ready))
+ 		list_del(&cm_id_priv->prim_list);
+-	spin_unlock_irq(&cm.lock);
++	spin_unlock(&cm.lock);
++	spin_unlock_irq(&cm_id_priv->lock);
  
- 	/* Dirty registers */
- 	asm volatile (
--		"	lctlg	0,15,%0\n"
--		"	sfpc	%1\n"
--		: : "Q" (crs), "d" (fpc));
-+		"	lghi	2,0x11\n"	/* Round toward 0 */
-+		"	sfpc	2\n"		/* set fpc to !=0 */
-+		"	lctlg	2,2,%0\n"
-+		"	lctlg	8,8,%1\n"
-+		"	lctlg	10,10,%2\n"
-+		"	lctlg	11,11,%3\n"
-+		: : "m" (cr2_59), "m" (cr8_63), "m" (cr10), "m" (cr11) : "2");
- 	GUEST_SYNC(0);
+ 	cm_free_id(cm_id->local_id);
+ 	cm_deref_id(cm_id_priv);
+@@ -1414,7 +1422,7 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
+ 	/* Verify that we're not in timewait. */
+ 	cm_id_priv = container_of(cm_id, struct cm_id_private, id);
+ 	spin_lock_irqsave(&cm_id_priv->lock, flags);
+-	if (cm_id->state != IB_CM_IDLE) {
++	if (cm_id->state != IB_CM_IDLE || WARN_ON(cm_id_priv->timewait_info)) {
+ 		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
+ 		ret = -EINVAL;
+ 		goto out;
+@@ -1432,12 +1440,12 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
+ 				 param->ppath_sgid_attr, &cm_id_priv->av,
+ 				 cm_id_priv);
+ 	if (ret)
+-		goto error1;
++		goto out;
+ 	if (param->alternate_path) {
+ 		ret = cm_init_av_by_path(param->alternate_path, NULL,
+ 					 &cm_id_priv->alt_av, cm_id_priv);
+ 		if (ret)
+-			goto error1;
++			goto out;
+ 	}
+ 	cm_id->service_id = param->service_id;
+ 	cm_id->service_mask = ~cpu_to_be64(0);
+@@ -1455,7 +1463,7 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
+ 
+ 	ret = cm_alloc_msg(cm_id_priv, &cm_id_priv->msg);
+ 	if (ret)
+-		goto error1;
++		goto out;
+ 
+ 	req_msg = (struct cm_req_msg *) cm_id_priv->msg->mad;
+ 	cm_format_req(req_msg, cm_id_priv, param);
+@@ -1478,7 +1486,6 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
+ 	return 0;
+ 
+ error2:	cm_free_msg(cm_id_priv->msg);
+-error1:	kfree(cm_id_priv->timewait_info);
+ out:	return ret;
  }
+ EXPORT_SYMBOL(ib_send_cm_req);
+@@ -2011,7 +2018,7 @@ static int cm_req_handler(struct cm_work *work)
+ 		pr_debug("%s: local_id %d, no listen_cm_id_priv\n", __func__,
+ 			 be32_to_cpu(cm_id->local_id));
+ 		ret = -EINVAL;
+-		goto free_timeinfo;
++		goto destroy;
+ 	}
  
+ 	cm_id_priv->id.cm_handler = listen_cm_id_priv->id.cm_handler;
+@@ -2101,8 +2108,6 @@ static int cm_req_handler(struct cm_work *work)
+ rejected:
+ 	refcount_dec(&cm_id_priv->refcount);
+ 	cm_deref_id(listen_cm_id_priv);
+-free_timeinfo:
+-	kfree(cm_id_priv->timewait_info);
+ destroy:
+ 	ib_destroy_cm_id(cm_id);
+ 	return ret;
 -- 
 2.20.1
 
