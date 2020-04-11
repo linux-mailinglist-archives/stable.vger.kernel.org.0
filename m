@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4EF71A51FD
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B891A51FF
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbgDKM2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:28:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44144 "EHLO mail.kernel.org"
+        id S1726936AbgDKM26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:28:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727070AbgDKMLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:11:53 -0400
+        id S1727018AbgDKMLl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:11:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CEE420787;
-        Sat, 11 Apr 2020 12:11:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72A3A21744;
+        Sat, 11 Apr 2020 12:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607112;
-        bh=m6UpdZbBu/gB4E8paV2q3e5QitPKAE175Dg7yd/O5Ts=;
+        s=default; t=1586607099;
+        bh=GqvXIaxjuuMVkWbvgmnDJJlqisLZZymgyjdUpE30ZoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0R31cTRFqwCpP4+ILJ+ibSIanBycKLc7h4WlNJsDZq1Xp9aIdy8F2FEt2qNUpliZX
-         kMZWBt9pytXaCtQoAg5jbFAcVZOmXuFPYFxi+l2XuBIkvpsXTLqbqClXZNKXdqruDh
-         voMTqj2D3ZO2sKoiU4HuNAG25XI2b+Vm+R1/guxs=
+        b=q6l+u8KzNhNmkrKe/Aezuj9XLGhrSp55ELTnKaUVXe4+eDFybXxb1VcfgrwLP/8sH
+         8qPWWjAwaBG/3AWNcQdyEaix5ImHkxp6IRaLp9K4yfcuxAKwt5vi+bO9Bqi91p6Kzw
+         4tkXXzKD/j4H9kZYy6byAsJrDnYzWfjeV9z6qFoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 4.9 12/32] net: dsa: tag_brcm: Fix skb->fwd_offload_mark location
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.4 21/29] power: supply: axp288_charger: Fix unchecked return value
 Date:   Sat, 11 Apr 2020 14:08:51 +0200
-Message-Id: <20200411115419.981067370@linuxfoundation.org>
+Message-Id: <20200411115411.408033079@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
-References: <20200411115418.455500023@linuxfoundation.org>
+In-Reply-To: <20200411115407.651296755@linuxfoundation.org>
+References: <20200411115407.651296755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-When the backport of upstream commit
-0e62f543bed03a64495bd2651d4fe1aa4bcb7fe5 ("net: dsa: Fix duplicate
-frames flooded by learning") was done the assignment of
-skb->fwd_offload_mark would land in brcm_tag_xmit() which is incorrect,
-it should have been in brcm_tag_rcv().
+commit c3422ad5f84a66739ec6a37251ca27638c85b6be upstream.
 
-Fixes: 5e845dc62f38 ("net: dsa: Fix duplicate frames flooded by learning")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Currently there is no check on platform_get_irq() return value
+in case it fails, hence never actually reporting any errors and
+causing unexpected behavior when using such value as argument
+for function regmap_irq_get_virq().
+
+Fix this by adding a proper check, a message reporting any errors
+and returning *pirq*
+
+Addresses-Coverity-ID: 1443940 ("Improper use of negative value")
+Fixes: 843735b788a4 ("power: axp288_charger: axp288 charger driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 
 ---
- net/dsa/tag_brcm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/axp288_charger.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/dsa/tag_brcm.c
-+++ b/net/dsa/tag_brcm.c
-@@ -84,8 +84,6 @@ static struct sk_buff *brcm_tag_xmit(str
- 		brcm_tag[2] = BRCM_IG_DSTMAP2_MASK;
- 	brcm_tag[3] = (1 << p->port) & BRCM_IG_DSTMAP1_MASK;
- 
--	skb->offload_fwd_mark = 1;
--
- 	return skb;
- 
- out_free:
-@@ -148,6 +146,8 @@ static int brcm_tag_rcv(struct sk_buff *
- 	skb->dev->stats.rx_packets++;
- 	skb->dev->stats.rx_bytes += skb->len;
- 
-+	skb->offload_fwd_mark = 1;
-+
- 	netif_receive_skb(skb);
- 
- 	return 0;
+--- a/drivers/power/axp288_charger.c
++++ b/drivers/power/axp288_charger.c
+@@ -883,6 +883,10 @@ static int axp288_charger_probe(struct p
+ 	/* Register charger interrupts */
+ 	for (i = 0; i < CHRG_INTR_END; i++) {
+ 		pirq = platform_get_irq(info->pdev, i);
++		if (pirq < 0) {
++			dev_err(&pdev->dev, "Failed to get IRQ: %d\n", pirq);
++			return pirq;
++		}
+ 		info->irq[i] = regmap_irq_get_virq(info->regmap_irqc, pirq);
+ 		if (info->irq[i] < 0) {
+ 			dev_warn(&info->pdev->dev,
 
 
