@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D11101A4FF7
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BB2E1A51A5
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:27:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727680AbgDKMNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:13:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46052 "EHLO mail.kernel.org"
+        id S1728060AbgDKMOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:14:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727664AbgDKMNN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:13:13 -0400
+        id S1727273AbgDKMOy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:14:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BCB02137B;
-        Sat, 11 Apr 2020 12:13:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 329A12084D;
+        Sat, 11 Apr 2020 12:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607192;
-        bh=AOAvaLVkDHeMRUUOp5dsa0b0RO3eEiCYm6DzGZdjcBU=;
+        s=default; t=1586607293;
+        bh=qEGibT5UAijc/0Xz1y1e509D0RA9GeicJPNQYYQutp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BuKPA4KYbZzrZQVFmrnQ7CB02HU3oU9Rd868wT4eW2ik3n2++0vtuvTBERhqPfRyL
-         dEw9/iqIpSE0gi8DmIGZOFNylK+SERaOp7mGaVm8hetjDkcSIiS2a1et8IXuPXmfrX
-         FX2VT5PCACm2MsxE62XGa8WLRf4g6B0k+5exX9co=
+        b=ykLvzrtDpIquLljUE7u95blBfI1Z6OsU6k2/3aPPIeHiiLmmBICf22R54VbwjP7Sx
+         s35ZTJ8/T4L9YylbV24ew89+mBUcrKCevqtS0SjKAYDO/BaWaMZpuzslnUruFFFw+y
+         jV5io4Cq1EGLvZqXC4GvCOQ1gCAZar9UlohjCyjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.14 12/38] coresight: do not use the BIT() macro in the UAPI header
-Date:   Sat, 11 Apr 2020 14:08:56 +0200
-Message-Id: <20200411115439.195299970@linuxfoundation.org>
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.19 15/54] misc: pci_endpoint_test: Fix to support > 10 pci-endpoint-test devices
+Date:   Sat, 11 Apr 2020 14:08:57 +0200
+Message-Id: <20200411115509.847419848@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
-References: <20200411115437.795556138@linuxfoundation.org>
+In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
+References: <20200411115508.284500414@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Syromiatnikov <esyr@redhat.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 9b6eaaf3db5e5888df7bca7fed7752a90f7fd871 upstream.
+commit 6b443e5c80b67a7b8a85b33d052d655ef9064e90 upstream.
 
-The BIT() macro definition is not available for the UAPI headers
-(moreover, it can be defined differently in the user space); replace
-its usage with the _BITUL() macro that is defined in <linux/const.h>.
+Adding more than 10 pci-endpoint-test devices results in
+"kobject_add_internal failed for pci-endpoint-test.1 with -EEXIST, don't
+try to register things with the same name in the same directory". This
+is because commit 2c156ac71c6b ("misc: Add host side PCI driver for PCI
+test function device") limited the length of the "name" to 20 characters.
+Change the length of the name to 24 in order to support upto 10000
+pci-endpoint-test devices.
 
-Fixes: 237483aa5cf4 ("coresight: stm: adding driver for CoreSight STM component")
-Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200324042213.GA10452@asgard.redhat.com
+Fixes: 2c156ac71c6b ("misc: Add host side PCI driver for PCI test function device")
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org # v4.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/linux/coresight-stm.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/misc/pci_endpoint_test.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/uapi/linux/coresight-stm.h
-+++ b/include/uapi/linux/coresight-stm.h
-@@ -2,8 +2,10 @@
- #ifndef __UAPI_CORESIGHT_STM_H_
- #define __UAPI_CORESIGHT_STM_H_
- 
--#define STM_FLAG_TIMESTAMPED   BIT(3)
--#define STM_FLAG_GUARANTEED    BIT(7)
-+#include <linux/const.h>
-+
-+#define STM_FLAG_TIMESTAMPED   _BITUL(3)
-+#define STM_FLAG_GUARANTEED    _BITUL(7)
- 
- /*
-  * The CoreSight STM supports guaranteed and invariant timing
+--- a/drivers/misc/pci_endpoint_test.c
++++ b/drivers/misc/pci_endpoint_test.c
+@@ -636,7 +636,7 @@ static int pci_endpoint_test_probe(struc
+ {
+ 	int err;
+ 	int id;
+-	char name[20];
++	char name[24];
+ 	enum pci_barno bar;
+ 	void __iomem *base;
+ 	struct device *dev = &pdev->dev;
 
 
