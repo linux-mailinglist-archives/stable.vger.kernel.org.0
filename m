@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 330951A512A
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D892E1A51AD
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728381AbgDKMSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:18:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53618 "EHLO mail.kernel.org"
+        id S1726876AbgDKMOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:14:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728000AbgDKMSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:18:35 -0400
+        id S1727954AbgDKMOf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:14:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D83FD2084D;
-        Sat, 11 Apr 2020 12:18:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0CFA20644;
+        Sat, 11 Apr 2020 12:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607515;
-        bh=ZOZLhi1wgZ1KCiSc5ynZD9XDsGPp6+H9laCsQzK4XIw=;
+        s=default; t=1586607274;
+        bh=kn6do4sZUl1m9RB0bbgLrYd5xmWGiUYapZhBmgCfQGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7QN0gfLA/hGj94VDcvRU/kYX3KysfIiCzWCOtgLC4yvtABLGM+CSqIi1jdWpTj7E
-         kAU6I5QMaXzuyQJVEFiTRZxk9QprAfa+lzXavMENAsTxInU17wxpRTGXpPkzRRECIm
-         9Uv47K1yKST1M0/GDkPLcG3pMgfKPPEw1YCwOEpk=
+        b=zJ5wc2JU/pTcE+e68J98YUvmmSsHE8me/atNWo8s2SMVV7Z9NJdVeWTRz1La7naWt
+         qziuHGykIjRbNl5JKVMrNPIefMS7EWPU8Py1YUJcwTpkODNB3w0THM5xjxUy+hQRgQ
+         pvEc2dm77yFczr1FMuqdFPInOSwU+/W6cV9Hbd+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Levi <moshele@mellanox.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        Marcelo Ricardo Leitner <mleitner@redhat.com>,
-        netdev@vger.kernel.org, Jarod Wilson <jarod@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.5 02/44] ipv6: dont auto-add link-local address to lag ports
+        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 38/38] drm_dp_mst_topology: fix broken drm_dp_sideband_parse_remote_dpcd_read()
 Date:   Sat, 11 Apr 2020 14:09:22 +0200
-Message-Id: <20200411115457.140398372@linuxfoundation.org>
+Message-Id: <20200411115441.432558800@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
-References: <20200411115456.934174282@linuxfoundation.org>
+In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
+References: <20200411115437.795556138@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,91 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Hans Verkuil <hans.verkuil@cisco.com>
 
-[ Upstream commit 744fdc8233f6aa9582ce08a51ca06e59796a3196 ]
+commit a4c30a4861c54af78c4eb8b7855524c1a96d9f80 upstream.
 
-Bonding slave and team port devices should not have link-local addresses
-automatically added to them, as it can interfere with openvswitch being
-able to properly add tc ingress.
+When parsing the reply of a DP_REMOTE_DPCD_READ DPCD command the
+result is wrong due to a missing idx increment.
 
-Basic reproducer, courtesy of Marcelo:
+This was never noticed since DP_REMOTE_DPCD_READ is currently not
+used, but if you enable it, then it is all wrong.
 
-$ ip link add name bond0 type bond
-$ ip link set dev ens2f0np0 master bond0
-$ ip link set dev ens2f1np2 master bond0
-$ ip link set dev bond0 up
-$ ip a s
-1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN
-group default qlen 1000
-    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
-    inet 127.0.0.1/8 scope host lo
-       valid_lft forever preferred_lft forever
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-2: ens2f0np0: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 1500 qdisc
-mq master bond0 state UP group default qlen 1000
-    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
-5: ens2f1np2: <NO-CARRIER,BROADCAST,MULTICAST,SLAVE,UP> mtu 1500 qdisc
-mq master bond0 state DOWN group default qlen 1000
-    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
-11: bond0: <BROADCAST,MULTICAST,MASTER,UP,LOWER_UP> mtu 1500 qdisc
-noqueue state UP group default qlen 1000
-    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
-    inet6 fe80::20f:53ff:fe2f:ea40/64 scope link
-       valid_lft forever preferred_lft forever
-
-(above trimmed to relevant entries, obviously)
-
-$ sysctl net.ipv6.conf.ens2f0np0.addr_gen_mode=0
-net.ipv6.conf.ens2f0np0.addr_gen_mode = 0
-$ sysctl net.ipv6.conf.ens2f1np2.addr_gen_mode=0
-net.ipv6.conf.ens2f1np2.addr_gen_mode = 0
-
-$ ip a l ens2f0np0
-2: ens2f0np0: <BROADCAST,MULTICAST,SLAVE,UP,LOWER_UP> mtu 1500 qdisc
-mq master bond0 state UP group default qlen 1000
-    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
-    inet6 fe80::20f:53ff:fe2f:ea40/64 scope link tentative
-       valid_lft forever preferred_lft forever
-$ ip a l ens2f1np2
-5: ens2f1np2: <NO-CARRIER,BROADCAST,MULTICAST,SLAVE,UP> mtu 1500 qdisc
-mq master bond0 state DOWN group default qlen 1000
-    link/ether 00:0f:53:2f:ea:40 brd ff:ff:ff:ff:ff:ff
-    inet6 fe80::20f:53ff:fe2f:ea40/64 scope link tentative
-       valid_lft forever preferred_lft forever
-
-Looks like addrconf_sysctl_addr_gen_mode() bypasses the original "is
-this a slave interface?" check added by commit c2edacf80e15, and
-results in an address getting added, while w/the proposed patch added,
-no address gets added. This simply adds the same gating check to another
-code path, and thus should prevent the same devices from erroneously
-obtaining an ipv6 link-local address.
-
-Fixes: d35a00b8e33d ("net/ipv6: allow sysctl to change link-local address generation mode")
-Reported-by: Moshe Levi <moshele@mellanox.com>
-CC: Stephen Hemminger <stephen@networkplumber.org>
-CC: Marcelo Ricardo Leitner <mleitner@redhat.com>
-CC: netdev@vger.kernel.org
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/e72ddac2-1dc0-100a-d816-9ac98ac009dd@xs4all.nl
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/addrconf.c |    4 ++++
- 1 file changed, 4 insertions(+)
 
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3296,6 +3296,10 @@ static void addrconf_addr_gen(struct ine
- 	if (netif_is_l3_master(idev->dev))
- 		return;
+---
+ drivers/gpu/drm/drm_dp_mst_topology.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -433,6 +433,7 @@ static bool drm_dp_sideband_parse_remote
+ 	if (idx > raw->curlen)
+ 		goto fail_len;
+ 	repmsg->u.remote_dpcd_read_ack.num_bytes = raw->msg[idx];
++	idx++;
+ 	if (idx > raw->curlen)
+ 		goto fail_len;
  
-+	/* no link local addresses on devices flagged as slaves */
-+	if (idev->dev->flags & IFF_SLAVE)
-+		return;
-+
- 	ipv6_addr_set(&addr, htonl(0xFE800000), 0, 0, 0);
- 
- 	switch (idev->cnf.addr_gen_mode) {
 
 
