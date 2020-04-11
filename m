@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A64151A58A6
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:31:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 456A21A58A4
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729008AbgDKXKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:10:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48524 "EHLO mail.kernel.org"
+        id S1728517AbgDKXb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:31:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729516AbgDKXKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:10:17 -0400
+        id S1728415AbgDKXKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:10:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6718C20757;
-        Sat, 11 Apr 2020 23:10:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C51D2173E;
+        Sat, 11 Apr 2020 23:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646618;
-        bh=MWpLAvZyJRrYn5ZnqL48jiIVByF7JkVVIj1AX7DmTvU=;
+        s=default; t=1586646619;
+        bh=gp1hTmekrKQ5jnlM2xi6A48oQqXWOVZwwmo8eo8OPTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XdNgMsUr2pdU0pV6L713hwYbdZ3W2eBytYmhdO6s54P1FY9cZNDsWmAiKdhCchSlK
-         FFE6bdR23QWx+mzUYYPS1F0bCH7cwVUXzckloIjxWrvgWhB4kHGqe9aYrRQ6sywe0p
-         3mG58eKyVWFdCBi9kZH7nTjJfUEtYw8Yh5Zd+QJg=
+        b=dhyZlR/bnAgU0nqRV/0w6IhumDgJmLkqDXg/PhHgciQCb+7bD+3QBDo8GE2hCeVvE
+         3WSmaLYQtS1p/aPwKRfIa+uc4aN7PW5JlkUFwPuMt08UFioKwrZSq+tjbirAT2mU5W
+         HPo0p1zS1ZfSGSb3ptZh7uTI4yjJsY07u/rdfgpE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Taehee Yoo <ap420073@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 028/108] net: rmnet: add missing module alias
-Date:   Sat, 11 Apr 2020 19:08:23 -0400
-Message-Id: <20200411230943.24951-28-sashal@kernel.org>
+Cc:     Eric Bernstein <eric.bernstein@amd.com>,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 029/108] drm/amd/display: Fix default logger mask definition
+Date:   Sat, 11 Apr 2020 19:08:24 -0400
+Message-Id: <20200411230943.24951-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230943.24951-1-sashal@kernel.org>
 References: <20200411230943.24951-1-sashal@kernel.org>
@@ -43,35 +46,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Eric Bernstein <eric.bernstein@amd.com>
 
-[ Upstream commit eed22a0685d651fc531bc63f215bb2a71d4b98e5 ]
+[ Upstream commit ccb6af1e25830e5601b6beacc698390f0245316f ]
 
-In the current rmnet code, there is no module alias.
-So, RTNL couldn't load rmnet module automatically.
+[Why]
+Logger mask was updated to uint64_t, however default mask definition was
+not updated for unsigned long long
 
-Test commands:
-    ip link add dummy0 type dummy
-    modprobe -rv rmnet
-    ip link add rmnet0 link dummy0 type rmnet  mux_id 1
+[How]
+Update DC_DEFAULT_LOG_MASK to support uint64_t type
 
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Eric Bernstein <eric.bernstein@amd.com>
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../drm/amd/display/include/logger_types.h    | 63 ++++++++++---------
+ 1 file changed, 32 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-index fbf4cbcf1a654..d846a0ccea8f0 100644
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-@@ -475,4 +475,5 @@ static void __exit rmnet_exit(void)
+diff --git a/drivers/gpu/drm/amd/display/include/logger_types.h b/drivers/gpu/drm/amd/display/include/logger_types.h
+index 2b219cdb13ad4..e0fcc0ce677e7 100644
+--- a/drivers/gpu/drm/amd/display/include/logger_types.h
++++ b/drivers/gpu/drm/amd/display/include/logger_types.h
+@@ -130,36 +130,37 @@ enum dc_log_type {
+ #define DC_MIN_LOG_MASK ((1 << LOG_ERROR) | \
+ 		(1 << LOG_DETECTION_EDID_PARSER))
  
- module_init(rmnet_init)
- module_exit(rmnet_exit)
-+MODULE_ALIAS_RTNL_LINK("rmnet");
- MODULE_LICENSE("GPL v2");
+-#define DC_DEFAULT_LOG_MASK ((1 << LOG_ERROR) | \
+-		(1 << LOG_WARNING) | \
+-		(1 << LOG_EVENT_MODE_SET) | \
+-		(1 << LOG_EVENT_DETECTION) | \
+-		(1 << LOG_EVENT_LINK_TRAINING) | \
+-		(1 << LOG_EVENT_LINK_LOSS) | \
+-		(1 << LOG_EVENT_UNDERFLOW) | \
+-		(1 << LOG_RESOURCE) | \
+-		(1 << LOG_FEATURE_OVERRIDE) | \
+-		(1 << LOG_DETECTION_EDID_PARSER) | \
+-		(1 << LOG_DC) | \
+-		(1 << LOG_HW_HOTPLUG) | \
+-		(1 << LOG_HW_SET_MODE) | \
+-		(1 << LOG_HW_RESUME_S3) | \
+-		(1 << LOG_HW_HPD_IRQ) | \
+-		(1 << LOG_SYNC) | \
+-		(1 << LOG_BANDWIDTH_VALIDATION) | \
+-		(1 << LOG_MST) | \
+-		(1 << LOG_DETECTION_DP_CAPS) | \
+-		(1 << LOG_BACKLIGHT)) | \
+-		(1 << LOG_I2C_AUX) | \
+-		(1 << LOG_IF_TRACE) | \
+-		(1 << LOG_DTN) /* | \
+-		(1 << LOG_DEBUG) | \
+-		(1 << LOG_BIOS) | \
+-		(1 << LOG_SURFACE) | \
+-		(1 << LOG_SCALER) | \
+-		(1 << LOG_DML) | \
+-		(1 << LOG_HW_LINK_TRAINING) | \
+-		(1 << LOG_HW_AUDIO)| \
+-		(1 << LOG_BANDWIDTH_CALCS)*/
++#define DC_DEFAULT_LOG_MASK ((1ULL << LOG_ERROR) | \
++		(1ULL << LOG_WARNING) | \
++		(1ULL << LOG_EVENT_MODE_SET) | \
++		(1ULL << LOG_EVENT_DETECTION) | \
++		(1ULL << LOG_EVENT_LINK_TRAINING) | \
++		(1ULL << LOG_EVENT_LINK_LOSS) | \
++		(1ULL << LOG_EVENT_UNDERFLOW) | \
++		(1ULL << LOG_RESOURCE) | \
++		(1ULL << LOG_FEATURE_OVERRIDE) | \
++		(1ULL << LOG_DETECTION_EDID_PARSER) | \
++		(1ULL << LOG_DC) | \
++		(1ULL << LOG_HW_HOTPLUG) | \
++		(1ULL << LOG_HW_SET_MODE) | \
++		(1ULL << LOG_HW_RESUME_S3) | \
++		(1ULL << LOG_HW_HPD_IRQ) | \
++		(1ULL << LOG_SYNC) | \
++		(1ULL << LOG_BANDWIDTH_VALIDATION) | \
++		(1ULL << LOG_MST) | \
++		(1ULL << LOG_DETECTION_DP_CAPS) | \
++		(1ULL << LOG_BACKLIGHT)) | \
++		(1ULL << LOG_I2C_AUX) | \
++		(1ULL << LOG_IF_TRACE) | \
++		(1ULL << LOG_HDMI_FRL) | \
++		(1ULL << LOG_DTN) /* | \
++		(1ULL << LOG_DEBUG) | \
++		(1ULL << LOG_BIOS) | \
++		(1ULL << LOG_SURFACE) | \
++		(1ULL << LOG_SCALER) | \
++		(1ULL << LOG_DML) | \
++		(1ULL << LOG_HW_LINK_TRAINING) | \
++		(1ULL << LOG_HW_AUDIO)| \
++		(1ULL << LOG_BANDWIDTH_CALCS)*/
+ 
+ #endif /* __DAL_LOGGER_TYPES_H__ */
 -- 
 2.20.1
 
