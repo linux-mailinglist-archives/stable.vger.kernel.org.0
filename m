@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0B71A510E
+	by mail.lfdr.de (Postfix) with ESMTP id CFB631A510F
 	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728391AbgDKMTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:19:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55322 "EHLO mail.kernel.org"
+        id S1728564AbgDKMTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:19:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728861AbgDKMTp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:19:45 -0400
+        id S1728631AbgDKMTs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:19:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E086A21556;
-        Sat, 11 Apr 2020 12:19:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B2F02137B;
+        Sat, 11 Apr 2020 12:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607585;
-        bh=5hacpNxYZe7Twig3n1RyG6eCOLtCL2UyVsUDwGr3d/A=;
+        s=default; t=1586607587;
+        bh=x8qWc3hLwwOsdjb5R6YsYTuGLj3zhF4WasWIQAL3D8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKz9gE5zt4r1/x0bBpdX5M/iTTe0rhWGclFeMCFqVfcrbZNl2wypBIo1Djy1Ri/5n
-         bV7veONgVQLgiloyaIY3xijkAEYtMYsSyMVoRCrds41uqrYRADDEbSj6YKS+Pn5iNm
-         uqZW/4XqE+JJ1YbaKL0+u4YrVYu68I7lwR1bM8YQ=
+        b=vl2+daSuqV1UcHOn/Lg2hQVm0tfMIdPrtDTL3+OuL9q4GX8x1wlZY2fQbdfvPzWAW
+         3poEvIAbd9JNncJazy6TJqA4LmxmzjjN7Rp2DnGHFyTylUowv6Q0EWgb+QbRim8ymN
+         N32f60sIpPgG/AyB0FtehAXBt8lsl/dwxZ5INbmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.5 37/44] ASoC: jz4740-i2s: Fix divider written at incorrect offset in register
-Date:   Sat, 11 Apr 2020 14:09:57 +0200
-Message-Id: <20200411115500.546616696@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Kaike Wan <kaike.wan@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.5 38/44] IB/hfi1: Call kobject_put() when kobject_init_and_add() fails
+Date:   Sat, 11 Apr 2020 14:09:58 +0200
+Message-Id: <20200411115500.616269704@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
 References: <20200411115456.934174282@linuxfoundation.org>
@@ -43,34 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Kaike Wan <kaike.wan@intel.com>
 
-commit 9401d5aa328e64617d87abd59af1c91cace4c3e4 upstream.
+commit dfb5394f804ed4fcea1fc925be275a38d66712ab upstream.
 
-The 4-bit divider value was written at offset 8, while the jz4740
-programming manual locates it at offset 0.
+When kobject_init_and_add() returns an error in the function
+hfi1_create_port_files(), the function kobject_put() is not called for the
+corresponding kobject, which potentially leads to memory leak.
 
-Fixes: 26b0aad80a86 ("ASoC: jz4740: Add dynamic sampling rate support to jz4740-i2s")
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200306222931.39664-2-paul@crapouillou.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch fixes the issue by calling kobject_put() even if
+kobject_init_and_add() fails.
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200326163813.21129.44280.stgit@awfm-01.aw.intel.com
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/jz4740/jz4740-i2s.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/sysfs.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/sound/soc/jz4740/jz4740-i2s.c
-+++ b/sound/soc/jz4740/jz4740-i2s.c
-@@ -83,7 +83,7 @@
- #define JZ_AIC_I2S_STATUS_BUSY BIT(2)
+--- a/drivers/infiniband/hw/hfi1/sysfs.c
++++ b/drivers/infiniband/hw/hfi1/sysfs.c
+@@ -674,7 +674,11 @@ int hfi1_create_port_files(struct ib_dev
+ 		dd_dev_err(dd,
+ 			   "Skipping sc2vl sysfs info, (err %d) port %u\n",
+ 			   ret, port_num);
+-		goto bail;
++		/*
++		 * Based on the documentation for kobject_init_and_add(), the
++		 * caller should call kobject_put even if this call fails.
++		 */
++		goto bail_sc2vl;
+ 	}
+ 	kobject_uevent(&ppd->sc2vl_kobj, KOBJ_ADD);
  
- #define JZ_AIC_CLK_DIV_MASK 0xf
--#define I2SDIV_DV_SHIFT 8
-+#define I2SDIV_DV_SHIFT 0
- #define I2SDIV_DV_MASK (0xf << I2SDIV_DV_SHIFT)
- #define I2SDIV_IDV_SHIFT 8
- #define I2SDIV_IDV_MASK (0xf << I2SDIV_IDV_SHIFT)
+@@ -684,7 +688,7 @@ int hfi1_create_port_files(struct ib_dev
+ 		dd_dev_err(dd,
+ 			   "Skipping sl2sc sysfs info, (err %d) port %u\n",
+ 			   ret, port_num);
+-		goto bail_sc2vl;
++		goto bail_sl2sc;
+ 	}
+ 	kobject_uevent(&ppd->sl2sc_kobj, KOBJ_ADD);
+ 
+@@ -694,7 +698,7 @@ int hfi1_create_port_files(struct ib_dev
+ 		dd_dev_err(dd,
+ 			   "Skipping vl2mtu sysfs info, (err %d) port %u\n",
+ 			   ret, port_num);
+-		goto bail_sl2sc;
++		goto bail_vl2mtu;
+ 	}
+ 	kobject_uevent(&ppd->vl2mtu_kobj, KOBJ_ADD);
+ 
+@@ -704,7 +708,7 @@ int hfi1_create_port_files(struct ib_dev
+ 		dd_dev_err(dd,
+ 			   "Skipping Congestion Control sysfs info, (err %d) port %u\n",
+ 			   ret, port_num);
+-		goto bail_vl2mtu;
++		goto bail_cc;
+ 	}
+ 
+ 	kobject_uevent(&ppd->pport_cc_kobj, KOBJ_ADD);
+@@ -742,7 +746,6 @@ bail_sl2sc:
+ 	kobject_put(&ppd->sl2sc_kobj);
+ bail_sc2vl:
+ 	kobject_put(&ppd->sc2vl_kobj);
+-bail:
+ 	return ret;
+ }
+ 
 
 
