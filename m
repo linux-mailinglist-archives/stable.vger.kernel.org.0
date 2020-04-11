@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A68BC1A569C
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45E541A5699
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729188AbgDKXRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:17:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56184 "EHLO mail.kernel.org"
+        id S1729581AbgDKXRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:17:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730333AbgDKXO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:14:29 -0400
+        id S1730800AbgDKXOa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:14:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 751232084D;
-        Sat, 11 Apr 2020 23:14:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4F6B20708;
+        Sat, 11 Apr 2020 23:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646869;
-        bh=xyPGC8d3ARutzQCLS9J1OiD8t1M1/B+LRfv/dx8xgXI=;
+        s=default; t=1586646870;
+        bh=1tAcc8Uhz025bmk0zzAR8nz6meRZu1vMgCphYFdD2CM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VabjerICAdvoIuXBhfO76lZ5PDoXPVGBLuXAtwMvRz0vyEuI3LXKlSB3O71t3YghO
-         5QmHWYqQMs8BSxkLJRQgph911YWjVVwgHj7yfJ7rMZWjjIXcGaJTbeIFWkA5ZK3WmS
-         qlvUDdMZ/bUoFFvGRtigZa19i3Fr/Fkj4NhUlYX0=
+        b=ZeIDMjfRcZ1vmluxtcY0meFhK5QlYgjt4LJ8L7H2cl5xsDvUrv4dQ/wDRc37X0Rpf
+         4SFeyrmMFoKRPSvq6Ku+Y0I73GZYH3kmLC76wIuxxFiNQYBPsG25GNg8n3BJmpXByt
+         CVnDxV5LsAaAZCI7ZBfhnkHRQDShRxdxhWjCcHVg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 13/26] net: intel: e1000e: fix possible sleep-in-atomic-context bugs in e1000e_get_hw_semaphore()
-Date:   Sat, 11 Apr 2020 19:14:00 -0400
-Message-Id: <20200411231413.26911-13-sashal@kernel.org>
+Cc:     =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 14/26] crypto: tcrypt - fix printed skcipher [a]sync mode
+Date:   Sat, 11 Apr 2020 19:14:01 -0400
+Message-Id: <20200411231413.26911-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411231413.26911-1-sashal@kernel.org>
 References: <20200411231413.26911-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,79 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-[ Upstream commit 2e05f756c7099c8991142382648a37b0d4c85943 ]
+[ Upstream commit 8e3b7fd7ea554ccb1bdc596bfbcdaf56f7ab017c ]
 
-The driver may sleep while holding a spinlock.
-The function call path (from bottom to top) in Linux 4.19 is:
+When running tcrypt skcipher speed tests, logs contain things like:
+testing speed of async ecb(des3_ede) (ecb(des3_ede-generic)) encryption
+or:
+testing speed of async ecb(aes) (ecb(aes-ce)) encryption
 
-drivers/net/ethernet/intel/e1000e/mac.c, 1366:
-	usleep_range in e1000e_get_hw_semaphore
-drivers/net/ethernet/intel/e1000e/80003es2lan.c, 322:
-	e1000e_get_hw_semaphore in e1000_release_swfw_sync_80003es2lan
-drivers/net/ethernet/intel/e1000e/80003es2lan.c, 197:
-	e1000_release_swfw_sync_80003es2lan in e1000_release_phy_80003es2lan
-drivers/net/ethernet/intel/e1000e/netdev.c, 4883:
-	(FUNC_PTR) e1000_release_phy_80003es2lan in e1000e_update_phy_stats
-drivers/net/ethernet/intel/e1000e/netdev.c, 4917:
-	e1000e_update_phy_stats in e1000e_update_stats
-drivers/net/ethernet/intel/e1000e/netdev.c, 5945:
-	e1000e_update_stats in e1000e_get_stats64
-drivers/net/ethernet/intel/e1000e/netdev.c, 5944:
-	spin_lock in e1000e_get_stats64
+The algorithm implementations are sync, not async.
+Fix this inaccuracy.
 
-drivers/net/ethernet/intel/e1000e/mac.c, 1384:
-	usleep_range in e1000e_get_hw_semaphore
-drivers/net/ethernet/intel/e1000e/80003es2lan.c, 322:
-	e1000e_get_hw_semaphore in e1000_release_swfw_sync_80003es2lan
-drivers/net/ethernet/intel/e1000e/80003es2lan.c, 197:
-	e1000_release_swfw_sync_80003es2lan in e1000_release_phy_80003es2lan
-drivers/net/ethernet/intel/e1000e/netdev.c, 4883:
-	(FUNC_PTR) e1000_release_phy_80003es2lan in e1000e_update_phy_stats
-drivers/net/ethernet/intel/e1000e/netdev.c, 4917:
-	e1000e_update_phy_stats in e1000e_update_stats
-drivers/net/ethernet/intel/e1000e/netdev.c, 5945:
-	e1000e_update_stats in e1000e_get_stats64
-drivers/net/ethernet/intel/e1000e/netdev.c, 5944:
-	spin_lock in e1000e_get_stats64
-
-(FUNC_PTR) means a function pointer is called.
-
-To fix these bugs, usleep_range() is replaced with udelay().
-
-These bugs are found by a static analysis tool STCheck written by myself.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Fixes: 7166e589da5b6 ("crypto: tcrypt - Use skcipher")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/mac.c | 4 ++--
+ crypto/tcrypt.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000e/mac.c b/drivers/net/ethernet/intel/e1000e/mac.c
-index 5bdc3a2d4fd70..0fc9f49844632 100644
---- a/drivers/net/ethernet/intel/e1000e/mac.c
-+++ b/drivers/net/ethernet/intel/e1000e/mac.c
-@@ -1381,7 +1381,7 @@ s32 e1000e_get_hw_semaphore(struct e1000_hw *hw)
- 		if (!(swsm & E1000_SWSM_SMBI))
- 			break;
- 
--		usleep_range(50, 100);
-+		udelay(100);
- 		i++;
+diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
+index babbda230c07b..42fe4fd0f4ca5 100644
+--- a/crypto/tcrypt.c
++++ b/crypto/tcrypt.c
+@@ -885,8 +885,8 @@ static void test_skcipher_speed(const char *algo, int enc, unsigned int secs,
+ 		return;
  	}
  
-@@ -1399,7 +1399,7 @@ s32 e1000e_get_hw_semaphore(struct e1000_hw *hw)
- 		if (er32(SWSM) & E1000_SWSM_SWESMBI)
- 			break;
+-	pr_info("\ntesting speed of async %s (%s) %s\n", algo,
+-			get_driver_name(crypto_skcipher, tfm), e);
++	pr_info("\ntesting speed of %s %s (%s) %s\n", async ? "async" : "sync",
++		algo, get_driver_name(crypto_skcipher, tfm), e);
  
--		usleep_range(50, 100);
-+		udelay(100);
- 	}
- 
- 	if (i == timeout) {
+ 	req = skcipher_request_alloc(tfm, GFP_KERNEL);
+ 	if (!req) {
 -- 
 2.20.1
 
