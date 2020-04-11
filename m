@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEDFB1A4FC0
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 771441A4FFD
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726915AbgDKMLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:11:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43328 "EHLO mail.kernel.org"
+        id S1727763AbgDKMNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:13:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726926AbgDKMLV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:11:21 -0400
+        id S1727757AbgDKMNW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:13:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3346E20787;
-        Sat, 11 Apr 2020 12:11:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 501AE2173E;
+        Sat, 11 Apr 2020 12:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607080;
-        bh=MesyVyOKCevRf+2TnmIg4GCFkNmuAs9DzQo/LPs8jfg=;
+        s=default; t=1586607201;
+        bh=KgQI/IEdw7z0FxlePfn7h13qgfWjmrpXaevxOhYSAlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tlxn/cIGHJwETNGG3tF4Nflkdvxs7BZU08TIog3246WfnsMgpkaASgrRzCWZ54A+c
-         hqVWJ84XbInLtwUHdBsIBL0lGwxuGFzW0ulZP+0/3W78Mh1r3xohRfu6vDN0pKoi3x
-         3o2J86VbfPmdqGogZ6kry2gOdcG3FzSfHcM6HfnY=
+        b=VyfYb+YYS/Wu2MGop3/EqDwt8f/CnP3ZyKPz2Y/yDLLjkQatLWXEJ9svp38KrMJP/
+         1tZNahDvEtz3hqjDruOhSPaVgyukp+694OLiCPz4+qEOvKTwnSM+vzafNEHX6JpWz5
+         VbE/mc0lduML7Vgc49AD00GCtZTCZvp3DorfJOCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 29/29] drm_dp_mst_topology: fix broken drm_dp_sideband_parse_remote_dpcd_read()
-Date:   Sat, 11 Apr 2020 14:08:59 +0200
-Message-Id: <20200411115412.719714953@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 16/38] net: dsa: bcm_sf2: Ensure correct sub-node is parsed
+Date:   Sat, 11 Apr 2020 14:09:00 +0200
+Message-Id: <20200411115439.585127343@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115407.651296755@linuxfoundation.org>
-References: <20200411115407.651296755@linuxfoundation.org>
+In-Reply-To: <20200411115437.795556138@linuxfoundation.org>
+References: <20200411115437.795556138@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit a4c30a4861c54af78c4eb8b7855524c1a96d9f80 upstream.
+[ Upstream commit afa3b592953bfaecfb4f2f335ec5f935cff56804 ]
 
-When parsing the reply of a DP_REMOTE_DPCD_READ DPCD command the
-result is wrong due to a missing idx increment.
+When the bcm_sf2 was converted into a proper platform device driver and
+used the new dsa_register_switch() interface, we would still be parsing
+the legacy DSA node that contained all the port information since the
+platform firmware has intentionally maintained backward and forward
+compatibility to client programs. Ensure that we do parse the correct
+node, which is "ports" per the revised DSA binding.
 
-This was never noticed since DP_REMOTE_DPCD_READ is currently not
-used, but if you enable it, then it is all wrong.
-
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/e72ddac2-1dc0-100a-d816-9ac98ac009dd@xs4all.nl
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: d9338023fb8e ("net: dsa: bcm_sf2: Make it a real platform device driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/dsa/bcm_sf2.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -431,6 +431,7 @@ static bool drm_dp_sideband_parse_remote
- 	if (idx > raw->curlen)
- 		goto fail_len;
- 	repmsg->u.remote_dpcd_read_ack.num_bytes = raw->msg[idx];
-+	idx++;
- 	if (idx > raw->curlen)
- 		goto fail_len;
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -1112,6 +1112,7 @@ static int bcm_sf2_sw_probe(struct platf
+ 	const struct bcm_sf2_of_data *data;
+ 	struct b53_platform_data *pdata;
+ 	struct dsa_switch_ops *ops;
++	struct device_node *ports;
+ 	struct bcm_sf2_priv *priv;
+ 	struct b53_device *dev;
+ 	struct dsa_switch *ds;
+@@ -1174,7 +1175,11 @@ static int bcm_sf2_sw_probe(struct platf
+ 	 */
+ 	set_bit(0, priv->cfp.used);
  
+-	bcm_sf2_identify_ports(priv, dn->child);
++	ports = of_find_node_by_name(dn, "ports");
++	if (ports) {
++		bcm_sf2_identify_ports(priv, ports);
++		of_node_put(ports);
++	}
+ 
+ 	priv->irq0 = irq_of_parse_and_map(dn, 0);
+ 	priv->irq1 = irq_of_parse_and_map(dn, 1);
 
 
