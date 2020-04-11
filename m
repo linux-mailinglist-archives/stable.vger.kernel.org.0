@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A78C1A5AB8
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 921041A5AC3
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728059AbgDKXFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40148 "EHLO mail.kernel.org"
+        id S1726983AbgDKXpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:45:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726884AbgDKXFm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:05:42 -0400
+        id S1726991AbgDKXFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:05:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCC432166E;
-        Sat, 11 Apr 2020 23:05:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B90B3214D8;
+        Sat, 11 Apr 2020 23:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646342;
-        bh=flNWI2rqEkwXumb5U+jMSBqr5JotjHTWX7/n12VkmrQ=;
+        s=default; t=1586646343;
+        bh=BA1wD0MQngE1+OqOCXzhdFMDL6m9GfMjTw4r8v0uF80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vRuAA+vvvde++VW6kC0IjmfQj4LSNQWHJzgeHdRV/hHZ8B+u98SvIj/wCg9q7p8Q5
-         i9yFt9zuc/yS34tjBV4D+07HXKbFScbPr+xFG73i60GegH9BKR1G4a00LGlk3eZy43
-         ArbSm5DElkaHtuWgQZedS08kpRSjzqeoeBVhSF2Y=
+        b=oYJWC2X5hmv9n9ZWr1/0mLRAleepWhLbrPojLaOlXlVR/UGTPDfr0pAav689EMJCS
+         mOUZYlRtCPPxdptRQLTLugIEybLVu54NXwokNsdKCGNBXG93aTB+9ok4MLwBjlvcTY
+         2j5M334K26wWg/hTaMKrqqB8JFtGtONs06zpn1tA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Gunthorpe <jgg@mellanox.com>,
-        syzbot+adb15cf8c2798e4e0db4@syzkaller.appspotmail.com,
-        syzbot+e5579222b6a3edd96522@syzkaller.appspotmail.com,
-        syzbot+4b628fcc748474003457@syzkaller.appspotmail.com,
-        syzbot+29ee8f76017ce6cf03da@syzkaller.appspotmail.com,
-        syzbot+6956235342b7317ec564@syzkaller.appspotmail.com,
-        syzbot+b358909d8d01556b790b@syzkaller.appspotmail.com,
-        syzbot+6b46b135602a3f3ac99e@syzkaller.appspotmail.com,
-        syzbot+8458d13b13562abf6b77@syzkaller.appspotmail.com,
-        syzbot+bd034f3fdc0402e942ed@syzkaller.appspotmail.com,
-        syzbot+c92378b32760a4eef756@syzkaller.appspotmail.com,
-        syzbot+68b44a1597636e0b342c@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 091/149] RDMA/ucma: Put a lock around every call to the rdma_cm layer
-Date:   Sat, 11 Apr 2020 19:02:48 -0400
-Message-Id: <20200411230347.22371-91-sashal@kernel.org>
+Cc:     Arun Easi <aeasi@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 092/149] scsi: qla2xxx: Handle NVME status iocb correctly
+Date:   Sat, 11 Apr 2020 19:02:49 -0400
+Message-Id: <20200411230347.22371-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -53,282 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit 7c11910783a1ea17e88777552ef146cace607b3c ]
+[ Upstream commit 3d582b34992ba2fe4065f01019f0c08d12916faa ]
 
-The rdma_cm must be used single threaded.
+Certain state flags bit combinations are not checked and not handled
+correctly. Plus, do not log a normal underrun situation where there is
+no frame drop.
 
-This appears to be a bug in the design, as it does have lots of locking
-that seems like it should allow concurrency. However, when it is all said
-and done every single place that uses the cma_exch() scheme is broken, and
-all the unlocked reads from the ucma of the cm_id data are wrong too.
-
-syzkaller has been finding endless bugs related to this.
-
-Fixing this in any elegant way is some enormous amount of work. Take a
-very big hammer and put a mutex around everything to do with the
-ucma_context at the top of every syscall.
-
-Fixes: 75216638572f ("RDMA/cma: Export rdma cm interface to userspace")
-Link: https://lore.kernel.org/r/20200218210432.GA31966@ziepe.ca
-Reported-by: syzbot+adb15cf8c2798e4e0db4@syzkaller.appspotmail.com
-Reported-by: syzbot+e5579222b6a3edd96522@syzkaller.appspotmail.com
-Reported-by: syzbot+4b628fcc748474003457@syzkaller.appspotmail.com
-Reported-by: syzbot+29ee8f76017ce6cf03da@syzkaller.appspotmail.com
-Reported-by: syzbot+6956235342b7317ec564@syzkaller.appspotmail.com
-Reported-by: syzbot+b358909d8d01556b790b@syzkaller.appspotmail.com
-Reported-by: syzbot+6b46b135602a3f3ac99e@syzkaller.appspotmail.com
-Reported-by: syzbot+8458d13b13562abf6b77@syzkaller.appspotmail.com
-Reported-by: syzbot+bd034f3fdc0402e942ed@syzkaller.appspotmail.com
-Reported-by: syzbot+c92378b32760a4eef756@syzkaller.appspotmail.com
-Reported-by: syzbot+68b44a1597636e0b342c@syzkaller.appspotmail.com
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Link: https://lore.kernel.org/r/20200226224022.24518-17-hmadhani@marvell.com
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/ucma.c | 49 ++++++++++++++++++++++++++++++++--
- 1 file changed, 47 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_isr.c | 47 ++++++++++++++++++++++++++++------
+ 1 file changed, 39 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/infiniband/core/ucma.c b/drivers/infiniband/core/ucma.c
-index 0274e9b704be5..f4f79f1292b91 100644
---- a/drivers/infiniband/core/ucma.c
-+++ b/drivers/infiniband/core/ucma.c
-@@ -91,6 +91,7 @@ struct ucma_context {
+diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
+index e40705d38cea7..afaf9d483cd29 100644
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -1910,6 +1910,7 @@ static void qla24xx_nvme_iocb_entry(scsi_qla_host_t *vha, struct req_que *req,
+ 	struct nvmefc_fcp_req *fd;
+ 	uint16_t        ret = QLA_SUCCESS;
+ 	uint16_t	comp_status = le16_to_cpu(sts->comp_status);
++	int		logit = 0;
  
- 	struct ucma_file	*file;
- 	struct rdma_cm_id	*cm_id;
-+	struct mutex		mutex;
- 	u64			uid;
+ 	iocb = &sp->u.iocb_cmd;
+ 	fcport = sp->fcport;
+@@ -1920,6 +1921,12 @@ static void qla24xx_nvme_iocb_entry(scsi_qla_host_t *vha, struct req_que *req,
+ 	if (unlikely(iocb->u.nvme.aen_op))
+ 		atomic_dec(&sp->vha->hw->nvme_active_aen_cnt);
  
- 	struct list_head	list;
-@@ -216,6 +217,7 @@ static struct ucma_context *ucma_alloc_ctx(struct ucma_file *file)
- 	init_completion(&ctx->comp);
- 	INIT_LIST_HEAD(&ctx->mc_list);
- 	ctx->file = file;
-+	mutex_init(&ctx->mutex);
- 
- 	if (xa_alloc(&ctx_table, &ctx->id, ctx, xa_limit_32b, GFP_KERNEL))
- 		goto error;
-@@ -589,6 +591,7 @@ static int ucma_free_ctx(struct ucma_context *ctx)
- 	}
- 
- 	events_reported = ctx->events_reported;
-+	mutex_destroy(&ctx->mutex);
- 	kfree(ctx);
- 	return events_reported;
- }
-@@ -658,7 +661,10 @@ static ssize_t ucma_bind_ip(struct ucma_file *file, const char __user *inbuf,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_bind_addr(ctx->cm_id, (struct sockaddr *) &cmd.addr);
-+	mutex_unlock(&ctx->mutex);
++	if (unlikely(comp_status != CS_COMPLETE))
++		logit = 1;
 +
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -681,7 +687,9 @@ static ssize_t ucma_bind(struct ucma_file *file, const char __user *inbuf,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_bind_addr(ctx->cm_id, (struct sockaddr *) &cmd.addr);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -705,8 +713,10 @@ static ssize_t ucma_resolve_ip(struct ucma_file *file,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_resolve_addr(ctx->cm_id, (struct sockaddr *) &cmd.src_addr,
- 				(struct sockaddr *) &cmd.dst_addr, cmd.timeout_ms);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -731,8 +741,10 @@ static ssize_t ucma_resolve_addr(struct ucma_file *file,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_resolve_addr(ctx->cm_id, (struct sockaddr *) &cmd.src_addr,
- 				(struct sockaddr *) &cmd.dst_addr, cmd.timeout_ms);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -752,7 +764,9 @@ static ssize_t ucma_resolve_route(struct ucma_file *file,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_resolve_route(ctx->cm_id, cmd.timeout_ms);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -841,6 +855,7 @@ static ssize_t ucma_query_route(struct ucma_file *file,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	memset(&resp, 0, sizeof resp);
- 	addr = (struct sockaddr *) &ctx->cm_id->route.addr.src_addr;
- 	memcpy(&resp.src_addr, addr, addr->sa_family == AF_INET ?
-@@ -864,6 +879,7 @@ static ssize_t ucma_query_route(struct ucma_file *file,
- 		ucma_copy_iw_route(&resp, &ctx->cm_id->route);
- 
- out:
-+	mutex_unlock(&ctx->mutex);
- 	if (copy_to_user(u64_to_user_ptr(cmd.response),
- 			 &resp, sizeof(resp)))
- 		ret = -EFAULT;
-@@ -1014,6 +1030,7 @@ static ssize_t ucma_query(struct ucma_file *file,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	switch (cmd.option) {
- 	case RDMA_USER_CM_QUERY_ADDR:
- 		ret = ucma_query_addr(ctx, response, out_len);
-@@ -1028,6 +1045,7 @@ static ssize_t ucma_query(struct ucma_file *file,
- 		ret = -ENOSYS;
- 		break;
++	fd->transferred_length = fd->payload_length -
++	    le32_to_cpu(sts->residual_len);
++
+ 	/*
+ 	 * State flags: Bit 6 and 0.
+ 	 * If 0 is set, we don't care about 6.
+@@ -1930,8 +1937,20 @@ static void qla24xx_nvme_iocb_entry(scsi_qla_host_t *vha, struct req_que *req,
+ 	 */
+ 	if (!(state_flags & (SF_FCP_RSP_DMA | SF_NVME_ERSP))) {
+ 		iocb->u.nvme.rsp_pyld_len = 0;
+-	} else if ((state_flags & SF_FCP_RSP_DMA)) {
++	} else if ((state_flags & (SF_FCP_RSP_DMA | SF_NVME_ERSP)) ==
++			(SF_FCP_RSP_DMA | SF_NVME_ERSP)) {
++		/* Response already DMA'd to fd->rspaddr. */
+ 		iocb->u.nvme.rsp_pyld_len = le16_to_cpu(sts->nvme_rsp_pyld_len);
++	} else if ((state_flags & SF_FCP_RSP_DMA)) {
++		/*
++		 * Non-zero value in first 12 bytes of NVMe_RSP IU, treat this
++		 * as an error.
++		 */
++		iocb->u.nvme.rsp_pyld_len = 0;
++		fd->transferred_length = 0;
++		ql_dbg(ql_dbg_io, fcport->vha, 0x307a,
++			"Unexpected values in NVMe_RSP IU.\n");
++		logit = 1;
+ 	} else if (state_flags & SF_NVME_ERSP) {
+ 		uint32_t *inbuf, *outbuf;
+ 		uint16_t iter;
+@@ -1954,16 +1973,28 @@ static void qla24xx_nvme_iocb_entry(scsi_qla_host_t *vha, struct req_que *req,
+ 		iter = iocb->u.nvme.rsp_pyld_len >> 2;
+ 		for (; iter; iter--)
+ 			*outbuf++ = swab32(*inbuf++);
+-	} else { /* unhandled case */
+-	    ql_log(ql_log_warn, fcport->vha, 0x503a,
+-		"NVME-%s error. Unhandled state_flags of %x\n",
+-		sp->name, state_flags);
  	}
-+	mutex_unlock(&ctx->mutex);
  
- 	ucma_put_ctx(ctx);
- 	return ret;
-@@ -1068,7 +1086,9 @@ static ssize_t ucma_connect(struct ucma_file *file, const char __user *inbuf,
- 		return PTR_ERR(ctx);
+-	fd->transferred_length = fd->payload_length -
+-	    le32_to_cpu(sts->residual_len);
++	if (state_flags & SF_NVME_ERSP) {
++		struct nvme_fc_ersp_iu *rsp_iu = fd->rspaddr;
++		u32 tgt_xfer_len;
  
- 	ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_connect(ctx->cm_id, &conn_param);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1089,7 +1109,9 @@ static ssize_t ucma_listen(struct ucma_file *file, const char __user *inbuf,
- 
- 	ctx->backlog = cmd.backlog > 0 && cmd.backlog < max_backlog ?
- 		       cmd.backlog : max_backlog;
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_listen(ctx->cm_id, ctx->backlog);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1112,13 +1134,17 @@ static ssize_t ucma_accept(struct ucma_file *file, const char __user *inbuf,
- 	if (cmd.conn_param.valid) {
- 		ucma_copy_conn_param(ctx->cm_id, &conn_param, &cmd.conn_param);
- 		mutex_lock(&file->mut);
-+		mutex_lock(&ctx->mutex);
- 		ret = __rdma_accept(ctx->cm_id, &conn_param, NULL);
-+		mutex_unlock(&ctx->mutex);
- 		if (!ret)
- 			ctx->uid = cmd.uid;
- 		mutex_unlock(&file->mut);
--	} else
-+	} else {
-+		mutex_lock(&ctx->mutex);
- 		ret = __rdma_accept(ctx->cm_id, NULL, NULL);
--
-+		mutex_unlock(&ctx->mutex);
+-	if (unlikely(comp_status != CS_COMPLETE))
++		tgt_xfer_len = be32_to_cpu(rsp_iu->xfrd_len);
++		if (fd->transferred_length != tgt_xfer_len) {
++			ql_dbg(ql_dbg_io, fcport->vha, 0x3079,
++				"Dropped frame(s) detected (sent/rcvd=%u/%u).\n",
++				tgt_xfer_len, fd->transferred_length);
++			logit = 1;
++		} else if (comp_status == CS_DATA_UNDERRUN) {
++			/*
++			 * Do not log if this is just an underflow and there
++			 * is no data loss.
++			 */
++			logit = 0;
++		}
 +	}
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1137,7 +1163,9 @@ static ssize_t ucma_reject(struct ucma_file *file, const char __user *inbuf,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_reject(ctx->cm_id, cmd.private_data, cmd.private_data_len);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1156,7 +1184,9 @@ static ssize_t ucma_disconnect(struct ucma_file *file, const char __user *inbuf,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_disconnect(ctx->cm_id);
-+	mutex_unlock(&ctx->mutex);
- 	ucma_put_ctx(ctx);
- 	return ret;
- }
-@@ -1187,7 +1217,9 @@ static ssize_t ucma_init_qp_attr(struct ucma_file *file,
- 	resp.qp_attr_mask = 0;
- 	memset(&qp_attr, 0, sizeof qp_attr);
- 	qp_attr.qp_state = cmd.qp_state;
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_init_qp_attr(ctx->cm_id, &qp_attr, &resp.qp_attr_mask);
-+	mutex_unlock(&ctx->mutex);
- 	if (ret)
- 		goto out;
- 
-@@ -1273,9 +1305,13 @@ static int ucma_set_ib_path(struct ucma_context *ctx,
- 		struct sa_path_rec opa;
- 
- 		sa_convert_path_ib_to_opa(&opa, &sa_path);
-+		mutex_lock(&ctx->mutex);
- 		ret = rdma_set_ib_path(ctx->cm_id, &opa);
-+		mutex_unlock(&ctx->mutex);
- 	} else {
-+		mutex_lock(&ctx->mutex);
- 		ret = rdma_set_ib_path(ctx->cm_id, &sa_path);
-+		mutex_unlock(&ctx->mutex);
- 	}
- 	if (ret)
- 		return ret;
-@@ -1308,7 +1344,9 @@ static int ucma_set_option_level(struct ucma_context *ctx, int level,
- 
- 	switch (level) {
- 	case RDMA_OPTION_ID:
-+		mutex_lock(&ctx->mutex);
- 		ret = ucma_set_option_id(ctx, optname, optval, optlen);
-+		mutex_unlock(&ctx->mutex);
- 		break;
- 	case RDMA_OPTION_IB:
- 		ret = ucma_set_option_ib(ctx, optname, optval, optlen);
-@@ -1368,8 +1406,10 @@ static ssize_t ucma_notify(struct ucma_file *file, const char __user *inbuf,
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
- 
-+	mutex_lock(&ctx->mutex);
- 	if (ctx->cm_id->device)
- 		ret = rdma_notify(ctx->cm_id, (enum ib_event_type)cmd.event);
-+	mutex_unlock(&ctx->mutex);
- 
- 	ucma_put_ctx(ctx);
- 	return ret;
-@@ -1412,8 +1452,10 @@ static ssize_t ucma_process_join(struct ucma_file *file,
- 	mc->join_state = join_state;
- 	mc->uid = cmd->uid;
- 	memcpy(&mc->addr, addr, cmd->addr_size);
-+	mutex_lock(&ctx->mutex);
- 	ret = rdma_join_multicast(ctx->cm_id, (struct sockaddr *)&mc->addr,
- 				  join_state, mc);
-+	mutex_unlock(&ctx->mutex);
- 	if (ret)
- 		goto err2;
- 
-@@ -1513,7 +1555,10 @@ static ssize_t ucma_leave_multicast(struct ucma_file *file,
- 		goto out;
- 	}
- 
-+	mutex_lock(&mc->ctx->mutex);
- 	rdma_leave_multicast(mc->ctx->cm_id, (struct sockaddr *) &mc->addr);
-+	mutex_unlock(&mc->ctx->mutex);
 +
- 	mutex_lock(&mc->ctx->file->mut);
- 	ucma_cleanup_mc_events(mc);
- 	list_del(&mc->list);
++	if (unlikely(logit))
+ 		ql_log(ql_log_warn, fcport->vha, 0x5060,
+ 		   "NVME-%s ERR Handling - hdl=%x status(%x) tr_len:%x resid=%x  ox_id=%x\n",
+ 		   sp->name, sp->handle, comp_status,
 -- 
 2.20.1
 
