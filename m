@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C58E1A517A
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B721A5076
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:18:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728173AbgDKMPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:15:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49850 "EHLO mail.kernel.org"
+        id S1728287AbgDKMSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:18:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728184AbgDKMPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:15:46 -0400
+        id S1728528AbgDKMSE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:18:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 686D820644;
-        Sat, 11 Apr 2020 12:15:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBA5A2137B;
+        Sat, 11 Apr 2020 12:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607346;
-        bh=eDlxJIK+ajyAnrucoaBRW3ShFGqsrmf8FtcH3vNKYgc=;
+        s=default; t=1586607484;
+        bh=datS3IKUZA9bgjNevrozUDfBcVDSvmpXzGjOJIW+x4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MabmURGBp/Mz2S0P6QWurpIWiOYQHg8GxL/9r+NuavWUIGXoF3D1KRUzrBf/tOt97
-         UgLoex0fGKsb7Q7+3vpkYXsq/S/KuGv3USz6iJW/wbam2qJhG8FA7xKA5nw/FQT4td
-         JP/mhoR6z9WUWHy3v1/vGxk82JSMd0Ue7UXxQXmg=
+        b=YNPS8B0HUamMMqgoISSiFNRdxIM0LH6ZnnxP7ncVLanEYdHgqvG9xKDYN1ag2fkWC
+         cgRvTgd6DskcVCQw5KUwxaz1LXfdFk3jOJ8fHplh04exEwsK9OWWyyCyXU4PrAcFpN
+         k4vlRpQRRa6RxpswhUJQgD1lgT954W31aFZ7GE+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.19 36/54] usb: dwc3: gadget: Wrap around when skip TRBs
+        stable@vger.kernel.org,
+        syzbot+8325e509a1bf83ec741d@syzkaller.appspotmail.com,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 09/41] net_sched: fix a missing refcnt in tcindex_init()
 Date:   Sat, 11 Apr 2020 14:09:18 +0200
-Message-Id: <20200411115512.087843119@linuxfoundation.org>
+Message-Id: <20200411115504.768210213@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
-References: <20200411115508.284500414@linuxfoundation.org>
+In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
+References: <20200411115504.124035693@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-commit 2dedea035ae82c5af0595637a6eda4655532b21e upstream.
+[ Upstream commit a8eab6d35e22f4f21471f16147be79529cd6aaf7 ]
 
-When skipping TRBs, we need to account for wrapping around the ring
-buffer and not modifying some invalid TRBs. Without this fix, dwc3 won't
-be able to check for available TRBs.
+The initial refcnt of struct tcindex_data should be 1,
+it is clear that I forgot to set it to 1 in tcindex_init().
+This leads to a dec-after-zero warning.
 
-Cc: stable <stable@vger.kernel.org>
-Fixes: 7746a8dfb3f9 ("usb: dwc3: gadget: extract dwc3_gadget_ep_skip_trbs()")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Reported-by: syzbot+8325e509a1bf83ec741d@syzkaller.appspotmail.com
+Fixes: 304e024216a8 ("net_sched: add a temporary refcnt for struct tcindex_data")
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/dwc3/gadget.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/cls_tcindex.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1369,7 +1369,7 @@ static void dwc3_gadget_ep_skip_trbs(str
- 	for (i = 0; i < req->num_trbs; i++) {
- 		struct dwc3_trb *trb;
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -151,6 +151,7 @@ static int tcindex_init(struct tcf_proto
+ 	p->mask = 0xffff;
+ 	p->hash = DEFAULT_HASH_SIZE;
+ 	p->fall_through = 1;
++	refcount_set(&p->refcnt, 1); /* Paired with tcindex_destroy_work() */
  
--		trb = req->trb + i;
-+		trb = &dep->trb_pool[dep->trb_dequeue];
- 		trb->ctrl &= ~DWC3_TRB_CTRL_HWO;
- 		dwc3_ep_inc_deq(dep);
- 	}
+ 	rcu_assign_pointer(tp->root, p);
+ 	return 0;
 
 
