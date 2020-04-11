@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C87261A50EE
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:22:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AB501A50C8
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726995AbgDKMVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728662AbgDKMVK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 11 Apr 2020 08:21:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57258 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729099AbgDKMVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:21:06 -0400
+        id S1729128AbgDKMVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:21:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92C61206A1;
-        Sat, 11 Apr 2020 12:21:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0688920644;
+        Sat, 11 Apr 2020 12:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607666;
-        bh=x8qWc3hLwwOsdjb5R6YsYTuGLj3zhF4WasWIQAL3D8M=;
+        s=default; t=1586607668;
+        bh=x+E2xz4xkcBrixnVfWase73ISMftFL+eb6NjsKnyOLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYDUr8Lr3CQDPANvjmgSUOyXK9h6NyBpIWBDH8oCoDA9t1oLlAlYM4WBdq/cB4xas
-         Xmx6kTpXpfKPj80r+H7FTi2/JIdnzVx5IIOmDQxfQN8dVCzRaY1Vw1ZQMGryHMC9Ar
-         AVIHQSo31mxceRVem5TXnzKKma6WUMDNGnBft6E4=
+        b=MBcj8zV4lnVKPlnC9lt7I2wSyYyfo5YKEtA1Jcf/MMI8yvO9wG4+2P+2ul6CSG9sY
+         Ji1RDRZMWDaTu84VZcjsqBIljjyG0M9qcnIUNN1zN52jKiWGS5g2fTfarh4WNXBMeR
+         GQO7tiB64gikjW/US9LpuSL0p5ajC5OD72IMn8fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Kaike Wan <kaike.wan@intel.com>,
         Dennis Dalessandro <dennis.dalessandro@intel.com>,
         Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.6 26/38] IB/hfi1: Call kobject_put() when kobject_init_and_add() fails
-Date:   Sat, 11 Apr 2020 14:10:03 +0200
-Message-Id: <20200411115502.655703558@linuxfoundation.org>
+Subject: [PATCH 5.6 27/38] IB/hfi1: Fix memory leaks in sysfs registration and unregistration
+Date:   Sat, 11 Apr 2020 14:10:04 +0200
+Message-Id: <20200411115502.719828124@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
 References: <20200411115459.324496182@linuxfoundation.org>
@@ -48,17 +48,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kaike Wan <kaike.wan@intel.com>
 
-commit dfb5394f804ed4fcea1fc925be275a38d66712ab upstream.
+commit 5c15abc4328ad696fa61e2f3604918ed0c207755 upstream.
 
-When kobject_init_and_add() returns an error in the function
-hfi1_create_port_files(), the function kobject_put() is not called for the
-corresponding kobject, which potentially leads to memory leak.
+When the hfi1 driver is unloaded, kmemleak will report the following
+issue:
 
-This patch fixes the issue by calling kobject_put() even if
-kobject_init_and_add() fails.
+unreferenced object 0xffff8888461a4c08 (size 8):
+comm "kworker/0:0", pid 5, jiffies 4298601264 (age 2047.134s)
+hex dump (first 8 bytes):
+73 64 6d 61 30 00 ff ff sdma0...
+backtrace:
+[<00000000311a6ef5>] kvasprintf+0x62/0xd0
+[<00000000ade94d9f>] kobject_set_name_vargs+0x1c/0x90
+[<0000000060657dbb>] kobject_init_and_add+0x5d/0xb0
+[<00000000346fe72b>] 0xffffffffa0c5ecba
+[<000000006cfc5819>] 0xffffffffa0c866b9
+[<0000000031c65580>] 0xffffffffa0c38e87
+[<00000000e9739b3f>] local_pci_probe+0x41/0x80
+[<000000006c69911d>] work_for_cpu_fn+0x16/0x20
+[<00000000601267b5>] process_one_work+0x171/0x380
+[<0000000049a0eefa>] worker_thread+0x1d1/0x3f0
+[<00000000909cf2b9>] kthread+0xf8/0x130
+[<0000000058f5f874>] ret_from_fork+0x35/0x40
+
+This patch fixes the issue by:
+
+- Releasing dd->per_sdma[i].kobject in hfi1_unregister_sysfs().
+  - This will fix the memory leak.
+
+- Calling kobject_put() to unwind operations only for those entries in
+   dd->per_sdma[] whose operations have succeeded (including the current
+   one that has just failed) in hfi1_verbs_register_sysfs().
 
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200326163813.21129.44280.stgit@awfm-01.aw.intel.com
+Fixes: 0cb2aa690c7e ("IB/hfi1: Add sysfs interface for affinity setup")
+Link: https://lore.kernel.org/r/20200326163807.21129.27371.stgit@awfm-01.aw.intel.com
 Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
 Signed-off-by: Kaike Wan <kaike.wan@intel.com>
 Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
@@ -66,58 +90,37 @@ Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/sysfs.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/hfi1/sysfs.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
 --- a/drivers/infiniband/hw/hfi1/sysfs.c
 +++ b/drivers/infiniband/hw/hfi1/sysfs.c
-@@ -674,7 +674,11 @@ int hfi1_create_port_files(struct ib_dev
- 		dd_dev_err(dd,
- 			   "Skipping sc2vl sysfs info, (err %d) port %u\n",
- 			   ret, port_num);
--		goto bail;
-+		/*
-+		 * Based on the documentation for kobject_init_and_add(), the
-+		 * caller should call kobject_put even if this call fails.
-+		 */
-+		goto bail_sc2vl;
- 	}
- 	kobject_uevent(&ppd->sc2vl_kobj, KOBJ_ADD);
+@@ -856,8 +856,13 @@ int hfi1_verbs_register_sysfs(struct hfi
  
-@@ -684,7 +688,7 @@ int hfi1_create_port_files(struct ib_dev
- 		dd_dev_err(dd,
- 			   "Skipping sl2sc sysfs info, (err %d) port %u\n",
- 			   ret, port_num);
--		goto bail_sc2vl;
-+		goto bail_sl2sc;
- 	}
- 	kobject_uevent(&ppd->sl2sc_kobj, KOBJ_ADD);
+ 	return 0;
+ bail:
+-	for (i = 0; i < dd->num_sdma; i++)
+-		kobject_del(&dd->per_sdma[i].kobj);
++	/*
++	 * The function kobject_put() will call kobject_del() if the kobject
++	 * has been added successfully. The sysfs files created under the
++	 * kobject directory will also be removed during the process.
++	 */
++	for (; i >= 0; i--)
++		kobject_put(&dd->per_sdma[i].kobj);
  
-@@ -694,7 +698,7 @@ int hfi1_create_port_files(struct ib_dev
- 		dd_dev_err(dd,
- 			   "Skipping vl2mtu sysfs info, (err %d) port %u\n",
- 			   ret, port_num);
--		goto bail_sl2sc;
-+		goto bail_vl2mtu;
- 	}
- 	kobject_uevent(&ppd->vl2mtu_kobj, KOBJ_ADD);
- 
-@@ -704,7 +708,7 @@ int hfi1_create_port_files(struct ib_dev
- 		dd_dev_err(dd,
- 			   "Skipping Congestion Control sysfs info, (err %d) port %u\n",
- 			   ret, port_num);
--		goto bail_vl2mtu;
-+		goto bail_cc;
- 	}
- 
- 	kobject_uevent(&ppd->pport_cc_kobj, KOBJ_ADD);
-@@ -742,7 +746,6 @@ bail_sl2sc:
- 	kobject_put(&ppd->sl2sc_kobj);
- bail_sc2vl:
- 	kobject_put(&ppd->sc2vl_kobj);
--bail:
  	return ret;
  }
+@@ -870,6 +875,10 @@ void hfi1_verbs_unregister_sysfs(struct
+ 	struct hfi1_pportdata *ppd;
+ 	int i;
+ 
++	/* Unwind operations in hfi1_verbs_register_sysfs() */
++	for (i = 0; i < dd->num_sdma; i++)
++		kobject_put(&dd->per_sdma[i].kobj);
++
+ 	for (i = 0; i < dd->num_pports; i++) {
+ 		ppd = &dd->pport[i];
  
 
 
