@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDCC91A519A
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:26:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C13651A51EB
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727447AbgDKMPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:15:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48910 "EHLO mail.kernel.org"
+        id S1727063AbgDKMLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:11:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727368AbgDKMPI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:15:08 -0400
+        id S1727045AbgDKMLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:11:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABF7320692;
-        Sat, 11 Apr 2020 12:15:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3AE220787;
+        Sat, 11 Apr 2020 12:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607308;
-        bh=TOlzQZqFBlXXk6vVW3nEQ7OnPHurudRh2uEU+6f1lvY=;
+        s=default; t=1586607107;
+        bh=D9BT4LnQiZVTSEBlj7I5RanesxFX/AwNwPbKZ9CyOBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ner4ZNgcEJDLL6uhIILRhJ7TZZgJSPneX9prSs388UCdtaQMdodPSXrw/3R9GTYVK
-         uj2k7vvK3v8ZEnALX4jER1phSDA1k83FWVnrJ6uXgx+5AeEg21E2mtNcYQanF38ExQ
-         C4I4r2nV+iwBbzCKydg+irUF7Z7OU2ZBN3sRN2bg=
+        b=R1X1Aw+3Qa5Kxez0drEXdQ+dQ7rMJQl5QFJ/legVS29BTcXTVBJfRYTQRvaGD5HXN
+         lqaWZHyJDBVhXxnC8fIPKoTlVdafOgXNRfBIG6RrtVa2KVCBoOG7H3x+WN/+8tSV0R
+         nz+RDwsqwtX2mShCUcFVt7bo7hVviSLBH8c7LJ5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/54] drm/bochs: downgrade pci_request_region failure from error to warning
+        stable@vger.kernel.org, Jianchao Wang <jianchao.w.wang@oracle.com>,
+        Keith Busch <keith.busch@intel.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Giuliano Procida <gprocida@google.com>
+Subject: [PATCH 4.9 10/32] blk-mq: Allow blocking queue tag iter callbacks
 Date:   Sat, 11 Apr 2020 14:08:49 +0200
-Message-Id: <20200411115509.052519082@linuxfoundation.org>
+Message-Id: <20200411115419.774992055@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
-In-Reply-To: <20200411115508.284500414@linuxfoundation.org>
-References: <20200411115508.284500414@linuxfoundation.org>
+In-Reply-To: <20200411115418.455500023@linuxfoundation.org>
+References: <20200411115418.455500023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: Keith Busch <keith.busch@intel.com>
 
-[ Upstream commit 8c34cd1a7f089dc03933289c5d4a4d1489549828 ]
+commit 530ca2c9bd6949c72c9b5cfc330cb3dbccaa3f5b upstream.
 
-Shutdown of firmware framebuffer has a bunch of problems.  Because
-of this the framebuffer region might still be reserved even after
-drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
+A recent commit runs tag iterator callbacks under the rcu read lock,
+but existing callbacks do not satisfy the non-blocking requirement.
+The commit intended to prevent an iterator from accessing a queue that's
+being modified. This patch fixes the original issue by taking a queue
+reference instead of reading it, which allows callbacks to make blocking
+calls.
 
-Don't consider pci_request_region() failure for the framebuffer
-region as fatal error to workaround this issue.
+Fixes: f5bbbbe4d6357 ("blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter")
+Acked-by: Jianchao Wang <jianchao.w.wang@oracle.com>
+Signed-off-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Giuliano Procida <gprocida@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Link: http://patchwork.freedesktop.org/patch/msgid/20200313084152.2734-1-kraxel@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ block/blk-mq-tag.c |   13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-index a39b0343c197d..401c218567af9 100644
---- a/drivers/gpu/drm/bochs/bochs_hw.c
-+++ b/drivers/gpu/drm/bochs/bochs_hw.c
-@@ -97,10 +97,8 @@ int bochs_hw_init(struct drm_device *dev, uint32_t flags)
- 		size = min(size, mem);
- 	}
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -338,16 +338,11 @@ void blk_mq_queue_tag_busy_iter(struct r
  
--	if (pci_request_region(pdev, 0, "bochs-drm") != 0) {
--		DRM_ERROR("Cannot request framebuffer\n");
--		return -EBUSY;
+ 	/*
+ 	 * __blk_mq_update_nr_hw_queues will update the nr_hw_queues and
+-	 * queue_hw_ctx after freeze the queue. So we could use q_usage_counter
+-	 * to avoid race with it. __blk_mq_update_nr_hw_queues will users
+-	 * synchronize_rcu to ensure all of the users go out of the critical
+-	 * section below and see zeroed q_usage_counter.
++	 * queue_hw_ctx after freeze the queue, so we use q_usage_counter
++	 * to avoid race with it.
+ 	 */
+-	rcu_read_lock();
+-	if (percpu_ref_is_zero(&q->q_usage_counter)) {
+-		rcu_read_unlock();
++	if (!percpu_ref_tryget(&q->q_usage_counter))
+ 		return;
 -	}
-+	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
-+		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
  
- 	bochs->fb_map = ioremap(addr, size);
- 	if (bochs->fb_map == NULL) {
--- 
-2.20.1
-
+ 	queue_for_each_hw_ctx(q, hctx, i) {
+ 		struct blk_mq_tags *tags = hctx->tags;
+@@ -363,7 +358,7 @@ void blk_mq_queue_tag_busy_iter(struct r
+ 			bt_for_each(hctx, &tags->breserved_tags, fn, priv, true);
+ 		bt_for_each(hctx, &tags->bitmap_tags, fn, priv, false);
+ 	}
+-	rcu_read_unlock();
++	blk_queue_exit(q);
+ }
+ 
+ static unsigned int bt_unused_tags(const struct sbitmap_queue *bt)
 
 
