@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6EA41A5B96
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 238821A5B92
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 01:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727614AbgDKXuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 19:50:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36766 "EHLO mail.kernel.org"
+        id S1726986AbgDKXuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 19:50:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726937AbgDKXD5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 19:03:57 -0400
+        id S1726952AbgDKXD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 19:03:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8719020CC7;
-        Sat, 11 Apr 2020 23:03:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADDA5215A4;
+        Sat, 11 Apr 2020 23:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586646237;
-        bh=FSf27dSxLFynBy3f4z0uQuP395gcFdgbx8vHr+5lx7k=;
+        s=default; t=1586646238;
+        bh=j1cRBblQCG02gUIxMscXDXWGc/AgQQBiwxzn7Rg1LW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EXAYbUW9ogOkbvbGwtk0AkZHnLnD8Thx3+SL4CaEcGvCzadeqzRN4zYVxxKC21trN
-         /fNg/j5qPto/3Yh3ocqYJFuJGkz1P8P6x6h6TI3PetCIWgZfUk+BedSEIYX+S3Nee3
-         LAWM219gAw2kGjI1yqRJfRYQTaRI5PDtsW3JyAdc=
+        b=a3oc4zDzCcv+5z+AqsCafdHJboJxRiSazdD9f3fqCYS7KzHGtQWWYxlxisb6Y5FoX
+         8X+dRTrIm0eeaFN+Fn3T2xcZnSrHxUjmRy/1ChEmhHnqzfPpY8EdSTAx7GeY6seXSo
+         Pvu9VTqqFe4MkFOF2gBH74H3NM5SOMoUZdIZVZCg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Haibo Chen <haibo.chen@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 007/149] mmc: sdhci-esdhc-imx: restore pin state when resume back
-Date:   Sat, 11 Apr 2020 19:01:24 -0400
-Message-Id: <20200411230347.22371-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 008/149] mmc: sdhci: do not enable card detect interrupt for gpio cd type
+Date:   Sat, 11 Apr 2020 19:01:25 -0400
+Message-Id: <20200411230347.22371-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200411230347.22371-1-sashal@kernel.org>
 References: <20200411230347.22371-1-sashal@kernel.org>
@@ -46,47 +47,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit af8fade4bd7bc7bf49851832a20166213e032978 ]
+[ Upstream commit e65bb38824711559844ba932132f417bc5a355e2 ]
 
-In some low power mode, SoC will lose the pin state, so need to restore
-the pin state when resume back.
+Except SDHCI_QUIRK_BROKEN_CARD_DETECTION and MMC_CAP_NONREMOVABLE,
+we also do not need to handle controller native card detect interrupt
+for gpio cd type.
+If we wrong enabled the card detect interrupt for gpio case, it will
+cause a lot of unexpected card detect interrupts during data transfer
+which should not happen.
 
 Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Link: https://lore.kernel.org/r/1582100757-20683-8-git-send-email-haibo.chen@nxp.com
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/1582100563-20555-2-git-send-email-haibo.chen@nxp.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index 382f25b2fa458..8d5e7d5e669af 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1617,7 +1617,11 @@ static int sdhci_esdhc_suspend(struct device *dev)
- 	if (host->tuning_mode != SDHCI_TUNING_MODE_3)
- 		mmc_retune_needed(host->mmc);
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index 63db84481dff2..d94759d7392d5 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -153,7 +153,7 @@ static void sdhci_set_card_detection(struct sdhci_host *host, bool enable)
+ 	u32 present;
  
--	return sdhci_suspend_host(host);
-+	ret = sdhci_suspend_host(host);
-+	if (!ret)
-+		return pinctrl_pm_select_sleep_state(dev);
-+
-+	return ret;
- }
+ 	if ((host->quirks & SDHCI_QUIRK_BROKEN_CARD_DETECTION) ||
+-	    !mmc_card_is_removable(host->mmc))
++	    !mmc_card_is_removable(host->mmc) || mmc_can_gpio_cd(host->mmc))
+ 		return;
  
- static int sdhci_esdhc_resume(struct device *dev)
-@@ -1625,6 +1629,10 @@ static int sdhci_esdhc_resume(struct device *dev)
- 	struct sdhci_host *host = dev_get_drvdata(dev);
- 	int ret;
- 
-+	ret = pinctrl_pm_select_default_state(dev);
-+	if (ret)
-+		return ret;
-+
- 	/* re-initialize hw state in case it's lost in low power mode */
- 	sdhci_esdhc_imx_hwinit(host);
- 
+ 	if (enable) {
 -- 
 2.20.1
 
