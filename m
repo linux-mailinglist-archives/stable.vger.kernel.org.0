@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAB61A50E3
+	by mail.lfdr.de (Postfix) with ESMTP id C2FBC1A50E4
 	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729018AbgDKMVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:21:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
+        id S1729197AbgDKMVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:21:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729190AbgDKMVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:21:44 -0400
+        id S1729194AbgDKMVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:21:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A7ED20692;
-        Sat, 11 Apr 2020 12:21:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8635206A1;
+        Sat, 11 Apr 2020 12:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607705;
-        bh=5kmeVb3JsbP9BSQn+tvarIabMWLZFhEF1PjsFRMoLIs=;
+        s=default; t=1586607707;
+        bh=fWWgd++w5d5wM+5pDefxm+BxNOy2Hr3EQBKHzfzIztQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IqkVhj3s2ulBun4rkkFQjvwC+6MlzHyXs+sK7w0uJ+luGT0Zam/ek2oncGPHeePq+
-         jT74jkmpAb4RbJ7ivP/bIImmVv3wsRD+qfogDCGwhNmU3npinMAU+zLvO0qdroQ+mi
-         +oCpemO/51DkhajM1o+w6I0j+eJcY+javzeQkR/4=
+        b=i585IPp7i9XpImHPd7j8BJSyxdqzsE1CORhG3ztd2cSnS3hl67PlDTAfhhEzrxPih
+         8Cf9fTSLmhvgs92s5JQ2QEZyHp9aKlEiip8pj6KPu1Xc2IyleYrylPhr1FwaqLI1bC
+         6kEfFNS5YUkPXkbTgZJiBoxn6aaaXctRCVIb1RQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+d44e1b26ce5c3e77458d@syzkaller.appspotmail.com,
-        Bart Van Assche <bvanassche@acm.org>,
-        Ming Lei <ming.lei@redhat.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Johannes Thumshirn <jth@kernel.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.6 35/38] blk-mq: Keep set->nr_hw_queues and set->map[].nr_queues in sync
-Date:   Sat, 11 Apr 2020 14:10:12 +0200
-Message-Id: <20200411115503.336821591@linuxfoundation.org>
+        syzbot+732528bae351682f1f27@syzkaller.appspotmail.com,
+        Qiujun Huang <hqjagain@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.6 36/38] fbcon: fix null-ptr-deref in fbcon_switch
+Date:   Sat, 11 Apr 2020 14:10:13 +0200
+Message-Id: <20200411115503.399629661@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
 References: <20200411115459.324496182@linuxfoundation.org>
@@ -50,56 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit 6e66b49392419f3fe134e1be583323ef75da1e4b upstream.
+commit b139f8b00db4a8ea75a4174346eafa48041aa489 upstream.
 
-blk_mq_map_queues() and multiple .map_queues() implementations expect that
-set->map[HCTX_TYPE_DEFAULT].nr_queues is set to the number of hardware
-queues. Hence set .nr_queues before calling these functions. This patch
-fixes the following kernel warning:
+Set logo_shown to FBCON_LOGO_CANSHOW when the vc was deallocated.
 
-WARNING: CPU: 0 PID: 2501 at include/linux/cpumask.h:137
+syzkaller report: https://lkml.org/lkml/2020/3/27/403
+general protection fault, probably for non-canonical address
+0xdffffc000000006c: 0000 [#1] SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000360-0x0000000000000367]
+RIP: 0010:fbcon_switch+0x28f/0x1740
+drivers/video/fbdev/core/fbcon.c:2260
+
 Call Trace:
- blk_mq_run_hw_queue+0x19d/0x350 block/blk-mq.c:1508
- blk_mq_run_hw_queues+0x112/0x1a0 block/blk-mq.c:1525
- blk_mq_requeue_work+0x502/0x780 block/blk-mq.c:775
- process_one_work+0x9af/0x1740 kernel/workqueue.c:2269
- worker_thread+0x98/0xe40 kernel/workqueue.c:2415
- kthread+0x361/0x430 kernel/kthread.c:255
+redraw_screen+0x2a8/0x770 drivers/tty/vt/vt.c:1008
+vc_do_resize+0xfe7/0x1360 drivers/tty/vt/vt.c:1295
+fbcon_init+0x1221/0x1ab0 drivers/video/fbdev/core/fbcon.c:1219
+visual_init+0x305/0x5c0 drivers/tty/vt/vt.c:1062
+do_bind_con_driver+0x536/0x890 drivers/tty/vt/vt.c:3542
+do_take_over_console+0x453/0x5b0 drivers/tty/vt/vt.c:4122
+do_fbcon_takeover+0x10b/0x210 drivers/video/fbdev/core/fbcon.c:588
+fbcon_fb_registered+0x26b/0x340 drivers/video/fbdev/core/fbcon.c:3259
+do_register_framebuffer drivers/video/fbdev/core/fbmem.c:1664 [inline]
+register_framebuffer+0x56e/0x980 drivers/video/fbdev/core/fbmem.c:1832
+dlfb_usb_probe.cold+0x1743/0x1ba3 drivers/video/fbdev/udlfb.c:1735
+usb_probe_interface+0x310/0x800 drivers/usb/core/driver.c:374
 
-Fixes: ed76e329d74a ("blk-mq: abstract out queue map") # v5.0
-Reported-by: syzbot+d44e1b26ce5c3e77458d@syzkaller.appspotmail.com
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Cc: Johannes Thumshirn <jth@kernel.org>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+accessing vc_cons[logo_shown].d->vc_top causes the bug.
+
+Reported-by: syzbot+732528bae351682f1f27@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200329085647.25133-1-hqjagain@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-mq.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/video/fbdev/core/fbcon.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -3023,6 +3023,14 @@ static int blk_mq_alloc_rq_maps(struct b
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -1283,6 +1283,9 @@ finished:
+ 	if (!con_is_bound(&fb_con))
+ 		fbcon_exit();
  
- static int blk_mq_update_queue_map(struct blk_mq_tag_set *set)
- {
-+	/*
-+	 * blk_mq_map_queues() and multiple .map_queues() implementations
-+	 * expect that set->map[HCTX_TYPE_DEFAULT].nr_queues is set to the
-+	 * number of hardware queues.
-+	 */
-+	if (set->nr_maps == 1)
-+		set->map[HCTX_TYPE_DEFAULT].nr_queues = set->nr_hw_queues;
++	if (vc->vc_num == logo_shown)
++		logo_shown = FBCON_LOGO_CANSHOW;
 +
- 	if (set->ops->map_queues && !is_kdump_kernel()) {
- 		int i;
+ 	return;
+ }
  
 
 
