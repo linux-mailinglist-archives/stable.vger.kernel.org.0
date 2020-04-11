@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D221A50BE
-	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:20:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B11B61A50C1
+	for <lists+stable@lfdr.de>; Sat, 11 Apr 2020 14:20:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728691AbgDKMUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 08:20:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56822 "EHLO mail.kernel.org"
+        id S1729090AbgDKMUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 08:20:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728546AbgDKMUq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 08:20:46 -0400
+        id S1729081AbgDKMUv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 08:20:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8C6420644;
-        Sat, 11 Apr 2020 12:20:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED67120644;
+        Sat, 11 Apr 2020 12:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586607646;
-        bh=PhTBQGe34MIRkWGZEf+e2K3WKKmuKQ2H5sQ2gRwNrR0=;
+        s=default; t=1586607651;
+        bh=4+TtjYr36O5SbE+Sa5S/2ejVsVC84drhWt7x+7rn2KI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePcicGIUmtQRW9dxXpAu1PIYxMYDH3d6TWvCvVfuVwRcVfrkMKu+fexAX8IuSPypn
-         9BqPgsEeWiys7Gj/tm5JXP3uH5dpN0O5FezzaMpP1nVurOKXHO4caYh+M1Ht76jOwE
-         Dm0ic9xINexl0ejHriRxb+O4k1lxlz3gE4EHWNas=
+        b=Ogo4z2xLxcTDogzs7NIgywOrPuLfAiEI4szVWZmUfEBKAZH3ZdcR5nBqKq+9DWiHW
+         bI/US9qRSjbxWJl6k1Bittj2q61qNTWXIGwPbO+5YB9zvy5y+ZTX5vXO3yxJJsThqf
+         6pEmcYPuOR2sedLRF0zShcFd59OPACxrV8DYeqhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Silvio Cesare <silvio.cesare@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Yafang Shao <laoar.shao@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Shailabh Nagar <nagar@watson.ibm.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 19/38] slub: improve bit diffusion for freelist ptr obfuscation
-Date:   Sat, 11 Apr 2020 14:09:56 +0200
-Message-Id: <20200411115501.325876900@linuxfoundation.org>
+Subject: [PATCH 5.6 20/38] tools/accounting/getdelays.c: fix netlink attribute length
+Date:   Sat, 11 Apr 2020 14:09:57 +0200
+Message-Id: <20200411115501.747610930@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.0
 In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
 References: <20200411115459.324496182@linuxfoundation.org>
@@ -49,69 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: David Ahern <dsahern@kernel.org>
 
-commit 1ad53d9fa3f6168ebcf48a50e08b170432da2257 upstream.
+commit 4054ab64e29bb05b3dfe758fff3c38a74ba753bb upstream.
 
-Under CONFIG_SLAB_FREELIST_HARDENED=y, the obfuscation was relatively weak
-in that the ptr and ptr address were usually so close that the first XOR
-would result in an almost entirely 0-byte value[1], leaving most of the
-"secret" number ultimately being stored after the third XOR.  A single
-blind memory content exposure of the freelist was generally sufficient to
-learn the secret.
+A recent change to the netlink code: 6e237d099fac ("netlink: Relax attr
+validation for fixed length types") logs a warning when programs send
+messages with invalid attributes (e.g., wrong length for a u32).  Yafang
+reported this error message for tools/accounting/getdelays.c.
 
-Add a swab() call to mix bits a little more.  This is a cheap way (1
-cycle) to make attacks need more than a single exposure to learn the
-secret (or to know _where_ the exposure is in memory).
+send_cmd() is wrongly adding 1 to the attribute length.  As noted in
+include/uapi/linux/netlink.h nla_len should be NLA_HDRLEN + payload
+length, so drop the +1.
 
-kmalloc-32 freelist walk, before:
-
-ptr              ptr_addr            stored value      secret
-ffff90c22e019020@ffff90c22e019000 is 86528eb656b3b5bd (86528eb656b3b59d)
-ffff90c22e019040@ffff90c22e019020 is 86528eb656b3b5fd (86528eb656b3b59d)
-ffff90c22e019060@ffff90c22e019040 is 86528eb656b3b5bd (86528eb656b3b59d)
-ffff90c22e019080@ffff90c22e019060 is 86528eb656b3b57d (86528eb656b3b59d)
-ffff90c22e0190a0@ffff90c22e019080 is 86528eb656b3b5bd (86528eb656b3b59d)
-...
-
-after:
-
-ptr              ptr_addr            stored value      secret
-ffff9eed6e019020@ffff9eed6e019000 is 793d1135d52cda42 (86528eb656b3b59d)
-ffff9eed6e019040@ffff9eed6e019020 is 593d1135d52cda22 (86528eb656b3b59d)
-ffff9eed6e019060@ffff9eed6e019040 is 393d1135d52cda02 (86528eb656b3b59d)
-ffff9eed6e019080@ffff9eed6e019060 is 193d1135d52cdae2 (86528eb656b3b59d)
-ffff9eed6e0190a0@ffff9eed6e019080 is f93d1135d52cdac2 (86528eb656b3b59d)
-
-[1] https://blog.infosectcbr.com.au/2020/03/weaknesses-in-linux-kernel-heap.html
-
-Fixes: 2482ddec670f ("mm: add SLUB free list pointer obfuscation")
-Reported-by: Silvio Cesare <silvio.cesare@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: 9e06d3f9f6b1 ("per task delay accounting taskstats interface: documentation fix")
+Reported-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Tested-by: Yafang Shao <laoar.shao@gmail.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/202003051623.AF4F8CB@keescook
+Link: http://lkml.kernel.org/r/20200327173111.63922-1-dsahern@kernel.org
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/slub.c |    2 +-
+ tools/accounting/getdelays.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -259,7 +259,7 @@ static inline void *freelist_ptr(const s
- 	 * freepointer to be restored incorrectly.
- 	 */
- 	return (void *)((unsigned long)ptr ^ s->random ^
--			(unsigned long)kasan_reset_tag((void *)ptr_addr));
-+			swab((unsigned long)kasan_reset_tag((void *)ptr_addr)));
- #else
- 	return ptr;
- #endif
+--- a/tools/accounting/getdelays.c
++++ b/tools/accounting/getdelays.c
+@@ -136,7 +136,7 @@ static int send_cmd(int sd, __u16 nlmsg_
+ 	msg.g.version = 0x1;
+ 	na = (struct nlattr *) GENLMSG_DATA(&msg);
+ 	na->nla_type = nla_type;
+-	na->nla_len = nla_len + 1 + NLA_HDRLEN;
++	na->nla_len = nla_len + NLA_HDRLEN;
+ 	memcpy(NLA_DATA(na), nla_data, nla_len);
+ 	msg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
+ 
 
 
