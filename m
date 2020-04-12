@@ -2,80 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A0251A5DF6
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 12:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E72911A5EDF
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 16:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726805AbgDLKFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Apr 2020 06:05:38 -0400
-Received: from mail-yb1-f195.google.com ([209.85.219.195]:35932 "EHLO
-        mail-yb1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725907AbgDLKFi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 06:05:38 -0400
-Received: by mail-yb1-f195.google.com with SMTP id n188so3131044ybc.3
-        for <stable@vger.kernel.org>; Sun, 12 Apr 2020 03:05:38 -0700 (PDT)
+        id S1727022AbgDLOEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Apr 2020 10:04:44 -0400
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:38938 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726805AbgDLOEo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 10:04:44 -0400
+Received: by mail-pj1-f67.google.com with SMTP id o1so1982857pjs.4
+        for <stable@vger.kernel.org>; Sun, 12 Apr 2020 07:04:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=vv0TV6dff9PPXzDU3lwfhVgnPmwpZshY2+NEDLe6V48=;
-        b=VD2vb/v8Pi1BzgW2IwFXQHs5PyUurNeEd5imKgtMH+0jFmOrqPMeDobtS7F9JCMaYN
-         mtNj4vRwWKh4VO9f0StnEnDB9ejGwLb54NH+gd1GFTBbknu7RpOIAO8MvOutvN0Z55kr
-         RIea7GZlNHMMb4ioNXIOSc3amuUBn/7Nez0GhNFXuqd7JncZbnQd5Ul9f53Lqn/SyZw7
-         JfK+Arh9X+sMJjpBpazTG/95PO7Z0Q28xoSB2nlf5kq8Brm9KgZ4r1zevLg4SR8E0lrr
-         nNyOuU69mL29gpoQjFl/i+/Px5Fw5fu7jiBcUNU+5aUZm90Hyo6Wog7nnCpd88Pq2rHI
-         C3Mw==
+        h=from:to:cc:subject:date:message-id;
+        bh=eixCw1xPj/tb4QlnWiRc+JPy+QFvVa7Xxm9n1sZX7yw=;
+        b=vPEz/SDBW0I9ywKFJJ8l5YRbowg1JkuJGzHS7nGpQhnVLyymZPd8I5TOkd5YtMzMfO
+         n4vm2pj3iV2XOusfQc8+JuP32LnpBuPLmdJpD4UnE5+MPv41tW7wtzE6gikudcl50pr/
+         +Tt3kOmAaDGy0XkNlBQABv1yiWcXYAvkto9lbBEaGlUjXnOGUPKgwkHx5r0RgUpBdL/2
+         rvNISWVhVURTzop52NfSWJqkPlAys+gAhzs255X7PQztCj/fL+vYEo+W+ZTUYYVIBKM6
+         WgWG68v0xlxKFvaq7UqEZ+x1yNGFni8PO5pFJ5NsjVhKkbhXo5U7Jp5dJLSz4lxIndk4
+         WX6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=vv0TV6dff9PPXzDU3lwfhVgnPmwpZshY2+NEDLe6V48=;
-        b=Pab6Y3/WRnVUU0Pg2wsyVSyPfKBUUsy4wQZ7okzsjfE9l64byssDoTCvP/S8XZsP2P
-         2qQTmTugkoT6TdaCpI7cSZvPB9LZoNGlFZgqC1gJZAkMsaPLyR2jeVwgfRzqeSx6qC76
-         FpAoTN/Wt/Ky9jg6bNI0elJP5Hw/MduYg5oSUyOXL4qa/7tFu0WfKyjaalEXGWrxkTYW
-         yqtCyRXYsHYjYpLqdn6XZT1aKF1q2G+k1pHJTGazLvb/7hZhT/TfCeP4a874kWg4rCtl
-         FY9ShM1iwGCBThAN7a8egHKlynL0YOh4Q8P/6IVSW6EtKL0p3rk1SzxfghZWFHoWcpRz
-         mOPw==
-X-Gm-Message-State: AGi0PuasJMg4zC19zFDc/S2gWVKs6HynlI/3Dk+WBXL4KOXdo0uV63YP
-        4+wCzB+WO+wmrAKxsyZxYjVwQmZzCDTFCJKuSw==
-X-Google-Smtp-Source: APiQypI1ieYkEGWqtLIDH3xDUP3/uN50T5x7X51nJ3H88NX8TEYs9soQzxDNjmbgywVjKoAcCDm+F/hnbyLm7IFPnM4=
-X-Received: by 2002:a25:ab85:: with SMTP id v5mr18336152ybi.421.1586685937914;
- Sun, 12 Apr 2020 03:05:37 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a25:1bd4:0:0:0:0:0 with HTTP; Sun, 12 Apr 2020 03:05:37
- -0700 (PDT)
-Reply-To: mrs.chantalhermans2020@gmail.com
-From:   "Mrs. Chantal Hermans" <visacarddapartbf2001@gmail.com>
-Date:   Sun, 12 Apr 2020 10:05:37 +0000
-Message-ID: <CADrB+BT7_ZUSwcr4OQSVP-VaQu6Tr_OSV=AOBu4AzX8Z2pbn1Q@mail.gmail.com>
-Subject: greeting my friend,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=eixCw1xPj/tb4QlnWiRc+JPy+QFvVa7Xxm9n1sZX7yw=;
+        b=ZmZhri0NM6RllTIdediEupluftscL/014VglddT05+m96mOKwy1zcgk0f39zC8KGSz
+         LjtRKqcKLH5cw1pZe8EYpl/7/n5nkTZCps58hbE8NvB4y5khww4rJPeUEZ2XkLRNyomn
+         SSdNe7c92lGciH/sXf/qmM70d4EWGgBbsewOGzvuoZ6LHrByKccW4kxiSwU5PUorNJIm
+         D3vbMll8hnTQQRl/3jwSslC9xJgbxc50qX+UjHGDrda7MByrrymh1FbklN3GBIvPKTHS
+         +vX5ECzrJPedO8RTMVFijGvGvZdWXVGsAtju4tGygvXKigEfQ1jl80YGXX5/2YeJsazq
+         CQJA==
+X-Gm-Message-State: AGi0PuZhClS1bF8+bLRm6FYT/7VVw/KBJJ7VJr2gVVlEp9dvr7QQFBCq
+        QVOepQyKLZoNlupD5kmRdeA=
+X-Google-Smtp-Source: APiQypKgTTLbS3ZJQ2z0w045ILIZohPJBD9PL9EjSqmAwr7g1vYTEx20P+F48CbAz3x8ZURKxFymig==
+X-Received: by 2002:a17:90a:e515:: with SMTP id t21mr16118524pjy.123.1586700283142;
+        Sun, 12 Apr 2020 07:04:43 -0700 (PDT)
+Received: from localhost.localdomain ([203.100.54.194])
+        by smtp.gmail.com with ESMTPSA id r28sm49894pfg.186.2020.04.12.07.04.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 12 Apr 2020 07:04:42 -0700 (PDT)
+From:   Yafang Shao <laoar.shao@gmail.com>
+To:     chris@chrisdown.name, hannes@cmpxchg.org, mhocko@kernel.org,
+        vdavydov.dev@gmail.com, akpm@linux-foundation.org
+Cc:     linux-mm@kvack.org, Yafang Shao <laoar.shao@gmail.com>,
+        Shakeel Butt <shakeelb@google.com>, stable@vger.kernel.org
+Subject: [PATCH] mm, memcg: fix inconsistent oom event behavior
+Date:   Sun, 12 Apr 2020 10:04:27 -0400
+Message-Id: <20200412140427.6732-1-laoar.shao@gmail.com>
+X-Mailer: git-send-email 2.18.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+A recent commit 9852ae3fe529 ("mm, memcg: consider subtrees in
+memory.events") changes the behavior of memcg events, which will
+consider subtrees in memory.events. But oom_kill event is a special one
+as it is used in both cgroup1 and cgroup2. In cgroup1, it is displayed
+in memory.oom_control. The file memory.oom_control is in both root memcg
+and non root memcg, that is different with memory.event as it only in
+non-root memcg. That commit is okay for cgroup2, but it is not okay for
+cgroup1 as it will cause inconsistent behavior between root memcg and
+non-root memcg.
+Let's recover the original behavior for cgroup1.
+
+Fixes: 9852ae3fe529 ("mm, memcg: consider subtrees in memory.events")
+Cc: Chris Down <chris@chrisdown.name>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+---
+ include/linux/memcontrol.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+index 8c340e6b347f..a0ae080a67d1 100644
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -798,7 +798,8 @@ static inline void memcg_memory_event(struct mem_cgroup *memcg,
+ 		atomic_long_inc(&memcg->memory_events[event]);
+ 		cgroup_file_notify(&memcg->events_file);
+ 
+-		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
++		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS ||
++		    !cgroup_subsys_on_dfl(memory_cgrp_subsys))
+ 			break;
+ 	} while ((memcg = parent_mem_cgroup(memcg)) &&
+ 		 !mem_cgroup_is_root(memcg));
 -- 
-greeting my friend,
+2.18.2
 
-Britain might be love I have something very important I wish to share
-with you now go to my recent station here in Italy now I'm sending you
-this letter with sorrow in my heart you due to the discussion I had
-with my doctor I have a terrible virus so I want to cash out my money
-to the poor it will be of no use if you cannot help me to claim the
-money I the money heritage fund from the Reverend father in Rome I was
-brought up in orphanage home I don't know any members of my
-
- family now since I have this virus I don't have I'm having 11.7
-million euro in Santander bank in Spain I want to give all this money
-to you for you to give me up to the poor and take half of it I hear
-from you my lawyer drug power of attorney and send it to the bank for
-them to
-release the fund. all I need from you now is your bank account details
-and your passport information or your ID card so that I can send it to
-my lawyer and the bank for the transfer of the money to use so that
-you can use part of it for the poor I use your other part for yourself
-may God bless you and thank you for your understanding. My private
-email address is (mrs.chantalhermans2020@gmail.com)
-best regard.
-
- Mrs. Chantal Hermans
