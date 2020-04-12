@@ -2,79 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (unknown [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C9721A5F7B
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 19:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF8F11A5F85
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 19:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727250AbgDLRKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Apr 2020 13:10:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.18]:58964 "EHLO
+        id S1727196AbgDLRUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Apr 2020 13:20:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.18]:60604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727201AbgDLRKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 13:10:06 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F17AC0A3BF9;
-        Sun, 12 Apr 2020 10:04:22 -0700 (PDT)
-IronPort-SDR: 7LuXZj+dZEiceUCK23Pi75vIRpBaYJzdgXmuW9+ZwiRqt7GXnucH6eKa+2gv0c4wUuo5AEzU65
- KyrtoDeCfcVA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Apr 2020 10:04:22 -0700
-IronPort-SDR: DTTdKPJHO0uXGagxqHZl2vgjFStjmywwfVSPECr7jUaNvuTE4PuiP7PhBzKK+tCJhqa2W1kmBw
- ICtY9IPRFwPQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,375,1580803200"; 
-   d="scan'208";a="298228946"
-Received: from apresura-mobl.ger.corp.intel.com (HELO localhost) ([10.252.61.246])
-  by FMSMGA003.fm.intel.com with ESMTP; 12 Apr 2020 10:04:19 -0700
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] tpm/tpm_tis: Free IRQ if probing fails
-Date:   Sun, 12 Apr 2020 20:04:12 +0300
-Message-Id: <20200412170412.324200-1-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S1727192AbgDLRUI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 13:20:08 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0301C0A3BF8
+        for <stable@vger.kernel.org>; Sun, 12 Apr 2020 10:11:35 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id v16so6655270ljg.5
+        for <stable@vger.kernel.org>; Sun, 12 Apr 2020 10:11:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=px4QvRdt/1sM0oVlZvtnuGXvJkNE2xZS+JuiLqaLkl4=;
+        b=EpagwI/YuJ6Xm5pCj7af/fRk6rAgGx6gLasTbISuI8MoqK/rBpuKleWsAKiNRQgBhJ
+         5rU0jizJY3+7hDcaU02aHMTHGoIdRezpa7ZMHsr5Ga7HpkkSUq74MYqFnYSdOUqMtHl0
+         NIFn1C1SknVPVEbwa0J2H0uvI60DITsc70xZKN5tNSMyzwUcTFMyjW8xdegsrvHmLvkN
+         fESi7IiCadaxElqfTmhuLVw86vh/lxmIPeGeeSScT0BfDXY+Yi1pcZPxk6KBfL89C4rE
+         nusqqf/+Ewn4NJUwgjU+0dh+D2Q98PBkQHpUr2G1RVZd44/BHqCLzTiJk2v0bWmoz+UM
+         W0eA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=px4QvRdt/1sM0oVlZvtnuGXvJkNE2xZS+JuiLqaLkl4=;
+        b=LUEc2UuzCv1QsWx4d+/lVy0LkEfH7Es3KcDSEsrXN19AFVeY4yil/sVuU/1iliRUHe
+         gceb3HWCUCaXLxZWVt/ZZSThtbVs3dNFEeOCSy8Zz0JIHHslAtySYCRO4BlGo+N2kISV
+         GPJjRJFc/qU+AJiWlE5A9xH7PnwF/uhYgeNMfnxkJt82TiyrdzHruwupAmiwsexX3pNx
+         J0VrJzu1R5Zwv/t9BqERXMBBurGzvtP6g2Rud34cMqPN/yxEh1ZKIMh8UXfCmRBNaJ7V
+         WyPF5nUUKiS8b7iU21q3CQY66GyzqBBNhM1VfMEuz7/tIwPOfDq3IZFhGX3rta7AX/Od
+         aXjA==
+X-Gm-Message-State: AGi0PuZezlMyyOYPo9ek8m7IpsEXJOnqO+i9EAgnNHJJlHFbHNhGnBVs
+        s3W9UWC8cs4utDa0jn3sn2MWYsKVTSFsbDNZUEw=
+X-Google-Smtp-Source: APiQypIfBv8y9SzuWA8wb4VnqbbeYAtHJgTVb9NGI5XfWK3hasSOXkvna67vTKN2KCCfohggesBEV9iAuB9auevanWA=
+X-Received: by 2002:a05:651c:20d:: with SMTP id y13mr8639677ljn.112.1586711494014;
+ Sun, 12 Apr 2020 10:11:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Reply-To: mrshenritapieres1@gmail.com
+Received: by 2002:ac2:53a9:0:0:0:0:0 with HTTP; Sun, 12 Apr 2020 10:11:33
+ -0700 (PDT)
+From:   Henrita Pieres <piereshenrita61@gmail.com>
+Date:   Sun, 12 Apr 2020 10:11:33 -0700
+X-Google-Sender-Auth: 7LwxV65CJrLc9wJMbng--wEdR2s
+Message-ID: <CAEhvJqoMCg62gMneoUMJymeBH3o-9FoRkrzr=eG7J521oyAYoA@mail.gmail.com>
+Subject: Dear Friend
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Call devm_free_irq() if we have to revert to polling in order not to
-unnecessarily reserve the IRQ for the life-cycle of the driver.
+Hello Dear,
 
-Cc: stable@vger.kernel.org # 4.5.x
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Fixes: e3837e74a06d ("tpm_tis: Refactor the interrupt setup")
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
----
- drivers/char/tpm/tpm_tis_core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Please forgive me for stressing you with my predicaments as I know
+that this letter may come to you as big surprise.  Actually, I came
+across your E-mail from my personal search afterward I decided to
+email you directly believing that you will be honest to fulfill my
+final wish before i die. Meanwhile, I am Mrs. Henrita Pieres, 62 years
+old, from France, and I am  suffering from a long time cancer and from
+all indication my condition is really deteriorating as my doctors have
+confirmed and courageously Advised me that I may not live beyond two
+months from now for the reason that my tumor has reached a  critical
+stage which has defiled all forms of medical treatment, As a matter of
+fact, registered nurse by profession while my  husband was dealing on
+Gold Dust and Gold Dory Bars till his sudden death the year 2018 then
+I took over his business till date. In fact, at this moment I have a
+deposit sum of four million five hundred thousand US dollars
+[$4,500,000.00] with one of the leading bank but unfortunately I
+cannot visit the bank since I=E2=80=99m critically sick and powerless to do
+anything myself but my bank account officer advised me to assign any
+of my trustworthy relative, friends or partner with authorization
+letter to stand as the recipient of my money but sorrowfully I don=E2=80=99=
+t
+have any reliable relative and no child.
 
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-index 27c6ca031e23..ae6868e7b696 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -1062,9 +1062,12 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
- 		if (irq) {
- 			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
- 						 irq);
--			if (!(chip->flags & TPM_CHIP_FLAG_IRQ))
-+			if (!(chip->flags & TPM_CHIP_FLAG_IRQ)) {
- 				dev_err(&chip->dev, FW_BUG
- 					"TPM interrupt not working, polling instead\n");
-+				devm_free_irq(chip->dev.parent, priv->irq,
-+					      chip);
-+			}
- 		} else {
- 			tpm_tis_probe_irq(chip, intmask);
- 		}
--- 
-2.25.1
+Therefore, I want you to receive the money and take 50% to take care
+of yourself and family while 50% should be use basically  on
+humanitarian purposes mostly to orphanages home, Motherless babies
+home, less privileged and disable citizens and widows around the
+world. And as soon as I receive your respond I shall send you the full
+details with my pictures, banking records and with full contacts of my
+banking institution to communicate them on the matter.
 
+Hope to hear from you soon.
+Yours Faithfully,
+Mrs. Henrita Pieres
