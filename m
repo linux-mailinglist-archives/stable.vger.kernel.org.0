@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (unknown [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E80E1A6083
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 22:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B073C1A608D
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 22:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728102AbgDLUby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Apr 2020 16:31:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.18]:36138 "EHLO
+        id S1727372AbgDLUqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Apr 2020 16:46:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.18]:39312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727315AbgDLUbx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 16:31:53 -0400
+        with ESMTP id S1727364AbgDLUqJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 16:46:09 -0400
 Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 375A1C0A3BF0;
-        Sun, 12 Apr 2020 13:31:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472F5C0A3BF5;
+        Sun, 12 Apr 2020 13:46:09 -0700 (PDT)
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id EA82A1C69A1; Sun, 12 Apr 2020 22:31:51 +0200 (CEST)
-Date:   Sun, 12 Apr 2020 22:31:49 +0200
+        id F00A41C69AF; Sun, 12 Apr 2020 22:46:07 +0200 (CEST)
+Date:   Sun, 12 Apr 2020 22:46:07 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Hans de Goede <hdegoede@redhat.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH 4.19 19/54] extcon: axp288: Add wakeup support
-Message-ID: <20200412203149.GA5796@duo.ucw.cz>
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: Re: [PATCH 4.19 20/54] power: supply: axp288_charger: Add special
+ handling for HP Pavilion x2 10
+Message-ID: <20200412204607.GB5796@duo.ucw.cz>
 References: <20200411115508.284500414@linuxfoundation.org>
- <20200411115510.401693544@linuxfoundation.org>
+ <20200411115510.523425293@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+        protocol="application/pgp-signature"; boundary="KFztAG8eRSV9hGtP"
 Content-Disposition: inline
-In-Reply-To: <20200411115510.401693544@linuxfoundation.org>
+In-Reply-To: <20200411115510.523425293@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -38,98 +39,62 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---UlVJffcvxoiEqYs2
+--KFztAG8eRSV9hGtP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
-
-> commit 9c94553099efb2ba873cbdddfd416a8a09d0e5f1 upstream.
+On Sat 2020-04-11 14:09:02, Greg Kroah-Hartman wrote:
+> From: Hans de Goede <hdegoede@redhat.com>
 >=20
-> On devices with an AXP288, we need to wakeup from suspend when a charger
-> is plugged in, so that we can do charger-type detection and so that the
-> axp288-charger driver, which listens for our extcon events, can configure
-> the input-current-limit accordingly.
+> commit 9c80662a74cd2a5d1113f5c69d027face963a556 upstream.
+>=20
+> Some HP Pavilion x2 10 models use an AXP288 for charging and fuel-gauge.
+> We use a native power_supply / PMIC driver in this case, because on most
+> models with an AXP288 the ACPI AC / Battery code is either completely
+> missing or relies on custom / proprietary ACPI OpRegions which Linux
+> does not implement.
+>=20
+> The native drivers mostly work fine, but there are 2 problems:
+>=20
+> 1. These model uses a Type-C connector for charging which the AXP288 does
+> not support. As long as a Type-A charger (which uses the USB data pins for
+> charger type detection) is used everything is fine. But if a Type-C
+> charger is used (such as the charger shipped with the device) then the
+> charger is not recognized.
+>=20
+> So we end up slowly discharging the device even though a charger is
+> connected, because we are limiting the current from the charger to 500mA.
+> To make things worse this happens with the device's official charger.
+>=20
+> Looking at the ACPI tables HP has "solved" the problem of the AXP288 not
+> being able to recognize Type-C chargers by simply always programming the
+> input-current-limit at 3000mA and relying on a Vhold setting of 4.7V
+> (normally 4.4V) to limit the current intake if the charger cannot handle
+> this.
 
-Will it do the same on charger disconnect?
+Hmm.. Drawing 3A from port designed for .5A... is not that a bit
+dangerous? It is certainly against the specs.
 
-Is that a tiny bit anti-social? I suspend a machine, unplug a charger,
-put it into a bag.. but machine is now running.
-
-On some machines (sharp zaurus) we catch such wakeups, do whatever
-charging magic we need to do, and put machine back to sleep, so that
-user does not see the wakeups (and so that we don't drain the
-battery).
+I believe it will work okay 90% of time, but maybe something overheats
+or some fuse trips in the remaining cases. I believe I've seen fuse
+triping on USB port of my home router..
 
 Best regards,
-								Pavel
-> --- a/drivers/extcon/extcon-axp288.c
-> +++ b/drivers/extcon/extcon-axp288.c
-> @@ -428,9 +428,40 @@ static int axp288_extcon_probe(struct pl
->  	/* Start charger cable type detection */
->  	axp288_extcon_enable(info);
-> =20
-> +	device_init_wakeup(dev, true);
-> +	platform_set_drvdata(pdev, info);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused axp288_extcon_suspend(struct device *dev)
-> +{
-> +	struct axp288_extcon_info *info =3D dev_get_drvdata(dev);
-> +
-> +	if (device_may_wakeup(dev))
-> +		enable_irq_wake(info->irq[VBUS_RISING_IRQ]);
-> +
->  	return 0;
->  }
-> =20
-> +static int __maybe_unused axp288_extcon_resume(struct device *dev)
-> +{
-> +	struct axp288_extcon_info *info =3D dev_get_drvdata(dev);
-> +
-> +	/*
-> +	 * Wakeup when a charger is connected to do charger-type
-> +	 * connection and generate an extcon event which makes the
-> +	 * axp288 charger driver set the input current limit.
-> +	 */
-> +	if (device_may_wakeup(dev))
-> +		disable_irq_wake(info->irq[VBUS_RISING_IRQ]);
-> +
-> +	return 0;
-> +}
-> +
-> +static SIMPLE_DEV_PM_OPS(axp288_extcon_pm_ops, axp288_extcon_suspend,
-> +			 axp288_extcon_resume);
-> +
->  static const struct platform_device_id axp288_extcon_table[] =3D {
->  	{ .name =3D "axp288_extcon" },
->  	{},
-> @@ -442,6 +473,7 @@ static struct platform_driver axp288_ext
->  	.id_table =3D axp288_extcon_table,
->  	.driver =3D {
->  		.name =3D "axp288_extcon",
-> +		.pm =3D &axp288_extcon_pm_ops,
->  	},
->  };
-> =20
->=20
-
+									Pavel
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---UlVJffcvxoiEqYs2
+--KFztAG8eRSV9hGtP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXpN6tQAKCRAw5/Bqldv6
-8mQNAKCv3VYC7uDA3wGHsGu5GV/42kSFkwCgnAyBHBoLuyz8NmDgVV8sFCBsCfI=
-=86ue
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXpN+DwAKCRAw5/Bqldv6
+8u9oAKC5lpXEWnBKfIzTnhMzbY37kb655QCfZUmwKkcsmbxbM9/YySEQ1ANbaIw=
+=IJfG
 -----END PGP SIGNATURE-----
 
---UlVJffcvxoiEqYs2--
+--KFztAG8eRSV9hGtP--
