@@ -2,171 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB1E1A5D25
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 09:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 051531A5D26
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 09:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725812AbgDLHEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Apr 2020 03:04:47 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:33336 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725873AbgDLHEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 03:04:47 -0400
-Received: by mail-lf1-f66.google.com with SMTP id h6so4274697lfc.0
-        for <stable@vger.kernel.org>; Sun, 12 Apr 2020 00:04:44 -0700 (PDT)
+        id S1725909AbgDLHKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Apr 2020 03:10:35 -0400
+Received: from mail-yb1-f194.google.com ([209.85.219.194]:41636 "EHLO
+        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725903AbgDLHKe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 03:10:34 -0400
+Received: by mail-yb1-f194.google.com with SMTP id t10so3537949ybk.8;
+        Sun, 12 Apr 2020 00:10:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Ty7HX9xWVD22xMQ9pyGa/AQyEWHkjoVSYAk5PuB0nDM=;
-        b=I+lFUvNhR0/2K+W8zwO3d7KXJBIhgnyKfG2fjHAny2YPyuUQ/oAJZzFDvfhRg93CuZ
-         Ucfe3Lzz+GUSP4Y9bvUa5YQiQH0Vly2i3u8vR8YXtUqLRIKHflf7GdgsHJ8q6pKSEjy/
-         /srqIEOXeAK/Tv8i4dfmheXHZiPxEdzt/TpFSkZ71iMchaXnbtNrwl8vufZzfyKJMm7n
-         GRlbi0smHpGulqYxebMBQ0cXZ4gqLY14EfYsLPGLau56XWHTJ9dqrDeQe9YJWLKbiG8T
-         6yu6mxZrod4JX1yF4qFBmcpfJsTBIKMn8UOMQMs93Jrp8WnyXfco4inUPnasMrgs/SkH
-         CWOg==
+         :cc;
+        bh=5dMs1/R8c1BoFICQe+ss7qAa5dztJPb8EW7x2uSWMTI=;
+        b=XyHMczT4d5WJkb7C5BBDe1ZpbUzKqFltMjm6SGe9oFDYeugtu3ZExnFgLV0JPNvB5x
+         hoQ5ZXq2EKhdU0XmspBDkkXsK4jmTOhbfQbZ0dbnhF+mdpW7tcoAx69imz+78v6DI4/Y
+         eJKhIHK0rU/yWdSyfK/OWiKaOlFTtdXNo3BZn7BMWEC5w7BesW+LzRGUTk3qNR2ULmLc
+         4h+M1AIIdK3/l+YeNKeWHAGp2bNkMi/qQYheMWYeNfnf52BUkkOBc1Dllmf0O2fzX25z
+         ppnV8xBX5Sz/F3AzJGyKRwZdrYOsl/Vsi8FWb6CEBm9q+BeyhoGcxUDObzZ1IMbrHIMu
+         QnQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Ty7HX9xWVD22xMQ9pyGa/AQyEWHkjoVSYAk5PuB0nDM=;
-        b=HDo9pKgybnlsojlfrzCrCE3adWT0vYk7jXCxmW2rDPJzKSQx3lJ/XXWI9I2NOw2+wK
-         7NYsUZiPi8lBeulAO+7HmTXfFgzKZZ6XCJ3jDRx/47+3far6o6h/0vkPMF8dfHgitNzG
-         uqsLUfPtHXqZ90lO5GRJmWXzCsLpQ2cAlNFBTIWGgvYivxR5uZ3xMgMfnE8hUGgj24Ee
-         yv4kDyMVXtp1yhviTGJUvsptW1utJ7kZ06HXxVrftf7x4yYrHpuIES9v06l3wnd1zd0L
-         HNwJh7dA8qomyi6hxrsDy0gtrRcCo6STlfvCs60DNtUaINuP+/7vkCMlJzUAhe2sFCMd
-         DNVw==
-X-Gm-Message-State: AGi0PuacmCqrkr9cq5ZLyCAJQFi2E16RPKFiFafM283TMFVCM4B8I8mr
-        hY/9dPKZOrl9ZYlzSfD4PfQYaEFpFiy1F0aU0VWqFw==
-X-Google-Smtp-Source: APiQypLzE2HDiXao3n3T/vHu27Sv+aAcoL1DWhadULTotzjGG+kMgblu7QV2qFQbV6kFHXt+4JFTA/WXv7WF9R/bArA=
-X-Received: by 2002:a19:c64b:: with SMTP id w72mr7080422lff.82.1586675083533;
- Sun, 12 Apr 2020 00:04:43 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=5dMs1/R8c1BoFICQe+ss7qAa5dztJPb8EW7x2uSWMTI=;
+        b=XbadzZiyBvD5sDDZjmdG8Gea7XsqdLmpT6v5FdZkAJRHqG04DMZ86P6f354d7Z+hew
+         I/M2bXxyGZcaTcWZVSOoaIcezOISB6/rReRpd8WCV7fkluNc9D/Xb0sQUMIXadQcVwO/
+         9DAWvgCWE9UYbrQnRk7lHdoLhAJB3olteL2OqAJjxQHfC63A49/MZcMvW5iPq/wkcqjw
+         J/7JMfWA8Ap1+OeoUE28OOCUgLZWEz+z03RRoXeF0hMHlvGYJw37nZ9Ud2uNfO1WCMnq
+         AYp1Hh5PhhXaz55RRwxdFMa/kqkIXkSnoABIqdvK46oiR6I7yy7xoAljccvFzFdLGER/
+         jgAA==
+X-Gm-Message-State: AGi0PuaFz9craegTr/EufDp7/k8rWk1qjKwd5nXPDf1+VJ/gSEw+QJYu
+        v329S2k8Xqadwyy5biIUslgq15+m+HhnF39odyM=
+X-Google-Smtp-Source: APiQypI4MEdSfu8ZJCJDZGzJ/6gcjVZZFAZf/PuAX6zB8f8D89P8ujl0GfIPsdwHtOUAzm4mJqXPtpH7oVp0FA+x4X0=
+X-Received: by 2002:a25:3b15:: with SMTP id i21mr20083761yba.11.1586675433985;
+ Sun, 12 Apr 2020 00:10:33 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200411115456.934174282@linuxfoundation.org>
-In-Reply-To: <20200411115456.934174282@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sun, 12 Apr 2020 12:34:32 +0530
-Message-ID: <CA+G9fYs0Ews9g6=_1zEn3vVejNh6Y+GrvRqHXiYDFid8qQJ3Fg@mail.gmail.com>
-Subject: Re: [PATCH 5.5 00/44] 5.5.17-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
+References: <20200411231413.26911-1-sashal@kernel.org> <20200411231413.26911-9-sashal@kernel.org>
+In-Reply-To: <20200411231413.26911-9-sashal@kernel.org>
+From:   Or Gerlitz <gerlitz.or@gmail.com>
+Date:   Sun, 12 Apr 2020 10:10:22 +0300
+Message-ID: <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for representors
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Stable <stable@vger.kernel.org>,
+        Linux Netdev List <netdev@vger.kernel.org>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        David Miller <davem@davemloft.net>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 11 Apr 2020 at 17:49, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.5.17 release.
-> There are 44 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Mon, 13 Apr 2020 11:51:28 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.5.17-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.5.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Sun, Apr 12, 2020 at 2:16 AM Sasha Levin <sashal@kernel.org> wrote:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> [ Upstream commit 6783e8b29f636383af293a55336f036bc7ad5619 ]
 
-Summary
-------------------------------------------------------------------------
+Sasha,
 
-kernel: 5.5.17-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.5.y
-git commit: 95e8add082c3df1f6ad7752c26843878f7d06844
-git describe: v5.5.16-45-g95e8add082c3
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.5-oe/bui=
-ld/v5.5.16-45-g95e8add082c3
+This was pushed to net-next without a fixes tag, and there're probably
+reasons for that.
+As you can see the possible null deref is not even reproducible without another
+patch which for itself was also net-next and not net one.
+
+If a team is not pushing patch to net nor putting a fixes that, I
+don't think it's correct
+to go and pick that into stable and from there to customer production kernels.
+
+Alsom, I am not sure what's the idea behind the auto-selection concept, e.g for
+mlx5 the maintainer is specifically pointing which patches should go
+to stable and
+to what releases there and this is done with care and thinking ahead, why do we
+want to add on that? and why this can be something which is just
+automatic selection?
+
+We have customers running production system with LTS 4.4.x and 4.9.y (along with
+4.14.z and 4.19.w) kernels, we put lots of care thinking if/what
+should go there, I don't
+see a benefit from adding auto-selection, the converse.
+
+Or.
 
 
-No regressions (compared to build v5.5.15-65-g28dc3ce41f75)
+> During transition to uplink representors the code responsible for
+> initializing ethtool steering functionality wasn't added to representor
+> init rx routine. This causes NULL pointer dereference during configuration
+> of network flow classification rule with ethtool (only possible to
+> reproduce with next commit in this series which registers necessary ethtool
+> callbacks).
 
-No fixes (compared to build v5.5.15-65-g28dc3ce41f75)
 
-
-Ran 33408 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-cve-tests
-* ltp-fs-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-sched-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* ltp-dio-tests
-* ltp-io-tests
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* network-basic-tests
-* spectre-meltdown-checker-test
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+> Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
+> Reviewed-by: Roi Dayan <roid@mellanox.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
