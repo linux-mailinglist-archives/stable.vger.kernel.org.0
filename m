@@ -1,96 +1,80 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E72911A5EDF
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 16:05:13 +0200 (CEST)
+Received: from vger.kernel.org (unknown [209.132.180.67])
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9721A5F7B
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 19:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727022AbgDLOEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Apr 2020 10:04:44 -0400
-Received: from mail-pj1-f67.google.com ([209.85.216.67]:38938 "EHLO
-        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726805AbgDLOEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 10:04:44 -0400
-Received: by mail-pj1-f67.google.com with SMTP id o1so1982857pjs.4
-        for <stable@vger.kernel.org>; Sun, 12 Apr 2020 07:04:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=eixCw1xPj/tb4QlnWiRc+JPy+QFvVa7Xxm9n1sZX7yw=;
-        b=vPEz/SDBW0I9ywKFJJ8l5YRbowg1JkuJGzHS7nGpQhnVLyymZPd8I5TOkd5YtMzMfO
-         n4vm2pj3iV2XOusfQc8+JuP32LnpBuPLmdJpD4UnE5+MPv41tW7wtzE6gikudcl50pr/
-         +Tt3kOmAaDGy0XkNlBQABv1yiWcXYAvkto9lbBEaGlUjXnOGUPKgwkHx5r0RgUpBdL/2
-         rvNISWVhVURTzop52NfSWJqkPlAys+gAhzs255X7PQztCj/fL+vYEo+W+ZTUYYVIBKM6
-         WgWG68v0xlxKFvaq7UqEZ+x1yNGFni8PO5pFJ5NsjVhKkbhXo5U7Jp5dJLSz4lxIndk4
-         WX6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=eixCw1xPj/tb4QlnWiRc+JPy+QFvVa7Xxm9n1sZX7yw=;
-        b=ZmZhri0NM6RllTIdediEupluftscL/014VglddT05+m96mOKwy1zcgk0f39zC8KGSz
-         LjtRKqcKLH5cw1pZe8EYpl/7/n5nkTZCps58hbE8NvB4y5khww4rJPeUEZ2XkLRNyomn
-         SSdNe7c92lGciH/sXf/qmM70d4EWGgBbsewOGzvuoZ6LHrByKccW4kxiSwU5PUorNJIm
-         D3vbMll8hnTQQRl/3jwSslC9xJgbxc50qX+UjHGDrda7MByrrymh1FbklN3GBIvPKTHS
-         +vX5ECzrJPedO8RTMVFijGvGvZdWXVGsAtju4tGygvXKigEfQ1jl80YGXX5/2YeJsazq
-         CQJA==
-X-Gm-Message-State: AGi0PuZhClS1bF8+bLRm6FYT/7VVw/KBJJ7VJr2gVVlEp9dvr7QQFBCq
-        QVOepQyKLZoNlupD5kmRdeA=
-X-Google-Smtp-Source: APiQypKgTTLbS3ZJQ2z0w045ILIZohPJBD9PL9EjSqmAwr7g1vYTEx20P+F48CbAz3x8ZURKxFymig==
-X-Received: by 2002:a17:90a:e515:: with SMTP id t21mr16118524pjy.123.1586700283142;
-        Sun, 12 Apr 2020 07:04:43 -0700 (PDT)
-Received: from localhost.localdomain ([203.100.54.194])
-        by smtp.gmail.com with ESMTPSA id r28sm49894pfg.186.2020.04.12.07.04.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Apr 2020 07:04:42 -0700 (PDT)
-From:   Yafang Shao <laoar.shao@gmail.com>
-To:     chris@chrisdown.name, hannes@cmpxchg.org, mhocko@kernel.org,
-        vdavydov.dev@gmail.com, akpm@linux-foundation.org
-Cc:     linux-mm@kvack.org, Yafang Shao <laoar.shao@gmail.com>,
-        Shakeel Butt <shakeelb@google.com>, stable@vger.kernel.org
-Subject: [PATCH] mm, memcg: fix inconsistent oom event behavior
-Date:   Sun, 12 Apr 2020 10:04:27 -0400
-Message-Id: <20200412140427.6732-1-laoar.shao@gmail.com>
-X-Mailer: git-send-email 2.18.1
+        id S1727250AbgDLRKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Apr 2020 13:10:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.18]:58964 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727201AbgDLRKG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 13:10:06 -0400
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F17AC0A3BF9;
+        Sun, 12 Apr 2020 10:04:22 -0700 (PDT)
+IronPort-SDR: 7LuXZj+dZEiceUCK23Pi75vIRpBaYJzdgXmuW9+ZwiRqt7GXnucH6eKa+2gv0c4wUuo5AEzU65
+ KyrtoDeCfcVA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Apr 2020 10:04:22 -0700
+IronPort-SDR: DTTdKPJHO0uXGagxqHZl2vgjFStjmywwfVSPECr7jUaNvuTE4PuiP7PhBzKK+tCJhqa2W1kmBw
+ ICtY9IPRFwPQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,375,1580803200"; 
+   d="scan'208";a="298228946"
+Received: from apresura-mobl.ger.corp.intel.com (HELO localhost) ([10.252.61.246])
+  by FMSMGA003.fm.intel.com with ESMTP; 12 Apr 2020 10:04:19 -0700
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     linux-integrity@vger.kernel.org
+Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] tpm/tpm_tis: Free IRQ if probing fails
+Date:   Sun, 12 Apr 2020 20:04:12 +0300
+Message-Id: <20200412170412.324200-1-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A recent commit 9852ae3fe529 ("mm, memcg: consider subtrees in
-memory.events") changes the behavior of memcg events, which will
-consider subtrees in memory.events. But oom_kill event is a special one
-as it is used in both cgroup1 and cgroup2. In cgroup1, it is displayed
-in memory.oom_control. The file memory.oom_control is in both root memcg
-and non root memcg, that is different with memory.event as it only in
-non-root memcg. That commit is okay for cgroup2, but it is not okay for
-cgroup1 as it will cause inconsistent behavior between root memcg and
-non-root memcg.
-Let's recover the original behavior for cgroup1.
+Call devm_free_irq() if we have to revert to polling in order not to
+unnecessarily reserve the IRQ for the life-cycle of the driver.
 
-Fixes: 9852ae3fe529 ("mm, memcg: consider subtrees in memory.events")
-Cc: Chris Down <chris@chrisdown.name>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Cc: stable@vger.kernel.org # 4.5.x
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: e3837e74a06d ("tpm_tis: Refactor the interrupt setup")
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 ---
- include/linux/memcontrol.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/char/tpm/tpm_tis_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-index 8c340e6b347f..a0ae080a67d1 100644
---- a/include/linux/memcontrol.h
-+++ b/include/linux/memcontrol.h
-@@ -798,7 +798,8 @@ static inline void memcg_memory_event(struct mem_cgroup *memcg,
- 		atomic_long_inc(&memcg->memory_events[event]);
- 		cgroup_file_notify(&memcg->events_file);
- 
--		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
-+		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS ||
-+		    !cgroup_subsys_on_dfl(memory_cgrp_subsys))
- 			break;
- 	} while ((memcg = parent_mem_cgroup(memcg)) &&
- 		 !mem_cgroup_is_root(memcg));
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+index 27c6ca031e23..ae6868e7b696 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -1062,9 +1062,12 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+ 		if (irq) {
+ 			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
+ 						 irq);
+-			if (!(chip->flags & TPM_CHIP_FLAG_IRQ))
++			if (!(chip->flags & TPM_CHIP_FLAG_IRQ)) {
+ 				dev_err(&chip->dev, FW_BUG
+ 					"TPM interrupt not working, polling instead\n");
++				devm_free_irq(chip->dev.parent, priv->irq,
++					      chip);
++			}
+ 		} else {
+ 			tpm_tis_probe_irq(chip, intmask);
+ 		}
 -- 
-2.18.2
+2.25.1
 
