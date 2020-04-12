@@ -2,100 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 051531A5D26
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 09:10:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B751A5D2D
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 09:28:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725909AbgDLHKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Apr 2020 03:10:35 -0400
-Received: from mail-yb1-f194.google.com ([209.85.219.194]:41636 "EHLO
-        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725903AbgDLHKe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 03:10:34 -0400
-Received: by mail-yb1-f194.google.com with SMTP id t10so3537949ybk.8;
-        Sun, 12 Apr 2020 00:10:34 -0700 (PDT)
+        id S1726043AbgDLH2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Apr 2020 03:28:45 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:35726 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725909AbgDLH2p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 03:28:45 -0400
+Received: by mail-lf1-f66.google.com with SMTP id r17so4277923lff.2
+        for <stable@vger.kernel.org>; Sun, 12 Apr 2020 00:28:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=5dMs1/R8c1BoFICQe+ss7qAa5dztJPb8EW7x2uSWMTI=;
-        b=XyHMczT4d5WJkb7C5BBDe1ZpbUzKqFltMjm6SGe9oFDYeugtu3ZExnFgLV0JPNvB5x
-         hoQ5ZXq2EKhdU0XmspBDkkXsK4jmTOhbfQbZ0dbnhF+mdpW7tcoAx69imz+78v6DI4/Y
-         eJKhIHK0rU/yWdSyfK/OWiKaOlFTtdXNo3BZn7BMWEC5w7BesW+LzRGUTk3qNR2ULmLc
-         4h+M1AIIdK3/l+YeNKeWHAGp2bNkMi/qQYheMWYeNfnf52BUkkOBc1Dllmf0O2fzX25z
-         ppnV8xBX5Sz/F3AzJGyKRwZdrYOsl/Vsi8FWb6CEBm9q+BeyhoGcxUDObzZ1IMbrHIMu
-         QnQA==
+         :cc:content-transfer-encoding;
+        bh=/ZcAHoOOBMZ8adBm6iXUvbbzB7r+AYB7tVVj7nCRf8U=;
+        b=n2Yx0bs5Qm4OyyaQCGplrG5Rf7KHCudd5jxrTagKJWgWJkxHf7rwqJa24yCIWnYgCa
+         28Q2i2LSr24oFyJls3tkA/sPyH7Y6KlbC+ARBCI4vqNrwRyIcQbwvMqKS8eKPMaxgBZw
+         Q2QJkknRVnb0fwza97YVu1Zsk01wmHm0l3jHzhHNEkN+vT4kFyqSGaqI0F+kEDmyGhvk
+         9xE+x1gjQcTSZS4jcvSjEnaVJaW1rnTDC/txnUAEjZlnsI2hoBad/w6hn67P1nj0dJK9
+         WIinlTkIc2vkAlCPDCuujRok7uKQz6WSIXyjq+b52IGMQ6up+0GIpXSX3S97jirGdnQJ
+         HxKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=5dMs1/R8c1BoFICQe+ss7qAa5dztJPb8EW7x2uSWMTI=;
-        b=XbadzZiyBvD5sDDZjmdG8Gea7XsqdLmpT6v5FdZkAJRHqG04DMZ86P6f354d7Z+hew
-         I/M2bXxyGZcaTcWZVSOoaIcezOISB6/rReRpd8WCV7fkluNc9D/Xb0sQUMIXadQcVwO/
-         9DAWvgCWE9UYbrQnRk7lHdoLhAJB3olteL2OqAJjxQHfC63A49/MZcMvW5iPq/wkcqjw
-         J/7JMfWA8Ap1+OeoUE28OOCUgLZWEz+z03RRoXeF0hMHlvGYJw37nZ9Ud2uNfO1WCMnq
-         AYp1Hh5PhhXaz55RRwxdFMa/kqkIXkSnoABIqdvK46oiR6I7yy7xoAljccvFzFdLGER/
-         jgAA==
-X-Gm-Message-State: AGi0PuaFz9craegTr/EufDp7/k8rWk1qjKwd5nXPDf1+VJ/gSEw+QJYu
-        v329S2k8Xqadwyy5biIUslgq15+m+HhnF39odyM=
-X-Google-Smtp-Source: APiQypI4MEdSfu8ZJCJDZGzJ/6gcjVZZFAZf/PuAX6zB8f8D89P8ujl0GfIPsdwHtOUAzm4mJqXPtpH7oVp0FA+x4X0=
-X-Received: by 2002:a25:3b15:: with SMTP id i21mr20083761yba.11.1586675433985;
- Sun, 12 Apr 2020 00:10:33 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=/ZcAHoOOBMZ8adBm6iXUvbbzB7r+AYB7tVVj7nCRf8U=;
+        b=A7tQgDjP+b9A8QLy8sdM4DUT90x8nEUj6FVqKEhlhfnmBAP/vb1cc7XquErNo8Xn2Z
+         vU8bIYoD/oh0q54Su25ReWIOk6S7VJGWTDLfs90frZzAZ8dG0w3mLWwoqon8WAdDbKu5
+         x616KH+QZWZIHRCDkkYjPv+Fv3QCytIxvKksYFA4ngHOYCrWGIQdRedAiMindy1JnAct
+         acpWDGEh91MC1wvTeVNytTxURWW6jNa4rsVss4yjoItyjuDqQ3rAl7O+L2DZGMf+iQP6
+         6rZOOnweFfSt/+SPQCuq2+FRjn2tv6S6zFMAHxTQD1NYVd0dFkAJBMCaUP2zxt5s2XEt
+         ggAQ==
+X-Gm-Message-State: AGi0PuYGcDx0e9a+DUaNpXq1+1jz/OT2rw1kTLLwLpnZouY8f1Wnih3N
+        E5S4O8W1cvIfYlKjwrBBDpD48HI0tXvfJR8kpSaicojEuCg=
+X-Google-Smtp-Source: APiQypKVC5Y4JyQjHUhH3pWsWQHnCXlDMNJWdPj3/t+7BXPCOL4WbqeAqw9GWGVuurTeQP++dLvfxC1icLkPxLIj+WI=
+X-Received: by 2002:a19:c64b:: with SMTP id w72mr7126295lff.82.1586676524043;
+ Sun, 12 Apr 2020 00:28:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200411231413.26911-1-sashal@kernel.org> <20200411231413.26911-9-sashal@kernel.org>
-In-Reply-To: <20200411231413.26911-9-sashal@kernel.org>
-From:   Or Gerlitz <gerlitz.or@gmail.com>
-Date:   Sun, 12 Apr 2020 10:10:22 +0300
-Message-ID: <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for representors
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Stable <stable@vger.kernel.org>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        David Miller <davem@davemloft.net>
+References: <20200411115504.124035693@linuxfoundation.org>
+In-Reply-To: <20200411115504.124035693@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sun, 12 Apr 2020 12:58:32 +0530
+Message-ID: <CA+G9fYtKpO0OabwO3ss1KJYyKRbsnaWAfXKALyWu53So+=tUDQ@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/41] 5.4.32-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 12, 2020 at 2:16 AM Sasha Levin <sashal@kernel.org> wrote:
+On Sat, 11 Apr 2020 at 17:48, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.32 release.
+> There are 41 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Mon, 13 Apr 2020 11:51:28 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.32-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-> [ Upstream commit 6783e8b29f636383af293a55336f036bc7ad5619 ]
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Sasha,
+Summary
+------------------------------------------------------------------------
 
-This was pushed to net-next without a fixes tag, and there're probably
-reasons for that.
-As you can see the possible null deref is not even reproducible without another
-patch which for itself was also net-next and not net one.
-
-If a team is not pushing patch to net nor putting a fixes that, I
-don't think it's correct
-to go and pick that into stable and from there to customer production kernels.
-
-Alsom, I am not sure what's the idea behind the auto-selection concept, e.g for
-mlx5 the maintainer is specifically pointing which patches should go
-to stable and
-to what releases there and this is done with care and thinking ahead, why do we
-want to add on that? and why this can be something which is just
-automatic selection?
-
-We have customers running production system with LTS 4.4.x and 4.9.y (along with
-4.14.z and 4.19.w) kernels, we put lots of care thinking if/what
-should go there, I don't
-see a benefit from adding auto-selection, the converse.
-
-Or.
+kernel: 5.4.32-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.4.y
+git commit: f163418797b9310a9eb4a73c3d0214a7cb415a12
+git describe: v5.4.31-42-gf163418797b9
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
+ld/v5.4.31-42-gf163418797b9
 
 
-> During transition to uplink representors the code responsible for
-> initializing ethtool steering functionality wasn't added to representor
-> init rx routine. This causes NULL pointer dereference during configuration
-> of network flow classification rule with ethtool (only possible to
-> reproduce with next commit in this series which registers necessary ethtool
-> callbacks).
+No regressions (compared to build v5.4.30-54-g6f04e8ca5355)
 
+No fixes (compared to build v5.4.30-54-g6f04e8ca5355)
 
-> Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
-> Reviewed-by: Roi Dayan <roid@mellanox.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+Ran 27945 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* perf
+* v4l2-compliance
+* kselftest
+* ltp-cve-tests
+* ltp-hugetlb-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* kvm-unit-tests
+* ltp-fs-tests
+* ltp-open-posix-tests
+* spectre-meltdown-checker-test
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
