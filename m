@@ -2,221 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DC3E1A5DF5
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 12:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0251A5DF6
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 12:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725903AbgDLKFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Apr 2020 06:05:20 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:33905 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725907AbgDLKFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 06:05:19 -0400
-Received: by mail-lj1-f194.google.com with SMTP id m8so6050353lji.1
-        for <stable@vger.kernel.org>; Sun, 12 Apr 2020 03:05:17 -0700 (PDT)
+        id S1726805AbgDLKFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Apr 2020 06:05:38 -0400
+Received: from mail-yb1-f195.google.com ([209.85.219.195]:35932 "EHLO
+        mail-yb1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725907AbgDLKFi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 06:05:38 -0400
+Received: by mail-yb1-f195.google.com with SMTP id n188so3131044ybc.3
+        for <stable@vger.kernel.org>; Sun, 12 Apr 2020 03:05:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=3poMWLMS+Y0AirDPgoxNpgkvsEj8CUgi4NnvvSus0Ys=;
-        b=GvfVR5S4msaepb9ZqQaBViyW66mnM49/Ox6puWdnCxugNW8gaUnXwwK8Qp4JOChLsW
-         ZwkR1Mzp/eaSQWfmj10rH+iABGjG5UMF/sk4A2jhdhxE7WaPH5hPt+0WvTVQZ06oa7Os
-         JoDl94htWvSqFxUtvtviTo6bjaUdMFlXT0kgy2NaUeOIoRXkP6TwbBb3mSIpeWthChxN
-         sPxSlU0x3wchTOmNTMiRXQtxpxAMpYyc899pe4NjvZjIjLbK21hRVcpvDxJjXLmMeCra
-         oyz2M3H1eOr51VmKm2ZUkWwphOPxsbV5OdfB3iFsv51hHBqQbnY8+uwixV//wNCYMxop
-         ThOw==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=vv0TV6dff9PPXzDU3lwfhVgnPmwpZshY2+NEDLe6V48=;
+        b=VD2vb/v8Pi1BzgW2IwFXQHs5PyUurNeEd5imKgtMH+0jFmOrqPMeDobtS7F9JCMaYN
+         mtNj4vRwWKh4VO9f0StnEnDB9ejGwLb54NH+gd1GFTBbknu7RpOIAO8MvOutvN0Z55kr
+         RIea7GZlNHMMb4ioNXIOSc3amuUBn/7Nez0GhNFXuqd7JncZbnQd5Ul9f53Lqn/SyZw7
+         JfK+Arh9X+sMJjpBpazTG/95PO7Z0Q28xoSB2nlf5kq8Brm9KgZ4r1zevLg4SR8E0lrr
+         nNyOuU69mL29gpoQjFl/i+/Px5Fw5fu7jiBcUNU+5aUZm90Hyo6Wog7nnCpd88Pq2rHI
+         C3Mw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=3poMWLMS+Y0AirDPgoxNpgkvsEj8CUgi4NnvvSus0Ys=;
-        b=Q/aZ77huSPfnGFsa8jVwTgKJ6rN+G2tLKDHUGYfkihBhqorKSSgdfHUwZ50RvVrrs0
-         3nM4muzuwOLAULdp59J7wMBDuBmLT0HmhSUvNMsOoCbcJt8AC8B/Dw3doWpjsKc/u0jB
-         0NSZORGrOlpi0MXtbNIg4yJy4dSql7EBCGrzJav5qUSEWAttWnj4AA5/wO4dX+Glq/2Y
-         Gk5KT5PraG5ICKBVUfUUjxp0IlGnthLmc4zSGHeqU5cMGtw5m1kahloNakwo012WChNH
-         KLDhbkmqZngDRf/6jdT9PKb5xM4GL8IiJtLhGXLpOZSb6/xNHa0+7t4Bu6imcWaRP5Ti
-         hVdw==
-X-Gm-Message-State: AGi0PuZTYsW/3F95iCefaxG1nWS4iRchcvkmo2NiMBzuMsKkiLk/4mMO
-        A2eqIHAtI3hzdoqxvDCSLGx4EYXRSNffIXCH9zDJcQ==
-X-Google-Smtp-Source: APiQypIWimhBBeVhQTK+0MOOr30jp0Bt95mIG4YzyDh2pR6n4c3Lp99zRy9nAaxo36LuffWhKh5q6YbDwI+/a4BgRtU=
-X-Received: by 2002:a2e:97d6:: with SMTP id m22mr7930949ljj.245.1586685916350;
- Sun, 12 Apr 2020 03:05:16 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=vv0TV6dff9PPXzDU3lwfhVgnPmwpZshY2+NEDLe6V48=;
+        b=Pab6Y3/WRnVUU0Pg2wsyVSyPfKBUUsy4wQZ7okzsjfE9l64byssDoTCvP/S8XZsP2P
+         2qQTmTugkoT6TdaCpI7cSZvPB9LZoNGlFZgqC1gJZAkMsaPLyR2jeVwgfRzqeSx6qC76
+         FpAoTN/Wt/Ky9jg6bNI0elJP5Hw/MduYg5oSUyOXL4qa/7tFu0WfKyjaalEXGWrxkTYW
+         yqtCyRXYsHYjYpLqdn6XZT1aKF1q2G+k1pHJTGazLvb/7hZhT/TfCeP4a874kWg4rCtl
+         FY9ShM1iwGCBThAN7a8egHKlynL0YOh4Q8P/6IVSW6EtKL0p3rk1SzxfghZWFHoWcpRz
+         mOPw==
+X-Gm-Message-State: AGi0PuasJMg4zC19zFDc/S2gWVKs6HynlI/3Dk+WBXL4KOXdo0uV63YP
+        4+wCzB+WO+wmrAKxsyZxYjVwQmZzCDTFCJKuSw==
+X-Google-Smtp-Source: APiQypI1ieYkEGWqtLIDH3xDUP3/uN50T5x7X51nJ3H88NX8TEYs9soQzxDNjmbgywVjKoAcCDm+F/hnbyLm7IFPnM4=
+X-Received: by 2002:a25:ab85:: with SMTP id v5mr18336152ybi.421.1586685937914;
+ Sun, 12 Apr 2020 03:05:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200411115407.651296755@linuxfoundation.org>
-In-Reply-To: <20200411115407.651296755@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sun, 12 Apr 2020 15:35:04 +0530
-Message-ID: <CA+G9fYuM6XSYk1nniG9d8oHQKw+rZZUfEVcmWAfjB6x_U-T6Pg@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/29] 4.4.219-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+Received: by 2002:a25:1bd4:0:0:0:0:0 with HTTP; Sun, 12 Apr 2020 03:05:37
+ -0700 (PDT)
+Reply-To: mrs.chantalhermans2020@gmail.com
+From:   "Mrs. Chantal Hermans" <visacarddapartbf2001@gmail.com>
+Date:   Sun, 12 Apr 2020 10:05:37 +0000
+Message-ID: <CADrB+BT7_ZUSwcr4OQSVP-VaQu6Tr_OSV=AOBu4AzX8Z2pbn1Q@mail.gmail.com>
+Subject: greeting my friend,
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 11 Apr 2020 at 17:41, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.219 release.
-> There are 29 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Mon, 13 Apr 2020 11:51:28 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.219-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+-- 
+greeting my friend,
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Britain might be love I have something very important I wish to share
+with you now go to my recent station here in Italy now I'm sending you
+this letter with sorrow in my heart you due to the discussion I had
+with my doctor I have a terrible virus so I want to cash out my money
+to the poor it will be of no use if you cannot help me to claim the
+money I the money heritage fund from the Reverend father in Rome I was
+brought up in orphanage home I don't know any members of my
 
-Summary
-------------------------------------------------------------------------
+ family now since I have this virus I don't have I'm having 11.7
+million euro in Santander bank in Spain I want to give all this money
+to you for you to give me up to the poor and take half of it I hear
+from you my lawyer drug power of attorney and send it to the bank for
+them to
+release the fund. all I need from you now is your bank account details
+and your passport information or your ID card so that I can send it to
+my lawyer and the bank for the transfer of the money to use so that
+you can use part of it for the poor I use your other part for yourself
+may God bless you and thank you for your understanding. My private
+email address is (mrs.chantalhermans2020@gmail.com)
+best regard.
 
-kernel: 4.4.219-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 8cd74c57ff4a364d0a753e448ce5eab18cc5bb75
-git describe: v4.4.218-30-g8cd74c57ff4a
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.218-30-g8cd74c57ff4a
-
-
-No regressions (compared to build v4.4.218)
-
-No fixes (compared to build v4.4.218)
-
-
-Ran 27015 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* kselftest
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* v4l2-compliance
-* spectre-meltdown-checker-test
-* install-android-platform-tools-r2600
-* kselftest-vsyscall-mode-native
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.219-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.219-rc1-hikey-20200411-691
-git commit: 9b98182ae4842aa200b9878be74c2fa565a1ab29
-git describe: 4.4.219-rc1-hikey-20200411-691
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.219-rc1-hikey-20200411-691
-
-
-No regressions (compared to build 4.4.219-rc1-hikey-20200409-690)
-
-
-No fixes (compared to build 4.4.219-rc1-hikey-20200409-690)
-
-Ran 1726 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+ Mrs. Chantal Hermans
