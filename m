@@ -2,99 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (unknown [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B073C1A608D
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 22:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAD321A6109
+	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 01:01:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727372AbgDLUqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Apr 2020 16:46:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.18]:39312 "EHLO
+        id S1726358AbgDLXBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Apr 2020 19:01:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.18]:34758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727364AbgDLUqJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 16:46:09 -0400
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472F5C0A3BF5;
-        Sun, 12 Apr 2020 13:46:09 -0700 (PDT)
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id F00A41C69AF; Sun, 12 Apr 2020 22:46:07 +0200 (CEST)
-Date:   Sun, 12 Apr 2020 22:46:07 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: Re: [PATCH 4.19 20/54] power: supply: axp288_charger: Add special
- handling for HP Pavilion x2 10
-Message-ID: <20200412204607.GB5796@duo.ucw.cz>
-References: <20200411115508.284500414@linuxfoundation.org>
- <20200411115510.523425293@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="KFztAG8eRSV9hGtP"
-Content-Disposition: inline
-In-Reply-To: <20200411115510.523425293@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        with ESMTP id S1726185AbgDLXBV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Apr 2020 19:01:21 -0400
+Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47C7FC0A88B5;
+        Sun, 12 Apr 2020 16:01:20 -0700 (PDT)
+Received: by mail-qt1-x844.google.com with SMTP id x2so5978073qtr.0;
+        Sun, 12 Apr 2020 16:01:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=TTh3si+Pxk39+ozOcCWA1AMtqICiWo5TtnbN1JHGzqk=;
+        b=ib14dN8Lklq3veeE1o9eOI3BzOB/3eBy58DC5AHaP5bHDLLrvmGBXdpkRFPEugI0mt
+         ijZGdzlf5dUWT07r5SuE8/H/hHVJ7F9oM5grEAe60nDJJQmi08s3QhgbZAsgbcvFON4c
+         f7sv1+kTb95adVrJKTqfddUo/6pHig7uJJPbD8mirVx2EsdU8ynJ7csWCs5tUxGjjWbK
+         5CoGQmk6HHagbTRyelfkm6zqZ9zfIxLnktXKIQ0rYxV6vN3GirzUVwY4LtfKOpGecQhQ
+         g2pttCCpiV27Zs8lka3lSGwpbAXNVo6sLaGYOtrt5B6mPb0T/wuESnVqgwlRVBfypNh9
+         EdQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=TTh3si+Pxk39+ozOcCWA1AMtqICiWo5TtnbN1JHGzqk=;
+        b=Q12RElAMprynRSDTxUMjKDGCTTeKVQM54Xyr2+1vpSyheCu5joKGPtZBdENz28dejp
+         9sd7grBG3ASjBaax2/YkhM7VvHYHAym/73mGGLEUIlltcQM17WPzB5xarlpOwdH0LYel
+         O3S0tf+C7S6vu5OSze73z8vv5SijKxON2IsUtWW3AioFTXz4u1mjYyfYGOc35/IpJ2NP
+         JoP9LJ4ZnZxkEsM+uFYZXoY2xc+NGH7IZx+SYvLT/pa5vz1Q2j/7J0mIrs5dMjzVsPzQ
+         UglA2qY9GVyn/lUrogLfnOmUw5MAsNXJCUsw3G99S5RcAyaPvTULTgY7nf0fgBaX+CRe
+         UVyQ==
+X-Gm-Message-State: AGi0PubYA8T/YNZkAHZ+LOu/Rr4d8RoorRl0S7Mm5NXCUyJZZQrZ6L0R
+        6x4/15wDJD7dWEcYBDmV2jR8vJporlE=
+X-Google-Smtp-Source: APiQypIrbo5Ru/sT2g6r0alQ3CYE0gLeKCRJaJntiTQTXawNjEeRVkgw5Q++s9KEgPPozBpodcdv3A==
+X-Received: by 2002:ac8:3421:: with SMTP id u30mr9151202qtb.303.1586732478741;
+        Sun, 12 Apr 2020 16:01:18 -0700 (PDT)
+Received: from localhost.localdomain ([2804:14c:482:5bb::3])
+        by smtp.gmail.com with ESMTPSA id p24sm6736046qkp.60.2020.04.12.16.01.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 12 Apr 2020 16:01:17 -0700 (PDT)
+From:   Fabio Estevam <festevam@gmail.com>
+To:     linux@roeck-us.net
+Cc:     wim@linux-watchdog.org, linux-imx@nxp.com,
+        linux-watchdog@vger.kernel.org, brenomatheus@gmail.com,
+        Fabio Estevam <festevam@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] watchdog: imx_sc_wdt: Fix reboot on crash
+Date:   Sun, 12 Apr 2020 20:01:22 -0300
+Message-Id: <20200412230122.5601-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Currently when running the samples/watchdog/watchdog-simple.c
+application and forcing a kernel crash by doing:
 
---KFztAG8eRSV9hGtP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+# ./watchdog-simple &
+# echo c > /proc/sysrq-trigger
 
-On Sat 2020-04-11 14:09:02, Greg Kroah-Hartman wrote:
-> From: Hans de Goede <hdegoede@redhat.com>
->=20
-> commit 9c80662a74cd2a5d1113f5c69d027face963a556 upstream.
->=20
-> Some HP Pavilion x2 10 models use an AXP288 for charging and fuel-gauge.
-> We use a native power_supply / PMIC driver in this case, because on most
-> models with an AXP288 the ACPI AC / Battery code is either completely
-> missing or relies on custom / proprietary ACPI OpRegions which Linux
-> does not implement.
->=20
-> The native drivers mostly work fine, but there are 2 problems:
->=20
-> 1. These model uses a Type-C connector for charging which the AXP288 does
-> not support. As long as a Type-A charger (which uses the USB data pins for
-> charger type detection) is used everything is fine. But if a Type-C
-> charger is used (such as the charger shipped with the device) then the
-> charger is not recognized.
->=20
-> So we end up slowly discharging the device even though a charger is
-> connected, because we are limiting the current from the charger to 500mA.
-> To make things worse this happens with the device's official charger.
->=20
-> Looking at the ACPI tables HP has "solved" the problem of the AXP288 not
-> being able to recognize Type-C chargers by simply always programming the
-> input-current-limit at 3000mA and relying on a Vhold setting of 4.7V
-> (normally 4.4V) to limit the current intake if the charger cannot handle
-> this.
+The system does not reboot as expected.
 
-Hmm.. Drawing 3A from port designed for .5A... is not that a bit
-dangerous? It is certainly against the specs.
+Fix it by calling imx_sc_wdt_set_timeout() to configure the i.MX8QXP
+watchdog with a proper timeout.
 
-I believe it will work okay 90% of time, but maybe something overheats
-or some fuse trips in the remaining cases. I believe I've seen fuse
-triping on USB port of my home router..
+Cc: <stable@vger.kernel.org>
+Fixes: 986857acbc9a ("watchdog: imx_sc: Add i.MX system controller watchdog support")
+Reported-by: Breno Lima <breno.lima@nxp.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+---
+ drivers/watchdog/imx_sc_wdt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+diff --git a/drivers/watchdog/imx_sc_wdt.c b/drivers/watchdog/imx_sc_wdt.c
+index 60a32469f7de..e9ee22a7cb45 100644
+--- a/drivers/watchdog/imx_sc_wdt.c
++++ b/drivers/watchdog/imx_sc_wdt.c
+@@ -175,6 +175,11 @@ static int imx_sc_wdt_probe(struct platform_device *pdev)
+ 	wdog->timeout = DEFAULT_TIMEOUT;
+ 
+ 	watchdog_init_timeout(wdog, 0, dev);
++
++	ret = imx_sc_wdt_set_timeout(wdog, wdog->timeout);
++	if (ret)
++		return ret;
++
+ 	watchdog_stop_on_reboot(wdog);
+ 	watchdog_stop_on_unregister(wdog);
+ 
+-- 
+2.17.1
 
---KFztAG8eRSV9hGtP
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXpN+DwAKCRAw5/Bqldv6
-8u9oAKC5lpXEWnBKfIzTnhMzbY37kb655QCfZUmwKkcsmbxbM9/YySEQ1ANbaIw=
-=IJfG
------END PGP SIGNATURE-----
-
---KFztAG8eRSV9hGtP--
