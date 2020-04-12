@@ -2,137 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F12C1A5C4A
-	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 05:33:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 226461A5C65
+	for <lists+stable@lfdr.de>; Sun, 12 Apr 2020 05:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726991AbgDLDdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Apr 2020 23:33:47 -0400
-Received: from mail-co1nam11on2128.outbound.protection.outlook.com ([40.107.220.128]:35840
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        id S1726706AbgDLDvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Apr 2020 23:51:07 -0400
+Received: from mail-eopbgr750112.outbound.protection.outlook.com ([40.107.75.112]:9159
+        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726988AbgDLDdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Apr 2020 23:33:47 -0400
+        id S1726155AbgDLDvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Apr 2020 23:51:07 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MkYNP4tatB3mgCNi8JYPQoju2MMn+T/JhpJR5rvOZQARSo8PzWpOlsMITxt/BVUQSp3K1AsPuLOdX1tY4VsJGQxyFuvz0kLPsFkjHVy8anTUSWDodHkw4k1ni7KPZnm33hJjugcfLR5geBPXUU/LC6LMNb57AAf/Pryu/03hChwg+zk8npH71L4CfThw9ttPL724moC5QXIyPCAZiOjGzg9xulAyb5zJ43nZn8gstJF3VOAVZc2Goo7NLPBWHEYrM4Dzs/FOYXPoV8U4o2toPm1wnI84xpdmGQYHbyT4eTRMCBJBrimSQpeKEyHT50+32/8acKC2dJrV82cxa5sATw==
+ b=QDhzzK2WEXiaUp5tS3CHuifrhHw3F7eKDMw+srND+0Wnjqj6lbjkd0/l/+FTAmo7wc7P22pa8SxfWNLT/LazgqbZbqT/fc+QlaycB5UY7JeTgrQ7pcftBZtDdrg5LMk4HMulCknqyZRaz3ZAnU7TVL2YVQRUOdXWwVdJi9rfs4RTjhHi53cgspHohltw0YjIEvk08c1Qvabf2kh7tyMnCTL8a7qpYsrPDdyKCPjOvaW8pEnZ/MMcISDRmgWpJMAuM6pdkn8Z7seuPM5o00gdnBvu0n++6gx74bJOnVmaplOU1jOU6d+pFs3eRkFiBnyjP5hoes8G+vLVVHc9kYOpGw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=P8fUzuhEsdF03jqWbFNHNuCfFgQ1vFkkJUzMaRHusR4=;
- b=N29qIMregILTBI+w552CXVoEJW6sTmpiAaSaLMkpOdkqJpK7kLuzX224Go9+ySPZDsom3CDOBFlma8wnVTedAc/Co846ILVUrPgJN7rdatmY4HhUAfzVtv+/q6zAfCtZzVy5M5CCVotYKl3jdaqyh2KbEDUS2kHhmeqrWe0dTIb+GVldCRQlNl6GP/eoIOhjF7Nle9CjXxuNFFEgAhI4P8U+p7ed0C9ljTvKj5sKr5xAmvDl7oIKeFY+Nuw9fuRPsnbrn1AYIbUt2FEVvZ2YyH8bdRD+EHi0DOr6lZU+3i5TzbSqEHns+LBl/a3GSDjPG/stDeoyGuFTk+XDU0ov4Q==
+ bh=BGw2xFJzqzymQE1QWyX3g47zsfz7JjZyilx0b9xFBLQ=;
+ b=NQm60xDPRD7QSz9/PqCKPHALnmsH+1o7xE6MbBJvx4s6MmRxsFEKTJFTXs5VEWhqtr5Qu3Wa2nr9rF9m5z8i683O0eYUV8WGX0by7t98CCo9kEKULb9pNaZLgHxPEvVjVwkQHpKbGIM24HHy/acfdQTLw06WsxgNrYlrU917nphPVITLZtgnjy2sRsAYRAJ+oT/zphwvh61niHO6oVUZcj0DZBBUhV+5CLrV9H+PxAHqDcyCXn6mAJ/B8Og8CUccViu6ecq071Ukii8ka/mqI1SDw1cWpdh1ApyynLedHt/xCqQd8o+XDtYbfEkyv0G+DzQqEgePk6dvkYcsPzsr6g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=microsoft.com; dmarc=pass action=none
  header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=P8fUzuhEsdF03jqWbFNHNuCfFgQ1vFkkJUzMaRHusR4=;
- b=Y9/LE4GkN4WiuBiya5k/66Up6ET/SzEYa8pTssB+Cp76XSht4WDnV+j7KfXpm90gU1kRa/vFkXiiN0+n79Rc2TMWlOAtSg4PsIkgwvTbcuLoISjmkzVq2LEGR6vmXE2EnORe4uWX9pi9X4Cvdhb89vSsv+inSo1YM/Y7o3CjnmY=
-Received: from MW2PR2101MB1052.namprd21.prod.outlook.com (2603:10b6:302:a::16)
- by MW2PR2101MB0987.namprd21.prod.outlook.com (2603:10b6:302:4::24) with
+ bh=BGw2xFJzqzymQE1QWyX3g47zsfz7JjZyilx0b9xFBLQ=;
+ b=RZ8onQF5ZD+sg2aNWiAvVfB6AsLPMiA332mEMG9/7CpefrOSCYCU9gh9yNN7Vjy18Fx/wuZE8vR6eieq9u7QB9SDeWIk/bvVQN0O0Ahn7z21HnfK7NU1Z1BomKkv8wA9sfIiUBJETCkPVOUe2wEqHWSgeHNqa6SS79MRX2Kx8Sc=
+Authentication-Results: spf=none (sender IP is )
+ smtp.mailfrom=decui@microsoft.com; 
+Received: from BN8PR21MB1139.namprd21.prod.outlook.com (2603:10b6:408:72::10)
+ by BN8PR21MB1203.namprd21.prod.outlook.com (2603:10b6:408:76::15) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2937.0; Sun, 12 Apr
- 2020 03:33:43 +0000
-Received: from MW2PR2101MB1052.namprd21.prod.outlook.com
- ([fe80::71ee:121:71bd:6156]) by MW2PR2101MB1052.namprd21.prod.outlook.com
- ([fe80::71ee:121:71bd:6156%9]) with mapi id 15.20.2937.000; Sun, 12 Apr 2020
- 03:33:43 +0000
-From:   Michael Kelley <mikelley@microsoft.com>
-To:     Dexuan Cui <decui@microsoft.com>,
-        KY Srinivasan <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        "wei.liu@kernel.org" <wei.liu@kernel.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        vkuznets <vkuznets@redhat.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] Drivers: hv: vmbus: Fix Suspend-to-Idle for
- Generation-2 VM
-Thread-Topic: [PATCH v2] Drivers: hv: vmbus: Fix Suspend-to-Idle for
- Generation-2 VM
-Thread-Index: AQHWD79fbnxkR6YcIUGt9U2cZJm+Yqh01nUQ
-Date:   Sun, 12 Apr 2020 03:33:43 +0000
-Message-ID: <MW2PR2101MB1052F0C6473FA6A433EDFC45D7DC0@MW2PR2101MB1052.namprd21.prod.outlook.com>
-References: <1586581684-113131-1-git-send-email-decui@microsoft.com>
-In-Reply-To: <1586581684-113131-1-git-send-email-decui@microsoft.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=True;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Owner=mikelley@ntdev.microsoft.com;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2020-04-12T03:33:41.1453932Z;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=General;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Application=Microsoft Azure
- Information Protection;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=a05b3300-4f4b-4034-a624-4972b3d1db10;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Extended_MSFT_Method=Automatic
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=mikelley@microsoft.com; 
-x-originating-ip: [24.22.167.197]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 66171226-b9ec-4da4-3b44-08d7de924d08
-x-ms-traffictypediagnostic: MW2PR2101MB0987:|MW2PR2101MB0987:|MW2PR2101MB0987:
-x-ms-exchange-transport-forked: True
-x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
-x-microsoft-antispam-prvs: <MW2PR2101MB0987CF7C73639E6A07AE6BFCD7DC0@MW2PR2101MB0987.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 0371762FE7
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW2PR2101MB1052.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(346002)(366004)(136003)(376002)(396003)(39860400002)(2906002)(186003)(110136005)(6506007)(8990500004)(15650500001)(7696005)(26005)(5660300002)(66476007)(66946007)(316002)(4326008)(66446008)(76116006)(66556008)(64756008)(8936002)(81156014)(52536014)(8676002)(82950400001)(82960400001)(33656002)(55016002)(9686003)(478600001)(10290500003)(86362001)(71200400001);DIR:OUT;SFP:1102;
-received-spf: None (protection.outlook.com: microsoft.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: yP2ayyKEpw2oHPi0FvoTAo9+q7j/PNPcQhYdMnu7TnlujUH+r9fdfRKCAJ3mcJpyQBs3Fy8HBHFjD6fH9ctBXXoyeCUA800YjYybsn6amCwAEe3KLYcAm4Yp6QRefPr0wczy/ZMmJEJXXwGPYjwUlBJbD2TMncqLL26kQQ5joxskRlBKjSqvPzXcq1U5P+tzJWQ+rqOprilB2AtmgC2AUAfoUy95dCZeRHILHDXIDzDfPxHbkJdMeKcVL6an5iHq8dzKDIatPrc/yxMXyTPg9h/fMJcG+1dtSDGzUHnsLgMULtvU4Zvyo2OoN1tkE7GVyiLcY0GK10yhfWyf+edPk99xxuWAtgu1WOMfgyQyGaQmcSC/iPJ+E9mt8JUCuZlrLdOPCzQ/Gdtp/o7EPv/Cc3m8KqaZbMAseBlo3IRRALNBPRgwC5o9ZZ49yxG8pyPu
-x-ms-exchange-antispam-messagedata: PrfkCnK7BdPBMnvl3mxAH7zGWyBPePtMTeNUWg5yoLt00ZXtJ9WUJZM8+ziXMR6LlSWGh5D5372f6S+FmSNL327noiPfAMKjSAUdKqBGGBUBmdKGuP0bGVAkGFjP4+c0eFACddP6n4Yk9cSJOgn0Rw==
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2921.5; Sun, 12 Apr
+ 2020 03:50:54 +0000
+Received: from BN8PR21MB1139.namprd21.prod.outlook.com
+ ([fe80::b01b:e85:784d:4581]) by BN8PR21MB1139.namprd21.prod.outlook.com
+ ([fe80::b01b:e85:784d:4581%9]) with mapi id 15.20.2921.009; Sun, 12 Apr 2020
+ 03:50:53 +0000
+From:   Dexuan Cui <decui@microsoft.com>
+To:     kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
+        wei.liu@kernel.org, linux-hyperv@vger.kernel.org,
+        linux-kernel@vger.kernel.org, mikelley@microsoft.com,
+        vkuznets@redhat.com
+Cc:     Dexuan Cui <decui@microsoft.com>, stable@vger.kernel.org
+Subject: [PATCH v3] Drivers: hv: vmbus: Fix Suspend-to-Idle for Generation-2 VM
+Date:   Sat, 11 Apr 2020 20:50:35 -0700
+Message-Id: <1586663435-36243-1-git-send-email-decui@microsoft.com>
+X-Mailer: git-send-email 1.8.3.1
+Reply-To: decui@microsoft.com
+Content-Type: text/plain
+X-ClientProxiedBy: MWHPR2201CA0048.namprd22.prod.outlook.com
+ (2603:10b6:301:16::22) To BN8PR21MB1139.namprd21.prod.outlook.com
+ (2603:10b6:408:72::10)
 MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net (13.77.154.182) by MWHPR2201CA0048.namprd22.prod.outlook.com (2603:10b6:301:16::22) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2900.23 via Frontend Transport; Sun, 12 Apr 2020 03:50:51 +0000
+X-Mailer: git-send-email 1.8.3.1
+X-Originating-IP: [13.77.154.182]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 308a4ca4-38b8-411c-864e-08d7de94b286
+X-MS-TrafficTypeDiagnostic: BN8PR21MB1203:|BN8PR21MB1203:|BN8PR21MB1203:
+X-MS-Exchange-Transport-Forked: True
+X-LD-Processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
+X-Microsoft-Antispam-PRVS: <BN8PR21MB12032B10D24950737665701CBFDC0@BN8PR21MB1203.namprd21.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-Forefront-PRVS: 0371762FE7
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR21MB1139.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10019020)(4636009)(39860400002)(376002)(366004)(396003)(346002)(136003)(82960400001)(26005)(4326008)(36756003)(956004)(6666004)(15650500001)(82950400001)(2616005)(6486002)(186003)(6512007)(478600001)(52116002)(86362001)(16526019)(10290500003)(66556008)(6506007)(66946007)(316002)(8936002)(8676002)(5660300002)(3450700001)(2906002)(66476007)(81156014);DIR:OUT;SFP:1102;
+Received-SPF: None (protection.outlook.com: microsoft.com does not designate
+ permitted sender hosts)
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Si1MvXDVzl35Vmx8AR1FYTk4bynCyooJfSPMn2lggjILcI7Lba8gSxbuqBVr6tQU0FprOQbRLV34MR2VcaWWE2I4dTAm+3yYYJhOs0e+rYTI0ajLii9nKr1Z3Pz7YC/roSDAldESMf9xQ4fYU5GVD5I5QExfme10l00dF23CCCFKOxVQQiYen5+PJH2RKMV0Le1batRSnv7k62oUZE/uDG3/JCepCTLFWRwCGy5xmM38JsXB+NVtA/pI2IVMX760to3IixhQE8APpU1zWE6XAIR7trsVAd0Ey37AqykGG64BZ3ota7WwlRUEytTuhX5k8QEx/pxNp1HzZgkrB9YRc/j0wDUbmrZQchB7HYxzhyQDgjfg+waBz8Pl1iPQOzgjyivR/yj0aOGl9ss6M02wBASz1HcFm0FCF78pTol3VUKHtcTrv2oTTeJtVCKZkeH3
+X-MS-Exchange-AntiSpam-MessageData: YWkvUahIBAJaJvi7i3td/7AboIAV94oD8OuSN7aLLdxn4t/ZgfXdShofNVugXUWRmKjurN2zSK+4b4d9xnsHDZXKF7L5XpEnfMuIeUBGykW5iu4YHCXs8YzobePjM4YMWtSDzchbzJmjwcj8nj0j4A==
 X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 66171226-b9ec-4da4-3b44-08d7de924d08
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Apr 2020 03:33:43.3841
+X-MS-Exchange-CrossTenant-Network-Message-Id: 308a4ca4-38b8-411c-864e-08d7de94b286
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2020 03:50:53.7875
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: BAvcVVCyJFpnZ/GsdLR+DjUt4JDDQRp/ac/3Dhk3WrsklYqxPtx1hzrzTkB3oKXdPJBzdrKTPaf7DJPKAC3jSzZAiI+pcyQ7xU5CmltTVNo=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW2PR2101MB0987
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7+YS0T66diuXv6eH+9l0AElRePSKJYaPUw6rUrUMIXV8d72pnto5N8Gr3f8Vm9SpQTdYEb1WDcfjPVxcPzLF1g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR21MB1203
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com> Sent: Friday, April 10, 2020 10:08 P=
-M
->=20
-> Before the hibernation patchset (e.g. f53335e3289f), in a Generation-2
-> Linux VM on Hyper-V, the user can run "echo freeze > /sys/power/state" to
-> freeze the system, i.e. Suspend-to-Idle. The user can press the keyboard
-> or move the mouse to wake up the VM.
->=20
-> With the hibernation patchset, Linux VM on Hyper-V can hibernate to disk,
-> but Suspend-to-Idle is broken: when the synthetic keyboard/mouse are
-> suspended, there is no way to wake up the VM.
->=20
-> Fix the issue by not suspending and resuming the vmbus devices upon
-> Suspend-to-Idle.
->=20
-> Fixes: f53335e3289f ("Drivers: hv: vmbus: Suspend/resume the vmbus itself=
- for
-> hibernation")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Dexuan Cui <decui@microsoft.com>
-> ---
->=20
-> Changes in v2:
->     Added "#define vmbus_suspend NULL", etc. for the case where
-> CONFIG_PM_SLEEP is not defined.
->     Many thanks to kbuild test robot <lkp@intel.com> for this!
->=20
->  drivers/hv/vmbus_drv.c | 43 ++++++++++++++++++++++++++++++++++---------
->  1 file changed, 34 insertions(+), 9 deletions(-)
->=20
+Before the hibernation patchset (e.g. f53335e3289f), in a Generation-2
+Linux VM on Hyper-V, the user can run "echo freeze > /sys/power/state" to
+freeze the system, i.e. Suspend-to-Idle. The user can press the keyboard
+or move the mouse to wake up the VM.
 
+With the hibernation patchset, Linux VM on Hyper-V can hibernate to disk,
+but Suspend-to-Idle is broken: when the synthetic keyboard/mouse are
+suspended, there is no way to wake up the VM.
+
+Fix the issue by not suspending and resuming the vmbus devices upon
+Suspend-to-Idle.
+
+Fixes: f53335e3289f ("Drivers: hv: vmbus: Suspend/resume the vmbus itself for hibernation")
+Cc: stable@vger.kernel.org
 Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+---
+
+Changes in v2:
+    Added "#define vmbus_suspend NULL", etc. for the case where
+CONFIG_PM_SLEEP is not defined.
+    Many thanks to kbuild test robot <lkp@intel.com> for this!
+
+Changes in v3:
+    Fixed a typo in the comment before "vmbus_bus_pm": thie -> this.
+    Added Michael's Reviewed-by.
+
+ drivers/hv/vmbus_drv.c | 43 ++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 34 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 029378c..f2985bd 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -950,6 +950,9 @@ static int vmbus_resume(struct device *child_device)
+ 
+ 	return drv->resume(dev);
+ }
++#else
++#define vmbus_suspend NULL
++#define vmbus_resume NULL
+ #endif /* CONFIG_PM_SLEEP */
+ 
+ /*
+@@ -969,11 +972,22 @@ static void vmbus_device_release(struct device *device)
+ }
+ 
+ /*
+- * Note: we must use SET_NOIRQ_SYSTEM_SLEEP_PM_OPS rather than
+- * SET_SYSTEM_SLEEP_PM_OPS: see the comment before vmbus_bus_pm.
++ * Note: we must use the "noirq" ops: see the comment before vmbus_bus_pm.
++ *
++ * suspend_noirq/resume_noirq are set to NULL to support Suspend-to-Idle: we
++ * shouldn't suspend the vmbus devices upon Suspend-to-Idle, otherwise there
++ * is no way to wake up a Generation-2 VM.
++ *
++ * The other 4 ops are for hibernation.
+  */
++
+ static const struct dev_pm_ops vmbus_pm = {
+-	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(vmbus_suspend, vmbus_resume)
++	.suspend_noirq	= NULL,
++	.resume_noirq	= NULL,
++	.freeze_noirq	= vmbus_suspend,
++	.thaw_noirq	= vmbus_resume,
++	.poweroff_noirq	= vmbus_suspend,
++	.restore_noirq	= vmbus_resume,
+ };
+ 
+ /* The one and only one */
+@@ -2253,6 +2267,9 @@ static int vmbus_bus_resume(struct device *dev)
+ 
+ 	return 0;
+ }
++#else
++#define vmbus_bus_suspend NULL
++#define vmbus_bus_resume NULL
+ #endif /* CONFIG_PM_SLEEP */
+ 
+ static const struct acpi_device_id vmbus_acpi_device_ids[] = {
+@@ -2263,16 +2280,24 @@ static int vmbus_bus_resume(struct device *dev)
+ MODULE_DEVICE_TABLE(acpi, vmbus_acpi_device_ids);
+ 
+ /*
+- * Note: we must use SET_NOIRQ_SYSTEM_SLEEP_PM_OPS rather than
+- * SET_SYSTEM_SLEEP_PM_OPS, otherwise NIC SR-IOV can not work, because the
+- * "pci_dev_pm_ops" uses the "noirq" callbacks: in the resume path, the
+- * pci "noirq" restore callback runs before "non-noirq" callbacks (see
++ * Note: we must use the "no_irq" ops, otherwise hibernation can not work with
++ * PCI device assignment, because "pci_dev_pm_ops" uses the "noirq" ops: in
++ * the resume path, the pci "noirq" restore op runs before "non-noirq" op (see
+  * resume_target_kernel() -> dpm_resume_start(), and hibernation_restore() ->
+  * dpm_resume_end()). This means vmbus_bus_resume() and the pci-hyperv's
+- * resume callback must also run via the "noirq" callbacks.
++ * resume callback must also run via the "noirq" ops.
++ *
++ * Set suspend_noirq/resume_noirq to NULL for Suspend-to-Idle: see the comment
++ * earlier in this file before vmbus_pm.
+  */
++
+ static const struct dev_pm_ops vmbus_bus_pm = {
+-	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(vmbus_bus_suspend, vmbus_bus_resume)
++	.suspend_noirq	= NULL,
++	.resume_noirq	= NULL,
++	.freeze_noirq	= vmbus_bus_suspend,
++	.thaw_noirq	= vmbus_bus_resume,
++	.poweroff_noirq	= vmbus_bus_suspend,
++	.restore_noirq	= vmbus_bus_resume
+ };
+ 
+ static struct acpi_driver vmbus_acpi_driver = {
+-- 
+1.8.3.1
+
