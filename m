@@ -2,134 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 539AB1A6BF2
-	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 20:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 934261A6C2B
+	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 20:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387667AbgDMSL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Apr 2020 14:11:26 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:26231 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2387625AbgDMSL0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 14:11:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586801484;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=JNPtJ8c/6eKA9KomFbmLXvT7+P5Oxb4zf/a4YOxSAA0=;
-        b=PWKCD2Woc8TL3PKQoPKWjmR93al92lQq/qFKEg68XVaTDCZYGZY1+7kw5bVE0VsjYFlXat
-        lYzBmVnYGsacU2YQBbZ73o/taUAbnfOSVe+moRYW9TDLfETIhJ2ttNM+oL/CF/iurvLxdu
-        iUqRqvgrJ7eYicGX6PdcOS6aQh8uO8k=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-257-BbI-uexsOhaKx2c2RJfLPA-1; Mon, 13 Apr 2020 14:11:18 -0400
-X-MC-Unique: BbI-uexsOhaKx2c2RJfLPA-1
-Received: by mail-wm1-f70.google.com with SMTP id y1so2993803wmj.3
-        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 11:11:17 -0700 (PDT)
+        id S2387753AbgDMSnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Apr 2020 14:43:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50598 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2387752AbgDMSns (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 14:43:48 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E75C0A3BDC
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 11:43:47 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id mn19so4165783pjb.0
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 11:43:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8kFVp2Pj0iT0F4lR5PdqWAtZFU3tyWHID692Dq1qzT4=;
+        b=l66yAhy25+J2HdeYylzERg/ANXU7h8EtJ00nOjNaaQFf4XFo/YqLbLGMDsfhwztdz8
+         alEkTjXoN4VOuIilb9RgH0Bue2jgLsdTZu4Kpfu0DWpbc5Or+F5FAFZQizodBHkDZZiv
+         NcPqSfoOFw8/ASdJsLTwN58ytcsby0IuJZznuConu78Kkyl0ZVsL6sDD9WguMd6bTCut
+         fY+v+zICAm8zJ1QAapQQk/z9H/QWJR+clTidBqrJHcGILx6LJsBHWouSZ+yRtaOqE2hl
+         gbY4n59qZrXqZfmYLPVG+AJKBeOUFc4DUJfyAXXgiNPI4vAlQ0BCoSRYf3dD5e2nC6hv
+         JCKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=JNPtJ8c/6eKA9KomFbmLXvT7+P5Oxb4zf/a4YOxSAA0=;
-        b=YfhGV241oN9npq2yEatx7PYRKAoDxkWq9kaUBUFA7gTGpYfQYVnTb2VRFe9/g9PIJ+
-         rkc3BrqhCntTAkZYwjaRAP8FpX7zKMMGdNYhPgu7Z27Iwh6WDpYKtPXpivd31OXcn2qz
-         NrJLZemkXSzU5pYzEmf0OUjKc51YbszcaFzFF9NFhU+EHG9oDLJTAT+YRWWG8af+SZfc
-         Bc/WKfdkcUN+Y37FIbrhj8JvSBOl0uwwgPxGkDGzuHFhWt6VUbvf8qYfkckovCpAG0dw
-         DO1q6sX8jOJdMVajnUaFAZHhHJdEtEhJoQ6DO9I5ydIs7i7tIQo0IzmocahnTH0eaEfY
-         nteg==
-X-Gm-Message-State: AGi0PuZJIUQn9yj6dRa0vd3GUGbyO4ep2L+W1dpGD98ZI3G6YsgizSdx
-        mkCMPxwPJq1irGS+8tNsgHv7jj7+9AgeAdoH37DpW0e9VHkfwORCyLt/S+t/x06phWgYZnE1sht
-        J3ByuhCT0Q9XEAUGb
-X-Received: by 2002:a5d:400f:: with SMTP id n15mr19758044wrp.344.1586801476923;
-        Mon, 13 Apr 2020 11:11:16 -0700 (PDT)
-X-Google-Smtp-Source: APiQypIEWIf8yN5ITV/kXEWxKi8eoPvVfgHAhrsr1nqOLbuFlRfLczNT6LewjXD8xCJdaxf1ANDKoQ==
-X-Received: by 2002:a5d:400f:: with SMTP id n15mr19758023wrp.344.1586801476691;
-        Mon, 13 Apr 2020 11:11:16 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id 74sm2584923wrk.30.2020.04.13.11.11.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Apr 2020 11:11:15 -0700 (PDT)
-Subject: Re: [PATCH] tpm/tpm_tis: Free IRQ if probing fails
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20200412170412.324200-1-jarkko.sakkinen@linux.intel.com>
- <b909aaee-3fff-4dca-40f4-4c5348474426@redhat.com>
- <20200413180732.GA11147@linux.intel.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <7df7f8bd-c65e-1435-7e82-b9f4ecd729de@redhat.com>
-Date:   Mon, 13 Apr 2020 20:11:15 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8kFVp2Pj0iT0F4lR5PdqWAtZFU3tyWHID692Dq1qzT4=;
+        b=qfd1L/fh5a3tio+iTj82mAwnEisw/0WsSXIWmlMNwsL6escWqgmvUTxALyT4fToLL1
+         4vYhpAbjilqXbXuJEEgi8lpNba8ugjL4JVEfZR1OdXDK+w+9VoEBLR360IMLG/F1C72G
+         +plFqRpx3z5VFSprB1GGvu9BeCgOzg/UYBB1AJsJPRkX3hT6j1RItlUIjjw3xOjYxGUi
+         Sf1R9BQhMetxSvX6nN7eDVifqZxa/OVHlXpbEFd5gn5qTEsAdnEIZv5OMA2i+ky995Xq
+         gIcxzrW+eVnt5bGhg6urGxFP8QD+mu5/cPe9cggH3BJwDQIvc0Zbp2hDQEk/FmVOxv18
+         a0dw==
+X-Gm-Message-State: AGi0PuZOPvh/jKO+BdEErWlQeKcMJjXAyq/zcHBziEX2VLYIot3rAcam
+        zXaR6T71gwicEtyTIhAe0nfWKAX9a6M=
+X-Google-Smtp-Source: APiQypKAOYPp90CgYsZnHLmyGnCwomTO0Yz2IolFBvp0NrpzENdAIcH7Z3UjuiX/yi8jXQSboH8f8Q==
+X-Received: by 2002:a17:90a:c295:: with SMTP id f21mr16077161pjt.176.1586803426571;
+        Mon, 13 Apr 2020 11:43:46 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x63sm1063798pfx.122.2020.04.13.11.43.45
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Apr 2020 11:43:45 -0700 (PDT)
+Message-ID: <5e94b2e1.1c69fb81.1faa9.2c3b@mx.google.com>
+Date:   Mon, 13 Apr 2020 11:43:45 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200413180732.GA11147@linux.intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.6.4
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.6.y
+Subject: stable/linux-5.6.y boot: 101 boots: 4 failed,
+ 92 passed with 5 untried/unknown (v5.6.4)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable/linux-5.6.y boot: 101 boots: 4 failed, 92 passed with 5 untried/unkn=
+own (v5.6.4)
 
-On 4/13/20 8:07 PM, Jarkko Sakkinen wrote:
-> On Mon, Apr 13, 2020 at 12:04:25PM +0200, Hans de Goede wrote:
->> Hi Jarkko,
->>
->> On 4/12/20 7:04 PM, Jarkko Sakkinen wrote:
->>> Call devm_free_irq() if we have to revert to polling in order not to
->>> unnecessarily reserve the IRQ for the life-cycle of the driver.
->>>
->>> Cc: stable@vger.kernel.org # 4.5.x
->>> Reported-by: Hans de Goede <hdegoede@redhat.com>
->>> Fixes: e3837e74a06d ("tpm_tis: Refactor the interrupt setup")
->>> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
->>> ---
->>>    drivers/char/tpm/tpm_tis_core.c | 5 ++++-
->>>    1 file changed, 4 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
->>> index 27c6ca031e23..ae6868e7b696 100644
->>> --- a/drivers/char/tpm/tpm_tis_core.c
->>> +++ b/drivers/char/tpm/tpm_tis_core.c
->>> @@ -1062,9 +1062,12 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
->>>    		if (irq) {
->>>    			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
->>>    						 irq);
->>> -			if (!(chip->flags & TPM_CHIP_FLAG_IRQ))
->>> +			if (!(chip->flags & TPM_CHIP_FLAG_IRQ)) {
->>>    				dev_err(&chip->dev, FW_BUG
->>>    					"TPM interrupt not working, polling instead\n");
->>> +				devm_free_irq(chip->dev.parent, priv->irq,
->>> +					      chip);
->>> +			}
->>
->> My initial plan was actually to do something similar, but if the probe code
->> is actually ever fixed to work as intended again then this will lead to a
->> double free as then the IRQ-test path of tpm_tis_send() will have called
->> disable_interrupts() which already calls devm_free_irq().
->>
->> You could check for chip->irq != 0 here to avoid that.
->>
->> But it all is rather messy, which is why I went with the "#if 0" approach
->> in my patch.
-> 
-> I think it is right way to fix it. It is a bug independent of the issue
-> we are experiencing.
-> 
-> However, what you are suggesting should be done in addition. Do you have
-> a patch in place or do you want me to refine mine?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+6.y/kernel/v5.6.4/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.6.y/ke=
+rnel/v5.6.4/
 
-I do not have a patch ready for this, if you can refine yours that would
-be great.
+Tree: stable
+Branch: linux-5.6.y
+Git Describe: v5.6.4
+Git Commit: 0a27a29496060843ae3a8fe78aaec0062cbd5dfa
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 64 unique boards, 16 SoC families, 17 builds out of 200
 
-Regards,
+Boot Regressions Detected:
 
-Hans
+arm:
 
+    exynos_defconfig:
+        gcc-8:
+          exynos5422-odroidxu3:
+              lab-collabora: new failure (last pass: v5.6.2)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.6.3)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxm-q200:
+              lab-baylibre: new failure (last pass: v5.6.3)
+
+Boot Failures Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm2836-rpi-2-b: 1 failed lab
+
+    exynos_defconfig:
+        gcc-8:
+            exynos5422-odroidxu3: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
