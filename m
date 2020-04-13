@@ -1,62 +1,93 @@
 Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
-Received: from vger.kernel.org (unknown [23.128.96.19])
-	by mail.lfdr.de (Postfix) with ESMTP id B46721A63F6
-	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 10:13:31 +0200 (CEST)
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by mail.lfdr.de (Postfix) with ESMTP id C8AB01A6419
+	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 10:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729272AbgDMINY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Apr 2020 04:13:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.18]:41344 "EHLO
+        id S1727987AbgDMIOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Apr 2020 04:14:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.18]:41666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727998AbgDMIMS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 04:12:18 -0400
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 572C0C00860B
-        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 01:12:18 -0700 (PDT)
-Received: by mail-qk1-x744.google.com with SMTP id b62so8653323qkf.6
-        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 01:12:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=jLhqW85PawrRZsqJX/uNy/D9Q3Tns1PoZE1rIuZWIDI=;
-        b=DR692nQpydmsqu2TqXcHgQ42lFoGm2THiwuMipp/hc6QBC3iYpldpoloH4Eo5LWmdN
-         BW4nPF/yp3TgACJhCJ6N0w/BBTfdewI3yX3juVSaP6kLQIbm1iKOl7XX1VFcXBXCMU00
-         O1+gydiGYbgV4LfHdN/qXpLP0O7DBCxAx4o8S3CXWvlWXqHLXxgVWy1072/NpwUZeMmV
-         YOEHXEugnv/IEarV0LoqitjmOX8QuA5zTB6U9Q0XWWWQNDAre+wNBURnD8GCvoufFEe4
-         Bmyf+EZQZ6gA2ZO+J8DEkViVKV07MbBBwMIsIT4rPVsICFY8PxHef7ByoadZeInC9eiG
-         m9AA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=jLhqW85PawrRZsqJX/uNy/D9Q3Tns1PoZE1rIuZWIDI=;
-        b=FXeDmiS+xlBiMrs2A6e4tK+oLNxgC2l0jkyXKJkFoPkenNAUnf4dnNUUumF0AxpyZm
-         Y+1XVUmNxTIIe1nHWL89Qewro8Wb3USVFBj2lSXTYUrApZWg9CLfKkI1zwJBK70WVB9i
-         +oyrACY7omUAgSXK5p00jiQPY6ASikLbcjAC68Oyax4udzwBFEDPhCGRfPll3XS/T3zY
-         6eR29XpKRpn63Zqe0+3YK1Hmf/4vA9YMaxaA/sZP38Occ+tHGktOyRtPFUCSx0CJBXxV
-         ty4Jtgkzbd5qFk0SJa5cgy18M2WA+VadJROROmzgw6I3JHgwCGpUdpbGVcEcochM0RQ4
-         Cn7Q==
-X-Gm-Message-State: AGi0PuaiV/Yg4xTt4fZp5NB3/zRHQdZCWLzcyCjJ2vlyJMJejUvT47kX
-        l3Eu4nxqGecBlXelYVWXYjG6tsJDu8xfwzPLU9g=
-X-Google-Smtp-Source: APiQypKPlOt35WpdR+QQB3c2xqH6eK5AGxcV+GfXQT+quE4fbf6/zccdXWp8+BX/+uEKTBEk2eQg1AJSNVAlVHLrnRI=
-X-Received: by 2002:a37:4981:: with SMTP id w123mr9146116qka.497.1586765537655;
- Mon, 13 Apr 2020 01:12:17 -0700 (PDT)
+        with ESMTP id S1727975AbgDMIN7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 04:13:59 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6771C00860B
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 01:13:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:To:From:Sender:Reply-To:Cc:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=TeuaDVrLi4KBM05emhU233WXUFgTZo3Tvg/ab5fwH+0=; b=U76uF4ThDZsFSlRUGKqGQEZFm5
+        IAdjLWsWKFGufkoxmi9NryrGtrNjoAphF/C+SyDb7f7MURmkU+0gr5A4zdkJDPjGzfmi1ICaxIkZ6
+        XTJI60SdDbYwjzM8ciyC9VS8jjW/GxPeof6NbdL9WdMoxl77lmOHGzpoLmo4kN6VBfAd4AADtG/+P
+        U9IwUvJfVn+Rc8ahStDpxvV9ZptMEnVpLP9t6iSRq2XviLxXPlL/Lb5lHPqpxsdnp2c4aPuEfqpRf
+        fav/FOdddCVobBT4qCgNPtMOtnyP8NfDz64wnuzTebgSKKOWhHz68saoril+d9fz29nBwIwkyqXzn
+        xDB/tSSA==;
+Received: from [2601:647:4802:9070:c866:767e:2caa:28fe] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jNuE6-000313-CW; Mon, 13 Apr 2020 08:13:54 +0000
+From:   Sagi Grimberg <sagi@grimberg.me>
+To:     stable@vger.kernel.org
+Subject: [PATCH stable 4.18+] nvme: Treat discovery subsystems as unique subsystems
+Date:   Mon, 13 Apr 2020 01:13:49 -0700
+Message-Id: <20200413081349.16278-1-sagi@grimberg.me>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Received: by 2002:a0c:f1c1:0:0:0:0:0 with HTTP; Mon, 13 Apr 2020 01:12:17
- -0700 (PDT)
-Reply-To: reverendmichael00@gmail.com
-From:   Michael Abraham <chiogb00@gmail.com>
-Date:   Mon, 13 Apr 2020 08:12:17 +0000
-Message-ID: <CAAtWbkGJaXhHz1mZ8WH7pA17pjmK0qS2SpoMO0kJb0Ox3qH1_Q@mail.gmail.com>
-Subject: Get back to me
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please what is going on, I sent you an urgent letter days ago without
-any response from you yet, I need to know and get back to me, Best
-Regard, Michael Abraham
+From: James Smart <jsmart2021@gmail.com>
+
+[ Upstream commit c26aa572027d438de9cc311aaebcbe972f698c24 ]
+
+Current code matches subnqn and collapses all controllers to the
+same subnqn to a single subsystem structure. This is good for
+recognizing multiple controllers for the same subsystem. But with
+the well-known discovery subnqn, the subsystems aren't truly the
+same subsystem. As such, subsystem specific rules, such as no
+overlap of controller id, do not apply. With today's behavior, the
+check for overlap of controller id can fail, preventing the new
+discovery controller from being created.
+
+When searching for like subsystem nqn, exclude the discovery nqn
+from matching. This will result in each discovery controller being
+attached to a unique subsystem structure.
+
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+---
+ drivers/nvme/host/core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index fad04282148d..0545eb97d838 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2374,6 +2374,17 @@ static struct nvme_subsystem *__nvme_find_get_subsystem(const char *subsysnqn)
+ 
+ 	lockdep_assert_held(&nvme_subsystems_lock);
+ 
++	/*
++	 * Fail matches for discovery subsystems. This results
++	 * in each discovery controller bound to a unique subsystem.
++	 * This avoids issues with validating controller values
++	 * that can only be true when there is a single unique subsystem.
++	 * There may be multiple and completely independent entities
++	 * that provide discovery controllers.
++	 */
++	if (!strcmp(subsysnqn, NVME_DISC_SUBSYS_NAME))
++		return NULL;
++
+ 	list_for_each_entry(subsys, &nvme_subsystems, entry) {
+ 		if (strcmp(subsys->subnqn, subsysnqn))
+ 			continue;
+-- 
+2.20.1
+
