@@ -2,91 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD1E1A6B5F
-	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 19:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B8651A6B83
+	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 19:37:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732811AbgDMRcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Apr 2020 13:32:07 -0400
-Received: from mx3.molgen.mpg.de ([141.14.17.11]:50539 "EHLO mx1.molgen.mpg.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1732808AbgDMRcH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Apr 2020 13:32:07 -0400
-Received: from [192.168.1.6] (x4d0d8c93.dyn.telefonica.de [77.13.140.147])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: pmenzel)
-        by mx.molgen.mpg.de (Postfix) with ESMTPSA id D4604206442E6;
-        Mon, 13 Apr 2020 19:32:03 +0200 (CEST)
-Subject: Re: [regression 5.7-rc1] System does not power off, just halts
-From:   Paul Menzel <pmenzel@molgen.mpg.de>
-To:     Prike Liang <Prike.Liang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Cc:     x86@kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        regressions@leemhuis.info, stable@vger.kernel.org,
-        Mengbing Wang <Mengbing.Wang@amd.com>,
-        Huang Rui <ray.huang@amd.com>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-References: <f4eaf0ca-6cd6-c224-9205-bf64ca533ff5@molgen.mpg.de>
-Message-ID: <dcc4851e-0ab5-683a-2cf2-687d64a3c9da@molgen.mpg.de>
-Date:   Mon, 13 Apr 2020 19:32:03 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1732940AbgDMRhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Apr 2020 13:37:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35640 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1732939AbgDMRhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 13:37:51 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55578C0A3BDC
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 10:37:51 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id v2so3630033plp.9
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 10:37:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xz0yL1FNEWTu2klNSYzwas38DJkUSic/CqPOuS1qPRE=;
+        b=d0PbkETuL7FxCHndByO+fhbwPOi7k01EnkAoqHSOIMPZFOSUcGiAlCLI4k+YS3WXOD
+         mU8jxEAwshD8+0rWBJv1tWFh3ZMsZJnfVektldA2yh/MVRcuVL8RSXG6+j5ZJropJpcU
+         1gtTjISfJca1nQaZsyVl24MwkuMnX48wox4YbW+1TobsBn82Jk48qLNRK2R+vJgFMTw8
+         Jw0wQS7jCJue5Vb7UEQp3exU4uaK0lNOyI5rdkGymaYboLXpF6q0uZkzB/CcU0C7pUKT
+         ekau9T2nqlMQ1imea3qMantb6m8FTBm4xmolyeGS1L4C36kCXFLglreLhrxg4AmuAfpI
+         ukrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xz0yL1FNEWTu2klNSYzwas38DJkUSic/CqPOuS1qPRE=;
+        b=A7dbe05XHEXU2ZQ1R8txMR9iakzBDgKYVM2eHq8ZsotdcsM0LipRp5DlRM40mbVIiH
+         yp4HQXZRwWwAeKmZqHR9Rj3EFNmXNq0xoEWjjGreWXsZEB6ZfJtYdrqfwNrfNHAViQq2
+         LpWVhfmB49hPejXb0bRh85Z4emU5HN1FR7tjMTeoSdcmZkinha4uTsGCAwhg3zrAGGR8
+         Xlorrn5AV8Dj6ww5fNN5Vpu/o7OWX4RkUrmKIXTlzel2k3wamKCZdfJg5mcmG/4ldIh7
+         sca0RlRnOztxNwS3evhY3nzAZCQW6oPRs0ayM6VwgTOyIJO/uuiLldWEgfVA66s0tdS6
+         Yawg==
+X-Gm-Message-State: AGi0PuZD6upCzIV0Z0E3fgeyYwM1HEYokI5256mMkaCL3+L7YiTK85eQ
+        fsPHdJlCifn6yS/BJkOLBxYqGA8FC1E=
+X-Google-Smtp-Source: APiQypJdVXbSAJEsZ7Iuv9HJWJgssl385XCUCUJpiAY4bFy0YUbS+PvGxXs9v7hYTkgz8qiGdEf3cw==
+X-Received: by 2002:a17:902:123:: with SMTP id 32mr18514637plb.38.1586799470558;
+        Mon, 13 Apr 2020 10:37:50 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u44sm8658584pgn.81.2020.04.13.10.37.49
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Apr 2020 10:37:49 -0700 (PDT)
+Message-ID: <5e94a36d.1c69fb81.6b9c1.bf28@mx.google.com>
+Date:   Mon, 13 Apr 2020 10:37:49 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <f4eaf0ca-6cd6-c224-9205-bf64ca533ff5@molgen.mpg.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.114-56-g6dd0e32665e5
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable/linux-4.19.y boot: 92 boots: 2 failed,
+ 84 passed with 6 untried/unknown (v4.19.114-56-g6dd0e32665e5)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Prike, dear Alex, dear Linux folks,
+stable/linux-4.19.y boot: 92 boots: 2 failed, 84 passed with 6 untried/unkn=
+own (v4.19.114-56-g6dd0e32665e5)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+19.y/kernel/v4.19.114-56-g6dd0e32665e5/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
+ernel/v4.19.114-56-g6dd0e32665e5/
 
-Am 13.04.20 um 10:44 schrieb Paul Menzel:
+Tree: stable
+Branch: linux-4.19.y
+Git Describe: v4.19.114-56-g6dd0e32665e5
+Git Commit: 6dd0e32665e591e9debe3edaf73c2f8135bf047e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 54 unique boards, 15 SoC families, 17 builds out of 206
 
-> A regression between causes a system with the AMD board MSI B350M MORTAR 
-> (MS-7A37) with an AMD Ryzen 3 2200G not to power off any more but just 
-> to halt.
-> 
-> The regression is introduced in 9ebe5422ad6c..b032227c6293. I am in the 
-> process to bisect this, but maybe somebody already has an idea.
+Boot Regressions Detected:
 
-I found the Easter egg:
+arm:
 
-> commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58
-> Author: Prike Liang <Prike.Liang@amd.com>
-> Date:   Tue Apr 7 20:21:26 2020 +0800
-> 
->     drm/amdgpu: fix gfx hang during suspend with video playback (v2)
->     
->     The system will be hang up during S3 suspend because of SMU is pending
->     for GC not respose the register CP_HQD_ACTIVE access request.This issue
->     root cause of accessing the GC register under enter GFX CGGPG and can
->     be fixed by disable GFX CGPG before perform suspend.
->     
->     v2: Use disable the GFX CGPG instead of RLC safe mode guard.
->     
->     Signed-off-by: Prike Liang <Prike.Liang@amd.com>
->     Tested-by: Mengbing Wang <Mengbing.Wang@amd.com>
->     Reviewed-by: Huang Rui <ray.huang@amd.com>
->     Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
->     Cc: stable@vger.kernel.org
+    multi_v7_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v4.19.114)
 
-It reverts cleanly on top of 5.7-rc1, and this fixes the issue.
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.19.114)
 
-Greg, please do not apply this to the stable series. The commit message 
-doesn’t even reference a issue/bug report, and doesn’t give a detailed 
-problem description. What system is it?
+arm64:
 
-Dave, Alex, how to proceed? Revert? I created issue 1094 [1].
+    defconfig:
+        gcc-8:
+          meson-gxl-s805x-p241:
+              lab-baylibre: new failure (last pass: v4.19.114)
 
+Boot Failures Detected:
 
-Kind regards,
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-Paul
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s805x-p241: 1 failed lab
 
-
-[1]: https://gitlab.freedesktop.org/drm/amd/-/issues/1094
+---
+For more info write to <info@kernelci.org>
