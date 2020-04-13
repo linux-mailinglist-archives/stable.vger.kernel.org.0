@@ -2,90 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC9421A66D4
-	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 15:19:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CBF01A6743
+	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 15:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729792AbgDMNTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Apr 2020 09:19:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44782 "EHLO
+        id S1730122AbgDMNla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Apr 2020 09:41:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729268AbgDMNTO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 09:19:14 -0400
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBE6CC0A3BDC;
-        Mon, 13 Apr 2020 06:19:13 -0700 (PDT)
-Received: by mail-il1-x141.google.com with SMTP id i75so8384184ild.13;
-        Mon, 13 Apr 2020 06:19:13 -0700 (PDT)
+        with ESMTP id S1730085AbgDMNl3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 09:41:29 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B022EC0A3BDC
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 06:41:29 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id w11so4442206pga.12
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 06:41:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=BZzMZDGqgBwX4Xh7KHoiKVja3NDIa0mY3TIVJFbrBQY=;
-        b=fJYKZ/XmwUlxghngbQncUbotyBqjvCuUw2LJVgWQ9jb3jOx+lm+N1xdJAtQhM3vxw/
-         /5ezliLqrf7G6qxE+UmevZNoIm5mRLG7KqdHaMqVkP3OPuFQefozAdUHT44vGQwNaD/3
-         dO+xR3VEELksN7X6CqKHHSbVhvhesiKQs+cNutrdrc3VKYk+xDokz4BjgktTz0cI3W8W
-         slyUInVSN6vC9P+aEVNXOnznXVUi50vvhokf/FtLUxs0ewXWglLUGhIvlFEg14QroK1k
-         asWmBJTxHYf3cibpHGBT8veXDXzuobFXk2Fcgae3z29OrMTLrbJNV+X7hEOoSskHwVrC
-         xDvQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=cnGfdlw2Jh1gUwTmXUlok1FHeaGW0WINmo0nXPJbM9M=;
+        b=ebz7IjpfA9HAQqi6KthJxqgqXr/hPxLJvXkkO7JFMv9IluFgI+0lp8MJPyA/K+zHCJ
+         mvujL3shnbqV75K8CSTQxDAgmreNa/qhG6XL0WFA7rSIFmOEgKcRoxUKfaGfYuE6C/jV
+         7Sx9VFdTUkL4wse1pE7nIRchGiBuyWlzERmbG4Z8fra/rkrUNwdpz4WxUqKdKaKR/Rzg
+         Fm1Hlly8gkFMSOgiGd5gTBMV8GfwZ5v0IpUQp/ZifVdjK76en7DNrmwhdxw9TNWPkNPt
+         uL861Ki4AzhvTUKjro1LhcWdAvq6B8teYwLxn8e+coji+zsx2D5YV2Tnvo5F5ogmb9gR
+         pmfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=BZzMZDGqgBwX4Xh7KHoiKVja3NDIa0mY3TIVJFbrBQY=;
-        b=pK6m3/uGiZhh+GYbQWONcWSe+EcClunn1A2VeMahIHX3SWN31YPQuqq0W8Sd88A+z5
-         GBkO2/iiNCg2qtaSLpbxV04fwytoFilA1T0Qn8dRV2gkXrsEYNafbzBVNe7Pgnch/J4/
-         4FLVnQeJm2slt9n5NcqVcxPfiWE6vQGfSQNtuIL31f0vHPlBD2ARO9nRHAb8xKcMv6Sa
-         mEfTOrq/dC5T/W3weFAuqHm5odwct7hpEW/2rYNVdPLA4Hhp56unsv2SjsL3xjeyw+k/
-         TXJ2/Ur1kHHvk7n3Ns8AaAEdcQ0RHQtOr4WSdEPlGFLgV8nWSwA354jYlTuUKiAXOWeX
-         vrJw==
-X-Gm-Message-State: AGi0PuZJAOK44pBKVWcc+zg2Sbw0aPuUGo0mz+xoCu0poPLd1sJZJf9v
-        W+DXwlrAepm4gURHOKQbLMQDqj8eaLYwGbe7iXI=
-X-Google-Smtp-Source: APiQypLL2RO7vkWepX4zJfT3mg+ZZfFwS0tioHyqiE0a9rgOxbf+a264s0Uqh9dgtn1qb2Vwy6CnWJzlKoFypcpId+s=
-X-Received: by 2002:a05:6e02:4ae:: with SMTP id e14mr4823031ils.190.1586783953013;
- Mon, 13 Apr 2020 06:19:13 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=cnGfdlw2Jh1gUwTmXUlok1FHeaGW0WINmo0nXPJbM9M=;
+        b=DCB9UY7TQ1u2r7lZRhEM3SsVAJHxoeO5cmuNy8Gyuorjf08P7ESisWKjXB+W+a8Eh0
+         a21rqRiR/yGVE+qtV/8+G69zSnOMXUufUebEDVusUgcbP3xMGZEevVyxoo0V1jGuU9eb
+         auR1GjSDcxvh8fsoVcDLQOTr+2DgcDFV+4czDKsgT7xiX/sGgJ2udotdFsPQo398/K3/
+         CCP7ibjECb9EXUR+7R3dPxw12ZT1K/S/JlqQKKA19qhMfpimyZq2LT3gYhXPolcpwo/g
+         tz2PoDTuccbCtNZZ18RQlfeaISBfTC0bA5uaw0JXN5UQE1Z4dEGtV0mdjQ05TrD5C4ef
+         /7GQ==
+X-Gm-Message-State: AGi0PuZPuupszKamvIViPIKc4PEIz34ZOzn2I4ecLkklWVRKGeUv2XQl
+        9Ocd9asMHm3pF2ljGKiYdCcU4QaTg9Y=
+X-Google-Smtp-Source: APiQypIb9Usg/AFC5XKXeQqe2Q8xKFv8UC+Rvw4+QXX0Hnw7vg8Ag/qayddHEA7qTPMKbB6QxOEkfw==
+X-Received: by 2002:a63:f957:: with SMTP id q23mr1241352pgk.87.1586785288968;
+        Mon, 13 Apr 2020 06:41:28 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c8sm8910222pfj.108.2020.04.13.06.41.28
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Apr 2020 06:41:28 -0700 (PDT)
+Message-ID: <5e946c08.1c69fb81.a2709.d443@mx.google.com>
+Date:   Mon, 13 Apr 2020 06:41:28 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200412230122.5601-1-festevam@gmail.com> <9a59ecda-785e-1e26-110d-7951af650c89@roeck-us.net>
-In-Reply-To: <9a59ecda-785e-1e26-110d-7951af650c89@roeck-us.net>
-From:   Breno Matheus Lima <brenomatheus@gmail.com>
-Date:   Mon, 13 Apr 2020 09:19:04 -0400
-Message-ID: <CAC4tdFWo2dJQ_=W8U3dP-svOxuH2ygVxepKPCD0m0NnkBNNS6w@mail.gmail.com>
-Subject: Re: [PATCH] watchdog: imx_sc_wdt: Fix reboot on crash
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Fabio Estevam <festevam@gmail.com>, wim@linux-watchdog.org,
-        linux-imx@nxp.com, linux-watchdog@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.219
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable/linux-4.4.y boot: 35 boots: 3 failed,
+ 30 passed with 2 untried/unknown (v4.4.219)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Fabio,
+stable/linux-4.4.y boot: 35 boots: 3 failed, 30 passed with 2 untried/unkno=
+wn (v4.4.219)
 
-Em dom., 12 de abr. de 2020 =C3=A0s 20:17, Guenter Roeck
-<linux@roeck-us.net> escreveu:
->
-> On 4/12/20 4:01 PM, Fabio Estevam wrote:
-> > Currently when running the samples/watchdog/watchdog-simple.c
-> > application and forcing a kernel crash by doing:
-> >
-> > # ./watchdog-simple &
-> > # echo c > /proc/sysrq-trigger
-> >
-> > The system does not reboot as expected.
-> >
-> > Fix it by calling imx_sc_wdt_set_timeout() to configure the i.MX8QXP
-> > watchdog with a proper timeout.
-> >
-> > Cc: <stable@vger.kernel.org>
-> > Fixes: 986857acbc9a ("watchdog: imx_sc: Add i.MX system controller watc=
-hdog support")
-> > Reported-by: Breno Lima <breno.lima@nxp.com>
-> > Signed-off-by: Fabio Estevam <festevam@gmail.com>
->
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+4.y/kernel/v4.4.219/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
+rnel/v4.4.219/
 
-Thanks for the fix.
+Tree: stable
+Branch: linux-4.4.y
+Git Describe: v4.4.219
+Git Commit: 10d9c6f92756c1b9049e409cd5e7faed40f95294
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 23 unique boards, 8 SoC families, 12 builds out of 190
 
-Tested-by: Breno Lima <breno.lima@nxp.com>
+Boot Failures Detected:
+
+arm:
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
