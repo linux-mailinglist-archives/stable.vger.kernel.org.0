@@ -2,134 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F30D1A6BA4
-	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 19:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBAE31A6BE9
+	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 20:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387438AbgDMRtM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Apr 2020 13:49:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41384 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387436AbgDMRtL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 13:49:11 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9791C0A3BDC;
-        Mon, 13 Apr 2020 10:49:10 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id x4so10073890wmj.1;
-        Mon, 13 Apr 2020 10:49:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=WT8RpNA0P+GqDuq/DyS+L+6ZT/1lo/cn+dTgGXIpD78=;
-        b=DI6aEomb/BXc6SfxFnQlVQo+tmkqg4/JH7mWJ02QKEPDvVT8si2J4K4iWaa8HrbiVG
-         AZ5zKrauwCZn+UxinpmGQAfBZ9SOrGjeQyyE3Qy6S6KvRkfk40OAGaPAN6AjBnxuPYia
-         cT2/yVvotVuHyE75pEhV0UCtwv8K2DyCW53di/ECstDUURwguj3SUe3ny68EFDU83u/O
-         ol6cA3MklZSvAn4pVYrmi+udUBX2kiHcZjjdyQgXcUxm93UvQTdxo7YqGfRelanItcFy
-         AqeroG+vhFOGIQ5xC6O6wCRrCuoNr755h7qlzOSVcivex3rCGETVc0Gwmf05JjsPAszS
-         Xlcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=WT8RpNA0P+GqDuq/DyS+L+6ZT/1lo/cn+dTgGXIpD78=;
-        b=aZvCycgwa6knHtaAF4RwysQfxSgTPuYei6wxG7gamYXDZwA7R8IhSDQsdU4VaDhrNC
-         5Iy4PLD7FXucTxKyHlh4W4QK4wyK7+Tk40wX75Ja/3zmVGHyhOXzTCf1GAeTQcciN/y4
-         wOWsEpA2NvBftCwRQF4JMrqME1FY/PvlmRHSRwxrTM1Ksvmb9Z1vdBlSSGR0tqrs/jP6
-         1krpJT9RKaBrWEZzhE2+m16fFmC0X/1dBZZEHV7yJtFqInc2qQvjcnuBjl01ogjhTxRP
-         YMk5ifQ+4YLtOUOi6bzbwlnB+WX3QOeaBZDe9aov82IgYO0QVBcQ5oMp/Hr6xERWMIqJ
-         z5Vg==
-X-Gm-Message-State: AGi0PuZCf21kX7XwNumjhcYdZvXbdx759sCYcN+RQu4YyvVSbvIPRUtS
-        FRs+uwMuLCtbtSA+HuTU2Hlj6OHYbin/QcsQLInUjdPn
-X-Google-Smtp-Source: APiQypKijTsqeDp9flz+rvwjuFRJgzih5dOlUl923r/R/fXsWD/UuRvPQiIx6fhd+c8ClPZAGmtIGgB3/u4XfRPLJdc=
-X-Received: by 2002:a1c:6344:: with SMTP id x65mr19974588wmb.56.1586800149445;
- Mon, 13 Apr 2020 10:49:09 -0700 (PDT)
+        id S2387643AbgDMSH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Apr 2020 14:07:57 -0400
+Received: from mga06.intel.com ([134.134.136.31]:12741 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387625AbgDMSHz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Apr 2020 14:07:55 -0400
+IronPort-SDR: sKboh4/Y7aTpmZiguA/viJDnB/Onuj2n1w6U3PO1VU5GE8HWnYalFkRM+5E3XHzqUC7kTrN83K
+ VzOFal+Sriyw==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2020 11:07:55 -0700
+IronPort-SDR: XnU/oKghhk93OP1z9CxvGAh0ddFLpKhKu5c6Whx6OH+EaCzbI5w/dNdxxkWxgeRao2LJ6cH+9Z
+ drasZ0jwu20g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,378,1580803200"; 
+   d="scan'208";a="256250288"
+Received: from sarsteda-mobl1.ger.corp.intel.com (HELO localhost) ([10.249.40.211])
+  by orsmga006.jf.intel.com with ESMTP; 13 Apr 2020 11:07:34 -0700
+Date:   Mon, 13 Apr 2020 21:07:32 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     linux-integrity@vger.kernel.org, stable@vger.kernel.org,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tpm/tpm_tis: Free IRQ if probing fails
+Message-ID: <20200413180732.GA11147@linux.intel.com>
+References: <20200412170412.324200-1-jarkko.sakkinen@linux.intel.com>
+ <b909aaee-3fff-4dca-40f4-4c5348474426@redhat.com>
 MIME-Version: 1.0
-References: <f4eaf0ca-6cd6-c224-9205-bf64ca533ff5@molgen.mpg.de> <dcc4851e-0ab5-683a-2cf2-687d64a3c9da@molgen.mpg.de>
-In-Reply-To: <dcc4851e-0ab5-683a-2cf2-687d64a3c9da@molgen.mpg.de>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Mon, 13 Apr 2020 13:48:58 -0400
-Message-ID: <CADnq5_OXdpEebFY3+kyQb-WEw0Rb6cqoOFKGqgxaigU5hean1g@mail.gmail.com>
-Subject: Re: [regression 5.7-rc1] System does not power off, just halts
-To:     Paul Menzel <pmenzel@molgen.mpg.de>
-Cc:     Prike Liang <Prike.Liang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        regressions@leemhuis.info, David Airlie <airlied@linux.ie>,
-        Maling list - DRI developers 
-        <dri-devel@lists.freedesktop.org>, X86 ML <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "for 3.8" <stable@vger.kernel.org>, Huang Rui <ray.huang@amd.com>,
-        amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Mengbing Wang <Mengbing.Wang@amd.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b909aaee-3fff-4dca-40f4-4c5348474426@redhat.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 13, 2020 at 1:47 PM Paul Menzel <pmenzel@molgen.mpg.de> wrote:
->
-> Dear Prike, dear Alex, dear Linux folks,
->
->
-> Am 13.04.20 um 10:44 schrieb Paul Menzel:
->
-> > A regression between causes a system with the AMD board MSI B350M MORTA=
-R
-> > (MS-7A37) with an AMD Ryzen 3 2200G not to power off any more but just
-> > to halt.
-> >
-> > The regression is introduced in 9ebe5422ad6c..b032227c6293. I am in the
-> > process to bisect this, but maybe somebody already has an idea.
->
-> I found the Easter egg:
->
-> > commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58
-> > Author: Prike Liang <Prike.Liang@amd.com>
-> > Date:   Tue Apr 7 20:21:26 2020 +0800
-> >
-> >     drm/amdgpu: fix gfx hang during suspend with video playback (v2)
-> >
-> >     The system will be hang up during S3 suspend because of SMU is pend=
-ing
-> >     for GC not respose the register CP_HQD_ACTIVE access request.This i=
-ssue
-> >     root cause of accessing the GC register under enter GFX CGGPG and c=
-an
-> >     be fixed by disable GFX CGPG before perform suspend.
-> >
-> >     v2: Use disable the GFX CGPG instead of RLC safe mode guard.
-> >
-> >     Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-> >     Tested-by: Mengbing Wang <Mengbing.Wang@amd.com>
-> >     Reviewed-by: Huang Rui <ray.huang@amd.com>
-> >     Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> >     Cc: stable@vger.kernel.org
->
-> It reverts cleanly on top of 5.7-rc1, and this fixes the issue.
->
-> Greg, please do not apply this to the stable series. The commit message
-> doesn=E2=80=99t even reference a issue/bug report, and doesn=E2=80=99t gi=
-ve a detailed
-> problem description. What system is it?
->
-> Dave, Alex, how to proceed? Revert? I created issue 1094 [1].
+On Mon, Apr 13, 2020 at 12:04:25PM +0200, Hans de Goede wrote:
+> Hi Jarkko,
+> 
+> On 4/12/20 7:04 PM, Jarkko Sakkinen wrote:
+> > Call devm_free_irq() if we have to revert to polling in order not to
+> > unnecessarily reserve the IRQ for the life-cycle of the driver.
+> > 
+> > Cc: stable@vger.kernel.org # 4.5.x
+> > Reported-by: Hans de Goede <hdegoede@redhat.com>
+> > Fixes: e3837e74a06d ("tpm_tis: Refactor the interrupt setup")
+> > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > ---
+> >   drivers/char/tpm/tpm_tis_core.c | 5 ++++-
+> >   1 file changed, 4 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+> > index 27c6ca031e23..ae6868e7b696 100644
+> > --- a/drivers/char/tpm/tpm_tis_core.c
+> > +++ b/drivers/char/tpm/tpm_tis_core.c
+> > @@ -1062,9 +1062,12 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+> >   		if (irq) {
+> >   			tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
+> >   						 irq);
+> > -			if (!(chip->flags & TPM_CHIP_FLAG_IRQ))
+> > +			if (!(chip->flags & TPM_CHIP_FLAG_IRQ)) {
+> >   				dev_err(&chip->dev, FW_BUG
+> >   					"TPM interrupt not working, polling instead\n");
+> > +				devm_free_irq(chip->dev.parent, priv->irq,
+> > +					      chip);
+> > +			}
+> 
+> My initial plan was actually to do something similar, but if the probe code
+> is actually ever fixed to work as intended again then this will lead to a
+> double free as then the IRQ-test path of tpm_tis_send() will have called
+> disable_interrupts() which already calls devm_free_irq().
+> 
+> You could check for chip->irq != 0 here to avoid that.
+> 
+> But it all is rather messy, which is why I went with the "#if 0" approach
+> in my patch.
 
-Already fixed:
-https://patchwork.freedesktop.org/patch/361195/
+I think it is right way to fix it. It is a bug independent of the issue
+we are experiencing.
 
-Alex
+However, what you are suggesting should be done in addition. Do you have
+a patch in place or do you want me to refine mine?
 
->
->
-> Kind regards,
->
-> Paul
->
->
-> [1]: https://gitlab.freedesktop.org/drm/amd/-/issues/1094
-> _______________________________________________
-> amd-gfx mailing list
-> amd-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/amd-gfx
+/Jarkko
