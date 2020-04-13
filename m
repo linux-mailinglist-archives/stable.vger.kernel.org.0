@@ -2,126 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 934261A6C2B
-	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 20:43:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 451801A6C7F
+	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 21:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387753AbgDMSnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Apr 2020 14:43:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50598 "EHLO
+        id S1733186AbgDMTbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Apr 2020 15:31:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387752AbgDMSns (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 14:43:48 -0400
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E75C0A3BDC
-        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 11:43:47 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id mn19so4165783pjb.0
-        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 11:43:47 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1728291AbgDMTbP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 15:31:15 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BA50C0A3BDC
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 12:31:13 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id a81so11153113wmf.5
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 12:31:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8kFVp2Pj0iT0F4lR5PdqWAtZFU3tyWHID692Dq1qzT4=;
-        b=l66yAhy25+J2HdeYylzERg/ANXU7h8EtJ00nOjNaaQFf4XFo/YqLbLGMDsfhwztdz8
-         alEkTjXoN4VOuIilb9RgH0Bue2jgLsdTZu4Kpfu0DWpbc5Or+F5FAFZQizodBHkDZZiv
-         NcPqSfoOFw8/ASdJsLTwN58ytcsby0IuJZznuConu78Kkyl0ZVsL6sDD9WguMd6bTCut
-         fY+v+zICAm8zJ1QAapQQk/z9H/QWJR+clTidBqrJHcGILx6LJsBHWouSZ+yRtaOqE2hl
-         gbY4n59qZrXqZfmYLPVG+AJKBeOUFc4DUJfyAXXgiNPI4vAlQ0BCoSRYf3dD5e2nC6hv
-         JCKw==
+        d=chrisdown.name; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=+1oIAGp/+mYXSIibcKMNOMtcUpS8aqG4LNCJREQx4I0=;
+        b=vvLr0PCo3ceEpektVTQVrt0+tx94n9iBTlGZAK0bjFj/z9kb8ZLiWacNCe2ovRkYDT
+         cqOTXc2bCABkHPKafkdRaCpUWJs0kvwVhY5edDr5xdnOe/nbMibOHRjEi0kINxp+kLCb
+         lKVPejbfruG/nFaxDR1iyxn4c+Dh4XO/cyw28=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8kFVp2Pj0iT0F4lR5PdqWAtZFU3tyWHID692Dq1qzT4=;
-        b=qfd1L/fh5a3tio+iTj82mAwnEisw/0WsSXIWmlMNwsL6escWqgmvUTxALyT4fToLL1
-         4vYhpAbjilqXbXuJEEgi8lpNba8ugjL4JVEfZR1OdXDK+w+9VoEBLR360IMLG/F1C72G
-         +plFqRpx3z5VFSprB1GGvu9BeCgOzg/UYBB1AJsJPRkX3hT6j1RItlUIjjw3xOjYxGUi
-         Sf1R9BQhMetxSvX6nN7eDVifqZxa/OVHlXpbEFd5gn5qTEsAdnEIZv5OMA2i+ky995Xq
-         gIcxzrW+eVnt5bGhg6urGxFP8QD+mu5/cPe9cggH3BJwDQIvc0Zbp2hDQEk/FmVOxv18
-         a0dw==
-X-Gm-Message-State: AGi0PuZOPvh/jKO+BdEErWlQeKcMJjXAyq/zcHBziEX2VLYIot3rAcam
-        zXaR6T71gwicEtyTIhAe0nfWKAX9a6M=
-X-Google-Smtp-Source: APiQypKAOYPp90CgYsZnHLmyGnCwomTO0Yz2IolFBvp0NrpzENdAIcH7Z3UjuiX/yi8jXQSboH8f8Q==
-X-Received: by 2002:a17:90a:c295:: with SMTP id f21mr16077161pjt.176.1586803426571;
-        Mon, 13 Apr 2020 11:43:46 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x63sm1063798pfx.122.2020.04.13.11.43.45
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=+1oIAGp/+mYXSIibcKMNOMtcUpS8aqG4LNCJREQx4I0=;
+        b=b1AAi4xFlDaMLGEzROM77eYG4gO8G/3SRhQ41eG+dQQ93hQ0VPsWrpXTMXGl9tFBG4
+         cbqpNZM56dOom1P1oLHHenhEnl2+P+6O1YmSh80gYEZI8qW6Z5B0gF5Pw1jMEJSUJdYv
+         7QdmfjP7PqQUsV6qSua+qp7RMlRxuh/iyBnIh6kF4Tyj7n2V71yGi0d7nHlCfQue9t16
+         mHmKLOx+k/EvqMIRYMuvOjWKYhjf4gHlIILN4B8XixABfzssZBNuHrCRXVhZ+QOACvMX
+         Ef1EOnr+tM+/xOw7IPodi38R34i6F6WxHcCn2qF7lZJyvflTbRgpDH3tB1NTlZi+N4Eh
+         0Smg==
+X-Gm-Message-State: AGi0PubY8mqNMaFjwvD2LirSUA8enWQatCr/rdyCkZsUYwZLf0T0yiRa
+        UmqVbY64cBgmWBtAPJO+Llhgcg==
+X-Google-Smtp-Source: APiQypJ/mpnsEUj9pgbNcu3Pv9+/pt/Nlq9mWca5Q620EPZGmW/XoR58jV5Qp4yL6uvl0K4Q65v1QQ==
+X-Received: by 2002:a1c:3b09:: with SMTP id i9mr19450264wma.19.1586806272067;
+        Mon, 13 Apr 2020 12:31:12 -0700 (PDT)
+Received: from localhost ([2a01:4b00:8432:8a00:fa59:71ff:fe7e:8d21])
+        by smtp.gmail.com with ESMTPSA id v10sm3754208wrq.45.2020.04.13.12.31.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Apr 2020 11:43:45 -0700 (PDT)
-Message-ID: <5e94b2e1.1c69fb81.1faa9.2c3b@mx.google.com>
-Date:   Mon, 13 Apr 2020 11:43:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 13 Apr 2020 12:31:11 -0700 (PDT)
+Date:   Mon, 13 Apr 2020 20:31:11 +0100
+From:   Chris Down <chris@chrisdown.name>
+To:     Yafang Shao <laoar.shao@gmail.com>
+Cc:     hannes@cmpxchg.org, mhocko@kernel.org, vdavydov.dev@gmail.com,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        Shakeel Butt <shakeelb@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] mm, memcg: fix inconsistent oom event behavior
+Message-ID: <20200413193111.GA1559372@chrisdown.name>
+References: <20200412140427.6732-1-laoar.shao@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.6.4
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.6.y
-Subject: stable/linux-5.6.y boot: 101 boots: 4 failed,
- 92 passed with 5 untried/unknown (v5.6.4)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200412140427.6732-1-laoar.shao@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.6.y boot: 101 boots: 4 failed, 92 passed with 5 untried/unkn=
-own (v5.6.4)
+Hi Yafang,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-6.y/kernel/v5.6.4/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.6.y/ke=
-rnel/v5.6.4/
+Yafang Shao writes:
+>A recent commit 9852ae3fe529 ("mm, memcg: consider subtrees in
+>memory.events") changes the behavior of memcg events, which will
+>consider subtrees in memory.events. But oom_kill event is a special one
+>as it is used in both cgroup1 and cgroup2. In cgroup1, it is displayed
+>in memory.oom_control. The file memory.oom_control is in both root memcg
+>and non root memcg, that is different with memory.event as it only in
+>non-root memcg. That commit is okay for cgroup2, but it is not okay for
+>cgroup1 as it will cause inconsistent behavior between root memcg and
+>non-root memcg.
+>Let's recover the original behavior for cgroup1.
 
-Tree: stable
-Branch: linux-5.6.y
-Git Describe: v5.6.4
-Git Commit: 0a27a29496060843ae3a8fe78aaec0062cbd5dfa
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 64 unique boards, 16 SoC families, 17 builds out of 200
+Can you please explain the practical ramifications of this and show an 
+explicitly laid out example of how this manifests, with numbers and scenarios? 
+It's unclear to me that this is a real problem as is -- it may be, but there 
+certainly needs to be more information.
 
-Boot Regressions Detected:
+Thanks,
 
-arm:
-
-    exynos_defconfig:
-        gcc-8:
-          exynos5422-odroidxu3:
-              lab-collabora: new failure (last pass: v5.6.2)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.6.3)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-gxm-q200:
-              lab-baylibre: new failure (last pass: v5.6.3)
-
-Boot Failures Detected:
-
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            bcm2836-rpi-2-b: 1 failed lab
-
-    exynos_defconfig:
-        gcc-8:
-            exynos5422-odroidxu3: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+Chris
