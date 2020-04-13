@@ -2,92 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8AB01A6419
-	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 10:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1EC31A6521
+	for <lists+stable@lfdr.de>; Mon, 13 Apr 2020 12:23:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727987AbgDMIOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Apr 2020 04:14:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.18]:41666 "EHLO
+        id S1728799AbgDMIU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Apr 2020 04:20:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.18]:42982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727975AbgDMIN7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 04:13:59 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6771C00860B
-        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 01:13:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:To:From:Sender:Reply-To:Cc:Content-Type:
-        Content-ID:Content-Description:In-Reply-To:References;
-        bh=TeuaDVrLi4KBM05emhU233WXUFgTZo3Tvg/ab5fwH+0=; b=U76uF4ThDZsFSlRUGKqGQEZFm5
-        IAdjLWsWKFGufkoxmi9NryrGtrNjoAphF/C+SyDb7f7MURmkU+0gr5A4zdkJDPjGzfmi1ICaxIkZ6
-        XTJI60SdDbYwjzM8ciyC9VS8jjW/GxPeof6NbdL9WdMoxl77lmOHGzpoLmo4kN6VBfAd4AADtG/+P
-        U9IwUvJfVn+Rc8ahStDpxvV9ZptMEnVpLP9t6iSRq2XviLxXPlL/Lb5lHPqpxsdnp2c4aPuEfqpRf
-        fav/FOdddCVobBT4qCgNPtMOtnyP8NfDz64wnuzTebgSKKOWhHz68saoril+d9fz29nBwIwkyqXzn
-        xDB/tSSA==;
-Received: from [2601:647:4802:9070:c866:767e:2caa:28fe] (helo=bombadil.infradead.org)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jNuE6-000313-CW; Mon, 13 Apr 2020 08:13:54 +0000
-From:   Sagi Grimberg <sagi@grimberg.me>
-To:     stable@vger.kernel.org
-Subject: [PATCH stable 4.18+] nvme: Treat discovery subsystems as unique subsystems
-Date:   Mon, 13 Apr 2020 01:13:49 -0700
-Message-Id: <20200413081349.16278-1-sagi@grimberg.me>
-X-Mailer: git-send-email 2.20.1
+        with ESMTP id S1727971AbgDMIU0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 04:20:26 -0400
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5774FC008609;
+        Mon, 13 Apr 2020 01:20:26 -0700 (PDT)
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9230A20692;
+        Mon, 13 Apr 2020 08:20:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586766026;
+        bh=kzHqKn+GWCgegiJ0Zguzq9Vbi7lSJ5PufV6o8/thN4s=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=o/z+tnRq+AR8mYl5YzlvWL3Fnn2ZZorEuOP2usEDvF0o6NaO7lVfLHfisxpQyWiaJ
+         6I4XzI7SPOZofWDKWzgLXLF534SIpiTzsJd5RJNgQwfbCDYuMZ49kSzA1xpqfC5Xcg
+         u9HM0XvQHif5P+ujd0RvURmNP0K2EtZAwictzMWY=
+Date:   Mon, 13 Apr 2020 10:20:23 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     nobuhiro1.iwamatsu@toshiba.co.jp
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        clew@codeaurora.org, aneela@codeaurora.org,
+        bjorn.andersson@linaro.org, lee.jones@linaro.org
+Subject: Re: [PATCH 4.14 36/38] rpmsg: glink: Remove chunk size word align
+ warning
+Message-ID: <20200413082023.GA2792388@kroah.com>
+References: <20200411115437.795556138@linuxfoundation.org>
+ <20200411115441.303886448@linuxfoundation.org>
+ <OSAPR01MB3667845337B13FB2398B8AB892DD0@OSAPR01MB3667.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OSAPR01MB3667845337B13FB2398B8AB892DD0@OSAPR01MB3667.jpnprd01.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+On Mon, Apr 13, 2020 at 05:16:05AM +0000, nobuhiro1.iwamatsu@toshiba.co.jp wrote:
+> Hi,
+> 
+> > -----Original Message-----
+> > From: stable-owner@vger.kernel.org [mailto:stable-owner@vger.kernel.org] On Behalf Of Greg Kroah-Hartman
+> > Sent: Saturday, April 11, 2020 9:09 PM
+> > To: linux-kernel@vger.kernel.org
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>; stable@vger.kernel.org; Chris Lew <clew@codeaurora.org>; Arun
+> > Kumar Neelakantam <aneela@codeaurora.org>; Bjorn Andersson <bjorn.andersson@linaro.org>; Lee Jones
+> > <lee.jones@linaro.org>
+> > Subject: [PATCH 4.14 36/38] rpmsg: glink: Remove chunk size word align warning
+> > 
+> > From: Chris Lew <clew@codeaurora.org>
+> > 
+> > commit f0beb4ba9b185d497c8efe7b349363700092aee0 upstream.
+> > 
+> > It is possible for the chunk sizes coming from the non RPM remote procs
+> > to not be word aligned. Remove the alignment warning and continue to
+> > read from the FIFO so execution is not stalled.
+> > 
+> > Signed-off-by: Chris Lew <clew@codeaurora.org>
+> > Signed-off-by: Arun Kumar Neelakantam <aneela@codeaurora.org>
+> > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> This commit also seems to require the following commits:
+> 
+> commit 928002a5e9dab2ddc1a0fe3e00739e89be30dc6b
+> Author: Arun Kumar Neelakantam <aneela@codeaurora.org>
+> Date:   Wed Oct 3 17:08:20 2018 +0530
+> 
+>     rpmsg: glink: smem: Support rx peak for size less than 4 bytes
+>     
+>     The current rx peak function fails to read the data if size is
+>     less than 4bytes.
+>     
+>     Use memcpy_fromio to support data reads of size less than 4 bytes.
+>     
+>     Cc: stable@vger.kernel.org
+>     Fixes: f0beb4ba9b18 ("rpmsg: glink: Remove chunk size word align warning")
+>     Signed-off-by: Arun Kumar Neelakantam <aneela@codeaurora.org>
+>     Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> 
+> This fixes commit need to apply 4.19.
 
-[ Upstream commit c26aa572027d438de9cc311aaebcbe972f698c24 ]
+This fix is already in 4.19.y, so it's only needed for 4.14.y at this
+point in time, thanks!
 
-Current code matches subnqn and collapses all controllers to the
-same subnqn to a single subsystem structure. This is good for
-recognizing multiple controllers for the same subsystem. But with
-the well-known discovery subnqn, the subsystems aren't truly the
-same subsystem. As such, subsystem specific rules, such as no
-overlap of controller id, do not apply. With today's behavior, the
-check for overlap of controller id can fail, preventing the new
-discovery controller from being created.
-
-When searching for like subsystem nqn, exclude the discovery nqn
-from matching. This will result in each discovery controller being
-attached to a unique subsystem structure.
-
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
----
- drivers/nvme/host/core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index fad04282148d..0545eb97d838 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2374,6 +2374,17 @@ static struct nvme_subsystem *__nvme_find_get_subsystem(const char *subsysnqn)
- 
- 	lockdep_assert_held(&nvme_subsystems_lock);
- 
-+	/*
-+	 * Fail matches for discovery subsystems. This results
-+	 * in each discovery controller bound to a unique subsystem.
-+	 * This avoids issues with validating controller values
-+	 * that can only be true when there is a single unique subsystem.
-+	 * There may be multiple and completely independent entities
-+	 * that provide discovery controllers.
-+	 */
-+	if (!strcmp(subsysnqn, NVME_DISC_SUBSYS_NAME))
-+		return NULL;
-+
- 	list_for_each_entry(subsys, &nvme_subsystems, entry) {
- 		if (strcmp(subsys->subnqn, subsysnqn))
- 			continue;
--- 
-2.20.1
-
+greg k-h
