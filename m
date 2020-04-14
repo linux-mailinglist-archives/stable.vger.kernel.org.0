@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 385C91A7F4F
+	by mail.lfdr.de (Postfix) with ESMTP id C8CA61A7F50
 	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 16:14:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733198AbgDNOOY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 10:14:24 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:53771 "EHLO
+        id S1728815AbgDNOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 10:14:25 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:45857 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728815AbgDNOOU (ORCPT
+        by vger.kernel.org with ESMTP id S1733195AbgDNOOU (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 10:14:20 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 306A6285;
-        Tue, 14 Apr 2020 10:14:18 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 8B9F5437;
+        Tue, 14 Apr 2020 10:14:19 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 14 Apr 2020 10:14:18 -0400
+  by compute1.internal (MEProxy); Tue, 14 Apr 2020 10:14:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=BIWnTB
-        Xs8a8dW0f5rA8vbDr0ZeGCE7g8q6d08YaSYKc=; b=2P/FcwDv1rTFtGZpD9TgLU
-        Vj7CQN+HeapA3jzq0lsraDTN+hitRGD9x5LzuvrwZvPdQiRrYhaW1CHLZyL9NeXe
-        h2ms49pG9ybXG53g9CDuBrvBHCNeRi326y4yYwYFjXyNWoiHIBYs18gzRqdBh1UR
-        6CB4eZnK9SdLlTHRM03O8tVU6SESzqzAcledA9nJjSMoRHn2VrVGv75uU9gs6ziZ
-        NvwJy3Pc8o58OtD+E+SW3/Keijuoz+6oBwMfqgxCWg4I4yOpn4SlwqWIB6TQujo5
-        ltmRoDiF4NroVPJQSA7G3RthfafuQvb/6QCbFG/mFyBzVzZwF0F84qvRNiQDhDug
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=k1fNZh
+        Ud5GDy7t406LSzMvjCnzcY1vpnRlwGs97pYpE=; b=HrxwLdMMSBoqyzgNlzU87P
+        GHgQouIU/CYXqz9RkBR11FQrH4lhu3NCB6lPdCxvqvXEEIfq+RInMXvalTHreUdK
+        VBmce0xN6J6I03rpcmBeK00/CahwVHe3JiBf0jqcIlnUTfsD4W+SP7RXsuPUWwhM
+        RgBP4wZjFA/4hzqf00er9IzkCHfM8X8MkfIEo5ky37MRnOnNv9SM+bXMJit7Jdri
+        Opr7Wpoi5gqqe8C6OhNYw9zhZtnAlnX8EiwrGFVnOVG9Q7HiEZI24KMqu1mTxX+w
+        EMj61jqHy7SnkjPbzenf2ikt2g7CY9jaf0ltlb742cb2csF4YFbzXQqMg4FSHYow
         ==
-X-ME-Sender: <xms:OcWVXpREDE_RvwEHtPWL0iWm6xh9QryMTS1Yj1b3X2jlv9wTla548g>
+X-ME-Sender: <xms:O8WVXtbZwasSxiocYH2riLa7d9TjLWI6eaaTtguXPdC2Jg3yGbB6AA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfedugdejfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:OcWVXnAga98Tn9V177VOTzguHDsDvwyxhzgKwH_GexIXH76xEfZjiQ>
-    <xmx:OcWVXp1crCgnwOQyWsCjCW_AYmMS4nIgQ5vIRwZTGCMCzDYTixE3Og>
-    <xmx:OcWVXlWGU8I7EIIv9gqBmqo8XReELDRwpQLAYnkUC-H4odEiW8yTFw>
-    <xmx:OcWVXh3_iA-vYjLD4Xs2RbJELo1Pt2btmVZCWaV1s5kFtBZgeNWsmg>
+X-ME-Proxy: <xmx:O8WVXlFrf99eEmIbgKwynPKtUUEo09BMfNWbvHS_NheFP23ZN5BE_w>
+    <xmx:O8WVXkdJKDP0XV9Hh9WYRFQLr5gDHVfac-Mu8LxRffcSy7Eh7F-d-Q>
+    <xmx:O8WVXsKGwysoM_wiFaQIv2KInEeCAz7tcXXX3_aK6plotwnG0wAlJg>
+    <xmx:O8WVXk-IScwy1Uyste4iouJgmJ2EHOPT7idJ8UHxx4zDIqRSpOoLjg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 143F8328006A;
-        Tue, 14 Apr 2020 10:14:16 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix btrfs_calc_reclaim_metadata_size calculation" failed to apply to 5.5-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id DBB08328005E;
+        Tue, 14 Apr 2020 10:14:18 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: fix btrfs_calc_reclaim_metadata_size calculation" failed to apply to 5.4-stable tree
 To:     josef@toxicpanda.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 14 Apr 2020 16:14:15 +0200
-Message-ID: <158687365524765@kroah.com>
+Date:   Tue, 14 Apr 2020 16:14:16 +0200
+Message-ID: <1586873656124226@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.5-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
