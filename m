@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0A381A79CB
+	by mail.lfdr.de (Postfix) with ESMTP id 653071A79CA
 	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 13:42:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439481AbgDNLmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 07:42:39 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:60095 "EHLO
+        id S2439490AbgDNLmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 07:42:38 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:37603 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439471AbgDNLme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 07:42:34 -0400
+        by vger.kernel.org with ESMTP id S2439481AbgDNLmf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 07:42:35 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 69C4A99C;
-        Tue, 14 Apr 2020 07:42:33 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id B5CA59B4;
+        Tue, 14 Apr 2020 07:42:34 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 14 Apr 2020 07:42:33 -0400
+  by compute1.internal (MEProxy); Tue, 14 Apr 2020 07:42:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=kLcoCG
-        OyEfLVl7BhbstmXuyqf2CtlflIwT7wRgqFq1s=; b=L6JAGtBWusWW0k3vqGJqlf
-        Mf1XiPScsEPt3r2OGi1FtTDbS1yQYEY6SD6Mv10mhfz0qq2wocAJn1ke0Mkk/cRI
-        PnwbWBI/9zJyz6fyhIhPrbyNkUqq3N6qcFL5/b+/8kdIalD+9TqF4G1JnE9ku3ou
-        wkgmN4XTjo+3Ld9E0hJy4q2xgSnGaKey8zVYPn1c3bcRVrMNnXRQeFjxf42TvUwJ
-        pEkScWcZT/hmzA/kzOzOHcInbk2D6MSJYatGHzvHael4ChlnEI/bU+ltBVY3n+S9
-        eMnPcDKmtuVkjQyh69vLGh/8G6n6v2JKBzObTtgVVLmJrjGMeHXUzXCzKcRcvSSg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=wG13IX
+        B5Qp6VOasvsR6q3x2BjfUnCQB2DJ6RpuSm7w4=; b=IsnBQL3Mp9FdPF4F5kcjsC
+        t7Qo0WyHwWiNChyG6nVq1re6tKD/MAlJO6jEA34cPXYfckKQms5A/r3xgXhzNRUe
+        utBMU684r4rDjtRI4DT6Wmlrj/RlNZH6BFbIJVTRYq45FDZCCK1XhdtDYY4Uoldu
+        d56oCMCdVbyPWd7ZjNlBDyg5W5WazLfyuKYmGX6m9eedul8fX6ic4ynLbfwzCEr2
+        2a6VbCLI0cNDSJM8vTgdphwaNRVAsLWgrKWtphVmM6lXzRudeVMtOHMtZavIBn19
+        ImAzZ4S63tKkI1/HRxyRTCCdbJxDlrc1LXGeRDfYEvshW9P3n1L7N4LNzB4Z1IZA
         ==
-X-ME-Sender: <xms:qKGVXvV5VGS4bDQhF7OiN5eviXlFPRqQtg6jQm9a93MDTIVYCaDEOg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfedugdegvdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:qqGVXhFLWKiJs5woPr7JdoBz5F2whlqqad7x63yOWHwGh9M7SWq1TA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfedugdegfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:qKGVXpdjKqyTzwC8FcS9OrS46zmpj05XFpLAAIDdTvs8odHs7ZpWdQ>
-    <xmx:qKGVXghDGBahmVBs2_keU0ZgKT_ZChKRwpUg4MEbTZ0B2BWl-8rR6Q>
-    <xmx:qKGVXqgjvzl6LxhcFozaL7pY1FLmVb5RQDtzI-fUMZpy9FRYDJkSYQ>
-    <xmx:qaGVXjgP6XCyCHVbJY4ThI2oVom8dswjHJMLihap9h-6ZhMGiOtY_g>
+X-ME-Proxy: <xmx:qqGVXsw-HQKDpgR99Zu0Wb8JhImETb9-gpqVtm1Rf7pEfSDYO-Un0g>
+    <xmx:qqGVXr87HsdzrMsWJUC4tVT4zBEoSiMoR4GKunSEdpmn52sQFJo2Lw>
+    <xmx:qqGVXmX-UBjT_i6_a8qAkhX5lMiA9e_7_yM43ldzhw6WQ3Gk9MZmaQ>
+    <xmx:qqGVXuvc14qWp9WO_YNGJt4Q6XDbHIDxoBOq1HNwr-oN6ZnSJvxN4w>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 90B66306005B;
-        Tue, 14 Apr 2020 07:42:32 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] erofs: correct the remaining shrink objects" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id F2304306005B;
+        Tue, 14 Apr 2020 07:42:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] erofs: correct the remaining shrink objects" failed to apply to 5.4-stable tree
 To:     xiang@kernel.org, gaoxiang25@huawei.com, stable@vger.kernel.org,
         yuchao0@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 14 Apr 2020 13:42:24 +0200
-Message-ID: <158686454410133@kroah.com>
+Date:   Tue, 14 Apr 2020 13:42:25 +0200
+Message-ID: <1586864545119140@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
