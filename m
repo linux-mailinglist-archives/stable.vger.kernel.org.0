@@ -2,90 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7ED91A75DB
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 10:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D09021A75DD
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 10:23:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436527AbgDNIVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 04:21:38 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:43009 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2407121AbgDNIUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 04:20:53 -0400
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jOGoK-0006GN-5i; Tue, 14 Apr 2020 10:20:48 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 7E7DB1C0086;
-        Tue, 14 Apr 2020 10:20:47 +0200 (CEST)
-Date:   Tue, 14 Apr 2020 08:20:47 -0000
-From:   "tip-bot2 for Paul E. McKenney" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: core/urgent] rcu: Don't acquire lock in NMI handler in
- rcu_nmi_enter_common()
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        <stable@vger.kernel.org>, x86 <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
+        id S2436533AbgDNIVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 04:21:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33892 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2407134AbgDNIVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Apr 2020 04:21:00 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63F85206E9;
+        Tue, 14 Apr 2020 08:20:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586852459;
+        bh=e+ZqgmSTFSQ0U9tWAfWcVUMwKtjBxt3DVUkjfLMMDi0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hQv1B8fjWImvoLZH44NSpxFeTCnEsrhBsayZ+G0WdaW7li+xjRS4+zr2H3F9Waohu
+         ItY4ip7UExf6lRubEf66/EeduApt86EesesHn36CEB6boXuPk+IvHf481wQgkb5FWz
+         XEalWVo/CBzrfZLMDZfvo5ADqWOh9q5GhhOkn0P0=
+Date:   Tue, 14 Apr 2020 10:20:57 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chris Paterson <Chris.Paterson2@renesas.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 4.19 00/54] 4.19.115-rc1 review
+Message-ID: <20200414082057.GC4149624@kroah.com>
+References: <20200411115508.284500414@linuxfoundation.org>
+ <OSBPR01MB228027C12DBA445E6AFF69F3B7DD0@OSBPR01MB2280.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
-Message-ID: <158685244710.28353.3404230640093238216.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OSBPR01MB228027C12DBA445E6AFF69F3B7DD0@OSBPR01MB2280.jpnprd01.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the core/urgent branch of tip:
+On Mon, Apr 13, 2020 at 07:42:37PM +0000, Chris Paterson wrote:
+> Hello Greg,
+> 
+> > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> > Behalf Of Greg Kroah-Hartman
+> > Sent: 11 April 2020 13:09
+> > 
+> > This is the start of the stable review cycle for the 4.19.115 release.
+> > There are 54 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Mon, 13 Apr 2020 11:51:28 +0000.
+> > Anything received after that time might be too late.
+> 
+> No build/boot issues seen for CIP configs for Linux 4.19.115-rc1 (3b903e5affcf).
+> 
+> Build/test pipeline/logs: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/pipelines/134988024
+> GitLab CI pipeline: https://gitlab.com/cip-project/cip-testing/linux-cip-pipelines/-/blob/master/trees/linux-4.19.y.yml
+> 
+> Kind regards, Chris
 
-Commit-ID:     bf37da98c51825c90432d340e135cced37a7460d
-Gitweb:        https://git.kernel.org/tip/bf37da98c51825c90432d340e135cced37a7460d
-Author:        Paul E. McKenney <paulmck@kernel.org>
-AuthorDate:    Thu, 12 Mar 2020 16:55:07 -07:00
-Committer:     Paul E. McKenney <paulmck@kernel.org>
-CommitterDate: Sun, 05 Apr 2020 14:22:15 -07:00
+Thanks for  testing two of these and letting me know.
 
-rcu: Don't acquire lock in NMI handler in rcu_nmi_enter_common()
-
-The rcu_nmi_enter_common() function can be invoked both in interrupt
-and NMI handlers.  If it is invoked from process context (as opposed
-to userspace or idle context) on a nohz_full CPU, it might acquire the
-CPU's leaf rcu_node structure's ->lock.  Because this lock is held only
-with interrupts disabled, this is safe from an interrupt handler, but
-doing so from an NMI handler can result in self-deadlock.
-
-This commit therefore adds "irq" to the "if" condition so as to only
-acquire the ->lock from irq handlers or process context, never from
-an NMI handler.
-
-Fixes: 5b14557b073c ("rcu: Avoid tick_dep_set_cpu() misordering")
-Reported-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: <stable@vger.kernel.org> # 5.5.x
----
- kernel/rcu/tree.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 550193a..2c17859 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -825,7 +825,7 @@ static __always_inline void rcu_nmi_enter_common(bool irq)
- 			rcu_cleanup_after_idle();
- 
- 		incby = 1;
--	} else if (tick_nohz_full_cpu(rdp->cpu) &&
-+	} else if (irq && tick_nohz_full_cpu(rdp->cpu) &&
- 		   rdp->dynticks_nmi_nesting == DYNTICK_IRQ_NONIDLE &&
- 		   READ_ONCE(rdp->rcu_urgent_qs) &&
- 		   !READ_ONCE(rdp->rcu_forced_tick)) {
+greg k-h
