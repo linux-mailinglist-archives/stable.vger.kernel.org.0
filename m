@@ -2,91 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E48871A806B
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 16:52:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 385641A806E
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 16:53:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405210AbgDNOwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 10:52:24 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:36796 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405206AbgDNOwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 10:52:18 -0400
-Received: by mail-pf1-f195.google.com with SMTP id n10so27166pff.3
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 07:52:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=4WBdHUkYY7smG8N50aarxY/4v+FvQTuqufQXoC73mFQ=;
-        b=cn0DIfjbaJePcV6EX1Gzht5z3FJbnybnV433bigLoe4SgtxuTk5CzpGzsrpn+2BUYF
-         tGih9XguwwC5iCdgNgAEomKnxK43Vn7hCwGFZEompiv543KFo/PHgNdGHaHl1SOPLXZV
-         hNEo7iqXezwts3sqY99MILrSs1TaolHZZOXOuZeNnmrpHx9cCy9zb9yj7+g2nuOz16n0
-         w3E7JhLaSk7voso+rs7jfCcviNaUHHB5ny5+fdUa7F2K07iVt46A49F3isUDPMFkvKf7
-         ykyhHHjbd95PcWn+a59L/evsQZ74JVGcdyPH1qJx2fMDa4xzyTG7/o6nQjOLODAB9HIF
-         4Hbw==
-X-Gm-Message-State: AGi0PubE6dXfTZuHzfVMYT1nTH4Zpo7VJoxjPtuBV3dOkee8mhuh58RN
-        Bliq7wtqRm1W986DXoXcLOs=
-X-Google-Smtp-Source: APiQypLsvkblz51WUZpaRhQYiOLEZSBo6rwtEWCpFLomKuFySQ2et7hfOCSdy26kKt9i4WSgUjZekA==
-X-Received: by 2002:a63:2cce:: with SMTP id s197mr23209940pgs.184.1586875937101;
-        Tue, 14 Apr 2020 07:52:17 -0700 (PDT)
-Received: from sultan-box.localdomain (static-198-54-129-52.cust.tzulo.com. [198.54.129.52])
-        by smtp.gmail.com with ESMTPSA id i190sm9442055pfc.119.2020.04.14.07.52.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Apr 2020 07:52:16 -0700 (PDT)
-Date:   Tue, 14 Apr 2020 07:52:13 -0700
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     stable@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH 1/1] drm/i915: Fix ref->mutex deadlock in
- i915_active_wait()
-Message-ID: <20200414145213.GC2082@sultan-box.localdomain>
-References: <20200407062622.6443-1-sultan@kerneltoast.com>
- <20200407062622.6443-2-sultan@kerneltoast.com>
- <158685200854.16269.9481176231557533815@build.alporthouse.com>
+        id S2405206AbgDNOxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 10:53:00 -0400
+Received: from foss.arm.com ([217.140.110.172]:57418 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2405178AbgDNOw5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Apr 2020 10:52:57 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DFBC130E;
+        Tue, 14 Apr 2020 07:52:56 -0700 (PDT)
+Received: from [192.168.1.172] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EE19B3F73D;
+        Tue, 14 Apr 2020 07:52:55 -0700 (PDT)
+Subject: Re: [PATCH 1/5] arm64: vdso: don't free unallocated pages
+To:     Mark Rutland <mark.rutland@arm.com>
+Cc:     linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com,
+        will@kernel.org, stable@vger.kernel.org
+References: <20200414104252.16061-1-mark.rutland@arm.com>
+ <20200414104252.16061-2-mark.rutland@arm.com>
+ <c5596228-2685-abb3-5ab1-9519759e1f7a@arm.com>
+ <20200414132751.GF2486@C02TD0UTHF1T.local>
+From:   Vincenzo Frascino <vincenzo.frascino@arm.com>
+Message-ID: <8681c958-0fd9-130e-f7bb-99bfd3a027cb@arm.com>
+Date:   Tue, 14 Apr 2020 15:53:45 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <158685200854.16269.9481176231557533815@build.alporthouse.com>
+In-Reply-To: <20200414132751.GF2486@C02TD0UTHF1T.local>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 09:13:28AM +0100, Chris Wilson wrote:
-> Quoting Sultan Alsawaf (2020-04-07 07:26:22)
-> > From: Sultan Alsawaf <sultan@kerneltoast.com>
-> > 
-> > The following deadlock exists in i915_active_wait() due to a double lock
-> > on ref->mutex (call chain listed in order from top to bottom):
-> >  i915_active_wait();
-> >  mutex_lock_interruptible(&ref->mutex); <-- ref->mutex first acquired
-> >  i915_active_request_retire();
-> >  node_retire();
-> >  active_retire();
-> >  mutex_lock_nested(&ref->mutex, SINGLE_DEPTH_NESTING); <-- DEADLOCK
-> > 
-> > Fix the deadlock by skipping the second ref->mutex lock when
-> > active_retire() is called through i915_active_request_retire().
-> > 
-> > Fixes: 12c255b5dad1 ("drm/i915: Provide an i915_active.acquire callback")
-> > Cc: <stable@vger.kernel.org> # 5.4.x
-> > Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
-> 
-> Incorrect. 
-> 
-> You missed that it cannot retire from inside the wait due to the active
-> reference held on the i915_active for the wait.
-> 
-> The only point it can enter retire from inside i915_active_wait() is via
-> the terminal __active_retire() which releases the mutex in doing so.
-> -Chris
 
-The terminal __active_retire() and rbtree_postorder_for_each_entry_safe() loop
-retire different objects, so this isn't true.
+On 4/14/20 2:27 PM, Mark Rutland wrote:
+> On Tue, Apr 14, 2020 at 01:50:38PM +0100, Vincenzo Frascino wrote:
+>> Hi Mark,
+>>
+>> On 4/14/20 11:42 AM, Mark Rutland wrote:
+>>> The aarch32_vdso_pages[] array never has entries allocated in the C_VVAR
+>>> or C_VDSO slots, and as the array is zero initialized these contain
+>>> NULL.
+>>>
+>>> However in __aarch32_alloc_vdso_pages() when
+>>> aarch32_alloc_kuser_vdso_page() fails we attempt to free the page whose
+>>> struct page is at NULL, which is obviously nonsensical.
+>>
+>> Could you please explain why do you think that free(NULL) is "nonsensical"? 
+> 
+> Regardless of the below, can you please explain why it is sensical? I'm
+> struggling to follow your argument here.
 
-Sultan
+free(NULL) is a no-operation ("no action occurs") according to the C standard
+(ISO-IEC 9899 paragraph 7.20.3.2). Hence this should not cause any bug if the
+allocator is correctly implemented. From what I can see the implementation of
+the page allocator honors this assumption.
+
+Since you say it is a bug (providing evidence), we might have to investigate
+because probably there is an issue somewhere else.
+
+> 
+> * It serves no legitimate purpose. One cannot free a page without a
+>   corresponding struct page.
+> 
+> * It is redundant. Removing the code does not detract from the utility
+>   of the remainging code, or make that remaing code more complex.
+> 
+> * It hinders comprehension of the code. When a developer sees the
+>   free_page() they will assume that the page was allocated somewhere,
+>   but there is no corresponding allocation as the pointers are never
+>   assigned to. Even if the code in question is not harmful to the
+>   functional correctness of the code, it is an unnecessary burden to
+>   developers.
+> 
+> * page_to_virt(NULL) does not have a well-defined result, and
+>   page_to_virt() should only be called for a valid struct page pointer.
+>   The result of page_to_virt(NULL) may not be a pointer into the linear
+>   map as would be expected.
+> 
+
+Do you know why this is the case? To be compliant with what the page allocator
+expects page_to_virt(NULL) should be equal to NULL.
+
+> * free_page(x) calls free_pages(x, 0), which checks virt_addr_valid(x).
+>   As page_to_virt(NULL) is not a valid linear map address, this can
+>   trigger a VM_BUG_ON()
+> 
+
+free_pages(x, 0) checks virt_addr_valid(x) only if "addr != 0" (as per C
+standard) which makes me infer what I stated above. But maybe I am missing
+something.
+
+[...]
+-- 
+Regards,
+Vincenzo
