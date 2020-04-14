@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15CBE1A7F3B
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 16:09:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 961F31A7F3C
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 16:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389203AbgDNOJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389175AbgDNOJw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 14 Apr 2020 10:09:52 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:33953 "EHLO
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:43011 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389175AbgDNOJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 10:09:50 -0400
+        by vger.kernel.org with ESMTP id S2389201AbgDNOJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 10:09:51 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0AC885C0263;
-        Tue, 14 Apr 2020 10:09:49 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 4FA165C0216;
+        Tue, 14 Apr 2020 10:09:50 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 14 Apr 2020 10:09:49 -0400
+  by compute1.internal (MEProxy); Tue, 14 Apr 2020 10:09:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ZNW7LH
-        6Lji3w0tbksuy3DwsDemfECagSzUSouKc5gNU=; b=auHaEce6jC2BAxuno3ESu6
-        n5G8xLe3ytx9kgnYszAzJaB1N13D85ssat9F3ZzsLmxgylj6TOpqHnGKfoIlJRAT
-        a8BD7mu+k6ls0ODCadNcxf3lv0ZcoCYLEvwGrO/cQa2SoRwu8fGF776jD5nElpJG
-        eJZqbQNU2iaqq+kBi5kNAMf1yMFDmH2G7LsveHoyJhACV8dw5IRNfh9p2oXgFMLx
-        MRx2JKCFyHZpwr+nt5KDVYopnQFyyRYUM6lFrWLIt7+B+RW1igN+onav8fgj1h5M
-        EiLh+ZCQ3/sY/taUn6oLlbw8J4cb0bkVc27PDxsowizDuOHB8DT2PTMcqix0yZpQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ER4qRf
+        prpqUe699n+GZPIUrt4Kim+7UllKDVnA+VMlI=; b=2YWDLwuCjHpslrs6UqBULB
+        JU94b9lvi9S0ZF1vo/EFN0vJua2U6oCpt5mJACXwIhJK/NZ7v+EMYRZHrQW3LZO/
+        OE5TKYe0YlPeuwXMJUI5QmQ84rnE2RbChtek6C9AcqubujYY4eSoNzn3SrmcoeIb
+        6c+DFaBRTNSGba9LYev9sd9npxUZ+dnQxb/nYFVTNlh4tKTjSKUQ8/u/75/rSWDJ
+        BX6Uyri+a7JOBfAtNJhzUVvdkiKYTFxcTgFQB+VU+Hml7INKxg1H2ZcjV0QrtaL4
+        uSkV3YVqWHLVuEujVToie6s1taBqzOTf9EtJctjQQGTvCTa4O9qJ7JRIyr1Ivohg
         ==
-X-ME-Sender: <xms:LMSVXh6fES-Z0ibg7NDoBGp_x5_QZzMW777U_8npcoMv5srnZIrjmg>
+X-ME-Sender: <xms:LsSVXuj8otNqv7t_vCDim8XbCIwLwYxc0-NCeI3YtlECLFAD32pjrA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfedugdejvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:LMSVXtagB9NArRd6d8szU2m7cY5hX4Z9sq8R5hMjToBYty6LuaTgPg>
-    <xmx:LMSVXg21_faiJmq4a5YfZD17GU1lXdTC3cjquucInpCDmEJsYV5VPA>
-    <xmx:LMSVXr_Y7qchF0Ix2A14DXexFFqsznCeXzeopjVtJt924wVqE33NQg>
-    <xmx:LcSVXkHE3HZQmTKjw_JIJCjRztZluNf7hsmRIxkv7ixzs51tFcfiPw>
+X-ME-Proxy: <xmx:LsSVXhqoV7Wor7M9TI69yocTB6-VG79ar5IRHf4j1KZ7VyZbeN0F8w>
+    <xmx:LsSVXqXAjf39AKLcbZJ_38juUzHkGbR1RQxkLnIWSPX7WUYReY8rrQ>
+    <xmx:LsSVXiqZOeB9S2D27AZmvtoOLbEb2Gsvwa3ZM8IHA6a9WQUpsCGzgA>
+    <xmx:LsSVXpsX4UuKnojwg49IoeNGmaQuztJ4UntP2QtVB_e0zDOeh1BEDw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7DD743280066;
-        Tue, 14 Apr 2020 10:09:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] CIFS: check new file size when extending file by fallocate" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E3687328006B;
+        Tue, 14 Apr 2020 10:09:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] CIFS: check new file size when extending file by fallocate" failed to apply to 5.4-stable tree
 To:     jencce.kernel@gmail.com, lsahlber@redhat.com,
         stable@vger.kernel.org, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 14 Apr 2020 16:09:39 +0200
-Message-ID: <1586873379150133@kroah.com>
+Message-ID: <15868733793359@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
