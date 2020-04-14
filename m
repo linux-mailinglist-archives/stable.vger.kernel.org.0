@@ -2,96 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E15CF1A7FF6
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 16:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2BA1A800B
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 16:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391029AbgDNOir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 10:38:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39800 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391025AbgDNOip (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 10:38:45 -0400
-Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E18C061A0C;
-        Tue, 14 Apr 2020 07:38:44 -0700 (PDT)
-Received: by mail-yb1-xb41.google.com with SMTP id f14so7278731ybr.13;
-        Tue, 14 Apr 2020 07:38:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=DBov4c0FPAs/GB0H+VoCLMbjb3xE9YZh3UekJ0w2xxQ=;
-        b=SZp9pqL4/SIbGKiZ7G9fbmeTOsbsGmxutmHCVoNe/hXlc9azzXMGyscO0MRHYogJEs
-         tqOv7GyZ0j1FaqLUHrsHIuG9hU5VqzkUVH1cAIHZzh0bZl5Ru/FBUOk/KEsD2cYyn8wn
-         jyNlSBPjeVDiL4ojSURzeLww7OA8yliMEctkSAJLrm+iCe0W30L9yRp77gUuQtBz2qcI
-         Yj98HrlQwvNl5jkZ+mYkrRTg3mN2txEyM/0UQHcvvspUWa62e/baS8R82rxMaHAIzCBn
-         68Zggnwxe90ejy//YBICiWJHGeb4q1IajiJSMCNb7N9Y3XWb3H5W0JUoe7LzE/h94f4r
-         4aXA==
+        id S2403970AbgDNOnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 10:43:25 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:42749 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2403941AbgDNOnQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 10:43:16 -0400
+Received: by mail-pg1-f194.google.com with SMTP id g6so6081794pgs.9;
+        Tue, 14 Apr 2020 07:43:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=DBov4c0FPAs/GB0H+VoCLMbjb3xE9YZh3UekJ0w2xxQ=;
-        b=BapCplQFmQh6VVtc/lcnh4wuh3kKE+ahzqtT5E2nbcfjUd5kwahgx7SDse0XEa3kV8
-         onBISHAYtWPH0m+ut9ZUDoWW64a7TegMpRxDxx10TRfQyIxNPK0ZUk0tChLgOTgyahNX
-         Q6FrCK+hdbOoE+ioQTUrssKuXUFp9l3492WOTylsHNGVk0KxH7ymi+iziTISOb/4Ql4u
-         7EBqkU2ixmORBIfWSzmoKD7fOwBFdnWurA8BXEuro3xvKz6/XWbPNzJasaeB+BTEAeT5
-         E/U5EYOjbVT8f43CGQ8M2pJR+G+MtQ4tymAzItW0ao3MJPk5FQVfN9KNeMNXGSZ/DjWR
-         LYgw==
-X-Gm-Message-State: AGi0PuZ1b9i9aI7gpSyd5DXKpsX/KZ9Q6WFJcblcCBWfkhietBSPPCBl
-        Nyx9qhphB1RdhfOtKdQz7x5oHdUELCdZR9OCPP5XUWIfcqg=
-X-Google-Smtp-Source: APiQypIi8Iiyo9TUqXdYboNOEyl3RMyffO46vk+0FWqxXmUbGe7kuvCG0mTEml7Cy73IVaLlNmqICEmmkmsLtv9zzu8=
-X-Received: by 2002:a5b:5cf:: with SMTP id w15mr432551ybp.215.1586875124002;
- Tue, 14 Apr 2020 07:38:44 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ISpaCA7mjN5YjkHYISL3HSq+S++mjTHZ6Lu/DzWzgxg=;
+        b=TIBdpUNc4hD0uk2v2NBi0PeszdnyJON+rnJHdFQYgr7JrMXnHxSIUDHPJEsI5+bkvp
+         R9xbA1No7G+7LpEFf09bDylFQEBEXryTs3dLX4zC7cF2sU0K3pJr1Z6IONZj0F0zj117
+         eyDvkJrc5O/1oH+nYUdEPJ2WFI2TISRfMhJIdPxWqUOlXgDNOUN7iMIMCU80XS34dWAO
+         NcscPxY+EDhcCEt5EXB9W2PbEN4d+2kH6edPtktidRl+Uf9QHEDt8qEe1Md0wbxj/TLm
+         Leekl/OsI3ILhn5e5R2agXIL0mThBAy6AAsQ6RsgBHCa+rddZnHeizT906kmgMI603Dm
+         KqzA==
+X-Gm-Message-State: AGi0PubPgpMjmatSIfg87sg+HzWp/Rx5hN2+JFPjeq+KFymRZ4FZE4fc
+        zVw1McGY9DFuzhJo2odXV7Y=
+X-Google-Smtp-Source: APiQypKYnkcJwA8lBILHDaTEYsu7MMvchjuIIOFNWKTQsueYRWsxR236WZye6IlT0+1XV9h4RXp4Tg==
+X-Received: by 2002:a63:ec44:: with SMTP id r4mr21490047pgj.425.1586875395070;
+        Tue, 14 Apr 2020 07:43:15 -0700 (PDT)
+Received: from sultan-box.localdomain (static-198-54-129-52.cust.tzulo.com. [198.54.129.52])
+        by smtp.gmail.com with ESMTPSA id y123sm11056229pfb.13.2020.04.14.07.43.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Apr 2020 07:43:14 -0700 (PDT)
+Date:   Tue, 14 Apr 2020 07:43:09 -0700
+From:   Sultan Alsawaf <sultan@kerneltoast.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     stable@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Matthew Auld <matthew.auld@intel.com>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4] drm/i915: Synchronize active and retire callbacks
+Message-ID: <20200414144309.GB2082@sultan-box.localdomain>
+References: <20200404024156.GA10382@sultan-box.localdomain>
+ <20200407064007.7599-1-sultan@kerneltoast.com>
+ <20200414061312.GA90768@sultan-box.localdomain>
+ <158685263618.16269.9317893477736764675@build.alporthouse.com>
 MIME-Version: 1.0
-References: <20200411231413.26911-1-sashal@kernel.org> <20200411231413.26911-9-sashal@kernel.org>
- <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
- <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20200414015627.GA1068@sasha-vm> <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
- <20200414110911.GA341846@kroah.com>
-In-Reply-To: <20200414110911.GA341846@kroah.com>
-From:   Or Gerlitz <gerlitz.or@gmail.com>
-Date:   Tue, 14 Apr 2020 17:38:32 +0300
-Message-ID: <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for representors
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        David Miller <davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <158685263618.16269.9317893477736764675@build.alporthouse.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 2:09 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> On Tue, Apr 14, 2020 at 01:22:59PM +0300, Or Gerlitz wrote:
-> > IMHO - I think it should be the other way around, you should get approval
-> > from sub-system maintainers to put their code in charge into auto-selection,
-> > unless there's kernel summit decision that says otherwise, is this documented
-> > anywhere?
->
-> No, we can't get make this a "only take if I agree" as there are _many_
-> subsystem maintainers who today never mark anything for stable trees, as
-> they just can't be bothered.  And that's fine, stable trees should not
-> take up any extra maintainer time if they do not want to do so.  So it's
-> simpler to do an opt-out when asked for.
+On Tue, Apr 14, 2020 at 09:23:56AM +0100, Chris Wilson wrote:
+> Quoting Sultan Alsawaf (2020-04-14 07:13:12)
+> > Chris,
+> > 
+> > Could you please take a look at this? This really is quite an important fix.
+> 
+> It's crazy. See a266bf420060 for a patch that should be applied to v5.4
+> -Chris
 
-OK, but I must say I am worried from the comment made here:
+What? a266bf420060 was part of 5.4.0-rc7, so it's already in 5.4. And if you
+read the commit message, you would see that the problem in question affects
+Linus' tree.
 
-"I'm not sure what a fixes tag has to do with inclusion in a stable tree"
+You can break i915 in 5.6 by just adding a small delay:
 
-This patch
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring.c b/drivers/gpu/drm/i915/gt/intel_ring.c
+index 6ff803f397c4..3a7968effdfd 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring.c
++++ b/drivers/gpu/drm/i915/gt/intel_ring.c
+@@ -10,6 +10,7 @@
+ #include "intel_engine.h"
+ #include "intel_ring.h"
+ #include "intel_timeline.h"
++#include <linux/delay.h>
+ 
+ unsigned int intel_ring_update_space(struct intel_ring *ring)
+ {
+@@ -92,6 +93,9 @@ void intel_ring_unpin(struct intel_ring *ring)
+ 	else
+ 		i915_gem_object_unpin_map(vma->obj);
+ 
++	mdelay(1);
++	ring->vaddr = NULL;
++
+ 	i915_vma_make_purgeable(vma);
+ 	i915_vma_unpin(vma);
+ }
 
-(A) was pushed to -next and not -rc kernel
+This is how I reproduced the race in question. I can't even reach the greeter on
+my laptop with this, because i915 dies before that.
 
-(B) doesn't have fixes tag
-
-(C) the change log state clearly that what's being "fixed"
-can't be reproduced on any earlier kernel [..] "only possible
-to reproduce with next commit in this series"
-
-but it was selected for -stable -- at least if the fixes tag was used
-as gating criteria, this wrong stable inclusion could have been eliminated
+Sultan
