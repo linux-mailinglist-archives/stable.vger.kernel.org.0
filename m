@@ -2,109 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09EC01A8A20
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 20:49:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA201A8A70
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 21:02:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504386AbgDNSsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 14:48:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
+        id S2504540AbgDNTA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 15:00:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2504372AbgDNSsi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 14:48:38 -0400
-Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E299C061A0C
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 11:48:38 -0700 (PDT)
-Received: by mail-qk1-x741.google.com with SMTP id g74so14439047qke.13
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 11:48:38 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S2504580AbgDNTA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 15:00:58 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F005EC061A0C
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 12:00:57 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id t11so326825pgg.2
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 12:00:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=poorly.run; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=6yzQmC4w0ygPYVxz9suanugjLM83UH8h3lByA0VCiMA=;
-        b=cAEi95OSVoYMxPUPRRQ8P7aBzCq8iAWXDDnkVEIltb6Csmr/PTAqZ8uUgHj9KUrqdV
-         QJf2dsphTPAsP6WLs7/Rlxy9qC7eCJ5RPO+/dwa9TTw8JifcBXEZjNy0+J95RAPH5BNM
-         2wDMugg/9uMxbui+zrvAKweLF+If5y7NjbwtMOXKMugA8qc9c1RAPh86Taz0u9RvZ4p4
-         LavIgMLzqRn7WrqOohi0GNcBWVJYMTjy7CN1qdP05mLO9DK5OI147ZRffqFQ5rJrtoNM
-         GOj1s6DlGKmKASYh0om8z0BP/PDGdWF9y6gZYVDCN7KhkNJEvlW7FrdLcUkl5yIVGT9J
-         NAqg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=TWQZ+0xzJdBtnACZDfzeKd76vNmy9v6PQw2/9kJuD6E=;
+        b=TnNoFL6jHgByak/LXCkSEQ3hlXxj55HpIPFuzwcW9qY/l54QUrL3YTqBomsSJhD/zg
+         wQI+iF37dEiOKuS5OcKLY6T26AbI9JwjeYbc5KtUs4fVUZUY4f0d4jwFkAwglSPYwcYw
+         7N8vUeYuSUMsER1cXIYwP86ueTgBxVongrTQdAnppMX+h8ozjPjYWV7Ryi35wIVZth3X
+         WB+br72+WSMHeYuKbCaPjIeEX/Uz0xf0eeMpeyXChLTZgSEpOmwe5aKC52WDTOQak1l7
+         SnH9wHvvkr2zQkIiu+9f/Ni79JQwcA3cLEx4y1mWbQENI8ko2kFzlcEHZYLFOGzK4Vi2
+         ZqYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=6yzQmC4w0ygPYVxz9suanugjLM83UH8h3lByA0VCiMA=;
-        b=XpYdMKCI+keBmIa/rThhcLtRs+5hwwLd8Tcdvh0PtWrkMc9Fyyy3uDAmjl3JD1ON4w
-         CF4R0rBIqujZIeNbPV0qVlUnltIWzzJ2aZqgfC6C+b8JwYUbcG69mN5Zw7L081kFqW43
-         O1P1V6tCBo176efTYAdYCvDxAlcSEycA5UJG5u8CiuFkYZsZVmWKZzMDD8Yi0nah/tlP
-         HBGIcqZPQmhi4AJ8IAeEc+iu/e7iDWeLXPDuz1ypqd1J8HfIVAFRGsfZr9ZOXBnTGDMP
-         ZHt/Tj1SSG1ry/mDqfk44QjLixJtusVw8DnyJS9HAqwuydf9VZWiNg3ttzlUM4MbQw0X
-         /1ZA==
-X-Gm-Message-State: AGi0PuYxt1ozaCTE//CwmKNzAaFrmHMLiX71Tvxk0jjhAkaXLoWpGlnw
-        mPPgSliGKRjAjrHE0g20x3S8pw==
-X-Google-Smtp-Source: APiQypKMY6bMG74EyHD+GoZ12sBeFRvtchEAfByEmex7yDdu4T+2CkMF22ApyxuG74lJ5sRXGajdyA==
-X-Received: by 2002:ae9:ed56:: with SMTP id c83mr18610142qkg.244.1586890117683;
-        Tue, 14 Apr 2020 11:48:37 -0700 (PDT)
-Received: from localhost (mobile-166-170-55-13.mycingular.net. [166.170.55.13])
-        by smtp.gmail.com with ESMTPSA id f1sm10522199qkl.91.2020.04.14.11.48.36
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 14 Apr 2020 11:48:36 -0700 (PDT)
-From:   Sean Paul <sean@poorly.run>
-To:     dri-devel@lists.freedesktop.org, ramalingam.c@intel.com
-Cc:     intel-gfx@lists.freedesktop.org, Sean Paul <seanpaul@chromium.org>,
-        stable@vger.kernel.org, Sean Paul <sean@poorly.run>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Subject: [PATCH] drm: Fix HDCP failures when SRM fw is missing
-Date:   Tue, 14 Apr 2020 14:48:26 -0400
-Message-Id: <20200414184835.2878-1-sean@poorly.run>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=TWQZ+0xzJdBtnACZDfzeKd76vNmy9v6PQw2/9kJuD6E=;
+        b=H9hc8/e3glOPzoi+tbedfWwAxMU4Vyg4pmAa071XsXlw5nSlUkxpGRdcTzVahaAtWR
+         rfg5PmlgHESI3P2dD/DciY9fINS81vXZAbt/HiNQMZ+OeH1tgpDr/L4RHeiw/4yKhqiy
+         QGRaYE3ILEWKsGK+LTmqa+AEZ5oSatxgit6EMZzs+7LgxoL6v2ThFfcjbpisb7sAeVR1
+         4oxI3Pqd9qbDPllj1xq8zZUH5MYJ/J4NVPqrSaRxpg/Y/xKG93ZTatVwTpAdgqLgRICa
+         q9kiukZVufh286cexOWZ0cY3YsgaFWKDHICJHn/JyiLEAZI4OSnRAVuyN/iRFSMAFrD9
+         hPVg==
+X-Gm-Message-State: AGi0PuayMtMtN/JE0WArbgzPO2diUUdvJ4/yeGK7L9sC7gYJcmdLtT7m
+        Eq2yoH1/XZtEEA/TLDBKhQN0VdKUZ/IneQ==
+X-Google-Smtp-Source: APiQypKWwjoUmW8EVF86c9qs5uJBliuuKXDuNIQjiaGPcNKyOPrRocnO7C/21HepkmxqY6xIk3htBA==
+X-Received: by 2002:a65:68c9:: with SMTP id k9mr24367294pgt.355.1586890857108;
+        Tue, 14 Apr 2020 12:00:57 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.145])
+        by smtp.gmail.com with ESMTPSA id q9sm8960340pgt.32.2020.04.14.12.00.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Apr 2020 12:00:56 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] io_uring: honor original task
+ RLIMIT_FSIZE" failed to apply to 5.4-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+References: <15868668307141@kroah.com>
+ <898eca01-58e5-8452-34b3-100de2506b38@kernel.dk>
+ <6b6323fa-670e-a656-1bb6-82d89ed692ae@kernel.dk>
+ <20200414174244.GB1035385@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <75159fa1-8562-9693-1a99-4b2441383db2@kernel.dk>
+Date:   Tue, 14 Apr 2020 13:00:55 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20200414174244.GB1035385@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Paul <seanpaul@chromium.org>
+On 4/14/20 11:42 AM, Greg KH wrote:
+> On Tue, Apr 14, 2020 at 10:38:41AM -0600, Jens Axboe wrote:
+>> On 4/14/20 10:31 AM, Jens Axboe wrote:
+>>> On 4/14/20 6:20 AM, gregkh@linuxfoundation.org wrote:
+>>>>
+>>>> The patch below does not apply to the 5.4-stable tree.
+>>>> If someone wants it applied there, or to any other stable or longterm
+>>>> tree, then please email the backport, including the original git commit
+>>>> id to <stable@vger.kernel.org>.
+>>>
+>>> Here's a 5.4 backport.
+>>
+>> Sorry, please use this one!
+> 
+> Now queued up, along with the other backports, thanks!
 
-The SRM cleanup in 79643fddd6eb2 ("drm/hdcp: optimizing the srm
-handling") inadvertently altered the behavior of HDCP auth when
-the SRM firmware is missing. Before that patch, missing SRM was
-interpreted as the device having no revoked keys. With that patch,
-if the SRM fw file is missing we reject _all_ keys.
+Thanks Greg!
 
-This patch fixes that regression by returning success if the file
-cannot be found.
-
-Fixes: 79643fddd6eb ("drm/hdcp: optimizing the srm handling")
-Cc: stable@vger.kernel.org
-Cc: Ramalingam C <ramalingam.c@intel.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
----
- drivers/gpu/drm/drm_hdcp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/drm_hdcp.c b/drivers/gpu/drm/drm_hdcp.c
-index 7f386adcf872..3c36005d367b 100644
---- a/drivers/gpu/drm/drm_hdcp.c
-+++ b/drivers/gpu/drm/drm_hdcp.c
-@@ -241,8 +241,10 @@ static int drm_hdcp_request_srm(struct drm_device *drm_dev,
- 
- 	ret = request_firmware_direct(&fw, (const char *)fw_name,
- 				      drm_dev->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		ret = 0;
- 		goto exit;
-+	}
- 
- 	if (fw->size && fw->data)
- 		ret = drm_hdcp_srm_update(fw->data, fw->size, revoked_ksv_list,
 -- 
-Sean Paul, Software Engineer, Google / Chromium OS
+Jens Axboe
 
