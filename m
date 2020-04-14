@@ -2,128 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA9CF1A78D8
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 12:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4CC11A78A8
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 12:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438439AbgDNKf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 06:35:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58418 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2438421AbgDNKep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 06:34:45 -0400
-Received: from mail-yb1-xb43.google.com (mail-yb1-xb43.google.com [IPv6:2607:f8b0:4864:20::b43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7BEC061A0C;
-        Tue, 14 Apr 2020 03:23:11 -0700 (PDT)
-Received: by mail-yb1-xb43.google.com with SMTP id h205so6905214ybg.6;
-        Tue, 14 Apr 2020 03:23:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MudcixcZUb+kvMHsLn0fRVwWPgbJXDIShuvyjdGupTk=;
-        b=oaRLPeOHAo/HoLVEzWijMXsjYYLQBHAtU0chOQc1J59DyHE9H5Ff/Jxf40AgI38ZW+
-         3a2fFpM/pYDfkigqeD/CHsnJ0P975v+jq0Q3wb6XiReCmTRlK6OjK+IQLfh9ucOVf+jL
-         fNXRwG5egeKE/yGjZJRfmKvk021MdMh5gZXs8gwC8G+pLoSMSlTKRKjLFBcZks6taIva
-         aXhyCxBytfzbMtNiqT3fD91DkiQMiH64vv05bpHN+v5+jtvo+Xh3R/Byho08dfnFrK7/
-         m9azQcHGIjzjDqnU/FOJt2QcoMNfzSDbzYCxrgQOhEZnukrvrZjTrECer+QCfJir+tRZ
-         gwUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MudcixcZUb+kvMHsLn0fRVwWPgbJXDIShuvyjdGupTk=;
-        b=Ov7AxwnHzDZLuOCwSS4PRpui7b6YKtWYzXZBr/QhoxbAM5cQfadBi9m9HokcrDyt3q
-         IbfAlG42E/Sv1EVSYtPlBQ1znXKk982MoFZW9grcWQ+VoF0QSOD2qBrKFnv2Fm4ATS+1
-         oVCgclwQAlyn9jXQ2Ba52dZz/lREWnKCwSgIsH0g7MdodtoZZs3JOQjGS2OqXjKnh9AL
-         zGkyu51hhsG2pUjn9idzcEnqsvOAUWNTGABqMKyya8EgJdmTos+qH8hS5p1jKixUb5Qb
-         iVJYg0Cy5HDE3VqjwA8o3xP7gqYqO7LGscPNCnfWG2ins4A7Vrmb/BtWJ9xRZ94J9kv/
-         jieg==
-X-Gm-Message-State: AGi0PuYafoYqqe8T13R447j13Z05YUkDIv7jPUWqsBIIj1ZYNPHvy9ji
-        eeHowO3ypHPuyqaSL+3RTyCn6IHYtwcw8HZs4Ko=
-X-Google-Smtp-Source: APiQypK7qfTjVZoBt9pehm8VzrsuAr1n+VJ2HhNmFMNxRIgLQCvz7qRKZ5Mr2RGWNVJeR/ewcivcmSv0FJ8U8RjYLSA=
-X-Received: by 2002:a5b:5cf:: with SMTP id w15mr31976689ybp.215.1586859790739;
- Tue, 14 Apr 2020 03:23:10 -0700 (PDT)
+        id S2438554AbgDNKoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 06:44:05 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:17364 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2438550AbgDNKn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 06:43:59 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e9591d40000>; Tue, 14 Apr 2020 03:35:00 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Tue, 14 Apr 2020 03:35:58 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Tue, 14 Apr 2020 03:35:58 -0700
+Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 14 Apr
+ 2020 10:35:57 +0000
+Received: from [10.26.73.15] (172.20.13.39) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 14 Apr
+ 2020 10:35:54 +0000
+Subject: Re: [PATCH 4.4 00/29] 4.4.219-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200411115407.651296755@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <63b31c56-b5c9-2ced-ee00-772fa9a1dcaf@nvidia.com>
+Date:   Tue, 14 Apr 2020 11:35:53 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-References: <20200411231413.26911-1-sashal@kernel.org> <20200411231413.26911-9-sashal@kernel.org>
- <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
- <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com> <20200414015627.GA1068@sasha-vm>
-In-Reply-To: <20200414015627.GA1068@sasha-vm>
-From:   Or Gerlitz <gerlitz.or@gmail.com>
-Date:   Tue, 14 Apr 2020 13:22:59 +0300
-Message-ID: <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for representors
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Jakub Kicinski <kuba@kernel.org>, Stable <stable@vger.kernel.org>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        David Miller <davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200411115407.651296755@linuxfoundation.org>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ DRHQMAIL107.nvidia.com (10.27.9.16)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1586860500; bh=wc5RrsSn49RxdciYOKQhAVVgiFmPrVsNjOlrDRUtw+4=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=GOgLo8PUxB7kyLRS26OzHHazN5wgHn/I6uvs5RED9i5PQIj+c4aviQxwu57vqw4V6
+         9uF2aBpz/iP4Ttko7L9FUVZcMLT35ZIJnzUqRRIfe/PdKBDj2VzjSO1cegZPw0hdPM
+         q/7YHGFP7afn3im8kt5PoQoZvrlcvsmJzm1hW8SXyEIHridXAGMnwvK9a+qYJauGG1
+         wGPSNtVeF3Uw8iO5NQb0eb+mCaMMvxUdKWLvIfuby3UGrUBYzwMdmW+/XtShtLpGgk
+         Dnm3O3kB3Cje4HErp5+gJ93W+oTvnLUlOAfKsAlzcsfeAjBuBx2t5qeLqb8qG+KYij
+         OPqhIfFB1mIdQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 4:56 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> On Sun, Apr 12, 2020 at 10:59:35AM -0700, Jakub Kicinski wrote:
-> >On Sun, 12 Apr 2020 10:10:22 +0300 Or Gerlitz wrote:
-> >> On Sun, Apr 12, 2020 at 2:16 AM Sasha Levin <sashal@kernel.org> wrote:
-> >>
-> >> > [ Upstream commit 6783e8b29f636383af293a55336f036bc7ad5619 ]
-> >>
-> >> Sasha,
-> >>
-> >> This was pushed to net-next without a fixes tag, and there're probably
-> >> reasons for that.
-> >> As you can see the possible null deref is not even reproducible without another
-> >> patch which for itself was also net-next and not net one.
-> >>
-> >> If a team is not pushing patch to net nor putting a fixes that, I
-> >> don't think it's correct
->
-> While it's great that you're putting the effort into adding a fixes tag
-> to your commits, I'm not sure what a fixes tag has to do with inclusion
-> in a stable tree.
->
-> It's a great help when we look into queueing something up, but on it's
-> own it doesn't imply anything.
->
-> >> to go and pick that into stable and from there to customer production kernels.
->
-> This mail is your two week warning that this patch might get queued to
-> stable, nothing was actually queued just yet.
->
-> >> Alsom, I am not sure what's the idea behind the auto-selection concept, e.g for
-> >> mlx5 the maintainer is specifically pointing which patches should go
-> >> to stable and
->
-> I'm curious, how does this process work? Is it on a mailing list
-> somewhere?
->
-> >> to what releases there and this is done with care and thinking ahead, why do we
-> >> want to add on that? and why this can be something which is just
-> >> automatic selection?
-> >>
-> >> We have customers running production system with LTS 4.4.x and 4.9.y (along with
-> >> 4.14.z and 4.19.w) kernels, we put lots of care thinking if/what
-> >> should go there, I don't
-> >> see a benefit from adding auto-selection, the converse.
-> >
-> >FWIW I had the same thoughts about the nfp driver, and I indicated to
-> >Sasha to skip it in the auto selection, which AFAICT worked nicely.
-> >
-> >Maybe we should communicate more clearly that maintainers who carefully
-> >select patches for stable should opt out of auto-selection?
->
-> I've added drivers/net/ethernet/mellanox/ to my blacklist for auto
-> selection. It's very easy to opt out, just ask... I've never argued with
-> anyone around this - the maintainers of any given subsystem know about
-> it way better than me.
 
-Just to make sure, does this excluding of mlx5 happens immediately, that is,
-applies also to all non committed patches that you already posted?
+On 11/04/2020 13:08, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.219 release.
+> There are 29 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Mon, 13 Apr 2020 11:51:28 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.219-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-IMHO - I think it should be the other way around, you should get approval
-from sub-system maintainers to put their code in charge into auto-selection,
-unless there's kernel summit decision that says otherwise, is this documented
-anywhere?
+
+Sorry this is late, but all tests are passing for Tegra ...
+
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
+
+Linux version:	4.4.219-rc1-g8cd74c57ff4a
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
