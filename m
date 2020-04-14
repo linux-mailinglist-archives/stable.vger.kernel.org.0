@@ -2,91 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DA801A81BE
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 17:14:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A70761A8210
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 17:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437077AbgDNPM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 11:12:58 -0400
-Received: from foss.arm.com ([217.140.110.172]:57920 "EHLO foss.arm.com"
+        id S2407330AbgDNPRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 11:17:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437512AbgDNPMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Apr 2020 11:12:51 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0E2E930E;
-        Tue, 14 Apr 2020 08:12:51 -0700 (PDT)
-Received: from C02TD0UTHF1T.local (unknown [10.57.30.4])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0BBC83F73D;
-        Tue, 14 Apr 2020 08:12:49 -0700 (PDT)
-Date:   Tue, 14 Apr 2020 16:12:47 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc:     linux-arm-kernel@lists.infradead.org, catalin.marinas@arm.com,
-        will@kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/5] arm64: vdso: don't free unallocated pages
-Message-ID: <20200414151247.GJ2486@C02TD0UTHF1T.local>
-References: <20200414104252.16061-1-mark.rutland@arm.com>
- <20200414104252.16061-2-mark.rutland@arm.com>
- <c5596228-2685-abb3-5ab1-9519759e1f7a@arm.com>
- <20200414132751.GF2486@C02TD0UTHF1T.local>
- <8681c958-0fd9-130e-f7bb-99bfd3a027cb@arm.com>
+        id S2407290AbgDNPQs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Apr 2020 11:16:48 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AFB320768;
+        Tue, 14 Apr 2020 15:16:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586877406;
+        bh=Wa+qi2HBtbHbWYPnlD8RTn32LkOHAV3tmDpVnkMjakc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=emyUmr8na6VFJUPLNhRR3Dj6AeHqvcYx6yYPT746QFcZxfdZ3wLRHfjiCUcYbwBof
+         olj5yXea3GtoJQb7k6rsKItCtYbIantaO8IuNDsR/3LR89Bpllo1e2lSA9UNyYmUTu
+         +l7dDBjilttQt8kFpvjbefklJJtKJZTBDolkdQlk=
+Date:   Tue, 14 Apr 2020 11:16:45 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Or Gerlitz <gerlitz.or@gmail.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linux Netdev List <netdev@vger.kernel.org>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        David Miller <davem@davemloft.net>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
+ representors
+Message-ID: <20200414151645.GE1068@sasha-vm>
+References: <20200411231413.26911-1-sashal@kernel.org>
+ <20200411231413.26911-9-sashal@kernel.org>
+ <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
+ <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <20200414015627.GA1068@sasha-vm>
+ <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
+ <20200414110911.GA341846@kroah.com>
+ <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <8681c958-0fd9-130e-f7bb-99bfd3a027cb@arm.com>
+In-Reply-To: <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 03:53:45PM +0100, Vincenzo Frascino wrote:
-> 
-> On 4/14/20 2:27 PM, Mark Rutland wrote:
-> > On Tue, Apr 14, 2020 at 01:50:38PM +0100, Vincenzo Frascino wrote:
-> >> Hi Mark,
-> >>
-> >> On 4/14/20 11:42 AM, Mark Rutland wrote:
-> >>> The aarch32_vdso_pages[] array never has entries allocated in the C_VVAR
-> >>> or C_VDSO slots, and as the array is zero initialized these contain
-> >>> NULL.
-> >>>
-> >>> However in __aarch32_alloc_vdso_pages() when
-> >>> aarch32_alloc_kuser_vdso_page() fails we attempt to free the page whose
-> >>> struct page is at NULL, which is obviously nonsensical.
-> >>
-> >> Could you please explain why do you think that free(NULL) is "nonsensical"? 
-> > 
-> > Regardless of the below, can you please explain why it is sensical? I'm
-> > struggling to follow your argument here.
-> 
-> free(NULL) is a no-operation ("no action occurs") according to the C standard
-> (ISO-IEC 9899 paragraph 7.20.3.2). Hence this should not cause any bug if the
-> allocator is correctly implemented.
+On Tue, Apr 14, 2020 at 05:38:32PM +0300, Or Gerlitz wrote:
+>On Tue, Apr 14, 2020 at 2:09 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>> On Tue, Apr 14, 2020 at 01:22:59PM +0300, Or Gerlitz wrote:
+>> > IMHO - I think it should be the other way around, you should get approval
+>> > from sub-system maintainers to put their code in charge into auto-selection,
+>> > unless there's kernel summit decision that says otherwise, is this documented
+>> > anywhere?
+>>
+>> No, we can't get make this a "only take if I agree" as there are _many_
+>> subsystem maintainers who today never mark anything for stable trees, as
+>> they just can't be bothered.  And that's fine, stable trees should not
+>> take up any extra maintainer time if they do not want to do so.  So it's
+>> simpler to do an opt-out when asked for.
+>
+>OK, but I must say I am worried from the comment made here:
+>
+>"I'm not sure what a fixes tag has to do with inclusion in a stable tree"
+>
+>This patch
+>
+>(A) was pushed to -next and not -rc kernel
 
-This is true, but irrelevant. The C standard does not define
-free_page(), which is a Linnux kernel internal function, and does not
-have the same semantics as free().
+Fixes can (and should) come in during a merge window as well. They are
+not put on hold until the -rc releases.
 
-> > * It serves no legitimate purpose. One cannot free a page without a
-> >   corresponding struct page.
-> > 
-> > * It is redundant. Removing the code does not detract from the utility
-> >   of the remainging code, or make that remaing code more complex.
+>(B) doesn't have fixes tag
 
-> > * free_page(x) calls free_pages(x, 0), which checks virt_addr_valid(x).
-> >   As page_to_virt(NULL) is not a valid linear map address, this can
-> >   trigger a VM_BUG_ON()
-> > 
-> 
-> free_pages(x, 0) checks virt_addr_valid(x) only if "addr != 0" (as per C
-> standard) which makes me infer what I stated above. But maybe I am missing
-> something.
+In the 4.19 stable tree there are 3962 commits explicitly tagged for
+stable, only 2382 of them have a fixes tag. 
 
-Regardless, this is all academic unless you disagree with the first two
-bullets above.
+>(C) the change log state clearly that what's being "fixed"
+>can't be reproduced on any earlier kernel [..] "only possible
+>to reproduce with next commit in this series"
+>
+>but it was selected for -stable -- at least if the fixes tag was used
+>as gating criteria, this wrong stable inclusion could have been eliminated
 
-You don't randomly sprinkle a program with free(NULL) for the fun of it.
-Similarly, and regardless of how obfuscated, one should not do the same
-here.
+Are you suggesting that a commit without a fixes tag is never a fix?
 
+-- 
 Thanks,
-Mark.
+Sasha
