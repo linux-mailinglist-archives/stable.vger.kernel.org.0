@@ -2,93 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEA201A8A70
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 21:02:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B29D1A8A98
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 21:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504540AbgDNTA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 15:00:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52802 "EHLO
+        id S2504595AbgDNTDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 15:03:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2504580AbgDNTA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 15:00:58 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F005EC061A0C
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 12:00:57 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id t11so326825pgg.2
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 12:00:57 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S2504613AbgDNTDC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 15:03:02 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654C2C061A0C
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 12:03:02 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id g74so14496844qke.13
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 12:03:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=TWQZ+0xzJdBtnACZDfzeKd76vNmy9v6PQw2/9kJuD6E=;
-        b=TnNoFL6jHgByak/LXCkSEQ3hlXxj55HpIPFuzwcW9qY/l54QUrL3YTqBomsSJhD/zg
-         wQI+iF37dEiOKuS5OcKLY6T26AbI9JwjeYbc5KtUs4fVUZUY4f0d4jwFkAwglSPYwcYw
-         7N8vUeYuSUMsER1cXIYwP86ueTgBxVongrTQdAnppMX+h8ozjPjYWV7Ryi35wIVZth3X
-         WB+br72+WSMHeYuKbCaPjIeEX/Uz0xf0eeMpeyXChLTZgSEpOmwe5aKC52WDTOQak1l7
-         SnH9wHvvkr2zQkIiu+9f/Ni79JQwcA3cLEx4y1mWbQENI8ko2kFzlcEHZYLFOGzK4Vi2
-         ZqYQ==
+        d=poorly.run; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=Qx+9uJOtenCeFNWJQn8/GXTaoex2bmlkCDWgniXI+ZU=;
+        b=Pym8bfR7Gg2SFIjtkrpH3i99R3yaBV/sVMg+GrDhN+1uEfZbZNShC7p/2YFGKedq7I
+         cfVSa9ty6LwtX9FirYHQ1czwqckx5uEa91Il3Oc7kTWnYugekyTfLHuvS1gbShaLTkas
+         CGQioOVtDTntWActVDzN9h765S622eX4COcqXqBuiqqTdFMc0oVMX7vAA/E2PV3RufTr
+         0ncoaCkRpbRUco+DNRQKzd22xjYxf7up9dRfLSu31wUoHvUj/sORm63+CFoc/IqfGv+F
+         i5cwTnK0J0CVePVcnB4prpkUe8knDAhXQ3z62UMCHLxpiYhMFU2BD5fBHq6Iju8PsBlI
+         hFpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=TWQZ+0xzJdBtnACZDfzeKd76vNmy9v6PQw2/9kJuD6E=;
-        b=H9hc8/e3glOPzoi+tbedfWwAxMU4Vyg4pmAa071XsXlw5nSlUkxpGRdcTzVahaAtWR
-         rfg5PmlgHESI3P2dD/DciY9fINS81vXZAbt/HiNQMZ+OeH1tgpDr/L4RHeiw/4yKhqiy
-         QGRaYE3ILEWKsGK+LTmqa+AEZ5oSatxgit6EMZzs+7LgxoL6v2ThFfcjbpisb7sAeVR1
-         4oxI3Pqd9qbDPllj1xq8zZUH5MYJ/J4NVPqrSaRxpg/Y/xKG93ZTatVwTpAdgqLgRICa
-         q9kiukZVufh286cexOWZ0cY3YsgaFWKDHICJHn/JyiLEAZI4OSnRAVuyN/iRFSMAFrD9
-         hPVg==
-X-Gm-Message-State: AGi0PuayMtMtN/JE0WArbgzPO2diUUdvJ4/yeGK7L9sC7gYJcmdLtT7m
-        Eq2yoH1/XZtEEA/TLDBKhQN0VdKUZ/IneQ==
-X-Google-Smtp-Source: APiQypKWwjoUmW8EVF86c9qs5uJBliuuKXDuNIQjiaGPcNKyOPrRocnO7C/21HepkmxqY6xIk3htBA==
-X-Received: by 2002:a65:68c9:: with SMTP id k9mr24367294pgt.355.1586890857108;
-        Tue, 14 Apr 2020 12:00:57 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.145])
-        by smtp.gmail.com with ESMTPSA id q9sm8960340pgt.32.2020.04.14.12.00.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Apr 2020 12:00:56 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] io_uring: honor original task
- RLIMIT_FSIZE" failed to apply to 5.4-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-References: <15868668307141@kroah.com>
- <898eca01-58e5-8452-34b3-100de2506b38@kernel.dk>
- <6b6323fa-670e-a656-1bb6-82d89ed692ae@kernel.dk>
- <20200414174244.GB1035385@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <75159fa1-8562-9693-1a99-4b2441383db2@kernel.dk>
-Date:   Tue, 14 Apr 2020 13:00:55 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
-MIME-Version: 1.0
-In-Reply-To: <20200414174244.GB1035385@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=Qx+9uJOtenCeFNWJQn8/GXTaoex2bmlkCDWgniXI+ZU=;
+        b=mbvi3z48oXdGyLwnrJJgsArM1ddy+FQZ2xXRz5C1iUPadG19WZnPbe/5T7XX8qHAOQ
+         bzHiK/z9rnfUgd0xS88Ifotsx7U45IMvZ6+ACKgZasfDkuD4EV9m9GmW9n5hVjD/ZssV
+         A4cDuzwHhgfS4RpOsuwIpaIxxgiDTz2KB4ZXfyees/NRjmBK4vhvklxpp455jaKlbGLX
+         9qO7VpAnE/rXoRMmtcDRqVilMoWXvstQ+erW+1HjlL50Qg+SXCw4Ujo4wDLWKPxhWsVH
+         eQBnxRew2yKGJRlGHSy12cwGt59BPe351fBnd8UgLuctnPqYZCOMLazdq5qYmSpTGVp/
+         UF9A==
+X-Gm-Message-State: AGi0PuaeusQLfNrfnSAos9pXNezFsPSojFWeBuVd5igy3jjxh6JyJgCi
+        DP7gYV/y9rcQD8jVVddQPpkzkA==
+X-Google-Smtp-Source: APiQypIo6NVa3ggkrGir9Av9BKxhR8YxgO3E79REfl10Nl4HP+r06ERk/mZOw3BERhNtE8IuJR7XJw==
+X-Received: by 2002:a37:9e92:: with SMTP id h140mr22324127qke.24.1586890981611;
+        Tue, 14 Apr 2020 12:03:01 -0700 (PDT)
+Received: from localhost (mobile-166-170-55-13.mycingular.net. [166.170.55.13])
+        by smtp.gmail.com with ESMTPSA id z18sm12048224qtz.77.2020.04.14.12.03.00
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 14 Apr 2020 12:03:01 -0700 (PDT)
+From:   Sean Paul <sean@poorly.run>
+To:     dri-devel@lists.freedesktop.org, ramalingam.c@intel.com
+Cc:     intel-gfx@lists.freedesktop.org, Sean Paul <seanpaul@chromium.org>,
+        stable@vger.kernel.org, Sean Paul <sean@poorly.run>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>
+Subject: [PATCH v2] drm: Fix HDCP failures when SRM fw is missing
+Date:   Tue, 14 Apr 2020 15:02:55 -0400
+Message-Id: <20200414190258.38873-1-sean@poorly.run>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200414184835.2878-1-sean@poorly.run>
+References: <20200414184835.2878-1-sean@poorly.run>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/14/20 11:42 AM, Greg KH wrote:
-> On Tue, Apr 14, 2020 at 10:38:41AM -0600, Jens Axboe wrote:
->> On 4/14/20 10:31 AM, Jens Axboe wrote:
->>> On 4/14/20 6:20 AM, gregkh@linuxfoundation.org wrote:
->>>>
->>>> The patch below does not apply to the 5.4-stable tree.
->>>> If someone wants it applied there, or to any other stable or longterm
->>>> tree, then please email the backport, including the original git commit
->>>> id to <stable@vger.kernel.org>.
->>>
->>> Here's a 5.4 backport.
->>
->> Sorry, please use this one!
-> 
-> Now queued up, along with the other backports, thanks!
+From: Sean Paul <seanpaul@chromium.org>
 
-Thanks Greg!
+The SRM cleanup in 79643fddd6eb2 ("drm/hdcp: optimizing the srm
+handling") inadvertently altered the behavior of HDCP auth when
+the SRM firmware is missing. Before that patch, missing SRM was
+interpreted as the device having no revoked keys. With that patch,
+if the SRM fw file is missing we reject _all_ keys.
 
+This patch fixes that regression by returning success if the file
+cannot be found. It also checks the return value from request_srm such
+that we won't end up trying to parse the ksv list if there is an error
+fetching it.
+
+Fixes: 79643fddd6eb ("drm/hdcp: optimizing the srm handling")
+Cc: stable@vger.kernel.org
+Cc: Ramalingam C <ramalingam.c@intel.com>
+Cc: Sean Paul <sean@poorly.run>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+
+Changes in v2:
+-Noticed a couple other things to clean up
+---
+
+Sorry for the quick rev, noticed a couple other loose ends that should
+be cleaned up.
+
+ drivers/gpu/drm/drm_hdcp.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/drm_hdcp.c b/drivers/gpu/drm/drm_hdcp.c
+index 7f386adcf872..910108ccaae1 100644
+--- a/drivers/gpu/drm/drm_hdcp.c
++++ b/drivers/gpu/drm/drm_hdcp.c
+@@ -241,8 +241,12 @@ static int drm_hdcp_request_srm(struct drm_device *drm_dev,
+ 
+ 	ret = request_firmware_direct(&fw, (const char *)fw_name,
+ 				      drm_dev->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		*revoked_ksv_cnt = 0;
++		*revoked_ksv_list = NULL;
++		ret = 0;
+ 		goto exit;
++	}
+ 
+ 	if (fw->size && fw->data)
+ 		ret = drm_hdcp_srm_update(fw->data, fw->size, revoked_ksv_list,
+@@ -287,6 +291,8 @@ int drm_hdcp_check_ksvs_revoked(struct drm_device *drm_dev, u8 *ksvs,
+ 
+ 	ret = drm_hdcp_request_srm(drm_dev, &revoked_ksv_list,
+ 				   &revoked_ksv_cnt);
++	if (ret)
++		return ret;
+ 
+ 	/* revoked_ksv_cnt will be zero when above function failed */
+ 	for (i = 0; i < revoked_ksv_cnt; i++)
 -- 
-Jens Axboe
+Sean Paul, Software Engineer, Google / Chromium OS
 
