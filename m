@@ -2,108 +2,245 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A72EB1A7DA7
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 15:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE71D1A7CDE
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 15:17:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731838AbgDNNYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 09:24:53 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:51759 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2502872AbgDNNQB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 09:16:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586870159;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fkgBK9xnpU8Tu3dZHUSNLZnfPluOMQrIKm9bQ1t2jqg=;
-        b=UiPMvykgRdLbhE2Wb8guqneNNa0Ufmb6GuFWIJC0BRjW6cZdJzpJbWMa/OKJbSvyVBd3q/
-        hh1Tss2q/NmPcswIGkOqVYyrLRWwKdLMNTm5TzhV9zktZv2OwtLuMrCwqPEbspoUwIOza4
-        vzvhQjL0PcalIVDqaiNJ/UfAcXcF2ZE=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-28-TOymzebSP1mEf3OUagdCMw-1; Tue, 14 Apr 2020 09:15:57 -0400
-X-MC-Unique: TOymzebSP1mEf3OUagdCMw-1
-Received: by mail-wr1-f71.google.com with SMTP id p16so5869474wro.16
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 06:15:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=fkgBK9xnpU8Tu3dZHUSNLZnfPluOMQrIKm9bQ1t2jqg=;
-        b=d/ms9jST0S6XU11mH53o7/3PdN14Gb7GSxNlBqD8sLWPEYvN3CrKZHGg6Sym6HKCAe
-         Hljf1+VpW8+nPmbe35KzjM72dp/3mm6KwCdlWZiUcfyI8BC629dZGgihxsJbXtStWEZ+
-         AZHfEPe1HZfyVAsJVXp8ECnMu1lVz6C+zURim3kafzd7DrYR9CQlIEM/LGS71HOcF6rW
-         THvmBCMo2Kt6rHmFrSnZrJ8t+BCp66LlRSTGTgsFVqt8+3fpDHBmqvXZQTJ8W4YDrSWp
-         fx77ZEI/ZWbC3kT15uasGUIjhq/BUn/0lIJz0sWwVQJeVD9fwidtRiANbXkoC9Lj1RDx
-         mNxQ==
-X-Gm-Message-State: AGi0Pubo6r7Zigs3GrGlgXm9SdWe4KlQVYU0GAK0Y7gIC6eaKO76BBCT
-        ZXtwloHiXp5xtBqhxPA2bICxW0sUWZ0mLGwjzxFChHrWgXq4qKlk3eOyK+G+TgKINDJOhhsw8+U
-        n6iqEKl8MANqNQQIK
-X-Received: by 2002:a5d:6145:: with SMTP id y5mr3671370wrt.126.1586870155640;
-        Tue, 14 Apr 2020 06:15:55 -0700 (PDT)
-X-Google-Smtp-Source: APiQypIYnGXCmimjktgJ31Rsn05nuM82C4sRRSEJSiXVM+BE/3APQErQB0fwpedAZZG7kleviTPIyA==
-X-Received: by 2002:a5d:6145:: with SMTP id y5mr3671335wrt.126.1586870155233;
-        Tue, 14 Apr 2020 06:15:55 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id y15sm19420635wro.68.2020.04.14.06.15.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Apr 2020 06:15:54 -0700 (PDT)
-Subject: Re: [PATCH] platform/x86: intel_int0002_vgpio: Only bind to the
- INT0002 dev when using s2idle
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Darren Hart <dvhart@infradead.org>,
-        Andy Shevchenko <andy@infradead.org>,
-        "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Platform Driver <platform-driver-x86@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Maxim Mikityanskiy <maxtram95@gmail.com>,
-        "5 . 3+" <stable@vger.kernel.org>
-References: <20200407213058.62870-1-hdegoede@redhat.com>
- <cfd3171a-94fb-7382-28e1-a236cb6759cc@redhat.com>
- <CAHp75VdqQnHbMSSeoDESMgywH-1VxBTT=Uo_GLV1aycmg=MXtA@mail.gmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <32d57d33-5278-aead-1545-fac1ab936fbd@redhat.com>
-Date:   Tue, 14 Apr 2020 15:15:53 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        id S2502986AbgDNNRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 09:17:13 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60253 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2502979AbgDNNRH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 09:17:07 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id E0FA2807;
+        Tue, 14 Apr 2020 09:17:05 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 14 Apr 2020 09:17:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=qrHoVT
+        9TaxqOVh3hVC7yOIwJEjdbLwtZO0Mfiyh0nwA=; b=Mc1al2H6fSwRpodXjFEKOH
+        cSUG2zctucmCiZSBG/IhC4ESOoU1kBG3xJYTKM6fvA6fOom8sXNX3qG/SqC8y8u0
+        m6q3Ict7kid0areYv2IKkpLVLJNuKP+7WpA5/592TnwTlk+QfF63STjWiDjxqy/D
+        xtg5Hi5sGkwiN9Y5QxGe1JJYrhuc27gwVvBI0nWo03KmjfFVjkIwJZrVFJOc8HrD
+        W+pPSOMnEPi9T8YeT71F7dFj0fY4wzFtC8/a9/9l+QwMXdiGp4NKfVp7GBbJ9oBD
+        N6ysn9uL+TStB71LDBOR92Jd6Vxm+A7UxJ07AfmgIuvfJrq2W1uxctmprz+af6lw
+        ==
+X-ME-Sender: <xms:0beVXjkZjgeNZ8k88IM5_zEx4hKYUzX0gnM-MYzbgV4WXjRG7m7ROQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfedugdeiudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    rhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:0beVXvznZ3am3FkPRB0QAP1i9Uh348XXVPhzkbMcWJRG_-l2F2pbAg>
+    <xmx:0beVXiZUdo_fquVmv_jrXPxx0mq_MXjB_puFYmjMtNiBA0pQ8dBv4w>
+    <xmx:0beVXusSjhaIXyD0Ec7YHCZEIH8dps202qYv6kKJhsqqdjrHUXlykw>
+    <xmx:0beVXp6WqUuucstjkSsM1VBlekiCmldHKDXyLaI1-q6FBmVwvl9hnQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id D85693060069;
+        Tue, 14 Apr 2020 09:17:04 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: VMX: Always VMCLEAR in-use VMCSes during crash with" failed to apply to 4.4-stable tree
+To:     sean.j.christopherson@intel.com, pbonzini@redhat.com,
+        vkuznets@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 14 Apr 2020 15:17:02 +0200
+Message-ID: <1586870222160177@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHp75VdqQnHbMSSeoDESMgywH-1VxBTT=Uo_GLV1aycmg=MXtA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On 4/8/20 12:26 AM, Andy Shevchenko wrote:
-> On Wed, Apr 8, 2020 at 1:24 AM Hans de Goede <hdegoede@redhat.com> wrote:
->>
->> Hi all,
->>
->> I just realized that I should have added a cover letter to this
->> patch to discuss how to merge it.
->>
->> Rafael has already queued up the
->> "[PATCH v3 2/2] platform/x86: intel_int0002_vgpio: Use acpi_register_wakeup_handler()"
->> in his tree. Looking at both patches the parts of the file the
->> touch are different enough that that should not be a problem though.
->>
->> So I guess this can go through platform/x86 as usual, or
->> (assuming everyone is ok with the change itself) alternatively
->> Rafael can take it to make sure there will be no conflicts?
-> 
-> You will need different patches for v5.7 and the rest.
-> In v5.7 new CPU macros are in use.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I see, I will send out a v2 rebased on top of 5.7-rc1.
+thanks,
 
-Regards,
+greg k-h
 
-Hans
+------------------ original commit in Linus's tree ------------------
+
+From 31603d4fc2bb4f0815245d496cb970b27b4f636a Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+Date: Sat, 21 Mar 2020 12:37:49 -0700
+Subject: [PATCH] KVM: VMX: Always VMCLEAR in-use VMCSes during crash with
+ kexec support
+
+VMCLEAR all in-use VMCSes during a crash, even if kdump's NMI shootdown
+interrupted a KVM update of the percpu in-use VMCS list.
+
+Because NMIs are not blocked by disabling IRQs, it's possible that
+crash_vmclear_local_loaded_vmcss() could be called while the percpu list
+of VMCSes is being modified, e.g. in the middle of list_add() in
+vmx_vcpu_load_vmcs().  This potential corner case was called out in the
+original commit[*], but the analysis of its impact was wrong.
+
+Skipping the VMCLEARs is wrong because it all but guarantees that a
+loaded, and therefore cached, VMCS will live across kexec and corrupt
+memory in the new kernel.  Corruption will occur because the CPU's VMCS
+cache is non-coherent, i.e. not snooped, and so the writeback of VMCS
+memory on its eviction will overwrite random memory in the new kernel.
+The VMCS will live because the NMI shootdown also disables VMX, i.e. the
+in-progress VMCLEAR will #UD, and existing Intel CPUs do not flush the
+VMCS cache on VMXOFF.
+
+Furthermore, interrupting list_add() and list_del() is safe due to
+crash_vmclear_local_loaded_vmcss() using forward iteration.  list_add()
+ensures the new entry is not visible to forward iteration unless the
+entire add completes, via WRITE_ONCE(prev->next, new).  A bad "prev"
+pointer could be observed if the NMI shootdown interrupted list_del() or
+list_add(), but list_for_each_entry() does not consume ->prev.
+
+In addition to removing the temporary disabling of VMCLEAR, open code
+loaded_vmcs_init() in __loaded_vmcs_clear() and reorder VMCLEAR so that
+the VMCS is deleted from the list only after it's been VMCLEAR'd.
+Deleting the VMCS before VMCLEAR would allow a race where the NMI
+shootdown could arrive between list_del() and vmcs_clear() and thus
+neither flow would execute a successful VMCLEAR.  Alternatively, more
+code could be moved into loaded_vmcs_init(), but that gets rather silly
+as the only other user, alloc_loaded_vmcs(), doesn't need the smp_wmb()
+and would need to work around the list_del().
+
+Update the smp_*() comments related to the list manipulation, and
+opportunistically reword them to improve clarity.
+
+[*] https://patchwork.kernel.org/patch/1675731/#3720461
+
+Fixes: 8f536b7697a0 ("KVM: VMX: provide the vmclear function and a bitmap to support VMCLEAR in kdump")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200321193751.24985-2-sean.j.christopherson@intel.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 07299a957d4a..efaca09455bf 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -663,43 +663,15 @@ void loaded_vmcs_init(struct loaded_vmcs *loaded_vmcs)
+ }
+ 
+ #ifdef CONFIG_KEXEC_CORE
+-/*
+- * This bitmap is used to indicate whether the vmclear
+- * operation is enabled on all cpus. All disabled by
+- * default.
+- */
+-static cpumask_t crash_vmclear_enabled_bitmap = CPU_MASK_NONE;
+-
+-static inline void crash_enable_local_vmclear(int cpu)
+-{
+-	cpumask_set_cpu(cpu, &crash_vmclear_enabled_bitmap);
+-}
+-
+-static inline void crash_disable_local_vmclear(int cpu)
+-{
+-	cpumask_clear_cpu(cpu, &crash_vmclear_enabled_bitmap);
+-}
+-
+-static inline int crash_local_vmclear_enabled(int cpu)
+-{
+-	return cpumask_test_cpu(cpu, &crash_vmclear_enabled_bitmap);
+-}
+-
+ static void crash_vmclear_local_loaded_vmcss(void)
+ {
+ 	int cpu = raw_smp_processor_id();
+ 	struct loaded_vmcs *v;
+ 
+-	if (!crash_local_vmclear_enabled(cpu))
+-		return;
+-
+ 	list_for_each_entry(v, &per_cpu(loaded_vmcss_on_cpu, cpu),
+ 			    loaded_vmcss_on_cpu_link)
+ 		vmcs_clear(v->vmcs);
+ }
+-#else
+-static inline void crash_enable_local_vmclear(int cpu) { }
+-static inline void crash_disable_local_vmclear(int cpu) { }
+ #endif /* CONFIG_KEXEC_CORE */
+ 
+ static void __loaded_vmcs_clear(void *arg)
+@@ -711,19 +683,24 @@ static void __loaded_vmcs_clear(void *arg)
+ 		return; /* vcpu migration can race with cpu offline */
+ 	if (per_cpu(current_vmcs, cpu) == loaded_vmcs->vmcs)
+ 		per_cpu(current_vmcs, cpu) = NULL;
+-	crash_disable_local_vmclear(cpu);
++
++	vmcs_clear(loaded_vmcs->vmcs);
++	if (loaded_vmcs->shadow_vmcs && loaded_vmcs->launched)
++		vmcs_clear(loaded_vmcs->shadow_vmcs);
++
+ 	list_del(&loaded_vmcs->loaded_vmcss_on_cpu_link);
+ 
+ 	/*
+-	 * we should ensure updating loaded_vmcs->loaded_vmcss_on_cpu_link
+-	 * is before setting loaded_vmcs->vcpu to -1 which is done in
+-	 * loaded_vmcs_init. Otherwise, other cpu can see vcpu = -1 fist
+-	 * then adds the vmcs into percpu list before it is deleted.
++	 * Ensure all writes to loaded_vmcs, including deleting it from its
++	 * current percpu list, complete before setting loaded_vmcs->vcpu to
++	 * -1, otherwise a different cpu can see vcpu == -1 first and add
++	 * loaded_vmcs to its percpu list before it's deleted from this cpu's
++	 * list. Pairs with the smp_rmb() in vmx_vcpu_load_vmcs().
+ 	 */
+ 	smp_wmb();
+ 
+-	loaded_vmcs_init(loaded_vmcs);
+-	crash_enable_local_vmclear(cpu);
++	loaded_vmcs->cpu = -1;
++	loaded_vmcs->launched = 0;
+ }
+ 
+ void loaded_vmcs_clear(struct loaded_vmcs *loaded_vmcs)
+@@ -1342,18 +1319,17 @@ void vmx_vcpu_load_vmcs(struct kvm_vcpu *vcpu, int cpu)
+ 	if (!already_loaded) {
+ 		loaded_vmcs_clear(vmx->loaded_vmcs);
+ 		local_irq_disable();
+-		crash_disable_local_vmclear(cpu);
+ 
+ 		/*
+-		 * Read loaded_vmcs->cpu should be before fetching
+-		 * loaded_vmcs->loaded_vmcss_on_cpu_link.
+-		 * See the comments in __loaded_vmcs_clear().
++		 * Ensure loaded_vmcs->cpu is read before adding loaded_vmcs to
++		 * this cpu's percpu list, otherwise it may not yet be deleted
++		 * from its previous cpu's percpu list.  Pairs with the
++		 * smb_wmb() in __loaded_vmcs_clear().
+ 		 */
+ 		smp_rmb();
+ 
+ 		list_add(&vmx->loaded_vmcs->loaded_vmcss_on_cpu_link,
+ 			 &per_cpu(loaded_vmcss_on_cpu, cpu));
+-		crash_enable_local_vmclear(cpu);
+ 		local_irq_enable();
+ 	}
+ 
+@@ -2279,17 +2255,6 @@ static int hardware_enable(void)
+ 	INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
+ 	spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
+ 
+-	/*
+-	 * Now we can enable the vmclear operation in kdump
+-	 * since the loaded_vmcss_on_cpu list on this cpu
+-	 * has been initialized.
+-	 *
+-	 * Though the cpu is not in VMX operation now, there
+-	 * is no problem to enable the vmclear operation
+-	 * for the loaded_vmcss_on_cpu list is empty!
+-	 */
+-	crash_enable_local_vmclear(cpu);
+-
+ 	kvm_cpu_vmxon(phys_addr);
+ 	if (enable_ept)
+ 		ept_sync_global();
 
