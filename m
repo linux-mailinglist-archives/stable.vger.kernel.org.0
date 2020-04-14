@@ -2,65 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E09541A7557
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 10:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56CA91A7585
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 10:09:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406942AbgDNID6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 04:03:58 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2049 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729491AbgDNIDw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Apr 2020 04:03:52 -0400
-Received: from lhreml704-cah.china.huawei.com (unknown [172.18.7.106])
-        by Forcepoint Email with ESMTP id 98A43B13CF284C87779C;
-        Tue, 14 Apr 2020 09:03:49 +0100 (IST)
-Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.160)
- by smtpsuk.huawei.com (10.201.108.45) with Microsoft SMTP Server (TLS) id
- 14.3.487.0; Tue, 14 Apr 2020 09:03:40 +0100
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     <zohar@linux.ibm.com>, <mjg59@google.com>
-CC:     <linux-integrity@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH] evm: Fix possible memory leak in evm_calc_hmac_or_hash()
-Date:   Tue, 14 Apr 2020 10:01:31 +0200
-Message-ID: <20200414080131.29411-1-roberto.sassu@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        id S2407010AbgDNIJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 04:09:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51990 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2406988AbgDNIJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Apr 2020 04:09:11 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AC0F2072D;
+        Tue, 14 Apr 2020 08:09:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586851750;
+        bh=rd4UzSC7fqh1hR2kFovsbwQ9fnm18W2TFfNbB10bdhk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=O/ohGZdiAxJY+0+MlKK+EBO9YcS4C6z8tdbRz1b+aM9P9k1ADBlFElr7s+ZzQ39ys
+         ILLjEYLe0jAgAt5IaXAZDCM7SXIQZH9f3eCGXoLvYQVDS+0JzTb0xG1eYKvgmSwXGj
+         /5LrmqW1u6gYBL5acYu4Ft98UHJi+LOU/aiqFYz0=
+Date:   Tue, 14 Apr 2020 10:09:08 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     akpm@linux-foundation.org, cl@linux.com, iamjoonsoo.kim@lge.com,
+        penberg@kernel.org, rientjes@google.com, silvio.cesare@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH][v4.19][v4.14] slub: improve bit diffusion for freelist
+ ptr obfuscation
+Message-ID: <20200414080908.GA4147420@kroah.com>
+References: <202004131001.20346EB0E7@keescook>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.204.65.160]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <202004131001.20346EB0E7@keescook>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Don't immediately return if the signature is portable and security.ima is
-not present. Just set error so that memory allocated is freed before
-returning from evm_calc_hmac_or_hash().
+On Mon, Apr 13, 2020 at 10:03:23AM -0700, Kees Cook wrote:
+> commit 1ad53d9fa3f6168ebcf48a50e08b170432da2257 upstream.
+> 
+> Under CONFIG_SLAB_FREELIST_HARDENED=y, the obfuscation was relatively weak
+> in that the ptr and ptr address were usually so close that the first XOR
+> would result in an almost entirely 0-byte value[1], leaving most of the
+> "secret" number ultimately being stored after the third XOR.  A single
+> blind memory content exposure of the freelist was generally sufficient to
+> learn the secret.
+> 
+> Add a swab() call to mix bits a little more.  This is a cheap way (1
+> cycle) to make attacks need more than a single exposure to learn the
+> secret (or to know _where_ the exposure is in memory).
+> 
+> kmalloc-32 freelist walk, before:
+> 
+> ptr              ptr_addr            stored value      secret
+> ffff90c22e019020@ffff90c22e019000 is 86528eb656b3b5bd (86528eb656b3b59d)
+> ffff90c22e019040@ffff90c22e019020 is 86528eb656b3b5fd (86528eb656b3b59d)
+> ffff90c22e019060@ffff90c22e019040 is 86528eb656b3b5bd (86528eb656b3b59d)
+> ffff90c22e019080@ffff90c22e019060 is 86528eb656b3b57d (86528eb656b3b59d)
+> ffff90c22e0190a0@ffff90c22e019080 is 86528eb656b3b5bd (86528eb656b3b59d)
+> ...
+> 
+> after:
+> 
+> ptr              ptr_addr            stored value      secret
+> ffff9eed6e019020@ffff9eed6e019000 is 793d1135d52cda42 (86528eb656b3b59d)
+> ffff9eed6e019040@ffff9eed6e019020 is 593d1135d52cda22 (86528eb656b3b59d)
+> ffff9eed6e019060@ffff9eed6e019040 is 393d1135d52cda02 (86528eb656b3b59d)
+> ffff9eed6e019080@ffff9eed6e019060 is 193d1135d52cdae2 (86528eb656b3b59d)
+> ffff9eed6e0190a0@ffff9eed6e019080 is f93d1135d52cdac2 (86528eb656b3b59d)
+> 
+> [1] https://blog.infosectcbr.com.au/2020/03/weaknesses-in-linux-kernel-heap.html
+> 
+> Fixes: 2482ddec670f ("mm: add SLUB free list pointer obfuscation")
+> Reported-by: Silvio Cesare <silvio.cesare@gmail.com>
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Christoph Lameter <cl@linux.com>
+> Cc: Pekka Enberg <penberg@kernel.org>
+> Cc: David Rientjes <rientjes@google.com>
+> Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> Cc: <stable@vger.kernel.org>
+> Link: http://lkml.kernel.org/r/202003051623.AF4F8CB@keescook
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> [kees: Backport to v4.19 which doesn't call kasan_reset_untag()]
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+> This requires that commit d5767057c9a76a29f073dad66b7fa12a90e8c748 is
+> also cherry-picked into -stable.
+> ---
+>  mm/slub.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/mm/slub.c b/mm/slub.c
+> index 9b7b989273d4..d8116a43a287 100644
+> --- a/mm/slub.c
+> +++ b/mm/slub.c
+> @@ -249,7 +249,7 @@ static inline void *freelist_ptr(const struct kmem_cache *s, void *ptr,
+>  				 unsigned long ptr_addr)
+>  {
+>  #ifdef CONFIG_SLAB_FREELIST_HARDENED
+> -	return (void *)((unsigned long)ptr ^ s->random ^ ptr_addr);
+> +	return (void *)((unsigned long)ptr ^ s->random ^ swab(ptr_addr));
+>  #else
+>  	return ptr;
+>  #endif
+> -- 
+> 2.20.1
+> 
+> 
+> -- 
 
-Cc: stable@vger.kernel.org
-Fixes: 50b977481fce9 ("EVM: Add support for portable signature format")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
----
- security/integrity/evm/evm_crypto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Now queued up, thanks.
 
-diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
-index 35682852ddea..499ea01b2edc 100644
---- a/security/integrity/evm/evm_crypto.c
-+++ b/security/integrity/evm/evm_crypto.c
-@@ -241,7 +241,7 @@ static int evm_calc_hmac_or_hash(struct dentry *dentry,
- 
- 	/* Portable EVM signatures must include an IMA hash */
- 	if (type == EVM_XATTR_PORTABLE_DIGSIG && !ima_present)
--		return -EPERM;
-+		error = -EPERM;
- out:
- 	kfree(xattr_value);
- 	kfree(desc);
--- 
-2.17.1
-
+greg k-h
