@@ -2,118 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE7E1A747A
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 09:16:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D387F1A74E8
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 09:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406488AbgDNHQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 03:16:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44554 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406487AbgDNHQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Apr 2020 03:16:27 -0400
-Received: from localhost (unknown [213.57.247.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81EE420575;
-        Tue, 14 Apr 2020 07:16:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586848586;
-        bh=r7bEPKJJdbev5LU/fgYxUjg1WQaPaPHzf7ULe0z7Nr4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2rINJUGb7ilCBKfeCJdRFdMRrv7OIAWdkwwde0lrE9Mzp6SHDfaXWapHi/n+8hxV7
-         HMjb/fuWVh+YNBbWwN3aWaOjaxTLk+R7Q4jb8ByTBjWyyQSKM+fvpoJg4Mwj94jZXU
-         fvysPqwEGg9TkDAwrUxTn3M7etrcdRTChxKBhLXA=
-Date:   Tue, 14 Apr 2020 10:16:22 +0300
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        Or Gerlitz <gerlitz.or@gmail.com>,
-        Stable <stable@vger.kernel.org>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        David Miller <davem@davemloft.net>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
- representors
-Message-ID: <20200414071622.GT334007@unreal>
-References: <20200411231413.26911-1-sashal@kernel.org>
- <20200411231413.26911-9-sashal@kernel.org>
- <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
- <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20200414015627.GA1068@sasha-vm>
+        id S1729428AbgDNHg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 03:36:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59146 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729308AbgDNHgz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 03:36:55 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28514C0A3BDC
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 00:36:55 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id a25so13137854wrd.0
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 00:36:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=IsnIK9bQE2LuCTLv2q71KOwWCpFnc/vSo4lm6j3/7xc=;
+        b=NLwftW0bzHWjAyvWR+oY1b3BNaFahQChWuhb8pQyuWItgZmyQgS9e0zp7mGGgH+hd3
+         u8rVQfICkp8VE88xd3t7n39Hy36xQNZ5c/qViAofVBukAwgzR4bUbR7Ke+4DXL+d9xr1
+         AGCQcMbVsOBSf23SxJpikv2Ng9HUtMjKxdmgR7ko28VQ/OzDOdfZV8PBILpzifCfCHK3
+         vntrL//0rjhyJihAKfRinPJGHOA7Le4pQNn8tfwzNLyWRDo+DZvZTP3Ot9ajqr2YMC1L
+         DHTcYPnSw5i52ExoamdH35vAAqZVEdEhQGFyEH+EXM3GDiyvQbBixgaY/djWWrYCOl+I
+         T/Jg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=IsnIK9bQE2LuCTLv2q71KOwWCpFnc/vSo4lm6j3/7xc=;
+        b=RZDN0sHpgtXIPFIJFkpbVXkdtSsCH/P9pyWE34gLYru9Plk3JeuaztXPfxQ1D/TWNv
+         XVZroA/N9F1tMIAZvqanLVV4r7hcERqr3DS5M/9MckGjCBODIco/mv3WlQJa/k26yfnT
+         QTndJ71NDLddlwnKyZtxvkRczMalMtQC9uajUsx/kF6/I2tgNStkr8IeyUUC+tPMUhJb
+         MXoezPctHeREfvQKHxHS1bXtJrLdY98akHUg6CuVr3qoyyduV7cW1EGrpb86gobD7VV6
+         jI3BnF8kBPGiq6GwdLUBzRLSzRiL1Y3ICU5VCxjWXVZDRltCHJHWVhBUD3zBXI0rpe4c
+         yAIQ==
+X-Gm-Message-State: AGi0PuZrfXEvEy0BdN+NFHfb8M9ifCylba87T1bBBZfT3meeNcilJumT
+        z4yThUSZXv0s+4gchFhBgQ75TA==
+X-Google-Smtp-Source: APiQypKZHp/Wioy0LK8BEGEXCXuKxx0E5X9If0mzrToO5uRK9nIXYcXUCD3uWDv7A05xn9+ObXBfJQ==
+X-Received: by 2002:a5d:4b90:: with SMTP id b16mr12450587wrt.16.1586849813778;
+        Tue, 14 Apr 2020 00:36:53 -0700 (PDT)
+Received: from dell ([95.149.164.124])
+        by smtp.gmail.com with ESMTPSA id r2sm17862289wmg.2.2020.04.14.00.36.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Apr 2020 00:36:53 -0700 (PDT)
+Date:   Tue, 14 Apr 2020 08:37:53 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH 4.19 11/13] perf/core: Reattach a misplaced comment
+Message-ID: <20200414073753.GA2167633@dell>
+References: <20200403121859.901838-1-lee.jones@linaro.org>
+ <20200403121859.901838-12-lee.jones@linaro.org>
+ <20200403122604.GA3928660@kroah.com>
+ <20200403125246.GE30614@dell>
+ <87y2rc66u9.fsf@ashishki-desk.ger.corp.intel.com>
+ <20200411114937.GG2606747@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200414015627.GA1068@sasha-vm>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200411114937.GG2606747@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 13, 2020 at 09:56:28PM -0400, Sasha Levin wrote:
-> On Sun, Apr 12, 2020 at 10:59:35AM -0700, Jakub Kicinski wrote:
-> > On Sun, 12 Apr 2020 10:10:22 +0300 Or Gerlitz wrote:
-> > > On Sun, Apr 12, 2020 at 2:16 AM Sasha Levin <sashal@kernel.org> wrote:
-> > >
-> > > > [ Upstream commit 6783e8b29f636383af293a55336f036bc7ad5619 ]
-> > >
-> > > Sasha,
-> > >
-> > > This was pushed to net-next without a fixes tag, and there're probably
-> > > reasons for that.
-> > > As you can see the possible null deref is not even reproducible without another
-> > > patch which for itself was also net-next and not net one.
-> > >
-> > > If a team is not pushing patch to net nor putting a fixes that, I
-> > > don't think it's correct
->
-> While it's great that you're putting the effort into adding a fixes tag
-> to your commits, I'm not sure what a fixes tag has to do with inclusion
-> in a stable tree.
->
-> It's a great help when we look into queueing something up, but on it's
-> own it doesn't imply anything.
->
-> > > to go and pick that into stable and from there to customer production kernels.
->
-> This mail is your two week warning that this patch might get queued to
-> stable, nothing was actually queued just yet.
->
-> > > Alsom, I am not sure what's the idea behind the auto-selection concept, e.g for
-> > > mlx5 the maintainer is specifically pointing which patches should go
-> > > to stable and
->
-> I'm curious, how does this process work? Is it on a mailing list
-> somewhere?
+On Sat, 11 Apr 2020, Greg KH wrote:
 
-Saeed asks from Dave explicitly to pick commits to stable@.
-https://lore.kernel.org/netdev/20200408225124.883292-1-saeedm@mellanox.com/
-
->
-> > > to what releases there and this is done with care and thinking ahead, why do we
-> > > want to add on that? and why this can be something which is just
-> > > automatic selection?
+> On Fri, Apr 03, 2020 at 04:23:42PM +0300, Alexander Shishkin wrote:
+> > Lee Jones <lee.jones@linaro.org> writes:
+> > 
+> > > On Fri, 03 Apr 2020, Greg KH wrote:
 > > >
-> > > We have customers running production system with LTS 4.4.x and 4.9.y (along with
-> > > 4.14.z and 4.19.w) kernels, we put lots of care thinking if/what
-> > > should go there, I don't
-> > > see a benefit from adding auto-selection, the converse.
-> >
-> > FWIW I had the same thoughts about the nfp driver, and I indicated to
-> > Sasha to skip it in the auto selection, which AFAICT worked nicely.
-> >
-> > Maybe we should communicate more clearly that maintainers who carefully
-> > select patches for stable should opt out of auto-selection?
->
-> I've added drivers/net/ethernet/mellanox/ to my blacklist for auto
-> selection. It's very easy to opt out, just ask... I've never argued with
-> anyone around this - the maintainers of any given subsystem know about
-> it way better than me.
+> > >> > +	/*
+> > >> > +	 * Get the target context (task or percpu):
+> > >> > +	 */
+> > >> >  	ctx = find_get_context(event->pmu, task, event);
+> > >> >  	if (IS_ERR(ctx)) {
+> > >> >  		err = PTR_ERR(ctx);
+> > >> 
+> > >> Unless this is needed by a follow-on patch, I kind of doubt thsi is
+> > >> needed in a stable kernel release :)
+> > >
+> > > I believe you once called this "debugging the comments", or
+> > > similar. :)
+> > >
+> > > No problem though - happy to drop it from this and other sets.
+> > 
+> > It's a precursor to dce5affb94eb54edfff17727a6240a6a5d998666, which I
+> > think is a stable candidate.
+> 
+> Ok, but that's not part of this patch series, so how was I supposed to
+> know that?  :)
 
-I was under impression that all netdev commits are excluded.
+It wasn't going to be part of mine either, since it's missing from the
+Sony vendor tree (the repo I'm analysing to identify these Stable
+backports), thus I've dropped the patch.
 
-Thanks
-
->
-> --
-> Thanks,
-> Sasha
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
