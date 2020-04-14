@@ -2,84 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B21E01A7809
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 12:05:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D14F11A782D
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 12:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438077AbgDNKFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 06:05:16 -0400
-Received: from esa4.mentor.iphmx.com ([68.232.137.252]:39640 "EHLO
-        esa4.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2438054AbgDNKFP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 06:05:15 -0400
-IronPort-SDR: TiLek+a2/r6GdLmWlpuMKXK9N+KW7PjR/zhkIvOy4PLzhLynfJuZQqMqo/v5DG3dOP/g/VZ/vP
- K/L9bclQXwUvOzh9EdHIieKoLwOgKuI+P3tru68MLJuRfNaH8pG37jLpdx9lNQ6NbdBNzLHg2x
- o1KxgAR33WIZ08wihNx/O2rGNFl9gh3009u8vuphZdRMGkmZMtVheAQodkfX3pycBC+ZitntzZ
- /gbt0xv+Cf4y6etMiTTYNkBuiz/evFSBx++xzMlg7LHdFBWUlzkEARvj2hQGkSV52r+LioGmPX
- P4w=
-X-IronPort-AV: E=Sophos;i="5.72,382,1580803200"; 
-   d="scan'208";a="47775850"
-Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa4.mentor.iphmx.com with ESMTP; 14 Apr 2020 02:05:14 -0800
-IronPort-SDR: mZRSFsLxdKwc5YdeZbqbpf/k5RDlWQh3qrT5vBBnVLhlgKf+x4UTKKLH/GDSnsAN5LxQdkZ1Ch
- jpmRQ0e9LC4hywQuw6XT9RPC2qf0JfbEfKMbXpSxIx10eDyIi5NNTIm00Fc29VUsqfTvmvGyag
- 6ByCgYiXvFF0VgVKMSdzBEET9vdz4Qp+wbjBhNal+fgGaith2FpbOjvWHdi+YSUDLwYIJMiGMa
- +soPhhdqT1aoTN1sNID1FfHSavOqot10rBzepYO0FqRKTK4EEfCbfx3bzIa3WQQZTGro8EUr6F
- WR8=
-From:   "Schmid, Carsten" <Carsten_Schmid@mentor.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: AW: Patchset for CVE-2020-1749 Kernel 4.19
-Thread-Topic: Patchset for CVE-2020-1749 Kernel 4.19
-Thread-Index: AQHWDNb1sUl0Jcmg8Eu4qmgAVBhB7qhzwsUAgASnSiA=
-Date:   Tue, 14 Apr 2020 10:05:09 +0000
-Message-ID: <baec5c33121948aca8660b5bdaf9643c@SVR-IES-MBX-03.mgc.mentorg.com>
+        id S2438186AbgDNKMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 06:12:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46210 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2438130AbgDNKL7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Apr 2020 06:11:59 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31C772072D;
+        Tue, 14 Apr 2020 10:11:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586859116;
+        bh=hrv4v7Jt4rjXY8XDpLLFYQdJXTw1qD7wkIQHdPDy4gY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nx3ijwYi5SAGPPVbjzMSFoOLVqnQVr+6YoSec7RfUeDZNaJ+iiJY/BFThII6KAACp
+         v/xSjaOu7CSOFEzh7dwMsax5a5zlaT4/axwC6MoC6JHzcji7S1Jc3BUlas9joWgkin
+         e7KXdsE2Agxe2amSaOjZifJbSr0YBTGEliumwtDE=
+Date:   Tue, 14 Apr 2020 12:11:53 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Schmid, Carsten" <Carsten_Schmid@mentor.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: Patchset for CVE-2020-1749 Kernel 4.19
+Message-ID: <20200414101153.GA37302@kroah.com>
 References: <1586262823357.14177@mentor.com>
  <20200411114450.GE2606747@kroah.com>
-In-Reply-To: <20200411114450.GE2606747@kroah.com>
-Accept-Language: de-DE, en-IE, en-US
-Content-Language: de-DE
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [137.202.0.90]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <baec5c33121948aca8660b5bdaf9643c@SVR-IES-MBX-03.mgc.mentorg.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <baec5c33121948aca8660b5bdaf9643c@SVR-IES-MBX-03.mgc.mentorg.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiA+IEFwcGxpZXMgdG8gc3RhYmxlIGxpbnV4LXY0LjE5LnkgKHdpdGggeT0xMTQpLg0KPg0KPiBI
-YXZlIHlvdSBiZWVuIGFibGUgdG8gdGVzdCB0aGVzZSBwYXRjaGVzIHNvIHRoYXQgeW91IGtub3cg
-dGhleSB3b3JrPw0KPg0KSSBkaWQgYXBwbHkgYW5kIGNvbXBpbGUgb24geDg2IGluIGJvdGggNC4x
-NCBhbmQgNC4xOSAobWFraW5nIHN1cmUgdG8gaGF2ZSBhbGwgQ09ORklHX3Mgc2V0DQp0byBjb21w
-aWxlIHRoZSBjaGFuZ2VkIGNvZGUpLg0KSSB0aGVuIHJhbiA0LjE0IChwcm9qZWN0IGtlcm5lbCkg
-b24gb3VyIHRhcmdldDsgaG93ZXZlciBpIGNhbid0IGJ1aWxkIGFuDQplbmNyeXB0ZWQgSVB2NiB0
-dW5uZWwgdG8gdmVyaWZ5IGlmIHRoZSBwYXRjaHNldCBoZWxwcy4NCihGcm9tIHRoZSBwYXRjaCBk
-ZXNjcmlwdGlvbnMsIGl0IHJlYWxseSBsb29rcyBsaWtlIHRoZXkgZml4IHRoaXMpDQoNCklQdjYg
-dHVubmVsIHRlc3Rpbmcgd2lsbCBiZSBkb25lIGJ5IG90aGVyIGZvbGtzIGluIHRoZSBwcm9qZWN0
-LCBpIGNhbid0IHRlbGwgd2hlbiBkdWUgdG8NCnRoZSBDb1ZpZCBzaXR1YXRpb24gYXMgdGhpcyBy
-ZXF1aXJlcyBzcGVjaWFsIGVxdWlwbWVudCB0aGF0IGkgY2FuJ3QgYWNjZXNzIGF0IGFsbC4NCg0K
-PiBBbmQgY2FuIHlvdSBwbGVhc2Ugc2VuZCB0aGVtIGFzIGEgcGF0Y2ggc2VyaWVzLCBub3QgYXMg
-YXR0YWNobWVudHMsIGFuZA0KPiAgY2M6IGFsbCB0aGUgb3JpZ2luYWwgYXV0aG9ycyBzbyB0aGF0
-IGV2ZXJ5b25lIGNhbiBrbm93IHdoYXQgaXMgZ29pbmcgb24NCj4gYW5kIHdlaWdoIGluIGlmIHRo
-ZXkgc2VlIGFueSBpc3N1ZXM/DQpPZiBjb3Vyc2UuIFNvcnJ5IHRoYXQgaSBkaWRuJ3QgZG8gdGhp
-cyB5ZXQuDQoNCj4NCj4gQW5kIGZpbmFsbHksIGRvIG5vdCBjaGFuZ2UgdGhlIGNoYW5nZWxvZyB0
-ZXh0IGZyb20gdGhlIG9yaWdpbmFsIGNvbW1pdHMsDQo+IHRoYXQncyBub3Qgb2suDQpFeGNlcHQg
-Zm9yIHRoZSAidXBzdHJlYW0gY29tbWl0IGlkIiwgcmlnaHQ/DQoNCj4gSWYgeW91IG5lZWQgdG8g
-cHV0IGFueSBub3RlcyBpbiB0aGVyZSBhcyB0byB3aGF0IHlvdQ0KPiBkaWQsIGZvbGxvdyB0aGUg
-Zm9ybWF0IHdlIGhhdmUgYmVlbiB1c2luZyBmb3IgeWVhcnMsIGFuZCBwdXQgaXQgaW4gdGhlDQo+
-IHMtby1iOiBhcmVhIGluIGEgc21hbGwgWyBib3ggXQ0KPg0KPiBTYW1lIGZvciB0aGUgNC4xNCBw
-YXRjaGVzLg0KPg0KPiB0aGFua3MsDQo+DQo+IGdyZWcgay1oDQoNCk9mIGNvdXJzZSBpIHdpbGwg
-ZG8gc28sIGlmIGl0IG1ha2VzIHNlbnNlIGR1ZSB0byBsaXR0bGUgdGVzdGluZyBlZmZvcnQgcG9z
-c2libGUuDQpQbGVhc2UgZ2l2ZSBhIHNob3J0IG5vdGljZSBpZiB5b3UgdGhpbmsgaSBzaG91bGQg
-cmVzZW5kIHRoZSBwYXRjaCBzZXJpZXMuDQoNCk9uZSBxdWVzdGlvbjoNCk91ciBJVCBkZXBhcnRt
-ZW50IGFkZHMgYSBzaWduYXR1cmUgc2luY2UgYSBmZXcgZGF5cywgYWZ0ZXIgYSBsaW5lIHdpdGgg
-Ii0tLS0iLg0KSXMgdGhpcyBhIHByb2JsZW0/IEkgY2FuJ3QgdHVybiB0aGF0IG9mZiwgdW5mb3J0
-dW5hdGVseS4NCihBdCBsZWFzdCB0aGV5IGtlZXAgdGhlICJ0ZXh0IG9ubHkiIGFuZCBkb24ndCBz
-d2l0Y2ggdG8gSFRNTCkNCg0KVGhhbmtzIGZvciB5b3VyIGd1aWRhbmNlIGFuZCBwYXRpZW5jZQ0K
-Q2Fyc3Rlbg0KDQoNCi0tLS0tLS0tLS0tLS0tLS0tDQpNZW50b3IgR3JhcGhpY3MgKERldXRzY2hs
-YW5kKSBHbWJILCBBcm51bGZzdHJhw59lIDIwMSwgODA2MzQgTcO8bmNoZW4gLyBHZXJtYW55DQpS
-ZWdpc3RlcmdlcmljaHQgTcO8bmNoZW4gSFJCIDEwNjk1NSwgR2VzY2jDpGZ0c2bDvGhyZXI6IFRo
-b21hcyBIZXVydW5nLCBBbGV4YW5kZXIgV2FsdGVyDQo=
+On Tue, Apr 14, 2020 at 10:05:09AM +0000, Schmid, Carsten wrote:
+> > > Applies to stable linux-v4.19.y (with y=114).
+> >
+> > Have you been able to test these patches so that you know they work?
+> >
+> I did apply and compile on x86 in both 4.14 and 4.19 (making sure to have all CONFIG_s set
+> to compile the changed code).
+> I then ran 4.14 (project kernel) on our target; however i can't build an
+> encrypted IPv6 tunnel to verify if the patchset helps.
+> (From the patch descriptions, it really looks like they fix this)
+> 
+> IPv6 tunnel testing will be done by other folks in the project, i can't tell when due to
+> the CoVid situation as this requires special equipment that i can't access at all.
+
+Please wait to submit these until you can actually test that they solve
+the issue involved.
+
+> > And can you please send them as a patch series, not as attachments, and
+> >  cc: all the original authors so that everyone can know what is going on
+> > and weigh in if they see any issues?
+> Of course. Sorry that i didn't do this yet.
+> 
+> >
+> > And finally, do not change the changelog text from the original commits,
+> > that's not ok.
+> Except for the "upstream commit id", right?
+
+Correct.
+
+> > If you need to put any notes in there as to what you
+> > did, follow the format we have been using for years, and put it in the
+> > s-o-b: area in a small [ box ]
+> >
+> > Same for the 4.14 patches.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Of course i will do so, if it makes sense due to little testing effort possible.
+> Please give a short notice if you think i should resend the patch series.
+> 
+> One question:
+> Our IT department adds a signature since a few days, after a line with "----".
+> Is this a problem? I can't turn that off, unfortunately.
+> (At least they keep the "text only" and don't switch to HTML)
+
+Is it a problem for what, patches?  It shouldn't be.
+
+thanks,
+
+greg k-h
