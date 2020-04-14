@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29BA01A7A84
+	by mail.lfdr.de (Postfix) with ESMTP id 9560F1A7A85
 	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 14:18:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439990AbgDNMSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 08:18:14 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:56537 "EHLO
+        id S2439992AbgDNMSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 08:18:17 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60353 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439988AbgDNMSK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 08:18:10 -0400
+        by vger.kernel.org with ESMTP id S2439989AbgDNMSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 08:18:13 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id A7087853;
-        Tue, 14 Apr 2020 08:18:04 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id A6687891;
+        Tue, 14 Apr 2020 08:18:12 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 14 Apr 2020 08:18:04 -0400
+  by compute1.internal (MEProxy); Tue, 14 Apr 2020 08:18:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6qQWV4
-        bckEJM0e/Fx2aSz8/zUnOgF8wcwnGy+tpF2SU=; b=ioVhww6ZEip754ui0pZgVz
-        GbRmZZTkxyBLBNXPrzCVNY1aglBxPVmQjQ2M6k5BxfgQp3s6SWut1H6g6YxlwPl4
-        uaa1Hlfx5BSH7/pP3k88RH5V2hBlMTvB2Q+kpCJ2rgtEe971ZIeYIZHNuRmxqPBV
-        sUSACkILSj9qVOQGUd+YGjYCUK3Eh2o2pZYNl77s7FYgsX4ZQeD5/hwK9uadtxPQ
-        TgtbqKhSx6qqV4q/MJZUNwgdVPCxZ0fmaUpfql2RA9HiTtbTfVPbRzs1vpEmVZzx
-        WmqKrLIgRAPcyZeGExucvYyjLkn+qk4/nGALa82NiSOubZIW5LiLXbJBPVHG0bpQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=oDEm0v
+        MpAzw9WIVy+LWYZO0EinNV2CKi+CMARp0hSuo=; b=ypnPA6po0k7HURPld5M/0c
+        UXyJLbUpEElA+Pbpx5UO3x1C3kOtaMBbblVzNKyhqRt4aogdNLuA0dBX1Ee++qhq
+        23saRpkHVIb4W+rJPWtM8UrautRInkMdtbxOZjwWfLjerHUy8YyAuanTmZ+0pc8z
+        MjuoLTGE02CSky4vBRHvmBGyS+NvWB1/jdmjlrab7VaHsW+O4I3THApNcEDl6qaM
+        SdOdn+MJmAvCBxluirWEgzH+j61NoNVS0wtZKwxGyVDCsSvfXku/4dHEWq/6hJZu
+        BmzsxlFm28sWrltOS+rXBfKOclNHYOYDDC4QjS8AHZdhtxh6gYTWJC9JMB6CBjCw
         ==
-X-ME-Sender: <xms:_KmVXqeJmM6Pk45eHdU_FYIMn06p9mLIUWLoiJtk__HueU8YoXTXMw>
+X-ME-Sender: <xms:BKqVXpdNf33Z3R9u041TdPHXXv62e9doIeg0Zu_P5-rkKA8GUSJbnw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfedugdehtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    dtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:_KmVXiLuyxDqOOWdqATMHkWw44BbP1sMufGb8IzKbtHjaJozS8iwRQ>
-    <xmx:_KmVXt0xkFllqsWolXYuB6oZZU1KUNmqzfgp-fJ70k9TPoH_s4pwLg>
-    <xmx:_KmVXsgjsZXGHZyLn6dnnJvwO1Ltww02oczkS0yRCi5zDfq7wapv1w>
-    <xmx:_KmVXjPp08wFu8gp6QzJ_bz5XmivtYVgQevA_WG9UxYXpmlqq9akKw>
+X-ME-Proxy: <xmx:BKqVXgRQpaFiMe0jccwkagi5dO9Nv6WB3x6hqn6RDJEeN6isjf4GHQ>
+    <xmx:BKqVXrsF3mnXmIODdvL4juHzFw-vG5bG_A4o4m8bcAi5f5hlpj0xjw>
+    <xmx:BKqVXkmwOtmi6NbrRnN9otXLJvG_Hxjk63A97ONBRQck-e9MehHgdg>
+    <xmx:BKqVXgcFfnZf3mIxG1wE1pz2FlyYbU7ROXobaEKSDCNhqp3Nnm9yWQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BE8C13060060;
-        Tue, 14 Apr 2020 08:18:03 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] genirq/debugfs: Add missing sanity checks to interrupt" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E8B303060061;
+        Tue, 14 Apr 2020 08:18:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] genirq/debugfs: Add missing sanity checks to interrupt" failed to apply to 4.19-stable tree
 To:     tglx@linutronix.de, maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 14 Apr 2020 14:18:02 +0200
-Message-ID: <1586866682118208@kroah.com>
+Message-ID: <1586866682199227@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
