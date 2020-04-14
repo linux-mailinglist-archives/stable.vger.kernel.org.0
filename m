@@ -2,65 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 856E91A843B
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 18:10:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D2401A8461
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 18:15:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733103AbgDNQK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 12:10:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54308 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732059AbgDNQKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 12:10:22 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08029C061A0C
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 09:10:22 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id h6so220826lfc.0
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 09:10:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:mime-version:content-transfer-encoding
-         :content-description:subject:to:from:date:reply-to;
-        bh=2yeQZnwuF13lMnKdQFwZguKEZ5j/WE5MnJXpR3S5VTg=;
-        b=cJpAWWwYQzrtGEQ8ku7sX/rXJ0XUz+O/JZalr8zqdMA5a2HPRC1hm5hsohSe1gvVeQ
-         rAGWtpikCz+9fqDoqkKH5O9/t8ZAzCE1rMRZC5DOpbLRV/NObAaikBTOvCJ62W1XQ9s/
-         Ln2U7AerAalj6ui+GqUjxkZwUkl1zhfYbjxJL6Q1XVhCTphcdMhwrFCL1r4zuzl45kRG
-         Uk6r+qO6eBFozJJ/RK76m0HNtIH1+eKAPE4oFxmrmzfCCTrBgNbLAADT7Qku0Mc+0sJX
-         ZQlxZx/ze8xXWMnDOwcwLRskB6keuv4NFRWctyuimPW5in9o7VtwuLx/M/C5r9PfG7LZ
-         m0hA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:mime-version
-         :content-transfer-encoding:content-description:subject:to:from:date
-         :reply-to;
-        bh=2yeQZnwuF13lMnKdQFwZguKEZ5j/WE5MnJXpR3S5VTg=;
-        b=fCpgwNzbBk+RXNMWQn26qY8Eao8hr7lk6UhFwYbw/lhIF8cyMMhPs68KyNFay2LIWE
-         9xiT4cfrB/syi82agyB6vbwMZSCG7LYTyqnou7QSr0wnjnGdX7hNEF194D/7vB+ktfXB
-         mRh/uBLTEA+tSVnXFzDLIE9c/bNJxSOgbtYUoXHlSQQhNTHnyMqSmogS53zyshmcDE+6
-         uzM48OcA54taOtfPmfC9SWNREoCJz3RijaMfQVVRiwEMvAK3hQF28ioLN5Mfp17OvjZ7
-         zO951RKEatblLryb4inZLfQ+RSee1tMXG6a/JaIbObngnAREPGqg3Z2iabBFyPXSPM/R
-         QrjQ==
-X-Gm-Message-State: AGi0PuYDwnVOmjTGPZYWn3xjVhtzzbOX6EK+ygdUxFr4V3pZRjY2/pTP
-        CI9yJGRANfwf6ud+Ml0REqI=
-X-Google-Smtp-Source: APiQypJoM91uIJnuKFuie79UUpp6n4AiZfXRAZSIRK2FIaN+VRNC20n8/wk8CFhSoeG2b4KFieZnfA==
-X-Received: by 2002:a19:ee06:: with SMTP id g6mr350147lfb.90.1586880620483;
-        Tue, 14 Apr 2020 09:10:20 -0700 (PDT)
-Received: from User-PC.lan ([196.170.143.63])
-        by smtp.gmail.com with ESMTPSA id b9sm13211553lfp.27.2020.04.14.09.10.14
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Tue, 14 Apr 2020 09:10:19 -0700 (PDT)
-Message-ID: <5e95e06b.1c69fb81.dd41f.ce52@mx.google.com>
-Content-Type: text/plain; charset="iso-8859-1"
+        id S2391331AbgDNQPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 12:15:25 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:59593 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2390411AbgDNQOg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 12:14:36 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20897748-1500050 
+        for multiple; Tue, 14 Apr 2020 17:14:25 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Andi Shyti <andi.shyti@intel.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Francisco Jerez <currojerez@riseup.net>, stable@vger.kernel.org
+Subject: [PATCH 2/2] drm/i915/gt: Shrink the RPS evalution intervals
+Date:   Tue, 14 Apr 2020 17:14:23 +0100
+Message-Id: <20200414161423.23830-2-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200414161423.23830-1-chris@chris-wilson.co.uk>
+References: <20200414161423.23830-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Hello
-To:     Recipients <pricetime03@gmail.com>
-From:   "Miss" <pricetime03@gmail.com>
-Date:   Tue, 14 Apr 2020 16:10:10 +0000
-Reply-To: mayaken2017@gmail.com
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings from Miss Maya Ken, please can I talk with you?
+Try to make RPS dramatically more responsive by shrinking the evaluation
+intervales by a factor of 100! The issue is as we now park the GPU
+rapidly upon idling, a short or bursty workload such as the composited
+desktop never sustains enough work to fill and complete an evaluation
+window. As such, the frequency we program remains stuck. This was first
+reported as once boosted, we never relinquished the boost [see commit
+21abf0bf168d ("drm/i915/gt: Treat idling as a RPS downclock event")] but
+it equally applies in the order direction for bursty workloads that
+*need* low latency, like desktop animations.
+
+What we could try is preserve the incomplete EI history across idling,
+it is not clear whether that would be effective, nor whether the
+presumption of continuous workloads is accurate. A clearer path seems to
+treat it as symptomatic that we fail to handle bursty workload with the
+current EI, and seek to address that by shrinking the EI so the
+evaluations are run much more often.
+
+This will likely entail more frequent interrupts, and by the time we
+process the interrupt in the bottom half [from inside a worker], the
+workload on the GPU has changed. To address the changeable nature, in
+the previous patch we compared the previous complete EI with the
+interrupt request and only up/down clock if both agree. The impact of
+asking for, and presumably, receiving more interrupts is still to be
+determined and mitigations sought. The first idea is to differentiate
+between up/down responsivity and make upclocking more responsive than
+downlocking. This should both help thwart jitter on bursty workloads by
+making it easier to increase than it is to decrease frequencies, and
+reduce the number of interrupts we would need to process.
+
+Fixes: 21abf0bf168d ("drm/i915/gt: Treat idling as a RPS downclock event")
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1698
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Andi Shyti <andi.shyti@intel.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Francisco Jerez <currojerez@riseup.net>
+Cc: <stable@vger.kernel.org> # v5.5+
+---
+ drivers/gpu/drm/i915/gt/intel_rps.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
+index 367132092bed..47ddb25edc97 100644
+--- a/drivers/gpu/drm/i915/gt/intel_rps.c
++++ b/drivers/gpu/drm/i915/gt/intel_rps.c
+@@ -542,37 +542,38 @@ static void rps_set_power(struct intel_rps *rps, int new_power)
+ 	/* Note the units here are not exactly 1us, but 1280ns. */
+ 	switch (new_power) {
+ 	case LOW_POWER:
+-		/* Upclock if more than 95% busy over 16ms */
+-		ei_up = 16000;
++		/* Upclock if more than 95% busy over 160us */
++		ei_up = 160;
+ 		threshold_up = 95;
+ 
+-		/* Downclock if less than 85% busy over 32ms */
+-		ei_down = 32000;
++		/* Downclock if less than 85% busy over 1600us */
++		ei_down = 1600;
+ 		threshold_down = 85;
+ 		break;
+ 
+ 	case BETWEEN:
+-		/* Upclock if more than 90% busy over 13ms */
+-		ei_up = 13000;
++		/* Upclock if more than 90% busy over 160us */
++		ei_up = 160;
+ 		threshold_up = 90;
+ 
+-		/* Downclock if less than 75% busy over 32ms */
+-		ei_down = 32000;
++		/* Downclock if less than 75% busy over 1600us */
++		ei_down = 1600;
+ 		threshold_down = 75;
+ 		break;
+ 
+ 	case HIGH_POWER:
+-		/* Upclock if more than 85% busy over 10ms */
+-		ei_up = 10000;
++		/* Upclock if more than 85% busy over 160us */
++		ei_up = 160;
+ 		threshold_up = 85;
+ 
+-		/* Downclock if less than 60% busy over 32ms */
+-		ei_down = 32000;
++		/* Downclock if less than 60% busy over 1600us */
++		ei_down = 1600;
+ 		threshold_down = 60;
+ 		break;
+ 	}
+ 
+-	/* When byt can survive without system hang with dynamic
++	/*
++	 * When byt can survive without system hang with dynamic
+ 	 * sw freq adjustments, this restriction can be lifted.
+ 	 */
+ 	if (IS_VALLEYVIEW(i915))
+-- 
+2.20.1
+
