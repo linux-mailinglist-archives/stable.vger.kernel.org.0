@@ -2,106 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F11381A70B7
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 03:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E9731A70C5
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 04:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403892AbgDNB4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Apr 2020 21:56:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51886 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403886AbgDNB4a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Apr 2020 21:56:30 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20FF22072A;
-        Tue, 14 Apr 2020 01:56:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586829389;
-        bh=Cd82VnejhhkQscnV18lC9k8mbe1pFiTSGkbEBDM4dmQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HjPCcC7u/wzSi+5wVMPcigjuCFvZs4lUbdo4gR7AOd+2cudiOgjnd38RmtON3hy0J
-         Tgc73Upi/Kxqo0uRXnISaBi0dymURPNbjIbK7LE2ZSWl9fkQo5jkP6nrXgHSC39dBa
-         mhK2+y7I+Ood2+r+L81amwlf50n8cVTw1Jou5kok=
-Date:   Mon, 13 Apr 2020 21:56:28 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Or Gerlitz <gerlitz.or@gmail.com>, Stable <stable@vger.kernel.org>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        David Miller <davem@davemloft.net>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
- representors
-Message-ID: <20200414015627.GA1068@sasha-vm>
-References: <20200411231413.26911-1-sashal@kernel.org>
- <20200411231413.26911-9-sashal@kernel.org>
- <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
- <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S2403924AbgDNCAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Apr 2020 22:00:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33484 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727867AbgDNCAH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 22:00:07 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FEE4C0A3BDC
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 19:00:07 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id w3so4097792plz.5
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 19:00:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=jioPbgVo9Yj4CEfIRDyGfI7olAR404zuuwj5DU8a6S4=;
+        b=naRICs6tMO6+WIKTe7Ons2paw6UBSb4LdcNdrI/d+kTWuuycOKOPYv2fuFqdTH3rW9
+         WM94EfazlRNSg/dj+NjhNldXzxg3HUSs2+/GosK9qtJkFzWrrCfsKTKvPf7j9s7IvGOj
+         vXZ2Y3437zLOdiANxDgcOh7/UwJnnZOKdGre6Cw02aPflfwJyXnVeCcUhbOd0GkMHi4K
+         dafjueOQSuWcfF+FWI2WYSadCNQ4gOjsdyOYdjiHsKYdwklqROSfTT12lprrI0pSZFmp
+         bobLm1ZbY0irdZNyFv6sINdlNUL3nEOvFyvKb3GDOlIqsqJslVxNwjnyqwR2c0pG8MZL
+         pCpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=jioPbgVo9Yj4CEfIRDyGfI7olAR404zuuwj5DU8a6S4=;
+        b=kw0XiLJm4Jt+9G0yo2Hkb56Ad3w/Tehc7B3n5rDbMsIW9nOqdqyi4V8vPDEWYQowMn
+         uQZN0IL52zzvVNhR4PgFEytTPdTW+kU47s7/TB4Lr9PUpeDTb1LG2E1iD5woFErJwMye
+         p0Zh3jTQnr1NYrjIhalx3NaBweUydhXpVxcuA1wcDHmvAzMrLdquQOVmYQ88qHpVN/1+
+         VhLl+8WFNbWqXYhNzZsW3XDffBzRyHP2mesW1BSVZ8Rp6lN0nuyhqlLXAnFoiskUrqfj
+         Z+KwHsgyeysGtuv22rENLbZJQ4A2w2LlkPKIyj76mzkeBeIgGAYAvww2GK/OkMQzvtLG
+         rrWQ==
+X-Gm-Message-State: AGi0PubMeIj57OUJAtfMToE7cYJohONb8MeqahznFNr0fwN0B9Vp6RJK
+        H6Q6ZFUeCpdCErf4lDRAcuI=
+X-Google-Smtp-Source: APiQypLJzTcMq383lhPvI/c4rqgqPjiU3o5IrIj0BOxlMdOGRS6muNQ2z+5gT7A3Y+povs0vMyaGEg==
+X-Received: by 2002:a17:90b:2355:: with SMTP id ms21mr14031489pjb.163.1586829606806;
+        Mon, 13 Apr 2020 19:00:06 -0700 (PDT)
+Received: from localhost.localdomain ([203.100.54.194])
+        by smtp.gmail.com with ESMTPSA id y126sm4496835pgy.91.2020.04.13.19.00.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Apr 2020 19:00:05 -0700 (PDT)
+From:   Yafang Shao <laoar.shao@gmail.com>
+To:     shakeelb@google.com, chris@chrisdown.name, hannes@cmpxchg.org,
+        mhocko@kernel.org, vdavydov.dev@gmail.com,
+        akpm@linux-foundation.org
+Cc:     linux-mm@kvack.org, Yafang Shao <laoar.shao@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] mm, memcg: fix inconsistent oom event behavior
+Date:   Mon, 13 Apr 2020 21:59:52 -0400
+Message-Id: <20200414015952.3590-1-laoar.shao@gmail.com>
+X-Mailer: git-send-email 2.18.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 12, 2020 at 10:59:35AM -0700, Jakub Kicinski wrote:
->On Sun, 12 Apr 2020 10:10:22 +0300 Or Gerlitz wrote:
->> On Sun, Apr 12, 2020 at 2:16 AM Sasha Levin <sashal@kernel.org> wrote:
->>
->> > [ Upstream commit 6783e8b29f636383af293a55336f036bc7ad5619 ]
->>
->> Sasha,
->>
->> This was pushed to net-next without a fixes tag, and there're probably
->> reasons for that.
->> As you can see the possible null deref is not even reproducible without another
->> patch which for itself was also net-next and not net one.
->>
->> If a team is not pushing patch to net nor putting a fixes that, I
->> don't think it's correct
+A recent commit 9852ae3fe529 ("mm, memcg: consider subtrees in
+memory.events") changes the behavior of memcg events, which will
+consider subtrees in memory.events. But oom_kill event is a special one
+as it is used in both cgroup1 and cgroup2. In cgroup1, it is displayed
+in memory.oom_control. The file memory.oom_control is in both root memcg
+and non root memcg, that is different with memory.event as it only in
+non-root memcg. That commit is okay for cgroup2, but it is not okay for
+cgroup1 as it will cause inconsistent behavior between root memcg and
+non-root memcg.
 
-While it's great that you're putting the effort into adding a fixes tag
-to your commits, I'm not sure what a fixes tag has to do with inclusion
-in a stable tree.
+Here's an example on why this behavior is inconsistent in cgroup1.
+     root memcg
+     /
+  memcg foo
+   /
+memcg bar
 
-It's a great help when we look into queueing something up, but on it's
-own it doesn't imply anything.
+Suppose there's an oom_kill in memcg bar, then the oon_kill will be
 
->> to go and pick that into stable and from there to customer production kernels.
+     root memcg : memory.oom_control(oom_kill)  0
+     /
+  memcg foo : memory.oom_control(oom_kill)  1
+   /
+memcg bar : memory.oom_control(oom_kill)  1
 
-This mail is your two week warning that this patch might get queued to
-stable, nothing was actually queued just yet.
+For the non-root memcg, its memory.oom_control(oom_kill) includes its
+descendants' oom_kill, but for root memcg, it doesn't include its
+descendants' oom_kill. That means, memory.oom_control(oom_kill) has
+different meanings in different memcgs. That is inconsistent. Then the user
+has to know whether the memcg is root or not.
 
->> Alsom, I am not sure what's the idea behind the auto-selection concept, e.g for
->> mlx5 the maintainer is specifically pointing which patches should go
->> to stable and
+If we can't fully support it in cgroup1, for example by adding
+memory.events.local into cgroup1 as well, then let's don't touch
+its original behavior. So let's recover the original behavior for cgroup1.
 
-I'm curious, how does this process work? Is it on a mailing list
-somewhere?
+Fixes: 9852ae3fe529 ("mm, memcg: consider subtrees in memory.events")
+Cc: Chris Down <chris@chrisdown.name>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+---
+ include/linux/memcontrol.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
->> to what releases there and this is done with care and thinking ahead, why do we
->> want to add on that? and why this can be something which is just
->> automatic selection?
->>
->> We have customers running production system with LTS 4.4.x and 4.9.y (along with
->> 4.14.z and 4.19.w) kernels, we put lots of care thinking if/what
->> should go there, I don't
->> see a benefit from adding auto-selection, the converse.
->
->FWIW I had the same thoughts about the nfp driver, and I indicated to
->Sasha to skip it in the auto selection, which AFAICT worked nicely.
->
->Maybe we should communicate more clearly that maintainers who carefully
->select patches for stable should opt out of auto-selection?
-
-I've added drivers/net/ethernet/mellanox/ to my blacklist for auto
-selection. It's very easy to opt out, just ask... I've never argued with
-anyone around this - the maintainers of any given subsystem know about
-it way better than me.
-
+diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+index 8c340e6b347f..a0ae080a67d1 100644
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -798,7 +798,8 @@ static inline void memcg_memory_event(struct mem_cgroup *memcg,
+ 		atomic_long_inc(&memcg->memory_events[event]);
+ 		cgroup_file_notify(&memcg->events_file);
+ 
+-		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
++		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS ||
++		    !cgroup_subsys_on_dfl(memory_cgrp_subsys))
+ 			break;
+ 	} while ((memcg = parent_mem_cgroup(memcg)) &&
+ 		 !mem_cgroup_is_root(memcg));
 -- 
-Thanks,
-Sasha
+2.18.2
+
