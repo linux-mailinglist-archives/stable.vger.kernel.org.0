@@ -2,118 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D387F1A74E8
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 09:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A90771A74F6
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 09:39:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729428AbgDNHg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 03:36:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59146 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729308AbgDNHgz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 03:36:55 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28514C0A3BDC
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 00:36:55 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id a25so13137854wrd.0
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 00:36:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=IsnIK9bQE2LuCTLv2q71KOwWCpFnc/vSo4lm6j3/7xc=;
-        b=NLwftW0bzHWjAyvWR+oY1b3BNaFahQChWuhb8pQyuWItgZmyQgS9e0zp7mGGgH+hd3
-         u8rVQfICkp8VE88xd3t7n39Hy36xQNZ5c/qViAofVBukAwgzR4bUbR7Ke+4DXL+d9xr1
-         AGCQcMbVsOBSf23SxJpikv2Ng9HUtMjKxdmgR7ko28VQ/OzDOdfZV8PBILpzifCfCHK3
-         vntrL//0rjhyJihAKfRinPJGHOA7Le4pQNn8tfwzNLyWRDo+DZvZTP3Ot9ajqr2YMC1L
-         DHTcYPnSw5i52ExoamdH35vAAqZVEdEhQGFyEH+EXM3GDiyvQbBixgaY/djWWrYCOl+I
-         T/Jg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=IsnIK9bQE2LuCTLv2q71KOwWCpFnc/vSo4lm6j3/7xc=;
-        b=RZDN0sHpgtXIPFIJFkpbVXkdtSsCH/P9pyWE34gLYru9Plk3JeuaztXPfxQ1D/TWNv
-         XVZroA/N9F1tMIAZvqanLVV4r7hcERqr3DS5M/9MckGjCBODIco/mv3WlQJa/k26yfnT
-         QTndJ71NDLddlwnKyZtxvkRczMalMtQC9uajUsx/kF6/I2tgNStkr8IeyUUC+tPMUhJb
-         MXoezPctHeREfvQKHxHS1bXtJrLdY98akHUg6CuVr3qoyyduV7cW1EGrpb86gobD7VV6
-         jI3BnF8kBPGiq6GwdLUBzRLSzRiL1Y3ICU5VCxjWXVZDRltCHJHWVhBUD3zBXI0rpe4c
-         yAIQ==
-X-Gm-Message-State: AGi0PuZrfXEvEy0BdN+NFHfb8M9ifCylba87T1bBBZfT3meeNcilJumT
-        z4yThUSZXv0s+4gchFhBgQ75TA==
-X-Google-Smtp-Source: APiQypKZHp/Wioy0LK8BEGEXCXuKxx0E5X9If0mzrToO5uRK9nIXYcXUCD3uWDv7A05xn9+ObXBfJQ==
-X-Received: by 2002:a5d:4b90:: with SMTP id b16mr12450587wrt.16.1586849813778;
-        Tue, 14 Apr 2020 00:36:53 -0700 (PDT)
-Received: from dell ([95.149.164.124])
-        by smtp.gmail.com with ESMTPSA id r2sm17862289wmg.2.2020.04.14.00.36.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Apr 2020 00:36:53 -0700 (PDT)
-Date:   Tue, 14 Apr 2020 08:37:53 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH 4.19 11/13] perf/core: Reattach a misplaced comment
-Message-ID: <20200414073753.GA2167633@dell>
-References: <20200403121859.901838-1-lee.jones@linaro.org>
- <20200403121859.901838-12-lee.jones@linaro.org>
- <20200403122604.GA3928660@kroah.com>
- <20200403125246.GE30614@dell>
- <87y2rc66u9.fsf@ashishki-desk.ger.corp.intel.com>
- <20200411114937.GG2606747@kroah.com>
+        id S2406765AbgDNHjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 03:39:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2406729AbgDNHjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Apr 2020 03:39:44 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB56120575;
+        Tue, 14 Apr 2020 07:39:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586849984;
+        bh=edxQpEFkBSzkFVtvya0lPsDxwYwBrW2CbC6KjSBuEsM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=iNjCDYtZ8DdCwmEp4Ck3M8nYgvdW85PFQQuvaPwItUwhJGktTWB8vSrLIPQz1X034
+         3wJ5tJN0KzmtXdCUJLNTS1sKt5UlHy+Qr+xN9heYpeBNVf/mMRgzRkUZ5kBR4RRtKV
+         azHWi8Roh6E2kRAGASx2RAv4aEPP1tc7Nm3cp2Kc=
+Date:   Tue, 14 Apr 2020 09:39:42 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     valex@mellanox.com, jgg@mellanox.com, lariel@mellanox.com,
+        leonro@mellanox.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] IB/mlx5: Replace tunnel mpls capability
+ bits for" failed to apply to 4.19-stable tree
+Message-ID: <20200414073942.GD4111599@kroah.com>
+References: <1586509303211183@kroah.com>
+ <20200414022659.GB1068@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200411114937.GG2606747@kroah.com>
+In-Reply-To: <20200414022659.GB1068@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 11 Apr 2020, Greg KH wrote:
-
-> On Fri, Apr 03, 2020 at 04:23:42PM +0300, Alexander Shishkin wrote:
-> > Lee Jones <lee.jones@linaro.org> writes:
+On Mon, Apr 13, 2020 at 10:26:59PM -0400, Sasha Levin wrote:
+> On Fri, Apr 10, 2020 at 11:01:43AM +0200, gregkh@linuxfoundation.org wrote:
 > > 
-> > > On Fri, 03 Apr 2020, Greg KH wrote:
-> > >
-> > >> > +	/*
-> > >> > +	 * Get the target context (task or percpu):
-> > >> > +	 */
-> > >> >  	ctx = find_get_context(event->pmu, task, event);
-> > >> >  	if (IS_ERR(ctx)) {
-> > >> >  		err = PTR_ERR(ctx);
-> > >> 
-> > >> Unless this is needed by a follow-on patch, I kind of doubt thsi is
-> > >> needed in a stable kernel release :)
-> > >
-> > > I believe you once called this "debugging the comments", or
-> > > similar. :)
-> > >
-> > > No problem though - happy to drop it from this and other sets.
+> > The patch below does not apply to the 4.19-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
 > > 
-> > It's a precursor to dce5affb94eb54edfff17727a6240a6a5d998666, which I
-> > think is a stable candidate.
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > > From 41e684ef3f37ce6e5eac3fb5b9c7c1853f4b0447 Mon Sep 17 00:00:00 2001
+> > From: Alex Vesker <valex@mellanox.com>
+> > Date: Thu, 5 Mar 2020 14:38:41 +0200
+> > Subject: [PATCH] IB/mlx5: Replace tunnel mpls capability bits for
+> > tunnel_offloads
+> > 
+> > Until now the flex parser capability was used in ib_query_device() to
+> > indicate tunnel_offloads_caps support for mpls_over_gre/mpls_over_udp.
+> > 
+> > Newer devices and firmware will have configurations with the flexparser
+> > but without mpls support.
+> > 
+> > Testing for the flex parser capability was a mistake, the tunnel_stateless
+> > capability was intended for detecting mpls and was introduced at the same
+> > time as the flex parser capability.
+> > 
+> > Otherwise userspace will be incorrectly informed that a future device
+> > supports MPLS when it does not.
+> > 
+> > Link: https://lore.kernel.org/r/20200305123841.196086-1-leon@kernel.org
+> > Cc: <stable@vger.kernel.org> # 4.17
+> > Fixes: e818e255a58d ("IB/mlx5: Expose MPLS related tunneling offloads")
+> > Signed-off-by: Alex Vesker <valex@mellanox.com>
+> > Reviewed-by: Ariel Levkovich <lariel@mellanox.com>
+> > Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+> > Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 > 
-> Ok, but that's not part of this patch series, so how was I supposed to
-> know that?  :)
+> The conflict was around the cqe_checksum_full cap bit being exposed by
+> db849faa9bef ("net/mlx5e: Rx, Fix checksum calculation for new
+> hardware").
+> 
+> I've resolved it by exposing cqe_checksum_full, but *not* taking
+> db849faa9bef.
 
-It wasn't going to be part of mine either, since it's missing from the
-Sony vendor tree (the repo I'm analysing to identify these Stable
-backports), thus I've dropped the patch.
+Thanks for doing this!
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+greg k-h
