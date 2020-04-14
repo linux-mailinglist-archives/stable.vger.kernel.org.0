@@ -2,106 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 975A41A8D0A
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 23:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 455C71A8D0C
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 23:00:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633542AbgDNVA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 17:00:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33214 "EHLO mail.kernel.org"
+        id S2633537AbgDNVAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 17:00:49 -0400
+Received: from mx1.riseup.net ([198.252.153.129]:53450 "EHLO mx1.riseup.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2633537AbgDNVAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Apr 2020 17:00:21 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EFF72074D;
-        Tue, 14 Apr 2020 21:00:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586898020;
-        bh=6G2/vfk2ReP/+PTtbaAtPxqfNSuvlRFbgcyWRQC/iLE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JszQeDZmateD3mlWMyLHBZ3ovjdzaOTek/f35yZ5gnDsOIrlkA49HDaYzesVBiWsE
-         QKxBd6hCCE6GaeuGQOsttTQjgv6GR7oEHgqm90dkckSxAMAAtJLzryuBJ3sd2ryOd+
-         MlbE4oG99CjwfbRus6YyqT8jZ3qmIffYR4JRLSEg=
-Date:   Tue, 14 Apr 2020 17:00:19 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     Edward Cree <ecree@solarflare.com>,
-        Or Gerlitz <gerlitz.or@gmail.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        David Miller <davem@davemloft.net>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
- representors
-Message-ID: <20200414210019.GG1068@sasha-vm>
-References: <20200411231413.26911-1-sashal@kernel.org>
- <20200411231413.26911-9-sashal@kernel.org>
- <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
- <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20200414015627.GA1068@sasha-vm>
- <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
- <20200414110911.GA341846@kroah.com>
- <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
- <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
- <20200414173718.GE1011271@unreal>
+        id S2633543AbgDNVAq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Apr 2020 17:00:46 -0400
+Received: from capuchin.riseup.net (unknown [10.0.1.176])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (Client CN "*.riseup.net", Issuer "Sectigo RSA Domain Validation Secure Server CA" (not verified))
+        by mx1.riseup.net (Postfix) with ESMTPS id 491yYY13d1zFg51;
+        Tue, 14 Apr 2020 14:00:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=riseup.net; s=squak;
+        t=1586898032; bh=ZEOB9W6Z4LL6CWZYueeT7KlvOkyoesqxMV+xhznkmkQ=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=iGwaZan1vIG/ALUYJ0jg0QVfbMCveZB6UHS6Y/4M9Lpry0rSnnTdBgXs4dhyaEO7b
+         DFEqNxg2utJMJHsFweK4WFeDRkDqi8uDdBmZ+UHPlLxL+TzivdUihUvS1E69M+p6Ay
+         6pC71ekrdcBHB8vz2zZEo+GY0pGdT9D8sg+aR0iU=
+X-Riseup-User-ID: 67D54B954DC4DD4B60AD02AAAEE5CEEBB138A57D2C8DBBCE02E320F96DD597D2
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+         by capuchin.riseup.net (Postfix) with ESMTPSA id 491yYX3yDkz8v7w;
+        Tue, 14 Apr 2020 14:00:16 -0700 (PDT)
+From:   Francisco Jerez <currojerez@riseup.net>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org,
+        "Wilson\, Chris P" <chris.p.wilson@intel.com>
+Subject: Re: [Intel-gfx] [PATCH 2/2] drm/i915/gt: Shrink the RPS evalution intervals
+In-Reply-To: <158689519187.24667.5193852715594735657@build.alporthouse.com>
+References: <20200414161423.23830-1-chris@chris-wilson.co.uk> <20200414161423.23830-2-chris@chris-wilson.co.uk> <158688212611.24667.7132327074792389398@build.alporthouse.com> <87pnc9zwjf.fsf@riseup.net> <158689519187.24667.5193852715594735657@build.alporthouse.com>
+Date:   Tue, 14 Apr 2020 14:00:25 -0700
+Message-ID: <87lfmxzst2.fsf@riseup.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200414173718.GE1011271@unreal>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: multipart/signed; boundary="==-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 08:37:18PM +0300, Leon Romanovsky wrote:
->On Tue, Apr 14, 2020 at 04:49:20PM +0100, Edward Cree wrote:
->> On 14/04/2020 16:16, Sasha Levin wrote:
->> > Are you suggesting that a commit without a fixes tag is never a fix?
->> Because fixes are much more likely than non-fixes to have a Fixes tag,
->>  the absence of a fixes tag is Bayesian evidence that a commit is not
->>  a fix.  It's of course not incontrovertible evidence, since (as you
->>  note) some fixes do not have a Fixes tag, but it does increase the
->>  amount of countervailing evidence needed to conclude a commit is a fix.
->> In this case it looks as if the only such evidence was that the commit
->>  message included the phrase "NULL pointer dereference".
->>
->> > Fixes can (and should) come in during a merge window as well. They are
->> > not put on hold until the -rc releases.
->> In networking-land, fixes generally go through David's 'net' tree, rather
->>  than 'net-next'; the only times a fix goes to net-next are when
->> a) the code it's fixing is only in net-next; i.e. it's a fix to a previous
->>  patch from the same merge window.  In this case the fix should not be
->>  backported, since the code it's fixing will not appear in stable kernels.
->> b) the code has changed enough between net and net-next that different
->>  fixes are appropriate for the two trees.  In this case, only the fix that
->>  went to 'net' should be backported (since it's the one that's appropriate
->>  for net, it's probably more appropriate for stable trees too); the fix
->>  that went to 'net-next' should not.
->> Or's original phrasing was that this patch "was pushed to net-next", which
->>  is not quite exactly the same thing as -next vs. -rc (though it's similar
->>  because of David's system of closing net-next for the duration of the
->>  merge window).  And this, again, is quite strong Bayesian evidence that
->>  the patch should not be selected for stable.
->>
->> To be honest, that this needs to be explained to you does not inspire
->>  confidence in the quality of your autoselection process...
->
->It is a little bit harsh to say that.
->
->The autoselection process works good enough for everything outside
->of netdev community. The amount of bugs in those stable@ trees is
->not such high if you take into account the amount of fixes automatically
->brought in.
+--==-=-=
+Content-Type: multipart/mixed; boundary="=-=-="
 
-I'll add that it's funny that we're discussing AUTOSEL in this context
-given that a conversation I had with Leon quite a few years back around
-issues with Mellanox patches not going to -stable was one of the
-triggers for AUTOSEL :)
+--=-=-=
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Thanks,
-Sasha
+Chris Wilson <chris@chris-wilson.co.uk> writes:
+
+> Quoting Francisco Jerez (2020-04-14 20:39:48)
+>> Chris Wilson <chris@chris-wilson.co.uk> writes:
+>>=20
+>> > Quoting Chris Wilson (2020-04-14 17:14:23)
+>> >> Try to make RPS dramatically more responsive by shrinking the evaluat=
+ion
+>> >> intervales by a factor of 100! The issue is as we now park the GPU
+>> >> rapidly upon idling, a short or bursty workload such as the composited
+>> >> desktop never sustains enough work to fill and complete an evaluation
+>> >> window. As such, the frequency we program remains stuck. This was fir=
+st
+>> >> reported as once boosted, we never relinquished the boost [see commit
+>> >> 21abf0bf168d ("drm/i915/gt: Treat idling as a RPS downclock event")] =
+but
+>> >> it equally applies in the order direction for bursty workloads that
+>> >> *need* low latency, like desktop animations.
+>> >>=20
+>> >> What we could try is preserve the incomplete EI history across idling,
+>> >> it is not clear whether that would be effective, nor whether the
+>> >> presumption of continuous workloads is accurate. A clearer path seems=
+ to
+>> >> treat it as symptomatic that we fail to handle bursty workload with t=
+he
+>> >> current EI, and seek to address that by shrinking the EI so the
+>> >> evaluations are run much more often.
+>> >>=20
+>> >> This will likely entail more frequent interrupts, and by the time we
+>> >> process the interrupt in the bottom half [from inside a worker], the
+>> >> workload on the GPU has changed. To address the changeable nature, in
+>> >> the previous patch we compared the previous complete EI with the
+>> >> interrupt request and only up/down clock if both agree. The impact of
+>> >> asking for, and presumably, receiving more interrupts is still to be
+>> >> determined and mitigations sought. The first idea is to differentiate
+>> >> between up/down responsivity and make upclocking more responsive than
+>> >> downlocking. This should both help thwart jitter on bursty workloads =
+by
+>> >> making it easier to increase than it is to decrease frequencies, and
+>> >> reduce the number of interrupts we would need to process.
+>> >
+>> > Another worry I'd like to raise, is that by reducing the EI we risk
+>> > unstable evaluations. I'm not sure how accurate the HW is, and I worry
+>> > about borderline workloads (if that is possible) but mainly the worry =
+is
+>> > how the HW is sampling.
+>> >
+>> > The other unmentioned unknown is the latency in reprogramming the
+>> > frequency. At what point does it start to become a significant factor?
+>> > I'm presuming the RPS evaluation itself is free, until it has to talk
+>> > across the chip to send an interrupt.
+>> > -Chris
+>>=20
+>> At least on ICL the problem which this patch and 21abf0bf168d were
+>> working around seems to have to do with RPS interrupt delivery being
+>> inadvertently blocked for extended periods of time.  Looking at the GPU
+>> utilization and RPS events on a graph I could see the GPU being stuck at
+>> low frequency without any RPS interrupts firing, for a time interval
+>> orders of magnitude greater than the EI we're theoretically programming
+>> today.  IOW it seems like the real problem isn't that our EIs are too
+>> long, but that we're missing a bunch of them.
+>>=20
+>> The solution I was suggesting for this on IRC during the last couple of
+>> days wouldn't have any of the drawbacks you mention above, I'll send it
+>> to this list in a moment if the general approach seems okay to you:
+>>=20
+>> https://github.com/curro/linux/commit/f7bc31402aa727a52d957e62d985c6dae6=
+be4b86
+>
+> We were explicitly told to mask the interrupt generation at source
+> to conserve power. So I would hope for a statement as to whether that is
+> still a requirement from the HW architects; but I can't see why we would
+> not apply the mask and that this is just paper. If the observation about
+> forcewake tallies, would this not suggest that it is still conserving
+> power on icl?
+>
+
+Yeah, it's hard to see how disabling interrupt generation could save any
+additional power in a unit which is powered off -- At least on ICL where
+even the interrupt masking register is powered off...
+
+> I haven't looked at whether I see the same phenomenon as you [missing
+> interrupts on icl] locally, but I was expecting something like the bug
+> report since the observation that render times are less than EI was
+> causing the clocks to stay high. And I noticed your problem statement
+> and was hopeful for a link.
+>
+
+Right.  In the workloads I was looking at last week the GPU would often
+be active for periods of time several times greater than the EI, and we
+would still fail to clock up.
+
+> They sound like two different problems. (Underclocking for animations is
+> not icl specific.)
+>
+
+Sure.  But it seems like the underclocking problem has been greatly
+exacerbated by 21abf0bf168d, which may have been mitigating the same ICL
+problem I was looking at leading to RPS interrupt loss.  Maybe
+21abf0bf168d wouldn't be necessary with working RPS interrupt delivery?
+And without 21abf0bf168d platforms earlier than ICL wouldn't have as
+much of an underclocking problem either.
+
+>> That said it *might* be helpful to reduce the EIs we use right now in
+>> addition, but a factor of 100 seems over the top since that will cause
+>> the evaluation interval to be roughly two orders of magnitude shorter
+>> than the rendering time of a typical frame, which can lead to massive
+>> oscillations even in workloads that use a small fraction of the GPU time
+>> to render a single frame.  Maybe we want something in between?
+>
+> Probably; as you can guess these were pulled out of nowhere based on the
+> observation that the frame lengths are much shorter than the current EI
+> and that in order for us to ramp up to maxclocks in a single frame of
+> animation would take about 4 samples per frame. Based on the reporter's
+> observations, we do have to ramp up very quickly for single frame of
+> rendering in order to hit the vblank, as we are ramping down afterwards.
+>
+> With a target of 4 samples within say 1ms, 160us isn't too far of the
+> mark. (We have to allow some extra time to catch up rendering.)
+
+
+How about we stop ramping down after the rendering of a single frame?
+It's not like we save any power by doing that, since the GPU seems to be
+forced to the minimum frequency for as long as it remains parked anyway.
+If the GPU remains idle long enough for the RPS utilization counters to
+drop below the threshold and qualify for a ramp-down the RPS should send
+us an interrupt, at which point we will ramp down the frequency.
+
+Unconditionally ramping down on parking seems to disturb the accuracy of
+that RPS feedback loop, which then needs to be worked around by reducing
+the averaging window of the RPS to a tiny fraction of the oscillation
+period of any typical GPU workload, which is going to prevent the RPS
+from seeing a whole oscillation period before it reacts, which is almost
+guaranteed to have a serious energy-efficiency cost.
+
+>
+> As for steady state workloads, I'm optimistic the smoothing helps. (It's
+> harder to find steady state, unthrottled workloads!)
+
+I'm curious, how is that smoothing you do in PATCH 1 better than simply
+setting 2x the EIs? (Which would also mean half the interrupt processing
+overhead as in this series)
+
+> -Chris
+
+--=-=-=--
+
+--==-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEAREIAB0WIQST8OekYz69PM20/4aDmTidfVK/WwUCXpYkaQAKCRCDmTidfVK/
+W0xIAP0WttSfHO/26gqHGJjULj7NIyHzq5RX14x9R8nCMygthgD+MPWflfx2vIpg
+7ew5yQGfMZqshKU0B6Y45VBFOp+KU9Q=
+=3kin
+-----END PGP SIGNATURE-----
+--==-=-=--
