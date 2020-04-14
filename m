@@ -2,98 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 653071A79CA
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 13:42:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07D6A1A7A50
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 14:06:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439490AbgDNLmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 07:42:38 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:37603 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2439481AbgDNLmf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 07:42:35 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id B5CA59B4;
-        Tue, 14 Apr 2020 07:42:34 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 14 Apr 2020 07:42:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=wG13IX
-        B5Qp6VOasvsR6q3x2BjfUnCQB2DJ6RpuSm7w4=; b=IsnBQL3Mp9FdPF4F5kcjsC
-        t7Qo0WyHwWiNChyG6nVq1re6tKD/MAlJO6jEA34cPXYfckKQms5A/r3xgXhzNRUe
-        utBMU684r4rDjtRI4DT6Wmlrj/RlNZH6BFbIJVTRYq45FDZCCK1XhdtDYY4Uoldu
-        d56oCMCdVbyPWd7ZjNlBDyg5W5WazLfyuKYmGX6m9eedul8fX6ic4ynLbfwzCEr2
-        2a6VbCLI0cNDSJM8vTgdphwaNRVAsLWgrKWtphVmM6lXzRudeVMtOHMtZavIBn19
-        ImAzZ4S63tKkI1/HRxyRTCCdbJxDlrc1LXGeRDfYEvshW9P3n1L7N4LNzB4Z1IZA
-        ==
-X-ME-Sender: <xms:qqGVXhFLWKiJs5woPr7JdoBz5F2whlqqad7x63yOWHwGh9M7SWq1TA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfedugdegfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
-    rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:qqGVXsw-HQKDpgR99Zu0Wb8JhImETb9-gpqVtm1Rf7pEfSDYO-Un0g>
-    <xmx:qqGVXr87HsdzrMsWJUC4tVT4zBEoSiMoR4GKunSEdpmn52sQFJo2Lw>
-    <xmx:qqGVXmX-UBjT_i6_a8qAkhX5lMiA9e_7_yM43ldzhw6WQ3Gk9MZmaQ>
-    <xmx:qqGVXuvc14qWp9WO_YNGJt4Q6XDbHIDxoBOq1HNwr-oN6ZnSJvxN4w>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F2304306005B;
-        Tue, 14 Apr 2020 07:42:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] erofs: correct the remaining shrink objects" failed to apply to 5.4-stable tree
-To:     xiang@kernel.org, gaoxiang25@huawei.com, stable@vger.kernel.org,
-        yuchao0@huawei.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 14 Apr 2020 13:42:25 +0200
-Message-ID: <1586864545119140@kroah.com>
+        id S2439856AbgDNMGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 08:06:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44280 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2439854AbgDNMGR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 08:06:17 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71BADC061A0C
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 05:06:17 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id o1so4268566pjs.4
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 05:06:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
+        bh=jm9THyL6NHvjyPBi15ToGJy65zugr7H20iHk/cdSJyw=;
+        b=QOFlOi3SiyJSh29CrjLg5rBh9w6ZZ8aaSi7B/OPkpXhnURNFu5Kae07vhrLYCPeNX4
+         rakAqMmK1pT5rQk27k9914npkYLPEsrm2P9q9Q5E7K3nYw+0R2eRx5TotHZvCyQKMPhR
+         jrTrCvky33YGF79+cgvWRq+DFLhgc3vKe085It7fdOnghG6Q6jP35YA7IwY02l9ZsPYz
+         S4GL69rr6LeX56le+7rHlVJC8smv17hKJfuHkhkRczV1Tf9R9qHOuQW9Pl3mDWLFntYT
+         GBuRT35WGP0+7Wvl+v7+E8B6ZdCTRtVaDw9xS/pkB+QFUwXhUFz20EIVRy3Anp581XFr
+         Zi6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=jm9THyL6NHvjyPBi15ToGJy65zugr7H20iHk/cdSJyw=;
+        b=A7XPBfbW2bqeTlqoI8geKENhf0GeeXlrjJPH+CALGOi3gckkjB05TYpb0H3ZIIZJbo
+         0DHq4eh9yHsTzIARdyx46E/OpylLqlIULIMxEgiRKKv47um/9xVeZdfm8roq7PCATDSp
+         OJSWWbaH8dJRVFI48lhM4stDWXC5CoEomMKIJ6xRF933DL1X4rt37LMzl4xU4TNo4CJF
+         bNT8ocgFcnpq/1TntI+6vs0DTemzqBiyDq8G8qPi80L8hPywmHDSN09Ab/paRciIluZT
+         JCiTKXKFo9mnexsydUVJwXXe9OKwBTeTpOu0daZJA/9Lk0X2/8hh5EAy1IaikxelQcPE
+         /2TA==
+X-Gm-Message-State: AGi0PuZAoaCRaczHUMemHszoeaSXajXp83AFeWDiOimrtuN0DiOSbiR+
+        gOqgUo8P02kkFYGfm/agSxFHGlhO
+X-Google-Smtp-Source: APiQypJRXn/97TRn2MNg1Waw6AFG43jLHeMxlRcf0qV1QSSegyU9hzxzBnlJTEg+bSZdLe8Ro8YK5Q==
+X-Received: by 2002:a17:90b:3851:: with SMTP id nl17mr27295147pjb.59.1586865976472;
+        Tue, 14 Apr 2020 05:06:16 -0700 (PDT)
+Received: from localhost ([2401:fa00:8f:203:5bbb:c872:f2b1:f53b])
+        by smtp.gmail.com with ESMTPSA id c10sm7991912pfc.23.2020.04.14.05.06.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Apr 2020 05:06:15 -0700 (PDT)
+Date:   Tue, 14 Apr 2020 21:06:13 +0900
+From:   Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Petr Mladek <pmladek@suse.com>
+Subject: printk: queue wake_up_klogd irq_work only if per-CPU areas are ready
+Message-ID: <20200414120613.GD12779@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Commit ab6f762f0f53162d41 Linus' HEAD.
 
-thanks,
+printk_deferred() does not make sure that it's safe to write to
+per-CPU data, which causes problems when printk_deferred() is
+invoked "too early", before per-CPU areas are initialized. There
+are multiple bug reports, e.g.
+https://bugzilla.kernel.org/show_bug.cgi?id=206847
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 9d5a09c6f3b5fb85af20e3a34827b5d27d152b34 Mon Sep 17 00:00:00 2001
-From: Gao Xiang <xiang@kernel.org>
-Date: Wed, 26 Feb 2020 16:10:06 +0800
-Subject: [PATCH] erofs: correct the remaining shrink objects
-
-The remaining count should not include successful
-shrink attempts.
-
-Fixes: e7e9a307be9d ("staging: erofs: introduce workstation for decompression")
-Cc: <stable@vger.kernel.org> # 4.19+
-Link: https://lore.kernel.org/r/20200226081008.86348-1-gaoxiang25@huawei.com
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
-
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index 4396b424373f..52d0be10f1aa 100644
---- a/fs/erofs/utils.c
-+++ b/fs/erofs/utils.c
-@@ -262,7 +262,7 @@ static unsigned long erofs_shrink_scan(struct shrinker *shrink,
- 		spin_unlock(&erofs_sb_list_lock);
- 		sbi->shrinker_run_no = run_no;
- 
--		freed += erofs_shrink_workstation(sbi, nr);
-+		freed += erofs_shrink_workstation(sbi, nr - freed);
- 
- 		spin_lock(&erofs_sb_list_lock);
- 		/* Get the next list element before we move this one */
-
+	-ss
