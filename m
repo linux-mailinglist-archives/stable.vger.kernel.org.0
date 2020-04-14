@@ -2,101 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F0E1A78B3
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 12:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1CD91A78C5
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 12:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438585AbgDNKpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 06:45:11 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:17432 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2438579AbgDNKow (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 06:44:52 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5e95920a0000>; Tue, 14 Apr 2020 03:35:54 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Tue, 14 Apr 2020 03:36:51 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Tue, 14 Apr 2020 03:36:51 -0700
-Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 14 Apr
- 2020 10:36:51 +0000
-Received: from [10.26.73.15] (172.20.13.39) by DRHQMAIL107.nvidia.com
- (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 14 Apr
- 2020 10:36:48 +0000
-Subject: Re: [PATCH 5.6 00/38] 5.6.4-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20200411115459.324496182@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <240fd9ce-cfe2-9920-0239-aa6941770bfd@nvidia.com>
-Date:   Tue, 14 Apr 2020 11:36:46 +0100
+        id S2438488AbgDNKtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 06:49:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60722 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2438467AbgDNKtp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 06:49:45 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11822C061A0E;
+        Tue, 14 Apr 2020 03:39:27 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id d27so4513035wra.1;
+        Tue, 14 Apr 2020 03:39:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:cc:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=oxvQlRsffaRa1NodizK6Br3j1HOkDXlCeGnv2LmuSWI=;
+        b=lj/uGfhbz4egaV+UnAbsxUn1CLKh0qjYU2+LwcluDaE8/HfN9lqui58xiPaVTPNlEz
+         Tvrw9UOSoPYH94mDVBxiTXwWkip64+s0qhXnAOwMsi7rDhVCIMwK2MjpjW+I3q0V4dZL
+         FET3+ROtaDQoSLv/8v85tZsgNFsIBXHBbuh7L3zMzGQHuiLitSWfn6s9wM/sJ7ynG/Wq
+         TKy5D3v6NDGPMWbnv2i5MjW9E/UCetI9K0pN3zK9nO+HtVabtpJcclkn4wLFvBFsuBcP
+         YFNFmKF5JAfBAWyJgtEBnBWORX7l7/G1NCtv/tRbMwKZQFwIdWO2gy/2IdLJVrk8gCVk
+         kyLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=oxvQlRsffaRa1NodizK6Br3j1HOkDXlCeGnv2LmuSWI=;
+        b=HI45Xfwfrl8dNovoLsrSN1g80pks8KnI3GipEhVBadBucKlhP37+pSmonnf1KFqv5X
+         zKZ/Rde283oZav6Xth5552L04tRkQqOC92RFHkhgfAaPb0icx+GcRCL6NLXZoBYxHjJx
+         951HSdTLGX2JoTmuyr2aKRc0XiEOdD4LDX9KddcspL8zGK5D8nVlI7fqyQQzhW6jQ+z6
+         LdoNY6y74g738xB93vgyLUBbGPKSpQBhjP9liKCxIisoIxUO01mF5CU8FEr7UmjL+Abj
+         3xUZ8jTk+H9cWUK6uE512taN7ApD+OL6v+ubtM4MushshxW7ILUE55lM2v8iRocJqaWh
+         0iag==
+X-Gm-Message-State: AGi0PuZRKZkLo4EmMXo+BfTkjFdbzp82VzEWOkjP3Nlh8KI8ec/O3PAQ
+        MxOJ5ZyZnzoTBOXCz77KWQozD5r0
+X-Google-Smtp-Source: APiQypICmu9fPjO1czZST40gVi6c2FnDtlUHGNYPi09uSumvOoAMgSrHl5Jd30B+iwbGMGkCUx5VVQ==
+X-Received: by 2002:adf:82b1:: with SMTP id 46mr16032416wrc.44.1586860765578;
+        Tue, 14 Apr 2020 03:39:25 -0700 (PDT)
+Received: from [192.168.43.18] (94.197.121.244.threembb.co.uk. [94.197.121.244])
+        by smtp.gmail.com with ESMTPSA id u17sm20301174wra.63.2020.04.14.03.39.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Apr 2020 03:39:25 -0700 (PDT)
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>,
+        linux-wireless@vger.kernel.org, stable@vger.kernel.org
+From:   Malcolm Priestley <tvboxspy@gmail.com>
+Subject: [PATCH] staging: vt6656: Power save stop wake_up_count wrap around.
+Message-ID: <fce47bb5-7ca6-7671-5094-5c6107302f2b@gmail.com>
+Date:   Tue, 14 Apr 2020 11:39:23 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20200411115459.324496182@linuxfoundation.org>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- DRHQMAIL107.nvidia.com (10.27.9.16)
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1586860554; bh=ouW1gBdxALORER7/l4t6VpJdJr9XKhztykWpX1NOvZ8=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=OgEdqCb4QwknuLHCwrl8nMJpuB2X/T10602viQdBAzZIK73/TnF21jLifXDcrf/FD
-         MUD5T+49iIIXX2CFhOfYd/GId7nxKrYtiOI8AoUbM9vH4JH56/T4tA2KpioTsD5Bal
-         w+BA7nkVBT0uY8kpiXGqMpCzmsHP81clWhl6Cky5PNGrDdPvZSi8mnHAuBEoK9Hwne
-         Hh1kK1i1wGdwcs1ZasVBdAYeYSyGCBz9GfH4ZyzrScLHFGc+Ajg/FcUZlBqFLuorzi
-         dnCldAgSBpGpRHXTaVIEw9idnvjHLXfU5JFbBd7LWHwlPK+6X4/7NGq2ODR44Xpc+F
-         8lHK4HP3RQujg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+conf.listen_interval can sometimes be zero causing wake_up_count
+to wrap around up to many beacons too late causing
+CTRL-EVENT-BEACON-LOSS as in.
 
-On 11/04/2020 13:09, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.6.4 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Mon, 13 Apr 2020 11:51:28 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.4-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+wpa_supplicant[795]: message repeated 45 times: [..CTRL-EVENT-BEACON-LOSS ]
 
-All tests are passing for Tegra ...
+Fixes: 43c93d9bf5e2 ("staging: vt6656: implement power saving code.")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+---
+ drivers/staging/vt6656/usbpipe.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Test results for stable-v5.6:
-    13 builds:	13 pass, 0 fail
-    24 boots:	24 pass, 0 fail
-    40 tests:	40 pass, 0 fail
-
-Linux version:	5.6.4-rc1-g62251e4703ac
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
-
-Cheers
-Jon
-
+diff --git a/drivers/staging/vt6656/usbpipe.c b/drivers/staging/vt6656/usbpipe.c
+index eae211e5860f..91b62c3dff7b 100644
+--- a/drivers/staging/vt6656/usbpipe.c
++++ b/drivers/staging/vt6656/usbpipe.c
+@@ -207,7 +207,8 @@ static void vnt_int_process_data(struct vnt_private *priv)
+ 				priv->wake_up_count =
+ 					priv->hw->conf.listen_interval;
+ 
+-			--priv->wake_up_count;
++			if (priv->wake_up_count)
++				--priv->wake_up_count;
+ 
+ 			/* Turn on wake up to listen next beacon */
+ 			if (priv->wake_up_count == 1)
 -- 
-nvpublic
+2.25.1
