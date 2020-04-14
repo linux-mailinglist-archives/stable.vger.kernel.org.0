@@ -2,67 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E11311A8918
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 20:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09EC01A8A20
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 20:49:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503772AbgDNST3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 14:19:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46336 "EHLO
+        id S2504386AbgDNSsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 14:48:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2503749AbgDNSTZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 14:19:25 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1091AC061A0C
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 11:19:24 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id a25so15635484wrd.0
-        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 11:19:23 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S2504372AbgDNSsi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 14:48:38 -0400
+Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E299C061A0C
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 11:48:38 -0700 (PDT)
+Received: by mail-qk1-x741.google.com with SMTP id g74so14439047qke.13
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 11:48:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chrisdown.name; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Z7RFC4UDtzgCMtAJ4kXgnhBcp8pqe2wl7bATSZuLIp8=;
-        b=ZabiIsnKOXCTJXyogEKJpCwq1zS8Jw3TAlujYBoIO4yOLNmRfAVC8Pa7oqniSHaIJq
-         /O9zEPxrXF8t3pdSrZMt9HXXqgFJKqlelr77T/4+2pqChLj+uSdTC4eYckCYYHF0998p
-         MAZUcGtwfnkqNAqbV2yEsbF3sqP/oj9i89GHM=
+        d=poorly.run; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=6yzQmC4w0ygPYVxz9suanugjLM83UH8h3lByA0VCiMA=;
+        b=cAEi95OSVoYMxPUPRRQ8P7aBzCq8iAWXDDnkVEIltb6Csmr/PTAqZ8uUgHj9KUrqdV
+         QJf2dsphTPAsP6WLs7/Rlxy9qC7eCJ5RPO+/dwa9TTw8JifcBXEZjNy0+J95RAPH5BNM
+         2wDMugg/9uMxbui+zrvAKweLF+If5y7NjbwtMOXKMugA8qc9c1RAPh86Taz0u9RvZ4p4
+         LavIgMLzqRn7WrqOohi0GNcBWVJYMTjy7CN1qdP05mLO9DK5OI147ZRffqFQ5rJrtoNM
+         GOj1s6DlGKmKASYh0om8z0BP/PDGdWF9y6gZYVDCN7KhkNJEvlW7FrdLcUkl5yIVGT9J
+         NAqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Z7RFC4UDtzgCMtAJ4kXgnhBcp8pqe2wl7bATSZuLIp8=;
-        b=P6+NWu8RuT1xz5V9/3G6zkwpJ/WBNrxnN3Kv9SK6WooGTyDar5akB4HoXlszB2mAPS
-         xja0evxWZ2qzhR7FzH7vZkBMQ5ctAsR7fy3B+7t2G2HMA/uKiUgZ6FvyqqH2Ug3zSO1D
-         pjOTmJsP/V97TfLwVGZyFCq2+TtJ8wAo16fr6OV9UIigUxA82DpyRLOJuBfd2AVvGj8c
-         1HTDQN6SO0ymt/la/1dI2OfJOEgrpK8cT1HFUw9jBGgY3Q38Qd+1Aty443R+V6ttnhzr
-         rZE7CqdzOmAuTE3kTx9UAk8klrhris3TkSp0gaoIItxp9Mw9QYE+k/BJiJ5sN6rehVFU
-         18oA==
-X-Gm-Message-State: AGi0PuZIFIGAwG4nO5lrXStklKhQG1II3IeYpbOlIe7d+plmqecDDopL
-        4I/Gt9c4709IqvTo8Uoz/ByZeg==
-X-Google-Smtp-Source: APiQypKV/3UJOcqK3Sh2XmER1j4Gy9/Bk5W4wFBXa6VwIKBTfArTgta7dQg2ChilaDi4JSY+ljMsDg==
-X-Received: by 2002:a5d:464d:: with SMTP id j13mr23656702wrs.269.1586888362635;
-        Tue, 14 Apr 2020 11:19:22 -0700 (PDT)
-Received: from localhost ([2a01:4b00:8432:8a00:fa59:71ff:fe7e:8d21])
-        by smtp.gmail.com with ESMTPSA id n4sm19211798wmi.20.2020.04.14.11.19.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Apr 2020 11:19:22 -0700 (PDT)
-Date:   Tue, 14 Apr 2020 19:19:21 +0100
-From:   Chris Down <chris@chrisdown.name>
-To:     Yafang Shao <laoar.shao@gmail.com>
-Cc:     hannes@cmpxchg.org, mhocko@kernel.org, vdavydov.dev@gmail.com,
-        akpm@linux-foundation.org, linux-mm@kvack.org,
-        Shakeel Butt <shakeelb@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] mm, memcg: fix inconsistent oom event behavior
-Message-ID: <20200414181921.GA1864550@chrisdown.name>
-References: <20200412140427.6732-1-laoar.shao@gmail.com>
- <20200413193111.GA1559372@chrisdown.name>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200413193111.GA1559372@chrisdown.name>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=6yzQmC4w0ygPYVxz9suanugjLM83UH8h3lByA0VCiMA=;
+        b=XpYdMKCI+keBmIa/rThhcLtRs+5hwwLd8Tcdvh0PtWrkMc9Fyyy3uDAmjl3JD1ON4w
+         CF4R0rBIqujZIeNbPV0qVlUnltIWzzJ2aZqgfC6C+b8JwYUbcG69mN5Zw7L081kFqW43
+         O1P1V6tCBo176efTYAdYCvDxAlcSEycA5UJG5u8CiuFkYZsZVmWKZzMDD8Yi0nah/tlP
+         HBGIcqZPQmhi4AJ8IAeEc+iu/e7iDWeLXPDuz1ypqd1J8HfIVAFRGsfZr9ZOXBnTGDMP
+         ZHt/Tj1SSG1ry/mDqfk44QjLixJtusVw8DnyJS9HAqwuydf9VZWiNg3ttzlUM4MbQw0X
+         /1ZA==
+X-Gm-Message-State: AGi0PuYxt1ozaCTE//CwmKNzAaFrmHMLiX71Tvxk0jjhAkaXLoWpGlnw
+        mPPgSliGKRjAjrHE0g20x3S8pw==
+X-Google-Smtp-Source: APiQypKMY6bMG74EyHD+GoZ12sBeFRvtchEAfByEmex7yDdu4T+2CkMF22ApyxuG74lJ5sRXGajdyA==
+X-Received: by 2002:ae9:ed56:: with SMTP id c83mr18610142qkg.244.1586890117683;
+        Tue, 14 Apr 2020 11:48:37 -0700 (PDT)
+Received: from localhost (mobile-166-170-55-13.mycingular.net. [166.170.55.13])
+        by smtp.gmail.com with ESMTPSA id f1sm10522199qkl.91.2020.04.14.11.48.36
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 14 Apr 2020 11:48:36 -0700 (PDT)
+From:   Sean Paul <sean@poorly.run>
+To:     dri-devel@lists.freedesktop.org, ramalingam.c@intel.com
+Cc:     intel-gfx@lists.freedesktop.org, Sean Paul <seanpaul@chromium.org>,
+        stable@vger.kernel.org, Sean Paul <sean@poorly.run>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>
+Subject: [PATCH] drm: Fix HDCP failures when SRM fw is missing
+Date:   Tue, 14 Apr 2020 14:48:26 -0400
+Message-Id: <20200414184835.2878-1-sean@poorly.run>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-To be clear, you're correct that this wasn't intended to result in any changes 
-on cgroup v1, so I'm not against the change. Especially for stable, though, I'd 
-like to understand what the real results and ramifications are here.
+From: Sean Paul <seanpaul@chromium.org>
+
+The SRM cleanup in 79643fddd6eb2 ("drm/hdcp: optimizing the srm
+handling") inadvertently altered the behavior of HDCP auth when
+the SRM firmware is missing. Before that patch, missing SRM was
+interpreted as the device having no revoked keys. With that patch,
+if the SRM fw file is missing we reject _all_ keys.
+
+This patch fixes that regression by returning success if the file
+cannot be found.
+
+Fixes: 79643fddd6eb ("drm/hdcp: optimizing the srm handling")
+Cc: stable@vger.kernel.org
+Cc: Ramalingam C <ramalingam.c@intel.com>
+Cc: Sean Paul <sean@poorly.run>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+---
+ drivers/gpu/drm/drm_hdcp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/drm_hdcp.c b/drivers/gpu/drm/drm_hdcp.c
+index 7f386adcf872..3c36005d367b 100644
+--- a/drivers/gpu/drm/drm_hdcp.c
++++ b/drivers/gpu/drm/drm_hdcp.c
+@@ -241,8 +241,10 @@ static int drm_hdcp_request_srm(struct drm_device *drm_dev,
+ 
+ 	ret = request_firmware_direct(&fw, (const char *)fw_name,
+ 				      drm_dev->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		ret = 0;
+ 		goto exit;
++	}
+ 
+ 	if (fw->size && fw->data)
+ 		ret = drm_hdcp_srm_update(fw->data, fw->size, revoked_ksv_list,
+-- 
+Sean Paul, Software Engineer, Google / Chromium OS
+
