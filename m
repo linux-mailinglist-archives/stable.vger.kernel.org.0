@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 963281A7061
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 02:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE5BB1A706D
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 03:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728668AbgDNA6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Apr 2020 20:58:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52176 "EHLO
+        id S1728387AbgDNBIA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Apr 2020 21:08:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728312AbgDNA6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 20:58:07 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D0EC0A3BDC
-        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 17:58:06 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id t11so10448134ils.1
-        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 17:58:06 -0700 (PDT)
+        with ESMTP id S1728103AbgDNBH7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Apr 2020 21:07:59 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C5EFC0A3BDC
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 18:07:59 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id q19so10674852ljp.9
+        for <stable@vger.kernel.org>; Mon, 13 Apr 2020 18:07:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=ZqkrksRk7re0hRKtlrZsF+grvKJamkQFapywAZ5fzpc=;
-        b=GvkbuAgeOz28xqq0UJPQu4JetE/PfJfqENsy5eWn12Ek5xdUUuy3+/T6pr4Or2uAYh
-         dxL8dQoqLBv6c96xJnxsSFIIYDk4UeeOhuP849acvuxCHicA68jjh50uOx4AgNvlMcQ3
-         OnXimnNXBsyyIQ3Q9p7w8jYtsMRhl0IPyhyCLyybYGxxG3ZNZvZqNZf6Iw1QBLCCauLZ
-         7JwjcQX6/R9uEdsHGvbWkyM0+Qmx6qPZQ0g21/Lu0uUTDZSnY5XkZSmdpWzgG+jsa2BS
-         UVNruvli0rQ4mQSNK/yvDlQk0CRJcSsWdF60nSWcouOBZ5ozh/joo8dLzmQCgFrGiFt7
-         nQrA==
+        bh=pjKjWwmtlCHlQBhC2Wm4xBBadnDi4o65zOBIN4PLMlI=;
+        b=ijQBsp2+A2t90IUsKbF/GaLT+GPF7+lql0FGFbEUrJ9SWZYDx/SsdOg0TknLwYsG++
+         md25Z6qZ5FQhnITWu3VWSOYbzCZtz4WS6DDCoY/hCZqCUFTw7FS47iyp910Q79XAN2AK
+         TArmllJSsQDty1euXIT+Km8uCQehaWHzZMhaLh4yG972F/QLPWfkOZHfXaQ9OqDhz1DO
+         iTt5CNwY5/7MFFmUXN4srPuJs8TX8JCz8TCQDc1jWTeZ4AYTabmge4n1PXmd2licupHx
+         G0gm1+3t5+t4PCCJNOrXr3xLpcEuBdMLcXHTNnnZc+RBUtAwEsHWHWu4YjUwFjivA9/l
+         2/rg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ZqkrksRk7re0hRKtlrZsF+grvKJamkQFapywAZ5fzpc=;
-        b=AUtMgj9iWRLBHiBzop1Q+b9v7qJMrn2YED2M81HuTi2XC9Y16JVFRd2X/rgNef7I3D
-         r7xjmqoeeUHFfUg3jH9fVQAcNcNmwXazuSujhLN9Ls9drMv+Pv52XMgA8wSQX9ElTE0z
-         VD92s6tHHD5fcMjsFtI2hQ4PxszI5NGI+D37sDs84jf2t62yyPjhL43he1pHbA1uig5W
-         FxiyFFR6ZR+EqFacMAnRWLnq1X0iuKqLShl+NVlvRkUH0Ht+hLKmWgHkSWODXq4uhxSl
-         qG3m6+okREHIZtcDMnR1VA6kCz/STB2J9+bjJRGWpUKUkGAKTdTt9kmM8/Uc4DOS/KAF
-         1v8A==
-X-Gm-Message-State: AGi0Pua8mEC73zmSiWSCtjMPivqVzEJNTVCjG7rgOEMzzCWSeo9XqO2y
-        jkk8gBgEFRyNni7vKCeh3VFrXGe7g8gI/EeUaF8=
-X-Google-Smtp-Source: APiQypIdnHdErTdJX57nLG+N5KtUzADwXiXWt/43gqS68PA7gakqAq3jo/XEBtImfNc8Eg1jxHR7jp1DfyaGur1ZUwQ=
-X-Received: by 2002:a92:5c57:: with SMTP id q84mr6475898ilb.203.1586825885499;
- Mon, 13 Apr 2020 17:58:05 -0700 (PDT)
+        bh=pjKjWwmtlCHlQBhC2Wm4xBBadnDi4o65zOBIN4PLMlI=;
+        b=ae1MOmzxe/3TOMySB3e8ZH131kE7a2pU4IHtgEa1RuGu/MXiJsUzHlccfJoE4Cp73p
+         f8L3z4SCT30iGUwJDY6+ja2nYKzrE0m/KnGINPbpn7F0ExCY1oGXX8XjQtXs8tLreWcu
+         yHg40WyHio2N7dAJB6NTRBEbb+IgUZZTnU8V7iD5NIfECJq2PNDRKprwn4hkW/sZgkQB
+         95Uu0V3kWZydiF4EWD8nh8qcDMwpIFP/wkDe1+2H7/DaTMr1FlJd3m2RN74TBb3m/44f
+         PgHV24d9yrxt8unOD5wFzm++DJzzGj6ll9+5fy3F3auX9rBdP2lCdQVY+++Io9tLMhSZ
+         B/zg==
+X-Gm-Message-State: AGi0PuZaM62o+5+Ie69fMDlp/hwmxmIo7kYBcT4/nfe2WTfbRwywuHZI
+        d0U6exiojaIeuDjUTzal8/aqEyW9NgBhDgMND1ouaQ==
+X-Google-Smtp-Source: APiQypLjbWUm/qK6itzRjVlSBbeT6SHfeSxUeQT28VOQXCHBkPSPfWn1D1k+/ku3wX3dn+ykLz2TxY0WXsaw4RouFTk=
+X-Received: by 2002:a2e:9a4a:: with SMTP id k10mr2168225ljj.115.1586826477624;
+ Mon, 13 Apr 2020 18:07:57 -0700 (PDT)
 MIME-Version: 1.0
 References: <20200412140427.6732-1-laoar.shao@gmail.com> <CALvZod56skzRJNAmtXo=VxtoVAgkamZekEh0K0SBV=D96BA7Yg@mail.gmail.com>
- <CALOAHbDa4BO2btFoMpqqPg6GQF47RSii=f+ZH6ONAqhQA=Z8KA@mail.gmail.com> <CALvZod5Jc6u4XGjSwfNi2teoVrSJjRGB304Vf2u41dS71buULg@mail.gmail.com>
-In-Reply-To: <CALvZod5Jc6u4XGjSwfNi2teoVrSJjRGB304Vf2u41dS71buULg@mail.gmail.com>
-From:   Yafang Shao <laoar.shao@gmail.com>
-Date:   Tue, 14 Apr 2020 08:57:29 +0800
-Message-ID: <CALOAHbAdOeYMR3DcLtf8S-tBXyb8xUjLfUYB1CxSFyKAAYFABg@mail.gmail.com>
+ <CALOAHbDa4BO2btFoMpqqPg6GQF47RSii=f+ZH6ONAqhQA=Z8KA@mail.gmail.com>
+ <CALvZod5Jc6u4XGjSwfNi2teoVrSJjRGB304Vf2u41dS71buULg@mail.gmail.com> <CALOAHbAdOeYMR3DcLtf8S-tBXyb8xUjLfUYB1CxSFyKAAYFABg@mail.gmail.com>
+In-Reply-To: <CALOAHbAdOeYMR3DcLtf8S-tBXyb8xUjLfUYB1CxSFyKAAYFABg@mail.gmail.com>
+From:   Shakeel Butt <shakeelb@google.com>
+Date:   Mon, 13 Apr 2020 18:07:46 -0700
+Message-ID: <CALvZod7NCMCEkXKP0ue7XoHi8m2L-C2bnjuEdgwPhwn82eNdUg@mail.gmail.com>
 Subject: Re: [PATCH] mm, memcg: fix inconsistent oom event behavior
-To:     Shakeel Butt <shakeelb@google.com>
+To:     Yafang Shao <laoar.shao@gmail.com>
 Cc:     Chris Down <chris@chrisdown.name>,
         Johannes Weiner <hannes@cmpxchg.org>,
         Michal Hocko <mhocko@kernel.org>,
@@ -64,86 +65,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 8:53 AM Shakeel Butt <shakeelb@google.com> wrote:
+On Mon, Apr 13, 2020 at 5:58 PM Yafang Shao <laoar.shao@gmail.com> wrote:
 >
-> On Mon, Apr 13, 2020 at 5:36 PM Yafang Shao <laoar.shao@gmail.com> wrote:
+> On Tue, Apr 14, 2020 at 8:53 AM Shakeel Butt <shakeelb@google.com> wrote:
 > >
-> > On Tue, Apr 14, 2020 at 1:06 AM Shakeel Butt <shakeelb@google.com> wrote:
+> > On Mon, Apr 13, 2020 at 5:36 PM Yafang Shao <laoar.shao@gmail.com> wrote:
 > > >
-> > > On Sun, Apr 12, 2020 at 7:04 AM Yafang Shao <laoar.shao@gmail.com> wrote:
+> > > On Tue, Apr 14, 2020 at 1:06 AM Shakeel Butt <shakeelb@google.com> wrote:
 > > > >
-> > > > A recent commit 9852ae3fe529 ("mm, memcg: consider subtrees in
-> > > > memory.events") changes the behavior of memcg events, which will
-> > > > consider subtrees in memory.events. But oom_kill event is a special one
-> > > > as it is used in both cgroup1 and cgroup2. In cgroup1, it is displayed
-> > > > in memory.oom_control. The file memory.oom_control is in both root memcg
-> > > > and non root memcg, that is different with memory.event as it only in
-> > > > non-root memcg. That commit is okay for cgroup2, but it is not okay for
-> > > > cgroup1 as it will cause inconsistent behavior between root memcg and
-> > > > non-root memcg.
+> > > > On Sun, Apr 12, 2020 at 7:04 AM Yafang Shao <laoar.shao@gmail.com> wrote:
+> > > > >
+> > > > > A recent commit 9852ae3fe529 ("mm, memcg: consider subtrees in
+> > > > > memory.events") changes the behavior of memcg events, which will
+> > > > > consider subtrees in memory.events. But oom_kill event is a special one
+> > > > > as it is used in both cgroup1 and cgroup2. In cgroup1, it is displayed
+> > > > > in memory.oom_control. The file memory.oom_control is in both root memcg
+> > > > > and non root memcg, that is different with memory.event as it only in
+> > > > > non-root memcg. That commit is okay for cgroup2, but it is not okay for
+> > > > > cgroup1 as it will cause inconsistent behavior between root memcg and
+> > > > > non-root memcg.
+> > > >
+> > > > I still couldn't understand the cgroup v1's root vs non_root behavior
+> > > > change. The behavior change I see is the hierarchical one i.e.
+> > > > MEMCG_OOM_KILL event in the descendant will cause the notification and
+> > > > count increment in the ancestors even in the cgroup v1.
 > > >
-> > > I still couldn't understand the cgroup v1's root vs non_root behavior
-> > > change. The behavior change I see is the hierarchical one i.e.
-> > > MEMCG_OOM_KILL event in the descendant will cause the notification and
-> > > count increment in the ancestors even in the cgroup v1.
-> >
-> > For the non-root memcg, its memory.oom_control(oom_kill) includes its
-> > descendants' oom_kill, but for root memcg, it doesn't include its
-> > descendants' oom_kill. That means, memory.oom_control(oom_kill) has
-> > different meanings in different memcgs. That is inconsistent.
-> >
-> > [snip]
-> > > I suppose we
-> > > don't want that behavior change in v1.
+> > > For the non-root memcg, its memory.oom_control(oom_kill) includes its
+> > > descendants' oom_kill, but for root memcg, it doesn't include its
+> > > descendants' oom_kill. That means, memory.oom_control(oom_kill) has
+> > > different meanings in different memcgs. That is inconsistent.
+> > >
+> > > [snip]
+> > > > I suppose we
+> > > > don't want that behavior change in v1.
+> > > >
+> > >
+> > > That is another topic. I think this feature is welcomed to cgroup1, if
+> > > we can fully support it, for example by adding memory.events.local
+> > > into cgroup1 as well, but as far as I know the cgroup1 is frozen.
 > > >
 > >
-> > That is another topic. I think this feature is welcomed to cgroup1, if
-> > we can fully support it, for example by adding memory.events.local
-> > into cgroup1 as well, but as far as I know the cgroup1 is frozen.
+> > Please note that after your patch the non-root memcg's
+> > memory.oom_control(oom_kill) will not include the descendant's
+> > oom_kill anymore. The non-root and root memcg's
+> > memory.oom_control(oom_kill) will not be hierarchical anymore but
+> > consistent. I think that was the intention of the patch, right?
 > >
 >
-> Please note that after your patch the non-root memcg's
-> memory.oom_control(oom_kill) will not include the descendant's
-> oom_kill anymore. The non-root and root memcg's
-> memory.oom_control(oom_kill) will not be hierarchical anymore but
-> consistent. I think that was the intention of the patch, right?
+> Right. If we can't fully support it in cgroup1, then let's don't touch
+> its original behavior.
 >
 
-Right. If we can't fully support it in cgroup1, then let's don't touch
-its original behavior.
+Agreed.
 
-> > > > Let's recover the original behavior for cgroup1.
-> > > >
-> > > > Fixes: 9852ae3fe529 ("mm, memcg: consider subtrees in memory.events")
-> > > > Cc: Chris Down <chris@chrisdown.name>
-> > > > Cc: Johannes Weiner <hannes@cmpxchg.org>
-> > > > Cc: Shakeel Butt <shakeelb@google.com>
-> > > > Cc: stable@vger.kernel.org
-> > > > Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-> > > > ---
-> > > >  include/linux/memcontrol.h | 3 ++-
-> > > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-> > > > index 8c340e6b347f..a0ae080a67d1 100644
-> > > > --- a/include/linux/memcontrol.h
-> > > > +++ b/include/linux/memcontrol.h
-> > > > @@ -798,7 +798,8 @@ static inline void memcg_memory_event(struct mem_cgroup *memcg,
-> > > >                 atomic_long_inc(&memcg->memory_events[event]);
-> > > >                 cgroup_file_notify(&memcg->events_file);
-> > > >
-> > > > -               if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
-> > > > +               if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS ||
-> > > > +                   !cgroup_subsys_on_dfl(memory_cgrp_subsys))
-> > > >                         break;
-> > > >         } while ((memcg = parent_mem_cgroup(memcg)) &&
-> > > >                  !mem_cgroup_is_root(memcg));
-> > > > --
-> > > > 2.18.2
-> > > >
-> >
-> >
+> > > > > Let's recover the original behavior for cgroup1.
+> > > > >
+> > > > > Fixes: 9852ae3fe529 ("mm, memcg: consider subtrees in memory.events")
+> > > > > Cc: Chris Down <chris@chrisdown.name>
+> > > > > Cc: Johannes Weiner <hannes@cmpxchg.org>
+> > > > > Cc: Shakeel Butt <shakeelb@google.com>
+> > > > > Cc: stable@vger.kernel.org
+> > > > > Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
 
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
 
-Thanks
-Yafang
+> > > > > ---
+> > > > >  include/linux/memcontrol.h | 3 ++-
+> > > > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > > > >
+> > > > > diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+> > > > > index 8c340e6b347f..a0ae080a67d1 100644
+> > > > > --- a/include/linux/memcontrol.h
+> > > > > +++ b/include/linux/memcontrol.h
+> > > > > @@ -798,7 +798,8 @@ static inline void memcg_memory_event(struct mem_cgroup *memcg,
+> > > > >                 atomic_long_inc(&memcg->memory_events[event]);
+> > > > >                 cgroup_file_notify(&memcg->events_file);
+> > > > >
+> > > > > -               if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
+> > > > > +               if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS ||
+> > > > > +                   !cgroup_subsys_on_dfl(memory_cgrp_subsys))
+> > > > >                         break;
+> > > > >         } while ((memcg = parent_mem_cgroup(memcg)) &&
+> > > > >                  !mem_cgroup_is_root(memcg));
+> > > > > --
+> > > > > 2.18.2
+> > > > >
+> > >
+> > >
+>
+>
+> Thanks
+> Yafang
