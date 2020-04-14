@@ -2,136 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D2401A8461
-	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 18:15:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 984051A84FE
+	for <lists+stable@lfdr.de>; Tue, 14 Apr 2020 18:32:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391331AbgDNQPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Apr 2020 12:15:25 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:59593 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2390411AbgDNQOg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 12:14:36 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 20897748-1500050 
-        for multiple; Tue, 14 Apr 2020 17:14:25 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Andi Shyti <andi.shyti@intel.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Francisco Jerez <currojerez@riseup.net>, stable@vger.kernel.org
-Subject: [PATCH 2/2] drm/i915/gt: Shrink the RPS evalution intervals
-Date:   Tue, 14 Apr 2020 17:14:23 +0100
-Message-Id: <20200414161423.23830-2-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200414161423.23830-1-chris@chris-wilson.co.uk>
-References: <20200414161423.23830-1-chris@chris-wilson.co.uk>
+        id S2391704AbgDNQbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Apr 2020 12:31:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57660 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2391702AbgDNQbk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Apr 2020 12:31:40 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A739BC061A0C
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 09:31:40 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id n10so162030pff.3
+        for <stable@vger.kernel.org>; Tue, 14 Apr 2020 09:31:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Uz1yaekv7Fun002mUPP+tLPKZaBb24PzPJXgb3PMM7M=;
+        b=OBGFJS9kSZNY1MTWg1o6SUhZE2x3ycLr63Vrk35/xEaESXP5py5OoHfbd8W5dTKe7K
+         KRUneqm9HHST+aqrC8eJBb35f5bOGZaH3kxDT8UPX4ECnaw/paATxUnvLlFZp7Vfz756
+         Oi9g+P94UcNTkqdY57TYavm2THWE2OP42YN952uHNT8Yq8HKHjT0hVvmQeNmo/GF11c+
+         sJPW/hnk0suk7Bj9XNYoh1yf/hAWWPjGFqWW3gaPmo3n2UyQAdqUEidbJjKcaWEBMJAG
+         y9R1uzHwj3edCL3ekDTaQDkTpQmgYhoSDR3JsmghyDe8ojRrn7U72MHri8FHBWOApneZ
+         Dm+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Uz1yaekv7Fun002mUPP+tLPKZaBb24PzPJXgb3PMM7M=;
+        b=A7q4R4LF0jycx+3ZLdsWkXxLj1SoAyUVMIko1OHrSpPbFsHv7amBzSGrSqJQGdgWpP
+         coztQ5rbV8msdM6jV9QTr4PYmqS/dRw+22fbiYUqLL5TnfUJ3UOXAavNLd9GKcRSulXZ
+         oGm3UpknByYVtCpj9fBMfY6JDA6SbPmbaKuIXOBsC9u2XWH7Nr1ujN58GnB+xOflDeZ5
+         JrD0MIFwOraF4mX7fh70rSA+xtP0T0U7M9US5RloB7hxxTa2d9CVSD2a7UAoPU/T0TNA
+         waudNvwca2qZ/+PzdTHPiVDuR1bd8BlNh1/rJWQzq4hve+vJVOlyUQTT+6AP8Uzk+pF2
+         xXqw==
+X-Gm-Message-State: AGi0PubcpSKUeoEk1cTGmPzwQMBgzp5o0GB5pJsqodQgjQjJYOk7+cv+
+        qmSFkZP3JtgRKHxJaa3K+czUaisA7g7s7A==
+X-Google-Smtp-Source: APiQypJ13YEaqPXy5Y1/iBkWOVjYXf/WRuC/VHVn4LUwcrL6yWiPbTp4zcWq75VxWjNZKU0aU/SfuQ==
+X-Received: by 2002:a63:4850:: with SMTP id x16mr22957008pgk.317.1586881899904;
+        Tue, 14 Apr 2020 09:31:39 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.145])
+        by smtp.gmail.com with ESMTPSA id d8sm5998819pfd.159.2020.04.14.09.31.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Apr 2020 09:31:38 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] io_uring: honor original task
+ RLIMIT_FSIZE" failed to apply to 5.4-stable tree
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org
+References: <15868668307141@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <898eca01-58e5-8452-34b3-100de2506b38@kernel.dk>
+Date:   Tue, 14 Apr 2020 10:31:37 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <15868668307141@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Try to make RPS dramatically more responsive by shrinking the evaluation
-intervales by a factor of 100! The issue is as we now park the GPU
-rapidly upon idling, a short or bursty workload such as the composited
-desktop never sustains enough work to fill and complete an evaluation
-window. As such, the frequency we program remains stuck. This was first
-reported as once boosted, we never relinquished the boost [see commit
-21abf0bf168d ("drm/i915/gt: Treat idling as a RPS downclock event")] but
-it equally applies in the order direction for bursty workloads that
-*need* low latency, like desktop animations.
+On 4/14/20 6:20 AM, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-What we could try is preserve the incomplete EI history across idling,
-it is not clear whether that would be effective, nor whether the
-presumption of continuous workloads is accurate. A clearer path seems to
-treat it as symptomatic that we fail to handle bursty workload with the
-current EI, and seek to address that by shrinking the EI so the
-evaluations are run much more often.
+Here's a 5.4 backport.
 
-This will likely entail more frequent interrupts, and by the time we
-process the interrupt in the bottom half [from inside a worker], the
-workload on the GPU has changed. To address the changeable nature, in
-the previous patch we compared the previous complete EI with the
-interrupt request and only up/down clock if both agree. The impact of
-asking for, and presumably, receiving more interrupts is still to be
-determined and mitigations sought. The first idea is to differentiate
-between up/down responsivity and make upclocking more responsive than
-downlocking. This should both help thwart jitter on bursty workloads by
-making it easier to increase than it is to decrease frequencies, and
-reduce the number of interrupts we would need to process.
+From 4ed734b0d0913e566a9d871e15d24eb240f269f7 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Fri, 20 Mar 2020 11:23:41 -0600
+Subject: [PATCH] io_uring: honor original task RLIMIT_FSIZE
 
-Fixes: 21abf0bf168d ("drm/i915/gt: Treat idling as a RPS downclock event")
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1698
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Andi Shyti <andi.shyti@intel.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Francisco Jerez <currojerez@riseup.net>
-Cc: <stable@vger.kernel.org> # v5.5+
----
- drivers/gpu/drm/i915/gt/intel_rps.c | 27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+With the previous fixes for number of files open checking, I added some
+debug code to see if we had other spots where we're checking rlimit()
+against the async io-wq workers. The only one I found was file size
+checking, which we should also honor.
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
-index 367132092bed..47ddb25edc97 100644
---- a/drivers/gpu/drm/i915/gt/intel_rps.c
-+++ b/drivers/gpu/drm/i915/gt/intel_rps.c
-@@ -542,37 +542,38 @@ static void rps_set_power(struct intel_rps *rps, int new_power)
- 	/* Note the units here are not exactly 1us, but 1280ns. */
- 	switch (new_power) {
- 	case LOW_POWER:
--		/* Upclock if more than 95% busy over 16ms */
--		ei_up = 16000;
-+		/* Upclock if more than 95% busy over 160us */
-+		ei_up = 160;
- 		threshold_up = 95;
+During write and fallocate prep, store the max file size and override
+that for the current ask if we're in io-wq worker context.
+
+Cc: stable@vger.kernel.org # 5.1+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 607edaef5e71..3550dd97ed64 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -331,6 +331,7 @@ struct io_kiocb {
+ #define REQ_F_ISREG		2048	/* regular file */
+ #define REQ_F_MUST_PUNT		4096	/* must be punted even for NONBLOCK */
+ #define REQ_F_TIMEOUT_NOSEQ	8192	/* no timeout sequence */
++	unsigned long		fsize;
+ 	u64			user_data;
+ 	u32			result;
+ 	u32			sequence;
+@@ -1404,6 +1405,8 @@ static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
+ 	size_t iov_count;
+ 	ssize_t read_size, ret;
  
--		/* Downclock if less than 85% busy over 32ms */
--		ei_down = 32000;
-+		/* Downclock if less than 85% busy over 1600us */
-+		ei_down = 1600;
- 		threshold_down = 85;
- 		break;
++	req->fsize = rlimit(RLIMIT_FSIZE);
++
+ 	ret = io_prep_rw(req, s, force_nonblock);
+ 	if (ret)
+ 		return ret;
+@@ -1513,10 +1516,17 @@ static int io_write(struct io_kiocb *req, const struct sqe_submit *s,
+ 		}
+ 		kiocb->ki_flags |= IOCB_WRITE;
  
- 	case BETWEEN:
--		/* Upclock if more than 90% busy over 13ms */
--		ei_up = 13000;
-+		/* Upclock if more than 90% busy over 160us */
-+		ei_up = 160;
- 		threshold_up = 90;
- 
--		/* Downclock if less than 75% busy over 32ms */
--		ei_down = 32000;
-+		/* Downclock if less than 75% busy over 1600us */
-+		ei_down = 1600;
- 		threshold_down = 75;
- 		break;
- 
- 	case HIGH_POWER:
--		/* Upclock if more than 85% busy over 10ms */
--		ei_up = 10000;
-+		/* Upclock if more than 85% busy over 160us */
-+		ei_up = 160;
- 		threshold_up = 85;
- 
--		/* Downclock if less than 60% busy over 32ms */
--		ei_down = 32000;
-+		/* Downclock if less than 60% busy over 1600us */
-+		ei_down = 1600;
- 		threshold_down = 60;
- 		break;
- 	}
- 
--	/* When byt can survive without system hang with dynamic
-+	/*
-+	 * When byt can survive without system hang with dynamic
- 	 * sw freq adjustments, this restriction can be lifted.
- 	 */
- 	if (IS_VALLEYVIEW(i915))
++		if (!force_nonblock)
++			current->signal->rlim[RLIMIT_FSIZE].rlim_cur = req->fsize;
++
+ 		if (file->f_op->write_iter)
+ 			ret2 = call_write_iter(file, kiocb, &iter);
+ 		else
+ 			ret2 = loop_rw_iter(WRITE, file, kiocb, &iter);
++
++		if (!force_nonblock)
++			current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
++
+ 		if (!force_nonblock || ret2 != -EAGAIN) {
+ 			io_rw_done(kiocb, ret2);
+ 		} else {
+
+
 -- 
-2.20.1
+Jens Axboe
 
