@@ -2,77 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F35B1A9DFC
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:51:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A071A9E03
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:51:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897661AbgDOLs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:48:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44312 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409473AbgDOLsc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:48:32 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99F3E21582;
-        Wed, 15 Apr 2020 11:48:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951311;
-        bh=BtC7U9P5apcHlMtbq2Wc/WnKSOeCOUtOQd4q6P+uVCA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m8/tTBZQUk40GcXOD5rvw/TXP7tgXOOOFpLkoJO6gbTx5CRGPpIKjW01p2Ecey5Nw
-         e0pFFbTIW8dfPPTue0lViV/YSdzOKG/efgxEHQGCRhmHQQeX0WqapCI9DPt9L8VTdG
-         R2nXpCN0LP7p9qbsb9yXMFKkboCfyUeBZ7tfpPLg=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adrian Huang <ahuang12@lenovo.com>, Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.4 14/14] iommu/amd: Fix the configuration of GCR3 table root pointer
-Date:   Wed, 15 Apr 2020 07:48:14 -0400
-Message-Id: <20200415114814.15954-14-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200415114814.15954-1-sashal@kernel.org>
-References: <20200415114814.15954-1-sashal@kernel.org>
+        id S2407025AbgDOLte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:49:34 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:39349 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2409481AbgDOLtO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:49:14 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 2000D5C01A0;
+        Wed, 15 Apr 2020 07:49:12 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:49:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1xAwKH
+        eoqosDfJ3ueDxuCxC1e32gPAtj/68E5jQfuJM=; b=FFIOC/xoLeY4z13uwC7OI0
+        qy9kNmxnor9GEDheA1JgAxCY0H5RFQpvdJps+F9LBjxmtAPGBZChC0f0HMIrSRGd
+        5lkrjiZg1H5Py5QelrnWknasrRDxJng/vsMip9O/Piij9C6AfTqw8Fydah1Lo5xe
+        S+QrlFIVW1udpLIn0QjTX/vNIFl7ue/8j4HK1o6KcctPWJfZs7iCRTi+JwbQjv5w
+        fC2T0qUSEY+iiIfNrIqUmWOfle3ILrp4wPBXWn1aEFTEjJoQC8QMp1mF52dfUKhH
+        M3Ina+3yj5N7hgK4gBIq1hfeKiQ/cc3YT1xIyDV6RFvtFVKp3TmqEnhpsVQcDAUw
+        ==
+X-ME-Sender: <xms:tvSWXq7_KW7Xt5LisQqzY0IDkXOCgwkUFyw2pGBX7uNDhZYujLLxFA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdefgecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:tvSWXgHdpB58CR76AQf1n6mN0wN1yXfqUsl1-epqVlzAAe7eIe4Dpg>
+    <xmx:tvSWXglmfcrtCI-DhNB1aaS1yEoIXiGKAQBy1lg7_fcFldG5-XwfRg>
+    <xmx:tvSWXivq563_bvznhmZYi99vzjSmPqJObHGbY0TTGMbbRHI7v09Szw>
+    <xmx:uPSWXjp-pDjPkaK3LiYb84GT7MRbWjaP5bviE8hNFZRGiynmV-NN7Q>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E3B253060057;
+        Wed, 15 Apr 2020 07:49:09 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ipmi: fix hung processes in __get_guid()" failed to apply to 4.14-stable tree
+To:     wenyang@linux.alibaba.com, arnd@arndb.de, cminyard@mvista.com,
+        gregkh@linuxfoundation.org, minyard@acm.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Apr 2020 13:49:08 +0200
+Message-ID: <15869513487994@kroah.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Huang <ahuang12@lenovo.com>
 
-[ Upstream commit c20f36534666e37858a14e591114d93cc1be0d34 ]
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-The SPA of the GCR3 table root pointer[51:31] masks 20 bits. However,
-this requires 21 bits (Please see the AMD IOMMU specification).
-This leads to the potential failure when the bit 51 of SPA of
-the GCR3 table root pointer is 1'.
+thanks,
 
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
-Fixes: 52815b75682e2 ("iommu/amd: Add support for IOMMUv2 domain mode")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/iommu/amd_iommu_types.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+greg k-h
 
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index b08cf57bf4554..695d4e235438c 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -303,7 +303,7 @@
+------------------ original commit in Linus's tree ------------------
+
+From 32830a0534700f86366f371b150b17f0f0d140d7 Mon Sep 17 00:00:00 2001
+From: Wen Yang <wenyang@linux.alibaba.com>
+Date: Fri, 3 Apr 2020 17:04:08 +0800
+Subject: [PATCH] ipmi: fix hung processes in __get_guid()
+
+The wait_event() function is used to detect command completion.
+When send_guid_cmd() returns an error, smi_send() has not been
+called to send data. Therefore, wait_event() should not be used
+on the error path, otherwise it will cause the following warning:
+
+[ 1361.588808] systemd-udevd   D    0  1501   1436 0x00000004
+[ 1361.588813]  ffff883f4b1298c0 0000000000000000 ffff883f4b188000 ffff887f7e3d9f40
+[ 1361.677952]  ffff887f64bd4280 ffffc90037297a68 ffffffff8173ca3b ffffc90000000010
+[ 1361.767077]  00ffc90037297ad0 ffff887f7e3d9f40 0000000000000286 ffff883f4b188000
+[ 1361.856199] Call Trace:
+[ 1361.885578]  [<ffffffff8173ca3b>] ? __schedule+0x23b/0x780
+[ 1361.951406]  [<ffffffff8173cfb6>] schedule+0x36/0x80
+[ 1362.010979]  [<ffffffffa071f178>] get_guid+0x118/0x150 [ipmi_msghandler]
+[ 1362.091281]  [<ffffffff810d5350>] ? prepare_to_wait_event+0x100/0x100
+[ 1362.168533]  [<ffffffffa071f755>] ipmi_register_smi+0x405/0x940 [ipmi_msghandler]
+[ 1362.258337]  [<ffffffffa0230ae9>] try_smi_init+0x529/0x950 [ipmi_si]
+[ 1362.334521]  [<ffffffffa022f350>] ? std_irq_setup+0xd0/0xd0 [ipmi_si]
+[ 1362.411701]  [<ffffffffa0232bd2>] init_ipmi_si+0x492/0x9e0 [ipmi_si]
+[ 1362.487917]  [<ffffffffa0232740>] ? ipmi_pci_probe+0x280/0x280 [ipmi_si]
+[ 1362.568219]  [<ffffffff810021a0>] do_one_initcall+0x50/0x180
+[ 1362.636109]  [<ffffffff812231b2>] ? kmem_cache_alloc_trace+0x142/0x190
+[ 1362.714330]  [<ffffffff811b2ae1>] do_init_module+0x5f/0x200
+[ 1362.781208]  [<ffffffff81123ca8>] load_module+0x1898/0x1de0
+[ 1362.848069]  [<ffffffff811202e0>] ? __symbol_put+0x60/0x60
+[ 1362.913886]  [<ffffffff8130696b>] ? security_kernel_post_read_file+0x6b/0x80
+[ 1362.998514]  [<ffffffff81124465>] SYSC_finit_module+0xe5/0x120
+[ 1363.068463]  [<ffffffff81124465>] ? SYSC_finit_module+0xe5/0x120
+[ 1363.140513]  [<ffffffff811244be>] SyS_finit_module+0xe/0x10
+[ 1363.207364]  [<ffffffff81003c04>] do_syscall_64+0x74/0x180
+
+Fixes: 50c812b2b951 ("[PATCH] ipmi: add full sysfs support")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: Corey Minyard <minyard@acm.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: openipmi-developer@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # 2.6.17-
+Message-Id: <20200403090408.58745-1-wenyang@linux.alibaba.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
+
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index 64ba16dcb681..c48d8f086382 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -3193,8 +3193,8 @@ static void __get_guid(struct ipmi_smi *intf)
+ 	if (rv)
+ 		/* Send failed, no GUID available. */
+ 		bmc->dyn_guid_set = 0;
+-
+-	wait_event(intf->waitq, bmc->dyn_guid_set != 2);
++	else
++		wait_event(intf->waitq, bmc->dyn_guid_set != 2);
  
- #define DTE_GCR3_VAL_A(x)	(((x) >> 12) & 0x00007ULL)
- #define DTE_GCR3_VAL_B(x)	(((x) >> 15) & 0x0ffffULL)
--#define DTE_GCR3_VAL_C(x)	(((x) >> 31) & 0xfffffULL)
-+#define DTE_GCR3_VAL_C(x)	(((x) >> 31) & 0x1fffffULL)
- 
- #define DTE_GCR3_INDEX_A	0
- #define DTE_GCR3_INDEX_B	1
--- 
-2.20.1
+ 	/* dyn_guid_set makes the guid data available. */
+ 	smp_rmb();
 
