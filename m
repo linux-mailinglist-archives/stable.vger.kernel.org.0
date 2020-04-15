@@ -2,191 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDF921A960C
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 10:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E63201A9932
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 11:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2635787AbgDOIR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 04:17:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37380 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2635783AbgDOIR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 04:17:27 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F24DAC061A0E
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 01:17:26 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id w20so16227162iob.2
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 01:17:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rAypnYUnXisby7UlcQ7L0AAFJ3z67DBgCY5ZgoNKK8Q=;
-        b=FQwPhsPU/y150kdNSN7l6yoOpQ678zrX/Vm1csBZe4kOE6eyD0/0i1NYn9Ki4MWCHE
-         t1h6P4Nn7LZCfH81dMhvQP19MY7wAv/Ab1eHefzFb5CrbhPJ0S5TPYITtjJm5mmkvy8o
-         uk5rlfw0unadsJJiFEKCvgBYkz2Qnfo9pWC/fl3NSK2kAQ4mQ7eSExWwdYf11mER8MzD
-         AUwmXhQzBlCTgY9x7HBtTYXO8WJYVUuoYV1ON1ykJKtwShWzg7E+tQvYK9LWP6fQwBSH
-         mnEJm1+V7nQJyBRtWt6Cm30UFQV61hNeCZquyDgNrS6fICsZJ5wbV0fNNw6jllBa/9jD
-         uQAw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rAypnYUnXisby7UlcQ7L0AAFJ3z67DBgCY5ZgoNKK8Q=;
-        b=P9jvgxrLyKulC2Et1e1cBpEOut5F9j57FQn69OvksNeVJM+z40YOpQhyQTnCvUbq8M
-         HrOrDOTGgs25DMQXNaaXCIS30ZGqYc/LEdzv6Gxic8WS3yF4xb+Topiy6K1aOkcouTDI
-         zQS5AOe9RHp4BO+lDfrHl6+mXyEvuhNj2dGPmpUX3EToBnHDRxcXnrU/6EszrsslpNgv
-         0NGq9JKq/iKvQeQc8XikkNK743bSivylqeDrtX/f97j5fq8E6hfXHCAzBq9SQMq4nrCc
-         zNPvIZ155HPn1If5Ne0KmtqoZg8pOsDdUTNOeJARUMDeu5e+CRWM5lF86Ide4bv/3Ot0
-         urwA==
-X-Gm-Message-State: AGi0PuYR3YknlnnBCILNg1bIx61va6T69LqLRja7omrqn1AsvzMgi1Fc
-        TOzrigXP5C7Xr7ukK8zSH3OGNNmYhMQNLC3TyqD5mg==
-X-Google-Smtp-Source: APiQypLwRH2La++nsaPlDKXdOv+A6GfmbGXRRtF1yYRthvSDrDZUF5J/vfGtymisXsd11i0Iubq2lLPvgRAbELtheNw=
-X-Received: by 2002:a02:cca3:: with SMTP id t3mr16773558jap.3.1586938646282;
- Wed, 15 Apr 2020 01:17:26 -0700 (PDT)
+        id S2895750AbgDOJpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 05:45:10 -0400
+Received: from cloudserver094114.home.pl ([79.96.170.134]:44126 "EHLO
+        cloudserver094114.home.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2895743AbgDOJpG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 05:45:06 -0400
+Received: from 185.80.35.16 (185.80.35.16) (HELO kreacher.localnet)
+ by serwer1319399.home.pl (79.96.170.134) with SMTP (IdeaSmtpServer 0.83.415)
+ id f6ab41578b3b780a; Wed, 15 Apr 2020 11:45:02 +0200
+From:   "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Maxim Mikityanskiy <maxtram95@gmail.com>,
+        "5 . 3+" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] platform/x86: intel_int0002_vgpio: Only bind to the INT0002 dev when using s2idle
+Date:   Wed, 15 Apr 2020 11:45:01 +0200
+Message-ID: <4380034.KJPSqyn9gG@kreacher>
+In-Reply-To: <20200414131953.131533-1-hdegoede@redhat.com>
+References: <20200414131953.131533-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-References: <20200415015410.glIzXqR5d%akpm@linux-foundation.org> <49e65ca7-03a2-9a82-9e1a-cf997320bcfd@virtuozzo.com>
-In-Reply-To: <49e65ca7-03a2-9a82-9e1a-cf997320bcfd@virtuozzo.com>
-From:   Muchun Song <songmuchun@bytedance.com>
-Date:   Wed, 15 Apr 2020 16:16:50 +0800
-Message-ID: <CAMZfGtWwE_9uSH9Vw+W2yJJhMo4BfWHx_PME+HD5h3r+A3zXeg@mail.gmail.com>
-Subject: Re: [External] Re: + mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
- added to -mm tree
-To:     Kirill Tkhai <ktkhai@virtuozzo.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, david@redhat.com,
-        Xiongchun duan <duanxiongchun@bytedance.com>, hughd@google.com,
-        imbrenda@linux.vnet.ibm.com,
-        Markus Elfring <Markus.Elfring@web.de>,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        yang.shi@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 3:44 PM Kirill Tkhai <ktkhai@virtuozzo.com> wrote:
->
-> On 15.04.2020 04:54, Andrew Morton wrote:
-> >
-> > The patch titled
-> >      Subject: mm/ksm: fix NULL pointer dereference when KSM zero page is enabled
-> > has been added to the -mm tree.  Its filename is
-> >      mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
-> >
-> > This patch should soon appear at
-> >     http://ozlabs.org/~akpm/mmots/broken-out/mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
-> > and later at
-> >     http://ozlabs.org/~akpm/mmotm/broken-out/mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
-> >
-> > Before you just go and hit "reply", please:
-> >    a) Consider who else should be cc'ed
-> >    b) Prefer to cc a suitable mailing list as well
-> >    c) Ideally: find the original patch on the mailing list and do a
-> >       reply-to-all to that, adding suitable additional cc's
-> >
-> > *** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-> >
-> > The -mm tree is included into linux-next and is updated
-> > there every 3-4 working days
-> >
-> > ------------------------------------------------------
-> > From: Muchun Song <songmuchun@bytedance.com>
-> > Subject: mm/ksm: fix NULL pointer dereference when KSM zero page is enabled
-> >
-> > find_mergeable_vma can return NULL.  In this case, it leads to crash when
-> > we access vma->vm_mm(its offset is 0x40) later in write_protect_page.  And
-> > this case did happen on our server.  The following calltrace is captured
-> > in kernel 4.19 with the following patch applied and KSM zero page enabled
-> > on our server.
-> >
-> >   commit e86c59b1b12d ("mm/ksm: improve deduplication of zero pages with colouring")
-> >
-> > So add a vma check to fix it.
-> >
-> > --------------------------------------------------------------------------
-> >   BUG: unable to handle kernel NULL pointer dereference at 0000000000000040
-> >   Oops: 0000 [#1] SMP NOPTI
-> >   CPU: 9 PID: 510 Comm: ksmd Kdump: loaded Tainted: G OE 4.19.36.bsk.9-amd64 #4.19.36.bsk.9
-> >   Hardware name: FOXCONN R-5111/GROOT, BIOS IC1B111F 08/17/2019
-> >   RIP: 0010:try_to_merge_one_page+0xc7/0x760
-> >   Code: 24 58 65 48 33 34 25 28 00 00 00 89 e8 0f 85 a3 06 00 00 48 83 c4
-> >         60 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 8b 46 08 a8 01 75 b8 <49>
-> >         8b 44 24 40 4c 8d 7c 24 20 b9 07 00 00 00 4c 89 e6 4c 89 ff 48
-> >   RSP: 0018:ffffadbdd9fffdb0 EFLAGS: 00010246
-> >   RAX: ffffda83ffd4be08 RBX: ffffda83ffd4be40 RCX: 0000002c6e800000
-> >   RDX: 0000000000000000 RSI: ffffda83ffd4be40 RDI: 0000000000000000
-> >   RBP: ffffa11939f02ec0 R08: 0000000094e1a447 R09: 00000000abe76577
-> >   R10: 0000000000000962 R11: 0000000000004e6a R12: 0000000000000000
-> >   R13: ffffda83b1e06380 R14: ffffa18f31f072c0 R15: ffffda83ffd4be40
-> >   FS: 0000000000000000(0000) GS:ffffa0da43b80000(0000) knlGS:0000000000000000
-> >   CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> >   CR2: 0000000000000040 CR3: 0000002c77c0a003 CR4: 00000000007626e0
-> >   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> >   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> >   PKRU: 55555554
-> >   Call Trace:
-> >     ? follow_page_pte+0x36d/0x5e0
-> >     ksm_scan_thread+0x115e/0x1960
-> >     ? remove_wait_queue+0x60/0x60
-> >     kthread+0xf5/0x130
-> >     ? try_to_merge_with_ksm_page+0x90/0x90
-> >     ? kthread_create_worker_on_cpu+0x70/0x70
-> >     ret_from_fork+0x1f/0x30
-> > --------------------------------------------------------------------------
-> >
-> > Link: http://lkml.kernel.org/r/20200414132905.83819-1-songmuchun@bytedance.com
-> > Fixes: e86c59b1b12d ("mm/ksm: improve deduplication of zero pages with colouring")
-> > Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-> > Co-developed-by: Xiongchun Duan <duanxiongchun@bytedance.com>
-> > Reviewed-by: David Hildenbrand <david@redhat.com>
->
-> Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
->
-> > Cc: Hugh Dickins <hughd@google.com>
-> > Cc: Yang Shi <yang.shi@linux.alibaba.com>
-> > Cc: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
-> > Cc: Markus Elfring <Markus.Elfring@web.de>
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > ---
-> >
-> >  mm/ksm.c |    7 +++++--
-> >  1 file changed, 5 insertions(+), 2 deletions(-)
-> >
-> > --- a/mm/ksm.c~mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled
-> > +++ a/mm/ksm.c
-> > @@ -2112,8 +2112,11 @@ static void cmp_and_merge_page(struct pa
-> >
-> >               down_read(&mm->mmap_sem);
-> >               vma = find_mergeable_vma(mm, rmap_item->address);
-> > -             err = try_to_merge_one_page(vma, page,
-> > -                                         ZERO_PAGE(rmap_item->address));
-> > +             if (vma)
-> > +                     err = try_to_merge_one_page(vma, page,
-> > +                                     ZERO_PAGE(rmap_item->address));
-> > +             else
-> > +                     err = -EFAULT;
-> >               up_read(&mm->mmap_sem);
->
-> In case of vma is out of date, we also may consider to exit this function without
-> calling unstable_tree_search_insert().
+On Tuesday, April 14, 2020 3:19:53 PM CEST Hans de Goede wrote:
+> Commit 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement
+> irq_set_wake on Bay Trail") stopped passing irq_set_wake requests on to
+> the parents IRQ because this was breaking suspend (causing immediate
+> wakeups) on an Asus E202SA.
+> 
+> This workaround for this issue is mostly fine, on most Cherry Trail
+> devices where we need the INT0002 device for wakeups by e.g. USB kbds,
+> the parent IRQ is shared with the ACPI SCI and that is marked as wakeup
+> anyways.
+> 
+> But not on all devices, specifically on a Medion Akoya E1239T there is
+> no SCI at all, and because the irq_set_wake request is not passed on to
+> the parent IRQ, wake up by the builtin USB kbd does not work here.
+> 
+> So the workaround for the Asus E202SA immediate wake problem is causing
+> problems elsewhere; and in hindsight it is not the correct fix,
+> the Asus E202SA uses Airmont CPU cores, but this does not mean it is a
+> Cherry Trail based device, Brasswell uses Airmont CPU cores too and this
+> actually is a Braswell device.
+> 
+> Most (all?) Braswell devices use classic S3 mode suspend rather then
+> s2idle suspend and in this case directly dealing with PME events as
+> the INT0002 driver does likely is not the best idea, so that this is
+> causing issues is not surprising.
+> 
+> Replace the workaround of not passing irq_set_wake requests on to the
+> parents IRQ, by not binding to the INT0002 device when s2idle is not used.
+> This fixes USB kbd wakeups not working on some Cherry Trail devices,
+> while still avoiding mucking with the wakeup flags on the Asus E202SA
+> (and other Brasswell devices).
+> 
+> Cc: Maxim Mikityanskiy <maxtram95@gmail.com>
+> Cc: 5.3+ <stable@vger.kernel.org> # 5.3+
+> Fixes: 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement irq_set_wake on Bay Trail")
+> Tested-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+> Changes in v2:
+> - Rebase on top of 5.7-rc1
+> ---
+>  drivers/platform/x86/intel_int0002_vgpio.c | 18 +++++-------------
+>  1 file changed, 5 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platform/x86/intel_int0002_vgpio.c
+> index 289c6655d425..30806046b664 100644
+> --- a/drivers/platform/x86/intel_int0002_vgpio.c
+> +++ b/drivers/platform/x86/intel_int0002_vgpio.c
+> @@ -143,21 +143,9 @@ static struct irq_chip int0002_byt_irqchip = {
+>  	.irq_set_wake		= int0002_irq_set_wake,
+>  };
+>  
+> -static struct irq_chip int0002_cht_irqchip = {
+> -	.name			= DRV_NAME,
+> -	.irq_ack		= int0002_irq_ack,
+> -	.irq_mask		= int0002_irq_mask,
+> -	.irq_unmask		= int0002_irq_unmask,
+> -	/*
+> -	 * No set_wake, on CHT the IRQ is typically shared with the ACPI SCI
+> -	 * and we don't want to mess with the ACPI SCI irq settings.
+> -	 */
+> -	.flags			= IRQCHIP_SKIP_SET_WAKE,
+> -};
+> -
+>  static const struct x86_cpu_id int0002_cpu_ids[] = {
+>  	X86_MATCH_INTEL_FAM6_MODEL(ATOM_SILVERMONT,	&int0002_byt_irqchip),
+> -	X86_MATCH_INTEL_FAM6_MODEL(ATOM_AIRMONT,	&int0002_cht_irqchip),
+> +	X86_MATCH_INTEL_FAM6_MODEL(ATOM_AIRMONT,	&int0002_byt_irqchip),
+>  	{}
+>  };
+>  
+> @@ -181,6 +169,10 @@ static int int0002_probe(struct platform_device *pdev)
+>  	if (!cpu_id)
+>  		return -ENODEV;
+>  
+> +	/* We only need to directly deal with PMEs when using s2idle */
+> +	if (!pm_suspend_default_s2idle())
+> +		return -ENODEV;
+> +
 
-Yeah, I agree with you. Should I send another patch to fix this patch
-or an upgraded
-version(v4) of this patch.
+What if the system supports s2idle which is not the default suspend option
+and then it is selected by user space (overriding the default)?
 
->
-> >               /*
-> >                * In case of failure, the page was not really empty, so we
-> > _
-> >
-> > Patches currently in -mm which might be from songmuchun@bytedance.com are
-> >
-> > mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
-> >
->
+>  	irq = platform_get_irq(pdev, 0);
+>  	if (irq < 0)
+>  		return irq;
+> 
 
 
--- 
-Yours,
-Muchun
+
+
