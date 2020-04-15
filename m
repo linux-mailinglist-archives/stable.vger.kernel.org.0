@@ -2,60 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9FEF1AB0C1
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 20:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 404431AB128
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 21:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1415201AbgDOScx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 14:32:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42026 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1416781AbgDOScw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 14:32:52 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0C5A20771;
-        Wed, 15 Apr 2020 18:32:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586975569;
-        bh=BItXRqcnd3Qi5c80DMiRqZzRNxAmk+XWa0mvuTcWq1I=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=GbSwxHKRwi7Z+qk4E6yW/nXZ3IVr1/+g1H4lJcBjwGn/2j/rAAXRe2APxkjk7XRUY
-         LTFcXAnn5fpAt2+Gwj5FiiY+ubfhEw5bk7yRcXUQHuzNkyN1cxWIFGl6K4onL2F6EX
-         UAJ6OHG+9buRysjZykWKReVzSZAPVTkplrKllaQk=
-Date:   Wed, 15 Apr 2020 11:32:48 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Muchun Song <songmuchun@bytedance.com>
-Cc:     Kirill Tkhai <ktkhai@virtuozzo.com>, david@redhat.com,
-        Xiongchun duan <duanxiongchun@bytedance.com>, hughd@google.com,
-        imbrenda@linux.vnet.ibm.com,
-        Markus Elfring <Markus.Elfring@web.de>,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        yang.shi@linux.alibaba.com
-Subject: Re: [External] Re: +
- mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
- added to -mm tree
-Message-Id: <20200415113248.1c17147d0991099d358b4bef@linux-foundation.org>
-In-Reply-To: <CAMZfGtWwE_9uSH9Vw+W2yJJhMo4BfWHx_PME+HD5h3r+A3zXeg@mail.gmail.com>
-References: <20200415015410.glIzXqR5d%akpm@linux-foundation.org>
-        <49e65ca7-03a2-9a82-9e1a-cf997320bcfd@virtuozzo.com>
-        <CAMZfGtWwE_9uSH9Vw+W2yJJhMo4BfWHx_PME+HD5h3r+A3zXeg@mail.gmail.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S2438148AbgDOTHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 15:07:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1416832AbgDOSg6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 14:36:58 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365BAC061A0C
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 11:36:58 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id u65so394846pfb.4
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 11:36:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=6gDAPDykvRYIOsfNOf+uf0ChqLsfwzECBZNSpH39PdI=;
+        b=TJ8wUpmesVFW6pacLs1L2Fb5xHEAEE0PRfhnFUcJlsVg1+sQwJ1zulSX8LKh7LsRBQ
+         VXu5gVuKQZS9ug/upo6V9bMtYBcVfG+eBGxgolqAmn5o0BKAmt/QWoRfIiSECpLAGZHe
+         AF25pcOxj+xA65WSb2Q5VYEktr+3GfDDFYRAapvC+twr1gvr8yyBF4YI0XCdaTykho2N
+         D4UO600f+7TyLx4JNRd8j3uNZHv3oOn3e7+JZrTi/9lFQrlr6CE1futBFnsNIp+mij7P
+         mTuxEtqC3RscmZQ9cWlIVCJOL11B6cZ/olPECovr1sxi5nAoY1kVjrQsGaTMrOWiJxEB
+         Srrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition:user-agent;
+        bh=6gDAPDykvRYIOsfNOf+uf0ChqLsfwzECBZNSpH39PdI=;
+        b=A0tpuCwgVbYxuckNKSpS8huN6JNKqDOxiqAeJEwxDgzXc6IApMC9a3jWmpi3+UZKm8
+         rK48T1dHteHNfqTPTaTXIaJWTJA0YDiRTLT2PocieJNYDv1bPrwW9cP/KZeqclqf9Wdx
+         iEpNo2VoA25InEZVIJcXT3NPUsmIqcHcVX4O9OlxuFj8KhQkdT+T/BP8W6co0iMdneMd
+         zM0ElNiuaXs1LlpSS3+YhpTgoFlLa6UiRoQWZgsBFuMaD6/HK4M2ALrx+RrbWAe7dJXc
+         k5uBcjfTl+PvF3ChEWzvwW1mchfetykx2KXxrd3uayLfj6z+xHhHFWgxCwGYxzI5F/dA
+         0nWw==
+X-Gm-Message-State: AGi0PuaIdX2leLVRt9Vc8jhPO2L8Zvc8PTCtDBoPAJ/LJLv0JphpRbl1
+        R3S5LBnSAm8Ol3lIaRkRNmGH+nlv
+X-Google-Smtp-Source: APiQypLtcncexllvljS0dNvQJ0wQtj7ApEjwU+agd26b5JFGBSxHWfB127iCRWj/WwyKZhr9Txk6Fw==
+X-Received: by 2002:a62:5e86:: with SMTP id s128mr30508792pfb.157.1586975817567;
+        Wed, 15 Apr 2020 11:36:57 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l185sm13190853pfl.104.2020.04.15.11.36.56
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 15 Apr 2020 11:36:56 -0700 (PDT)
+Date:   Wed, 15 Apr 2020 11:36:55 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Stable RC build failures (v4.19.y, v5.4.y, v5.5.y)
+Message-ID: <20200415183655.GA66707@roeck-us.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 15 Apr 2020 16:16:50 +0800 Muchun Song <songmuchun@bytedance.com> wrote:
+Hi,
 
-> > In case of vma is out of date, we also may consider to exit this function without
-> > calling unstable_tree_search_insert().
-> 
-> Yeah, I agree with you. Should I send another patch to fix this patch
-> or an upgraded
-> version(v4) of this patch.
+The folloewing build failures currently observed with stable release
+candidates.
 
-Either is OK.
+Thanks,
+Guenter
+
+---
+v4.19.y:
+
+drivers/gpu/drm/etnaviv/etnaviv_perfmon.c:392:14: error: 'chipFeatures_PIPE_3D' undeclared here
+drivers/gpu/drm/etnaviv/etnaviv_perfmon.c:397:14: error: 'chipFeatures_PIPE_2D'
+drivers/gpu/drm/etnaviv/etnaviv_perfmon.c:402:14: error: 'chipFeatures_PIPE_VG' undeclared here
+
+Culprit is 'drm/etnaviv: rework perfmon query infrastructure'. Applying
+commit 15ff4a7b5841 ("etnaviv: perfmon: fix total and idle HI cyleces
+readout") as well fixes the problem.
+
+
+v5.4.y, v5.5.y:
+
+drivers/mmc/host/sdhci-tegra.c: In function 'tegra_sdhci_set_timeout':
+drivers/mmc/host/sdhci-tegra.c:1256:2: error:
+	implicit declaration of function '__sdhci_set_timeout'
+
+Culprit is "sdhci: tegra: Implement Tegra specific set_timeout callback".
+__sdhci_set_timeout() was introduced with commit 7d76ed77cfbd3 ("mmc:
+sdhci: Refactor sdhci_set_timeout()"). Unfortunately, applying that patch
+results in a conflict.
+
+Guenter
