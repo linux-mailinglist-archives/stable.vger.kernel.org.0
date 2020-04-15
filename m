@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1431A1A9DDA
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1397B1A9F57
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:14:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897596AbgDOLrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:47:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41934 "EHLO mail.kernel.org"
+        id S368482AbgDOMJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:09:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897585AbgDOLrA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:47:00 -0400
+        id S2897586AbgDOLrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:47:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7196E21655;
-        Wed, 15 Apr 2020 11:46:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 927452137B;
+        Wed, 15 Apr 2020 11:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951220;
-        bh=jObTWNnMaHHidvtaybkPvbifiOTSw/wElwG0AYkUPhI=;
+        s=default; t=1586951221;
+        bh=jTuUCyPuJOG1nAdrPAoxt4PboG749EAUEnTxsfy/RmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcbWAuryh4zxdi1LGc9cN18r1DKS9AuvpqJufNqlrpylZjCgHLvrI2CwAZi1C2f2N
-         BgZfwEkFlqlJM2TSW5ul4F5Yol+vq3+qhKfd+uzN3qFLqcKVYUgUltefEBZQB0ZE9h
-         MP7GZqynwZyhygX8lbs0P9L8+6G67IimqWnJr+vo=
+        b=rq2e1ALTMuFNPoTdMXlRkynQr97OAQTVAHLaTDGVK91nVJu8E33pRCz32wG4x4PQ2
+         PfaRfhBk6W0AI+Bx5OiRmKqMeF4gWhE0ruOWAVkmXO43T8leYJyOkNAwXvu1dxqHM/
+         CnDDx3vOFMLKbg08OSD6mRRZZiXRPOs57d/PyMsc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 31/40] mfd: dln2: Fix sanity checking for endpoints
-Date:   Wed, 15 Apr 2020 07:46:14 -0400
-Message-Id: <20200415114623.14972-31-sashal@kernel.org>
+Cc:     Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 32/40] drm/vc4: Fix HDMI mode validation
+Date:   Wed, 15 Apr 2020 07:46:15 -0400
+Message-Id: <20200415114623.14972-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114623.14972-1-sashal@kernel.org>
 References: <20200415114623.14972-1-sashal@kernel.org>
@@ -45,59 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-[ Upstream commit fb945c95a482200876993977008b67ea658bd938 ]
+[ Upstream commit b1e7396a1d0e6af6806337fdaaa44098d6b3343c ]
 
-While the commit 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-tries to harden the sanity checks it made at the same time a regression,
-i.e.  mixed in and out endpoints. Obviously it should have been not tested on
-real hardware at that time, but unluckily it didn't happen.
+Current mode validation impedes setting up some video modes which should
+be supported otherwise. Namely 1920x1200@60Hz.
 
-So, fix above mentioned typo and make device being enumerated again.
+Fix this by lowering the minimum HDMI state machine clock to pixel clock
+ratio allowed.
 
-While here, introduce an enumerator for magic values to prevent similar issue
-to happen in the future.
-
-Fixes: 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-Cc: Oliver Neukum <oneukum@suse.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: 32e823c63e90 ("drm/vc4: Reject HDMI modes with too high of clocks.")
+Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
+Suggested-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200326122001.22215-1-nsaenzjulienne@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/dln2.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
-index 1476465ce803b..6ea0dd37b4535 100644
---- a/drivers/mfd/dln2.c
-+++ b/drivers/mfd/dln2.c
-@@ -93,6 +93,11 @@ struct dln2_mod_rx_slots {
- 	spinlock_t lock;
- };
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index fd5522fd179e5..86b98856756d9 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -698,11 +698,23 @@ static enum drm_mode_status
+ vc4_hdmi_encoder_mode_valid(struct drm_encoder *crtc,
+ 			    const struct drm_display_mode *mode)
+ {
+-	/* HSM clock must be 108% of the pixel clock.  Additionally,
+-	 * the AXI clock needs to be at least 25% of pixel clock, but
+-	 * HSM ends up being the limiting factor.
++	/*
++	 * As stated in RPi's vc4 firmware "HDMI state machine (HSM) clock must
++	 * be faster than pixel clock, infinitesimally faster, tested in
++	 * simulation. Otherwise, exact value is unimportant for HDMI
++	 * operation." This conflicts with bcm2835's vc4 documentation, which
++	 * states HSM's clock has to be at least 108% of the pixel clock.
++	 *
++	 * Real life tests reveal that vc4's firmware statement holds up, and
++	 * users are able to use pixel clocks closer to HSM's, namely for
++	 * 1920x1200@60Hz. So it was decided to have leave a 1% margin between
++	 * both clocks. Which, for RPi0-3 implies a maximum pixel clock of
++	 * 162MHz.
++	 *
++	 * Additionally, the AXI clock needs to be at least 25% of
++	 * pixel clock, but HSM ends up being the limiting factor.
+ 	 */
+-	if (mode->clock > HSM_CLOCK_FREQ / (1000 * 108 / 100))
++	if (mode->clock > HSM_CLOCK_FREQ / (1000 * 101 / 100))
+ 		return MODE_CLOCK_HIGH;
  
-+enum dln2_endpoint {
-+	DLN2_EP_OUT	= 0,
-+	DLN2_EP_IN	= 1,
-+};
-+
- struct dln2_dev {
- 	struct usb_device *usb_dev;
- 	struct usb_interface *interface;
-@@ -736,10 +741,10 @@ static int dln2_probe(struct usb_interface *interface,
- 	    hostif->desc.bNumEndpoints < 2)
- 		return -ENODEV;
- 
--	epin = &hostif->endpoint[0].desc;
--	epout = &hostif->endpoint[1].desc;
-+	epout = &hostif->endpoint[DLN2_EP_OUT].desc;
- 	if (!usb_endpoint_is_bulk_out(epout))
- 		return -ENODEV;
-+	epin = &hostif->endpoint[DLN2_EP_IN].desc;
- 	if (!usb_endpoint_is_bulk_in(epin))
- 		return -ENODEV;
- 
+ 	return MODE_OK;
 -- 
 2.20.1
 
