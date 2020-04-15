@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB6811AA34C
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 850411AA349
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:11:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506014AbgDONG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:06:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55594 "EHLO mail.kernel.org"
+        id S2503981AbgDONG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:06:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897093AbgDOLf4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:35:56 -0400
+        id S2897094AbgDOLf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:35:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22CDF20775;
-        Wed, 15 Apr 2020 11:35:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F92920737;
+        Wed, 15 Apr 2020 11:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950555;
-        bh=SFHvZtCLZ6EPWmNWrCEP+2BJ94BANmVoF5rF+9ZXu9Q=;
+        s=default; t=1586950556;
+        bh=Le5r4ZEgqHViB7UDMuTUHMRwchWcpxKe6N8tGPIdKdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zOU7y4kv7ANEYymwAl5i2SqMLeDYkUx7xBhAsn+gzyRHcqKzUeNkZxO5zOptQ8jRv
-         03Ard5zVPtm234eNCdjzyUXv7wM0rGqQW/oZrIbTy0Zgenh3Jh3E04oeGdmewcmEUG
-         RNKAG4zmYOLQ0w2/xOx7wBmqWp1mEXz/YW6d27gM=
+        b=twUXnbkxpBhf/riUONtD4bwFwRT9Vt3foYA9D0BJamIKVv6ey8auSuK0AYChUJvM+
+         3fNJl0rSEnAG1ZyxE1MZAlyEMSfcEvP+WOFeHWcBCDCaTYGrqJFWdfw/Y+QsheIgF/
+         InGmOQuvgz+YeRoaWaFil7ect+j/y62Ys5ZDQyK8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Long Li <longli@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.6 061/129] cifs: Allocate encryption header through kmalloc
-Date:   Wed, 15 Apr 2020 07:33:36 -0400
-Message-Id: <20200415113445.11881-61-sashal@kernel.org>
+Cc:     Miroslav Benes <mbenes@suse.cz>, Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.6 062/129] x86/xen: Make the boot CPU idle task reliable
+Date:   Wed, 15 Apr 2020 07:33:37 -0400
+Message-Id: <20200415113445.11881-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -44,81 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Miroslav Benes <mbenes@suse.cz>
 
-[ Upstream commit 3946d0d04bb360acca72db5efe9ae8440012d9dc ]
+[ Upstream commit 2f62f36e62daec43aa7b9633ef7f18e042a80bed ]
 
-When encryption is used, smb2_transform_hdr is defined on the stack and is
-passed to the transport. This doesn't work with RDMA as the buffer needs to
-be DMA'ed.
+The unwinder reports the boot CPU idle task's stack on XEN PV as
+unreliable, which affects at least live patching. There are two reasons
+for this. First, the task does not follow the x86 convention that its
+stack starts at the offset right below saved pt_regs. It allows the
+unwinder to easily detect the end of the stack and verify it. Second,
+startup_xen() function does not store the return address before jumping
+to xen_start_kernel() which confuses the unwinder.
 
-Fix it by using kmalloc.
+Amend both issues by moving the starting point of initial stack in
+startup_xen() and storing the return address before the jump, which is
+exactly what call instruction does.
 
-Signed-off-by: Long Li <longli@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Miroslav Benes <mbenes@suse.cz>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/transport.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ arch/x86/xen/xen-head.S | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
-index cb3ee916f5275..c97570eb2c180 100644
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -466,7 +466,7 @@ smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 	      struct smb_rqst *rqst, int flags)
- {
- 	struct kvec iov;
--	struct smb2_transform_hdr tr_hdr;
-+	struct smb2_transform_hdr *tr_hdr;
- 	struct smb_rqst cur_rqst[MAX_COMPOUND];
- 	int rc;
+diff --git a/arch/x86/xen/xen-head.S b/arch/x86/xen/xen-head.S
+index 1d0cee3163e41..d63806e1ff7ae 100644
+--- a/arch/x86/xen/xen-head.S
++++ b/arch/x86/xen/xen-head.S
+@@ -35,7 +35,11 @@ SYM_CODE_START(startup_xen)
+ 	rep __ASM_SIZE(stos)
  
-@@ -476,28 +476,34 @@ smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 	if (num_rqst > MAX_COMPOUND - 1)
- 		return -ENOMEM;
+ 	mov %_ASM_SI, xen_start_info
+-	mov $init_thread_union+THREAD_SIZE, %_ASM_SP
++#ifdef CONFIG_X86_64
++	mov initial_stack(%rip), %rsp
++#else
++	mov pa(initial_stack), %esp
++#endif
  
--	memset(&cur_rqst[0], 0, sizeof(cur_rqst));
--	memset(&iov, 0, sizeof(iov));
--	memset(&tr_hdr, 0, sizeof(tr_hdr));
--
--	iov.iov_base = &tr_hdr;
--	iov.iov_len = sizeof(tr_hdr);
--	cur_rqst[0].rq_iov = &iov;
--	cur_rqst[0].rq_nvec = 1;
--
- 	if (!server->ops->init_transform_rq) {
- 		cifs_server_dbg(VFS, "Encryption requested but transform "
- 				"callback is missing\n");
- 		return -EIO;
- 	}
+ #ifdef CONFIG_X86_64
+ 	/* Set up %gs.
+@@ -51,7 +55,7 @@ SYM_CODE_START(startup_xen)
+ 	wrmsr
+ #endif
  
-+	tr_hdr = kmalloc(sizeof(*tr_hdr), GFP_NOFS);
-+	if (!tr_hdr)
-+		return -ENOMEM;
-+
-+	memset(&cur_rqst[0], 0, sizeof(cur_rqst));
-+	memset(&iov, 0, sizeof(iov));
-+	memset(tr_hdr, 0, sizeof(*tr_hdr));
-+
-+	iov.iov_base = tr_hdr;
-+	iov.iov_len = sizeof(*tr_hdr);
-+	cur_rqst[0].rq_iov = &iov;
-+	cur_rqst[0].rq_nvec = 1;
-+
- 	rc = server->ops->init_transform_rq(server, num_rqst + 1,
- 					    &cur_rqst[0], rqst);
- 	if (rc)
--		return rc;
-+		goto out;
- 
- 	rc = __smb_send_rqst(server, num_rqst + 1, &cur_rqst[0]);
- 	smb3_free_compound_rqst(num_rqst, &cur_rqst[1]);
-+out:
-+	kfree(tr_hdr);
- 	return rc;
- }
- 
+-	jmp xen_start_kernel
++	call xen_start_kernel
+ SYM_CODE_END(startup_xen)
+ 	__FINIT
+ #endif
 -- 
 2.20.1
 
