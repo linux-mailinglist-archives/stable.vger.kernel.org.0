@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC401A9DD9
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1431A1A9DDA
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:50:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897592AbgDOLrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:47:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41996 "EHLO mail.kernel.org"
+        id S2897596AbgDOLrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:47:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897583AbgDOLq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:46:59 -0400
+        id S2897585AbgDOLrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:47:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6828D21582;
-        Wed, 15 Apr 2020 11:46:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7196E21655;
+        Wed, 15 Apr 2020 11:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951219;
-        bh=J2Tscg0fW3pcCyob+6YGj5QCeCv1qdJ+BxsxnfTJYBA=;
+        s=default; t=1586951220;
+        bh=jObTWNnMaHHidvtaybkPvbifiOTSw/wElwG0AYkUPhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1x68miR8+PVvj5NLAWUSdsuP7Dw5TMFzxtFDlS6In6dgAMhxqK+ECefGAItwNfqf
-         jdd9wXoVaWi9VWnA95y50aZFwK4uDwEKa0kNuCTaSO8RXH3v3AgFhfvnXfctxAsVy2
-         LfMqHiBn9ornQwXhVYjMXeRxLoh6r8914i2aq/Nk=
+        b=UcbWAuryh4zxdi1LGc9cN18r1DKS9AuvpqJufNqlrpylZjCgHLvrI2CwAZi1C2f2N
+         BgZfwEkFlqlJM2TSW5ul4F5Yol+vq3+qhKfd+uzN3qFLqcKVYUgUltefEBZQB0ZE9h
+         MP7GZqynwZyhygX8lbs0P9L8+6G67IimqWnJr+vo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 30/40] f2fs: fix NULL pointer dereference in f2fs_write_begin()
-Date:   Wed, 15 Apr 2020 07:46:13 -0400
-Message-Id: <20200415114623.14972-30-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 31/40] mfd: dln2: Fix sanity checking for endpoints
+Date:   Wed, 15 Apr 2020 07:46:14 -0400
+Message-Id: <20200415114623.14972-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114623.14972-1-sashal@kernel.org>
 References: <20200415114623.14972-1-sashal@kernel.org>
@@ -43,75 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 62f63eea291b50a5677ae7503ac128803174698a ]
+[ Upstream commit fb945c95a482200876993977008b67ea658bd938 ]
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-RIP: 0010:f2fs_write_begin+0x823/0xb90 [f2fs]
-Call Trace:
- f2fs_quota_write+0x139/0x1d0 [f2fs]
- write_blk+0x36/0x80 [quota_tree]
- get_free_dqblk+0x42/0xa0 [quota_tree]
- do_insert_tree+0x235/0x4a0 [quota_tree]
- do_insert_tree+0x26e/0x4a0 [quota_tree]
- do_insert_tree+0x26e/0x4a0 [quota_tree]
- do_insert_tree+0x26e/0x4a0 [quota_tree]
- qtree_write_dquot+0x70/0x190 [quota_tree]
- v2_write_dquot+0x43/0x90 [quota_v2]
- dquot_acquire+0x77/0x100
- f2fs_dquot_acquire+0x2f/0x60 [f2fs]
- dqget+0x310/0x450
- dquot_transfer+0x7e/0x120
- f2fs_setattr+0x11a/0x4a0 [f2fs]
- notify_change+0x349/0x480
- chown_common+0x168/0x1c0
- do_fchownat+0xbc/0xf0
- __x64_sys_fchownat+0x20/0x30
- do_syscall_64+0x5f/0x220
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+While the commit 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
+tries to harden the sanity checks it made at the same time a regression,
+i.e.  mixed in and out endpoints. Obviously it should have been not tested on
+real hardware at that time, but unluckily it didn't happen.
 
-Passing fsdata parameter to .write_{begin,end} in f2fs_quota_write(),
-so that if quota file is compressed one, we can avoid above NULL
-pointer dereference when updating quota content.
+So, fix above mentioned typo and make device being enumerated again.
 
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+While here, introduce an enumerator for magic values to prevent similar issue
+to happen in the future.
+
+Fixes: 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
+Cc: Oliver Neukum <oneukum@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mfd/dln2.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index da348cf4ff56a..45f8f6ec22a55 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1648,6 +1648,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
- 	int offset = off & (sb->s_blocksize - 1);
- 	size_t towrite = len;
- 	struct page *page;
-+	void *fsdata = NULL;
- 	char *kaddr;
- 	int err = 0;
- 	int tocopy;
-@@ -1657,7 +1658,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
- 								towrite);
- retry:
- 		err = a_ops->write_begin(NULL, mapping, off, tocopy, 0,
--							&page, NULL);
-+							&page, &fsdata);
- 		if (unlikely(err)) {
- 			if (err == -ENOMEM) {
- 				congestion_wait(BLK_RW_ASYNC, HZ/50);
-@@ -1672,7 +1673,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
- 		flush_dcache_page(page);
+diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+index 1476465ce803b..6ea0dd37b4535 100644
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -93,6 +93,11 @@ struct dln2_mod_rx_slots {
+ 	spinlock_t lock;
+ };
  
- 		a_ops->write_end(NULL, mapping, off, tocopy, tocopy,
--						page, NULL);
-+						page, fsdata);
- 		offset = 0;
- 		towrite -= tocopy;
- 		off += tocopy;
++enum dln2_endpoint {
++	DLN2_EP_OUT	= 0,
++	DLN2_EP_IN	= 1,
++};
++
+ struct dln2_dev {
+ 	struct usb_device *usb_dev;
+ 	struct usb_interface *interface;
+@@ -736,10 +741,10 @@ static int dln2_probe(struct usb_interface *interface,
+ 	    hostif->desc.bNumEndpoints < 2)
+ 		return -ENODEV;
+ 
+-	epin = &hostif->endpoint[0].desc;
+-	epout = &hostif->endpoint[1].desc;
++	epout = &hostif->endpoint[DLN2_EP_OUT].desc;
+ 	if (!usb_endpoint_is_bulk_out(epout))
+ 		return -ENODEV;
++	epin = &hostif->endpoint[DLN2_EP_IN].desc;
+ 	if (!usb_endpoint_is_bulk_in(epin))
+ 		return -ENODEV;
+ 
 -- 
 2.20.1
 
