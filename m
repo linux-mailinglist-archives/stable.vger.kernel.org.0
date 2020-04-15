@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C690C1AA1B1
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 967EA1AA1AA
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898213AbgDOMpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:45:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35152 "EHLO mail.kernel.org"
+        id S370163AbgDOMoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:44:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408995AbgDOLnU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:43:20 -0400
+        id S2897181AbgDOLnV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:43:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 159A9206A2;
-        Wed, 15 Apr 2020 11:43:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28307214D8;
+        Wed, 15 Apr 2020 11:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950999;
-        bh=wYLXLG27rnEwhy1UBlgPAvszNrYaMJ0woRo+YuC+rz8=;
+        s=default; t=1586951001;
+        bh=5D9GczrhsgcqaRMt/zuHZZcdP2g+4HoM3usyp9z2034=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i69UK7Vqv9n3w8zsJt4kSYbswKPs/vHJbNbIpdjqJumfWxeP7nub3Bfxrn5DcsUnr
-         w36x0iuMlbbIACwKgjtY1AzvcAwkXLK+8jeyDu3HIsmLXaHr0Ix48j/vW+88t3yQdo
-         i71BXJqIfTtrMWRGIdk7/V3W3kPVZ0R31lbwdiXM=
+        b=o/Mw9USWr953RXlZRqp031AVVGnuUCSOimYDwGh4jvrODh96dWhShTAYtKtbdzqdA
+         B8tz3YHZYddLvSfMT1V7Z4GFuoJAsmVJa9c/wg/hWndWRebfEuPHmPym87P53B+QqI
+         UvywUn3CBlGn+hY1Ye85pb3nNhMWoqWJpflZHyrM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.5 045/106] powerpc/prom_init: Pass the "os-term" message to hypervisor
-Date:   Wed, 15 Apr 2020 07:41:25 -0400
-Message-Id: <20200415114226.13103-45-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.5 046/106] powerpc/maple: Fix declaration made after definition
+Date:   Wed, 15 Apr 2020 07:41:26 -0400
+Message-Id: <20200415114226.13103-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -43,40 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 74bb84e5117146fa73eb9d01305975c53022b3c3 ]
+[ Upstream commit af6cf95c4d003fccd6c2ecc99a598fb854b537e7 ]
 
-The "os-term" RTAS calls has one argument with a message address of OS
-termination cause. rtas_os_term() already passes it but the recently
-added prom_init's version of that missed it; it also does not fill
-args correctly.
+When building ppc64 defconfig, Clang errors (trimmed for brevity):
 
-This passes the message address and initializes the number of arguments.
+  arch/powerpc/platforms/maple/setup.c:365:1: error: attribute declaration
+  must precede definition [-Werror,-Wignored-attributes]
+  machine_device_initcall(maple, maple_cpc925_edac_setup);
+  ^
 
-Fixes: 6a9c930bd775 ("powerpc/prom_init: Add the ESM call to prom_init")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+machine_device_initcall expands to __define_machine_initcall, which in
+turn has the macro machine_is used in it, which declares mach_##name
+with an __attribute__((weak)). define_machine actually defines
+mach_##name, which in this file happens before the declaration, hence
+the warning.
+
+To fix this, move define_machine after machine_device_initcall so that
+the declaration occurs before the definition, which matches how
+machine_device_initcall and define_machine work throughout
+arch/powerpc.
+
+While we're here, remove some spaces before tabs.
+
+Fixes: 8f101a051ef0 ("edac: cpc925 MC platform device setup")
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Suggested-by: Ilie Halip <ilie.halip@gmail.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200312074404.87293-1-aik@ozlabs.ru
+Link: https://lore.kernel.org/r/20200323222729.15365-1-natechancellor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/prom_init.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/platforms/maple/setup.c | 34 ++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
-index 577345382b23f..673f13b87db13 100644
---- a/arch/powerpc/kernel/prom_init.c
-+++ b/arch/powerpc/kernel/prom_init.c
-@@ -1773,6 +1773,9 @@ static void __init prom_rtas_os_term(char *str)
- 	if (token == 0)
- 		prom_panic("Could not get token for ibm,os-term\n");
- 	os_term_args.token = cpu_to_be32(token);
-+	os_term_args.nargs = cpu_to_be32(1);
-+	os_term_args.nret = cpu_to_be32(1);
-+	os_term_args.args[0] = cpu_to_be32(__pa(str));
- 	prom_rtas_hcall((uint64_t)&os_term_args);
+diff --git a/arch/powerpc/platforms/maple/setup.c b/arch/powerpc/platforms/maple/setup.c
+index 9cd6f3e1000b3..09a0594350b69 100644
+--- a/arch/powerpc/platforms/maple/setup.c
++++ b/arch/powerpc/platforms/maple/setup.c
+@@ -294,23 +294,6 @@ static int __init maple_probe(void)
+ 	return 1;
  }
- #endif /* CONFIG_PPC_SVM */
+ 
+-define_machine(maple) {
+-	.name			= "Maple",
+-	.probe			= maple_probe,
+-	.setup_arch		= maple_setup_arch,
+-	.init_IRQ		= maple_init_IRQ,
+-	.pci_irq_fixup		= maple_pci_irq_fixup,
+-	.pci_get_legacy_ide_irq	= maple_pci_get_legacy_ide_irq,
+-	.restart		= maple_restart,
+-	.halt			= maple_halt,
+-       	.get_boot_time		= maple_get_boot_time,
+-       	.set_rtc_time		= maple_set_rtc_time,
+-       	.get_rtc_time		= maple_get_rtc_time,
+-      	.calibrate_decr		= generic_calibrate_decr,
+-	.progress		= maple_progress,
+-	.power_save		= power4_idle,
+-};
+-
+ #ifdef CONFIG_EDAC
+ /*
+  * Register a platform device for CPC925 memory controller on
+@@ -367,3 +350,20 @@ static int __init maple_cpc925_edac_setup(void)
+ }
+ machine_device_initcall(maple, maple_cpc925_edac_setup);
+ #endif
++
++define_machine(maple) {
++	.name			= "Maple",
++	.probe			= maple_probe,
++	.setup_arch		= maple_setup_arch,
++	.init_IRQ		= maple_init_IRQ,
++	.pci_irq_fixup		= maple_pci_irq_fixup,
++	.pci_get_legacy_ide_irq	= maple_pci_get_legacy_ide_irq,
++	.restart		= maple_restart,
++	.halt			= maple_halt,
++	.get_boot_time		= maple_get_boot_time,
++	.set_rtc_time		= maple_set_rtc_time,
++	.get_rtc_time		= maple_get_rtc_time,
++	.calibrate_decr		= generic_calibrate_decr,
++	.progress		= maple_progress,
++	.power_save		= power4_idle,
++};
 -- 
 2.20.1
 
