@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 785481AA290
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1889B1AA28D
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505599AbgDOM5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:57:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56408 "EHLO mail.kernel.org"
+        id S2505575AbgDOM53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:57:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408865AbgDOLgr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:36:47 -0400
+        id S2408895AbgDOLgs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:36:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 714F52078A;
-        Wed, 15 Apr 2020 11:36:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1149B20857;
+        Wed, 15 Apr 2020 11:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950605;
-        bh=FQLCavUo/9H+bwWjXvVXMibQQ4dnU0g9B7kxhkUSxHw=;
+        s=default; t=1586950606;
+        bh=QUlpFG8yJZa3ujRSfNw1N03+/gvdFbrBuGnKvKz1CFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pX6ZNXzzvyC4n9oAajk4C0ugYl+aI73vo42dOJYA1229NSq61DGJrPZqcP3cYxPiM
-         YnnHW/tF8xuMNv/L9z8RwBABOBAHanheLhuaKjiNq+jTvpeZT+8qT82luj/K0ze0hA
-         ZTBQKbjIqsAhwD+atTMfWeK4bhqI7/6p0f2Qbveo=
+        b=dnz/kKfnKqXS273rXFxyMWZulTiFoypi4tjDZRRzEq8AUibq0N6XypWOWMM5nhau7
+         FE/TZ7fSk1cA1+mIhE/1qR0BgMr3O1TxB+keUfzVkKerjpQkSmUUyssvW//Km4SKiq
+         rVLePPe9iAviST1sdMVfl9Be1zkagmnQEu5kUdnc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.6 100/129] f2fs: fix potential deadlock on compressed quota file
-Date:   Wed, 15 Apr 2020 07:34:15 -0400
-Message-Id: <20200415113445.11881-100-sashal@kernel.org>
+Cc:     Bob Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
+        devel@acpica.org
+Subject: [PATCH AUTOSEL 5.6 101/129] ACPICA: Fixes for acpiExec namespace init file
+Date:   Wed, 15 Apr 2020 07:34:16 -0400
+Message-Id: <20200415113445.11881-101-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -43,145 +45,297 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Bob Moore <robert.moore@intel.com>
 
-[ Upstream commit 466357dc9b5ff555d16b7f9a0ff264eb9d5d908b ]
+[ Upstream commit 9a1ae80412dcaa67a29eecf19de44f32b5f1c357 ]
 
-generic/232 reports below deadlock:
+This is the result of squashing the following ACPICA commit ID's:
+6803997e5b4f3635cea6610b51ff69e29d251de3
+f31cdf8bfda22fe265c1a176d0e33d311c82a7f7
 
-fsstress        D    0 96980  96969 0x00084000
-Call Trace:
- schedule+0x4a/0xb0
- io_schedule+0x12/0x40
- __lock_page+0x127/0x1d0
- pagecache_get_page+0x1d8/0x250
- prepare_compress_overwrite+0xe0/0x490 [f2fs]
- f2fs_prepare_compress_overwrite+0x5d/0x80 [f2fs]
- f2fs_write_begin+0x833/0xb90 [f2fs]
- f2fs_quota_write+0x145/0x1e0 [f2fs]
- write_blk+0x36/0x80 [quota_tree]
- do_insert_tree+0x2ac/0x4a0 [quota_tree]
- do_insert_tree+0x26e/0x4a0 [quota_tree]
- qtree_write_dquot+0x70/0x190 [quota_tree]
- v2_write_dquot+0x43/0x90 [quota_v2]
- dquot_acquire+0x77/0x100
- f2fs_dquot_acquire+0x2f/0x60 [f2fs]
- dqget+0x310/0x450
- dquot_transfer+0xb2/0x120
- f2fs_setattr+0x11a/0x4a0 [f2fs]
- notify_change+0x349/0x480
- chown_common+0x168/0x1c0
- do_fchownat+0xbc/0xf0
- __x64_sys_lchown+0x21/0x30
- do_syscall_64+0x5f/0x220
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This change fixes several problems with the support for the
+acpi_exec namespace init file (-fi option). Specifically, it
+fixes AE_ALREADY_EXISTS errors, as well as various seg faults.
 
-  task                        PC stack   pid father
-kworker/u256:0  D    0 103444      2 0x80084000
-Workqueue: writeback wb_workfn (flush-251:1)
-Call Trace:
- schedule+0x4a/0xb0
- schedule_timeout+0x15e/0x2f0
- io_schedule_timeout+0x19/0x40
- congestion_wait+0x7e/0x120
- f2fs_write_multi_pages+0x12a/0x840 [f2fs]
- f2fs_write_cache_pages+0x48f/0x790 [f2fs]
- f2fs_write_data_pages+0x2db/0x330 [f2fs]
- do_writepages+0x1a/0x60
- __writeback_single_inode+0x3d/0x340
- writeback_sb_inodes+0x225/0x4a0
- wb_writeback+0xf7/0x320
- wb_workfn+0xba/0x470
- process_one_work+0x16c/0x3f0
- worker_thread+0x4c/0x440
- kthread+0xf8/0x130
- ret_from_fork+0x35/0x40
-
-fsstress        D    0  5277   5266 0x00084000
-Call Trace:
- schedule+0x4a/0xb0
- rwsem_down_write_slowpath+0x29d/0x540
- block_operations+0x105/0x360 [f2fs]
- f2fs_write_checkpoint+0x101/0x1010 [f2fs]
- f2fs_sync_fs+0xa8/0x130 [f2fs]
- f2fs_do_sync_file+0x1ad/0x890 [f2fs]
- do_fsync+0x38/0x60
- __x64_sys_fdatasync+0x13/0x20
- do_syscall_64+0x5f/0x220
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The root cause is there is potential deadlock between quota data
-update and writeback.
-
-Kworker					Thread B			Thread C
-- f2fs_write_cache_pages
- - lock whole cluster	--- A
- - f2fs_write_multi_pages
-  - f2fs_write_raw_pages
-   - f2fs_write_single_data_page
-    - f2fs_do_write_data_page
-					- f2fs_setattr
-					 - f2fs_lock_op	--- B
-									- f2fs_write_checkpoint
-									 - block_operations
-									  - f2fs_lock_all --- B
-					 - dquot_transfer
-					  - f2fs_quota_write
-					   - f2fs_prepare_compress_overwrite
-					    - pagecache_get_page --- A
-     - f2fs_trylock_op failed	--- B
-  - congestion_wait
-  - goto rewrite
-
-To fix this issue, during quota file writeback, just redirty all pages
-left in cluster rather holding pages' lock in cluster and looping retrying
-lock cp_rwsem.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://github.com/acpica/acpica/commit/f31cdf8b
+Link: https://github.com/acpica/acpica/commit/6803997e
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/compress.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/acpi/acpica/acnamesp.h |  2 ++
+ drivers/acpi/acpica/dbinput.c  | 16 +++++++---------
+ drivers/acpi/acpica/dswexec.c  | 33 ++++++++++++++++++++++++++++++++
+ drivers/acpi/acpica/dswload.c  |  2 --
+ drivers/acpi/acpica/dswload2.c | 35 ++++++++++++++++++++++++++++++++++
+ drivers/acpi/acpica/nsnames.c  |  6 +-----
+ drivers/acpi/acpica/utdelete.c |  9 +++++----
+ 7 files changed, 83 insertions(+), 20 deletions(-)
 
-diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index eb84c13c1182c..ad8e25a1fbc26 100644
---- a/fs/f2fs/compress.c
-+++ b/fs/f2fs/compress.c
-@@ -988,6 +988,15 @@ static int f2fs_write_raw_pages(struct compress_ctx *cc,
- 				unlock_page(cc->rpages[i]);
- 				ret = 0;
- 			} else if (ret == -EAGAIN) {
-+				/*
-+				 * for quota file, just redirty left pages to
-+				 * avoid deadlock caused by cluster update race
-+				 * from foreground operation.
-+				 */
-+				if (IS_NOQUOTA(cc->inode)) {
-+					err = 0;
-+					goto out_err;
+diff --git a/drivers/acpi/acpica/acnamesp.h b/drivers/acpi/acpica/acnamesp.h
+index e618ddfab2fd1..40f6a3c33a150 100644
+--- a/drivers/acpi/acpica/acnamesp.h
++++ b/drivers/acpi/acpica/acnamesp.h
+@@ -256,6 +256,8 @@ u32
+ acpi_ns_build_normalized_path(struct acpi_namespace_node *node,
+ 			      char *full_path, u32 path_size, u8 no_trailing);
+ 
++void acpi_ns_normalize_pathname(char *original_path);
++
+ char *acpi_ns_get_normalized_pathname(struct acpi_namespace_node *node,
+ 				      u8 no_trailing);
+ 
+diff --git a/drivers/acpi/acpica/dbinput.c b/drivers/acpi/acpica/dbinput.c
+index aa71f65395d25..ee6a1b77af3f1 100644
+--- a/drivers/acpi/acpica/dbinput.c
++++ b/drivers/acpi/acpica/dbinput.c
+@@ -468,16 +468,14 @@ char *acpi_db_get_next_token(char *string,
+ 		return (NULL);
+ 	}
+ 
+-	/* Remove any spaces at the beginning */
++	/* Remove any spaces at the beginning, ignore blank lines */
+ 
+-	if (*string == ' ') {
+-		while (*string && (*string == ' ')) {
+-			string++;
+-		}
++	while (*string && isspace(*string)) {
++		string++;
++	}
+ 
+-		if (!(*string)) {
+-			return (NULL);
+-		}
++	if (!(*string)) {
++		return (NULL);
+ 	}
+ 
+ 	switch (*string) {
+@@ -570,7 +568,7 @@ char *acpi_db_get_next_token(char *string,
+ 
+ 		/* Find end of token */
+ 
+-		while (*string && (*string != ' ')) {
++		while (*string && !isspace(*string)) {
+ 			string++;
+ 		}
+ 		break;
+diff --git a/drivers/acpi/acpica/dswexec.c b/drivers/acpi/acpica/dswexec.c
+index 5e81a1ae44cff..1d4f8c81028c2 100644
+--- a/drivers/acpi/acpica/dswexec.c
++++ b/drivers/acpi/acpica/dswexec.c
+@@ -16,6 +16,9 @@
+ #include "acinterp.h"
+ #include "acnamesp.h"
+ #include "acdebug.h"
++#ifdef ACPI_EXEC_APP
++#include "aecommon.h"
++#endif
+ 
+ #define _COMPONENT          ACPI_DISPATCHER
+ ACPI_MODULE_NAME("dswexec")
+@@ -329,6 +332,10 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
+ 	u32 op_class;
+ 	union acpi_parse_object *next_op;
+ 	union acpi_parse_object *first_arg;
++#ifdef ACPI_EXEC_APP
++	char *namepath;
++	union acpi_operand_object *obj_desc;
++#endif
+ 
+ 	ACPI_FUNCTION_TRACE_PTR(ds_exec_end_op, walk_state);
+ 
+@@ -537,6 +544,32 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
+ 
+ 			status =
+ 			    acpi_ds_eval_buffer_field_operands(walk_state, op);
++			if (ACPI_FAILURE(status)) {
++				break;
++			}
++#ifdef ACPI_EXEC_APP
++			/*
++			 * acpi_exec support for namespace initialization file (initialize
++			 * buffer_fields in this code.)
++			 */
++			namepath =
++			    acpi_ns_get_external_pathname(op->common.node);
++			status = ae_lookup_init_file_entry(namepath, &obj_desc);
++			if (ACPI_SUCCESS(status)) {
++				status =
++				    acpi_ex_write_data_to_field(obj_desc,
++								op->common.
++								node->object,
++								NULL);
++				if ACPI_FAILURE
++					(status) {
++					ACPI_EXCEPTION((AE_INFO, status,
++							"While writing to buffer field"));
++					}
++			}
++			ACPI_FREE(namepath);
++			status = AE_OK;
++#endif
+ 			break;
+ 
+ 		case AML_TYPE_CREATE_OBJECT:
+diff --git a/drivers/acpi/acpica/dswload.c b/drivers/acpi/acpica/dswload.c
+index 697974e37edfb..27069325b6de0 100644
+--- a/drivers/acpi/acpica/dswload.c
++++ b/drivers/acpi/acpica/dswload.c
+@@ -14,7 +14,6 @@
+ #include "acdispat.h"
+ #include "acinterp.h"
+ #include "acnamesp.h"
+-
+ #ifdef ACPI_ASL_COMPILER
+ #include "acdisasm.h"
+ #endif
+@@ -399,7 +398,6 @@ acpi_status acpi_ds_load1_end_op(struct acpi_walk_state *walk_state)
+ 	union acpi_parse_object *op;
+ 	acpi_object_type object_type;
+ 	acpi_status status = AE_OK;
+-
+ #ifdef ACPI_ASL_COMPILER
+ 	u8 param_count;
+ #endif
+diff --git a/drivers/acpi/acpica/dswload2.c b/drivers/acpi/acpica/dswload2.c
+index b31457ca926cc..edadbe1465069 100644
+--- a/drivers/acpi/acpica/dswload2.c
++++ b/drivers/acpi/acpica/dswload2.c
+@@ -15,6 +15,9 @@
+ #include "acinterp.h"
+ #include "acnamesp.h"
+ #include "acevents.h"
++#ifdef ACPI_EXEC_APP
++#include "aecommon.h"
++#endif
+ 
+ #define _COMPONENT          ACPI_DISPATCHER
+ ACPI_MODULE_NAME("dswload2")
+@@ -373,6 +376,10 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
+ 	struct acpi_namespace_node *new_node;
+ 	u32 i;
+ 	u8 region_space;
++#ifdef ACPI_EXEC_APP
++	union acpi_operand_object *obj_desc;
++	char *namepath;
++#endif
+ 
+ 	ACPI_FUNCTION_TRACE(ds_load2_end_op);
+ 
+@@ -466,6 +473,11 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
+ 		 * be evaluated later during the execution phase
+ 		 */
+ 		status = acpi_ds_create_buffer_field(op, walk_state);
++		if (ACPI_FAILURE(status)) {
++			ACPI_EXCEPTION((AE_INFO, status,
++					"CreateBufferField failure"));
++			goto cleanup;
++			}
+ 		break;
+ 
+ 	case AML_TYPE_NAMED_FIELD:
+@@ -604,6 +616,29 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
+ 		case AML_NAME_OP:
+ 
+ 			status = acpi_ds_create_node(walk_state, node, op);
++			if (ACPI_FAILURE(status)) {
++				goto cleanup;
++			}
++#ifdef ACPI_EXEC_APP
++			/*
++			 * acpi_exec support for namespace initialization file (initialize
++			 * Name opcodes in this code.)
++			 */
++			namepath = acpi_ns_get_external_pathname(node);
++			status = ae_lookup_init_file_entry(namepath, &obj_desc);
++			if (ACPI_SUCCESS(status)) {
++
++				/* Detach any existing object, attach new object */
++
++				if (node->object) {
++					acpi_ns_detach_object(node);
 +				}
- 				ret = 0;
- 				cond_resched();
- 				congestion_wait(BLK_RW_ASYNC, HZ/50);
-@@ -996,16 +1005,12 @@ static int f2fs_write_raw_pages(struct compress_ctx *cc,
- 				goto retry_write;
- 			}
- 			err = ret;
--			goto out_fail;
-+			goto out_err;
++				acpi_ns_attach_object(node, obj_desc,
++						      obj_desc->common.type);
++			}
++			ACPI_FREE(namepath);
++			status = AE_OK;
++#endif
+ 			break;
+ 
+ 		case AML_METHOD_OP:
+diff --git a/drivers/acpi/acpica/nsnames.c b/drivers/acpi/acpica/nsnames.c
+index 370bbc8677453..c717fff7d9b57 100644
+--- a/drivers/acpi/acpica/nsnames.c
++++ b/drivers/acpi/acpica/nsnames.c
+@@ -13,9 +13,6 @@
+ #define _COMPONENT          ACPI_NAMESPACE
+ ACPI_MODULE_NAME("nsnames")
+ 
+-/* Local Prototypes */
+-static void acpi_ns_normalize_pathname(char *original_path);
+-
+ /*******************************************************************************
+  *
+  * FUNCTION:    acpi_ns_get_external_pathname
+@@ -30,7 +27,6 @@ static void acpi_ns_normalize_pathname(char *original_path);
+  *              for error and debug statements.
+  *
+  ******************************************************************************/
+-
+ char *acpi_ns_get_external_pathname(struct acpi_namespace_node *node)
+ {
+ 	char *name_buffer;
+@@ -411,7 +407,7 @@ char *acpi_ns_build_prefixed_pathname(union acpi_generic_state *prefix_scope,
+  *
+  ******************************************************************************/
+ 
+-static void acpi_ns_normalize_pathname(char *original_path)
++void acpi_ns_normalize_pathname(char *original_path)
+ {
+ 	char *input_path = original_path;
+ 	char *new_path_buffer;
+diff --git a/drivers/acpi/acpica/utdelete.c b/drivers/acpi/acpica/utdelete.c
+index eee263cb7beb0..c365faf4e6cd4 100644
+--- a/drivers/acpi/acpica/utdelete.c
++++ b/drivers/acpi/acpica/utdelete.c
+@@ -452,13 +452,13 @@ acpi_ut_update_ref_count(union acpi_operand_object *object, u32 action)
+  *
+  * FUNCTION:    acpi_ut_update_object_reference
+  *
+- * PARAMETERS:  object              - Increment ref count for this object
+- *                                    and all sub-objects
++ * PARAMETERS:  object              - Increment or decrement the ref count for
++ *                                    this object and all sub-objects
+  *              action              - Either REF_INCREMENT or REF_DECREMENT
+  *
+  * RETURN:      Status
+  *
+- * DESCRIPTION: Increment the object reference count
++ * DESCRIPTION: Increment or decrement the object reference count
+  *
+  * Object references are incremented when:
+  * 1) An object is attached to a Node (namespace object)
+@@ -492,7 +492,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
  		}
  
- 		*submitted += _submitted;
- 	}
- 	return 0;
--
--out_fail:
--	/* TODO: revoke partially updated block addresses */
--	BUG_ON(compr_blocks);
- out_err:
- 	for (++i; i < cc->cluster_size; i++) {
- 		if (!cc->rpages[i])
+ 		/*
+-		 * All sub-objects must have their reference count incremented
++		 * All sub-objects must have their reference count updated
+ 		 * also. Different object types have different subobjects.
+ 		 */
+ 		switch (object->common.type) {
+@@ -559,6 +559,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
+ 					break;
+ 				}
+ 			}
++
+ 			next_object = NULL;
+ 			break;
+ 
 -- 
 2.20.1
 
