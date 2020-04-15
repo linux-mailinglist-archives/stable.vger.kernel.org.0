@@ -2,69 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7C1A1AAEC2
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 18:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E696A1AAEC6
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 18:59:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410463AbgDOQv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 12:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54114 "EHLO mail.kernel.org"
+        id S2394210AbgDOQwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 12:52:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410454AbgDOQv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 12:51:26 -0400
+        id S2390653AbgDOQwR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 12:52:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7320B20737;
-        Wed, 15 Apr 2020 16:51:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 548F420737;
+        Wed, 15 Apr 2020 16:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586969485;
-        bh=2UTlhSsav0GTvZpIKs15Hq0DOjR27F+7dQp4nt2KPlY=;
+        s=default; t=1586969536;
+        bh=IA2ugHTzrgmVCXMBr8Wfpjqba7y/WPCHoDYJ23qe2L0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EfHUMfSMZpWtfl3s892quycAOE/T0/5qutT/0JhzSjdUiwBloxY0yDqkxSdfdv12U
-         cua3Z4AJkA8wC7IZ25A9g7ZaPieltwNfr9c7VY5/fWZHHgJZP6Bje7fjV3Gna2o4wV
-         jyhmuEav+9KTGXu0buJ7n4WOX9dXjc5Ya83QAygQ=
-Date:   Wed, 15 Apr 2020 18:51:22 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     bhelgaas@google.com, keescook@chromium.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] XArray: Fix xa_find_next for large
- multi-index entries" failed to apply to 5.4-stable tree
-Message-ID: <20200415165122.GA3654762@kroah.com>
-References: <1586948677159164@kroah.com>
- <20200415150222.GD5820@bombadil.infradead.org>
+        b=eVGmDfe/nvi6nOid0xazq68WV29BipvWVxEcoFaS9SzW5Gyn/+Sk0X4VTuW/d0rUb
+         2+quNpUfBtDlQ8FEfgFBLCA1sxnjKku06qF6bMCLQVa/B8Qwq1CX383FXUERX1tOre
+         PmdSMkPmXErJm98KdlCMay5vS4ogyp4wD20O2CC0=
+Date:   Wed, 15 Apr 2020 18:52:14 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: Re: Patches to apply to stable releases
+Message-ID: <20200415165214.GB3654762@kroah.com>
+References: <20200415003148.GA114493@roeck-us.net>
+ <20200415101542.GD2568572@kroah.com>
+ <6d358d6a-3b7b-25c6-7990-5b36dd4c2d0b@roeck-us.net>
+ <20200415144919.GA3646864@kroah.com>
+ <20200415151356.GA260479@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200415150222.GD5820@bombadil.infradead.org>
+In-Reply-To: <20200415151356.GA260479@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 08:02:22AM -0700, Matthew Wilcox wrote:
-> On Wed, Apr 15, 2020 at 01:04:37PM +0200, gregkh@linuxfoundation.org wrote:
-> > The patch below does not apply to the 5.4-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
+On Wed, Apr 15, 2020 at 08:13:56AM -0700, Guenter Roeck wrote:
+> On Wed, Apr 15, 2020 at 04:49:19PM +0200, Greg Kroah-Hartman wrote:
+> > On Wed, Apr 15, 2020 at 07:21:44AM -0700, Guenter Roeck wrote:
+> > > >> Upstream commit cc41f11a21a5 ("scsi: mpt3sas: Fix kernel panic observed on soft HBA unplug")
+> > > >>     Fixes: c666d3be99c0 ("scsi: mpt3sas: wait for and flush running commands on shutdown/unload")
+> > > >>     in linux-4.14.y: 3748694f1b91
+> > > >>     Applies to:
+> > > >>         v4.14.y
+> > > > 
+> > > > This also belongs to 4.19.y, 5.4.y, 5.5.y, and 5.6.y as it is cc:
+> > > > stable.  But it doesn't backport cleanly to all, so I need a working
+> > > > backport in order to be able to take it...
+> > > > 
+> > > I tracked this one down. The offending patch (c666d3be99c0) was applied
+> > > to v4.16 and to v4.14.y. The script takes that as clue to request a backport;
+> > > it assumes that the normal stable processs (whatever you and Sasha run to
+> > > identify patches to apply) takes care of more recent releases, and doesn't
+> > > look into those. This is intentional. We can change it, but I don't really
+> > > want to duplicate your and Sasha's work.
+> > > 
+> > > Oops, and I completely forgot about 5.5 and 5.6. The script doesn't tell
+> > > me (and neither about 4.9) because there is no such Chrome OS release,
+> > > so I have to check those manually.
+> > > 
+> > > Either case, the patch applies cleanly to 4.19.y and later for me.
+> > > Did you see conflicts, or build problems, when trying to apply it ?
 > > 
-> > thanks,
+> > When trying to patch 4.19.y:
+> > 	checking file drivers/scsi/mpt3sas/mpt3sas_scsih.c
+> > 	Hunk #1 succeeded at 9919 (offset 11 lines).
+> > 	Hunk #2 FAILED at 9992.
+> > 	1 out of 2 hunks FAILED
 > > 
-> > greg k-h
-> > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> > >From bd40b17ca49d7d110adf456e647701ce74de2241 Mon Sep 17 00:00:00 2001
 > 
-> Seems like it's already there as commit
-> 16696ee7b58101c90bf21c3ab2443c57df4af24e
+> Interesting. Both "git cherry-pick" and "git am" (I don't even need
+> "git am -3") on top of v4.19.115 work fine for me. But, yes, trying
+> to apply the patch using the patch command does indeed fail with this
+> error. Wonder what git does differently when running "git am".
 
-Ugh.
-
-Sasha, your scripts are applying patches to older kernels before newer
-ones for some odd reason again, which confuses mine to no end :(
-
+Odd, let me dig into that, I can do a 'cherry-pick' and then export it
+as a patch, I've had to do that before...
 
 thanks,
 
