@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E41EE1A9EB1
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ACC41A9EC2
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:06:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409380AbgDOLrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:47:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42672 "EHLO mail.kernel.org"
+        id S368100AbgDOMAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:00:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409364AbgDOLrl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:47:41 -0400
+        id S2409367AbgDOLrm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:47:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E5E4206A2;
-        Wed, 15 Apr 2020 11:47:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 149D221569;
+        Wed, 15 Apr 2020 11:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951260;
-        bh=n3FIpkFU20A2sit5DXStONHFEVjMmscjr40uyQE7MYg=;
+        s=default; t=1586951261;
+        bh=3h2z9IDbzxVQV+fUdUOCvqUsPvo+eOXmgmiUdyvpTDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9+GOQj4hH9VmB8c45CNybbIpaFnDG6c+WqVy3TF4RTSRVF9iU9QVZoFdVTeD1NPJ
-         jiq/RARGCKvUaSA5R30AAWu7JmpVVPvxRe8TJ48Mtk9lDplhUzxqq4TUEwCBcJEXJp
-         /9zdFs1Gysb4d8eSTmzV+UqpesxyKPYdChLxmm/o=
+        b=U6WQzw0fggtNK1A1K6WiBX+CQPgArJpr6E+c9zSBBoznvP7oB08Xp7aWhQ2CSR0mT
+         Q75aeyawpcRvF3eJJpckaFThXoylRP22SU05HyNJArsb1+0krxqSiNU6gknM9wg22x
+         1GUS65RqCoIr0A60iPOdP7vBUi7RxJonZpnvP5nk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 24/30] NFS: Fix memory leaks in nfs_pageio_stop_mirroring()
-Date:   Wed, 15 Apr 2020 07:47:05 -0400
-Message-Id: <20200415114711.15381-24-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 25/30] mfd: dln2: Fix sanity checking for endpoints
+Date:   Wed, 15 Apr 2020 07:47:06 -0400
+Message-Id: <20200415114711.15381-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114711.15381-1-sashal@kernel.org>
 References: <20200415114711.15381-1-sashal@kernel.org>
@@ -42,54 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 862f35c94730c9270833f3ad05bd758a29f204ed ]
+[ Upstream commit fb945c95a482200876993977008b67ea658bd938 ]
 
-If we just set the mirror count to 1 without first clearing out
-the mirrors, we can leak queued up requests.
+While the commit 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
+tries to harden the sanity checks it made at the same time a regression,
+i.e.  mixed in and out endpoints. Obviously it should have been not tested on
+real hardware at that time, but unluckily it didn't happen.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+So, fix above mentioned typo and make device being enumerated again.
+
+While here, introduce an enumerator for magic values to prevent similar issue
+to happen in the future.
+
+Fixes: 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
+Cc: Oliver Neukum <oneukum@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pagelist.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/mfd/dln2.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index ceb6892d9bbdc..7c01936be7c70 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -864,15 +864,6 @@ static void nfs_pageio_setup_mirroring(struct nfs_pageio_descriptor *pgio,
- 	pgio->pg_mirror_count = mirror_count;
- }
+diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
+index 95d0f2df0ad42..672831d5ee32e 100644
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -93,6 +93,11 @@ struct dln2_mod_rx_slots {
+ 	spinlock_t lock;
+ };
  
--/*
-- * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
-- */
--void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
--{
--	pgio->pg_mirror_count = 1;
--	pgio->pg_mirror_idx = 0;
--}
--
- static void nfs_pageio_cleanup_mirroring(struct nfs_pageio_descriptor *pgio)
- {
- 	pgio->pg_mirror_count = 1;
-@@ -1301,6 +1292,14 @@ void nfs_pageio_cond_complete(struct nfs_pageio_descriptor *desc, pgoff_t index)
- 	}
- }
- 
-+/*
-+ * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
-+ */
-+void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
-+{
-+	nfs_pageio_complete(pgio);
-+}
++enum dln2_endpoint {
++	DLN2_EP_OUT	= 0,
++	DLN2_EP_IN	= 1,
++};
 +
- int __init nfs_init_nfspagecache(void)
- {
- 	nfs_page_cachep = kmem_cache_create("nfs_page",
+ struct dln2_dev {
+ 	struct usb_device *usb_dev;
+ 	struct usb_interface *interface;
+@@ -740,10 +745,10 @@ static int dln2_probe(struct usb_interface *interface,
+ 	    hostif->desc.bNumEndpoints < 2)
+ 		return -ENODEV;
+ 
+-	epin = &hostif->endpoint[0].desc;
+-	epout = &hostif->endpoint[1].desc;
++	epout = &hostif->endpoint[DLN2_EP_OUT].desc;
+ 	if (!usb_endpoint_is_bulk_out(epout))
+ 		return -ENODEV;
++	epin = &hostif->endpoint[DLN2_EP_IN].desc;
+ 	if (!usb_endpoint_is_bulk_in(epin))
+ 		return -ENODEV;
+ 
 -- 
 2.20.1
 
