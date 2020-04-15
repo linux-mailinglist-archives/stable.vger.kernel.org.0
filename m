@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E26F81AA28B
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A96A1AA288
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505595AbgDOM5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:57:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56708 "EHLO mail.kernel.org"
+        id S2502903AbgDOM47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:56:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408898AbgDOLgt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:36:49 -0400
+        id S2408899AbgDOLgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:36:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 925BB21569;
-        Wed, 15 Apr 2020 11:36:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3BBE21556;
+        Wed, 15 Apr 2020 11:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950609;
-        bh=92e03qfV5WzTTcnm4d7dLXBPeHPv6FHPB6NTC593rt0=;
+        s=default; t=1586950610;
+        bh=uJOLIfl4FKvP8Jesaa0wKyt+zFZumfqh+bE3cWD19U0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tcj+aj4HhdOkx0x5FmKTLrWZm44/t9tmckrDqG+vcOc5H8WSSMMg5LLTr50MABp4k
-         ynkqsCoWXqXSo72EbDM+1uYNJ7gievEOzktfR2KVzp2W+yBWxX39Ssl5e78zDsZhU1
-         ZGcyeCclDMfIwob+0pkhQbakg2r0+alpUGjXqIwE=
+        b=rulmA085Y240As+2+iMoV+20XFEGnYj8TI4R5xhIegwOylwNx49ByLZMRlsDPUx1O
+         2XJLkXOZFtZhpuU8JBBPvJKXBNe49j+bq9LJXWgBZX5R7AWx/Ezeo61KpWCaL4C6Ba
+         ddf79Z0w+87Ow+kfCBFXKj9xvvcFlQrfD+xIG7Ho=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Prashant Malani <pmalani@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 103/129] mfd: dln2: Fix sanity checking for endpoints
-Date:   Wed, 15 Apr 2020 07:34:18 -0400
-Message-Id: <20200415113445.11881-103-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 104/129] mfd: cros_ec: Check DT node for usbpd-notify add
+Date:   Wed, 15 Apr 2020 07:34:19 -0400
+Message-Id: <20200415113445.11881-104-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -45,59 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-[ Upstream commit fb945c95a482200876993977008b67ea658bd938 ]
+[ Upstream commit f8db89d14efb770dd59aa0ca74386e5de68310d5 ]
 
-While the commit 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-tries to harden the sanity checks it made at the same time a regression,
-i.e.  mixed in and out endpoints. Obviously it should have been not tested on
-real hardware at that time, but unluckily it didn't happen.
+Add a check to ensure there is indeed an EC device tree entry before
+adding the cros-usbpd-notify device. This covers configs where both
+CONFIG_ACPI and CONFIG_OF are defined, but the EC device is defined
+using device tree and not in ACPI.
 
-So, fix above mentioned typo and make device being enumerated again.
-
-While here, introduce an enumerator for magic values to prevent similar issue
-to happen in the future.
-
-Fixes: 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-Cc: Oliver Neukum <oneukum@suse.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 4602dce0361e ("mfd: cros_ec: Add cros-usbpd-notify subdevice")
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Tested-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/dln2.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/mfd/cros_ec_dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
-index 7841c11411d08..4faa8d2e5d045 100644
---- a/drivers/mfd/dln2.c
-+++ b/drivers/mfd/dln2.c
-@@ -90,6 +90,11 @@ struct dln2_mod_rx_slots {
- 	spinlock_t lock;
- };
- 
-+enum dln2_endpoint {
-+	DLN2_EP_OUT	= 0,
-+	DLN2_EP_IN	= 1,
-+};
-+
- struct dln2_dev {
- 	struct usb_device *usb_dev;
- 	struct usb_interface *interface;
-@@ -733,10 +738,10 @@ static int dln2_probe(struct usb_interface *interface,
- 	    hostif->desc.bNumEndpoints < 2)
- 		return -ENODEV;
- 
--	epin = &hostif->endpoint[0].desc;
--	epout = &hostif->endpoint[1].desc;
-+	epout = &hostif->endpoint[DLN2_EP_OUT].desc;
- 	if (!usb_endpoint_is_bulk_out(epout))
- 		return -ENODEV;
-+	epin = &hostif->endpoint[DLN2_EP_IN].desc;
- 	if (!usb_endpoint_is_bulk_in(epin))
- 		return -ENODEV;
- 
+diff --git a/drivers/mfd/cros_ec_dev.c b/drivers/mfd/cros_ec_dev.c
+index 39e6116950536..32c2b912b58b2 100644
+--- a/drivers/mfd/cros_ec_dev.c
++++ b/drivers/mfd/cros_ec_dev.c
+@@ -211,7 +211,7 @@ static int ec_device_probe(struct platform_device *pdev)
+ 	 * explicitly added on platforms that don't have the PD notifier ACPI
+ 	 * device entry defined.
+ 	 */
+-	if (IS_ENABLED(CONFIG_OF)) {
++	if (IS_ENABLED(CONFIG_OF) && ec->ec_dev->dev->of_node) {
+ 		if (cros_ec_check_features(ec, EC_FEATURE_USB_PD)) {
+ 			retval = mfd_add_hotplug_devices(ec->dev,
+ 					cros_usbpd_notify_cells,
 -- 
 2.20.1
 
