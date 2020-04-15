@@ -2,154 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27F071A9C4F
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:31:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F661AA450
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:23:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897000AbgDOLbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:31:51 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:35837 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2897004AbgDOLbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:31:44 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id CEFCF5C0143;
-        Wed, 15 Apr 2020 07:31:43 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:31:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=PLqOok
-        dpjInQw6CgnfkLqyhMlJ93N/xiMf5Wmci1NJM=; b=bHMt7VgmoiuRzF+vfgwLCQ
-        nHGrxWduG/JM5ObNveEUxscJuti856/94wcwedyMLjsQVTcGhYHY6Na1P0dBWrte
-        x9rM6VHi9IflW6ZPry22Sgv9tY9r4nMdxK3ZOEeMSVXavdxym3PyoXJZl0GXgQRj
-        VQFhC0G5VvFRKphurYoUWRyZhaKGHEAQLHm1csIJB0wfVJpwEisrAf8wHZFbvMTK
-        Tw/NFHRZzFZEJmT/oxcI0o8DUrDK3wp4FO7Wfa0F8ZXMwitALvHxYhSHSudxKc3N
-        /nLOciE+c/9cxXfQvacryJ4M6s2sKkX75WUXQN46G8CS+ATwkpFMn4EWJsLXvKPw
-        ==
-X-ME-Sender: <xms:n_CWXq4UVBuRbAoTqdA_RYcWWuUQ2m_4EsYe9qENu-L8VQMNkIlAHg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgddvlecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
-    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgepheenucfrrghrrghmpehmrghilhhf
-    rhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:n_CWXoIX7sK5uOZfgkffovVEtQXIRWYYZ3kZ_bdQzR1zzaHuAIFHvg>
-    <xmx:n_CWXke7ARJHVILTQjPrs8zb_Nqh3WAy1B028MzjOqYSjIoep0J2cA>
-    <xmx:n_CWXreQcX83gVYnmZerMH3VhSkqFTZLw-Cr006qJRwqDwbYKe2fbw>
-    <xmx:n_CWXpZKdedOOGfSNIyDesH2B6yfa_7RQR53s2XbBF43I88J4o285g>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6409A3280063;
-        Wed, 15 Apr 2020 07:31:43 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/dp_mst: Fix clearing payload state on topology disable" failed to apply to 5.6-stable tree
-To:     lyude@redhat.com, Wayne.Lin@amd.com, sean@poorly.run,
-        ville.syrjala@linux.intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 13:31:37 +0200
-Message-ID: <1586950297139145@kroah.com>
+        id S2408869AbgDOLey (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:34:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54288 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2408860AbgDOLer (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:34:47 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7506520737;
+        Wed, 15 Apr 2020 11:34:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586950487;
+        bh=ic5MMHZntN33IMBrTIWsQVmdcrIefTFAyiQjjyVZ7jg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=cM6GbIxiSTcsD0vtJWc6VQBGC1DcfVTWzf3Qa0GEW8FCzZ9eTdxmSCrXomBAs4b7T
+         NO50eLOJ00/T1d6lkQT7b3FjbVJ+EOKFllVyw+8Cshc1XFAFPX/OB6JC2jr5R5+2ws
+         ylGqOYTFy3mVNXuz+Vgt8X+rk/Hzqkh8pXC1yMMY=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     xinhui pan <xinhui.pan@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
+        linaro-mm-sig@lists.linaro.org
+Subject: [PATCH AUTOSEL 5.6 001/129] drm/ttm: flush the fence on the bo after we individualize the reservation object
+Date:   Wed, 15 Apr 2020 07:32:36 -0400
+Message-Id: <20200415113445.11881-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: xinhui pan <xinhui.pan@amd.com>
 
-The patch below does not apply to the 5.6-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[ Upstream commit 1bbcf69e42fe7fd49b6f4339c970729d0e343753 ]
 
-thanks,
+As we move the ttm_bo_individualize_resv() upwards, we need flush the
+copied fence too. Otherwise the driver keeps waiting for fence.
 
-greg k-h
+run&Kill kfdtest, then perf top.
 
------------------- original commit in Linus's tree ------------------
+  25.53%  [ttm]                     [k] ttm_bo_delayed_delete
+  24.29%  [kernel]                  [k] dma_resv_test_signaled_rcu
+  19.72%  [kernel]                  [k] ww_mutex_lock
 
-From 8732fe46b20c951493bfc4dba0ad08efdf41de81 Mon Sep 17 00:00:00 2001
-From: Lyude Paul <lyude@redhat.com>
-Date: Wed, 22 Jan 2020 14:43:20 -0500
-Subject: [PATCH] drm/dp_mst: Fix clearing payload state on topology disable
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Fix: 378e2d5b("drm/ttm: fix ttm_bo_cleanup_refs_or_queue once more")
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/series/72339/
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/ttm/ttm_bo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-The issues caused by:
-
-commit 64e62bdf04ab ("drm/dp_mst: Remove VCPI while disabling topology
-mgr")
-
-Prompted me to take a closer look at how we clear the payload state in
-general when disabling the topology, and it turns out there's actually
-two subtle issues here.
-
-The first is that we're not grabbing &mgr.payload_lock when clearing the
-payloads in drm_dp_mst_topology_mgr_set_mst(). Seeing as the canonical
-lock order is &mgr.payload_lock -> &mgr.lock (because we always want
-&mgr.lock to be the inner-most lock so topology validation always
-works), this makes perfect sense. It also means that -technically- there
-could be racing between someone calling
-drm_dp_mst_topology_mgr_set_mst() to disable the topology, along with a
-modeset occurring that's modifying the payload state at the same time.
-
-The second is the more obvious issue that Wayne Lin discovered, that
-we're not clearing proposed_payloads when disabling the topology.
-
-I actually can't see any obvious places where the racing caused by the
-first issue would break something, and it could be that some of our
-higher-level locks already prevent this by happenstance, but better safe
-then sorry. So, let's make it so that drm_dp_mst_topology_mgr_set_mst()
-first grabs &mgr.payload_lock followed by &mgr.lock so that we never
-race when modifying the payload state. Then, we also clear
-proposed_payloads to fix the original issue of enabling a new topology
-with a dirty payload state. This doesn't clear any of the drm_dp_vcpi
-structures, but those are getting destroyed along with the ports anyway.
-
-Changes since v1:
-* Use sizeof(mgr->payloads[0])/sizeof(mgr->proposed_vcpis[0]) instead -
-  vsyrjala
-
-Cc: Sean Paul <sean@poorly.run>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200122194321.14953-1-lyude@redhat.com
-
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index e78c73e975ed..4104f15f4594 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -3447,6 +3447,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
- 	int ret = 0;
- 	struct drm_dp_mst_branch *mstb = NULL;
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index 5df596fb0280c..fe420ca454e0a 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -498,8 +498,10 @@ static void ttm_bo_cleanup_refs_or_queue(struct ttm_buffer_object *bo)
  
-+	mutex_lock(&mgr->payload_lock);
- 	mutex_lock(&mgr->lock);
- 	if (mst_state == mgr->mst_state)
- 		goto out_unlock;
-@@ -3505,7 +3506,10 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
- 		/* this can fail if the device is gone */
- 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
- 		ret = 0;
--		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct drm_dp_payload));
-+		memset(mgr->payloads, 0,
-+		       mgr->max_payloads * sizeof(mgr->payloads[0]));
-+		memset(mgr->proposed_vcpis, 0,
-+		       mgr->max_payloads * sizeof(mgr->proposed_vcpis[0]));
- 		mgr->payload_mask = 0;
- 		set_bit(0, &mgr->payload_mask);
- 		mgr->vcpi_mask = 0;
-@@ -3514,6 +3518,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+ 		dma_resv_unlock(bo->base.resv);
+ 	}
+-	if (bo->base.resv != &bo->base._resv)
++	if (bo->base.resv != &bo->base._resv) {
++		ttm_bo_flush_all_fences(bo);
+ 		dma_resv_unlock(&bo->base._resv);
++	}
  
- out_unlock:
- 	mutex_unlock(&mgr->lock);
-+	mutex_unlock(&mgr->payload_lock);
- 	if (mstb)
- 		drm_dp_mst_topology_put_mstb(mstb);
- 	return ret;
+ error:
+ 	kref_get(&bo->list_kref);
+-- 
+2.20.1
 
