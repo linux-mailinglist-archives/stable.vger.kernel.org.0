@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1889B1AA28D
+	by mail.lfdr.de (Postfix) with ESMTP id F35BB1AA28F
 	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505575AbgDOM53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:57:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56688 "EHLO mail.kernel.org"
+        id S2505588AbgDOM5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:57:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408895AbgDOLgs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2408897AbgDOLgs (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 15 Apr 2020 07:36:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1149B20857;
-        Wed, 15 Apr 2020 11:36:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58E88214D8;
+        Wed, 15 Apr 2020 11:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950606;
-        bh=QUlpFG8yJZa3ujRSfNw1N03+/gvdFbrBuGnKvKz1CFI=;
+        s=default; t=1586950608;
+        bh=j7Txo4qpJyCfapw98FBpfH7Li3HU/q6Jwro+XlysnqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dnz/kKfnKqXS273rXFxyMWZulTiFoypi4tjDZRRzEq8AUibq0N6XypWOWMM5nhau7
-         FE/TZ7fSk1cA1+mIhE/1qR0BgMr3O1TxB+keUfzVkKerjpQkSmUUyssvW//Km4SKiq
-         rVLePPe9iAviST1sdMVfl9Be1zkagmnQEu5kUdnc=
+        b=a+7isHBC3x4ozMpBjknn+Z4VakW/xC4CITBZyl/I5k6v0+2X0KvHwy7qPyHLCJ1Ks
+         st9Kg+ljLOysj5oGDvGlrrIMS/atU8nI47hhtnzqE9cMuSr47je7kO6EpR+XXYiYdr
+         aQbkQquBW4dIjB/zAyZbap4rgpQFPjRZzJR4fy1k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Moore <robert.moore@intel.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 5.6 101/129] ACPICA: Fixes for acpiExec namespace init file
-Date:   Wed, 15 Apr 2020 07:34:16 -0400
-Message-Id: <20200415113445.11881-101-sashal@kernel.org>
+Cc:     Luis Henriques <lhenriques@suse.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 102/129] ceph: re-org copy_file_range and fix some error paths
+Date:   Wed, 15 Apr 2020 07:34:17 -0400
+Message-Id: <20200415113445.11881-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -45,297 +44,287 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Moore <robert.moore@intel.com>
+From: Luis Henriques <lhenriques@suse.com>
 
-[ Upstream commit 9a1ae80412dcaa67a29eecf19de44f32b5f1c357 ]
+[ Upstream commit 1b0c3b9f91f0df03088d293fc9e62743fd789ad2 ]
 
-This is the result of squashing the following ACPICA commit ID's:
-6803997e5b4f3635cea6610b51ff69e29d251de3
-f31cdf8bfda22fe265c1a176d0e33d311c82a7f7
+This patch re-organizes copy_file_range, trying to fix a few issues in the
+error handling.  Here's the summary:
 
-This change fixes several problems with the support for the
-acpi_exec namespace init file (-fi option). Specifically, it
-fixes AE_ALREADY_EXISTS errors, as well as various seg faults.
+- Abort copy if initial do_splice_direct() returns fewer bytes than
+  requested.
 
-Link: https://github.com/acpica/acpica/commit/f31cdf8b
-Link: https://github.com/acpica/acpica/commit/6803997e
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+- Move the 'size' initialization (with i_size_read()) further down in the
+  code, after the initial call to do_splice_direct().  This avoids issues
+  with a possibly stale value if a manual copy is done.
+
+- Move the object copy loop into a separate function.  This makes it
+  easier to handle errors (e.g, dirtying caps and updating the MDS
+  metadata if only some objects have been copied before an error has
+  occurred).
+
+- Added calls to ceph_oloc_destroy() to avoid leaking memory with src_oloc
+  and dst_oloc
+
+- After the object copy loop, the new file size to be reported to the MDS
+  (if there's file size change) is now the actual file size, and not the
+  size after an eventual extra manual copy.
+
+- Added a few dout() to show the number of bytes copied in the two manual
+  copies and in the object copy loop.
+
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/acnamesp.h |  2 ++
- drivers/acpi/acpica/dbinput.c  | 16 +++++++---------
- drivers/acpi/acpica/dswexec.c  | 33 ++++++++++++++++++++++++++++++++
- drivers/acpi/acpica/dswload.c  |  2 --
- drivers/acpi/acpica/dswload2.c | 35 ++++++++++++++++++++++++++++++++++
- drivers/acpi/acpica/nsnames.c  |  6 +-----
- drivers/acpi/acpica/utdelete.c |  9 +++++----
- 7 files changed, 83 insertions(+), 20 deletions(-)
+ fs/ceph/file.c | 173 ++++++++++++++++++++++++++++---------------------
+ 1 file changed, 100 insertions(+), 73 deletions(-)
 
-diff --git a/drivers/acpi/acpica/acnamesp.h b/drivers/acpi/acpica/acnamesp.h
-index e618ddfab2fd1..40f6a3c33a150 100644
---- a/drivers/acpi/acpica/acnamesp.h
-+++ b/drivers/acpi/acpica/acnamesp.h
-@@ -256,6 +256,8 @@ u32
- acpi_ns_build_normalized_path(struct acpi_namespace_node *node,
- 			      char *full_path, u32 path_size, u8 no_trailing);
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index 5a478cd06e113..7f8c4e3083018 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -1944,6 +1944,71 @@ static int is_file_size_ok(struct inode *src_inode, struct inode *dst_inode,
+ 	return 0;
+ }
  
-+void acpi_ns_normalize_pathname(char *original_path);
++static ssize_t ceph_do_objects_copy(struct ceph_inode_info *src_ci, u64 *src_off,
++				    struct ceph_inode_info *dst_ci, u64 *dst_off,
++				    struct ceph_fs_client *fsc,
++				    size_t len, unsigned int flags)
++{
++	struct ceph_object_locator src_oloc, dst_oloc;
++	struct ceph_object_id src_oid, dst_oid;
++	size_t bytes = 0;
++	u64 src_objnum, src_objoff, dst_objnum, dst_objoff;
++	u32 src_objlen, dst_objlen;
++	u32 object_size = src_ci->i_layout.object_size;
++	int ret;
 +
- char *acpi_ns_get_normalized_pathname(struct acpi_namespace_node *node,
- 				      u8 no_trailing);
- 
-diff --git a/drivers/acpi/acpica/dbinput.c b/drivers/acpi/acpica/dbinput.c
-index aa71f65395d25..ee6a1b77af3f1 100644
---- a/drivers/acpi/acpica/dbinput.c
-+++ b/drivers/acpi/acpica/dbinput.c
-@@ -468,16 +468,14 @@ char *acpi_db_get_next_token(char *string,
- 		return (NULL);
- 	}
- 
--	/* Remove any spaces at the beginning */
-+	/* Remove any spaces at the beginning, ignore blank lines */
- 
--	if (*string == ' ') {
--		while (*string && (*string == ' ')) {
--			string++;
--		}
-+	while (*string && isspace(*string)) {
-+		string++;
++	src_oloc.pool = src_ci->i_layout.pool_id;
++	src_oloc.pool_ns = ceph_try_get_string(src_ci->i_layout.pool_ns);
++	dst_oloc.pool = dst_ci->i_layout.pool_id;
++	dst_oloc.pool_ns = ceph_try_get_string(dst_ci->i_layout.pool_ns);
++
++	while (len >= object_size) {
++		ceph_calc_file_object_mapping(&src_ci->i_layout, *src_off,
++					      object_size, &src_objnum,
++					      &src_objoff, &src_objlen);
++		ceph_calc_file_object_mapping(&dst_ci->i_layout, *dst_off,
++					      object_size, &dst_objnum,
++					      &dst_objoff, &dst_objlen);
++		ceph_oid_init(&src_oid);
++		ceph_oid_printf(&src_oid, "%llx.%08llx",
++				src_ci->i_vino.ino, src_objnum);
++		ceph_oid_init(&dst_oid);
++		ceph_oid_printf(&dst_oid, "%llx.%08llx",
++				dst_ci->i_vino.ino, dst_objnum);
++		/* Do an object remote copy */
++		ret = ceph_osdc_copy_from(&fsc->client->osdc,
++					  src_ci->i_vino.snap, 0,
++					  &src_oid, &src_oloc,
++					  CEPH_OSD_OP_FLAG_FADVISE_SEQUENTIAL |
++					  CEPH_OSD_OP_FLAG_FADVISE_NOCACHE,
++					  &dst_oid, &dst_oloc,
++					  CEPH_OSD_OP_FLAG_FADVISE_SEQUENTIAL |
++					  CEPH_OSD_OP_FLAG_FADVISE_DONTNEED,
++					  dst_ci->i_truncate_seq,
++					  dst_ci->i_truncate_size,
++					  CEPH_OSD_COPY_FROM_FLAG_TRUNCATE_SEQ);
++		if (ret) {
++			if (ret == -EOPNOTSUPP) {
++				fsc->have_copy_from2 = false;
++				pr_notice("OSDs don't support copy-from2; disabling copy offload\n");
++			}
++			dout("ceph_osdc_copy_from returned %d\n", ret);
++			if (!bytes)
++				bytes = ret;
++			goto out;
++		}
++		len -= object_size;
++		bytes += object_size;
++		*src_off += object_size;
++		*dst_off += object_size;
 +	}
++
++out:
++	ceph_oloc_destroy(&src_oloc);
++	ceph_oloc_destroy(&dst_oloc);
++	return bytes;
++}
++
+ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
+ 				      struct file *dst_file, loff_t dst_off,
+ 				      size_t len, unsigned int flags)
+@@ -1954,14 +2019,11 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
+ 	struct ceph_inode_info *dst_ci = ceph_inode(dst_inode);
+ 	struct ceph_cap_flush *prealloc_cf;
+ 	struct ceph_fs_client *src_fsc = ceph_inode_to_client(src_inode);
+-	struct ceph_object_locator src_oloc, dst_oloc;
+-	struct ceph_object_id src_oid, dst_oid;
+-	loff_t endoff = 0, size;
+-	ssize_t ret = -EIO;
++	loff_t size;
++	ssize_t ret = -EIO, bytes;
+ 	u64 src_objnum, dst_objnum, src_objoff, dst_objoff;
+-	u32 src_objlen, dst_objlen, object_size;
++	u32 src_objlen, dst_objlen;
+ 	int src_got = 0, dst_got = 0, err, dirty;
+-	bool do_final_copy = false;
  
--		if (!(*string)) {
--			return (NULL);
+ 	if (src_inode->i_sb != dst_inode->i_sb) {
+ 		struct ceph_fs_client *dst_fsc = ceph_inode_to_client(dst_inode);
+@@ -2039,22 +2101,14 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
+ 	if (ret < 0)
+ 		goto out_caps;
+ 
+-	size = i_size_read(dst_inode);
+-	endoff = dst_off + len;
+-
+ 	/* Drop dst file cached pages */
+ 	ret = invalidate_inode_pages2_range(dst_inode->i_mapping,
+ 					    dst_off >> PAGE_SHIFT,
+-					    endoff >> PAGE_SHIFT);
++					    (dst_off + len) >> PAGE_SHIFT);
+ 	if (ret < 0) {
+ 		dout("Failed to invalidate inode pages (%zd)\n", ret);
+ 		ret = 0; /* XXX */
+ 	}
+-	src_oloc.pool = src_ci->i_layout.pool_id;
+-	src_oloc.pool_ns = ceph_try_get_string(src_ci->i_layout.pool_ns);
+-	dst_oloc.pool = dst_ci->i_layout.pool_id;
+-	dst_oloc.pool_ns = ceph_try_get_string(dst_ci->i_layout.pool_ns);
+-
+ 	ceph_calc_file_object_mapping(&src_ci->i_layout, src_off,
+ 				      src_ci->i_layout.object_size,
+ 				      &src_objnum, &src_objoff, &src_objlen);
+@@ -2073,6 +2127,8 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
+ 	 * starting at the src_off
+ 	 */
+ 	if (src_objoff) {
++		dout("Initial partial copy of %u bytes\n", src_objlen);
++
+ 		/*
+ 		 * we need to temporarily drop all caps as we'll be calling
+ 		 * {read,write}_iter, which will get caps again.
+@@ -2080,8 +2136,9 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
+ 		put_rd_wr_caps(src_ci, src_got, dst_ci, dst_got);
+ 		ret = do_splice_direct(src_file, &src_off, dst_file,
+ 				       &dst_off, src_objlen, flags);
+-		if (ret < 0) {
+-			dout("do_splice_direct returned %d\n", err);
++		/* Abort on short copies or on error */
++		if (ret < src_objlen) {
++			dout("Failed partial copy (%zd)\n", ret);
+ 			goto out;
+ 		}
+ 		len -= ret;
+@@ -2094,62 +2151,29 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
+ 		if (err < 0)
+ 			goto out_caps;
+ 	}
+-	object_size = src_ci->i_layout.object_size;
+-	while (len >= object_size) {
+-		ceph_calc_file_object_mapping(&src_ci->i_layout, src_off,
+-					      object_size, &src_objnum,
+-					      &src_objoff, &src_objlen);
+-		ceph_calc_file_object_mapping(&dst_ci->i_layout, dst_off,
+-					      object_size, &dst_objnum,
+-					      &dst_objoff, &dst_objlen);
+-		ceph_oid_init(&src_oid);
+-		ceph_oid_printf(&src_oid, "%llx.%08llx",
+-				src_ci->i_vino.ino, src_objnum);
+-		ceph_oid_init(&dst_oid);
+-		ceph_oid_printf(&dst_oid, "%llx.%08llx",
+-				dst_ci->i_vino.ino, dst_objnum);
+-		/* Do an object remote copy */
+-		err = ceph_osdc_copy_from(
+-			&src_fsc->client->osdc,
+-			src_ci->i_vino.snap, 0,
+-			&src_oid, &src_oloc,
+-			CEPH_OSD_OP_FLAG_FADVISE_SEQUENTIAL |
+-			CEPH_OSD_OP_FLAG_FADVISE_NOCACHE,
+-			&dst_oid, &dst_oloc,
+-			CEPH_OSD_OP_FLAG_FADVISE_SEQUENTIAL |
+-			CEPH_OSD_OP_FLAG_FADVISE_DONTNEED,
+-			dst_ci->i_truncate_seq, dst_ci->i_truncate_size,
+-			CEPH_OSD_COPY_FROM_FLAG_TRUNCATE_SEQ);
+-		if (err) {
+-			if (err == -EOPNOTSUPP) {
+-				src_fsc->have_copy_from2 = false;
+-				pr_notice("OSDs don't support copy-from2; disabling copy offload\n");
+-			}
+-			dout("ceph_osdc_copy_from returned %d\n", err);
+-			if (!ret)
+-				ret = err;
+-			goto out_caps;
 -		}
-+	if (!(*string)) {
-+		return (NULL);
+-		len -= object_size;
+-		src_off += object_size;
+-		dst_off += object_size;
+-		ret += object_size;
+-	}
+ 
+-	if (len)
+-		/* We still need one final local copy */
+-		do_final_copy = true;
++	size = i_size_read(dst_inode);
++	bytes = ceph_do_objects_copy(src_ci, &src_off, dst_ci, &dst_off,
++				     src_fsc, len, flags);
++	if (bytes <= 0) {
++		if (!ret)
++			ret = bytes;
++		goto out_caps;
++	}
++	dout("Copied %zu bytes out of %zu\n", bytes, len);
++	len -= bytes;
++	ret += bytes;
+ 
+ 	file_update_time(dst_file);
+ 	inode_inc_iversion_raw(dst_inode);
+ 
+-	if (endoff > size) {
++	if (dst_off > size) {
+ 		int caps_flags = 0;
+ 
+ 		/* Let the MDS know about dst file size change */
+-		if (ceph_quota_is_max_bytes_approaching(dst_inode, endoff))
++		if (ceph_quota_is_max_bytes_approaching(dst_inode, dst_off))
+ 			caps_flags |= CHECK_CAPS_NODELAY;
+-		if (ceph_inode_set_size(dst_inode, endoff))
++		if (ceph_inode_set_size(dst_inode, dst_off))
+ 			caps_flags |= CHECK_CAPS_AUTHONLY;
+ 		if (caps_flags)
+ 			ceph_check_caps(dst_ci, caps_flags, NULL);
+@@ -2165,15 +2189,18 @@ static ssize_t __ceph_copy_file_range(struct file *src_file, loff_t src_off,
+ out_caps:
+ 	put_rd_wr_caps(src_ci, src_got, dst_ci, dst_got);
+ 
+-	if (do_final_copy) {
+-		err = do_splice_direct(src_file, &src_off, dst_file,
+-				       &dst_off, len, flags);
+-		if (err < 0) {
+-			dout("do_splice_direct returned %d\n", err);
+-			goto out;
+-		}
+-		len -= err;
+-		ret += err;
++	/*
++	 * Do the final manual copy if we still have some bytes left, unless
++	 * there were errors in remote object copies (len >= object_size).
++	 */
++	if (len && (len < src_ci->i_layout.object_size)) {
++		dout("Final partial copy of %zu bytes\n", len);
++		bytes = do_splice_direct(src_file, &src_off, dst_file,
++					 &dst_off, len, flags);
++		if (bytes > 0)
++			ret += bytes;
++		else
++			dout("Failed partial copy (%zd)\n", bytes);
  	}
  
- 	switch (*string) {
-@@ -570,7 +568,7 @@ char *acpi_db_get_next_token(char *string,
- 
- 		/* Find end of token */
- 
--		while (*string && (*string != ' ')) {
-+		while (*string && !isspace(*string)) {
- 			string++;
- 		}
- 		break;
-diff --git a/drivers/acpi/acpica/dswexec.c b/drivers/acpi/acpica/dswexec.c
-index 5e81a1ae44cff..1d4f8c81028c2 100644
---- a/drivers/acpi/acpica/dswexec.c
-+++ b/drivers/acpi/acpica/dswexec.c
-@@ -16,6 +16,9 @@
- #include "acinterp.h"
- #include "acnamesp.h"
- #include "acdebug.h"
-+#ifdef ACPI_EXEC_APP
-+#include "aecommon.h"
-+#endif
- 
- #define _COMPONENT          ACPI_DISPATCHER
- ACPI_MODULE_NAME("dswexec")
-@@ -329,6 +332,10 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
- 	u32 op_class;
- 	union acpi_parse_object *next_op;
- 	union acpi_parse_object *first_arg;
-+#ifdef ACPI_EXEC_APP
-+	char *namepath;
-+	union acpi_operand_object *obj_desc;
-+#endif
- 
- 	ACPI_FUNCTION_TRACE_PTR(ds_exec_end_op, walk_state);
- 
-@@ -537,6 +544,32 @@ acpi_status acpi_ds_exec_end_op(struct acpi_walk_state *walk_state)
- 
- 			status =
- 			    acpi_ds_eval_buffer_field_operands(walk_state, op);
-+			if (ACPI_FAILURE(status)) {
-+				break;
-+			}
-+#ifdef ACPI_EXEC_APP
-+			/*
-+			 * acpi_exec support for namespace initialization file (initialize
-+			 * buffer_fields in this code.)
-+			 */
-+			namepath =
-+			    acpi_ns_get_external_pathname(op->common.node);
-+			status = ae_lookup_init_file_entry(namepath, &obj_desc);
-+			if (ACPI_SUCCESS(status)) {
-+				status =
-+				    acpi_ex_write_data_to_field(obj_desc,
-+								op->common.
-+								node->object,
-+								NULL);
-+				if ACPI_FAILURE
-+					(status) {
-+					ACPI_EXCEPTION((AE_INFO, status,
-+							"While writing to buffer field"));
-+					}
-+			}
-+			ACPI_FREE(namepath);
-+			status = AE_OK;
-+#endif
- 			break;
- 
- 		case AML_TYPE_CREATE_OBJECT:
-diff --git a/drivers/acpi/acpica/dswload.c b/drivers/acpi/acpica/dswload.c
-index 697974e37edfb..27069325b6de0 100644
---- a/drivers/acpi/acpica/dswload.c
-+++ b/drivers/acpi/acpica/dswload.c
-@@ -14,7 +14,6 @@
- #include "acdispat.h"
- #include "acinterp.h"
- #include "acnamesp.h"
--
- #ifdef ACPI_ASL_COMPILER
- #include "acdisasm.h"
- #endif
-@@ -399,7 +398,6 @@ acpi_status acpi_ds_load1_end_op(struct acpi_walk_state *walk_state)
- 	union acpi_parse_object *op;
- 	acpi_object_type object_type;
- 	acpi_status status = AE_OK;
--
- #ifdef ACPI_ASL_COMPILER
- 	u8 param_count;
- #endif
-diff --git a/drivers/acpi/acpica/dswload2.c b/drivers/acpi/acpica/dswload2.c
-index b31457ca926cc..edadbe1465069 100644
---- a/drivers/acpi/acpica/dswload2.c
-+++ b/drivers/acpi/acpica/dswload2.c
-@@ -15,6 +15,9 @@
- #include "acinterp.h"
- #include "acnamesp.h"
- #include "acevents.h"
-+#ifdef ACPI_EXEC_APP
-+#include "aecommon.h"
-+#endif
- 
- #define _COMPONENT          ACPI_DISPATCHER
- ACPI_MODULE_NAME("dswload2")
-@@ -373,6 +376,10 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
- 	struct acpi_namespace_node *new_node;
- 	u32 i;
- 	u8 region_space;
-+#ifdef ACPI_EXEC_APP
-+	union acpi_operand_object *obj_desc;
-+	char *namepath;
-+#endif
- 
- 	ACPI_FUNCTION_TRACE(ds_load2_end_op);
- 
-@@ -466,6 +473,11 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
- 		 * be evaluated later during the execution phase
- 		 */
- 		status = acpi_ds_create_buffer_field(op, walk_state);
-+		if (ACPI_FAILURE(status)) {
-+			ACPI_EXCEPTION((AE_INFO, status,
-+					"CreateBufferField failure"));
-+			goto cleanup;
-+			}
- 		break;
- 
- 	case AML_TYPE_NAMED_FIELD:
-@@ -604,6 +616,29 @@ acpi_status acpi_ds_load2_end_op(struct acpi_walk_state *walk_state)
- 		case AML_NAME_OP:
- 
- 			status = acpi_ds_create_node(walk_state, node, op);
-+			if (ACPI_FAILURE(status)) {
-+				goto cleanup;
-+			}
-+#ifdef ACPI_EXEC_APP
-+			/*
-+			 * acpi_exec support for namespace initialization file (initialize
-+			 * Name opcodes in this code.)
-+			 */
-+			namepath = acpi_ns_get_external_pathname(node);
-+			status = ae_lookup_init_file_entry(namepath, &obj_desc);
-+			if (ACPI_SUCCESS(status)) {
-+
-+				/* Detach any existing object, attach new object */
-+
-+				if (node->object) {
-+					acpi_ns_detach_object(node);
-+				}
-+				acpi_ns_attach_object(node, obj_desc,
-+						      obj_desc->common.type);
-+			}
-+			ACPI_FREE(namepath);
-+			status = AE_OK;
-+#endif
- 			break;
- 
- 		case AML_METHOD_OP:
-diff --git a/drivers/acpi/acpica/nsnames.c b/drivers/acpi/acpica/nsnames.c
-index 370bbc8677453..c717fff7d9b57 100644
---- a/drivers/acpi/acpica/nsnames.c
-+++ b/drivers/acpi/acpica/nsnames.c
-@@ -13,9 +13,6 @@
- #define _COMPONENT          ACPI_NAMESPACE
- ACPI_MODULE_NAME("nsnames")
- 
--/* Local Prototypes */
--static void acpi_ns_normalize_pathname(char *original_path);
--
- /*******************************************************************************
-  *
-  * FUNCTION:    acpi_ns_get_external_pathname
-@@ -30,7 +27,6 @@ static void acpi_ns_normalize_pathname(char *original_path);
-  *              for error and debug statements.
-  *
-  ******************************************************************************/
--
- char *acpi_ns_get_external_pathname(struct acpi_namespace_node *node)
- {
- 	char *name_buffer;
-@@ -411,7 +407,7 @@ char *acpi_ns_build_prefixed_pathname(union acpi_generic_state *prefix_scope,
-  *
-  ******************************************************************************/
- 
--static void acpi_ns_normalize_pathname(char *original_path)
-+void acpi_ns_normalize_pathname(char *original_path)
- {
- 	char *input_path = original_path;
- 	char *new_path_buffer;
-diff --git a/drivers/acpi/acpica/utdelete.c b/drivers/acpi/acpica/utdelete.c
-index eee263cb7beb0..c365faf4e6cd4 100644
---- a/drivers/acpi/acpica/utdelete.c
-+++ b/drivers/acpi/acpica/utdelete.c
-@@ -452,13 +452,13 @@ acpi_ut_update_ref_count(union acpi_operand_object *object, u32 action)
-  *
-  * FUNCTION:    acpi_ut_update_object_reference
-  *
-- * PARAMETERS:  object              - Increment ref count for this object
-- *                                    and all sub-objects
-+ * PARAMETERS:  object              - Increment or decrement the ref count for
-+ *                                    this object and all sub-objects
-  *              action              - Either REF_INCREMENT or REF_DECREMENT
-  *
-  * RETURN:      Status
-  *
-- * DESCRIPTION: Increment the object reference count
-+ * DESCRIPTION: Increment or decrement the object reference count
-  *
-  * Object references are incremented when:
-  * 1) An object is attached to a Node (namespace object)
-@@ -492,7 +492,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
- 		}
- 
- 		/*
--		 * All sub-objects must have their reference count incremented
-+		 * All sub-objects must have their reference count updated
- 		 * also. Different object types have different subobjects.
- 		 */
- 		switch (object->common.type) {
-@@ -559,6 +559,7 @@ acpi_ut_update_object_reference(union acpi_operand_object *object, u16 action)
- 					break;
- 				}
- 			}
-+
- 			next_object = NULL;
- 			break;
- 
+ out:
 -- 
 2.20.1
 
