@@ -2,247 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 362C31AAD97
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 18:31:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9151D1AAD70
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 18:31:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410311AbgDOQPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 12:15:43 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:51285 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1415209AbgDOQMX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 12:12:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586967140;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Mv9YA2m75EYzFmUAbMrQPFP314ZNb88wltZTyC27b4E=;
-        b=CH28gb59RUdIvdjKIEAp7JpKMp5tT5nyo4gQjiQbEEsLjOUeYLC2usprcOQ4LO9/viHRBf
-        p9JTJ/g9BoVbQ8vqMh0PoY3umucXW5DYkCanPcuMe0kj+BOogPrwza9GECD12uFDq0hmkS
-        /4Z355NVk9za8iqvepkGdYpJIwK+txA=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-437-xV9hue93O4Kf4SqY1_A7_g-1; Wed, 15 Apr 2020 12:12:15 -0400
-X-MC-Unique: xV9hue93O4Kf4SqY1_A7_g-1
-Received: by mail-qk1-f200.google.com with SMTP id k138so15633124qke.15
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 09:12:15 -0700 (PDT)
+        id S1415270AbgDOQNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 12:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54992 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1415265AbgDOQNC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 12:13:02 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87025C061A0C
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 09:13:02 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id t199so10540564oif.7
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 09:13:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=ncrv9jd36+qCkwrIBKA/ruUTxwR7AD9bxDQOgRKdvF4=;
+        b=iVyd52XAEXxN+nk6ruavvz6YwiCJUrB6A5WzmVy0LuQOPOlEgzNcn9WW3GBVU+TMqF
+         TVPTTbEUDPr7rCyF6a0nlD9bDbBjWYlUJSBvBs1YNlQUtbkFSiIMvjfqWTrVRONkv0J3
+         3hrr8DCDzVsl9KMQylLIfOExLuY83gsp/yyU3TvYl7COl0wFEQ49wLn556eeXlHaNVbq
+         8KSWkjfmlDARGmojXdhdCLlKU1F/zPHHJ+JJO+xGjApN3ej55t7z6Kcblp6XvI3Vejy9
+         76vrP577i931hN2DoygT6wnPvwg7Nmd7q1DHcu8cTUVS1e5iKA5D2cwlpMjmowTRXGmK
+         omIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Mv9YA2m75EYzFmUAbMrQPFP314ZNb88wltZTyC27b4E=;
-        b=hkUEym6Hmqsm3dMLUzRHF7PYW0+12RZw5V7WlseOoCRAbtoCVfHIKCFtPcPBDdhwGZ
-         OjI5ThFZJFOyLkfxfITxd8JoTAGl21fGZAxMNGT2euEdqJ6NWHUvS5ygd2JK33wDYxaS
-         /xsch7fvntpHjv5vIpY4b06bjyE4DePVzITMpXUWuDOfn0wxMttAGliJR3oDJ9hNv6hO
-         AYTBllQsDz3gAEUExie+IhxhU8To0zRQ/JiW8OTSv/5R5q81A8EQf1U4gyJqtC+faIxm
-         QaLf6vRJ05onixJQJdiWlmNapHDCQ/YyrlQFUyVpXVXQJbGUVKxrfcUKeaXMU99V+W69
-         FyMQ==
-X-Gm-Message-State: AGi0PuaraRfW2f2YeUliNckymnoySkWXAw9WhATdtLLLZr2vfXC+sJfB
-        Gyke/3h8HwHFXWGd/xV1yDK3Y9qk3UHlc15MsSCJauaPYCk7Uim40c6qcIF+lCs1SWR0oH1v4/b
-        cXWWTxG2WDpgPTPF6mQ4gu09ho5NA1Er8
-X-Received: by 2002:a37:9b0f:: with SMTP id d15mr15707299qke.62.1586967131527;
-        Wed, 15 Apr 2020 09:12:11 -0700 (PDT)
-X-Google-Smtp-Source: APiQypLoETwcvu72/DFo++b6OpDCehy7qLAHOH0i0rvrjp7Z+YqxMfS+Eb/JmjOkhPMj+ZIQVxJAZa62zL5VHxYGGyU=
-X-Received: by 2002:a37:9b0f:: with SMTP id d15mr15707269qke.62.1586967131214;
- Wed, 15 Apr 2020 09:12:11 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=ncrv9jd36+qCkwrIBKA/ruUTxwR7AD9bxDQOgRKdvF4=;
+        b=p4SOAX59uvkSbSavFUcS/tcpHpGPaPg3XimS30Mtu2DErplvGBQWDE7EtPMuKfjkuE
+         rgLFdzunNNTHs9xUQj1AIytiL5hrW+t30Nr0d8LgCYUEAMAqJZdLKR2oYFAE9ukIxHaN
+         2HzLOcIfhIazhELdgNH0WRRDiFVC6a6YWfmtcAok+xFBv+ElAT8yGZlS/AP7naQxDSSn
+         xpeDIXIQkzlLAkWh/L59G4YvIxfSmVnQIp78z1+H67VX6uuOEntPhIQrhiVsRXmYXDR8
+         ZQWFWVRuRSB65fjqOctBmkIw26hKIV7+xPCZUhQTGPYoBVdoNctZKXtrwRBwqpEOn+4M
+         QsSw==
+X-Gm-Message-State: AGi0PubyejLDUoKHjuIEWVMX0FAxUvR4kWw/P4ykWN6RiR7Yjm0m3w+A
+        jRNXm4WWR1GvtrNkIUnVCuc=
+X-Google-Smtp-Source: APiQypLGMQj9s+WyQ6lAScyLrA8nXFEJXs9kk4dFcwQ4luJAd8FMPvnmaQsVGBK1t7XcS70QU6t6yw==
+X-Received: by 2002:aca:f541:: with SMTP id t62mr5080232oih.148.1586967181807;
+        Wed, 15 Apr 2020 09:13:01 -0700 (PDT)
+Received: from ubuntu-s3-xlarge-x86 ([2604:1380:4111:8b00::3])
+        by smtp.gmail.com with ESMTPSA id a131sm6450242oii.30.2020.04.15.09.13.00
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 15 Apr 2020 09:13:00 -0700 (PDT)
+Date:   Wed, 15 Apr 2020 09:12:59 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     courbet@google.com, mpe@ellerman.id.au, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] powerpc: Make setjmp/longjmp signature
+ standard" failed to apply to 4.14-stable tree
+Message-ID: <20200415161259.GA44996@ubuntu-s3-xlarge-x86>
+References: <15869565461129@kroah.com>
 MIME-Version: 1.0
-References: <20200415113445.11881-1-sashal@kernel.org> <20200415113445.11881-84-sashal@kernel.org>
-In-Reply-To: <20200415113445.11881-84-sashal@kernel.org>
-From:   Karol Herbst <kherbst@redhat.com>
-Date:   Wed, 15 Apr 2020 18:11:10 +0200
-Message-ID: <CACO55ttpvfoyt1p_5Y-Q1=+5NruF5kMoug85jE9y+jG+FW=HGw@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.6 084/129] drm/nouveau: workaround runpm fail by
- disabling PCI power management on certain intel bridges
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lyude Paul <lyude@redhat.com>,
-        "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Mika Westerberg <mika.westerberg@intel.com>,
-        Linux PCI <linux-pci@vger.kernel.org>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        nouveau <nouveau@lists.freedesktop.org>,
-        Ben Skeggs <bskeggs@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="LZvS9be/3tNcYl/X"
+Content-Disposition: inline
+In-Reply-To: <15869565461129@kroah.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-in addition to that 028a12f5aa829 "drm/nouveau/gr/gp107,gp108:
-implement workaround for HW hanging during init" should probably get
-picked as well as it's fixing some runtime pm related issue on a
-handful of additional GPUs. I have a laptop myself which requires both
-of those patches.
 
-Applies to 5.5 and 5..4 as well.
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-And both commits should probably get applied to older trees as well.
-but I didn't get to it yet to see if they apply and work as expected.
+On Wed, Apr 15, 2020 at 03:15:46PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 4.14-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From c17eb4dca5a353a9dbbb8ad6934fe57af7165e91 Mon Sep 17 00:00:00 2001
+> From: Clement Courbet <courbet@google.com>
+> Date: Mon, 30 Mar 2020 10:03:56 +0200
+> Subject: [PATCH] powerpc: Make setjmp/longjmp signature standard
+> 
+> Declaring setjmp()/longjmp() as taking longs makes the signature
+> non-standard, and makes clang complain. In the past, this has been
+> worked around by adding -ffreestanding to the compile flags.
+> 
+> The implementation looks like it only ever propagates the value
+> (in longjmp) or sets it to 1 (in setjmp), and we only call longjmp
+> with integer parameters.
+> 
+> This allows removing -ffreestanding from the compilation flags.
+> 
+> Fixes: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp and longjmp")
+> Cc: stable@vger.kernel.org # v4.14+
+> Signed-off-by: Clement Courbet <courbet@google.com>
+> Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+> Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/20200330080400.124803-1-courbet@google.com
+> 
+> diff --git a/arch/powerpc/include/asm/setjmp.h b/arch/powerpc/include/asm/setjmp.h
+> index e9f81bb3f83b..f798e80e4106 100644
+> --- a/arch/powerpc/include/asm/setjmp.h
+> +++ b/arch/powerpc/include/asm/setjmp.h
+> @@ -7,7 +7,9 @@
+>  
+>  #define JMP_BUF_LEN    23
+>  
+> -extern long setjmp(long *) __attribute__((returns_twice));
+> -extern void longjmp(long *, long) __attribute__((noreturn));
+> +typedef long jmp_buf[JMP_BUF_LEN];
+> +
+> +extern int setjmp(jmp_buf env) __attribute__((returns_twice));
+> +extern void longjmp(jmp_buf env, int val) __attribute__((noreturn));
+>  
+>  #endif /* _ASM_POWERPC_SETJMP_H */
+> diff --git a/arch/powerpc/kexec/Makefile b/arch/powerpc/kexec/Makefile
+> index 378f6108a414..86380c69f5ce 100644
+> --- a/arch/powerpc/kexec/Makefile
+> +++ b/arch/powerpc/kexec/Makefile
+> @@ -3,9 +3,6 @@
+>  # Makefile for the linux kernel.
+>  #
+>  
+> -# Avoid clang warnings around longjmp/setjmp declarations
+> -CFLAGS_crash.o += -ffreestanding
+> -
+>  obj-y				+= core.o crash.o core_$(BITS).o
+>  
+>  obj-$(CONFIG_PPC32)		+= relocate_32.o
+> diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
+> index c3842dbeb1b7..6f9cccea54f3 100644
+> --- a/arch/powerpc/xmon/Makefile
+> +++ b/arch/powerpc/xmon/Makefile
+> @@ -1,9 +1,6 @@
+>  # SPDX-License-Identifier: GPL-2.0
+>  # Makefile for xmon
+>  
+> -# Avoid clang warnings around longjmp/setjmp declarations
+> -subdir-ccflags-y := -ffreestanding
+> -
+>  GCOV_PROFILE := n
+>  KCOV_INSTRUMENT := n
+>  UBSAN_SANITIZE := n
+> 
 
+Attached is a backport for 4.14 (that patch plus a prerequisite one).
 
-On Wed, Apr 15, 2020 at 1:36 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Karol Herbst <kherbst@redhat.com>
->
-> [ Upstream commit 434fdb51513bf3057ac144d152e6f2f2b509e857 ]
->
-> Fixes the infamous 'runtime PM' bug many users are facing on Laptops with
-> Nvidia Pascal GPUs by skipping said PCI power state changes on the GPU.
->
-> Depending on the used kernel there might be messages like those in demsg:
->
-> "nouveau 0000:01:00.0: Refused to change power state, currently in D3"
-> "nouveau 0000:01:00.0: can't change power state from D3cold to D0 (config
-> space inaccessible)"
-> followed by backtraces of kernel crashes or timeouts within nouveau.
->
-> It's still unkown why this issue exists, but this is a reliable workaroun=
-d
-> and solves a very annoying issue for user having to choose between a
-> crashing kernel or higher power consumption of their Laptops.
->
-> Signed-off-by: Karol Herbst <kherbst@redhat.com>
-> Cc: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
-> Cc: Mika Westerberg <mika.westerberg@intel.com>
-> Cc: linux-pci@vger.kernel.org
-> Cc: linux-pm@vger.kernel.org
-> Cc: dri-devel@lists.freedesktop.org
-> Cc: nouveau@lists.freedesktop.org
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D205623
-> Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/nouveau/nouveau_drm.c | 63 +++++++++++++++++++++++++++
->  drivers/gpu/drm/nouveau/nouveau_drv.h |  2 +
->  2 files changed, 65 insertions(+)
->
-> diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouv=
-eau/nouveau_drm.c
-> index b65ae817eabf5..2d4c899e1f8b9 100644
-> --- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-> +++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-> @@ -618,6 +618,64 @@ nouveau_drm_device_fini(struct drm_device *dev)
->         kfree(drm);
->  }
->
-> +/*
-> + * On some Intel PCIe bridge controllers doing a
-> + * D0 -> D3hot -> D3cold -> D0 sequence causes Nvidia GPUs to not reappe=
-ar.
-> + * Skipping the intermediate D3hot step seems to make it work again. Thi=
-s is
-> + * probably caused by not meeting the expectation the involved AML code =
-has
-> + * when the GPU is put into D3hot state before invoking it.
-> + *
-> + * This leads to various manifestations of this issue:
-> + *  - AML code execution to power on the GPU hits an infinite loop (as t=
-he
-> + *    code waits on device memory to change).
-> + *  - kernel crashes, as all PCI reads return -1, which most code isn't =
-able
-> + *    to handle well enough.
-> + *
-> + * In all cases dmesg will contain at least one line like this:
-> + * 'nouveau 0000:01:00.0: Refused to change power state, currently in D3=
-'
-> + * followed by a lot of nouveau timeouts.
-> + *
-> + * In the \_SB.PCI0.PEG0.PG00._OFF code deeper down writes bit 0x80 to t=
-he not
-> + * documented PCI config space register 0x248 of the Intel PCIe bridge
-> + * controller (0x1901) in order to change the state of the PCIe link bet=
-ween
-> + * the PCIe port and the GPU. There are alternative code paths using oth=
-er
-> + * registers, which seem to work fine (executed pre Windows 8):
-> + *  - 0xbc bit 0x20 (publicly available documentation claims 'reserved')
-> + *  - 0xb0 bit 0x10 (link disable)
-> + * Changing the conditions inside the firmware by poking into the releva=
-nt
-> + * addresses does resolve the issue, but it seemed to be ACPI private me=
-mory
-> + * and not any device accessible memory at all, so there is no portable =
-way of
-> + * changing the conditions.
-> + * On a XPS 9560 that means bits [0,3] on \CPEX need to be cleared.
-> + *
-> + * The only systems where this behavior can be seen are hybrid graphics =
-laptops
-> + * with a secondary Nvidia Maxwell, Pascal or Turing GPU. It's unclear w=
-hether
-> + * this issue only occurs in combination with listed Intel PCIe bridge
-> + * controllers and the mentioned GPUs or other devices as well.
-> + *
-> + * documentation on the PCIe bridge controller can be found in the
-> + * "7th Generation Intel=C2=AE Processor Families for H Platforms Datash=
-eet Volume 2"
-> + * Section "12 PCI Express* Controller (x16) Registers"
-> + */
-> +
-> +static void quirk_broken_nv_runpm(struct pci_dev *pdev)
-> +{
-> +       struct drm_device *dev =3D pci_get_drvdata(pdev);
-> +       struct nouveau_drm *drm =3D nouveau_drm(dev);
-> +       struct pci_dev *bridge =3D pci_upstream_bridge(pdev);
-> +
-> +       if (!bridge || bridge->vendor !=3D PCI_VENDOR_ID_INTEL)
-> +               return;
-> +
-> +       switch (bridge->device) {
-> +       case 0x1901:
-> +               drm->old_pm_cap =3D pdev->pm_cap;
-> +               pdev->pm_cap =3D 0;
-> +               NV_INFO(drm, "Disabling PCI power management to avoid bug=
-\n");
-> +               break;
-> +       }
-> +}
-> +
->  static int nouveau_drm_probe(struct pci_dev *pdev,
->                              const struct pci_device_id *pent)
->  {
-> @@ -699,6 +757,7 @@ static int nouveau_drm_probe(struct pci_dev *pdev,
->         if (ret)
->                 goto fail_drm_dev_init;
->
-> +       quirk_broken_nv_runpm(pdev);
->         return 0;
->
->  fail_drm_dev_init:
-> @@ -734,7 +793,11 @@ static void
->  nouveau_drm_remove(struct pci_dev *pdev)
->  {
->         struct drm_device *dev =3D pci_get_drvdata(pdev);
-> +       struct nouveau_drm *drm =3D nouveau_drm(dev);
->
-> +       /* revert our workaround */
-> +       if (drm->old_pm_cap)
-> +               pdev->pm_cap =3D drm->old_pm_cap;
->         nouveau_drm_device_remove(dev);
->         pci_disable_device(pdev);
->  }
-> diff --git a/drivers/gpu/drm/nouveau/nouveau_drv.h b/drivers/gpu/drm/nouv=
-eau/nouveau_drv.h
-> index c2c332fbde979..2a6519737800c 100644
-> --- a/drivers/gpu/drm/nouveau/nouveau_drv.h
-> +++ b/drivers/gpu/drm/nouveau/nouveau_drv.h
-> @@ -140,6 +140,8 @@ struct nouveau_drm {
->
->         struct list_head clients;
->
-> +       u8 old_pm_cap;
-> +
->         struct {
->                 struct agp_bridge_data *bridge;
->                 u32 base;
-> --
-> 2.20.1
->
+Cheers,
+Nathan
 
+--LZvS9be/3tNcYl/X
+Content-Type: application/mbox
+Content-Disposition: attachment; filename="4.14.mbox"
+Content-Transfer-Encoding: quoted-printable
+
+=46rom ba153be99f3771f0a14ab251a94a6640d7045294 Mon Sep 17 00:00:00 2001=0A=
+=46rom: Segher Boessenkool <segher@kernel.crashing.org>=0ADate: Wed, 4 Sep =
+2019 14:11:07 +0000=0ASubject: [PATCH 4.14 1/2] powerpc: Add attributes for=
+ setjmp/longjmp=0A=0Acommit aa497d4352414aad22e792b35d0aaaa12bbc37c5 upstre=
+am.=0A=0AThe setjmp function should be declared as "returns_twice", or bad=
+=0Athings can happen[1]. This does not actually change generated code in=0A=
+my testing.=0A=0AThe longjmp function should be declared as "noreturn", so =
+that the=0Acompiler can optimise calls to it better. This makes the generat=
+ed=0Acode a little shorter.=0A=0A1: https://gcc.gnu.org/onlinedocs/gcc/Comm=
+on-Function-Attributes.html#index-returns_005ftwice-function-attribute=0A=
+=0ASigned-off-by: Segher Boessenkool <segher@kernel.crashing.org>=0ASigned-=
+off-by: Michael Ellerman <mpe@ellerman.id.au>=0ALink: https://lore.kernel.o=
+rg/r/c02ce4a573f3bac907e2c70957a2d1275f910013.1567605586.git.segher@kernel.=
+crashing.org=0ASigned-off-by: Nathan Chancellor <natechancellor@gmail.com>=
+=0A---=0A arch/powerpc/include/asm/setjmp.h | 4 ++--=0A 1 file changed, 2 i=
+nsertions(+), 2 deletions(-)=0A=0Adiff --git a/arch/powerpc/include/asm/set=
+jmp.h b/arch/powerpc/include/asm/setjmp.h=0Aindex 279d03a1eec62..d930f5607e=
+f25 100644=0A--- a/arch/powerpc/include/asm/setjmp.h=0A+++ b/arch/powerpc/i=
+nclude/asm/setjmp.h=0A@@ -12,7 +12,7 @@=0A =0A #define JMP_BUF_LEN    23=0A=
+ =0A-extern long setjmp(long *);=0A-extern void longjmp(long *, long);=0A+e=
+xtern long setjmp(long *) __attribute__((returns_twice));=0A+extern void lo=
+ngjmp(long *, long) __attribute__((noreturn));=0A =0A #endif /* _ASM_POWERP=
+C_SETJMP_H */=0A=0Abase-commit: c10b57a567e4333b9fdf60b5ec36de9859263ca2=0A=
+-- =0A2.26.1=0A=0A=0AFrom ec90a96bf0278d54902c766ab8d05334b7f99eb5 Mon Sep =
+17 00:00:00 2001=0AFrom: Clement Courbet <courbet@google.com>=0ADate: Mon, =
+30 Mar 2020 10:03:56 +0200=0ASubject: [PATCH 4.14 2/2] powerpc: Make setjmp=
+/longjmp signature standard=0A=0Acommit c17eb4dca5a353a9dbbb8ad6934fe57af71=
+65e91 upstream.=0A=0ADeclaring setjmp()/longjmp() as taking longs makes the=
+ signature=0Anon-standard, and makes clang complain. In the past, this has =
+been=0Aworked around by adding -ffreestanding to the compile flags.=0A=0ATh=
+e implementation looks like it only ever propagates the value=0A(in longjmp=
+) or sets it to 1 (in setjmp), and we only call longjmp=0Awith integer para=
+meters.=0A=0AThis allows removing -ffreestanding from the compilation flags=
+=2E=0A=0AFixes: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp =
+and longjmp")=0ACc: stable@vger.kernel.org # v4.14+=0ASigned-off-by: Clemen=
+t Courbet <courbet@google.com>=0AReviewed-by: Nathan Chancellor <natechance=
+llor@gmail.com>=0ATested-by: Nathan Chancellor <natechancellor@gmail.com>=
+=0ASigned-off-by: Michael Ellerman <mpe@ellerman.id.au>=0ALink: https://lor=
+e.kernel.org/r/20200330080400.124803-1-courbet@google.com=0ASigned-off-by: =
+Nathan Chancellor <natechancellor@gmail.com>=0A---=0A arch/powerpc/include/=
+asm/setjmp.h | 6 ++++--=0A arch/powerpc/kernel/Makefile      | 3 ---=0A arc=
+h/powerpc/xmon/Makefile        | 3 ---=0A 3 files changed, 4 insertions(+),=
+ 8 deletions(-)=0A=0Adiff --git a/arch/powerpc/include/asm/setjmp.h b/arch/=
+powerpc/include/asm/setjmp.h=0Aindex d930f5607ef25..6941fe202bc82 100644=0A=
+--- a/arch/powerpc/include/asm/setjmp.h=0A+++ b/arch/powerpc/include/asm/se=
+tjmp.h=0A@@ -12,7 +12,9 @@=0A =0A #define JMP_BUF_LEN    23=0A =0A-extern l=
+ong setjmp(long *) __attribute__((returns_twice));=0A-extern void longjmp(l=
+ong *, long) __attribute__((noreturn));=0A+typedef long jmp_buf[JMP_BUF_LEN=
+];=0A+=0A+extern int setjmp(jmp_buf env) __attribute__((returns_twice));=0A=
++extern void longjmp(jmp_buf env, int val) __attribute__((noreturn));=0A =
+=0A #endif /* _ASM_POWERPC_SETJMP_H */=0Adiff --git a/arch/powerpc/kernel/M=
+akefile b/arch/powerpc/kernel/Makefile=0Aindex 5607ce67d178b..681f966b7211d=
+ 100644=0A--- a/arch/powerpc/kernel/Makefile=0A+++ b/arch/powerpc/kernel/Ma=
+kefile=0A@@ -5,9 +5,6 @@=0A =0A CFLAGS_ptrace.o		+=3D -DUTS_MACHINE=3D'"$(U=
+TS_MACHINE)"'=0A =0A-# Avoid clang warnings around longjmp/setjmp declarati=
+ons=0A-CFLAGS_crash.o +=3D -ffreestanding=0A-=0A subdir-ccflags-$(CONFIG_PP=
+C_WERROR) :=3D -Werror=0A =0A ifeq ($(CONFIG_PPC64),y)=0Adiff --git a/arch/=
+powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile=0Aindex a60c44b4a3e50..9=
+3974b0a5a99e 100644=0A--- a/arch/powerpc/xmon/Makefile=0A+++ b/arch/powerpc=
+/xmon/Makefile=0A@@ -1,9 +1,6 @@=0A # SPDX-License-Identifier: GPL-2.0=0A #=
+ Makefile for xmon=0A =0A-# Avoid clang warnings around longjmp/setjmp decl=
+arations=0A-subdir-ccflags-y :=3D -ffreestanding=0A-=0A subdir-ccflags-$(CO=
+NFIG_PPC_WERROR) +=3D -Werror=0A =0A GCOV_PROFILE :=3D n=0A-- =0A2.26.1=0A=
+=0A
+--LZvS9be/3tNcYl/X--
