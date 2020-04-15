@@ -2,143 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2361A9BDD
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:12:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E54B31A9BFC
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896754AbgDOLLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:11:52 -0400
-Received: from mga11.intel.com ([192.55.52.93]:33678 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896764AbgDOLLj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:11:39 -0400
-IronPort-SDR: D1RGyRRxT+F3DvAVwjq2l4Z2WcRzo2t8uHQON6JCKTOlKi/W8qbiYkAX3fkF7La4Af1YoBZdZq
- cnllFPgB1whg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2020 04:11:12 -0700
-IronPort-SDR: QlO/xvfhEE1n/5CtQHnYUJIHVZ9Qu8ZP2V6X635EmursCUyCqayYNy5v7ndjAaUKHx7gFW4Itx
- cgXKf5dQbM9A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,386,1580803200"; 
-   d="scan'208";a="400282827"
-Received: from lbrannix-mobl.ger.corp.intel.com (HELO intel.com) ([10.251.93.149])
-  by orsmga004.jf.intel.com with ESMTP; 15 Apr 2020 04:11:09 -0700
-Date:   Wed, 15 Apr 2020 14:11:08 +0300
-From:   Andi Shyti <andi.shyti@intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Francisco Jerez <currojerez@riseup.net>, stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] drm/i915/gt: Shrink the RPS evalution intervals
-Message-ID: <20200415111108.GB50947@intel.intel>
-References: <20200414161423.23830-1-chris@chris-wilson.co.uk>
- <20200414161423.23830-2-chris@chris-wilson.co.uk>
+        id S2896857AbgDOLTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:19:00 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46521 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2896766AbgDOLSu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:18:50 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 2D6865C013A;
+        Wed, 15 Apr 2020 07:18:49 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:18:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ZfnuM3
+        LQyR/bDtqn1hEmFQQndRRcst6PIgsNucui1jc=; b=yl0YiMEuRQqub90wRPQZV+
+        Mlp/jskqbbXc34hgmVgkwYHsBYjjzZp6lgdSrN6mD3A6HH9qzy2Z3QRzr0WKj5KH
+        0VNZ90ut3nvYx4UO9Wbp7UKiK/RCtVFSyYU67PqEzsF2vdhYRxg1kLq/2Iwl4RW6
+        9wdmJpVglzbpiziFVC+myV43gFaqPq5CewAl9F0pbGAiBC6XwDEw+79lBsCWoCYi
+        RiO2Hqx8umr+YwTR170uHLKCPFlnGHRv9C9yfQmOVAOaOSJzPRErjS2qO0K/SBP2
+        /enfCYMkE7e1zrrCE+C2OqCgLES70auEs+jzQcg+JyrS9Tow+WG982JysW91zu1Q
+        ==
+X-ME-Sender: <xms:mO2WXriRjNIPxpBnTXeIM6Q8bu9zFvw4xqOyGV7QcQsWJYbVQQgAvw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgddvjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    rhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:mO2WXkdA0wgeMZPDK_Mg8SxrgPS7qM118BanURVDfJXg3Y6wHXHbEQ>
+    <xmx:mO2WXp_thkR0N5fUo3fhncCA-T0Ghqyd0a2p5fuS2dsD7jPtBGKJNw>
+    <xmx:mO2WXuYSzDwPEwCyttXmu3fljsISeAnF7L-w7MHRcVjsP7-MUcURqA>
+    <xmx:me2WXujDmugaG-gKbUEsXJZWLSkSf8w8eVkUvDN19PeDr2fHxcS6jA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A64853280067;
+        Wed, 15 Apr 2020 07:18:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] scsi: lpfc: Fix broken Credit Recovery after driver load" failed to apply to 5.4-stable tree
+To:     jsmart2021@gmail.com, dick.kennedy@broadcom.com,
+        martin.petersen@oracle.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Apr 2020 13:18:47 +0200
+Message-ID: <1586949527184166@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200414161423.23830-2-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chris,
 
-On Tue, Apr 14, 2020 at 05:14:23PM +0100, Chris Wilson wrote:
-> Try to make RPS dramatically more responsive by shrinking the evaluation
-> intervales by a factor of 100! The issue is as we now park the GPU
-> rapidly upon idling, a short or bursty workload such as the composited
-> desktop never sustains enough work to fill and complete an evaluation
-> window. As such, the frequency we program remains stuck. This was first
-> reported as once boosted, we never relinquished the boost [see commit
-> 21abf0bf168d ("drm/i915/gt: Treat idling as a RPS downclock event")] but
-> it equally applies in the order direction for bursty workloads that
-> *need* low latency, like desktop animations.
-> 
-> What we could try is preserve the incomplete EI history across idling,
-> it is not clear whether that would be effective, nor whether the
-> presumption of continuous workloads is accurate. A clearer path seems to
-> treat it as symptomatic that we fail to handle bursty workload with the
-> current EI, and seek to address that by shrinking the EI so the
-> evaluations are run much more often.
-> 
-> This will likely entail more frequent interrupts, and by the time we
-> process the interrupt in the bottom half [from inside a worker], the
-> workload on the GPU has changed. To address the changeable nature, in
-> the previous patch we compared the previous complete EI with the
-> interrupt request and only up/down clock if both agree. The impact of
-> asking for, and presumably, receiving more interrupts is still to be
-> determined and mitigations sought. The first idea is to differentiate
-> between up/down responsivity and make upclocking more responsive than
-> downlocking. This should both help thwart jitter on bursty workloads by
-> making it easier to increase than it is to decrease frequencies, and
-> reduce the number of interrupts we would need to process.
-> 
-> Fixes: 21abf0bf168d ("drm/i915/gt: Treat idling as a RPS downclock event")
-> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1698
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-> Cc: Andi Shyti <andi.shyti@intel.com>
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: Francisco Jerez <currojerez@riseup.net>
-> Cc: <stable@vger.kernel.org> # v5.5+
-> ---
->  drivers/gpu/drm/i915/gt/intel_rps.c | 27 ++++++++++++++-------------
->  1 file changed, 14 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/intel_rps.c b/drivers/gpu/drm/i915/gt/intel_rps.c
-> index 367132092bed..47ddb25edc97 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_rps.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_rps.c
-> @@ -542,37 +542,38 @@ static void rps_set_power(struct intel_rps *rps, int new_power)
->  	/* Note the units here are not exactly 1us, but 1280ns. */
->  	switch (new_power) {
->  	case LOW_POWER:
-> -		/* Upclock if more than 95% busy over 16ms */
-> -		ei_up = 16000;
-> +		/* Upclock if more than 95% busy over 160us */
-> +		ei_up = 160;
->  		threshold_up = 95;
->  
-> -		/* Downclock if less than 85% busy over 32ms */
-> -		ei_down = 32000;
-> +		/* Downclock if less than 85% busy over 1600us */
-> +		ei_down = 1600;
->  		threshold_down = 85;
->  		break;
->  
->  	case BETWEEN:
-> -		/* Upclock if more than 90% busy over 13ms */
-> -		ei_up = 13000;
-> +		/* Upclock if more than 90% busy over 160us */
-> +		ei_up = 160;
->  		threshold_up = 90;
->  
-> -		/* Downclock if less than 75% busy over 32ms */
-> -		ei_down = 32000;
-> +		/* Downclock if less than 75% busy over 1600us */
-> +		ei_down = 1600;
->  		threshold_down = 75;
->  		break;
->  
->  	case HIGH_POWER:
-> -		/* Upclock if more than 85% busy over 10ms */
-> -		ei_up = 10000;
-> +		/* Upclock if more than 85% busy over 160us */
-> +		ei_up = 160;
->  		threshold_up = 85;
->  
-> -		/* Downclock if less than 60% busy over 32ms */
-> -		ei_down = 32000;
-> +		/* Downclock if less than 60% busy over 1600us */
-> +		ei_down = 1600;
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This is quite a drammatic change.
+thanks,
 
-Can we have a more dynamic selection of the interval depending on
-the frequency we are running? We reduce the interval in low
-frequencies and increase the interval in high frequencies.
+greg k-h
 
-Andi
+------------------ original commit in Linus's tree ------------------
+
+From 835214f5d5f516a38069bc077c879c7da00d6108 Mon Sep 17 00:00:00 2001
+From: James Smart <jsmart2021@gmail.com>
+Date: Mon, 27 Jan 2020 16:23:03 -0800
+Subject: [PATCH] scsi: lpfc: Fix broken Credit Recovery after driver load
+
+When driver is set to enable bb credit recovery, the switch displayed the
+setting as inactive.  If the link bounces, it switches to Active.
+
+During link up processing, the driver currently does a MBX_READ_SPARAM
+followed by a MBX_CONFIG_LINK. These mbox commands are queued to be
+executed, one at a time and the completion is processed by the worker
+thread.  Since the MBX_READ_SPARAM is done BEFORE the MBX_CONFIG_LINK, the
+BB_SC_N bit is never set the the returned values. BB Credit recovery status
+only gets set after the driver requests the feature in CONFIG_LINK, which
+is done after the link up. Thus the ordering of READ_SPARAM needs to follow
+the CONFIG_LINK.
+
+Fix by reordering so that READ_SPARAM is done after CONFIG_LINK.  Added a
+HBA_DEFER_FLOGI flag so that any FLOGI handling waits until after the
+READ_SPARAM is done so that the proper BB credit value is set in the FLOGI
+payload.
+
+Fixes: 6bfb16208298 ("scsi: lpfc: Fix configuration of BB credit recovery in service parameters")
+Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://lore.kernel.org/r/20200128002312.16346-4-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+
+diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
+index 04d73e2be373..3f2cb17c4574 100644
+--- a/drivers/scsi/lpfc/lpfc.h
++++ b/drivers/scsi/lpfc/lpfc.h
+@@ -749,6 +749,7 @@ struct lpfc_hba {
+ 					 * capability
+ 					 */
+ #define HBA_FLOGI_ISSUED	0x100000 /* FLOGI was issued */
++#define HBA_DEFER_FLOGI		0x800000 /* Defer FLOGI till read_sparm cmpl */
+ 
+ 	uint32_t fcp_ring_in_use; /* When polling test if intr-hndlr active*/
+ 	struct lpfc_dmabuf slim2p;
+diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
+index dcc8999c6a68..6a2bdae0e52a 100644
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -1163,13 +1163,16 @@ lpfc_mbx_cmpl_local_config_link(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
+ 	}
+ 
+ 	/* Start discovery by sending a FLOGI. port_state is identically
+-	 * LPFC_FLOGI while waiting for FLOGI cmpl
++	 * LPFC_FLOGI while waiting for FLOGI cmpl. Check if sending
++	 * the FLOGI is being deferred till after MBX_READ_SPARAM completes.
+ 	 */
+-	if (vport->port_state != LPFC_FLOGI)
+-		lpfc_initial_flogi(vport);
+-	else if (vport->fc_flag & FC_PT2PT)
+-		lpfc_disc_start(vport);
+-
++	if (vport->port_state != LPFC_FLOGI) {
++		if (!(phba->hba_flag & HBA_DEFER_FLOGI))
++			lpfc_initial_flogi(vport);
++	} else {
++		if (vport->fc_flag & FC_PT2PT)
++			lpfc_disc_start(vport);
++	}
+ 	return;
+ 
+ out:
+@@ -3094,6 +3097,14 @@ lpfc_mbx_cmpl_read_sparam(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
+ 	lpfc_mbuf_free(phba, mp->virt, mp->phys);
+ 	kfree(mp);
+ 	mempool_free(pmb, phba->mbox_mem_pool);
++
++	/* Check if sending the FLOGI is being deferred to after we get
++	 * up to date CSPs from MBX_READ_SPARAM.
++	 */
++	if (phba->hba_flag & HBA_DEFER_FLOGI) {
++		lpfc_initial_flogi(vport);
++		phba->hba_flag &= ~HBA_DEFER_FLOGI;
++	}
+ 	return;
+ 
+ out:
+@@ -3224,6 +3235,23 @@ lpfc_mbx_process_link_up(struct lpfc_hba *phba, struct lpfc_mbx_read_top *la)
+ 	}
+ 
+ 	lpfc_linkup(phba);
++	sparam_mbox = NULL;
++
++	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
++		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
++		if (!cfglink_mbox)
++			goto out;
++		vport->port_state = LPFC_LOCAL_CFG_LINK;
++		lpfc_config_link(phba, cfglink_mbox);
++		cfglink_mbox->vport = vport;
++		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
++		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
++		if (rc == MBX_NOT_FINISHED) {
++			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
++			goto out;
++		}
++	}
++
+ 	sparam_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+ 	if (!sparam_mbox)
+ 		goto out;
+@@ -3244,20 +3272,7 @@ lpfc_mbx_process_link_up(struct lpfc_hba *phba, struct lpfc_mbx_read_top *la)
+ 		goto out;
+ 	}
+ 
+-	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
+-		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+-		if (!cfglink_mbox)
+-			goto out;
+-		vport->port_state = LPFC_LOCAL_CFG_LINK;
+-		lpfc_config_link(phba, cfglink_mbox);
+-		cfglink_mbox->vport = vport;
+-		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
+-		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
+-		if (rc == MBX_NOT_FINISHED) {
+-			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
+-			goto out;
+-		}
+-	} else {
++	if (phba->hba_flag & HBA_FCOE_MODE) {
+ 		vport->port_state = LPFC_VPORT_UNKNOWN;
+ 		/*
+ 		 * Add the driver's default FCF record at FCF index 0 now. This
+@@ -3314,6 +3329,10 @@ lpfc_mbx_process_link_up(struct lpfc_hba *phba, struct lpfc_mbx_read_top *la)
+ 		}
+ 		/* Reset FCF roundrobin bmask for new discovery */
+ 		lpfc_sli4_clear_fcf_rr_bmask(phba);
++	} else {
++		if (phba->bbcredit_support && phba->cfg_enable_bbcr &&
++		    !(phba->link_flag & LS_LOOPBACK_MODE))
++			phba->hba_flag |= HBA_DEFER_FLOGI;
+ 	}
+ 
+ 	/* Prepare for LINK up registrations */
+
