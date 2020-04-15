@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E13731AA35D
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:11:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2E011AA2D3
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506006AbgDONHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:07:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55420 "EHLO mail.kernel.org"
+        id S2897098AbgDOLf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:35:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408892AbgDOLft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:35:49 -0400
+        id S2408893AbgDOLfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:35:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 884B020768;
-        Wed, 15 Apr 2020 11:35:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9006B20737;
+        Wed, 15 Apr 2020 11:35:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950549;
-        bh=yq30A9vqJkbH6ukTYjE1PX100A2RCzQdapYKRI6/qVI=;
+        s=default; t=1586950550;
+        bh=nSl82cjhWjTA2l0ExvViT8VlR3vIJzSYqkYo4UEfc7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KuAZWB4WjTaDmUTCf2EDOSOa1P8tilBW3L00QEJWVJplVexTP3gTHSdtC+HUMqF0y
-         9NwZ/+RmrVj7JI+Q6/a7LUgcbmHUXHy2aPzmYjzpcxgC5RpqXkLuCyCBpbQg8vhQ61
-         WdDeXQs+m4Fu0kUKZVjRmXW6SaAJ06wA5ifZ5bPU=
+        b=LYA+w9keah0mVOldlZDFaQUHhTqPrw9o4qcpomBXibVkzAYCY4LP5xIFPx9q+F2iQ
+         TOSqTk63sE8mjc0pkCi+MbIw1oWf2zBzT5uoMp4c8ZdTyRIdc0dpTpbsWaZORG0Phh
+         WSKlO2+PjIR4s64CIr6amGNt9lF/gCxlA6tgdlAc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 055/129] s390/cpum_sf: Fix wrong page count in error message
-Date:   Wed, 15 Apr 2020 07:33:30 -0400
-Message-Id: <20200415113445.11881-55-sashal@kernel.org>
+Cc:     Liwei Song <liwei.song@windriver.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 056/129] nfsroot: set tcp as the default transport protocol
+Date:   Wed, 15 Apr 2020 07:33:31 -0400
+Message-Id: <20200415113445.11881-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -43,68 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Liwei Song <liwei.song@windriver.com>
 
-[ Upstream commit 4141b6a5e9f171325effc36a22eb92bf961e7a5c ]
+[ Upstream commit 89c8023fd46167a41246a56b31d1b3c9a20b6970 ]
 
-When perf record -e SF_CYCLES_BASIC_DIAG runs with very high
-frequency, the samples arrive faster than the perf process can
-save them to file. Eventually, for longer running processes, this
-leads to the siutation where the trace buffers allocated by perf
-slowly fills up. At one point the auxiliary trace buffer is full
-and  the CPU Measurement sampling facility is turned off. Furthermore
-a warning is printed to the kernel log buffer:
+UDP is disabled by default in commit b24ee6c64ca7 ("NFS: allow
+deprecation of NFS UDP protocol"), but the default mount options
+is still udp, change it to tcp to avoid the "Unsupported transport
+protocol udp" error if no protocol is specified when mount nfs.
 
-cpum_sf: The AUX buffer with 0 pages for the diagnostic-sampling
-	mode is full
-
-The number of allocated pages for the auxiliary trace buffer is shown
-as zero pages. That is wrong.
-
-Fix this by saving the number of allocated pages before entering the
-work loop in the interrupt handler. When the interrupt handler processes
-the samples, it may detect the buffer full condition and stop sampling,
-reducing the buffer size to zero.
-Print the correct value in the error message:
-
-cpum_sf: The AUX buffer with 256 pages for the diagnostic-sampling
-	mode is full
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: b24ee6c64ca7 ("NFS: allow deprecation of NFS UDP protocol")
+Signed-off-by: Liwei Song <liwei.song@windriver.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/nfs/nfsroot.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index b095b1c78987d..05b908b3a6b38 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1576,6 +1576,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 	unsigned long range = 0, size;
- 	unsigned long long overflow = 0;
- 	struct perf_output_handle *handle = &cpuhw->handle;
-+	unsigned long num_sdb;
+diff --git a/fs/nfs/nfsroot.c b/fs/nfs/nfsroot.c
+index effaa4247b912..8d32788056022 100644
+--- a/fs/nfs/nfsroot.c
++++ b/fs/nfs/nfsroot.c
+@@ -88,7 +88,7 @@
+ #define NFS_ROOT		"/tftpboot/%s"
  
- 	aux = perf_get_aux(handle);
- 	if (WARN_ON_ONCE(!aux))
-@@ -1587,13 +1588,14 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 			    size >> PAGE_SHIFT);
- 	perf_aux_output_end(handle, size);
+ /* Default NFSROOT mount options. */
+-#define NFS_DEF_OPTIONS		"vers=2,udp,rsize=4096,wsize=4096"
++#define NFS_DEF_OPTIONS		"vers=2,tcp,rsize=4096,wsize=4096"
  
-+	num_sdb = aux->sfb.num_sdb;
- 	while (!done) {
- 		/* Get an output handle */
- 		aux = perf_aux_output_begin(handle, cpuhw->event);
- 		if (handle->size == 0) {
- 			pr_err("The AUX buffer with %lu pages for the "
- 			       "diagnostic-sampling mode is full\n",
--				aux->sfb.num_sdb);
-+				num_sdb);
- 			debug_sprintf_event(sfdbg, 1,
- 					    "%s: AUX buffer used up\n",
- 					    __func__);
+ /* Parameters passed from the kernel command line */
+ static char nfs_root_parms[NFS_MAXPATHLEN + 1] __initdata = "";
 -- 
 2.20.1
 
