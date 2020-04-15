@@ -2,53 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CA921A9C45
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:29:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62E291A9C49
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896987AbgDOL2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:28:48 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:35713 "EHLO
+        id S2896997AbgDOLar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:30:47 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:58863 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2896981AbgDOL2f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:28:35 -0400
+        by vger.kernel.org with ESMTP id S2896984AbgDOLah (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:30:37 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 77D775C01F2;
-        Wed, 15 Apr 2020 07:28:33 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 1D9D75C01F6;
+        Wed, 15 Apr 2020 07:30:36 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:28:33 -0400
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:30:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=qIxMce
-        B3R5eAJbfdbswaK449+CrYUp/gv6DIrJdEZxI=; b=mMH57nHd4zBCmTZxVvU+Ml
-        Q6sMoqog/GK9bcaobBDa8ab6KzOIZwRQhXnXQlW1I9cCklohRPnVzH4tV3MnMa6e
-        NOGdBOpDjGxL6QTDiMtmqGsVpKWg+Hy4/LSf34MZKVYw2pQPCcvfuAgu8ljSORF2
-        TSEdbP8URrcyzo6HQYzxFmR+xYB3ieCmrexeez6BUS3tnKhe+cDNL/l/y3z27WLh
-        l8DuhpqyG3osb8Q2P2hvAIUeC/ltVC80a02hk/3qeJpja8bp+Qg4y7EKRvMeTkga
-        67OFnOEP2c2YmRQKfhWi4mv6x8vvmWlB8VCAQRg2HfMYzKIBRDlEfVI87rKXsauQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=FRBfBN
+        9zmEgD1G3EsFECZw9Nui16cUMMiIWS/JhDoEo=; b=Dxa2v/Q9sgYk2i60lQLjMF
+        yyD9A4hs1VjB9t/C9dgfEBUymAEx1kEqS6feom61ExaZfEhczJs2THguqF8XfDZ2
+        C1/myirth5pY3Oa3SVfESLzOOOWbkOgKH0hCSO+Y+V/KY/PtSx05N180PBjh5/7b
+        WikyxJNeJ0uodBA4eHWkCe+7jxmKlRwFnsu8JOxw1cIjP7+lYL0E2cwxkWVsZlZL
+        U6EHtrg676tIIxo08mFqHGFB9eOZ62ZqnyamLaatqWZLCr/XA1nLfPVZSiWObYfO
+        cxbWXWSWzCUI30V5eSe9DOfkAx27IjN/3N9WHHZcZNyXF9yNzzxZ13x3DEgp6Sqw
         ==
-X-ME-Sender: <xms:4e-WXgQKgfFif-JnrjBtyYntdT9XoPTGzBMkCzWxAKH829OPjoWBSA>
+X-ME-Sender: <xms:WvCWXncSrjcPS3Ky4KtK4NMpseLUtD2SAIsVsS2y5ken8As4dVq9IQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgddvlecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
-    rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:4e-WXjRyK728jj-5FF_C-SkYlQt7F50fGQHZTbl48DBe8dEFG7Qfdw>
-    <xmx:4e-WXs4pCR-mvQXhpKXOkP-VZPpnOvk5zjBSK0d7Nl9oPkS4FgrOlg>
-    <xmx:4e-WXoXu9mkX6XBqgDh9uWhL6p6k5Z-ALTBHg-MaSUd7ZKL4zNEJ7Q>
-    <xmx:4e-WXuKfeoKLhPZOp84aD-A1VkbOEBiNQKvXRN2ErVtbsKuS8xi4ag>
+    qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
+    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhf
+    rhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:WvCWXvhcy_2Gxu4VDA8BZrNsJWvqX0KYqOdcbdlrcuIcokRzLdFnjg>
+    <xmx:WvCWXvSMaLYeluXiaquvKMclcPtgwcBnw1DtR95grXZTLTEro8lOqw>
+    <xmx:WvCWXjKopitagGdd7hygQ1IIb8BOXQI6YmTmi5g3JyJH0GroTrJWzg>
+    <xmx:XPCWXjwBtYk1pO73Vi9fHkmSpFGQFE6le2vnIEv2t0C63-7ojK2jGA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 19165328005E;
-        Wed, 15 Apr 2020 07:28:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] rtc: max8907: add missing select REGMAP_IRQ" failed to apply to 5.4-stable tree
-To:     clabbe@baylibre.com, alexandre.belloni@bootlin.com,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6DFCC328005A;
+        Wed, 15 Apr 2020 07:30:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/bridge: analogix-anx78xx: Fix drm_dp_link helper removal" failed to apply to 5.5-stable tree
+To:     duwe@lst.de, Laurent.pinchart@ideasonboard.com,
+        a.hajda@samsung.com, daniel.vetter@ffwll.ch,
+        jernej.skrabec@siol.net, jonas@kwiboo.se, narmstrong@baylibre.com,
+        stable@vger.kernel.org, treding@nvidia.com, tzimmermann@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 13:28:23 +0200
-Message-ID: <158695010316141@kroah.com>
+Date:   Wed, 15 Apr 2020 13:30:33 +0200
+Message-ID: <158695023362255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.5-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,33 +71,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c05a31f4d1de8f49f66f499e67da9c3d745c4f19 Mon Sep 17 00:00:00 2001
-From: Corentin Labbe <clabbe@baylibre.com>
-Date: Wed, 18 Mar 2020 15:26:49 +0000
-Subject: [PATCH] rtc: max8907: add missing select REGMAP_IRQ
+From 3e138a63d6674a4567a018a31e467567c40b14d5 Mon Sep 17 00:00:00 2001
+From: Torsten Duwe <duwe@lst.de>
+Date: Tue, 18 Feb 2020 16:57:44 +0100
+Subject: [PATCH] drm/bridge: analogix-anx78xx: Fix drm_dp_link helper removal
 
-I have hit the following build error:
-armv7a-hardfloat-linux-gnueabi-ld: drivers/rtc/rtc-max8907.o: in function `max8907_rtc_probe':
-rtc-max8907.c:(.text+0x400): undefined reference to `regmap_irq_get_virq'
+drm_dp_link_rate_to_bw_code and ...bw_code_to_link_rate simply divide by
+and multiply with 27000, respectively. Avoid an overflow in the u8 dpcd[0]
+and the multiply+divide alltogether.
 
-max8907 should select REGMAP_IRQ
+Signed-off-by: Torsten Duwe <duwe@lst.de>
+Fixes: ff1e8fb68ea0 ("drm/bridge: analogix-anx78xx: Avoid drm_dp_link helpers")
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Cc: Jonas Karlman <jonas@kwiboo.se>
+Cc: Jernej Skrabec <jernej.skrabec@siol.net>
+Cc: <stable@vger.kernel.org> # v5.5+
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200218155744.9675368BE1@verein.lst.de
 
-Fixes: 94c01ab6d7544 ("rtc: add MAX8907 RTC driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Link: https://lore.kernel.org/r/1584545209-20433-1-git-send-email-clabbe@baylibre.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 7d6cb60ee010..6c99156cbe57 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -327,6 +327,7 @@ config RTC_DRV_MAX6900
- config RTC_DRV_MAX8907
- 	tristate "Maxim MAX8907"
- 	depends on MFD_MAX8907 || COMPILE_TEST
-+	select REGMAP_IRQ
- 	help
- 	  If you say yes here you will get support for the
- 	  RTC of Maxim MAX8907 PMIC.
+diff --git a/drivers/gpu/drm/bridge/analogix/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix/analogix-anx78xx.c
+index 41867be03751..864423f59d66 100644
+--- a/drivers/gpu/drm/bridge/analogix/analogix-anx78xx.c
++++ b/drivers/gpu/drm/bridge/analogix/analogix-anx78xx.c
+@@ -722,10 +722,9 @@ static int anx78xx_dp_link_training(struct anx78xx *anx78xx)
+ 	if (err)
+ 		return err;
+ 
+-	dpcd[0] = drm_dp_max_link_rate(anx78xx->dpcd);
+-	dpcd[0] = drm_dp_link_rate_to_bw_code(dpcd[0]);
+ 	err = regmap_write(anx78xx->map[I2C_IDX_TX_P0],
+-			   SP_DP_MAIN_LINK_BW_SET_REG, dpcd[0]);
++			   SP_DP_MAIN_LINK_BW_SET_REG,
++			   anx78xx->dpcd[DP_MAX_LINK_RATE]);
+ 	if (err)
+ 		return err;
+ 
 
