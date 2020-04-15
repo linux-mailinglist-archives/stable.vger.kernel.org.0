@@ -2,97 +2,274 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10DBF1AA024
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:31:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 954481A9D02
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:43:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409103AbgDOLot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:44:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37052 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406142AbgDOLoU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:44:20 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0221221582;
-        Wed, 15 Apr 2020 11:44:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951059;
-        bh=mHI9eyVLwiMuBtKcYBlu4Th72kzE+NJHQ4mxUFyM80E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLIvWswUBswCAGeRaTrF59Vv1J8ZkZT6oDvXDEDojaWfOz+dvxq1LUqly6i1UdUzH
-         P6FDejtAE444QUPrH34nqp8tlf//se6FrZ6iXtydFUPuYZ9mFbG6soBaBpw6jsDr+K
-         gT4CEBWifsHoV8doRtFlc649WUYwUCtUFm2VJOUk=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>, Jan Kara <jack@suse.com>,
-        linux-ext4@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 092/106] ext2: fix empty body warnings when -Wextra is used
-Date:   Wed, 15 Apr 2020 07:42:12 -0400
-Message-Id: <20200415114226.13103-92-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
-References: <20200415114226.13103-1-sashal@kernel.org>
+        id S2897454AbgDOLmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:42:22 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:40501 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2897449AbgDOLmQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:42:16 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 723EA5C0148;
+        Wed, 15 Apr 2020 07:42:15 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:42:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=flbTqP
+        +KBDoTDukOVUyhx3msf+05fdTobDvyo6Z/hls=; b=KxN6YMFpyj+tmo1Pl/5DM6
+        A9rC41Rgsj1deJStqhk5+233ZcIMVauJfC4jA4Wzz0wLN/3My4hspzdOG4fTp5X9
+        kKNxW1hng3GJa0Vuw/9iRkz46wQYmX+fNqbrX6O+Ahucp+gBYnesp/pDmqXTCKbc
+        Z3W1JmmMYzkG5csPzIadJZNNQTrBIGV9RzTJ3EYXcVYg6p2zEzwOzXOKQBqrvMPz
+        tw0WKd3ezfmDBvrVeE7dXJaIdGBxP38Udp32G1iRB1nzxqMeIK5vq0kphXVwL+gU
+        QxgiO238eGy6Cn0qZg2FTzA0+vHe88eh4KFLc18i7FHgBmUdYuFoe2J15XrszbqA
+        ==
+X-ME-Sender: <xms:FvOWXkqORSrq_VTuh6kLfKcN79bx0lwZMuPpg3cc9cOQ2n60nEGUpQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdefvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    rhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:FvOWXoAde3zUwmU3A6KPYfEjIqi7CRBKOdcYVnGfIuYpPFkno-j2zg>
+    <xmx:FvOWXu282ngMGG2XkqoUEBTpE3QzkVmmWtpyjUdXrXLM9mEsbOvyGw>
+    <xmx:FvOWXmdhvvwpeH0cEsqC6dR8-R6QKQRUKS4ynKO0wrFngAyD99SU2A>
+    <xmx:F_OWXrp5sshZiHeYLWdsuX2-kO1V9AAtGp3hxYqIpvgNyb28Fw2g-g>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9C6A93060061;
+        Wed, 15 Apr 2020 07:42:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] perf/core: Fix event cgroup tracking" failed to apply to 5.5-stable tree
+To:     peterz@infradead.org, mingo@kernel.org, songliubraving@fb.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Apr 2020 13:42:13 +0200
+Message-ID: <158695093323238@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 44a52022e7f15cbaab957df1c14f7a4f527ef7cf ]
+The patch below does not apply to the 5.5-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-When EXT2_ATTR_DEBUG is not defined, modify the 2 debug macros
-to use the no_printk() macro instead of <nothing>.
-This fixes gcc warnings when -Wextra is used:
+thanks,
 
-../fs/ext2/xattr.c:252:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
-../fs/ext2/xattr.c:258:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
-../fs/ext2/xattr.c:330:42: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
-../fs/ext2/xattr.c:872:45: warning: suggest braces around empty body in an ‘else’ statement [-Wempty-body]
+greg k-h
 
-I have verified that the only object code change (with gcc 7.5.0) is
-the reversal of some instructions from 'cmp a,b' to 'cmp b,a'.
+------------------ original commit in Linus's tree ------------------
 
-Link: https://lore.kernel.org/r/e18a7395-61fb-2093-18e8-ed4f8cf56248@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jan Kara <jack@suse.com>
-Cc: linux-ext4@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/ext2/xattr.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+From 33238c50451596be86db1505ab65fee5172844d0 Mon Sep 17 00:00:00 2001
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Wed, 18 Mar 2020 20:33:37 +0100
+Subject: [PATCH] perf/core: Fix event cgroup tracking
 
-diff --git a/fs/ext2/xattr.c b/fs/ext2/xattr.c
-index 0456bc990b5ee..b91f99d9482e9 100644
---- a/fs/ext2/xattr.c
-+++ b/fs/ext2/xattr.c
-@@ -56,6 +56,7 @@
+Song reports that installing cgroup events is broken since:
+
+  db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
+
+The problem being that cgroup events try to track cpuctx->cgrp even
+for disabled events, which is pointless and actively harmful since the
+above commit. Rework the code to have explicit enable/disable hooks
+for cgroup events, such that we can limit cgroup tracking to active
+events.
+
+More specifically, since the above commit disabled events are no
+longer added to their context from the 'right' CPU, and we can't
+access things like the current cgroup for a remote CPU.
+
+Cc: <stable@vger.kernel.org> # v5.5+
+Fixes: db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
+Reported-by: Song Liu <songliubraving@fb.com>
+Tested-by: Song Liu <songliubraving@fb.com>
+Reviewed-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200318193337.GB20760@hirez.programming.kicks-ass.net
+
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 55e44417f66d..7afd0b503406 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -983,16 +983,10 @@ perf_cgroup_set_shadow_time(struct perf_event *event, u64 now)
+ 	event->shadow_ctx_time = now - t->timestamp;
+ }
  
- #include <linux/buffer_head.h>
- #include <linux/init.h>
-+#include <linux/printk.h>
- #include <linux/slab.h>
- #include <linux/mbcache.h>
- #include <linux/quotaops.h>
-@@ -84,8 +85,8 @@
- 		printk("\n"); \
- 	} while (0)
- #else
--# define ea_idebug(f...)
--# define ea_bdebug(f...)
-+# define ea_idebug(inode, f...)	no_printk(f)
-+# define ea_bdebug(bh, f...)	no_printk(f)
+-/*
+- * Update cpuctx->cgrp so that it is set when first cgroup event is added and
+- * cleared when last cgroup event is removed.
+- */
+ static inline void
+-list_update_cgroup_event(struct perf_event *event,
+-			 struct perf_event_context *ctx, bool add)
++perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
+ {
+ 	struct perf_cpu_context *cpuctx;
+-	struct list_head *cpuctx_entry;
+ 
+ 	if (!is_cgroup_event(event))
+ 		return;
+@@ -1009,28 +1003,41 @@ list_update_cgroup_event(struct perf_event *event,
+ 	 * because if the first would mismatch, the second would not try again
+ 	 * and we would leave cpuctx->cgrp unset.
+ 	 */
+-	if (add && !cpuctx->cgrp) {
++	if (ctx->is_active && !cpuctx->cgrp) {
+ 		struct perf_cgroup *cgrp = perf_cgroup_from_task(current, ctx);
+ 
+ 		if (cgroup_is_descendant(cgrp->css.cgroup, event->cgrp->css.cgroup))
+ 			cpuctx->cgrp = cgrp;
+ 	}
+ 
+-	if (add && ctx->nr_cgroups++)
++	if (ctx->nr_cgroups++)
+ 		return;
+-	else if (!add && --ctx->nr_cgroups)
++
++	list_add(&cpuctx->cgrp_cpuctx_entry,
++			per_cpu_ptr(&cgrp_cpuctx_list, event->cpu));
++}
++
++static inline void
++perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
++{
++	struct perf_cpu_context *cpuctx;
++
++	if (!is_cgroup_event(event))
+ 		return;
+ 
+-	/* no cgroup running */
+-	if (!add)
++	/*
++	 * Because cgroup events are always per-cpu events,
++	 * @ctx == &cpuctx->ctx.
++	 */
++	cpuctx = container_of(ctx, struct perf_cpu_context, ctx);
++
++	if (--ctx->nr_cgroups)
++		return;
++
++	if (ctx->is_active && cpuctx->cgrp)
+ 		cpuctx->cgrp = NULL;
+ 
+-	cpuctx_entry = &cpuctx->cgrp_cpuctx_entry;
+-	if (add)
+-		list_add(cpuctx_entry,
+-			 per_cpu_ptr(&cgrp_cpuctx_list, event->cpu));
+-	else
+-		list_del(cpuctx_entry);
++	list_del(&cpuctx->cgrp_cpuctx_entry);
+ }
+ 
+ #else /* !CONFIG_CGROUP_PERF */
+@@ -1096,11 +1103,14 @@ static inline u64 perf_cgroup_event_time(struct perf_event *event)
+ }
+ 
+ static inline void
+-list_update_cgroup_event(struct perf_event *event,
+-			 struct perf_event_context *ctx, bool add)
++perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
+ {
+ }
+ 
++static inline void
++perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
++{
++}
  #endif
  
- static int ext2_xattr_set2(struct inode *, struct buffer_head *,
--- 
-2.20.1
+ /*
+@@ -1791,13 +1801,14 @@ list_add_event(struct perf_event *event, struct perf_event_context *ctx)
+ 		add_event_to_groups(event, ctx);
+ 	}
+ 
+-	list_update_cgroup_event(event, ctx, true);
+-
+ 	list_add_rcu(&event->event_entry, &ctx->event_list);
+ 	ctx->nr_events++;
+ 	if (event->attr.inherit_stat)
+ 		ctx->nr_stat++;
+ 
++	if (event->state > PERF_EVENT_STATE_OFF)
++		perf_cgroup_event_enable(event, ctx);
++
+ 	ctx->generation++;
+ }
+ 
+@@ -1976,8 +1987,6 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
+ 
+ 	event->attach_state &= ~PERF_ATTACH_CONTEXT;
+ 
+-	list_update_cgroup_event(event, ctx, false);
+-
+ 	ctx->nr_events--;
+ 	if (event->attr.inherit_stat)
+ 		ctx->nr_stat--;
+@@ -1994,8 +2003,10 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
+ 	 * of error state is by explicit re-enabling
+ 	 * of the event
+ 	 */
+-	if (event->state > PERF_EVENT_STATE_OFF)
++	if (event->state > PERF_EVENT_STATE_OFF) {
++		perf_cgroup_event_disable(event, ctx);
+ 		perf_event_set_state(event, PERF_EVENT_STATE_OFF);
++	}
+ 
+ 	ctx->generation++;
+ }
+@@ -2226,6 +2237,7 @@ event_sched_out(struct perf_event *event,
+ 
+ 	if (READ_ONCE(event->pending_disable) >= 0) {
+ 		WRITE_ONCE(event->pending_disable, -1);
++		perf_cgroup_event_disable(event, ctx);
+ 		state = PERF_EVENT_STATE_OFF;
+ 	}
+ 	perf_event_set_state(event, state);
+@@ -2363,6 +2375,7 @@ static void __perf_event_disable(struct perf_event *event,
+ 		event_sched_out(event, cpuctx, ctx);
+ 
+ 	perf_event_set_state(event, PERF_EVENT_STATE_OFF);
++	perf_cgroup_event_disable(event, ctx);
+ }
+ 
+ /*
+@@ -2746,7 +2759,7 @@ static int  __perf_install_in_context(void *info)
+ 	}
+ 
+ #ifdef CONFIG_CGROUP_PERF
+-	if (is_cgroup_event(event)) {
++	if (event->state > PERF_EVENT_STATE_OFF && is_cgroup_event(event)) {
+ 		/*
+ 		 * If the current cgroup doesn't match the event's
+ 		 * cgroup, we should not try to schedule it.
+@@ -2906,6 +2919,7 @@ static void __perf_event_enable(struct perf_event *event,
+ 		ctx_sched_out(ctx, cpuctx, EVENT_TIME);
+ 
+ 	perf_event_set_state(event, PERF_EVENT_STATE_INACTIVE);
++	perf_cgroup_event_enable(event, ctx);
+ 
+ 	if (!ctx->is_active)
+ 		return;
+@@ -3616,8 +3630,10 @@ static int merge_sched_in(struct perf_event *event, void *data)
+ 	}
+ 
+ 	if (event->state == PERF_EVENT_STATE_INACTIVE) {
+-		if (event->attr.pinned)
++		if (event->attr.pinned) {
++			perf_cgroup_event_disable(event, ctx);
+ 			perf_event_set_state(event, PERF_EVENT_STATE_ERROR);
++		}
+ 
+ 		*can_add_hw = 0;
+ 		ctx->rotate_necessary = 1;
 
