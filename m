@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C1A31AA0B9
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B9A1AA0CC
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369494AbgDOMal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:30:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37392 "EHLO mail.kernel.org"
+        id S369568AbgDOMb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:31:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406054AbgDOLou (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2409102AbgDOLou (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 15 Apr 2020 07:44:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D8F820732;
-        Wed, 15 Apr 2020 11:44:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25334206A2;
+        Wed, 15 Apr 2020 11:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951074;
-        bh=MuIOjmunTWEFlt5HQIFx2mjqJzIGMAOGls5X8CybAR8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTSiitbuCvm4bRJ8tLkreLAgjXtnxhcXjjRJCjF6Lg73QWE0dar4qWGsGC+WtHRKA
-         jwlqSF41DjQLJrGLELZqwdAuR4dwkiGUPfDE6L4/UligcvwjDpEu2Av+lIRLwliczW
-         wNEshZ0zCqG0hB4qW1YVSdmYkxpzQ9XYAwExQDbI=
+        s=default; t=1586951083;
+        bh=5awcBRC1vnFsSufAGrSrHlTj08tl0RW0fzavbHxoj8o=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hfbfNGOtui5TfQ0KAnEDcZWrDcHpB14TSOadzAIVmkDpUyN9+Dzj+qd++OAjCS3Jo
+         ozL4enx4HsVUVoLNxyHEpc8zT3dt/X2PgB901FidvwdeLhqIIrQ985c3IEYlNAvxEv
+         C1Y+SlyTA4+MVcDwZ/hA4hwIHRnzJuBjEzrPbays=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yicheng Li <yichengli@chromium.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Gwendal Grignou <gwendal@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 106/106] platform/chrome: cros_ec: Query EC protocol version if EC transitions between RO/RW
-Date:   Wed, 15 Apr 2020 07:42:26 -0400
-Message-Id: <20200415114226.13103-106-sashal@kernel.org>
+Cc:     xinhui pan <xinhui.pan@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
+        linaro-mm-sig@lists.linaro.org
+Subject: [PATCH AUTOSEL 5.4 01/84] drm/ttm: flush the fence on the bo after we individualize the reservation object
+Date:   Wed, 15 Apr 2020 07:43:18 -0400
+Message-Id: <20200415114442.14166-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
-References: <20200415114226.13103-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,102 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicheng Li <yichengli@chromium.org>
+From: xinhui pan <xinhui.pan@amd.com>
 
-[ Upstream commit 42cd0ab476e2daffc23982c37822a78f9a53cdd5 ]
+[ Upstream commit 1bbcf69e42fe7fd49b6f4339c970729d0e343753 ]
 
-RO and RW of EC may have different EC protocol version. If EC transitions
-between RO and RW, but AP does not reboot (this is true for fingerprint
-microcontroller / cros_fp, but not true for main ec / cros_ec), the AP
-still uses the protocol version queried before transition, which can
-cause problems. In the case of fingerprint microcontroller, this causes
-AP to send the wrong version of EC_CMD_GET_NEXT_EVENT to RO in the
-interrupt handler, which in turn prevents RO to clear the interrupt
-line to AP, in an infinite loop.
+As we move the ttm_bo_individualize_resv() upwards, we need flush the
+copied fence too. Otherwise the driver keeps waiting for fence.
 
-Once an EC_HOST_EVENT_INTERFACE_READY is received, we know that there
-might have been a transition between RO and RW, so re-query the protocol.
+run&Kill kfdtest, then perf top.
 
-Signed-off-by: Yicheng Li <yichengli@chromium.org>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Gwendal Grignou <gwendal@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+  25.53%  [ttm]                     [k] ttm_bo_delayed_delete
+  24.29%  [kernel]                  [k] dma_resv_test_signaled_rcu
+  19.72%  [kernel]                  [k] ww_mutex_lock
+
+Fix: 378e2d5b("drm/ttm: fix ttm_bo_cleanup_refs_or_queue once more")
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/series/72339/
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec.c           | 30 +++++++++++++++++++++
- include/linux/platform_data/cros_ec_proto.h |  4 +++
- 2 files changed, 34 insertions(+)
+ drivers/gpu/drm/ttm/ttm_bo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
-index 6d6ce86a1408a..e5e1bbb270914 100644
---- a/drivers/platform/chrome/cros_ec.c
-+++ b/drivers/platform/chrome/cros_ec.c
-@@ -137,6 +137,24 @@ static int cros_ec_sleep_event(struct cros_ec_device *ec_dev, u8 sleep_event)
- 	return ret;
- }
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index f078036998092..abf165b2f64fc 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -517,8 +517,10 @@ static void ttm_bo_cleanup_refs_or_queue(struct ttm_buffer_object *bo)
  
-+static int cros_ec_ready_event(struct notifier_block *nb,
-+			       unsigned long queued_during_suspend,
-+			       void *_notify)
-+{
-+	struct cros_ec_device *ec_dev = container_of(nb, struct cros_ec_device,
-+						     notifier_ready);
-+	u32 host_event = cros_ec_get_host_event(ec_dev);
-+
-+	if (host_event & EC_HOST_EVENT_MASK(EC_HOST_EVENT_INTERFACE_READY)) {
-+		mutex_lock(&ec_dev->lock);
-+		cros_ec_query_all(ec_dev);
-+		mutex_unlock(&ec_dev->lock);
-+		return NOTIFY_OK;
+ 		dma_resv_unlock(bo->base.resv);
+ 	}
+-	if (bo->base.resv != &bo->base._resv)
++	if (bo->base.resv != &bo->base._resv) {
++		ttm_bo_flush_all_fences(bo);
+ 		dma_resv_unlock(&bo->base._resv);
 +	}
-+
-+	return NOTIFY_DONE;
-+}
-+
- /**
-  * cros_ec_register() - Register a new ChromeOS EC, using the provided info.
-  * @ec_dev: Device to register.
-@@ -236,6 +254,18 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 		dev_dbg(ec_dev->dev, "Error %d clearing sleep event to ec",
- 			err);
  
-+	if (ec_dev->mkbp_event_supported) {
-+		/*
-+		 * Register the notifier for EC_HOST_EVENT_INTERFACE_READY
-+		 * event.
-+		 */
-+		ec_dev->notifier_ready.notifier_call = cros_ec_ready_event;
-+		err = blocking_notifier_chain_register(&ec_dev->event_notifier,
-+						      &ec_dev->notifier_ready);
-+		if (err)
-+			return err;
-+	}
-+
- 	dev_info(dev, "Chrome EC device registered\n");
- 
- 	return 0;
-diff --git a/include/linux/platform_data/cros_ec_proto.h b/include/linux/platform_data/cros_ec_proto.h
-index 30098a5515231..e6af1b4a7cbcf 100644
---- a/include/linux/platform_data/cros_ec_proto.h
-+++ b/include/linux/platform_data/cros_ec_proto.h
-@@ -126,6 +126,9 @@ struct cros_ec_command {
-  * @host_event_wake_mask: Mask of host events that cause wake from suspend.
-  * @last_event_time: exact time from the hard irq when we got notified of
-  *     a new event.
-+ * @notifier_ready: The notifier_block to let the kernel re-query EC
-+ *		    communication protocol when the EC sends
-+ *		    EC_HOST_EVENT_INTERFACE_READY.
-  * @ec: The platform_device used by the mfd driver to interface with the
-  *      main EC.
-  * @pd: The platform_device used by the mfd driver to interface with the
-@@ -167,6 +170,7 @@ struct cros_ec_device {
- 	u32 host_event_wake_mask;
- 	u32 last_resume_result;
- 	ktime_t last_event_time;
-+	struct notifier_block notifier_ready;
- 
- 	/* The platform devices used by the mfd driver */
- 	struct platform_device *ec;
+ error:
+ 	kref_get(&bo->list_kref);
 -- 
 2.20.1
 
