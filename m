@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4ABA1A9E7F
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:59:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A375B1A9E7B
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409666AbgDOL4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:56:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
+        id S2409652AbgDOL4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:56:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409400AbgDOLrx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:47:53 -0400
+        id S1727920AbgDOLry (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:47:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC43B2137B;
-        Wed, 15 Apr 2020 11:47:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03A5821582;
+        Wed, 15 Apr 2020 11:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951272;
-        bh=diZCH/Mg8n9hXnJ0WhmZgAaGP/vFOO2uGKOad9Enxpw=;
+        s=default; t=1586951273;
+        bh=TF/01RNQtNtjrq6KbrU+2FAcLCzjC1oerULda68YHj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6JGzRWmG059w7EXAz8TGhThLULVatYwILZgRyT/ErgKlvyYt1lPJ5jCZJmMaouQM
-         zQSVTw8m8KC/lp+WbVAkFlKA+R0YKOOsD++IeGHctvkqi3cPqa1uFv/pmPw7fjynvd
-         KELttE8vB051nYOICcKx4sjx1bkAnS4fK4OV05sM=
+        b=CvxUiypJuukFn8WeoAaKsHcmZqHkoSTZ7jCCMnlX8ipfj1euR9kxwpM8dl4aCtdo1
+         ayFM4Aqw08ZWNe4ffzxVn+BDL+bimho1LbWSb4ju3yE1kr13hrggs+s3VhmtsgQpHy
+         KNPk6ZEWn1hkkDntaSV1bUqJ8sV7mFJ+H5qsdpRk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 03/21] clk: tegra: Fix Tegra PMC clock out parents
-Date:   Wed, 15 Apr 2020 07:47:30 -0400
-Message-Id: <20200415114748.15713-3-sashal@kernel.org>
+Cc:     Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 04/21] NFS: direct.c: Fix memory leak of dreq when nfs_get_lock_context fails
+Date:   Wed, 15 Apr 2020 07:47:31 -0400
+Message-Id: <20200415114748.15713-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114748.15713-1-sashal@kernel.org>
 References: <20200415114748.15713-1-sashal@kernel.org>
@@ -45,54 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
+From: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
 
-[ Upstream commit 6fe38aa8cac3a5db38154331742835a4d9740788 ]
+[ Upstream commit 8605cf0e852af3b2c771c18417499dc4ceed03d5 ]
 
-Tegra PMC clocks clk_out_1, clk_out_2, and clk_out_3 supported parents
-are osc, osc_div2, osc_div4 and extern clock.
+When dreq is allocated by nfs_direct_req_alloc(), dreq->kref is
+initialized to 2. Therefore we need to call nfs_direct_req_release()
+twice to release the allocated dreq. Usually it is called in
+nfs_file_direct_{read, write}() and nfs_direct_complete().
 
-Clock driver is using incorrect parents clk_m, clk_m_div2, clk_m_div4
-for PMC clocks.
+However, current code only calls nfs_direct_req_relese() once if
+nfs_get_lock_context() fails in nfs_file_direct_{read, write}().
+So, that case would result in memory leak.
 
-This patch fixes this.
+Fix this by adding the missing call.
 
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-tegra-pmc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/nfs/direct.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clk/tegra/clk-tegra-pmc.c b/drivers/clk/tegra/clk-tegra-pmc.c
-index 91377abfefa19..17a04300f93bf 100644
---- a/drivers/clk/tegra/clk-tegra-pmc.c
-+++ b/drivers/clk/tegra/clk-tegra-pmc.c
-@@ -60,16 +60,16 @@ struct pmc_clk_init_data {
- 
- static DEFINE_SPINLOCK(clk_out_lock);
- 
--static const char *clk_out1_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern1",
-+static const char *clk_out1_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern1",
- };
- 
--static const char *clk_out2_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern2",
-+static const char *clk_out2_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern2",
- };
- 
--static const char *clk_out3_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern3",
-+static const char *clk_out3_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern3",
- };
- 
- static struct pmc_clk_init_data pmc_clks[] = {
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 53f0012ace42f..de135d2591ffb 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -595,6 +595,7 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter)
+ 	l_ctx = nfs_get_lock_context(dreq->ctx);
+ 	if (IS_ERR(l_ctx)) {
+ 		result = PTR_ERR(l_ctx);
++		nfs_direct_req_release(dreq);
+ 		goto out_release;
+ 	}
+ 	dreq->l_ctx = l_ctx;
+@@ -1019,6 +1020,7 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
+ 	l_ctx = nfs_get_lock_context(dreq->ctx);
+ 	if (IS_ERR(l_ctx)) {
+ 		result = PTR_ERR(l_ctx);
++		nfs_direct_req_release(dreq);
+ 		goto out_release;
+ 	}
+ 	dreq->l_ctx = l_ctx;
 -- 
 2.20.1
 
