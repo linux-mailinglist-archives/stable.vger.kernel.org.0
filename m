@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A600D1A9BA9
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:04:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DE911A9BAD
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408847AbgDOLED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:04:03 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41991 "EHLO
+        id S2393923AbgDOLDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:03:24 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59379 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2896698AbgDOLCv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:02:51 -0400
+        by vger.kernel.org with ESMTP id S2896707AbgDOLCw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:02:52 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3D1095C0145;
-        Wed, 15 Apr 2020 07:02:50 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:02:50 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id B3AAB5C0153;
+        Wed, 15 Apr 2020 07:02:51 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:02:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=9yrWIB
-        MZ9yYNY2Ijl3tX3Dmvq5x8A0o9it7hq5KyAn8=; b=Uc1bl5xRBnHsM07j5bvUtG
-        lWwt03J5nL3T4i6G6Yay+N8rmdHPwM3Tenjx/F+Vz0a+6WDZqLRRgwXvs0nYWAK5
-        Ffmw1SX5H+ZT929SSMNfkqd+x6XWwlo7GJa5vZSNqjFVvMIWkGnbkPhSzSSP5quH
-        eczdXyMKeMKEm+h4Tv9r5Y7lfPyhRiShkTWbUin+39vEznq/UnSrYIuPk4BYp9dx
-        jMhhSVlvNpa9/Alq6KsiyKEkjSWaEy9/W29TmZ1DpDBU++tbnoyEWDLd+LzcYivh
-        HeNBk99j0bhI8qblueBFQQ2cS41xjCf0kDgO83ZEqaPvVkI8FfRXgOuN0DVW1liA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=KlcKlH
+        zKEF93RpM5xbCpUmxgLy3Q43OxDXViyj3IQNU=; b=HNjSsuCBV+OfT8k8fxR9jw
+        Rs+bGwram9oiUxcE7Oxq6bxK5n0KSxlABsnkWKytSLAmgPtNkQOcjHH8fujMFGhp
+        GIrqpBupJJBpxy2ONPTb2zwXP0EPLt8objnhojdT1fDaPVvXoxtpxDTWQCRA3hA+
+        uj4w7Z0AvTMSoIXCCZ4llkAL2qIkeKr1iMOSJ5yHJCeh4en7Qg3SR/j+/LmplRCs
+        bpAKwiNhhxNKyxZrXzLCVSSHBAbM3yq0Mx46rB0N+gY6kDDW0jUSt/Z1jBOg34hq
+        mDAWqTgYiRz8Ge0LoB0YOceSzxMXtdOaqOQ4N+n6XkNqSBYaYAzFP0uXn6VkB1qQ
         ==
-X-ME-Sender: <xms:2umWXtit0-a_m0RjfjA4OTJDwbHuhDv3G3m9WZtB09a5omTfpQHuqg>
+X-ME-Sender: <xms:2-mWXitcOCz0WHPfRY98pOAsG9_iNUG2KU3UpSIdVzFJsAKDeQz8Rg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgddvgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepvdenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:2umWXq1RMRRr7FDxm6-mpNzC3IKh2DTuI3hFk3C2Xez0VRKrtoM13A>
-    <xmx:2umWXjZ9Rs2rldwierSfYEmX8VQOG6ndjaWTnAyxMTc23mulwSjcoA>
-    <xmx:2umWXo5J1u5BoYWo0I8XP7j5aGEZr5Lb4YM1hP-CoWwOmk12cJqVZQ>
-    <xmx:2umWXgICepMzGHLbpjXI4I58EgGgKNluEMR838pBOUTy5EYnMQhsUA>
+X-ME-Proxy: <xmx:2-mWXnnAeSY1LcUGeQCqt3vxw07fMY5lzx1ixl66dmM2LQGdx0O2QA>
+    <xmx:2-mWXrkHJh1X27D02c3qV5ARiZkHC9Qf9znfet0zPPw48QahxVuOxA>
+    <xmx:2-mWXhe_orQv_7WAn3NfLMD07zs-mdAXz3jo7_DZiqu1-Mat4xq-ew>
+    <xmx:2-mWXiuO99jY0YRVrmA58oPSH97vt9Km76FIa2xqFbiSpuoKEzt_LA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C2E70306005B;
-        Wed, 15 Apr 2020 07:02:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] dm zoned: remove duplicate nr_rnd_zones increase in" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4F0643280064;
+        Wed, 15 Apr 2020 07:02:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dm zoned: remove duplicate nr_rnd_zones increase in" failed to apply to 4.19-stable tree
 To:     bob.liu@oracle.com, damien.lemoal@wdc.com, snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 15 Apr 2020 13:02:40 +0200
-Message-ID: <158694856063129@kroah.com>
+Message-ID: <158694856060147@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
