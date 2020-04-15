@@ -2,129 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DBB1AA8F5
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FEFC1AA8F8
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2636224AbgDONp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:45:29 -0400
-Received: from mga05.intel.com ([192.55.52.43]:13110 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2636218AbgDONp0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 09:45:26 -0400
-IronPort-SDR: D3aXQ0Vqs6GXWhRYY5vzc3TR+S8QozTmEkda9eVsFpxSC/QOJ4xeayYCLPcxjYCf0apCx/9ENI
- HLPC3oPcsdUg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2020 06:45:23 -0700
-IronPort-SDR: QzA+CqihMFTrByvNRfgRQYI2s01miNNfXdQvVpnl11aLRUWZGBc7aGTDATaiQ1w/ZvPM3qqme3
- scseqzhpF5lw==
-X-IronPort-AV: E=Sophos;i="5.72,387,1580803200"; 
-   d="scan'208";a="363673560"
-Received: from paasikivi.fi.intel.com ([10.237.72.42])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Apr 2020 06:45:22 -0700
-Received: by paasikivi.fi.intel.com (Postfix, from userid 1000)
-        id 3ABF620606; Wed, 15 Apr 2020 16:45:20 +0300 (EEST)
-Date:   Wed, 15 Apr 2020 16:45:20 +0300
-From:   Sakari Ailus <sakari.ailus@linux.intel.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, david@unsolicited.net,
-        hans.verkuil@cisco.com, linux@roeck-us.net,
-        mchehab@osg.samsung.com, stable-commits@vger.kernel.org
-Subject: Re: Patch "Revert "[media] videobuf2-v4l2: Verify planes array in
- buffer dequeueing"" has been added to the 4.4-stable tree
-Message-ID: <20200415134520.GE27762@paasikivi.fi.intel.com>
-References: <158694575418840@kroah.com>
- <20200415131412.GD27762@paasikivi.fi.intel.com>
- <20200415132742.GA3461248@kroah.com>
+        id S2636228AbgDONqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:46:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60276 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2636203AbgDONp6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 09:45:58 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E6BBC061A0C;
+        Wed, 15 Apr 2020 06:45:58 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id t14so6020706wrw.12;
+        Wed, 15 Apr 2020 06:45:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=6Y+n501v60+M9qU9BaDXmrwTBhvvERDvpQrXPhdTjpk=;
+        b=lxGxqGA/w4cma4aWMZOuekWkvzZjyQeK07gZxyiOlbOFOJdw/ty1G/gOjpJXkHhbtv
+         oec/4EyegckUWHV5YfR6K1DjhbJYMlVEOGcFGvFzW2YYSjDREe77l0eEkSIddkqfonVv
+         w/4pxZUN7S+iYpbqC2d6lFPe6j+JL6uXyjVl7JpZkS9c6nsZC7GzFqaRY9Aai665W2M0
+         SmoyMcrt/DYkfW/blgJIVnvNEBintUPPRXYH/Dy0aUJc58VQFOEE9zG2ERbhBvyA7vSG
+         8HV0nvpldH7tNH6MqDd5VCsdvTp4wvEKiB8XJpOI3WVE36xRezRwuu/xf/MIqHK2fuxh
+         0F3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=6Y+n501v60+M9qU9BaDXmrwTBhvvERDvpQrXPhdTjpk=;
+        b=MgtoPyCAkQngTCqQyQNKSSIFO87VuDKaiPQVMBUpLbGLA4lI/9SvgY1RypsdUk8HRZ
+         hzt7B1zxdPGzoj+D/IRcwYRUesDQNlr19aN7Ak4z4+LKxOGlUO39i+YMnrNcNuc2rRd1
+         KyVf7PvGifIv6vR1MJ80c7BerG2kB3Z/DO5J1fJK5l+igOLsQSjYf+9J8SdYJIC2KNBS
+         dDlfQ87pOSY/K4cH3ah95V+kJSjJdVJsugG2R2F8kVw9ZBZZwZLiZOnIg8/7WFahR7x4
+         7giB0ZVOH2trrJt5ol2YceKcpDDOLxVZBiqD7zCzT1SKyxutTW4uuc0Cxv6J5jkwQPVH
+         XmOw==
+X-Gm-Message-State: AGi0PublyIf55ETKAoQNSZnEhiC4cSZPo2N5+ycm9FvDsPKNLr0jyhTw
+        H6319ZaX2LDZk+yQAcup91t21a2ciYTm24JNjTA=
+X-Google-Smtp-Source: APiQypLUp621VYLuDBG2y+9wV8uTBWCc0dq1pqejCsr4K8b9rnKIceDL3XZnGAu/SSvcrhnulcagnXmoVKq+rXEtXf4=
+X-Received: by 2002:a5d:5745:: with SMTP id q5mr22407388wrw.351.1586958357116;
+ Wed, 15 Apr 2020 06:45:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200415132742.GA3461248@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <1586254255-28713-1-git-send-email-sumit.garg@linaro.org>
+ <CABPxzY+hL=jD6Zy=netP3oqNXg69gDL2g0KiPe40eaXXgZBnxw@mail.gmail.com>
+ <CAFA6WYMZAq6X5m++h33ySCa6jOQCq_tHL=8mUi-kPMcn4FH=jA@mail.gmail.com>
+ <CAFA6WYOW9ne0iffwC1dc48a_aSaYkkxQzyHQXTV2Wkob9KOXQg@mail.gmail.com>
+ <CA+icZUUDm=WPjmwh5ikp8t+xt7dqTgghCeB8F0+czaUh-sHXxA@mail.gmail.com> <CAFA6WYPdJMt-h=9HrV-DcHZnO7xCu74Dh9FuRMnp16qhotyo0g@mail.gmail.com>
+In-Reply-To: <CAFA6WYPdJMt-h=9HrV-DcHZnO7xCu74Dh9FuRMnp16qhotyo0g@mail.gmail.com>
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Wed, 15 Apr 2020 15:45:44 +0200
+Message-ID: <CA+icZUX9KqXbM822Qi_pKcBe8H7Fk1jUa-Vo1FVB4mnuJmZ+Qg@mail.gmail.com>
+Subject: Re: [PATCH v2] mac80211: fix race in ieee80211_register_hw()
+To:     Sumit Garg <sumit.garg@linaro.org>
+Cc:     Johannes Berg <johannes@sipsolutions.net>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Krishna Chaitanya <chaitanya.mgit@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>, kuba@kernel.org,
+        Kalle Valo <kvalo@codeaurora.org>,
+        netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        =?UTF-8?Q?Matthias=2DPeter_Sch=C3=B6pfer?= 
+        <matthias.schoepfer@ithinx.io>,
+        "Berg Philipp (HAU-EDS)" <Philipp.Berg@liebherr.com>,
+        "Weitner Michael (HAU-EDS)" <Michael.Weitner@liebherr.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 03:27:42PM +0200, Greg KH wrote:
-> On Wed, Apr 15, 2020 at 04:14:12PM +0300, Sakari Ailus wrote:
-> > Hi Greg,
-> > 
-> > On Wed, Apr 15, 2020 at 12:15:54PM +0200, gregkh@linuxfoundation.org wrote:
-> > > 
-> > > This is a note to let you know that I've just added the patch titled
-> > > 
-> > >     Revert "[media] videobuf2-v4l2: Verify planes array in buffer dequeueing"
-> > > 
-> > > to the 4.4-stable tree which can be found at:
-> > >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> > > 
-> > > The filename of the patch is:
-> > >      revert-videobuf2-v4l2-verify-planes-array-in-buffer-dequeueing.patch
-> > > and it can be found in the queue-4.4 subdirectory.
-> > > 
-> > > If you, or anyone else, feels it should not be added to the stable tree,
-> > > please let <stable@vger.kernel.org> know about it.
-> > > 
-> > > 
-> > > From 93f0750dcdaed083d6209b01e952e98ca730db66 Mon Sep 17 00:00:00 2001
-> > > From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-> > > Date: Wed, 11 May 2016 13:09:34 -0300
-> > > Subject: Revert "[media] videobuf2-v4l2: Verify planes array in buffer dequeueing"
-> > > 
-> > > From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-> > > 
-> > > commit 93f0750dcdaed083d6209b01e952e98ca730db66 upstream.
-> > 
-> > This patch has been already applied to the 4.4-stable tree --- and the
-> > original has been re-applied as well, just as in upstream.
-> > 
-> > The original revert was done because another patch was missing the tree
-> > (commit 93f0750dcdaed083d6209b01e952e98ca730db66 upstream), not because
-> > there was a problem with the patch itself.
-> > 
-> > In other words, this patch must be dropped.
-> 
-> Really?
-> 
-> This is a mess.  I see the following commits in the stable 4.4 tree:
-> 
-> In the 4.4.9 release the following upstream commit was backported:
-> 	2c1f6951a8a8 ("[media] videobuf2-v4l2: Verify planes array in buffer dequeueing")
-> 
-> then in 4.4.11 it was reverted by backporting:
-> 	93f0750dcdae ("Revert "[media] videobuf2-v4l2: Verify planes array in buffer dequeueing"")
-> 
-> Then finally, in 4.4.19 this commit gets added:
-> 	83934b75c368 ("[media] videobuf2-v4l2: Verify planes array in buffer dequeueing")
-> 
-> So, is 83934b75c368 ok to backport, but 2c1f6951a8a8 was not?
+On Wed, Apr 15, 2020 at 3:39 PM Sumit Garg <sumit.garg@linaro.org> wrote:
 
-Both are backports of separate patches in upstream, and should be in the
-stable trees as they are at the moment (I checked 4.4). This all happened
-back in 2016 but now this revert popped up four years later.
+[ ... ]
 
-> 
-> Because they look identical to me...
+> I didn't get this PR notification as currently I am not subscribed to
+> linux-wireless ML. So apologies for the noise here.
+>
 
-They are the same patch that got applied twice with a revert in between.
+There is/are a pr-tracker(s) and bots (for example tip tree) around
+which inform people automatically.
+But I have never dealt with that topic and thus do not know if there
+exists something for net/wireless/mac80211 around.
 
-> 
-> So, what am I missing here?
-
-The fix was originally reverted due to an issue in the API usage in DVB,
-and then re-applied with another fix in videobuf2 core. The discussion is
-here, and all these patches ended up being applied:
-
-<URL:https://www.spinics.net/lists/linux-media/msg99334.html>
-<URL:https://www.spinics.net/lists/linux-media/msg100428.html>
-<URL:https://www.spinics.net/lists/linux-media/msg100458.html>
-
-Applying this revert re-introduces the original kernel memory overwriting
-bug.
-
--- 
-Kind regards,
-
-Sakari Ailus
+- Sedat -
