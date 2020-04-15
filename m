@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47E5E1AA283
+	by mail.lfdr.de (Postfix) with ESMTP id B50D51AA284
 	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505578AbgDOM4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:56:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56638 "EHLO mail.kernel.org"
+        id S2502868AbgDOM4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:56:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897188AbgDOLgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:36:55 -0400
+        id S2897189AbgDOLg5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:36:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1A1321582;
-        Wed, 15 Apr 2020 11:36:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B3E52137B;
+        Wed, 15 Apr 2020 11:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950615;
-        bh=Lh/aVkzRGiJf794rdAEn6bIXmrdHDr/0NaGaE+pi0Js=;
+        s=default; t=1586950616;
+        bh=UDPBBq5m62/oTYZwB/7qxRoLYgPkifzx+8Zci/RL324=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNopdLB0c3vCNfqass8jIKcY4/bhdeowJ29yCo4UGUOc1cWl05gbYU8CptZFceUpE
-         iAcs3/pMMP0QZZOPcGhm2yxOR1eAMGp0J1QISXRhXJ+hk5mql0rGbQ8ubAl0RZx4GF
-         kmPDaFte6FcyYjGDFVQAPFAoThOJYRJeJcPR81jI=
+        b=BI8cMkj2GnM/xxCMf3OwYM35gj9QD8s5Hk1f86DoB87FWwPcPnh3rC3rL6dJooLCV
+         GhumFrJBw5xqTrXHI79M3Nowq2jzACouiOIHK6K5t5H4WFHL7gLpyyHVUOZDaPRGfQ
+         ohvbgARvsJoP6hOov9RSmhhpNWc6AwOS0JgUyaT4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jacob Pan <jacob.jun.pan@linux.intel.com>,
@@ -30,9 +30,9 @@ Cc:     Jacob Pan <jacob.jun.pan@linux.intel.com>,
         Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>,
         iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.6 108/129] iommu/vt-d: Add build dependency on IOASID
-Date:   Wed, 15 Apr 2020 07:34:23 -0400
-Message-Id: <20200415113445.11881-108-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 109/129] iommu/vt-d: Fix mm reference leak
+Date:   Wed, 15 Apr 2020 07:34:24 -0400
+Message-Id: <20200415113445.11881-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -47,35 +47,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jacob Pan <jacob.jun.pan@linux.intel.com>
 
-[ Upstream commit 4a663dae47316ae8b97d5b77025fe7dfd9d3487f ]
+[ Upstream commit 902baf61adf6b187f0a6b789e70d788ea71ff5bc ]
 
-IOASID code is needed by VT-d scalable mode for PASID allocation.
-Add explicit dependency such that IOASID is built-in whenever Intel
-IOMMU is enabled.
-Otherwise, aux domain code will fail when IOMMU is built-in and IOASID
-is compiled as a module.
+Move canonical address check before mmget_not_zero() to avoid mm
+reference leak.
 
-Fixes: 59a623374dc38 ("iommu/vt-d: Replace Intel specific PASID allocator with IOASID")
+Fixes: 9d8c3af31607 ("iommu/vt-d: IOMMU Page Request needs to check if address is canonical.")
 Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
 Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/intel-svm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-index d2fade9849997..25149544d57c9 100644
---- a/drivers/iommu/Kconfig
-+++ b/drivers/iommu/Kconfig
-@@ -188,6 +188,7 @@ config INTEL_IOMMU
- 	select NEED_DMA_MAP_STATE
- 	select DMAR_TABLE
- 	select SWIOTLB
-+	select IOASID
- 	help
- 	  DMA remapping (DMAR) devices support enables independent address
- 	  translations for Direct Memory Access (DMA) from devices.
+diff --git a/drivers/iommu/intel-svm.c b/drivers/iommu/intel-svm.c
+index d7f2a53589002..fc7d78876e021 100644
+--- a/drivers/iommu/intel-svm.c
++++ b/drivers/iommu/intel-svm.c
+@@ -611,14 +611,15 @@ static irqreturn_t prq_event_thread(int irq, void *d)
+ 		 * any faults on kernel addresses. */
+ 		if (!svm->mm)
+ 			goto bad_req;
+-		/* If the mm is already defunct, don't handle faults. */
+-		if (!mmget_not_zero(svm->mm))
+-			goto bad_req;
+ 
+ 		/* If address is not canonical, return invalid response */
+ 		if (!is_canonical_address(address))
+ 			goto bad_req;
+ 
++		/* If the mm is already defunct, don't handle faults. */
++		if (!mmget_not_zero(svm->mm))
++			goto bad_req;
++
+ 		down_read(&svm->mm->mmap_sem);
+ 		vma = find_extend_vma(svm->mm, address);
+ 		if (!vma || address < vma->vm_start)
 -- 
 2.20.1
 
