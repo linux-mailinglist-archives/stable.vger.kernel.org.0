@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9D601A9BBD
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:08:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32C451A9BBE
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:08:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896745AbgDOLGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:06:44 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41291 "EHLO
+        id S2896751AbgDOLHR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:07:17 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:44791 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2896746AbgDOLG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:06:29 -0400
+        by vger.kernel.org with ESMTP id S2896746AbgDOLHC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:07:02 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 8C12B5C01A7;
-        Wed, 15 Apr 2020 07:06:28 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:06:28 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 5069D5C0145;
+        Wed, 15 Apr 2020 07:06:49 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:06:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uVYwqU
-        q7i8tXJD+Ex19gBpJJNbUgtkN7LyFnHCa+V58=; b=0yErcibjVxa2juNBtFZCLx
-        aoDbwqLqeq98gxpm1N9LkQGtg7bXK+BjRYJbu7eaGMNMmFA5yWLVnSzTUuyfCprW
-        KTuq5E+Ra7a3sqk2hYJVzfe9afo62jmjuytwWNFd4F5cJmoWgskzCwRtaSS2k6Dx
-        UqM0z6RlmP+5xbE2zz0UbWXGbI2byZswnbwOel9vVgCx6fMRNCVsK6ZYatee2d5S
-        kdk0J4aVFslnVZy9BEkRLNRLSnvkfirbnrQIqU6bdCmX5bpIsuYriNIcZZQKULsO
-        fhbX0neQi3/CfE6GU3IXT1Yq7lRNkJUP6brWjFv0RQ9yGYyBgLswF1nSsoj/oZ3g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vx3w0/
+        XoK6VstiaxUD8OU+wvWZB2bkT3YZgRXBoMd+E=; b=b0I6xO+VwfoqcDyJ7JjF+a
+        fvKj8yizvyTMMPSbwQSMEOe/znv9Cp7gmeU7Iygonhh1pTRv6DLqzN1hj/kcxlHH
+        uNWJXzQlK1cJJRPHkP0th0ECvbbfXKTb4YvV6Fn+3y8hGNIPfPbEQRkNymtoqHm8
+        pnYBF0nMKMEZ0rSkoPBa7+cBLA+RzDQ+usSBG1ZgWFUt0WXFID9ganSrHMIMjwoX
+        JuRdh+CS94KM75YBzx90VjeYln4qooggGiH2jDVrbtHGz86eZPtJqxKkq+bsqRKd
+        3co4/LIeDoouvWR64YKq0F9QYsTL66GbefRrqQ2XM++TkT6H6YNWX8bZFydBV8BA
         ==
-X-ME-Sender: <xms:tOqWXlAgX8-Dg7XKw3fig5iVWSvt_shGltXx5DnPHbgjPvA88HvFSg>
+X-ME-Sender: <xms:yeqWXuL8P4aiEg0Z4PLnk8DXMmaRn3IxxSZZ9ZeO7N0WeX6HipXIYQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgddvgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenuc
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepkeenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:tOqWXvPLc8ppRXMy_McVzhfXoUcDoxjSdQId7VmymsilARo4Tp65HA>
-    <xmx:tOqWXgW_sLhBCk4-rEQlmACEVbTudBVwLw17SDlj8g8R7KXa1VQjvg>
-    <xmx:tOqWXi_TISYvkbYJLrNX2L5BoexD3hAW2WO_OnSljZhLPOJX0BkN-A>
-    <xmx:tOqWXlZ5rMwGfbMMyunkbZLQ6mmw7_fyGm2Q7GP2STBG0zBWbaDoxA>
+X-ME-Proxy: <xmx:yeqWXjn-oxWQ90J-82q_93Y2_Kn1kVv2LKZlYyGpuJ5s-1rmuO_eyQ>
+    <xmx:yeqWXuovF3YEwa0674QQsKFD5lOiNH49_tNCTYe6mR5SCEY-q15_PQ>
+    <xmx:yeqWXlA76J6lWMo26cRPD87CaMTJH19VFXd4U044ilvFbFEjD444nQ>
+    <xmx:yeqWXk2f9wQlvZm3sKb6PCt5OvJuaR6NalXA9h0urnRf2z6TjLR00Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2AEB83060057;
-        Wed, 15 Apr 2020 07:06:28 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: caam - update xts sector size for large input length" failed to apply to 4.19-stable tree
-To:     andrei.botila@nxp.com, herbert@gondor.apana.org.au,
-        horia.geanta@nxp.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id B28D03280063;
+        Wed, 15 Apr 2020 07:06:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: ccree - protect against empty or NULL scatterlists" failed to apply to 4.19-stable tree
+To:     gilad@benyossef.com, geert+renesas@glider.be,
+        herbert@gondor.apana.org.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 13:06:17 +0200
-Message-ID: <1586948777215114@kroah.com>
+Date:   Wed, 15 Apr 2020 13:06:47 +0200
+Message-ID: <1586948807146181@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -68,59 +68,161 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3f142b6a7b573bde6cff926f246da05652c61eb4 Mon Sep 17 00:00:00 2001
-From: Andrei Botila <andrei.botila@nxp.com>
-Date: Fri, 28 Feb 2020 12:46:48 +0200
-Subject: [PATCH] crypto: caam - update xts sector size for large input length
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From ce0fc6db38decf0d2919bfe783de6d6b76e421a9 Mon Sep 17 00:00:00 2001
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+Date: Wed, 29 Jan 2020 16:37:54 +0200
+Subject: [PATCH] crypto: ccree - protect against empty or NULL scatterlists
 
-Since in the software implementation of XTS-AES there is
-no notion of sector every input length is processed the same way.
-CAAM implementation has the notion of sector which causes different
-results between the software implementation and the one in CAAM
-for input lengths bigger than 512 bytes.
-Increase sector size to maximum value on 16 bits.
+Deal gracefully with a NULL or empty scatterlist which can happen
+if both cryptlen and assoclen are zero and we're doing in-place
+AEAD encryption.
 
-Fixes: c6415a6016bf ("crypto: caam - add support for acipher xts(aes)")
-Cc: <stable@vger.kernel.org> # v4.12+
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+This fixes a crash when this causes us to try and map a NULL page,
+at least with some platforms / DMA mapping configs.
+
+Cc: stable@vger.kernel.org # v4.19+
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-diff --git a/drivers/crypto/caam/caamalg_desc.c b/drivers/crypto/caam/caamalg_desc.c
-index 6171a8118b5a..d6c58184bb57 100644
---- a/drivers/crypto/caam/caamalg_desc.c
-+++ b/drivers/crypto/caam/caamalg_desc.c
-@@ -1524,7 +1524,13 @@ EXPORT_SYMBOL(cnstr_shdsc_skcipher_decap);
-  */
- void cnstr_shdsc_xts_skcipher_encap(u32 * const desc, struct alginfo *cdata)
+diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
+index a72586eccd81..b938ceae7ae7 100644
+--- a/drivers/crypto/ccree/cc_buffer_mgr.c
++++ b/drivers/crypto/ccree/cc_buffer_mgr.c
+@@ -87,6 +87,8 @@ static unsigned int cc_get_sgl_nents(struct device *dev,
  {
--	__be64 sector_size = cpu_to_be64(512);
-+	/*
-+	 * Set sector size to a big value, practically disabling
-+	 * sector size segmentation in xts implementation. We cannot
-+	 * take full advantage of this HW feature with existing
-+	 * crypto API / dm-crypt SW architecture.
-+	 */
-+	__be64 sector_size = cpu_to_be64(BIT(15));
- 	u32 *key_jump_cmd;
+ 	unsigned int nents = 0;
  
- 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
-@@ -1577,7 +1583,13 @@ EXPORT_SYMBOL(cnstr_shdsc_xts_skcipher_encap);
-  */
- void cnstr_shdsc_xts_skcipher_decap(u32 * const desc, struct alginfo *cdata)
++	*lbytes = 0;
++
+ 	while (nbytes && sg_list) {
+ 		nents++;
+ 		/* get the number of bytes in the last entry */
+@@ -95,6 +97,7 @@ static unsigned int cc_get_sgl_nents(struct device *dev,
+ 				nbytes : sg_list->length;
+ 		sg_list = sg_next(sg_list);
+ 	}
++
+ 	dev_dbg(dev, "nents %d last bytes %d\n", nents, *lbytes);
+ 	return nents;
+ }
+@@ -290,37 +293,25 @@ static int cc_map_sg(struct device *dev, struct scatterlist *sg,
+ 		     unsigned int nbytes, int direction, u32 *nents,
+ 		     u32 max_sg_nents, u32 *lbytes, u32 *mapped_nents)
  {
--	__be64 sector_size = cpu_to_be64(512);
-+	/*
-+	 * Set sector size to a big value, practically disabling
-+	 * sector size segmentation in xts implementation. We cannot
-+	 * take full advantage of this HW feature with existing
-+	 * crypto API / dm-crypt SW architecture.
-+	 */
-+	__be64 sector_size = cpu_to_be64(BIT(15));
- 	u32 *key_jump_cmd;
+-	if (sg_is_last(sg)) {
+-		/* One entry only case -set to DLLI */
+-		if (dma_map_sg(dev, sg, 1, direction) != 1) {
+-			dev_err(dev, "dma_map_sg() single buffer failed\n");
+-			return -ENOMEM;
+-		}
+-		dev_dbg(dev, "Mapped sg: dma_address=%pad page=%p addr=%pK offset=%u length=%u\n",
+-			&sg_dma_address(sg), sg_page(sg), sg_virt(sg),
+-			sg->offset, sg->length);
+-		*lbytes = nbytes;
+-		*nents = 1;
+-		*mapped_nents = 1;
+-	} else {  /*sg_is_last*/
+-		*nents = cc_get_sgl_nents(dev, sg, nbytes, lbytes);
+-		if (*nents > max_sg_nents) {
+-			*nents = 0;
+-			dev_err(dev, "Too many fragments. current %d max %d\n",
+-				*nents, max_sg_nents);
+-			return -ENOMEM;
+-		}
+-		/* In case of mmu the number of mapped nents might
+-		 * be changed from the original sgl nents
+-		 */
+-		*mapped_nents = dma_map_sg(dev, sg, *nents, direction);
+-		if (*mapped_nents == 0) {
+-			*nents = 0;
+-			dev_err(dev, "dma_map_sg() sg buffer failed\n");
+-			return -ENOMEM;
+-		}
++	int ret = 0;
++
++	*nents = cc_get_sgl_nents(dev, sg, nbytes, lbytes);
++	if (*nents > max_sg_nents) {
++		*nents = 0;
++		dev_err(dev, "Too many fragments. current %d max %d\n",
++			*nents, max_sg_nents);
++		return -ENOMEM;
+ 	}
  
- 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
++	ret = dma_map_sg(dev, sg, *nents, direction);
++	if (dma_mapping_error(dev, ret)) {
++		*nents = 0;
++		dev_err(dev, "dma_map_sg() sg buffer failed %d\n", ret);
++		return -ENOMEM;
++	}
++
++	*mapped_nents = ret;
++
+ 	return 0;
+ }
+ 
+@@ -555,11 +546,12 @@ void cc_unmap_aead_request(struct device *dev, struct aead_request *req)
+ 		sg_virt(req->src), areq_ctx->src.nents, areq_ctx->assoc.nents,
+ 		areq_ctx->assoclen, req->cryptlen);
+ 
+-	dma_unmap_sg(dev, req->src, sg_nents(req->src), DMA_BIDIRECTIONAL);
++	dma_unmap_sg(dev, req->src, areq_ctx->src.mapped_nents,
++		     DMA_BIDIRECTIONAL);
+ 	if (req->src != req->dst) {
+ 		dev_dbg(dev, "Unmapping dst sgl: req->dst=%pK\n",
+ 			sg_virt(req->dst));
+-		dma_unmap_sg(dev, req->dst, sg_nents(req->dst),
++		dma_unmap_sg(dev, req->dst, areq_ctx->dst.mapped_nents,
+ 			     DMA_BIDIRECTIONAL);
+ 	}
+ 	if (drvdata->coherent &&
+@@ -881,7 +873,7 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
+ 					    &src_last_bytes);
+ 	sg_index = areq_ctx->src_sgl->length;
+ 	//check where the data starts
+-	while (sg_index <= size_to_skip) {
++	while (src_mapped_nents && (sg_index <= size_to_skip)) {
+ 		src_mapped_nents--;
+ 		offset -= areq_ctx->src_sgl->length;
+ 		sgl = sg_next(areq_ctx->src_sgl);
+@@ -908,7 +900,7 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
+ 			size_for_map += crypto_aead_ivsize(tfm);
+ 
+ 		rc = cc_map_sg(dev, req->dst, size_for_map, DMA_BIDIRECTIONAL,
+-			       &areq_ctx->dst.nents,
++			       &areq_ctx->dst.mapped_nents,
+ 			       LLI_MAX_NUM_OF_DATA_ENTRIES, &dst_last_bytes,
+ 			       &dst_mapped_nents);
+ 		if (rc)
+@@ -921,7 +913,7 @@ static int cc_aead_chain_data(struct cc_drvdata *drvdata,
+ 	offset = size_to_skip;
+ 
+ 	//check where the data starts
+-	while (sg_index <= size_to_skip) {
++	while (dst_mapped_nents && sg_index <= size_to_skip) {
+ 		dst_mapped_nents--;
+ 		offset -= areq_ctx->dst_sgl->length;
+ 		sgl = sg_next(areq_ctx->dst_sgl);
+@@ -1123,7 +1115,7 @@ int cc_map_aead_request(struct cc_drvdata *drvdata, struct aead_request *req)
+ 	if (is_gcm4543)
+ 		size_to_map += crypto_aead_ivsize(tfm);
+ 	rc = cc_map_sg(dev, req->src, size_to_map, DMA_BIDIRECTIONAL,
+-		       &areq_ctx->src.nents,
++		       &areq_ctx->src.mapped_nents,
+ 		       (LLI_MAX_NUM_OF_ASSOC_DATA_ENTRIES +
+ 			LLI_MAX_NUM_OF_DATA_ENTRIES),
+ 		       &dummy, &mapped_nents);
+diff --git a/drivers/crypto/ccree/cc_buffer_mgr.h b/drivers/crypto/ccree/cc_buffer_mgr.h
+index af434872c6ff..827b6cb1236e 100644
+--- a/drivers/crypto/ccree/cc_buffer_mgr.h
++++ b/drivers/crypto/ccree/cc_buffer_mgr.h
+@@ -25,6 +25,7 @@ enum cc_sg_cpy_direct {
+ 
+ struct cc_mlli {
+ 	cc_sram_addr_t sram_addr;
++	unsigned int mapped_nents;
+ 	unsigned int nents; //sg nents
+ 	unsigned int mlli_nents; //mlli nents might be different than the above
+ };
 
