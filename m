@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC821A9BB4
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:08:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B647F1A9BB2
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896723AbgDOLFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:05:25 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:36329 "EHLO
+        id S2896714AbgDOLFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:05:05 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:47803 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2896713AbgDOLEs (ORCPT
+        by vger.kernel.org with ESMTP id S2896715AbgDOLEs (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:04:48 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 552315C01A9;
+        by mailout.nyi.internal (Postfix) with ESMTP id 560575C01B0;
         Wed, 15 Apr 2020 07:04:47 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
   by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:04:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LrVqQT
-        DWuMOeaAScPdt9JGXroHmeOP9ZOqPKWokGiIE=; b=SijOwtCIOe/e8lR/uZ37nM
-        /PDnEnIp1TOr7M2/qomJglG9C8srhHW1jCzVjv9TZWg77F6nRrfCTWaRFFf1u1iM
-        PcG0sh6JQ/NKzhjwKT1pTSqaTPkffLoighiIkAwhaJrArF82QqbbI49FzeTHBIK/
-        nMHHLcnstLN2t14jvTt4UIAyzHq5xagLEqhRo0U5+1gMVpsyigQHShtb9vmFV7uN
-        OXClfNJuI1XZ+BA7fY8GdraXxRZat3Juf2EtHP7wghdP+yhxjP0Eo+RQlHvwTUOT
-        tOSwxjUMZzWXIYuTPc+LiFZ0FjdGHc2fcjRkv9R7ma4irJ/THPx1NLYbeev16qCg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=nDJ648
+        22gy4vOux50FW4jCZUkK1w91FpYQyN2r0M3vc=; b=34DHgU2BJ6aBgeN53rY3te
+        ljuyO3x6OZDqLXFbSPOfJS+kOGffAn78LDCODuZU9jt1GcsZMfsLHMi51KJOkNRU
+        lTs555ipCWLTe0bIoXzPG1pWGXctbSINupac5/Dh4xdG/Kr3sK+sac2HXile4Maq
+        dDSinBf3MSgqXb8yz/goeijysMY+khW4Ao5QuYh92MgPrpPLUpygRV+yTLu0M7cB
+        o4BFfGpyizWpjE+ZAtuk2/TngHTge4QgJsvYH5sQl5zjzpVnPkGBvwmgim8K3a85
+        OnFdvCA2Snps7maoAD4dR1Zdnt0xAAv0mOu8RF0hnzR7f3lLJf6VT4PtlOZc0VkQ
         ==
-X-ME-Sender: <xms:RuqWXh1CEiixX4eoTclSt5L7BSgM4zI32IFHy7H-7M_M1hPEGzSKkg>
+X-ME-Sender: <xms:SOqWXnLleUSxFk2Evw9haDQi6u6wsEs2LQXXWt2T227f-qqWpHyQqA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgddvgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepheenuc
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepieenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:RuqWXu6ZCDRvSBeWiAy27sfDvRzwrw6j0a93Gkp52dyA9_hNMDkWKQ>
-    <xmx:RuqWXq306gqDlcF94gov_fGoCy68UZhUorLaG5y51qhqVsYjNOjM2g>
-    <xmx:RuqWXhpnW2vfQbZ-pUYTdNcOQIeo9eAQ0dKKSZ6A97ADblGVa9bUpQ>
-    <xmx:T-qWXs3azSXFCuuma7iaAOGyJSZDoT9bFJ_mHREguXv0ZOdDnCVevA>
+X-ME-Proxy: <xmx:SOqWXjUulc_LnMnNs2jv2ukQwMXZ9gcQaiSSvJRzvOrqlU0BmoiIHg>
+    <xmx:SOqWXrQMX4JTk6oo0hkDJXL-1cGBaRZAv35_orKVBwAT3GJ87sRN2g>
+    <xmx:SOqWXrCmShiUCoK9Kt-oKBvHhu65SlWapvegZnNe3NzymjEMOKdchQ>
+    <xmx:T-qWXl8tG9cDG8bbK8ln6nG58sDN_yvOU4ZXtY1DsswpP9pjSOR38A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 833DB306005E;
-        Wed, 15 Apr 2020 07:04:38 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] XArray: Fix xa_find_next for large multi-index entries" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 13AA33060069;
+        Wed, 15 Apr 2020 07:04:39 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] XArray: Fix xa_find_next for large multi-index entries" failed to apply to 5.5-stable tree
 To:     willy@infradead.org, bhelgaas@google.com, keescook@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 13:04:37 +0200
-Message-ID: <1586948677159164@kroah.com>
+Date:   Wed, 15 Apr 2020 13:04:38 +0200
+Message-ID: <158694867821974@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.5-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
