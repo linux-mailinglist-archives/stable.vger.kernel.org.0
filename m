@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57FCD1AA129
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:45:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 177F01A9D83
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:46:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369696AbgDOMdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:33:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36946 "EHLO mail.kernel.org"
+        id S2409099AbgDOLoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:44:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897566AbgDOLoR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:44:17 -0400
+        id S2897571AbgDOLoU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:44:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26C73214D8;
-        Wed, 15 Apr 2020 11:44:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7394520768;
+        Wed, 15 Apr 2020 11:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951057;
-        bh=KumeSezBYFcfKEPN0JqzpgTR3COOhKtsh9LKtTxA6cU=;
+        s=default; t=1586951058;
+        bh=t2vxuyEVvMwBIPi2Bv1grCHBPcE/KbAgC+Ecfy39oI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHSrNryPVeBycYk9KpRVC5mzX9tsY7LD732a+8mi/560GoCTCMwXqCtKKFhk6Rwqu
-         neJji8lLMMtyE/cyYsJ+tk4H0yhO2ynYxuIiwgQYJs6kQSmj0j8VC19YyVAz+eVay2
-         y9GsEVxCRLRK7QeE5q5sv+3wE7wCIiwdiUlTJyVQ=
+        b=2l7NLpva77CHd38CTvyC0eIoRPDqwYiAp5CrMoKewqgAAgmRrLNai6fgEv7qtS0fr
+         wtiYBDBF6/xeWYXT1RbITN0fL28lHoa0RqqG9aU/mIrnwmah6CWvh097N0zyaesb6z
+         8eoeLkJZncz9hIrCriWVF/rElWdfTIODWF/0uOM8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 090/106] SUNRPC: fix krb5p mount to provide large enough buffer in rq_rcvsize
-Date:   Wed, 15 Apr 2020 07:42:10 -0400
-Message-Id: <20200415114226.13103-90-sashal@kernel.org>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Tyler Sanderson <tysand@google.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Wei Wang <wei.w.wang@intel.com>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        David Rientjes <rientjes@google.com>,
+        Nadav Amit <namit@vmware.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.5 091/106] virtio-balloon: Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+Date:   Wed, 15 Apr 2020 07:42:11 -0400
+Message-Id: <20200415114226.13103-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -46,122 +50,303 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit df513a7711712758b9cb1a48d86712e7e1ee03f4 ]
+[ Upstream commit 5a6b4cc5b7a1892a8d7f63d6cbac6e0ae2a9d031 ]
 
-Ever since commit 2c94b8eca1a2 ("SUNRPC: Use au_rslack when computing
-reply buffer size"). It changed how "req->rq_rcvsize" is calculated. It
-used to use au_cslack value which was nice and large and changed it to
-au_rslack value which turns out to be too small.
+Commit 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
+changed the behavior when deflation happens automatically. Instead of
+deflating when called by the OOM handler, the shrinker is used.
 
-Since 5.1, v3 mount with sec=krb5p fails against an Ontap server
-because client's receive buffer it too small.
+However, the balloon is not simply some slab cache that should be
+shrunk when under memory pressure. The shrinker does not have a concept of
+priorities, so this behavior cannot be configured.
 
-For gss krb5p, we need to account for the mic token in the verifier,
-and the wrap token in the wrap token.
+There was a report that this results in undesired side effects when
+inflating the balloon to shrink the page cache. [1]
+	"When inflating the balloon against page cache (i.e. no free memory
+	 remains) vmscan.c will both shrink page cache, but also invoke the
+	 shrinkers -- including the balloon's shrinker. So the balloon
+	 driver allocates memory which requires reclaim, vmscan gets this
+	 memory by shrinking the balloon, and then the driver adds the
+	 memory back to the balloon. Basically a busy no-op."
 
-RFC 4121 defines:
-mic token
-Octet no   Name        Description
-         --------------------------------------------------------------
-         0..1     TOK_ID     Identification field.  Tokens emitted by
-                             GSS_GetMIC() contain the hex value 04 04
-                             expressed in big-endian order in this
-                             field.
-         2        Flags      Attributes field, as described in section
-                             4.2.2.
-         3..7     Filler     Contains five octets of hex value FF.
-         8..15    SND_SEQ    Sequence number field in clear text,
-                             expressed in big-endian order.
-         16..last SGN_CKSUM  Checksum of the "to-be-signed" data and
-                             octet 0..15, as described in section 4.2.4.
+The name "deflate on OOM" makes it pretty clear when deflation should
+happen - after other approaches to reclaim memory failed, not while
+reclaiming. This allows to minimize the footprint of a guest - memory
+will only be taken out of the balloon when really needed.
 
-that's 16bytes (GSS_KRB5_TOK_HDR_LEN) + chksum
+Especially, a drop_slab() will result in the whole balloon getting
+deflated - undesired. While handling it via the OOM handler might not be
+perfect, it keeps existing behavior. If we want a different behavior, then
+we need a new feature bit and document it properly (although, there should
+be a clear use case and the intended effects should be well described).
 
-wrap token
-Octet no   Name        Description
-         --------------------------------------------------------------
-          0..1     TOK_ID    Identification field.  Tokens emitted by
-                             GSS_Wrap() contain the hex value 05 04
-                             expressed in big-endian order in this
-                             field.
-          2        Flags     Attributes field, as described in section
-                             4.2.2.
-          3        Filler    Contains the hex value FF.
-          4..5     EC        Contains the "extra count" field, in big-
-                             endian order as described in section 4.2.3.
-          6..7     RRC       Contains the "right rotation count" in big-
-                             endian order, as described in section
-                             4.2.5.
-          8..15    SND_SEQ   Sequence number field in clear text,
-                             expressed in big-endian order.
-          16..last Data      Encrypted data for Wrap tokens with
-                             confidentiality, or plaintext data followed
-                             by the checksum for Wrap tokens without
-                             confidentiality, as described in section
-                             4.2.4.
+Keep using the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT, because
+this has no such side effects. Always register the shrinker with
+VIRTIO_BALLOON_F_FREE_PAGE_HINT now. We are always allowed to reuse free
+pages that are still to be processed by the guest. The hypervisor takes
+care of identifying and resolving possible races between processing a
+hinting request and the guest reusing a page.
 
-Also 16bytes of header (GSS_KRB5_TOK_HDR_LEN), encrypted data, and cksum
-(other things like padding)
+In contrast to pre commit 71994620bb25 ("virtio_balloon: replace oom
+notifier with shrinker"), don't add a moodule parameter to configure the
+number of pages to deflate on OOM. Can be re-added if really needed.
+Also, pay attention that leak_balloon() returns the number of 4k pages -
+convert it properly in virtio_balloon_oom_notify().
 
-RFC 3961 defines known cksum sizes:
-Checksum type              sumtype        checksum         section or
-                                value            size         reference
-   ---------------------------------------------------------------------
-   CRC32                            1               4           6.1.3
-   rsa-md4                          2              16           6.1.2
-   rsa-md4-des                      3              24           6.2.5
-   des-mac                          4              16           6.2.7
-   des-mac-k                        5               8           6.2.8
-   rsa-md4-des-k                    6              16           6.2.6
-   rsa-md5                          7              16           6.1.1
-   rsa-md5-des                      8              24           6.2.4
-   rsa-md5-des3                     9              24             ??
-   sha1 (unkeyed)                  10              20             ??
-   hmac-sha1-des3-kd               12              20            6.3
-   hmac-sha1-des3                  13              20             ??
-   sha1 (unkeyed)                  14              20             ??
-   hmac-sha1-96-aes128             15              20         [KRB5-AES]
-   hmac-sha1-96-aes256             16              20         [KRB5-AES]
-   [reserved]                  0x8003               ?         [GSS-KRB5]
+Note1: using the OOM handler is frowned upon, but it really is what we
+       need for this feature.
 
-Linux kernel now mainly supports type 15,16 so max cksum size is 20bytes.
-(GSS_KRB5_MAX_CKSUM_LEN)
+Note2: without VIRTIO_BALLOON_F_MUST_TELL_HOST (iow, always with QEMU) we
+       could actually skip sending deflation requests to our hypervisor,
+       making the OOM path *very* simple. Besically freeing pages and
+       updating the balloon. If the communication with the host ever
+       becomes a problem on this call path.
 
-Re-use already existing define of GSS_KRB5_MAX_SLACK_NEEDED that's used
-for encoding the gss_wrap tokens (same tokens are used in reply).
+[1] https://www.spinics.net/lists/linux-virtualization/msg40863.html
 
-Fixes: 2c94b8eca1a2 ("SUNRPC: Use au_rslack when computing reply buffer size")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Reviewed-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Test report by Tyler Sanderson:
+
+Test setup: VM with 16 CPU, 64GB RAM. Running Debian 10. We have a 42
+GB file full of random bytes that we continually cat to /dev/null.
+This fills the page cache as the file is read. Meanwhile we trigger
+the balloon to inflate, with a target size of 53 GB. This setup causes
+the balloon inflation to pressure the page cache as the page cache is
+also trying to grow. Afterwards we shrink the balloon back to zero (so
+total deflate = total inflate).
+
+Without patch (kernel 4.19.0-5):
+Inflation never reaches the target until we stop the "cat file >
+/dev/null" process. Total inflation time was 542 seconds. The longest
+period that made no net forward progress was 315 seconds (see attached
+graph).
+Result of "grep balloon /proc/vmstat" after the test:
+balloon_inflate 154828377
+balloon_deflate 154828377
+
+With patch (kernel 5.6.0-rc4+):
+Total inflation duration was 63 seconds. No deflate-queue activity
+occurs when pressuring the page-cache.
+Result of "grep balloon /proc/vmstat" after the test:
+balloon_inflate 12968539
+balloon_deflate 12968539
+
+Conclusion: This patch fixes the issue. In the test it reduced
+inflate/deflate activity by 12x, and reduced inflation time by 8.6x.
+But more importantly, if we hadn't killed the "grep balloon
+/proc/vmstat" process then, without the patch, the inflation process
+would never reach the target.
+
+Attached [1] is a png of a graph showing the problematic behavior without
+this patch. It shows deflate-queue activity increasing linearly while
+balloon size stays constant over the course of more than 8 minutes of
+the test.
+
+[1] https://lore.kernel.org/linux-mm/CAJuQAmphPcfew1v_EOgAdSFiprzjiZjmOf3iJDmFX0gD6b9TYQ@mail.gmail.com/2-without_patch.png
+
+Full test report and discussion [2]:
+
+[2] https://lore.kernel.org/r/CAJuQAmphPcfew1v_EOgAdSFiprzjiZjmOf3iJDmFX0gD6b9TYQ@mail.gmail.com
+
+Tested-by: Tyler Sanderson <tysand@google.com>
+Reported-by: Tyler Sanderson <tysand@google.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Wei Wang <wei.w.wang@intel.com>
+Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Nadav Amit <namit@vmware.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200205163402.42627-4-david@redhat.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/auth_gss.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_balloon.c | 107 +++++++++++++-------------------
+ 1 file changed, 44 insertions(+), 63 deletions(-)
 
-diff --git a/net/sunrpc/auth_gss/auth_gss.c b/net/sunrpc/auth_gss/auth_gss.c
-index d75fddca44c94..f9e1a7e61eda0 100644
---- a/net/sunrpc/auth_gss/auth_gss.c
-+++ b/net/sunrpc/auth_gss/auth_gss.c
-@@ -20,6 +20,7 @@
- #include <linux/sunrpc/clnt.h>
- #include <linux/sunrpc/auth.h>
- #include <linux/sunrpc/auth_gss.h>
-+#include <linux/sunrpc/gss_krb5.h>
- #include <linux/sunrpc/svcauth_gss.h>
- #include <linux/sunrpc/gss_err.h>
- #include <linux/workqueue.h>
-@@ -1050,7 +1051,7 @@ gss_create_new(const struct rpc_auth_create_args *args, struct rpc_clnt *clnt)
- 		goto err_put_mech;
- 	auth = &gss_auth->rpc_auth;
- 	auth->au_cslack = GSS_CRED_SLACK >> 2;
--	auth->au_rslack = GSS_VERF_SLACK >> 2;
-+	auth->au_rslack = GSS_KRB5_MAX_SLACK_NEEDED >> 2;
- 	auth->au_verfsize = GSS_VERF_SLACK >> 2;
- 	auth->au_ralign = GSS_VERF_SLACK >> 2;
- 	auth->au_flags = 0;
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 341458fd95ca4..44375a22307b3 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -14,6 +14,7 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/balloon_compaction.h>
++#include <linux/oom.h>
+ #include <linux/wait.h>
+ #include <linux/mm.h>
+ #include <linux/mount.h>
+@@ -27,7 +28,9 @@
+  */
+ #define VIRTIO_BALLOON_PAGES_PER_PAGE (unsigned)(PAGE_SIZE >> VIRTIO_BALLOON_PFN_SHIFT)
+ #define VIRTIO_BALLOON_ARRAY_PFNS_MAX 256
+-#define VIRTBALLOON_OOM_NOTIFY_PRIORITY 80
++/* Maximum number of (4k) pages to deflate on OOM notifications. */
++#define VIRTIO_BALLOON_OOM_NR_PAGES 256
++#define VIRTIO_BALLOON_OOM_NOTIFY_PRIORITY 80
+ 
+ #define VIRTIO_BALLOON_FREE_PAGE_ALLOC_FLAG (__GFP_NORETRY | __GFP_NOWARN | \
+ 					     __GFP_NOMEMALLOC)
+@@ -112,8 +115,11 @@ struct virtio_balloon {
+ 	/* Memory statistics */
+ 	struct virtio_balloon_stat stats[VIRTIO_BALLOON_S_NR];
+ 
+-	/* To register a shrinker to shrink memory upon memory pressure */
++	/* Shrinker to return free pages - VIRTIO_BALLOON_F_FREE_PAGE_HINT */
+ 	struct shrinker shrinker;
++
++	/* OOM notifier to deflate on OOM - VIRTIO_BALLOON_F_DEFLATE_ON_OOM */
++	struct notifier_block oom_nb;
+ };
+ 
+ static struct virtio_device_id id_table[] = {
+@@ -788,50 +794,13 @@ static unsigned long shrink_free_pages(struct virtio_balloon *vb,
+ 	return blocks_freed * VIRTIO_BALLOON_HINT_BLOCK_PAGES;
+ }
+ 
+-static unsigned long leak_balloon_pages(struct virtio_balloon *vb,
+-                                          unsigned long pages_to_free)
+-{
+-	return leak_balloon(vb, pages_to_free * VIRTIO_BALLOON_PAGES_PER_PAGE) /
+-		VIRTIO_BALLOON_PAGES_PER_PAGE;
+-}
+-
+-static unsigned long shrink_balloon_pages(struct virtio_balloon *vb,
+-					  unsigned long pages_to_free)
+-{
+-	unsigned long pages_freed = 0;
+-
+-	/*
+-	 * One invocation of leak_balloon can deflate at most
+-	 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
+-	 * multiple times to deflate pages till reaching pages_to_free.
+-	 */
+-	while (vb->num_pages && pages_freed < pages_to_free)
+-		pages_freed += leak_balloon_pages(vb,
+-						  pages_to_free - pages_freed);
+-
+-	update_balloon_size(vb);
+-
+-	return pages_freed;
+-}
+-
+ static unsigned long virtio_balloon_shrinker_scan(struct shrinker *shrinker,
+ 						  struct shrink_control *sc)
+ {
+-	unsigned long pages_to_free, pages_freed = 0;
+ 	struct virtio_balloon *vb = container_of(shrinker,
+ 					struct virtio_balloon, shrinker);
+ 
+-	pages_to_free = sc->nr_to_scan;
+-
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+-		pages_freed = shrink_free_pages(vb, pages_to_free);
+-
+-	if (pages_freed >= pages_to_free)
+-		return pages_freed;
+-
+-	pages_freed += shrink_balloon_pages(vb, pages_to_free - pages_freed);
+-
+-	return pages_freed;
++	return shrink_free_pages(vb, sc->nr_to_scan);
+ }
+ 
+ static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
+@@ -839,26 +808,22 @@ static unsigned long virtio_balloon_shrinker_count(struct shrinker *shrinker,
+ {
+ 	struct virtio_balloon *vb = container_of(shrinker,
+ 					struct virtio_balloon, shrinker);
+-	unsigned long count;
+-
+-	count = vb->num_pages / VIRTIO_BALLOON_PAGES_PER_PAGE;
+-	count += vb->num_free_page_blocks * VIRTIO_BALLOON_HINT_BLOCK_PAGES;
+ 
+-	return count;
++	return vb->num_free_page_blocks * VIRTIO_BALLOON_HINT_BLOCK_PAGES;
+ }
+ 
+-static void virtio_balloon_unregister_shrinker(struct virtio_balloon *vb)
++static int virtio_balloon_oom_notify(struct notifier_block *nb,
++				     unsigned long dummy, void *parm)
+ {
+-	unregister_shrinker(&vb->shrinker);
+-}
++	struct virtio_balloon *vb = container_of(nb,
++						 struct virtio_balloon, oom_nb);
++	unsigned long *freed = parm;
+ 
+-static int virtio_balloon_register_shrinker(struct virtio_balloon *vb)
+-{
+-	vb->shrinker.scan_objects = virtio_balloon_shrinker_scan;
+-	vb->shrinker.count_objects = virtio_balloon_shrinker_count;
+-	vb->shrinker.seeks = DEFAULT_SEEKS;
++	*freed += leak_balloon(vb, VIRTIO_BALLOON_OOM_NR_PAGES) /
++		  VIRTIO_BALLOON_PAGES_PER_PAGE;
++	update_balloon_size(vb);
+ 
+-	return register_shrinker(&vb->shrinker);
++	return NOTIFY_OK;
+ }
+ 
+ static int virtballoon_probe(struct virtio_device *vdev)
+@@ -935,22 +900,35 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 			virtio_cwrite(vb->vdev, struct virtio_balloon_config,
+ 				      poison_val, &poison_val);
+ 		}
+-	}
+-	/*
+-	 * We continue to use VIRTIO_BALLOON_F_DEFLATE_ON_OOM to decide if a
+-	 * shrinker needs to be registered to relieve memory pressure.
+-	 */
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM)) {
+-		err = virtio_balloon_register_shrinker(vb);
++
++		/*
++		 * We're allowed to reuse any free pages, even if they are
++		 * still to be processed by the host.
++		 */
++		vb->shrinker.scan_objects = virtio_balloon_shrinker_scan;
++		vb->shrinker.count_objects = virtio_balloon_shrinker_count;
++		vb->shrinker.seeks = DEFAULT_SEEKS;
++		err = register_shrinker(&vb->shrinker);
+ 		if (err)
+ 			goto out_del_balloon_wq;
+ 	}
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM)) {
++		vb->oom_nb.notifier_call = virtio_balloon_oom_notify;
++		vb->oom_nb.priority = VIRTIO_BALLOON_OOM_NOTIFY_PRIORITY;
++		err = register_oom_notifier(&vb->oom_nb);
++		if (err < 0)
++			goto out_unregister_shrinker;
++	}
++
+ 	virtio_device_ready(vdev);
+ 
+ 	if (towards_target(vb))
+ 		virtballoon_changed(vdev);
+ 	return 0;
+ 
++out_unregister_shrinker:
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
++		unregister_shrinker(&vb->shrinker);
+ out_del_balloon_wq:
+ 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		destroy_workqueue(vb->balloon_wq);
+@@ -989,8 +967,11 @@ static void virtballoon_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
+ 
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+-		virtio_balloon_unregister_shrinker(vb);
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
++		unregister_oom_notifier(&vb->oom_nb);
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
++		unregister_shrinker(&vb->shrinker);
++
+ 	spin_lock_irq(&vb->stop_update_lock);
+ 	vb->stop_update = true;
+ 	spin_unlock_irq(&vb->stop_update_lock);
 -- 
 2.20.1
 
