@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B2D1AA081
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AA591A9D88
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:46:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369314AbgDOM2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:28:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38270 "EHLO mail.kernel.org"
+        id S2409148AbgDOLpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:45:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409138AbgDOLpK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:45:10 -0400
+        id S2409141AbgDOLpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:45:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5A2E20775;
-        Wed, 15 Apr 2020 11:45:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC0D6206A2;
+        Wed, 15 Apr 2020 11:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951109;
-        bh=L0c94b19MVAUqN2/oWXuSNcZrhQ1Dm0Nd6V1dgiWk8s=;
+        s=default; t=1586951110;
+        bh=PXaOv0pa7SYg7uqpUX7Vx5OsF7uktHKosvPTWaBldIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkuvbjeRQJKeC35/892qkrbZcMPyoPRq1GB3ktgVYmktXSOS8ww/YFpj7bqgelv7p
-         OqTB+IaW5AYte/Z2bYwZqSz1c3PlEXBAH68CSBVoPjK4QR34yRwIVMCcxWEkLbLf32
-         uHErRTypemAcOzNywJi1aOwB3d9k36BnWhI56OqU=
+        b=MUDwrySGzWtPQ8N1dIbgDzeE04EaS3WwQoUGsHYRB3DiCFiEShJJ0rTW1nMVeMImi
+         Nr6efAydZ566Iallin7rmR55kdCNUSFAZtb1jO9seS6Gv3VzCo5qDVIxyYjQDoMAGo
+         WHq+++Rif8kAioNATPn2CRuRu66GUgJpXVeAstgg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 24/84] NFS: direct.c: Fix memory leak of dreq when nfs_get_lock_context fails
-Date:   Wed, 15 Apr 2020 07:43:41 -0400
-Message-Id: <20200415114442.14166-24-sashal@kernel.org>
+Cc:     Sahitya Tummala <stummala@codeaurora.org>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 25/84] f2fs: Fix mount failure due to SPO after a successful online resize FS
+Date:   Wed, 15 Apr 2020 07:43:42 -0400
+Message-Id: <20200415114442.14166-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114442.14166-1-sashal@kernel.org>
 References: <20200415114442.14166-1-sashal@kernel.org>
@@ -43,48 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+From: Sahitya Tummala <stummala@codeaurora.org>
 
-[ Upstream commit 8605cf0e852af3b2c771c18417499dc4ceed03d5 ]
+[ Upstream commit 682756827501dc52593bf490f2d437c65ec9efcb ]
 
-When dreq is allocated by nfs_direct_req_alloc(), dreq->kref is
-initialized to 2. Therefore we need to call nfs_direct_req_release()
-twice to release the allocated dreq. Usually it is called in
-nfs_file_direct_{read, write}() and nfs_direct_complete().
+Even though online resize is successfully done, a SPO immediately
+after resize, still causes below error in the next mount.
 
-However, current code only calls nfs_direct_req_relese() once if
-nfs_get_lock_context() fails in nfs_file_direct_{read, write}().
-So, that case would result in memory leak.
+[   11.294650] F2FS-fs (sda8): Wrong user_block_count: 2233856
+[   11.300272] F2FS-fs (sda8): Failed to get valid F2FS checkpoint
 
-Fix this by adding the missing call.
+This is because after FS metadata is updated in update_fs_metadata()
+if the SBI_IS_DIRTY is not dirty, then CP will not be done to reflect
+the new user_block_count.
 
-Signed-off-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/gc.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 29f00da8a0b7f..6b0bf4ebd8124 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -571,6 +571,7 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter)
- 	l_ctx = nfs_get_lock_context(dreq->ctx);
- 	if (IS_ERR(l_ctx)) {
- 		result = PTR_ERR(l_ctx);
-+		nfs_direct_req_release(dreq);
- 		goto out_release;
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index 5877bd7296896..e611d768efde3 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1532,11 +1532,17 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 		goto out;
  	}
- 	dreq->l_ctx = l_ctx;
-@@ -989,6 +990,7 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
- 	l_ctx = nfs_get_lock_context(dreq->ctx);
- 	if (IS_ERR(l_ctx)) {
- 		result = PTR_ERR(l_ctx);
-+		nfs_direct_req_release(dreq);
- 		goto out_release;
+ 
++	mutex_lock(&sbi->cp_mutex);
+ 	update_fs_metadata(sbi, -secs);
+ 	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
++	set_sbi_flag(sbi, SBI_IS_DIRTY);
++	mutex_unlock(&sbi->cp_mutex);
++
+ 	err = f2fs_sync_fs(sbi->sb, 1);
+ 	if (err) {
++		mutex_lock(&sbi->cp_mutex);
+ 		update_fs_metadata(sbi, secs);
++		mutex_unlock(&sbi->cp_mutex);
+ 		update_sb_metadata(sbi, secs);
+ 		f2fs_commit_super(sbi, false);
  	}
- 	dreq->l_ctx = l_ctx;
 -- 
 2.20.1
 
