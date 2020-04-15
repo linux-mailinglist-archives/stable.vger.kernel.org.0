@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 637E51AA14F
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 120EE1AA15A
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369889AbgDOMhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:37:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36570 "EHLO mail.kernel.org"
+        id S369864AbgDOMiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897561AbgDOLoF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2897560AbgDOLoF (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 15 Apr 2020 07:44:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DFE72137B;
-        Wed, 15 Apr 2020 11:44:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 559FC21734;
+        Wed, 15 Apr 2020 11:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951042;
-        bh=bVX46KhkbkCHDIA/scQ1dBlN5PmtSFZfWNNUIRuWydQ=;
+        s=default; t=1586951044;
+        bh=ZhDvk/Tm3Lrjc0LYu1kvazjKCu/HCv2q8Flw3W0Jvf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/2NSaTlzsrvJl4x7uRVzU26yE5OB6YyUPBUNjU5CW0Lnw2zEFt67RdAkV4+YQOy2
-         gWh4V9U45fBowBzI25LcuCWEt2h1VLwVhnABg7gXSzYw1HrAR8skcpL78WPJFogBFl
-         xGAEX6v32mf+Zm6s+LFAmeIZc1ajR/5OEWfkmPII=
+        b=qHSQv6/lSrihoCjQ6+FVoQS9l7avYm/s900iS042nmvcVPuLzj+IhgNFcgXGaNNoD
+         Etj3WQlDrRn5Q525Q/6+eNyEmxZsO7V0H9sZgRAcvOe0dHI5ioSL7vsNHviaHrKekb
+         ras4Visrh3ObpfAiTtyCQ2ZBKHzQ5tTG3BEIChVY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jose Abreu <Jose.Abreu@synopsys.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 078/106] net: stmmac: xgmac: Fix VLAN register handling
-Date:   Wed, 15 Apr 2020 07:41:58 -0400
-Message-Id: <20200415114226.13103-78-sashal@kernel.org>
+Cc:     Jack Zhang <Jack.Zhang1@amd.com>, Nirmoy Das <nirmoy.das@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.5 079/106] drm/amdkfd: kfree the wrong pointer
+Date:   Wed, 15 Apr 2020 07:41:59 -0400
+Message-Id: <20200415114226.13103-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -45,62 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <Jose.Abreu@synopsys.com>
+From: Jack Zhang <Jack.Zhang1@amd.com>
 
-[ Upstream commit 21f64e72e7073199a6f8d7d8efe52cd814d7d665 ]
+[ Upstream commit 3148a6a0ef3cf93570f30a477292768f7eb5d3c3 ]
 
-Commit 907a076881f1, forgot that we need to clear old values of
-XGMAC_VLAN_TAG register when we switch from VLAN perfect matching to
-HASH matching.
+Originally, it kfrees the wrong pointer for mem_obj.
+It would cause memory leak under stress test.
 
-Fix it.
-
-Fixes: 907a076881f1 ("net: stmmac: xgmac: fix incorrect XGMAC_VLAN_TAG register writting")
-Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
+Acked-by: Nirmoy Das <nirmoy.das@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
-index e9bf54a579df6..f0b9c43f6e31e 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_core.c
-@@ -576,8 +576,13 @@ static void dwxgmac2_update_vlan_hash(struct mac_device_info *hw, u32 hash,
- 			value |= XGMAC_VLAN_EDVLP;
- 			value |= XGMAC_VLAN_ESVL;
- 			value |= XGMAC_VLAN_DOVLTC;
-+		} else {
-+			value &= ~XGMAC_VLAN_EDVLP;
-+			value &= ~XGMAC_VLAN_ESVL;
-+			value &= ~XGMAC_VLAN_DOVLTC;
- 		}
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index 4fa8834ce7cb0..fb22a58ce99b5 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -1086,9 +1086,9 @@ int kfd_gtt_sa_allocate(struct kfd_dev *kfd, unsigned int size,
+ 	return 0;
  
-+		value &= ~XGMAC_VLAN_VID;
- 		writel(value, ioaddr + XGMAC_VLAN_TAG);
- 	} else if (perfect_match) {
- 		u32 value = readl(ioaddr + XGMAC_PACKET_FILTER);
-@@ -588,13 +593,19 @@ static void dwxgmac2_update_vlan_hash(struct mac_device_info *hw, u32 hash,
+ kfd_gtt_no_free_chunk:
+-	pr_debug("Allocation failed with mem_obj = %p\n", mem_obj);
++	pr_debug("Allocation failed with mem_obj = %p\n", *mem_obj);
+ 	mutex_unlock(&kfd->gtt_sa_lock);
+-	kfree(mem_obj);
++	kfree(*mem_obj);
+ 	return -ENOMEM;
+ }
  
- 		value = readl(ioaddr + XGMAC_VLAN_TAG);
- 
-+		value &= ~XGMAC_VLAN_VTHM;
- 		value |= XGMAC_VLAN_ETV;
- 		if (is_double) {
- 			value |= XGMAC_VLAN_EDVLP;
- 			value |= XGMAC_VLAN_ESVL;
- 			value |= XGMAC_VLAN_DOVLTC;
-+		} else {
-+			value &= ~XGMAC_VLAN_EDVLP;
-+			value &= ~XGMAC_VLAN_ESVL;
-+			value &= ~XGMAC_VLAN_DOVLTC;
- 		}
- 
-+		value &= ~XGMAC_VLAN_VID;
- 		writel(value | perfect_match, ioaddr + XGMAC_VLAN_TAG);
- 	} else {
- 		u32 value = readl(ioaddr + XGMAC_PACKET_FILTER);
 -- 
 2.20.1
 
