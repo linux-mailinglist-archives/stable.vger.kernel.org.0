@@ -2,106 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 569121A945A
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 09:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA6F91A9500
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 09:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505531AbgDOHhU convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 15 Apr 2020 03:37:20 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:50104 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2503823AbgDOHhQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 03:37:16 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 20902752-1500050 
-        for multiple; Wed, 15 Apr 2020 08:37:09 +0100
-Content-Type: text/plain; charset="utf-8"
+        id S2635266AbgDOHoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 03:44:32 -0400
+Received: from relay.sw.ru ([185.231.240.75]:40790 "EHLO relay.sw.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2635258AbgDOHo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 03:44:27 -0400
+Received: from [192.168.15.208]
+        by relay.sw.ru with esmtp (Exim 4.92.3)
+        (envelope-from <ktkhai@virtuozzo.com>)
+        id 1jOciH-0001yT-Vf; Wed, 15 Apr 2020 10:44:02 +0300
+Subject: Re: +
+ mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch added
+ to -mm tree
+To:     Andrew Morton <akpm@linux-foundation.org>, david@redhat.com,
+        duanxiongchun@bytedance.com, hughd@google.com,
+        imbrenda@linux.vnet.ibm.com, Markus.Elfring@web.de,
+        mm-commits@vger.kernel.org, songmuchun@bytedance.com,
+        stable@vger.kernel.org, yang.shi@linux.alibaba.com
+References: <20200415015410.glIzXqR5d%akpm@linux-foundation.org>
+From:   Kirill Tkhai <ktkhai@virtuozzo.com>
+Message-ID: <49e65ca7-03a2-9a82-9e1a-cf997320bcfd@virtuozzo.com>
+Date:   Wed, 15 Apr 2020 10:44:01 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <87pnc9zwjf.fsf@riseup.net>
-References: <20200414161423.23830-1-chris@chris-wilson.co.uk> <20200414161423.23830-2-chris@chris-wilson.co.uk> <158688212611.24667.7132327074792389398@build.alporthouse.com> <87pnc9zwjf.fsf@riseup.net>
-Subject: Re: [Intel-gfx] [PATCH 2/2] drm/i915/gt: Shrink the RPS evalution intervals
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     Francisco Jerez <currojerez@riseup.net>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Message-ID: <158693622761.6982.16961571297064928576@build.alporthouse.com>
-User-Agent: alot/0.8.1
-Date:   Wed, 15 Apr 2020 08:37:07 +0100
+In-Reply-To: <20200415015410.glIzXqR5d%akpm@linux-foundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Francisco Jerez (2020-04-14 20:39:48)
-> Chris Wilson <chris@chris-wilson.co.uk> writes:
+On 15.04.2020 04:54, Andrew Morton wrote:
 > 
-> > Quoting Chris Wilson (2020-04-14 17:14:23)
-> >> Try to make RPS dramatically more responsive by shrinking the evaluation
-> >> intervales by a factor of 100! The issue is as we now park the GPU
-> >> rapidly upon idling, a short or bursty workload such as the composited
-> >> desktop never sustains enough work to fill and complete an evaluation
-> >> window. As such, the frequency we program remains stuck. This was first
-> >> reported as once boosted, we never relinquished the boost [see commit
-> >> 21abf0bf168d ("drm/i915/gt: Treat idling as a RPS downclock event")] but
-> >> it equally applies in the order direction for bursty workloads that
-> >> *need* low latency, like desktop animations.
-> >> 
-> >> What we could try is preserve the incomplete EI history across idling,
-> >> it is not clear whether that would be effective, nor whether the
-> >> presumption of continuous workloads is accurate. A clearer path seems to
-> >> treat it as symptomatic that we fail to handle bursty workload with the
-> >> current EI, and seek to address that by shrinking the EI so the
-> >> evaluations are run much more often.
-> >> 
-> >> This will likely entail more frequent interrupts, and by the time we
-> >> process the interrupt in the bottom half [from inside a worker], the
-> >> workload on the GPU has changed. To address the changeable nature, in
-> >> the previous patch we compared the previous complete EI with the
-> >> interrupt request and only up/down clock if both agree. The impact of
-> >> asking for, and presumably, receiving more interrupts is still to be
-> >> determined and mitigations sought. The first idea is to differentiate
-> >> between up/down responsivity and make upclocking more responsive than
-> >> downlocking. This should both help thwart jitter on bursty workloads by
-> >> making it easier to increase than it is to decrease frequencies, and
-> >> reduce the number of interrupts we would need to process.
-> >
-> > Another worry I'd like to raise, is that by reducing the EI we risk
-> > unstable evaluations. I'm not sure how accurate the HW is, and I worry
-> > about borderline workloads (if that is possible) but mainly the worry is
-> > how the HW is sampling.
-> >
-> > The other unmentioned unknown is the latency in reprogramming the
-> > frequency. At what point does it start to become a significant factor?
-> > I'm presuming the RPS evaluation itself is free, until it has to talk
-> > across the chip to send an interrupt.
-> > -Chris
+> The patch titled
+>      Subject: mm/ksm: fix NULL pointer dereference when KSM zero page is enabled
+> has been added to the -mm tree.  Its filename is
+>      mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
 > 
-> At least on ICL the problem which this patch and 21abf0bf168d were
-> working around seems to have to do with RPS interrupt delivery being
-> inadvertently blocked for extended periods of time.  Looking at the GPU
-> utilization and RPS events on a graph I could see the GPU being stuck at
-> low frequency without any RPS interrupts firing, for a time interval
-> orders of magnitude greater than the EI we're theoretically programming
-> today.  IOW it seems like the real problem isn't that our EIs are too
-> long, but that we're missing a bunch of them.
+> This patch should soon appear at
+>     http://ozlabs.org/~akpm/mmots/broken-out/mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
+> and later at
+>     http://ozlabs.org/~akpm/mmotm/broken-out/mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
 > 
-> The solution I was suggesting for this on IRC during the last couple of
-> days wouldn't have any of the drawbacks you mention above, I'll send it
-> to this list in a moment if the general approach seems okay to you:
+> Before you just go and hit "reply", please:
+>    a) Consider who else should be cc'ed
+>    b) Prefer to cc a suitable mailing list as well
+>    c) Ideally: find the original patch on the mailing list and do a
+>       reply-to-all to that, adding suitable additional cc's
 > 
-> https://github.com/curro/linux/commit/f7bc31402aa727a52d957e62d985c6dae6be4b86
+> *** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+> 
+> The -mm tree is included into linux-next and is updated
+> there every 3-4 working days
+> 
+> ------------------------------------------------------
+> From: Muchun Song <songmuchun@bytedance.com>
+> Subject: mm/ksm: fix NULL pointer dereference when KSM zero page is enabled
+> 
+> find_mergeable_vma can return NULL.  In this case, it leads to crash when
+> we access vma->vm_mm(its offset is 0x40) later in write_protect_page.  And
+> this case did happen on our server.  The following calltrace is captured
+> in kernel 4.19 with the following patch applied and KSM zero page enabled
+> on our server.
+> 
+>   commit e86c59b1b12d ("mm/ksm: improve deduplication of zero pages with colouring")
+> 
+> So add a vma check to fix it.
+> 
+> --------------------------------------------------------------------------
+>   BUG: unable to handle kernel NULL pointer dereference at 0000000000000040
+>   Oops: 0000 [#1] SMP NOPTI
+>   CPU: 9 PID: 510 Comm: ksmd Kdump: loaded Tainted: G OE 4.19.36.bsk.9-amd64 #4.19.36.bsk.9
+>   Hardware name: FOXCONN R-5111/GROOT, BIOS IC1B111F 08/17/2019
+>   RIP: 0010:try_to_merge_one_page+0xc7/0x760
+>   Code: 24 58 65 48 33 34 25 28 00 00 00 89 e8 0f 85 a3 06 00 00 48 83 c4
+>         60 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 8b 46 08 a8 01 75 b8 <49>
+>         8b 44 24 40 4c 8d 7c 24 20 b9 07 00 00 00 4c 89 e6 4c 89 ff 48
+>   RSP: 0018:ffffadbdd9fffdb0 EFLAGS: 00010246
+>   RAX: ffffda83ffd4be08 RBX: ffffda83ffd4be40 RCX: 0000002c6e800000
+>   RDX: 0000000000000000 RSI: ffffda83ffd4be40 RDI: 0000000000000000
+>   RBP: ffffa11939f02ec0 R08: 0000000094e1a447 R09: 00000000abe76577
+>   R10: 0000000000000962 R11: 0000000000004e6a R12: 0000000000000000
+>   R13: ffffda83b1e06380 R14: ffffa18f31f072c0 R15: ffffda83ffd4be40
+>   FS: 0000000000000000(0000) GS:ffffa0da43b80000(0000) knlGS:0000000000000000
+>   CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   CR2: 0000000000000040 CR3: 0000002c77c0a003 CR4: 00000000007626e0
+>   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>   PKRU: 55555554
+>   Call Trace:
+>     ? follow_page_pte+0x36d/0x5e0
+>     ksm_scan_thread+0x115e/0x1960
+>     ? remove_wait_queue+0x60/0x60
+>     kthread+0xf5/0x130
+>     ? try_to_merge_with_ksm_page+0x90/0x90
+>     ? kthread_create_worker_on_cpu+0x70/0x70
+>     ret_from_fork+0x1f/0x30
+> --------------------------------------------------------------------------
+> 
+> Link: http://lkml.kernel.org/r/20200414132905.83819-1-songmuchun@bytedance.com
+> Fixes: e86c59b1b12d ("mm/ksm: improve deduplication of zero pages with colouring")
+> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+> Co-developed-by: Xiongchun Duan <duanxiongchun@bytedance.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
 
-Confirmed that the PMINTRMSK is sufficiently delayed to cause problems.
- 
-> That said it *might* be helpful to reduce the EIs we use right now in
-> addition, but a factor of 100 seems over the top since that will cause
-> the evaluation interval to be roughly two orders of magnitude shorter
-> than the rendering time of a typical frame, which can lead to massive
-> oscillations even in workloads that use a small fraction of the GPU time
-> to render a single frame.  Maybe we want something in between?
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
 
-And confirmed that both are problems :) The EI are just too large to
-handle the bursty workload. That is with the 10+ms EI, we do not see any
-interrupts in the simple animations as we park within an EI.
--Chris
+> Cc: Hugh Dickins <hughd@google.com>
+> Cc: Yang Shi <yang.shi@linux.alibaba.com>
+> Cc: Claudio Imbrenda <imbrenda@linux.vnet.ibm.com>
+> Cc: Markus Elfring <Markus.Elfring@web.de>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+> 
+>  mm/ksm.c |    7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> --- a/mm/ksm.c~mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled
+> +++ a/mm/ksm.c
+> @@ -2112,8 +2112,11 @@ static void cmp_and_merge_page(struct pa
+>  
+>  		down_read(&mm->mmap_sem);
+>  		vma = find_mergeable_vma(mm, rmap_item->address);
+> -		err = try_to_merge_one_page(vma, page,
+> -					    ZERO_PAGE(rmap_item->address));
+> +		if (vma)
+> +			err = try_to_merge_one_page(vma, page,
+> +					ZERO_PAGE(rmap_item->address));
+> +		else
+> +			err = -EFAULT;
+>  		up_read(&mm->mmap_sem);
+
+In case of vma is out of date, we also may consider to exit this function without
+calling unstable_tree_search_insert().
+
+>  		/*
+>  		 * In case of failure, the page was not really empty, so we
+> _
+> 
+> Patches currently in -mm which might be from songmuchun@bytedance.com are
+> 
+> mm-ksm-fix-null-pointer-dereference-when-ksm-zero-page-is-enabled.patch
+> 
+
