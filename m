@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DFBF1A9E8F
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 653C91A9E8C
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897956AbgDOL5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:57:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43232 "EHLO mail.kernel.org"
+        id S2897936AbgDOL5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:57:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409390AbgDOLrr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:47:47 -0400
+        id S2409396AbgDOLru (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:47:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D9EE206A2;
-        Wed, 15 Apr 2020 11:47:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7350820775;
+        Wed, 15 Apr 2020 11:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951267;
-        bh=5Huy8EbT72yQeMjjkhaQKsxa+gtwMnGMg2KZR+HbXI8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=in5It4tsGmAi9uyuKevjEbAm6c3au0DAXH0ZF7mc9+cBICPfMrvF42l3JTCy2Mq/H
-         DW/anfWg1sYKbpjCDUDwD9EQrbCMlsoyy/aGLWY+S6gmKIfIABF9hKOUEEFM6qArMj
-         qjfff9tJSTNfiQrPBVHizFSzqT/x4P4ozZGaufrY=
+        s=default; t=1586951270;
+        bh=S6wAKXdXmDJgv7u1+X6ARKowSlSQupWIYsmGHU1DPC0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=wKYUejmWZPlSF+pcIZEWH3GkpjSAmJ/52CKrW4hTqp9zhGToDUpH8VgVWztq/kQA1
+         RzjymV4Y2YKcE++JJCDackVcVTXJfDijVYyhdZ20zC+/qql4RfTkXF7Bw/BkKRFaCh
+         CoF3QL46FAtfo2OOi2wW4ZdTB/Kq2VR4lYawGxjY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adrian Huang <ahuang12@lenovo.com>, Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.14 30/30] iommu/amd: Fix the configuration of GCR3 table root pointer
-Date:   Wed, 15 Apr 2020 07:47:11 -0400
-Message-Id: <20200415114711.15381-30-sashal@kernel.org>
+Cc:     Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 01/21] clk: at91: usb: continue if clk_hw_round_rate() return zero
+Date:   Wed, 15 Apr 2020 07:47:28 -0400
+Message-Id: <20200415114748.15713-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200415114711.15381-1-sashal@kernel.org>
-References: <20200415114711.15381-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,36 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Huang <ahuang12@lenovo.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit c20f36534666e37858a14e591114d93cc1be0d34 ]
+[ Upstream commit b0ecf1c6c6e82da4847900fad0272abfd014666d ]
 
-The SPA of the GCR3 table root pointer[51:31] masks 20 bits. However,
-this requires 21 bits (Please see the AMD IOMMU specification).
-This leads to the potential failure when the bit 51 of SPA of
-the GCR3 table root pointer is 1'.
+clk_hw_round_rate() may call round rate function of its parents. In case
+of SAM9X60 two of USB parrents are PLLA and UPLL. These clocks are
+controlled by clk-sam9x60-pll.c driver. The round rate function for this
+driver is sam9x60_pll_round_rate() which call in turn
+sam9x60_pll_get_best_div_mul(). In case the requested rate is not in the
+proper range (rate < characteristics->output[0].min &&
+rate > characteristics->output[0].max) the sam9x60_pll_round_rate() will
+return a negative number to its caller (called by
+clk_core_round_rate_nolock()). clk_hw_round_rate() will return zero in
+case a negative number is returned by clk_core_round_rate_nolock(). With
+this, the USB clock will continue its rate computation even caller of
+clk_hw_round_rate() returned an error. With this, the USB clock on SAM9X60
+may not chose the best parent. I detected this after a suspend/resume
+cycle on SAM9X60.
 
-Signed-off-by: Adrian Huang <ahuang12@lenovo.com>
-Fixes: 52815b75682e2 ("iommu/amd: Add support for IOMMUv2 domain mode")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lkml.kernel.org/r/1579261009-4573-2-git-send-email-claudiu.beznea@microchip.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu_types.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/at91/clk-usb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index 3054c0971759f..74c8638aac2b9 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -348,7 +348,7 @@
- 
- #define DTE_GCR3_VAL_A(x)	(((x) >> 12) & 0x00007ULL)
- #define DTE_GCR3_VAL_B(x)	(((x) >> 15) & 0x0ffffULL)
--#define DTE_GCR3_VAL_C(x)	(((x) >> 31) & 0xfffffULL)
-+#define DTE_GCR3_VAL_C(x)	(((x) >> 31) & 0x1fffffULL)
- 
- #define DTE_GCR3_INDEX_A	0
- #define DTE_GCR3_INDEX_B	1
+diff --git a/drivers/clk/at91/clk-usb.c b/drivers/clk/at91/clk-usb.c
+index 791770a563fcc..6fac6383d024e 100644
+--- a/drivers/clk/at91/clk-usb.c
++++ b/drivers/clk/at91/clk-usb.c
+@@ -78,6 +78,9 @@ static int at91sam9x5_clk_usb_determine_rate(struct clk_hw *hw,
+ 			tmp_parent_rate = req->rate * div;
+ 			tmp_parent_rate = clk_hw_round_rate(parent,
+ 							   tmp_parent_rate);
++			if (!tmp_parent_rate)
++				continue;
++
+ 			tmp_rate = DIV_ROUND_CLOSEST(tmp_parent_rate, div);
+ 			if (tmp_rate < req->rate)
+ 				tmp_diff = req->rate - tmp_rate;
 -- 
 2.20.1
 
