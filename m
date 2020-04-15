@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9151D1AAD70
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 18:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD451AAD81
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 18:31:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1415270AbgDOQNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 12:13:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54992 "EHLO
+        id S1415233AbgDOQOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 12:14:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1415265AbgDOQNC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 12:13:02 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87025C061A0C
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 09:13:02 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id t199so10540564oif.7
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 09:13:02 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1415386AbgDOQOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 12:14:09 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE1C9C061A0C
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 09:14:09 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id m14so13951934oic.0
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 09:14:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=ncrv9jd36+qCkwrIBKA/ruUTxwR7AD9bxDQOgRKdvF4=;
-        b=iVyd52XAEXxN+nk6ruavvz6YwiCJUrB6A5WzmVy0LuQOPOlEgzNcn9WW3GBVU+TMqF
-         TVPTTbEUDPr7rCyF6a0nlD9bDbBjWYlUJSBvBs1YNlQUtbkFSiIMvjfqWTrVRONkv0J3
-         3hrr8DCDzVsl9KMQylLIfOExLuY83gsp/yyU3TvYl7COl0wFEQ49wLn556eeXlHaNVbq
-         8KSWkjfmlDARGmojXdhdCLlKU1F/zPHHJ+JJO+xGjApN3ej55t7z6Kcblp6XvI3Vejy9
-         76vrP577i931hN2DoygT6wnPvwg7Nmd7q1DHcu8cTUVS1e5iKA5D2cwlpMjmowTRXGmK
-         omIA==
+        bh=uoNqpc8keq5UGcRaLYeTCah1iCs1GN7aUPDHgNBgqOQ=;
+        b=J4x3eax5wueM5tDWF9X++NG6MM7juPL2Mxya0yxW9NC0ZEaam0aJLgM6azlCRMzkGh
+         v/qqk1pw2fwXqUnQsmpO638P5o2OjODNZ6ZSl0CAeICYqDd7YcmAs9kjKFBATrZSQOhQ
+         pYB6AeNufiho5uTRhmhEh8binjmZy592lFn9aCUyJ9tLFejXKQg3dASLgAHdK2dLtj+O
+         6AkC7tNpQ7hgjKFuOWu/cI/ZCigX8v4jtaS1qQF230fBYFuvzZOSmldKjybXJOMit90v
+         lwJUJpdPSDVvi+GWU6Rf3oOTkthXXN+L9rkaNSw0ggQefGAaDOuC6CcTnIDSzqWzxhD1
+         deiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ncrv9jd36+qCkwrIBKA/ruUTxwR7AD9bxDQOgRKdvF4=;
-        b=p4SOAX59uvkSbSavFUcS/tcpHpGPaPg3XimS30Mtu2DErplvGBQWDE7EtPMuKfjkuE
-         rgLFdzunNNTHs9xUQj1AIytiL5hrW+t30Nr0d8LgCYUEAMAqJZdLKR2oYFAE9ukIxHaN
-         2HzLOcIfhIazhELdgNH0WRRDiFVC6a6YWfmtcAok+xFBv+ElAT8yGZlS/AP7naQxDSSn
-         xpeDIXIQkzlLAkWh/L59G4YvIxfSmVnQIp78z1+H67VX6uuOEntPhIQrhiVsRXmYXDR8
-         ZQWFWVRuRSB65fjqOctBmkIw26hKIV7+xPCZUhQTGPYoBVdoNctZKXtrwRBwqpEOn+4M
-         QsSw==
-X-Gm-Message-State: AGi0PubyejLDUoKHjuIEWVMX0FAxUvR4kWw/P4ykWN6RiR7Yjm0m3w+A
-        jRNXm4WWR1GvtrNkIUnVCuc=
-X-Google-Smtp-Source: APiQypLGMQj9s+WyQ6lAScyLrA8nXFEJXs9kk4dFcwQ4luJAd8FMPvnmaQsVGBK1t7XcS70QU6t6yw==
-X-Received: by 2002:aca:f541:: with SMTP id t62mr5080232oih.148.1586967181807;
-        Wed, 15 Apr 2020 09:13:01 -0700 (PDT)
+        bh=uoNqpc8keq5UGcRaLYeTCah1iCs1GN7aUPDHgNBgqOQ=;
+        b=ILxfoe8uOOofiJPXUC/8kQEBBlFnedyqutdhN23HBTUBokHUTMUpBxrg2zIyZ+uDqr
+         42Avdxs44s1cDq+eFlJxvNVwAJqMs7Idr+NAVWsDg7a8GMKd/g61Fp28nevnc20qFs81
+         AvVAxkzIm3MW+keIls//qnfczWDjFeZ0bbvUBTXg0DOlPXYSdG9BKK94w3bGaeUmSBxN
+         OnfdIk3kDOQyxpmO4pc0IheSmkDQn5w9xlUZ+YrSzx5andBJPuOqwopPV7TpTjH8UwoC
+         kox6MMZjtEPRaQLHR7KDRzpgVNxnQkVUJDAsyQ6N2+h4tDUYDrj+tbhGu9Krkf3YylLv
+         jBDg==
+X-Gm-Message-State: AGi0Pua3f7ccgg+CD2eZcljb3W5rVMSYT/G+0zYKMv/s0l6Xvf3CZdW6
+        EOwnsSXqfWFQOOGMz2WPtPE=
+X-Google-Smtp-Source: APiQypLQgCBjoBinLtgrcFky+8SGKyEc7HBSsU4Ywvn8k1JOhkap0Dj2ksG6PdSqfw07GSKqa2ubug==
+X-Received: by 2002:a05:6808:651:: with SMTP id z17mr8730395oih.73.1586967248981;
+        Wed, 15 Apr 2020 09:14:08 -0700 (PDT)
 Received: from ubuntu-s3-xlarge-x86 ([2604:1380:4111:8b00::3])
-        by smtp.gmail.com with ESMTPSA id a131sm6450242oii.30.2020.04.15.09.13.00
+        by smtp.gmail.com with ESMTPSA id c24sm4669938otn.40.2020.04.15.09.14.07
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 15 Apr 2020 09:13:00 -0700 (PDT)
-Date:   Wed, 15 Apr 2020 09:12:59 -0700
+        Wed, 15 Apr 2020 09:14:07 -0700 (PDT)
+Date:   Wed, 15 Apr 2020 09:14:05 -0700
 From:   Nathan Chancellor <natechancellor@gmail.com>
 To:     gregkh@linuxfoundation.org
 Cc:     courbet@google.com, mpe@ellerman.id.au, stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] powerpc: Make setjmp/longjmp signature
- standard" failed to apply to 4.14-stable tree
-Message-ID: <20200415161259.GA44996@ubuntu-s3-xlarge-x86>
-References: <15869565461129@kroah.com>
+ standard" failed to apply to 4.19-stable tree
+Message-ID: <20200415161405.GB44996@ubuntu-s3-xlarge-x86>
+References: <158695654686139@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="LZvS9be/3tNcYl/X"
+Content-Type: multipart/mixed; boundary="gatW/ieO32f1wygP"
 Content-Disposition: inline
-In-Reply-To: <15869565461129@kroah.com>
+In-Reply-To: <158695654686139@kroah.com>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -66,13 +66,13 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---LZvS9be/3tNcYl/X
+--gatW/ieO32f1wygP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 On Wed, Apr 15, 2020 at 03:15:46PM +0200, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 4.14-stable tree.
+> The patch below does not apply to the 4.19-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -152,19 +152,19 @@ On Wed, Apr 15, 2020 at 03:15:46PM +0200, gregkh@linuxfoundation.org wrote:
 >  UBSAN_SANITIZE := n
 > 
 
-Attached is a backport for 4.14 (that patch plus a prerequisite one).
+Attached is a backport for 4.19 (that patch plus a prerequisite one).
 
 Cheers,
 Nathan
 
---LZvS9be/3tNcYl/X
+--gatW/ieO32f1wygP
 Content-Type: application/mbox
-Content-Disposition: attachment; filename="4.14.mbox"
+Content-Disposition: attachment; filename="4.19.mbox"
 Content-Transfer-Encoding: quoted-printable
 
-=46rom ba153be99f3771f0a14ab251a94a6640d7045294 Mon Sep 17 00:00:00 2001=0A=
+=46rom 8b71a12e884cc8a041d01ead29205c372e55a632 Mon Sep 17 00:00:00 2001=0A=
 =46rom: Segher Boessenkool <segher@kernel.crashing.org>=0ADate: Wed, 4 Sep =
-2019 14:11:07 +0000=0ASubject: [PATCH 4.14 1/2] powerpc: Add attributes for=
+2019 14:11:07 +0000=0ASubject: [PATCH 4.19 1/2] powerpc: Add attributes for=
  setjmp/longjmp=0A=0Acommit aa497d4352414aad22e792b35d0aaaa12bbc37c5 upstre=
 am.=0A=0AThe setjmp function should be declared as "returns_twice", or bad=
 =0Athings can happen[1]. This does not actually change generated code in=0A=
@@ -184,10 +184,10 @@ nclude/asm/setjmp.h=0A@@ -12,7 +12,7 @@=0A =0A #define JMP_BUF_LEN    23=0A=
  =0A-extern long setjmp(long *);=0A-extern void longjmp(long *, long);=0A+e=
 xtern long setjmp(long *) __attribute__((returns_twice));=0A+extern void lo=
 ngjmp(long *, long) __attribute__((noreturn));=0A =0A #endif /* _ASM_POWERP=
-C_SETJMP_H */=0A=0Abase-commit: c10b57a567e4333b9fdf60b5ec36de9859263ca2=0A=
--- =0A2.26.1=0A=0A=0AFrom ec90a96bf0278d54902c766ab8d05334b7f99eb5 Mon Sep =
+C_SETJMP_H */=0A=0Abase-commit: 6dd0e32665e591e9debe3edaf73c2f8135bf047e=0A=
+-- =0A2.26.1=0A=0A=0AFrom e5d8b78d545df82bcd22e44a3e560d5a91516830 Mon Sep =
 17 00:00:00 2001=0AFrom: Clement Courbet <courbet@google.com>=0ADate: Mon, =
-30 Mar 2020 10:03:56 +0200=0ASubject: [PATCH 4.14 2/2] powerpc: Make setjmp=
+30 Mar 2020 10:03:56 +0200=0ASubject: [PATCH 4.19 2/2] powerpc: Make setjmp=
 /longjmp signature standard=0A=0Acommit c17eb4dca5a353a9dbbb8ad6934fe57af71=
 65e91 upstream.=0A=0ADeclaring setjmp()/longjmp() as taking longs makes the=
  signature=0Anon-standard, and makes clang complain. In the past, this has =
@@ -213,17 +213,16 @@ ong *, long) __attribute__((noreturn));=0A+typedef long jmp_buf[JMP_BUF_LEN=
 ];=0A+=0A+extern int setjmp(jmp_buf env) __attribute__((returns_twice));=0A=
 +extern void longjmp(jmp_buf env, int val) __attribute__((noreturn));=0A =
 =0A #endif /* _ASM_POWERPC_SETJMP_H */=0Adiff --git a/arch/powerpc/kernel/M=
-akefile b/arch/powerpc/kernel/Makefile=0Aindex 5607ce67d178b..681f966b7211d=
+akefile b/arch/powerpc/kernel/Makefile=0Aindex d450280e5c29c..1e64cfe22a83e=
  100644=0A--- a/arch/powerpc/kernel/Makefile=0A+++ b/arch/powerpc/kernel/Ma=
 kefile=0A@@ -5,9 +5,6 @@=0A =0A CFLAGS_ptrace.o		+=3D -DUTS_MACHINE=3D'"$(U=
 TS_MACHINE)"'=0A =0A-# Avoid clang warnings around longjmp/setjmp declarati=
 ons=0A-CFLAGS_crash.o +=3D -ffreestanding=0A-=0A subdir-ccflags-$(CONFIG_PP=
-C_WERROR) :=3D -Werror=0A =0A ifeq ($(CONFIG_PPC64),y)=0Adiff --git a/arch/=
-powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile=0Aindex a60c44b4a3e50..9=
-3974b0a5a99e 100644=0A--- a/arch/powerpc/xmon/Makefile=0A+++ b/arch/powerpc=
-/xmon/Makefile=0A@@ -1,9 +1,6 @@=0A # SPDX-License-Identifier: GPL-2.0=0A #=
- Makefile for xmon=0A =0A-# Avoid clang warnings around longjmp/setjmp decl=
-arations=0A-subdir-ccflags-y :=3D -ffreestanding=0A-=0A subdir-ccflags-$(CO=
-NFIG_PPC_WERROR) +=3D -Werror=0A =0A GCOV_PROFILE :=3D n=0A-- =0A2.26.1=0A=
-=0A
---LZvS9be/3tNcYl/X--
+C_WERROR) :=3D -Werror=0A =0A ifdef CONFIG_PPC64=0Adiff --git a/arch/powerp=
+c/xmon/Makefile b/arch/powerpc/xmon/Makefile=0Aindex 365e711bebabb..ab193cd=
+7dbf90 100644=0A--- a/arch/powerpc/xmon/Makefile=0A+++ b/arch/powerpc/xmon/=
+Makefile=0A@@ -1,9 +1,6 @@=0A # SPDX-License-Identifier: GPL-2.0=0A # Makef=
+ile for xmon=0A =0A-# Avoid clang warnings around longjmp/setjmp declaratio=
+ns=0A-subdir-ccflags-y :=3D -ffreestanding=0A-=0A subdir-ccflags-$(CONFIG_P=
+PC_WERROR) +=3D -Werror=0A =0A GCOV_PROFILE :=3D n=0A-- =0A2.26.1=0A=0A
+--gatW/ieO32f1wygP--
