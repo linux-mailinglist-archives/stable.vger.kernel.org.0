@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4DA1A9E63
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 511891A9E2D
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897893AbgDOLzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:55:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43626 "EHLO mail.kernel.org"
+        id S2409414AbgDOLsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:48:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409407AbgDOLr7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:47:59 -0400
+        id S2409408AbgDOLsB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:48:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A983E21569;
-        Wed, 15 Apr 2020 11:47:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C874821707;
+        Wed, 15 Apr 2020 11:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951279;
-        bh=SGnr2/e7GmT3wDXUemKbpVvtulIMmGz6dK/StJqhNwc=;
+        s=default; t=1586951280;
+        bh=WLolElHMTnMxmTQuBmH3/DlNfQo9VbUZguyx/Au5DVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UK+q22tQy73IRIuzdDDpMRS82uDlhqtxmbM2HjQwLUpDlga71vObj0QVcrchOZH43
-         4jk2Z5RGjK4bT1fFZ3+qMpPk7RFYX54+lMDE7D+qptRo2h+HfMYP1WPIPkcBFArmNr
-         WOe8XwfBPjN4fUKQ6OYL38AeV6pdJzVt+WPE9OJw=
+        b=KdjnGJLatJHjh2Z6Qm/+ZFWnD7MMNySakahJIE/oIu0Vo6zbOGPMcLUo14om+eD2R
+         VAkCHR3Kl7NF5gSkUB9Es4eXggVhGDp1rpfM6tpOVIgFksP0zljlQn8dpFkOAJyPfz
+         b3gMHSoi9C7ftqfkMageemdWUQa1Eob0cujAheMA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josh Triplett <josh@joshtriplett.org>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 09/21] ext4: fix incorrect inodes per group in error message
-Date:   Wed, 15 Apr 2020 07:47:36 -0400
-Message-Id: <20200415114748.15713-9-sashal@kernel.org>
+Cc:     Richard Palethorpe <rpalethorpe@suse.com>,
+        Kees Cook <keescook@chromium.org>, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org, security@kernel.org, wg@grandegger.com,
+        mkl@pengutronix.de, davem@davemloft.net,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/21] slcan: Don't transmit uninitialized stack data in padding
+Date:   Wed, 15 Apr 2020 07:47:37 -0400
+Message-Id: <20200415114748.15713-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114748.15713-1-sashal@kernel.org>
 References: <20200415114748.15713-1-sashal@kernel.org>
@@ -44,37 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Triplett <josh@joshtriplett.org>
+From: Richard Palethorpe <rpalethorpe@suse.com>
 
-[ Upstream commit b9c538da4e52a7b79dfcf4cfa487c46125066dfb ]
+[ Upstream commit b9258a2cece4ec1f020715fe3554bc2e360f6264 ]
 
-If ext4_fill_super detects an invalid number of inodes per group, the
-resulting error message printed the number of blocks per group, rather
-than the number of inodes per group. Fix it to print the correct value.
+struct can_frame contains some padding which is not explicitly zeroed in
+slc_bump. This uninitialized data will then be transmitted if the stack
+initialization hardening feature is not enabled (CONFIG_INIT_STACK_ALL).
 
-Fixes: cd6bb35bf7f6d ("ext4: use more strict checks for inodes_per_block on mount")
-Link: https://lore.kernel.org/r/8be03355983a08e5d4eed480944613454d7e2550.1585434649.git.josh@joshtriplett.org
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This commit just zeroes the whole struct including the padding.
+
+Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
+Fixes: a1044e36e457 ("can: add slcan driver for serial/USB-serial CAN adapters")
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: linux-can@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: security@kernel.org
+Cc: wg@grandegger.com
+Cc: mkl@pengutronix.de
+Cc: davem@davemloft.net
+Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/slcan.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index cbea8ff6e6c7b..ed0520fe4dad6 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3821,7 +3821,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 	if (sbi->s_inodes_per_group < sbi->s_inodes_per_block ||
- 	    sbi->s_inodes_per_group > blocksize * 8) {
- 		ext4_msg(sb, KERN_ERR, "invalid inodes per group: %lu\n",
--			 sbi->s_blocks_per_group);
-+			 sbi->s_inodes_per_group);
- 		goto failed_mount;
- 	}
- 	sbi->s_itb_per_group = sbi->s_inodes_per_group /
+diff --git a/drivers/net/can/slcan.c b/drivers/net/can/slcan.c
+index 94b37c60fdd06..d0435c7631ff9 100644
+--- a/drivers/net/can/slcan.c
++++ b/drivers/net/can/slcan.c
+@@ -147,7 +147,7 @@ static void slc_bump(struct slcan *sl)
+ 	u32 tmpid;
+ 	char *cmd = sl->rbuff;
+ 
+-	cf.can_id = 0;
++	memset(&cf, 0, sizeof(cf));
+ 
+ 	switch (*cmd) {
+ 	case 'r':
+@@ -186,8 +186,6 @@ static void slc_bump(struct slcan *sl)
+ 	else
+ 		return;
+ 
+-	*(u64 *) (&cf.data) = 0; /* clear payload */
+-
+ 	/* RTR frames may have a dlc > 0 but they never have any data bytes */
+ 	if (!(cf.can_id & CAN_RTR_FLAG)) {
+ 		for (i = 0; i < cf.can_dlc; i++) {
 -- 
 2.20.1
 
