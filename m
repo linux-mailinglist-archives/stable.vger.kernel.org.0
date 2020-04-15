@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 832F11A9D18
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3071A9D1A
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:43:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406021AbgDOLnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:43:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34128 "EHLO mail.kernel.org"
+        id S2408951AbgDOLnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:43:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408938AbgDOLm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:42:59 -0400
+        id S2408939AbgDOLnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:43:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A33D20775;
-        Wed, 15 Apr 2020 11:42:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DAC420768;
+        Wed, 15 Apr 2020 11:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950979;
-        bh=DJq3kiVid+PEWn5WE6VUYAktHgMxGYUpiygRCvaI3+Q=;
+        s=default; t=1586950980;
+        bh=53CAxUZWcyIkT9WZ1+VgTZGW//eve9xs10YjEaHuZ6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FGT/xGDWIiZbVRjEsJE9aGeUmfMYwl8iMbeE36IP9yCBWaLXJg3EdlDJ/i2D2VwIR
-         HH9n3g+l7bbCq1OW3tFedklpue3oh+yhZQnqoN9gfgvi3wy14YTIFpuQmuvsFlYODq
-         lCRI9Meut1DW9ftP1hTz0YTaEawM4IyoNqGE7DeQ=
+        b=1R4ym3c6OQj7aqcXq8JsQ01tPJLxvXbwuV+fvrF/te2qogPSY7+iEILH/lCvG0CGg
+         7nnNZSzKDhmUiwZz99Mvi0HaW/pXz+uwy24XGhiLKP7wxVG3AzULila1zJt/a8mygb
+         up3FmAbZXPJNBJQLs8Ugb6CjFTqbjdebA4KQ0FRo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+Cc:     Murphy Zhou <jencce.kernel@gmail.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 027/106] NFSv4/pnfs: Return valid stateids in nfs_layout_find_inode_by_stateid()
-Date:   Wed, 15 Apr 2020 07:41:07 -0400
-Message-Id: <20200415114226.13103-27-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 028/106] NFSv4.2: error out when relink swapfile
+Date:   Wed, 15 Apr 2020 07:41:08 -0400
+Message-Id: <20200415114226.13103-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -42,34 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Murphy Zhou <jencce.kernel@gmail.com>
 
-[ Upstream commit d911c57a19551c6bef116a3b55c6b089901aacb0 ]
+[ Upstream commit f5fdf1243fb750598b46305dd03c553949cfa14f ]
 
-Make sure to test the stateid for validity so that we catch instances
-where the server may have been reusing stateids in
-nfs_layout_find_inode_by_stateid().
+This fixes xfstests generic/356 failure on NFSv4.2.
 
-Fixes: 7b410d9ce460 ("pNFS: Delay getting the layout header in CB_LAYOUTRECALL handlers")
+Signed-off-by: Murphy Zhou <jencce.kernel@gmail.com>
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/callback_proc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/nfs4file.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
-index cd4c6bc81caed..40d31024b72d1 100644
---- a/fs/nfs/callback_proc.c
-+++ b/fs/nfs/callback_proc.c
-@@ -128,6 +128,8 @@ static struct inode *nfs_layout_find_inode_by_stateid(struct nfs_client *clp,
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index 3f892035c1413..b217400050288 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -251,6 +251,9 @@ static loff_t nfs42_remap_file_range(struct file *src_file, loff_t src_off,
+ 	if (remap_flags & ~REMAP_FILE_ADVISORY)
+ 		return -EINVAL;
  
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
- 		list_for_each_entry(lo, &server->layouts, plh_layouts) {
-+			if (!pnfs_layout_is_valid(lo))
-+				continue;
- 			if (stateid != NULL &&
- 			    !nfs4_stateid_match_other(stateid, &lo->plh_stateid))
- 				continue;
++	if (IS_SWAPFILE(dst_inode) || IS_SWAPFILE(src_inode))
++		return -ETXTBSY;
++
+ 	/* check alignment w.r.t. clone_blksize */
+ 	ret = -EINVAL;
+ 	if (bs) {
 -- 
 2.20.1
 
