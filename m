@@ -2,104 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5D951AA477
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:30:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D351AA8DB
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633185AbgDON1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:27:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60220 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2633128AbgDON1o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 09:27:44 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6CB220575;
-        Wed, 15 Apr 2020 13:27:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586957264;
-        bh=CuCbfoOUnAJndaAm6wMEbsySLEJNJ9B8ow4auQaOSG0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Uh5jaC1UPWLmGeCNYvWT5Z0r53lMWyPirXRu/epJBz9gubro42FRf2ibjNv46YL6G
-         Ah+btDTn4vd0swLhRL01GhQhnWpOgxxEna38wnknyi0HWFIRf+D3XoA3iGLg5DFJlK
-         qrHjejcdcQgliT2aS9+M0m+iw1fTNi+J7DI4T32Y=
-Date:   Wed, 15 Apr 2020 15:27:42 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc:     stable@vger.kernel.org, david@unsolicited.net,
-        hans.verkuil@cisco.com, linux@roeck-us.net,
-        mchehab@osg.samsung.com, stable-commits@vger.kernel.org
-Subject: Re: Patch "Revert "[media] videobuf2-v4l2: Verify planes array in
- buffer dequeueing"" has been added to the 4.4-stable tree
-Message-ID: <20200415132742.GA3461248@kroah.com>
-References: <158694575418840@kroah.com>
- <20200415131412.GD27762@paasikivi.fi.intel.com>
+        id S2636188AbgDONjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:39:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59282 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2633366AbgDONjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 09:39:31 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8046BC061A0E
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 06:39:31 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id f8so2614854lfe.12
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 06:39:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=fYbKtTdIlAS2MrOYv3ktp5ynh9zmAurxtliyxz228HM=;
+        b=kNmfCTMrncJz3Mf/q8c7XdNw/+aM367/99PvPs2dC40uoDdbWKW1e5Ka1VrjrIIXZN
+         EWKQAeD41UH7JTlXSR2Oni+zm12n4KErP+aTQMcwUQTWszpBTKmX4onmjQL50Dec0ulk
+         Oi6VJylUjzXADIznlAe70TVHYFljOlYz5pmYHnDSHHRsshUyyxJR06c+zQkapSjGMpB2
+         GtKLORJXT3ydl4ITIvKl3QV77AjyB8MZPzxUdClUdDGnVVgideHJufH3CidXt3Wct8cI
+         VK11gylh6XQ1fno/KgxM+rHfVxV2tTg4uxUIPx6NlgWkQ/s19QJrUOzUUOsOInQ5q4B/
+         ZY+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=fYbKtTdIlAS2MrOYv3ktp5ynh9zmAurxtliyxz228HM=;
+        b=n3mt4E+vKmqn5QfoS4pmUQ9MlqUXUZvsavXbD6ggZ+b16T7U6RjvZPsYGvCrSzaOl5
+         2U9lD8yTFvXgBk15lGEbUNkAJOCEvI7jy7Ta9HR+0RaXXrvwUE+doHV2u6m6YAEWz2Lr
+         XdmSft9CPVtglHjf1U94rqudmZDJEvWl+XsG2fnExIAbJpmzL+77cTijYAR8ZC0kFb09
+         OvkM3a6OHaTdYRfUlzrF06WEe80tuCffzk/Iep7FbtnD4seMouUW4PWFhsuTAHkNbVlD
+         PJY3L8J2zmcwbizGC/3PxhjbMrh89AsnZMnVipWUZ68olRiIVYbbu4iu0eMmUXKbbrRA
+         vBwQ==
+X-Gm-Message-State: AGi0PuZbNNc2wojy71bGAiNn3jnuMhJUXJl/kk967Vn89MXjMu7snx/i
+        RDgVqdWT+8osenJ4hGyBYtvLafkat6v5Je7y+G6tyg==
+X-Google-Smtp-Source: APiQypKspEOb/rj3icJNNhJ9x/jVreqO36OImyQUXuDaYRNwL1zpsCDOBI49RUO4ArSUzLvFrl5EOyBzPKgoU8LVqX4=
+X-Received: by 2002:ac2:4c34:: with SMTP id u20mr3207171lfq.40.1586957969813;
+ Wed, 15 Apr 2020 06:39:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200415131412.GD27762@paasikivi.fi.intel.com>
+References: <1586254255-28713-1-git-send-email-sumit.garg@linaro.org>
+ <CABPxzY+hL=jD6Zy=netP3oqNXg69gDL2g0KiPe40eaXXgZBnxw@mail.gmail.com>
+ <CAFA6WYMZAq6X5m++h33ySCa6jOQCq_tHL=8mUi-kPMcn4FH=jA@mail.gmail.com>
+ <CAFA6WYOW9ne0iffwC1dc48a_aSaYkkxQzyHQXTV2Wkob9KOXQg@mail.gmail.com> <CA+icZUUDm=WPjmwh5ikp8t+xt7dqTgghCeB8F0+czaUh-sHXxA@mail.gmail.com>
+In-Reply-To: <CA+icZUUDm=WPjmwh5ikp8t+xt7dqTgghCeB8F0+czaUh-sHXxA@mail.gmail.com>
+From:   Sumit Garg <sumit.garg@linaro.org>
+Date:   Wed, 15 Apr 2020 19:09:18 +0530
+Message-ID: <CAFA6WYPdJMt-h=9HrV-DcHZnO7xCu74Dh9FuRMnp16qhotyo0g@mail.gmail.com>
+Subject: Re: [PATCH v2] mac80211: fix race in ieee80211_register_hw()
+To:     sedat.dilek@gmail.com, Johannes Berg <johannes@sipsolutions.net>
+Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
+        Krishna Chaitanya <chaitanya.mgit@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>, kuba@kernel.org,
+        Kalle Valo <kvalo@codeaurora.org>,
+        netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        =?UTF-8?Q?Matthias=2DPeter_Sch=C3=B6pfer?= 
+        <matthias.schoepfer@ithinx.io>,
+        "Berg Philipp (HAU-EDS)" <Philipp.Berg@liebherr.com>,
+        "Weitner Michael (HAU-EDS)" <Michael.Weitner@liebherr.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 04:14:12PM +0300, Sakari Ailus wrote:
-> Hi Greg,
-> 
-> On Wed, Apr 15, 2020 at 12:15:54PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > This is a note to let you know that I've just added the patch titled
-> > 
-> >     Revert "[media] videobuf2-v4l2: Verify planes array in buffer dequeueing"
-> > 
-> > to the 4.4-stable tree which can be found at:
-> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> > 
-> > The filename of the patch is:
-> >      revert-videobuf2-v4l2-verify-planes-array-in-buffer-dequeueing.patch
-> > and it can be found in the queue-4.4 subdirectory.
-> > 
-> > If you, or anyone else, feels it should not be added to the stable tree,
-> > please let <stable@vger.kernel.org> know about it.
-> > 
-> > 
-> > From 93f0750dcdaed083d6209b01e952e98ca730db66 Mon Sep 17 00:00:00 2001
-> > From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-> > Date: Wed, 11 May 2016 13:09:34 -0300
-> > Subject: Revert "[media] videobuf2-v4l2: Verify planes array in buffer dequeueing"
-> > 
-> > From: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
-> > 
-> > commit 93f0750dcdaed083d6209b01e952e98ca730db66 upstream.
-> 
-> This patch has been already applied to the 4.4-stable tree --- and the
-> original has been re-applied as well, just as in upstream.
-> 
-> The original revert was done because another patch was missing the tree
-> (commit 93f0750dcdaed083d6209b01e952e98ca730db66 upstream), not because
-> there was a problem with the patch itself.
-> 
-> In other words, this patch must be dropped.
+On Wed, 15 Apr 2020 at 18:49, Sedat Dilek <sedat.dilek@gmail.com> wrote:
+>
+> On Wed, Apr 15, 2020 at 3:10 PM Sumit Garg <sumit.garg@linaro.org> wrote:
+>
+> [.. ]
+>
+> > > In case we don't have any further comments, could you fix this nitpick
+> > > from Chaitanya while applying or would you like me to respin and send
+> > > v3?
+> >
+> > A gentle ping. Is this patch a good candidate for 5.7-rc2?
+> >
+>
+> Hi Sumit,
+>
+> it's in [1] (see [2]) with slightly mods by Johannes but not in Linus tree.
+>
 
-Really?
+Thanks Sedat for this information.
 
-This is a mess.  I see the following commits in the stable 4.4 tree:
+> Johannes requested a pull-request means will be merged in a next step
+> in net.git and then hopefully land in Linus tree after Dave M.
+> requested a pull-request.
 
-In the 4.4.9 release the following upstream commit was backported:
-	2c1f6951a8a8 ("[media] videobuf2-v4l2: Verify planes array in buffer dequeueing")
+I didn't get this PR notification as currently I am not subscribed to
+linux-wireless ML. So apologies for the noise here.
 
-then in 4.4.11 it was reverted by backporting:
-	93f0750dcdae ("Revert "[media] videobuf2-v4l2: Verify planes array in buffer dequeueing"")
+BTW, thanks Johannes for picking up this patch.
 
-Then finally, in 4.4.19 this commit gets added:
-	83934b75c368 ("[media] videobuf2-v4l2: Verify planes array in buffer dequeueing")
+-Sumit
 
-So, is 83934b75c368 ok to backport, but 2c1f6951a8a8 was not?
-
-Because they look identical to me...
-
-So, what am I missing here?
-
-thanks,
-
-greg k-h
+>
+> Thanks for your patch.
+>
+> Regards,
+> - Sedat -
+>
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/jberg/mac80211.git/tag/?h=mac80211-for-net-2020-04-15
+> [2] https://git.kernel.org/pub/scm/linux/kernel/git/jberg/mac80211.git/commit/?h=mac80211-for-net-2020-04-15&id=52e04b4ce5d03775b6a78f3ed1097480faacc9fd
