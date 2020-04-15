@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E485D1AA3CE
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:22:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF7E61A9C77
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506141AbgDONMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:12:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54800 "EHLO mail.kernel.org"
+        id S2897082AbgDOLfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:35:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897055AbgDOLfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:35:31 -0400
+        id S2897057AbgDOLfc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:35:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24A3E21556;
-        Wed, 15 Apr 2020 11:35:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 772AD2076D;
+        Wed, 15 Apr 2020 11:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950531;
-        bh=sByr9sNSa2X3ngNDdrYK6UPMYpAcHLw7TEu1niD7Wpc=;
+        s=default; t=1586950532;
+        bh=ZuDZLax0A1vB86vHwIF4QBPimeLqvY8IwBXTHs8dYVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1tMg8LYdhv8WRDZQ9cNHQSHNukfDHciGpbpCpCu79vPadk/a8JYdod/Ld32NfMOb
-         Ccdut30PvunOcm9FjMPUnPmGcUgX3oB9iScQpgWl02dOrc/Blo0X5CFuYKtsGcUiQ8
-         sB9ttQsLS/qHIyx7FDAmOqU5FwRE18Nufoh4snVg=
+        b=nPVK744Wbu9mM7vyHPB1L7P7Ga5IMBJCYDKICScm08EfTT+2FIc5/oc2RXpvbe0WU
+         tV7yZ/QBGyYdIZ4yhUUBTFioabQfnL10D1SGIHULlfFfvkKPD76EGs3cVSEPnX3AMi
+         0XTgS9pfIi1OC9JeXjtmMq+NT61t1tWP3nbNcRkY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Roth <mdroth@linux.vnet.ibm.com>, linuxppc-dev@ozlabs.org,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.6 039/129] KVM: PPC: Book3S HV: Fix H_CEDE return code for nested guests
-Date:   Wed, 15 Apr 2020 07:33:14 -0400
-Message-Id: <20200415113445.11881-39-sashal@kernel.org>
+Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.6 040/129] f2fs: fix to show norecovery mount option
+Date:   Wed, 15 Apr 2020 07:33:15 -0400
+Message-Id: <20200415113445.11881-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -45,65 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Roth <mdroth@linux.vnet.ibm.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 1f50cc1705350a4697923203fedd7d8fb1087fe2 ]
+[ Upstream commit a9117eca1de6b738e713d2142126db2cfbf6fb36 ]
 
-The h_cede_tm kvm-unit-test currently fails when run inside an L1 guest
-via the guest/nested hypervisor.
+Previously, 'norecovery' mount option will be shown as
+'disable_roll_forward', fix to show original option name correctly.
 
-  ./run-tests.sh -v
-  ...
-  TESTNAME=h_cede_tm TIMEOUT=90s ACCEL= ./powerpc/run powerpc/tm.elf -smp 2,threads=2 -machine cap-htm=on -append "h_cede_tm"
-  FAIL h_cede_tm (2 tests, 1 unexpected failures)
-
-While the test relates to transactional memory instructions, the actual
-failure is due to the return code of the H_CEDE hypercall, which is
-reported as 224 instead of 0. This happens even when no TM instructions
-are issued.
-
-224 is the value placed in r3 to execute a hypercall for H_CEDE, and r3
-is where the caller expects the return code to be placed upon return.
-
-In the case of guest running under a nested hypervisor, issuing H_CEDE
-causes a return from H_ENTER_NESTED. In this case H_CEDE is
-specially-handled immediately rather than later in
-kvmppc_pseries_do_hcall() as with most other hcalls, but we forget to
-set the return code for the caller, hence why kvm-unit-test sees the
-224 return code and reports an error.
-
-Guest kernels generally don't check the return value of H_CEDE, so
-that likely explains why this hasn't caused issues outside of
-kvm-unit-tests so far.
-
-Fix this by setting r3 to 0 after we finish processing the H_CEDE.
-
-RHBZ: 1778556
-
-Fixes: 4bad77799fed ("KVM: PPC: Book3S HV: Handle hypercalls correctly when nested")
-Cc: linuxppc-dev@ozlabs.org
-Cc: David Gibson <david@gibson.dropbear.id.au>
-Cc: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
-Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/f2fs.h  | 1 +
+ fs/f2fs/super.c | 7 +++++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 2cefd071b8483..c0c43a7338304 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3616,6 +3616,7 @@ int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
- 		if (trap == BOOK3S_INTERRUPT_SYSCALL && !vcpu->arch.nested &&
- 		    kvmppc_get_gpr(vcpu, 3) == H_CEDE) {
- 			kvmppc_nested_cede(vcpu);
-+			kvmppc_set_gpr(vcpu, 3, 0);
- 			trap = 0;
- 		}
- 	} else {
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index d39f5de114208..64caa46f0c8bd 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -100,6 +100,7 @@ extern const char *f2fs_fault_name[FAULT_MAX];
+ #define F2FS_MOUNT_INLINE_XATTR_SIZE	0x00800000
+ #define F2FS_MOUNT_RESERVE_ROOT		0x01000000
+ #define F2FS_MOUNT_DISABLE_CHECKPOINT	0x02000000
++#define F2FS_MOUNT_NORECOVERY		0x04000000
+ 
+ #define F2FS_OPTION(sbi)	((sbi)->mount_opt)
+ #define clear_opt(sbi, option)	(F2FS_OPTION(sbi).opt &= ~F2FS_MOUNT_##option)
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 686f5402660ed..3669f060b6257 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -446,7 +446,7 @@ static int parse_options(struct super_block *sb, char *options)
+ 			break;
+ 		case Opt_norecovery:
+ 			/* this option mounts f2fs with ro */
+-			set_opt(sbi, DISABLE_ROLL_FORWARD);
++			set_opt(sbi, NORECOVERY);
+ 			if (!f2fs_readonly(sb))
+ 				return -EINVAL;
+ 			break;
+@@ -1446,6 +1446,8 @@ static int f2fs_show_options(struct seq_file *seq, struct dentry *root)
+ 	}
+ 	if (test_opt(sbi, DISABLE_ROLL_FORWARD))
+ 		seq_puts(seq, ",disable_roll_forward");
++	if (test_opt(sbi, NORECOVERY))
++		seq_puts(seq, ",norecovery");
+ 	if (test_opt(sbi, DISCARD))
+ 		seq_puts(seq, ",discard");
+ 	else
+@@ -3598,7 +3600,8 @@ static int f2fs_fill_super(struct super_block *sb, void *data, int silent)
+ 		goto reset_checkpoint;
+ 
+ 	/* recover fsynced data */
+-	if (!test_opt(sbi, DISABLE_ROLL_FORWARD)) {
++	if (!test_opt(sbi, DISABLE_ROLL_FORWARD) &&
++			!test_opt(sbi, NORECOVERY)) {
+ 		/*
+ 		 * mount should be failed, when device has readonly mode, and
+ 		 * previous checkpoint was not done by clean system shutdown.
 -- 
 2.20.1
 
