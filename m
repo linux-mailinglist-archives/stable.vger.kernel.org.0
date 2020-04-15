@@ -2,126 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A4981A9CC4
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E47A61AA24C
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897241AbgDOLiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:38:16 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:43451 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2408909AbgDOLht (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:37:49 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id C6CAC5C01BB;
-        Wed, 15 Apr 2020 07:37:32 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:37:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=so8n9B
-        VsQOb/O9KQNK86yBQm4CJzanrk8ahffq3jWJA=; b=KMe2x6A7ZObXZvVIVfShRp
-        N9Xda1C7mlCDxOnUYMl63yx4WcpjkMR9V69dtvl9raxNZWVaEiTHMC0oUbVyqda+
-        4bO6Rx7lCNE5oE+GR7d1yehJIuwyU1KhleyhgxDxTd9xxNP6+ls1AEVl2FOOveBd
-        04UkS/NCV+K8ZjmvUfHiCxWX1UwFz9hZepg0kHcRD8ueXl49J5ur6YQw+4Xsya+N
-        aveu8J46+FUHICUe5G7jK6vSLWhKKWAfFZkkMGEowvwEGnGeTN3v/NWpolsw/DYS
-        5n9GmhdBxFp0tHbb/kr6JyS7fEu29LGgwBMPw9Yz5FuP8zG+TVp5oDiB0iK0ZCuQ
-        ==
-X-ME-Sender: <xms:_PGWXi-CKE8fcrItvvwTaiU7focVSldJBpGQhYgkUFAsNYzSGpP08A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdefudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:_PGWXog_MA5SYfF1bCrRbaeBBKRqYfvCqJLAa1VlaOhJvkm0ROthFA>
-    <xmx:_PGWXqFScQq3QQU1lE3XInp_Fiwe4XANd__PcSUqYPEkTqgpXn8K0A>
-    <xmx:_PGWXjDrif-lOHLkGiktKSAnwUM3OTJQ26eTJVERyN4VpoBUZeiHJQ>
-    <xmx:_PGWXhPH47UECYrHW3ldEVZ4a3PF2NNJlTxFDZrjxpGI7qOUzrSlXQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0AE0A306005E;
-        Wed, 15 Apr 2020 07:37:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] NFS: finish_automount() requires us to hold 2 refs to the" failed to apply to 5.5-stable tree
-To:     trond.myklebust@hammerspace.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 13:37:30 +0200
-Message-ID: <15869506505117@kroah.com>
+        id S370565AbgDOMxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:53:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33720 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2897459AbgDOLm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:42:28 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A658B206A2;
+        Wed, 15 Apr 2020 11:42:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586950948;
+        bh=3pmT4YkkfBFRhMwn/QUKY+tcN3RpzhDBpm4ueWUO//A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GwYxppomtrCAvpbE32ftrhXu3Vwu6r8FcNMWqigRWTQ48rAz7rBsa7URTm0u9FcNE
+         pM6Bvz8bvCc9fAqAn6X/DCobW4oGDPoqMftGhNAolJkYhjC87MBPR0UnwbOSb0fciT
+         3wQkL6gjHvO0kySaS/XfrdEZFBDjagJXuX1rxq4w=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     xinhui pan <xinhui.pan@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
+        linaro-mm-sig@lists.linaro.org
+Subject: [PATCH AUTOSEL 5.5 001/106] drm/ttm: flush the fence on the bo after we individualize the reservation object
+Date:   Wed, 15 Apr 2020 07:40:41 -0400
+Message-Id: <20200415114226.13103-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: xinhui pan <xinhui.pan@amd.com>
 
-The patch below does not apply to the 5.5-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[ Upstream commit 1bbcf69e42fe7fd49b6f4339c970729d0e343753 ]
 
-thanks,
+As we move the ttm_bo_individualize_resv() upwards, we need flush the
+copied fence too. Otherwise the driver keeps waiting for fence.
 
-greg k-h
+run&Kill kfdtest, then perf top.
 
------------------- original commit in Linus's tree ------------------
+  25.53%  [ttm]                     [k] ttm_bo_delayed_delete
+  24.29%  [kernel]                  [k] dma_resv_test_signaled_rcu
+  19.72%  [kernel]                  [k] ww_mutex_lock
 
-From 75da98586af75eb80664714a67a9895bf0a5517e Mon Sep 17 00:00:00 2001
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
-Date: Thu, 2 Apr 2020 10:34:36 -0400
-Subject: [PATCH] NFS: finish_automount() requires us to hold 2 refs to the
- mount record
+Fix: 378e2d5b("drm/ttm: fix ttm_bo_cleanup_refs_or_queue once more")
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/series/72339/
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/ttm/ttm_bo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-We must not return from nfs_d_automount() without holding 2 references
-to the mount record. Doing so, will trigger the BUG() in finish_automount().
-Also ensure that we don't try to reschedule the automount timer with
-a negative or zero timeout value.
-
-Fixes: 22a1ae9a93fb ("NFS: If nfs_mountpoint_expiry_timeout < 0, do not expire submounts")
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-
-diff --git a/fs/nfs/namespace.c b/fs/nfs/namespace.c
-index da67820462f2..fe19ae280262 100644
---- a/fs/nfs/namespace.c
-+++ b/fs/nfs/namespace.c
-@@ -145,6 +145,7 @@ struct vfsmount *nfs_d_automount(struct path *path)
- 	struct vfsmount *mnt = ERR_PTR(-ENOMEM);
- 	struct nfs_server *server = NFS_SERVER(d_inode(path->dentry));
- 	struct nfs_client *client = server->nfs_client;
-+	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
- 	int ret;
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index 8d91b0428af1b..1494aebb81284 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -499,8 +499,10 @@ static void ttm_bo_cleanup_refs_or_queue(struct ttm_buffer_object *bo)
  
- 	if (IS_ROOT(path->dentry))
-@@ -190,12 +191,12 @@ struct vfsmount *nfs_d_automount(struct path *path)
- 	if (IS_ERR(mnt))
- 		goto out_fc;
+ 		dma_resv_unlock(bo->base.resv);
+ 	}
+-	if (bo->base.resv != &bo->base._resv)
++	if (bo->base.resv != &bo->base._resv) {
++		ttm_bo_flush_all_fences(bo);
+ 		dma_resv_unlock(&bo->base._resv);
++	}
  
--	if (nfs_mountpoint_expiry_timeout < 0)
-+	mntget(mnt); /* prevent immediate expiration */
-+	if (timeout <= 0)
- 		goto out_fc;
- 
--	mntget(mnt); /* prevent immediate expiration */
- 	mnt_set_expiry(mnt, &nfs_automount_list);
--	schedule_delayed_work(&nfs_automount_task, nfs_mountpoint_expiry_timeout);
-+	schedule_delayed_work(&nfs_automount_task, timeout);
- 
- out_fc:
- 	put_fs_context(fc);
-@@ -233,10 +234,11 @@ const struct inode_operations nfs_referral_inode_operations = {
- static void nfs_expire_automounts(struct work_struct *work)
- {
- 	struct list_head *list = &nfs_automount_list;
-+	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
- 
- 	mark_mounts_for_expiry(list);
--	if (!list_empty(list))
--		schedule_delayed_work(&nfs_automount_task, nfs_mountpoint_expiry_timeout);
-+	if (!list_empty(list) && timeout > 0)
-+		schedule_delayed_work(&nfs_automount_task, timeout);
- }
- 
- void nfs_release_automount_timer(void)
+ error:
+ 	kref_get(&bo->list_kref);
+-- 
+2.20.1
 
