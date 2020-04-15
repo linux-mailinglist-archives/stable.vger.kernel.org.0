@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A98341AA234
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:58:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE631A9D0F
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S370489AbgDOMvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:51:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34128 "EHLO mail.kernel.org"
+        id S2408904AbgDOLmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:42:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897496AbgDOLmm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:42:42 -0400
+        id S2897500AbgDOLmn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:42:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D41AA20737;
-        Wed, 15 Apr 2020 11:42:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B2D820775;
+        Wed, 15 Apr 2020 11:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950961;
-        bh=Ovw4O+bQIjjYv0PGALGX8rJlm27Kw+SfdVJ5q442p7o=;
+        s=default; t=1586950962;
+        bh=GKSjlZDpSsH34pag1b7kvu2cZ6Kl6/zbeisGVvWw0j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aNbLJbzxl5I9eaQ+dQvSZ0RvzNDRbw2fsYNA0Erq3EgAEhF3k9O7UZXflVvEHBHyK
-         6e8ZVELdk5CXCcBA1NwaSSjhv7gJ7L/S3QUaPfQcy3cgN2PH66ypCZNmsfO8uRFRpw
-         u55B73db5NzLgfLqtzWbJImNNXfakp5v9rCN91SQ=
+        b=Fe9YshogVe9zh40cXSQr0xmAAU4S9SYyIGeLcik9a2+LppJMhLd4q9qNrKQH0OmJD
+         USr7uc6ZCWsJzYDpyRO1J2H9Za1lCmzPUQIXCvkKe45CbntIscJe0PoitiqIqstswv
+         +XzKiAMKcL8Xy/9vMCw43Sv70M7mvMPdACz1C+C4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 012/106] ARM: dts: rockchip: fix vqmmc-supply property name for rk3188-bqedison2qc
-Date:   Wed, 15 Apr 2020 07:40:52 -0400
-Message-Id: <20200415114226.13103-12-sashal@kernel.org>
+Cc:     Jernej Skrabec <jernej.skrabec@siol.net>,
+        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 013/106] arm64: dts: allwinner: a64: Fix display clock register range
+Date:   Wed, 15 Apr 2020 07:40:53 -0400
+Message-Id: <20200415114226.13103-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -44,59 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit 9cd568dc588c5d168615bf34f325fabe33b2c9a0 ]
+[ Upstream commit 3e9a1a8b7f811de3eb1445d72f68766b704ad17c ]
 
-A test with the command below does not detect all errors
-in combination with 'additionalProperties: false' and
-allOf:
-  - $ref: "synopsys-dw-mshc-common.yaml#"
-allOf:
-  - $ref: "mmc-controller.yaml#"
+Register range of display clocks is 0x10000, as it can be seen from
+DE2 documentation.
 
-'additionalProperties' applies to all properties that are not
-accounted-for by 'properties' or 'patternProperties' in
-the immediate schema.
+Fix it.
 
-First when we combine rockchip-dw-mshc.yaml,
-synopsys-dw-mshc-common.yaml and mmc-controller.yaml it gives
-this error:
-
-arch/arm/boot/dts/rk3188-bqedison2qc.dt.yaml: mmc@10218000:
-'vmmcq-supply' does not match any of the regexes:
-'^.*@[0-9]+$',
-'^clk-phase-(legacy|sd-hs|mmc-(hs|hs[24]00|ddr52)|
-uhs-(sdr(12|25|50|104)|ddr50))$',
-'pinctrl-[0-9]+'
-
-'vmmcq-supply' is not a valid property name for mmc nodes.
-Fix this error by renaming it to 'vqmmc-supply'.
-
-make ARCH=arm dtbs_check
-DT_SCHEMA_FILES=Documentation/devicetree/bindings/mmc/rockchip-dw-mshc.yaml
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20200307134841.13803-1-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Fixes: 2c796fc8f5dbd ("arm64: dts: allwinner: a64: add necessary device tree nodes for DE2 CCU")
+[wens@csie.org: added fixes tag]
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188-bqedison2qc.dts | 2 +-
+ arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/rk3188-bqedison2qc.dts b/arch/arm/boot/dts/rk3188-bqedison2qc.dts
-index ad1afd403052a..8afb2fd5d9f1b 100644
---- a/arch/arm/boot/dts/rk3188-bqedison2qc.dts
-+++ b/arch/arm/boot/dts/rk3188-bqedison2qc.dts
-@@ -465,7 +465,7 @@
- 	non-removable;
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&sd1_clk>, <&sd1_cmd>, <&sd1_bus4>;
--	vmmcq-supply = <&vccio_wl>;
-+	vqmmc-supply = <&vccio_wl>;
- 	#address-cells = <1>;
- 	#size-cells = <0>;
- 	status = "okay";
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+index 27e48234f1c23..38ecd227c34c1 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+@@ -227,7 +227,7 @@
+ 
+ 			display_clocks: clock@0 {
+ 				compatible = "allwinner,sun50i-a64-de2-clk";
+-				reg = <0x0 0x100000>;
++				reg = <0x0 0x10000>;
+ 				clocks = <&ccu CLK_BUS_DE>,
+ 					 <&ccu CLK_DE>;
+ 				clock-names = "bus",
 -- 
 2.20.1
 
