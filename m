@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B3071A9D1A
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:43:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6ED1AA202
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408951AbgDOLnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34498 "EHLO mail.kernel.org"
+        id S370319AbgDOMtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:49:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408939AbgDOLnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2408945AbgDOLnB (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 15 Apr 2020 07:43:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DAC420768;
-        Wed, 15 Apr 2020 11:42:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7193C206A2;
+        Wed, 15 Apr 2020 11:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950980;
-        bh=53CAxUZWcyIkT9WZ1+VgTZGW//eve9xs10YjEaHuZ6c=;
+        s=default; t=1586950981;
+        bh=yZRJLnU4ErUB6W+jl5bb662sTl3GJZbnFAsMghgK1O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1R4ym3c6OQj7aqcXq8JsQ01tPJLxvXbwuV+fvrF/te2qogPSY7+iEILH/lCvG0CGg
-         7nnNZSzKDhmUiwZz99Mvi0HaW/pXz+uwy24XGhiLKP7wxVG3AzULila1zJt/a8mygb
-         up3FmAbZXPJNBJQLs8Ugb6CjFTqbjdebA4KQ0FRo=
+        b=oPMxqEFSN6W8/xv/LoymzbM2FBBS7DI767JB0/3NdORgkdGbM32CSFi1gkYi4N187
+         EAA1h01VfElfDRbd0Ptw7P/xhSnuoJoO6HhMCrk4QZAeGAs9lHO9D2Tsh9A8EjksMw
+         E8+7uzdY7sQyVHqQHAyrNdqHhkp0fm0egTh3K5RM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Murphy Zhou <jencce.kernel@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 028/106] NFSv4.2: error out when relink swapfile
-Date:   Wed, 15 Apr 2020 07:41:08 -0400
-Message-Id: <20200415114226.13103-28-sashal@kernel.org>
+Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 029/106] ARM: dts: rockchip: fix lvds-encoder ports subnode for rk3188-bqedison2qc
+Date:   Wed, 15 Apr 2020 07:41:09 -0400
+Message-Id: <20200415114226.13103-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -43,33 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Murphy Zhou <jencce.kernel@gmail.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit f5fdf1243fb750598b46305dd03c553949cfa14f ]
+[ Upstream commit 1a7e99599dffd836fcb720cdc0eaf3cd43d7af4a ]
 
-This fixes xfstests generic/356 failure on NFSv4.2.
+A test with the command below gives this error:
 
-Signed-off-by: Murphy Zhou <jencce.kernel@gmail.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+arch/arm/boot/dts/rk3188-bqedison2qc.dt.yaml: lvds-encoder:
+'ports' is a required property
+
+Fix error by adding a ports wrapper for port@0 and port@1
+inside the 'lvds-encoder' node for rk3188-bqedison2qc.
+
+make ARCH=arm dtbs_check
+DT_SCHEMA_FILES=Documentation/devicetree/bindings/display/
+bridge/lvds-codec.yaml
+
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20200316174647.5598-1-jbx6244@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4file.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/rk3188-bqedison2qc.dts | 27 ++++++++++++++----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index 3f892035c1413..b217400050288 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -251,6 +251,9 @@ static loff_t nfs42_remap_file_range(struct file *src_file, loff_t src_off,
- 	if (remap_flags & ~REMAP_FILE_ADVISORY)
- 		return -EINVAL;
+diff --git a/arch/arm/boot/dts/rk3188-bqedison2qc.dts b/arch/arm/boot/dts/rk3188-bqedison2qc.dts
+index 8afb2fd5d9f1b..66a0ff196eb1f 100644
+--- a/arch/arm/boot/dts/rk3188-bqedison2qc.dts
++++ b/arch/arm/boot/dts/rk3188-bqedison2qc.dts
+@@ -58,20 +58,25 @@
  
-+	if (IS_SWAPFILE(dst_inode) || IS_SWAPFILE(src_inode))
-+		return -ETXTBSY;
+ 	lvds-encoder {
+ 		compatible = "ti,sn75lvds83", "lvds-encoder";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+ 
+-		port@0 {
+-			reg = <0>;
+-			lvds_in_vop0: endpoint {
+-				remote-endpoint = <&vop0_out_lvds>;
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
 +
- 	/* check alignment w.r.t. clone_blksize */
- 	ret = -EINVAL;
- 	if (bs) {
++			port@0 {
++				reg = <0>;
++
++				lvds_in_vop0: endpoint {
++					remote-endpoint = <&vop0_out_lvds>;
++				};
+ 			};
+-		};
+ 
+-		port@1 {
+-			reg = <1>;
+-			lvds_out_panel: endpoint {
+-				remote-endpoint = <&panel_in_lvds>;
++			port@1 {
++				reg = <1>;
++
++				lvds_out_panel: endpoint {
++					remote-endpoint = <&panel_in_lvds>;
++				};
+ 			};
+ 		};
+ 	};
 -- 
 2.20.1
 
