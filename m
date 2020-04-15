@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D33711A9D93
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:46:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2FCF1AA041
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409218AbgDOLpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:45:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39298 "EHLO mail.kernel.org"
+        id S369191AbgDOMYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:24:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409212AbgDOLpo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:45:44 -0400
+        id S2409215AbgDOLpp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:45:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A34F20737;
-        Wed, 15 Apr 2020 11:45:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4389820768;
+        Wed, 15 Apr 2020 11:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951143;
-        bh=PXxlVk0aAEea5k6TpIzN1612LLubxTEmTIQU4OPjeI8=;
+        s=default; t=1586951145;
+        bh=/KnOurnx6Etk4y412/BZj+JikJrWXkN0RDnFDDfh8k0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wzcwvokajlcvggsfeqRM3ivtzoFdkRl1lQ79DT+DFmBcpBqjZTBNMvboOV9MrYbUA
-         HAN6Gd5Ts9D5MWe5I0+EpB4+87yaUjeXSik1MXHH2E1IcqkndR0W3NKoqbZ84AvjQh
-         6pvCdQuQbvXaKbBGWO/FkDC99WuueESu79KDQfik=
+        b=JY7N4FD/DL/q6Y+z3Gyr7SlMF/hXM3edb2oVt/0ByKa2I0u3+sTvRlBq7dQzzUbhj
+         /HuXBqqkL3VIut2MAZkrCXWCcgN8MaLd8xlIs6BZ3e/F3TaCUQtEWK1bZfx0IW2qKw
+         maJR1+QmruPG5pfofsOeiNt/Xoi4u3ijlj1K0QlA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+Cc:     Vegard Nossum <vegard.nossum@oracle.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Kees Cook <keescook@chromium.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Haren Myneni <haren@us.ibm.com>, Joe Perches <joe@perches.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        Daniel Santos <daniel.santos@pobox.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Ian Abbott <abbotti@mev.co.uk>, Joe Perches <joe@perches.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 52/84] linux/bits.h: add compile time sanity check of GENMASK inputs
-Date:   Wed, 15 Apr 2020 07:44:09 -0400
-Message-Id: <20200415114442.14166-52-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-sparse@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 53/84] compiler.h: fix error in BUILD_BUG_ON() reporting
+Date:   Wed, 15 Apr 2020 07:44:10 -0400
+Message-Id: <20200415114442.14166-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114442.14166-1-sashal@kernel.org>
 References: <20200415114442.14166-1-sashal@kernel.org>
@@ -52,97 +48,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-[ Upstream commit 295bcca84916cb5079140a89fccb472bb8d1f6e2 ]
+[ Upstream commit af9c5d2e3b355854ff0e4acfbfbfadcd5198a349 ]
 
-GENMASK() and GENMASK_ULL() are supposed to be called with the high bit as
-the first argument and the low bit as the second argument.  Mixing them
-will return a mask with zero bits set.
+compiletime_assert() uses __LINE__ to create a unique function name.  This
+means that if you have more than one BUILD_BUG_ON() in the same source
+line (which can happen if they appear e.g.  in a macro), then the error
+message from the compiler might output the wrong condition.
 
-Recent commits show getting this wrong is not uncommon, see e.g.  commit
-aa4c0c9091b0 ("net: stmmac: Fix misuses of GENMASK macro") and commit
-9bdd7bb3a844 ("clocksource/drivers/npcm: Fix misuse of GENMASK macro").
+For this source file:
 
-To prevent such mistakes from appearing again, add compile time sanity
-checking to the arguments of GENMASK() and GENMASK_ULL().  If both
-arguments are known at compile time, and the low bit is higher than the
-high bit, break the build to detect the mistake immediately.
+	#include <linux/build_bug.h>
 
-Since GENMASK() is used in declarations, BUILD_BUG_ON_ZERO() must be used
-instead of BUILD_BUG_ON().
+	#define macro() \
+		BUILD_BUG_ON(1); \
+		BUILD_BUG_ON(0);
 
-__builtin_constant_p does not evaluate is argument, it only checks if it
-is a constant or not at compile time, and __builtin_choose_expr does not
-evaluate the expression that is not chosen.  Therefore, GENMASK(x++, 0)
-does only evaluate x++ once.
+	void foo()
+	{
+		macro();
+	}
 
-Commit 95b980d62d52 ("linux/bits.h: make BIT(), GENMASK(), and friends
-available in assembly") made the macros in linux/bits.h available in
-assembly.  Since BUILD_BUG_OR_ZERO() is not asm compatible, disable the
-checks if the file is included in an asm file.
+gcc would output:
 
-Due to bugs in GCC versions before 4.9 [0], disable the check if building
-with a too old GCC compiler.
+./include/linux/compiler.h:350:38: error: call to `__compiletime_assert_9' declared with attribute error: BUILD_BUG_ON failed: 0
+  _compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
 
-[0]: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=19449
+However, it was not the BUILD_BUG_ON(0) that failed, so it should say 1
+instead of 0. With this patch, we use __COUNTER__ instead of __LINE__, so
+each BUILD_BUG_ON() gets a different function name and the correct
+condition is printed:
 
-Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+./include/linux/compiler.h:350:38: error: call to `__compiletime_assert_0' declared with attribute error: BUILD_BUG_ON failed: 1
+  _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Haren Myneni <haren@us.ibm.com>
+Reviewed-by: Daniel Santos <daniel.santos@pobox.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Ian Abbott <abbotti@mev.co.uk>
 Cc: Joe Perches <joe@perches.com>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/20200308193954.2372399-1-rikard.falkeborn@gmail.com
+Link: http://lkml.kernel.org/r/20200331112637.25047-1-vegard.nossum@oracle.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bits.h | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ include/linux/compiler.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/bits.h b/include/linux/bits.h
-index 669d69441a625..f108302a3121c 100644
---- a/include/linux/bits.h
-+++ b/include/linux/bits.h
-@@ -18,12 +18,30 @@
-  * position @h. For example
-  * GENMASK_ULL(39, 21) gives us the 64bit vector 0x000000ffffe00000.
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 5e88e7e33abec..034b0a644efcc 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -347,7 +347,7 @@ static inline void *offset_to_ptr(const int *off)
+  * compiler has support to do so.
   */
--#define GENMASK(h, l) \
-+#if !defined(__ASSEMBLY__) && \
-+	(!defined(CONFIG_CC_IS_GCC) || CONFIG_GCC_VERSION >= 49000)
-+#include <linux/build_bug.h>
-+#define GENMASK_INPUT_CHECK(h, l) \
-+	(BUILD_BUG_ON_ZERO(__builtin_choose_expr( \
-+		__builtin_constant_p((l) > (h)), (l) > (h), 0)))
-+#else
-+/*
-+ * BUILD_BUG_ON_ZERO is not available in h files included from asm files,
-+ * disable the input check if that is the case.
-+ */
-+#define GENMASK_INPUT_CHECK(h, l) 0
-+#endif
-+
-+#define __GENMASK(h, l) \
- 	(((~UL(0)) - (UL(1) << (l)) + 1) & \
- 	 (~UL(0) >> (BITS_PER_LONG - 1 - (h))))
-+#define GENMASK(h, l) \
-+	(GENMASK_INPUT_CHECK(h, l) + __GENMASK(h, l))
+ #define compiletime_assert(condition, msg) \
+-	_compiletime_assert(condition, msg, __compiletime_assert_, __LINE__)
++	_compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
  
--#define GENMASK_ULL(h, l) \
-+#define __GENMASK_ULL(h, l) \
- 	(((~ULL(0)) - (ULL(1) << (l)) + 1) & \
- 	 (~ULL(0) >> (BITS_PER_LONG_LONG - 1 - (h))))
-+#define GENMASK_ULL(h, l) \
-+	(GENMASK_INPUT_CHECK(h, l) + __GENMASK_ULL(h, l))
- 
- #endif	/* __LINUX_BITS_H */
+ #define compiletime_assert_atomic_type(t)				\
+ 	compiletime_assert(__native_word(t),				\
 -- 
 2.20.1
 
