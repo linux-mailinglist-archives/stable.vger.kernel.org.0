@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5456B1AA126
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:45:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0762D1A9D7C
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:46:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409051AbgDOLoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:44:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36604 "EHLO mail.kernel.org"
+        id S2409055AbgDOLoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:44:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897564AbgDOLoG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:44:06 -0400
+        id S2406090AbgDOLoI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:44:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A192420775;
-        Wed, 15 Apr 2020 11:44:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A99B320737;
+        Wed, 15 Apr 2020 11:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951046;
-        bh=IMGULC2cXAQ6DuCwZ1QCNT0FF77EOO3SOTS0Todyx5U=;
+        s=default; t=1586951047;
+        bh=sscrRof2T2gOXm1DhhLMfhcfPs75brf/YmFVxd4ypA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqYTgjS+XtnhxDfNBk6okhSGMND+lFoAbnF8vMWy1Pg62f5lsour4LguqOecTq7TN
-         YDUMb0WntQos9QC92147TSMcZNG/6DIndPddbw5kF1AfYHPIr3qdt0uEDrEgZT/CWk
-         /B4EbyZMS9MzqpT8AxLXdneXlpPELzSJ2xzK1JQE=
+        b=MgxK4HSWWNb3IusQbaHuyBfEA5SenO7v9H4jYYfRsewVYN+UvPPXPsNSysG0hy7DV
+         xDue+LgqMNXGfIHP76Vb5qkehNkB7tvc/rmIW5a21mDhzliqrBzpd4EaolZJxeHfKW
+         c8d9Qmyr9DPrtvS+eqfTT9lDMLrlGcxqZ/gG1Hq8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 081/106] NFS: Fix memory leaks in nfs_pageio_stop_mirroring()
-Date:   Wed, 15 Apr 2020 07:42:01 -0400
-Message-Id: <20200415114226.13103-81-sashal@kernel.org>
+Cc:     Guo Ren <guoren@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>, linux-csky@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 082/106] csky: Fixup get wrong psr value from phyical reg
+Date:   Wed, 15 Apr 2020 07:42:02 -0400
+Message-Id: <20200415114226.13103-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -42,54 +42,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit 862f35c94730c9270833f3ad05bd758a29f204ed ]
+[ Upstream commit 9c0e343d7654a329d1f9b53d253cbf7fb6eff85d ]
 
-If we just set the mirror count to 1 without first clearing out
-the mirrors, we can leak queued up requests.
+We should get psr value from regs->psr in stack, not directly get
+it from phyiscal register then save the vector number in
+tsk->trap_no.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pagelist.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ arch/csky/include/asm/processor.h |  1 +
+ arch/csky/kernel/traps.c          | 11 ++++++++++-
+ arch/csky/mm/fault.c              |  7 +++++++
+ 3 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index 20b3717cd7ca8..3335cd2e8047b 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -886,15 +886,6 @@ static void nfs_pageio_setup_mirroring(struct nfs_pageio_descriptor *pgio,
- 	pgio->pg_mirror_count = mirror_count;
- }
+diff --git a/arch/csky/include/asm/processor.h b/arch/csky/include/asm/processor.h
+index 21e0bd5293dde..c6bcd7f7c720b 100644
+--- a/arch/csky/include/asm/processor.h
++++ b/arch/csky/include/asm/processor.h
+@@ -43,6 +43,7 @@ extern struct cpuinfo_csky cpu_data[];
+ struct thread_struct {
+ 	unsigned long  ksp;       /* kernel stack pointer */
+ 	unsigned long  sr;        /* saved status register */
++	unsigned long  trap_no;   /* saved status register */
  
--/*
-- * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
-- */
--void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
--{
--	pgio->pg_mirror_count = 1;
--	pgio->pg_mirror_idx = 0;
--}
--
- static void nfs_pageio_cleanup_mirroring(struct nfs_pageio_descriptor *pgio)
- {
- 	pgio->pg_mirror_count = 1;
-@@ -1320,6 +1311,14 @@ void nfs_pageio_cond_complete(struct nfs_pageio_descriptor *desc, pgoff_t index)
+ 	/* FPU regs */
+ 	struct user_fp __aligned(16) user_fp;
+diff --git a/arch/csky/kernel/traps.c b/arch/csky/kernel/traps.c
+index b057480e7463c..63715cb90ee99 100644
+--- a/arch/csky/kernel/traps.c
++++ b/arch/csky/kernel/traps.c
+@@ -115,8 +115,9 @@ asmlinkage void trap_c(struct pt_regs *regs)
+ 	int sig;
+ 	unsigned long vector;
+ 	siginfo_t info;
++	struct task_struct *tsk = current;
+ 
+-	vector = (mfcr("psr") >> 16) & 0xff;
++	vector = (regs->sr >> 16) & 0xff;
+ 
+ 	switch (vector) {
+ 	case VEC_ZERODIV:
+@@ -129,6 +130,7 @@ asmlinkage void trap_c(struct pt_regs *regs)
+ 		sig = SIGTRAP;
+ 		break;
+ 	case VEC_ILLEGAL:
++		tsk->thread.trap_no = vector;
+ 		die_if_kernel("Kernel mode ILLEGAL", regs, vector);
+ #ifndef CONFIG_CPU_NO_USER_BKPT
+ 		if (*(uint16_t *)instruction_pointer(regs) != USR_BKPT)
+@@ -146,16 +148,20 @@ asmlinkage void trap_c(struct pt_regs *regs)
+ 		sig = SIGTRAP;
+ 		break;
+ 	case VEC_ACCESS:
++		tsk->thread.trap_no = vector;
+ 		return buserr(regs);
+ #ifdef CONFIG_CPU_NEED_SOFTALIGN
+ 	case VEC_ALIGN:
++		tsk->thread.trap_no = vector;
+ 		return csky_alignment(regs);
+ #endif
+ #ifdef CONFIG_CPU_HAS_FPU
+ 	case VEC_FPE:
++		tsk->thread.trap_no = vector;
+ 		die_if_kernel("Kernel mode FPE", regs, vector);
+ 		return fpu_fpe(regs);
+ 	case VEC_PRIV:
++		tsk->thread.trap_no = vector;
+ 		die_if_kernel("Kernel mode PRIV", regs, vector);
+ 		if (fpu_libc_helper(regs))
+ 			return;
+@@ -164,5 +170,8 @@ asmlinkage void trap_c(struct pt_regs *regs)
+ 		sig = SIGSEGV;
+ 		break;
  	}
- }
- 
-+/*
-+ * nfs_pageio_stop_mirroring - stop using mirroring (set mirror count to 1)
-+ */
-+void nfs_pageio_stop_mirroring(struct nfs_pageio_descriptor *pgio)
-+{
-+	nfs_pageio_complete(pgio);
-+}
 +
- int __init nfs_init_nfspagecache(void)
- {
- 	nfs_page_cachep = kmem_cache_create("nfs_page",
++	tsk->thread.trap_no = vector;
++
+ 	send_sig(sig, current, 0);
+ }
+diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
+index f76618b630f91..562c7f7087490 100644
+--- a/arch/csky/mm/fault.c
++++ b/arch/csky/mm/fault.c
+@@ -179,11 +179,14 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long write,
+ bad_area_nosemaphore:
+ 	/* User mode accesses just cause a SIGSEGV */
+ 	if (user_mode(regs)) {
++		tsk->thread.trap_no = (regs->sr >> 16) & 0xff;
+ 		force_sig_fault(SIGSEGV, si_code, (void __user *)address);
+ 		return;
+ 	}
+ 
+ no_context:
++	tsk->thread.trap_no = (regs->sr >> 16) & 0xff;
++
+ 	/* Are we prepared to handle this kernel fault? */
+ 	if (fixup_exception(regs))
+ 		return;
+@@ -198,6 +201,8 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long write,
+ 	die_if_kernel("Oops", regs, write);
+ 
+ out_of_memory:
++	tsk->thread.trap_no = (regs->sr >> 16) & 0xff;
++
+ 	/*
+ 	 * We ran out of memory, call the OOM killer, and return the userspace
+ 	 * (which will retry the fault, or kill us if we got oom-killed).
+@@ -206,6 +211,8 @@ asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long write,
+ 	return;
+ 
+ do_sigbus:
++	tsk->thread.trap_no = (regs->sr >> 16) & 0xff;
++
+ 	up_read(&mm->mmap_sem);
+ 
+ 	/* Kernel mode? Handle exceptions or die */
 -- 
 2.20.1
 
