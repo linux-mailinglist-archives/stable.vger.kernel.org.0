@@ -2,137 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7241AB336
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 23:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16FBD1AB36C
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 23:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S371387AbgDOVMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 17:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45196 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S371372AbgDOVMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 17:12:50 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E052C061A0C
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 14:12:50 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id u9so584561pfm.10
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 14:12:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=7/Fa4yLPWRc1eopXEP4u62x0ZFZijAnzkOV0q9RrfJ4=;
-        b=vnULVdQOTTUNiB/CAuYxWxgCjbXeZSuLwSvpQTXjRM51JSDLTwkZd6bIORGJ23HQxu
-         YzpECmg+9IGPG5rRiueszYPjt9NHGlT5LVr3kMUFMwxuMzGVOEs2gF5tlcslEx/vEVsF
-         hBnrqW1ygBf7UYi5W735DivbZKkn/cNRfhqC3jKSae5cgYdPSSuanADGtIkHcHlvLbua
-         Gsi6oDl/o02lX5Lh9oe0WN7mU+LDvNO44SKnu5z7I8E/3khtnQYqesTvLbECvBsOlNX+
-         lZnBGIMJir4wrETUX45ZLBKz2TxCFsaD0ib/RDRB3XxLiM2ngLElLdOVZ4ks8U21Tc1E
-         P4Tg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=7/Fa4yLPWRc1eopXEP4u62x0ZFZijAnzkOV0q9RrfJ4=;
-        b=AOuIrzfB72EwI+LZ0CI8PVBA/bbqCxrbov2Y0kajxkby0l4bIzC7Q3PCvgpThxVJhx
-         TqINp2JvSksDehDnbIPpfN0GRZyA7KHw/Ca12vPfKnXLtaeCymX5fViHWL7Np8hhX52Z
-         1iOwHT6KwSG9KRMmI8thKrvdGlHyDOSkXagHRtsuKt7uWC5C5NwtbaTgdrOupUXabE3x
-         IguEqAHL4sIA7DFKd7gHdCcU7PWOemIzP1gne9v+aifyBi1PVqugNAe2dNZL44hoh5P2
-         vCeIlFxQT//0LtHTLplbdve90LFsfNKnD1MPuE91ucYkwFWONIGIlY1drVyuMr14a6ge
-         3bfw==
-X-Gm-Message-State: AGi0PuYe5HneX0hXwbM4A+NAsYrtcpCsEfRbo0cJZuMkeZClmb3wj8vF
-        O6K1cZTgfYovcc1E/B1FpovjV9bUP+M=
-X-Google-Smtp-Source: APiQypJ/Rh+mklCjIY2ZmXU6L6M57FWKM85y6JopQhm2I8V+02/IvoCHAPe0euvIQXD0nf4P8YcB7A==
-X-Received: by 2002:aa7:9e4d:: with SMTP id z13mr30200145pfq.6.1586985169359;
-        Wed, 15 Apr 2020 14:12:49 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j24sm474724pji.20.2020.04.15.14.12.48
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Apr 2020 14:12:48 -0700 (PDT)
-Message-ID: <5e9778d0.1c69fb81.84ecf.191e@mx.google.com>
-Date:   Wed, 15 Apr 2020 14:12:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1729870AbgDOVeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 17:34:24 -0400
+Received: from cloudserver094114.home.pl ([79.96.170.134]:50601 "EHLO
+        cloudserver094114.home.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728803AbgDOVeJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 17:34:09 -0400
+Received: from 185.80.35.16 (185.80.35.16) (HELO kreacher.localnet)
+ by serwer1319399.home.pl (79.96.170.134) with SMTP (IdeaSmtpServer 0.83.415)
+ id c7301ba4d472f152; Wed, 15 Apr 2020 23:34:02 +0200
+From:   "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Maxim Mikityanskiy <maxtram95@gmail.com>,
+        "5 . 3+" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] platform/x86: intel_int0002_vgpio: Only bind to the INT0002 dev when using s2idle
+Date:   Wed, 15 Apr 2020 23:34:02 +0200
+Message-ID: <15138701.54mejVaKjr@kreacher>
+In-Reply-To: <a9c4b315-2784-fe59-1236-3e3bf391fd4c@redhat.com>
+References: <20200414131953.131533-1-hdegoede@redhat.com> <4380034.KJPSqyn9gG@kreacher> <a9c4b315-2784-fe59-1236-3e3bf391fd4c@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.218-81-g3402d0b47634
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 74 boots: 3 failed,
- 64 passed with 5 offline, 2 untried/unknown (v4.4.218-81-g3402d0b47634)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 74 boots: 3 failed, 64 passed with 5 offline, 2=
- untried/unknown (v4.4.218-81-g3402d0b47634)
+On Wednesday, April 15, 2020 11:48:20 AM CEST Hans de Goede wrote:
+> Hi,
+> 
+> On 4/15/20 11:45 AM, Rafael J. Wysocki wrote:
+> > On Tuesday, April 14, 2020 3:19:53 PM CEST Hans de Goede wrote:
+> >> Commit 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement
+> >> irq_set_wake on Bay Trail") stopped passing irq_set_wake requests on to
+> >> the parents IRQ because this was breaking suspend (causing immediate
+> >> wakeups) on an Asus E202SA.
+> >>
+> >> This workaround for this issue is mostly fine, on most Cherry Trail
+> >> devices where we need the INT0002 device for wakeups by e.g. USB kbds,
+> >> the parent IRQ is shared with the ACPI SCI and that is marked as wakeup
+> >> anyways.
+> >>
+> >> But not on all devices, specifically on a Medion Akoya E1239T there is
+> >> no SCI at all, and because the irq_set_wake request is not passed on to
+> >> the parent IRQ, wake up by the builtin USB kbd does not work here.
+> >>
+> >> So the workaround for the Asus E202SA immediate wake problem is causing
+> >> problems elsewhere; and in hindsight it is not the correct fix,
+> >> the Asus E202SA uses Airmont CPU cores, but this does not mean it is a
+> >> Cherry Trail based device, Brasswell uses Airmont CPU cores too and this
+> >> actually is a Braswell device.
+> >>
+> >> Most (all?) Braswell devices use classic S3 mode suspend rather then
+> >> s2idle suspend and in this case directly dealing with PME events as
+> >> the INT0002 driver does likely is not the best idea, so that this is
+> >> causing issues is not surprising.
+> >>
+> >> Replace the workaround of not passing irq_set_wake requests on to the
+> >> parents IRQ, by not binding to the INT0002 device when s2idle is not used.
+> >> This fixes USB kbd wakeups not working on some Cherry Trail devices,
+> >> while still avoiding mucking with the wakeup flags on the Asus E202SA
+> >> (and other Brasswell devices).
+> >>
+> >> Cc: Maxim Mikityanskiy <maxtram95@gmail.com>
+> >> Cc: 5.3+ <stable@vger.kernel.org> # 5.3+
+> >> Fixes: 871f1f2bcb01 ("platform/x86: intel_int0002_vgpio: Only implement irq_set_wake on Bay Trail")
+> >> Tested-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> >> ---
+> >> Changes in v2:
+> >> - Rebase on top of 5.7-rc1
+> >> ---
+> >>   drivers/platform/x86/intel_int0002_vgpio.c | 18 +++++-------------
+> >>   1 file changed, 5 insertions(+), 13 deletions(-)
+> >>
+> >> diff --git a/drivers/platform/x86/intel_int0002_vgpio.c b/drivers/platform/x86/intel_int0002_vgpio.c
+> >> index 289c6655d425..30806046b664 100644
+> >> --- a/drivers/platform/x86/intel_int0002_vgpio.c
+> >> +++ b/drivers/platform/x86/intel_int0002_vgpio.c
+> >> @@ -143,21 +143,9 @@ static struct irq_chip int0002_byt_irqchip = {
+> >>   	.irq_set_wake		= int0002_irq_set_wake,
+> >>   };
+> >>   
+> >> -static struct irq_chip int0002_cht_irqchip = {
+> >> -	.name			= DRV_NAME,
+> >> -	.irq_ack		= int0002_irq_ack,
+> >> -	.irq_mask		= int0002_irq_mask,
+> >> -	.irq_unmask		= int0002_irq_unmask,
+> >> -	/*
+> >> -	 * No set_wake, on CHT the IRQ is typically shared with the ACPI SCI
+> >> -	 * and we don't want to mess with the ACPI SCI irq settings.
+> >> -	 */
+> >> -	.flags			= IRQCHIP_SKIP_SET_WAKE,
+> >> -};
+> >> -
+> >>   static const struct x86_cpu_id int0002_cpu_ids[] = {
+> >>   	X86_MATCH_INTEL_FAM6_MODEL(ATOM_SILVERMONT,	&int0002_byt_irqchip),
+> >> -	X86_MATCH_INTEL_FAM6_MODEL(ATOM_AIRMONT,	&int0002_cht_irqchip),
+> >> +	X86_MATCH_INTEL_FAM6_MODEL(ATOM_AIRMONT,	&int0002_byt_irqchip),
+> >>   	{}
+> >>   };
+> >>   
+> >> @@ -181,6 +169,10 @@ static int int0002_probe(struct platform_device *pdev)
+> >>   	if (!cpu_id)
+> >>   		return -ENODEV;
+> >>   
+> >> +	/* We only need to directly deal with PMEs when using s2idle */
+> >> +	if (!pm_suspend_default_s2idle())
+> >> +		return -ENODEV;
+> >> +
+> > 
+> > What if the system supports s2idle which is not the default suspend option
+> > and then it is selected by user space (overriding the default)?
+> 
+> This driver only binds (the cpuid check still visible above) on Bay Trail
+> and Cherry Trail/Brasswell systems. AFAIK those never support both modes,
+> the laptop variants of these SoCs always use S3 and the tablet versions
+> always use s2idle.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.218-81-g3402d0b47634/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.218-81-g3402d0b47634/
+But this means that at least the laptop variants can use s2idle if users choose
+that option.  Switching over from S3 to s2idle and back needs to be supported.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.218-81-g3402d0b47634
-Git Commit: 3402d0b4763432c90703e2562242a388776b26a6
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 44 unique boards, 16 SoC families, 17 builds out of 190
+Cheers!
 
-Boot Regressions Detected:
 
-arm:
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 67 days (last pass: v4.4.=
-212-56-g758a39807529 - first fail: v4.4.213-28-ga3b43e6eae91)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 20 days (last pass: v4.4.216-127-=
-g955137020949 - first fail: v4.4.217)
-
-Boot Failures Detected:
-
-arm:
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
