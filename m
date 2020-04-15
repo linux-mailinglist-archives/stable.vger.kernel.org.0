@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B4B1AA09A
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78E4E1AA09D
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369397AbgDOM3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S369408AbgDOM3g (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 15 Apr 2020 08:29:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38008 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409115AbgDOLo6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:44:58 -0400
+        id S2409116AbgDOLo7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:44:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 354E220768;
-        Wed, 15 Apr 2020 11:44:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 690DA214D8;
+        Wed, 15 Apr 2020 11:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951098;
-        bh=oooFEStGUZHNuhXxGFvK4GTwAIxHao8rhtCGvyKcdGo=;
+        s=default; t=1586951099;
+        bh=cV2r83eP8e/jucUSXYvFnWLjmbcZKhtPCDO2eIQor/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sSemOUDfmah1SaVX3BQLP6BeihBz7XMZ0TouLc8Si3UPspi3GkSrXXNGba/IJ+AT7
-         yo2lc3qxzhmvyhQwKmBhHU+yunZolP5EEcqhrEysP/JalDUInKQmkgmIU2jbsdQ/KM
-         CLnooNyIUW5Qmt7AekYyxekdLqVS3Xn1Gt3fHdyc=
+        b=fcU4t01tskt9oehp9HzTaIZ28/aQUiDmb+SQOVWQ7Quo8iNSquQG+u0xmoy3SC+cI
+         Jdlk3d5QxwVfUhPbH+hPHXMqVYzJz4oVZTtkVwbepdjJKMow1Fvb1TzJq9kQmDTrSX
+         fiJkAO1cj2Nc1fmlWImY8bc3BdgvvmWGNKo51EpQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+Cc:     Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/84] arm64: dts: clearfog-gt-8k: set gigabit PHY reset deassert delay
-Date:   Wed, 15 Apr 2020 07:43:30 -0400
-Message-Id: <20200415114442.14166-13-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 14/84] soc: imx: gpc: fix power up sequencing
+Date:   Wed, 15 Apr 2020 07:43:31 -0400
+Message-Id: <20200415114442.14166-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114442.14166-1-sashal@kernel.org>
 References: <20200415114442.14166-1-sashal@kernel.org>
@@ -45,42 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 46f94c7818e7ab82758fca74935ef3d454340b4e ]
+[ Upstream commit e0ea2d11f8a08ba7066ff897e16c5217215d1e68 ]
 
-If the mv88e6xxx DSA driver is built as a module, it causes the
-ethernet driver to re-probe when it's loaded. This in turn causes
-the gigabit PHY to be momentarily reset and reprogrammed. However,
-we attempt to reprogram the PHY immediately after deasserting reset,
-and the PHY ignores the writes.
+Currently we wait only until the PGC inverts the isolation setting
+before disabling the peripheral clocks. This doesn't ensure that the
+reset is properly propagated through the peripheral devices in the
+power domain.
 
-This results in the PHY operating in the wrong mode, and the copper
-link states down.
+Wait until the PGC signals that the power up request is done and
+wait a bit for resets to propagate before disabling the clocks.
 
-Set a reset deassert delay of 10ms for the gigabit PHY to avoid this.
-
-Fixes: babc5544c293 ("arm64: dts: clearfog-gt-8k: 1G eth PHY reset signal")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Acked-by: Baruch Siach <baruch@tkos.co.il>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/imx/gpc.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts b/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
-index a211a046b2f2f..b90d78a5724b2 100644
---- a/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-8040-clearfog-gt-8k.dts
-@@ -367,6 +367,7 @@
- 		pinctrl-0 = <&cp0_copper_eth_phy_reset>;
- 		reset-gpios = <&cp0_gpio2 11 GPIO_ACTIVE_LOW>;
- 		reset-assert-us = <10000>;
-+		reset-deassert-us = <10000>;
- 	};
+diff --git a/drivers/soc/imx/gpc.c b/drivers/soc/imx/gpc.c
+index 98b9d9a902ae3..90a8b2c0676ff 100644
+--- a/drivers/soc/imx/gpc.c
++++ b/drivers/soc/imx/gpc.c
+@@ -87,8 +87,8 @@ static int imx6_pm_domain_power_off(struct generic_pm_domain *genpd)
+ static int imx6_pm_domain_power_on(struct generic_pm_domain *genpd)
+ {
+ 	struct imx_pm_domain *pd = to_imx_pm_domain(genpd);
+-	int i, ret, sw, sw2iso;
+-	u32 val;
++	int i, ret;
++	u32 val, req;
  
- 	switch0: switch0@4 {
+ 	if (pd->supply) {
+ 		ret = regulator_enable(pd->supply);
+@@ -107,17 +107,18 @@ static int imx6_pm_domain_power_on(struct generic_pm_domain *genpd)
+ 	regmap_update_bits(pd->regmap, pd->reg_offs + GPC_PGC_CTRL_OFFS,
+ 			   0x1, 0x1);
+ 
+-	/* Read ISO and ISO2SW power up delays */
+-	regmap_read(pd->regmap, pd->reg_offs + GPC_PGC_PUPSCR_OFFS, &val);
+-	sw = val & 0x3f;
+-	sw2iso = (val >> 8) & 0x3f;
+-
+ 	/* Request GPC to power up domain */
+-	val = BIT(pd->cntr_pdn_bit + 1);
+-	regmap_update_bits(pd->regmap, GPC_CNTR, val, val);
++	req = BIT(pd->cntr_pdn_bit + 1);
++	regmap_update_bits(pd->regmap, GPC_CNTR, req, req);
+ 
+-	/* Wait ISO + ISO2SW IPG clock cycles */
+-	udelay(DIV_ROUND_UP(sw + sw2iso, pd->ipg_rate_mhz));
++	/* Wait for the PGC to handle the request */
++	ret = regmap_read_poll_timeout(pd->regmap, GPC_CNTR, val, !(val & req),
++				       1, 50);
++	if (ret)
++		pr_err("powerup request on domain %s timed out\n", genpd->name);
++
++	/* Wait for reset to propagate through peripherals */
++	usleep_range(5, 10);
+ 
+ 	/* Disable reset clocks for all devices in the domain */
+ 	for (i = 0; i < pd->num_clks; i++)
+@@ -343,6 +344,7 @@ static const struct regmap_config imx_gpc_regmap_config = {
+ 	.rd_table = &access_table,
+ 	.wr_table = &access_table,
+ 	.max_register = 0x2ac,
++	.fast_io = true,
+ };
+ 
+ static struct generic_pm_domain *imx_gpc_onecell_domains[] = {
 -- 
 2.20.1
 
