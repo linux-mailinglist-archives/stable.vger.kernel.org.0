@@ -2,65 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EE491AA30D
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:11:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C34E91AA3CB
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:22:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505803AbgDONDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:03:44 -0400
-Received: from foss.arm.com ([217.140.110.172]:45100 "EHLO foss.arm.com"
+        id S2506131AbgDONMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:12:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503773AbgDONDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 09:03:42 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D188A1063;
-        Wed, 15 Apr 2020 06:03:41 -0700 (PDT)
-Received: from C02TD0UTHF1T.local (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 62CF53F6C4;
-        Wed, 15 Apr 2020 06:03:40 -0700 (PDT)
-Date:   Wed, 15 Apr 2020 14:03:37 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     linux-arm-kernel@lists.infradead.org, vincenzo.frascino@arm.com,
-        will@kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/5] arm64: vdso: don't free unallocated pages
-Message-ID: <20200415130337.GC28304@C02TD0UTHF1T.local>
-References: <20200414104252.16061-1-mark.rutland@arm.com>
- <20200414104252.16061-2-mark.rutland@arm.com>
- <20200415101310.GC6526@gaia>
+        id S2506124AbgDONMU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 09:12:20 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 780F720775;
+        Wed, 15 Apr 2020 13:12:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586956339;
+        bh=+n8P4eX3Gq5ddkEFWUNTVaGdvjE6oAz0upU0TwdxGt0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cBCotnngAvbMa94YB7R4aAXgxUaPqL0oGpIbjGRrdpcNO2UwCxQVn03T8xrJLRl5z
+         xXAZWrOWh/gUNVILTTdysIdMcZPJ+VFWyDSW6OIgLQ0hlTkhSonsvzVTAf44Nc6WRj
+         9YQjsCK60IyPptOg/jlfFhwJvanQv6G0elFPACmA=
+Date:   Wed, 15 Apr 2020 15:12:17 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Merlijn B.W. Wajer" <merlijn@archive.org>
+Cc:     bvanassche@acm.org, arnd@arndb.de, martin.petersen@oracle.com,
+        stable@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] scsi: sr: Fix sr_block_release()" failed
+ to apply to 5.6-stable tree
+Message-ID: <20200415131217.GA3439691@kroah.com>
+References: <1586949568154118@kroah.com>
+ <d16dfd1f-6b30-04e4-0e01-461b6c00e965@archive.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200415101310.GC6526@gaia>
+In-Reply-To: <d16dfd1f-6b30-04e4-0e01-461b6c00e965@archive.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 11:13:11AM +0100, Catalin Marinas wrote:
-> On Tue, Apr 14, 2020 at 11:42:48AM +0100, Mark Rutland wrote:
-> > The aarch32_vdso_pages[] array never has entries allocated in the C_VVAR
-> > or C_VDSO slots, and as the array is zero initialized these contain
-> > NULL.
-> > 
-> > However in __aarch32_alloc_vdso_pages() when
-> > aarch32_alloc_kuser_vdso_page() fails we attempt to free the page whose
-> > struct page is at NULL, which is obviously nonsensical.
-> > 
-> > This patch removes the erroneous page freeing.
-> > 
-> > Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-> > Cc: Catalin Marinas <catalin.marinas@arm.com>
-> > Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-> > Cc: Will Deacon <will@kernel.org>
-> > Cc: stable@vger.kernel.org
+On Wed, Apr 15, 2020 at 02:51:43PM +0200, Merlijn B.W. Wajer wrote:
+> Hi,
 > 
-> I presume the cc stable should be limited to:
+> On 15/04/2020 13:19, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.6-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
 > 
-> Fixes: 7c1deeeb0130 ("arm64: compat: VDSO setup for compat layer")
-> Cc: <stable@vger.kernel.org> # 5.3.x-
+> This patch should apply fine on top of commit
+> 51a858817dcdbbdee22cb54b0b2b26eb145ca5b6 [1].
 > 
-> I'll fix it up locally.
+> Which wasn't mailed to stable@, but should have been. So if
+> 51a858817dcdbbdee22cb54b0b2b26eb145ca5b6 is included, then this patch
+> should apply fine as well.
 
-Yes, and thanks!
+That worked, thanks!
 
-Mark.
+greg k-h
