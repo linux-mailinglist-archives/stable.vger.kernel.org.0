@@ -2,217 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F801AB10B
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 21:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B201AB15A
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 21:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441558AbgDOTIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 15:08:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59638 "EHLO mail.kernel.org"
+        id S2441693AbgDOTOF convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 15 Apr 2020 15:14:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411786AbgDOTIU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 15:08:20 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S2441688AbgDOTOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 15:14:02 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0305720768;
-        Wed, 15 Apr 2020 19:08:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586977699;
-        bh=rtxaXjthx5EFoq0kgHa7sbxDbCiznlPP5adayGOaT3M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ON9NEq8oM9auuj6fu2lXNc4a4gpKSd7R6YWyPlIfrWs/hyhdw/b4DTPIq05vI+ILW
-         UXIQvKErRCuL4Zi7shROiEZoYpAjfEuxMKIVldUFwxjw6vRKVFwGFTuKxSgrB+VNQj
-         GDwwPfv6wCSAwFb+ioD9jLwVYgvU/iXVtW94QyjY=
-Date:   Wed, 15 Apr 2020 15:08:17 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     josef@toxicpanda.com, dsterba@suse.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] btrfs: use nofs allocations for running
- delayed items" failed to apply to 4.19-stable tree
-Message-ID: <20200415190817.GJ1068@sasha-vm>
-References: <1586873819993@kroah.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id BFEC620768;
+        Wed, 15 Apr 2020 19:14:01 +0000 (UTC)
+Date:   Wed, 15 Apr 2020 15:14:00 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     mhiramat@kernel.org, treeze.taeung@gmail.com,
+        <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] ftrace/kprobe: Show the maxactive number
+ on kprobe_events" failed to apply to 4.19-stable tree
+Message-ID: <20200415151400.2347497b@gandalf.local.home>
+In-Reply-To: <158695112724822@kroah.com>
+References: <158695112724822@kroah.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1586873819993@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 04:16:59PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 351cbf6e4410e7ece05e35d0a07320538f2418b4 Mon Sep 17 00:00:00 2001
->From: Josef Bacik <josef@toxicpanda.com>
->Date: Thu, 19 Mar 2020 10:11:32 -0400
->Subject: [PATCH] btrfs: use nofs allocations for running delayed items
->
->Zygo reported the following lockdep splat while testing the balance
->patches
->
->======================================================
->WARNING: possible circular locking dependency detected
->5.6.0-c6f0579d496a+ #53 Not tainted
->------------------------------------------------------
->kswapd0/1133 is trying to acquire lock:
->ffff888092f622c0 (&delayed_node->mutex){+.+.}, at: __btrfs_release_delayed_node+0x7c/0x5b0
->
->but task is already holding lock:
->ffffffff8fc5f860 (fs_reclaim){+.+.}, at: __fs_reclaim_acquire+0x5/0x30
->
->which lock already depends on the new lock.
->
->the existing dependency chain (in reverse order) is:
->
->-> #1 (fs_reclaim){+.+.}:
->       fs_reclaim_acquire.part.91+0x29/0x30
->       fs_reclaim_acquire+0x19/0x20
->       kmem_cache_alloc_trace+0x32/0x740
->       add_block_entry+0x45/0x260
->       btrfs_ref_tree_mod+0x6e2/0x8b0
->       btrfs_alloc_tree_block+0x789/0x880
->       alloc_tree_block_no_bg_flush+0xc6/0xf0
->       __btrfs_cow_block+0x270/0x940
->       btrfs_cow_block+0x1ba/0x3a0
->       btrfs_search_slot+0x999/0x1030
->       btrfs_insert_empty_items+0x81/0xe0
->       btrfs_insert_delayed_items+0x128/0x7d0
->       __btrfs_run_delayed_items+0xf4/0x2a0
->       btrfs_run_delayed_items+0x13/0x20
->       btrfs_commit_transaction+0x5cc/0x1390
->       insert_balance_item.isra.39+0x6b2/0x6e0
->       btrfs_balance+0x72d/0x18d0
->       btrfs_ioctl_balance+0x3de/0x4c0
->       btrfs_ioctl+0x30ab/0x44a0
->       ksys_ioctl+0xa1/0xe0
->       __x64_sys_ioctl+0x43/0x50
->       do_syscall_64+0x77/0x2c0
->       entry_SYSCALL_64_after_hwframe+0x49/0xbe
->
->-> #0 (&delayed_node->mutex){+.+.}:
->       __lock_acquire+0x197e/0x2550
->       lock_acquire+0x103/0x220
->       __mutex_lock+0x13d/0xce0
->       mutex_lock_nested+0x1b/0x20
->       __btrfs_release_delayed_node+0x7c/0x5b0
->       btrfs_remove_delayed_node+0x49/0x50
->       btrfs_evict_inode+0x6fc/0x900
->       evict+0x19a/0x2c0
->       dispose_list+0xa0/0xe0
->       prune_icache_sb+0xbd/0xf0
->       super_cache_scan+0x1b5/0x250
->       do_shrink_slab+0x1f6/0x530
->       shrink_slab+0x32e/0x410
->       shrink_node+0x2a5/0xba0
->       balance_pgdat+0x4bd/0x8a0
->       kswapd+0x35a/0x800
->       kthread+0x1e9/0x210
->       ret_from_fork+0x3a/0x50
->
->other info that might help us debug this:
->
-> Possible unsafe locking scenario:
->
->       CPU0                    CPU1
->       ----                    ----
->  lock(fs_reclaim);
->                               lock(&delayed_node->mutex);
->                               lock(fs_reclaim);
->  lock(&delayed_node->mutex);
->
-> *** DEADLOCK ***
->
->3 locks held by kswapd0/1133:
-> #0: ffffffff8fc5f860 (fs_reclaim){+.+.}, at: __fs_reclaim_acquire+0x5/0x30
-> #1: ffffffff8fc380d8 (shrinker_rwsem){++++}, at: shrink_slab+0x1e8/0x410
-> #2: ffff8881e0e6c0e8 (&type->s_umount_key#42){++++}, at: trylock_super+0x1b/0x70
->
->stack backtrace:
->CPU: 2 PID: 1133 Comm: kswapd0 Not tainted 5.6.0-c6f0579d496a+ #53
->Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
->Call Trace:
-> dump_stack+0xc1/0x11a
-> print_circular_bug.isra.38.cold.57+0x145/0x14a
-> check_noncircular+0x2a9/0x2f0
-> ? print_circular_bug.isra.38+0x130/0x130
-> ? stack_trace_consume_entry+0x90/0x90
-> ? save_trace+0x3cc/0x420
-> __lock_acquire+0x197e/0x2550
-> ? btrfs_inode_clear_file_extent_range+0x9b/0xb0
-> ? register_lock_class+0x960/0x960
-> lock_acquire+0x103/0x220
-> ? __btrfs_release_delayed_node+0x7c/0x5b0
-> __mutex_lock+0x13d/0xce0
-> ? __btrfs_release_delayed_node+0x7c/0x5b0
-> ? __asan_loadN+0xf/0x20
-> ? pvclock_clocksource_read+0xeb/0x190
-> ? __btrfs_release_delayed_node+0x7c/0x5b0
-> ? mutex_lock_io_nested+0xc20/0xc20
-> ? __kasan_check_read+0x11/0x20
-> ? check_chain_key+0x1e6/0x2e0
-> mutex_lock_nested+0x1b/0x20
-> ? mutex_lock_nested+0x1b/0x20
-> __btrfs_release_delayed_node+0x7c/0x5b0
-> btrfs_remove_delayed_node+0x49/0x50
-> btrfs_evict_inode+0x6fc/0x900
-> ? btrfs_setattr+0x840/0x840
-> ? do_raw_spin_unlock+0xa8/0x140
-> evict+0x19a/0x2c0
-> dispose_list+0xa0/0xe0
-> prune_icache_sb+0xbd/0xf0
-> ? invalidate_inodes+0x310/0x310
-> super_cache_scan+0x1b5/0x250
-> do_shrink_slab+0x1f6/0x530
-> shrink_slab+0x32e/0x410
-> ? do_shrink_slab+0x530/0x530
-> ? do_shrink_slab+0x530/0x530
-> ? __kasan_check_read+0x11/0x20
-> ? mem_cgroup_protected+0x13d/0x260
-> shrink_node+0x2a5/0xba0
-> balance_pgdat+0x4bd/0x8a0
-> ? mem_cgroup_shrink_node+0x490/0x490
-> ? _raw_spin_unlock_irq+0x27/0x40
-> ? finish_task_switch+0xce/0x390
-> ? rcu_read_lock_bh_held+0xb0/0xb0
-> kswapd+0x35a/0x800
-> ? _raw_spin_unlock_irqrestore+0x4c/0x60
-> ? balance_pgdat+0x8a0/0x8a0
-> ? finish_wait+0x110/0x110
-> ? __kasan_check_read+0x11/0x20
-> ? __kthread_parkme+0xc6/0xe0
-> ? balance_pgdat+0x8a0/0x8a0
-> kthread+0x1e9/0x210
-> ? kthread_create_worker_on_cpu+0xc0/0xc0
-> ret_from_fork+0x3a/0x50
->
->This is because we hold that delayed node's mutex while doing tree
->operations.  Fix this by just wrapping the searches in nofs.
->
->CC: stable@vger.kernel.org # 4.4+
->Signed-off-by: Josef Bacik <josef@toxicpanda.com>
->Reviewed-by: David Sterba <dsterba@suse.com>
->Signed-off-by: David Sterba <dsterba@suse.com>
+On Wed, 15 Apr 2020 13:45:27 +0200
+<gregkh@linuxfoundation.org> wrote:
 
-For kernels newer then 4.9 it was just a context conflict in the
-inclusion directives with 602cbe91fb01 ("btrfs: move cond_wake_up
-functions out of ctree").
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+>
 
-4.9 and 4.4 don't have the memalloc_nofs_save() api and require a more
-complex backport of 7dea19f9ee63 ("mm: introduce
-memalloc_nofs_{save,restore} API") which I haven't attempted.
+This should apply to both 4.14 and 4.19 and fix the same issue:
 
--- 
-Thanks,
-Sasha
+From 6a13a0d7b4d1171ef9b80ad69abc37e1daa941b3 Mon Sep 17 00:00:00 2001
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Date: Tue, 24 Mar 2020 16:34:48 +0900
+Subject: [PATCH] ftrace/kprobe: Show the maxactive number on kprobe_events
+
+Show maxactive parameter on kprobe_events.
+This allows user to save the current configuration and
+restore it without losing maxactive parameter.
+
+Link: http://lkml.kernel.org/r/4762764a-6df7-bc93-ed60-e336146dce1f@gmail.com
+Link: http://lkml.kernel.org/r/158503528846.22706.5549974121212526020.stgit@devnote2
+
+Cc: stable@vger.kernel.org
+Fixes: 696ced4fb1d76 ("tracing/kprobes: expose maxactive for kretprobe in kprobe_events")
+Reported-by: Taeung Song <treeze.taeung@gmail.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+
+Index: linux-test.git/kernel/trace/trace_kprobe.c
+===================================================================
+--- linux-test.git.orig/kernel/trace/trace_kprobe.c
++++ linux-test.git/kernel/trace/trace_kprobe.c
+@@ -975,6 +975,8 @@ static int probes_seq_show(struct seq_fi
+ 	int i;
+ 
+ 	seq_putc(m, trace_kprobe_is_return(tk) ? 'r' : 'p');
++	if (trace_kprobe_is_return(tk) && tk->rp.maxactive)
++		seq_printf(m, "%d", tk->rp.maxactive);
+ 	seq_printf(m, ":%s/%s", tk->tp.call.class->system,
+ 			trace_event_name(&tk->tp.call));
+ 
+
+
+-- Steve
