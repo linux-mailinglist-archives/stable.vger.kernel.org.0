@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C341A9FF5
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:23:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32C571A9FF3
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S368981AbgDOMTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:19:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40600 "EHLO mail.kernel.org"
+        id S368968AbgDOMTo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:19:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409244AbgDOLqB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:46:01 -0400
+        id S2409249AbgDOLqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:46:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3092E20768;
-        Wed, 15 Apr 2020 11:46:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60DB120737;
+        Wed, 15 Apr 2020 11:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951160;
-        bh=92e03qfV5WzTTcnm4d7dLXBPeHPv6FHPB6NTC593rt0=;
+        s=default; t=1586951162;
+        bh=/irDkQP3S01BEZbw9nCn3Y6bK2sKx+ShTIuFgYre9FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vrqVGFeGaZSej48n4EIGVL3wHNadlzunPQ4A+U5pLiasK4tRwegUTQVJHVDlYNVA4
-         KMQOBtY9ydn7fErD0+X2LdTQ656TYfeI8Tf5zvA1A07F9kUAGlED+IOsMHcaB8s5uk
-         TqeMGVeNXretpZYz9KN4Y78Pe5EApu3JxFTvhZmY=
+        b=xH/16CtBIt5TywnLvU/8PXAOD8PvFC6hoMXCM+EM3zxC/npcaC/WdYMkLVZlbnjrH
+         tC+MwVzBbJmWOmzHDUtPIcy2xh8M6Aexqy7ieQ+uCoQ/Q7lW8R4BzucuXsn5IzubW2
+         LN0+d0AQQgBsdHBtonF1o8sOxdgEB1NCOu1c/P1w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 66/84] mfd: dln2: Fix sanity checking for endpoints
-Date:   Wed, 15 Apr 2020 07:44:23 -0400
-Message-Id: <20200415114442.14166-66-sashal@kernel.org>
+Cc:     Alan Maguire <alan.maguire@oracle.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 67/84] um: falloc.h needs to be directly included for older libc
+Date:   Wed, 15 Apr 2020 07:44:24 -0400
+Message-Id: <20200415114442.14166-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114442.14166-1-sashal@kernel.org>
 References: <20200415114442.14166-1-sashal@kernel.org>
@@ -45,59 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Alan Maguire <alan.maguire@oracle.com>
 
-[ Upstream commit fb945c95a482200876993977008b67ea658bd938 ]
+[ Upstream commit 35f3401317a3b26aa01fde8facfd320f2628fdcc ]
 
-While the commit 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-tries to harden the sanity checks it made at the same time a regression,
-i.e.  mixed in and out endpoints. Obviously it should have been not tested on
-real hardware at that time, but unluckily it didn't happen.
+When building UML with glibc 2.17 installed, compilation
+of arch/um/os-Linux/file.c fails due to failure to find
+FALLOC_FL_PUNCH_HOLE and FALLOC_FL_KEEP_SIZE definitions.
 
-So, fix above mentioned typo and make device being enumerated again.
+It appears that /usr/include/bits/fcntl-linux.h (indirectly
+included by /usr/include/fcntl.h) does not include falloc.h
+with an older glibc, whereas a more up-to-date version
+does.
 
-While here, introduce an enumerator for magic values to prevent similar issue
-to happen in the future.
+Adding the direct include to file.c resolves the issue
+and does not cause problems for more recent glibc.
 
-Fixes: 2b8bd606b1e6 ("mfd: dln2: More sanity checking for endpoints")
-Cc: Oliver Neukum <oneukum@suse.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: 50109b5a03b4 ("um: Add support for DISCARD in the UBD Driver")
+Cc: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/dln2.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/um/os-Linux/file.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/dln2.c b/drivers/mfd/dln2.c
-index 7841c11411d08..4faa8d2e5d045 100644
---- a/drivers/mfd/dln2.c
-+++ b/drivers/mfd/dln2.c
-@@ -90,6 +90,11 @@ struct dln2_mod_rx_slots {
- 	spinlock_t lock;
- };
- 
-+enum dln2_endpoint {
-+	DLN2_EP_OUT	= 0,
-+	DLN2_EP_IN	= 1,
-+};
-+
- struct dln2_dev {
- 	struct usb_device *usb_dev;
- 	struct usb_interface *interface;
-@@ -733,10 +738,10 @@ static int dln2_probe(struct usb_interface *interface,
- 	    hostif->desc.bNumEndpoints < 2)
- 		return -ENODEV;
- 
--	epin = &hostif->endpoint[0].desc;
--	epout = &hostif->endpoint[1].desc;
-+	epout = &hostif->endpoint[DLN2_EP_OUT].desc;
- 	if (!usb_endpoint_is_bulk_out(epout))
- 		return -ENODEV;
-+	epin = &hostif->endpoint[DLN2_EP_IN].desc;
- 	if (!usb_endpoint_is_bulk_in(epin))
- 		return -ENODEV;
- 
+diff --git a/arch/um/os-Linux/file.c b/arch/um/os-Linux/file.c
+index 5133e3afb96f7..3996937e2c0dd 100644
+--- a/arch/um/os-Linux/file.c
++++ b/arch/um/os-Linux/file.c
+@@ -8,6 +8,7 @@
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <signal.h>
++#include <linux/falloc.h>
+ #include <sys/ioctl.h>
+ #include <sys/mount.h>
+ #include <sys/socket.h>
 -- 
 2.20.1
 
