@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D9701AA093
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 093121AA02A
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369372AbgDOM2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:28:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38158 "EHLO mail.kernel.org"
+        id S2409139AbgDOLpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:45:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409111AbgDOLpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:45:02 -0400
+        id S2409121AbgDOLpD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:45:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EB4920732;
-        Wed, 15 Apr 2020 11:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 656A321734;
+        Wed, 15 Apr 2020 11:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951102;
-        bh=YXatwA0IzgcsJ9gEYbMuYDXR5EsegBs5QetUF828Olk=;
+        s=default; t=1586951103;
+        bh=euQa/IrC+M5frlOR1iG3WPuzEiQuZ/BuYmF5XaRlhqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8pOR6xPcOAKw45FutThlXPnIwxhKMEpTRrDEd5xrpc6YIwZ27K27q2n4FS8wSR2o
-         VjOHk4qGvoaNVL77cCvSO36e6HTnUa3/s/id0L7qdT943llKG52U85fOiaD8QBuAR1
-         mUCsuyZRpN/tryLZ+xDnFy8MjTrt5WGCfEhgLhq0=
+        b=uCzXYxVZ3Q2WNUb3nN3zCcKq+KtK9f4SvVu7Jf51jPuFAgWBbNzAmSOX9PnlhM3c3
+         Xc+SNnyTVQ8kC4D0fTOEngIFS9Wy7bHft4v+FW2NItce9LL7PGWKfmo3VVm+If297z
+         1N6t9w/VVQ1Iy1gA69ic6k0yKogWpW5yCHsm/nk0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 17/84] NFS: alloc_nfs_open_context() must use the file cred when available
-Date:   Wed, 15 Apr 2020 07:43:34 -0400
-Message-Id: <20200415114442.14166-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 18/84] NFSv4/pnfs: Return valid stateids in nfs_layout_find_inode_by_stateid()
+Date:   Wed, 15 Apr 2020 07:43:35 -0400
+Message-Id: <20200415114442.14166-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114442.14166-1-sashal@kernel.org>
 References: <20200415114442.14166-1-sashal@kernel.org>
@@ -44,44 +44,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 1d179d6bd67369a52edea8562154b31ee20be1cc ]
+[ Upstream commit d911c57a19551c6bef116a3b55c6b089901aacb0 ]
 
-If we're creating a nfs_open_context() for a specific file pointer,
-we must use the cred assigned to that file.
+Make sure to test the stateid for validity so that we catch instances
+where the server may have been reusing stateids in
+nfs_layout_find_inode_by_stateid().
 
-Fixes: a52458b48af1 ("NFS/NFSD/SUNRPC: replace generic creds with 'struct cred'.")
+Fixes: 7b410d9ce460 ("pNFS: Delay getting the layout header in CB_LAYOUTRECALL handlers")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/nfs/callback_proc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 2a03bfeec10a4..3802c88e83720 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -959,16 +959,16 @@ struct nfs_open_context *alloc_nfs_open_context(struct dentry *dentry,
- 						struct file *filp)
- {
- 	struct nfs_open_context *ctx;
--	const struct cred *cred = get_current_cred();
+diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
+index f39924ba050b1..fc775b0b5194f 100644
+--- a/fs/nfs/callback_proc.c
++++ b/fs/nfs/callback_proc.c
+@@ -130,6 +130,8 @@ static struct inode *nfs_layout_find_inode_by_stateid(struct nfs_client *clp,
  
- 	ctx = kmalloc(sizeof(*ctx), GFP_KERNEL);
--	if (!ctx) {
--		put_cred(cred);
-+	if (!ctx)
- 		return ERR_PTR(-ENOMEM);
--	}
- 	nfs_sb_active(dentry->d_sb);
- 	ctx->dentry = dget(dentry);
--	ctx->cred = cred;
-+	if (filp)
-+		ctx->cred = get_cred(filp->f_cred);
-+	else
-+		ctx->cred = get_current_cred();
- 	ctx->ll_cred = NULL;
- 	ctx->state = NULL;
- 	ctx->mode = f_mode;
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+ 		list_for_each_entry(lo, &server->layouts, plh_layouts) {
++			if (!pnfs_layout_is_valid(lo))
++				continue;
+ 			if (stateid != NULL &&
+ 			    !nfs4_stateid_match_other(stateid, &lo->plh_stateid))
+ 				continue;
 -- 
 2.20.1
 
