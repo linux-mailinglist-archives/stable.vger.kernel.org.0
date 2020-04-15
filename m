@@ -2,241 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C89A41AA370
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B90E1A9C7A
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504631AbgDONKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:10:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40052 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2897077AbgDOLfn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:35:43 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B36C061A0C
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 04:35:41 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id y4so3267598ljn.7
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 04:35:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KBpalj9lT5kvxcjd5x3o+owJyJdduvaY1jMLu6w9DYI=;
-        b=nHw/ApgLmxZUw2uFNTIAg/ctnJ7fmQ28uOV3gnu5UtZgIkXAbP43vB4FqdI4Q4eHiy
-         2VvlqpmAjlL2m4089uAWAE9xB5Ij13OPiCOtrf4qvHEmXCD8KwnyKwA0EWo8HZChlWN+
-         JP5Lx0ENlM/A4M96Hqzs+VVLySNgd7BTG9tGk1/+1/8BNdJAK0Qro1X93sr+kCJZx9YI
-         SsvZM5+XuXR4L5fiXPNooZkqV2DvAJbk2cInkjEV6Tg5dAhu5lnQsxh/ygiRSfyx5XSN
-         dx3OxqOfJ4SnxBViMHsrwgFydTWVJwl4ADXgcN5Of6iXY0A1K6+HLBQBGetTQbzJ6n/0
-         Di6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KBpalj9lT5kvxcjd5x3o+owJyJdduvaY1jMLu6w9DYI=;
-        b=dKTuvvkBLqbeb176imOl5ysZ4D4uZ9ifeH4pILWW7YqwWWODDR69UKYaKHMyiN2iM2
-         Rnj+uY+W86wh0S1N+WR0obhPXa3JyI2xUnvd8Krae6JjLrM+48HhGOVKWNB8IqOuCaYq
-         1CAvgqYvsmqECyZmH8YTc1qs99+KLjgt6jB+BLqb5WXoP/35WmtfP9mdL0+nJcVoPIdQ
-         OQS+1L7NUTixN25VBvaTRp0tvUAKdTLPI4AqoyYPuh94aECWdKNcQzqgyrNSiWSyceNk
-         HTykJxDL+pYjoubuy5Al3DLTsFRm1pEBLtuE+fgxX8MFWCiyJJRHQUyQFEo2zjTmDZRv
-         wuOA==
-X-Gm-Message-State: AGi0PuYxZNdOaG4hNA8qsM2EJtosmbt0lWsh3XBss42mjhWgk1rHDwi8
-        JQtnL4uv9lJj7wPnJA36aa3iYHiTl6CV4C/JTPHJ7Q==
-X-Google-Smtp-Source: APiQypJk41kgiRI94BIMANGlD8TkJQffUXgc/CbpBaQcp5YFitlmaZ4ssDBWSOD5V3uSRs0pfIVRVVkAG2pELd1X3B0=
-X-Received: by 2002:a2e:b8c1:: with SMTP id s1mr3169915ljp.0.1586950540057;
- Wed, 15 Apr 2020 04:35:40 -0700 (PDT)
+        id S2897085AbgDOLfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:35:51 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:43365 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2897072AbgDOLfm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:35:42 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 0E5925C01D6;
+        Wed, 15 Apr 2020 07:35:41 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:35:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=PvSQ+8
+        9nrRv1yrdiaiWs6/WAyakY6Cw+6Hub8KPaQHM=; b=tTuoSgL01YNqtknXvMtOqi
+        XxGViXHxyRuIjXkc8bGqumCUdKPwoAnYKrOGsdbBTjI5UdUqlFTtLAxemU2eH5Dl
+        IjpSiO8w1AmH8EOsaHa5z4AfeHLl5HLdCUISRWPtaTXqFymtfRpWzaIR0htfaygr
+        Bop9B1oxQWP02lbeo4NL/lLMznOksjiSBBzyiER9A3MGqKMh/Gxp75ghcxqkVeyZ
+        HruN8LWbcWH7rE77QMZqqVEtnRuKaBnSGdeOWgFoJ5S8SC5VHDlng0TDqMwzyp0d
+        cejFM8rTrFrpHcmWq79Xg3USHnKB7t3eQj79wSLkBRcaqLkn+kVwhZG2uLENe2+g
+        ==
+X-ME-Sender: <xms:jPGWXuVTFuSlnx5c58ypxb8nBluSgmojOuWek4W7vhAS0yiIsV4XPg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdefudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
+    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrghilhhf
+    rhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:jPGWXtiU_ilFtjL2GD-7fVtmOB-bJfOMhFx5eQC-EWnN9LJ-56YCDg>
+    <xmx:jPGWXqnEB394rd4KiohvxUGdqtnus5jSGKqfEM5CNcqaweGfZqcVqg>
+    <xmx:jPGWXkI2xIcvsCn4GGAbIhsgL60y7hb5u9RJnuDW7usSazNjkH_zqA>
+    <xmx:jfGWXllei8cfxqxjrv1x7u4vWFFCLiKG-1uT-sdQ7UxygF3r-h65JQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1B5373280060;
+        Wed, 15 Apr 2020 07:35:40 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Fill all the unused space in the GGTT" failed to apply to 5.6-stable tree
+To:     chris@chris-wilson.co.uk, imre.deak@intel.com,
+        matthew.auld@intel.com, rodrigo.vivi@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Apr 2020 13:35:39 +0200
+Message-ID: <1586950539224114@kroah.com>
 MIME-Version: 1.0
-References: <1586254255-28713-1-git-send-email-sumit.garg@linaro.org>
- <CABPxzY+hL=jD6Zy=netP3oqNXg69gDL2g0KiPe40eaXXgZBnxw@mail.gmail.com> <CAFA6WYMZAq6X5m++h33ySCa6jOQCq_tHL=8mUi-kPMcn4FH=jA@mail.gmail.com>
-In-Reply-To: <CAFA6WYMZAq6X5m++h33ySCa6jOQCq_tHL=8mUi-kPMcn4FH=jA@mail.gmail.com>
-From:   Sumit Garg <sumit.garg@linaro.org>
-Date:   Wed, 15 Apr 2020 17:05:28 +0530
-Message-ID: <CAFA6WYOW9ne0iffwC1dc48a_aSaYkkxQzyHQXTV2Wkob9KOXQg@mail.gmail.com>
-Subject: Re: [PATCH v2] mac80211: fix race in ieee80211_register_hw()
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     linux-wireless <linux-wireless@vger.kernel.org>,
-        Krishna Chaitanya <chaitanya.mgit@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>, kuba@kernel.org,
-        Kalle Valo <kvalo@codeaurora.org>,
-        netdev <netdev@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        =?UTF-8?Q?Matthias=2DPeter_Sch=C3=B6pfer?= 
-        <matthias.schoepfer@ithinx.io>,
-        "Berg Philipp (HAU-EDS)" <Philipp.Berg@liebherr.com>,
-        "Weitner Michael (HAU-EDS)" <Michael.Weitner@liebherr.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 9 Apr 2020 at 10:12, Sumit Garg <sumit.garg@linaro.org> wrote:
->
-> Hi Johannes,
->
-> On Wed, 8 Apr 2020 at 00:55, Krishna Chaitanya <chaitanya.mgit@gmail.com> wrote:
-> >
-> > On Tue, Apr 7, 2020 at 3:41 PM Sumit Garg <sumit.garg@linaro.org> wrote:
-> > >
-> > > A race condition leading to a kernel crash is observed during invocation
-> > > of ieee80211_register_hw() on a dragonboard410c device having wcn36xx
-> > > driver built as a loadable module along with a wifi manager in user-space
-> > > waiting for a wifi device (wlanX) to be active.
-> > >
-> > > Sequence diagram for a particular kernel crash scenario:
-> > >
-> > >     user-space  ieee80211_register_hw()  ieee80211_tasklet_handler()
-> > >     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-> > >        |                    |                 |
-> > >        |<---phy0----wiphy_register()          |
-> > >        |-----iwd if_add---->|                 |
-> > just a nitpick, a better one would be (iwd: if_add + ap_start) since
-> > we need to have 'iwctl ap start'
-> > to trigger the interrupts.
-> > >        |                    |<---IRQ----(RX packet)
-> > >        |              Kernel crash            |
-> > >        |              due to unallocated      |
-> > >        |              workqueue.              |
-> > >        |                    |                 |
-> > >        |       alloc_ordered_workqueue()      |
-> > >        |                    |                 |
-> > >        |              Misc wiphy init.        |
-> > >        |                    |                 |
-> > >        |            ieee80211_if_add()        |
-> > >        |                    |                 |
-> > >
-> > > As evident from above sequence diagram, this race condition isn't specific
-> > > to a particular wifi driver but rather the initialization sequence in
-> > > ieee80211_register_hw() needs to be fixed. So re-order the initialization
-> > > sequence and the updated sequence diagram would look like:
-> > >
-> > >     user-space  ieee80211_register_hw()  ieee80211_tasklet_handler()
-> > >     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-> > >        |                    |                 |
-> > >        |       alloc_ordered_workqueue()      |
-> > >        |                    |                 |
-> > >        |              Misc wiphy init.        |
-> > >        |                    |                 |
-> > >        |<---phy0----wiphy_register()          |
-> > >        |-----iwd if_add---->|                 |
-> > same as above.
-> > >        |                    |<---IRQ----(RX packet)
-> > >        |                    |                 |
-> > >        |            ieee80211_if_add()        |
-> > >        |                    |                 |
-> > >
-> > > Cc: <stable@vger.kernel.org>
-> > > Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
-> > > ---
-> > >
->
-> In case we don't have any further comments, could you fix this nitpick
-> from Chaitanya while applying or would you like me to respin and send
-> v3?
 
-A gentle ping. Is this patch a good candidate for 5.7-rc2?
+The patch below does not apply to the 5.6-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
--Sumit
+thanks,
 
->
-> -Sumit
->
-> > > Changes in v2:
-> > > - Move rtnl_unlock() just after ieee80211_init_rate_ctrl_alg().
-> > > - Update sequence diagrams in commit message for more clarification.
-> > >
-> > >  net/mac80211/main.c | 22 +++++++++++++---------
-> > >  1 file changed, 13 insertions(+), 9 deletions(-)
-> > >
-> > > diff --git a/net/mac80211/main.c b/net/mac80211/main.c
-> > > index 4c2b5ba..d497129 100644
-> > > --- a/net/mac80211/main.c
-> > > +++ b/net/mac80211/main.c
-> > > @@ -1051,7 +1051,7 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
-> > >                 local->hw.wiphy->signal_type = CFG80211_SIGNAL_TYPE_UNSPEC;
-> > >                 if (hw->max_signal <= 0) {
-> > >                         result = -EINVAL;
-> > > -                       goto fail_wiphy_register;
-> > > +                       goto fail_workqueue;
-> > >                 }
-> > >         }
-> > >
-> > > @@ -1113,7 +1113,7 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
-> > >
-> > >         result = ieee80211_init_cipher_suites(local);
-> > >         if (result < 0)
-> > > -               goto fail_wiphy_register;
-> > > +               goto fail_workqueue;
-> > >
-> > >         if (!local->ops->remain_on_channel)
-> > >                 local->hw.wiphy->max_remain_on_channel_duration = 5000;
-> > > @@ -1139,10 +1139,6 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
-> > >
-> > >         local->hw.wiphy->max_num_csa_counters = IEEE80211_MAX_CSA_COUNTERS_NUM;
-> > >
-> > > -       result = wiphy_register(local->hw.wiphy);
-> > > -       if (result < 0)
-> > > -               goto fail_wiphy_register;
-> > > -
-> > >         /*
-> > >          * We use the number of queues for feature tests (QoS, HT) internally
-> > >          * so restrict them appropriately.
-> > > @@ -1207,6 +1203,8 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
-> > >                 goto fail_rate;
-> > >         }
-> > >
-> > > +       rtnl_unlock();
-> > > +
-> > >         if (local->rate_ctrl) {
-> > >                 clear_bit(IEEE80211_HW_SUPPORTS_VHT_EXT_NSS_BW, hw->flags);
-> > >                 if (local->rate_ctrl->ops->capa & RATE_CTRL_CAPA_VHT_EXT_NSS_BW)
-> > > @@ -1254,6 +1252,12 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
-> > >                 local->sband_allocated |= BIT(band);
-> > >         }
-> > >
-> > > +       result = wiphy_register(local->hw.wiphy);
-> > > +       if (result < 0)
-> > > +               goto fail_wiphy_register;
-> > > +
-> > > +       rtnl_lock();
-> > > +
-> > >         /* add one default STA interface if supported */
-> > >         if (local->hw.wiphy->interface_modes & BIT(NL80211_IFTYPE_STATION) &&
-> > >             !ieee80211_hw_check(hw, NO_AUTO_VIF)) {
-> > > @@ -1293,6 +1297,8 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
-> > >  #if defined(CONFIG_INET) || defined(CONFIG_IPV6)
-> > >   fail_ifa:
-> > >  #endif
-> > > +       wiphy_unregister(local->hw.wiphy);
-> > > + fail_wiphy_register:
-> > >         rtnl_lock();
-> > >         rate_control_deinitialize(local);
-> > >         ieee80211_remove_interfaces(local);
-> > > @@ -1302,8 +1308,6 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
-> > >         ieee80211_led_exit(local);
-> > >         destroy_workqueue(local->workqueue);
-> > >   fail_workqueue:
-> > > -       wiphy_unregister(local->hw.wiphy);
-> > > - fail_wiphy_register:
-> > >         if (local->wiphy_ciphers_allocated)
-> > >                 kfree(local->hw.wiphy->cipher_suites);
-> > >         kfree(local->int_scan_req);
-> > > @@ -1353,8 +1357,8 @@ void ieee80211_unregister_hw(struct ieee80211_hw *hw)
-> > >         skb_queue_purge(&local->skb_queue_unreliable);
-> > >         skb_queue_purge(&local->skb_queue_tdls_chsw);
-> > >
-> > > -       destroy_workqueue(local->workqueue);
-> > >         wiphy_unregister(local->hw.wiphy);
-> > > +       destroy_workqueue(local->workqueue);
-> > >         ieee80211_led_exit(local);
-> > >         kfree(local->int_scan_req);
-> > >  }
-> > > --
-> > > 2.7.4
-> > >
-> >
-> >
-> > --
-> > Thanks,
-> > Regards,
-> > Chaitanya T K.
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 0b72a251bf92ca2378530fa1f9b35a71830ab51c Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Tue, 31 Mar 2020 16:23:48 +0100
+Subject: [PATCH] drm/i915/gt: Fill all the unused space in the GGTT
+
+When we allocate space in the GGTT we may have to allocate a larger
+region than will be populated by the object to accommodate fencing. Make
+sure that this space beyond the end of the buffer points safely into
+scratch space, in case the HW tries to access it anyway (e.g. fenced
+access to the last tile row).
+
+v2: Preemptively / conservatively guard gen6 ggtt as well.
+
+Reported-by: Imre Deak <imre.deak@intel.com>
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/1554
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: Imre Deak <imre.deak@intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200331152348.26946-1-chris@chris-wilson.co.uk
+(cherry picked from commit 4d6c18590870fbac1e65dde5e01e621c8e0ca096)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt.c b/drivers/gpu/drm/i915/gt/intel_ggtt.c
+index aed498a0d032..4c5a209cb669 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ggtt.c
++++ b/drivers/gpu/drm/i915/gt/intel_ggtt.c
+@@ -191,10 +191,11 @@ static void gen8_ggtt_insert_entries(struct i915_address_space *vm,
+ 				     enum i915_cache_level level,
+ 				     u32 flags)
+ {
+-	struct i915_ggtt *ggtt = i915_vm_to_ggtt(vm);
+-	struct sgt_iter sgt_iter;
+-	gen8_pte_t __iomem *gtt_entries;
+ 	const gen8_pte_t pte_encode = gen8_ggtt_pte_encode(0, level, 0);
++	struct i915_ggtt *ggtt = i915_vm_to_ggtt(vm);
++	gen8_pte_t __iomem *gte;
++	gen8_pte_t __iomem *end;
++	struct sgt_iter iter;
+ 	dma_addr_t addr;
+ 
+ 	/*
+@@ -202,10 +203,17 @@ static void gen8_ggtt_insert_entries(struct i915_address_space *vm,
+ 	 * not to allow the user to override access to a read only page.
+ 	 */
+ 
+-	gtt_entries = (gen8_pte_t __iomem *)ggtt->gsm;
+-	gtt_entries += vma->node.start / I915_GTT_PAGE_SIZE;
+-	for_each_sgt_daddr(addr, sgt_iter, vma->pages)
+-		gen8_set_pte(gtt_entries++, pte_encode | addr);
++	gte = (gen8_pte_t __iomem *)ggtt->gsm;
++	gte += vma->node.start / I915_GTT_PAGE_SIZE;
++	end = gte + vma->node.size / I915_GTT_PAGE_SIZE;
++
++	for_each_sgt_daddr(addr, iter, vma->pages)
++		gen8_set_pte(gte++, pte_encode | addr);
++	GEM_BUG_ON(gte > end);
++
++	/* Fill the allocated but "unused" space beyond the end of the buffer */
++	while (gte < end)
++		gen8_set_pte(gte++, vm->scratch[0].encode);
+ 
+ 	/*
+ 	 * We want to flush the TLBs only after we're certain all the PTE
+@@ -241,13 +249,22 @@ static void gen6_ggtt_insert_entries(struct i915_address_space *vm,
+ 				     u32 flags)
+ {
+ 	struct i915_ggtt *ggtt = i915_vm_to_ggtt(vm);
+-	gen6_pte_t __iomem *entries = (gen6_pte_t __iomem *)ggtt->gsm;
+-	unsigned int i = vma->node.start / I915_GTT_PAGE_SIZE;
++	gen6_pte_t __iomem *gte;
++	gen6_pte_t __iomem *end;
+ 	struct sgt_iter iter;
+ 	dma_addr_t addr;
+ 
++	gte = (gen6_pte_t __iomem *)ggtt->gsm;
++	gte += vma->node.start / I915_GTT_PAGE_SIZE;
++	end = gte + vma->node.size / I915_GTT_PAGE_SIZE;
++
+ 	for_each_sgt_daddr(addr, iter, vma->pages)
+-		iowrite32(vm->pte_encode(addr, level, flags), &entries[i++]);
++		iowrite32(vm->pte_encode(addr, level, flags), gte++);
++	GEM_BUG_ON(gte > end);
++
++	/* Fill the allocated but "unused" space beyond the end of the buffer */
++	while (gte < end)
++		iowrite32(vm->scratch[0].encode, gte++);
+ 
+ 	/*
+ 	 * We want to flush the TLBs only after we're certain all the PTE
+
