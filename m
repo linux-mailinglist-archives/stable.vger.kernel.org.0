@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5AB81AA444
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB651AA442
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:23:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506244AbgDONWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:22:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54384 "EHLO mail.kernel.org"
+        id S2635994AbgDONWB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:22:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897009AbgDOLfD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:35:03 -0400
+        id S2897014AbgDOLfE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:35:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAEA520857;
-        Wed, 15 Apr 2020 11:35:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 064722137B;
+        Wed, 15 Apr 2020 11:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950502;
-        bh=Pk3LH+KtmLOnF31lo8mARZysIUUWRRZBhV3Ch4KKeVI=;
+        s=default; t=1586950503;
+        bh=WX4FlKyay9j1hWgu6xpp6v0VrZMy0wIewRZTNsRtM3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCQkZOt18wS5nOnSEVmt6zMpF4xPoszlNzFqPApeVIREvWSKvQj6LkWKI/lE2bt35
-         H5/+DFtW6ECEPc+7rbwNCUUKGuNgqDD0bn1p28QjAX29R5zQ+CA2V3LfQr8O7fvtzi
-         RMrEt8TlWp7RAArRoRiLUly9dGKpaIF6jS+MBSXQ=
+        b=XqBtNRbGmcY6ben3e4djsiE6BYEQbjImAOqJoyXDSCamKDLpCUjcKAtzuq0An4Zd8
+         0SA5mbfu1DLzxIDzZd8WT3hF58wgy3u1qCaBPo1Ak4NAECXtDMJwh9JztwZ39MWD0n
+         PjfDtRnT/UEXl197EDaowgJ00O0wtslID9WcnC6s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.6 014/129] f2fs: fix to avoid use-after-free in f2fs_write_multi_pages()
-Date:   Wed, 15 Apr 2020 07:32:49 -0400
-Message-Id: <20200415113445.11881-14-sashal@kernel.org>
+Cc:     "Angus Ainslie (Purism)" <angus@akkea.ca>,
+        Martin Kepplinger <martin.kepplinger@puri.sm>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 015/129] arm64: dts: librem5-devkit: add a vbus supply to usb0
+Date:   Wed, 15 Apr 2020 07:32:50 -0400
+Message-Id: <20200415113445.11881-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -43,56 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: "Angus Ainslie (Purism)" <angus@akkea.ca>
 
-[ Upstream commit 95978caa138948054e06d00bfc3432b518699f1b ]
+[ Upstream commit dde061b865598ad91f50140760e1d224e5045db9 ]
 
-In compress cluster, if physical block number is less than logic
-page number, race condition will cause use-after-free issue as
-described below:
+Without a VBUS supply the dwc3 driver won't go into otg mode.
 
-- f2fs_write_compressed_pages
- - fio.page = cic->rpages[0];
- - f2fs_outplace_write_data
-					- f2fs_compress_write_end_io
-					 - kfree(cic->rpages);
-					 - kfree(cic);
- - fio.page = cic->rpages[1];
-
-f2fs_write_multi_pages+0xfd0/0x1a98
-f2fs_write_data_pages+0x74c/0xb5c
-do_writepages+0x64/0x108
-__writeback_single_inode+0xdc/0x4b8
-writeback_sb_inodes+0x4d0/0xa68
-__writeback_inodes_wb+0x88/0x178
-wb_writeback+0x1f0/0x424
-wb_workfn+0x2f4/0x574
-process_one_work+0x210/0x48c
-worker_thread+0x2e8/0x44c
-kthread+0x110/0x120
-ret_from_fork+0x10/0x18
-
-Fixes: 4c8ff7095bef ("f2fs: support data compression")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: eb4ea0857c83 ("arm64: dts: fsl: librem5: Add a device tree for the Librem5 devkit")
+Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
+Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/compress.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index c847523ab4a2e..927db1205bd81 100644
---- a/fs/f2fs/compress.c
-+++ b/fs/f2fs/compress.c
-@@ -845,7 +845,7 @@ static int f2fs_write_compressed_pages(struct compress_ctx *cc,
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts b/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
+index 764a4cb4e1251..161406445fafe 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
+@@ -750,6 +750,7 @@
+ };
  
- 		blkaddr = datablock_addr(dn.inode, dn.node_page,
- 							dn.ofs_in_node);
--		fio.page = cic->rpages[i];
-+		fio.page = cc->rpages[i];
- 		fio.old_blkaddr = blkaddr;
+ &usb3_phy0 {
++	vbus-supply = <&reg_5v_p>;
+ 	status = "okay";
+ };
  
- 		/* cluster header */
 -- 
 2.20.1
 
