@@ -2,145 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A4B51A9CFB
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:43:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5530C1AA3CA
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:22:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897227AbgDOLmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:42:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57504 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897229AbgDOLhU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:37:20 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A4912166E;
-        Wed, 15 Apr 2020 11:37:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950639;
-        bh=oK4kqRGGJPW2CAwiNXBLNogWEszRqkKuvhC/5JUXd5c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xGTfU2hsHjGY0QLhElESfBBCBKFddo0cDMAt0xK+hnYAexW7V5//RksXbTtwkag+b
-         3NMiA30K1lv/zOTTamZdwE9Zvm+peBK7lrI1/cc1BFWoUw4CMUPNKlbN+2vFdb/uUG
-         BkalmNauLxoZZNaBXQiQJvQvN7GMm9/8vDXcx2Jk=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yicheng Li <yichengli@chromium.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Gwendal Grignou <gwendal@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 129/129] platform/chrome: cros_ec: Query EC protocol version if EC transitions between RO/RW
-Date:   Wed, 15 Apr 2020 07:34:44 -0400
-Message-Id: <20200415113445.11881-129-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
-References: <20200415113445.11881-1-sashal@kernel.org>
+        id S2506130AbgDONMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:12:22 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49297 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2897056AbgDOLfb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:35:31 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 799455C01BB;
+        Wed, 15 Apr 2020 07:35:31 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:35:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/mM2SU
+        3DNTrULjipI3B4lHu8dUK8WJ25IzRa0RC8JYg=; b=yljTMeUo8VPKKTwJp9iKPL
+        oNfXNQqusK2vHh/WWWUhQdoF0DDR9SN2JwBqDaqAzMNfhKF2LJkeeBTUArX2/Avc
+        +p5EH6+6ay52fAee+cSkWyXxQxpdfh2iVgX8QYaqjt2jcDyHl837PJt64uAHpiYI
+        4n6OWxU0q4tqEMaz5AgKwaGDw88ngPh0YikXCtmhGZpmOYJZ5gm55AQ+7nDYY7Ys
+        wI4hiA+PgnokRD8VHjyi2pbT0SWUGdSUVr7wLetWCP/oaztah2OExbcVLv1o8VFN
+        7O0V71i/er/FwfNjAcuwKsFhWJZ8C5d9qoneKU1k91jwttAGnPiNaE/6JvP9K9hw
+        ==
+X-ME-Sender: <xms:g_GWXpOeDHMQL8tGnicKaZjnU9i1xKJZ0DbFHChb-wTGrZmWU_ctCg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdefudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
+    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhf
+    rhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:g_GWXncpbp96rHioCDZRifE14Tu0uK78dtoSuB1D3xl5APu__vLLgA>
+    <xmx:g_GWXuu7fcynl4QtC1QulMwMa86KUuv6Q_7JLtPxrmAzTFblduB8wQ>
+    <xmx:g_GWXgniF0R4BuLjdwr5Ab55XS0RyObZKS16ZtTMyX2JZJIlHbxPMg>
+    <xmx:g_GWXqX_1rJiXaL-v8pONKOG_WC63Xxotzq0gqOLkUupzj9yDKff2Q>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 13C6D3280067;
+        Wed, 15 Apr 2020 07:35:30 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/icl+: Don't enable DDI IO power on a TypeC port in" failed to apply to 5.4-stable tree
+To:     imre.deak@intel.com, jose.souza@intel.com, rodrigo.vivi@intel.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Apr 2020 13:35:21 +0200
+Message-ID: <158695052113996@kroah.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicheng Li <yichengli@chromium.org>
 
-[ Upstream commit 42cd0ab476e2daffc23982c37822a78f9a53cdd5 ]
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-RO and RW of EC may have different EC protocol version. If EC transitions
-between RO and RW, but AP does not reboot (this is true for fingerprint
-microcontroller / cros_fp, but not true for main ec / cros_ec), the AP
-still uses the protocol version queried before transition, which can
-cause problems. In the case of fingerprint microcontroller, this causes
-AP to send the wrong version of EC_CMD_GET_NEXT_EVENT to RO in the
-interrupt handler, which in turn prevents RO to clear the interrupt
-line to AP, in an infinite loop.
+thanks,
 
-Once an EC_HOST_EVENT_INTERFACE_READY is received, we know that there
-might have been a transition between RO and RW, so re-query the protocol.
+greg k-h
 
-Signed-off-by: Yicheng Li <yichengli@chromium.org>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Gwendal Grignou <gwendal@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/platform/chrome/cros_ec.c           | 30 +++++++++++++++++++++
- include/linux/platform_data/cros_ec_proto.h |  4 +++
- 2 files changed, 34 insertions(+)
+------------------ original commit in Linus's tree ------------------
 
-diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
-index 6fc8f2c3ac517..7ee43b2e0654a 100644
---- a/drivers/platform/chrome/cros_ec.c
-+++ b/drivers/platform/chrome/cros_ec.c
-@@ -138,6 +138,24 @@ static int cros_ec_sleep_event(struct cros_ec_device *ec_dev, u8 sleep_event)
- 	return ret;
- }
+From 6e8a36c13382b7165d23928caee8d91c1b301142 Mon Sep 17 00:00:00 2001
+From: Imre Deak <imre.deak@intel.com>
+Date: Mon, 30 Mar 2020 18:22:44 +0300
+Subject: [PATCH] drm/i915/icl+: Don't enable DDI IO power on a TypeC port in
+ TBT mode
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The DDI IO power well must not be enabled for a TypeC port in TBT mode,
+ensure this during driver loading/system resume.
+
+This gets rid of error messages like
+[drm] *ERROR* power well DDI E TC2 IO state mismatch (refcount 1/enabled 0)
+
+and avoids leaking the power ref when disabling the output.
+
+Cc: <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200330152244.11316-1-imre.deak@intel.com
+(cherry picked from commit f77a2db27f26c3ccba0681f7e89fef083718f07f)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+
+diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+index 73d0f4648c06..5202fdec8e0a 100644
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -1869,7 +1869,11 @@ static void intel_ddi_get_power_domains(struct intel_encoder *encoder,
+ 		return;
  
-+static int cros_ec_ready_event(struct notifier_block *nb,
-+			       unsigned long queued_during_suspend,
-+			       void *_notify)
-+{
-+	struct cros_ec_device *ec_dev = container_of(nb, struct cros_ec_device,
-+						     notifier_ready);
-+	u32 host_event = cros_ec_get_host_event(ec_dev);
+ 	dig_port = enc_to_dig_port(encoder);
+-	intel_display_power_get(dev_priv, dig_port->ddi_io_power_domain);
 +
-+	if (host_event & EC_HOST_EVENT_MASK(EC_HOST_EVENT_INTERFACE_READY)) {
-+		mutex_lock(&ec_dev->lock);
-+		cros_ec_query_all(ec_dev);
-+		mutex_unlock(&ec_dev->lock);
-+		return NOTIFY_OK;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
- /**
-  * cros_ec_register() - Register a new ChromeOS EC, using the provided info.
-  * @ec_dev: Device to register.
-@@ -237,6 +255,18 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 		dev_dbg(ec_dev->dev, "Error %d clearing sleep event to ec",
- 			err);
++	if (!intel_phy_is_tc(dev_priv, phy) ||
++	    dig_port->tc_mode != TC_PORT_TBT_ALT)
++		intel_display_power_get(dev_priv,
++					dig_port->ddi_io_power_domain);
  
-+	if (ec_dev->mkbp_event_supported) {
-+		/*
-+		 * Register the notifier for EC_HOST_EVENT_INTERFACE_READY
-+		 * event.
-+		 */
-+		ec_dev->notifier_ready.notifier_call = cros_ec_ready_event;
-+		err = blocking_notifier_chain_register(&ec_dev->event_notifier,
-+						      &ec_dev->notifier_ready);
-+		if (err)
-+			return err;
-+	}
-+
- 	dev_info(dev, "Chrome EC device registered\n");
- 
- 	return 0;
-diff --git a/include/linux/platform_data/cros_ec_proto.h b/include/linux/platform_data/cros_ec_proto.h
-index ba59147701918..3832433266762 100644
---- a/include/linux/platform_data/cros_ec_proto.h
-+++ b/include/linux/platform_data/cros_ec_proto.h
-@@ -125,6 +125,9 @@ struct cros_ec_command {
-  * @host_event_wake_mask: Mask of host events that cause wake from suspend.
-  * @last_event_time: exact time from the hard irq when we got notified of
-  *     a new event.
-+ * @notifier_ready: The notifier_block to let the kernel re-query EC
-+ *		    communication protocol when the EC sends
-+ *		    EC_HOST_EVENT_INTERFACE_READY.
-  * @ec: The platform_device used by the mfd driver to interface with the
-  *      main EC.
-  * @pd: The platform_device used by the mfd driver to interface with the
-@@ -166,6 +169,7 @@ struct cros_ec_device {
- 	u32 host_event_wake_mask;
- 	u32 last_resume_result;
- 	ktime_t last_event_time;
-+	struct notifier_block notifier_ready;
- 
- 	/* The platform devices used by the mfd driver */
- 	struct platform_device *ec;
--- 
-2.20.1
+ 	/*
+ 	 * AUX power is only needed for (e)DP mode, and for HDMI mode on TC
 
