@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DB61AA0C1
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B8631AA0BE
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:33:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369502AbgDOMam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S369510AbgDOMam (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 15 Apr 2020 08:30:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37804 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409105AbgDOLou (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2409106AbgDOLou (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 15 Apr 2020 07:44:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF16F20768;
-        Wed, 15 Apr 2020 11:44:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDA7C217D8;
+        Wed, 15 Apr 2020 11:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951088;
-        bh=aVfigafMAvv1hgwZCshZyIH+wEjppUtP4c/qdhe1li8=;
+        s=default; t=1586951089;
+        bh=x3s5st2H0lALnwOPZGbSBw57FqPK0nzULfLkX85UHk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NBY1kkjINEGxyARbbaM9Df0l9lZwIsMnAkZXJsT3jLO1c43hI5tx8AZAAcmjg+aZK
-         4KERsWhqil5jAu2B5L+yl6kEwuhRRl+uyUevExfcb2WTqb0hKwuAsiYX8u4O7xnwUk
-         p34OMG1DF6Hxu8q5kD98WLdwWPV3k9t2dUjyot1s=
+        b=0UBoi2eRYqNvCwzO3tdaNoLAjVRvfCXTRBkaCFp+IqKJrYWO0GOG6coAMwFRDo4fb
+         jrUoqnicsUeuXCJ23P9bZxrkbfUYdQ45DVCWeLwtCopFEtxLxsfv14BUD0UyFaYOph
+         jRQDZX3N+45DOjLGDrCjWmiVRFu+eec5TIpPEUdU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sahitya Tummala <stummala@codeaurora.org>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 05/84] f2fs: fix the panic in do_checkpoint()
-Date:   Wed, 15 Apr 2020 07:43:22 -0400
-Message-Id: <20200415114442.14166-5-sashal@kernel.org>
+Cc:     "Angus Ainslie (Purism)" <angus@akkea.ca>,
+        Martin Kepplinger <martin.kepplinger@puri.sm>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 06/84] arm64: dts: librem5-devkit: add a vbus supply to usb0
+Date:   Wed, 15 Apr 2020 07:43:23 -0400
+Message-Id: <20200415114442.14166-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114442.14166-1-sashal@kernel.org>
 References: <20200415114442.14166-1-sashal@kernel.org>
@@ -44,132 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sahitya Tummala <stummala@codeaurora.org>
+From: "Angus Ainslie (Purism)" <angus@akkea.ca>
 
-[ Upstream commit bf22c3cc8ce71454dddd772284773306a68031d8 ]
+[ Upstream commit dde061b865598ad91f50140760e1d224e5045db9 ]
 
-There could be a scenario where f2fs_sync_meta_pages() will not
-ensure that all F2FS_DIRTY_META pages are submitted for IO. Thus,
-resulting in the below panic in do_checkpoint() -
+Without a VBUS supply the dwc3 driver won't go into otg mode.
 
-f2fs_bug_on(sbi, get_pages(sbi, F2FS_DIRTY_META) &&
-				!f2fs_cp_error(sbi));
-
-This can happen in a low-memory condition, where shrinker could
-also be doing the writepage operation (stack shown below)
-at the same time when checkpoint is running on another core.
-
-schedule
-down_write
-f2fs_submit_page_write -> by this time, this page in page cache is tagged
-			as PAGECACHE_TAG_WRITEBACK and PAGECACHE_TAG_DIRTY
-			is cleared, due to which f2fs_sync_meta_pages()
-			cannot sync this page in do_checkpoint() path.
-f2fs_do_write_meta_page
-__f2fs_write_meta_page
-f2fs_write_meta_page
-shrink_page_list
-shrink_inactive_list
-shrink_node_memcg
-shrink_node
-kswapd
-
-Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: eb4ea0857c83 ("arm64: dts: fsl: librem5: Add a device tree for the Librem5 devkit")
+Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
+Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c | 16 +++++++---------
- fs/f2fs/f2fs.h       |  2 +-
- fs/f2fs/super.c      |  2 +-
- 3 files changed, 9 insertions(+), 11 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index a0eef95b9e0ed..410f5c2c6ef17 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -1250,20 +1250,20 @@ static void unblock_operations(struct f2fs_sb_info *sbi)
- 	f2fs_unlock_all(sbi);
- }
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts b/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
+index 98cfe67b7db7b..19b427f68dad2 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
+@@ -743,6 +743,7 @@
+ };
  
--void f2fs_wait_on_all_pages_writeback(struct f2fs_sb_info *sbi)
-+void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type)
- {
- 	DEFINE_WAIT(wait);
- 
- 	for (;;) {
- 		prepare_to_wait(&sbi->cp_wait, &wait, TASK_UNINTERRUPTIBLE);
- 
--		if (!get_pages(sbi, F2FS_WB_CP_DATA))
-+		if (!get_pages(sbi, type))
- 			break;
- 
- 		if (unlikely(f2fs_cp_error(sbi)))
- 			break;
- 
--		io_schedule_timeout(5*HZ);
-+		io_schedule_timeout(HZ/50);
- 	}
- 	finish_wait(&sbi->cp_wait, &wait);
- }
-@@ -1384,8 +1384,6 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 
- 	/* Flush all the NAT/SIT pages */
- 	f2fs_sync_meta_pages(sbi, META, LONG_MAX, FS_CP_META_IO);
--	f2fs_bug_on(sbi, get_pages(sbi, F2FS_DIRTY_META) &&
--					!f2fs_cp_error(sbi));
- 
- 	/*
- 	 * modify checkpoint
-@@ -1493,11 +1491,11 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 
- 	/* Here, we have one bio having CP pack except cp pack 2 page */
- 	f2fs_sync_meta_pages(sbi, META, LONG_MAX, FS_CP_META_IO);
--	f2fs_bug_on(sbi, get_pages(sbi, F2FS_DIRTY_META) &&
--					!f2fs_cp_error(sbi));
-+	/* Wait for all dirty meta pages to be submitted for IO */
-+	f2fs_wait_on_all_pages(sbi, F2FS_DIRTY_META);
- 
- 	/* wait for previous submitted meta pages writeback */
--	f2fs_wait_on_all_pages_writeback(sbi);
-+	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);
- 
- 	/* flush all device cache */
- 	err = f2fs_flush_device_cache(sbi);
-@@ -1506,7 +1504,7 @@ static int do_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc)
- 
- 	/* barrier and flush checkpoint cp pack 2 page if it can */
- 	commit_checkpoint(sbi, ckpt, start_blk);
--	f2fs_wait_on_all_pages_writeback(sbi);
-+	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);
- 
- 	/*
- 	 * invalidate intermediate page cache borrowed from meta inode
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 9046432b87c2d..1a8b68ceaa62f 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3185,7 +3185,7 @@ int f2fs_get_valid_checkpoint(struct f2fs_sb_info *sbi);
- void f2fs_update_dirty_page(struct inode *inode, struct page *page);
- void f2fs_remove_dirty_inode(struct inode *inode);
- int f2fs_sync_dirty_inodes(struct f2fs_sb_info *sbi, enum inode_type type);
--void f2fs_wait_on_all_pages_writeback(struct f2fs_sb_info *sbi);
-+void f2fs_wait_on_all_pages(struct f2fs_sb_info *sbi, int type);
- int f2fs_write_checkpoint(struct f2fs_sb_info *sbi, struct cp_control *cpc);
- void f2fs_init_ino_entry_info(struct f2fs_sb_info *sbi);
- int __init f2fs_create_checkpoint_caches(void);
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index ea8dbf1458c99..28441f4971b8d 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1105,7 +1105,7 @@ static void f2fs_put_super(struct super_block *sb)
- 	/* our cp_error case, we can wait for any writeback page */
- 	f2fs_flush_merged_writes(sbi);
- 
--	f2fs_wait_on_all_pages_writeback(sbi);
-+	f2fs_wait_on_all_pages(sbi, F2FS_WB_CP_DATA);
- 
- 	f2fs_bug_on(sbi, sbi->fsync_node_num);
+ &usb3_phy0 {
++	vbus-supply = <&reg_5v_p>;
+ 	status = "okay";
+ };
  
 -- 
 2.20.1
