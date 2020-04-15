@@ -2,87 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12FFF1AB059
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 20:10:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EBD31AB07C
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 20:21:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405879AbgDOSIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 14:08:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44736 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404936AbgDOSIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 14:08:10 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58187C061A0C
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 11:08:10 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id d24so300442pll.8
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 11:08:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=YDHyq/Q1NFvf4g+5tWc+Y7Lxmu+Mz9adPPrk9AeWm6A=;
-        b=Za4TGYuOVvVItnZcBX7h1YJRkcY1q4tpZEVVHewKJoAG29HtznS6uZaenqj9rERo0A
-         u0cke2SBNksqpU6HTgba5yfC5tItp8n0HIvfjlv4UJoJxTkvAHuLR/vgTnfqzRVW4KFG
-         hsWZq/VEHcXHbtMmZKTbEAJ3NVY2fhSb8k3xY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=YDHyq/Q1NFvf4g+5tWc+Y7Lxmu+Mz9adPPrk9AeWm6A=;
-        b=EpOdLY4OCZBk1m74gDMa+DzQJNTAwiTbKjOVRciqo1qxJQYf5bJoHVLKK34TFjFy0T
-         hT3JzEVm4z8RxvbXdqeu4xSoU1F8zqq18c/vZe3o5OCBLVLp77kbU+ErTEiNQHEZVUYu
-         laDm5lryImEn+f+0KyLi3wcdvfAZ771f27cAwx29AUZJ/cwku3RhG4SJrOyfLM8N8YZt
-         dtkJ27UdnAi398w7LEesvi8+dN0gNf/K1KaYhhEleZA29o44/EjD0GRWqxIN9gfkhFZx
-         Eyh1l4LBHkHhie5csWLGDuoS+Ql1eFLpnRzAtPLPT0CIaLBrpLLGJmilnioxSr+yH+qd
-         kLMA==
-X-Gm-Message-State: AGi0PuY5JARg3QPAyup6KfGWazHVyhmiSGYu8/SwVVJ9AO3YPoZyyY6b
-        3shzIN5uKEwky1K/nEHnF4D/KA==
-X-Google-Smtp-Source: APiQypLcLfvNOWCbXfRAc0v6ygfVjFdhoM13aKQwaUMf6w3W4Mxi9iSkljEimGVNT4u0cYLUSQDgWA==
-X-Received: by 2002:a17:90a:2602:: with SMTP id l2mr547841pje.110.1586974089803;
-        Wed, 15 Apr 2020 11:08:09 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id e12sm14302203pfn.194.2020.04.15.11.08.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Apr 2020 11:08:08 -0700 (PDT)
-Date:   Wed, 15 Apr 2020 11:08:07 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Guenter Roeck <groeck@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        kbuild test robot <lkp@intel.com>,
-        cros-kernel-buildreports@googlegroups.com, kbuild-all@lists.01.org,
-        clang-built-linux <clang-built-linux@googlegroups.com>
-Subject: Re: [chrome-os:chromeos-4.19 21350/21402]
- drivers/misc/echo/echo.c:384:27: error: equality comparison with extraneous
- parentheses
-Message-ID: <202004151103.B419F67@keescook>
-References: <202004150637.9F62YI28%lkp@intel.com>
- <20200415002618.GB19509@ubuntu-s3-xlarge-x86>
- <CABXOdTd-TSKR+x4ALQXAD9VGxd4sQCCVC9hzdGamyUr-ndBJ+w@mail.gmail.com>
- <CAKwvOdnOuMcjzsqTt2aVtoiKN3L9zOONGX-4BJgRWedeWspWTA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKwvOdnOuMcjzsqTt2aVtoiKN3L9zOONGX-4BJgRWedeWspWTA@mail.gmail.com>
+        id S2441415AbgDOSUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 14:20:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38052 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2441402AbgDOST5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 14:19:57 -0400
+Received: from paulmck-ThinkPad-P72.home (50-39-105-78.bvtn.or.frontiernet.net [50.39.105.78])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4F55221E9;
+        Wed, 15 Apr 2020 18:19:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586974797;
+        bh=agncuew4ZdoCbDCq4QOkdrOq37rTMuNaw6J1yUgTE+k=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=WTzX5ijiwbfh1nOuzQxy+vNeNB92m0yBeEisPdDcNb1GimTKB14BiJVmN5AMW89ZW
+         /EUX4GuRqZFPkei2R6qK75SWTfCR7IaSt+BjnmVpaSoez9GV95aRUQiCz6wDQNEEam
+         Y8Pep60Q+0qRU5q9q6yHVomZqTMMR8GlxyrpGzSI=
+From:   paulmck@kernel.org
+To:     rcu@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, kernel-team@fb.com, mingo@kernel.org,
+        jiangshanlai@gmail.com, dipankar@in.ibm.com,
+        akpm@linux-foundation.org, mathieu.desnoyers@efficios.com,
+        josh@joshtriplett.org, tglx@linutronix.de, peterz@infradead.org,
+        rostedt@goodmis.org, dhowells@redhat.com, edumazet@google.com,
+        fweisbec@gmail.com, oleg@redhat.com, joel@joelfernandes.org,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "# 5 . 5 . x" <stable@vger.kernel.org>
+Subject: [PATCH v4 tip/core/rcu 38/38] rcu: Don't acquire lock in NMI handler in rcu_nmi_enter_common()
+Date:   Wed, 15 Apr 2020 11:19:41 -0700
+Message-Id: <20200415181941.11653-38-paulmck@kernel.org>
+X-Mailer: git-send-email 2.9.5
+In-Reply-To: <20200415181856.GA11037@paulmck-ThinkPad-P72>
+References: <20200415181856.GA11037@paulmck-ThinkPad-P72>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 10:51:37AM -0700, 'Nick Desaulniers' via Clang Built Linux wrote:
-> `git describe --contains "$tag" | sed 's/~.*//'` is my trick for
-> finding the first tag that contained a commit.
+From: "Paul E. McKenney" <paulmck@kernel.org>
 
-BTW, this might be a useful tweak: since I have so many tags in my tree
-beyond just Linus's tags (e.g. from linux-next), I also include "--match
-'v*'". My ~/bin/git-contains is:
+The rcu_nmi_enter_common() function can be invoked both in interrupt
+and NMI handlers.  If it is invoked from process context (as opposed
+to userspace or idle context) on a nohz_full CPU, it might acquire the
+CPU's leaf rcu_node structure's ->lock.  Because this lock is held only
+with interrupts disabled, this is safe from an interrupt handler, but
+doing so from an NMI handler can result in self-deadlock.
 
-git describe --match 'v*' --contains "$1" | cut -d~ -f1 | cut -d^ -f1
+This commit therefore adds "irq" to the "if" condition so as to only
+acquire the ->lock from irq handlers or process context, never from
+an NMI handler.
 
-(without this, my "git contains 85dc2c65e6c9" would report "next-20180927")
+Fixes: 5b14557b073c ("rcu: Avoid tick_dep_set_cpu() misordering")
+Reported-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: <stable@vger.kernel.org> # 5.5.x
+---
+ kernel/rcu/tree.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 7dd7a17..573fd78 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -876,7 +876,7 @@ static __always_inline void rcu_nmi_enter_common(bool irq)
+ 			rcu_cleanup_after_idle();
+ 
+ 		incby = 1;
+-	} else if (tick_nohz_full_cpu(rdp->cpu) &&
++	} else if (irq && tick_nohz_full_cpu(rdp->cpu) &&
+ 		   rdp->dynticks_nmi_nesting == DYNTICK_IRQ_NONIDLE &&
+ 		   READ_ONCE(rdp->rcu_urgent_qs) &&
+ 		   !READ_ONCE(rdp->rcu_forced_tick)) {
 -- 
-Kees Cook
+2.9.5
+
