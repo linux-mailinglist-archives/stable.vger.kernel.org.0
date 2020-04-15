@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 123351AA08C
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1151D1AA08A
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S369362AbgDOM2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:28:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38270 "EHLO mail.kernel.org"
+        id S369329AbgDOM2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:28:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409125AbgDOLpF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:45:05 -0400
+        id S2409130AbgDOLpH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:45:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D4C02137B;
-        Wed, 15 Apr 2020 11:45:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F20D206A2;
+        Wed, 15 Apr 2020 11:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951105;
-        bh=yZRJLnU4ErUB6W+jl5bb662sTl3GJZbnFAsMghgK1O4=;
+        s=default; t=1586951106;
+        bh=ha+CAQ7iEhlPF52xa10ZLaHKRCJQ1ZS6XYdgwGYgaWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JhD9O9eD8hK7vfx3CuZwgXPgHLg++G45LFXntPY1DCLU9Oz+e3ZQgje0H+sxuJRRJ
-         D5mCzK6WnEPnn1hlITuBC7FJTgHhwzWA4+MrxSpbh894Q08Y1QXaUQ5Dbd6Tqoz/Wg
-         0CkFoTChmuay/OcukbaUcH57sfMegUeeYpX2sKCY=
+        b=l/8fL2X6kdkDQlXB/dOQYmLiUx4eOSYfzzO2iaRV0tCsZP0iyOsbHytu+kPQ3xFT+
+         o4GxODXqBtazOZZ2hB4eNatocMF+/jd1NjA4dhhCm9SsykWxOpdHpcDSFWUgI0HFwP
+         w+XctRZ4CCSWbviuqTUhq2v5WsQh9rYDKmsfE9q8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 20/84] ARM: dts: rockchip: fix lvds-encoder ports subnode for rk3188-bqedison2qc
-Date:   Wed, 15 Apr 2020 07:43:37 -0400
-Message-Id: <20200415114442.14166-20-sashal@kernel.org>
+Cc:     Michael Roth <mdroth@linux.vnet.ibm.com>, linuxppc-dev@ozlabs.org,
+        David Gibson <david@gibson.dropbear.id.au>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 21/84] KVM: PPC: Book3S HV: Fix H_CEDE return code for nested guests
+Date:   Wed, 15 Apr 2020 07:43:38 -0400
+Message-Id: <20200415114442.14166-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114442.14166-1-sashal@kernel.org>
 References: <20200415114442.14166-1-sashal@kernel.org>
@@ -44,71 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
 
-[ Upstream commit 1a7e99599dffd836fcb720cdc0eaf3cd43d7af4a ]
+[ Upstream commit 1f50cc1705350a4697923203fedd7d8fb1087fe2 ]
 
-A test with the command below gives this error:
+The h_cede_tm kvm-unit-test currently fails when run inside an L1 guest
+via the guest/nested hypervisor.
 
-arch/arm/boot/dts/rk3188-bqedison2qc.dt.yaml: lvds-encoder:
-'ports' is a required property
+  ./run-tests.sh -v
+  ...
+  TESTNAME=h_cede_tm TIMEOUT=90s ACCEL= ./powerpc/run powerpc/tm.elf -smp 2,threads=2 -machine cap-htm=on -append "h_cede_tm"
+  FAIL h_cede_tm (2 tests, 1 unexpected failures)
 
-Fix error by adding a ports wrapper for port@0 and port@1
-inside the 'lvds-encoder' node for rk3188-bqedison2qc.
+While the test relates to transactional memory instructions, the actual
+failure is due to the return code of the H_CEDE hypercall, which is
+reported as 224 instead of 0. This happens even when no TM instructions
+are issued.
 
-make ARCH=arm dtbs_check
-DT_SCHEMA_FILES=Documentation/devicetree/bindings/display/
-bridge/lvds-codec.yaml
+224 is the value placed in r3 to execute a hypercall for H_CEDE, and r3
+is where the caller expects the return code to be placed upon return.
 
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20200316174647.5598-1-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+In the case of guest running under a nested hypervisor, issuing H_CEDE
+causes a return from H_ENTER_NESTED. In this case H_CEDE is
+specially-handled immediately rather than later in
+kvmppc_pseries_do_hcall() as with most other hcalls, but we forget to
+set the return code for the caller, hence why kvm-unit-test sees the
+224 return code and reports an error.
+
+Guest kernels generally don't check the return value of H_CEDE, so
+that likely explains why this hasn't caused issues outside of
+kvm-unit-tests so far.
+
+Fix this by setting r3 to 0 after we finish processing the H_CEDE.
+
+RHBZ: 1778556
+
+Fixes: 4bad77799fed ("KVM: PPC: Book3S HV: Handle hypercalls correctly when nested")
+Cc: linuxppc-dev@ozlabs.org
+Cc: David Gibson <david@gibson.dropbear.id.au>
+Cc: Paul Mackerras <paulus@ozlabs.org>
+Signed-off-by: Michael Roth <mdroth@linux.vnet.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188-bqedison2qc.dts | 27 ++++++++++++++----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ arch/powerpc/kvm/book3s_hv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/rk3188-bqedison2qc.dts b/arch/arm/boot/dts/rk3188-bqedison2qc.dts
-index 8afb2fd5d9f1b..66a0ff196eb1f 100644
---- a/arch/arm/boot/dts/rk3188-bqedison2qc.dts
-+++ b/arch/arm/boot/dts/rk3188-bqedison2qc.dts
-@@ -58,20 +58,25 @@
- 
- 	lvds-encoder {
- 		compatible = "ti,sn75lvds83", "lvds-encoder";
--		#address-cells = <1>;
--		#size-cells = <0>;
- 
--		port@0 {
--			reg = <0>;
--			lvds_in_vop0: endpoint {
--				remote-endpoint = <&vop0_out_lvds>;
-+		ports {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			port@0 {
-+				reg = <0>;
-+
-+				lvds_in_vop0: endpoint {
-+					remote-endpoint = <&vop0_out_lvds>;
-+				};
- 			};
--		};
- 
--		port@1 {
--			reg = <1>;
--			lvds_out_panel: endpoint {
--				remote-endpoint = <&panel_in_lvds>;
-+			port@1 {
-+				reg = <1>;
-+
-+				lvds_out_panel: endpoint {
-+					remote-endpoint = <&panel_in_lvds>;
-+				};
- 			};
- 		};
- 	};
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 36abbe3c346df..e2183fed947d4 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -3623,6 +3623,7 @@ int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
+ 		if (trap == BOOK3S_INTERRUPT_SYSCALL && !vcpu->arch.nested &&
+ 		    kvmppc_get_gpr(vcpu, 3) == H_CEDE) {
+ 			kvmppc_nested_cede(vcpu);
++			kvmppc_set_gpr(vcpu, 3, 0);
+ 			trap = 0;
+ 		}
+ 	} else {
 -- 
 2.20.1
 
