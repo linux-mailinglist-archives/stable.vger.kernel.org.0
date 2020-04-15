@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 711221AA3C4
+	by mail.lfdr.de (Postfix) with ESMTP id E7FD31AA3C5
 	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504503AbgDONMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:12:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54800 "EHLO mail.kernel.org"
+        id S2504688AbgDONMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:12:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897065AbgDOLfi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2897066AbgDOLfi (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 15 Apr 2020 07:35:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D27C720737;
-        Wed, 15 Apr 2020 11:35:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7D2A20936;
+        Wed, 15 Apr 2020 11:35:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950536;
-        bh=gyrgOBtnruqsRqwFRaUPLR8jArzCvKh/o+Fs5Qs5DSA=;
+        s=default; t=1586950537;
+        bh=0H5qTCo9MCcBp0sS1kS6EKUNGIM5n9EoGASG7YstmfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBeDPkNzfw5+pi5zn64wqerDKZU6LHJNpMUSq65VcaBPReEqElgCjEB6I3lQXqixL
-         IvI+txdEbPc13GLA2tkKMbyFez4D+GPkWkew6mt8zb/uXiIXz1x4nvHQlnxTPUshmG
-         wGCpCmZdO6zIi0b9XCTU3L97jX0vkB8CKwsVzOtM=
+        b=WUrA3MaI94uMqVlpAoZEBD6LOx2C7UOFngShb6ph+GHbPZkA8Nliy1lo7PFhiRkK5
+         PWSw6gXJwDvS6dP0CqQpRh5Sgg8G90K+uOZ/w7Ic1zmpu//NG06qFaqA/o5eX21bka
+         fap22JLI9+6MBYHf42Ej5B6hPV+reawojua1b80M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+Cc:     Sahitya Tummala <stummala@codeaurora.org>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.6 044/129] f2fs: fix to update f2fs_super_block fields under sb_lock
-Date:   Wed, 15 Apr 2020 07:33:19 -0400
-Message-Id: <20200415113445.11881-44-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 045/129] f2fs: Fix mount failure due to SPO after a successful online resize FS
+Date:   Wed, 15 Apr 2020 07:33:20 -0400
+Message-Id: <20200415113445.11881-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -43,58 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Sahitya Tummala <stummala@codeaurora.org>
 
-[ Upstream commit a4ba5dfc5c88e49bb03385abfdd28c5a0acfbb54 ]
+[ Upstream commit 682756827501dc52593bf490f2d437c65ec9efcb ]
 
-Fields in struct f2fs_super_block should be updated under coverage
-of sb_lock, fix to adjust update_sb_metadata() for that rule.
+Even though online resize is successfully done, a SPO immediately
+after resize, still causes below error in the next mount.
 
-Fixes: 04f0b2eaa3b3 ("f2fs: ioctl for removing a range from F2FS")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
+[   11.294650] F2FS-fs (sda8): Wrong user_block_count: 2233856
+[   11.300272] F2FS-fs (sda8): Failed to get valid F2FS checkpoint
+
+This is because after FS metadata is updated in update_fs_metadata()
+if the SBI_IS_DIRTY is not dirty, then CP will not be done to reflect
+the new user_block_count.
+
+Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ fs/f2fs/gc.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index db8725d473b52..9cff2502e3bc6 100644
+index 9cff2502e3bc6..2f645c591a000 100644
 --- a/fs/f2fs/gc.c
 +++ b/fs/f2fs/gc.c
-@@ -1434,12 +1434,19 @@ static int free_segment_range(struct f2fs_sb_info *sbi, unsigned int start,
- static void update_sb_metadata(struct f2fs_sb_info *sbi, int secs)
- {
- 	struct f2fs_super_block *raw_sb = F2FS_RAW_SUPER(sbi);
--	int section_count = le32_to_cpu(raw_sb->section_count);
--	int segment_count = le32_to_cpu(raw_sb->segment_count);
--	int segment_count_main = le32_to_cpu(raw_sb->segment_count_main);
--	long long block_count = le64_to_cpu(raw_sb->block_count);
-+	int section_count;
-+	int segment_count;
-+	int segment_count_main;
-+	long long block_count;
- 	int segs = secs * sbi->segs_per_sec;
- 
-+	down_write(&sbi->sb_lock);
-+
-+	section_count = le32_to_cpu(raw_sb->section_count);
-+	segment_count = le32_to_cpu(raw_sb->segment_count);
-+	segment_count_main = le32_to_cpu(raw_sb->segment_count_main);
-+	block_count = le64_to_cpu(raw_sb->block_count);
-+
- 	raw_sb->section_count = cpu_to_le32(section_count + secs);
- 	raw_sb->segment_count = cpu_to_le32(segment_count + segs);
- 	raw_sb->segment_count_main = cpu_to_le32(segment_count_main + segs);
-@@ -1453,6 +1460,8 @@ static void update_sb_metadata(struct f2fs_sb_info *sbi, int secs)
- 		raw_sb->devs[last_dev].total_segments =
- 						cpu_to_le32(dev_segs + segs);
+@@ -1579,11 +1579,17 @@ int f2fs_resize_fs(struct f2fs_sb_info *sbi, __u64 block_count)
+ 		goto out;
  	}
-+
-+	up_write(&sbi->sb_lock);
- }
  
- static void update_fs_metadata(struct f2fs_sb_info *sbi, int secs)
++	mutex_lock(&sbi->cp_mutex);
+ 	update_fs_metadata(sbi, -secs);
+ 	clear_sbi_flag(sbi, SBI_IS_RESIZEFS);
++	set_sbi_flag(sbi, SBI_IS_DIRTY);
++	mutex_unlock(&sbi->cp_mutex);
++
+ 	err = f2fs_sync_fs(sbi->sb, 1);
+ 	if (err) {
++		mutex_lock(&sbi->cp_mutex);
+ 		update_fs_metadata(sbi, secs);
++		mutex_unlock(&sbi->cp_mutex);
+ 		update_sb_metadata(sbi, secs);
+ 		f2fs_commit_super(sbi, false);
+ 	}
 -- 
 2.20.1
 
