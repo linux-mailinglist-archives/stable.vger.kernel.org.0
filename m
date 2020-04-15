@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58DC01AA272
+	by mail.lfdr.de (Postfix) with ESMTP id C59FB1AA273
 	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441303AbgDOMzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:55:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57114 "EHLO mail.kernel.org"
+        id S2441307AbgDOMzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:55:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897204AbgDOLhF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:37:05 -0400
+        id S2897207AbgDOLhG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:37:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41E6620857;
-        Wed, 15 Apr 2020 11:37:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77A50214AF;
+        Wed, 15 Apr 2020 11:37:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950625;
-        bh=0NX5m65ZX918gnHGu6BeQVuUAFP1/jHZfec34UtVYrg=;
+        s=default; t=1586950626;
+        bh=eOjHPZ2hM8yY0lMQEmFgXJ6RCmnDAUY8hOw/b5roVIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JeB0uawFSum/O1VKR6XkQGVfWRquKsYQ7Qo+pd0HiZPqSi1EG9QIpPNxR8BzVfEIX
-         2V2LXiIo7j+VVrBU95cbZD6P6ZH/oQijxkRgSvU8v95OFsIIQB/BmH56yQdzJhm2Qs
-         X+sZERbfVx0ECT3i+SXysjFKP0njhP/KTz3sUTcI=
+        b=BFKRXdbidmVfYJiFlIgYZFZXJzwme/vKCZUUf2mVV6vuDPoQDwmWgF4IydPsaTnTx
+         f/lb7Y/b/wje1BNWzPe6ns/Bok/WJQeyxIF1EOe/mkF8MjuzRTm72mpvQCAq1O7VLg
+         1jQMb2Wfxq0Y50Mz0ollNxfCD2X7BBs2/68dkJfo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Liu Yi L <yi.l.liu@intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.6 116/129] iommu/vt-d: Fix page request descriptor size
-Date:   Wed, 15 Apr 2020 07:34:31 -0400
-Message-Id: <20200415113445.11881-116-sashal@kernel.org>
+Cc:     Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 117/129] ovl: fix value of i_ino for lower hardlink corner case
+Date:   Wed, 15 Apr 2020 07:34:32 -0400
+Message-Id: <20200415113445.11881-117-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -46,38 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Pan <jacob.jun.pan@linux.intel.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit 52355fb1919ef7ed9a38e0f3de6e928de1f57217 ]
+[ Upstream commit 300b124fcf6ad2cd99a7b721e0f096785e0a3134 ]
 
-Intel VT-d might support PRS (Page Reqest Support) when it's
-running in the scalable mode. Each page request descriptor
-occupies 32 bytes and is 32-bytes aligned. The page request
-descriptor offset mask should be 32-bytes aligned.
+Commit 6dde1e42f497 ("ovl: make i_ino consistent with st_ino in more
+cases"), relaxed the condition nfs_export=on in order to set the value of
+i_ino to xino map of real ino.
 
-Fixes: 5b438f4ba315d ("iommu/vt-d: Support page request in scalable mode")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Specifically, it also relaxed the pre-condition that index=on for
+consistent i_ino. This opened the corner case of lower hardlink in
+ovl_get_inode(), which calls ovl_fill_inode() with ino=0 and then
+ovl_init_inode() is called to set i_ino to lower real ino without the xino
+mapping.
+
+Pass the correct values of ino;fsid in this case to ovl_fill_inode(), so it
+can initialize i_ino correctly.
+
+Fixes: 6dde1e42f497 ("ovl: make i_ino consistent with st_ino in more ...")
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-svm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/overlayfs/inode.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/intel-svm.c b/drivers/iommu/intel-svm.c
-index fc7d78876e021..2998418f0a383 100644
---- a/drivers/iommu/intel-svm.c
-+++ b/drivers/iommu/intel-svm.c
-@@ -531,7 +531,7 @@ struct page_req_dsc {
- 	u64 priv_data[2];
- };
- 
--#define PRQ_RING_MASK ((0x1000 << PRQ_ORDER) - 0x10)
-+#define PRQ_RING_MASK	((0x1000 << PRQ_ORDER) - 0x20)
- 
- static bool access_error(struct vm_area_struct *vma, struct page_req_dsc *req)
- {
+diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
+index 79e8994e3bc1a..3f993c114829e 100644
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -891,7 +891,7 @@ struct inode *ovl_get_inode(struct super_block *sb,
+ 	struct dentry *lowerdentry = lowerpath ? lowerpath->dentry : NULL;
+ 	bool bylower = ovl_hash_bylower(sb, upperdentry, lowerdentry,
+ 					oip->index);
+-	int fsid = bylower ? oip->lowerpath->layer->fsid : 0;
++	int fsid = bylower ? lowerpath->layer->fsid : 0;
+ 	bool is_dir, metacopy = false;
+ 	unsigned long ino = 0;
+ 	int err = oip->newinode ? -EEXIST : -ENOMEM;
+@@ -941,6 +941,8 @@ struct inode *ovl_get_inode(struct super_block *sb,
+ 			err = -ENOMEM;
+ 			goto out_err;
+ 		}
++		ino = realinode->i_ino;
++		fsid = lowerpath->layer->fsid;
+ 	}
+ 	ovl_fill_inode(inode, realinode->i_mode, realinode->i_rdev, ino, fsid);
+ 	ovl_inode_init(inode, upperdentry, lowerdentry, oip->lowerdata);
 -- 
 2.20.1
 
