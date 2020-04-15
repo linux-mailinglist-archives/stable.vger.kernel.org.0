@@ -2,112 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B5FE1A9C5E
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:35:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 711B01A9CBF
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:39:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408861AbgDOLem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:34:42 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59239 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2408856AbgDOLej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:34:39 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0D2F15C015B;
-        Wed, 15 Apr 2020 07:34:38 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:34:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=AtqWIO
-        2WbJdpkSFOapVeuFgLlusdj6KopsOoqBF8pS0=; b=TEKoOU5n547rVlgawkbyCC
-        Iyip7ZeALrvGzAaqbWB1ffDsTIHWSDJLRasP5ZUIHWtR071m8lJ8ML8V/mi91mrW
-        dMxkwp6kzhWGSsfQfcS/1obJmkoIZA2rjRYaHjBTJiDeOpX1U8mGBTyelggxSVjI
-        bQUrg0aEsUzhNPSGExY0i2zgGXnrH16pZNKQlBIm2JSHscZ5rVGk4U434+XHKXP5
-        k06bgFLusc4h0NPCMaphFkxTPD+A8zUIEenqK2gA1LydZtKto2Lv4i6+jiI99qN2
-        1FLdvbcIxUgGyArq5ajxgmN3mSU7K9GhkxxEncB+6KHSP1oWYQGuP0gj16SlZC8g
-        ==
-X-ME-Sender: <xms:TfGWXurtoQntv0e5RB6STnSmRyfJl4ba9E-ZSgvTzP6jx_VAqHmvnA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdefudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:TfGWXsGs0fA1eMJbkwVrR4AZuoYQJY6BZRIT9GQ_Gw37CStmhvjUWw>
-    <xmx:TfGWXkT5kh7AAc1tYiiRvszI2F5GjgWXu2n2g7LIfHqD22YAZiC84A>
-    <xmx:TfGWXiOt4QZDyQb1MPR7Mlr37KFQzGplDI6UiGuirhhOYGx4Nk5bPg>
-    <xmx:TvGWXornDpK24KTkj0qDRcu_jWbBkcShiNwIXa7qyKuPgZVhJsxMOg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9C7773280064;
-        Wed, 15 Apr 2020 07:34:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/amdgpu: fix gfx hang during suspend with video playback" failed to apply to 5.5-stable tree
-To:     Prike.Liang@amd.com, Mengbing.Wang@amd.com,
-        alexander.deucher@amd.com, ray.huang@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 13:34:28 +0200
-Message-ID: <1586950468112129@kroah.com>
+        id S2897219AbgDOLhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:37:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56638 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2897199AbgDOLhC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:37:02 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 306F520737;
+        Wed, 15 Apr 2020 11:37:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586950621;
+        bh=DB1F7DmshMsLEY2YqueSwvxRlGpbDWkuaDaxP+9e9Q0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gAxO4S1SJxQXDreBEWehxYJKlq01OzhfwiS+bVtTCEbqYPBqGLTRcgGFXddZ+a1Y/
+         6cLS8AyCM9C1DeVqNxsklvSCAZizhKjJGhePEwfk6KBDbz9ve069Tt6KlelpJOXH4M
+         wd4H6GzMw3FxhgL65gBGcUTVJBrefn8tOagzCRIw=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.6 113/129] f2fs: fix to account compressed blocks in f2fs_compressed_blocks()
+Date:   Wed, 15 Apr 2020 07:34:28 -0400
+Message-Id: <20200415113445.11881-113-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
+References: <20200415113445.11881-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Chao Yu <yuchao0@huawei.com>
 
-The patch below does not apply to the 5.5-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[ Upstream commit 1a67cbe141cf991af252a88143d0fd975be2d9e7 ]
 
-thanks,
+por_fsstress reports inconsistent status in orphan inode, the root cause
+of this is in f2fs_write_raw_pages() we decrease i_compr_blocks incorrectly
+due to wrong calculation in f2fs_compressed_blocks().
 
-greg k-h
+So this patch exposes below two functions based on __f2fs_cluster_blocks:
+- f2fs_compressed_blocks: get count of compressed blocks in compressed cluster
+- f2fs_cluster_blocks: get count of valid blocks (including reserved blocks)
+in compressed cluster.
 
------------------- original commit in Linus's tree ------------------
+Then use f2fs_compress_blocks() to get correct compressed blocks count in
+f2fs_write_raw_pages().
 
-From 487eca11a321ef33bcf4ca5adb3c0c4954db1b58 Mon Sep 17 00:00:00 2001
-From: Prike Liang <Prike.Liang@amd.com>
-Date: Tue, 7 Apr 2020 20:21:26 +0800
-Subject: [PATCH] drm/amdgpu: fix gfx hang during suspend with video playback
- (v2)
+sanity_check_inode: inode (ino=ad80) hash inconsistent i_compr_blocks:2, i_blocks:1, run fsck to fix
 
-The system will be hang up during S3 suspend because of SMU is pending
-for GC not respose the register CP_HQD_ACTIVE access request.This issue
-root cause of accessing the GC register under enter GFX CGGPG and can
-be fixed by disable GFX CGPG before perform suspend.
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/f2fs/compress.c | 28 ++++++++++++++++++++++------
+ 1 file changed, 22 insertions(+), 6 deletions(-)
 
-v2: Use disable the GFX CGPG instead of RLC safe mode guard.
-
-Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-Tested-by: Mengbing Wang <Mengbing.Wang@amd.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index faa3e7102156..559dc24ef436 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2340,8 +2340,6 @@ static int amdgpu_device_ip_suspend_phase1(struct amdgpu_device *adev)
+diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
+index ad8e25a1fbc26..11b13b881ada5 100644
+--- a/fs/f2fs/compress.c
++++ b/fs/f2fs/compress.c
+@@ -536,8 +536,7 @@ static bool __cluster_may_compress(struct compress_ctx *cc)
+ 	return true;
+ }
+ 
+-/* return # of compressed block addresses */
+-static int f2fs_compressed_blocks(struct compress_ctx *cc)
++static int __f2fs_cluster_blocks(struct compress_ctx *cc, bool compr)
  {
- 	int i, r;
+ 	struct dnode_of_data dn;
+ 	int ret;
+@@ -560,8 +559,13 @@ static int f2fs_compressed_blocks(struct compress_ctx *cc)
  
--	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
--	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
- 
- 	for (i = adev->num_ip_blocks - 1; i >= 0; i--) {
- 		if (!adev->ip_blocks[i].status.valid)
-@@ -3356,6 +3354,9 @@ int amdgpu_device_suspend(struct drm_device *dev, bool fbcon)
+ 			blkaddr = datablock_addr(dn.inode,
+ 					dn.node_page, dn.ofs_in_node + i);
+-			if (blkaddr != NULL_ADDR)
+-				ret++;
++			if (compr) {
++				if (__is_valid_data_blkaddr(blkaddr))
++					ret++;
++			} else {
++				if (blkaddr != NULL_ADDR)
++					ret++;
++			}
  		}
  	}
+ fail:
+@@ -569,6 +573,18 @@ static int f2fs_compressed_blocks(struct compress_ctx *cc)
+ 	return ret;
+ }
  
-+	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
-+	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
++/* return # of compressed blocks in compressed cluster */
++static int f2fs_compressed_blocks(struct compress_ctx *cc)
++{
++	return __f2fs_cluster_blocks(cc, true);
++}
 +
- 	amdgpu_amdkfd_suspend(adev, !fbcon);
++/* return # of valid blocks in compressed cluster */
++static int f2fs_cluster_blocks(struct compress_ctx *cc, bool compr)
++{
++	return __f2fs_cluster_blocks(cc, false);
++}
++
+ int f2fs_is_compressed_cluster(struct inode *inode, pgoff_t index)
+ {
+ 	struct compress_ctx cc = {
+@@ -578,7 +594,7 @@ int f2fs_is_compressed_cluster(struct inode *inode, pgoff_t index)
+ 		.cluster_idx = index >> F2FS_I(inode)->i_log_cluster_size,
+ 	};
  
- 	amdgpu_ras_suspend(adev);
+-	return f2fs_compressed_blocks(&cc);
++	return f2fs_cluster_blocks(&cc, false);
+ }
+ 
+ static bool cluster_may_compress(struct compress_ctx *cc)
+@@ -627,7 +643,7 @@ static int prepare_compress_overwrite(struct compress_ctx *cc,
+ 	bool prealloc;
+ 
+ retry:
+-	ret = f2fs_compressed_blocks(cc);
++	ret = f2fs_cluster_blocks(cc, false);
+ 	if (ret <= 0)
+ 		return ret;
+ 
+-- 
+2.20.1
 
