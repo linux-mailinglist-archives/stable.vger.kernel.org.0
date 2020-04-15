@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CBC1AA408
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 004041AA40D
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:23:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506230AbgDONQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:16:35 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:34017 "EHLO
+        id S2897036AbgDONRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:17:06 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:44731 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2506225AbgDONQb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 09:16:31 -0400
+        by vger.kernel.org with ESMTP id S2506232AbgDONQi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 09:16:38 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id B0B1B5C0148;
-        Wed, 15 Apr 2020 09:16:29 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 66C295C0148;
+        Wed, 15 Apr 2020 09:16:37 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 09:16:29 -0400
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 09:16:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=akdJ1Y
-        yKiwsqSvafIZRUy4E8sedklcYplV79MTHaAAI=; b=kpaVYdrtlXt+HNdmZ80QLC
-        bshX1r5DLKRwya7qVr+yr+lSbd2xfyNk/nxh7qN7m1FYZjYSsPNMrCf5EU/gmXkm
-        v+TSuKGju0NBtQBeATq6CQQNP3ilQoMriPTLLRxB4YmgELuOa9v1JPn7REVGZe25
-        i9tgoQGWBas/LXQQOND4u//XM99QD4I0gITJeNsDftpS0PYOmyK3W+OL4d55uBwt
-        gcxw+wxRsunxoXqOOfDgSZQnR52kVVV+f8R01m5bEQk6LRNlUL+UIQWoaPpCz95a
-        XZi7QDMXeF5DiWI+fH9w7wO1dBMNE/LUuIEl6/3L+6/bNHy5uRQPFyCBH2iDVW0Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yQSWP1
+        HK294QFeiyYjykwZv41G6VvgWmPKgXqV2CORQ=; b=0EMrjrfNFJc+X23FKolLfq
+        KLJFOoRl2vm2/FRAhA5ljUnFrnwAGzdeJ1lle76BUzWAjSGPs637T7Kv+aK4vu35
+        ZUfamd/1N/vRxjMsJEeQPiv+lDXO1b7KWBJL+8voqmFtdqP6VGVKidq+DhNs0Qrj
+        T6dAABjRzAT8wWKZLapp34FQFLOCFLhoQi/l4R/3lsrvR7Vj5SJ59zt4FGWkCo1A
+        nyRwOJvKyOdp9wifyh1vyZkRnzK544aXk/0Bb757m5B5SEK2fZQLmcUDA+uTQ1hU
+        hcq1FrNFIXZ855D1H60GQLRGFZGxo/LI1DTbjVFekTG1ZDDoTusxEWU0jcyhPptA
         ==
-X-ME-Sender: <xms:LQmXXrWCzsBjTn-jHj0LnbXVEfYOqWGHIaQ2LscbUOMbiSU5QA3rYg>
+X-ME-Sender: <xms:NQmXXgPzLqoxQKzXaeg0qI25GW38-if9rgLw_SOz34UVkAoBSg_fhA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdehtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdhlohifrdhssgenucfkphepkeefrd
-    ekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghi
+    ekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghi
     lhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:LQmXXp6Noal_D4sSYT4X_ilPybMkLzQcqABeV_tKaFkajyqaGNQTYQ>
-    <xmx:LQmXXta1OeJ7fnSz3mUthIRyrmn7SAj1D57_ni-oVWUR8EXu201eFw>
-    <xmx:LQmXXjpRNcDUdZkdGo_b-Sgdb8Q2C4tr-Gh5VTVEM8B0irkJaDPrxA>
-    <xmx:LQmXXmc_u4I8dHXR7bVAgq03Lljl3GQQajeDHRBczD-eiPUVC1Hbww>
+X-ME-Proxy: <xmx:NQmXXsM98_sLpeYOjnI3gqrvLXa7W5dBBoB_AFMT7P0VDwL807wQTA>
+    <xmx:NQmXXp7NHv6WzVmXpegVHc_zjDZLpEyxiPVy-4GopjmIhRRryPM3hA>
+    <xmx:NQmXXoacSDM86IKEEBb-MgHlG5kRJn5xJumSu0U6nAuyb-EjkJPuVw>
+    <xmx:NQmXXlBj1Y1fifECbda40X0qSHHWm0Q7zrPlSWIxQYy7MUqI2J8zKw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E4915328005E;
-        Wed, 15 Apr 2020 09:16:28 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/fsl_booke: Avoid creating duplicate tlb1 entry" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 11A10328005A;
+        Wed, 15 Apr 2020 09:16:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] powerpc/fsl_booke: Avoid creating duplicate tlb1 entry" failed to apply to 4.4-stable tree
 To:     laurentiu.tudor@nxp.com, mpe@ellerman.id.au, oss@buserror.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 15:16:27 +0200
-Message-ID: <158695658720061@kroah.com>
+Date:   Wed, 15 Apr 2020 15:16:28 +0200
+Message-ID: <15869565882541@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
