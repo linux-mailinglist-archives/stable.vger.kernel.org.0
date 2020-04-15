@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B64411A99E8
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 12:07:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F53F1A99E9
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 12:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896150AbgDOKHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2896153AbgDOKHa (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 15 Apr 2020 06:07:30 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:58129 "EHLO
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:58047 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2896153AbgDOKH2 (ORCPT
+        by vger.kernel.org with ESMTP id S2896155AbgDOKH2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 06:07:28 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 70B195C01DC;
-        Wed, 15 Apr 2020 06:07:26 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 06:07:26 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id BC9B45C01E2;
+        Wed, 15 Apr 2020 06:07:27 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 06:07:27 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zE+TF2
-        T2fmPp2fI5vMghLaOu3tezcOiHC4be1W/LaI4=; b=TfERYAqKLh1nZV3VgcjQLD
-        TJwW96dVj0xlZbcusk9ycjdrRtoRrMxUnRGDURC9AO1+b+qBBjRxaT2mvcRjEREg
-        7Gv88VQtoJ+w078ufi5P2epFQWNQv7w7TbGKcSS0nfeEp9lexEC5hS6m7viBxhXw
-        d7zGxZG5hKRMSeZ4NzGA693ny5zpeBm/Z0uy8C7EwnpLQ/22lPv+tfiw4Rv/wmJ5
-        U+UuzbL1rSjG9DXgWe4wpLeSX9kL47Pba9jpMZduZGk2TnUkysnAlgyoA6Qmd/2y
-        lWd7wFyr9/f0YfUStcbDYQ+gyQ3qqIyEJfAuR8toopH5HEVcA4ItASXB/RSRGMPA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=SbgNjH
+        TFyuqJuqZ2C7rI/BJOQ7BsktTqR9NiLACMW5w=; b=k1TQ52esv+UcaJ8lPuClSo
+        nVaZfFcmckh9xf2hlwwZzklX+fh4Y0FLbtafngJl2tEvMm3w9fpLo3FNbEG6j2IL
+        3RC8X67iI8Y9SjufNWS0aTeuioMJ2vPE8+oE27Yzu3vcWo8U2/QiQQf8VSEtStSf
+        6j45bJ3pQ/ZjHEK183CPeIJB4fodZSKWbxe0aHcE75YYNROoYzL/ROA+AKlTNthm
+        9M2r8YAIDD4pYzj8gttc0Bd1NQ5D1X4BZiUyL9C+OomyCBTpuZBf0QKA/+Y1EPlq
+        J7tpxxPABsSb717ArdG6o4MFnKlFtMLr/j1dxJTc5pAnLtoiHQwMzsHWnuXurJFQ
         ==
-X-ME-Sender: <xms:3tyWXoBYBQyWpwPfN4G30fDBdI8UdvsA9D3dMBdHjZDwDy1oDBD6Rw>
+X-ME-Sender: <xms:39yWXkAVwWKjtQW3Fz94Uopnuv0AzZBcrYVJcAQk4qvRNfNJzTTsuQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdduudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -35,19 +35,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdduudcutefuodetggdote
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
     rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:3tyWXqkPSu8aDC4dXNau1L9NC0wTzC-FSOlw7HU1i2dCrsZOlAwRYw>
-    <xmx:3tyWXsFTNxSfskaBygnbQ_FV07lMffrt1GmkmkSQek_h3wCm8hlMqw>
-    <xmx:3tyWXlfI0SSSYtTfpnH8REnEeKrW1SIyMZR273icP0nyQCG_voHl5w>
-    <xmx:3tyWXqMOeICzd9EGgiCRcdePjMFo8LEMixbEpFzEByItCJNPiLC2hw>
+X-ME-Proxy: <xmx:39yWXs3PC3HJlCj5rAfzkb1-Mox6jJxxZaEKuZq5Wms43IXMgDRQ2Q>
+    <xmx:39yWXkT_7SswxUN87iv9fPric2uEgJgZ0zUe7AQvtv7sne96RFpQ8w>
+    <xmx:39yWXpZAFMo3BrBiO5QGm6sTXUPS34gS0fqI6w-VxUSn6YElx2J-jw>
+    <xmx:39yWXnMhOxwUVa6uTr7oef015g1bwUusXJ3UHNIKCVODazS4iJfIHQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E3DD3328005E;
-        Wed, 15 Apr 2020 06:07:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] scsi: mpt3sas: Fix kernel panic observed on soft HBA unplug" failed to apply to 5.4.y-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 70FAD3060067;
+        Wed, 15 Apr 2020 06:07:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] scsi: mpt3sas: Fix kernel panic observed on soft HBA unplug" failed to apply to 4.14.y-stable tree
 To:     sreekanth.reddy@broadcom.com, martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 12:07:23 +0200
-Message-ID: <1586945243113255@kroah.com>
+Date:   Wed, 15 Apr 2020 12:07:24 +0200
+Message-ID: <158694524496146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4.y-stable tree.
+The patch below does not apply to the 4.14.y-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
