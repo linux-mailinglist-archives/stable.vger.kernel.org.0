@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56ED81A9C65
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5AB81AA444
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897022AbgDOLfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:35:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
+        id S2506244AbgDONWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:22:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408884AbgDOLfC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:35:02 -0400
+        id S2897009AbgDOLfD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:35:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF0AC2076D;
-        Wed, 15 Apr 2020 11:35:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAEA520857;
+        Wed, 15 Apr 2020 11:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950501;
-        bh=BcOsfOkxn0Z2bJhhSJhfv3P9uJjbhL86MgsL5pVv5F8=;
+        s=default; t=1586950502;
+        bh=Pk3LH+KtmLOnF31lo8mARZysIUUWRRZBhV3Ch4KKeVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RG4DVKgu5x3F5gwNOpN5hd5r2JAXV85qnIRtQZIqw6FpSF/HhBKLvcn0kGW2icWko
-         wYXsppxNLImgtLZmXnlNK+D2WIoGoQe3G8jC2zO+2RezHSCWa+n59khT6ZuwD97JrH
-         DsNINEtYqzJGjojD97tTNFjL7yEhWfCwQKtL7Xbo=
+        b=gCQkZOt18wS5nOnSEVmt6zMpF4xPoszlNzFqPApeVIREvWSKvQj6LkWKI/lE2bt35
+         H5/+DFtW6ECEPc+7rbwNCUUKGuNgqDD0bn1p28QjAX29R5zQ+CA2V3LfQr8O7fvtzi
+         RMrEt8TlWp7RAArRoRiLUly9dGKpaIF6jS+MBSXQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>,
-        Daniel Rosenberg <drosen@google.com>, kernel-team@android.com,
-        Chao Yu <yuchao0@huawei.com>, Sasha Levin <sashal@kernel.org>,
+Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.6 013/129] f2fs: fix wrong check on F2FS_IOC_FSSETXATTR
-Date:   Wed, 15 Apr 2020 07:32:48 -0400
-Message-Id: <20200415113445.11881-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 014/129] f2fs: fix to avoid use-after-free in f2fs_write_multi_pages()
+Date:   Wed, 15 Apr 2020 07:32:49 -0400
+Message-Id: <20200415113445.11881-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -44,66 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 99eabb914e0f870445d065e83e857507f9728a33 ]
+[ Upstream commit 95978caa138948054e06d00bfc3432b518699f1b ]
 
-This fixes the incorrect failure when enabling project quota on casefold-enabled
-file.
+In compress cluster, if physical block number is less than logic
+page number, race condition will cause use-after-free issue as
+described below:
 
-Cc: Daniel Rosenberg <drosen@google.com>
-Cc: kernel-team@android.com
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
+- f2fs_write_compressed_pages
+ - fio.page = cic->rpages[0];
+ - f2fs_outplace_write_data
+					- f2fs_compress_write_end_io
+					 - kfree(cic->rpages);
+					 - kfree(cic);
+ - fio.page = cic->rpages[1];
+
+f2fs_write_multi_pages+0xfd0/0x1a98
+f2fs_write_data_pages+0x74c/0xb5c
+do_writepages+0x64/0x108
+__writeback_single_inode+0xdc/0x4b8
+writeback_sb_inodes+0x4d0/0xa68
+__writeback_inodes_wb+0x88/0x178
+wb_writeback+0x1f0/0x424
+wb_workfn+0x2f4/0x574
+process_one_work+0x210/0x48c
+worker_thread+0x2e8/0x44c
+kthread+0x110/0x120
+ret_from_fork+0x10/0x18
+
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/f2fs/compress.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 0d4da644df3bc..a41c633ac6cfe 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1787,12 +1787,15 @@ static int f2fs_file_flush(struct file *file, fl_owner_t id)
- static int f2fs_setflags_common(struct inode *inode, u32 iflags, u32 mask)
- {
- 	struct f2fs_inode_info *fi = F2FS_I(inode);
-+	u32 masked_flags = fi->i_flags & mask;
-+
-+	f2fs_bug_on(F2FS_I_SB(inode), (iflags & ~mask));
+diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
+index c847523ab4a2e..927db1205bd81 100644
+--- a/fs/f2fs/compress.c
++++ b/fs/f2fs/compress.c
+@@ -845,7 +845,7 @@ static int f2fs_write_compressed_pages(struct compress_ctx *cc,
  
- 	/* Is it quota file? Do not allow user to mess with it */
- 	if (IS_NOQUOTA(inode))
- 		return -EPERM;
+ 		blkaddr = datablock_addr(dn.inode, dn.node_page,
+ 							dn.ofs_in_node);
+-		fio.page = cic->rpages[i];
++		fio.page = cc->rpages[i];
+ 		fio.old_blkaddr = blkaddr;
  
--	if ((iflags ^ fi->i_flags) & F2FS_CASEFOLD_FL) {
-+	if ((iflags ^ masked_flags) & F2FS_CASEFOLD_FL) {
- 		if (!f2fs_sb_has_casefold(F2FS_I_SB(inode)))
- 			return -EOPNOTSUPP;
- 		if (!f2fs_empty_dir(inode))
-@@ -1806,9 +1809,9 @@ static int f2fs_setflags_common(struct inode *inode, u32 iflags, u32 mask)
- 			return -EINVAL;
- 	}
- 
--	if ((iflags ^ fi->i_flags) & F2FS_COMPR_FL) {
-+	if ((iflags ^ masked_flags) & F2FS_COMPR_FL) {
- 		if (S_ISREG(inode->i_mode) &&
--			(fi->i_flags & F2FS_COMPR_FL || i_size_read(inode) ||
-+			(masked_flags & F2FS_COMPR_FL || i_size_read(inode) ||
- 						F2FS_HAS_BLOCKS(inode)))
- 			return -EINVAL;
- 		if (iflags & F2FS_NOCOMP_FL)
-@@ -1825,8 +1828,8 @@ static int f2fs_setflags_common(struct inode *inode, u32 iflags, u32 mask)
- 			set_compress_context(inode);
- 		}
- 	}
--	if ((iflags ^ fi->i_flags) & F2FS_NOCOMP_FL) {
--		if (fi->i_flags & F2FS_COMPR_FL)
-+	if ((iflags ^ masked_flags) & F2FS_NOCOMP_FL) {
-+		if (masked_flags & F2FS_COMPR_FL)
- 			return -EINVAL;
- 	}
- 
+ 		/* cluster header */
 -- 
 2.20.1
 
