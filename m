@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BFC41AA1E2
+	by mail.lfdr.de (Postfix) with ESMTP id 790231AA1E3
 	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:58:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897488AbgDOLmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:42:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34006 "EHLO mail.kernel.org"
+        id S2897168AbgDOLmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:42:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897483AbgDOLmi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:42:38 -0400
+        id S2897485AbgDOLmj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:42:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EACB206A2;
-        Wed, 15 Apr 2020 11:42:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E93E20768;
+        Wed, 15 Apr 2020 11:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950958;
-        bh=xfxEHbO2CYxxBaJ6smtcDNMkhdPl2Aa+kTgvxGBP8Uw=;
+        s=default; t=1586950959;
+        bh=uM8RYOThTOAePXpnhO/MjXiLuve+HcAfoAQLYud7kjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrhVDEh1SkwzUfjtuL8dQeWYfiso4TfAUWijpH7AdA1RLylt/MQLlptUi2aTiCRvq
-         cMeRpcdKMhau8YUDWVn5PKNInLHbdIxClpDrj+3laZQXnVcyN+BVJNcpW4VoQZhRxf
-         WvB0uqfDmSJhWbptsvt5P5dB6cWKW+Wy4z4BHkDo=
+        b=H+DknSAtTaAAk5fNVPJxEDXVniR6vZMDMgHGU+wj/Y7IOtbB9YHdPhO0RIbFSd5pp
+         vBCYZFGcBtcpOsmtmdwL9sBebzAb4cOv8LdoBp0bJsbq1ih9cuzj2iaaEulG9ao6IJ
+         fZS4GP1Q22pA26JGv6PyiHgyTjgTZrHnb7R4JTU8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>,
-        Wenbo Zhang <ethercflow@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.5 009/106] bpf: Reliably preserve btf_trace_xxx types
-Date:   Wed, 15 Apr 2020 07:40:49 -0400
-Message-Id: <20200415114226.13103-9-sashal@kernel.org>
+Cc:     Brian Foster <bfoster@redhat.com>, Zorro Lang <zlang@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 010/106] xfs: fix iclog release error check race with shutdown
+Date:   Wed, 15 Apr 2020 07:40:50 -0400
+Message-Id: <20200415114226.13103-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -46,64 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 441420a1f0b3031f228453697406c86f110e59d4 ]
+[ Upstream commit 6b789c337a5963ae57cbc7fe9e41488c40a9b014 ]
 
-btf_trace_xxx types, crucial for tp_btf BPF programs (raw tracepoint with
-verifier-checked direct memory access), have to be preserved in kernel BTF to
-allow verifier do its job and enforce type/memory safety. It was reported
-([0]) that for kernels built with Clang current type-casting approach doesn't
-preserve these types.
+Prior to commit df732b29c8 ("xfs: call xlog_state_release_iclog with
+l_icloglock held"), xlog_state_release_iclog() always performed a
+locked check of the iclog error state before proceeding into the
+sync state processing code. As of this commit, part of
+xlog_state_release_iclog() was open-coded into
+xfs_log_release_iclog() and as a result the locked error state check
+was lost.
 
-This patch fixes it by declaring an anonymous union for each registered
-tracepoint, capturing both struct bpf_raw_event_map information, as well as
-recording btf_trace_##call type reliably. Structurally, it's still the same
-content as for a plain struct bpf_raw_event_map, so no other changes are
-necessary.
+The lockless check still exists, but this doesn't account for the
+possibility of a race with a shutdown being performed by another
+task causing the iclog state to change while the original task waits
+on ->l_icloglock. This has reproduced very rarely via generic/475
+and manifests as an assert failure in __xlog_state_release_iclog()
+due to an unexpected iclog state.
 
-  [0] https://github.com/iovisor/bcc/issues/2770#issuecomment-591007692
+Restore the locked error state check in xlog_state_release_iclog()
+to ensure that an iclog state update via shutdown doesn't race with
+the iclog release state processing code.
 
-Fixes: e8c423fb31fa ("bpf: Add typecast to raw_tracepoints to help BTF generation")
-Reported-by: Wenbo Zhang <ethercflow@gmail.com>
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20200301081045.3491005-2-andriin@fb.com
+Fixes: df732b29c807 ("xfs: call xlog_state_release_iclog with l_icloglock held")
+Reported-by: Zorro Lang <zlang@redhat.com>
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/bpf_probe.h | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ fs/xfs/xfs_log.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/include/trace/bpf_probe.h b/include/trace/bpf_probe.h
-index b04c292709730..1ce3be63add1f 100644
---- a/include/trace/bpf_probe.h
-+++ b/include/trace/bpf_probe.h
-@@ -75,13 +75,17 @@ static inline void bpf_test_probe_##call(void)				\
- 	check_trace_callback_type_##call(__bpf_trace_##template);	\
- }									\
- typedef void (*btf_trace_##call)(void *__data, proto);			\
--static struct bpf_raw_event_map	__used					\
--	__attribute__((section("__bpf_raw_tp_map")))			\
--__bpf_trace_tp_map_##call = {						\
--	.tp		= &__tracepoint_##call,				\
--	.bpf_func	= (void *)(btf_trace_##call)__bpf_trace_##template,	\
--	.num_args	= COUNT_ARGS(args),				\
--	.writable_size	= size,						\
-+static union {								\
-+	struct bpf_raw_event_map event;					\
-+	btf_trace_##call handler;					\
-+} __bpf_trace_tp_map_##call __used					\
-+__attribute__((section("__bpf_raw_tp_map"))) = {			\
-+	.event = {							\
-+		.tp		= &__tracepoint_##call,			\
-+		.bpf_func	= __bpf_trace_##template,		\
-+		.num_args	= COUNT_ARGS(args),			\
-+		.writable_size	= size,					\
-+	},								\
- };
+diff --git a/fs/xfs/xfs_log.c b/fs/xfs/xfs_log.c
+index f6006d94a581e..796ff37d5bb5b 100644
+--- a/fs/xfs/xfs_log.c
++++ b/fs/xfs/xfs_log.c
+@@ -605,18 +605,23 @@ xfs_log_release_iclog(
+ 	struct xlog		*log = mp->m_log;
+ 	bool			sync;
  
- #define FIRST(x, ...) x
+-	if (iclog->ic_state == XLOG_STATE_IOERROR) {
+-		xfs_force_shutdown(mp, SHUTDOWN_LOG_IO_ERROR);
+-		return -EIO;
+-	}
++	if (iclog->ic_state == XLOG_STATE_IOERROR)
++		goto error;
+ 
+ 	if (atomic_dec_and_lock(&iclog->ic_refcnt, &log->l_icloglock)) {
++		if (iclog->ic_state == XLOG_STATE_IOERROR) {
++			spin_unlock(&log->l_icloglock);
++			goto error;
++		}
+ 		sync = __xlog_state_release_iclog(log, iclog);
+ 		spin_unlock(&log->l_icloglock);
+ 		if (sync)
+ 			xlog_sync(log, iclog);
+ 	}
+ 	return 0;
++error:
++	xfs_force_shutdown(mp, SHUTDOWN_LOG_IO_ERROR);
++	return -EIO;
+ }
+ 
+ /*
 -- 
 2.20.1
 
