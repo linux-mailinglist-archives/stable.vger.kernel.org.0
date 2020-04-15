@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 153191A9D17
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D31881AA206
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408941AbgDOLnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:43:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34498 "EHLO mail.kernel.org"
+        id S370327AbgDOMtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:49:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408932AbgDOLmz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:42:55 -0400
+        id S2408934AbgDOLm4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:42:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41964206A2;
-        Wed, 15 Apr 2020 11:42:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 562232078A;
+        Wed, 15 Apr 2020 11:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950974;
-        bh=cV2r83eP8e/jucUSXYvFnWLjmbcZKhtPCDO2eIQor/o=;
+        s=default; t=1586950976;
+        bh=fa6sFC6ExgJLrtzdqYbGOIXx3ZLfMUmZOOEM2DJyOJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cpy9uLAE2pqP90ZVVtwIBnLWp1Ge/X59UKgazrYPINV9qf2aF6JH4GhrLu6fjxRO4
-         GbWfMx0OU76VqbllZBy934fLDe6fKxI7sIAFsjTTon4IomwZf5y+Oa9EcUIJaQwLzd
-         R+Vk5eFR5NajFqdG2941HdQss/AHTEvVilSqvwb4=
+        b=eMofoQgcWcg9o3Z3lFdZ/UUlkr6gAZM9Jy07eKUal3QF2S6XE8zoskEfiJkbjrX0d
+         PjrmWVBIj+qkuoKm+U7cyxuKxn2grRSC6jsOfoPx98o51gtUz+QcGJGzm+YgsqlSgZ
+         yEWFEknkISXkc60LeVKuun6novPQeFmDC8avdkGc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+Cc:     Kevin Grandemange <kevin.grandemange@allegrodvt.com>,
+        Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 023/106] soc: imx: gpc: fix power up sequencing
-Date:   Wed, 15 Apr 2020 07:41:03 -0400
-Message-Id: <20200415114226.13103-23-sashal@kernel.org>
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.5 024/106] dma-coherent: fix integer overflow in the reserved-memory dma allocation
+Date:   Wed, 15 Apr 2020 07:41:04 -0400
+Message-Id: <20200415114226.13103-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -44,76 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Kevin Grandemange <kevin.grandemange@allegrodvt.com>
 
-[ Upstream commit e0ea2d11f8a08ba7066ff897e16c5217215d1e68 ]
+[ Upstream commit 286c21de32b904131f8cf6a36ce40b8b0c9c5da3 ]
 
-Currently we wait only until the PGC inverts the isolation setting
-before disabling the peripheral clocks. This doesn't ensure that the
-reset is properly propagated through the peripheral devices in the
-power domain.
+pageno is an int and the PAGE_SHIFT shift is done on an int,
+overflowing if the memory is bigger than 2G
 
-Wait until the PGC signals that the power up request is done and
-wait a bit for resets to propagate before disabling the clocks.
+This can be reproduced using for example a reserved-memory of 4G
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+reserved-memory {
+		    #address-cells = <2>;
+		    #size-cells = <2>;
+		    ranges;
+
+		    reserved_dma: buffer@0 {
+		        compatible = "shared-dma-pool";
+		        no-map;
+		        reg = <0x5 0x00000000 0x1 0x0>;
+        };
+};
+
+Signed-off-by: Kevin Grandemange <kevin.grandemange@allegrodvt.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/imx/gpc.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ kernel/dma/coherent.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/soc/imx/gpc.c b/drivers/soc/imx/gpc.c
-index 98b9d9a902ae3..90a8b2c0676ff 100644
---- a/drivers/soc/imx/gpc.c
-+++ b/drivers/soc/imx/gpc.c
-@@ -87,8 +87,8 @@ static int imx6_pm_domain_power_off(struct generic_pm_domain *genpd)
- static int imx6_pm_domain_power_on(struct generic_pm_domain *genpd)
+diff --git a/kernel/dma/coherent.c b/kernel/dma/coherent.c
+index 551b0eb7028a3..2a0c4985f38e4 100644
+--- a/kernel/dma/coherent.c
++++ b/kernel/dma/coherent.c
+@@ -134,7 +134,7 @@ static void *__dma_alloc_from_coherent(struct device *dev,
+ 
+ 	spin_lock_irqsave(&mem->spinlock, flags);
+ 
+-	if (unlikely(size > (mem->size << PAGE_SHIFT)))
++	if (unlikely(size > ((dma_addr_t)mem->size << PAGE_SHIFT)))
+ 		goto err;
+ 
+ 	pageno = bitmap_find_free_region(mem->bitmap, mem->size, order);
+@@ -144,8 +144,9 @@ static void *__dma_alloc_from_coherent(struct device *dev,
+ 	/*
+ 	 * Memory was found in the coherent area.
+ 	 */
+-	*dma_handle = dma_get_device_base(dev, mem) + (pageno << PAGE_SHIFT);
+-	ret = mem->virt_base + (pageno << PAGE_SHIFT);
++	*dma_handle = dma_get_device_base(dev, mem) +
++			((dma_addr_t)pageno << PAGE_SHIFT);
++	ret = mem->virt_base + ((dma_addr_t)pageno << PAGE_SHIFT);
+ 	spin_unlock_irqrestore(&mem->spinlock, flags);
+ 	memset(ret, 0, size);
+ 	return ret;
+@@ -194,7 +195,7 @@ static int __dma_release_from_coherent(struct dma_coherent_mem *mem,
+ 				       int order, void *vaddr)
  {
- 	struct imx_pm_domain *pd = to_imx_pm_domain(genpd);
--	int i, ret, sw, sw2iso;
--	u32 val;
-+	int i, ret;
-+	u32 val, req;
+ 	if (mem && vaddr >= mem->virt_base && vaddr <
+-		   (mem->virt_base + (mem->size << PAGE_SHIFT))) {
++		   (mem->virt_base + ((dma_addr_t)mem->size << PAGE_SHIFT))) {
+ 		int page = (vaddr - mem->virt_base) >> PAGE_SHIFT;
+ 		unsigned long flags;
  
- 	if (pd->supply) {
- 		ret = regulator_enable(pd->supply);
-@@ -107,17 +107,18 @@ static int imx6_pm_domain_power_on(struct generic_pm_domain *genpd)
- 	regmap_update_bits(pd->regmap, pd->reg_offs + GPC_PGC_CTRL_OFFS,
- 			   0x1, 0x1);
+@@ -238,10 +239,10 @@ static int __dma_mmap_from_coherent(struct dma_coherent_mem *mem,
+ 		struct vm_area_struct *vma, void *vaddr, size_t size, int *ret)
+ {
+ 	if (mem && vaddr >= mem->virt_base && vaddr + size <=
+-		   (mem->virt_base + (mem->size << PAGE_SHIFT))) {
++		   (mem->virt_base + ((dma_addr_t)mem->size << PAGE_SHIFT))) {
+ 		unsigned long off = vma->vm_pgoff;
+ 		int start = (vaddr - mem->virt_base) >> PAGE_SHIFT;
+-		int user_count = vma_pages(vma);
++		unsigned long user_count = vma_pages(vma);
+ 		int count = PAGE_ALIGN(size) >> PAGE_SHIFT;
  
--	/* Read ISO and ISO2SW power up delays */
--	regmap_read(pd->regmap, pd->reg_offs + GPC_PGC_PUPSCR_OFFS, &val);
--	sw = val & 0x3f;
--	sw2iso = (val >> 8) & 0x3f;
--
- 	/* Request GPC to power up domain */
--	val = BIT(pd->cntr_pdn_bit + 1);
--	regmap_update_bits(pd->regmap, GPC_CNTR, val, val);
-+	req = BIT(pd->cntr_pdn_bit + 1);
-+	regmap_update_bits(pd->regmap, GPC_CNTR, req, req);
- 
--	/* Wait ISO + ISO2SW IPG clock cycles */
--	udelay(DIV_ROUND_UP(sw + sw2iso, pd->ipg_rate_mhz));
-+	/* Wait for the PGC to handle the request */
-+	ret = regmap_read_poll_timeout(pd->regmap, GPC_CNTR, val, !(val & req),
-+				       1, 50);
-+	if (ret)
-+		pr_err("powerup request on domain %s timed out\n", genpd->name);
-+
-+	/* Wait for reset to propagate through peripherals */
-+	usleep_range(5, 10);
- 
- 	/* Disable reset clocks for all devices in the domain */
- 	for (i = 0; i < pd->num_clks; i++)
-@@ -343,6 +344,7 @@ static const struct regmap_config imx_gpc_regmap_config = {
- 	.rd_table = &access_table,
- 	.wr_table = &access_table,
- 	.max_register = 0x2ac,
-+	.fast_io = true,
- };
- 
- static struct generic_pm_domain *imx_gpc_onecell_domains[] = {
+ 		*ret = -ENXIO;
 -- 
 2.20.1
 
