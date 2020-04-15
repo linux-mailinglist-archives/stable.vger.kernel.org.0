@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 790231AA1E3
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:58:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 532491AA23C
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897168AbgDOLmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:42:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34052 "EHLO mail.kernel.org"
+        id S370492AbgDOMwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:52:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897485AbgDOLmj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:42:39 -0400
+        id S2897492AbgDOLmk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:42:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E93E20768;
-        Wed, 15 Apr 2020 11:42:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3C9020936;
+        Wed, 15 Apr 2020 11:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950959;
-        bh=uM8RYOThTOAePXpnhO/MjXiLuve+HcAfoAQLYud7kjg=;
+        s=default; t=1586950960;
+        bh=HA/6hgyu6HpfGD6DRIjXKBLT95W1xF9Q0/ETbreVlm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H+DknSAtTaAAk5fNVPJxEDXVniR6vZMDMgHGU+wj/Y7IOtbB9YHdPhO0RIbFSd5pp
-         vBCYZFGcBtcpOsmtmdwL9sBebzAb4cOv8LdoBp0bJsbq1ih9cuzj2iaaEulG9ao6IJ
-         fZS4GP1Q22pA26JGv6PyiHgyTjgTZrHnb7R4JTU8=
+        b=qdSkvFOhu2KKBkv0QjeDPCROZ10eBuKJFu/TruasHkrh5GT8CMdBWEYQHnczJpaHL
+         bf48YdSII4sNeNNceVBZzGLoIHOnVPEgBG08wPJnnOTVKIVkLmzT5glb/Ngh8G00pP
+         3vJ7BbILFTAVg55XIfXY+4J6oC0bvmwLz2EjSHBY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Foster <bfoster@redhat.com>, Zorro Lang <zlang@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 010/106] xfs: fix iclog release error check race with shutdown
-Date:   Wed, 15 Apr 2020 07:40:50 -0400
-Message-Id: <20200415114226.13103-10-sashal@kernel.org>
+Cc:     "Angus Ainslie (Purism)" <angus@akkea.ca>,
+        Martin Kepplinger <martin.kepplinger@puri.sm>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.5 011/106] arm64: dts: librem5-devkit: add a vbus supply to usb0
+Date:   Wed, 15 Apr 2020 07:40:51 -0400
+Message-Id: <20200415114226.13103-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -44,72 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: "Angus Ainslie (Purism)" <angus@akkea.ca>
 
-[ Upstream commit 6b789c337a5963ae57cbc7fe9e41488c40a9b014 ]
+[ Upstream commit dde061b865598ad91f50140760e1d224e5045db9 ]
 
-Prior to commit df732b29c8 ("xfs: call xlog_state_release_iclog with
-l_icloglock held"), xlog_state_release_iclog() always performed a
-locked check of the iclog error state before proceeding into the
-sync state processing code. As of this commit, part of
-xlog_state_release_iclog() was open-coded into
-xfs_log_release_iclog() and as a result the locked error state check
-was lost.
+Without a VBUS supply the dwc3 driver won't go into otg mode.
 
-The lockless check still exists, but this doesn't account for the
-possibility of a race with a shutdown being performed by another
-task causing the iclog state to change while the original task waits
-on ->l_icloglock. This has reproduced very rarely via generic/475
-and manifests as an assert failure in __xlog_state_release_iclog()
-due to an unexpected iclog state.
-
-Restore the locked error state check in xlog_state_release_iclog()
-to ensure that an iclog state update via shutdown doesn't race with
-the iclog release state processing code.
-
-Fixes: df732b29c807 ("xfs: call xlog_state_release_iclog with l_icloglock held")
-Reported-by: Zorro Lang <zlang@redhat.com>
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Fixes: eb4ea0857c83 ("arm64: dts: fsl: librem5: Add a device tree for the Librem5 devkit")
+Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
+Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_log.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/xfs/xfs_log.c b/fs/xfs/xfs_log.c
-index f6006d94a581e..796ff37d5bb5b 100644
---- a/fs/xfs/xfs_log.c
-+++ b/fs/xfs/xfs_log.c
-@@ -605,18 +605,23 @@ xfs_log_release_iclog(
- 	struct xlog		*log = mp->m_log;
- 	bool			sync;
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts b/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
+index 596bc65f475c2..b2cf6f1925257 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mq-librem5-devkit.dts
+@@ -743,6 +743,7 @@
+ };
  
--	if (iclog->ic_state == XLOG_STATE_IOERROR) {
--		xfs_force_shutdown(mp, SHUTDOWN_LOG_IO_ERROR);
--		return -EIO;
--	}
-+	if (iclog->ic_state == XLOG_STATE_IOERROR)
-+		goto error;
+ &usb3_phy0 {
++	vbus-supply = <&reg_5v_p>;
+ 	status = "okay";
+ };
  
- 	if (atomic_dec_and_lock(&iclog->ic_refcnt, &log->l_icloglock)) {
-+		if (iclog->ic_state == XLOG_STATE_IOERROR) {
-+			spin_unlock(&log->l_icloglock);
-+			goto error;
-+		}
- 		sync = __xlog_state_release_iclog(log, iclog);
- 		spin_unlock(&log->l_icloglock);
- 		if (sync)
- 			xlog_sync(log, iclog);
- 	}
- 	return 0;
-+error:
-+	xfs_force_shutdown(mp, SHUTDOWN_LOG_IO_ERROR);
-+	return -EIO;
- }
- 
- /*
 -- 
 2.20.1
 
