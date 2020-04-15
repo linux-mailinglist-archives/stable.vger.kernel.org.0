@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9E4A1AA1DF
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC89D1AA245
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897476AbgDOLmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:42:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33812 "EHLO mail.kernel.org"
+        id S370545AbgDOMwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:52:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897464AbgDOLmc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:42:32 -0400
+        id S2897147AbgDOLmd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:42:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A4C4214D8;
-        Wed, 15 Apr 2020 11:42:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49ED4206A2;
+        Wed, 15 Apr 2020 11:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950951;
-        bh=cBk92c6nBULUxUTVafmDFD/ihP1iNDRokzEmXGn7xkk=;
+        s=default; t=1586950953;
+        bh=lbGMWCj1Ow4xOVH+P9eXNDdT+gYet8KYpgKFEEcJB1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AaGBAvTlX+qhoBDx+8hDQBJCQH2z95hGEJGiQpDcS1aRQfjWK4rgJAkuD5v/etAv+
-         TER0iFRAvrQJBs0Zbzh7o10V3t1jJMV8B54ekZRpJQmxwIBFfkALuO4Gw8Bmpgu27D
-         NTV1dC0XP7wXNv1g7lX7RAtXFHWZvlteO0fZUsSE=
+        b=TqlT7Wv3HJX1xD5UnEhxWSgkS0pynih6HItDoibC3ZjpqUCQXdCD5IKsnWYM3IR6L
+         u0UGhrf/11Jf/u8hN/qHNEvyWU16HsJaAlUFg4R9hQYkTJGfv6OFcq6nOBnH6+szUx
+         FjCITT4aCS+jneRxTWGfy48TPqHNIFMqvnGLX+AI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+Cc:     Anson Huang <Anson.Huang@nxp.com>, Peng Fan <peng.fan@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.5 004/106] clk: at91: usb: continue if clk_hw_round_rate() return zero
-Date:   Wed, 15 Apr 2020 07:40:44 -0400
-Message-Id: <20200415114226.13103-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 005/106] clk: imx: pll14xx: Add new frequency entries for pll1443x table
+Date:   Wed, 15 Apr 2020 07:40:45 -0400
+Message-Id: <20200415114226.13103-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
 References: <20200415114226.13103-1-sashal@kernel.org>
@@ -44,47 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit b0ecf1c6c6e82da4847900fad0272abfd014666d ]
+[ Upstream commit 57795654fb553a78f07a9f92d87fb2582379cd93 ]
 
-clk_hw_round_rate() may call round rate function of its parents. In case
-of SAM9X60 two of USB parrents are PLLA and UPLL. These clocks are
-controlled by clk-sam9x60-pll.c driver. The round rate function for this
-driver is sam9x60_pll_round_rate() which call in turn
-sam9x60_pll_get_best_div_mul(). In case the requested rate is not in the
-proper range (rate < characteristics->output[0].min &&
-rate > characteristics->output[0].max) the sam9x60_pll_round_rate() will
-return a negative number to its caller (called by
-clk_core_round_rate_nolock()). clk_hw_round_rate() will return zero in
-case a negative number is returned by clk_core_round_rate_nolock(). With
-this, the USB clock will continue its rate computation even caller of
-clk_hw_round_rate() returned an error. With this, the USB clock on SAM9X60
-may not chose the best parent. I detected this after a suspend/resume
-cycle on SAM9X60.
+Add new frequency entries to pll1443x table to meet different
+display settings requirement.
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lkml.kernel.org/r/1579261009-4573-2-git-send-email-claudiu.beznea@microchip.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/clk-usb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/imx/clk-pll14xx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clk/at91/clk-usb.c b/drivers/clk/at91/clk-usb.c
-index 22aede42a3362..3c0bd7e51b09d 100644
---- a/drivers/clk/at91/clk-usb.c
-+++ b/drivers/clk/at91/clk-usb.c
-@@ -75,6 +75,9 @@ static int at91sam9x5_clk_usb_determine_rate(struct clk_hw *hw,
- 			tmp_parent_rate = req->rate * div;
- 			tmp_parent_rate = clk_hw_round_rate(parent,
- 							   tmp_parent_rate);
-+			if (!tmp_parent_rate)
-+				continue;
-+
- 			tmp_rate = DIV_ROUND_CLOSEST(tmp_parent_rate, div);
- 			if (tmp_rate < req->rate)
- 				tmp_diff = req->rate - tmp_rate;
+diff --git a/drivers/clk/imx/clk-pll14xx.c b/drivers/clk/imx/clk-pll14xx.c
+index 3636c8035c7d9..c5df14caa1675 100644
+--- a/drivers/clk/imx/clk-pll14xx.c
++++ b/drivers/clk/imx/clk-pll14xx.c
+@@ -55,8 +55,10 @@ static const struct imx_pll14xx_rate_table imx_pll1416x_tbl[] = {
+ };
+ 
+ static const struct imx_pll14xx_rate_table imx_pll1443x_tbl[] = {
++	PLL_1443X_RATE(1039500000U, 173, 2, 1, 16384),
+ 	PLL_1443X_RATE(650000000U, 325, 3, 2, 0),
+ 	PLL_1443X_RATE(594000000U, 198, 2, 2, 0),
++	PLL_1443X_RATE(519750000U, 173, 2, 2, 16384),
+ 	PLL_1443X_RATE(393216000U, 262, 2, 3, 9437),
+ 	PLL_1443X_RATE(361267200U, 361, 3, 3, 17511),
+ };
 -- 
 2.20.1
 
