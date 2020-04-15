@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4FF1AA286
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47E5E1AA283
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505580AbgDOM45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:56:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56808 "EHLO mail.kernel.org"
+        id S2505578AbgDOM4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:56:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897187AbgDOLgy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:36:54 -0400
+        id S2897188AbgDOLgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:36:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A77F20768;
-        Wed, 15 Apr 2020 11:36:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1A1321582;
+        Wed, 15 Apr 2020 11:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950614;
-        bh=VyeAYrSuj5Nu9IZdaUdo5Y5eQ7ucFMmf8JRnu3917n8=;
+        s=default; t=1586950615;
+        bh=Lh/aVkzRGiJf794rdAEn6bIXmrdHDr/0NaGaE+pi0Js=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GL5CxGvvtYxDs+OWKEKJqSyOvmrN4rS7an+zqCiEwfR9IyIbotKrAYzJ9pNGQgacz
-         YWDkPH5FttgWHXeYJ/LPSWsC9nT5WBmd1sy7wzHWmC3XeY1H5GE6oBa9OVimnTi1tE
-         tQIh4TF65Ld4kcCHI7Nc4lRVlxZcm8sFHc2YlpxE=
+        b=jNopdLB0c3vCNfqass8jIKcY4/bhdeowJ29yCo4UGUOc1cWl05gbYU8CptZFceUpE
+         iAcs3/pMMP0QZZOPcGhm2yxOR1eAMGp0J1QISXRhXJ+hk5mql0rGbQ8ubAl0RZx4GF
+         kmPDaFte6FcyYjGDFVQAPFAoThOJYRJeJcPR81jI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Eric Auger <eric.auger@redhat.com>,
-        Robin Murphy <robin.murphy@arm.com>,
+Cc:     Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
         Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>,
-        virtualization@lists.linux-foundation.org,
         iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.6 107/129] iommu/virtio: Fix freeing of incomplete domains
-Date:   Wed, 15 Apr 2020 07:34:22 -0400
-Message-Id: <20200415113445.11881-107-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 108/129] iommu/vt-d: Add build dependency on IOASID
+Date:   Wed, 15 Apr 2020 07:34:23 -0400
+Message-Id: <20200415113445.11881-108-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -47,61 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Jacob Pan <jacob.jun.pan@linux.intel.com>
 
-[ Upstream commit 7062af3ed2ba451029e3733d9f677c68f5ea9e77 ]
+[ Upstream commit 4a663dae47316ae8b97d5b77025fe7dfd9d3487f ]
 
-Calling viommu_domain_free() on a domain that hasn't been finalised (not
-attached to any device, for example) can currently cause an Oops,
-because we attempt to call ida_free() on ID 0, which may either be
-unallocated or used by another domain.
+IOASID code is needed by VT-d scalable mode for PASID allocation.
+Add explicit dependency such that IOASID is built-in whenever Intel
+IOMMU is enabled.
+Otherwise, aux domain code will fail when IOMMU is built-in and IOASID
+is compiled as a module.
 
-Only initialise the vdomain->viommu pointer, which denotes a finalised
-domain, at the end of a successful viommu_domain_finalise().
-
-Fixes: edcd69ab9a32 ("iommu: Add virtio-iommu driver")
-Reported-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20200326093558.2641019-3-jean-philippe@linaro.org
+Fixes: 59a623374dc38 ("iommu/vt-d: Replace Intel specific PASID allocator with IOASID")
+Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/virtio-iommu.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/iommu/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index cce329d71fbad..5eed75cd121f1 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -613,18 +613,20 @@ static int viommu_domain_finalise(struct viommu_dev *viommu,
- 	int ret;
- 	struct viommu_domain *vdomain = to_viommu_domain(domain);
- 
--	vdomain->viommu		= viommu;
--	vdomain->map_flags	= viommu->map_flags;
-+	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
-+			      viommu->last_domain, GFP_KERNEL);
-+	if (ret < 0)
-+		return ret;
-+
-+	vdomain->id		= (unsigned int)ret;
- 
- 	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
- 	domain->geometry	= viommu->geometry;
- 
--	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
--			      viommu->last_domain, GFP_KERNEL);
--	if (ret >= 0)
--		vdomain->id = (unsigned int)ret;
-+	vdomain->map_flags	= viommu->map_flags;
-+	vdomain->viommu		= viommu;
- 
--	return ret > 0 ? 0 : ret;
-+	return 0;
- }
- 
- static void viommu_domain_free(struct iommu_domain *domain)
+diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+index d2fade9849997..25149544d57c9 100644
+--- a/drivers/iommu/Kconfig
++++ b/drivers/iommu/Kconfig
+@@ -188,6 +188,7 @@ config INTEL_IOMMU
+ 	select NEED_DMA_MAP_STATE
+ 	select DMAR_TABLE
+ 	select SWIOTLB
++	select IOASID
+ 	help
+ 	  DMA remapping (DMAR) devices support enables independent address
+ 	  translations for Direct Memory Access (DMA) from devices.
 -- 
 2.20.1
 
