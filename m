@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 971AE1AA1DA
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5D7F1AA2A0
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897198AbgDOLhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:37:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56638 "EHLO mail.kernel.org"
+        id S2505564AbgDOM6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:58:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897181AbgDOLgr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:36:47 -0400
+        id S2897182AbgDOLgo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:36:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C49220936;
-        Wed, 15 Apr 2020 11:36:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FE36208FE;
+        Wed, 15 Apr 2020 11:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586950603;
-        bh=YLXBwgw3/Lm1c+qH8DOQy+FDCzjJEKmau8CPH+MDC5E=;
+        s=default; t=1586950604;
+        bh=aYUuWPfJpzqoqPVjphiZ2zRMzjSHaBbquwqd8TH1J4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QiCK4FXusW5AcJ/AAPFy4hB78r5rogA3Geb5jUh1lpVRD+HhdAg0H+K5332jqv0WU
-         psxtlSLb/+IkFoFIiVh9j2VSQ6b8NH5dDKv/5XQURqHIvKqQLSoZjupkBnpebM0MBw
-         CjHU3lpxXdbNLLrhXedhrt5ywwg9kaW9ar07SdxA=
+        b=bEumCFXf9h/Y9yyGJqLu2/LODsCDKUDua9KsN5GD4s9RqHJrZEAG53cdyC2GoUB1b
+         7QGOr7aCS3SZt0Gv1UCcrO0qu42H9Ie5xgnPQtQd3ozfi/QnRGgU3CviXiMdAKaeEt
+         EcpiZZfCRTcq9PAp0F+1YN1ynBc9vgD415/GmPdE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.6 098/129] f2fs: fix NULL pointer dereference in f2fs_verity_work()
-Date:   Wed, 15 Apr 2020 07:34:13 -0400
-Message-Id: <20200415113445.11881-98-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 099/129] f2fs: fix NULL pointer dereference in f2fs_write_begin()
+Date:   Wed, 15 Apr 2020 07:34:14 -0400
+Message-Id: <20200415113445.11881-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
 References: <20200415113445.11881-1-sashal@kernel.org>
@@ -45,100 +45,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 79bbefb19f1359fb2cbd144d5a054649e7e583be ]
+[ Upstream commit 62f63eea291b50a5677ae7503ac128803174698a ]
 
-If both compression and fsverity feature is on, generic/572 will
-report below NULL pointer dereference bug.
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+RIP: 0010:f2fs_write_begin+0x823/0xb90 [f2fs]
+Call Trace:
+ f2fs_quota_write+0x139/0x1d0 [f2fs]
+ write_blk+0x36/0x80 [quota_tree]
+ get_free_dqblk+0x42/0xa0 [quota_tree]
+ do_insert_tree+0x235/0x4a0 [quota_tree]
+ do_insert_tree+0x26e/0x4a0 [quota_tree]
+ do_insert_tree+0x26e/0x4a0 [quota_tree]
+ do_insert_tree+0x26e/0x4a0 [quota_tree]
+ qtree_write_dquot+0x70/0x190 [quota_tree]
+ v2_write_dquot+0x43/0x90 [quota_v2]
+ dquot_acquire+0x77/0x100
+ f2fs_dquot_acquire+0x2f/0x60 [f2fs]
+ dqget+0x310/0x450
+ dquot_transfer+0x7e/0x120
+ f2fs_setattr+0x11a/0x4a0 [f2fs]
+ notify_change+0x349/0x480
+ chown_common+0x168/0x1c0
+ do_fchownat+0xbc/0xf0
+ __x64_sys_fchownat+0x20/0x30
+ do_syscall_64+0x5f/0x220
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
- BUG: kernel NULL pointer dereference, address: 0000000000000018
- RIP: 0010:f2fs_verity_work+0x60/0x90 [f2fs]
- #PF: supervisor read access in kernel mode
- Workqueue: fsverity_read_queue f2fs_verity_work [f2fs]
- RIP: 0010:f2fs_verity_work+0x60/0x90 [f2fs]
- Call Trace:
-  process_one_work+0x16c/0x3f0
-  worker_thread+0x4c/0x440
-  ? rescuer_thread+0x350/0x350
-  kthread+0xf8/0x130
-  ? kthread_unpark+0x70/0x70
-  ret_from_fork+0x35/0x40
-
-There are two issue in f2fs_verity_work():
-- it needs to traverse and verify all pages in bio.
-- if pages in bio belong to non-compressed cluster, accessing
-decompress IO context stored in page private will cause NULL
-pointer dereference.
-
-Fix them.
+Passing fsdata parameter to .write_{begin,end} in f2fs_quota_write(),
+so that if quota file is compressed one, we can avoid above NULL
+pointer dereference when updating quota content.
 
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/compress.c |  2 ++
- fs/f2fs/data.c     | 35 ++++++++++++++++++++++++++++++-----
- 2 files changed, 32 insertions(+), 5 deletions(-)
+ fs/f2fs/super.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index 1a86e483b0907..eb84c13c1182c 100644
---- a/fs/f2fs/compress.c
-+++ b/fs/f2fs/compress.c
-@@ -476,6 +476,8 @@ void f2fs_decompress_pages(struct bio *bio, struct page *page, bool verity)
- out_vunmap_rbuf:
- 	vunmap(dic->rbuf);
- out_free_dic:
-+	if (verity)
-+		refcount_add(dic->nr_cpages - 1, &dic->ref);
- 	if (!verity)
- 		f2fs_decompress_end_io(dic->rpages, dic->cluster_size,
- 								ret, false);
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index b27b721079116..34990866cfe96 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -191,12 +191,37 @@ static void f2fs_verify_pages(struct page **rpages, unsigned int cluster_size)
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 3669f060b6257..8deb0a260d928 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1929,6 +1929,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
+ 	int offset = off & (sb->s_blocksize - 1);
+ 	size_t towrite = len;
+ 	struct page *page;
++	void *fsdata = NULL;
+ 	char *kaddr;
+ 	int err = 0;
+ 	int tocopy;
+@@ -1938,7 +1939,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
+ 								towrite);
+ retry:
+ 		err = a_ops->write_begin(NULL, mapping, off, tocopy, 0,
+-							&page, NULL);
++							&page, &fsdata);
+ 		if (unlikely(err)) {
+ 			if (err == -ENOMEM) {
+ 				congestion_wait(BLK_RW_ASYNC, HZ/50);
+@@ -1954,7 +1955,7 @@ static ssize_t f2fs_quota_write(struct super_block *sb, int type,
+ 		flush_dcache_page(page);
  
- static void f2fs_verify_bio(struct bio *bio)
- {
--	struct page *page = bio_first_page_all(bio);
--	struct decompress_io_ctx *dic =
--			(struct decompress_io_ctx *)page_private(page);
-+	struct bio_vec *bv;
-+	struct bvec_iter_all iter_all;
-+
-+	bio_for_each_segment_all(bv, bio, iter_all) {
-+		struct page *page = bv->bv_page;
-+		struct decompress_io_ctx *dic;
-+
-+		dic = (struct decompress_io_ctx *)page_private(page);
-+
-+		if (dic) {
-+			if (refcount_dec_not_one(&dic->ref))
-+				continue;
-+			f2fs_verify_pages(dic->rpages,
-+						dic->cluster_size);
-+			f2fs_free_dic(dic);
-+			continue;
-+		}
-+
-+		if (bio->bi_status || PageError(page))
-+			goto clear_uptodate;
- 
--	f2fs_verify_pages(dic->rpages, dic->cluster_size);
--	f2fs_free_dic(dic);
-+		if (fsverity_verify_page(page)) {
-+			SetPageUptodate(page);
-+			goto unlock;
-+		}
-+clear_uptodate:
-+		ClearPageUptodate(page);
-+		ClearPageError(page);
-+unlock:
-+		unlock_page(page);
-+	}
- }
- #endif
- 
+ 		a_ops->write_end(NULL, mapping, off, tocopy, tocopy,
+-						page, NULL);
++						page, fsdata);
+ 		offset = 0;
+ 		towrite -= tocopy;
+ 		off += tocopy;
 -- 
 2.20.1
 
