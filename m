@@ -2,100 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B751AA42A
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA771AA434
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 15:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S370789AbgDONSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 09:18:47 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:48265 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S370777AbgDONS3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 09:18:29 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2D12A5C0148;
-        Wed, 15 Apr 2020 09:18:28 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 09:18:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ss8qC0
-        UWsq9GJZJ+o/+9s62IncDY2t7igUL9RddQwzY=; b=xSy7mGSpKrsWFERMM8h3Q/
-        wmL22XdianL7CauTcsZOHT/9BSvSV0yToR69TSyZaQjiRbh6pDCPdwtijrL/k1zi
-        VEdGD5anYC6NkEGHKcOkRSFbEVQ833DAQR8etyrzQ5id/SOhW+88AOYG9rn21IKc
-        eEsisLG/frM7GRe7gaqAvpwRHE6K5Y45CWKTuRlPUH6f/Or3bz1AUR94vftENZiM
-        ZCoUSJ0bTofKk/1+2Twr51/KVbUFcGTA4KayowChi9my8Hr9kuSdFeoohSqGbSQc
-        DBirjfo3fZ9fp4ufVOilzIK/ObOqEAY9eBQXflKkQ9wAEjkT8GkWnKBGgOqevK0w
-        ==
-X-ME-Sender: <xms:pAmXXrrV7aQ-XPhRSl1P1qoCrF_V3nESK3LEJLJYOlsKWwf77vnVVw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgdehudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
-    rhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:pAmXXlNb39gx7xcVcdZiwAWjJV7g6hpvtHMEdidCu6ijDDu5Qg1blw>
-    <xmx:pAmXXsgHJhCtf3sbzjAwU6ID9kuwdh8UAMr7SIWTJw1GkDJxmuyQug>
-    <xmx:pAmXXhaAb-jpx6zuCY5T8nnlae5jRwh-Zyv0AkDzwkUvoC-MLS28Dg>
-    <xmx:pAmXXrCJP-zXx4IY5nXRgIUAVkN474n_sSUr3XWBLl37iYC6I9rHsA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BDF70328005A;
-        Wed, 15 Apr 2020 09:18:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/kasan: Fix kasan_remap_early_shadow_ro()" failed to apply to 5.4-stable tree
-To:     christophe.leroy@c-s.fr, mpe@ellerman.id.au
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 15:18:25 +0200
-Message-ID: <1586956705226232@kroah.com>
+        id S2506302AbgDONUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 09:20:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56198 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2506285AbgDONTo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 09:19:44 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5EDCC061A0C;
+        Wed, 15 Apr 2020 06:19:43 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id b11so7742306wrs.6;
+        Wed, 15 Apr 2020 06:19:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=lfpK/xOIlDnyJhSEQBBYKy273A0qYIk6KaRxAULUFas=;
+        b=Xy0NAs50nauKNzelhrgCoZ1oAYS0by3FW/Xaw2GPXjjbxeHr7P51WtKfCf1iVTlDao
+         1cOOPmWg97iJ76qPu3Zf8K1JeiI+rzszWGk02qVHLNvlaAePVcN0Z1ZL+XQNVE5e9274
+         GYzX7MjCAThNITca93dboFwAqeKUQEJNeSp75p0d8awYnOijpfDLDm0N9I+yyxD6oci7
+         AUyJfwQuq1AqKugkFVaK5DG/Twamt2jjtWUBC/Q78V6LlzCa56wRZOhfgAQvg26w7Zfk
+         Ki+dfNNizSoeEwHuWdzLPllpRX8OzyQKILZp1EwCutUgg3ED3sqXDlxRzrDrAzQvSFX9
+         Bp/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=lfpK/xOIlDnyJhSEQBBYKy273A0qYIk6KaRxAULUFas=;
+        b=bBHeMvd4p6pfzZqUQ5yM8GBAZuuS/BtWb31bb32ABhqN6PUzGkDYSa0oWCCDPohrxD
+         BwZ1Fdv3wskLVDfKER+qhlsWGKPFDAZUjbuOAoIUlMzgRfxb/qLPkYAH/uTq3KgwuWkK
+         k/xowWap+PdKC3DTaJ3/oTkV5KOor9wXYFVibyiWuKGmEjsBeEdFevzUvO59ikxLVHEq
+         p3ELX/MQHAWVpJZIdgpw/GoCP3kyv6+ntp3CcjWwlV4djrWj+XGwRGEBsEygVLceArz4
+         Kzl/Gw1n3H6tTPVTUcUz/9nKQ0GJ23TT0aCpa9Vzoi2u5TAyn2w+s8Mq2vhaRy17Q68a
+         4oRA==
+X-Gm-Message-State: AGi0PuZ3MSLAa2hREzCktIdd/tShzn5rlfWHKSID5unkgZN9H13bkmxR
+        ztMB5Vo1dADsOcE7JxYNc9q81JybyWGRIAqsypM=
+X-Google-Smtp-Source: APiQypIW8Pb7KI2m47zG2TSNaiw4mMtQU1+5Wz2hxAJY83V2FfpcUzk0ZWhEopuJDFTjiX0vj3fcibyWGzm0sC1HtaI=
+X-Received: by 2002:adf:ef51:: with SMTP id c17mr28624905wrp.130.1586956782339;
+ Wed, 15 Apr 2020 06:19:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <1586254255-28713-1-git-send-email-sumit.garg@linaro.org>
+ <CABPxzY+hL=jD6Zy=netP3oqNXg69gDL2g0KiPe40eaXXgZBnxw@mail.gmail.com>
+ <CAFA6WYMZAq6X5m++h33ySCa6jOQCq_tHL=8mUi-kPMcn4FH=jA@mail.gmail.com> <CAFA6WYOW9ne0iffwC1dc48a_aSaYkkxQzyHQXTV2Wkob9KOXQg@mail.gmail.com>
+In-Reply-To: <CAFA6WYOW9ne0iffwC1dc48a_aSaYkkxQzyHQXTV2Wkob9KOXQg@mail.gmail.com>
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Wed, 15 Apr 2020 15:19:30 +0200
+Message-ID: <CA+icZUUDm=WPjmwh5ikp8t+xt7dqTgghCeB8F0+czaUh-sHXxA@mail.gmail.com>
+Subject: Re: [PATCH v2] mac80211: fix race in ieee80211_register_hw()
+To:     Sumit Garg <sumit.garg@linaro.org>
+Cc:     Johannes Berg <johannes@sipsolutions.net>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        Krishna Chaitanya <chaitanya.mgit@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>, kuba@kernel.org,
+        Kalle Valo <kvalo@codeaurora.org>,
+        netdev <netdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        =?UTF-8?Q?Matthias=2DPeter_Sch=C3=B6pfer?= 
+        <matthias.schoepfer@ithinx.io>,
+        "Berg Philipp (HAU-EDS)" <Philipp.Berg@liebherr.com>,
+        "Weitner Michael (HAU-EDS)" <Michael.Weitner@liebherr.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Apr 15, 2020 at 3:10 PM Sumit Garg <sumit.garg@linaro.org> wrote:
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[.. ]
 
-thanks,
+> > In case we don't have any further comments, could you fix this nitpick
+> > from Chaitanya while applying or would you like me to respin and send
+> > v3?
+>
+> A gentle ping. Is this patch a good candidate for 5.7-rc2?
+>
 
-greg k-h
+Hi Sumit,
 
------------------- original commit in Linus's tree ------------------
+it's in [1] (see [2]) with slightly mods by Johannes but not in Linus tree.
 
-From af92bad615be75c6c0d1b1c5b48178360250a187 Mon Sep 17 00:00:00 2001
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Date: Fri, 6 Mar 2020 15:09:40 +0000
-Subject: [PATCH] powerpc/kasan: Fix kasan_remap_early_shadow_ro()
+Johannes requested a pull-request means will be merged in a next step
+in net.git and then hopefully land in Linus tree after Dave M.
+requested a pull-request.
 
-At the moment kasan_remap_early_shadow_ro() does nothing, because
-k_end is 0 and k_cur < 0 is always true.
+Thanks for your patch.
 
-Change the test to k_cur != k_end, as done in
-kasan_init_shadow_page_tables()
+Regards,
+- Sedat -
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: cbd18991e24f ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4e7b56865e01569058914c991143f5961b5d4719.1583507333.git.christophe.leroy@c-s.fr
-
-diff --git a/arch/powerpc/mm/kasan/kasan_init_32.c b/arch/powerpc/mm/kasan/kasan_init_32.c
-index f19526e7d3dc..1a29cf469903 100644
---- a/arch/powerpc/mm/kasan/kasan_init_32.c
-+++ b/arch/powerpc/mm/kasan/kasan_init_32.c
-@@ -101,7 +101,7 @@ static void __init kasan_remap_early_shadow_ro(void)
- 
- 	kasan_populate_pte(kasan_early_shadow_pte, prot);
- 
--	for (k_cur = k_start & PAGE_MASK; k_cur < k_end; k_cur += PAGE_SIZE) {
-+	for (k_cur = k_start & PAGE_MASK; k_cur != k_end; k_cur += PAGE_SIZE) {
- 		pmd_t *pmd = pmd_ptr_k(k_cur);
- 		pte_t *ptep = pte_offset_kernel(pmd, k_cur);
- 
-
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/jberg/mac80211.git/tag/?h=mac80211-for-net-2020-04-15
+[2] https://git.kernel.org/pub/scm/linux/kernel/git/jberg/mac80211.git/commit/?h=mac80211-for-net-2020-04-15&id=52e04b4ce5d03775b6a78f3ed1097480faacc9fd
