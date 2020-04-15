@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8321B1A9F1E
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 084D21A9F1F
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:14:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409330AbgDOLqq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:46:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41572 "EHLO mail.kernel.org"
+        id S2897464AbgDOLqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:46:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409314AbgDOLqm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:46:42 -0400
+        id S2409317AbgDOLqo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:46:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 307E121734;
-        Wed, 15 Apr 2020 11:46:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55108206A2;
+        Wed, 15 Apr 2020 11:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951201;
-        bh=k8xYy+LMBvtR9vGrgEP7ljRQZTei9c9KafyXYKHGOAA=;
+        s=default; t=1586951203;
+        bh=T79XHf50BU5f0IfLsPJwFGr7LufjqUk3a/qjHUQveQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wvd12+5pB72wixG2pSVhp0vumfO7LtxpG/vzGrdKPTUq0TmEWS9Liw5/rtpC/JXFs
-         uSSPIFDE7I8NF5NKJDtBd9pDNISrIzoUEE2OPQBBrQvE60YwJfFIBg/AeBDNnjhsW3
-         Mroi8fr8EgHz4DQ/k9HYoOLuAr0nAgJrh74R70K0=
+        b=hwX15IehHum/b3XSQDlWM2/YF1BjbQoKh41UTFFOopifRof1YJxlIedv+jDfM7dJz
+         BWGz1elfQS8E2MwBYN6QUUgGwMhuJO7tGgu90WpYV9tMswoycQvXlm1kkvVWQ1Re69
+         QaNaVpQp714YkZ9HeEEGonrEiPoS720OxytpiuF0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Long Li <longli@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.19 16/40] cifs: Allocate encryption header through kmalloc
-Date:   Wed, 15 Apr 2020 07:45:59 -0400
-Message-Id: <20200415114623.14972-16-sashal@kernel.org>
+Cc:     Richard Palethorpe <rpalethorpe@suse.com>,
+        Kees Cook <keescook@chromium.org>, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org, security@kernel.org, wg@grandegger.com,
+        mkl@pengutronix.de, davem@davemloft.net,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 17/40] slcan: Don't transmit uninitialized stack data in padding
+Date:   Wed, 15 Apr 2020 07:46:00 -0400
+Message-Id: <20200415114623.14972-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114623.14972-1-sashal@kernel.org>
 References: <20200415114623.14972-1-sashal@kernel.org>
@@ -44,81 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Long Li <longli@microsoft.com>
+From: Richard Palethorpe <rpalethorpe@suse.com>
 
-[ Upstream commit 3946d0d04bb360acca72db5efe9ae8440012d9dc ]
+[ Upstream commit b9258a2cece4ec1f020715fe3554bc2e360f6264 ]
 
-When encryption is used, smb2_transform_hdr is defined on the stack and is
-passed to the transport. This doesn't work with RDMA as the buffer needs to
-be DMA'ed.
+struct can_frame contains some padding which is not explicitly zeroed in
+slc_bump. This uninitialized data will then be transmitted if the stack
+initialization hardening feature is not enabled (CONFIG_INIT_STACK_ALL).
 
-Fix it by using kmalloc.
+This commit just zeroes the whole struct including the padding.
 
-Signed-off-by: Long Li <longli@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Richard Palethorpe <rpalethorpe@suse.com>
+Fixes: a1044e36e457 ("can: add slcan driver for serial/USB-serial CAN adapters")
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: linux-can@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: security@kernel.org
+Cc: wg@grandegger.com
+Cc: mkl@pengutronix.de
+Cc: davem@davemloft.net
+Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/transport.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ drivers/net/can/slcan.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
-index 0c4df56c825ab..70412944b267d 100644
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -392,7 +392,7 @@ smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 	      struct smb_rqst *rqst, int flags)
- {
- 	struct kvec iov;
--	struct smb2_transform_hdr tr_hdr;
-+	struct smb2_transform_hdr *tr_hdr;
- 	struct smb_rqst cur_rqst[MAX_COMPOUND];
- 	int rc;
+diff --git a/drivers/net/can/slcan.c b/drivers/net/can/slcan.c
+index db96078096206..f99cd94509be3 100644
+--- a/drivers/net/can/slcan.c
++++ b/drivers/net/can/slcan.c
+@@ -147,7 +147,7 @@ static void slc_bump(struct slcan *sl)
+ 	u32 tmpid;
+ 	char *cmd = sl->rbuff;
  
-@@ -402,28 +402,34 @@ smb_send_rqst(struct TCP_Server_Info *server, int num_rqst,
- 	if (num_rqst > MAX_COMPOUND - 1)
- 		return -ENOMEM;
+-	cf.can_id = 0;
++	memset(&cf, 0, sizeof(cf));
  
--	memset(&cur_rqst[0], 0, sizeof(cur_rqst));
--	memset(&iov, 0, sizeof(iov));
--	memset(&tr_hdr, 0, sizeof(tr_hdr));
+ 	switch (*cmd) {
+ 	case 'r':
+@@ -186,8 +186,6 @@ static void slc_bump(struct slcan *sl)
+ 	else
+ 		return;
+ 
+-	*(u64 *) (&cf.data) = 0; /* clear payload */
 -
--	iov.iov_base = &tr_hdr;
--	iov.iov_len = sizeof(tr_hdr);
--	cur_rqst[0].rq_iov = &iov;
--	cur_rqst[0].rq_nvec = 1;
--
- 	if (!server->ops->init_transform_rq) {
- 		cifs_dbg(VFS, "Encryption requested but transform callback "
- 			 "is missing\n");
- 		return -EIO;
- 	}
- 
-+	tr_hdr = kmalloc(sizeof(*tr_hdr), GFP_NOFS);
-+	if (!tr_hdr)
-+		return -ENOMEM;
-+
-+	memset(&cur_rqst[0], 0, sizeof(cur_rqst));
-+	memset(&iov, 0, sizeof(iov));
-+	memset(tr_hdr, 0, sizeof(*tr_hdr));
-+
-+	iov.iov_base = tr_hdr;
-+	iov.iov_len = sizeof(*tr_hdr);
-+	cur_rqst[0].rq_iov = &iov;
-+	cur_rqst[0].rq_nvec = 1;
-+
- 	rc = server->ops->init_transform_rq(server, num_rqst + 1,
- 					    &cur_rqst[0], rqst);
- 	if (rc)
--		return rc;
-+		goto out;
- 
- 	rc = __smb_send_rqst(server, num_rqst + 1, &cur_rqst[0]);
- 	smb3_free_compound_rqst(num_rqst, &cur_rqst[1]);
-+out:
-+	kfree(tr_hdr);
- 	return rc;
- }
- 
+ 	/* RTR frames may have a dlc > 0 but they never have any data bytes */
+ 	if (!(cf.can_id & CAN_RTR_FLAG)) {
+ 		for (i = 0; i < cf.can_dlc; i++) {
 -- 
 2.20.1
 
