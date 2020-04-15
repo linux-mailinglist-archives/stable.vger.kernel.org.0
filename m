@@ -2,229 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 804C21AAFAD
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 19:35:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD2D81AAFB2
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 19:35:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2411065AbgDOR2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 13:28:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43146 "EHLO mail.kernel.org"
+        id S2411067AbgDOR3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 13:29:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2411064AbgDOR2X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 13:28:23 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S2411089AbgDOR3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 13:29:00 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7091820784;
-        Wed, 15 Apr 2020 17:28:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F41820784;
+        Wed, 15 Apr 2020 17:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586971702;
-        bh=tF5kNUmcsYIYPwMIs1oH29T64Yiu1Tq0ewpvaaI0Lrc=;
+        s=default; t=1586971739;
+        bh=4YZMqjC3YWCeWBCjLEsBJGMguA8y1P/t7eYRQcpsXhA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NzD0KtUZVVWGCdyFGHHFoHibAZiWmGdLQfauuJQJc3qL1oz65WgVa4cJRCDnmzgZc
-         L67vHndDBDX+a0nzfse9VIt63mLwrwN1LfAQo8U0UQqgCh0m4YYU0sk3OkQwBRKWjY
-         uifooEghGgCKwOggLz365gVA3I9TSWcjWuWYGmM4=
-Date:   Wed, 15 Apr 2020 13:28:21 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     fdmanana@suse.com, dsterba@suse.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] Btrfs: fix crash during unmount due to
- race with delayed" failed to apply to 4.14-stable tree
-Message-ID: <20200415172821.GI1068@sasha-vm>
-References: <1586873688207222@kroah.com>
+        b=yTlfgIkkcpGAYUvWRGW7hh6UWFRBGACNVesSAnovSpHOf+iMqO37TrHml2qnBL7sO
+         jmFY4D+tlysUnwCmvTTkd/3BcoQ2gAVapfKOafcNmJcvETO11A9e8L+3cN2yb2jusO
+         ttj5JBnFIv0MogGREuwVyaTVUz+WaUmT/tG8dYFo=
+Date:   Wed, 15 Apr 2020 19:28:50 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Nathan Chancellor <natechancellor@gmail.com>
+Cc:     courbet@google.com, mpe@ellerman.id.au, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] powerpc: Make setjmp/longjmp signature
+ standard" failed to apply to 4.14-stable tree
+Message-ID: <20200415172850.GA3664694@kroah.com>
+References: <15869565461129@kroah.com>
+ <20200415161259.GA44996@ubuntu-s3-xlarge-x86>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1586873688207222@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200415161259.GA44996@ubuntu-s3-xlarge-x86>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 04:14:48PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.14-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From f0cc2cd70164efe8f75c5d99560f0f69969c72e4 Mon Sep 17 00:00:00 2001
->From: Filipe Manana <fdmanana@suse.com>
->Date: Fri, 28 Feb 2020 13:04:36 +0000
->Subject: [PATCH] Btrfs: fix crash during unmount due to race with delayed
-> inode workers
->
->During unmount we can have a job from the delayed inode items work queue
->still running, that can lead to at least two bad things:
->
->1) A crash, because the worker can try to create a transaction just
->   after the fs roots were freed;
->
->2) A transaction leak, because the worker can create a transaction
->   before the fs roots are freed and just after we committed the last
->   transaction and after we stopped the transaction kthread.
->
->A stack trace example of the crash:
->
-> [79011.691214] kernel BUG at lib/radix-tree.c:982!
-> [79011.692056] invalid opcode: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
-> [79011.693180] CPU: 3 PID: 1394 Comm: kworker/u8:2 Tainted: G        W         5.6.0-rc2-btrfs-next-54 #2
-> (...)
-> [79011.696789] Workqueue: btrfs-delayed-meta btrfs_work_helper [btrfs]
-> [79011.697904] RIP: 0010:radix_tree_tag_set+0xe7/0x170
-> (...)
-> [79011.702014] RSP: 0018:ffffb3c84a317ca0 EFLAGS: 00010293
-> [79011.702949] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-> [79011.704202] RDX: ffffb3c84a317cb0 RSI: ffffb3c84a317ca8 RDI: ffff8db3931340a0
-> [79011.705463] RBP: 0000000000000005 R08: 0000000000000005 R09: ffffffff974629d0
-> [79011.706756] R10: ffffb3c84a317bc0 R11: 0000000000000001 R12: ffff8db393134000
-> [79011.708010] R13: ffff8db3931340a0 R14: ffff8db393134068 R15: 0000000000000001
-> [79011.709270] FS:  0000000000000000(0000) GS:ffff8db3b6a00000(0000) knlGS:0000000000000000
-> [79011.710699] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [79011.711710] CR2: 00007f22c2a0a000 CR3: 0000000232ad4005 CR4: 00000000003606e0
-> [79011.712958] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [79011.714205] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [79011.715448] Call Trace:
-> [79011.715925]  record_root_in_trans+0x72/0xf0 [btrfs]
-> [79011.716819]  btrfs_record_root_in_trans+0x4b/0x70 [btrfs]
-> [79011.717925]  start_transaction+0xdd/0x5c0 [btrfs]
-> [79011.718829]  btrfs_async_run_delayed_root+0x17e/0x2b0 [btrfs]
-> [79011.719915]  btrfs_work_helper+0xaa/0x720 [btrfs]
-> [79011.720773]  process_one_work+0x26d/0x6a0
-> [79011.721497]  worker_thread+0x4f/0x3e0
-> [79011.722153]  ? process_one_work+0x6a0/0x6a0
-> [79011.722901]  kthread+0x103/0x140
-> [79011.723481]  ? kthread_create_worker_on_cpu+0x70/0x70
-> [79011.724379]  ret_from_fork+0x3a/0x50
-> (...)
->
->The following diagram shows a sequence of steps that lead to the crash
->during ummount of the filesystem:
->
->        CPU 1                                             CPU 2                                CPU 3
->
-> btrfs_punch_hole()
->   btrfs_btree_balance_dirty()
->     btrfs_balance_delayed_items()
->       --> sees
->           fs_info->delayed_root->items
->           with value 200, which is greater
->           than
->           BTRFS_DELAYED_BACKGROUND (128)
->           and smaller than
->           BTRFS_DELAYED_WRITEBACK (512)
->       btrfs_wq_run_delayed_node()
->         --> queues a job for
->             fs_info->delayed_workers to run
->             btrfs_async_run_delayed_root()
->
->                                                                                            btrfs_async_run_delayed_root()
->                                                                                              --> job queued by CPU 1
->
->                                                                                              --> starts picking and running
->                                                                                                  delayed nodes from the
->                                                                                                  prepare_list list
->
->                                                 close_ctree()
->
->                                                   btrfs_delete_unused_bgs()
->
->                                                   btrfs_commit_super()
->
->                                                     btrfs_join_transaction()
->                                                       --> gets transaction N
->
->                                                     btrfs_commit_transaction(N)
->                                                       --> set transaction state
->                                                        to TRANTS_STATE_COMMIT_START
->
->                                                                                             btrfs_first_prepared_delayed_node()
->                                                                                               --> picks delayed node X through
->                                                                                                   the prepared_list list
->
->                                                       btrfs_run_delayed_items()
->
->                                                         btrfs_first_delayed_node()
->                                                           --> also picks delayed node X
->                                                               but through the node_list
->                                                               list
->
->                                                         __btrfs_commit_inode_delayed_items()
->                                                            --> runs all delayed items from
->                                                                this node and drops the
->                                                                node's item count to 0
->                                                                through call to
->                                                                btrfs_release_delayed_inode()
->
->                                                         --> finishes running any remaining
->                                                             delayed nodes
->
->                                                       --> finishes transaction commit
->
->                                                   --> stops cleaner and transaction threads
->
->                                                   btrfs_free_fs_roots()
->                                                     --> frees all roots and removes them
->                                                         from the radix tree
->                                                         fs_info->fs_roots_radix
->
->                                                                                             btrfs_join_transaction()
->                                                                                               start_transaction()
->                                                                                                 btrfs_record_root_in_trans()
->                                                                                                   record_root_in_trans()
->                                                                                                     radix_tree_tag_set()
->                                                                                                       --> crashes because
->                                                                                                           the root is not in
->                                                                                                           the radix tree
->                                                                                                           anymore
->
->If the worker is able to call btrfs_join_transaction() before the unmount
->task frees the fs roots, we end up leaking a transaction and all its
->resources, since after the call to btrfs_commit_super() and stopping the
->transaction kthread, we don't expect to have any transaction open anymore.
->
->When this situation happens the worker has a delayed node that has no
->more items to run, since the task calling btrfs_run_delayed_items(),
->which is doing a transaction commit, picks the same node and runs all
->its items first.
->
->We can not wait for the worker to complete when running delayed items
->through btrfs_run_delayed_items(), because we call that function in
->several phases of a transaction commit, and that could cause a deadlock
->because the worker calls btrfs_join_transaction() and the task doing the
->transaction commit may have already set the transaction state to
->TRANS_STATE_COMMIT_DOING.
->
->Also it's not possible to get into a situation where only some of the
->items of a delayed node are added to the fs/subvolume tree in the current
->transaction and the remaining ones in the next transaction, because when
->running the items of a delayed inode we lock its mutex, effectively
->waiting for the worker if the worker is running the items of the delayed
->node already.
->
->Since this can only cause issues when unmounting a filesystem, fix it in
->a simple way by waiting for any jobs on the delayed workers queue before
->calling btrfs_commit_supper() at close_ctree(). This works because at this
->point no one can call btrfs_btree_balance_dirty() or
->btrfs_balance_delayed_items(), and if we end up waiting for any worker to
->complete, btrfs_commit_super() will commit the transaction created by the
->worker.
->
->CC: stable@vger.kernel.org # 4.4+
->Signed-off-by: Filipe Manana <fdmanana@suse.com>
->Reviewed-by: David Sterba <dsterba@suse.com>
->Signed-off-by: David Sterba <dsterba@suse.com>
+On Wed, Apr 15, 2020 at 09:12:59AM -0700, Nathan Chancellor wrote:
+> On Wed, Apr 15, 2020 at 03:15:46PM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.14-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > From c17eb4dca5a353a9dbbb8ad6934fe57af7165e91 Mon Sep 17 00:00:00 2001
+> > From: Clement Courbet <courbet@google.com>
+> > Date: Mon, 30 Mar 2020 10:03:56 +0200
+> > Subject: [PATCH] powerpc: Make setjmp/longjmp signature standard
+> > 
+> > Declaring setjmp()/longjmp() as taking longs makes the signature
+> > non-standard, and makes clang complain. In the past, this has been
+> > worked around by adding -ffreestanding to the compile flags.
+> > 
+> > The implementation looks like it only ever propagates the value
+> > (in longjmp) or sets it to 1 (in setjmp), and we only call longjmp
+> > with integer parameters.
+> > 
+> > This allows removing -ffreestanding from the compilation flags.
+> > 
+> > Fixes: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp and longjmp")
+> > Cc: stable@vger.kernel.org # v4.14+
+> > Signed-off-by: Clement Courbet <courbet@google.com>
+> > Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+> > Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+> > Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> > Link: https://lore.kernel.org/r/20200330080400.124803-1-courbet@google.com
+> > 
+> > diff --git a/arch/powerpc/include/asm/setjmp.h b/arch/powerpc/include/asm/setjmp.h
+> > index e9f81bb3f83b..f798e80e4106 100644
+> > --- a/arch/powerpc/include/asm/setjmp.h
+> > +++ b/arch/powerpc/include/asm/setjmp.h
+> > @@ -7,7 +7,9 @@
+> >  
+> >  #define JMP_BUF_LEN    23
+> >  
+> > -extern long setjmp(long *) __attribute__((returns_twice));
+> > -extern void longjmp(long *, long) __attribute__((noreturn));
+> > +typedef long jmp_buf[JMP_BUF_LEN];
+> > +
+> > +extern int setjmp(jmp_buf env) __attribute__((returns_twice));
+> > +extern void longjmp(jmp_buf env, int val) __attribute__((noreturn));
+> >  
+> >  #endif /* _ASM_POWERPC_SETJMP_H */
+> > diff --git a/arch/powerpc/kexec/Makefile b/arch/powerpc/kexec/Makefile
+> > index 378f6108a414..86380c69f5ce 100644
+> > --- a/arch/powerpc/kexec/Makefile
+> > +++ b/arch/powerpc/kexec/Makefile
+> > @@ -3,9 +3,6 @@
+> >  # Makefile for the linux kernel.
+> >  #
+> >  
+> > -# Avoid clang warnings around longjmp/setjmp declarations
+> > -CFLAGS_crash.o += -ffreestanding
+> > -
+> >  obj-y				+= core.o crash.o core_$(BITS).o
+> >  
+> >  obj-$(CONFIG_PPC32)		+= relocate_32.o
+> > diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
+> > index c3842dbeb1b7..6f9cccea54f3 100644
+> > --- a/arch/powerpc/xmon/Makefile
+> > +++ b/arch/powerpc/xmon/Makefile
+> > @@ -1,9 +1,6 @@
+> >  # SPDX-License-Identifier: GPL-2.0
+> >  # Makefile for xmon
+> >  
+> > -# Avoid clang warnings around longjmp/setjmp declarations
+> > -subdir-ccflags-y := -ffreestanding
+> > -
+> >  GCOV_PROFILE := n
+> >  KCOV_INSTRUMENT := n
+> >  UBSAN_SANITIZE := n
+> > 
+> 
+> Attached is a backport for 4.14 (that patch plus a prerequisite one).
 
-There were context conflicts, such as with e1f60a6580c0 ("btrfs: add
-__pure attribute to functions") going back. I've fixed those and queued
-this patch.
+Thanks for all 3 backports, now queued up.
 
--- 
-Thanks,
-Sasha
+greg k-h
