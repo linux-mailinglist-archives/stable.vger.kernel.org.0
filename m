@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 593D71A9C4A
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2731A9C4B
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 13:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897003AbgDOLbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 07:31:41 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:44295 "EHLO
+        id S2897005AbgDOLbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 07:31:44 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:39417 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2896984AbgDOLbd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:31:33 -0400
+        by vger.kernel.org with ESMTP id S2896998AbgDOLbf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 07:31:35 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 27C745C0140;
-        Wed, 15 Apr 2020 07:31:32 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 2BFFD5C014F;
+        Wed, 15 Apr 2020 07:31:34 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:31:32 -0400
+  by compute1.internal (MEProxy); Wed, 15 Apr 2020 07:31:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+E4Mxd
-        Cj5PQfkYJ0G+WbgyX7BMOPffRQMXnVztUnpNQ=; b=dlBgkPiicOB5w+jArbBP1N
-        Y7WscgdX3cqiT7PV795D7aoFxIjx0r7Au3Zv8NJsrtOnTKvOmrNu2JkSGC3C1MlV
-        SmTybzlwnAB7kc0CPg8s4EvxyMj1OzeITTqwwgKF7W9HGdiGKJItbbiSdRPv9L/H
-        HVIW0v2KwZeDs20TruE/ITfojC9CVErW2Dvef0TWDEswL3RLBxYFtuEg9+KUwBed
-        aQK5c2+0LKHHxGMffIBcDMSzzhDNc1tN0upoFIzsF+xECSm1iOEdiqDjkd27tZJV
-        CRmnTM67rG6Ys3vA4DqnIDVmlHjOkAonhfozaL9EhujSAPGa8tZY2eu0DteyX+xA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+pA7o8
+        Eku9nwaC8lwtyJntdUHMv1iq1w/VtraRnCfIM=; b=KZM60LXl8e7Z6vCgaR0/FJ
+        9ypdxYVJ0F9UiOQr9fcbBHiQN0xQMeUAna0neY/l5xgVhcuthJE3yCQOISoB0jrQ
+        IAGKiga2dNqJBJV3Hf/ZhHFo2Pug2YL4TDK5t2ji5oB66Kr4sfWoJhzBKVChzqWA
+        /gg7Sh2re3NrFMuYgIR3qajjBN9LTWxcUFRFIvGad0jYBB9Y7SOFP40tZh4vuGlB
+        M1SCtkLxFhJ2pjxYKzzQ2KsQcar2q2YUC0K6X0FilWJKSemJUOp6HGSjLhOspimP
+        RrOEKCrCM4U5hH8vG3m7x/kc/EOdOEhcc5KouBnIsQuYyvSGxXAsgw9tAYaQRqLg
         ==
-X-ME-Sender: <xms:k_CWXm0XqWOzZeX6qSYv6une6o2VsquDUmwnVp4o0Ky0j8Sw1oLmhw>
+X-ME-Sender: <xms:lvCWXrFyIuCTqBkCMAXV3cfEDfkt1ZesOLxIeqSDX17Da6gHnSNBHw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeefgddvlecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghenucfkphepkeefrdekie
-    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhf
+    drkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhf
     rhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:k_CWXgZ9rq1NbLgV7OG-FljwlH5uRzoYsPUJC12dBV5lCsxXVGytxg>
-    <xmx:k_CWXhgP7HbMml_sceR-bBnScxHyDY9xd4z4zyXLnnkfvdpykAoGCQ>
-    <xmx:k_CWXh4iVNqYF1RJCu8ywJ-uAGICZPJ9gBF-eQJMh3VIeBdfLaObxQ>
-    <xmx:lPCWXvgt-D0r5Rp3lCdj1jWB1LVfc2fO5C3oPkyznPdHfbGuYEQArQ>
+X-ME-Proxy: <xmx:lvCWXsk2agENZooMeG2Yrp7jetGOcjKqtnyQeA7La_R9TrBWWw-cuQ>
+    <xmx:lvCWXhzCauViJHKwrSKms4eEMt5WMUDtHrXA3yAIAnp9uSK5d5MD0w>
+    <xmx:lvCWXoSGSgLtR5qoBCY8HRDmwEYQNvCfmM9_uJdf8sp2KhXsdDDm4g>
+    <xmx:lvCWXseLQeqLysxdZCQGBKBCAmUzoM60_uuAnzexIChy3uxT0etqYA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8E77A3280069;
-        Wed, 15 Apr 2020 07:31:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/dp_mst: Fix clearing payload state on topology disable" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B5DF73280064;
+        Wed, 15 Apr 2020 07:31:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/dp_mst: Fix clearing payload state on topology disable" failed to apply to 4.9-stable tree
 To:     lyude@redhat.com, Wayne.Lin@amd.com, sean@poorly.run,
         ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Apr 2020 13:31:30 +0200
-Message-ID: <158695029016084@kroah.com>
+Date:   Wed, 15 Apr 2020 13:31:31 +0200
+Message-ID: <1586950291117222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
