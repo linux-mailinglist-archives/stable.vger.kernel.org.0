@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A85FA1A9F3A
-	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:14:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D81C11A9F36
+	for <lists+stable@lfdr.de>; Wed, 15 Apr 2020 14:14:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441228AbgDOMHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 08:07:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41934 "EHLO mail.kernel.org"
+        id S2441210AbgDOMH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 08:07:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897613AbgDOLrQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:47:16 -0400
+        id S2897619AbgDOLrT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:47:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FC5C20775;
-        Wed, 15 Apr 2020 11:47:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 502E021569;
+        Wed, 15 Apr 2020 11:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586951235;
-        bh=c3tDbP3kjZMereB6y5jCbrX1IZryCnz0sMYCtncHOyQ=;
+        s=default; t=1586951237;
+        bh=x1Q+kvGfO54ewQSFDZp8wBouTouHngWFqa2kQ/WTrT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jpda8+Z3M2DhHBXflwd/F9bkRGbYBCT3AjnTIBGvDz4p4Pf7CskFI1fss0m0/BxJc
-         W0sYIeSX7/nf1p9Tp/khmny7hzEBHjn8pddluh7ySQTwODp4EMCtlSRnBUIwfSDwPP
-         tWwm3GBwY/AXc4LaDZsRZIYw+kLaiur93rFyIPV4=
+        b=L9H2hY/60x+WFIjqDN8Y3JiIRuKzrNF5nxgWkmcZ0yCnVvejYpMr236sJzHf0gCsA
+         KE5E5iUzgXYXQmkQCLXj+mNUpXIltGrmyA1MHaxPWBX8NicuXj65s8hGLzbuhOMjYU
+         enws0/mFtT90WekbGzhNT42Wvb1KUTJHxo313pdk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 03/30] clk: tegra: Fix Tegra PMC clock out parents
-Date:   Wed, 15 Apr 2020 07:46:44 -0400
-Message-Id: <20200415114711.15381-3-sashal@kernel.org>
+Cc:     Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 04/30] soc: imx: gpc: fix power up sequencing
+Date:   Wed, 15 Apr 2020 07:46:45 -0400
+Message-Id: <20200415114711.15381-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200415114711.15381-1-sashal@kernel.org>
 References: <20200415114711.15381-1-sashal@kernel.org>
@@ -45,54 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 6fe38aa8cac3a5db38154331742835a4d9740788 ]
+[ Upstream commit e0ea2d11f8a08ba7066ff897e16c5217215d1e68 ]
 
-Tegra PMC clocks clk_out_1, clk_out_2, and clk_out_3 supported parents
-are osc, osc_div2, osc_div4 and extern clock.
+Currently we wait only until the PGC inverts the isolation setting
+before disabling the peripheral clocks. This doesn't ensure that the
+reset is properly propagated through the peripheral devices in the
+power domain.
 
-Clock driver is using incorrect parents clk_m, clk_m_div2, clk_m_div4
-for PMC clocks.
+Wait until the PGC signals that the power up request is done and
+wait a bit for resets to propagate before disabling the clocks.
 
-This patch fixes this.
-
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-tegra-pmc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/soc/imx/gpc.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-tegra-pmc.c b/drivers/clk/tegra/clk-tegra-pmc.c
-index a35579a3f884f..476dab494c44d 100644
---- a/drivers/clk/tegra/clk-tegra-pmc.c
-+++ b/drivers/clk/tegra/clk-tegra-pmc.c
-@@ -60,16 +60,16 @@ struct pmc_clk_init_data {
+diff --git a/drivers/soc/imx/gpc.c b/drivers/soc/imx/gpc.c
+index 3a12123de4662..0e083fe8b893f 100644
+--- a/drivers/soc/imx/gpc.c
++++ b/drivers/soc/imx/gpc.c
+@@ -97,8 +97,8 @@ static int imx6_pm_domain_power_off(struct generic_pm_domain *genpd)
+ static int imx6_pm_domain_power_on(struct generic_pm_domain *genpd)
+ {
+ 	struct imx_pm_domain *pd = to_imx_pm_domain(genpd);
+-	int i, ret, sw, sw2iso;
+-	u32 val;
++	int i, ret;
++	u32 val, req;
  
- static DEFINE_SPINLOCK(clk_out_lock);
+ 	if (pd->supply) {
+ 		ret = regulator_enable(pd->supply);
+@@ -117,17 +117,18 @@ static int imx6_pm_domain_power_on(struct generic_pm_domain *genpd)
+ 	regmap_update_bits(pd->regmap, pd->reg_offs + GPC_PGC_CTRL_OFFS,
+ 			   0x1, 0x1);
  
--static const char *clk_out1_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern1",
-+static const char *clk_out1_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern1",
+-	/* Read ISO and ISO2SW power up delays */
+-	regmap_read(pd->regmap, pd->reg_offs + GPC_PGC_PUPSCR_OFFS, &val);
+-	sw = val & 0x3f;
+-	sw2iso = (val >> 8) & 0x3f;
+-
+ 	/* Request GPC to power up domain */
+-	val = BIT(pd->cntr_pdn_bit + 1);
+-	regmap_update_bits(pd->regmap, GPC_CNTR, val, val);
++	req = BIT(pd->cntr_pdn_bit + 1);
++	regmap_update_bits(pd->regmap, GPC_CNTR, req, req);
+ 
+-	/* Wait ISO + ISO2SW IPG clock cycles */
+-	udelay(DIV_ROUND_UP(sw + sw2iso, pd->ipg_rate_mhz));
++	/* Wait for the PGC to handle the request */
++	ret = regmap_read_poll_timeout(pd->regmap, GPC_CNTR, val, !(val & req),
++				       1, 50);
++	if (ret)
++		pr_err("powerup request on domain %s timed out\n", genpd->name);
++
++	/* Wait for reset to propagate through peripherals */
++	usleep_range(5, 10);
+ 
+ 	/* Disable reset clocks for all devices in the domain */
+ 	for (i = 0; i < pd->num_clks; i++)
+@@ -329,6 +330,7 @@ static const struct regmap_config imx_gpc_regmap_config = {
+ 	.rd_table = &access_table,
+ 	.wr_table = &access_table,
+ 	.max_register = 0x2ac,
++	.fast_io = true,
  };
  
--static const char *clk_out2_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern2",
-+static const char *clk_out2_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern2",
- };
- 
--static const char *clk_out3_parents[] = { "clk_m", "clk_m_div2",
--	"clk_m_div4", "extern3",
-+static const char *clk_out3_parents[] = { "osc", "osc_div2",
-+	"osc_div4", "extern3",
- };
- 
- static struct pmc_clk_init_data pmc_clks[] = {
+ static struct generic_pm_domain *imx_gpc_onecell_domains[] = {
 -- 
 2.20.1
 
