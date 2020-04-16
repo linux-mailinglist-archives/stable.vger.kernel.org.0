@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13DDB1AC74F
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2C11AC3BB
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394439AbgDPOxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:53:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44036 "EHLO mail.kernel.org"
+        id S2897160AbgDPNr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:47:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441820AbgDPN5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:57:01 -0400
+        id S2898639AbgDPNrS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:47:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4A692078B;
-        Thu, 16 Apr 2020 13:56:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD36621744;
+        Thu, 16 Apr 2020 13:47:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045420;
+        s=default; t=1587044838;
         bh=wI3rSj/W6AYF4oDxg5zKimwVW/fNHbKwmR8ewd1vzIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mn/vbO9HIAqIiHvoCzGNvgoWqu/+iuOFgW2ORoh2FDG4ulsJigQrBcXEubqqzRkRs
-         FpORWyz54pzQewWfN/UezOoF1EMyBvB76bkPi2LRqFXwIwUPR5CaGEvl2jyR+ckOym
-         qWNg0MJZdH3e4TDfiUPFUQc3lz9pHWDNdg4hUrSY=
+        b=kvwV4+V0/ue1Ujw5PBgfYWIOn2lcweMXogzlRDieOIyOdm490WKudfWzbp4peikPV
+         s9Le8pL+xubHxH5v+4K3eaHYhbOT+9T/bBW5Ihr2VLKjmZAThn9r8tzYYxbPJeC7Tl
+         yKcekEAZ0Onq4uqbwV9BBs9opXoUzoBTY3I2zsAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.6 126/254] x86/tsc_msr: Fix MSR_FSB_FREQ mask for Cherry Trail devices
+Subject: [PATCH 5.4 121/232] x86/tsc_msr: Fix MSR_FSB_FREQ mask for Cherry Trail devices
 Date:   Thu, 16 Apr 2020 15:23:35 +0200
-Message-Id: <20200416131342.151045503@linuxfoundation.org>
+Message-Id: <20200416131330.241076312@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
