@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6EF31AC91E
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:19:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64DD01AC922
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442418AbgDPPTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:19:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34062 "EHLO mail.kernel.org"
+        id S2442406AbgDPPTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:19:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898721AbgDPNsA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:48:00 -0400
+        id S2390133AbgDPNsC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:48:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46CE6208E4;
-        Thu, 16 Apr 2020 13:47:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC8C72222C;
+        Thu, 16 Apr 2020 13:48:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044879;
-        bh=B7zhlyybFv1XUG0eUAi325z4c05qgF2+mSwk3uRsExU=;
+        s=default; t=1587044882;
+        bh=zIhIZGj24O1o982in8b2nseAv+Soag+2J7fvks+6GeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZpfNC9hWEgToEHCnkhMWDxGbZmX26Cel9RIpVXUy9kabpMRSVQ9twevYlByF5dsJk
-         nn7MM4FWV3m1rQVgi5CmgqktjO6q6aioJu45VH8qfrXUjjpqLuPFw/Tc3bL+NNBn3/
-         mRvp8kxAa8zw6tRso+QXb8xsjoQ0s2Q67ht4oQwI=
+        b=xTUMgahuGmk2EneIrzIOwq4woo6zR/GXCsFfs8lM2+E6Tmx0mRb3QCE/hasMefqUo
+         xlvnM+m53V0BxssjiHp0yLHas1L5EhtODf0aKdqhL/XQbKdWUw72f955UCKE/aUSKN
+         PLFiwghXFxfXoQdYwiditmBwMUJXVw0JiWVWQ0zE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 140/232] btrfs: set update the uuid generation as soon as possible
-Date:   Thu, 16 Apr 2020 15:23:54 +0200
-Message-Id: <20200416131332.494351963@linuxfoundation.org>
+Subject: [PATCH 5.4 141/232] btrfs: drop block from cache on error in relocation
+Date:   Thu, 16 Apr 2020 15:23:55 +0200
+Message-Id: <20200416131332.620071433@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
 References: <20200416131316.640996080@linuxfoundation.org>
@@ -45,62 +46,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josef Bacik <josef@toxicpanda.com>
 
-commit 75ec1db8717a8f0a9d9c8d033e542fdaa7b73898 upstream.
+commit 8e19c9732ad1d127b5575a10f4fbcacf740500ff upstream.
 
-In my EIO stress testing I noticed I was getting forced to rescan the
-uuid tree pretty often, which was weird.  This is because my error
-injection stuff would sometimes inject an error after log replay but
-before we loaded the UUID tree.  If log replay committed the transaction
-it wouldn't have updated the uuid tree generation, but the tree was
-valid and didn't change, so there's no reason to not update the
-generation here.
+If we have an error while building the backref tree in relocation we'll
+process all the pending edges and then free the node.  However if we
+integrated some edges into the cache we'll lose our link to those edges
+by simply freeing this node, which means we'll leak memory and
+references to any roots that we've found.
 
-Fix this by setting the BTRFS_FS_UPDATE_UUID_TREE_GEN bit immediately
-after reading all the fs roots if the uuid tree generation matches the
-fs generation.  Then any transaction commits that happen during mount
-won't screw up our uuid tree state, forcing us to do needless uuid
-rescans.
+Instead we need to use remove_backref_node(), which walks through all of
+the edges that are still linked to this node and free's them up and
+drops any root references we may be holding.
 
-Fixes: 70f801754728 ("Btrfs: check UUID tree during mount if required")
-CC: stable@vger.kernel.org # 4.19+
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/disk-io.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ fs/btrfs/relocation.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3057,6 +3057,18 @@ retry_root_backup:
- 	fs_info->generation = generation;
- 	fs_info->last_trans_committed = generation;
- 
-+	/*
-+	 * If we have a uuid root and we're not being told to rescan we need to
-+	 * check the generation here so we can set the
-+	 * BTRFS_FS_UPDATE_UUID_TREE_GEN bit.  Otherwise we could commit the
-+	 * transaction during a balance or the log replay without updating the
-+	 * uuid generation, and then if we crash we would rescan the uuid tree,
-+	 * even though it was perfectly fine.
-+	 */
-+	if (fs_info->uuid_root && !btrfs_test_opt(fs_info, RESCAN_UUID_TREE) &&
-+	    fs_info->generation == btrfs_super_uuid_tree_generation(disk_super))
-+		set_bit(BTRFS_FS_UPDATE_UUID_TREE_GEN, &fs_info->flags);
-+
- 	ret = btrfs_verify_dev_extents(fs_info);
- 	if (ret) {
- 		btrfs_err(fs_info,
-@@ -3287,8 +3299,6 @@ retry_root_backup:
- 			close_ctree(fs_info);
- 			return ret;
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1186,7 +1186,7 @@ out:
+ 			free_backref_node(cache, lower);
  		}
--	} else {
--		set_bit(BTRFS_FS_UPDATE_UUID_TREE_GEN, &fs_info->flags);
- 	}
- 	set_bit(BTRFS_FS_OPEN, &fs_info->flags);
  
+-		free_backref_node(cache, node);
++		remove_backref_node(cache, node);
+ 		return ERR_PTR(err);
+ 	}
+ 	ASSERT(!node || !node->detached);
 
 
