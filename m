@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C70C11AC7FB
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:02:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF571ACA26
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390838AbgDPPCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:02:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40670 "EHLO mail.kernel.org"
+        id S2392172AbgDPPby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:31:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898793AbgDPNyJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:54:09 -0400
+        id S2441560AbgDPNmn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:42:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5FDA20732;
-        Thu, 16 Apr 2020 13:54:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEB0F214D8;
+        Thu, 16 Apr 2020 13:42:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045249;
-        bh=qnKjeRFljIsmqkFccDcOzXGYVkd2gtcV3xBaAQ+3WqM=;
+        s=default; t=1587044562;
+        bh=aJGDApDJxafW+Vlm41KJkKg+iMU290np3OMqekDT3+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PO55uwNR3wL0m17vha4JFGz5pk30l0QeS67hsI/2IHEbgxrnp/YQLKuTpuUAiBbm/
-         lHBxVpv4hf1TdpQRE92133M0NHVX+IodFaNXhrdwJUAnMPFrIyu6pE+Vf2SPaZQLM8
-         Lja/+SqMOPy8Bd22wRCPNErcf/vP/V/ny+vO3PPg=
+        b=OR+cNrqJI99dV1MX6QebsPrlsGJVfRgVqCkCEHM+FSSJ/EO2GUCDkhdnH1E8WzN+Z
+         pslh3WgEvUyGcNKVm9SL8eBQK3RigaQEDRS9oAvCsKZTwpOoO36oXuHQsBDT5BOxXM
+         vex5HcgYw/RNMLp3pFX3TNh5YaxSjmet62BoOPiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Zheng Wei <wei.zheng@vivo.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 016/254] iio: imu: st_lsm6dsx: check return value from st_lsm6dsx_sensor_set_enable
+Subject: [PATCH 5.4 011/232] net: vxge: fix wrong __VA_ARGS__ usage
 Date:   Thu, 16 Apr 2020 15:21:45 +0200
-Message-Id: <20200416131327.850290960@linuxfoundation.org>
+Message-Id: <20200416131317.819053358@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Zheng Wei <wei.zheng@vivo.com>
 
-[ Upstream commit f20dbe11e2e904547597ae7371c1f635e3be9cad ]
+[ Upstream commit b317538c47943f9903860d83cc0060409e12d2ff ]
 
-Add missing return value check in st_lsm6dsx_shub_read_oneshot disabling
-the slave device connected to the st_lsm6dsx i2c controller.
-The issue is reported by coverity with the following error:
+printk in macro vxge_debug_ll uses __VA_ARGS__ without "##" prefix,
+it causes a build error when there is no variable
+arguments(e.g. only fmt is specified.).
 
-Unchecked return value:
-If the function returns an error value, the error value may be mistaken
-for a normal value.
-
-Addresses-Coverity-ID: 1456767 ("Unchecked return value")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Zheng Wei <wei.zheng@vivo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/neterion/vxge/vxge-config.h |  2 +-
+ drivers/net/ethernet/neterion/vxge/vxge-main.h   | 14 +++++++-------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c
-index eea555617d4aa..95ddd19d1aa7c 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c
-@@ -464,9 +464,10 @@ st_lsm6dsx_shub_read_oneshot(struct st_lsm6dsx_sensor *sensor,
+diff --git a/drivers/net/ethernet/neterion/vxge/vxge-config.h b/drivers/net/ethernet/neterion/vxge/vxge-config.h
+index e678ba379598e..628fa9b2f7416 100644
+--- a/drivers/net/ethernet/neterion/vxge/vxge-config.h
++++ b/drivers/net/ethernet/neterion/vxge/vxge-config.h
+@@ -2045,7 +2045,7 @@ vxge_hw_vpath_strip_fcs_check(struct __vxge_hw_device *hldev, u64 vpath_mask);
+ 	if ((level >= VXGE_ERR && VXGE_COMPONENT_LL & VXGE_DEBUG_ERR_MASK) ||  \
+ 	    (level >= VXGE_TRACE && VXGE_COMPONENT_LL & VXGE_DEBUG_TRACE_MASK))\
+ 		if ((mask & VXGE_DEBUG_MASK) == mask)			       \
+-			printk(fmt "\n", __VA_ARGS__);			       \
++			printk(fmt "\n", ##__VA_ARGS__);		       \
+ } while (0)
+ #else
+ #define vxge_debug_ll(level, mask, fmt, ...)
+diff --git a/drivers/net/ethernet/neterion/vxge/vxge-main.h b/drivers/net/ethernet/neterion/vxge/vxge-main.h
+index 59a57ff5e96af..9c86f4f9cd424 100644
+--- a/drivers/net/ethernet/neterion/vxge/vxge-main.h
++++ b/drivers/net/ethernet/neterion/vxge/vxge-main.h
+@@ -452,49 +452,49 @@ int vxge_fw_upgrade(struct vxgedev *vdev, char *fw_name, int override);
  
- 	len = min_t(int, sizeof(data), ch->scan_type.realbits >> 3);
- 	err = st_lsm6dsx_shub_read(sensor, ch->address, data, len);
-+	if (err < 0)
-+		return err;
+ #if (VXGE_DEBUG_LL_CONFIG & VXGE_DEBUG_MASK)
+ #define vxge_debug_ll_config(level, fmt, ...) \
+-	vxge_debug_ll(level, VXGE_DEBUG_LL_CONFIG, fmt, __VA_ARGS__)
++	vxge_debug_ll(level, VXGE_DEBUG_LL_CONFIG, fmt, ##__VA_ARGS__)
+ #else
+ #define vxge_debug_ll_config(level, fmt, ...)
+ #endif
  
--	st_lsm6dsx_shub_set_enable(sensor, false);
--
-+	err = st_lsm6dsx_shub_set_enable(sensor, false);
- 	if (err < 0)
- 		return err;
+ #if (VXGE_DEBUG_INIT & VXGE_DEBUG_MASK)
+ #define vxge_debug_init(level, fmt, ...) \
+-	vxge_debug_ll(level, VXGE_DEBUG_INIT, fmt, __VA_ARGS__)
++	vxge_debug_ll(level, VXGE_DEBUG_INIT, fmt, ##__VA_ARGS__)
+ #else
+ #define vxge_debug_init(level, fmt, ...)
+ #endif
  
+ #if (VXGE_DEBUG_TX & VXGE_DEBUG_MASK)
+ #define vxge_debug_tx(level, fmt, ...) \
+-	vxge_debug_ll(level, VXGE_DEBUG_TX, fmt, __VA_ARGS__)
++	vxge_debug_ll(level, VXGE_DEBUG_TX, fmt, ##__VA_ARGS__)
+ #else
+ #define vxge_debug_tx(level, fmt, ...)
+ #endif
+ 
+ #if (VXGE_DEBUG_RX & VXGE_DEBUG_MASK)
+ #define vxge_debug_rx(level, fmt, ...) \
+-	vxge_debug_ll(level, VXGE_DEBUG_RX, fmt, __VA_ARGS__)
++	vxge_debug_ll(level, VXGE_DEBUG_RX, fmt, ##__VA_ARGS__)
+ #else
+ #define vxge_debug_rx(level, fmt, ...)
+ #endif
+ 
+ #if (VXGE_DEBUG_MEM & VXGE_DEBUG_MASK)
+ #define vxge_debug_mem(level, fmt, ...) \
+-	vxge_debug_ll(level, VXGE_DEBUG_MEM, fmt, __VA_ARGS__)
++	vxge_debug_ll(level, VXGE_DEBUG_MEM, fmt, ##__VA_ARGS__)
+ #else
+ #define vxge_debug_mem(level, fmt, ...)
+ #endif
+ 
+ #if (VXGE_DEBUG_ENTRYEXIT & VXGE_DEBUG_MASK)
+ #define vxge_debug_entryexit(level, fmt, ...) \
+-	vxge_debug_ll(level, VXGE_DEBUG_ENTRYEXIT, fmt, __VA_ARGS__)
++	vxge_debug_ll(level, VXGE_DEBUG_ENTRYEXIT, fmt, ##__VA_ARGS__)
+ #else
+ #define vxge_debug_entryexit(level, fmt, ...)
+ #endif
+ 
+ #if (VXGE_DEBUG_INTR & VXGE_DEBUG_MASK)
+ #define vxge_debug_intr(level, fmt, ...) \
+-	vxge_debug_ll(level, VXGE_DEBUG_INTR, fmt, __VA_ARGS__)
++	vxge_debug_ll(level, VXGE_DEBUG_INTR, fmt, ##__VA_ARGS__)
+ #else
+ #define vxge_debug_intr(level, fmt, ...)
+ #endif
 -- 
 2.20.1
 
