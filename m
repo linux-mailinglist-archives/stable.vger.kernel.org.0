@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF6E1AC2C1
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:33:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDB591ACABD
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:39:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896400AbgDPNcs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:32:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
+        id S2395389AbgDPPi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:38:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896270AbgDPNah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:30:37 -0400
+        id S2897733AbgDPNij (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:38:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 716B6206E9;
-        Thu, 16 Apr 2020 13:30:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 333B5221F4;
+        Thu, 16 Apr 2020 13:38:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043836;
-        bh=YT2uPu+CvbKPtXH7NT0G3Z7bnBFybUw4cBTirjFdyIA=;
+        s=default; t=1587044318;
+        bh=YTCURO/wpL4mZgGhN38MtVtgTdD2kwxE6Zl9cpyaaFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZHgfFiYsBLicpa/vdFpVouDR8NUY8UD4ny3NQZUdzJdeCZsqBibGm1rlcEm4tw7m
-         oo3V2glyte/S05AoosQR3COvwRcSJslSpziKC/RMeD76w20Q5MgJ2b9UqYbPt7hC4i
-         VE8uBUWCbOkeLDiAOrHpetZNfnr7vsD1jj3W08LE=
+        b=z8zviVTKJLA3IJ6JbVI2pgnHow/2pTLxXdTXOtHOqr3psxEEzn0bQKcrQvHkLN8K7
+         VzswmvgF32+4L1qnNsP69LQR35YVCQyXS5Vn7fwfCCxCwvAu1YGPJpYk0/VRwvE1Jn
+         iPzk/xoSSAT6cDPIT/GFQPPIU+N2fbFAd5OPsT4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4.19 080/146] KVM: s390: vsie: Fix region 1 ASCE sanity shadow address checks
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.5 170/257] crypto: rng - Fix a refcounting bug in crypto_rng_reset()
 Date:   Thu, 16 Apr 2020 15:23:41 +0200
-Message-Id: <20200416131253.818790582@linuxfoundation.org>
+Message-Id: <20200416131347.702586093@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit a1d032a49522cb5368e5dfb945a85899b4c74f65 upstream.
+commit eed74b3eba9eda36d155c11a12b2b4b50c67c1d8 upstream.
 
-In case we have a region 1 the following calculation
-(31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11)
-results in 64. As shifts beyond the size are undefined the compiler is
-free to use instructions like sllg. sllg will only use 6 bits of the
-shift value (here 64) resulting in no shift at all. That means that ALL
-addresses will be rejected.
+We need to decrement this refcounter on these error paths.
 
-The can result in endless loops, e.g. when prefix cannot get mapped.
-
-Fixes: 4be130a08420 ("s390/mm: add shadow gmap support")
-Tested-by: Janosch Frank <frankja@linux.ibm.com>
-Reported-by: Janosch Frank <frankja@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-2-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[borntraeger@de.ibm.com: fix patch description, remove WARN_ON_ONCE]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: f7d76e05d058 ("crypto: user - fix use_after_free of struct xxx_request")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/mm/gmap.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ crypto/rng.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -787,14 +787,18 @@ static void gmap_call_notifier(struct gm
- static inline unsigned long *gmap_table_walk(struct gmap *gmap,
- 					     unsigned long gaddr, int level)
- {
-+	const int asce_type = gmap->asce & _ASCE_TYPE_MASK;
- 	unsigned long *table;
+--- a/crypto/rng.c
++++ b/crypto/rng.c
+@@ -37,12 +37,16 @@ int crypto_rng_reset(struct crypto_rng *
+ 	crypto_stats_get(alg);
+ 	if (!seed && slen) {
+ 		buf = kmalloc(slen, GFP_KERNEL);
+-		if (!buf)
++		if (!buf) {
++			crypto_alg_put(alg);
+ 			return -ENOMEM;
++		}
  
- 	if ((gmap->asce & _ASCE_TYPE_MASK) + 4 < (level * 4))
- 		return NULL;
- 	if (gmap_is_shadow(gmap) && gmap->removed)
- 		return NULL;
--	if (gaddr & (-1UL << (31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11)))
-+
-+	if (asce_type != _ASCE_TYPE_REGION1 &&
-+	    gaddr & (-1UL << (31 + (asce_type >> 2) * 11)))
- 		return NULL;
-+
- 	table = gmap->table;
- 	switch (gmap->asce & _ASCE_TYPE_MASK) {
- 	case _ASCE_TYPE_REGION1:
+ 		err = get_random_bytes_wait(buf, slen);
+-		if (err)
++		if (err) {
++			crypto_alg_put(alg);
+ 			goto out;
++		}
+ 		seed = buf;
+ 	}
+ 
 
 
