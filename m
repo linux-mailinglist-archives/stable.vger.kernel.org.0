@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFCFA1AC6D4
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DCD1ACA4C
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727892AbgDPOpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:45:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46776 "EHLO mail.kernel.org"
+        id S2504206AbgDPPda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:33:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898876AbgDPN7q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:59:46 -0400
+        id S2898287AbgDPNlT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7688A20732;
-        Thu, 16 Apr 2020 13:59:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DCEE214D8;
+        Thu, 16 Apr 2020 13:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045583;
-        bh=PWaJRkt2NCn98O26SrArzGJFYoewu/KCLQ6IM41AeVw=;
+        s=default; t=1587044478;
+        bh=vZKMLH6+87IUjMNrup5IggY1o+3zzdiZAgU3UikVZlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtNbN4iFa7tY4QY3wOjdv1+qtHNFknMokuKAd8MosJADjPF2UsXAw6XPOWhSvHjGx
-         mjGFYopruG3dTOpT5Yegxv5/Nv1dscLp12fCz2ZenCSQ8ym3PcdgMeTXeuCvzfqANr
-         E3Z16/Ain1+MPsU3anQL/8T4BE34au9cIytQCezc=
+        b=XU9R5G4DernsuXLQSfySIHNoYJVnjrps62VMDMty/VIQv4/ebwnf/h0SaFD9aZeFY
+         QwMufgF/jsdyVwaK9ecmsU6/thTTWD91UfX1eWdyAstn7tkX5HaHvu9OTuJ9ZUtSBy
+         /jTgp2NWXmociEHOLioAJlaKGWkvuA3h4hd2Z6PM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rafael Aquini <aquini@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Eric B Munson <emunson@akamai.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 195/254] selftests: vm: drop dependencies on page flags from mlock2 tests
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Corey Minyard <minyard@acm.org>, Arnd Bergmann <arnd@arndb.de>,
+        openipmi-developer@lists.sourceforge.net,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 5.5 233/257] ipmi: fix hung processes in __get_guid()
 Date:   Thu, 16 Apr 2020 15:24:44 +0200
-Message-Id: <20200416131350.599623587@linuxfoundation.org>
+Message-Id: <20200416131354.800144331@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,393 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Hocko <mhocko@suse.com>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-commit eea274d64e6ea8aff2224d33d0851133a84cc7b5 upstream.
+commit 32830a0534700f86366f371b150b17f0f0d140d7 upstream.
 
-It was noticed that mlock2 tests are failing after 9c4e6b1a7027f ("mm,
-mlock, vmscan: no more skipping pagevecs") because the patch has changed
-the timing on when the page is added to the unevictable LRU list and thus
-gains the unevictable page flag.
+The wait_event() function is used to detect command completion.
+When send_guid_cmd() returns an error, smi_send() has not been
+called to send data. Therefore, wait_event() should not be used
+on the error path, otherwise it will cause the following warning:
 
-The test was just too dependent on the implementation details which were
-true at the time when it was introduced.  Page flags and the timing when
-they are set is something no userspace should ever depend on.  The test
-should be testing only for the user observable contract of the tested
-syscalls.  Those are defined pretty well for the mlock and there are other
-means for testing them.  In fact this is already done and testing for page
-flags can be safely dropped to achieve the aimed purpose.  Present bits
-can be checked by /proc/<pid>/smaps RSS field and the locking state by
-VmFlags although I would argue that Locked: field would be more
-appropriate.
+[ 1361.588808] systemd-udevd   D    0  1501   1436 0x00000004
+[ 1361.588813]  ffff883f4b1298c0 0000000000000000 ffff883f4b188000 ffff887f7e3d9f40
+[ 1361.677952]  ffff887f64bd4280 ffffc90037297a68 ffffffff8173ca3b ffffc90000000010
+[ 1361.767077]  00ffc90037297ad0 ffff887f7e3d9f40 0000000000000286 ffff883f4b188000
+[ 1361.856199] Call Trace:
+[ 1361.885578]  [<ffffffff8173ca3b>] ? __schedule+0x23b/0x780
+[ 1361.951406]  [<ffffffff8173cfb6>] schedule+0x36/0x80
+[ 1362.010979]  [<ffffffffa071f178>] get_guid+0x118/0x150 [ipmi_msghandler]
+[ 1362.091281]  [<ffffffff810d5350>] ? prepare_to_wait_event+0x100/0x100
+[ 1362.168533]  [<ffffffffa071f755>] ipmi_register_smi+0x405/0x940 [ipmi_msghandler]
+[ 1362.258337]  [<ffffffffa0230ae9>] try_smi_init+0x529/0x950 [ipmi_si]
+[ 1362.334521]  [<ffffffffa022f350>] ? std_irq_setup+0xd0/0xd0 [ipmi_si]
+[ 1362.411701]  [<ffffffffa0232bd2>] init_ipmi_si+0x492/0x9e0 [ipmi_si]
+[ 1362.487917]  [<ffffffffa0232740>] ? ipmi_pci_probe+0x280/0x280 [ipmi_si]
+[ 1362.568219]  [<ffffffff810021a0>] do_one_initcall+0x50/0x180
+[ 1362.636109]  [<ffffffff812231b2>] ? kmem_cache_alloc_trace+0x142/0x190
+[ 1362.714330]  [<ffffffff811b2ae1>] do_init_module+0x5f/0x200
+[ 1362.781208]  [<ffffffff81123ca8>] load_module+0x1898/0x1de0
+[ 1362.848069]  [<ffffffff811202e0>] ? __symbol_put+0x60/0x60
+[ 1362.913886]  [<ffffffff8130696b>] ? security_kernel_post_read_file+0x6b/0x80
+[ 1362.998514]  [<ffffffff81124465>] SYSC_finit_module+0xe5/0x120
+[ 1363.068463]  [<ffffffff81124465>] ? SYSC_finit_module+0xe5/0x120
+[ 1363.140513]  [<ffffffff811244be>] SyS_finit_module+0xe/0x10
+[ 1363.207364]  [<ffffffff81003c04>] do_syscall_64+0x74/0x180
 
-Drop all the page flag machinery and considerably simplify the test.  This
-should be more robust for future kernel changes while checking the
-promised contract is still valid.
-
-Fixes: 9c4e6b1a7027f ("mm, mlock, vmscan: no more skipping pagevecs")
-Reported-by: Rafael Aquini <aquini@redhat.com>
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Rafael Aquini <aquini@redhat.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Eric B Munson <emunson@akamai.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200324154218.GS19542@dhcp22.suse.cz
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 50c812b2b951 ("[PATCH] ipmi: add full sysfs support")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: Corey Minyard <minyard@acm.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: openipmi-developer@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # 2.6.17-
+Message-Id: <20200403090408.58745-1-wenyang@linux.alibaba.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/vm/mlock2-tests.c |  233 ++++--------------------------
- 1 file changed, 37 insertions(+), 196 deletions(-)
+ drivers/char/ipmi/ipmi_msghandler.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/vm/mlock2-tests.c
-+++ b/tools/testing/selftests/vm/mlock2-tests.c
-@@ -67,59 +67,6 @@ out:
- 	return ret;
- }
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -3188,8 +3188,8 @@ static void __get_guid(struct ipmi_smi *
+ 	if (rv)
+ 		/* Send failed, no GUID available. */
+ 		bmc->dyn_guid_set = 0;
+-
+-	wait_event(intf->waitq, bmc->dyn_guid_set != 2);
++	else
++		wait_event(intf->waitq, bmc->dyn_guid_set != 2);
  
--static uint64_t get_pageflags(unsigned long addr)
--{
--	FILE *file;
--	uint64_t pfn;
--	unsigned long offset;
--
--	file = fopen("/proc/self/pagemap", "r");
--	if (!file) {
--		perror("fopen pagemap");
--		_exit(1);
--	}
--
--	offset = addr / getpagesize() * sizeof(pfn);
--
--	if (fseek(file, offset, SEEK_SET)) {
--		perror("fseek pagemap");
--		_exit(1);
--	}
--
--	if (fread(&pfn, sizeof(pfn), 1, file) != 1) {
--		perror("fread pagemap");
--		_exit(1);
--	}
--
--	fclose(file);
--	return pfn;
--}
--
--static uint64_t get_kpageflags(unsigned long pfn)
--{
--	uint64_t flags;
--	FILE *file;
--
--	file = fopen("/proc/kpageflags", "r");
--	if (!file) {
--		perror("fopen kpageflags");
--		_exit(1);
--	}
--
--	if (fseek(file, pfn * sizeof(flags), SEEK_SET)) {
--		perror("fseek kpageflags");
--		_exit(1);
--	}
--
--	if (fread(&flags, sizeof(flags), 1, file) != 1) {
--		perror("fread kpageflags");
--		_exit(1);
--	}
--
--	fclose(file);
--	return flags;
--}
--
- #define VMFLAGS "VmFlags:"
- 
- static bool is_vmflag_set(unsigned long addr, const char *vmflag)
-@@ -159,19 +106,13 @@ out:
- #define RSS  "Rss:"
- #define LOCKED "lo"
- 
--static bool is_vma_lock_on_fault(unsigned long addr)
-+static unsigned long get_value_for_name(unsigned long addr, const char *name)
- {
--	bool ret = false;
--	bool locked;
--	FILE *smaps = NULL;
--	unsigned long vma_size, vma_rss;
- 	char *line = NULL;
--	char *value;
- 	size_t size = 0;
--
--	locked = is_vmflag_set(addr, LOCKED);
--	if (!locked)
--		goto out;
-+	char *value_ptr;
-+	FILE *smaps = NULL;
-+	unsigned long value = -1UL;
- 
- 	smaps = seek_to_smaps_entry(addr);
- 	if (!smaps) {
-@@ -180,112 +121,70 @@ static bool is_vma_lock_on_fault(unsigne
- 	}
- 
- 	while (getline(&line, &size, smaps) > 0) {
--		if (!strstr(line, SIZE)) {
-+		if (!strstr(line, name)) {
- 			free(line);
- 			line = NULL;
- 			size = 0;
- 			continue;
- 		}
- 
--		value = line + strlen(SIZE);
--		if (sscanf(value, "%lu kB", &vma_size) < 1) {
-+		value_ptr = line + strlen(name);
-+		if (sscanf(value_ptr, "%lu kB", &value) < 1) {
- 			printf("Unable to parse smaps entry for Size\n");
- 			goto out;
- 		}
- 		break;
- 	}
- 
--	while (getline(&line, &size, smaps) > 0) {
--		if (!strstr(line, RSS)) {
--			free(line);
--			line = NULL;
--			size = 0;
--			continue;
--		}
--
--		value = line + strlen(RSS);
--		if (sscanf(value, "%lu kB", &vma_rss) < 1) {
--			printf("Unable to parse smaps entry for Rss\n");
--			goto out;
--		}
--		break;
--	}
--
--	ret = locked && (vma_rss < vma_size);
- out:
--	free(line);
- 	if (smaps)
- 		fclose(smaps);
--	return ret;
-+	free(line);
-+	return value;
- }
- 
--#define PRESENT_BIT     0x8000000000000000ULL
--#define PFN_MASK        0x007FFFFFFFFFFFFFULL
--#define UNEVICTABLE_BIT (1UL << 18)
--
--static int lock_check(char *map)
-+static bool is_vma_lock_on_fault(unsigned long addr)
- {
--	unsigned long page_size = getpagesize();
--	uint64_t page1_flags, page2_flags;
-+	bool locked;
-+	unsigned long vma_size, vma_rss;
-+
-+	locked = is_vmflag_set(addr, LOCKED);
-+	if (!locked)
-+		return false;
- 
--	page1_flags = get_pageflags((unsigned long)map);
--	page2_flags = get_pageflags((unsigned long)map + page_size);
-+	vma_size = get_value_for_name(addr, SIZE);
-+	vma_rss = get_value_for_name(addr, RSS);
- 
--	/* Both pages should be present */
--	if (((page1_flags & PRESENT_BIT) == 0) ||
--	    ((page2_flags & PRESENT_BIT) == 0)) {
--		printf("Failed to make both pages present\n");
--		return 1;
--	}
-+	/* only one page is faulted in */
-+	return (vma_rss < vma_size);
-+}
- 
--	page1_flags = get_kpageflags(page1_flags & PFN_MASK);
--	page2_flags = get_kpageflags(page2_flags & PFN_MASK);
-+#define PRESENT_BIT     0x8000000000000000ULL
-+#define PFN_MASK        0x007FFFFFFFFFFFFFULL
-+#define UNEVICTABLE_BIT (1UL << 18)
- 
--	/* Both pages should be unevictable */
--	if (((page1_flags & UNEVICTABLE_BIT) == 0) ||
--	    ((page2_flags & UNEVICTABLE_BIT) == 0)) {
--		printf("Failed to make both pages unevictable\n");
--		return 1;
--	}
-+static int lock_check(unsigned long addr)
-+{
-+	bool locked;
-+	unsigned long vma_size, vma_rss;
- 
--	if (!is_vmflag_set((unsigned long)map, LOCKED)) {
--		printf("VMA flag %s is missing on page 1\n", LOCKED);
--		return 1;
--	}
-+	locked = is_vmflag_set(addr, LOCKED);
-+	if (!locked)
-+		return false;
- 
--	if (!is_vmflag_set((unsigned long)map + page_size, LOCKED)) {
--		printf("VMA flag %s is missing on page 2\n", LOCKED);
--		return 1;
--	}
-+	vma_size = get_value_for_name(addr, SIZE);
-+	vma_rss = get_value_for_name(addr, RSS);
- 
--	return 0;
-+	return (vma_rss == vma_size);
- }
- 
- static int unlock_lock_check(char *map)
- {
--	unsigned long page_size = getpagesize();
--	uint64_t page1_flags, page2_flags;
--
--	page1_flags = get_pageflags((unsigned long)map);
--	page2_flags = get_pageflags((unsigned long)map + page_size);
--	page1_flags = get_kpageflags(page1_flags & PFN_MASK);
--	page2_flags = get_kpageflags(page2_flags & PFN_MASK);
--
--	if ((page1_flags & UNEVICTABLE_BIT) || (page2_flags & UNEVICTABLE_BIT)) {
--		printf("A page is still marked unevictable after unlock\n");
--		return 1;
--	}
--
- 	if (is_vmflag_set((unsigned long)map, LOCKED)) {
- 		printf("VMA flag %s is present on page 1 after unlock\n", LOCKED);
- 		return 1;
- 	}
- 
--	if (is_vmflag_set((unsigned long)map + page_size, LOCKED)) {
--		printf("VMA flag %s is present on page 2 after unlock\n", LOCKED);
--		return 1;
--	}
--
- 	return 0;
- }
- 
-@@ -311,7 +210,7 @@ static int test_mlock_lock()
- 		goto unmap;
- 	}
- 
--	if (lock_check(map))
-+	if (!lock_check((unsigned long)map))
- 		goto unmap;
- 
- 	/* Now unlock and recheck attributes */
-@@ -330,64 +229,18 @@ out:
- 
- static int onfault_check(char *map)
- {
--	unsigned long page_size = getpagesize();
--	uint64_t page1_flags, page2_flags;
--
--	page1_flags = get_pageflags((unsigned long)map);
--	page2_flags = get_pageflags((unsigned long)map + page_size);
--
--	/* Neither page should be present */
--	if ((page1_flags & PRESENT_BIT) || (page2_flags & PRESENT_BIT)) {
--		printf("Pages were made present by MLOCK_ONFAULT\n");
--		return 1;
--	}
--
- 	*map = 'a';
--	page1_flags = get_pageflags((unsigned long)map);
--	page2_flags = get_pageflags((unsigned long)map + page_size);
--
--	/* Only page 1 should be present */
--	if ((page1_flags & PRESENT_BIT) == 0) {
--		printf("Page 1 is not present after fault\n");
--		return 1;
--	} else if (page2_flags & PRESENT_BIT) {
--		printf("Page 2 was made present\n");
--		return 1;
--	}
--
--	page1_flags = get_kpageflags(page1_flags & PFN_MASK);
--
--	/* Page 1 should be unevictable */
--	if ((page1_flags & UNEVICTABLE_BIT) == 0) {
--		printf("Failed to make faulted page unevictable\n");
--		return 1;
--	}
--
- 	if (!is_vma_lock_on_fault((unsigned long)map)) {
- 		printf("VMA is not marked for lock on fault\n");
- 		return 1;
- 	}
- 
--	if (!is_vma_lock_on_fault((unsigned long)map + page_size)) {
--		printf("VMA is not marked for lock on fault\n");
--		return 1;
--	}
--
- 	return 0;
- }
- 
- static int unlock_onfault_check(char *map)
- {
- 	unsigned long page_size = getpagesize();
--	uint64_t page1_flags;
--
--	page1_flags = get_pageflags((unsigned long)map);
--	page1_flags = get_kpageflags(page1_flags & PFN_MASK);
--
--	if (page1_flags & UNEVICTABLE_BIT) {
--		printf("Page 1 is still marked unevictable after unlock\n");
--		return 1;
--	}
- 
- 	if (is_vma_lock_on_fault((unsigned long)map) ||
- 	    is_vma_lock_on_fault((unsigned long)map + page_size)) {
-@@ -445,7 +298,6 @@ static int test_lock_onfault_of_present(
- 	char *map;
- 	int ret = 1;
- 	unsigned long page_size = getpagesize();
--	uint64_t page1_flags, page2_flags;
- 
- 	map = mmap(NULL, 2 * page_size, PROT_READ | PROT_WRITE,
- 		   MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-@@ -465,17 +317,6 @@ static int test_lock_onfault_of_present(
- 		goto unmap;
- 	}
- 
--	page1_flags = get_pageflags((unsigned long)map);
--	page2_flags = get_pageflags((unsigned long)map + page_size);
--	page1_flags = get_kpageflags(page1_flags & PFN_MASK);
--	page2_flags = get_kpageflags(page2_flags & PFN_MASK);
--
--	/* Page 1 should be unevictable */
--	if ((page1_flags & UNEVICTABLE_BIT) == 0) {
--		printf("Failed to make present page unevictable\n");
--		goto unmap;
--	}
--
- 	if (!is_vma_lock_on_fault((unsigned long)map) ||
- 	    !is_vma_lock_on_fault((unsigned long)map + page_size)) {
- 		printf("VMA with present pages is not marked lock on fault\n");
-@@ -507,7 +348,7 @@ static int test_munlockall()
- 		goto out;
- 	}
- 
--	if (lock_check(map))
-+	if (!lock_check((unsigned long)map))
- 		goto unmap;
- 
- 	if (munlockall()) {
-@@ -549,7 +390,7 @@ static int test_munlockall()
- 		goto out;
- 	}
- 
--	if (lock_check(map))
-+	if (!lock_check((unsigned long)map))
- 		goto unmap;
- 
- 	if (munlockall()) {
+ 	/* dyn_guid_set makes the guid data available. */
+ 	smp_rmb();
 
 
