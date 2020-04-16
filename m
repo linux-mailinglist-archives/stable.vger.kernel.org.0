@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CCF11AC6C1
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC0DA1ACA48
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394584AbgDPOoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:44:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47210 "EHLO mail.kernel.org"
+        id S2442498AbgDPPdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:33:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405710AbgDPOAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:09 -0400
+        id S2898345AbgDPNll (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4CA220786;
-        Thu, 16 Apr 2020 14:00:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30AE52076D;
+        Thu, 16 Apr 2020 13:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045608;
-        bh=bA8K2AOso87BeqHclySCW19T72yEic4780pqkF97yGY=;
+        s=default; t=1587044500;
+        bh=/lUnU82i9NCKa7Nb5n2dmWvwoPHTtDhXL68RLJzcs/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CW+uO9cpkFpYwZ1GHvcjHGwYsTfX7u4aPyW6t1tRkFsoQWKZd0jm55bgU9choGI33
-         X2ziJWAAK19KYIu1RYapiMMdj7YAX4Q8PLVaF6oPihe/w77vn/08eYSkOccoGebVDs
-         nZvQ6BvShcztEpQ2kaIoKMx3pN3pk4X5FnV9BW0Q=
+        b=tNufUoMH6yM3rdOIrJZ4S7VMmk+zAsam+Rhoz7tapOAkWehz8rMw4tkMiyK3gxUnM
+         WqpB0ZKoid8xjfReKYUTIqM3WWzf2qeC8QmGG2DwvUoiuL8tUF2m00UDj4d6KrFTHn
+         OIXDSD7ZA+viVjLlUOvzHIlKxh41gHDysyWi73QM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuxian Dai <Yuxian.Dai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Huang Rui <ray.huang@amd.com>, Kevin Wang <Kevin1.Wang@amd.com>
-Subject: [PATCH 5.6 204/254] drm/amdgpu/powerplay: using the FCLK DPM table to set the MCLK
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 242/257] powerpc/kprobes: Ignore traps that happened in real mode
 Date:   Thu, 16 Apr 2020 15:24:53 +0200
-Message-Id: <20200416131351.585936261@linuxfoundation.org>
+Message-Id: <20200416131356.111001294@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuxian Dai <Yuxian.Dai@amd.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 022ac4c9c55be35a2d1f71019a931324c51b0dab upstream.
+commit 21f8b2fa3ca5b01f7a2b51b89ce97a3705a15aa0 upstream.
 
-1.Using the FCLK DPM table to set the MCLK for DPM states consist of
-three entities:
- FCLK
- UCLK
- MEMCLK
-All these three clk change together, MEMCLK from FCLK, so use the fclk
-frequency.
-2.we should show the current working clock freqency from clock table metric
+When a program check exception happens while MMU translation is
+disabled, following Oops happens in kprobe_handler() in the following
+code:
 
-Signed-off-by: Yuxian Dai <Yuxian.Dai@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Reviewed-by: Kevin Wang <Kevin1.Wang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+	} else if (*addr != BREAKPOINT_INSTRUCTION) {
+
+  BUG: Unable to handle kernel data access on read at 0x0000e268
+  Faulting instruction address: 0xc000ec34
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  BE PAGE_SIZE=16K PREEMPT CMPC885
+  Modules linked in:
+  CPU: 0 PID: 429 Comm: cat Not tainted 5.6.0-rc1-s3k-dev-00824-g84195dc6c58a #3267
+  NIP:  c000ec34 LR: c000ecd8 CTR: c019cab8
+  REGS: ca4d3b58 TRAP: 0300   Not tainted  (5.6.0-rc1-s3k-dev-00824-g84195dc6c58a)
+  MSR:  00001032 <ME,IR,DR,RI>  CR: 2a4d3c52  XER: 00000000
+  DAR: 0000e268 DSISR: c0000000
+  GPR00: c000b09c ca4d3c10 c66d0620 00000000 ca4d3c60 00000000 00009032 00000000
+  GPR08: 00020000 00000000 c087de44 c000afe0 c66d0ad0 100d3dd6 fffffff3 00000000
+  GPR16: 00000000 00000041 00000000 ca4d3d70 00000000 00000000 0000416d 00000000
+  GPR24: 00000004 c53b6128 00000000 0000e268 00000000 c07c0000 c07bb6fc ca4d3c60
+  NIP [c000ec34] kprobe_handler+0x128/0x290
+  LR [c000ecd8] kprobe_handler+0x1cc/0x290
+  Call Trace:
+  [ca4d3c30] [c000b09c] program_check_exception+0xbc/0x6fc
+  [ca4d3c50] [c000e43c] ret_from_except_full+0x0/0x4
+  --- interrupt: 700 at 0xe268
+  Instruction dump:
+  913e0008 81220000 38600001 3929ffff 91220000 80010024 bb410008 7c0803a6
+  38210020 4e800020 38600000 4e800020 <813b0000> 6d2a7fe0 2f8a0008 419e0154
+  ---[ end trace 5b9152d4cdadd06d ]---
+
+kprobe is not prepared to handle events in real mode and functions
+running in real mode should have been blacklisted, so kprobe_handler()
+can safely bail out telling 'this trap is not mine' for any trap that
+happened while in real-mode.
+
+If the trap happened with MSR_IR or MSR_DR cleared, return 0
+immediately.
+
+Reported-by: Larry Finger <Larry.Finger@lwfinger.net>
+Fixes: 6cc89bad60a6 ("powerpc/kprobes: Invoke handlers directly")
+Cc: stable@vger.kernel.org # v4.10+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/424331e2006e7291a1bfe40e7f3fa58825f565e1.1582054578.git.christophe.leroy@c-s.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/powerplay/renoir_ppt.c |    6 ++++++
- drivers/gpu/drm/amd/powerplay/renoir_ppt.h |    2 +-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/kprobes.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/amd/powerplay/renoir_ppt.c
-+++ b/drivers/gpu/drm/amd/powerplay/renoir_ppt.c
-@@ -240,6 +240,7 @@ static int renoir_print_clk_levels(struc
- 	uint32_t cur_value = 0, value = 0, count = 0, min = 0, max = 0;
- 	DpmClocks_t *clk_table = smu->smu_table.clocks_table;
- 	SmuMetrics_t metrics;
-+	bool cur_value_match_level = false;
+--- a/arch/powerpc/kernel/kprobes.c
++++ b/arch/powerpc/kernel/kprobes.c
+@@ -264,6 +264,9 @@ int kprobe_handler(struct pt_regs *regs)
+ 	if (user_mode(regs))
+ 		return 0;
  
- 	if (!clk_table || clk_type >= SMU_CLK_COUNT)
- 		return -EINVAL;
-@@ -298,8 +299,13 @@ static int renoir_print_clk_levels(struc
- 		GET_DPM_CUR_FREQ(clk_table, clk_type, i, value);
- 		size += sprintf(buf + size, "%d: %uMhz %s\n", i, value,
- 				cur_value == value ? "*" : "");
-+		if (cur_value == value)
-+			cur_value_match_level = true;
- 	}
- 
-+	if (!cur_value_match_level)
-+		size += sprintf(buf + size, "   %uMhz *\n", cur_value);
++	if (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR))
++		return 0;
 +
- 	return size;
- }
- 
---- a/drivers/gpu/drm/amd/powerplay/renoir_ppt.h
-+++ b/drivers/gpu/drm/amd/powerplay/renoir_ppt.h
-@@ -37,7 +37,7 @@ extern void renoir_set_ppt_funcs(struct
- 			freq = table->SocClocks[dpm_level].Freq;	\
- 			break;						\
- 		case SMU_MCLK:						\
--			freq = table->MemClocks[dpm_level].Freq;	\
-+			freq = table->FClocks[dpm_level].Freq;	\
- 			break;						\
- 		case SMU_DCEFCLK:					\
- 			freq = table->DcfClocks[dpm_level].Freq;	\
+ 	/*
+ 	 * We don't want to be preempted for the entire
+ 	 * duration of kprobe processing
 
 
