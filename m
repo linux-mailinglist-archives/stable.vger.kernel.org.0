@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 049B21AC3F5
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:52:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5587D1AC861
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:08:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389909AbgDPNwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:52:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38372 "EHLO mail.kernel.org"
+        id S2442082AbgDPPHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:07:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389235AbgDPNwH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:52:07 -0400
+        id S2392371AbgDPNva (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:51:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27AF42063A;
-        Thu, 16 Apr 2020 13:52:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5439220732;
+        Thu, 16 Apr 2020 13:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045126;
-        bh=mDp69Lb0S9CHcaaZ0egFJJ01Dml5CiR2KtDUpVg1cCs=;
+        s=default; t=1587045089;
+        bh=Tl/oh1lZ+Gp9rx75HeDyxdbaLetuQooaBMQefpYAtJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7D8lJzEax4zjAAC4X6zbF5+yHZc2seRtQhcv4qO4t2xqL0rKtk2UuGinfssbGp/h
-         8I9us/6Kc4WPj1f96z1wZ9OQzSEfUmdhr93oaElrtztF9zcKxRn4OGFVIBl0n+oa9M
-         TIMmAebpOQSlfb3SYO1yQNq+LHQ6H3yeA65US7Jk=
+        b=cn5pkcAAD0CAZJDHW2WvphGIFZbmoczGpUTdTAHKKbkS2MBK7hvE0x7a0a7e5HHtr
+         C5gFdUXlOy7YUUJrI+bityxMR1b3Ayf/82hmuXc2OvDu3eGKRteQTIv3Ug1UnpJBsE
+         yClV1R1WT74ELR7lf3n3gpQR2FcQU5kZoc2lTBz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Szabolcs Nagy <szabolcs.nagy@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.4 217/232] arm64: Always force a branch protection mode when the compiler has one
-Date:   Thu, 16 Apr 2020 15:25:11 +0200
-Message-Id: <20200416131342.629504096@linuxfoundation.org>
+        stable@vger.kernel.org, Bob Liu <bob.liu@oracle.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 218/232] dm zoned: remove duplicate nr_rnd_zones increase in dmz_init_zone()
+Date:   Thu, 16 Apr 2020 15:25:12 +0200
+Message-Id: <20200416131342.752816897@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
 References: <20200416131316.640996080@linuxfoundation.org>
@@ -44,54 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Bob Liu <bob.liu@oracle.com>
 
-commit b8fdef311a0bd9223f10754f94fdcf1a594a3457 upstream.
+[ Upstream commit b8fdd090376a7a46d17db316638fe54b965c2fb0 ]
 
-Compilers with branch protection support can be configured to enable it by
-default, it is likely that distributions will do this as part of deploying
-branch protection system wide. As well as the slight overhead from having
-some extra NOPs for unused branch protection features this can cause more
-serious problems when the kernel is providing pointer authentication to
-userspace but not built for pointer authentication itself. In that case our
-switching of keys for userspace can affect the kernel unexpectedly, causing
-pointer authentication instructions in the kernel to corrupt addresses.
+zmd->nr_rnd_zones was increased twice by mistake. The other place it
+is increased in dmz_init_zone() is the only one needed:
 
-To ensure that we get consistent and reliable behaviour always explicitly
-initialise the branch protection mode, ensuring that the kernel is built
-the same way regardless of the compiler defaults.
-
-[This is a reworked version of b8fdef311a0bd9223f1075 ("arm64: Always
-force a branch protection mode when the compiler has one") for backport.
-Kernels prior to 74afda4016a7 ("arm64: compile the kernel with ptrauth
-return address signing") don't have any Makefile machinery for forcing
-on pointer auth but still have issues if the compiler defaults it on so
-need this reworked version. -- broonie]
-
-Fixes: 7503197562567 (arm64: add basic pointer authentication support)
-Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+1131                 zmd->nr_useable_zones++;
+1132                 if (dmz_is_rnd(zone)) {
+1133                         zmd->nr_rnd_zones++;
+					^^^
+Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
 Cc: stable@vger.kernel.org
-[catalin.marinas@arm.com: remove Kconfig option in favour of Makefile check]
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Bob Liu <bob.liu@oracle.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/Makefile |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/md/dm-zoned-metadata.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -72,6 +72,10 @@ stack_protector_prepare: prepare0
- 					include/generated/asm-offsets.h))
- endif
+diff --git a/drivers/md/dm-zoned-metadata.c b/drivers/md/dm-zoned-metadata.c
+index 5205cf9bbfd92..e0a6cf9239f1c 100644
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -1107,7 +1107,6 @@ static int dmz_init_zone(struct dmz_metadata *zmd, struct dm_zone *zone,
  
-+# Ensure that if the compiler supports branch protection we default it
-+# off.
-+KBUILD_CFLAGS += $(call cc-option,-mbranch-protection=none)
-+
- ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
- KBUILD_CPPFLAGS	+= -mbig-endian
- CHECKFLAGS	+= -D__AARCH64EB__
+ 	if (blkz->type == BLK_ZONE_TYPE_CONVENTIONAL) {
+ 		set_bit(DMZ_RND, &zone->flags);
+-		zmd->nr_rnd_zones++;
+ 	} else if (blkz->type == BLK_ZONE_TYPE_SEQWRITE_REQ ||
+ 		   blkz->type == BLK_ZONE_TYPE_SEQWRITE_PREF) {
+ 		set_bit(DMZ_SEQ, &zone->flags);
+-- 
+2.20.1
+
 
 
