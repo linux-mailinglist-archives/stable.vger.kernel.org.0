@@ -2,99 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE87F1AD090
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 21:47:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A7C1AD09C
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 21:53:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729753AbgDPTqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 15:46:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58386 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729391AbgDPTqR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 15:46:17 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B005EC061A0C;
-        Thu, 16 Apr 2020 12:46:16 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id e26so30651wmk.5;
-        Thu, 16 Apr 2020 12:46:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=hdaOLswCaJX9E3ArN3QYtmnlCCcMvOx+Iq5pWMd6Dso=;
-        b=OfBLCxcBOsBHsU/Vn3l5dO2t1moWKU5iCeduO4yh4CeJjnKbMnyG1XJGGL7BiJWUc9
-         2BvuHk3F+PUQuNAJY+uawOJYwrmoEy8a1y0MqRy9WlvhEgRsWrSJKuD72uv8xTT5fEIC
-         fJ3g8j/lHu6qNxsOG7yG/vQNHzDxUADZOgftsi1b+XRnAVZYXT7ekphW9vCGUkn/d4Su
-         mrSRnCiNBDfUmgs+2Fw87kMzsV9FfqLHi582OHZsV2lsQtbw7kWO9moduDsPYEqO5veS
-         2Of1ptHaNcYlbulCebjbZyKfhuZTkF5Oagep7ALCCzopn4cbxAfUBydpbzIj4TP5uo5V
-         dauQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=hdaOLswCaJX9E3ArN3QYtmnlCCcMvOx+Iq5pWMd6Dso=;
-        b=FgxAijhpyRJ6ugDudx6Ekiu5p3tHSuji2yFpPr/LqJlZMSgJUUvFSDahDhMO+OZz90
-         s9wurmg8ypsIiYqVdGfkfTB/Oh2dsUbhEXxtJ7QKl8ui0dzQq131iYnfFPpl8z0rAXBZ
-         9RBVsVCYRTTxZUI94meNUIQwkm+zOX+EVYwC+ZC+9ZS6ahIGBPuQkld1OoAXqPxavsTS
-         +8d6gVMabDBZ4xLgmFE5+Zukiku62ldb6/sc/M7NLnnRE38jyLF16He1p2dxosiIJqpj
-         S2DmDPr1WEG1Bure/2zoWMZIht9mzFVR6c3iXIDnwQ/x7EGw/v0aVhikAe1akeE7N2M1
-         phqQ==
-X-Gm-Message-State: AGi0PuZK5JjgKilGbvTXby/9+vCFSzgDKS8N/ETS2pzI06HF0346uzKQ
-        q8arvewIHkk0VWrVtv9yqHI=
-X-Google-Smtp-Source: APiQypJPaZ8Uc9+o772th9A6hegmk/Smv9MAxV0CHKHhrAHjzHfgpQ7V8t6tbvhG9TFZVWtFunr6Vg==
-X-Received: by 2002:a1c:5502:: with SMTP id j2mr6297601wmb.71.1587066375308;
-        Thu, 16 Apr 2020 12:46:15 -0700 (PDT)
-Received: from debian.lan (host-84-13-17-86.opaltelecom.net. [84.13.17.86])
-        by smtp.gmail.com with ESMTPSA id v16sm4756092wml.30.2020.04.16.12.46.13
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 16 Apr 2020 12:46:14 -0700 (PDT)
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Paul Wise <pabs3@bonedaddy.net>, stable@vger.kernel.org
-Subject: [PATCH] coredump: fix null pointer dereference on coredump
-Date:   Thu, 16 Apr 2020 20:46:12 +0100
-Message-Id: <20200416194612.21418-1-sudipm.mukherjee@gmail.com>
-X-Mailer: git-send-email 2.11.0
+        id S1727801AbgDPTxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 15:53:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38160 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727886AbgDPTxb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 15:53:31 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA1B6221F9;
+        Thu, 16 Apr 2020 19:53:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587066811;
+        bh=ULzS1r3V0P8vl28OgQGS1tlJzBJze1nWE+ovPyIR5Ec=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FNC+ZjgVOtkTtlepjvFjH8VqMfIJZetUfPNsgu6Pwf1iHvMjUWANUu/gIHFIOPVaJ
+         85ucAtnkE+3/1L8q6QrL1zwg3QQACTx3ID2jtDNcwUXj5mKpkhuzXjlsQOWMpz0WqY
+         gtcJR4X63h93XxvhNc0ie1zAImV69E9jamP+XmHQ=
+Date:   Thu, 16 Apr 2020 15:53:29 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Saeed Mahameed <saeedm@mellanox.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "gerlitz.or@gmail.com" <gerlitz.or@gmail.com>,
+        "ecree@solarflare.com" <ecree@solarflare.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "kuba@kernel.org" <kuba@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "davem@davemloft.net" <davem@davemloft.net>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
+ representors
+Message-ID: <20200416195329.GO1068@sasha-vm>
+References: <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
+ <20200414110911.GA341846@kroah.com>
+ <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
+ <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
+ <20200414205755.GF1068@sasha-vm>
+ <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
+ <20200416000009.GL1068@sasha-vm>
+ <CAJ3xEMjfWL=c=voGqV4pUCzWXmiTn-R6mrRi82UAVHMVysKU1g@mail.gmail.com>
+ <20200416172001.GC1388618@kroah.com>
+ <b8651ce6d7d6c6dcb8b2d66f07148413892b48d0.camel@mellanox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <b8651ce6d7d6c6dcb8b2d66f07148413892b48d0.camel@mellanox.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the core_pattern is set to "|" and any process segfaults then we get
-a null pointer derefernce while trying to coredump. The call stack shows:
-[  108.212680] RIP: 0010:do_coredump+0x628/0x11c0
+On Thu, Apr 16, 2020 at 07:31:25PM +0000, Saeed Mahameed wrote:
+>On Thu, 2020-04-16 at 19:20 +0200, Greg KH wrote:
+>> So far the AUTOSEL tool has found so many real bugfixes that it isn't
+>> funny.  If you don't like it, fine, but it has proven itself _way_
+>> beyond my wildest hopes already, and it just keeps getting better.
+>>
+>
+>Now i really don't know what the right balance here, in on one hand,
+>autosel is doing a great job, on the other hand we know it can screw up
+>in some cases, and we know it will.
+>
+>So we decided to make sacrifices for the greater good ? :)
 
-When the core_pattern has only "|" there is no use of trying the
-coredump and we can check that while formating the corename and exit
-with an error.
+autosel is going to screw up, I'm going to screw up, you're going to
+screw up, and Linus is going screw up. The existence of the stable trees
+and a "Fixes:" tag is an admission we all screw up, right?
 
-After this change I get:
-[   48.453756] format_corename failed
-[   48.453758] Aborting core
+If you're willing to accept that we all make mistakes, you should also
+accept that we're making mistakes everywhere: we write buggy code, we
+fail at reviews, we forget tags, and we suck at backporting patches.
 
-Fixes: 315c69261dd3 ("coredump: split pipe command whitespace before expanding template")
-Reported-by: Matthew Ruffell <matthew.ruffell@canonical.com>
-Cc: Paul Wise <pabs3@bonedaddy.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- fs/coredump.c | 2 ++
- 1 file changed, 2 insertions(+)
+If we agree so far, then why do you assume that the same people who do
+the above also perfectly tag their commits, and do perfect selection of
+patches for stable? "I'm always right except when I'm wrong".
 
-diff --git a/fs/coredump.c b/fs/coredump.c
-index f8296a82d01d..408418e6aa13 100644
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -211,6 +211,8 @@ static int format_corename(struct core_name *cn, struct coredump_params *cprm,
- 			return -ENOMEM;
- 		(*argv)[(*argc)++] = 0;
- 		++pat_ptr;
-+		if (!(*pat_ptr))
-+			return -ENOMEM;
- 	}
- 
- 	/* Repeat as long as we have more pattern to process and more output
+My view of the the path forward with stable trees is that we have to
+beef up our validation and testing story to be able to catch these
+issues better, rather than place arbitrary limitations on parts of the
+process. To me your suggestions around the Fixes: tag sound like "Never
+use kmalloc() because people often forget to free memory!" will it
+prevent memory leaks? sure, but it'll also prevent useful patches from
+coming it...
+
+Here's my suggestion: give us a test rig we can run our stable release
+candidates through. Something that simulates "real" load that customers
+are using. We promise that we won't release a stable kernel if your
+tests are failing.
+
 -- 
-2.11.0
-
+Thanks,
+Sasha
