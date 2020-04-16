@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1AB1AC437
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDE471AC7F6
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728687AbgDPN4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:56:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43026 "EHLO mail.kernel.org"
+        id S2408976AbgDPPBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441737AbgDPN4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:56:01 -0400
+        id S2408964AbgDPNyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:54:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C514020786;
-        Thu, 16 Apr 2020 13:55:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F353720732;
+        Thu, 16 Apr 2020 13:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045359;
-        bh=fSFPmJUxAo6UGIVqo1CHhqPVi9H9LXpl27HhogBwXZk=;
+        s=default; t=1587045256;
+        bh=UyeJtdp9U82Hk060fneyVqL7AIj7dU5ovHBE11uIfDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KkA+ZVARBHP34zypMMadIKUk2eSpxWREJ4sQ4G13HUADxtZU39aO+cxW++cEaFUjT
-         hgyPSkD7O9zi+byywMuiiW2TZ6c2nlRDLw/7cjHS40IIdfMMKQz2TlHXNRFJ4kWxBH
-         PRNSuJYukmTVpfId01ZZyxrfkOJk188HdxINxlOc=
+        b=lEr0HqGxrc2MvDcpTRGI6+m9BGtcxHoeY/NPdHlIg5r/Virg2oQljnqPKXi35mKaq
+         PkKMP55Ni0zgzR90GNaIU4DIc2kkAJivrQJS9tFgaiWVKhmb8vESUikQY4XEw9dELD
+         WoQGtl3WLBtbQr4tAMeqn7K7v44JjoD74U2VV0Ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Dongchun Zhu <dongchun.zhu@mediatek.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 052/254] media: mtk-vpu: avoid unaligned access to DTCM buffer.
-Date:   Thu, 16 Apr 2020 15:22:21 +0200
-Message-Id: <20200416131332.367089500@linuxfoundation.org>
+Subject: [PATCH 5.6 053/254] media: i2c: ov5695: Fix power on and off sequences
+Date:   Thu, 16 Apr 2020 15:22:22 +0200
+Message-Id: <20200416131332.512678814@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -45,247 +46,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: Dongchun Zhu <dongchun.zhu@mediatek.com>
 
-[ Upstream commit e6599adfad30c340d06574e49a86afa7015c5c60 ]
+[ Upstream commit f1a64f56663e9d03e509439016dcbddd0166b2da ]
 
-Previously, vpu->recv_buf and send_buf are forced cast from
-void __iomem *tcm. vpu->recv_buf->share_buf is passed to
-vpu_ipi_desc.handler(). It's not able to do unaligned access. Otherwise
-kernel would crash due to unable to handle kernel paging request.
+>From the measured hardware signal, OV5695 reset pin goes high for a
+short period of time during boot-up. From the sensor specification, the
+reset pin is active low and the DT binding defines the pin as active
+low, which means that the values set by the driver are inverted and thus
+the value requested in probe ends up high.
 
-struct vpu_run {
-	u32 signaled;
-	char fw_ver[VPU_FW_VER_LEN];
-	unsigned int	dec_capability;
-	unsigned int	enc_capability;
-	wait_queue_head_t wq;
-};
+Fix it by changing probe to request the reset GPIO initialized to high,
+which makes the initial state of the physical signal low.
 
-fw_ver starts at 4 byte boundary. If system enables
-CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS, strscpy() will do
-read_word_at_a_time(), which tries to read 8-byte: *(unsigned long *)addr
+In addition, DOVDD rising must occur before DVDD rising from spec., but
+regulator_bulk_enable() API enables all the regulators asynchronously.
+Use an explicit loops of regulator_enable() instead.
 
-vpu_init_ipi_handler() calls strscpy(), which would lead to crash.
+For power off sequence, it is required that DVDD falls first. Given the
+bulk API does not give any guarantee about the order of regulators,
+change the driver to use regulator_disable() instead.
 
-vpu_init_ipi_handler() and several other handlers (eg.
-vpu_dec_ipi_handler) only do read access to this data, so they can be
-const, and we can use memcpy_fromio() to copy the buf to another non iomem
-buffer then pass to handler.
+The sensor also requires a delay between reset high and first I2C
+transaction, which was assumed to be 8192 XVCLK cycles, but 1ms is
+recommended by the vendor. Fix this as well.
 
-Fixes: 85709cbf1524 ("media: replace strncpy() by strscpy()")
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Dongchun Zhu <dongchun.zhu@mediatek.com>
+Signed-off-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-mdp/mtk_mdp_vpu.c  |  9 ++--
- .../media/platform/mtk-vcodec/vdec_vpu_if.c   |  6 +--
- .../media/platform/mtk-vcodec/venc_vpu_if.c   | 12 ++---
- drivers/media/platform/mtk-vpu/mtk_vpu.c      | 45 ++++++++++---------
- drivers/media/platform/mtk-vpu/mtk_vpu.h      |  2 +-
- 5 files changed, 38 insertions(+), 36 deletions(-)
+ drivers/media/i2c/ov5695.c | 49 ++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/media/platform/mtk-mdp/mtk_mdp_vpu.c b/drivers/media/platform/mtk-mdp/mtk_mdp_vpu.c
-index 6720d11f50cf6..b065ccd069140 100644
---- a/drivers/media/platform/mtk-mdp/mtk_mdp_vpu.c
-+++ b/drivers/media/platform/mtk-mdp/mtk_mdp_vpu.c
-@@ -15,7 +15,7 @@ static inline struct mtk_mdp_ctx *vpu_to_ctx(struct mtk_mdp_vpu *vpu)
- 	return container_of(vpu, struct mtk_mdp_ctx, vpu);
+diff --git a/drivers/media/i2c/ov5695.c b/drivers/media/i2c/ov5695.c
+index d6cd15bb699ac..cc678d9d2e0da 100644
+--- a/drivers/media/i2c/ov5695.c
++++ b/drivers/media/i2c/ov5695.c
+@@ -971,16 +971,9 @@ unlock_and_return:
+ 	return ret;
  }
  
--static void mtk_mdp_vpu_handle_init_ack(struct mdp_ipi_comm_ack *msg)
-+static void mtk_mdp_vpu_handle_init_ack(const struct mdp_ipi_comm_ack *msg)
- {
- 	struct mtk_mdp_vpu *vpu = (struct mtk_mdp_vpu *)
- 					(unsigned long)msg->ap_inst;
-@@ -26,10 +26,11 @@ static void mtk_mdp_vpu_handle_init_ack(struct mdp_ipi_comm_ack *msg)
- 	vpu->inst_addr = msg->vpu_inst_addr;
- }
- 
--static void mtk_mdp_vpu_ipi_handler(void *data, unsigned int len, void *priv)
-+static void mtk_mdp_vpu_ipi_handler(const void *data, unsigned int len,
-+				    void *priv)
- {
--	unsigned int msg_id = *(unsigned int *)data;
--	struct mdp_ipi_comm_ack *msg = (struct mdp_ipi_comm_ack *)data;
-+	const struct mdp_ipi_comm_ack *msg = data;
-+	unsigned int msg_id = msg->msg_id;
- 	struct mtk_mdp_vpu *vpu = (struct mtk_mdp_vpu *)
- 					(unsigned long)msg->ap_inst;
- 	struct mtk_mdp_ctx *ctx;
-diff --git a/drivers/media/platform/mtk-vcodec/vdec_vpu_if.c b/drivers/media/platform/mtk-vcodec/vdec_vpu_if.c
-index 70abfd4cd4b9f..948a12fd9d46a 100644
---- a/drivers/media/platform/mtk-vcodec/vdec_vpu_if.c
-+++ b/drivers/media/platform/mtk-vcodec/vdec_vpu_if.c
-@@ -9,7 +9,7 @@
- #include "vdec_ipi_msg.h"
- #include "vdec_vpu_if.h"
- 
--static void handle_init_ack_msg(struct vdec_vpu_ipi_init_ack *msg)
-+static void handle_init_ack_msg(const struct vdec_vpu_ipi_init_ack *msg)
- {
- 	struct vdec_vpu_inst *vpu = (struct vdec_vpu_inst *)
- 					(unsigned long)msg->ap_inst_addr;
-@@ -34,9 +34,9 @@ static void handle_init_ack_msg(struct vdec_vpu_ipi_init_ack *msg)
-  * This function runs in interrupt context and it means there's an IPI MSG
-  * from VPU.
-  */
--static void vpu_dec_ipi_handler(void *data, unsigned int len, void *priv)
-+static void vpu_dec_ipi_handler(const void *data, unsigned int len, void *priv)
- {
--	struct vdec_vpu_ipi_ack *msg = data;
-+	const struct vdec_vpu_ipi_ack *msg = data;
- 	struct vdec_vpu_inst *vpu = (struct vdec_vpu_inst *)
- 					(unsigned long)msg->ap_inst_addr;
- 
-diff --git a/drivers/media/platform/mtk-vcodec/venc_vpu_if.c b/drivers/media/platform/mtk-vcodec/venc_vpu_if.c
-index 3e931b0ed0965..9540709c19058 100644
---- a/drivers/media/platform/mtk-vcodec/venc_vpu_if.c
-+++ b/drivers/media/platform/mtk-vcodec/venc_vpu_if.c
-@@ -8,26 +8,26 @@
- #include "venc_ipi_msg.h"
- #include "venc_vpu_if.h"
- 
--static void handle_enc_init_msg(struct venc_vpu_inst *vpu, void *data)
-+static void handle_enc_init_msg(struct venc_vpu_inst *vpu, const void *data)
- {
--	struct venc_vpu_ipi_msg_init *msg = data;
-+	const struct venc_vpu_ipi_msg_init *msg = data;
- 
- 	vpu->inst_addr = msg->vpu_inst_addr;
- 	vpu->vsi = vpu_mapping_dm_addr(vpu->dev, msg->vpu_inst_addr);
- }
- 
--static void handle_enc_encode_msg(struct venc_vpu_inst *vpu, void *data)
-+static void handle_enc_encode_msg(struct venc_vpu_inst *vpu, const void *data)
- {
--	struct venc_vpu_ipi_msg_enc *msg = data;
-+	const struct venc_vpu_ipi_msg_enc *msg = data;
- 
- 	vpu->state = msg->state;
- 	vpu->bs_size = msg->bs_size;
- 	vpu->is_key_frm = msg->is_key_frm;
- }
- 
--static void vpu_enc_ipi_handler(void *data, unsigned int len, void *priv)
-+static void vpu_enc_ipi_handler(const void *data, unsigned int len, void *priv)
- {
--	struct venc_vpu_ipi_msg_common *msg = data;
-+	const struct venc_vpu_ipi_msg_common *msg = data;
- 	struct venc_vpu_inst *vpu =
- 		(struct venc_vpu_inst *)(unsigned long)msg->venc_inst;
- 
-diff --git a/drivers/media/platform/mtk-vpu/mtk_vpu.c b/drivers/media/platform/mtk-vpu/mtk_vpu.c
-index a768707abb942..2fbccc9b247b0 100644
---- a/drivers/media/platform/mtk-vpu/mtk_vpu.c
-+++ b/drivers/media/platform/mtk-vpu/mtk_vpu.c
-@@ -203,8 +203,8 @@ struct mtk_vpu {
- 	struct vpu_run run;
- 	struct vpu_wdt wdt;
- 	struct vpu_ipi_desc ipi_desc[IPI_MAX];
--	struct share_obj *recv_buf;
--	struct share_obj *send_buf;
-+	struct share_obj __iomem *recv_buf;
-+	struct share_obj __iomem *send_buf;
- 	struct device *dev;
- 	struct clk *clk;
- 	bool fw_loaded;
-@@ -292,7 +292,7 @@ int vpu_ipi_send(struct platform_device *pdev,
- 		 unsigned int len)
- {
- 	struct mtk_vpu *vpu = platform_get_drvdata(pdev);
--	struct share_obj *send_obj = vpu->send_buf;
-+	struct share_obj __iomem *send_obj = vpu->send_buf;
- 	unsigned long timeout;
- 	int ret = 0;
- 
-@@ -325,9 +325,9 @@ int vpu_ipi_send(struct platform_device *pdev,
- 		}
- 	} while (vpu_cfg_readl(vpu, HOST_TO_VPU));
- 
--	memcpy((void *)send_obj->share_buf, buf, len);
--	send_obj->len = len;
--	send_obj->id = id;
-+	memcpy_toio(send_obj->share_buf, buf, len);
-+	writel(len, &send_obj->len);
-+	writel(id, &send_obj->id);
- 
- 	vpu->ipi_id_ack[id] = false;
- 	/* send the command to VPU */
-@@ -600,10 +600,10 @@ OUT_LOAD_FW:
- }
- EXPORT_SYMBOL_GPL(vpu_load_firmware);
- 
--static void vpu_init_ipi_handler(void *data, unsigned int len, void *priv)
-+static void vpu_init_ipi_handler(const void *data, unsigned int len, void *priv)
- {
--	struct mtk_vpu *vpu = (struct mtk_vpu *)priv;
--	struct vpu_run *run = (struct vpu_run *)data;
-+	struct mtk_vpu *vpu = priv;
-+	const struct vpu_run *run = data;
- 
- 	vpu->run.signaled = run->signaled;
- 	strscpy(vpu->run.fw_ver, run->fw_ver, sizeof(vpu->run.fw_ver));
-@@ -700,19 +700,21 @@ static int vpu_alloc_ext_mem(struct mtk_vpu *vpu, u32 fw_type)
- 
- static void vpu_ipi_handler(struct mtk_vpu *vpu)
- {
--	struct share_obj *rcv_obj = vpu->recv_buf;
-+	struct share_obj __iomem *rcv_obj = vpu->recv_buf;
- 	struct vpu_ipi_desc *ipi_desc = vpu->ipi_desc;
+-/* Calculate the delay in us by clock rate and clock cycles */
+-static inline u32 ov5695_cal_delay(u32 cycles)
+-{
+-	return DIV_ROUND_UP(cycles, OV5695_XVCLK_FREQ / 1000 / 1000);
+-}
 -
--	if (rcv_obj->id < IPI_MAX && ipi_desc[rcv_obj->id].handler) {
--		ipi_desc[rcv_obj->id].handler(rcv_obj->share_buf,
--					      rcv_obj->len,
--					      ipi_desc[rcv_obj->id].priv);
--		if (rcv_obj->id > IPI_VPU_INIT) {
--			vpu->ipi_id_ack[rcv_obj->id] = true;
-+	unsigned char data[SHARE_BUF_SIZE];
-+	s32 id = readl(&rcv_obj->id);
-+
-+	memcpy_fromio(data, rcv_obj->share_buf, sizeof(data));
-+	if (id < IPI_MAX && ipi_desc[id].handler) {
-+		ipi_desc[id].handler(data, readl(&rcv_obj->len),
-+				     ipi_desc[id].priv);
-+		if (id > IPI_VPU_INIT) {
-+			vpu->ipi_id_ack[id] = true;
- 			wake_up(&vpu->ack_wq);
- 		}
- 	} else {
--		dev_err(vpu->dev, "No such ipi id = %d\n", rcv_obj->id);
-+		dev_err(vpu->dev, "No such ipi id = %d\n", id);
+ static int __ov5695_power_on(struct ov5695 *ov5695)
+ {
+-	int ret;
+-	u32 delay_us;
++	int i, ret;
+ 	struct device *dev = &ov5695->client->dev;
+ 
+ 	ret = clk_prepare_enable(ov5695->xvclk);
+@@ -991,21 +984,28 @@ static int __ov5695_power_on(struct ov5695 *ov5695)
+ 
+ 	gpiod_set_value_cansleep(ov5695->reset_gpio, 1);
+ 
+-	ret = regulator_bulk_enable(OV5695_NUM_SUPPLIES, ov5695->supplies);
+-	if (ret < 0) {
+-		dev_err(dev, "Failed to enable regulators\n");
+-		goto disable_clk;
++	/*
++	 * The hardware requires the regulators to be powered on in order,
++	 * so enable them one by one.
++	 */
++	for (i = 0; i < OV5695_NUM_SUPPLIES; i++) {
++		ret = regulator_enable(ov5695->supplies[i].consumer);
++		if (ret) {
++			dev_err(dev, "Failed to enable %s: %d\n",
++				ov5695->supplies[i].supply, ret);
++			goto disable_reg_clk;
++		}
  	}
- }
  
-@@ -722,11 +724,10 @@ static int vpu_ipi_init(struct mtk_vpu *vpu)
- 	vpu_cfg_writel(vpu, 0x0, VPU_TO_HOST);
+ 	gpiod_set_value_cansleep(ov5695->reset_gpio, 0);
  
- 	/* shared buffer initialization */
--	vpu->recv_buf = (__force struct share_obj *)(vpu->reg.tcm +
--						     VPU_DTCM_OFFSET);
-+	vpu->recv_buf = vpu->reg.tcm + VPU_DTCM_OFFSET;
- 	vpu->send_buf = vpu->recv_buf + 1;
--	memset(vpu->recv_buf, 0, sizeof(struct share_obj));
--	memset(vpu->send_buf, 0, sizeof(struct share_obj));
-+	memset_io(vpu->recv_buf, 0, sizeof(struct share_obj));
-+	memset_io(vpu->send_buf, 0, sizeof(struct share_obj));
+-	/* 8192 cycles prior to first SCCB transaction */
+-	delay_us = ov5695_cal_delay(8192);
+-	usleep_range(delay_us, delay_us * 2);
++	usleep_range(1000, 1200);
  
  	return 0;
+ 
+-disable_clk:
++disable_reg_clk:
++	for (--i; i >= 0; i--)
++		regulator_disable(ov5695->supplies[i].consumer);
+ 	clk_disable_unprepare(ov5695->xvclk);
+ 
+ 	return ret;
+@@ -1013,9 +1013,22 @@ disable_clk:
+ 
+ static void __ov5695_power_off(struct ov5695 *ov5695)
+ {
++	struct device *dev = &ov5695->client->dev;
++	int i, ret;
++
+ 	clk_disable_unprepare(ov5695->xvclk);
+ 	gpiod_set_value_cansleep(ov5695->reset_gpio, 1);
+-	regulator_bulk_disable(OV5695_NUM_SUPPLIES, ov5695->supplies);
++
++	/*
++	 * The hardware requires the regulators to be powered off in order,
++	 * so disable them one by one.
++	 */
++	for (i = OV5695_NUM_SUPPLIES - 1; i >= 0; i--) {
++		ret = regulator_disable(ov5695->supplies[i].consumer);
++		if (ret)
++			dev_err(dev, "Failed to disable %s: %d\n",
++				ov5695->supplies[i].supply, ret);
++	}
  }
-diff --git a/drivers/media/platform/mtk-vpu/mtk_vpu.h b/drivers/media/platform/mtk-vpu/mtk_vpu.h
-index d4453b4bcee92..ee7c552ce9289 100644
---- a/drivers/media/platform/mtk-vpu/mtk_vpu.h
-+++ b/drivers/media/platform/mtk-vpu/mtk_vpu.h
-@@ -15,7 +15,7 @@
-  * VPU interfaces with other blocks by share memory and interrupt.
-  **/
  
--typedef void (*ipi_handler_t) (void *data,
-+typedef void (*ipi_handler_t) (const void *data,
- 			       unsigned int len,
- 			       void *priv);
+ static int __maybe_unused ov5695_runtime_resume(struct device *dev)
+@@ -1285,7 +1298,7 @@ static int ov5695_probe(struct i2c_client *client,
+ 	if (clk_get_rate(ov5695->xvclk) != OV5695_XVCLK_FREQ)
+ 		dev_warn(dev, "xvclk mismatched, modes are based on 24MHz\n");
  
+-	ov5695->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_LOW);
++	ov5695->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(ov5695->reset_gpio)) {
+ 		dev_err(dev, "Failed to get reset-gpios\n");
+ 		return -EINVAL;
 -- 
 2.20.1
 
