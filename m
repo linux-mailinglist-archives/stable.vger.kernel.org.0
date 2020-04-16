@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0915F1AC27D
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:29:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8577D1ACC29
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895928AbgDPN27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:28:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
+        id S2442746AbgDPP4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:56:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895906AbgDPN2z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:28:55 -0400
+        id S2895916AbgDPN25 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:28:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E0BC21D79;
-        Thu, 16 Apr 2020 13:28:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2B9621D82;
+        Thu, 16 Apr 2020 13:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043734;
-        bh=V6i+rRCFuRpIC/euPkiZ8Bkck/inPy4q/Edpec0w4JE=;
+        s=default; t=1587043737;
+        bh=19QKTddurbi672AhDIJRCyJpWZUsSF5911PoHUXsXDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsWoQX4O4O0Sz8QaR6AxUf00mdANL0IvxHf+IrAtYnylItzdXVS+vB7A7S9uRoloC
-         DShj94l0OG/VZMw4zNh+xNvimyRRFwEa9CAoX4hk1fIqyS60HU5QGzupPEF/hKUqSd
-         Qv1F2cCMP2rs3ibxZEbxxBEdAV93LKz94xBdJhkU=
+        b=jk73RtChGy3K/xqFJJXSIIvXnWZ3ErviGq8sJtEvjb9kAtEUYXhS4oYo5Vp7Hiact
+         N6w7J4lfe4mDM0rEoKUtngKX3tQovWfRyX/A7ZH2z8/Wx2eOaLrheHpTEEjhw+/WeZ
+         71R3nzH2AIN+0TJ36hQ2PWPxZK9TDVVo2LVNvccQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Valente <paolo.valente@linaro.org>,
-        Wang Wang <wangwang2@huawei.com>,
-        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Feilong Lin <linfeilong@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 037/146] block, bfq: fix use-after-free in bfq_idle_slice_timer_body
-Date:   Thu, 16 Apr 2020 15:22:58 +0200
-Message-Id: <20200416131247.560457942@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 038/146] btrfs: qgroup: ensure qgroup_rescan_running is only set when the worker is at least queued
+Date:   Thu, 16 Apr 2020 15:22:59 +0200
+Message-Id: <20200416131247.710411283@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
 References: <20200416131242.353444678@linuxfoundation.org>
@@ -46,176 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 2f95fa5c955d0a9987ffdc3a095e2f4e62c5f2a9 ]
+[ Upstream commit d61acbbf54c612ea9bf67eed609494cda0857b3a ]
 
-In bfq_idle_slice_timer func, bfqq = bfqd->in_service_queue is
-not in bfqd-lock critical section. The bfqq, which is not
-equal to NULL in bfq_idle_slice_timer, may be freed after passing
-to bfq_idle_slice_timer_body. So we will access the freed memory.
+[BUG]
+There are some reports about btrfs wait forever to unmount itself, with
+the following call trace:
 
-In addition, considering the bfqq may be in race, we should
-firstly check whether bfqq is in service before doing something
-on it in bfq_idle_slice_timer_body func. If the bfqq in race is
-not in service, it means the bfqq has been expired through
-__bfq_bfqq_expire func, and wait_request flags has been cleared in
-__bfq_bfqd_reset_in_service func. So we do not need to re-clear the
-wait_request of bfqq which is not in service.
+  INFO: task umount:4631 blocked for more than 491 seconds.
+        Tainted: G               X  5.3.8-2-default #1
+  "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  umount          D    0  4631   3337 0x00000000
+  Call Trace:
+  ([<00000000174adf7a>] __schedule+0x342/0x748)
+   [<00000000174ae3ca>] schedule+0x4a/0xd8
+   [<00000000174b1f08>] schedule_timeout+0x218/0x420
+   [<00000000174af10c>] wait_for_common+0x104/0x1d8
+   [<000003ff804d6994>] btrfs_qgroup_wait_for_completion+0x84/0xb0 [btrfs]
+   [<000003ff8044a616>] close_ctree+0x4e/0x380 [btrfs]
+   [<0000000016fa3136>] generic_shutdown_super+0x8e/0x158
+   [<0000000016fa34d6>] kill_anon_super+0x26/0x40
+   [<000003ff8041ba88>] btrfs_kill_super+0x28/0xc8 [btrfs]
+   [<0000000016fa39f8>] deactivate_locked_super+0x68/0x98
+   [<0000000016fcb198>] cleanup_mnt+0xc0/0x140
+   [<0000000016d6a846>] task_work_run+0xc6/0x110
+   [<0000000016d04f76>] do_notify_resume+0xae/0xb8
+   [<00000000174b30ae>] system_call+0xe2/0x2c8
 
-KASAN log is given as follows:
-[13058.354613] ==================================================================
-[13058.354640] BUG: KASAN: use-after-free in bfq_idle_slice_timer+0xac/0x290
-[13058.354644] Read of size 8 at addr ffffa02cf3e63f78 by task fork13/19767
-[13058.354646]
-[13058.354655] CPU: 96 PID: 19767 Comm: fork13
-[13058.354661] Call trace:
-[13058.354667]  dump_backtrace+0x0/0x310
-[13058.354672]  show_stack+0x28/0x38
-[13058.354681]  dump_stack+0xd8/0x108
-[13058.354687]  print_address_description+0x68/0x2d0
-[13058.354690]  kasan_report+0x124/0x2e0
-[13058.354697]  __asan_load8+0x88/0xb0
-[13058.354702]  bfq_idle_slice_timer+0xac/0x290
-[13058.354707]  __hrtimer_run_queues+0x298/0x8b8
-[13058.354710]  hrtimer_interrupt+0x1b8/0x678
-[13058.354716]  arch_timer_handler_phys+0x4c/0x78
-[13058.354722]  handle_percpu_devid_irq+0xf0/0x558
-[13058.354731]  generic_handle_irq+0x50/0x70
-[13058.354735]  __handle_domain_irq+0x94/0x110
-[13058.354739]  gic_handle_irq+0x8c/0x1b0
-[13058.354742]  el1_irq+0xb8/0x140
-[13058.354748]  do_wp_page+0x260/0xe28
-[13058.354752]  __handle_mm_fault+0x8ec/0x9b0
-[13058.354756]  handle_mm_fault+0x280/0x460
-[13058.354762]  do_page_fault+0x3ec/0x890
-[13058.354765]  do_mem_abort+0xc0/0x1b0
-[13058.354768]  el0_da+0x24/0x28
-[13058.354770]
-[13058.354773] Allocated by task 19731:
-[13058.354780]  kasan_kmalloc+0xe0/0x190
-[13058.354784]  kasan_slab_alloc+0x14/0x20
-[13058.354788]  kmem_cache_alloc_node+0x130/0x440
-[13058.354793]  bfq_get_queue+0x138/0x858
-[13058.354797]  bfq_get_bfqq_handle_split+0xd4/0x328
-[13058.354801]  bfq_init_rq+0x1f4/0x1180
-[13058.354806]  bfq_insert_requests+0x264/0x1c98
-[13058.354811]  blk_mq_sched_insert_requests+0x1c4/0x488
-[13058.354818]  blk_mq_flush_plug_list+0x2d4/0x6e0
-[13058.354826]  blk_flush_plug_list+0x230/0x548
-[13058.354830]  blk_finish_plug+0x60/0x80
-[13058.354838]  read_pages+0xec/0x2c0
-[13058.354842]  __do_page_cache_readahead+0x374/0x438
-[13058.354846]  ondemand_readahead+0x24c/0x6b0
-[13058.354851]  page_cache_sync_readahead+0x17c/0x2f8
-[13058.354858]  generic_file_buffered_read+0x588/0xc58
-[13058.354862]  generic_file_read_iter+0x1b4/0x278
-[13058.354965]  ext4_file_read_iter+0xa8/0x1d8 [ext4]
-[13058.354972]  __vfs_read+0x238/0x320
-[13058.354976]  vfs_read+0xbc/0x1c0
-[13058.354980]  ksys_read+0xdc/0x1b8
-[13058.354984]  __arm64_sys_read+0x50/0x60
-[13058.354990]  el0_svc_common+0xb4/0x1d8
-[13058.354994]  el0_svc_handler+0x50/0xa8
-[13058.354998]  el0_svc+0x8/0xc
-[13058.354999]
-[13058.355001] Freed by task 19731:
-[13058.355007]  __kasan_slab_free+0x120/0x228
-[13058.355010]  kasan_slab_free+0x10/0x18
-[13058.355014]  kmem_cache_free+0x288/0x3f0
-[13058.355018]  bfq_put_queue+0x134/0x208
-[13058.355022]  bfq_exit_icq_bfqq+0x164/0x348
-[13058.355026]  bfq_exit_icq+0x28/0x40
-[13058.355030]  ioc_exit_icq+0xa0/0x150
-[13058.355035]  put_io_context_active+0x250/0x438
-[13058.355038]  exit_io_context+0xd0/0x138
-[13058.355045]  do_exit+0x734/0xc58
-[13058.355050]  do_group_exit+0x78/0x220
-[13058.355054]  __wake_up_parent+0x0/0x50
-[13058.355058]  el0_svc_common+0xb4/0x1d8
-[13058.355062]  el0_svc_handler+0x50/0xa8
-[13058.355066]  el0_svc+0x8/0xc
-[13058.355067]
-[13058.355071] The buggy address belongs to the object at ffffa02cf3e63e70#012 which belongs to the cache bfq_queue of size 464
-[13058.355075] The buggy address is located 264 bytes inside of#012 464-byte region [ffffa02cf3e63e70, ffffa02cf3e64040)
-[13058.355077] The buggy address belongs to the page:
-[13058.355083] page:ffff7e80b3cf9800 count:1 mapcount:0 mapping:ffff802db5c90780 index:0xffffa02cf3e606f0 compound_mapcount: 0
-[13058.366175] flags: 0x2ffffe0000008100(slab|head)
-[13058.370781] raw: 2ffffe0000008100 ffff7e80b53b1408 ffffa02d730c1c90 ffff802db5c90780
-[13058.370787] raw: ffffa02cf3e606f0 0000000000370023 00000001ffffffff 0000000000000000
-[13058.370789] page dumped because: kasan: bad access detected
-[13058.370791]
-[13058.370792] Memory state around the buggy address:
-[13058.370797]  ffffa02cf3e63e00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fb fb
-[13058.370801]  ffffa02cf3e63e80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[13058.370805] >ffffa02cf3e63f00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[13058.370808]                                                                 ^
-[13058.370811]  ffffa02cf3e63f80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[13058.370815]  ffffa02cf3e64000: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-[13058.370817] ==================================================================
-[13058.370820] Disabling lock debugging due to kernel taint
+[CAUSE]
+The problem happens when we have called qgroup_rescan_init(), but
+not queued the worker. It can be caused mostly by error handling.
 
-Here, we directly pass the bfqd to bfq_idle_slice_timer_body func.
---
-V2->V3: rewrite the comment as suggested by Paolo Valente
-V1->V2: add one comment, and add Fixes and Reported-by tag.
+	Qgroup ioctl thread		|	Unmount thread
+----------------------------------------+-----------------------------------
+					|
+btrfs_qgroup_rescan()			|
+|- qgroup_rescan_init()			|
+|  |- qgroup_rescan_running = true;	|
+|					|
+|- trans = btrfs_join_transaction()	|
+|  Some error happened			|
+|					|
+|- btrfs_qgroup_rescan() returns error	|
+   But qgroup_rescan_running == true;	|
+					| close_ctree()
+					| |- btrfs_qgroup_wait_for_completion()
+					|    |- running == true;
+					|    |- wait_for_completion();
 
-Fixes: aee69d78d ("block, bfq: introduce the BFQ-v0 I/O scheduler as an extra scheduler")
-Acked-by: Paolo Valente <paolo.valente@linaro.org>
-Reported-by: Wang Wang <wangwang2@huawei.com>
-Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Signed-off-by: Feilong Lin <linfeilong@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+btrfs_qgroup_rescan_worker is never queued, thus no one is going to wake
+up close_ctree() and we get a deadlock.
+
+All involved qgroup_rescan_init() callers are:
+
+- btrfs_qgroup_rescan()
+  The example above. It's possible to trigger the deadlock when error
+  happened.
+
+- btrfs_quota_enable()
+  Not possible. Just after qgroup_rescan_init() we queue the work.
+
+- btrfs_read_qgroup_config()
+  It's possible to trigger the deadlock. It only init the work, the
+  work queueing happens in btrfs_qgroup_rescan_resume().
+  Thus if error happened in between, deadlock is possible.
+
+We shouldn't set fs_info->qgroup_rescan_running just in
+qgroup_rescan_init(), as at that stage we haven't yet queued qgroup
+rescan worker to run.
+
+[FIX]
+Set qgroup_rescan_running before queueing the work, so that we ensure
+the rescan work is queued when we wait for it.
+
+Fixes: 8d9eddad1946 ("Btrfs: fix qgroup rescan worker initialization")
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+[ Change subject and cause analyse, use a smaller fix ]
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ fs/btrfs/qgroup.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 66b1ebc21ce4f..5198ed1b36690 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5156,20 +5156,28 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
- 	return bfqq;
- }
- 
--static void bfq_idle_slice_timer_body(struct bfq_queue *bfqq)
-+static void
-+bfq_idle_slice_timer_body(struct bfq_data *bfqd, struct bfq_queue *bfqq)
- {
--	struct bfq_data *bfqd = bfqq->bfqd;
- 	enum bfqq_expiration reason;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&bfqd->lock, flags);
--	bfq_clear_bfqq_wait_request(bfqq);
- 
-+	/*
-+	 * Considering that bfqq may be in race, we should firstly check
-+	 * whether bfqq is in service before doing something on it. If
-+	 * the bfqq in race is not in service, it has already been expired
-+	 * through __bfq_bfqq_expire func and its wait_request flags has
-+	 * been cleared in __bfq_bfqd_reset_in_service func.
-+	 */
- 	if (bfqq != bfqd->in_service_queue) {
- 		spin_unlock_irqrestore(&bfqd->lock, flags);
- 		return;
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index 0cd043f03081e..cbd40826f5dcf 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1032,6 +1032,7 @@ out_add_root:
+ 	ret = qgroup_rescan_init(fs_info, 0, 1);
+ 	if (!ret) {
+ 	        qgroup_rescan_zero_tracking(fs_info);
++		fs_info->qgroup_rescan_running = true;
+ 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 	                         &fs_info->qgroup_rescan_work);
  	}
+@@ -2906,7 +2907,6 @@ qgroup_rescan_init(struct btrfs_fs_info *fs_info, u64 progress_objectid,
+ 		sizeof(fs_info->qgroup_rescan_progress));
+ 	fs_info->qgroup_rescan_progress.objectid = progress_objectid;
+ 	init_completion(&fs_info->qgroup_rescan_completion);
+-	fs_info->qgroup_rescan_running = true;
  
-+	bfq_clear_bfqq_wait_request(bfqq);
-+
- 	if (bfq_bfqq_budget_timeout(bfqq))
- 		/*
- 		 * Also here the queue can be safely expired
-@@ -5214,7 +5222,7 @@ static enum hrtimer_restart bfq_idle_slice_timer(struct hrtimer *timer)
- 	 * early.
- 	 */
- 	if (bfqq)
--		bfq_idle_slice_timer_body(bfqq);
-+		bfq_idle_slice_timer_body(bfqd, bfqq);
+ 	spin_unlock(&fs_info->qgroup_lock);
+ 	mutex_unlock(&fs_info->qgroup_rescan_lock);
+@@ -2972,8 +2972,11 @@ btrfs_qgroup_rescan(struct btrfs_fs_info *fs_info)
  
- 	return HRTIMER_NORESTART;
+ 	qgroup_rescan_zero_tracking(fs_info);
+ 
++	mutex_lock(&fs_info->qgroup_rescan_lock);
++	fs_info->qgroup_rescan_running = true;
+ 	btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 			 &fs_info->qgroup_rescan_work);
++	mutex_unlock(&fs_info->qgroup_rescan_lock);
+ 
+ 	return 0;
  }
+@@ -3009,9 +3012,13 @@ int btrfs_qgroup_wait_for_completion(struct btrfs_fs_info *fs_info,
+ void
+ btrfs_qgroup_rescan_resume(struct btrfs_fs_info *fs_info)
+ {
+-	if (fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_RESCAN)
++	if (fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_RESCAN) {
++		mutex_lock(&fs_info->qgroup_rescan_lock);
++		fs_info->qgroup_rescan_running = true;
+ 		btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 				 &fs_info->qgroup_rescan_work);
++		mutex_unlock(&fs_info->qgroup_rescan_lock);
++	}
+ }
+ 
+ /*
 -- 
 2.20.1
 
