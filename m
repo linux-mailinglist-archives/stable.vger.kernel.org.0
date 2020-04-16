@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0DCD1ACA4C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628251AC8CD
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:15:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504206AbgDPPda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:33:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54046 "EHLO mail.kernel.org"
+        id S2502710AbgDPPOq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:14:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898287AbgDPNlT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:41:19 -0400
+        id S2441669AbgDPNuL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DCEE214D8;
-        Thu, 16 Apr 2020 13:41:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAE6922250;
+        Thu, 16 Apr 2020 13:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044478;
-        bh=vZKMLH6+87IUjMNrup5IggY1o+3zzdiZAgU3UikVZlw=;
+        s=default; t=1587045002;
+        bh=7TCSdWKuzTv+3biIWXj1nC1I9NWCKG66xkzKdYXC158=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XU9R5G4DernsuXLQSfySIHNoYJVnjrps62VMDMty/VIQv4/ebwnf/h0SaFD9aZeFY
-         QwMufgF/jsdyVwaK9ecmsU6/thTTWD91UfX1eWdyAstn7tkX5HaHvu9OTuJ9ZUtSBy
-         /jTgp2NWXmociEHOLioAJlaKGWkvuA3h4hd2Z6PM=
+        b=voFoplQtVb6J9jP4QTJ3u3b2AFhEsG9zTrO2fPPJp/ujSZGE3fh9l1jD4jkJyE34L
+         93eGRlDQ/Zo+AyEcpirR8S+7BjQ6F+gfEcIdxoL5Pf4jPG6My1sW7Srv3vK1wsh9rf
+         yGOKyhXoEDqgmk2mfczuQ9uQJ26Suw5FkPruCCVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        Corey Minyard <minyard@acm.org>, Arnd Bergmann <arnd@arndb.de>,
-        openipmi-developer@lists.sourceforge.net,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.5 233/257] ipmi: fix hung processes in __get_guid()
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.4 190/232] NFS: Fix use-after-free issues in nfs_pageio_add_request()
 Date:   Thu, 16 Apr 2020 15:24:44 +0200
-Message-Id: <20200416131354.800144331@linuxfoundation.org>
+Message-Id: <20200416131338.905915129@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 32830a0534700f86366f371b150b17f0f0d140d7 upstream.
+commit dc9dc2febb17f72e9878eb540ad3996f7984239a upstream.
 
-The wait_event() function is used to detect command completion.
-When send_guid_cmd() returns an error, smi_send() has not been
-called to send data. Therefore, wait_event() should not be used
-on the error path, otherwise it will cause the following warning:
+We need to ensure that we create the mirror requests before calling
+nfs_pageio_add_request_mirror() on the request we are adding.
+Otherwise, we can end up with a use-after-free if the call to
+nfs_pageio_add_request_mirror() triggers I/O.
 
-[ 1361.588808] systemd-udevd   D    0  1501   1436 0x00000004
-[ 1361.588813]  ffff883f4b1298c0 0000000000000000 ffff883f4b188000 ffff887f7e3d9f40
-[ 1361.677952]  ffff887f64bd4280 ffffc90037297a68 ffffffff8173ca3b ffffc90000000010
-[ 1361.767077]  00ffc90037297ad0 ffff887f7e3d9f40 0000000000000286 ffff883f4b188000
-[ 1361.856199] Call Trace:
-[ 1361.885578]  [<ffffffff8173ca3b>] ? __schedule+0x23b/0x780
-[ 1361.951406]  [<ffffffff8173cfb6>] schedule+0x36/0x80
-[ 1362.010979]  [<ffffffffa071f178>] get_guid+0x118/0x150 [ipmi_msghandler]
-[ 1362.091281]  [<ffffffff810d5350>] ? prepare_to_wait_event+0x100/0x100
-[ 1362.168533]  [<ffffffffa071f755>] ipmi_register_smi+0x405/0x940 [ipmi_msghandler]
-[ 1362.258337]  [<ffffffffa0230ae9>] try_smi_init+0x529/0x950 [ipmi_si]
-[ 1362.334521]  [<ffffffffa022f350>] ? std_irq_setup+0xd0/0xd0 [ipmi_si]
-[ 1362.411701]  [<ffffffffa0232bd2>] init_ipmi_si+0x492/0x9e0 [ipmi_si]
-[ 1362.487917]  [<ffffffffa0232740>] ? ipmi_pci_probe+0x280/0x280 [ipmi_si]
-[ 1362.568219]  [<ffffffff810021a0>] do_one_initcall+0x50/0x180
-[ 1362.636109]  [<ffffffff812231b2>] ? kmem_cache_alloc_trace+0x142/0x190
-[ 1362.714330]  [<ffffffff811b2ae1>] do_init_module+0x5f/0x200
-[ 1362.781208]  [<ffffffff81123ca8>] load_module+0x1898/0x1de0
-[ 1362.848069]  [<ffffffff811202e0>] ? __symbol_put+0x60/0x60
-[ 1362.913886]  [<ffffffff8130696b>] ? security_kernel_post_read_file+0x6b/0x80
-[ 1362.998514]  [<ffffffff81124465>] SYSC_finit_module+0xe5/0x120
-[ 1363.068463]  [<ffffffff81124465>] ? SYSC_finit_module+0xe5/0x120
-[ 1363.140513]  [<ffffffff811244be>] SyS_finit_module+0xe/0x10
-[ 1363.207364]  [<ffffffff81003c04>] do_syscall_64+0x74/0x180
-
-Fixes: 50c812b2b951 ("[PATCH] ipmi: add full sysfs support")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Cc: Corey Minyard <minyard@acm.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: openipmi-developer@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # 2.6.17-
-Message-Id: <20200403090408.58745-1-wenyang@linux.alibaba.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: c917cfaf9bbe ("NFS: Fix up NFS I/O subrequest creation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmi_msghandler.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfs/pagelist.c |   48 ++++++++++++++++++++++++------------------------
+ 1 file changed, 24 insertions(+), 24 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -3188,8 +3188,8 @@ static void __get_guid(struct ipmi_smi *
- 	if (rv)
- 		/* Send failed, no GUID available. */
- 		bmc->dyn_guid_set = 0;
--
--	wait_event(intf->waitq, bmc->dyn_guid_set != 2);
-+	else
-+		wait_event(intf->waitq, bmc->dyn_guid_set != 2);
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -1177,38 +1177,38 @@ int nfs_pageio_add_request(struct nfs_pa
+ 	if (desc->pg_error < 0)
+ 		goto out_failed;
  
- 	/* dyn_guid_set makes the guid data available. */
- 	smp_rmb();
+-	for (midx = 0; midx < desc->pg_mirror_count; midx++) {
+-		if (midx) {
+-			nfs_page_group_lock(req);
+-
+-			/* find the last request */
+-			for (lastreq = req->wb_head;
+-			     lastreq->wb_this_page != req->wb_head;
+-			     lastreq = lastreq->wb_this_page)
+-				;
+-
+-			dupreq = nfs_create_subreq(req, lastreq,
+-					pgbase, offset, bytes);
+-
+-			nfs_page_group_unlock(req);
+-			if (IS_ERR(dupreq)) {
+-				desc->pg_error = PTR_ERR(dupreq);
+-				goto out_failed;
+-			}
+-		} else
+-			dupreq = req;
++	/* Create the mirror instances first, and fire them off */
++	for (midx = 1; midx < desc->pg_mirror_count; midx++) {
++		nfs_page_group_lock(req);
++
++		/* find the last request */
++		for (lastreq = req->wb_head;
++		     lastreq->wb_this_page != req->wb_head;
++		     lastreq = lastreq->wb_this_page)
++			;
++
++		dupreq = nfs_create_subreq(req, lastreq,
++				pgbase, offset, bytes);
++
++		nfs_page_group_unlock(req);
++		if (IS_ERR(dupreq)) {
++			desc->pg_error = PTR_ERR(dupreq);
++			goto out_failed;
++		}
+ 
+-		if (nfs_pgio_has_mirroring(desc))
+-			desc->pg_mirror_idx = midx;
++		desc->pg_mirror_idx = midx;
+ 		if (!nfs_pageio_add_request_mirror(desc, dupreq))
+ 			goto out_cleanup_subreq;
+ 	}
+ 
++	desc->pg_mirror_idx = 0;
++	if (!nfs_pageio_add_request_mirror(desc, req))
++		goto out_failed;
++
+ 	return 1;
+ 
+ out_cleanup_subreq:
+-	if (req != dupreq)
+-		nfs_pageio_cleanup_request(desc, dupreq);
++	nfs_pageio_cleanup_request(desc, dupreq);
+ out_failed:
+ 	nfs_pageio_error_cleanup(desc);
+ 	return 0;
 
 
