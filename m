@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD651AC8F4
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 004201ACC07
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441579AbgDPPRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:17:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35048 "EHLO mail.kernel.org"
+        id S2506781AbgDPPxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:53:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898808AbgDPNtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:49:01 -0400
+        id S2896257AbgDPNac (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:30:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95AFD22275;
-        Thu, 16 Apr 2020 13:49:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7946C208E4;
+        Thu, 16 Apr 2020 13:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044941;
-        bh=jMsruKGjjFKM1+jVEVDnynaeTh0Q77G9inJ3ExDcGzQ=;
+        s=default; t=1587043832;
+        bh=ipGa19nKKTFXIKRlrk5uJWMpFfYkR2QvtOVETI2Td8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUtGO1vfOJtqaQM6bluE/tkhkB+Bk1stYY4Zi0N7r/1VepsZhqx2pbO2YWaI6pn02
-         tqN2g/cROd+0/l7cQEgo1/f4EvojSZNtDBFRC7d1kpSDGg26Y0RbB8zdd/KpFGDQun
-         7UDn+axFJsuTqhbv7LkVKLHUFQenaQfODTnu8+zA=
+        b=sSzqyAJ/A7jDUdZ0oTw7nE6bBabaDrxemejK0Zs/vi52OK1EezgA7YdlQlV8xmHS0
+         53FeXBapyOW7yxjMEUSLpKw9zyIm0EGgxiK5tOj/1BwGkSqj50uCrMYxJn4kXFy6NR
+         9hVzBHh5NVNkCctJGTUw1gBfjr+qwrqRppbECc8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshini Shetty <harshini.x.shetty@sony.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 163/232] dm verity fec: fix memory leak in verity_fec_dtr
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 116/146] Input: i8042 - add Acer Aspire 5738z to nomux list
 Date:   Thu, 16 Apr 2020 15:24:17 +0200
-Message-Id: <20200416131335.414898097@linuxfoundation.org>
+Message-Id: <20200416131258.486011689@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shetty, Harshini X (EXT-Sony Mobile) <Harshini.X.Shetty@sony.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 75fa601934fda23d2f15bf44b09c2401942d8e15 upstream.
+commit ebc68cedec4aead47d8d11623d013cca9bf8e825 upstream.
 
-Fix below kmemleak detected in verity_fec_ctr. output_pool is
-allocated for each dm-verity-fec device. But it is not freed when
-dm-table for the verity target is removed. Hence free the output
-mempool in destructor function verity_fec_dtr.
+The Acer Aspire 5738z has a button to disable (and re-enable) the
+touchpad next to the touchpad.
 
-unreferenced object 0xffffffffa574d000 (size 4096):
-  comm "init", pid 1667, jiffies 4294894890 (age 307.168s)
-  hex dump (first 32 bytes):
-    8e 36 00 98 66 a8 0b 9b 00 00 00 00 00 00 00 00  .6..f...........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000060e82407>] __kmalloc+0x2b4/0x340
-    [<00000000dd99488f>] mempool_kmalloc+0x18/0x20
-    [<000000002560172b>] mempool_init_node+0x98/0x118
-    [<000000006c3574d2>] mempool_init+0x14/0x20
-    [<0000000008cb266e>] verity_fec_ctr+0x388/0x3b0
-    [<000000000887261b>] verity_ctr+0x87c/0x8d0
-    [<000000002b1e1c62>] dm_table_add_target+0x174/0x348
-    [<000000002ad89eda>] table_load+0xe4/0x328
-    [<000000001f06f5e9>] dm_ctl_ioctl+0x3b4/0x5a0
-    [<00000000bee5fbb7>] do_vfs_ioctl+0x5dc/0x928
-    [<00000000b475b8f5>] __arm64_sys_ioctl+0x70/0x98
-    [<000000005361e2e8>] el0_svc_common+0xa0/0x158
-    [<000000001374818f>] el0_svc_handler+0x6c/0x88
-    [<000000003364e9f4>] el0_svc+0x8/0xc
-    [<000000009d84cec9>] 0xffffffffffffffff
+When this button is pressed a LED underneath indicates that the touchpad
+is disabled (and an event is send to userspace and GNOME shows its
+touchpad enabled / disable OSD thingie).
 
-Fixes: a739ff3f543af ("dm verity: add support for forward error correction")
-Depends-on: 6f1c819c219f7 ("dm: convert to bioset_init()/mempool_init()")
+So far so good, but after re-enabling the touchpad it no longer works.
+
+The laptop does not have an external ps2 port, so mux mode is not needed
+and disabling mux mode fixes the touchpad no longer working after toggling
+it off and back on again, so lets add this laptop model to the nomux list.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20200331123947.318908-1-hdegoede@redhat.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Harshini Shetty <harshini.x.shetty@sony.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-verity-fec.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/serio/i8042-x86ia64io.h |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/md/dm-verity-fec.c
-+++ b/drivers/md/dm-verity-fec.c
-@@ -551,6 +551,7 @@ void verity_fec_dtr(struct dm_verity *v)
- 	mempool_exit(&f->rs_pool);
- 	mempool_exit(&f->prealloc_pool);
- 	mempool_exit(&f->extra_pool);
-+	mempool_exit(&f->output_pool);
- 	kmem_cache_destroy(f->cache);
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -534,6 +534,17 @@ static const struct dmi_system_id __init
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo LaVie Z"),
+ 		},
+ 	},
++	{
++		/*
++		 * Acer Aspire 5738z
++		 * Touchpad stops working in mux mode when dis- + re-enabled
++		 * with the touchpad enable/disable toggle hotkey
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
++		},
++	},
+ 	{ }
+ };
  
- 	if (f->data_bufio)
 
 
