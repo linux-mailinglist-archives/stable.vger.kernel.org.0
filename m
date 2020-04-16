@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F711AC955
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E84541AC948
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729961AbgDPPWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:22:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
+        id S2898568AbgDPNqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:46:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898562AbgDPNqQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:46:16 -0400
+        id S2392296AbgDPNqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:46:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B7EF20732;
-        Thu, 16 Apr 2020 13:46:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C89512076D;
+        Thu, 16 Apr 2020 13:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044774;
-        bh=oC1yYeTCASyOsmvAUaZpZuS7X+KrPBxdHJ7CSAu80BM=;
+        s=default; t=1587044777;
+        bh=1jzhNCiKswhoIJTfB2OLMsRckfeRXXkCNaRRwVljCGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pn06r5hFdjCYz52ff4OlYi7WtFhlPf5fZpbaaT64vcvPLKJADlagoTRr/0tHV2pVU
-         DyGSgv3673Vp2jt0QwZ2PSTzbHHZv5ptUelsnzDGCQKHs5Ob7h9JdF8DiGFRkuAlnb
-         I3dxp/2YPjWZKV3KfoKisa06f9RMKzuL7cO7Zk+8=
+        b=1XwVQIwwDgT6qZooVs194NawgPWKaz/Z7xbhWz0YUt2OZjpgxrNKIapnicc9XL2ST
+         B4Ooln7hPRXk7tPHvEHGprNcaADlF8m4XvRePkRpe5v372pqKUPDnjkrLpQKlKecmF
+         pJCtwRmY7xb2Sj4aG5PsvjqjifIwixyLC/uSOOnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.4 097/232] nvme-fc: Revert "add module to ops template to allow module references"
-Date:   Thu, 16 Apr 2020 15:23:11 +0200
-Message-Id: <20200416131327.128072640@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, linux-efi@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        David Hildenbrand <david@redhat.com>,
+        Heinrich Schuchardt <xypron.glpk@gmx.de>
+Subject: [PATCH 5.4 098/232] efi/x86: Add TPM related EFI tables to unencrypted mapping checks
+Date:   Thu, 16 Apr 2020 15:23:12 +0200
+Message-Id: <20200416131327.275420952@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
 References: <20200416131316.640996080@linuxfoundation.org>
@@ -44,136 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit 8c5c660529209a0e324c1c1a35ce3f83d67a2aa5 upstream.
+commit f10e80a19b07b58fc2adad7945f8313b01503bae upstream.
 
-The original patch was to resolve the lldd being able to be unloaded
-while being used to talk to the boot device of the system. However, the
-end result of the original patch is that any driver unload while a nvme
-controller is live via the lldd is now being prohibited. Given the module
-reference, the module teardown routine can't be called, thus there's no
-way, other than manual actions to terminate the controllers.
+When booting with SME active, EFI tables must be mapped unencrypted since
+they were built by UEFI in unencrypted memory. Update the list of tables
+to be checked during early_memremap() processing to account for the EFI
+TPM tables.
 
-Fixes: 863fbae929c7 ("nvme_fc: add module to ops template to allow module references")
+This fixes a bug where an EFI TPM log table has been created by UEFI, but
+it lives in memory that has been marked as usable rather than reserved.
+
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: linux-efi@vger.kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Cc: <stable@vger.kernel.org> # v5.4+
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/4144cd813f113c20cdfa511cf59500a64e6015be.1582662842.git.thomas.lendacky@amd.com
+Link: https://lore.kernel.org/r/20200228121408.9075-2-ardb@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvme/host/fc.c          |   14 ++------------
- drivers/nvme/target/fcloop.c    |    1 -
- drivers/scsi/lpfc/lpfc_nvme.c   |    2 --
- drivers/scsi/qla2xxx/qla_nvme.c |    1 -
- include/linux/nvme-fc-driver.h  |    4 ----
- 5 files changed, 2 insertions(+), 20 deletions(-)
+ arch/x86/platform/efi/efi.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -342,8 +342,7 @@ nvme_fc_register_localport(struct nvme_f
- 	    !template->ls_req || !template->fcp_io ||
- 	    !template->ls_abort || !template->fcp_abort ||
- 	    !template->max_hw_queues || !template->max_sgl_segments ||
--	    !template->max_dif_sgl_segments || !template->dma_boundary ||
--	    !template->module) {
-+	    !template->max_dif_sgl_segments || !template->dma_boundary) {
- 		ret = -EINVAL;
- 		goto out_reghost_failed;
- 	}
-@@ -2016,7 +2015,6 @@ nvme_fc_ctrl_free(struct kref *ref)
- {
- 	struct nvme_fc_ctrl *ctrl =
- 		container_of(ref, struct nvme_fc_ctrl, ref);
--	struct nvme_fc_lport *lport = ctrl->lport;
- 	unsigned long flags;
+--- a/arch/x86/platform/efi/efi.c
++++ b/arch/x86/platform/efi/efi.c
+@@ -85,6 +85,8 @@ static const unsigned long * const efi_t
+ #ifdef CONFIG_EFI_RCI2_TABLE
+ 	&rci2_table_phys,
+ #endif
++	&efi.tpm_log,
++	&efi.tpm_final_log,
+ };
  
- 	if (ctrl->ctrl.tagset) {
-@@ -2043,7 +2041,6 @@ nvme_fc_ctrl_free(struct kref *ref)
- 	if (ctrl->ctrl.opts)
- 		nvmf_free_options(ctrl->ctrl.opts);
- 	kfree(ctrl);
--	module_put(lport->ops->module);
- }
- 
- static void
-@@ -3071,15 +3068,10 @@ nvme_fc_init_ctrl(struct device *dev, st
- 		goto out_fail;
- 	}
- 
--	if (!try_module_get(lport->ops->module)) {
--		ret = -EUNATCH;
--		goto out_free_ctrl;
--	}
--
- 	idx = ida_simple_get(&nvme_fc_ctrl_cnt, 0, 0, GFP_KERNEL);
- 	if (idx < 0) {
- 		ret = -ENOSPC;
--		goto out_mod_put;
-+		goto out_free_ctrl;
- 	}
- 
- 	ctrl->ctrl.opts = opts;
-@@ -3232,8 +3224,6 @@ out_free_queues:
- out_free_ida:
- 	put_device(ctrl->dev);
- 	ida_simple_remove(&nvme_fc_ctrl_cnt, ctrl->cnum);
--out_mod_put:
--	module_put(lport->ops->module);
- out_free_ctrl:
- 	kfree(ctrl);
- out_fail:
---- a/drivers/nvme/target/fcloop.c
-+++ b/drivers/nvme/target/fcloop.c
-@@ -850,7 +850,6 @@ fcloop_targetport_delete(struct nvmet_fc
- #define FCLOOP_DMABOUND_4G		0xFFFFFFFF
- 
- static struct nvme_fc_port_template fctemplate = {
--	.module			= THIS_MODULE,
- 	.localport_delete	= fcloop_localport_delete,
- 	.remoteport_delete	= fcloop_remoteport_delete,
- 	.create_queue		= fcloop_create_queue,
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -1976,8 +1976,6 @@ out_unlock:
- 
- /* Declare and initialization an instance of the FC NVME template. */
- static struct nvme_fc_port_template lpfc_nvme_template = {
--	.module	= THIS_MODULE,
--
- 	/* initiator-based functions */
- 	.localport_delete  = lpfc_nvme_localport_delete,
- 	.remoteport_delete = lpfc_nvme_remoteport_delete,
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -610,7 +610,6 @@ static void qla_nvme_remoteport_delete(s
- }
- 
- static struct nvme_fc_port_template qla_nvme_fc_transport = {
--	.module	= THIS_MODULE,
- 	.localport_delete = qla_nvme_localport_delete,
- 	.remoteport_delete = qla_nvme_remoteport_delete,
- 	.create_queue   = qla_nvme_alloc_queue,
---- a/include/linux/nvme-fc-driver.h
-+++ b/include/linux/nvme-fc-driver.h
-@@ -270,8 +270,6 @@ struct nvme_fc_remote_port {
-  *
-  * Host/Initiator Transport Entrypoints/Parameters:
-  *
-- * @module:  The LLDD module using the interface
-- *
-  * @localport_delete:  The LLDD initiates deletion of a localport via
-  *       nvme_fc_deregister_localport(). However, the teardown is
-  *       asynchronous. This routine is called upon the completion of the
-@@ -385,8 +383,6 @@ struct nvme_fc_remote_port {
-  *       Value is Mandatory. Allowed to be zero.
-  */
- struct nvme_fc_port_template {
--	struct module	*module;
--
- 	/* initiator-based functions */
- 	void	(*localport_delete)(struct nvme_fc_local_port *);
- 	void	(*remoteport_delete)(struct nvme_fc_remote_port *);
+ u64 efi_setup;		/* efi setup_data physical address */
 
 
