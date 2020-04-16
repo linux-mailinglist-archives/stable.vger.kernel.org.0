@@ -2,77 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D62541AB635
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 05:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B05B31AB63F
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 05:31:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390344AbgDPD1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 23:27:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42084 "EHLO mail.kernel.org"
+        id S2390358AbgDPDbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 23:31:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390824AbgDPD1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 23:27:41 -0400
+        id S2390005AbgDPDbC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 23:31:02 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD0DF2076D;
-        Thu, 16 Apr 2020 03:27:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63055206F9;
+        Thu, 16 Apr 2020 03:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587007661;
-        bh=GTUR/RkmpaELCQcelgfhQf+pM8gOG28zF1FlvVeMsf4=;
+        s=default; t=1587007861;
+        bh=TKWZDJhAW31YA2vn64CercISnHyFznQPi1cg1F/Y4Q8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=021+rxYv9un7iVQA95HHLWdxWicqeJqFluHwV3QaPRVQwI85qBRf5hJW8JIhdAfeC
-         eKwvUOCHA6xoqxUyzFIXD28NXA6rM5cpQXhxZtmwRaRiq7hLN8o0+5GXk9P05IKpHN
-         0CDx1Yw2Vesst1OpoOaRFGeMkBp61WCjGGNYffLM=
-Date:   Wed, 15 Apr 2020 23:27:39 -0400
+        b=k0pDqTrSkYapj1OM5Yx4rGj1CnjZfXFrrWCDpPi61LGqxADwQOqxLStJKDq/PWBoC
+         FQiskKyLZmLmkf9YmRhR3Hbw2anhbFfekcjGI23SbkEWs0r1R+EDU7qNuRIYqvScPm
+         ckRrbsH56sJs4rWXhgq01nBPNAAGql8be2gxhzZs=
+Date:   Wed, 15 Apr 2020 23:31:00 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     christophe.leroy@c-s.fr, mpe@ellerman.id.au, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] powerpc/kasan: Fix
- kasan_remap_early_shadow_ro()" failed to apply to 5.6-stable tree
-Message-ID: <20200416032739.GG1068@sasha-vm>
-References: <15869567019927@kroah.com>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Guenter Roeck <groeck@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        kbuild test robot <lkp@intel.com>,
+        cros-kernel-buildreports@googlegroups.com, kbuild-all@lists.01.org,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Subject: Re: [chrome-os:chromeos-4.19 21350/21402]
+ drivers/misc/echo/echo.c:384:27: error: equality comparison with extraneous
+ parentheses
+Message-ID: <20200416033100.GH1068@sasha-vm>
+References: <202004150637.9F62YI28%lkp@intel.com>
+ <20200415002618.GB19509@ubuntu-s3-xlarge-x86>
+ <CABXOdTd-TSKR+x4ALQXAD9VGxd4sQCCVC9hzdGamyUr-ndBJ+w@mail.gmail.com>
+ <CAKwvOdnOuMcjzsqTt2aVtoiKN3L9zOONGX-4BJgRWedeWspWTA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <15869567019927@kroah.com>
+In-Reply-To: <CAKwvOdnOuMcjzsqTt2aVtoiKN3L9zOONGX-4BJgRWedeWspWTA@mail.gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 03:18:21PM +0200, gregkh@linuxfoundation.org wrote:
+On Wed, Apr 15, 2020 at 10:51:37AM -0700, Nick Desaulniers wrote:
+>On Tue, Apr 14, 2020 at 5:56 PM 'Guenter Roeck' via Clang Built Linux
+><clang-built-linux@googlegroups.com> wrote:
+>>
+>> On Tue, Apr 14, 2020 at 5:26 PM Nathan Chancellor
+>> <natechancellor@gmail.com> wrote:
+>> >
+>> > Hi all,
+>> >
+>> > Sorry for yet another convergeance on this commit... :/ hopefully this
+>> > does not continue for much longer. None of the warnings are obviously
+>> > caused by the patch below.
+>>> Fixed by commit 85dc2c65e6c9 ("misc: echo: Remove unnecessary
+>>> parentheses and simplify check for zero").
+>> >
+>> No worries.
+>>
+>> I noticed that the problems are pretty much all fixed in the upstream
+>> kernel. I just wasn't sure if it would be worthwhile sending a request
+>> to stable@ to have them applied to 4.19.y (and if necessary 5.4.y).
+>> Any suggestions ?
 >
->The patch below does not apply to the 5.6-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
+>We should strive to be warning free on stable.  Thanks for identifying
+>the fix Nathan.
 >
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From af92bad615be75c6c0d1b1c5b48178360250a187 Mon Sep 17 00:00:00 2001
->From: Christophe Leroy <christophe.leroy@c-s.fr>
->Date: Fri, 6 Mar 2020 15:09:40 +0000
->Subject: [PATCH] powerpc/kasan: Fix kasan_remap_early_shadow_ro()
->
->At the moment kasan_remap_early_shadow_ro() does nothing, because
->k_end is 0 and k_cur < 0 is always true.
->
->Change the test to k_cur != k_end, as done in
->kasan_init_shadow_page_tables()
->
->Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
->Fixes: cbd18991e24f ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
->Cc: stable@vger.kernel.org
->Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
->Link: https://lore.kernel.org/r/4e7b56865e01569058914c991143f5961b5d4719.1583507333.git.christophe.leroy@c-s.fr
+>Greg, Sasha,
+>Would you please cherry pick 85dc2c65e6c9 to 4.19.y, 4.14.y, 4.9.y,
+>and 4.4.y (maybe 3.18, didn't check that one)? It applies cleanly and
+>is a trivial fix for a warning that landed in v4.20-rc1.
 
-Conflict because we don't have 0b1c524caaae ("powerpc/32: refactor
-pmd_offset(pud_offset(pgd_offset..."). Fixed and queued up.
+I'll grab it, but could we please look into disabling some clang
+warnings?
+
+I understand warnings that might warn us about dangerous code, but this
+reads to me like something checkpatch might complain about...
 
 -- 
 Thanks,
