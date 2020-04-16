@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B0A61AC394
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:45:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 296931ACC91
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 18:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898515AbgDPNpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:45:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58904 "EHLO mail.kernel.org"
+        id S2410689AbgDPQCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 12:02:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898512AbgDPNp2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:45:28 -0400
+        id S2895174AbgDPN04 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:26:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DD4F2076D;
-        Thu, 16 Apr 2020 13:45:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E343D206E9;
+        Thu, 16 Apr 2020 13:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044728;
-        bh=RRlpE48n10rU7DrCNdvYbj9VyjqQvnDeKoqNO2Fwrpw=;
+        s=default; t=1587043615;
+        bh=A8vFarPiiiN5fEyJQtwwxUwgpvTAUNBhJo0Irej3s90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABz4bQq4RSj2+etcOZVGTvhAwtB1yt/JWD4K43X+mDp7MxxGoy4NOECwTtmlDn3WH
-         rRigTu0WzVE8RCFpj3LR2aW3TYYWcXHX8b1CdIxQ9wC6jYIIn1ayioY3A51fJeFntX
-         AMi5avi7bhfOA6NXjAER4K8U9yDeZaHLf5OzFYLw=
+        b=u2A75txl+buExNEpROHr/5n4KEArioHnp/FX5C++1spz1epK0bNLbRa83p+PMioyt
+         xnFq+Unxfo25rKCc1K/tbMX82q9shS7tyB3VWosGWGS8emFOaZdIMwww5bv8kRRw28
+         AzYLryP9WQOgJ8Y14cIxTyca4xiReu0nyaz6URiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 076/232] ALSA: hda: Add driver blacklist
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 029/146] genirq/irqdomain: Check pointer in irq_domain_alloc_irqs_hierarchy()
 Date:   Thu, 16 Apr 2020 15:22:50 +0200
-Message-Id: <20200416131324.732913863@linuxfoundation.org>
+Message-Id: <20200416131246.436793511@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-commit 3c6fd1f07ed03a04debbb9a9d782205f1ef5e2ab upstream.
+[ Upstream commit 87f2d1c662fa1761359fdf558246f97e484d177a ]
 
-The recent AMD platform exposes an HD-audio bus but without any actual
-codecs, which is internally tied with a USB-audio device, supposedly.
-It results in "no codecs" error of HD-audio bus driver, and it's
-nothing but a waste of resources.
+irq_domain_alloc_irqs_hierarchy() has 3 call sites in the compilation unit
+but only one of them checks for the pointer which is being dereferenced
+inside the called function. Move the check into the function. This allows
+for catching the error instead of the following crash:
 
-This patch introduces a static blacklist table for skipping such a
-known bogus PCI SSID entry.  As of writing this patch, the known SSIDs
-are:
-* 1043:874f - ASUS ROG Zenith II / Strix
-* 1462:cb59 - MSI TRX40 Creator
-* 1462:cb60 - MSI TRX40
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+PC is at 0x0
+LR is at gpiochip_hierarchy_irq_domain_alloc+0x11f/0x140
+...
+[<c06c23ff>] (gpiochip_hierarchy_irq_domain_alloc)
+[<c0462a89>] (__irq_domain_alloc_irqs)
+[<c0462dad>] (irq_create_fwspec_mapping)
+[<c06c2251>] (gpiochip_to_irq)
+[<c06c1c9b>] (gpiod_to_irq)
+[<bf973073>] (gpio_irqs_init [gpio_irqs])
+[<bf974048>] (gpio_irqs_exit+0xecc/0xe84 [gpio_irqs])
+Code: bad PC value
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206543
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200408140449.22319-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20200306174720.82604-1-alexander.sverdlin@nokia.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ kernel/irq/irqdomain.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2024,6 +2024,17 @@ static void pcm_mmap_prepare(struct snd_
- #endif
- }
- 
-+/* Blacklist for skipping the whole probe:
-+ * some HD-audio PCI entries are exposed without any codecs, and such devices
-+ * should be ignored from the beginning.
-+ */
-+static const struct snd_pci_quirk driver_blacklist[] = {
-+	SND_PCI_QUIRK(0x1043, 0x874f, "ASUS ROG Zenith II / Strix", 0),
-+	SND_PCI_QUIRK(0x1462, 0xcb59, "MSI TRX40 Creator", 0),
-+	SND_PCI_QUIRK(0x1462, 0xcb60, "MSI TRX40", 0),
-+	{}
-+};
-+
- static const struct hda_controller_ops pci_hda_ops = {
- 	.disable_msi_reset_irq = disable_msi_reset_irq,
- 	.pcm_mmap_prepare = pcm_mmap_prepare,
-@@ -2059,6 +2070,11 @@ static int azx_probe(struct pci_dev *pci
- 	bool schedule_probe;
- 	int err;
- 
-+	if (snd_pci_quirk_lookup(pci, driver_blacklist)) {
-+		dev_info(&pci->dev, "Skipping the blacklisted device\n");
-+		return -ENODEV;
+diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
+index e0eda2bd39753..0a76c44eb6b29 100644
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -1255,6 +1255,11 @@ int irq_domain_alloc_irqs_hierarchy(struct irq_domain *domain,
+ 				    unsigned int irq_base,
+ 				    unsigned int nr_irqs, void *arg)
+ {
++	if (!domain->ops->alloc) {
++		pr_debug("domain->ops->alloc() is NULL\n");
++		return -ENOSYS;
 +	}
 +
- 	if (dev >= SNDRV_CARDS)
- 		return -ENODEV;
- 	if (!enable[dev]) {
+ 	return domain->ops->alloc(domain, irq_base, nr_irqs, arg);
+ }
+ 
+@@ -1292,11 +1297,6 @@ int __irq_domain_alloc_irqs(struct irq_domain *domain, int irq_base,
+ 			return -EINVAL;
+ 	}
+ 
+-	if (!domain->ops->alloc) {
+-		pr_debug("domain->ops->alloc() is NULL\n");
+-		return -ENOSYS;
+-	}
+-
+ 	if (realloc && irq_base >= 0) {
+ 		virq = irq_base;
+ 	} else {
+-- 
+2.20.1
+
 
 
