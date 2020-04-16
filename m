@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D10B1AC399
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4ED1AC2F2
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:38:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898529AbgDPNpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:45:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59360 "EHLO mail.kernel.org"
+        id S2895442AbgDPNfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:35:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898536AbgDPNpp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:45:45 -0400
+        id S2897087AbgDPNfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:35:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C119C208E4;
-        Thu, 16 Apr 2020 13:45:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC891208E4;
+        Thu, 16 Apr 2020 13:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044745;
-        bh=MnuWYLFkdb1YHimhXS6d0CxSVI1WAlx/FlXUz917YfU=;
+        s=default; t=1587044121;
+        bh=akbKUhbtfBKfRWBbrLrWfpWB85pshxJLlbLzz96tEAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0oZYrZUOCqCRVCUDvkB2RGwEeRLZyR+VFLKldPXvETv8ma29C+1wYO9UynZRmo/DJ
-         cpfLJvBZIZOF3nSHDRos61PCBU5WM/yrSjzV7ctQjzImfC6h25grFJjKPNOVpC8xYb
-         2opyLVYogVknPEUMEQl2E0pqZjqvPPQYrv1RvVDk=
+        b=igg14mZGHNzembiGg755DUgjC7pRMtwRT9iEIatnv2alTsTztOnsrZKIIPIui4BLh
+         Ks2sEECbDrQ+jhhSIpRKka+Vee2pI+9zrzPA4sYV7fh4KiZSLscrmMCFXQPKznaRxE
+         SiB+oiCB7OESjtuP3wCxmIn52iWMIeq2quJW/vDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, rdunlap@infradead.org,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 047/232] media: i2c: video-i2c: fix build errors due to imply hwmon
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 090/257] ALSA: ice1724: Fix invalid access for enumerated ctl items
 Date:   Thu, 16 Apr 2020 15:22:21 +0200
-Message-Id: <20200416131321.642130238@linuxfoundation.org>
+Message-Id: <20200416131337.253642879@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Ranostay <matt.ranostay@konsulko.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 64d4fc9926f09861a35d8f0f7d81f056e6d5af7b ]
+commit c47914c00be346bc5b48c48de7b0da5c2d1a296c upstream.
 
-Fix build fault when CONFIG_HWMON is a module, and CONFIG_VIDEO_I2C
-as builtin. This is due to 'imply hwmon' in the respective Kconfig.
+The access to Analog Capture Source control value implemented in
+prodigy_hifi.c is wrong, as caught by the recently introduced sanity
+check; it should be accessing value.enumerated.item[] instead of
+value.integer.value[].  This patch corrects the wrong access pattern.
 
-Issue build log:
+Fixes: 6b8d6e5518e2 ("[ALSA] ICE1724: Added support for Audiotrak Prodigy 7.1 HiFi & HD2, Hercules Fortissimo IV")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200407084402.25589-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-ld: drivers/media/i2c/video-i2c.o: in function `amg88xx_hwmon_init':
-video-i2c.c:(.text+0x2e1): undefined reference to `devm_hwmon_device_register_with_info
-
-Cc: rdunlap@infradead.org
-Fixes: acbea6798955 (media: video-i2c: add hwmon support for amg88xx)
-Signed-off-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/video-i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/ice1712/prodigy_hifi.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/video-i2c.c b/drivers/media/i2c/video-i2c.c
-index 078141712c887..0b977e73ceb29 100644
---- a/drivers/media/i2c/video-i2c.c
-+++ b/drivers/media/i2c/video-i2c.c
-@@ -255,7 +255,7 @@ static int amg88xx_set_power(struct video_i2c_data *data, bool on)
- 	return amg88xx_set_power_off(data);
+--- a/sound/pci/ice1712/prodigy_hifi.c
++++ b/sound/pci/ice1712/prodigy_hifi.c
+@@ -536,7 +536,7 @@ static int wm_adc_mux_enum_get(struct sn
+ 	struct snd_ice1712 *ice = snd_kcontrol_chip(kcontrol);
+ 
+ 	mutex_lock(&ice->gpio_mutex);
+-	ucontrol->value.integer.value[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
++	ucontrol->value.enumerated.item[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
+ 	mutex_unlock(&ice->gpio_mutex);
+ 	return 0;
  }
+@@ -550,7 +550,7 @@ static int wm_adc_mux_enum_put(struct sn
  
--#if IS_ENABLED(CONFIG_HWMON)
-+#if IS_REACHABLE(CONFIG_HWMON)
- 
- static const u32 amg88xx_temp_config[] = {
- 	HWMON_T_INPUT,
--- 
-2.20.1
-
+ 	mutex_lock(&ice->gpio_mutex);
+ 	oval = wm_get(ice, WM_ADC_MUX);
+-	nval = (oval & 0xe0) | ucontrol->value.integer.value[0];
++	nval = (oval & 0xe0) | ucontrol->value.enumerated.item[0];
+ 	if (nval != oval) {
+ 		wm_put(ice, WM_ADC_MUX, nval);
+ 		change = 1;
 
 
