@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1FB1AC480
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD2981AC877
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:09:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392658AbgDPOAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:00:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47720 "EHLO mail.kernel.org"
+        id S2408696AbgDPNvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:51:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392645AbgDPOAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:42 -0400
+        id S2408679AbgDPNu6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD1182078B;
-        Thu, 16 Apr 2020 14:00:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6831D2063A;
+        Thu, 16 Apr 2020 13:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045640;
-        bh=xl7673xMCxZLA8+BCaQwHav7o+Wj5R0wofxcq25bs3Q=;
+        s=default; t=1587045057;
+        bh=n1bLVtJgCFDyQmkPMBtUcl4icWO08qCoipDnEmRv7Js=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBw/4/YTzK8eBjWyN6VyNKZVBn/DniuZTsWMwWibtA0Bjp0f/nRs3gjT162b3/4r0
-         JO2hN3sE6PlHdarbDyDiEwYhr8r12z6NYuQZZHpea3KIgegH69ytWzIiOsN1BuxAI1
-         LrGYSRNv6ta0IBcK/FMjC9YzORFfwpwdkEn/tUtY=
+        b=CV1GGENQbjvuMSDRuWDLwUM7GfCcW2GzdgtrFKkfEA1EJ/3T/WWIZyvtkSMK4RUkp
+         /1514FR+GcON6XXZbkjQM/IZAbGpqq73u26fOnpqpWaBG4JE0nPKPmMjwiNriEN1D0
+         AyZeD3GCqh4AbqqUC2s1ps7jAhOmpYfnGKA8z/cQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
-        Scott Mayhew <smayhew@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.6 216/254] NFS: Fix a few constant_table array definitions
+        stable@vger.kernel.org, Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Daniel Axtens <dja@axtens.net>
+Subject: [PATCH 5.4 211/232] powerpc/64: Setup a paca before parsing device tree etc.
 Date:   Thu, 16 Apr 2020 15:25:05 +0200
-Message-Id: <20200416131353.023090263@linuxfoundation.org>
+Message-Id: <20200416131341.816473508@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +44,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Daniel Axtens <dja@axtens.net>
 
-commit 529af90576cfa44aa107e9876e2ebaa053983986 upstream.
+commit d4a8e98621543d5798421eed177978bf2b3cdd11 upstream.
 
-nfs_vers_tokens, nfs_xprt_protocol_tokens, and nfs_secflavor_tokens were
-all missing an empty item at the end of the array, allowing
-lookup_constant() to potentially walk off the end and trigger and oops.
+Currently we set up the paca after parsing the device tree for CPU
+features. Prior to that, r13 contains random data, which means there
+is random data in r13 while we're running the generic dt parsing code.
 
-Reported-by: Olga Kornievskaia <aglo@umich.edu>
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-Fixes: e38bb238ed8c ("NFS: Convert mount option parsing to use functionality from fs_parser.h")
-Cc: stable@vger.kernel.org # v5.6
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This random data varies depending on whether we boot through a vmlinux
+or a zImage: for the vmlinux case it's usually around zero, but for
+zImages we see random values like 912a72603d420015.
+
+This is poor practice, and can also lead to difficult-to-debug
+crashes. For example, when kcov is enabled, the kcov instrumentation
+attempts to read preempt_count out of the current task, which goes via
+the paca. This then crashes in the zImage case.
+
+Similarly stack protector can cause crashes if r13 is bogus, by
+reading from the stack canary in the paca.
+
+To resolve this:
+
+ - move the paca setup to before the CPU feature parsing.
+
+ - because we no longer have access to CPU feature flags in paca
+ setup, change the HV feature test in the paca setup path to consider
+ the actual value of the MSR rather than the CPU feature.
+
+Translations get switched on once we leave early_setup, so I think
+we'd already catch any other cases where the paca or task aren't set
+up.
+
+Boot tested on a P9 guest and host.
+
+Fixes: fb0b0a73b223 ("powerpc: Enable kcov")
+Fixes: 06ec27aea9fc ("powerpc/64: add stack protector support")
+Cc: stable@vger.kernel.org # v4.20+
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+[mpe: Reword comments & change log a bit to mention stack protector]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200320032116.1024773-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/fs_context.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/dt_cpu_ftrs.c |    1 -
+ arch/powerpc/kernel/paca.c        |   10 +++++++---
+ arch/powerpc/kernel/setup_64.c    |   30 ++++++++++++++++++++++++------
+ 3 files changed, 31 insertions(+), 10 deletions(-)
 
---- a/fs/nfs/fs_context.c
-+++ b/fs/nfs/fs_context.c
-@@ -190,6 +190,7 @@ static const struct constant_table nfs_v
- 	{ "4.0",	Opt_vers_4_0 },
- 	{ "4.1",	Opt_vers_4_1 },
- 	{ "4.2",	Opt_vers_4_2 },
-+	{}
- };
+--- a/arch/powerpc/kernel/dt_cpu_ftrs.c
++++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
+@@ -139,7 +139,6 @@ static void __init cpufeatures_setup_cpu
+ 	/* Initialize the base environment -- clear FSCR/HFSCR.  */
+ 	hv_mode = !!(mfmsr() & MSR_HV);
+ 	if (hv_mode) {
+-		/* CPU_FTR_HVMODE is used early in PACA setup */
+ 		cur_cpu_spec->cpu_features |= CPU_FTR_HVMODE;
+ 		mtspr(SPRN_HFSCR, 0);
+ 	}
+--- a/arch/powerpc/kernel/paca.c
++++ b/arch/powerpc/kernel/paca.c
+@@ -214,11 +214,15 @@ void setup_paca(struct paca_struct *new_
+ 	/* On Book3E, initialize the TLB miss exception frames */
+ 	mtspr(SPRN_SPRG_TLB_EXFRAME, local_paca->extlb);
+ #else
+-	/* In HV mode, we setup both HPACA and PACA to avoid problems
++	/*
++	 * In HV mode, we setup both HPACA and PACA to avoid problems
+ 	 * if we do a GET_PACA() before the feature fixups have been
+-	 * applied
++	 * applied.
++	 *
++	 * Normally you should test against CPU_FTR_HVMODE, but CPU features
++	 * are not yet set up when we first reach here.
+ 	 */
+-	if (early_cpu_has_feature(CPU_FTR_HVMODE))
++	if (mfmsr() & MSR_HV)
+ 		mtspr(SPRN_SPRG_HPACA, local_paca);
+ #endif
+ 	mtspr(SPRN_SPRG_PACA, local_paca);
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -290,18 +290,36 @@ void __init early_setup(unsigned long dt
  
- enum {
-@@ -202,13 +203,14 @@ enum {
- 	nr__Opt_xprt
- };
+ 	/* -------- printk is _NOT_ safe to use here ! ------- */
  
--static const struct constant_table nfs_xprt_protocol_tokens[nr__Opt_xprt] = {
-+static const struct constant_table nfs_xprt_protocol_tokens[] = {
- 	{ "rdma",	Opt_xprt_rdma },
- 	{ "rdma6",	Opt_xprt_rdma6 },
- 	{ "tcp",	Opt_xprt_tcp },
- 	{ "tcp6",	Opt_xprt_tcp6 },
- 	{ "udp",	Opt_xprt_udp },
- 	{ "udp6",	Opt_xprt_udp6 },
-+	{}
- };
+-	/* Try new device tree based feature discovery ... */
+-	if (!dt_cpu_ftrs_init(__va(dt_ptr)))
+-		/* Otherwise use the old style CPU table */
+-		identify_cpu(0, mfspr(SPRN_PVR));
+-
+-	/* Assume we're on cpu 0 for now. Don't write to the paca yet! */
++	/*
++	 * Assume we're on cpu 0 for now.
++	 *
++	 * We need to load a PACA very early for a few reasons.
++	 *
++	 * The stack protector canary is stored in the paca, so as soon as we
++	 * call any stack protected code we need r13 pointing somewhere valid.
++	 *
++	 * If we are using kcov it will call in_task() in its instrumentation,
++	 * which relies on the current task from the PACA.
++	 *
++	 * dt_cpu_ftrs_init() calls into generic OF/fdt code, as well as
++	 * printk(), which can trigger both stack protector and kcov.
++	 *
++	 * percpu variables and spin locks also use the paca.
++	 *
++	 * So set up a temporary paca. It will be replaced below once we know
++	 * what CPU we are on.
++	 */
+ 	initialise_paca(&boot_paca, 0);
+ 	setup_paca(&boot_paca);
+ 	fixup_boot_paca();
  
- enum {
-@@ -239,6 +241,7 @@ static const struct constant_table nfs_s
- 	{ "spkm3i",	Opt_sec_spkmi },
- 	{ "spkm3p",	Opt_sec_spkmp },
- 	{ "sys",	Opt_sec_sys },
-+	{}
- };
+ 	/* -------- printk is now safe to use ------- */
  
- /*
++	/* Try new device tree based feature discovery ... */
++	if (!dt_cpu_ftrs_init(__va(dt_ptr)))
++		/* Otherwise use the old style CPU table */
++		identify_cpu(0, mfspr(SPRN_PVR));
++
+ 	/* Enable early debugging if any specified (see udbg.h) */
+ 	udbg_early_init();
+ 
 
 
