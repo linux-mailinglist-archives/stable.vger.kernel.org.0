@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 213011AC447
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF6E1AC2C1
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409311AbgDPN5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:57:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44302 "EHLO mail.kernel.org"
+        id S2896400AbgDPNcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:32:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409296AbgDPN5P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:57:15 -0400
+        id S2896270AbgDPNah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:30:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 653042076D;
-        Thu, 16 Apr 2020 13:57:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 716B6206E9;
+        Thu, 16 Apr 2020 13:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045434;
+        s=default; t=1587043836;
         bh=YT2uPu+CvbKPtXH7NT0G3Z7bnBFybUw4cBTirjFdyIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pwmrbgg2Z2vX08umFM1VJVDG0zxGp9lrpLhh9lTFiG3LtZmPiydam+wtYTYGm2FqC
-         YEkDrwcI13y8VsQy0iSOU4HlZy0mpTYhCgnaX3UGg0+L+H+/UQfmrCiGXnmXOrjmZ3
-         rzCPUEnn9HNYL2dDoyHqQG+6WK/1LHsClBmhuut4=
+        b=cZHgfFiYsBLicpa/vdFpVouDR8NUY8UD4ny3NQZUdzJdeCZsqBibGm1rlcEm4tw7m
+         oo3V2glyte/S05AoosQR3COvwRcSJslSpziKC/RMeD76w20Q5MgJ2b9UqYbPt7hC4i
+         VE8uBUWCbOkeLDiAOrHpetZNfnr7vsD1jj3W08LE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         David Hildenbrand <david@redhat.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5.6 132/254] KVM: s390: vsie: Fix region 1 ASCE sanity shadow address checks
+Subject: [PATCH 4.19 080/146] KVM: s390: vsie: Fix region 1 ASCE sanity shadow address checks
 Date:   Thu, 16 Apr 2020 15:23:41 +0200
-Message-Id: <20200416131342.994076667@linuxfoundation.org>
+Message-Id: <20200416131253.818790582@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
