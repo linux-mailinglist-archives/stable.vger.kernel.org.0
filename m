@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D57D81AC455
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 558E21AC3C9
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2636322AbgDPN6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:58:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45024 "EHLO mail.kernel.org"
+        id S2392320AbgDPNsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:48:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2506775AbgDPN55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:57:57 -0400
+        id S2898731AbgDPNsQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:48:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2C6C20786;
-        Thu, 16 Apr 2020 13:57:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11B73208E4;
+        Thu, 16 Apr 2020 13:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045476;
-        bh=iwpOkWNrhBwUswnOtXqVscbGbYoZHkHCPnAV4L0FYI0=;
+        s=default; t=1587044894;
+        bh=N6oa1EB9P4mPHhlwzrpPtUZKQQg/VCmESuSeS8FKOzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTMrOzY7BKAW02Vm0dshszIZBmjIBFdnxOcWojXyoJaX3JXoC61kQR9xg+pG7fGrS
-         ti/Xqf1iY4eieF0JiDHSrzP1S+/GZhFbK9l5xOVd3N0q6jIvnMkTOQb1ZGcLIoH+LO
-         RxHwWzsK5/gScTaSQWY9EK9RyUj07+BWa9S33iRY=
+        b=ESJOpNNUVJteBCFyqWl8LdSi3f84OVoeoqieFttYV7Mg3NoYnKhMsovjh/pWSAf2h
+         6OSvq4lNczKN3jssajeUzfI8kEPNVuGCr57NInjClxZEBpSg+6XHtPLtUksM8Lskac
+         +bxvs3hWUeojx8RkKFKw4v/1OXDq+SLHnt0wNR/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.6 151/254] btrfs: reloc: clean dirty subvols if we fail to start a transaction
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sibi Sankar <sibis@codeaurora.org>
+Subject: [PATCH 5.4 146/232] remoteproc: qcom_q6v5_mss: Dont reassign mpss region on shutdown
 Date:   Thu, 16 Apr 2020 15:24:00 +0200
-Message-Id: <20200416131345.468335806@linuxfoundation.org>
+Message-Id: <20200416131333.254945757@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-commit 6217b0fadd4473a16fabc6aecd7527a9f71af534 upstream.
+commit 900fc60df22748dbc28e4970838e8f7b8f1013ce upstream.
 
-If we do merge_reloc_roots() we could insert a few roots onto the dirty
-subvol roots list, where we hold a ref on them.  If we fail to start the
-transaction we need to run clean_dirty_subvols() in order to cleanup the
-refs.
+Trying to reclaim mpss memory while the mba is not running causes the
+system to crash on devices with security fuses blown, so leave it
+assigned to the remote on shutdown and recover it on a subsequent boot.
 
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20200304194729.27979-2-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/relocation.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/remoteproc/qcom_q6v5_mss.c |   35 ++++++++++++++++++++++++-----------
+ 1 file changed, 24 insertions(+), 11 deletions(-)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -4221,10 +4221,10 @@ restart:
- 		goto out_free;
+--- a/drivers/remoteproc/qcom_q6v5_mss.c
++++ b/drivers/remoteproc/qcom_q6v5_mss.c
+@@ -875,11 +875,6 @@ static void q6v5_mba_reclaim(struct q6v5
+ 		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
  	}
- 	btrfs_commit_transaction(trans);
-+out_free:
- 	ret = clean_dirty_subvols(rc);
- 	if (ret < 0 && !err)
- 		err = ret;
--out_free:
- 	btrfs_free_block_rsv(fs_info, rc->block_rsv);
- 	btrfs_free_path(path);
- 	return err;
-@@ -4634,10 +4634,10 @@ int btrfs_recover_relocation(struct btrf
- 	trans = btrfs_join_transaction(rc->extent_root);
- 	if (IS_ERR(trans)) {
- 		err = PTR_ERR(trans);
--		goto out_free;
-+		goto out_clean;
- 	}
- 	err = btrfs_commit_transaction(trans);
+ 
+-	ret = q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
+-				      false, qproc->mpss_phys,
+-				      qproc->mpss_size);
+-	WARN_ON(ret);
 -
-+out_clean:
- 	ret = clean_dirty_subvols(rc);
- 	if (ret < 0 && !err)
- 		err = ret;
+ 	q6v5_reset_assert(qproc);
+ 
+ 	q6v5_clk_disable(qproc->dev, qproc->reset_clks,
+@@ -969,6 +964,14 @@ static int q6v5_mpss_load(struct q6v5 *q
+ 			max_addr = ALIGN(phdr->p_paddr + phdr->p_memsz, SZ_4K);
+ 	}
+ 
++	/**
++	 * In case of a modem subsystem restart on secure devices, the modem
++	 * memory can be reclaimed only after MBA is loaded. For modem cold
++	 * boot this will be a nop
++	 */
++	q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm, false,
++				qproc->mpss_phys, qproc->mpss_size);
++
+ 	mpss_reloc = relocate ? min_addr : qproc->mpss_phys;
+ 	qproc->mpss_reloc = mpss_reloc;
+ 	/* Load firmware segments */
+@@ -1058,8 +1061,16 @@ static void qcom_q6v5_dump_segment(struc
+ 	void *ptr = rproc_da_to_va(rproc, segment->da, segment->size);
+ 
+ 	/* Unlock mba before copying segments */
+-	if (!qproc->dump_mba_loaded)
++	if (!qproc->dump_mba_loaded) {
+ 		ret = q6v5_mba_load(qproc);
++		if (!ret) {
++			/* Reset ownership back to Linux to copy segments */
++			ret = q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
++						      false,
++						      qproc->mpss_phys,
++						      qproc->mpss_size);
++		}
++	}
+ 
+ 	if (!ptr || ret)
+ 		memset(dest, 0xff, segment->size);
+@@ -1070,8 +1081,14 @@ static void qcom_q6v5_dump_segment(struc
+ 
+ 	/* Reclaim mba after copying segments */
+ 	if (qproc->dump_segment_mask == qproc->dump_complete_mask) {
+-		if (qproc->dump_mba_loaded)
++		if (qproc->dump_mba_loaded) {
++			/* Try to reset ownership back to Q6 */
++			q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
++						true,
++						qproc->mpss_phys,
++						qproc->mpss_size);
+ 			q6v5_mba_reclaim(qproc);
++		}
+ 	}
+ }
+ 
+@@ -1111,10 +1128,6 @@ static int q6v5_start(struct rproc *rpro
+ 	return 0;
+ 
+ reclaim_mpss:
+-	xfermemop_ret = q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
+-						false, qproc->mpss_phys,
+-						qproc->mpss_size);
+-	WARN_ON(xfermemop_ret);
+ 	q6v5_mba_reclaim(qproc);
+ 
+ 	return ret;
 
 
