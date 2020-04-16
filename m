@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C866C1AC1F4
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BA11AC200
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:03:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2894688AbgDPNBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:01:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38590 "EHLO mail.kernel.org"
+        id S2894744AbgDPNCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:02:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2894706AbgDPNBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:01:19 -0400
+        id S2894629AbgDPNCS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:02:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD83221D79;
-        Thu, 16 Apr 2020 13:01:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E64C8206B9;
+        Thu, 16 Apr 2020 13:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587042077;
-        bh=42XYOGO8K60P5I62HXrT0Is11P1/mgtaFZh5cAvbk6U=;
+        s=default; t=1587042138;
+        bh=CZSrTELTAkZf3umSKl0wTgGl7NOH2/aHcZzKZGHJ0D8=;
         h=Subject:To:From:Date:From;
-        b=yjrLYbVQG34jL+xT3S8jn43Hu4JBw1utAmG0VjgbJwinTMXsWqd0gUO2KlFSDbja1
-         PCMdOT797Eox/QmNspiJH6+14HdjkBIhfW0Q3E4Kfpeu8B4qWhi4haPC9XsRfTR/tr
-         WdSYT6Z5rjE2r8MwlkS/Z0Ll3N1dRG+eMwnaFiJo=
-Subject: patch "UAS: fix deadlock in error handling and PM flushing work" added to usb-linus
-To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        b=p+cSLs2H0FbrDfwUNsfutWY5Wbc9i6IVoi7+m2Phdd+5GErzECejKfyovSZoAvuyy
+         ZLvLzBtyQlKSCpwwDC/Q1iU6v6NpVuTLKV/Bd2SDQbSYQ+Izl/h4m+2evjt9XUhqPr
+         OTi2L50k1e4yjmBT9gJcrjbubtt+2sA32nLtN6a4=
+Subject: patch "usb: typec: tcpm: Ignore CC and vbus changes in PORT_RESET change" added to usb-linus
+To:     badhri@google.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Apr 2020 15:01:02 +0200
-Message-ID: <1587042062245118@kroah.com>
+Date:   Thu, 16 Apr 2020 15:02:16 +0200
+Message-ID: <1587042136205249@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    UAS: fix deadlock in error handling and PM flushing work
+    usb: typec: tcpm: Ignore CC and vbus changes in PORT_RESET change
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,102 +56,96 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From f6cc6093a729ede1ff5658b493237c42b82ba107 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Wed, 15 Apr 2020 16:17:50 +0200
-Subject: UAS: fix deadlock in error handling and PM flushing work
+From 901789745a053286e0ced37960d44fa60267b940 Mon Sep 17 00:00:00 2001
+From: Badhri Jagan Sridharan <badhri@google.com>
+Date: Thu, 2 Apr 2020 14:59:47 -0700
+Subject: usb: typec: tcpm: Ignore CC and vbus changes in PORT_RESET change
 
-A SCSI error handler and block runtime PM must not allocate
-memory with GFP_KERNEL. Furthermore they must not wait for
-tasks allocating memory with GFP_KERNEL.
-That means that they cannot share a workqueue with arbitrary tasks.
+After PORT_RESET, the port is set to the appropriate
+default_state. Ignore processing CC changes here as this
+could cause the port to be switched into sink states
+by default.
 
-Fix this for UAS using a private workqueue.
+echo source > /sys/class/typec/port0/port_type
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Fixes: f9dc024a2da1f ("uas: pre_reset and suspend: Fix a few races")
+Before:
+[  154.528547] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms
+[  154.528560] CC1: 0 -> 0, CC2: 3 -> 0 [state PORT_RESET, polarity 0, disconnected]
+[  154.528564] state change PORT_RESET -> SNK_UNATTACHED
+
+After:
+[  151.068814] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev3 NONE_AMS]
+[  151.072440] CC1: 3 -> 0, CC2: 0 -> 0 [state PORT_RESET, polarity 0, disconnected]
+[  151.172117] state change PORT_RESET -> PORT_RESET_WAIT_OFF [delayed 100 ms]
+[  151.172136] pending state change PORT_RESET_WAIT_OFF -> SRC_UNATTACHED @ 870 ms [rev3 NONE_AMS]
+[  152.060106] state change PORT_RESET_WAIT_OFF -> SRC_UNATTACHED [delayed 870 ms]
+[  152.060118] Start toggling
+
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200415141750.811-2-oneukum@suse.com
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200402215947.176577-1-badhri@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/uas.c | 43 ++++++++++++++++++++++++++++++++++++---
- 1 file changed, 40 insertions(+), 3 deletions(-)
+ drivers/usb/typec/tcpm/tcpm.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/drivers/usb/storage/uas.c b/drivers/usb/storage/uas.c
-index 08503e3507bf..d592071119ba 100644
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -81,6 +81,19 @@ static void uas_free_streams(struct uas_dev_info *devinfo);
- static void uas_log_cmd_state(struct scsi_cmnd *cmnd, const char *prefix,
- 				int status);
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index de3576e6530a..82b19ebd7838 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -3794,6 +3794,14 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
+ 		 */
+ 		break;
  
-+/*
-+ * This driver needs its own workqueue, as we need to control memory allocation.
-+ *
-+ * In the course of error handling and power management uas_wait_for_pending_cmnds()
-+ * needs to flush pending work items. In these contexts we cannot allocate memory
-+ * by doing block IO as we would deadlock. For the same reason we cannot wait
-+ * for anything allocating memory not heeding these constraints.
-+ *
-+ * So we have to control all work items that can be on the workqueue we flush.
-+ * Hence we cannot share a queue and need our own.
-+ */
-+static struct workqueue_struct *workqueue;
++	case PORT_RESET:
++	case PORT_RESET_WAIT_OFF:
++		/*
++		 * State set back to default mode once the timer completes.
++		 * Ignore CC changes here.
++		 */
++		break;
 +
- static void uas_do_work(struct work_struct *work)
- {
- 	struct uas_dev_info *devinfo =
-@@ -109,7 +122,7 @@ static void uas_do_work(struct work_struct *work)
- 		if (!err)
- 			cmdinfo->state &= ~IS_IN_WORK_LIST;
- 		else
--			schedule_work(&devinfo->work);
-+			queue_work(workqueue, &devinfo->work);
+ 	default:
+ 		if (tcpm_port_is_disconnected(port))
+ 			tcpm_set_state(port, unattached_state(port), 0);
+@@ -3855,6 +3863,15 @@ static void _tcpm_pd_vbus_on(struct tcpm_port *port)
+ 	case SRC_TRY_DEBOUNCE:
+ 		/* Do nothing, waiting for sink detection */
+ 		break;
++
++	case PORT_RESET:
++	case PORT_RESET_WAIT_OFF:
++		/*
++		 * State set back to default mode once the timer completes.
++		 * Ignore vbus changes here.
++		 */
++		break;
++
+ 	default:
+ 		break;
  	}
- out:
- 	spin_unlock_irqrestore(&devinfo->lock, flags);
-@@ -134,7 +147,7 @@ static void uas_add_work(struct uas_cmd_info *cmdinfo)
- 
- 	lockdep_assert_held(&devinfo->lock);
- 	cmdinfo->state |= IS_IN_WORK_LIST;
--	schedule_work(&devinfo->work);
-+	queue_work(workqueue, &devinfo->work);
- }
- 
- static void uas_zap_pending(struct uas_dev_info *devinfo, int result)
-@@ -1229,7 +1242,31 @@ static struct usb_driver uas_driver = {
- 	.id_table = uas_usb_ids,
- };
- 
--module_usb_driver(uas_driver);
-+static int __init uas_init(void)
-+{
-+	int rv;
+@@ -3908,10 +3925,19 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
+ 	case PORT_RESET_WAIT_OFF:
+ 		tcpm_set_state(port, tcpm_default_state(port), 0);
+ 		break;
 +
-+	workqueue = alloc_workqueue("uas", WQ_MEM_RECLAIM, 0);
-+	if (!workqueue)
-+		return -ENOMEM;
+ 	case SRC_TRY_WAIT:
+ 	case SRC_TRY_DEBOUNCE:
+ 		/* Do nothing, waiting for sink detection */
+ 		break;
 +
-+	rv = usb_register(&uas_driver);
-+	if (rv) {
-+		destroy_workqueue(workqueue);
-+		return -ENOMEM;
-+	}
++	case PORT_RESET:
++		/*
++		 * State set back to default mode once the timer completes.
++		 * Ignore vbus changes here.
++		 */
++		break;
 +
-+	return 0;
-+}
-+
-+static void __exit uas_exit(void)
-+{
-+	usb_deregister(&uas_driver);
-+	destroy_workqueue(workqueue);
-+}
-+
-+module_init(uas_init);
-+module_exit(uas_exit);
- 
- MODULE_LICENSE("GPL");
- MODULE_IMPORT_NS(USB_STORAGE);
+ 	default:
+ 		if (port->pwr_role == TYPEC_SINK &&
+ 		    port->attached)
 -- 
 2.26.1
 
