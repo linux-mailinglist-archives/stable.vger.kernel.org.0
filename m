@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D141AC301
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35A1B1AC38F
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:45:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897335AbgDPNgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:36:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48524 "EHLO mail.kernel.org"
+        id S2896946AbgDPNpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:45:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897322AbgDPNgZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:36:25 -0400
+        id S2898481AbgDPNpI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:45:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C3922222C;
-        Thu, 16 Apr 2020 13:36:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC7CA208E4;
+        Thu, 16 Apr 2020 13:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044183;
-        bh=1jzhNCiKswhoIJTfB2OLMsRckfeRXXkCNaRRwVljCGw=;
+        s=default; t=1587044708;
+        bh=cWNjo3ufoi2L8D9rzD7+OpFBpQLefCSdKcauXILmL3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNdITB3IziSyyMzSOcwd7Tyi/Xji7ozxG5wVSvPYZGGGwBe3ufkWm87jAgGA+Af79
-         o8Be2+epqy+yDb5qqXQ9fG/OibHktcyrao/cX8mE8aT9iPUKplTauei3XSKl/aqk0D
-         APu9POsSBIO9T+jcCUlxeSHRmwYl6kcQrVAgsaeA=
+        b=tsUtuvJ0SfA1YdO4KzS1VRU0EOa7hYHPp3ctv2F9mOK8c1w+ROHYaqLP3JIvjiFtV
+         qbmVbWGJca6xWaSmq44E1INBiolbwbXdHBj7UVb/xPIFc6eHpUI+1iJIl3Nr2v1RLp
+         0aJOAtiK+oZ5hMo3tzQP585YcYDtXdgrWAzkoP7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, linux-efi@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        David Hildenbrand <david@redhat.com>,
-        Heinrich Schuchardt <xypron.glpk@gmx.de>
-Subject: [PATCH 5.5 112/257] efi/x86: Add TPM related EFI tables to unencrypted mapping checks
+        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 069/232] ASoC: fix regwmask
 Date:   Thu, 16 Apr 2020 15:22:43 +0200
-Message-Id: <20200416131340.248264441@linuxfoundation.org>
+Message-Id: <20200416131324.001628167@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: 이경택 <gt82.lee@samsung.com>
 
-commit f10e80a19b07b58fc2adad7945f8313b01503bae upstream.
+commit 0ab070917afdc93670c2d0ea02ab6defb6246a7c upstream.
 
-When booting with SME active, EFI tables must be mapped unencrypted since
-they were built by UEFI in unencrypted memory. Update the list of tables
-to be checked during early_memremap() processing to account for the EFI
-TPM tables.
+If regwshift is 32 and the selected architecture compiles '<<' operator
+for signed int literal into rotating shift, '1<<regwshift' became 1 and
+it makes regwmask to 0x0.
+The literal is set to unsigned long to get intended regwmask.
 
-This fixes a bug where an EFI TPM log table has been created by UEFI, but
-it lives in memory that has been marked as usable rather than reserved.
-
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: linux-efi@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Cc: <stable@vger.kernel.org> # v5.4+
-Link: https://lore.kernel.org/r/4144cd813f113c20cdfa511cf59500a64e6015be.1582662842.git.thomas.lendacky@amd.com
-Link: https://lore.kernel.org/r/20200228121408.9075-2-ardb@kernel.org
+Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
+Link: https://lore.kernel.org/r/001001d60665$db7af3e0$9270dba0$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/platform/efi/efi.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/soc-ops.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/platform/efi/efi.c
-+++ b/arch/x86/platform/efi/efi.c
-@@ -85,6 +85,8 @@ static const unsigned long * const efi_t
- #ifdef CONFIG_EFI_RCI2_TABLE
- 	&rci2_table_phys,
- #endif
-+	&efi.tpm_log,
-+	&efi.tpm_final_log,
- };
- 
- u64 efi_setup;		/* efi setup_data physical address */
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -832,7 +832,7 @@ int snd_soc_get_xr_sx(struct snd_kcontro
+ 	unsigned int regbase = mc->regbase;
+ 	unsigned int regcount = mc->regcount;
+ 	unsigned int regwshift = component->val_bytes * BITS_PER_BYTE;
+-	unsigned int regwmask = (1<<regwshift)-1;
++	unsigned int regwmask = (1UL<<regwshift)-1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned long mask = (1UL<<mc->nbits)-1;
+ 	long min = mc->min;
+@@ -881,7 +881,7 @@ int snd_soc_put_xr_sx(struct snd_kcontro
+ 	unsigned int regbase = mc->regbase;
+ 	unsigned int regcount = mc->regcount;
+ 	unsigned int regwshift = component->val_bytes * BITS_PER_BYTE;
+-	unsigned int regwmask = (1<<regwshift)-1;
++	unsigned int regwmask = (1UL<<regwshift)-1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned long mask = (1UL<<mc->nbits)-1;
+ 	long max = mc->max;
 
 
