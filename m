@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4351ACAD8
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAB091AC787
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395415AbgDPPk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:40:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50046 "EHLO mail.kernel.org"
+        id S2394821AbgDPO4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:56:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897510AbgDPNhm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:37:42 -0400
+        id S1732182AbgDPN4J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:56:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3268B22203;
-        Thu, 16 Apr 2020 13:37:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93AF220732;
+        Thu, 16 Apr 2020 13:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044261;
-        bh=kxAl/kLJfUsCpIvICM6QwVBnOzWBV/taZCwvMzq5wjc=;
+        s=default; t=1587045369;
+        bh=1ClpcThwENIVjhgFj2BIfnEiPBTFpOMrznL6cQRlSt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzlpErWkarf34ALBF2+cBnWHa3Znq7JZabslqLbg/1sXh3gNrAjrD6uRFkPSdh3xB
-         rJrOuXX/E/Jkowj976VrWSCBSL9lfWrPGvg0EQk24Fq+ziurpd//Tb1mwJVQKidecF
-         u+jXb8LxILsRWwRtzkUbXO7xNQ/wxZc89i3GA9UA=
+        b=ViF1dydqOOEypDST0JeDeldwEJzyi9gO3304A8JgKBzQLS8flkrYEXMn824zORiOD
+         K6cz6X83TBSx03puNOwx7jA+KXiAJwfHzkV8x30IAe1pNYMF3F3y6HpvXrWdVDX6Yp
+         cDEqZEO2GM34OzgQA/w7WrnA+nbuQ53l4B7uUutI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 5.5 145/257] KVM: s390: vsie: Fix delivery of addressing exceptions
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: [PATCH 5.6 107/254] tpm: tpm1_bios_measurements_next should increase position index
 Date:   Thu, 16 Apr 2020 15:23:16 +0200
-Message-Id: <20200416131344.575648040@linuxfoundation.org>
+Message-Id: <20200416131339.494494210@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 upstream.
+commit d7a47b96ed1102551eb7325f97937e276fb91045 upstream.
 
-Whenever we get an -EFAULT, we failed to read in guest 2 physical
-address space. Such addressing exceptions are reported via a program
-intercept to the nested hypervisor.
+If .next function does not change position index,
+following .show function will repeat output related
+to current position index.
 
-We faked the intercept, we have to return to guest 2. Instead, right
-now we would be returning -EFAULT from the intercept handler, eventually
-crashing the VM.
-the correct thing to do is to return 1 as rc == 1 is the internal
-representation of "we have to go back into g2".
+In case of /sys/kernel/security/tpm0/ascii_bios_measurements
+and binary_bios_measurements:
+1) read after lseek beyound end of file generates whole last line.
+2) read after lseek to middle of last line generates
+expected end of last line and unexpected whole last line once again.
 
-Addressing exceptions can only happen if the g2->g3 page tables
-reference invalid g2 addresses (say, either a table or the final page is
-not accessible - so something that basically never happens in sane
-environments.
-
-Identified by manual code inspection.
-
-Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[borntraeger@de.ibm.com: fix patch description]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org # 4.19.x
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kvm/vsie.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/tpm/eventlog/tpm1.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1202,6 +1202,7 @@ static int vsie_run(struct kvm_vcpu *vcp
- 		scb_s->iprcc = PGM_ADDRESSING;
- 		scb_s->pgmilc = 4;
- 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
-+		rc = 1;
- 	}
- 	return rc;
+--- a/drivers/char/tpm/eventlog/tpm1.c
++++ b/drivers/char/tpm/eventlog/tpm1.c
+@@ -115,6 +115,7 @@ static void *tpm1_bios_measurements_next
+ 	u32 converted_event_size;
+ 	u32 converted_event_type;
+ 
++	(*pos)++;
+ 	converted_event_size = do_endian_conversion(event->event_size);
+ 
+ 	v += sizeof(struct tcpa_event) + converted_event_size;
+@@ -132,7 +133,6 @@ static void *tpm1_bios_measurements_next
+ 	    ((v + sizeof(struct tcpa_event) + converted_event_size) > limit))
+ 		return NULL;
+ 
+-	(*pos)++;
+ 	return v;
  }
+ 
 
 
