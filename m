@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BCE91AC2A8
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F4E1AC348
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896340AbgDPNa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:30:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41224 "EHLO mail.kernel.org"
+        id S2898178AbgDPNkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:40:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896326AbgDPNaz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:30:55 -0400
+        id S2898153AbgDPNkk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:40:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0BE321D94;
-        Thu, 16 Apr 2020 13:30:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CE5E20732;
+        Thu, 16 Apr 2020 13:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043854;
-        bh=OVXRAMaUhSQWroAzhVmxDkhTa/hWRSuxxkkGdCSITOI=;
+        s=default; t=1587044439;
+        bh=5HTjWd+7Sl/qy30l/W4PW40cjGlT+DFrvZafOXww43Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UI+z4+c2u+e7PZliZPbjjezEZyflF5XOki+kKNOfGuIu8AwWiplpMcpIMYdp2g5OX
-         8h8fLiGZpqTWX0w+VD0rhy9xSA4qnh9HMoyJOWLyu04ftZq5khuUZS7Kdkjoo9DvAo
-         M5HG1gUF3Zjsdl9bOnmG36vjitUIjFW0q1M0bJwE=
+        b=KCFtje6LA+EjkoWmIOlOfWUDeD9ZzDxJK+jxrgVJs+r6CpKk/C7p9Ik5LG+oUFiwL
+         T5gTuneOHr0VXqPnnwVfEvy6qgpFZALEgx/72/lDsCt0qBeHCI37YIatiW8ktuIxdy
+         NqMWAGalFF4g0ZSdX+Gie2AF7zrMY76ZIF2h+dgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 128/146] powerpc/kprobes: Ignore traps that happened in real mode
-Date:   Thu, 16 Apr 2020 15:24:29 +0200
-Message-Id: <20200416131259.984149713@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.5 219/257] ext4: fix a data race at inode->i_blocks
+Date:   Thu, 16 Apr 2020 15:24:30 +0200
+Message-Id: <20200416131353.356092661@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Qian Cai <cai@lca.pw>
 
-commit 21f8b2fa3ca5b01f7a2b51b89ce97a3705a15aa0 upstream.
+commit 28936b62e71e41600bab319f262ea9f9b1027629 upstream.
 
-When a program check exception happens while MMU translation is
-disabled, following Oops happens in kprobe_handler() in the following
-code:
+inode->i_blocks could be accessed concurrently as noticed by KCSAN,
 
-	} else if (*addr != BREAKPOINT_INSTRUCTION) {
+ BUG: KCSAN: data-race in ext4_do_update_inode [ext4] / inode_add_bytes
 
-  BUG: Unable to handle kernel data access on read at 0x0000e268
-  Faulting instruction address: 0xc000ec34
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  BE PAGE_SIZE=16K PREEMPT CMPC885
-  Modules linked in:
-  CPU: 0 PID: 429 Comm: cat Not tainted 5.6.0-rc1-s3k-dev-00824-g84195dc6c58a #3267
-  NIP:  c000ec34 LR: c000ecd8 CTR: c019cab8
-  REGS: ca4d3b58 TRAP: 0300   Not tainted  (5.6.0-rc1-s3k-dev-00824-g84195dc6c58a)
-  MSR:  00001032 <ME,IR,DR,RI>  CR: 2a4d3c52  XER: 00000000
-  DAR: 0000e268 DSISR: c0000000
-  GPR00: c000b09c ca4d3c10 c66d0620 00000000 ca4d3c60 00000000 00009032 00000000
-  GPR08: 00020000 00000000 c087de44 c000afe0 c66d0ad0 100d3dd6 fffffff3 00000000
-  GPR16: 00000000 00000041 00000000 ca4d3d70 00000000 00000000 0000416d 00000000
-  GPR24: 00000004 c53b6128 00000000 0000e268 00000000 c07c0000 c07bb6fc ca4d3c60
-  NIP [c000ec34] kprobe_handler+0x128/0x290
-  LR [c000ecd8] kprobe_handler+0x1cc/0x290
-  Call Trace:
-  [ca4d3c30] [c000b09c] program_check_exception+0xbc/0x6fc
-  [ca4d3c50] [c000e43c] ret_from_except_full+0x0/0x4
-  --- interrupt: 700 at 0xe268
-  Instruction dump:
-  913e0008 81220000 38600001 3929ffff 91220000 80010024 bb410008 7c0803a6
-  38210020 4e800020 38600000 4e800020 <813b0000> 6d2a7fe0 2f8a0008 419e0154
-  ---[ end trace 5b9152d4cdadd06d ]---
+ write to 0xffff9a00d4b982d0 of 8 bytes by task 22100 on cpu 118:
+  inode_add_bytes+0x65/0xf0
+  __inode_add_bytes at fs/stat.c:689
+  (inlined by) inode_add_bytes at fs/stat.c:702
+  ext4_mb_new_blocks+0x418/0xca0 [ext4]
+  ext4_ext_map_blocks+0x1a6b/0x27b0 [ext4]
+  ext4_map_blocks+0x1a9/0x950 [ext4]
+  _ext4_get_block+0xfc/0x270 [ext4]
+  ext4_get_block_unwritten+0x33/0x50 [ext4]
+  __block_write_begin_int+0x22e/0xae0
+  __block_write_begin+0x39/0x50
+  ext4_write_begin+0x388/0xb50 [ext4]
+  ext4_da_write_begin+0x35f/0x8f0 [ext4]
+  generic_perform_write+0x15d/0x290
+  ext4_buffered_write_iter+0x11f/0x210 [ext4]
+  ext4_file_write_iter+0xce/0x9e0 [ext4]
+  new_sync_write+0x29c/0x3b0
+  __vfs_write+0x92/0xa0
+  vfs_write+0x103/0x260
+  ksys_write+0x9d/0x130
+  __x64_sys_write+0x4c/0x60
+  do_syscall_64+0x91/0xb05
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-kprobe is not prepared to handle events in real mode and functions
-running in real mode should have been blacklisted, so kprobe_handler()
-can safely bail out telling 'this trap is not mine' for any trap that
-happened while in real-mode.
+ read to 0xffff9a00d4b982d0 of 8 bytes by task 8 on cpu 65:
+  ext4_do_update_inode+0x4a0/0xf60 [ext4]
+  ext4_inode_blocks_set at fs/ext4/inode.c:4815
+  ext4_mark_iloc_dirty+0xaf/0x160 [ext4]
+  ext4_mark_inode_dirty+0x129/0x3e0 [ext4]
+  ext4_convert_unwritten_extents+0x253/0x2d0 [ext4]
+  ext4_convert_unwritten_io_end_vec+0xc5/0x150 [ext4]
+  ext4_end_io_rsv_work+0x22c/0x350 [ext4]
+  process_one_work+0x54f/0xb90
+  worker_thread+0x80/0x5f0
+  kthread+0x1cd/0x1f0
+  ret_from_fork+0x27/0x50
 
-If the trap happened with MSR_IR or MSR_DR cleared, return 0
-immediately.
+ 4 locks held by kworker/u256:0/8:
+  #0: ffff9a025abc4328 ((wq_completion)ext4-rsv-conversion){+.+.}, at: process_one_work+0x443/0xb90
+  #1: ffffab5a862dbe20 ((work_completion)(&ei->i_rsv_conversion_work)){+.+.}, at: process_one_work+0x443/0xb90
+  #2: ffff9a025a9d0f58 (jbd2_handle){++++}, at: start_this_handle+0x1c1/0x9d0 [jbd2]
+  #3: ffff9a00d4b985d8 (&(&ei->i_raw_lock)->rlock){+.+.}, at: ext4_do_update_inode+0xaa/0xf60 [ext4]
+ irq event stamp: 3009267
+ hardirqs last  enabled at (3009267): [<ffffffff980da9b7>] __find_get_block+0x107/0x790
+ hardirqs last disabled at (3009266): [<ffffffff980da8f9>] __find_get_block+0x49/0x790
+ softirqs last  enabled at (3009230): [<ffffffff98a0034c>] __do_softirq+0x34c/0x57c
+ softirqs last disabled at (3009223): [<ffffffff97cc67a2>] irq_exit+0xa2/0xc0
 
-Reported-by: Larry Finger <Larry.Finger@lwfinger.net>
-Fixes: 6cc89bad60a6 ("powerpc/kprobes: Invoke handlers directly")
-Cc: stable@vger.kernel.org # v4.10+
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/424331e2006e7291a1bfe40e7f3fa58825f565e1.1582054578.git.christophe.leroy@c-s.fr
+ Reported by Kernel Concurrency Sanitizer on:
+ CPU: 65 PID: 8 Comm: kworker/u256:0 Tainted: G L 5.6.0-rc2-next-20200221+ #7
+ Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
+ Workqueue: ext4-rsv-conversion ext4_end_io_rsv_work [ext4]
+
+The plain read is outside of inode->i_lock critical section which
+results in a data race. Fix it by adding READ_ONCE() there.
+
+Link: https://lore.kernel.org/r/20200222043258.2279-1-cai@lca.pw
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/kprobes.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/ext4/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/kprobes.c
-+++ b/arch/powerpc/kernel/kprobes.c
-@@ -277,6 +277,9 @@ int kprobe_handler(struct pt_regs *regs)
- 	if (user_mode(regs))
- 		return 0;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4783,7 +4783,7 @@ static int ext4_inode_blocks_set(handle_
+ 				struct ext4_inode_info *ei)
+ {
+ 	struct inode *inode = &(ei->vfs_inode);
+-	u64 i_blocks = inode->i_blocks;
++	u64 i_blocks = READ_ONCE(inode->i_blocks);
+ 	struct super_block *sb = inode->i_sb;
  
-+	if (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR))
-+		return 0;
-+
- 	/*
- 	 * We don't want to be preempted for the entire
- 	 * duration of kprobe processing
+ 	if (i_blocks <= ~0U) {
 
 
