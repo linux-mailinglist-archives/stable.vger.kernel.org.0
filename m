@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C78871ACB69
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F111AC343
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896645AbgDPNdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:33:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42824 "EHLO mail.kernel.org"
+        id S2898112AbgDPNk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:40:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896558AbgDPNcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:32:55 -0400
+        id S2898109AbgDPNk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:40:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98B692224F;
-        Thu, 16 Apr 2020 13:31:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BC452076D;
+        Thu, 16 Apr 2020 13:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043908;
-        bh=T9Q/+8y+10RHMimFMocEtiqH524D6C047MMtaJaMqCU=;
+        s=default; t=1587044425;
+        bh=UG+omDNmUoAj/lnia2Lo9HKh1rXW0017TCXQfL7YMLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PjNz5n2RDKaRm9+DmdhvQCmL2scBlam6SurYDyQHPEZHO+Ew+slQUvJoUcOW7uZ1H
-         vQ8YSe9qIbEMFQRcuQrWPh8k5HWGIq3UYUHeLwi4Q2faMOmhw9Ho1cL2Iq16ibM4MO
-         8655NdbP5l+5MPYUisiEKq657P4COK+KwDXsbCA4=
+        b=v/bqFV16iXxynvsnwNFeP2EKmTuOCS5Yn5iLXHMa3hkIWjoGR+zO1QLE/y+cGFDVX
+         QZkPUYgcrq4Kb03saCui7Tc2SOQbwA/oxs5iElLrCzz1rc+o42shHp6tc0vNrGZ43X
+         Kbs5TdmStocOY0f6Gel25CvPRTnK/j/3rK9FS3Lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
-Subject: [PATCH 4.19 123/146] xen/blkfront: fix memory allocation flags in blkfront_setup_indirect()
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.5 213/257] drm/prime: fix extracting of the DMA addresses from a scatterlist
 Date:   Thu, 16 Apr 2020 15:24:24 +0200
-Message-Id: <20200416131259.388834579@linuxfoundation.org>
+Message-Id: <20200416131352.669962384@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit 3a169c0be75b59dd85d159493634870cdec6d3c4 upstream.
+commit c0f83d164fb8f3a2b7bc379a6c1e27d1123a9eab upstream.
 
-Commit 1d5c76e664333 ("xen-blkfront: switch kcalloc to kvcalloc for
-large array allocation") didn't fix the issue it was meant to, as the
-flags for allocating the memory are GFP_NOIO, which will lead the
-memory allocation falling back to kmalloc().
+Scatterlist elements contains both pages and DMA addresses, but one
+should not assume 1:1 relation between them. The sg->length is the size
+of the physical memory chunk described by the sg->page, while
+sg_dma_len(sg) is the size of the DMA (IO virtual) chunk described by
+the sg_dma_address(sg).
 
-So instead of GFP_NOIO use GFP_KERNEL and do all the memory allocation
-in blkfront_setup_indirect() in a memalloc_noio_{save,restore} section.
+The proper way of extracting both: pages and DMA addresses of the whole
+buffer described by a scatterlist it to iterate independently over the
+sg->pages/sg->length and sg_dma_address(sg)/sg_dma_len(sg) entries.
 
-Fixes: 1d5c76e664333 ("xen-blkfront: switch kcalloc to kvcalloc for large array allocation")
+Fixes: 42e67b479eab ("drm/prime: use dma length macro when mapping sg")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200327162126.29705-1-m.szyprowski@samsung.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Acked-by: Roger Pau Monné <roger.pau@citrix.com>
-Link: https://lore.kernel.org/r/20200403090034.8753-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/xen-blkfront.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/drm_prime.c |   37 +++++++++++++++++++++++++------------
+ 1 file changed, 25 insertions(+), 12 deletions(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -47,6 +47,7 @@
- #include <linux/bitmap.h>
- #include <linux/list.h>
- #include <linux/workqueue.h>
-+#include <linux/sched/mm.h>
+--- a/drivers/gpu/drm/drm_prime.c
++++ b/drivers/gpu/drm/drm_prime.c
+@@ -959,27 +959,40 @@ int drm_prime_sg_to_page_addr_arrays(str
+ 	unsigned count;
+ 	struct scatterlist *sg;
+ 	struct page *page;
+-	u32 len, index;
++	u32 page_len, page_index;
+ 	dma_addr_t addr;
++	u32 dma_len, dma_index;
  
- #include <xen/xen.h>
- #include <xen/xenbus.h>
-@@ -2188,10 +2189,12 @@ static void blkfront_setup_discard(struc
+-	index = 0;
++	/*
++	 * Scatterlist elements contains both pages and DMA addresses, but
++	 * one shoud not assume 1:1 relation between them. The sg->length is
++	 * the size of the physical memory chunk described by the sg->page,
++	 * while sg_dma_len(sg) is the size of the DMA (IO virtual) chunk
++	 * described by the sg_dma_address(sg).
++	 */
++	page_index = 0;
++	dma_index = 0;
+ 	for_each_sg(sgt->sgl, sg, sgt->nents, count) {
+-		len = sg_dma_len(sg);
++		page_len = sg->length;
+ 		page = sg_page(sg);
++		dma_len = sg_dma_len(sg);
+ 		addr = sg_dma_address(sg);
  
- static int blkfront_setup_indirect(struct blkfront_ring_info *rinfo)
- {
--	unsigned int psegs, grants;
-+	unsigned int psegs, grants, memflags;
- 	int err, i;
- 	struct blkfront_info *info = rinfo->dev_info;
- 
-+	memflags = memalloc_noio_save();
-+
- 	if (info->max_indirect_segments == 0) {
- 		if (!HAS_EXTRA_REQ)
- 			grants = BLKIF_MAX_SEGMENTS_PER_REQUEST;
-@@ -2223,7 +2226,7 @@ static int blkfront_setup_indirect(struc
- 
- 		BUG_ON(!list_empty(&rinfo->indirect_pages));
- 		for (i = 0; i < num; i++) {
--			struct page *indirect_page = alloc_page(GFP_NOIO);
-+			struct page *indirect_page = alloc_page(GFP_KERNEL);
- 			if (!indirect_page)
- 				goto out_of_memory;
- 			list_add(&indirect_page->lru, &rinfo->indirect_pages);
-@@ -2234,15 +2237,15 @@ static int blkfront_setup_indirect(struc
- 		rinfo->shadow[i].grants_used =
- 			kvcalloc(grants,
- 				 sizeof(rinfo->shadow[i].grants_used[0]),
--				 GFP_NOIO);
-+				 GFP_KERNEL);
- 		rinfo->shadow[i].sg = kvcalloc(psegs,
- 					       sizeof(rinfo->shadow[i].sg[0]),
--					       GFP_NOIO);
-+					       GFP_KERNEL);
- 		if (info->max_indirect_segments)
- 			rinfo->shadow[i].indirect_grants =
- 				kvcalloc(INDIRECT_GREFS(grants),
- 					 sizeof(rinfo->shadow[i].indirect_grants[0]),
--					 GFP_NOIO);
-+					 GFP_KERNEL);
- 		if ((rinfo->shadow[i].grants_used == NULL) ||
- 			(rinfo->shadow[i].sg == NULL) ||
- 		     (info->max_indirect_segments &&
-@@ -2251,6 +2254,7 @@ static int blkfront_setup_indirect(struc
- 		sg_init_table(rinfo->shadow[i].sg, psegs);
- 	}
- 
-+	memalloc_noio_restore(memflags);
- 
- 	return 0;
- 
-@@ -2270,6 +2274,9 @@ out_of_memory:
- 			__free_page(indirect_page);
+-		while (len > 0) {
+-			if (WARN_ON(index >= max_entries))
++		while (pages && page_len > 0) {
++			if (WARN_ON(page_index >= max_entries))
+ 				return -1;
+-			if (pages)
+-				pages[index] = page;
+-			if (addrs)
+-				addrs[index] = addr;
+-
++			pages[page_index] = page;
+ 			page++;
++			page_len -= PAGE_SIZE;
++			page_index++;
++		}
++		while (addrs && dma_len > 0) {
++			if (WARN_ON(dma_index >= max_entries))
++				return -1;
++			addrs[dma_index] = addr;
+ 			addr += PAGE_SIZE;
+-			len -= PAGE_SIZE;
+-			index++;
++			dma_len -= PAGE_SIZE;
++			dma_index++;
  		}
  	}
-+
-+	memalloc_noio_restore(memflags);
-+
- 	return -ENOMEM;
- }
- 
+ 	return 0;
 
 
