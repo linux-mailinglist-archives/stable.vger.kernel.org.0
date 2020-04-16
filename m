@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 558E21AC3C9
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5861E1AC28D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:29:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392320AbgDPNsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:48:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34286 "EHLO mail.kernel.org"
+        id S2896079AbgDPN3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:29:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898731AbgDPNsQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:48:16 -0400
+        id S2896067AbgDPN3q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:29:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11B73208E4;
-        Thu, 16 Apr 2020 13:48:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41441217D8;
+        Thu, 16 Apr 2020 13:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044894;
-        bh=N6oa1EB9P4mPHhlwzrpPtUZKQQg/VCmESuSeS8FKOzc=;
+        s=default; t=1587043785;
+        bh=nLk72JFj+2vX8XnZrO5sy89nEwKxWMogbtUOdGa0KEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESJOpNNUVJteBCFyqWl8LdSi3f84OVoeoqieFttYV7Mg3NoYnKhMsovjh/pWSAf2h
-         6OSvq4lNczKN3jssajeUzfI8kEPNVuGCr57NInjClxZEBpSg+6XHtPLtUksM8Lskac
-         +bxvs3hWUeojx8RkKFKw4v/1OXDq+SLHnt0wNR/4=
+        b=E3DSmEWGvphcXQhabx8mo1GL/PJsxVZrsbBoRrjYEX7tyTQcPZvTsCSd4QfVx7uJE
+         Fy+rZFSog7xbTZUdESX9BnugyXVZO7ztHXGa7kPv9grhxpVpGZ/sfYBvsiF44XS1VD
+         JkKMDtIjglXqiJznYYHfVVf/QZ7EpDbsyjg8eqsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sibi Sankar <sibis@codeaurora.org>
-Subject: [PATCH 5.4 146/232] remoteproc: qcom_q6v5_mss: Dont reassign mpss region on shutdown
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 099/146] mm: Use fixed constant in page_frag_alloc instead of size + 1
 Date:   Thu, 16 Apr 2020 15:24:00 +0200
-Message-Id: <20200416131333.254945757@linuxfoundation.org>
+Message-Id: <20200416131256.290378274@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 
-commit 900fc60df22748dbc28e4970838e8f7b8f1013ce upstream.
+commit 8644772637deb121f7ac2df690cbf83fa63d3b70 upstream.
 
-Trying to reclaim mpss memory while the mba is not running causes the
-system to crash on devices with security fuses blown, so leave it
-assigned to the remote on shutdown and recover it on a subsequent boot.
+This patch replaces the size + 1 value introduced with the recent fix for 1
+byte allocs with a constant value.
 
-Fixes: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
-Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20200304194729.27979-2-sibis@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+The idea here is to reduce code overhead as the previous logic would have
+to read size into a register, then increment it, and write it back to
+whatever field was being used. By using a constant we can avoid those
+memory reads and arithmetic operations in favor of just encoding the
+maximum value into the operation itself.
+
+Fixes: 2c2ade81741c ("mm: page_alloc: fix ref bias in page_frag_alloc() for 1-byte allocs")
+Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/remoteproc/qcom_q6v5_mss.c |   35 ++++++++++++++++++++++++-----------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+ mm/page_alloc.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/remoteproc/qcom_q6v5_mss.c
-+++ b/drivers/remoteproc/qcom_q6v5_mss.c
-@@ -875,11 +875,6 @@ static void q6v5_mba_reclaim(struct q6v5
- 		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4537,11 +4537,11 @@ refill:
+ 		/* Even if we own the page, we do not use atomic_set().
+ 		 * This would break get_page_unless_zero() users.
+ 		 */
+-		page_ref_add(page, size);
++		page_ref_add(page, PAGE_FRAG_CACHE_MAX_SIZE);
+ 
+ 		/* reset page count bias and offset to start of new frag */
+ 		nc->pfmemalloc = page_is_pfmemalloc(page);
+-		nc->pagecnt_bias = size + 1;
++		nc->pagecnt_bias = PAGE_FRAG_CACHE_MAX_SIZE + 1;
+ 		nc->offset = size;
  	}
  
--	ret = q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
--				      false, qproc->mpss_phys,
--				      qproc->mpss_size);
--	WARN_ON(ret);
--
- 	q6v5_reset_assert(qproc);
+@@ -4557,10 +4557,10 @@ refill:
+ 		size = nc->size;
+ #endif
+ 		/* OK, page count is 0, we can safely set it */
+-		set_page_count(page, size + 1);
++		set_page_count(page, PAGE_FRAG_CACHE_MAX_SIZE + 1);
  
- 	q6v5_clk_disable(qproc->dev, qproc->reset_clks,
-@@ -969,6 +964,14 @@ static int q6v5_mpss_load(struct q6v5 *q
- 			max_addr = ALIGN(phdr->p_paddr + phdr->p_memsz, SZ_4K);
+ 		/* reset page count bias and offset to start of new frag */
+-		nc->pagecnt_bias = size + 1;
++		nc->pagecnt_bias = PAGE_FRAG_CACHE_MAX_SIZE + 1;
+ 		offset = size - fragsz;
  	}
  
-+	/**
-+	 * In case of a modem subsystem restart on secure devices, the modem
-+	 * memory can be reclaimed only after MBA is loaded. For modem cold
-+	 * boot this will be a nop
-+	 */
-+	q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm, false,
-+				qproc->mpss_phys, qproc->mpss_size);
-+
- 	mpss_reloc = relocate ? min_addr : qproc->mpss_phys;
- 	qproc->mpss_reloc = mpss_reloc;
- 	/* Load firmware segments */
-@@ -1058,8 +1061,16 @@ static void qcom_q6v5_dump_segment(struc
- 	void *ptr = rproc_da_to_va(rproc, segment->da, segment->size);
- 
- 	/* Unlock mba before copying segments */
--	if (!qproc->dump_mba_loaded)
-+	if (!qproc->dump_mba_loaded) {
- 		ret = q6v5_mba_load(qproc);
-+		if (!ret) {
-+			/* Reset ownership back to Linux to copy segments */
-+			ret = q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
-+						      false,
-+						      qproc->mpss_phys,
-+						      qproc->mpss_size);
-+		}
-+	}
- 
- 	if (!ptr || ret)
- 		memset(dest, 0xff, segment->size);
-@@ -1070,8 +1081,14 @@ static void qcom_q6v5_dump_segment(struc
- 
- 	/* Reclaim mba after copying segments */
- 	if (qproc->dump_segment_mask == qproc->dump_complete_mask) {
--		if (qproc->dump_mba_loaded)
-+		if (qproc->dump_mba_loaded) {
-+			/* Try to reset ownership back to Q6 */
-+			q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
-+						true,
-+						qproc->mpss_phys,
-+						qproc->mpss_size);
- 			q6v5_mba_reclaim(qproc);
-+		}
- 	}
- }
- 
-@@ -1111,10 +1128,6 @@ static int q6v5_start(struct rproc *rpro
- 	return 0;
- 
- reclaim_mpss:
--	xfermemop_ret = q6v5_xfer_mem_ownership(qproc, &qproc->mpss_perm,
--						false, qproc->mpss_phys,
--						qproc->mpss_size);
--	WARN_ON(xfermemop_ret);
- 	q6v5_mba_reclaim(qproc);
- 
- 	return ret;
 
 
