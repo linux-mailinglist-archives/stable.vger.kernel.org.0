@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56A421AC49B
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FFD21AC66A
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409600AbgDPOCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:02:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49550 "EHLO mail.kernel.org"
+        id S2394378AbgDPOjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:39:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409590AbgDPOCH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:02:07 -0400
+        id S2409610AbgDPOCJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:02:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27B2F2223F;
-        Thu, 16 Apr 2020 14:02:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90EB52078B;
+        Thu, 16 Apr 2020 14:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045726;
-        bh=qDzRr4D2eX3GIJJq1cCaTDMW2ws6b3pi1gGVHdqdP0E=;
+        s=default; t=1587045729;
+        bh=v2onqnJMQEazmkuHUhSO3ULptroL/OOhJUCUP71lnjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cgin6yrLCNWNQosOfrBJ8Cj6q94N0XsDlVWlMMHOVSZS/96t6HiZUUQMRFjhX6Q/O
-         7FqZUuc3S5CY5e/Ma9Ziy3vTPqGNMaer9NLpPTaKvD7ASe4PU9H2izi/ZVmF4lxdwI
-         uYS4vEmQCsNhtgRLHOCaS2zQEg/yamFjv2KcCn6c=
+        b=dHZjrKVRkRxl4wILU4VFx+ryc7F5gOjIQWv5shrD+QCV28mcDCuVQ9aViyYUVeNXy
+         MIP+9mkLCar4AK7Zu7XQK2TgxOm0QoMr5ggWsNDVM3Jjbs29sAV5ZDTQHI/ykYN1fl
+         qeNf4nhqNAvs+/8qqBKbeCHDp8iBr807XxcjWAig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 252/254] perf/core: Fix event cgroup tracking
-Date:   Thu, 16 Apr 2020 15:25:41 +0200
-Message-Id: <20200416131357.094486192@linuxfoundation.org>
+Subject: [PATCH 5.6 253/254] perf/core: Remove struct sched_in_data
+Date:   Thu, 16 Apr 2020 15:25:42 +0200
+Message-Id: <20200416131357.207561899@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -46,210 +46,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 33238c50451596be86db1505ab65fee5172844d0 ]
+[ Upstream commit 2c2366c7548ecee65adfd264517ddf50f9e2d029 ]
 
-Song reports that installing cgroup events is broken since:
+We can deduce the ctx and cpuctx from the event, no need to pass them
+along. Remove the structure and pass in can_add_hw directly.
 
-  db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
-
-The problem being that cgroup events try to track cpuctx->cgrp even
-for disabled events, which is pointless and actively harmful since the
-above commit. Rework the code to have explicit enable/disable hooks
-for cgroup events, such that we can limit cgroup tracking to active
-events.
-
-More specifically, since the above commit disabled events are no
-longer added to their context from the 'right' CPU, and we can't
-access things like the current cgroup for a remote CPU.
-
-Cc: <stable@vger.kernel.org> # v5.5+
-Fixes: db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
-Reported-by: Song Liu <songliubraving@fb.com>
-Tested-by: Song Liu <songliubraving@fb.com>
-Reviewed-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20200318193337.GB20760@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 70 +++++++++++++++++++++++++++-----------------
- 1 file changed, 43 insertions(+), 27 deletions(-)
+ kernel/events/core.c | 36 +++++++++++-------------------------
+ 1 file changed, 11 insertions(+), 25 deletions(-)
 
 diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 95860901949e7..b816127367ffc 100644
+index b816127367ffc..243717177f446 100644
 --- a/kernel/events/core.c
 +++ b/kernel/events/core.c
-@@ -935,16 +935,10 @@ perf_cgroup_set_shadow_time(struct perf_event *event, u64 now)
- 	event->shadow_ctx_time = now - t->timestamp;
+@@ -3437,17 +3437,11 @@ static int visit_groups_merge(struct perf_event_groups *groups, int cpu,
+ 	return 0;
  }
  
--/*
-- * Update cpuctx->cgrp so that it is set when first cgroup event is added and
-- * cleared when last cgroup event is removed.
-- */
- static inline void
--list_update_cgroup_event(struct perf_event *event,
--			 struct perf_event_context *ctx, bool add)
-+perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
- {
- 	struct perf_cpu_context *cpuctx;
--	struct list_head *cpuctx_entry;
- 
- 	if (!is_cgroup_event(event))
- 		return;
-@@ -961,28 +955,41 @@ list_update_cgroup_event(struct perf_event *event,
- 	 * because if the first would mismatch, the second would not try again
- 	 * and we would leave cpuctx->cgrp unset.
- 	 */
--	if (add && !cpuctx->cgrp) {
-+	if (ctx->is_active && !cpuctx->cgrp) {
- 		struct perf_cgroup *cgrp = perf_cgroup_from_task(current, ctx);
- 
- 		if (cgroup_is_descendant(cgrp->css.cgroup, event->cgrp->css.cgroup))
- 			cpuctx->cgrp = cgrp;
- 	}
- 
--	if (add && ctx->nr_cgroups++)
-+	if (ctx->nr_cgroups++)
- 		return;
--	else if (!add && --ctx->nr_cgroups)
-+
-+	list_add(&cpuctx->cgrp_cpuctx_entry,
-+			per_cpu_ptr(&cgrp_cpuctx_list, event->cpu));
-+}
-+
-+static inline void
-+perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
-+{
-+	struct perf_cpu_context *cpuctx;
-+
-+	if (!is_cgroup_event(event))
- 		return;
- 
--	/* no cgroup running */
--	if (!add)
-+	/*
-+	 * Because cgroup events are always per-cpu events,
-+	 * @ctx == &cpuctx->ctx.
-+	 */
-+	cpuctx = container_of(ctx, struct perf_cpu_context, ctx);
-+
-+	if (--ctx->nr_cgroups)
-+		return;
-+
-+	if (ctx->is_active && cpuctx->cgrp)
- 		cpuctx->cgrp = NULL;
- 
--	cpuctx_entry = &cpuctx->cgrp_cpuctx_entry;
--	if (add)
--		list_add(cpuctx_entry,
--			 per_cpu_ptr(&cgrp_cpuctx_list, event->cpu));
--	else
--		list_del(cpuctx_entry);
-+	list_del(&cpuctx->cgrp_cpuctx_entry);
- }
- 
- #else /* !CONFIG_CGROUP_PERF */
-@@ -1048,11 +1055,14 @@ static inline u64 perf_cgroup_event_time(struct perf_event *event)
- }
- 
- static inline void
--list_update_cgroup_event(struct perf_event *event,
--			 struct perf_event_context *ctx, bool add)
-+perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
- {
- }
- 
-+static inline void
-+perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
-+{
-+}
- #endif
- 
- /*
-@@ -1682,13 +1692,14 @@ list_add_event(struct perf_event *event, struct perf_event_context *ctx)
- 		add_event_to_groups(event, ctx);
- 	}
- 
--	list_update_cgroup_event(event, ctx, true);
+-struct sched_in_data {
+-	struct perf_event_context *ctx;
+-	struct perf_cpu_context *cpuctx;
+-	int can_add_hw;
+-};
 -
- 	list_add_rcu(&event->event_entry, &ctx->event_list);
- 	ctx->nr_events++;
- 	if (event->attr.inherit_stat)
- 		ctx->nr_stat++;
- 
-+	if (event->state > PERF_EVENT_STATE_OFF)
-+		perf_cgroup_event_enable(event, ctx);
-+
- 	ctx->generation++;
- }
- 
-@@ -1864,8 +1875,6 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
- 
- 	event->attach_state &= ~PERF_ATTACH_CONTEXT;
- 
--	list_update_cgroup_event(event, ctx, false);
+ static int merge_sched_in(struct perf_event *event, void *data)
+ {
+-	struct sched_in_data *sid = data;
 -
- 	ctx->nr_events--;
- 	if (event->attr.inherit_stat)
- 		ctx->nr_stat--;
-@@ -1882,8 +1891,10 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
- 	 * of error state is by explicit re-enabling
- 	 * of the event
- 	 */
--	if (event->state > PERF_EVENT_STATE_OFF)
-+	if (event->state > PERF_EVENT_STATE_OFF) {
-+		perf_cgroup_event_disable(event, ctx);
- 		perf_event_set_state(event, PERF_EVENT_STATE_OFF);
-+	}
+-	WARN_ON_ONCE(event->ctx != sid->ctx);
++	struct perf_event_context *ctx = event->ctx;
++	struct perf_cpu_context *cpuctx = __get_cpu_context(ctx);
++	int *can_add_hw = data;
  
- 	ctx->generation++;
- }
-@@ -2114,6 +2125,7 @@ event_sched_out(struct perf_event *event,
+ 	if (event->state <= PERF_EVENT_STATE_OFF)
+ 		return 0;
+@@ -3455,8 +3449,8 @@ static int merge_sched_in(struct perf_event *event, void *data)
+ 	if (!event_filter_match(event))
+ 		return 0;
  
- 	if (READ_ONCE(event->pending_disable) >= 0) {
- 		WRITE_ONCE(event->pending_disable, -1);
-+		perf_cgroup_event_disable(event, ctx);
- 		state = PERF_EVENT_STATE_OFF;
- 	}
- 	perf_event_set_state(event, state);
-@@ -2250,6 +2262,7 @@ static void __perf_event_disable(struct perf_event *event,
- 		event_sched_out(event, cpuctx, ctx);
- 
- 	perf_event_set_state(event, PERF_EVENT_STATE_OFF);
-+	perf_cgroup_event_disable(event, ctx);
- }
- 
- /*
-@@ -2633,7 +2646,7 @@ static int  __perf_install_in_context(void *info)
+-	if (group_can_go_on(event, sid->cpuctx, sid->can_add_hw)) {
+-		if (!group_sched_in(event, sid->cpuctx, sid->ctx))
++	if (group_can_go_on(event, cpuctx, *can_add_hw)) {
++		if (!group_sched_in(event, cpuctx, ctx))
+ 			list_add_tail(&event->active_list, get_event_list(event));
  	}
  
- #ifdef CONFIG_CGROUP_PERF
--	if (is_cgroup_event(event)) {
-+	if (event->state > PERF_EVENT_STATE_OFF && is_cgroup_event(event)) {
- 		/*
- 		 * If the current cgroup doesn't match the event's
- 		 * cgroup, we should not try to schedule it.
-@@ -2793,6 +2806,7 @@ static void __perf_event_enable(struct perf_event *event,
- 		ctx_sched_out(ctx, cpuctx, EVENT_TIME);
- 
- 	perf_event_set_state(event, PERF_EVENT_STATE_INACTIVE);
-+	perf_cgroup_event_enable(event, ctx);
- 
- 	if (!ctx->is_active)
- 		return;
-@@ -3447,8 +3461,10 @@ static int merge_sched_in(struct perf_event *event, void *data)
- 	}
- 
- 	if (event->state == PERF_EVENT_STATE_INACTIVE) {
--		if (event->attr.pinned)
-+		if (event->attr.pinned) {
-+			perf_cgroup_event_disable(event, ctx);
+@@ -3466,8 +3460,8 @@ static int merge_sched_in(struct perf_event *event, void *data)
  			perf_event_set_state(event, PERF_EVENT_STATE_ERROR);
-+		}
+ 		}
  
- 		sid->can_add_hw = 0;
- 		sid->ctx->rotate_necessary = 1;
+-		sid->can_add_hw = 0;
+-		sid->ctx->rotate_necessary = 1;
++		*can_add_hw = 0;
++		ctx->rotate_necessary = 1;
+ 	}
+ 
+ 	return 0;
+@@ -3477,30 +3471,22 @@ static void
+ ctx_pinned_sched_in(struct perf_event_context *ctx,
+ 		    struct perf_cpu_context *cpuctx)
+ {
+-	struct sched_in_data sid = {
+-		.ctx = ctx,
+-		.cpuctx = cpuctx,
+-		.can_add_hw = 1,
+-	};
++	int can_add_hw = 1;
+ 
+ 	visit_groups_merge(&ctx->pinned_groups,
+ 			   smp_processor_id(),
+-			   merge_sched_in, &sid);
++			   merge_sched_in, &can_add_hw);
+ }
+ 
+ static void
+ ctx_flexible_sched_in(struct perf_event_context *ctx,
+ 		      struct perf_cpu_context *cpuctx)
+ {
+-	struct sched_in_data sid = {
+-		.ctx = ctx,
+-		.cpuctx = cpuctx,
+-		.can_add_hw = 1,
+-	};
++	int can_add_hw = 1;
+ 
+ 	visit_groups_merge(&ctx->flexible_groups,
+ 			   smp_processor_id(),
+-			   merge_sched_in, &sid);
++			   merge_sched_in, &can_add_hw);
+ }
+ 
+ static void
 -- 
 2.20.1
 
