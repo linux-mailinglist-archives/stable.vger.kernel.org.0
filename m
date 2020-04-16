@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 457A21AC693
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:41:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 195891AC2AA
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729885AbgDPOlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:41:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48460 "EHLO mail.kernel.org"
+        id S2896363AbgDPNbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:31:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392752AbgDPOBP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:01:15 -0400
+        id S2896344AbgDPNbB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:31:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 268CF20732;
-        Thu, 16 Apr 2020 14:01:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 074F6208E4;
+        Thu, 16 Apr 2020 13:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045674;
-        bh=6TTcpu+0ILQXfGivzEXVIP+0l4H93b4bpnRFX31rZqE=;
+        s=default; t=1587043861;
+        bh=6ZRLT6P2DBwcHCCE0TDUfG/2p1fU0nYUoF36kWscEpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HhgYA9TAegDBd4GFu0QKsD52A3NfCwd0QCJuQ56F/f1tqpYljnwUAGjDZ2INdiyNR
-         CkNBlSruY3jvzJ9Jy/Vp3BK/XkejFy/hdIdZxAMS5tRED5f4Z9uKVATMjxbycN4XEt
-         eAIJwR6KIk3we5lkSsVdffOspXnXdNO5/3QGi2+0=
+        b=wWkONcDgxykMHBXjbOR3yRURsXCMGUN9Uv34F+LNqqgfdIB8wPipwoAyyX3FsMXCR
+         EF3FjnZepegEmoBH+pd/q4iNfpfg+BeChaB+pdLZNgKi/jK6TQuk9Q2EsGukfuiou/
+         4c8+E9IcQdmB/ZBwBYKh+xZGrlKCdnA7oP03A6nM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 5.6 182/254] xarray: Fix early termination of xas_for_each_marked
-Date:   Thu, 16 Apr 2020 15:24:31 +0200
-Message-Id: <20200416131349.154274290@linuxfoundation.org>
+        stable@vger.kernel.org, Clement Courbet <courbet@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 131/146] powerpc: Make setjmp/longjmp signature standard
+Date:   Thu, 16 Apr 2020 15:24:32 +0200
+Message-Id: <20200416131300.399910196@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,204 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Clement Courbet <courbet@google.com>
 
-commit 7e934cf5ace1dceeb804f7493fa28bb697ed3c52 upstream.
+commit c17eb4dca5a353a9dbbb8ad6934fe57af7165e91 upstream.
 
-xas_for_each_marked() is using entry == NULL as a termination condition
-of the iteration. When xas_for_each_marked() is used protected only by
-RCU, this can however race with xas_store(xas, NULL) in the following
-way:
+Declaring setjmp()/longjmp() as taking longs makes the signature
+non-standard, and makes clang complain. In the past, this has been
+worked around by adding -ffreestanding to the compile flags.
 
-TASK1                                   TASK2
-page_cache_delete()         	        find_get_pages_range_tag()
-                                          xas_for_each_marked()
-                                            xas_find_marked()
-                                              off = xas_find_chunk()
+The implementation looks like it only ever propagates the value
+(in longjmp) or sets it to 1 (in setjmp), and we only call longjmp
+with integer parameters.
 
-  xas_store(&xas, NULL)
-    xas_init_marks(&xas);
-    ...
-    rcu_assign_pointer(*slot, NULL);
-                                              entry = xa_entry(off);
+This allows removing -ffreestanding from the compilation flags.
 
-And thus xas_for_each_marked() terminates prematurely possibly leading
-to missed entries in the iteration (translating to missing writeback of
-some pages or a similar problem).
-
-If we find a NULL entry that has been marked, skip it (unless we're trying
-to allocate an entry).
-
-Reported-by: Jan Kara <jack@suse.cz>
-CC: stable@vger.kernel.org
-Fixes: ef8e5717db01 ("page cache: Convert delete_batch to XArray")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Fixes: c9029ef9c957 ("powerpc: Avoid clang warnings around setjmp and longjmp")
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Clement Courbet <courbet@google.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200330080400.124803-1-courbet@google.com
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/xarray.h                       |    6 +
- lib/xarray.c                                 |    2 
- tools/testing/radix-tree/Makefile            |    4 -
- tools/testing/radix-tree/iteration_check_2.c |   87 +++++++++++++++++++++++++++
- tools/testing/radix-tree/main.c              |    1 
- tools/testing/radix-tree/test.h              |    1 
- 6 files changed, 98 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/setjmp.h |    6 ++++--
+ arch/powerpc/kernel/Makefile      |    3 ---
+ arch/powerpc/xmon/Makefile        |    3 ---
+ 3 files changed, 4 insertions(+), 8 deletions(-)
 
---- a/include/linux/xarray.h
-+++ b/include/linux/xarray.h
-@@ -1648,6 +1648,7 @@ static inline void *xas_next_marked(stru
- 								xa_mark_t mark)
- {
- 	struct xa_node *node = xas->xa_node;
-+	void *entry;
- 	unsigned int offset;
+--- a/arch/powerpc/include/asm/setjmp.h
++++ b/arch/powerpc/include/asm/setjmp.h
+@@ -12,7 +12,9 @@
  
- 	if (unlikely(xas_not_node(node) || node->shift))
-@@ -1659,7 +1660,10 @@ static inline void *xas_next_marked(stru
- 		return NULL;
- 	if (offset == XA_CHUNK_SIZE)
- 		return xas_find_marked(xas, max, mark);
--	return xa_entry(xas->xa, node, offset);
-+	entry = xa_entry(xas->xa, node, offset);
-+	if (!entry)
-+		return xas_find_marked(xas, max, mark);
-+	return entry;
- }
+ #define JMP_BUF_LEN    23
  
- /*
---- a/lib/xarray.c
-+++ b/lib/xarray.c
-@@ -1208,6 +1208,8 @@ void *xas_find_marked(struct xa_state *x
- 		}
+-extern long setjmp(long *) __attribute__((returns_twice));
+-extern void longjmp(long *, long) __attribute__((noreturn));
++typedef long jmp_buf[JMP_BUF_LEN];
++
++extern int setjmp(jmp_buf env) __attribute__((returns_twice));
++extern void longjmp(jmp_buf env, int val) __attribute__((noreturn));
  
- 		entry = xa_entry(xas->xa, xas->xa_node, xas->xa_offset);
-+		if (!entry && !(xa_track_free(xas->xa) && mark == XA_FREE_MARK))
-+			continue;
- 		if (!xa_is_node(entry))
- 			return entry;
- 		xas->xa_node = xa_to_node(entry);
---- a/tools/testing/radix-tree/Makefile
-+++ b/tools/testing/radix-tree/Makefile
-@@ -7,8 +7,8 @@ LDLIBS+= -lpthread -lurcu
- TARGETS = main idr-test multiorder xarray
- CORE_OFILES := xarray.o radix-tree.o idr.o linux.o test.o find_bit.o bitmap.o
- OFILES = main.o $(CORE_OFILES) regression1.o regression2.o regression3.o \
--	 regression4.o \
--	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o
-+	 regression4.o tag_check.o multiorder.o idr-test.o iteration_check.o \
-+	 iteration_check_2.o benchmark.o
+ #endif /* _ASM_POWERPC_SETJMP_H */
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -5,9 +5,6 @@
  
- ifndef SHIFT
- 	SHIFT=3
---- /dev/null
-+++ b/tools/testing/radix-tree/iteration_check_2.c
-@@ -0,0 +1,87 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * iteration_check_2.c: Check that deleting a tagged entry doesn't cause
-+ * an RCU walker to finish early.
-+ * Copyright (c) 2020 Oracle
-+ * Author: Matthew Wilcox <willy@infradead.org>
-+ */
-+#include <pthread.h>
-+#include "test.h"
-+
-+static volatile bool test_complete;
-+
-+static void *iterator(void *arg)
-+{
-+	XA_STATE(xas, arg, 0);
-+	void *entry;
-+
-+	rcu_register_thread();
-+
-+	while (!test_complete) {
-+		xas_set(&xas, 0);
-+		rcu_read_lock();
-+		xas_for_each_marked(&xas, entry, ULONG_MAX, XA_MARK_0)
-+			;
-+		rcu_read_unlock();
-+		assert(xas.xa_index >= 100);
-+	}
-+
-+	rcu_unregister_thread();
-+	return NULL;
-+}
-+
-+static void *throbber(void *arg)
-+{
-+	struct xarray *xa = arg;
-+
-+	rcu_register_thread();
-+
-+	while (!test_complete) {
-+		int i;
-+
-+		for (i = 0; i < 100; i++) {
-+			xa_store(xa, i, xa_mk_value(i), GFP_KERNEL);
-+			xa_set_mark(xa, i, XA_MARK_0);
-+		}
-+		for (i = 0; i < 100; i++)
-+			xa_erase(xa, i);
-+	}
-+
-+	rcu_unregister_thread();
-+	return NULL;
-+}
-+
-+void iteration_test2(unsigned test_duration)
-+{
-+	pthread_t threads[2];
-+	DEFINE_XARRAY(array);
-+	int i;
-+
-+	printv(1, "Running iteration test 2 for %d seconds\n", test_duration);
-+
-+	test_complete = false;
-+
-+	xa_store(&array, 100, xa_mk_value(100), GFP_KERNEL);
-+	xa_set_mark(&array, 100, XA_MARK_0);
-+
-+	if (pthread_create(&threads[0], NULL, iterator, &array)) {
-+		perror("create iterator thread");
-+		exit(1);
-+	}
-+	if (pthread_create(&threads[1], NULL, throbber, &array)) {
-+		perror("create throbber thread");
-+		exit(1);
-+	}
-+
-+	sleep(test_duration);
-+	test_complete = true;
-+
-+	for (i = 0; i < 2; i++) {
-+		if (pthread_join(threads[i], NULL)) {
-+			perror("pthread_join");
-+			exit(1);
-+		}
-+	}
-+
-+	xa_destroy(&array);
-+}
---- a/tools/testing/radix-tree/main.c
-+++ b/tools/testing/radix-tree/main.c
-@@ -311,6 +311,7 @@ int main(int argc, char **argv)
- 	regression4_test();
- 	iteration_test(0, 10 + 90 * long_run);
- 	iteration_test(7, 10 + 90 * long_run);
-+	iteration_test2(10 + 90 * long_run);
- 	single_thread_tests(long_run);
+ CFLAGS_ptrace.o		+= -DUTS_MACHINE='"$(UTS_MACHINE)"'
  
- 	/* Free any remaining preallocated nodes */
---- a/tools/testing/radix-tree/test.h
-+++ b/tools/testing/radix-tree/test.h
-@@ -34,6 +34,7 @@ void xarray_tests(void);
- void tag_check(void);
- void multiorder_checks(void);
- void iteration_test(unsigned order, unsigned duration);
-+void iteration_test2(unsigned duration);
- void benchmark(void);
- void idr_checks(void);
- void ida_tests(void);
+-# Avoid clang warnings around longjmp/setjmp declarations
+-CFLAGS_crash.o += -ffreestanding
+-
+ subdir-ccflags-$(CONFIG_PPC_WERROR) := -Werror
+ 
+ ifdef CONFIG_PPC64
+--- a/arch/powerpc/xmon/Makefile
++++ b/arch/powerpc/xmon/Makefile
+@@ -1,9 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # Makefile for xmon
+ 
+-# Avoid clang warnings around longjmp/setjmp declarations
+-subdir-ccflags-y := -ffreestanding
+-
+ subdir-ccflags-$(CONFIG_PPC_WERROR) += -Werror
+ 
+ GCOV_PROFILE := n
 
 
