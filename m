@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D096A1ACBC6
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5B481ACBC8
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442661AbgDPPtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:49:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43730 "EHLO mail.kernel.org"
+        id S2442656AbgDPPtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:49:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896676AbgDPNdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2896678AbgDPNdE (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Apr 2020 09:33:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67AEE221EB;
-        Thu, 16 Apr 2020 13:32:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB262221F4;
+        Thu, 16 Apr 2020 13:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043978;
-        bh=09QvhtRGrOLEMW1wLzmWFmr4KotkIXwu4+Ba9yZJCU8=;
+        s=default; t=1587043981;
+        bh=lmDFwSRJINaEuNcm0imgBOH7qPo597f26/3MDbu0cUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7BjCClZIkuZhyaBy/OOSJYa/pVSF+VfHQn6XYfZm4MpL4z2OpesUVdL3qurJjkLV
-         ighB3+kkWhzwgPBsVt49+zqUjBlpj7nmCILuFtO+nZsmv+cOriIcK3f91ZcdMJdwOx
-         1cvHBZnvQDmsg5+U8eOvFCrxVQHal3csxIpgsLBc=
+        b=oTTVzYRv6DFDVpBup/fHKdqLigA1gyT8vtLO7CrIdj9O2GwlSKRNYo1rrTsM82RTo
+         3IJgDF8gP+ASMQNQLdIaoZ4vAgObkpEXePo5O4sj79yvQdDRhaRIPlPHzvVYJCWVsI
+         8u1xiMyO6+PBo+tLTFYdyr2mifUyaAv4r+it4cAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Nick Reitemeyer <nick.reitemeyer@web.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 006/257] iwlwifi: mvm: Fix rate scale NSS configuration
-Date:   Thu, 16 Apr 2020 15:20:57 +0200
-Message-Id: <20200416131326.670770834@linuxfoundation.org>
+Subject: [PATCH 5.5 007/257] Input: tm2-touchkey - add support for Coreriver TC360 variant
+Date:   Thu, 16 Apr 2020 15:20:58 +0200
+Message-Id: <20200416131326.775263712@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
 References: <20200416131325.891903893@linuxfoundation.org>
@@ -44,93 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilan Peer <ilan.peer@intel.com>
+From: Nick Reitemeyer <nick.reitemeyer@web.de>
 
-[ Upstream commit ce19801ba75a902ab515dda03b57738c708d0781 ]
+[ Upstream commit da3289044833769188c0da945d2cec90af35e87e ]
 
-The TLC configuration did not take into consideration the station's
-SMPS configuration, and thus configured rates for 2 NSS even if
-static SMPS was reported by the station. Fix this.
+The Coreriver TouchCore 360 is like the midas board touchkey, but it is
+using a fixed regulator.
 
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200306151129.b4f940d13eca.Ieebfa889d08205a3a961ae0138fb5832e8a0f9c1@changeid
+Signed-off-by: Nick Reitemeyer <nick.reitemeyer@web.de>
+Link: https://lore.kernel.org/r/20200121141525.3404-3-nick.reitemeyer@web.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/mvm/rs-fw.c    | 29 ++++++++++++++-----
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ drivers/input/keyboard/tm2-touchkey.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
-index 80ef238a84884..ca99a9c4f70ef 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
-@@ -6,7 +6,7 @@
-  * GPL LICENSE SUMMARY
-  *
-  * Copyright(c) 2017        Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of version 2 of the GNU General Public License as
-@@ -27,7 +27,7 @@
-  * BSD LICENSE
-  *
-  * Copyright(c) 2017        Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-@@ -195,11 +195,13 @@ rs_fw_vht_set_enabled_rates(const struct ieee80211_sta *sta,
+diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboard/tm2-touchkey.c
+index 14b55bacdd0f1..fb078e049413f 100644
+--- a/drivers/input/keyboard/tm2-touchkey.c
++++ b/drivers/input/keyboard/tm2-touchkey.c
+@@ -75,6 +75,14 @@ static struct touchkey_variant aries_touchkey_variant = {
+ 	.cmd_led_off = ARIES_TOUCHKEY_CMD_LED_OFF,
+ };
+ 
++static const struct touchkey_variant tc360_touchkey_variant = {
++	.keycode_reg = 0x00,
++	.base_reg = 0x00,
++	.fixed_regulator = true,
++	.cmd_led_on = TM2_TOUCHKEY_CMD_LED_ON,
++	.cmd_led_off = TM2_TOUCHKEY_CMD_LED_OFF,
++};
++
+ static int tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
+ 					    enum led_brightness brightness)
  {
- 	u16 supp;
- 	int i, highest_mcs;
-+	u8 nss = sta->rx_nss;
- 
--	for (i = 0; i < sta->rx_nss; i++) {
--		if (i == IWL_TLC_NSS_MAX)
--			break;
-+	/* the station support only a single receive chain */
-+	if (sta->smps_mode == IEEE80211_SMPS_STATIC)
-+		nss = 1;
- 
-+	for (i = 0; i < nss && i < IWL_TLC_NSS_MAX; i++) {
- 		highest_mcs = rs_fw_vht_highest_rx_mcs_index(vht_cap, i + 1);
- 		if (!highest_mcs)
- 			continue;
-@@ -245,8 +247,13 @@ rs_fw_he_set_enabled_rates(const struct ieee80211_sta *sta,
- 	u16 tx_mcs_160 =
- 		le16_to_cpu(sband->iftype_data->he_cap.he_mcs_nss_supp.tx_mcs_160);
- 	int i;
-+	u8 nss = sta->rx_nss;
- 
--	for (i = 0; i < sta->rx_nss && i < IWL_TLC_NSS_MAX; i++) {
-+	/* the station support only a single receive chain */
-+	if (sta->smps_mode == IEEE80211_SMPS_STATIC)
-+		nss = 1;
-+
-+	for (i = 0; i < nss && i < IWL_TLC_NSS_MAX; i++) {
- 		u16 _mcs_160 = (mcs_160 >> (2 * i)) & 0x3;
- 		u16 _mcs_80 = (mcs_80 >> (2 * i)) & 0x3;
- 		u16 _tx_mcs_160 = (tx_mcs_160 >> (2 * i)) & 0x3;
-@@ -307,8 +314,14 @@ static void rs_fw_set_supp_rates(struct ieee80211_sta *sta,
- 		cmd->mode = IWL_TLC_MNG_MODE_HT;
- 		cmd->ht_rates[IWL_TLC_NSS_1][IWL_TLC_HT_BW_NONE_160] =
- 			cpu_to_le16(ht_cap->mcs.rx_mask[0]);
--		cmd->ht_rates[IWL_TLC_NSS_2][IWL_TLC_HT_BW_NONE_160] =
--			cpu_to_le16(ht_cap->mcs.rx_mask[1]);
-+
-+		/* the station support only a single receive chain */
-+		if (sta->smps_mode == IEEE80211_SMPS_STATIC)
-+			cmd->ht_rates[IWL_TLC_NSS_2][IWL_TLC_HT_BW_NONE_160] =
-+				0;
-+		else
-+			cmd->ht_rates[IWL_TLC_NSS_2][IWL_TLC_HT_BW_NONE_160] =
-+				cpu_to_le16(ht_cap->mcs.rx_mask[1]);
- 	}
- }
- 
+@@ -327,6 +335,9 @@ static const struct of_device_id tm2_touchkey_of_match[] = {
+ 	}, {
+ 		.compatible = "cypress,aries-touchkey",
+ 		.data = &aries_touchkey_variant,
++	}, {
++		.compatible = "coreriver,tc360-touchkey",
++		.data = &tc360_touchkey_variant,
+ 	},
+ 	{ },
+ };
 -- 
 2.20.1
 
