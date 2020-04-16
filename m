@@ -2,86 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B662C1AB54C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 03:14:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1FE31AB559
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 03:18:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726493AbgDPBNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 21:13:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45664 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726201AbgDPBNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 21:13:40 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE7A02064A;
-        Thu, 16 Apr 2020 01:13:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586999620;
-        bh=52g+gVjZiMg4a5+0hzapE/Lu+oly61px2E1Jwk+GLEY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=duZTOBqqzUg8sdHvUSX/C5JYVNPpjU9SU8+QW/yNxyUyBOpODTbLlYL2l/ljymegh
-         kU4B/zShNoQWfMVfKsiBvUpSG3lqcZ8E759xvtAjvkMTOvsU+Ar96h6KCbvSMYW8+B
-         3nkybHxhgF7O77GuCRPxhDXwZHcmumfHImdXc9PE=
-Date:   Wed, 15 Apr 2020 21:13:38 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     andrei.botila@nxp.com, herbert@gondor.apana.org.au,
-        horia.geanta@nxp.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] crypto: caam - update xts sector size for
- large input length" failed to apply to 4.9-stable tree
-Message-ID: <20200416011338.GR1068@sasha-vm>
-References: <1586948775110154@kroah.com>
+        id S1729278AbgDPBS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 21:18:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54920 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730994AbgDPBRo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 21:17:44 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F2BC061A0F
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 18:17:38 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id x3so883707pfp.7
+        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 18:17:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=coLx/v0JktVo4RFMZbnSRAoyVMxkJ2n5uSfb6rpMJLk=;
+        b=A+H3JjfWkH8zAy194H2hitZmZsMJCd2KSY8EA37gSrs3x3uN+woaYA8odZVInJR1oh
+         NdHG5eZJB+56eITUK5e18SMoS6WaLllv/K49ORc1+q9uPHQgg6lvRvRgN+Tg3FctZSMv
+         L7FZSmQjCH62XoNbYVAxb9CVnjFf3C2l68nJzVMNdc4wNknUze+ypU9aAnDnd5xwfCWp
+         sSV+4g8QX4ykSHHAezPVM4J0UavfgYluYhJ3Yj1WJ2LXmlkNO8qprz5STtOm/r3XHPMe
+         VWJHxeumTnDvuVkf4vjjiRj63anHlxlo7lp5BCR+R2S5Wxs3iY5m6phongU53JVoo+SP
+         i6cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=coLx/v0JktVo4RFMZbnSRAoyVMxkJ2n5uSfb6rpMJLk=;
+        b=hBo2hNGQZgmkSnZGwTQO/gcdnjsbKshmk8t78vNE6Nb8oAVbML3O67im9XVbjRvNyU
+         cn2tQdNQvUu4kPIM8KnoJUwjzy5HldnvGC+B7/J18CXEzvRQT/Yj88q/5+wE6hzlJZEU
+         Tc8LAmur5K+gwq41MuVlUUypEMCMBVCFHl4OV1hZnX/ZOZYZj0MB/GqcLwjk1AlGFw2n
+         bujCiijnTCRHvezdXwOu4U+67JrG7Ti4IY9YhHi/uoKdutTMnCItf4fFf4RVGNwY1uoW
+         +MdCpVhfDmk0e8/HPkS3zoormJEiYwzJiu+yD+ltgLdGs8yA5t9UP4MbNFLx1lYB/rZZ
+         8GQA==
+X-Gm-Message-State: AGi0PuYOl/FUzECZIiMmMVLQm8IiCi+g4Ju+VVhBI++FeIwzSuI/QLS6
+        ZM9FwcyTHplgY1na+oyhEcEld+KgxD8=
+X-Google-Smtp-Source: APiQypIjd3PiZ7w3956s3WNaE5sDBvx4BrQAcTZhXpZ4ffe2NtLRIdew/22hSL7EV480p8qptCxH5g==
+X-Received: by 2002:a63:6302:: with SMTP id x2mr18134147pgb.375.1586999857117;
+        Wed, 15 Apr 2020 18:17:37 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ml24sm728469pjb.48.2020.04.15.18.17.35
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Apr 2020 18:17:36 -0700 (PDT)
+Message-ID: <5e97b230.1c69fb81.69bf8.28a7@mx.google.com>
+Date:   Wed, 15 Apr 2020 18:17:36 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1586948775110154@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.6.3-285-g1113b108c404
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.6.y
+Subject: stable-rc/linux-5.6.y boot: 165 boots: 4 failed,
+ 149 passed with 7 offline, 5 untried/unknown (v5.6.3-285-g1113b108c404)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 01:06:15PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.9-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 3f142b6a7b573bde6cff926f246da05652c61eb4 Mon Sep 17 00:00:00 2001
->From: Andrei Botila <andrei.botila@nxp.com>
->Date: Fri, 28 Feb 2020 12:46:48 +0200
->Subject: [PATCH] crypto: caam - update xts sector size for large input length
->MIME-Version: 1.0
->Content-Type: text/plain; charset=UTF-8
->Content-Transfer-Encoding: 8bit
->
->Since in the software implementation of XTS-AES there is
->no notion of sector every input length is processed the same way.
->CAAM implementation has the notion of sector which causes different
->results between the software implementation and the one in CAAM
->for input lengths bigger than 512 bytes.
->Increase sector size to maximum value on 16 bits.
->
->Fixes: c6415a6016bf ("crypto: caam - add support for acipher xts(aes)")
->Cc: <stable@vger.kernel.org> # v4.12+
->Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
->Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
->Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+stable-rc/linux-5.6.y boot: 165 boots: 4 failed, 149 passed with 7 offline,=
+ 5 untried/unknown (v5.6.3-285-g1113b108c404)
 
-Function names were different due to 9dbe3072c6b1 ("crypto: caam/qi -
-ablkcipher -> skcipher conversion") - queued up for 4.19 and 4.14.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.6.y/kernel/v5.6.3-285-g1113b108c404/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
+/kernel/v5.6.3-285-g1113b108c404/
 
-I don't think that it's needed on anything older.
+Tree: stable-rc
+Branch: linux-5.6.y
+Git Describe: v5.6.3-285-g1113b108c404
+Git Commit: 1113b108c4047527f9d1b308ff1e758535a9f8aa
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 103 unique boards, 25 SoC families, 21 builds out of 200
 
--- 
-Thanks,
-Sasha
+Boot Regressions Detected:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-8:
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v5.6.2-70-g6225=
+1e4703ac)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v5.6.2-70-g6225=
+1e4703ac)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.6.2-70-g62251e4703a=
+c)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-axg-s400:
+              lab-baylibre-seattle: new failure (last pass: v5.6.2-70-g6225=
+1e4703ac)
+          meson-g12b-a311d-khadas-vim3:
+              lab-baylibre: new failure (last pass: v5.6.2-70-g62251e4703ac)
+          meson-gxl-s805x-libretech-ac:
+              lab-baylibre: new failure (last pass: v5.6.2-70-g62251e4703ac)
+          meson-gxl-s905d-p230:
+              lab-baylibre: new failure (last pass: v5.6.2-70-g62251e4703ac)
+          meson-gxm-q200:
+              lab-baylibre: new failure (last pass: v5.6.2-70-g62251e4703ac)
+
+Boot Failures Detected:
+
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm2836-rpi-2-b: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s805x-libretech-ac: 1 failed lab
+            meson-gxm-q200: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-axg-s400: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
