@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA2C11AC3BB
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69ADE1ACC2B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897160AbgDPNr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:47:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33350 "EHLO mail.kernel.org"
+        id S2442827AbgDPP4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:56:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898639AbgDPNrS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:47:18 -0400
+        id S2895879AbgDPN2v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:28:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD36621744;
-        Thu, 16 Apr 2020 13:47:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6271E206E9;
+        Thu, 16 Apr 2020 13:28:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044838;
-        bh=wI3rSj/W6AYF4oDxg5zKimwVW/fNHbKwmR8ewd1vzIg=;
+        s=default; t=1587043729;
+        bh=0kYo+Ygoz8g+mwJNSuGqdJSweqANX1YCeMGUlk4MmN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kvwV4+V0/ue1Ujw5PBgfYWIOn2lcweMXogzlRDieOIyOdm490WKudfWzbp4peikPV
-         s9Le8pL+xubHxH5v+4K3eaHYhbOT+9T/bBW5Ihr2VLKjmZAThn9r8tzYYxbPJeC7Tl
-         yKcekEAZ0Onq4uqbwV9BBs9opXoUzoBTY3I2zsAk=
+        b=n34dG3ztWMgVyOTsYclzAingEhblf7dGD1KuzpnJkGBWKr+ylZF85ilfMDn75wDS6
+         xetSoYLC2etxHZDX0Vzgot0sheCOyQC6/iTgGgPz1dmBmQ2eLQYHTMLaE/HGDz8ONm
+         aI1i99bghyHlRQw3fUWBpY+QGD8MafRV3vuBP+uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 121/232] x86/tsc_msr: Fix MSR_FSB_FREQ mask for Cherry Trail devices
+        stable@vger.kernel.org, Pei Huang <huangpei@loongson.cn>,
+        Huacai Chen <chenhc@lemote.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.19 074/146] MIPS/tlbex: Fix LDDIR usage in setup_pw() for Loongson-3
 Date:   Thu, 16 Apr 2020 15:23:35 +0200
-Message-Id: <20200416131330.241076312@linuxfoundation.org>
+Message-Id: <20200416131253.069150894@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,127 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-commit c8810e2ffc30c7e1577f9c057c4b85d984bbc35a upstream.
+commit d191aaffe3687d1e73e644c185f5f0550ec242b5 upstream.
 
-According to the "Intel 64 and IA-32 Architectures Software Developer's
-Manual Volume 4: Model-Specific Registers" on Cherry Trail (Airmont)
-devices the 4 lowest bits of the MSR_FSB_FREQ mask indicate the bus freq
-unlike on e.g. Bay Trail where only the lowest 3 bits are used.
+LDDIR/LDPTE is Loongson-3's acceleration for Page Table Walking. If BD
+(Base Directory, the 4th page directory) is not enabled, then GDOffset
+is biased by BadVAddr[63:62]. So, if GDOffset (aka. BadVAddr[47:36] for
+Loongson-3) is big enough, "0b11(BadVAddr[63:62])|BadVAddr[47:36]|...."
+can far beyond pg_swapper_dir. This means the pg_swapper_dir may NOT be
+accessed by LDDIR correctly, so fix it by set PWDirExt in CP0_PWCtl.
 
-This is also the reason why MAX_NUM_FREQS is defined as 9, since Cherry
-Trail SoCs have 9 possible frequencies, so the lo value from the MSR needs
-to be masked with 0x0f, not with 0x07 otherwise the 9th frequency will get
-interpreted as the 1st.
-
-Bump MAX_NUM_FREQS to 16 to avoid any possibility of addressing the array
-out of bounds and makes the mask part of the cpufreq struct so it can be
-set it per model.
-
-While at it also log an error when the index points to an uninitialized
-part of the freqs lookup-table.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200223140610.59612-2-hdegoede@redhat.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pei Huang <huangpei@loongson.cn>
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/tsc_msr.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ arch/mips/mm/tlbex.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/tsc_msr.c
-+++ b/arch/x86/kernel/tsc_msr.c
-@@ -15,7 +15,7 @@
- #include <asm/param.h>
- #include <asm/tsc.h>
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -1479,6 +1479,7 @@ static void build_r4000_tlb_refill_handl
  
--#define MAX_NUM_FREQS	9
-+#define MAX_NUM_FREQS	16 /* 4 bits to select the frequency */
+ static void setup_pw(void)
+ {
++	unsigned int pwctl;
+ 	unsigned long pgd_i, pgd_w;
+ #ifndef __PAGETABLE_PMD_FOLDED
+ 	unsigned long pmd_i, pmd_w;
+@@ -1505,6 +1506,7 @@ static void setup_pw(void)
  
- /*
-  * If MSR_PERF_STAT[31] is set, the maximum resolved bus ratio can be
-@@ -27,6 +27,7 @@
- struct freq_desc {
- 	bool use_msr_plat;
- 	u32 freqs[MAX_NUM_FREQS];
-+	u32 mask;
- };
+ 	pte_i = ilog2(_PAGE_GLOBAL);
+ 	pte_w = 0;
++	pwctl = 1 << 30; /* Set PWDirExt */
  
- /*
-@@ -37,37 +38,44 @@ struct freq_desc {
- static const struct freq_desc freq_desc_pnw = {
- 	.use_msr_plat = false,
- 	.freqs = { 0, 0, 0, 0, 0, 99840, 0, 83200 },
-+	.mask = 0x07,
- };
- 
- static const struct freq_desc freq_desc_clv = {
- 	.use_msr_plat = false,
- 	.freqs = { 0, 133200, 0, 0, 0, 99840, 0, 83200 },
-+	.mask = 0x07,
- };
- 
- static const struct freq_desc freq_desc_byt = {
- 	.use_msr_plat = true,
- 	.freqs = { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 },
-+	.mask = 0x07,
- };
- 
- static const struct freq_desc freq_desc_cht = {
- 	.use_msr_plat = true,
- 	.freqs = { 83300, 100000, 133300, 116700, 80000, 93300, 90000,
- 		   88900, 87500 },
-+	.mask = 0x0f,
- };
- 
- static const struct freq_desc freq_desc_tng = {
- 	.use_msr_plat = true,
- 	.freqs = { 0, 100000, 133300, 0, 0, 0, 0, 0 },
-+	.mask = 0x07,
- };
- 
- static const struct freq_desc freq_desc_ann = {
- 	.use_msr_plat = true,
- 	.freqs = { 83300, 100000, 133300, 100000, 0, 0, 0, 0 },
-+	.mask = 0x0f,
- };
- 
- static const struct freq_desc freq_desc_lgm = {
- 	.use_msr_plat = true,
- 	.freqs = { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
-+	.mask = 0x0f,
- };
- 
- static const struct x86_cpu_id tsc_msr_cpu_ids[] = {
-@@ -93,6 +101,7 @@ unsigned long cpu_khz_from_msr(void)
- 	const struct freq_desc *freq_desc;
- 	const struct x86_cpu_id *id;
- 	unsigned long res;
-+	int index;
- 
- 	id = x86_match_cpu(tsc_msr_cpu_ids);
- 	if (!id)
-@@ -109,13 +118,17 @@ unsigned long cpu_khz_from_msr(void)
- 
- 	/* Get FSB FREQ ID */
- 	rdmsr(MSR_FSB_FREQ, lo, hi);
-+	index = lo & freq_desc->mask;
- 
- 	/* Map CPU reference clock freq ID(0-7) to CPU reference clock freq(KHz) */
--	freq = freq_desc->freqs[lo & 0x7];
-+	freq = freq_desc->freqs[index];
- 
- 	/* TSC frequency = maximum resolved freq * maximum resolved bus ratio */
- 	res = freq * ratio;
- 
-+	if (freq == 0)
-+		pr_err("Error MSR_FSB_FREQ index %d is unknown\n", index);
-+
- #ifdef CONFIG_X86_LOCAL_APIC
- 	lapic_timer_period = (freq * 1000) / HZ;
+ #ifndef __PAGETABLE_PMD_FOLDED
+ 	write_c0_pwfield(pgd_i << 24 | pmd_i << 12 | pt_i << 6 | pte_i);
+@@ -1515,8 +1517,9 @@ static void setup_pw(void)
  #endif
+ 
+ #ifdef CONFIG_MIPS_HUGE_TLB_SUPPORT
+-	write_c0_pwctl(1 << 6 | psn);
++	pwctl |= (1 << 6 | psn);
+ #endif
++	write_c0_pwctl(pwctl);
+ 	write_c0_kpgd((long)swapper_pg_dir);
+ 	kscratch_used_mask |= (1 << 7); /* KScratch6 is used for KPGD */
+ }
 
 
