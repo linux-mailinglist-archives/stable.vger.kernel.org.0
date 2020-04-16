@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FF5A1AC2AD
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C6721ACA58
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:34:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896455AbgDPNbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:31:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41484 "EHLO mail.kernel.org"
+        id S2442568AbgDPPeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:34:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895689AbgDPNbJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:31:09 -0400
+        id S2898219AbgDPNky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:40:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C7AD206E9;
-        Thu, 16 Apr 2020 13:31:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9351720732;
+        Thu, 16 Apr 2020 13:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043868;
-        bh=TXs3qwE5jEHDvYHjS+NsTK60WeKWJIE3L2FeLO7Ld/A=;
+        s=default; t=1587044454;
+        bh=lFhx4Pwgt/IIWG+kD1mKhR5l8kclKGuuGvtVWpV6au4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ytjcj4XVUNMmHV1jcKIHVI1Uf2OyjtWpUeB3h/X8WHV7Boi9KvfLY2P9je9LJPXrM
-         c2MK6/mvXYHQ05o5xK/F603NQZw7zRXcbRV9JqQc9gLQuuyxwSECcdbiXHAXaVjY8O
-         V6piz+8XLI0EcHki9yIyPoMnTcO6Emx3lr1aACeU=
+        b=Y0G0dCGbz1MRbIvnqynEgq7EiaWolm3uRJGDT8DelnAGQXwWTwfBVeowfJxhuu0GK
+         8kwVT31qTmoqg0LatM4nMrUp3nKhrf+AsZpL5HvU7fNyCkraOMSIxwRfJVKu1jTvd0
+         S8kT6oC2B2MHtnF6C7t6Ej2ezIODNFgxigPitMMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrei Botila <andrei.botila@nxp.com>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 134/146] crypto: caam - update xts sector size for large input length
+        stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.5 224/257] s390/diag: fix display of diagnose call statistics
 Date:   Thu, 16 Apr 2020 15:24:35 +0200
-Message-Id: <20200416131300.768691225@linuxfoundation.org>
+Message-Id: <20200416131353.894962281@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Botila <andrei.botila@nxp.com>
+From: Michael Mueller <mimu@linux.ibm.com>
 
-[ Upstream commit 3f142b6a7b573bde6cff926f246da05652c61eb4 ]
+commit 6c7c851f1b666a8a455678a0b480b9162de86052 upstream.
 
-Since in the software implementation of XTS-AES there is
-no notion of sector every input length is processed the same way.
-CAAM implementation has the notion of sector which causes different
-results between the software implementation and the one in CAAM
-for input lengths bigger than 512 bytes.
-Increase sector size to maximum value on 16 bits.
+Show the full diag statistic table and not just parts of it.
 
-Fixes: c6415a6016bf ("crypto: caam - add support for acipher xts(aes)")
-Cc: <stable@vger.kernel.org> # v4.12+
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The issue surfaced in a KVM guest with a number of vcpus
+defined smaller than NR_DIAG_STAT.
+
+Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/crypto/caam/caamalg_desc.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ arch/s390/kernel/diag.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/caam/caamalg_desc.c b/drivers/crypto/caam/caamalg_desc.c
-index edacf9b39b638..ceb033930535f 100644
---- a/drivers/crypto/caam/caamalg_desc.c
-+++ b/drivers/crypto/caam/caamalg_desc.c
-@@ -1457,7 +1457,13 @@ EXPORT_SYMBOL(cnstr_shdsc_ablkcipher_givencap);
-  */
- void cnstr_shdsc_xts_ablkcipher_encap(u32 * const desc, struct alginfo *cdata)
- {
--	__be64 sector_size = cpu_to_be64(512);
-+	/*
-+	 * Set sector size to a big value, practically disabling
-+	 * sector size segmentation in xts implementation. We cannot
-+	 * take full advantage of this HW feature with existing
-+	 * crypto API / dm-crypt SW architecture.
-+	 */
-+	__be64 sector_size = cpu_to_be64(BIT(15));
- 	u32 *key_jump_cmd;
+--- a/arch/s390/kernel/diag.c
++++ b/arch/s390/kernel/diag.c
+@@ -84,7 +84,7 @@ static int show_diag_stat(struct seq_fil
  
- 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
-@@ -1509,7 +1515,13 @@ EXPORT_SYMBOL(cnstr_shdsc_xts_ablkcipher_encap);
-  */
- void cnstr_shdsc_xts_ablkcipher_decap(u32 * const desc, struct alginfo *cdata)
+ static void *show_diag_stat_start(struct seq_file *m, loff_t *pos)
  {
--	__be64 sector_size = cpu_to_be64(512);
-+	/*
-+	 * Set sector size to a big value, practically disabling
-+	 * sector size segmentation in xts implementation. We cannot
-+	 * take full advantage of this HW feature with existing
-+	 * crypto API / dm-crypt SW architecture.
-+	 */
-+	__be64 sector_size = cpu_to_be64(BIT(15));
- 	u32 *key_jump_cmd;
+-	return *pos <= nr_cpu_ids ? (void *)((unsigned long) *pos + 1) : NULL;
++	return *pos <= NR_DIAG_STAT ? (void *)((unsigned long) *pos + 1) : NULL;
+ }
  
- 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
--- 
-2.20.1
-
+ static void *show_diag_stat_next(struct seq_file *m, void *v, loff_t *pos)
 
 
