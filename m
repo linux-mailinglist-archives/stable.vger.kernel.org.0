@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5248D1ACBC0
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 857461AC2C6
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442681AbgDPPtM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:49:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44140 "EHLO mail.kernel.org"
+        id S2896701AbgDPNdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:33:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896636AbgDPNc6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:32:58 -0400
+        id S2896659AbgDPNdC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:33:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB1A822275;
-        Thu, 16 Apr 2020 13:32:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 107B022287;
+        Thu, 16 Apr 2020 13:32:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043949;
-        bh=hFO4jLIKH+x5/7ssSNwRO2Wq0ZVgFPUvQpXBS26CSuE=;
+        s=default; t=1587043971;
+        bh=pPQAnpLJ6swHilZZiXwdXrhXTemHxz69XOukH7cla4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvYxr1G0XTSspFH+amOvHCbJXrRE/Xvl/k/GQYZRmxfvXClyZJFGaT2fUtknyws4c
-         zAzFP3A4HC2k1H/4qdZN9Ioj6HZkvKbumkYd9etou6gX9lk1Z12gDub7ugmcgeoPHz
-         V/bMzdq8Qd0Cdfg2POQWoj5WdUlrcPRwjHksF44s=
+        b=Nii+c1BSyI/GYnXdKZKO87ntrbk5xV5t5RbBXQjA9QCSAHDctyTzbsFna/xd/j4RC
+         HuKuptN6s9y5r8oqRUlMHK2dep10CemSmX/2atbnQAYoM8Rrcrzh0eY+lKY4uT6qV8
+         6M+1C8AIRSH5+ZusLiveTgUBMq+aPHar/hMotN2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 002/257] bus: sunxi-rsb: Return correct data when mixing 16-bit and 8-bit reads
-Date:   Thu, 16 Apr 2020 15:20:53 +0200
-Message-Id: <20200416131326.195454037@linuxfoundation.org>
+Subject: [PATCH 5.5 003/257] ARM: dts: Fix dm814x Ethernet by changing to use rgmii-id mode
+Date:   Thu, 16 Apr 2020 15:20:54 +0200
+Message-Id: <20200416131326.312287280@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
 References: <20200416131325.891903893@linuxfoundation.org>
@@ -45,62 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Jirman <megous@megous.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit a43ab30dcd4a1abcdd0d2461bf1cf7c0817f6cd3 ]
+[ Upstream commit b46b2b7ba6e104d265ab705914859ec0db7a98c5 ]
 
-When doing a 16-bit read that returns data in the MSB byte, the
-RSB_DATA register will keep the MSB byte unchanged when doing
-the following 8-bit read. sunxi_rsb_read() will then return
-a result that contains high byte from 16-bit read mixed with
-the 8-bit result.
+Commit cd28d1d6e52e ("net: phy: at803x: Disable phy delay for RGMII mode")
+caused a regression for dm814x boards where NFSroot would no longer work.
 
-The consequence is that after this happens the PMIC's regmap will
-look like this: (0x33 is the high byte from the 16-bit read)
+Let's fix the issue by configuring "rgmii-id" mode as internal delays are
+needed that is no longer the case with "rgmii" mode.
 
-% cat /sys/kernel/debug/regmap/sunxi-rsb-3a3/registers
-00: 33
-01: 33
-02: 33
-03: 33
-04: 33
-05: 33
-06: 33
-07: 33
-08: 33
-09: 33
-0a: 33
-0b: 33
-0c: 33
-0d: 33
-0e: 33
-[snip]
-
-Fix this by masking the result of the read with the correct mask
-based on the size of the read. There are no 16-bit users in the
-mainline kernel, so this doesn't need to get into the stable tree.
-
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/sunxi-rsb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/dm8148-evm.dts       | 4 ++--
+ arch/arm/boot/dts/dm8148-t410.dts      | 4 ++--
+ arch/arm/boot/dts/dra62x-j5eco-evm.dts | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
-index be79d6c6a4e45..1bb00a959c67f 100644
---- a/drivers/bus/sunxi-rsb.c
-+++ b/drivers/bus/sunxi-rsb.c
-@@ -345,7 +345,7 @@ static int sunxi_rsb_read(struct sunxi_rsb *rsb, u8 rtaddr, u8 addr,
- 	if (ret)
- 		goto unlock;
+diff --git a/arch/arm/boot/dts/dm8148-evm.dts b/arch/arm/boot/dts/dm8148-evm.dts
+index 3931fb068ff09..91d1018ab75fc 100644
+--- a/arch/arm/boot/dts/dm8148-evm.dts
++++ b/arch/arm/boot/dts/dm8148-evm.dts
+@@ -24,12 +24,12 @@
  
--	*buf = readl(rsb->regs + RSB_DATA);
-+	*buf = readl(rsb->regs + RSB_DATA) & GENMASK(len * 8 - 1, 0);
+ &cpsw_emac0 {
+ 	phy-handle = <&ethphy0>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
  
- unlock:
- 	mutex_unlock(&rsb->lock);
+ &cpsw_emac1 {
+ 	phy-handle = <&ethphy1>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &davinci_mdio {
+diff --git a/arch/arm/boot/dts/dm8148-t410.dts b/arch/arm/boot/dts/dm8148-t410.dts
+index 9e43d5ec0bb2f..79ccdd4470f4c 100644
+--- a/arch/arm/boot/dts/dm8148-t410.dts
++++ b/arch/arm/boot/dts/dm8148-t410.dts
+@@ -33,12 +33,12 @@
+ 
+ &cpsw_emac0 {
+ 	phy-handle = <&ethphy0>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &cpsw_emac1 {
+ 	phy-handle = <&ethphy1>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &davinci_mdio {
+diff --git a/arch/arm/boot/dts/dra62x-j5eco-evm.dts b/arch/arm/boot/dts/dra62x-j5eco-evm.dts
+index 861ab90a3f3aa..c16e183822bee 100644
+--- a/arch/arm/boot/dts/dra62x-j5eco-evm.dts
++++ b/arch/arm/boot/dts/dra62x-j5eco-evm.dts
+@@ -24,12 +24,12 @@
+ 
+ &cpsw_emac0 {
+ 	phy-handle = <&ethphy0>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &cpsw_emac1 {
+ 	phy-handle = <&ethphy1>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &davinci_mdio {
 -- 
 2.20.1
 
