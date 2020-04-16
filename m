@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 296621AC85E
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E29521AC48C
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439712AbgDPPHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:07:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37734 "EHLO mail.kernel.org"
+        id S2392792AbgDPOBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:01:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392378AbgDPNvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:51:35 -0400
+        id S2392766AbgDPOBV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DE9220732;
-        Thu, 16 Apr 2020 13:51:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21B0820732;
+        Thu, 16 Apr 2020 14:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045094;
-        bh=aAgtDJfouiR+lyQpEyW4ul/VAJiRI3p/7EDAKDsDfLQ=;
+        s=default; t=1587045679;
+        bh=k7+F2+dZbLUXEVNzfB8DK7Rq3o1/WbEpoaovpbzJBtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NuaHn/oGBIMiHskix+pDjSN0j2NCczEIKw4HDsl79g78YDULEeLvxTh1vgGdYBry7
-         rk0cRDA489KkLWcjIhsrd2dqJ30U1zdLuER99GHiLr9iKETF7S6I1vYnN42PXpfYnr
-         TIP8DergtyzTeE3mpQs/RpnqiPbkF6uRQx9AmpgI=
+        b=y3rhtds5ytU7kYPdovv0uMlDZRtVMRI4oZJCqtJGJurnUKDf8apPWWALBs7OYkq1L
+         c2OK472cQfgKnkF6Nc3CwPGAu9kVQvJ8FK9EybjsikXLYNvbJ+0r0aXPOwsMOUavlZ
+         oWZm3wnaBkAXKa/LYVQUo/ew9k6QaFqHG8wT7Wsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prike Liang <Prike.Liang@amd.com>,
-        Mengbing Wang <Mengbing.Wang@amd.com>,
-        Huang Rui <ray.huang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 228/232] drm/amdgpu: fix gfx hang during suspend with video playback (v2)
-Date:   Thu, 16 Apr 2020 15:25:22 +0200
-Message-Id: <20200416131344.027336225@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Merlijn Wajer <merlijn@archive.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.6 234/254] scsi: sr: get rid of sr global mutex
+Date:   Thu, 16 Apr 2020 15:25:23 +0200
+Message-Id: <20200416131354.857149679@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +44,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prike Liang <Prike.Liang@amd.com>
+From: Merlijn Wajer <merlijn@archive.org>
 
-[ Upstream commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58 ]
+commit 51a858817dcdbbdee22cb54b0b2b26eb145ca5b6 upstream.
 
-The system will be hang up during S3 suspend because of SMU is pending
-for GC not respose the register CP_HQD_ACTIVE access request.This issue
-root cause of accessing the GC register under enter GFX CGGPG and can
-be fixed by disable GFX CGPG before perform suspend.
+When replacing the Big Kernel Lock in commit 2a48fc0ab242 ("block:
+autoconvert trivial BKL users to private mutex"), the lock was replaced
+with a sr-wide lock.
 
-v2: Use disable the GFX CGPG instead of RLC safe mode guard.
+This causes very poor performance when using multiple sr devices, as the sr
+driver was not able to execute more than one command to one drive at any
+given time, even when there were many CD drives available.
 
-Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-Tested-by: Mengbing Wang <Mengbing.Wang@amd.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Replace the global mutex with per-sr-device mutex.
+
+Someone tried this patch at the time, but it never made it upstream, due to
+possible concerns with race conditions, but it's not clear the patch
+actually caused those:
+
+https://www.spinics.net/lists/linux-scsi/msg63706.html
+https://www.spinics.net/lists/linux-scsi/msg63750.html
+
+Also see
+
+http://lists.xiph.org/pipermail/paranoia/2019-December/001647.html
+
+Link: https://lore.kernel.org/r/20200218143918.30267-1-merlijn@archive.org
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Merlijn Wajer <merlijn@archive.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/sr.c |   20 +++++++++++---------
+ drivers/scsi/sr.h |    2 ++
+ 2 files changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 13694d5eba474..f423b53847051 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2176,8 +2176,6 @@ static int amdgpu_device_ip_suspend_phase1(struct amdgpu_device *adev)
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -79,7 +79,6 @@ MODULE_ALIAS_SCSI_DEVICE(TYPE_WORM);
+ 	 CDC_CD_R|CDC_CD_RW|CDC_DVD|CDC_DVD_R|CDC_DVD_RAM|CDC_GENERIC_PACKET| \
+ 	 CDC_MRW|CDC_MRW_W|CDC_RAM)
+ 
+-static DEFINE_MUTEX(sr_mutex);
+ static int sr_probe(struct device *);
+ static int sr_remove(struct device *);
+ static blk_status_t sr_init_command(struct scsi_cmnd *SCpnt);
+@@ -536,9 +535,9 @@ static int sr_block_open(struct block_de
+ 	scsi_autopm_get_device(sdev);
+ 	check_disk_change(bdev);
+ 
+-	mutex_lock(&sr_mutex);
++	mutex_lock(&cd->lock);
+ 	ret = cdrom_open(&cd->cdi, bdev, mode);
+-	mutex_unlock(&sr_mutex);
++	mutex_unlock(&cd->lock);
+ 
+ 	scsi_autopm_put_device(sdev);
+ 	if (ret)
+@@ -551,10 +550,10 @@ out:
+ static void sr_block_release(struct gendisk *disk, fmode_t mode)
  {
- 	int i, r;
+ 	struct scsi_cd *cd = scsi_cd(disk);
+-	mutex_lock(&sr_mutex);
++	mutex_lock(&cd->lock);
+ 	cdrom_release(&cd->cdi, mode);
+ 	scsi_cd_put(cd);
+-	mutex_unlock(&sr_mutex);
++	mutex_unlock(&cd->lock);
+ }
  
--	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
--	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
+ static int sr_block_ioctl(struct block_device *bdev, fmode_t mode, unsigned cmd,
+@@ -565,7 +564,7 @@ static int sr_block_ioctl(struct block_d
+ 	void __user *argp = (void __user *)arg;
+ 	int ret;
  
- 	for (i = adev->num_ip_blocks - 1; i >= 0; i--) {
- 		if (!adev->ip_blocks[i].status.valid)
-@@ -3070,6 +3068,9 @@ int amdgpu_device_suspend(struct drm_device *dev, bool suspend, bool fbcon)
- 		}
- 	}
+-	mutex_lock(&sr_mutex);
++	mutex_lock(&cd->lock);
  
-+	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
-+	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
+ 	ret = scsi_ioctl_block_when_processing_errors(sdev, cmd,
+ 			(mode & FMODE_NDELAY) != 0);
+@@ -595,7 +594,7 @@ put:
+ 	scsi_autopm_put_device(sdev);
+ 
+ out:
+-	mutex_unlock(&sr_mutex);
++	mutex_unlock(&cd->lock);
+ 	return ret;
+ }
+ 
+@@ -608,7 +607,7 @@ static int sr_block_compat_ioctl(struct
+ 	void __user *argp = compat_ptr(arg);
+ 	int ret;
+ 
+-	mutex_lock(&sr_mutex);
++	mutex_lock(&cd->lock);
+ 
+ 	ret = scsi_ioctl_block_when_processing_errors(sdev, cmd,
+ 			(mode & FMODE_NDELAY) != 0);
+@@ -638,7 +637,7 @@ put:
+ 	scsi_autopm_put_device(sdev);
+ 
+ out:
+-	mutex_unlock(&sr_mutex);
++	mutex_unlock(&cd->lock);
+ 	return ret;
+ 
+ }
+@@ -745,6 +744,7 @@ static int sr_probe(struct device *dev)
+ 	disk = alloc_disk(1);
+ 	if (!disk)
+ 		goto fail_free;
++	mutex_init(&cd->lock);
+ 
+ 	spin_lock(&sr_index_lock);
+ 	minor = find_first_zero_bit(sr_index_bits, SR_DISKS);
+@@ -1055,6 +1055,8 @@ static void sr_kref_release(struct kref
+ 
+ 	put_disk(disk);
+ 
++	mutex_destroy(&cd->lock);
 +
- 	amdgpu_amdkfd_suspend(adev);
+ 	kfree(cd);
+ }
  
- 	amdgpu_ras_suspend(adev);
--- 
-2.20.1
-
+--- a/drivers/scsi/sr.h
++++ b/drivers/scsi/sr.h
+@@ -20,6 +20,7 @@
+ 
+ #include <linux/genhd.h>
+ #include <linux/kref.h>
++#include <linux/mutex.h>
+ 
+ #define MAX_RETRIES	3
+ #define SR_TIMEOUT	(30 * HZ)
+@@ -51,6 +52,7 @@ typedef struct scsi_cd {
+ 	bool ignore_get_event:1;	/* GET_EVENT is unreliable, use TUR */
+ 
+ 	struct cdrom_device_info cdi;
++	struct mutex lock;
+ 	/* We hold gendisk and scsi_device references on probe and use
+ 	 * the refs on this kref to decide when to release them */
+ 	struct kref kref;
 
 
