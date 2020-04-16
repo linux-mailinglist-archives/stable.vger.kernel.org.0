@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C45271AC40E
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71E7F1ACAEE
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:43:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505281AbgDPNxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:53:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40032 "EHLO mail.kernel.org"
+        id S2897347AbgDPNgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:36:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2503837AbgDPNxd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:53:33 -0400
+        id S2896368AbgDPNgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:36:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 192B720732;
-        Thu, 16 Apr 2020 13:53:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB64620732;
+        Thu, 16 Apr 2020 13:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045212;
-        bh=MnuWYLFkdb1YHimhXS6d0CxSVI1WAlx/FlXUz917YfU=;
+        s=default; t=1587044195;
+        bh=zCv7emeh8qqkvdSPxK1eftiliypS9jDLI+ZgAK+C4Os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDOsbKTZ3N2+sdUVSzzm1zktlRUlkxAVhvbKjIUdLcNc+8JiwYyMD4ckpdKtaWS5M
-         zt3GX3HlBE3un9/HIjHwhuXF/8pQFprlx4UU0P+7rwUCohx3PqmssNWB4mlWFF0AkS
-         KxoPx+DU78k9NL8IoPhwzKlEWDjwD88ecOD7jzMM=
+        b=Bq3QTIzAZNZHZOlVRqOU0lcYcJEtxrPj2xnn+cYlqcr/oUDEOQ4c/EVbIjBQAwB0A
+         XBFi7xrzX1qYW4CqACVqFMXIeApzTIJja5IQibLf6iKt6VQfIkygdkIwVUDLfQ6QFC
+         aAgmGaTMgMpeUqI9w7EWJiCI6tq8+ROP3lefHHas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, rdunlap@infradead.org,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 041/254] media: i2c: video-i2c: fix build errors due to imply hwmon
+Subject: [PATCH 5.5 079/257] btrfs: restart relocate_tree_blocks properly
 Date:   Thu, 16 Apr 2020 15:22:10 +0200
-Message-Id: <20200416131330.993957329@linuxfoundation.org>
+Message-Id: <20200416131335.808916832@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Ranostay <matt.ranostay@konsulko.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 64d4fc9926f09861a35d8f0f7d81f056e6d5af7b ]
+[ Upstream commit 50dbbb71c79df89532ec41d118d59386e5a877e3 ]
 
-Fix build fault when CONFIG_HWMON is a module, and CONFIG_VIDEO_I2C
-as builtin. This is due to 'imply hwmon' in the respective Kconfig.
+There are two bugs here, but fixing them independently would just result
+in pain if you happened to bisect between the two patches.
 
-Issue build log:
+First is how we handle the -EAGAIN from relocate_tree_block().  We don't
+set error, unless we happen to be the first node, which makes no sense,
+I have no idea what the code was trying to accomplish here.
 
-ld: drivers/media/i2c/video-i2c.o: in function `amg88xx_hwmon_init':
-video-i2c.c:(.text+0x2e1): undefined reference to `devm_hwmon_device_register_with_info
+We in fact _do_ want err set here so that we know we need to restart in
+relocate_block_group().  Also we need finish_pending_nodes() to not
+actually call link_to_upper(), because we didn't actually relocate the
+block.
 
-Cc: rdunlap@infradead.org
-Fixes: acbea6798955 (media: video-i2c: add hwmon support for amg88xx)
-Signed-off-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+And then if we do get -EAGAIN we do not want to set our backref cache
+last_trans to the one before ours.  This would force us to update our
+backref cache if we didn't cross transaction ids, which would mean we'd
+have some nodes updated to their new_bytenr, but still able to find
+their old bytenr because we're searching the same commit root as the
+last time we went through relocate_tree_blocks.
+
+Fixing these two things keeps us from panicing when we start breaking
+out of relocate_tree_blocks() either for delayed ref flushing or enospc.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/video-i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/relocation.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/media/i2c/video-i2c.c b/drivers/media/i2c/video-i2c.c
-index 078141712c887..0b977e73ceb29 100644
---- a/drivers/media/i2c/video-i2c.c
-+++ b/drivers/media/i2c/video-i2c.c
-@@ -255,7 +255,7 @@ static int amg88xx_set_power(struct video_i2c_data *data, bool on)
- 	return amg88xx_set_power_off(data);
- }
- 
--#if IS_ENABLED(CONFIG_HWMON)
-+#if IS_REACHABLE(CONFIG_HWMON)
- 
- static const u32 amg88xx_temp_config[] = {
- 	HWMON_T_INPUT,
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index f7060b2172c44..963e70141e398 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -3175,9 +3175,8 @@ int relocate_tree_blocks(struct btrfs_trans_handle *trans,
+ 		ret = relocate_tree_block(trans, rc, node, &block->key,
+ 					  path);
+ 		if (ret < 0) {
+-			if (ret != -EAGAIN || &block->rb_node == rb_first(blocks))
+-				err = ret;
+-			goto out;
++			err = ret;
++			break;
+ 		}
+ 	}
+ out:
+@@ -4151,12 +4150,6 @@ restart:
+ 		if (!RB_EMPTY_ROOT(&blocks)) {
+ 			ret = relocate_tree_blocks(trans, rc, &blocks);
+ 			if (ret < 0) {
+-				/*
+-				 * if we fail to relocate tree blocks, force to update
+-				 * backref cache when committing transaction.
+-				 */
+-				rc->backref_cache.last_trans = trans->transid - 1;
+-
+ 				if (ret != -EAGAIN) {
+ 					err = ret;
+ 					break;
 -- 
 2.20.1
 
