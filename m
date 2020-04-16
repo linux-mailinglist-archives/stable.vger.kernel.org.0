@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E871ACC0D
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D761AC73F
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506843AbgDPPyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:54:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40680 "EHLO mail.kernel.org"
+        id S2409327AbgDPN51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:57:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895586AbgDPNa1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:30:27 -0400
+        id S2409284AbgDPN5N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:57:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76DDB217D8;
-        Thu, 16 Apr 2020 13:30:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0059220732;
+        Thu, 16 Apr 2020 13:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043826;
-        bh=6JXhCfInHA54YKntjpBtOWqLh6x4QkgVAoxkrTKKLlA=;
+        s=default; t=1587045432;
+        bh=E4Xt0jaCiE8HVhys4kN8r55umD1bQArBZZistsB45IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DqPs5S9rTPQIIaUrIGJ5R12hbqy+zFyUtbqN7wCS1Xh+nh9Zrmf7LEnFDy53OVWaQ
-         /HzV11DaCrr/iOeN7Q5d/RbjLz/VVHc8cmX8jSB0uSy7MebZKUxcPqZS/g9tELV6Eg
-         vkHwy4Bc3cisHvdFquGO3AgHQwSHg+cQ2r3vWyo0=
+        b=i/qXCM8iBVZj37JPaO6Sv1/7Eliufj9x7jUkeobdh4XedriZAoNDOxKHKXjihZdka
+         HFbAuRsekGkC2y4U0z6j/HD66HKNJ7I1sReOsCZ/elVg7ObDm9cPr2iwx8kEL1QfFv
+         vmHZKqDeYR6jl+lqrsAKr2Q9pfwLnNdF0BaljmdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liran Alon <liran.alon@oracle.com>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 079/146] KVM: nVMX: Properly handle userspace interrupt window request
+Subject: [PATCH 5.6 131/254] KVM: nVMX: Properly handle userspace interrupt window request
 Date:   Thu, 16 Apr 2020 15:23:40 +0200
-Message-Id: <20200416131253.689478065@linuxfoundation.org>
+Message-Id: <20200416131342.869006935@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -80,41 +80,26 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
  arch/x86/include/asm/kvm_host.h |    2 +-
- arch/x86/kvm/vmx.c              |   27 +++++++++++----------------
+ arch/x86/kvm/vmx/nested.c       |   18 ++++--------------
+ arch/x86/kvm/vmx/vmx.c          |    9 +++++++--
  arch/x86/kvm/x86.c              |   10 +++++-----
- 3 files changed, 17 insertions(+), 22 deletions(-)
+ 4 files changed, 17 insertions(+), 22 deletions(-)
 
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -1070,7 +1070,7 @@ struct kvm_x86_ops {
- 	bool (*xsaves_supported)(void);
- 	bool (*umip_emulated)(void);
+@@ -1180,7 +1180,7 @@ struct kvm_x86_ops {
+ 	bool (*pt_supported)(void);
+ 	bool (*pku_supported)(void);
  
 -	int (*check_nested_events)(struct kvm_vcpu *vcpu, bool external_intr);
 +	int (*check_nested_events)(struct kvm_vcpu *vcpu);
  	void (*request_immediate_exit)(struct kvm_vcpu *vcpu);
  
  	void (*sched_in)(struct kvm_vcpu *kvm, int cpu);
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -6954,8 +6954,13 @@ static int vmx_nmi_allowed(struct kvm_vc
- 
- static int vmx_interrupt_allowed(struct kvm_vcpu *vcpu)
- {
--	return (!to_vmx(vcpu)->nested.nested_run_pending &&
--		vmcs_readl(GUEST_RFLAGS) & X86_EFLAGS_IF) &&
-+	if (to_vmx(vcpu)->nested.nested_run_pending)
-+		return false;
-+
-+	if (is_guest_mode(vcpu) && nested_exit_on_intr(vcpu))
-+		return true;
-+
-+	return (vmcs_readl(GUEST_RFLAGS) & X86_EFLAGS_IF) &&
- 		!(vmcs_read32(GUEST_INTERRUPTIBILITY_INFO) &
- 			(GUEST_INTR_STATE_STI | GUEST_INTR_STATE_MOV_SS));
- }
-@@ -12990,7 +12995,7 @@ static void vmcs12_save_pending_event(st
- 	}
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -3604,7 +3604,7 @@ static void nested_vmx_update_pending_db
+ 			    vcpu->arch.exception.payload);
  }
  
 -static int vmx_check_nested_events(struct kvm_vcpu *vcpu, bool external_intr)
@@ -122,7 +107,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct vcpu_vmx *vmx = to_vmx(vcpu);
  	unsigned long exit_qual;
-@@ -13028,8 +13033,7 @@ static int vmx_check_nested_events(struc
+@@ -3680,8 +3680,7 @@ static int vmx_check_nested_events(struc
  		return 0;
  	}
  
@@ -132,7 +117,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		if (block_nested_events)
  			return -EBUSY;
  		nested_vmx_vmexit(vcpu, EXIT_REASON_EXTERNAL_INTERRUPT, 0, 0);
-@@ -13607,17 +13611,8 @@ static void nested_vmx_vmexit(struct kvm
+@@ -4329,17 +4328,8 @@ void nested_vmx_vmexit(struct kvm_vcpu *
  	vcpu->arch.mp_state = KVM_MP_STATE_RUNNABLE;
  
  	if (likely(!vmx->fail)) {
@@ -152,9 +137,27 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			int irq = kvm_cpu_get_interrupt(vcpu);
  			WARN_ON(irq < 0);
  			vmcs12->vm_exit_intr_info = irq |
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -4507,8 +4507,13 @@ static int vmx_nmi_allowed(struct kvm_vc
+ 
+ static int vmx_interrupt_allowed(struct kvm_vcpu *vcpu)
+ {
+-	return (!to_vmx(vcpu)->nested.nested_run_pending &&
+-		vmcs_readl(GUEST_RFLAGS) & X86_EFLAGS_IF) &&
++	if (to_vmx(vcpu)->nested.nested_run_pending)
++		return false;
++
++	if (is_guest_mode(vcpu) && nested_exit_on_intr(vcpu))
++		return true;
++
++	return (vmcs_readl(GUEST_RFLAGS) & X86_EFLAGS_IF) &&
+ 		!(vmcs_read32(GUEST_INTERRUPTIBILITY_INFO) &
+ 			(GUEST_INTR_STATE_STI | GUEST_INTR_STATE_MOV_SS));
+ }
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -7124,7 +7124,7 @@ static void update_cr8_intercept(struct
+@@ -7635,7 +7635,7 @@ static void update_cr8_intercept(struct
  	kvm_x86_ops->update_cr8_intercept(vcpu, tpr, max_irr);
  }
  
@@ -163,7 +166,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	int r;
  
-@@ -7160,7 +7160,7 @@ static int inject_pending_event(struct k
+@@ -7671,7 +7671,7 @@ static int inject_pending_event(struct k
  	 * from L2 to L1.
  	 */
  	if (is_guest_mode(vcpu) && kvm_x86_ops->check_nested_events) {
@@ -172,7 +175,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		if (r != 0)
  			return r;
  	}
-@@ -7210,7 +7210,7 @@ static int inject_pending_event(struct k
+@@ -7733,7 +7733,7 @@ static int inject_pending_event(struct k
  		 * KVM_REQ_EVENT only on certain events and not unconditionally?
  		 */
  		if (is_guest_mode(vcpu) && kvm_x86_ops->check_nested_events) {
@@ -181,7 +184,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			if (r != 0)
  				return r;
  		}
-@@ -7683,7 +7683,7 @@ static int vcpu_enter_guest(struct kvm_v
+@@ -8266,7 +8266,7 @@ static int vcpu_enter_guest(struct kvm_v
  			goto out;
  		}
  
@@ -190,7 +193,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			req_immediate_exit = true;
  		else {
  			/* Enable SMI/NMI/IRQ window open exits if needed.
-@@ -7894,7 +7894,7 @@ static inline int vcpu_block(struct kvm
+@@ -8496,7 +8496,7 @@ static inline int vcpu_block(struct kvm
  static inline bool kvm_vcpu_running(struct kvm_vcpu *vcpu)
  {
  	if (is_guest_mode(vcpu) && kvm_x86_ops->check_nested_events)
