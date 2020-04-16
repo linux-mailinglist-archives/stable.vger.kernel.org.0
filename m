@@ -2,136 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2CE31AB419
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 01:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CEA21AB48A
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 02:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388104AbgDOXOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 19:14:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35784 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387914AbgDOXOj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Apr 2020 19:14:39 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BDEDC061A0C
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 16:14:39 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id t16so613480plo.7
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 16:14:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jvXWyNoyl+lwZuQAzhPgwcQwIa6SburGS2IlSBaAuqw=;
-        b=HkCTx+/DnHxy0kCvXDt+SUtVCnwavjl/Q6vsod0X7/FpWVGJAXgz6YxKTIpDX0PZdE
-         LPQpnVSjkQ24/cktoUwUQBj4J1x21ivli/BLewmAmUZa/t4uMLmAGWcVHh0BzMKNeRTA
-         CZIUeZlt6pwCjw94eJRX5q9nxlEqB0zfI/LpA0VgFQLW9ChZ7LYeKdpNXxXhES/xgc+K
-         X09eSgHmCJXeKpiFzIGdUmpYMuuzWOv1mfE9jK27KxvBn9nLsS/04baKvN9duDEDWnu2
-         jupvLVjCCHfuBOUo9ld3uQakUIQQ3K2rlNOx0EbR+C6osUuSDEYJ4ay214B8NOJZurjb
-         HFhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jvXWyNoyl+lwZuQAzhPgwcQwIa6SburGS2IlSBaAuqw=;
-        b=BIGQ0BBRW5TAoK0mB5g3aiZC8OpHasB1ta0GAOyaunFaez5FwDcLsU4kLJpQUp6fkN
-         8upIyCd5tjf1cnxc6FxLk/7Awfc3toTdlCkzztKM38COi+Wns5d5UJBqNDYC4G4GPJll
-         6kg02dcGncPRWE72uIoHh9ByFwU6CLT8h7wL4n54Cbq/VpawZTKjDIibTyCyBB5n/fWj
-         7FFrW3oJ7iwWvxoelia29lFuof7IrZY9PwRsrH6Fg0AjEyP4aTMfUXfl6MwW9DEj/5X8
-         qfOf/AAgOtT9jSGfF1EINec67HufEQKh/2CB9yVN8qE/n2PSsPdSLnT/Nv/YS2ushSnx
-         EvhQ==
-X-Gm-Message-State: AGi0PuYjP2sE3k1aR/xtMe0PfH4bNlHuJzaFcwm92FRFPwS6mGP1FqIG
-        33Ljc0iAj2g5mVlb0x9uSCzYWPUzidE=
-X-Google-Smtp-Source: APiQypIUCXLqXZh1pvGaIPrYW0KS+1q78CvvfUTCesTKTx01au0W/3lXyXqcduDMJNFw/7Ol8euobg==
-X-Received: by 2002:a17:90a:94cb:: with SMTP id j11mr1811261pjw.160.1586992478444;
-        Wed, 15 Apr 2020 16:14:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e30sm5212862pfj.114.2020.04.15.16.14.37
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Apr 2020 16:14:37 -0700 (PDT)
-Message-ID: <5e97955d.1c69fb81.8a349.2f92@mx.google.com>
-Date:   Wed, 15 Apr 2020 16:14:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1730005AbgDPAAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 20:00:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390966AbgDPAAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 20:00:15 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D9B92076A;
+        Thu, 16 Apr 2020 00:00:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1586995210;
+        bh=xpO78oMgj/uC8+HMF+oDbOkcOyitDZEw/D96sA2n8gQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=z2XcvfF8pcCA/kkcz2YWaQmgNqpidz1/3oMA+7a7CIa3s39GjtM599gGc7OYFTFWT
+         s25rpYEh3/osDMrV6FPe7wbN4iGqqaBuxule/NRKsSZRuVv22ne8s6UmGZXSc/c41y
+         cvseByQMPydW/2M17OfRbzJAukNqS/kvTG2KzBUM=
+Date:   Wed, 15 Apr 2020 20:00:09 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Edward Cree <ecree@solarflare.com>
+Cc:     Or Gerlitz <gerlitz.or@gmail.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linux Netdev List <netdev@vger.kernel.org>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        David Miller <davem@davemloft.net>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
+ representors
+Message-ID: <20200416000009.GL1068@sasha-vm>
+References: <20200411231413.26911-9-sashal@kernel.org>
+ <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
+ <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <20200414015627.GA1068@sasha-vm>
+ <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
+ <20200414110911.GA341846@kroah.com>
+ <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
+ <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
+ <20200414205755.GF1068@sasha-vm>
+ <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.114-185-g53a9f76066d0
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 83 boots: 1 failed,
- 75 passed with 2 offline, 5 untried/unknown (v4.19.114-185-g53a9f76066d0)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 83 boots: 1 failed, 75 passed with 2 offline, =
-5 untried/unknown (v4.19.114-185-g53a9f76066d0)
+On Wed, Apr 15, 2020 at 05:18:38PM +0100, Edward Cree wrote:
+>Firstly, let me apologise: my previous email was too harsh and too
+> assertiveabout things that were really more uncertain and unclear.
+>
+>On 14/04/2020 21:57, Sasha Levin wrote:
+>> I've pointed out that almost 50% of commits tagged for stable do not
+>> have a fixes tag, and yet they are fixes. You really deduce things based
+>> on coin flip probability?
+>Yes, but far less than 50% of commits *not* tagged for stable have a fixes
+> tag.  It's not about hard-and-fast Aristotelian "deductions", like "this
+> doesn't have Fixes:, therefore it is not a stable candidate", it's about
+> probabilistic "induction".
+>
+>> "it does increase the amount of countervailing evidence needed to
+>> conclude a commit is a fix" - Please explain this argument given the
+>> above.
+>Are you familiar with Bayesian statistics?  If not, I'd suggest reading
+> something like http://yudkowsky.net/rational/bayes/ which explains it.
+>There's a big difference between a coin flip and a _correlated_ coin flip.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.114-185-g53a9f76066d0/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.114-185-g53a9f76066d0/
+I'd maybe point out that the selection process is based on a neural
+network which knows about the existence of a Fixes tag in a commit.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.114-185-g53a9f76066d0
-Git Commit: 53a9f76066d0832721801cd2fe2431facf1b8cab
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 66 unique boards, 19 SoC families, 18 builds out of 206
+It does exactly what you're describing, but also taking a bunch more
+factors into it's desicion process ("panic"? "oops"? "overflow"? etc).
 
-Boot Regressions Detected:
+>> This is great, but the kernel is more than just net/. Note that I also
+>> do not look at net/ itself, but rather drivers/net/ as those end up with
+>> a bunch of missed fixes.
+>drivers/net/ goes through the same DaveM net/net-next trees, with the
+> same rules.
 
-arm:
+Let me put my Microsoft employee hat on here. We have driver/net/hyperv/
+which definitely wasn't getting all the fixes it should have been
+getting without AUTOSEL.
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 67 days (last pass: v4.19=
-.101 - first fail: v4.19.102-96-g0632821fe218)
+While net/ is doing great, drivers/net/ is not. If it's indeed following
+the same rules then we need to talk about how we get done right.
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 33 days (last pass: v4.19.108-87-=
-g624c124960e8 - first fail: v4.19.109)
+I really have no objection to not looking in drivers/net/, it's just
+that the experience I had with the process suggests that it's not
+following the same process as net/.
 
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.19.114-55-g3b903e5a=
-ffcf)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-axg-s400:
-              lab-baylibre-seattle: new failure (last pass: v4.19.114-55-g3=
-b903e5affcf)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Thanks,
+Sasha
