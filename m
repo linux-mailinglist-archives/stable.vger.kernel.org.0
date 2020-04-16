@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D166A1AC816
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C461AC304
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438815AbgDPPDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:03:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40062 "EHLO mail.kernel.org"
+        id S2897358AbgDPNgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:36:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504093AbgDPNxf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:53:35 -0400
+        id S2897344AbgDPNgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:36:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A5DC20786;
-        Thu, 16 Apr 2020 13:53:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4238F208E4;
+        Thu, 16 Apr 2020 13:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045215;
-        bh=4z7NnpuZEBJNYB8KjP7ZA8GDhYwTkGxdqMbAgTBOzPM=;
+        s=default; t=1587044197;
+        bh=+H6Jzd2IDyo+X2rhDoVxL45vqquPOz6h76RhAVqcvOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGkXnZNCjQQKp+7ruXoIP207dW9l10oasP/+gRYzRTq8aMAZOpEcSMhKwd7VmJPpl
-         wMmTyjAl9aOuGl8ylu7IQcfCjBqivop9kjgZKcAI6qnVvu0jR168KFp2YJ46vUGMna
-         T9p0gYJ11t1Jcgi3Rz8gUnqqjEPXHPqDYPi/wjZQ=
+        b=l4GSY+ThSJsv7Ub1PGtsf8+8W/wY7mhbO2aKI8AjehqGajm0FwyFd9kWSDs0uAc6Z
+         iEoKdmeTsSOO12WOS9WGeD0FI/qNs5LDCXqV3JQ0L2CfWqcgA8EiOIAkdUecQR2FEL
+         iQH7kGe2OaGvq4yenLuO0O7OZ8rl1ibjTGJpQ5qQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 042/254] libata: Remove extra scsi_host_put() in ata_scsi_add_hosts()
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 080/257] btrfs: track reloc roots based on their commit root bytenr
 Date:   Thu, 16 Apr 2020 15:22:11 +0200
-Message-Id: <20200416131331.123225571@linuxfoundation.org>
+Message-Id: <20200416131335.957583164@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,156 +44,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 1d72f7aec3595249dbb83291ccac041a2d676c57 ]
+[ Upstream commit ea287ab157c2816bf12aad4cece41372f9d146b4 ]
 
-If the call to scsi_add_host_with_dma() in ata_scsi_add_hosts() fails,
-then we may get use-after-free KASAN warns:
+We always search the commit root of the extent tree for looking up back
+references, however we track the reloc roots based on their current
+bytenr.
 
-==================================================================
-BUG: KASAN: use-after-free in kobject_put+0x24/0x180
-Read of size 1 at addr ffff0026b8c80364 by task swapper/0/1
-CPU: 1 PID: 1 Comm: swapper/0 Tainted: G        W         5.6.0-rc3-00004-g5a71b206ea82-dirty #1765
-Hardware name: Huawei TaiShan 200 (Model 2280)/BC82AMDD, BIOS 2280-V2 CS V3.B160.01 02/24/2020
-Call trace:
-dump_backtrace+0x0/0x298
-show_stack+0x14/0x20
-dump_stack+0x118/0x190
-print_address_description.isra.9+0x6c/0x3b8
-__kasan_report+0x134/0x23c
-kasan_report+0xc/0x18
-__asan_load1+0x5c/0x68
-kobject_put+0x24/0x180
-put_device+0x10/0x20
-scsi_host_put+0x10/0x18
-ata_devres_release+0x74/0xb0
-release_nodes+0x2d0/0x470
-devres_release_all+0x50/0x78
-really_probe+0x2d4/0x560
-driver_probe_device+0x7c/0x148
-device_driver_attach+0x94/0xa0
-__driver_attach+0xa8/0x110
-bus_for_each_dev+0xe8/0x158
-driver_attach+0x30/0x40
-bus_add_driver+0x220/0x2e0
-driver_register+0xbc/0x1d0
-__pci_register_driver+0xbc/0xd0
-ahci_pci_driver_init+0x20/0x28
-do_one_initcall+0xf0/0x608
-kernel_init_freeable+0x31c/0x384
-kernel_init+0x10/0x118
-ret_from_fork+0x10/0x18
+This is wrong, if we commit the transaction between relocating tree
+blocks we could end up in this code in build_backref_tree
 
-Allocated by task 5:
-save_stack+0x28/0xc8
-__kasan_kmalloc.isra.8+0xbc/0xd8
-kasan_kmalloc+0xc/0x18
-__kmalloc+0x1a8/0x280
-scsi_host_alloc+0x44/0x678
-ata_scsi_add_hosts+0x74/0x268
-ata_host_register+0x228/0x488
-ahci_host_activate+0x1c4/0x2a8
-ahci_init_one+0xd18/0x1298
-local_pci_probe+0x74/0xf0
-work_for_cpu_fn+0x2c/0x48
-process_one_work+0x488/0xc08
-worker_thread+0x330/0x5d0
-kthread+0x1c8/0x1d0
-ret_from_fork+0x10/0x18
+  if (key.objectid == key.offset) {
+	  /*
+	   * Only root blocks of reloc trees use backref
+	   * pointing to itself.
+	   */
+	  root = find_reloc_root(rc, cur->bytenr);
+	  ASSERT(root);
+	  cur->root = root;
+	  break;
+  }
 
-Freed by task 5:
-save_stack+0x28/0xc8
-__kasan_slab_free+0x118/0x180
-kasan_slab_free+0x10/0x18
-slab_free_freelist_hook+0xa4/0x1a0
-kfree+0xd4/0x3a0
-scsi_host_dev_release+0x100/0x148
-device_release+0x7c/0xe0
-kobject_put+0xb0/0x180
-put_device+0x10/0x20
-scsi_host_put+0x10/0x18
-ata_scsi_add_hosts+0x210/0x268
-ata_host_register+0x228/0x488
-ahci_host_activate+0x1c4/0x2a8
-ahci_init_one+0xd18/0x1298
-local_pci_probe+0x74/0xf0
-work_for_cpu_fn+0x2c/0x48
-process_one_work+0x488/0xc08
-worker_thread+0x330/0x5d0
-kthread+0x1c8/0x1d0
-ret_from_fork+0x10/0x18
+find_reloc_root() is looking based on the bytenr we had in the commit
+root, but if we've COWed this reloc root we will not find that bytenr,
+and we will trip over the ASSERT(root).
 
-There is also refcount issue, as well:
-WARNING: CPU: 1 PID: 1 at lib/refcount.c:28 refcount_warn_saturate+0xf8/0x170
+Fix this by using the commit_root->start bytenr for indexing the commit
+root.  Then we change the __update_reloc_root() caller to be used when
+we switch the commit root for the reloc root during commit.
 
-The issue is that we make an erroneous extra call to scsi_host_put()
-for that host:
+This fixes the panic I was seeing when we started throttling relocation
+for delayed refs.
 
-So in ahci_init_one()->ata_host_alloc_pinfo()->ata_host_alloc(), we setup
-a device release method - ata_devres_release() - which intends to release
-the SCSI hosts:
-
-static void ata_devres_release(struct device *gendev, void *res)
-{
-	...
-	for (i = 0; i < host->n_ports; i++) {
-		struct ata_port *ap = host->ports[i];
-
-		if (!ap)
-			continue;
-
-		if (ap->scsi_host)
-			scsi_host_put(ap->scsi_host);
-
-	}
-	...
-}
-
-However in the ata_scsi_add_hosts() error path, we also call
-scsi_host_put() for the SCSI hosts.
-
-Fix by removing the the scsi_host_put() calls in ata_scsi_add_hosts() and
-leave this to ata_devres_release().
-
-Fixes: f31871951b38 ("libata: separate out ata_host_alloc() and ata_host_register()")
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-scsi.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ fs/btrfs/relocation.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
-index eb2eb599e6023..061eebf85e6d2 100644
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -4562,22 +4562,19 @@ int ata_scsi_add_hosts(struct ata_host *host, struct scsi_host_template *sht)
- 		 */
- 		shost->max_host_blocked = 1;
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index 963e70141e398..ddaefecaa7c42 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1298,7 +1298,7 @@ static int __must_check __add_reloc_root(struct btrfs_root *root)
+ 	if (!node)
+ 		return -ENOMEM;
  
--		rc = scsi_add_host_with_dma(ap->scsi_host,
--						&ap->tdev, ap->host->dev);
-+		rc = scsi_add_host_with_dma(shost, &ap->tdev, ap->host->dev);
- 		if (rc)
--			goto err_add;
-+			goto err_alloc;
+-	node->bytenr = root->node->start;
++	node->bytenr = root->commit_root->start;
+ 	node->data = root;
+ 
+ 	spin_lock(&rc->reloc_root_tree.lock);
+@@ -1329,10 +1329,11 @@ static void __del_reloc_root(struct btrfs_root *root)
+ 	if (rc && root->node) {
+ 		spin_lock(&rc->reloc_root_tree.lock);
+ 		rb_node = tree_search(&rc->reloc_root_tree.rb_root,
+-				      root->node->start);
++				      root->commit_root->start);
+ 		if (rb_node) {
+ 			node = rb_entry(rb_node, struct mapping_node, rb_node);
+ 			rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
++			RB_CLEAR_NODE(&node->rb_node);
+ 		}
+ 		spin_unlock(&rc->reloc_root_tree.lock);
+ 		if (!node)
+@@ -1350,7 +1351,7 @@ static void __del_reloc_root(struct btrfs_root *root)
+  * helper to update the 'address of tree root -> reloc tree'
+  * mapping
+  */
+-static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
++static int __update_reloc_root(struct btrfs_root *root)
+ {
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	struct rb_node *rb_node;
+@@ -1359,7 +1360,7 @@ static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
+ 
+ 	spin_lock(&rc->reloc_root_tree.lock);
+ 	rb_node = tree_search(&rc->reloc_root_tree.rb_root,
+-			      root->node->start);
++			      root->commit_root->start);
+ 	if (rb_node) {
+ 		node = rb_entry(rb_node, struct mapping_node, rb_node);
+ 		rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
+@@ -1371,7 +1372,7 @@ static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
+ 	BUG_ON((struct btrfs_root *)node->data != root);
+ 
+ 	spin_lock(&rc->reloc_root_tree.lock);
+-	node->bytenr = new_bytenr;
++	node->bytenr = root->node->start;
+ 	rb_node = tree_insert(&rc->reloc_root_tree.rb_root,
+ 			      node->bytenr, &node->rb_node);
+ 	spin_unlock(&rc->reloc_root_tree.lock);
+@@ -1529,6 +1530,7 @@ int btrfs_update_reloc_root(struct btrfs_trans_handle *trans,
  	}
  
- 	return 0;
+ 	if (reloc_root->commit_root != reloc_root->node) {
++		__update_reloc_root(reloc_root);
+ 		btrfs_set_root_node(root_item, reloc_root->node);
+ 		free_extent_buffer(reloc_root->commit_root);
+ 		reloc_root->commit_root = btrfs_root_node(reloc_root);
+@@ -4715,11 +4717,6 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
+ 	BUG_ON(rc->stage == UPDATE_DATA_PTRS &&
+ 	       root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID);
  
-- err_add:
--	scsi_host_put(host->ports[i]->scsi_host);
-  err_alloc:
- 	while (--i >= 0) {
- 		struct Scsi_Host *shost = host->ports[i]->scsi_host;
- 
-+		/* scsi_host_put() is in ata_devres_release() */
- 		scsi_remove_host(shost);
--		scsi_host_put(shost);
- 	}
- 	return rc;
- }
+-	if (root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID) {
+-		if (buf == root->node)
+-			__update_reloc_root(root, cow->start);
+-	}
+-
+ 	level = btrfs_header_level(buf);
+ 	if (btrfs_header_generation(buf) <=
+ 	    btrfs_root_last_snapshot(&root->root_item))
 -- 
 2.20.1
 
