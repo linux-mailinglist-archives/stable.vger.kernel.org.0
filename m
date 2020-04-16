@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 637251AC4A7
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:03:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6051AC48B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730467AbgDPOCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:02:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50042 "EHLO mail.kernel.org"
+        id S2392757AbgDPOBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:01:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441727AbgDPOCb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:02:31 -0400
+        id S2392753AbgDPOBR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C18E20732;
-        Thu, 16 Apr 2020 14:02:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3EA220786;
+        Thu, 16 Apr 2020 14:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045751;
-        bh=T7UqCQ4MmuEZ9jZMyvkZ7fXJdJnl0Slb6/yftBff6Ww=;
+        s=default; t=1587045677;
+        bh=NIfD1hK5pPn8ZzH1+MpzrsVPbWvO7PPVI91BpOhzswU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qmHvCaLvs577RAe4FlpEYk5h9vW5+v4kGDSiJBO8B0dJYFWtdOBHbb/nnz1ZyTz8e
-         pfE/jciYs2CSg1iXzzBD9sH53DQMYC9TRVF5EHS7nCe9RlgS6PSqngiDZucDa/uM44
-         mx4xKCh52u8/LlzqP/mX0SBG2UwdKA8iem8cY9ww=
+        b=ItxR51cSIIVj0kUQF8XZ4xTRTSE37IoZHdQsQjCcaTSUrzVszndAfXyfhJCsyVNOg
+         1b88j6cMRGVml9DMCqEsyk25dG+UNDMtQc5C4whcAVCuPBD1WjlSQqypl970GUYEw8
+         0iAmotmbmYQtCkrrv6O7Yhj/7oyfjb97Mc1Ya5Lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.6 224/254] Input: i8042 - add Acer Aspire 5738z to nomux list
-Date:   Thu, 16 Apr 2020 15:25:13 +0200
-Message-Id: <20200416131353.844691497@linuxfoundation.org>
+        stable@vger.kernel.org, Taeung Song <treeze.taeung@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.6 225/254] ftrace/kprobe: Show the maxactive number on kprobe_events
+Date:   Thu, 16 Apr 2020 15:25:14 +0200
+Message-Id: <20200416131353.946996077@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -43,52 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit ebc68cedec4aead47d8d11623d013cca9bf8e825 upstream.
+commit 6a13a0d7b4d1171ef9b80ad69abc37e1daa941b3 upstream.
 
-The Acer Aspire 5738z has a button to disable (and re-enable) the
-touchpad next to the touchpad.
+Show maxactive parameter on kprobe_events.
+This allows user to save the current configuration and
+restore it without losing maxactive parameter.
 
-When this button is pressed a LED underneath indicates that the touchpad
-is disabled (and an event is send to userspace and GNOME shows its
-touchpad enabled / disable OSD thingie).
+Link: http://lkml.kernel.org/r/4762764a-6df7-bc93-ed60-e336146dce1f@gmail.com
+Link: http://lkml.kernel.org/r/158503528846.22706.5549974121212526020.stgit@devnote2
 
-So far so good, but after re-enabling the touchpad it no longer works.
-
-The laptop does not have an external ps2 port, so mux mode is not needed
-and disabling mux mode fixes the touchpad no longer working after toggling
-it off and back on again, so lets add this laptop model to the nomux list.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200331123947.318908-1-hdegoede@redhat.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 696ced4fb1d76 ("tracing/kprobes: expose maxactive for kretprobe in kprobe_events")
+Reported-by: Taeung Song <treeze.taeung@gmail.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/i8042-x86ia64io.h |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ kernel/trace/trace_kprobe.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -530,6 +530,17 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo LaVie Z"),
- 		},
- 	},
-+	{
-+		/*
-+		 * Acer Aspire 5738z
-+		 * Touchpad stops working in mux mode when dis- + re-enabled
-+		 * with the touchpad enable/disable toggle hotkey
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
-+		},
-+	},
- 	{ }
- };
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -1078,6 +1078,8 @@ static int trace_kprobe_show(struct seq_
+ 	int i;
+ 
+ 	seq_putc(m, trace_kprobe_is_return(tk) ? 'r' : 'p');
++	if (trace_kprobe_is_return(tk) && tk->rp.maxactive)
++		seq_printf(m, "%d", tk->rp.maxactive);
+ 	seq_printf(m, ":%s/%s", trace_probe_group_name(&tk->tp),
+ 				trace_probe_name(&tk->tp));
  
 
 
