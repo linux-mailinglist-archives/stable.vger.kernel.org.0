@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBF01ACC69
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 18:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A896F1AC78A
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505412AbgDPP76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:59:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36522 "EHLO mail.kernel.org"
+        id S2408282AbgDPO4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:56:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895629AbgDPN1y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:27:54 -0400
+        id S1728217AbgDPN4F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:56:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 580B3217D8;
-        Thu, 16 Apr 2020 13:27:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD59721927;
+        Thu, 16 Apr 2020 13:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043673;
-        bh=1akvloWbQ/bvMO1MxO34ybSKm+WB1SiuOG+RT6rKoU8=;
+        s=default; t=1587045364;
+        bh=3kEk6/zVo3sJR35rT+QxemBP+agX3sfi360QU1ZUimQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HRHlOlTH/2ChvtbWsP8I5YVdR5KGmxPkltttr6BUrjqSqiG10eD5v2vlgzhbR8x4h
-         /YsBWoZU2CwNCEx8kKyZf++otfbGPVu44YmZFFseKS+QK1xS8kTyHAQobR8HvDTowW
-         NznmS5iPtdfBNwxQNqmyQa8e8QdBO621hKT3kHUE=
+        b=n0ysDbKiwbc8IiSqJjRzlXaN51jzIYX9xFILIX2ubMC9n/WhNXUs20nUm0QgpCC5q
+         fYdBuUim5rZ1zSThO0A/gnED8vEIcLrWCsZDDUksPm1GMWI24GYcjpqayQs/9qUQPc
+         Mw4icAckf2b4kAdAZHmV2msgCd2NFZQqasJly3vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 053/146] ALSA: ice1724: Fix invalid access for enumerated ctl items
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>
+Subject: [PATCH 5.6 105/254] sched/fair: Fix enqueue_task_fair warning
 Date:   Thu, 16 Apr 2020 15:23:14 +0200
-Message-Id: <20200416131250.155779061@linuxfoundation.org>
+Message-Id: <20200416131339.229926761@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-commit c47914c00be346bc5b48c48de7b0da5c2d1a296c upstream.
+commit fe61468b2cbc2b7ce5f8d3bf32ae5001d4c434e9 upstream.
 
-The access to Analog Capture Source control value implemented in
-prodigy_hifi.c is wrong, as caught by the recently introduced sanity
-check; it should be accessing value.enumerated.item[] instead of
-value.integer.value[].  This patch corrects the wrong access pattern.
+When a cfs rq is throttled, the latter and its child are removed from the
+leaf list but their nr_running is not changed which includes staying higher
+than 1. When a task is enqueued in this throttled branch, the cfs rqs must
+be added back in order to ensure correct ordering in the list but this can
+only happens if nr_running == 1.
+When cfs bandwidth is used, we call unconditionnaly list_add_leaf_cfs_rq()
+when enqueuing an entity to make sure that the complete branch will be
+added.
 
-Fixes: 6b8d6e5518e2 ("[ALSA] ICE1724: Added support for Audiotrak Prodigy 7.1 HiFi & HD2, Hercules Fortissimo IV")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200407084402.25589-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Similarly unthrottle_cfs_rq() can stop adding cfs in the list when a parent
+is throttled. Iterate the remaining entity to ensure that the complete
+branch will be added in the list.
+
+Reported-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org #v5.1+
+Link: https://lkml.kernel.org/r/20200306135257.25044-1-vincent.guittot@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/ice1712/prodigy_hifi.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c |   26 ++++++++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
 
---- a/sound/pci/ice1712/prodigy_hifi.c
-+++ b/sound/pci/ice1712/prodigy_hifi.c
-@@ -550,7 +550,7 @@ static int wm_adc_mux_enum_get(struct sn
- 	struct snd_ice1712 *ice = snd_kcontrol_chip(kcontrol);
- 
- 	mutex_lock(&ice->gpio_mutex);
--	ucontrol->value.integer.value[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
-+	ucontrol->value.enumerated.item[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
- 	mutex_unlock(&ice->gpio_mutex);
- 	return 0;
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3957,6 +3957,7 @@ static inline void check_schedstat_requi
+ #endif
  }
-@@ -564,7 +564,7 @@ static int wm_adc_mux_enum_put(struct sn
  
- 	mutex_lock(&ice->gpio_mutex);
- 	oval = wm_get(ice, WM_ADC_MUX);
--	nval = (oval & 0xe0) | ucontrol->value.integer.value[0];
-+	nval = (oval & 0xe0) | ucontrol->value.enumerated.item[0];
- 	if (nval != oval) {
- 		wm_put(ice, WM_ADC_MUX, nval);
- 		change = 1;
++static inline bool cfs_bandwidth_used(void);
+ 
+ /*
+  * MIGRATION
+@@ -4035,10 +4036,16 @@ enqueue_entity(struct cfs_rq *cfs_rq, st
+ 		__enqueue_entity(cfs_rq, se);
+ 	se->on_rq = 1;
+ 
+-	if (cfs_rq->nr_running == 1) {
++	/*
++	 * When bandwidth control is enabled, cfs might have been removed
++	 * because of a parent been throttled but cfs->nr_running > 1. Try to
++	 * add it unconditionnally.
++	 */
++	if (cfs_rq->nr_running == 1 || cfs_bandwidth_used())
+ 		list_add_leaf_cfs_rq(cfs_rq);
++
++	if (cfs_rq->nr_running == 1)
+ 		check_enqueue_throttle(cfs_rq);
+-	}
+ }
+ 
+ static void __clear_buddies_last(struct sched_entity *se)
+@@ -4619,11 +4626,22 @@ void unthrottle_cfs_rq(struct cfs_rq *cf
+ 			break;
+ 	}
+ 
+-	assert_list_leaf_cfs_rq(rq);
+-
+ 	if (!se)
+ 		add_nr_running(rq, task_delta);
+ 
++	/*
++	 * The cfs_rq_throttled() breaks in the above iteration can result in
++	 * incomplete leaf list maintenance, resulting in triggering the
++	 * assertion below.
++	 */
++	for_each_sched_entity(se) {
++		cfs_rq = cfs_rq_of(se);
++
++		list_add_leaf_cfs_rq(cfs_rq);
++	}
++
++	assert_list_leaf_cfs_rq(rq);
++
+ 	/* Determine whether we need to wake up potentially idle CPU: */
+ 	if (rq->curr == rq->idle && rq->cfs.nr_running)
+ 		resched_curr(rq);
 
 
