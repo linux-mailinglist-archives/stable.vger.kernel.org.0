@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1441AC49F
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA1941AC66F
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:40:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729129AbgDPOCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:02:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49800 "EHLO mail.kernel.org"
+        id S1732580AbgDPOjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:39:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409631AbgDPOCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:02:19 -0400
+        id S2405605AbgDPOCV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:02:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43E01217D8;
-        Thu, 16 Apr 2020 14:02:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEB882078B;
+        Thu, 16 Apr 2020 14:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045738;
-        bh=LoTfbwCSaBF2QyTddDg0v6TEKT+rRRwgXkOpkMtXQUQ=;
+        s=default; t=1587045741;
+        bh=SoVqO3bK3jHNnFnqoHbBV+IZFxZYUJeXCaLy+Ihncvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o5DGY79eq8A8W0PHLM2UWBPZHi7sd7EfK4H41UmdR7UYDhsSsDYXrDYxqeYO+Uisu
-         Id15GnGStknL8E6ouBF+EUtjx9sJvBKlt0Xm9bEJtglE3cno5vl4JFw3YL3UB3P6pq
-         GPaR2NGseYPrwe0gbeKFSuPzEmysJj7qorS3ig4g=
+        b=TJNfRKub5Hujh2S1Y3vDelb/d53f4SpKpZAaaiDckQvrIJcwoGhk2WNgtLQgVrsZe
+         5/4WZnyU2+J7uuUZrD0fn0xehEivourie+fMMrA4Tx+/yV8Sk9K72JVGArYQv40LrI
+         e9XnGksTnVp5QVPgxMZTxur6Wsu2KdB3X7pkJw3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 229/254] cpufreq: powernv: Fix use-after-free
-Date:   Thu, 16 Apr 2020 15:25:18 +0200
-Message-Id: <20200416131354.328403598@linuxfoundation.org>
+        stable@vger.kernel.org, Simon Gander <simon@tuxera.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.6 230/254] hfsplus: fix crash and filesystem corruption when deleting files
+Date:   Thu, 16 Apr 2020 15:25:19 +0200
+Message-Id: <20200416131354.420861781@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -44,46 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Simon Gander <simon@tuxera.com>
 
-commit d0a72efac89d1c35ac55197895201b7b94c5e6ef upstream.
+commit 25efb2ffdf991177e740b2f63e92b4ec7d310a92 upstream.
 
-The cpufreq driver has a use-after-free that we can hit if:
+When removing files containing extended attributes, the hfsplus driver may
+remove the wrong entries from the attributes b-tree, causing major
+filesystem damage and in some cases even kernel crashes.
 
-a) There's an OCC message pending when the notifier is registered, and
-b) The cpufreq driver fails to register with the core.
+To remove a file, all its extended attributes have to be removed as well.
+The driver does this by looking up all keys in the attributes b-tree with
+the cnid of the file.  Each of these entries then gets deleted using the
+key used for searching, which doesn't contain the attribute's name when it
+should.  Since the key doesn't contain the name, the deletion routine will
+not find the correct entry and instead remove the one in front of it.  If
+parent nodes have to be modified, these become corrupt as well.  This
+causes invalid links and unsorted entries that not even macOS's fsck_hfs
+is able to fix.
 
-When a) occurs the notifier schedules a workqueue item to handle the
-message. The backing work_struct is located on chips[].throttle and
-when b) happens we clean up by freeing the array. Once we get to
-the (now free) queued item and the kernel crashes.
+To fix this, modify the search key before an entry is deleted from the
+attributes b-tree by copying the found entry's key into the search key,
+therefore ensuring that the correct entry gets removed from the tree.
 
-Fixes: c5e29ea7ac14 ("cpufreq: powernv: Fix bugs in powernv_cpufreq_{init/exit}")
-Cc: stable@vger.kernel.org # v4.6+
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200206062622.28235-1-oohall@gmail.com
+Signed-off-by: Simon Gander <simon@tuxera.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200327155541.1521-1-simon@tuxera.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/powernv-cpufreq.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/hfsplus/attributes.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/cpufreq/powernv-cpufreq.c
-+++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -1080,6 +1080,12 @@ free_and_return:
+--- a/fs/hfsplus/attributes.c
++++ b/fs/hfsplus/attributes.c
+@@ -292,6 +292,10 @@ static int __hfsplus_delete_attr(struct
+ 		return -ENOENT;
+ 	}
  
- static inline void clean_chip_info(void)
- {
-+	int i;
++	/* Avoid btree corruption */
++	hfs_bnode_read(fd->bnode, fd->search_key,
++			fd->keyoffset, fd->keylength);
 +
-+	/* flush any pending work items */
-+	if (chips)
-+		for (i = 0; i < nr_chips; i++)
-+			cancel_work_sync(&chips[i].throttle);
- 	kfree(chips);
- }
- 
+ 	err = hfs_brec_remove(fd);
+ 	if (err)
+ 		return err;
 
 
