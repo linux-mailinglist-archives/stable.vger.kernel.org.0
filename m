@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B093C1AC764
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B9721AC93D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391190AbgDPOyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:54:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43782 "EHLO mail.kernel.org"
+        id S2408766AbgDPPUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:20:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409205AbgDPN4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:56:48 -0400
+        id S2898643AbgDPNrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:47:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40E6821927;
-        Thu, 16 Apr 2020 13:56:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9024A21744;
+        Thu, 16 Apr 2020 13:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045405;
-        bh=09i/G7vgg7ev+ycjxbWmSImW9u6UHZ0WjClF6ojJ5Bk=;
+        s=default; t=1587044826;
+        bh=57XLkEo9IUFW0ke8/XfWMYUe3XW5lyxCAG3v48t6+k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MDZAWBZAOvTmS719BljEkoPGYdxvwp6N0CPvAz6WempmEtfqkA+8z98EOW5sof6/t
-         OjwJ/nZ4YzQJNhhfkXTdVMN8fdd2fPbT9sh/txLrVWPJ9nhnsgguKNvzd0FmOe7AOd
-         VwV0hzrJDcW3pD3qOoSNL7V1HEqXwE81UDZBzPSU=
+        b=yU6WRZ6FKZCVPhAb4QdaAlsZ7J+3hfL2dNChN8UEoiP7gsrz8t0JnlyyAHo67D6m1
+         pX5SK+q6k764oCkWKnBiZTELGbsaLYxF470gQEdDUMBen61ZqYHHSjXs2zWUnC0kJH
+         7clYV/JoKrp3p90shJ7ui7vGW2YowISF9Ruo3lUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sudeep Holla <sudeep.holla@arm.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.6 121/254] PM / Domains: Allow no domain-idle-states DT property in genpd when parsing
+Subject: [PATCH 5.4 116/232] PM / Domains: Allow no domain-idle-states DT property in genpd when parsing
 Date:   Thu, 16 Apr 2020 15:23:30 +0200
-Message-Id: <20200416131341.461369727@linuxfoundation.org>
+Message-Id: <20200416131329.628923588@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -73,7 +73,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/base/power/domain.c
 +++ b/drivers/base/power/domain.c
-@@ -2653,7 +2653,7 @@ static int genpd_iterate_idle_states(str
+@@ -2615,7 +2615,7 @@ static int genpd_iterate_idle_states(str
  
  	ret = of_count_phandle_with_args(dn, "domain-idle-states", NULL);
  	if (ret <= 0)
