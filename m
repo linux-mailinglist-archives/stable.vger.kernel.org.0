@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDEE1AC32C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FC41AC91B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:19:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896831AbgDPNjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:39:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51666 "EHLO mail.kernel.org"
+        id S2438033AbgDPPTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:19:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897931AbgDPNjS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:39:18 -0400
+        id S2392304AbgDPNsG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:48:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2AC421BE5;
-        Thu, 16 Apr 2020 13:39:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 417E2208E4;
+        Thu, 16 Apr 2020 13:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044358;
-        bh=rYEbbTZpOvYM3lyWTrWeTlys/rHzSaPGXH+mvSyaYi8=;
+        s=default; t=1587044884;
+        bh=0CSh/3iuY/hLOBpsWWHw2RMNg5o9HoNcm5Ux17DNj/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRp9yvR+QbyQqA4XsLuEB8LdG4Hy47ey6TpbT9sGh/G7tYqQ+z0O0aaOkpbdD3mms
-         a56qJd2Ng/qDPn60rPOxn1PR3VPSDZlghzSu8+9ceGPQ2DBMsWcxnfz1hdLF6k9+K3
-         CYz5+XwN9r1sxK4kfNxaEe3VXdplCqqQaAL/T4D4=
+        b=FIn3utZs4QmF1v7FLH6Iv6X5UQf7TZvOpGAYsfNGeXC72fdRRIeQ7Yg9vbPfFpSLR
+         LP2S5zkjRt2x4ooWnj3FekNbuBpJeWZpQSKvc2oaB/J+5sJjSmxw6g33oUcIfU3xA6
+         FCcBT42juApaTTtTt+UOfDWMshtCKvNdyJ8hbjSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.5 185/257] dm clone: Add overflow check for number of regions
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 142/232] btrfs: fix missing file extent item for hole after ranged fsync
 Date:   Thu, 16 Apr 2020 15:23:56 +0200
-Message-Id: <20200416131349.450708706@linuxfoundation.org>
+Message-Id: <20200416131332.736666825@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit cd481c12269b4d276f1a52eda0ebd419079bfe3a upstream.
+commit 95418ed1d10774cd9a49af6f39e216c1256f1eeb upstream.
 
-Add overflow check for clone->nr_regions variable, which holds the
-number of regions of the target.
+When doing a fast fsync for a range that starts at an offset greater than
+zero, we can end up with a log that when replayed causes the respective
+inode miss a file extent item representing a hole if we are not using the
+NO_HOLES feature. This is because for fast fsyncs we don't log any extents
+that cover a range different from the one requested in the fsync.
 
-The overflow can occur with sufficiently large devices, if BITS_PER_LONG
-== 32. E.g., if the region size is 8 sectors (4K), the overflow would
-occur for device sizes > 34359738360 sectors (~16TB).
+Example scenario to trigger it:
 
-This could result in multiple device sectors wrongly mapping to the same
-region number, due to the truncation from 64 bits to 32 bits, which
-would lead to data corruption.
+  $ mkfs.btrfs -O ^no-holes -f /dev/sdd
+  $ mount /dev/sdd /mnt
 
-Fixes: 7431b7835f55 ("dm: add clone target")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+  # Create a file with a single 256K and fsync it to clear to full sync
+  # bit in the inode - we want the msync below to trigger a fast fsync.
+  $ xfs_io -f -c "pwrite -S 0xab 0 256K" -c "fsync" /mnt/foo
+
+  # Force a transaction commit and wipe out the log tree.
+  $ sync
+
+  # Dirty 768K of data, increasing the file size to 1Mb, and flush only
+  # the range from 256K to 512K without updating the log tree
+  # (sync_file_range() does not trigger fsync, it only starts writeback
+  # and waits for it to finish).
+
+  $ xfs_io -c "pwrite -S 0xcd 256K 768K" /mnt/foo
+  $ xfs_io -c "sync_range -abw 256K 256K" /mnt/foo
+
+  # Now dirty the range from 768K to 1M again and sync that range.
+  $ xfs_io -c "mmap -w 768K 256K"        \
+           -c "mwrite -S 0xef 768K 256K" \
+           -c "msync -s 768K 256K"       \
+           -c "munmap"                   \
+           /mnt/foo
+
+  <power fail>
+
+  # Mount to replay the log.
+  $ mount /dev/sdd /mnt
+  $ umount /mnt
+
+  $ btrfs check /dev/sdd
+  Opening filesystem to check...
+  Checking filesystem on /dev/sdd
+  UUID: 482fb574-b288-478e-a190-a9c44a78fca6
+  [1/7] checking root items
+  [2/7] checking extents
+  [3/7] checking free space cache
+  [4/7] checking fs roots
+  root 5 inode 257 errors 100, file extent discount
+  Found file extent holes:
+       start: 262144, len: 524288
+  ERROR: errors found in fs roots
+  found 720896 bytes used, error(s) found
+  total csum bytes: 512
+  total tree bytes: 131072
+  total fs tree bytes: 32768
+  total extent tree bytes: 16384
+  btree space waste bytes: 123514
+  file data blocks allocated: 589824
+    referenced 589824
+
+Fix this issue by setting the range to full (0 to LLONG_MAX) when the
+NO_HOLES feature is not enabled. This results in extra work being done
+but it gives the guarantee we don't end up with missing holes after
+replaying the log.
+
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-clone-target.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/btrfs/file.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/md/dm-clone-target.c
-+++ b/drivers/md/dm-clone-target.c
-@@ -1790,6 +1790,7 @@ error:
- static int clone_ctr(struct dm_target *ti, unsigned int argc, char **argv)
- {
- 	int r;
-+	sector_t nr_regions;
- 	struct clone *clone;
- 	struct dm_arg_set as;
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2074,6 +2074,16 @@ int btrfs_sync_file(struct file *file, l
+ 	btrfs_init_log_ctx(&ctx, inode);
  
-@@ -1831,7 +1832,16 @@ static int clone_ctr(struct dm_target *t
- 		goto out_with_source_dev;
- 
- 	clone->region_shift = __ffs(clone->region_size);
--	clone->nr_regions = dm_sector_div_up(ti->len, clone->region_size);
-+	nr_regions = dm_sector_div_up(ti->len, clone->region_size);
-+
-+	/* Check for overflow */
-+	if (nr_regions != (unsigned long)nr_regions) {
-+		ti->error = "Too many regions. Consider increasing the region size";
-+		r = -EOVERFLOW;
-+		goto out_with_source_dev;
+ 	/*
++	 * Set the range to full if the NO_HOLES feature is not enabled.
++	 * This is to avoid missing file extent items representing holes after
++	 * replaying the log.
++	 */
++	if (!btrfs_fs_incompat(fs_info, NO_HOLES)) {
++		start = 0;
++		end = LLONG_MAX;
 +	}
 +
-+	clone->nr_regions = nr_regions;
- 
- 	r = validate_nr_regions(clone->nr_regions, &ti->error);
- 	if (r)
++	/*
+ 	 * We write the dirty pages in the range and wait until they complete
+ 	 * out of the ->i_mutex. If so, we can flush the dirty pages by
+ 	 * multi-task, and make the performance up.  See
 
 
