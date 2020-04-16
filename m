@@ -2,78 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD6F1AC21C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:12:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B871AC21F
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:14:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2894840AbgDPNMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:12:41 -0400
-Received: from mga06.intel.com ([134.134.136.31]:1040 "EHLO mga06.intel.com"
+        id S2894963AbgDPNOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:14:03 -0400
+Received: from mga14.intel.com ([192.55.52.115]:27289 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2894763AbgDPNMj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:12:39 -0400
-IronPort-SDR: 5Zfvf1wSn4KCJETYIKw+gY027jL/gqKXOyikMsRIKLUrlWIh24TiHIXq01dj0pOr6i3qo/lkUm
- 6cFVkD+bfB7Q==
+        id S2894939AbgDPNOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:14:02 -0400
+IronPort-SDR: CcmgXTLjx0NJ1DluPc8qvyzD++5ZOQo8ZhR4P5O+DATiRMyqdPHLkv/SUgOhVYm5BdJYBNgA/I
+ /PwBQCvCF3Kw==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2020 06:12:37 -0700
-IronPort-SDR: gTHXxefBpEEtZe5hcneQRTrzUQKqy9+Fv6lTlydRCvnKMAzxg5D2QjzIJucEOdvEQ3tIK44PAQ
- blsX1bKnaX2Q==
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2020 06:13:42 -0700
+IronPort-SDR: WvI81BDYmtxqUsTDFRbJ7tWkzpztLdDLQPZXYSdcA4+j62BciXmPy3JbTTpOaVrSVcm/25Ai/b
+ yJajpsV9fqOg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.72,391,1580803200"; 
-   d="scan'208";a="277023127"
+   d="scan'208";a="332834202"
 Received: from otazetdi-mobl.ccr.corp.intel.com (HELO localhost) ([10.249.42.128])
-  by orsmga008.jf.intel.com with ESMTP; 16 Apr 2020 06:12:35 -0700
-Date:   Thu, 16 Apr 2020 16:12:34 +0300
+  by orsmga001.jf.intel.com with ESMTP; 16 Apr 2020 06:13:39 -0700
+Date:   Thu, 16 Apr 2020 16:13:39 +0300
 From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     shuah <shuah@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Nikita Sobolev <Nikita.Sobolev@synopsys.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.5 04/66] Kernel selftests: tpm2: check for tpm
- support
-Message-ID: <20200416131234.GA65786@linux.intel.com>
-References: <20200303024615.8889-1-sashal@kernel.org>
- <20200303024615.8889-4-sashal@kernel.org>
- <8954e808-6dd9-dd71-e2d7-7dc90c9d66b3@kernel.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     linux-integrity@vger.kernel.org, stable@vger.kernel.org,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tpm/tpm_tis: Free IRQ if probing fails
+Message-ID: <20200416131339.GB65786@linux.intel.com>
+References: <20200412170412.324200-1-jarkko.sakkinen@linux.intel.com>
+ <b909aaee-3fff-4dca-40f4-4c5348474426@redhat.com>
+ <20200413180732.GA11147@linux.intel.com>
+ <7df7f8bd-c65e-1435-7e82-b9f4ecd729de@redhat.com>
+ <20200414071349.GA8403@linux.intel.com>
+ <d6684575-ce91-fe72-6035-11834a05cd54@redhat.com>
+ <20200414160404.GA32775@linux.intel.com>
+ <20200414164542.GC32775@linux.intel.com>
+ <df580835-f887-1918-c933-6509e5a1ad47@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8954e808-6dd9-dd71-e2d7-7dc90c9d66b3@kernel.org>
+In-Reply-To: <df580835-f887-1918-c933-6509e5a1ad47@redhat.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 10:04:40AM -0600, shuah wrote:
-> On 3/2/20 7:45 PM, Sasha Levin wrote:
-> > From: Nikita Sobolev <Nikita.Sobolev@synopsys.com>
-> > 
-> > [ Upstream commit b32694cd0724d4ceca2c62cc7c3d3a8d1ffa11fc ]
-> > 
-> > tpm2 tests set fails if there is no /dev/tpm0 and /dev/tpmrm0
-> > supported. Check if these files exist before run and mark test as
-> > skipped in case of absence.
-> > 
-> > Signed-off-by: Nikita Sobolev <Nikita.Sobolev@synopsys.com>
-> > Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >   tools/testing/selftests/tpm2/test_smoke.sh | 13 +++++++++++--
-> >   tools/testing/selftests/tpm2/test_space.sh |  9 ++++++++-
-> >   2 files changed, 19 insertions(+), 3 deletions(-)
-> > 
+On Tue, Apr 14, 2020 at 07:15:08PM +0200, Hans de Goede wrote:
+> Sounds good, I guess it would be best to combine that with a:
 > 
-> Let's drop this unless it already made it into stables.
-> Jarkko Sakkinen found regressions and send in a revert
-> for this patch.
+> 	if (priv->irq == 0)
+> 		return;
 > 
-> thanks,
-> -- Shuah
+> At the top of disable_interrupts() and then unconditionally
+> call disable_interrupts() where your v1 of this patch
+> calls devm_free_irq(). That would be a reasonable clean
+> solution I think.
 
-Thanks, can ack this.
+Great, this was my plan (just wanted to double check).
 
 /Jarkko
