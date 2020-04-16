@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA051AC484
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:01:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FF5A1AC2AD
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392713AbgDPOA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48102 "EHLO mail.kernel.org"
+        id S2896455AbgDPNbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:31:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392697AbgDPOAz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:55 -0400
+        id S2895689AbgDPNbJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:31:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 744D12078B;
-        Thu, 16 Apr 2020 14:00:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C7AD206E9;
+        Thu, 16 Apr 2020 13:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045654;
-        bh=W67J4mpFhxI5aIfA8+lYU7Gbb6BRpGz4wwe69mq9YR8=;
+        s=default; t=1587043868;
+        bh=TXs3qwE5jEHDvYHjS+NsTK60WeKWJIE3L2FeLO7Ld/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IRYvXvweRxm7CqBVigwoc6meNAzTBT8YwPdPuOmv7oKFoSP2mOhbb63bxSPE9CkQs
-         IfTouPlUl0zVjOYUHxri6WgClpCzLMb1CDTtcE3nC5CdhQJNpk3oxqNsXVaC9aRf3M
-         ARQ3KpUx2D0DY8zh9kC7XHovAbX9FeGtUYq666Nc=
+        b=Ytjcj4XVUNMmHV1jcKIHVI1Uf2OyjtWpUeB3h/X8WHV7Boi9KvfLY2P9je9LJPXrM
+         c2MK6/mvXYHQ05o5xK/F603NQZw7zRXcbRV9JqQc9gLQuuyxwSECcdbiXHAXaVjY8O
+         V6piz+8XLI0EcHki9yIyPoMnTcO6Emx3lr1aACeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.6 186/254] crypto: ccree - only try to map auth tag if needed
+        stable@vger.kernel.org, Andrei Botila <andrei.botila@nxp.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 134/146] crypto: caam - update xts sector size for large input length
 Date:   Thu, 16 Apr 2020 15:24:35 +0200
-Message-Id: <20200416131349.608563665@linuxfoundation.org>
+Message-Id: <20200416131300.768691225@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Andrei Botila <andrei.botila@nxp.com>
 
-commit 504e84abec7a635b861afd8d7f92ecd13eaa2b09 upstream.
+[ Upstream commit 3f142b6a7b573bde6cff926f246da05652c61eb4 ]
 
-Make sure to only add the size of the auth tag to the source mapping
-for encryption if it is an in-place operation. Failing to do this
-previously caused us to try and map auth size len bytes from a NULL
-mapping and crashing if both the cryptlen and assoclen are zero.
+Since in the software implementation of XTS-AES there is
+no notion of sector every input length is processed the same way.
+CAAM implementation has the notion of sector which causes different
+results between the software implementation and the one in CAAM
+for input lengths bigger than 512 bytes.
+Increase sector size to maximum value on 16 bits.
 
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
+Fixes: c6415a6016bf ("crypto: caam - add support for acipher xts(aes)")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_buffer_mgr.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/crypto/caam/caamalg_desc.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/ccree/cc_buffer_mgr.c
-+++ b/drivers/crypto/ccree/cc_buffer_mgr.c
-@@ -1109,9 +1109,11 @@ int cc_map_aead_request(struct cc_drvdat
- 	}
+diff --git a/drivers/crypto/caam/caamalg_desc.c b/drivers/crypto/caam/caamalg_desc.c
+index edacf9b39b638..ceb033930535f 100644
+--- a/drivers/crypto/caam/caamalg_desc.c
++++ b/drivers/crypto/caam/caamalg_desc.c
+@@ -1457,7 +1457,13 @@ EXPORT_SYMBOL(cnstr_shdsc_ablkcipher_givencap);
+  */
+ void cnstr_shdsc_xts_ablkcipher_encap(u32 * const desc, struct alginfo *cdata)
+ {
+-	__be64 sector_size = cpu_to_be64(512);
++	/*
++	 * Set sector size to a big value, practically disabling
++	 * sector size segmentation in xts implementation. We cannot
++	 * take full advantage of this HW feature with existing
++	 * crypto API / dm-crypt SW architecture.
++	 */
++	__be64 sector_size = cpu_to_be64(BIT(15));
+ 	u32 *key_jump_cmd;
  
- 	size_to_map = req->cryptlen + areq_ctx->assoclen;
--	if (areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT)
-+	/* If we do in-place encryption, we also need the auth tag */
-+	if ((areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT) &&
-+	   (req->src == req->dst)) {
- 		size_to_map += authsize;
--
-+	}
- 	if (is_gcm4543)
- 		size_to_map += crypto_aead_ivsize(tfm);
- 	rc = cc_map_sg(dev, req->src, size_to_map, DMA_BIDIRECTIONAL,
+ 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
+@@ -1509,7 +1515,13 @@ EXPORT_SYMBOL(cnstr_shdsc_xts_ablkcipher_encap);
+  */
+ void cnstr_shdsc_xts_ablkcipher_decap(u32 * const desc, struct alginfo *cdata)
+ {
+-	__be64 sector_size = cpu_to_be64(512);
++	/*
++	 * Set sector size to a big value, practically disabling
++	 * sector size segmentation in xts implementation. We cannot
++	 * take full advantage of this HW feature with existing
++	 * crypto API / dm-crypt SW architecture.
++	 */
++	__be64 sector_size = cpu_to_be64(BIT(15));
+ 	u32 *key_jump_cmd;
+ 
+ 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
+-- 
+2.20.1
+
 
 
