@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0D01AC2FA
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF9CD1AC9C8
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:27:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897272AbgDPNgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48066 "EHLO mail.kernel.org"
+        id S2502562AbgDPPZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:25:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896279AbgDPNf7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:35:59 -0400
+        id S1731456AbgDPNoo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:44:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13E67208E4;
-        Thu, 16 Apr 2020 13:35:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CA0C20732;
+        Thu, 16 Apr 2020 13:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044158;
-        bh=7optjhFEa+3PEcCmGs68rGHltQp375AoRvT4kjo1PUQ=;
+        s=default; t=1587044683;
+        bh=EkOBFVCYfHMSHV79LZ+glFm4WQ53lVX1OwA+34TvyF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wUIBeUp3VK31/GTUNauamZET+MILtLuolDb2L1YGNOrb6JrlI1lz5QMBEQjSdu7ok
-         duYSArIST9U7GrwRx7DnbpTgMtbWYi357hV/8DaxV+bKLnOOa27XJ2eLcMzBwL52bz
-         2U6CZ79C64J1haPhygPi4DO2lbk24PZxcncRL3B0=
+        b=ITe8tmpXsRSLonWi8KLGRDTH1I8bvuZ0OWgj2g74lSMCT650f99fkBb/68+hMG0en
+         JzwJTZBWdtB0dYaS6+rdc6s5sA3OcOwZABHNHToHEWIKJ9SYR/JLE9l2HNhFVNo92z
+         k+NXaF7KqpdYJQYkwNNFaH2L4Ixr8HGVj5EWVwsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.5 103/257] media: ti-vpe: cal: fix a kernel oops when unloading module
+        stable@vger.kernel.org,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 060/232] md: check arrays is suspended in mddev_detach before call quiesce operations
 Date:   Thu, 16 Apr 2020 15:22:34 +0200
-Message-Id: <20200416131339.006439948@linuxfoundation.org>
+Message-Id: <20200416131322.988212325@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoit Parrot <bparrot@ti.com>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-commit 80264809ea0a3fd2ee8251f31a9eb85d2c3fc77e upstream.
+[ Upstream commit 6b40bec3b13278d21fa6c1ae7a0bdf2e550eed5f ]
 
-After the switch to use v4l2_async_notifier_add_subdev() and
-v4l2_async_notifier_cleanup(), unloading the ti_cal module would cause a
-kernel oops.
+Don't call quiesce(1) and quiesce(0) if array is already suspended,
+otherwise in level_store, the array is writable after mddev_detach
+in below part though the intention is to make array writable after
+resume.
 
-This was root cause to the fact that v4l2_async_notifier_cleanup() tries
-to kfree the asd pointer passed into v4l2_async_notifier_add_subdev().
+	mddev_suspend(mddev);
+	mddev_detach(mddev);
+	...
+	mddev_resume(mddev);
 
-In our case the asd reference was from a statically allocated struct.
-So in effect v4l2_async_notifier_cleanup() was trying to free a pointer
-that was not kalloc.
+And it also causes calltrace as follows in [1].
 
-So here we switch to using a kzalloc struct instead of a static one.
-To achieve this we re-order some of the calls to prevent asd allocation
-from leaking.
+[48005.653834] WARNING: CPU: 1 PID: 45380 at kernel/kthread.c:510 kthread_park+0x77/0x90
+[...]
+[48005.653976] CPU: 1 PID: 45380 Comm: mdadm Tainted: G           OE     5.4.10-arch1-1 #1
+[48005.653979] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./J4105-ITX, BIOS P1.40 08/06/2018
+[48005.653984] RIP: 0010:kthread_park+0x77/0x90
+[48005.654015] Call Trace:
+[48005.654039]  r5l_quiesce+0x3c/0x70 [raid456]
+[48005.654052]  raid5_quiesce+0x228/0x2e0 [raid456]
+[48005.654073]  mddev_detach+0x30/0x70 [md_mod]
+[48005.654090]  level_store+0x202/0x670 [md_mod]
+[48005.654099]  ? security_capable+0x40/0x60
+[48005.654114]  md_attr_store+0x7b/0xc0 [md_mod]
+[48005.654123]  kernfs_fop_write+0xce/0x1b0
+[48005.654132]  vfs_write+0xb6/0x1a0
+[48005.654138]  ksys_write+0x67/0xe0
+[48005.654146]  do_syscall_64+0x4e/0x140
+[48005.654155]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[48005.654161] RIP: 0033:0x7fa0c8737497
 
-Fixes: d079f94c9046 ("media: platform: Switch to v4l2_async_notifier_add_subdev")
-Cc: stable@vger.kernel.org
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1]: https://bugzilla.kernel.org/show_bug.cgi?id=206161
 
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/cal.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/md/md.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -266,8 +266,6 @@ struct cal_ctx {
- 	struct v4l2_subdev	*sensor;
- 	struct v4l2_fwnode_endpoint	endpoint;
- 
--	struct v4l2_async_subdev asd;
--
- 	struct v4l2_fh		fh;
- 	struct cal_dev		*dev;
- 	struct cc_data		*cc;
-@@ -1648,7 +1646,6 @@ static int of_cal_create_instance(struct
- 
- 	parent = pdev->dev.of_node;
- 
--	asd = &ctx->asd;
- 	endpoint = &ctx->endpoint;
- 
- 	ep_node = NULL;
-@@ -1695,8 +1692,6 @@ static int of_cal_create_instance(struct
- 		ctx_dbg(3, ctx, "can't get remote parent\n");
- 		goto cleanup_exit;
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 4e7c9f398bc66..6b69a12ca2d80 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -6040,7 +6040,7 @@ EXPORT_SYMBOL_GPL(md_stop_writes);
+ static void mddev_detach(struct mddev *mddev)
+ {
+ 	md_bitmap_wait_behind_writes(mddev);
+-	if (mddev->pers && mddev->pers->quiesce) {
++	if (mddev->pers && mddev->pers->quiesce && !mddev->suspended) {
+ 		mddev->pers->quiesce(mddev, 1);
+ 		mddev->pers->quiesce(mddev, 0);
  	}
--	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
--	asd->match.fwnode = of_fwnode_handle(sensor_node);
- 
- 	v4l2_fwnode_endpoint_parse(of_fwnode_handle(ep_node), endpoint);
- 
-@@ -1726,9 +1721,17 @@ static int of_cal_create_instance(struct
- 
- 	v4l2_async_notifier_init(&ctx->notifier);
- 
-+	asd = kzalloc(sizeof(*asd), GFP_KERNEL);
-+	if (!asd)
-+		goto cleanup_exit;
-+
-+	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
-+	asd->match.fwnode = of_fwnode_handle(sensor_node);
-+
- 	ret = v4l2_async_notifier_add_subdev(&ctx->notifier, asd);
- 	if (ret) {
- 		ctx_err(ctx, "Error adding asd\n");
-+		kfree(asd);
- 		goto cleanup_exit;
- 	}
- 
+-- 
+2.20.1
+
 
 
