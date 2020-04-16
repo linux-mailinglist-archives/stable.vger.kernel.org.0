@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8D91AC24E
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:27:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 929B51AC424
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:55:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895330AbgDPN05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:26:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34982 "EHLO mail.kernel.org"
+        id S2409087AbgDPNzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:55:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895298AbgDPN0p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:26:45 -0400
+        id S2409081AbgDPNy6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:54:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EA1E21D79;
-        Thu, 16 Apr 2020 13:26:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82B5320732;
+        Thu, 16 Apr 2020 13:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043605;
-        bh=LfWkDjywQCoxUu+49IHyA0f/oOATnPdQz1zBNlFyEoo=;
+        s=default; t=1587045298;
+        bh=UqFZh/1eEoluZP1qvKMPPJGO87tS/2gzODxY+9ZVkYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yeQ4mO+bOzJ20uWvvR/kbe22OApVKy5pFbPetK5W7gTbTqbQHqYuTDtp/nTBpeAj
-         OHJx/bskFCSubWmCHH+N5b5K4mtmNZ49fO2RUSfOAOvgKMOaW/2I6u88hHw0iH2ul5
-         u7ahPfVrbWXuGzviPUMpX477YGBhwCgiR6nK4mH4=
+        b=Mixw5EFX79Cit44w4n2Z1CafOBaFLV7YmSR22z8QD0pKlb8Sx1lkiGBkzo8BOUzx5
+         zDRLnHMJpsLOHMPAmuYcIw12+sv/r/9Ch05vwAPflMAKmeMRYmoM8byC+iPJ7rPl40
+         OiizfYUzkMSe71ZY7Xd7wlkamxRjEdr9Ra78FkTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chenqiwu <chenqiwu@xiaomi.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 025/146] pstore/platform: fix potential mem leak if pstore_init_fs failed
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 077/254] ALSA: hda/realtek: Enable mute LED on an HP system
 Date:   Thu, 16 Apr 2020 15:22:46 +0200
-Message-Id: <20200416131245.888112119@linuxfoundation.org>
+Message-Id: <20200416131335.532388407@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chenqiwu <chenqiwu@xiaomi.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 8a57d6d4ddfa41c49014e20493152c41a38fcbf8 ]
+commit f5a88b0accc24c4a9021247d7a3124f90aa4c586 upstream.
 
-There is a potential mem leak when pstore_init_fs failed,
-since the pstore compression maybe unlikey to initialized
-successfully. We must clean up the allocation once this
-unlikey issue happens.
+The system in question uses ALC285, and it uses GPIO 0x04 to control its
+mute LED.
 
-Signed-off-by: chenqiwu <chenqiwu@xiaomi.com>
-Link: https://lore.kernel.org/r/1581068800-13817-1-git-send-email-qiwuchen55@gmail.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The mic mute LED can be controlled by GPIO 0x01, however the system uses
+DMIC so we should use that to control mic mute LED.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200327044626.29582-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/pstore/platform.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/fs/pstore/platform.c b/fs/pstore/platform.c
-index 4bae3f4fe829d..dcd9c3163587c 100644
---- a/fs/pstore/platform.c
-+++ b/fs/pstore/platform.c
-@@ -802,9 +802,9 @@ static int __init pstore_init(void)
- 
- 	ret = pstore_init_fs();
- 	if (ret)
--		return ret;
-+		free_buf_for_compression();
- 
--	return 0;
-+	return ret;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4008,6 +4008,12 @@ static void alc269_fixup_hp_gpio_led(str
+ 	alc_fixup_hp_gpio_led(codec, action, 0x08, 0x10);
  }
- late_initcall(pstore_init);
  
--- 
-2.20.1
-
++static void alc285_fixup_hp_gpio_led(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	alc_fixup_hp_gpio_led(codec, action, 0x04, 0x00);
++}
++
+ static void alc286_fixup_hp_gpio_led(struct hda_codec *codec,
+ 				const struct hda_fixup *fix, int action)
+ {
+@@ -5923,6 +5929,7 @@ enum {
+ 	ALC294_FIXUP_ASUS_DUAL_SPK,
+ 	ALC285_FIXUP_THINKPAD_HEADSET_JACK,
+ 	ALC294_FIXUP_ASUS_HPE,
++	ALC285_FIXUP_HP_GPIO_LED,
+ };
+ 
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7061,6 +7068,10 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC294_FIXUP_ASUS_HEADSET_MIC
+ 	},
++	[ALC285_FIXUP_HP_GPIO_LED] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_hp_gpio_led,
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7208,6 +7219,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
++	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+ 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
 
 
