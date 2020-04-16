@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FFB61AC26D
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A3E1AC319
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895696AbgDPN2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:28:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36954 "EHLO mail.kernel.org"
+        id S2897594AbgDPNhz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:37:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895679AbgDPN2I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:28:08 -0400
+        id S2897548AbgDPNhw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:37:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE569206E9;
-        Thu, 16 Apr 2020 13:28:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 104FA20732;
+        Thu, 16 Apr 2020 13:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043688;
-        bh=klwZoOuNPCfhdbzMWgDKw96yntXOh3QGWA0AoC+8d5A=;
+        s=default; t=1587044271;
+        bh=Mnur4y7Z3DG/U51267RRZUuGvk/ACYGL1HqBmKdp/bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yE+XBKdY33HKOL0zTj/dtdIR3Oi9mfEhExQ3k37ISuodpO0HdM7fn3vdL/c6OIftf
-         9s3dB7zGBO8JaTQRg7jl76rFSYSWXuROf8p/m475qr/TdWQ2t95TJHoGt3XXl0tfdA
-         ac8+DjTFzyVjxFAv122AkwQiGvWf2tbuEoHRCtLg=
+        b=oA6z+5XFKG+YSDOydFVk0B1eYAaTy6Dd5ZWxjYdEBDe8MhNmvV0OGoghc0vCeMrwk
+         bOdSHk2x3e5ktgkgVjaGBIFgiE9o5XHwCkyYH/QM/bszSL8rLKjbZPbbwkeAOKpMy2
+         5BfDbDIWWr5/+kB+JViCx/UlCI9spvJSwLswoRPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 059/146] media: ti-vpe: cal: fix disable_irqs to only the intended target
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.5 149/257] KVM: VMX: Add a trampoline to fix VMREAD error handling
 Date:   Thu, 16 Apr 2020 15:23:20 +0200
-Message-Id: <20200416131250.971337378@linuxfoundation.org>
+Message-Id: <20200416131345.116862483@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoit Parrot <bparrot@ti.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 1db56284b9da9056093681f28db48a09a243274b upstream.
+commit 842f4be95899df22b5843ba1a7c8cf37e831a6e8 upstream.
 
-disable_irqs() was mistakenly disabling all interrupts when called.
-This cause all port stream to stop even if only stopping one of them.
+Add a hand coded assembly trampoline to preserve volatile registers
+across vmread_error(), and to handle the calling convention differences
+between 64-bit and 32-bit due to asmlinkage on vmread_error().  Pass
+@field and @fault on the stack when invoking the trampoline to avoid
+clobbering volatile registers in the context of the inline assembly.
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Calling vmread_error() directly from inline assembly is partially broken
+on 64-bit, and completely broken on 32-bit.  On 64-bit, it will clobber
+%rdi and %rsi (used to pass @field and @fault) and any volatile regs
+written by vmread_error().  On 32-bit, asmlinkage means vmread_error()
+expects the parameters to be passed on the stack, not via regs.
+
+Opportunistically zero out the result in the trampoline to save a few
+bytes of code for every VMREAD.  A happy side effect of the trampoline
+is that the inline code footprint is reduced by three bytes on 64-bit
+due to PUSH/POP being more efficent (in terms of opcode bytes) than MOV.
+
+Fixes: 6e2020977e3e6 ("KVM: VMX: Add error handling to VMREAD helper")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200326160712.28803-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/ti-vpe/cal.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/x86/kvm/vmx/ops.h     |   28 ++++++++++++++++-----
+ arch/x86/kvm/vmx/vmenter.S |   58 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 79 insertions(+), 7 deletions(-)
 
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -541,16 +541,16 @@ static void enable_irqs(struct cal_ctx *
+--- a/arch/x86/kvm/vmx/ops.h
++++ b/arch/x86/kvm/vmx/ops.h
+@@ -12,7 +12,8 @@
  
- static void disable_irqs(struct cal_ctx *ctx)
- {
-+	u32 val;
+ #define __ex(x) __kvm_handle_fault_on_reboot(x)
+ 
+-asmlinkage void vmread_error(unsigned long field, bool fault);
++__attribute__((regparm(0))) void vmread_error_trampoline(unsigned long field,
++							 bool fault);
+ void vmwrite_error(unsigned long field, unsigned long value);
+ void vmclear_error(struct vmcs *vmcs, u64 phys_addr);
+ void vmptrld_error(struct vmcs *vmcs, u64 phys_addr);
+@@ -70,15 +71,28 @@ static __always_inline unsigned long __v
+ 	asm volatile("1: vmread %2, %1\n\t"
+ 		     ".byte 0x3e\n\t" /* branch taken hint */
+ 		     "ja 3f\n\t"
+-		     "mov %2, %%" _ASM_ARG1 "\n\t"
+-		     "xor %%" _ASM_ARG2 ", %%" _ASM_ARG2 "\n\t"
+-		     "2: call vmread_error\n\t"
+-		     "xor %k1, %k1\n\t"
 +
- 	/* Disable IRQ_WDMA_END 0/1 */
--	reg_write_field(ctx->dev,
--			CAL_HL_IRQENABLE_CLR(2),
--			CAL_HL_IRQ_CLEAR,
--			CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	val = 0;
-+	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), val);
- 	/* Disable IRQ_WDMA_START 0/1 */
--	reg_write_field(ctx->dev,
--			CAL_HL_IRQENABLE_CLR(3),
--			CAL_HL_IRQ_CLEAR,
--			CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	val = 0;
-+	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), val);
- 	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
- 	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
- }
++		     /*
++		      * VMREAD failed.  Push '0' for @fault, push the failing
++		      * @field, and bounce through the trampoline to preserve
++		      * volatile registers.
++		      */
++		     "push $0\n\t"
++		     "push %2\n\t"
++		     "2:call vmread_error_trampoline\n\t"
++
++		     /*
++		      * Unwind the stack.  Note, the trampoline zeros out the
++		      * memory for @fault so that the result is '0' on error.
++		      */
++		     "pop %2\n\t"
++		     "pop %1\n\t"
+ 		     "3:\n\t"
+ 
++		     /* VMREAD faulted.  As above, except push '1' for @fault. */
+ 		     ".pushsection .fixup, \"ax\"\n\t"
+-		     "4: mov %2, %%" _ASM_ARG1 "\n\t"
+-		     "mov $1, %%" _ASM_ARG2 "\n\t"
++		     "4: push $1\n\t"
++		     "push %2\n\t"
+ 		     "jmp 2b\n\t"
+ 		     ".popsection\n\t"
+ 		     _ASM_EXTABLE(1b, 4b)
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -234,3 +234,61 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 2:	mov $1, %eax
+ 	jmp 1b
+ SYM_FUNC_END(__vmx_vcpu_run)
++
++/**
++ * vmread_error_trampoline - Trampoline from inline asm to vmread_error()
++ * @field:	VMCS field encoding that failed
++ * @fault:	%true if the VMREAD faulted, %false if it failed
++
++ * Save and restore volatile registers across a call to vmread_error().  Note,
++ * all parameters are passed on the stack.
++ */
++SYM_FUNC_START(vmread_error_trampoline)
++	push %_ASM_BP
++	mov  %_ASM_SP, %_ASM_BP
++
++	push %_ASM_AX
++	push %_ASM_CX
++	push %_ASM_DX
++#ifdef CONFIG_X86_64
++	push %rdi
++	push %rsi
++	push %r8
++	push %r9
++	push %r10
++	push %r11
++#endif
++#ifdef CONFIG_X86_64
++	/* Load @field and @fault to arg1 and arg2 respectively. */
++	mov 3*WORD_SIZE(%rbp), %_ASM_ARG2
++	mov 2*WORD_SIZE(%rbp), %_ASM_ARG1
++#else
++	/* Parameters are passed on the stack for 32-bit (see asmlinkage). */
++	push 3*WORD_SIZE(%ebp)
++	push 2*WORD_SIZE(%ebp)
++#endif
++
++	call vmread_error
++
++#ifndef CONFIG_X86_64
++	add $8, %esp
++#endif
++
++	/* Zero out @fault, which will be popped into the result register. */
++	_ASM_MOV $0, 3*WORD_SIZE(%_ASM_BP)
++
++#ifdef CONFIG_X86_64
++	pop %r11
++	pop %r10
++	pop %r9
++	pop %r8
++	pop %rsi
++	pop %rdi
++#endif
++	pop %_ASM_DX
++	pop %_ASM_CX
++	pop %_ASM_AX
++	pop %_ASM_BP
++
++	ret
++SYM_FUNC_END(vmread_error_trampoline)
 
 
