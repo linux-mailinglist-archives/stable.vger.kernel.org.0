@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D471AC804
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 224201AC413
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440674AbgDPPC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:02:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40302 "EHLO mail.kernel.org"
+        id S2897359AbgDPNx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:53:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896190AbgDPNxr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:53:47 -0400
+        id S2896356AbgDPNxw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:53:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BACAB20732;
-        Thu, 16 Apr 2020 13:53:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A08FC20732;
+        Thu, 16 Apr 2020 13:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045227;
-        bh=kkvZbA2vkPiq5mVjy9hdXDb2Jqew+F4v57ty+HGHEU4=;
+        s=default; t=1587045232;
+        bh=qGGHLgI69/UcAs4ENrIAU9SzHDP6u/Wk4UVoOLBeRrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FaSWGASB5iHLo8N1rAv28P//wHvjuQi66v/WEi+pGQbZo7Wclhuw287FQAWB8q3tt
-         d6MMj1jALUMfMMoeBiSI2QtB/ZcKNsuq1xTK4MOD2WFaec5MYd72GK8UZP7HEMPu69
-         rXBtIrcX5m+IbiJvo3EDkTazCWYxZhZ1hjGvOsvw=
+        b=FzjARM82cBpzF7Iqr3V1bjZhg6TFMNwuG88mC0WOEL8B0F6PkAOXc+AhmA6FxMUED
+         HI9HY3QBsswJGpg3a6e3mq7NjEMi6iaxa6ZMJI1kAL04ugQl3jvF/woIk9kikgrD4U
+         dLmhnPj/gH1FS/QXQPjn2+NExdpH3Gulfn0iSh1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
         Ard Biesheuvel <ardb@kernel.org>,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 047/254] x86/boot: Use unsigned comparison for addresses
-Date:   Thu, 16 Apr 2020 15:22:16 +0200
-Message-Id: <20200416131331.775592662@linuxfoundation.org>
+Subject: [PATCH 5.6 048/254] efi/x86: Ignore the memory attributes table on i386
+Date:   Thu, 16 Apr 2020 15:22:17 +0200
+Message-Id: <20200416131331.896747335@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -44,69 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 81a34892c2c7c809f9c4e22c5ac936ae673fb9a2 ]
+[ Upstream commit dd09fad9d2caad2325a39b766ce9e79cfc690184 ]
 
-The load address is compared with LOAD_PHYSICAL_ADDR using a signed
-comparison currently (using jge instruction).
+Commit:
 
-When loading a 64-bit kernel using the new efi32_pe_entry() point added by:
+  3a6b6c6fb23667fa ("efi: Make EFI_MEMORY_ATTRIBUTES_TABLE initialization common across all architectures")
 
-  97aa276579b2 ("efi/x86: Add true mixed mode entry point into .compat section")
+moved the call to efi_memattr_init() from ARM specific to the generic
+EFI init code, in order to be able to apply the restricted permissions
+described in that table on x86 as well.
 
-using Qemu with -m 3072, the firmware actually loads us above 2Gb,
-resulting in a very early crash.
+We never enabled this feature fully on i386, and so mapping and
+reserving this table is pointless. However, due to the early call to
+memblock_reserve(), the memory bookkeeping gets confused to the point
+where it produces the splat below when we try to map the memory later
+on:
 
-Use the JAE instruction to perform a unsigned comparison instead, as physical
-addresses should be considered unsigned.
+  ------------[ cut here ]------------
+  ioremap on RAM at 0x3f251000 - 0x3fa1afff
+  WARNING: CPU: 0 PID: 0 at arch/x86/mm/ioremap.c:166 __ioremap_caller ...
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.20.0 #48
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
+  EIP: __ioremap_caller.constprop.0+0x249/0x260
+  Code: 90 0f b7 05 4e 38 40 de 09 45 e0 e9 09 ff ff ff 90 8d 45 ec c6 05 ...
+  EAX: 00000029 EBX: 00000000 ECX: de59c228 EDX: 00000001
+  ESI: 3f250fff EDI: 00000000 EBP: de3edf20 ESP: de3edee0
+  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00200296
+  CR0: 80050033 CR2: ffd17000 CR3: 1e58c000 CR4: 00040690
+  Call Trace:
+   ioremap_cache+0xd/0x10
+   ? old_map_region+0x72/0x9d
+   old_map_region+0x72/0x9d
+   efi_map_region+0x8/0xa
+   efi_enter_virtual_mode+0x260/0x43b
+   start_kernel+0x329/0x3aa
+   i386_start_kernel+0xa7/0xab
+   startup_32_smp+0x164/0x168
+  ---[ end trace e15ccf6b9f356833 ]---
 
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Let's work around this by disregarding the memory attributes table
+altogether on i386, which does not result in a loss of functionality
+or protection, given that we never consumed the contents.
+
+Fixes: 3a6b6c6fb23667fa ("efi: Make EFI_MEMORY_ATTRIBUTES_TABLE ... ")
+Tested-by: Arvind Sankar <nivedita@alum.mit.edu>
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20200301230436.2246909-6-nivedita@alum.mit.edu
-Link: https://lore.kernel.org/r/20200308080859.21568-14-ardb@kernel.org
+Link: https://lore.kernel.org/r/20200304165917.5893-1-ardb@kernel.org
+Link: https://lore.kernel.org/r/20200308080859.21568-21-ardb@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/head_32.S | 2 +-
- arch/x86/boot/compressed/head_64.S | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/firmware/efi/efi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
-index 73f17d0544dd5..7f7e8b8518fec 100644
---- a/arch/x86/boot/compressed/head_32.S
-+++ b/arch/x86/boot/compressed/head_32.S
-@@ -106,7 +106,7 @@ SYM_FUNC_START(startup_32)
- 	notl	%eax
- 	andl    %eax, %ebx
- 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
--	jge	1f
-+	jae	1f
- #endif
- 	movl	$LOAD_PHYSICAL_ADDR, %ebx
- 1:
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 1f1f6c8139b38..afde2aa8382e9 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -106,7 +106,7 @@ SYM_FUNC_START(startup_32)
- 	notl	%eax
- 	andl	%eax, %ebx
- 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
--	jge	1f
-+	jae	1f
- #endif
- 	movl	$LOAD_PHYSICAL_ADDR, %ebx
- 1:
-@@ -296,7 +296,7 @@ SYM_CODE_START(startup_64)
- 	notq	%rax
- 	andq	%rax, %rbp
- 	cmpq	$LOAD_PHYSICAL_ADDR, %rbp
--	jge	1f
-+	jae	1f
- #endif
- 	movq	$LOAD_PHYSICAL_ADDR, %rbp
- 1:
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index 21ea99f651134..77cb95f70ed66 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -570,7 +570,7 @@ int __init efi_config_parse_tables(void *config_tables, int count, int sz,
+ 		}
+ 	}
+ 
+-	if (efi_enabled(EFI_MEMMAP))
++	if (!IS_ENABLED(CONFIG_X86_32) && efi_enabled(EFI_MEMMAP))
+ 		efi_memattr_init();
+ 
+ 	efi_tpm_eventlog_init();
 -- 
 2.20.1
 
