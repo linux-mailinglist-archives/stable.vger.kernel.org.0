@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C53261AC8A0
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:12:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8988A1AC489
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394988AbgDPPLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:11:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35820 "EHLO mail.kernel.org"
+        id S2392750AbgDPOBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:01:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441661AbgDPNuL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:11 -0400
+        id S2392743AbgDPOBK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7491C20732;
-        Thu, 16 Apr 2020 13:49:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38FB120732;
+        Thu, 16 Apr 2020 14:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044989;
-        bh=LkFSaWD8eK5fUBwVuEfFuYOdlmwas0uXDLBhIaHcx94=;
+        s=default; t=1587045669;
+        bh=MkPs644BC6fRZVf3njDdZwqWGc69xsas9A4iun9REXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HiPfATfUUUqiu4HAEpPeud7yRwKLFlkb9QwSOIZ5LMK3bKYQxWn3e5499E+oRIxy+
-         COMZVLQUxEqQ8dBh15LGl95eeGh+lG2vdxxlmZKEWSly026fOXjYtlKjs8kGQz5BsN
-         RYrDfDNoos0xeavPyuFWLWLVKUlE0EjU+p8yACu8=
+        b=QXjbY6Cqftl/JXqz6wUk3qKYfvdjk7EwzwwHNRCNwlWCmHIc33aYsGaJkLwrG6zFc
+         xx1/FdDiY2dnU7Hu0tXXZ5aFaI6hRMzVm9KV+N8O4m4WlMmvdDe0lj1gOY7k1g5gru
+         VWLMqKL4xa/n4fIP6eUNW/1rWd23FzmQTSjDazXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 185/232] drm: Remove PageReserved manipulation from drm_pci_alloc
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.6 190/254] scsi: lpfc: Fix lpfc_io_buf resource leak in lpfc_get_scsi_buf_s4 error path
 Date:   Thu, 16 Apr 2020 15:24:39 +0200
-Message-Id: <20200416131338.241102568@linuxfoundation.org>
+Message-Id: <20200416131350.083260494@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: James Smart <jsmart2021@gmail.com>
 
-commit ea36ec8623f56791c6ff6738d0509b7920f85220 upstream.
+commit 0ab384a49c548baf132ccef249f78d9c6c506380 upstream.
 
-drm_pci_alloc/drm_pci_free are very thin wrappers around the core dma
-facilities, and we have no special reason within the drm layer to behave
-differently. In particular, since
+If a call to lpfc_get_cmd_rsp_buf_per_hdwq returns NULL (memory allocation
+failure), a previously allocated lpfc_io_buf resource is leaked.
 
-commit de09d31dd38a50fdce106c15abd68432eebbd014
-Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Date:   Fri Jan 15 16:51:42 2016 -0800
+Fix by releasing the lpfc_io_buf resource in the failure path.
 
-    page-flags: define PG_reserved behavior on compound pages
-
-    As far as I can see there's no users of PG_reserved on compound pages.
-    Let's use PF_NO_COMPOUND here.
-
-it has been illegal to combine GFP_COMP with SetPageReserved, so lets
-stop doing both and leave the dma layer to its own devices.
-
-Reported-by: Taketo Kabe
-Bug: https://gitlab.freedesktop.org/drm/intel/issues/1027
-Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: <stable@vger.kernel.org> # v4.5+
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200202171635.4039044-1-chris@chris-wilson.co.uk
+Fixes: d79c9e9d4b3d ("scsi: lpfc: Support dynamic unbounded SGL lists on G7 hardware.")
+Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://lore.kernel.org/r/20200128002312.16346-3-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_pci.c |   23 ++---------------------
- 1 file changed, 2 insertions(+), 21 deletions(-)
+ drivers/scsi/lpfc/lpfc_scsi.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_pci.c
-+++ b/drivers/gpu/drm/drm_pci.c
-@@ -51,8 +51,6 @@
- drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t align)
- {
- 	drm_dma_handle_t *dmah;
--	unsigned long addr;
--	size_t sz;
- 
- 	/* pci_alloc_consistent only guarantees alignment to the smallest
- 	 * PAGE_SIZE order which is greater than or equal to the requested size.
-@@ -68,20 +66,13 @@ drm_dma_handle_t *drm_pci_alloc(struct d
- 	dmah->size = size;
- 	dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size,
- 					 &dmah->busaddr,
--					 GFP_KERNEL | __GFP_COMP);
-+					 GFP_KERNEL);
- 
- 	if (dmah->vaddr == NULL) {
- 		kfree(dmah);
+--- a/drivers/scsi/lpfc/lpfc_scsi.c
++++ b/drivers/scsi/lpfc/lpfc_scsi.c
+@@ -671,8 +671,10 @@ lpfc_get_scsi_buf_s4(struct lpfc_hba *ph
+ 	lpfc_cmd->prot_data_type = 0;
+ #endif
+ 	tmp = lpfc_get_cmd_rsp_buf_per_hdwq(phba, lpfc_cmd);
+-	if (!tmp)
++	if (!tmp) {
++		lpfc_release_io_buf(phba, lpfc_cmd, lpfc_cmd->hdwq);
  		return NULL;
- 	}
++	}
  
--	/* XXX - Is virt_to_page() legal for consistent mem? */
--	/* Reserve */
--	for (addr = (unsigned long)dmah->vaddr, sz = size;
--	     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
--		SetPageReserved(virt_to_page((void *)addr));
--	}
--
- 	return dmah;
- }
- 
-@@ -94,19 +85,9 @@ EXPORT_SYMBOL(drm_pci_alloc);
-  */
- void __drm_legacy_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
- {
--	unsigned long addr;
--	size_t sz;
--
--	if (dmah->vaddr) {
--		/* XXX - Is virt_to_page() legal for consistent mem? */
--		/* Unreserve */
--		for (addr = (unsigned long)dmah->vaddr, sz = dmah->size;
--		     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
--			ClearPageReserved(virt_to_page((void *)addr));
--		}
-+	if (dmah->vaddr)
- 		dma_free_coherent(&dev->pdev->dev, dmah->size, dmah->vaddr,
- 				  dmah->busaddr);
--	}
- }
- 
- /**
+ 	lpfc_cmd->fcp_cmnd = tmp->fcp_cmnd;
+ 	lpfc_cmd->fcp_rsp = tmp->fcp_rsp;
 
 
