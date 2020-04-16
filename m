@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19F291ACB18
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7994F1AC947
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729859AbgDPPno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:43:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47492 "EHLO mail.kernel.org"
+        id S2898559AbgDPNqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:46:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897149AbgDPNfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:35:31 -0400
+        id S2897190AbgDPNqA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:46:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABE7122201;
-        Thu, 16 Apr 2020 13:35:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7704621744;
+        Thu, 16 Apr 2020 13:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044131;
-        bh=QacHWWHP2ypjKPjprKD6bhOij6cFw/F0WEMxr8v+1t4=;
+        s=default; t=1587044759;
+        bh=Gv1blBVWcIK/uI0Db68QmL3UwA9eP1qgRn/wp2cF4Pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bp0TcgcgPPW8m9HQKASJjp8yNU0T9CdsvmVM03UORnzyCKpoqVTelt6fVBI1Ga7wW
-         dmLKs6fOcwWQhm6gc+b93lcR+zo9RWWzjU61EntXpMTk/xj6zqig7w2CBMvuUacPPO
-         sCVJkKeQa0IQH1vxDLnu1Uo8n/0mowGr6qnr3t1g=
+        b=kCrn+SPJug0/xIVSq8nJpRkGfcALfbG87qFgsruVWcDgtk4qiBX+IH8BtfiNaf82P
+         jxXmAGrTVoR58AZfGt8nq4imy2iuWnCULeQU2kivedVgDbvw3l4vky2QXUxPd/ShFS
+         4UGlLBdFcWHlEr16dlpaf92anmLEf0vXKHeg2Zic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 093/257] ALSA: hda/realtek - a fake key event is triggered by running shutup
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 050/232] gfs2: Do log_flush in gfs2_ail_empty_gl even if ail list is empty
 Date:   Thu, 16 Apr 2020 15:22:24 +0200
-Message-Id: <20200416131337.640811681@linuxfoundation.org>
+Message-Id: <20200416131321.967071796@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,248 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit 476c02e0b4fd9071d158f6a1a1dfea1d36ee0ffd upstream.
+[ Upstream commit 9ff78289356af640941bbb0dd3f46af2063f0046 ]
 
-On the Lenovo X1C7 machines, after we plug the headset, the rt_resume()
-and rt_suspend() of the codec driver will be called periodically, the
-driver can't stay in the rt_suspend state even users doen't use the
-sound card.
+Before this patch, if gfs2_ail_empty_gl saw there was nothing on
+the ail list, it would return and not flush the log. The problem
+is that there could still be a revoke for the rgrp sitting on the
+sd_log_le_revoke list that's been recently taken off the ail list.
+But that revoke still needs to be written, and the rgrp_go_inval
+still needs to call log_flush_wait to ensure the revokes are all
+properly written to the journal before we relinquish control of
+the glock to another node. If we give the glock to another node
+before we have this knowledge, the node might crash and its journal
+replayed, in which case the missing revoke would allow the journal
+replay to replay the rgrp over top of the rgrp we already gave to
+another node, thus overwriting its changes and corrupting the
+file system.
 
-Through debugging, I found  when running rt_suspend(), it will call
-alc225_shutup(), in this function, it will change 3k pull down control
-by alc_update_coef_idx(codec, 0x4a, 0, 3 << 10), this will trigger a
-fake key event and that event will resume the codec, when codec
-suspend agin, it will trigger the fake key event one more time, this
-process will repeat.
+This patch makes gfs2_ail_empty_gl still call gfs2_log_flush rather
+than returning.
 
-If disable the key event before changing the pull down control, it
-will not trigger fake key event. It also needs to restore the pull
-down control and re-enable the key event, otherwise the system can't
-get key event when codec is in rt_suspend state.
-
-Also move some functions ahead of alc225_shutup(), this can save the
-function declaration.
-
-Fixes: 76f7dec08fd6 (ALSA: hda/realtek - Add Headset Button supported for ThinkPad X1)
-Cc: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20200329082018.20486-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Reviewed-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |  170 ++++++++++++++++++++++++++----------------
- 1 file changed, 107 insertions(+), 63 deletions(-)
+ fs/gfs2/glops.c | 27 ++++++++++++++++++++++++++-
+ fs/gfs2/log.c   |  2 +-
+ fs/gfs2/log.h   |  1 +
+ 3 files changed, 28 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -107,6 +107,7 @@ struct alc_spec {
- 	unsigned int done_hp_init:1;
- 	unsigned int no_shutup_pins:1;
- 	unsigned int ultra_low_power:1;
-+	unsigned int has_hs_key:1;
+diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
+index ff213690e3648..83cf64da474cb 100644
+--- a/fs/gfs2/glops.c
++++ b/fs/gfs2/glops.c
+@@ -89,8 +89,32 @@ static void gfs2_ail_empty_gl(struct gfs2_glock *gl)
+ 	INIT_LIST_HEAD(&tr.tr_databuf);
+ 	tr.tr_revokes = atomic_read(&gl->gl_ail_count);
  
- 	/* for PLL fix */
- 	hda_nid_t pll_nid;
-@@ -2982,6 +2983,107 @@ static int alc269_parse_auto_config(stru
- 	return alc_parse_auto_config(codec, alc269_ignore, ssids);
+-	if (!tr.tr_revokes)
++	if (!tr.tr_revokes) {
++		bool have_revokes;
++		bool log_in_flight;
++
++		/*
++		 * We have nothing on the ail, but there could be revokes on
++		 * the sdp revoke queue, in which case, we still want to flush
++		 * the log and wait for it to finish.
++		 *
++		 * If the sdp revoke list is empty too, we might still have an
++		 * io outstanding for writing revokes, so we should wait for
++		 * it before returning.
++		 *
++		 * If none of these conditions are true, our revokes are all
++		 * flushed and we can return.
++		 */
++		gfs2_log_lock(sdp);
++		have_revokes = !list_empty(&sdp->sd_log_revokes);
++		log_in_flight = atomic_read(&sdp->sd_log_in_flight);
++		gfs2_log_unlock(sdp);
++		if (have_revokes)
++			goto flush;
++		if (log_in_flight)
++			log_flush_wait(sdp);
+ 		return;
++	}
+ 
+ 	/* A shortened, inline version of gfs2_trans_begin()
+          * tr->alloced is not set since the transaction structure is
+@@ -105,6 +129,7 @@ static void gfs2_ail_empty_gl(struct gfs2_glock *gl)
+ 	__gfs2_ail_flush(gl, 0, tr.tr_revokes);
+ 
+ 	gfs2_trans_end(sdp);
++flush:
+ 	gfs2_log_flush(sdp, NULL, GFS2_LOG_HEAD_FLUSH_NORMAL |
+ 		       GFS2_LFC_AIL_EMPTY_GL);
+ }
+diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
+index 2aed73666a657..47bc27d4169e6 100644
+--- a/fs/gfs2/log.c
++++ b/fs/gfs2/log.c
+@@ -513,7 +513,7 @@ static void log_pull_tail(struct gfs2_sbd *sdp, unsigned int new_tail)
  }
  
-+static const struct hda_jack_keymap alc_headset_btn_keymap[] = {
-+	{ SND_JACK_BTN_0, KEY_PLAYPAUSE },
-+	{ SND_JACK_BTN_1, KEY_VOICECOMMAND },
-+	{ SND_JACK_BTN_2, KEY_VOLUMEUP },
-+	{ SND_JACK_BTN_3, KEY_VOLUMEDOWN },
-+	{}
-+};
-+
-+static void alc_headset_btn_callback(struct hda_codec *codec,
-+				     struct hda_jack_callback *jack)
-+{
-+	int report = 0;
-+
-+	if (jack->unsol_res & (7 << 13))
-+		report |= SND_JACK_BTN_0;
-+
-+	if (jack->unsol_res  & (1 << 16 | 3 << 8))
-+		report |= SND_JACK_BTN_1;
-+
-+	/* Volume up key */
-+	if (jack->unsol_res & (7 << 23))
-+		report |= SND_JACK_BTN_2;
-+
-+	/* Volume down key */
-+	if (jack->unsol_res & (7 << 10))
-+		report |= SND_JACK_BTN_3;
-+
-+	jack->jack->button_state = report;
-+}
-+
-+static void alc_disable_headset_jack_key(struct hda_codec *codec)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (!spec->has_hs_key)
-+		return;
-+
-+	switch (codec->core.vendor_id) {
-+	case 0x10ec0215:
-+	case 0x10ec0225:
-+	case 0x10ec0285:
-+	case 0x10ec0295:
-+	case 0x10ec0289:
-+	case 0x10ec0299:
-+		alc_write_coef_idx(codec, 0x48, 0x0);
-+		alc_update_coef_idx(codec, 0x49, 0x0045, 0x0);
-+		alc_update_coef_idx(codec, 0x44, 0x0045 << 8, 0x0);
-+		break;
-+	case 0x10ec0236:
-+	case 0x10ec0256:
-+		alc_write_coef_idx(codec, 0x48, 0x0);
-+		alc_update_coef_idx(codec, 0x49, 0x0045, 0x0);
-+		break;
-+	}
-+}
-+
-+static void alc_enable_headset_jack_key(struct hda_codec *codec)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (!spec->has_hs_key)
-+		return;
-+
-+	switch (codec->core.vendor_id) {
-+	case 0x10ec0215:
-+	case 0x10ec0225:
-+	case 0x10ec0285:
-+	case 0x10ec0295:
-+	case 0x10ec0289:
-+	case 0x10ec0299:
-+		alc_write_coef_idx(codec, 0x48, 0xd011);
-+		alc_update_coef_idx(codec, 0x49, 0x007f, 0x0045);
-+		alc_update_coef_idx(codec, 0x44, 0x007f << 8, 0x0045 << 8);
-+		break;
-+	case 0x10ec0236:
-+	case 0x10ec0256:
-+		alc_write_coef_idx(codec, 0x48, 0xd011);
-+		alc_update_coef_idx(codec, 0x49, 0x007f, 0x0045);
-+		break;
-+	}
-+}
-+
-+static void alc_fixup_headset_jack(struct hda_codec *codec,
-+				    const struct hda_fixup *fix, int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	switch (action) {
-+	case HDA_FIXUP_ACT_PRE_PROBE:
-+		spec->has_hs_key = 1;
-+		snd_hda_jack_detect_enable_callback(codec, 0x55,
-+						    alc_headset_btn_callback);
-+		snd_hda_jack_add_kctl(codec, 0x55, "Headset Jack", false,
-+				      SND_JACK_HEADSET, alc_headset_btn_keymap);
-+		break;
-+	case HDA_FIXUP_ACT_INIT:
-+		alc_enable_headset_jack_key(codec);
-+		break;
-+	}
-+}
-+
- static void alc269vb_toggle_power_output(struct hda_codec *codec, int power_up)
+ 
+-static void log_flush_wait(struct gfs2_sbd *sdp)
++void log_flush_wait(struct gfs2_sbd *sdp)
  {
- 	alc_update_coef_idx(codec, 0x04, 1 << 11, power_up ? (1 << 11) : 0);
-@@ -3372,6 +3474,8 @@ static void alc225_shutup(struct hda_cod
+ 	DEFINE_WAIT(wait);
  
- 	if (!hp_pin)
- 		hp_pin = 0x21;
-+
-+	alc_disable_headset_jack_key(codec);
- 	/* 3k pull low control for Headset jack. */
- 	alc_update_coef_idx(codec, 0x4a, 0, 3 << 10);
+diff --git a/fs/gfs2/log.h b/fs/gfs2/log.h
+index c762da4945468..52b9bf27e918f 100644
+--- a/fs/gfs2/log.h
++++ b/fs/gfs2/log.h
+@@ -73,6 +73,7 @@ extern void gfs2_log_flush(struct gfs2_sbd *sdp, struct gfs2_glock *gl,
+ 			   u32 type);
+ extern void gfs2_log_commit(struct gfs2_sbd *sdp, struct gfs2_trans *trans);
+ extern void gfs2_ail1_flush(struct gfs2_sbd *sdp, struct writeback_control *wbc);
++extern void log_flush_wait(struct gfs2_sbd *sdp);
  
-@@ -3411,6 +3515,9 @@ static void alc225_shutup(struct hda_cod
- 		alc_update_coef_idx(codec, 0x4a, 3<<4, 2<<4);
- 		msleep(30);
- 	}
-+
-+	alc_update_coef_idx(codec, 0x4a, 3 << 10, 0);
-+	alc_enable_headset_jack_key(codec);
- }
- 
- static void alc_default_init(struct hda_codec *codec)
-@@ -5668,69 +5775,6 @@ static void alc285_fixup_invalidate_dacs
- 	snd_hda_override_wcaps(codec, 0x03, 0);
- }
- 
--static const struct hda_jack_keymap alc_headset_btn_keymap[] = {
--	{ SND_JACK_BTN_0, KEY_PLAYPAUSE },
--	{ SND_JACK_BTN_1, KEY_VOICECOMMAND },
--	{ SND_JACK_BTN_2, KEY_VOLUMEUP },
--	{ SND_JACK_BTN_3, KEY_VOLUMEDOWN },
--	{}
--};
--
--static void alc_headset_btn_callback(struct hda_codec *codec,
--				     struct hda_jack_callback *jack)
--{
--	int report = 0;
--
--	if (jack->unsol_res & (7 << 13))
--		report |= SND_JACK_BTN_0;
--
--	if (jack->unsol_res  & (1 << 16 | 3 << 8))
--		report |= SND_JACK_BTN_1;
--
--	/* Volume up key */
--	if (jack->unsol_res & (7 << 23))
--		report |= SND_JACK_BTN_2;
--
--	/* Volume down key */
--	if (jack->unsol_res & (7 << 10))
--		report |= SND_JACK_BTN_3;
--
--	jack->jack->button_state = report;
--}
--
--static void alc_fixup_headset_jack(struct hda_codec *codec,
--				    const struct hda_fixup *fix, int action)
--{
--
--	switch (action) {
--	case HDA_FIXUP_ACT_PRE_PROBE:
--		snd_hda_jack_detect_enable_callback(codec, 0x55,
--						    alc_headset_btn_callback);
--		snd_hda_jack_add_kctl(codec, 0x55, "Headset Jack", false,
--				      SND_JACK_HEADSET, alc_headset_btn_keymap);
--		break;
--	case HDA_FIXUP_ACT_INIT:
--		switch (codec->core.vendor_id) {
--		case 0x10ec0215:
--		case 0x10ec0225:
--		case 0x10ec0285:
--		case 0x10ec0295:
--		case 0x10ec0289:
--		case 0x10ec0299:
--			alc_write_coef_idx(codec, 0x48, 0xd011);
--			alc_update_coef_idx(codec, 0x49, 0x007f, 0x0045);
--			alc_update_coef_idx(codec, 0x44, 0x007f << 8, 0x0045 << 8);
--			break;
--		case 0x10ec0236:
--		case 0x10ec0256:
--			alc_write_coef_idx(codec, 0x48, 0xd011);
--			alc_update_coef_idx(codec, 0x49, 0x007f, 0x0045);
--			break;
--		}
--		break;
--	}
--}
--
- static void alc295_fixup_chromebook(struct hda_codec *codec,
- 				    const struct hda_fixup *fix, int action)
- {
+ extern void gfs2_log_shutdown(struct gfs2_sbd *sdp);
+ extern int gfs2_logd(void *data);
+-- 
+2.20.1
+
 
 
