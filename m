@@ -2,99 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1AD41ABC6E
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 11:13:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6591ABCE7
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 11:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503680AbgDPJNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 05:13:36 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:33054 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2503677AbgDPJNd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 05:13:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1587028411;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=kDbMwf4T7fz2iy2x4sZthu5JgBi4KMPTfc1UBx0b968=;
-        b=idNzKgs9MTSlSMyPeEhMT+10692EdGLlbQpatrQN2PeofV3OurQEyKA7LLPTqKkufd1Rkl
-        4ACQPhBE2x8OM9LVWFrk5PAKX5ascNidIuyF5YbGAkgwKjnNCFk33HSZJ2mXjLegXK4f+0
-        aESijYmEktc7NgHzfLr9p8CwHKiB5mI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-311-pSsGjVneONSQGO4bbt2LdA-1; Thu, 16 Apr 2020 05:13:28 -0400
-X-MC-Unique: pSsGjVneONSQGO4bbt2LdA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S2503814AbgDPJfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 05:35:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42214 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2503615AbgDPJfU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 05:35:20 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 60E491005513;
-        Thu, 16 Apr 2020 09:13:26 +0000 (UTC)
-Received: from krava (unknown [10.40.195.119])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id C5CF87E7C4;
-        Thu, 16 Apr 2020 09:13:23 +0000 (UTC)
-Date:   Thu, 16 Apr 2020 11:13:20 +0200
-From:   Jiri Olsa <jolsa@redhat.com>
-To:     Masami Hiramatsu <mhiramat@kernel.org>
-Cc:     Jiri Olsa <jolsa@kernel.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "bibo,mao" <bibo.mao@intel.com>,
-        "Ziqian SUN (Zamir)" <zsun@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] kretprobe: Prevent triggering kretprobe from within
- kprobe_flush_task
-Message-ID: <20200416091320.GA322899@krava>
-References: <20200408164641.3299633-1-jolsa@kernel.org>
- <20200409234101.8814f3cbead69337ac5a33fa@kernel.org>
- <20200409184451.GG3309111@krava>
- <20200409201336.GH3309111@krava>
- <20200410093159.0d7000a08fd76c2eaf1398f8@kernel.org>
- <20200414160338.GE208694@krava>
- <20200415090507.GG208694@krava>
- <20200416105506.904b7847a1b621b75463076d@kernel.org>
+        by mail.kernel.org (Postfix) with ESMTPSA id 95E1A21BE5;
+        Thu, 16 Apr 2020 09:35:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587029720;
+        bh=NQ5/lPTdX2gpOrtrULduRpmOlE6dr1GpQbMmIFdGoY8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ILbirrdeWJRkENmXJlgUtCIGhDOx/tLRCAQS86e89/CbxW6+Uhk+1omlRhq33cnEz
+         bRjv1QNF/byBELs7/6Z7THTtvta+hRLXaX76sGNDxgV6SBOZGezUHd0b5Oaeil1yTL
+         NvKm/nCw5Yu2bQtAc1zEE50hdBajZLrpBbe+DnJo=
+Date:   Thu, 16 Apr 2020 10:35:17 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
+        szabolcs.nagy@arm.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] arm64: Always force a branch protection
+ mode when the" failed to apply to 5.6-stable tree
+Message-ID: <20200416093517.GA5354@sirena.org.uk>
+References: <158694980415630@kroah.com>
+ <20200416015121.GV1068@sasha-vm>
+ <20200416083204.GA19241@gaia>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
 Content-Disposition: inline
-In-Reply-To: <20200416105506.904b7847a1b621b75463076d@kernel.org>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <20200416083204.GA19241@gaia>
+X-Cookie: Tempt me with a spoon!
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 10:55:06AM +0900, Masami Hiramatsu wrote:
 
-SNIP
+--jI8keyz6grp/JLjh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> >           trampoline_handler
-> >             kretprobe_hash_lock(current, &head, &flags);  <--- deadlock
-> > 
-> > Adding kprobe_busy_begin/end helpers that mark code with fake
-> > probe installed to prevent triggering of another kprobe within
-> > this code.
-> > 
-> > Using these helpers in kprobe_flush_task, so the probe recursion
-> > protection check is hit and the probe is never set to prevent
-> > above lockup.
-> > 
-> > Reported-by: "Ziqian SUN (Zamir)" <zsun@redhat.com>
-> > Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-> 
-> Thanks Jiri and Ziqian!
-> 
-> Looks good to me.
-> 
-> Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-> 
-> BTW, this is a kind of bugfix. So should it add a Fixes tag?
-> 
-> Fixes: ef53d9c5e4da ('kprobes: improve kretprobe scalability with hashed locking')
-> Cc: stable@vger.kernel.org
+On Thu, Apr 16, 2020 at 09:32:05AM +0100, Catalin Marinas wrote:
+> On Wed, Apr 15, 2020 at 09:51:21PM -0400, Sasha Levin wrote:
 
-ah right, do you want me to repost with those?
+> > I don't think that this is needed anywhere without 74afda4016a7 ("arm64:
+> > compile the kernel with ptrauth return address signing")?
 
-thanks,
-jirka
+> Good point. Mark, is the Fixes line above correct or it should have been
+> the one Sasha mentions?
 
+Yes, Sasha's is right.
+
+--jI8keyz6grp/JLjh
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl6YJtEACgkQJNaLcl1U
+h9BZowf8C5PWRq8sYgUKKvOseG3c7FbEZU+CtrrKcoiwjsaLzWUb/iMH4bI6Vh09
+C4PhKjtx0tq5dMlHX7QqJonPiBv4XDV1MGL2+OshmU0MPvoOQ6KVlspO3lHTLNoG
+x3oUq6ggHxnU+U0FpmCqx5pSp61cNQSLxpswnSteFUAPvw4SCbIXy+lc6r4aI4VW
+fCP+UWjtxQLN6/0o/I20u87Ufqz9qcIDqtmBbxzu9mUmEsCSajvi1U3GCXgYYISH
+xf5BzEJzArgQ5MUvC+uZ3LF/ShKwcEQXyvCA1LoWsZ9qjQ0XPlp9zrM/b7clLsdg
+KqtWXwV8U0rTOzjow6iTFT9D8DblwA==
+=nyv2
+-----END PGP SIGNATURE-----
+
+--jI8keyz6grp/JLjh--
