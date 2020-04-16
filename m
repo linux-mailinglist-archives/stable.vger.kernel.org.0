@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 433521AC8D6
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:15:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F171ACBEE
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406590AbgDPPPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:15:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35832 "EHLO mail.kernel.org"
+        id S2393412AbgDPPwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:52:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441579AbgDPNuD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:03 -0400
+        id S2896560AbgDPNcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:32:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 773412078B;
-        Thu, 16 Apr 2020 13:49:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E619F22261;
+        Thu, 16 Apr 2020 13:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044967;
-        bh=Myj1CDp0UdOsG9VN9HTP9WtLs++9igsmwDL49tx1CsU=;
+        s=default; t=1587043915;
+        bh=vAfpia3+3SoFhwgFhHVn8pNS77US4Paef5mt5mvn45E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Psfj3FZajJb2lEVRnqtXnEh8cG2MO6XcR13vRNOBoSVM/U/5REXcrFVv0YWm+FHuT
-         yJPN7F6STYEaGfpOuuacz5vXgkxOPnAdVrXNidNIg4A1/mKnaexG2AbCQypTMN+hGh
-         a4fKpYgrJrWyHHSSFFIUO9RRHWhU17ZfnIlGFDJ8=
+        b=xG5ZiJLaxcoKNcG/1LY8u9wshAkBuxYPB5i8G8HSFgScCKUdBhBWzd7V3es96iNn+
+         eRw+HM2khU3uDrs5hgTPYlGunmN7t1hI11CTda0xi55WajpLCkpC4kS9WIuV4tPRmJ
+         w/XqMLcwl/cgfpPefDhgMmF9yyNqWehlce9+9d/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Remus <jremus@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 173/232] scsi: zfcp: fix missing erp_lock in port recovery trigger for point-to-point
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 126/146] powerpc/hash64/devmap: Use H_PAGE_THP_HUGE when setting up huge devmap PTE entries
 Date:   Thu, 16 Apr 2020 15:24:27 +0200
-Message-Id: <20200416131336.669729816@linuxfoundation.org>
+Message-Id: <20200416131259.748650096@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit 819732be9fea728623e1ed84eba28def7384ad1f upstream.
+commit 36b78402d97a3b9aeab136feb9b00d8647ec2c20 upstream.
 
-v2.6.27 commit cc8c282963bd ("[SCSI] zfcp: Automatically attach remote
-ports") introduced zfcp automatic port scan.
+H_PAGE_THP_HUGE is used to differentiate between a THP hugepage and
+hugetlb hugepage entries. The difference is WRT how we handle hash
+fault on these address. THP address enables MPSS in segments. We want
+to manage devmap hugepage entries similar to THP pt entries. Hence use
+H_PAGE_THP_HUGE for devmap huge PTE entries.
 
-Before that, the user had to use the sysfs attribute "port_add" of an FCP
-device (adapter) to add and open remote (target) ports, even for the remote
-peer port in point-to-point topology. That code path did a proper port open
-recovery trigger taking the erp_lock.
+With current code while handling hash PTE fault, we do set is_thp =
+true when finding devmap PTE huge PTE entries.
 
-Since above commit, a new helper function zfcp_erp_open_ptp_port()
-performed an UNlocked port open recovery trigger. This can race with other
-parallel recovery triggers. In zfcp_erp_action_enqueue() this could corrupt
-e.g. adapter->erp_total_count or adapter->erp_ready_head.
+Current code also does the below sequence we setting up huge devmap
+entries.
 
-As already found for fabric topology in v4.17 commit fa89adba1941 ("scsi:
-zfcp: fix infinite iteration on ERP ready list"), there was an endless loop
-during tracing of rport (un)block.  A subsequent v4.18 commit 9e156c54ace3
-("scsi: zfcp: assert that the ERP lock is held when tracing a recovery
-trigger") introduced a lockdep assertion for that case.
+	entry = pmd_mkhuge(pfn_t_pmd(pfn, prot));
+	if (pfn_t_devmap(pfn))
+		entry = pmd_mkdevmap(entry);
 
-As a side effect, that lockdep assertion now uncovered the unlocked code
-path for PtP. It is from within an adapter ERP action:
+In that case we would find both H_PAGE_THP_HUGE and PAGE_DEVMAP set
+for huge devmap PTE entries. This results in false positive error like
+below.
 
-zfcp_erp_strategy[1479]  intentionally DROPs erp lock around
-                         zfcp_erp_strategy_do_action()
-zfcp_erp_strategy_do_action[1441]      NO erp lock
-zfcp_erp_adapter_strategy[876]         NO erp lock
-zfcp_erp_adapter_strategy_open[855]    NO erp lock
-zfcp_erp_adapter_strategy_open_fsf[806]NO erp lock
-zfcp_erp_adapter_strat_fsf_xconf[772]  erp lock only around
-                                       zfcp_erp_action_to_running(),
-                                       BUT *_not_* around
-                                       zfcp_erp_enqueue_ptp_port()
-zfcp_erp_enqueue_ptp_port[728]         BUG: *_not_* taking erp lock
-_zfcp_erp_port_reopen[432]             assumes to be called with erp lock
-zfcp_erp_action_enqueue[314]           assumes to be called with erp lock
-zfcp_dbf_rec_trig[288]                 _checks_ to be called with erp lock:
-	lockdep_assert_held(&adapter->erp_lock);
+  kernel BUG at /home/kvaneesh/src/linux/mm/memory.c:4321!
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in:
+  CPU: 56 PID: 67996 Comm: t_mmap_dio Not tainted 5.6.0-rc4-59640-g371c804dedbc #128
+  ....
+  NIP [c00000000044c9e4] __follow_pte_pmd+0x264/0x900
+  LR [c0000000005d45f8] dax_writeback_one+0x1a8/0x740
+  Call Trace:
+    str_spec.74809+0x22ffb4/0x2d116c (unreliable)
+    dax_writeback_one+0x1a8/0x740
+    dax_writeback_mapping_range+0x26c/0x700
+    ext4_dax_writepages+0x150/0x5a0
+    do_writepages+0x68/0x180
+    __filemap_fdatawrite_range+0x138/0x180
+    file_write_and_wait_range+0xa4/0x110
+    ext4_sync_file+0x370/0x6e0
+    vfs_fsync_range+0x70/0xf0
+    sys_msync+0x220/0x2e0
+    system_call+0x5c/0x68
 
-It causes the following lockdep warning:
+This is because our pmd_trans_huge check doesn't exclude _PAGE_DEVMAP.
 
-WARNING: CPU: 2 PID: 775 at drivers/s390/scsi/zfcp_dbf.c:288
-                            zfcp_dbf_rec_trig+0x16a/0x188
-no locks held by zfcperp0.0.17c0/775.
+To make this all consistent, update pmd_mkdevmap to set
+H_PAGE_THP_HUGE and pmd_trans_huge check now excludes _PAGE_DEVMAP
+correctly.
 
-Fix this by using the proper locked recovery trigger helper function.
-
-Link: https://lore.kernel.org/r/20200312174505.51294-2-maier@linux.ibm.com
-Fixes: cc8c282963bd ("[SCSI] zfcp: Automatically attach remote ports")
-Cc: <stable@vger.kernel.org> #v2.6.27+
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: ebd31197931d ("powerpc/mm: Add devmap support for ppc64")
+Cc: stable@vger.kernel.org # v4.13+
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200313094842.351830-1-aneesh.kumar@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/scsi/zfcp_erp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/book3s/64/hash-4k.h  |    6 ++++++
+ arch/powerpc/include/asm/book3s/64/hash-64k.h |    8 +++++++-
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |    4 +++-
+ arch/powerpc/include/asm/book3s/64/radix.h    |    5 +++++
+ 4 files changed, 21 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -725,7 +725,7 @@ static void zfcp_erp_enqueue_ptp_port(st
- 				 adapter->peer_d_id);
- 	if (IS_ERR(port)) /* error or port already attached */
- 		return;
--	_zfcp_erp_port_reopen(port, 0, "ereptp1");
-+	zfcp_erp_port_reopen(port, 0, "ereptp1");
+--- a/arch/powerpc/include/asm/book3s/64/hash-4k.h
++++ b/arch/powerpc/include/asm/book3s/64/hash-4k.h
+@@ -145,6 +145,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
+ extern int hash__has_transparent_hugepage(void);
+ #endif
+ 
++static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
++{
++	BUG();
++	return pmd;
++}
++
+ #endif /* !__ASSEMBLY__ */
+ 
+ #endif /* _ASM_POWERPC_BOOK3S_64_HASH_4K_H */
+--- a/arch/powerpc/include/asm/book3s/64/hash-64k.h
++++ b/arch/powerpc/include/asm/book3s/64/hash-64k.h
+@@ -233,7 +233,7 @@ static inline void mark_hpte_slot_valid(
+  */
+ static inline int hash__pmd_trans_huge(pmd_t pmd)
+ {
+-	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE)) ==
++	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP)) ==
+ 		  (_PAGE_PTE | H_PAGE_THP_HUGE));
  }
  
- static enum zfcp_erp_act_result zfcp_erp_adapter_strat_fsf_xconf(
+@@ -259,6 +259,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
+ 				       unsigned long addr, pmd_t *pmdp);
+ extern int hash__has_transparent_hugepage(void);
+ #endif /*  CONFIG_TRANSPARENT_HUGEPAGE */
++
++static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
++{
++	return __pmd(pmd_val(pmd) | (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP));
++}
++
+ #endif	/* __ASSEMBLY__ */
+ 
+ #endif /* _ASM_POWERPC_BOOK3S_64_HASH_64K_H */
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -1253,7 +1253,9 @@ extern void serialize_against_pte_lookup
+ 
+ static inline pmd_t pmd_mkdevmap(pmd_t pmd)
+ {
+-	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
++	if (radix_enabled())
++		return radix__pmd_mkdevmap(pmd);
++	return hash__pmd_mkdevmap(pmd);
+ }
+ 
+ static inline int pmd_devmap(pmd_t pmd)
+--- a/arch/powerpc/include/asm/book3s/64/radix.h
++++ b/arch/powerpc/include/asm/book3s/64/radix.h
+@@ -255,6 +255,11 @@ extern pmd_t radix__pmdp_huge_get_and_cl
+ extern int radix__has_transparent_hugepage(void);
+ #endif
+ 
++static inline pmd_t radix__pmd_mkdevmap(pmd_t pmd)
++{
++	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
++}
++
+ extern int __meminit radix__vmemmap_create_mapping(unsigned long start,
+ 					     unsigned long page_size,
+ 					     unsigned long phys);
 
 
