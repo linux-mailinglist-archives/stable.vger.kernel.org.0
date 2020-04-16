@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF1D1AB53C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 03:08:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B662C1AB54C
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 03:14:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729471AbgDPBI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 21:08:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44748 "EHLO mail.kernel.org"
+        id S1726493AbgDPBNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 21:13:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406125AbgDPBIX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 21:08:23 -0400
+        id S1726201AbgDPBNk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 21:13:40 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A3E2206A2;
-        Thu, 16 Apr 2020 01:08:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE7A02064A;
+        Thu, 16 Apr 2020 01:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1586999302;
-        bh=o3QpDloB0ek2Ef6CmmGFpHYp9oMn7Ioqbg3mRjudu1w=;
+        s=default; t=1586999620;
+        bh=52g+gVjZiMg4a5+0hzapE/Lu+oly61px2E1Jwk+GLEY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fkYUNZjfxGn2BPuGcqvqlfXPD/+TKlgMSGi8eQCYAhgPSTw5YCnx3VgYaBOjvwqqJ
-         v9QLg/MZJ2+58QdvndalFhR61eRZKxiWjqGaW9FYyxiGP5PWt4TNBCYFl+DMTlsBN2
-         UzRPeyVGdfihO8HdflcpLPlzOdrqCq0vlWN5k6Yg=
-Date:   Wed, 15 Apr 2020 21:08:21 -0400
+        b=duZTOBqqzUg8sdHvUSX/C5JYVNPpjU9SU8+QW/yNxyUyBOpODTbLlYL2l/ljymegh
+         kU4B/zShNoQWfMVfKsiBvUpSG3lqcZ8E759xvtAjvkMTOvsU+Ar96h6KCbvSMYW8+B
+         3nkybHxhgF7O77GuCRPxhDXwZHcmumfHImdXc9PE=
+Date:   Wed, 15 Apr 2020 21:13:38 -0400
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     ntsironis@arrikto.com, snitzer@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] dm clone: Add missing casts to prevent
- overflows and data" failed to apply to 5.4-stable tree
-Message-ID: <20200416010821.GQ1068@sasha-vm>
-References: <15869486198643@kroah.com>
+Cc:     andrei.botila@nxp.com, herbert@gondor.apana.org.au,
+        horia.geanta@nxp.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] crypto: caam - update xts sector size for
+ large input length" failed to apply to 4.9-stable tree
+Message-ID: <20200416011338.GR1068@sasha-vm>
+References: <1586948775110154@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <15869486198643@kroah.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1586948775110154@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 01:03:39PM +0200, gregkh@linuxfoundation.org wrote:
+On Wed, Apr 15, 2020 at 01:06:15PM +0200, gregkh@linuxfoundation.org wrote:
 >
->The patch below does not apply to the 5.4-stable tree.
+>The patch below does not apply to the 4.9-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
 >tree, then please email the backport, including the original git commit
 >id to <stable@vger.kernel.org>.
@@ -54,27 +56,31 @@ On Wed, Apr 15, 2020 at 01:03:39PM +0200, gregkh@linuxfoundation.org wrote:
 >
 >------------------ original commit in Linus's tree ------------------
 >
->From 9fc06ff56845cc5ccafec52f545fc2e08d22f849 Mon Sep 17 00:00:00 2001
->From: Nikos Tsironis <ntsironis@arrikto.com>
->Date: Fri, 27 Mar 2020 16:01:10 +0200
->Subject: [PATCH] dm clone: Add missing casts to prevent overflows and data
-> corruption
+>From 3f142b6a7b573bde6cff926f246da05652c61eb4 Mon Sep 17 00:00:00 2001
+>From: Andrei Botila <andrei.botila@nxp.com>
+>Date: Fri, 28 Feb 2020 12:46:48 +0200
+>Subject: [PATCH] crypto: caam - update xts sector size for large input length
+>MIME-Version: 1.0
+>Content-Type: text/plain; charset=UTF-8
+>Content-Transfer-Encoding: 8bit
 >
->Add missing casts when converting from regions to sectors.
+>Since in the software implementation of XTS-AES there is
+>no notion of sector every input length is processed the same way.
+>CAAM implementation has the notion of sector which causes different
+>results between the software implementation and the one in CAAM
+>for input lengths bigger than 512 bytes.
+>Increase sector size to maximum value on 16 bits.
 >
->In case BITS_PER_LONG == 32, the lack of the appropriate casts can lead
->to overflows and miscalculation of the device sector.
->
->As a result, we could end up discarding and/or copying the wrong parts
->of the device, thus corrupting the device's data.
->
->Fixes: 7431b7835f55 ("dm: add clone target")
->Cc: stable@vger.kernel.org # v5.4+
->Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
->Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+>Fixes: c6415a6016bf ("crypto: caam - add support for acipher xts(aes)")
+>Cc: <stable@vger.kernel.org> # v4.12+
+>Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+>Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+>Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-Looks like addressing the other dm patches made this one apply/build as
-well.
+Function names were different due to 9dbe3072c6b1 ("crypto: caam/qi -
+ablkcipher -> skcipher conversion") - queued up for 4.19 and 4.14.
+
+I don't think that it's needed on anything older.
 
 -- 
 Thanks,
