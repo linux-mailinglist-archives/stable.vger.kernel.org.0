@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4601C1AC6D9
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:45:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 200DE1ACBF1
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394005AbgDPOpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:45:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46698 "EHLO mail.kernel.org"
+        id S2894415AbgDPPwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:52:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897478AbgDPN7m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:59:42 -0400
+        id S2896555AbgDPNcy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:32:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08B212078B;
-        Thu, 16 Apr 2020 13:59:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBD4C22202;
+        Thu, 16 Apr 2020 13:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045581;
-        bh=P/0lskj5n+fVsZdBwi59YdaK/6ajOC5ljhBBmqt4dHw=;
+        s=default; t=1587043893;
+        bh=M+5zH2hdYE1SFCdCfW6nfxHibGgFpi/+Dvdz/3pLESQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQKbYGKuIMV7BdbYmqJyUdE3o2n+mviEYWP9lccNJ6LNFJL8oQk8LfWHbT5bl7s+O
-         /mREPVYfMGvD8XwPic2Zm3EIZie4vzZN801aelI9S0ku87u048eUhr1qOkbKXoSWSz
-         xXWyv+Z2nCcSCMOJHjENMNkqr7SziwpmZ4jFYEuE=
+        b=IsPVkOlN80zjRyowRTCQRkDwoC+6r4iMp4ogehNQSdJvSH2i9ibXO09o6Yny4Rbh4
+         hZD2ky2wOd33970KF+gf043cBi5CwOCEPuKTWbBDYFcNhJbgwt9H7itwoVe9THQ92V
+         5Qhqw1h447hxF6ccNUobHQya+FPrazUSJu9MLvUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Fredrik Strupe <fredrik@strupe.net>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.6 194/254] arm64: armv8_deprecated: Fix undef_hook mask for thumb setend
-Date:   Thu, 16 Apr 2020 15:24:43 +0200
-Message-Id: <20200416131350.493998717@linuxfoundation.org>
+        stable@vger.kernel.org, Taeung Song <treeze.taeung@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 143/146] ftrace/kprobe: Show the maxactive number on kprobe_events
+Date:   Thu, 16 Apr 2020 15:24:44 +0200
+Message-Id: <20200416131301.931565735@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fredrik Strupe <fredrik@strupe.net>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit fc2266011accd5aeb8ebc335c381991f20e26e33 upstream.
+[ Upstream commit 6a13a0d7b4d1171ef9b80ad69abc37e1daa941b3 ]
 
-For thumb instructions, call_undef_hook() in traps.c first reads a u16,
-and if the u16 indicates a T32 instruction (u16 >= 0xe800), a second
-u16 is read, which then makes up the the lower half-word of a T32
-instruction. For T16 instructions, the second u16 is not read,
-which makes the resulting u32 opcode always have the upper half set to
-0.
+Show maxactive parameter on kprobe_events.
+This allows user to save the current configuration and
+restore it without losing maxactive parameter.
 
-However, having the upper half of instr_mask in the undef_hook set to 0
-masks out the upper half of all thumb instructions - both T16 and T32.
-This results in trapped T32 instructions with the lower half-word equal
-to the T16 encoding of setend (b650) being matched, even though the upper
-half-word is not 0000 and thus indicates a T32 opcode.
+Link: http://lkml.kernel.org/r/4762764a-6df7-bc93-ed60-e336146dce1f@gmail.com
+Link: http://lkml.kernel.org/r/158503528846.22706.5549974121212526020.stgit@devnote2
 
-An example of such a T32 instruction is eaa0b650, which should raise a
-SIGILL since T32 instructions with an eaa prefix are unallocated as per
-Arm ARM, but instead works as a SETEND because the second half-word is set
-to b650.
-
-This patch fixes the issue by extending instr_mask to include the
-upper u32 half, which will still match T16 instructions where the upper
-half is 0, but not T32 instructions.
-
-Fixes: 2d888f48e056 ("arm64: Emulate SETEND for AArch32 tasks")
-Cc: <stable@vger.kernel.org> # 4.0.x-
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+Fixes: 696ced4fb1d76 ("tracing/kprobes: expose maxactive for kretprobe in kprobe_events")
+Reported-by: Taeung Song <treeze.taeung@gmail.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/armv8_deprecated.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_kprobe.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm64/kernel/armv8_deprecated.c
-+++ b/arch/arm64/kernel/armv8_deprecated.c
-@@ -601,7 +601,7 @@ static struct undef_hook setend_hooks[]
- 	},
- 	{
- 		/* Thumb mode */
--		.instr_mask	= 0x0000fff7,
-+		.instr_mask	= 0xfffffff7,
- 		.instr_val	= 0x0000b650,
- 		.pstate_mask	= (PSR_AA32_T_BIT | PSR_AA32_MODE_MASK),
- 		.pstate_val	= (PSR_AA32_T_BIT | PSR_AA32_MODE_USR),
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index c61b2b0a99e9c..65b4e28ff425f 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -975,6 +975,8 @@ static int probes_seq_show(struct seq_file *m, void *v)
+ 	int i;
+ 
+ 	seq_putc(m, trace_kprobe_is_return(tk) ? 'r' : 'p');
++	if (trace_kprobe_is_return(tk) && tk->rp.maxactive)
++		seq_printf(m, "%d", tk->rp.maxactive);
+ 	seq_printf(m, ":%s/%s", tk->tp.call.class->system,
+ 			trace_event_name(&tk->tp.call));
+ 
+-- 
+2.20.1
+
 
 
