@@ -2,159 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60ADE1ABDB9
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 12:17:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BB241ABEAA
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 13:00:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441518AbgDPKQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 06:16:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53890 "EHLO
+        id S2505955AbgDPK7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 06:59:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2441482AbgDPKPo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 06:15:44 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD73C061A0C;
-        Thu, 16 Apr 2020 03:15:43 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jP1Ya-00046E-CQ; Thu, 16 Apr 2020 12:15:40 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id A873C1C001F;
-        Thu, 16 Apr 2020 12:15:39 +0200 (CEST)
-Date:   Thu, 16 Apr 2020 10:15:39 -0000
-From:   "tip-bot2 for Andrei Vagin" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/urgent] proc, time/namespace: Show clock symbolic names
- in /proc/pid/timens_offsets
-Cc:     Michael Kerrisk <mtk.manpages@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200411154031.642557-1-avagin@gmail.com>
-References: <20200411154031.642557-1-avagin@gmail.com>
+        with ESMTP id S2505913AbgDPK7n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 06:59:43 -0400
+Received: from mail-ua1-x944.google.com (mail-ua1-x944.google.com [IPv6:2607:f8b0:4864:20::944])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52981C0258D4
+        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 03:59:43 -0700 (PDT)
+Received: by mail-ua1-x944.google.com with SMTP id g10so2642709uae.5
+        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 03:59:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=p/NQn3x2dQrPgmua+MkXZ2CPgsicQ89yPGaFimgDCmY=;
+        b=H1PRjyupkz+ecVblYlD5uZ6r4HV5zKCOh+pkNDaV9amQ+qoxu3nkqACQli5ciwIiPE
+         RZYTRcRro5ZMqNbQf4/M1vESYaAobmD4nNuC0g72XoFTuHA9BzE6oyn5+UZPvtNAlJEW
+         ie/Lt169KGZ57WHaUv2tfQZD62uiHLfBim1YFbVgseXfc9JvQkfriTgSS7/0211ybdZR
+         vY785wUltPwG3+Y3GOoKYBsPOR6lhKm25CiMM1z+OitCgs5fCmLii0es72sWXK7AhmWu
+         v4PzLn8cVZR22flguxUivk/kqmXVeFMLyegDsuJNhiW5y+CWuztKa+zfIYH2w41QuLYZ
+         TDog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=p/NQn3x2dQrPgmua+MkXZ2CPgsicQ89yPGaFimgDCmY=;
+        b=e2VCzKNkuzEZFxlMUYY474yKXtnDLvuP/5409fLMs7423dwQZm4MbsUERgMLj6b7+E
+         uaaLXQva8cUQui1R+ZvZu35f09X03jmQlQr4gDSfvdBY3rdbSIROkWgC415W/+Q2dUch
+         m0x+mypNGTIbla3lt7adDD41aCCkv5+ADBxgJf+3GE87kMSPLUVF6eltija4VA8z98rL
+         RTm+WRIqS2kLU0QgV0RGPqrwsP3nWz6CLTUtHjDP70mlsjs1m44RCgPKGLBStEDDC7nd
+         7oxMLaHro+WQ/Ax/0sxzjk1VKH+QY63dFMcZ760K8FqEKlkCRkx+ywm4JfumUhCerXB3
+         Px9g==
+X-Gm-Message-State: AGi0PuY6uqcdIMpEivEGnINeVygHbv/iJEZjs8m4psH0DROsoOMhaWpp
+        k8zvvSI29iqBbY9+dNlDSRolxch2bAmqsuqfoOLptA==
+X-Google-Smtp-Source: APiQypIheC8zF+5u1sxqSHfIaGuYjJzSfh8tnXKmJeq8phNdy3w/AXb9wUOkMUHaVScHJYnzRhCpI5N5eo01eUkNqKU=
+X-Received: by 2002:ab0:2ea:: with SMTP id 97mr8516870uah.129.1587034782283;
+ Thu, 16 Apr 2020 03:59:42 -0700 (PDT)
 MIME-Version: 1.0
-Message-ID: <158703213918.28353.5534603422697683760.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+References: <1583886030-11339-1-git-send-email-skomatineni@nvidia.com> <CA+G9fYvreAv5HmZg0O4VvLvf_PYSvzD1rp08XONNQGExctgQ0Q@mail.gmail.com>
+In-Reply-To: <CA+G9fYvreAv5HmZg0O4VvLvf_PYSvzD1rp08XONNQGExctgQ0Q@mail.gmail.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Thu, 16 Apr 2020 12:59:06 +0200
+Message-ID: <CAPDyKFpZEiqTdD6O-y6Sw7ifXF__MHAv0zKT=RFKs+Fmvr-K_Q@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] sdhci: tegra: Implement Tegra specific set_timeout callback
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+        "(Exiting) Baolin Wang" <baolin.wang@linaro.org>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bradley Bolen <bradleybolen@gmail.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Aniruddha Tvs Rao <anrao@nvidia.com>,
+        linux-tegra <linux-tegra@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/urgent branch of tip:
+On Wed, 15 Apr 2020 at 19:55, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+>
+> On Fri, 13 Mar 2020 at 06:41, Sowjanya Komatineni
+> <skomatineni@nvidia.com> wrote:
+> >
+> > Tegra host supports HW busy detection and timeouts based on the
+> > count programmed in SDHCI_TIMEOUT_CONTROL register and max busy
+> > timeout it supports is 11s in finite busy wait mode.
+> >
+> > Some operations like SLEEP_AWAKE, ERASE and flush cache through
+> > SWITCH commands take longer than 11s and Tegra host supports
+> > infinite HW busy wait mode where HW waits forever till the card
+> > is busy without HW timeout.
+> >
+> > This patch implements Tegra specific set_timeout sdhci_ops to allow
+> > switching between finite and infinite HW busy detection wait modes
+> > based on the device command expected operation time.
+> >
+> > Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+> > ---
+> >  drivers/mmc/host/sdhci-tegra.c | 31 +++++++++++++++++++++++++++++++
+> >  1 file changed, 31 insertions(+)
+> >
+> > diff --git a/drivers/mmc/host/sdhci-tegra.c b/drivers/mmc/host/sdhci-tegra.c
+> > index a25c3a4..fa8f6a4 100644
+> > --- a/drivers/mmc/host/sdhci-tegra.c
+> > +++ b/drivers/mmc/host/sdhci-tegra.c
+> > @@ -45,6 +45,7 @@
+> >  #define SDHCI_TEGRA_CAP_OVERRIDES_DQS_TRIM_SHIFT       8
+> >
+> >  #define SDHCI_TEGRA_VENDOR_MISC_CTRL                   0x120
+> > +#define SDHCI_MISC_CTRL_ERASE_TIMEOUT_LIMIT            BIT(0)
+> >  #define SDHCI_MISC_CTRL_ENABLE_SDR104                  0x8
+>
+> >  #define SDHCI_MISC_CTRL_ENABLE_SDR50                   0x10
+> >  #define SDHCI_MISC_CTRL_ENABLE_SDHCI_SPEC_300          0x20
+> > @@ -1227,6 +1228,34 @@ static u32 sdhci_tegra_cqhci_irq(struct sdhci_host *host, u32 intmask)
+> >         return 0;
+> >  }
+> >
+> > +static void tegra_sdhci_set_timeout(struct sdhci_host *host,
+> > +                                   struct mmc_command *cmd)
+> > +{
+> > +       u32 val;
+> > +
+> > +       /*
+> > +        * HW busy detection timeout is based on programmed data timeout
+> > +        * counter and maximum supported timeout is 11s which may not be
+> > +        * enough for long operations like cache flush, sleep awake, erase.
+> > +        *
+> > +        * ERASE_TIMEOUT_LIMIT bit of VENDOR_MISC_CTRL register allows
+> > +        * host controller to wait for busy state until the card is busy
+> > +        * without HW timeout.
+> > +        *
+> > +        * So, use infinite busy wait mode for operations that may take
+> > +        * more than maximum HW busy timeout of 11s otherwise use finite
+> > +        * busy wait mode.
+> > +        */
+> > +       val = sdhci_readl(host, SDHCI_TEGRA_VENDOR_MISC_CTRL);
+> > +       if (cmd && cmd->busy_timeout >= 11 * HZ)
+> > +               val |= SDHCI_MISC_CTRL_ERASE_TIMEOUT_LIMIT;
+> > +       else
+> > +               val &= ~SDHCI_MISC_CTRL_ERASE_TIMEOUT_LIMIT;
+> > +       sdhci_writel(host, val, SDHCI_TEGRA_VENDOR_MISC_CTRL);
+> > +
+> > +       __sdhci_set_timeout(host, cmd);
+>
+> kernel build on arm and arm64 architecture failed on stable-rc 4.19
+> (arm), 5.4 (arm64) and 5.5 (arm64)
+>
+> drivers/mmc/host/sdhci-tegra.c: In function 'tegra_sdhci_set_timeout':
+> drivers/mmc/host/sdhci-tegra.c:1256:2: error: implicit declaration of
+> function '__sdhci_set_timeout'; did you mean
+> 'tegra_sdhci_set_timeout'? [-Werror=implicit-function-declaration]
+>   __sdhci_set_timeout(host, cmd);
+>   ^~~~~~~~~~~~~~~~~~~
+>   tegra_sdhci_set_timeout
+>
+> Full build log,
+> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.5/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/83/consoleText
+> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-5.4/DISTRO=lkft,MACHINE=juno,label=docker-lkft/158/consoleText
+> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.19/DISTRO=lkft,MACHINE=am57xx-evm,label=docker-lkft/511/consoleText
+>
+> - Naresh
 
-Commit-ID:     94d440d618467806009c8edc70b094d64e12ee5a
-Gitweb:        https://git.kernel.org/tip/94d440d618467806009c8edc70b094d64e12ee5a
-Author:        Andrei Vagin <avagin@gmail.com>
-AuthorDate:    Sat, 11 Apr 2020 08:40:31 -07:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Thu, 16 Apr 2020 12:10:54 +02:00
+Thanks for reporting! What a mess.
 
-proc, time/namespace: Show clock symbolic names in /proc/pid/timens_offsets
+It turns out that the commit that was queued for stable that is
+causing the above errors, also requires another commit.
 
-Michael Kerrisk suggested to replace numeric clock IDs with symbolic names.
+The commit that was queued:
+5e958e4aacf4 ("sdhci: tegra: Implement Tegra specific set_timeout callback")
 
-Now the content of these files looks like this:
-$ cat /proc/774/timens_offsets
-monotonic      864000         0
-boottime      1728000         0
+The additional commit needed (which was added in v5.6-rc1):
+7d76ed77cfbd ("mmc: sdhci: Refactor sdhci_set_timeout()")
 
-For setting offsets, both representations of clocks (numeric and symbolic)
-can be used.
+However, the above commit needs a manual backport (quite trivial, but
+still) for the relevant stable kernels, to allow it to solve the build
+problems.
 
-As for compatibility, it is acceptable to change things as long as
-userspace doesn't care. The format of timens_offsets files is very new and
-there are no userspace tools yet which rely on this format.
+Greg, Sasha - I suggest you to drop the offending commit from the
+stable kernels, for now. I think it's better to let Sowjanya deal with
+the backports, then send them in small series instead.
 
-But three projects crun, util-linux and criu rely on the interface of
-setting time offsets and this is why it's required to continue supporting
-the numeric clock IDs on write.
-
-Fixes: 04a8682a71be ("fs/proc: Introduce /proc/pid/timens_offsets")
-Suggested-by: Michael Kerrisk <mtk.manpages@gmail.com>
-Signed-off-by: Andrei Vagin <avagin@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Michael Kerrisk <mtk.manpages@gmail.com>
-Acked-by: Michael Kerrisk <mtk.manpages@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200411154031.642557-1-avagin@gmail.com
----
- fs/proc/base.c          | 14 +++++++++++++-
- kernel/time/namespace.c | 15 ++++++++++++++-
- 2 files changed, 27 insertions(+), 2 deletions(-)
-
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 6042b64..572898d 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -1573,6 +1573,7 @@ static ssize_t timens_offsets_write(struct file *file, const char __user *buf,
- 	noffsets = 0;
- 	for (pos = kbuf; pos; pos = next_line) {
- 		struct proc_timens_offset *off = &offsets[noffsets];
-+		char clock[10];
- 		int err;
- 
- 		/* Find the end of line and ensure we don't look past it */
-@@ -1584,10 +1585,21 @@ static ssize_t timens_offsets_write(struct file *file, const char __user *buf,
- 				next_line = NULL;
- 		}
- 
--		err = sscanf(pos, "%u %lld %lu", &off->clockid,
-+		err = sscanf(pos, "%9s %lld %lu", clock,
- 				&off->val.tv_sec, &off->val.tv_nsec);
- 		if (err != 3 || off->val.tv_nsec >= NSEC_PER_SEC)
- 			goto out;
-+
-+		clock[sizeof(clock) - 1] = 0;
-+		if (strcmp(clock, "monotonic") == 0 ||
-+		    strcmp(clock, __stringify(CLOCK_MONOTONIC)) == 0)
-+			off->clockid = CLOCK_MONOTONIC;
-+		else if (strcmp(clock, "boottime") == 0 ||
-+			 strcmp(clock, __stringify(CLOCK_BOOTTIME)) == 0)
-+			off->clockid = CLOCK_BOOTTIME;
-+		else
-+			goto out;
-+
- 		noffsets++;
- 		if (noffsets == ARRAY_SIZE(offsets)) {
- 			if (next_line)
-diff --git a/kernel/time/namespace.c b/kernel/time/namespace.c
-index 3b30288..53bce34 100644
---- a/kernel/time/namespace.c
-+++ b/kernel/time/namespace.c
-@@ -338,7 +338,20 @@ static struct user_namespace *timens_owner(struct ns_common *ns)
- 
- static void show_offset(struct seq_file *m, int clockid, struct timespec64 *ts)
- {
--	seq_printf(m, "%d %lld %ld\n", clockid, ts->tv_sec, ts->tv_nsec);
-+	char *clock;
-+
-+	switch (clockid) {
-+	case CLOCK_BOOTTIME:
-+		clock = "boottime";
-+		break;
-+	case CLOCK_MONOTONIC:
-+		clock = "monotonic";
-+		break;
-+	default:
-+		clock = "unknown";
-+		break;
-+	}
-+	seq_printf(m, "%-10s %10lld %9ld\n", clock, ts->tv_sec, ts->tv_nsec);
- }
- 
- void proc_timens_show_offsets(struct task_struct *p, struct seq_file *m)
+Kind regards
+Uffe
