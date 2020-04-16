@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 582F21AB5AE
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 03:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7013D1AB5D2
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 04:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732823AbgDPB6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 21:58:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56978 "EHLO mail.kernel.org"
+        id S1731711AbgDPCVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 22:21:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730838AbgDPB6L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 21:58:11 -0400
+        id S1731550AbgDPCVU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 22:21:20 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FB92206D9;
-        Thu, 16 Apr 2020 01:58:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01EFB2076D;
+        Thu, 16 Apr 2020 02:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587002290;
-        bh=n9v2t+jS50Mdp8hCrcY2vT5+ZulrOPyL/XWFAzODD+Q=;
+        s=default; t=1587003679;
+        bh=zaERmn/D2XCvsqxtDjbwXdine0SWlExcjHCQrIIjn7c=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MI4vW6YAsQL6UcxVnItB3Da9rgYMiapV2R57hcbsYrvPpFVcXaS4wAkjrFeBYmxOX
-         1YzuKppF/ZsuH8qaDQA3jD7Ic7qIeQkiybrV2hAfIBOl0P6K+deh7Kwj0FXwsJKCbb
-         3t/nbwQtHPYNj6y8GPEp2eFhsL9tgXFVkT5tFass=
-Date:   Wed, 15 Apr 2020 21:58:09 -0400
+        b=0BVgjFZi45XxEDhsHeflFVGPRMTKAGlKnIVZXOxj77Rt9RzCf80nk9dEurgzodXBi
+         Lk3+wC3Mz2WZglc0HKBVAAOQ1YlGuYlVpyGQjlqtJetDUAR6jjk1K/z14m+Lds6/Fb
+         iB7AL8vV0y/5TS1ZFGAAg+b504J5SYZiAhwTWiGs=
+Date:   Wed, 15 Apr 2020 22:21:17 -0400
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     duwe@lst.de, Laurent.pinchart@ideasonboard.com,
-        a.hajda@samsung.com, daniel.vetter@ffwll.ch,
-        jernej.skrabec@siol.net, jonas@kwiboo.se, narmstrong@baylibre.com,
-        stable@vger.kernel.org, treding@nvidia.com, tzimmermann@suse.de
-Subject: Re: FAILED: patch "[PATCH] drm/bridge: analogix-anx78xx: Fix
- drm_dp_link helper removal" failed to apply to 5.5-stable tree
-Message-ID: <20200416015809.GW1068@sasha-vm>
-References: <158695023362255@kroah.com>
+Cc:     lyude@redhat.com, Wayne.Lin@amd.com, sean@poorly.run,
+        ville.syrjala@linux.intel.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] drm/dp_mst: Fix clearing payload state on
+ topology disable" failed to apply to 5.6-stable tree
+Message-ID: <20200416022117.GX1068@sasha-vm>
+References: <1586950297139145@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
-In-Reply-To: <158695023362255@kroah.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1586950297139145@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 01:30:33PM +0200, gregkh@linuxfoundation.org wrote:
+On Wed, Apr 15, 2020 at 01:31:37PM +0200, gregkh@linuxfoundation.org wrote:
 >
->The patch below does not apply to the 5.5-stable tree.
+>The patch below does not apply to the 5.6-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
 >tree, then please email the backport, including the original git commit
 >id to <stable@vger.kernel.org>.
@@ -57,30 +56,59 @@ On Wed, Apr 15, 2020 at 01:30:33PM +0200, gregkh@linuxfoundation.org wrote:
 >
 >------------------ original commit in Linus's tree ------------------
 >
->From 3e138a63d6674a4567a018a31e467567c40b14d5 Mon Sep 17 00:00:00 2001
->From: Torsten Duwe <duwe@lst.de>
->Date: Tue, 18 Feb 2020 16:57:44 +0100
->Subject: [PATCH] drm/bridge: analogix-anx78xx: Fix drm_dp_link helper removal
+>From 8732fe46b20c951493bfc4dba0ad08efdf41de81 Mon Sep 17 00:00:00 2001
+>From: Lyude Paul <lyude@redhat.com>
+>Date: Wed, 22 Jan 2020 14:43:20 -0500
+>Subject: [PATCH] drm/dp_mst: Fix clearing payload state on topology disable
+>MIME-Version: 1.0
+>Content-Type: text/plain; charset=UTF-8
+>Content-Transfer-Encoding: 8bit
 >
->drm_dp_link_rate_to_bw_code and ...bw_code_to_link_rate simply divide by
->and multiply with 27000, respectively. Avoid an overflow in the u8 dpcd[0]
->and the multiply+divide alltogether.
+>The issues caused by:
 >
->Signed-off-by: Torsten Duwe <duwe@lst.de>
->Fixes: ff1e8fb68ea0 ("drm/bridge: analogix-anx78xx: Avoid drm_dp_link helpers")
->Cc: Thierry Reding <treding@nvidia.com>
->Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
->Cc: Andrzej Hajda <a.hajda@samsung.com>
->Cc: Neil Armstrong <narmstrong@baylibre.com>
->Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
->Cc: Jonas Karlman <jonas@kwiboo.se>
->Cc: Jernej Skrabec <jernej.skrabec@siol.net>
->Cc: <stable@vger.kernel.org> # v5.5+
->Reviewed-by: Thierry Reding <treding@nvidia.com>
->Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->Link: https://patchwork.freedesktop.org/patch/msgid/20200218155744.9675368BE1@verein.lst.de
+>commit 64e62bdf04ab ("drm/dp_mst: Remove VCPI while disabling topology
+>mgr")
+>
+>Prompted me to take a closer look at how we clear the payload state in
+>general when disabling the topology, and it turns out there's actually
+>two subtle issues here.
+>
+>The first is that we're not grabbing &mgr.payload_lock when clearing the
+>payloads in drm_dp_mst_topology_mgr_set_mst(). Seeing as the canonical
+>lock order is &mgr.payload_lock -> &mgr.lock (because we always want
+>&mgr.lock to be the inner-most lock so topology validation always
+>works), this makes perfect sense. It also means that -technically- there
+>could be racing between someone calling
+>drm_dp_mst_topology_mgr_set_mst() to disable the topology, along with a
+>modeset occurring that's modifying the payload state at the same time.
+>
+>The second is the more obvious issue that Wayne Lin discovered, that
+>we're not clearing proposed_payloads when disabling the topology.
+>
+>I actually can't see any obvious places where the racing caused by the
+>first issue would break something, and it could be that some of our
+>higher-level locks already prevent this by happenstance, but better safe
+>then sorry. So, let's make it so that drm_dp_mst_topology_mgr_set_mst()
+>first grabs &mgr.payload_lock followed by &mgr.lock so that we never
+>race when modifying the payload state. Then, we also clear
+>proposed_payloads to fix the original issue of enabling a new topology
+>with a dirty payload state. This doesn't clear any of the drm_dp_vcpi
+>structures, but those are getting destroyed along with the ports anyway.
+>
+>Changes since v1:
+>* Use sizeof(mgr->payloads[0])/sizeof(mgr->proposed_vcpis[0]) instead -
+>  vsyrjala
+>
+>Cc: Sean Paul <sean@poorly.run>
+>Cc: Wayne Lin <Wayne.Lin@amd.com>
+>Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+>Cc: stable@vger.kernel.org # v4.4+
+>Signed-off-by: Lyude Paul <lyude@redhat.com>
+>Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+>Link: https://patchwork.freedesktop.org/patch/msgid/20200122194321.14953-1-lyude@redhat.com
 
-Different filename in 5.4, fixed and queued up.
+We needed a86675968e23 ("Revert "drm/dp_mst: Remove VCPI while disabling
+topology mgr"") too (this is a revert of a stable tagged commit).
 
 -- 
 Thanks,
