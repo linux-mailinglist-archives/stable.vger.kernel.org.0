@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0731B1AC936
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1513F1AC444
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:57:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406687AbgDPPU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33390 "EHLO mail.kernel.org"
+        id S2441849AbgDPN5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:57:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898663AbgDPNrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:47:22 -0400
+        id S2441836AbgDPN5D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:57:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B48921974;
-        Thu, 16 Apr 2020 13:47:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C9552076D;
+        Thu, 16 Apr 2020 13:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044840;
+        s=default; t=1587045422;
         bh=KAASmrYb++HJPA3aAIxo3b3Wo1cOBCFKWgeDuqpjtIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6Sa3s4VnQhbOXnExnEe/6fihqwYHRgKAaKiH7PRRFbHE1a3w68wpRGMTq0IBh5bo
-         RFleNkX06d2bzBalOOyde7/CEk3taowQ2IGdc9oNWJIvAUuvbbXXgM5eXBA+1qY7X6
-         dkNiDzOhKNcnMXTVhEy2qxHawYKNycM8QYtXDQDM=
+        b=Z4PQ4/oI1EV1WZ6cJbSrmXqge7PXY4yZP6l9B/cbPNPE4fYFJOmiDrt6sKMrYtHW4
+         uGr3kKhVBY3GSGPvLZr3XyGDNZZMUOhUISdkBuobvGbwDvSreZtXkbieTfsEgIUQyc
+         7r8SLcLJlR/pJm+3YSd+Lu+woe1fxvJyY7mwtl5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vipul Kumar <vipulk0511@gmail.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.4 122/232] x86/tsc_msr: Make MSR derived TSC frequency more accurate
+Subject: [PATCH 5.6 127/254] x86/tsc_msr: Make MSR derived TSC frequency more accurate
 Date:   Thu, 16 Apr 2020 15:23:36 +0200
-Message-Id: <20200416131330.358311582@linuxfoundation.org>
+Message-Id: <20200416131342.306936889@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
