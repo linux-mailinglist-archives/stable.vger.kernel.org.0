@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A32551AC8EF
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43ED11AC710
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503909AbgDPPQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:16:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35160 "EHLO mail.kernel.org"
+        id S1731443AbgDPOsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:48:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729389AbgDPNtI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:49:08 -0400
+        id S2506792AbgDPN6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:58:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04A5F208E4;
-        Thu, 16 Apr 2020 13:49:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C3D42192A;
+        Thu, 16 Apr 2020 13:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044948;
-        bh=0t/oLzkgFXhjX5DcSYiAxTJvv2saLqLGZ+qwSaWFEk8=;
+        s=default; t=1587045532;
+        bh=RDjO3YYy/MdIUEH1+yLlqQdclPfYbYEFsqVHv24n7HY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YvOY3+tfG3vGYBDzCUqFci6xQMFAG1JrQXjYUlLRcorIT8hLzmOTaXYH7ECl6ilTW
-         +ZuviIksA7vT9WDzDEm4eoenRJ8vNuKYivG0FRvRjzAEXaFLM5dpWUdnaNVyaasIeS
-         Bu82hYvZnGuIOlm2xj9NAfkv+iPKJSMwxvgUCmnY=
+        b=ItWe3DapJXVtz2JyTy8t4kDEIGwpQm49WbL8PZPqint++1mKO7E8O5JjR7irAuXV8
+         iL42kXO7KOpFfTUtZZjvoZA8LA0L3f0WgL62y2rJCfwsOqFMnLtGU6hogfS5zYszYF
+         9r5Zc6nht/lE5mt2hrq8v8SMH1ndYlRVrMQBPe5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 5.4 166/232] XArray: Fix xas_pause for large multi-index entries
-Date:   Thu, 16 Apr 2020 15:24:20 +0200
-Message-Id: <20200416131335.784038432@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Chris Down <chris@chrisdown.name>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.6 172/254] mm, memcg: do not high throttle allocators based on wraparound
+Date:   Thu, 16 Apr 2020 15:24:21 +0200
+Message-Id: <20200416131347.961450401@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit c36d451ad386b34f452fc3c8621ff14b9eaa31a6 upstream.
+commit 9b8b17541f13809d06f6f873325305ddbb760e3e upstream.
 
-Inspired by the recent Coverity report, I looked for other places where
-the offset wasn't being converted to an unsigned long before being
-shifted, and I found one in xas_pause() when the entry being paused is
-of order >32.
+If a cgroup violates its memory.high constraints, we may end up unduly
+penalising it.  For example, for the following hierarchy:
 
-Fixes: b803b42823d0 ("xarray: Add XArray iterators")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: stable@vger.kernel.org
+  A:   max high, 20 usage
+  A/B: 9 high, 10 usage
+  A/C: max high, 10 usage
+
+We would end up doing the following calculation below when calculating
+high delay for A/B:
+
+  A/B: 10 - 9 = 1...
+  A:   20 - PAGE_COUNTER_MAX = 21, so set max_overage to 21.
+
+This gets worse with higher disparities in usage in the parent.
+
+I have no idea how this disappeared from the final version of the patch,
+but it is certainly Not Good(tm).  This wasn't obvious in testing because,
+for a simple cgroup hierarchy with only one child, the result is usually
+roughly the same.  It's only in more complex hierarchies that things go
+really awry (although still, the effects are limited to a maximum of 2
+seconds in schedule_timeout_killable at a maximum).
+
+[chris@chrisdown.name: changelog]
+Fixes: e26733e0d0ec ("mm, memcg: throttle allocators based on ancestral memory.high")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Chris Down <chris@chrisdown.name>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: <stable@vger.kernel.org>	[5.4.x]
+Link: http://lkml.kernel.org/r/20200331152424.GA1019937@chrisdown.name
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/test_xarray.c |   37 +++++++++++++++++++++++++++++++++++++
- lib/xarray.c      |    2 +-
- 2 files changed, 38 insertions(+), 1 deletion(-)
+ mm/memcontrol.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/lib/test_xarray.c
-+++ b/lib/test_xarray.c
-@@ -1156,6 +1156,42 @@ static noinline void check_find_entry(st
- 	XA_BUG_ON(xa, !xa_empty(xa));
- }
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -2324,6 +2324,9 @@ static unsigned long calculate_high_dela
+ 		usage = page_counter_read(&memcg->memory);
+ 		high = READ_ONCE(memcg->high);
  
-+static noinline void check_pause(struct xarray *xa)
-+{
-+	XA_STATE(xas, xa, 0);
-+	void *entry;
-+	unsigned int order;
-+	unsigned long index = 1;
-+	unsigned int count = 0;
++		if (usage <= high)
++			continue;
 +
-+	for (order = 0; order < order_limit; order++) {
-+		XA_BUG_ON(xa, xa_store_order(xa, index, order,
-+					xa_mk_index(index), GFP_KERNEL));
-+		index += 1UL << order;
-+	}
-+
-+	rcu_read_lock();
-+	xas_for_each(&xas, entry, ULONG_MAX) {
-+		XA_BUG_ON(xa, entry != xa_mk_index(1UL << count));
-+		count++;
-+	}
-+	rcu_read_unlock();
-+	XA_BUG_ON(xa, count != order_limit);
-+
-+	count = 0;
-+	xas_set(&xas, 0);
-+	rcu_read_lock();
-+	xas_for_each(&xas, entry, ULONG_MAX) {
-+		XA_BUG_ON(xa, entry != xa_mk_index(1UL << count));
-+		count++;
-+		xas_pause(&xas);
-+	}
-+	rcu_read_unlock();
-+	XA_BUG_ON(xa, count != order_limit);
-+
-+	xa_destroy(xa);
-+}
-+
- static noinline void check_move_tiny(struct xarray *xa)
- {
- 	XA_STATE(xas, xa, 0);
-@@ -1664,6 +1700,7 @@ static int xarray_checks(void)
- 	check_xa_alloc();
- 	check_find(&array);
- 	check_find_entry(&array);
-+	check_pause(&array);
- 	check_account(&array);
- 	check_destroy(&array);
- 	check_move(&array);
---- a/lib/xarray.c
-+++ b/lib/xarray.c
-@@ -970,7 +970,7 @@ void xas_pause(struct xa_state *xas)
- 
- 	xas->xa_node = XAS_RESTART;
- 	if (node) {
--		unsigned int offset = xas->xa_offset;
-+		unsigned long offset = xas->xa_offset;
- 		while (++offset < XA_CHUNK_SIZE) {
- 			if (!xa_is_sibling(xa_entry(xas->xa, node, offset)))
- 				break;
+ 		/*
+ 		 * Prevent division by 0 in overage calculation by acting as if
+ 		 * it was a threshold of 1 page
 
 
