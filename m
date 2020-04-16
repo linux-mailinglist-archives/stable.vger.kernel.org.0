@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF381AC89D
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:12:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 559531ACA45
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394762AbgDPPLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:11:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36116 "EHLO mail.kernel.org"
+        id S2898319AbgDPNl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:41:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441671AbgDPNuL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:11 -0400
+        id S2898296AbgDPNl0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECE53217D8;
-        Thu, 16 Apr 2020 13:50:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6676F2076D;
+        Thu, 16 Apr 2020 13:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045009;
-        bh=35DQCoLhU4IACeOnSBXyrN4iKj6AcylTdXMZ0STztX4=;
+        s=default; t=1587044485;
+        bh=6yOYKSkkjiW+PSa9ceaqSZizZQtvjSKI5yYQ7sjHvpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLz1A5Fp2SVTEkZ52U11Q3l4wWt7pjLgu1lTYqFxwsbEz3SDO6YjoMsRE5qAxrgf7
-         rA9qetYNVS7OVSXGRTyvybBo8JT1Puyzj+o2o5byWdh7yGMutmos/LZaWX9fdu5gAv
-         Cyc7FxLelaOyFWCTKOkqfSkmGTo81iC5Oq8xXftE=
+        b=Eb1WvXAMT3rKA22phbR6c60FmSMffd3q6oM8z8C+9KvTsGuJgqAhoJC//FdvMwtjs
+         NZ7lLrQ1btdvJUGQi/ELcUwPcjpQvqyOt8+Euv3d2zhMcg29hUGoF3NMXdDUufCggE
+         usdGpvbLL8zqgnnmV5voquYcrVNgRtEyt3Xd7xyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jessica Yu <jeyu@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        NeilBrown <neilb@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 193/232] fs/filesystems.c: downgrade user-reachable WARN_ONCE() to pr_warn_once()
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 236/257] powerpc/64/tm: Dont let userspace set regs->trap via sigreturn
 Date:   Thu, 16 Apr 2020 15:24:47 +0200
-Message-Id: <20200416131339.304534097@linuxfoundation.org>
+Message-Id: <20200416131355.116663460@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,55 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 26c5d78c976ca298e59a56f6101a97b618ba3539 upstream.
+commit c7def7fbdeaa25feaa19caf4a27c5d10bd8789e4 upstream.
 
-After request_module(), nothing is stopping the module from being
-unloaded until someone takes a reference to it via try_get_module().
+In restore_tm_sigcontexts() we take the trap value directly from the
+user sigcontext with no checking:
 
-The WARN_ONCE() in get_fs_type() is thus user-reachable, via userspace
-running 'rmmod' concurrently.
+	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
 
-Since WARN_ONCE() is for kernel bugs only, not for user-reachable
-situations, downgrade this warning to pr_warn_once().
+This means we can be in the kernel with an arbitrary regs->trap value.
 
-Keep it printed once only, since the intent of this warning is to detect
-a bug in modprobe at boot time.  Printing the warning more than once
-wouldn't really provide any useful extra information.
+Although that's not immediately problematic, there is a risk we could
+trigger one of the uses of CHECK_FULL_REGS():
 
-Fixes: 41124db869b7 ("fs: warn in case userspace lied about modprobe return")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Jessica Yu <jeyu@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jeff Vander Stoep <jeffv@google.com>
-Cc: Jessica Yu <jeyu@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: NeilBrown <neilb@suse.com>
-Cc: <stable@vger.kernel.org>		[4.13+]
-Link: http://lkml.kernel.org/r/20200312202552.241885-3-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+	#define CHECK_FULL_REGS(regs)	BUG_ON(regs->trap & 1)
+
+It can also cause us to unnecessarily save non-volatile GPRs again in
+save_nvgprs(), which shouldn't be problematic but is still wrong.
+
+It's also possible it could trick the syscall restart machinery, which
+relies on regs->trap not being == 0xc00 (see 9a81c16b5275 ("powerpc:
+fix double syscall restarts")), though I haven't been able to make
+that happen.
+
+Finally it doesn't match the behaviour of the non-TM case, in
+restore_sigcontext() which zeroes regs->trap.
+
+So change restore_tm_sigcontexts() to zero regs->trap.
+
+This was discovered while testing Nick's upcoming rewrite of the
+syscall entry path. In that series the call to save_nvgprs() prior to
+signal handling (do_notify_resume()) is removed, which leaves the
+low-bit of regs->trap uncleared which can then trigger the FULL_REGS()
+WARNs in setup_tm_sigcontexts().
+
+Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
+Cc: stable@vger.kernel.org # v3.9+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200401023836.3286664-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/filesystems.c |    4 +++-
+ arch/powerpc/kernel/signal_64.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/filesystems.c
-+++ b/fs/filesystems.c
-@@ -271,7 +271,9 @@ struct file_system_type *get_fs_type(con
- 	fs = __get_fs_type(name, len);
- 	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
- 		fs = __get_fs_type(name, len);
--		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
-+		if (!fs)
-+			pr_warn_once("request_module fs-%.*s succeeded, but still no fs?\n",
-+				     len, name);
- 	}
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -473,8 +473,10 @@ static long restore_tm_sigcontexts(struc
+ 	err |= __get_user(tsk->thread.ckpt_regs.ccr,
+ 			  &sc->gp_regs[PT_CCR]);
  
- 	if (dot && fs && !(fs->fs_flags & FS_HAS_SUBTYPE)) {
++	/* Don't allow userspace to set the trap value */
++	regs->trap = 0;
++
+ 	/* These regs are not checkpointed; they can go in 'regs'. */
+-	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
+ 	err |= __get_user(regs->dar, &sc->gp_regs[PT_DAR]);
+ 	err |= __get_user(regs->dsisr, &sc->gp_regs[PT_DSISR]);
+ 	err |= __get_user(regs->result, &sc->gp_regs[PT_RESULT]);
 
 
