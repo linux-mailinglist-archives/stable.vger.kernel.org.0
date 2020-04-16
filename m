@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B7DB1AC68D
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DD8C1AC856
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394425AbgDPOlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:41:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48688 "EHLO mail.kernel.org"
+        id S2408756AbgDPNvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:51:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405101AbgDPOB2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:01:28 -0400
+        id S2408717AbgDPNvp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:51:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9120A2078B;
-        Thu, 16 Apr 2020 14:01:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EE662063A;
+        Thu, 16 Apr 2020 13:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045687;
-        bh=6yOYKSkkjiW+PSa9ceaqSZizZQtvjSKI5yYQ7sjHvpw=;
+        s=default; t=1587045104;
+        bh=yzOCijrevyWKq0eQvi+H/8CZmlIe60H58OkBcByJv7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Od+jxJNWaW0vwBkXfm+Jimnt2cE0jodbYMPsldQYWTr6tZK/cnDTDN7jnsSvVE0TV
-         k9GE79Ldtevfg3TwyP8t6OrJYvAM9e2l6vVDYaOYt8b3CSkrJn/mO2rHNr+d3SWUGJ
-         Toj7pj6ZOx1y/R69Rm1xCbR/SkzSvtoMfnnECMIs=
+        b=weeZ1Bb1zex6izmJaDHraPUNyljf+O6WpoAuQc+xiflMb1cZhGc841SaK/bWTb0aZ
+         68UmVr7eQsZXGOVoAd9iGeIJ1Ce5dtpWP4FPbevB4U0QQnSPrFrqEE5KB7Fzxo/ktg
+         285L6yLZWKR5DE7vdIriPoJIAS2vXp9Z3Z583QV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 237/254] powerpc/64/tm: Dont let userspace set regs->trap via sigreturn
+        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 232/232] mmc: sdhci: Refactor sdhci_set_timeout()
 Date:   Thu, 16 Apr 2020 15:25:26 +0200
-Message-Id: <20200416131355.173982898@linuxfoundation.org>
+Message-Id: <20200416131344.569182480@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Faiz Abbas <faiz_abbas@ti.com>
 
-commit c7def7fbdeaa25feaa19caf4a27c5d10bd8789e4 upstream.
+[ Upstream commit 7d76ed77cfbd39468ae58d419f537d35ca892d83 ]
 
-In restore_tm_sigcontexts() we take the trap value directly from the
-user sigcontext with no checking:
+Refactor sdhci_set_timeout() such that platform drivers can do some
+functionality in a set_timeout() callback and then call
+__sdhci_set_timeout() to complete the operation.
 
-	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
-
-This means we can be in the kernel with an arbitrary regs->trap value.
-
-Although that's not immediately problematic, there is a risk we could
-trigger one of the uses of CHECK_FULL_REGS():
-
-	#define CHECK_FULL_REGS(regs)	BUG_ON(regs->trap & 1)
-
-It can also cause us to unnecessarily save non-volatile GPRs again in
-save_nvgprs(), which shouldn't be problematic but is still wrong.
-
-It's also possible it could trick the syscall restart machinery, which
-relies on regs->trap not being == 0xc00 (see 9a81c16b5275 ("powerpc:
-fix double syscall restarts")), though I haven't been able to make
-that happen.
-
-Finally it doesn't match the behaviour of the non-TM case, in
-restore_sigcontext() which zeroes regs->trap.
-
-So change restore_tm_sigcontexts() to zero regs->trap.
-
-This was discovered while testing Nick's upcoming rewrite of the
-syscall entry path. In that series the call to save_nvgprs() prior to
-signal handling (do_notify_resume()) is removed, which leaves the
-low-bit of regs->trap uncleared which can then trigger the FULL_REGS()
-WARNs in setup_tm_sigcontexts().
-
-Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
-Cc: stable@vger.kernel.org # v3.9+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200401023836.3286664-1-mpe@ellerman.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20200116105154.7685-7-faiz_abbas@ti.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/signal_64.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci.c | 38 ++++++++++++++++++++------------------
+ drivers/mmc/host/sdhci.h |  1 +
+ 2 files changed, 21 insertions(+), 18 deletions(-)
 
---- a/arch/powerpc/kernel/signal_64.c
-+++ b/arch/powerpc/kernel/signal_64.c
-@@ -473,8 +473,10 @@ static long restore_tm_sigcontexts(struc
- 	err |= __get_user(tsk->thread.ckpt_regs.ccr,
- 			  &sc->gp_regs[PT_CCR]);
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index 4c40fd4ba21b1..50514fedbc76f 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -992,27 +992,29 @@ void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable)
+ }
+ EXPORT_SYMBOL_GPL(sdhci_set_data_timeout_irq);
  
-+	/* Don't allow userspace to set the trap value */
-+	regs->trap = 0;
+-static void sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
++void __sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
+ {
+-	u8 count;
+-
+-	if (host->ops->set_timeout) {
+-		host->ops->set_timeout(host, cmd);
+-	} else {
+-		bool too_big = false;
+-
+-		count = sdhci_calc_timeout(host, cmd, &too_big);
++	bool too_big = false;
++	u8 count = sdhci_calc_timeout(host, cmd, &too_big);
 +
- 	/* These regs are not checkpointed; they can go in 'regs'. */
--	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
- 	err |= __get_user(regs->dar, &sc->gp_regs[PT_DAR]);
- 	err |= __get_user(regs->dsisr, &sc->gp_regs[PT_DSISR]);
- 	err |= __get_user(regs->result, &sc->gp_regs[PT_RESULT]);
++	if (too_big &&
++	    host->quirks2 & SDHCI_QUIRK2_DISABLE_HW_TIMEOUT) {
++		sdhci_calc_sw_timeout(host, cmd);
++		sdhci_set_data_timeout_irq(host, false);
++	} else if (!(host->ier & SDHCI_INT_DATA_TIMEOUT)) {
++		sdhci_set_data_timeout_irq(host, true);
++	}
+ 
+-		if (too_big &&
+-		    host->quirks2 & SDHCI_QUIRK2_DISABLE_HW_TIMEOUT) {
+-			sdhci_calc_sw_timeout(host, cmd);
+-			sdhci_set_data_timeout_irq(host, false);
+-		} else if (!(host->ier & SDHCI_INT_DATA_TIMEOUT)) {
+-			sdhci_set_data_timeout_irq(host, true);
+-		}
++	sdhci_writeb(host, count, SDHCI_TIMEOUT_CONTROL);
++}
++EXPORT_SYMBOL_GPL(__sdhci_set_timeout);
+ 
+-		sdhci_writeb(host, count, SDHCI_TIMEOUT_CONTROL);
+-	}
++static void sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
++{
++	if (host->ops->set_timeout)
++		host->ops->set_timeout(host, cmd);
++	else
++		__sdhci_set_timeout(host, cmd);
+ }
+ 
+ static void sdhci_prepare_data(struct sdhci_host *host, struct mmc_command *cmd)
+diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
+index 4613d71b3cd6e..76e69288632db 100644
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -796,5 +796,6 @@ void sdhci_reset_tuning(struct sdhci_host *host);
+ void sdhci_send_tuning(struct sdhci_host *host, u32 opcode);
+ void sdhci_abort_tuning(struct sdhci_host *host, u32 opcode);
+ void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable);
++void __sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd);
+ 
+ #endif /* __SDHCI_HW_H */
+-- 
+2.20.1
+
 
 
