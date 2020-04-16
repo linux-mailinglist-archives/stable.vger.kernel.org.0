@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE041AC25A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:27:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55F511AC930
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895491AbgDPN12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:27:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35788 "EHLO mail.kernel.org"
+        id S2394301AbgDPPUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:20:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895478AbgDPN1Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:27:25 -0400
+        id S2898681AbgDPNrb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:47:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22C6F21D93;
-        Thu, 16 Apr 2020 13:27:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04AAF2222D;
+        Thu, 16 Apr 2020 13:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043644;
-        bh=yWJuEw3skjdqBCHT7KkfyU/k5u58pHckm/0x3VrLbVY=;
+        s=default; t=1587044850;
+        bh=7optjhFEa+3PEcCmGs68rGHltQp375AoRvT4kjo1PUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1XxdjffPSEAmwzUg7T2EOBm22v0i0qJIMcSqDtKD0m+koWV1oVvE8RU1uHe5efIl
-         G7bPnYtwHyEFYypTMOzu1XBjlTUZW80/DkCRRpAiqqE/V3OfJcaKIq4uiZwspNau9k
-         oUrEoJ/Yuav0g9Zoi29ykdUoQnY8YiGLgIOKAH14=
+        b=sv5JfXcYZiSHtnMg9XNG8TTq6Kw9AY2x3GDkYKnRuZ7+OnGPLdgLkYHz/STg2hazm
+         fNyh+IyQiIQC5KsAvUiwlHn07XK7Jq9ZFPl4SYJOMOp8+vMyGfV06k/EZ2NQ6pwUqW
+         DzelvqKfFN/FO8eZJyUbdATZKZ88UaSW23sPlQEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yury Norov <yury.norov@gmail.com>,
-        Allison Randal <allison@lohutok.net>,
-        Joe Perches <joe@perches.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/146] uapi: rename ext2_swab() to swab() and share globally in swab.h
-Date:   Thu, 16 Apr 2020 15:23:03 +0200
-Message-Id: <20200416131248.395714575@linuxfoundation.org>
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 090/232] media: ti-vpe: cal: fix a kernel oops when unloading module
+Date:   Thu, 16 Apr 2020 15:23:04 +0200
+Message-Id: <20200416131326.263654957@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,117 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yury Norov <yury.norov@gmail.com>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit d5767057c9a76a29f073dad66b7fa12a90e8c748 ]
+commit 80264809ea0a3fd2ee8251f31a9eb85d2c3fc77e upstream.
 
-ext2_swab() is defined locally in lib/find_bit.c However it is not
-specific to ext2, neither to bitmaps.
+After the switch to use v4l2_async_notifier_add_subdev() and
+v4l2_async_notifier_cleanup(), unloading the ti_cal module would cause a
+kernel oops.
 
-There are many potential users of it, so rename it to just swab() and
-move to include/uapi/linux/swab.h
+This was root cause to the fact that v4l2_async_notifier_cleanup() tries
+to kfree the asd pointer passed into v4l2_async_notifier_add_subdev().
 
-ABI guarantees that size of unsigned long corresponds to BITS_PER_LONG,
-therefore drop unneeded cast.
+In our case the asd reference was from a statically allocated struct.
+So in effect v4l2_async_notifier_cleanup() was trying to free a pointer
+that was not kalloc.
 
-Link: http://lkml.kernel.org/r/20200103202846.21616-1-yury.norov@gmail.com
-Signed-off-by: Yury Norov <yury.norov@gmail.com>
-Cc: Allison Randal <allison@lohutok.net>
-Cc: Joe Perches <joe@perches.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: William Breathitt Gray <vilhelm.gray@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So here we switch to using a kzalloc struct instead of a static one.
+To achieve this we re-order some of the calls to prevent asd allocation
+from leaking.
+
+Fixes: d079f94c9046 ("media: platform: Switch to v4l2_async_notifier_add_subdev")
+Cc: stable@vger.kernel.org
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/swab.h      |  1 +
- include/uapi/linux/swab.h | 10 ++++++++++
- lib/find_bit.c            | 16 ++--------------
- 3 files changed, 13 insertions(+), 14 deletions(-)
+ drivers/media/platform/ti-vpe/cal.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/swab.h b/include/linux/swab.h
-index e466fd159c857..bcff5149861a9 100644
---- a/include/linux/swab.h
-+++ b/include/linux/swab.h
-@@ -7,6 +7,7 @@
- # define swab16 __swab16
- # define swab32 __swab32
- # define swab64 __swab64
-+# define swab __swab
- # define swahw32 __swahw32
- # define swahb32 __swahb32
- # define swab16p __swab16p
-diff --git a/include/uapi/linux/swab.h b/include/uapi/linux/swab.h
-index 23cd84868cc3b..fa7f97da5b768 100644
---- a/include/uapi/linux/swab.h
-+++ b/include/uapi/linux/swab.h
-@@ -4,6 +4,7 @@
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -266,8 +266,6 @@ struct cal_ctx {
+ 	struct v4l2_subdev	*sensor;
+ 	struct v4l2_fwnode_endpoint	endpoint;
  
- #include <linux/types.h>
- #include <linux/compiler.h>
-+#include <asm/bitsperlong.h>
- #include <asm/swab.h>
- 
- /*
-@@ -132,6 +133,15 @@ static inline __attribute_const__ __u32 __fswahb32(__u32 val)
- 	__fswab64(x))
- #endif
- 
-+static __always_inline unsigned long __swab(const unsigned long y)
-+{
-+#if BITS_PER_LONG == 64
-+	return __swab64(y);
-+#else /* BITS_PER_LONG == 32 */
-+	return __swab32(y);
-+#endif
-+}
-+
- /**
-  * __swahw32 - return a word-swapped 32-bit value
-  * @x: value to wordswap
-diff --git a/lib/find_bit.c b/lib/find_bit.c
-index ee3df93ba69af..8a5492173267d 100644
---- a/lib/find_bit.c
-+++ b/lib/find_bit.c
-@@ -153,18 +153,6 @@ EXPORT_SYMBOL(find_last_bit);
- 
- #ifdef __BIG_ENDIAN
- 
--/* include/linux/byteorder does not support "unsigned long" type */
--static inline unsigned long ext2_swab(const unsigned long y)
--{
--#if BITS_PER_LONG == 64
--	return (unsigned long) __swab64((u64) y);
--#elif BITS_PER_LONG == 32
--	return (unsigned long) __swab32((u32) y);
--#else
--#error BITS_PER_LONG not defined
--#endif
--}
+-	struct v4l2_async_subdev asd;
 -
- #if !defined(find_next_bit_le) || !defined(find_next_zero_bit_le)
- static inline unsigned long _find_next_bit_le(const unsigned long *addr1,
- 		const unsigned long *addr2, unsigned long nbits,
-@@ -181,7 +169,7 @@ static inline unsigned long _find_next_bit_le(const unsigned long *addr1,
- 	tmp ^= invert;
+ 	struct v4l2_fh		fh;
+ 	struct cal_dev		*dev;
+ 	struct cc_data		*cc;
+@@ -1648,7 +1646,6 @@ static int of_cal_create_instance(struct
  
- 	/* Handle 1st word. */
--	tmp &= ext2_swab(BITMAP_FIRST_WORD_MASK(start));
-+	tmp &= swab(BITMAP_FIRST_WORD_MASK(start));
- 	start = round_down(start, BITS_PER_LONG);
+ 	parent = pdev->dev.of_node;
  
- 	while (!tmp) {
-@@ -195,7 +183,7 @@ static inline unsigned long _find_next_bit_le(const unsigned long *addr1,
- 		tmp ^= invert;
+-	asd = &ctx->asd;
+ 	endpoint = &ctx->endpoint;
+ 
+ 	ep_node = NULL;
+@@ -1695,8 +1692,6 @@ static int of_cal_create_instance(struct
+ 		ctx_dbg(3, ctx, "can't get remote parent\n");
+ 		goto cleanup_exit;
+ 	}
+-	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
+-	asd->match.fwnode = of_fwnode_handle(sensor_node);
+ 
+ 	v4l2_fwnode_endpoint_parse(of_fwnode_handle(ep_node), endpoint);
+ 
+@@ -1726,9 +1721,17 @@ static int of_cal_create_instance(struct
+ 
+ 	v4l2_async_notifier_init(&ctx->notifier);
+ 
++	asd = kzalloc(sizeof(*asd), GFP_KERNEL);
++	if (!asd)
++		goto cleanup_exit;
++
++	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
++	asd->match.fwnode = of_fwnode_handle(sensor_node);
++
+ 	ret = v4l2_async_notifier_add_subdev(&ctx->notifier, asd);
+ 	if (ret) {
+ 		ctx_err(ctx, "Error adding asd\n");
++		kfree(asd);
+ 		goto cleanup_exit;
  	}
  
--	return min(start + __ffs(ext2_swab(tmp)), nbits);
-+	return min(start + __ffs(swab(tmp)), nbits);
- }
- #endif
- 
--- 
-2.20.1
-
 
 
