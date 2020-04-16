@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8421AC6BD
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:44:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F12A51AC478
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730365AbgDPOnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:43:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47366 "EHLO mail.kernel.org"
+        id S2392615AbgDPOAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:00:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392596AbgDPOAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:18 -0400
+        id S1729196AbgDPOAV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:00:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BED5720732;
-        Thu, 16 Apr 2020 14:00:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38C892078B;
+        Thu, 16 Apr 2020 14:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045618;
-        bh=Uw/LefC3XCr1iMFhfr8Ok7AVKDELhZBCxDGahLsTOoY=;
+        s=default; t=1587045620;
+        bh=RlRCokos5o0UeqHAQkpCYKjmo+MSA2vfNilvoTQkdxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qj2HNngwVJAffWY24z6qtfz7vxGznR2vqjjl6wnrsoBd/9/oYDjHwjNmhNzLFj5MV
-         BRJgsBYK3pKQ/Z4hiTFANuf5tH5rLqwOtygRjPzXvjYrLN7tk+FQVKOxtfzFFEI4fp
-         RTO9TeIHdgg9fknARs9YIjqo0yJNcDSscl8MFlRw=
+        b=uP4fwNPPmM34NJZKTLoHqzrJO0HFiV/3ELat4u+knaUMaSjNNmnp5j8oJqZjbNvD4
+         OfIW5MFeKVFfYsxa5jdFWhE1cKBXgR0BeYP6IE+69qUysRV2TjJ3PeV+vU9p7IJrym
+         d6aC91p08nAr+N9zzh3X8RXzBCuHVeXkp7+VW01o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.6 208/254] drm/prime: fix extracting of the DMA addresses from a scatterlist
-Date:   Thu, 16 Apr 2020 15:24:57 +0200
-Message-Id: <20200416131352.071141403@linuxfoundation.org>
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.6 209/254] drm/i915/icl+: Dont enable DDI IO power on a TypeC port in TBT mode
+Date:   Thu, 16 Apr 2020 15:24:58 +0200
+Message-Id: <20200416131352.201075226@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -44,86 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Imre Deak <imre.deak@intel.com>
 
-commit c0f83d164fb8f3a2b7bc379a6c1e27d1123a9eab upstream.
+commit 6e8a36c13382b7165d23928caee8d91c1b301142 upstream.
 
-Scatterlist elements contains both pages and DMA addresses, but one
-should not assume 1:1 relation between them. The sg->length is the size
-of the physical memory chunk described by the sg->page, while
-sg_dma_len(sg) is the size of the DMA (IO virtual) chunk described by
-the sg_dma_address(sg).
+The DDI IO power well must not be enabled for a TypeC port in TBT mode,
+ensure this during driver loading/system resume.
 
-The proper way of extracting both: pages and DMA addresses of the whole
-buffer described by a scatterlist it to iterate independently over the
-sg->pages/sg->length and sg_dma_address(sg)/sg_dma_len(sg) entries.
+This gets rid of error messages like
+[drm] *ERROR* power well DDI E TC2 IO state mismatch (refcount 1/enabled 0)
 
-Fixes: 42e67b479eab ("drm/prime: use dma length macro when mapping sg")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200327162126.29705-1-m.szyprowski@samsung.com
-Cc: stable@vger.kernel.org
+and avoids leaking the power ref when disabling the output.
+
+Cc: <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200330152244.11316-1-imre.deak@intel.com
+(cherry picked from commit f77a2db27f26c3ccba0681f7e89fef083718f07f)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_prime.c |   37 +++++++++++++++++++++++++------------
- 1 file changed, 25 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/i915/display/intel_ddi.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_prime.c
-+++ b/drivers/gpu/drm/drm_prime.c
-@@ -962,27 +962,40 @@ int drm_prime_sg_to_page_addr_arrays(str
- 	unsigned count;
- 	struct scatterlist *sg;
- 	struct page *page;
--	u32 len, index;
-+	u32 page_len, page_index;
- 	dma_addr_t addr;
-+	u32 dma_len, dma_index;
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -2225,7 +2225,11 @@ static void intel_ddi_get_power_domains(
+ 		return;
  
--	index = 0;
-+	/*
-+	 * Scatterlist elements contains both pages and DMA addresses, but
-+	 * one shoud not assume 1:1 relation between them. The sg->length is
-+	 * the size of the physical memory chunk described by the sg->page,
-+	 * while sg_dma_len(sg) is the size of the DMA (IO virtual) chunk
-+	 * described by the sg_dma_address(sg).
-+	 */
-+	page_index = 0;
-+	dma_index = 0;
- 	for_each_sg(sgt->sgl, sg, sgt->nents, count) {
--		len = sg_dma_len(sg);
-+		page_len = sg->length;
- 		page = sg_page(sg);
-+		dma_len = sg_dma_len(sg);
- 		addr = sg_dma_address(sg);
+ 	dig_port = enc_to_dig_port(encoder);
+-	intel_display_power_get(dev_priv, dig_port->ddi_io_power_domain);
++
++	if (!intel_phy_is_tc(dev_priv, phy) ||
++	    dig_port->tc_mode != TC_PORT_TBT_ALT)
++		intel_display_power_get(dev_priv,
++					dig_port->ddi_io_power_domain);
  
--		while (len > 0) {
--			if (WARN_ON(index >= max_entries))
-+		while (pages && page_len > 0) {
-+			if (WARN_ON(page_index >= max_entries))
- 				return -1;
--			if (pages)
--				pages[index] = page;
--			if (addrs)
--				addrs[index] = addr;
--
-+			pages[page_index] = page;
- 			page++;
-+			page_len -= PAGE_SIZE;
-+			page_index++;
-+		}
-+		while (addrs && dma_len > 0) {
-+			if (WARN_ON(dma_index >= max_entries))
-+				return -1;
-+			addrs[dma_index] = addr;
- 			addr += PAGE_SIZE;
--			len -= PAGE_SIZE;
--			index++;
-+			dma_len -= PAGE_SIZE;
-+			dma_index++;
- 		}
- 	}
- 	return 0;
+ 	/*
+ 	 * AUX power is only needed for (e)DP mode, and for HDMI mode on TC
 
 
