@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE9231AC6B4
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4889A1ACA33
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394530AbgDPOnc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:43:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47592 "EHLO mail.kernel.org"
+        id S2410423AbgDPPcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:32:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392626AbgDPOAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:30 -0400
+        id S1727125AbgDPNmU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:42:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04BF420786;
-        Thu, 16 Apr 2020 14:00:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E1D32222E;
+        Thu, 16 Apr 2020 13:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045630;
-        bh=RsUqFbevd0j8uU6mYkKun4A8c/pDL5nw1j9+lNF+rHQ=;
+        s=default; t=1587044540;
+        bh=mDyuvzBU0DHXlkElGu1lIgKkQhTG1xpoGSILQu6UrOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqxn8NJo3GYTsSErmeo4ewh9hzrqdrbH3qM6cKQrqXuBKu5Fz9O2+VjGVbKOgNo5C
-         3BIPdjg+0q3kkJTGw3pylMmJnLrnPOg4/HWlnY4y2c6t8bOcBezhT6hltrjEXo/JD1
-         ifpcwYlaqxdW+Ov/7pXOYKlneMJ2D7tphY/LopVU=
+        b=BMaXPPPpkr4F5wWBJG/T6OTLCBKVJu95xtkyCjE3/AutH2kzJiL6UyUw2hfE2GN08
+         iyFSTLRK2i2oOJgD+gcnwQC28QJ75hf3Eht2OBVEAwG0bw3mnmbA+RA5gm5T6iFI+A
+         K4tCmi9ae6uLrK8xjc5R8KP2P/MpNmHDY7mpHr/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 5.6 212/254] nfsd: fsnotify on rmdir under nfsd/clients/
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 250/257] drm/i915/icl+: Dont enable DDI IO power on a TypeC port in TBT mode
 Date:   Thu, 16 Apr 2020 15:25:01 +0200
-Message-Id: <20200416131352.567001574@linuxfoundation.org>
+Message-Id: <20200416131356.855824146@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Imre Deak <imre.deak@intel.com>
 
-commit 69afd267982e733a555fede4e85fe30329ed0588 upstream.
+The DDI IO power well must not be enabled for a TypeC port in TBT mode,
+ensure this during driver loading/system resume.
 
-Userspace should be able to monitor nfsd/clients/ to see when clients
-come and go, but we're failing to send fsnotify events.
+This gets rid of error messages like
+[drm] *ERROR* power well DDI E TC2 IO state mismatch (refcount 1/enabled 0)
 
-Cc: stable@kernel.org
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+and avoids leaking the power ref when disabling the output.
 
+Cc: <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200330152244.11316-1-imre.deak@intel.com
+(cherry picked from commit f77a2db27f26c3ccba0681f7e89fef083718f07f)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfsctl.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/display/intel_ddi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1333,6 +1333,7 @@ void nfsd_client_rmdir(struct dentry *de
- 	dget(dentry);
- 	ret = simple_rmdir(dir, dentry);
- 	WARN_ON_ONCE(ret);
-+	fsnotify_rmdir(dir, dentry);
- 	d_delete(dentry);
- 	inode_unlock(dir);
- }
+diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+index 1488822398fed..4872c357eb6da 100644
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -2235,7 +2235,11 @@ static void intel_ddi_get_power_domains(struct intel_encoder *encoder,
+ 		return;
+ 
+ 	dig_port = enc_to_dig_port(&encoder->base);
+-	intel_display_power_get(dev_priv, dig_port->ddi_io_power_domain);
++
++	if (!intel_phy_is_tc(dev_priv, phy) ||
++	    dig_port->tc_mode != TC_PORT_TBT_ALT)
++		intel_display_power_get(dev_priv,
++					dig_port->ddi_io_power_domain);
+ 
+ 	/*
+ 	 * AUX power is only needed for (e)DP mode, and for HDMI mode on TC
+-- 
+2.20.1
+
 
 
