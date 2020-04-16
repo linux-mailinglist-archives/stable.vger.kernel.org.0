@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE8F61AC3ED
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:52:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EA211AC85C
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392428AbgDPNvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:51:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37812 "EHLO mail.kernel.org"
+        id S1726086AbgDPPH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:07:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392420AbgDPNvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:51:40 -0400
+        id S2392426AbgDPNvm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:51:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D20020786;
-        Thu, 16 Apr 2020 13:51:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA95120732;
+        Thu, 16 Apr 2020 13:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045099;
-        bh=OGZkcncoHPVJmL7cRIy9th8i3wkYCksTTNGUQW77P4g=;
+        s=default; t=1587045102;
+        bh=SHXiNoVv/c349s6EeJRbHdte8+NwLkK+cl56nrQhST4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+wHn/SJ2rwgaZYmW9mpjkobMx3vD/Ev4MsXfme2osRx3wwCXp8FMGC3LM2DYeADz
-         C1AI71nvnYLU0td1ymT8qo9NSbhBA6wHO/eZ9h8hM8SbyPVkRJzRbzrDIAzsq1/gBQ
-         hfWQyy5L5PupqJ9yTLx91kPRY+Sk7qmgO5fAhO7w=
+        b=piZe+r+zVzH1xdmn92T34UKLcCiRpdhz2TzpBGg5flrYxExh4D4NAtp9J2lwu0rWG
+         wphnTnuayU4nBnWTjHwnVeyHB5n128jIpEQrJwA0NKVyYp6qo4XG9U2Dm0oTgxK3iP
+         ceA1bPKdOQJxic3QTNAmcME/Xs+Vfz/7HqHYghOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 230/232] powerpc/kasan: Fix kasan_remap_early_shadow_ro()
-Date:   Thu, 16 Apr 2020 15:25:24 +0200
-Message-Id: <20200416131344.321623895@linuxfoundation.org>
+Subject: [PATCH 5.4 231/232] mmc: sdhci: Convert sdhci_set_timeout_irq() to non-static
+Date:   Thu, 16 Apr 2020 15:25:25 +0200
+Message-Id: <20200416131344.445663960@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
 References: <20200416131316.640996080@linuxfoundation.org>
@@ -44,39 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Faiz Abbas <faiz_abbas@ti.com>
 
-[ Upstream commit af92bad615be75c6c0d1b1c5b48178360250a187 ]
+[ Upstream commit 7907ebe741a7f14ed12889ebe770438a4ff47613 ]
 
-At the moment kasan_remap_early_shadow_ro() does nothing, because
-k_end is 0 and k_cur < 0 is always true.
+Export sdhci_set_timeout_irq() so that it is accessible from platform drivers.
 
-Change the test to k_cur != k_end, as done in
-kasan_init_shadow_page_tables()
-
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: cbd18991e24f ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4e7b56865e01569058914c991143f5961b5d4719.1583507333.git.christophe.leroy@c-s.fr
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20200116105154.7685-6-faiz_abbas@ti.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/kasan/kasan_init_32.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci.c | 3 ++-
+ drivers/mmc/host/sdhci.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/kasan/kasan_init_32.c b/arch/powerpc/mm/kasan/kasan_init_32.c
-index 0e6ed4413eeac..1cfe57b51d7e3 100644
---- a/arch/powerpc/mm/kasan/kasan_init_32.c
-+++ b/arch/powerpc/mm/kasan/kasan_init_32.c
-@@ -117,7 +117,7 @@ static void __init kasan_remap_early_shadow_ro(void)
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index 4478b94d47915..4c40fd4ba21b1 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -981,7 +981,7 @@ static void sdhci_set_transfer_irqs(struct sdhci_host *host)
+ 	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
+ }
  
- 	kasan_populate_pte(kasan_early_shadow_pte, prot);
+-static void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable)
++void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable)
+ {
+ 	if (enable)
+ 		host->ier |= SDHCI_INT_DATA_TIMEOUT;
+@@ -990,6 +990,7 @@ static void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable)
+ 	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
+ 	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
+ }
++EXPORT_SYMBOL_GPL(sdhci_set_data_timeout_irq);
  
--	for (k_cur = k_start & PAGE_MASK; k_cur < k_end; k_cur += PAGE_SIZE) {
-+	for (k_cur = k_start & PAGE_MASK; k_cur != k_end; k_cur += PAGE_SIZE) {
- 		pmd_t *pmd = pmd_offset(pud_offset(pgd_offset_k(k_cur), k_cur), k_cur);
- 		pte_t *ptep = pte_offset_kernel(pmd, k_cur);
+ static void sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
+ {
+diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
+index fe83ece6965b1..4613d71b3cd6e 100644
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -795,5 +795,6 @@ void sdhci_end_tuning(struct sdhci_host *host);
+ void sdhci_reset_tuning(struct sdhci_host *host);
+ void sdhci_send_tuning(struct sdhci_host *host, u32 opcode);
+ void sdhci_abort_tuning(struct sdhci_host *host, u32 opcode);
++void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable);
  
+ #endif /* __SDHCI_HW_H */
 -- 
 2.20.1
 
