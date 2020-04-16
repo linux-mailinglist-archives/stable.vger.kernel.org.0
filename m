@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D34151ACB98
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D096A1ACBC6
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442658AbgDPPtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:49:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44088 "EHLO mail.kernel.org"
+        id S2442661AbgDPPtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:49:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896677AbgDPNdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2896676AbgDPNdE (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Apr 2020 09:33:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8BA121D91;
-        Thu, 16 Apr 2020 13:32:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67AEE221EB;
+        Thu, 16 Apr 2020 13:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043976;
-        bh=qs75tEfOs2fCsYk39M8OgekZWGozE5twqSR4yC7eBIg=;
+        s=default; t=1587043978;
+        bh=09QvhtRGrOLEMW1wLzmWFmr4KotkIXwu4+Ba9yZJCU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bpAw3kK1vP2/nHZjqZcIPsaPXQol8wldS6KCmGqR9jnPbEhsuB3V5FU2NmM9rhJwf
-         7hCACqCxxyft+N056i9jGf+VvAAqsBc7vAo+KbJFmDLeF2dHsPh+FkUY9mf9oNPKQe
-         CYvx3Wtcv6XIrvGtBmJ8Mdz6RL2m9bF6x1WHaK34=
+        b=m7BjCClZIkuZhyaBy/OOSJYa/pVSF+VfHQn6XYfZm4MpL4z2OpesUVdL3qurJjkLV
+         ighB3+kkWhzwgPBsVt49+zqUjBlpj7nmCILuFtO+nZsmv+cOriIcK3f91ZcdMJdwOx
+         1cvHBZnvQDmsg5+U8eOvFCrxVQHal3csxIpgsLBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 005/257] iwlwifi: mvm: take the required lock when clearing time event data
-Date:   Thu, 16 Apr 2020 15:20:56 +0200
-Message-Id: <20200416131326.567948201@linuxfoundation.org>
+Subject: [PATCH 5.5 006/257] iwlwifi: mvm: Fix rate scale NSS configuration
+Date:   Thu, 16 Apr 2020 15:20:57 +0200
+Message-Id: <20200416131326.670770834@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
 References: <20200416131325.891903893@linuxfoundation.org>
@@ -44,45 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Ilan Peer <ilan.peer@intel.com>
 
-[ Upstream commit 089e5016d7eb063712063670e6da7c1a4de1a5c1 ]
+[ Upstream commit ce19801ba75a902ab515dda03b57738c708d0781 ]
 
-When receiving a session protection end notification, the time event
-data is cleared without holding the required lock. Fix it.
+The TLC configuration did not take into consideration the station's
+SMPS configuration, and thus configured rates for 2 NSS even if
+static SMPS was reported by the station. Fix this.
 
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200306151128.a49846a634e4.Id1ada7c5a964f5e25f4d0eacc2c4b050015b46a2@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20200306151129.b4f940d13eca.Ieebfa889d08205a3a961ae0138fb5832e8a0f9c1@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/time-event.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../net/wireless/intel/iwlwifi/mvm/rs-fw.c    | 29 ++++++++++++++-----
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-index c0b420fe5e48f..1babc4bb5194b 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-@@ -785,7 +785,9 @@ void iwl_mvm_rx_session_protect_notif(struct iwl_mvm *mvm,
- 		if (!le32_to_cpu(notif->status)) {
- 			iwl_mvm_te_check_disconnect(mvm, vif,
- 						    "Session protection failure");
-+			spin_lock_bh(&mvm->time_event_lock);
- 			iwl_mvm_te_clear_data(mvm, te_data);
-+			spin_unlock_bh(&mvm->time_event_lock);
- 		}
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
+index 80ef238a84884..ca99a9c4f70ef 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
+@@ -6,7 +6,7 @@
+  * GPL LICENSE SUMMARY
+  *
+  * Copyright(c) 2017        Intel Deutschland GmbH
+- * Copyright(c) 2018 - 2019 Intel Corporation
++ * Copyright(c) 2018 - 2020 Intel Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of version 2 of the GNU General Public License as
+@@ -27,7 +27,7 @@
+  * BSD LICENSE
+  *
+  * Copyright(c) 2017        Intel Deutschland GmbH
+- * Copyright(c) 2018 - 2019 Intel Corporation
++ * Copyright(c) 2018 - 2020 Intel Corporation
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -195,11 +195,13 @@ rs_fw_vht_set_enabled_rates(const struct ieee80211_sta *sta,
+ {
+ 	u16 supp;
+ 	int i, highest_mcs;
++	u8 nss = sta->rx_nss;
  
- 		if (le32_to_cpu(notif->start)) {
-@@ -801,7 +803,9 @@ void iwl_mvm_rx_session_protect_notif(struct iwl_mvm *mvm,
- 			 */
- 			iwl_mvm_te_check_disconnect(mvm, vif,
- 						    "No beacon heard and the session protection is over already...");
-+			spin_lock_bh(&mvm->time_event_lock);
- 			iwl_mvm_te_clear_data(mvm, te_data);
-+			spin_unlock_bh(&mvm->time_event_lock);
- 		}
+-	for (i = 0; i < sta->rx_nss; i++) {
+-		if (i == IWL_TLC_NSS_MAX)
+-			break;
++	/* the station support only a single receive chain */
++	if (sta->smps_mode == IEEE80211_SMPS_STATIC)
++		nss = 1;
  
- 		goto out_unlock;
++	for (i = 0; i < nss && i < IWL_TLC_NSS_MAX; i++) {
+ 		highest_mcs = rs_fw_vht_highest_rx_mcs_index(vht_cap, i + 1);
+ 		if (!highest_mcs)
+ 			continue;
+@@ -245,8 +247,13 @@ rs_fw_he_set_enabled_rates(const struct ieee80211_sta *sta,
+ 	u16 tx_mcs_160 =
+ 		le16_to_cpu(sband->iftype_data->he_cap.he_mcs_nss_supp.tx_mcs_160);
+ 	int i;
++	u8 nss = sta->rx_nss;
+ 
+-	for (i = 0; i < sta->rx_nss && i < IWL_TLC_NSS_MAX; i++) {
++	/* the station support only a single receive chain */
++	if (sta->smps_mode == IEEE80211_SMPS_STATIC)
++		nss = 1;
++
++	for (i = 0; i < nss && i < IWL_TLC_NSS_MAX; i++) {
+ 		u16 _mcs_160 = (mcs_160 >> (2 * i)) & 0x3;
+ 		u16 _mcs_80 = (mcs_80 >> (2 * i)) & 0x3;
+ 		u16 _tx_mcs_160 = (tx_mcs_160 >> (2 * i)) & 0x3;
+@@ -307,8 +314,14 @@ static void rs_fw_set_supp_rates(struct ieee80211_sta *sta,
+ 		cmd->mode = IWL_TLC_MNG_MODE_HT;
+ 		cmd->ht_rates[IWL_TLC_NSS_1][IWL_TLC_HT_BW_NONE_160] =
+ 			cpu_to_le16(ht_cap->mcs.rx_mask[0]);
+-		cmd->ht_rates[IWL_TLC_NSS_2][IWL_TLC_HT_BW_NONE_160] =
+-			cpu_to_le16(ht_cap->mcs.rx_mask[1]);
++
++		/* the station support only a single receive chain */
++		if (sta->smps_mode == IEEE80211_SMPS_STATIC)
++			cmd->ht_rates[IWL_TLC_NSS_2][IWL_TLC_HT_BW_NONE_160] =
++				0;
++		else
++			cmd->ht_rates[IWL_TLC_NSS_2][IWL_TLC_HT_BW_NONE_160] =
++				cpu_to_le16(ht_cap->mcs.rx_mask[1]);
+ 	}
+ }
+ 
 -- 
 2.20.1
 
