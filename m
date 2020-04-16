@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D221AC3BF
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3C081AC25D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:27:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898706AbgDPNrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:47:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33790 "EHLO mail.kernel.org"
+        id S2895513AbgDPN1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:27:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898701AbgDPNrm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:47:42 -0400
+        id S2895500AbgDPN13 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:27:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19777208E4;
-        Thu, 16 Apr 2020 13:47:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D128217D8;
+        Thu, 16 Apr 2020 13:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044862;
-        bh=VPbaPb5kW02bk8XcVeA/pqUhD1EkqkrHwDEd69VA218=;
+        s=default; t=1587043649;
+        bh=cWNjo3ufoi2L8D9rzD7+OpFBpQLefCSdKcauXILmL3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UGYJE5by52iHadXuOIr4laMbGGOI9+VHqqB2P9XooqcHI1fioeQfHhyTzZi6nJliX
-         QQeWUWQiGdqOTmQWia25Rxmtlqys2eDGXzGSaiv9DlpkychZx/iucrckIgPYko0jd9
-         /pj7Sq0pvtiuvMv1V58UwPIXnVEBLtaYr/hktxek=
+        b=B5gCzzqdTLIOmcxcignjqTUh+931NX34ZtRqi/wzcHM7SDY6SzuQdTn5Ei8i+HkkL
+         eVcrOP4nBgiCO30HVQueAZWC2Y72DzxVZDtH8nC11PUqLKyaxx6d4zhKrcz48bvFe2
+         kOhIzYd97dF+NXt1MZoOMyGLS4CEN6RlaUGB81VM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 091/232] seccomp: Add missing compat_ioctl for notify
+        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 044/146] ASoC: fix regwmask
 Date:   Thu, 16 Apr 2020 15:23:05 +0200
-Message-Id: <20200416131326.382449312@linuxfoundation.org>
+Message-Id: <20200416131248.745154993@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: 이경택 <gt82.lee@samsung.com>
 
-commit 3db81afd99494a33f1c3839103f0429c8f30cb9d upstream.
+commit 0ab070917afdc93670c2d0ea02ab6defb6246a7c upstream.
 
-Executing the seccomp_bpf testsuite under a 64-bit kernel with 32-bit
-userland (both s390 and x86) doesn't work because there's no compat_ioctl
-handler defined. Add the handler.
+If regwshift is 32 and the selected architecture compiles '<<' operator
+for signed int literal into rotating shift, '1<<regwshift' became 1 and
+it makes regwmask to 0x0.
+The literal is set to unsigned long to get intended regwmask.
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200310123332.42255-1-svens@linux.ibm.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
+Link: https://lore.kernel.org/r/001001d60665$db7af3e0$9270dba0$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/seccomp.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-ops.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/seccomp.c
-+++ b/kernel/seccomp.c
-@@ -1205,6 +1205,7 @@ static const struct file_operations secc
- 	.poll = seccomp_notify_poll,
- 	.release = seccomp_notify_release,
- 	.unlocked_ioctl = seccomp_notify_ioctl,
-+	.compat_ioctl = seccomp_notify_ioctl,
- };
- 
- static struct file *init_listener(struct seccomp_filter *filter)
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -832,7 +832,7 @@ int snd_soc_get_xr_sx(struct snd_kcontro
+ 	unsigned int regbase = mc->regbase;
+ 	unsigned int regcount = mc->regcount;
+ 	unsigned int regwshift = component->val_bytes * BITS_PER_BYTE;
+-	unsigned int regwmask = (1<<regwshift)-1;
++	unsigned int regwmask = (1UL<<regwshift)-1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned long mask = (1UL<<mc->nbits)-1;
+ 	long min = mc->min;
+@@ -881,7 +881,7 @@ int snd_soc_put_xr_sx(struct snd_kcontro
+ 	unsigned int regbase = mc->regbase;
+ 	unsigned int regcount = mc->regcount;
+ 	unsigned int regwshift = component->val_bytes * BITS_PER_BYTE;
+-	unsigned int regwmask = (1<<regwshift)-1;
++	unsigned int regwmask = (1UL<<regwshift)-1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned long mask = (1UL<<mc->nbits)-1;
+ 	long max = mc->max;
 
 
