@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8C841AC419
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:54:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 770E11ACA1E
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898756AbgDPNyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:54:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40698 "EHLO mail.kernel.org"
+        id S2392188AbgDPPb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:31:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898837AbgDPNyM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:54:12 -0400
+        id S2441564AbgDPNmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:42:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C54420786;
-        Thu, 16 Apr 2020 13:54:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6479D218AC;
+        Thu, 16 Apr 2020 13:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045251;
-        bh=LBquVlZwgHuaDyiSkDMRNRKwv5wGXh4d1PQXRvfv3FQ=;
+        s=default; t=1587044564;
+        bh=uCDUcXmEwX5SSUfpabvQs8S1gdekkxZT6ihr0BNLMug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3gxSI71XWOhAFO5piXyfA866xuoGEVOLVaZm/UPkas5hG6Ibiyny3yoxN0vtgvhx
-         9Dz71hOXHnJPPyFgcWJ30tqo3XdHSNxIogvSnkKThGAxY//54gGkgXGkLW8Enz4thU
-         GrjBqmgSsWor+Rs6lH5iR5ADcmW6TrUKLTyCqJ0A=
+        b=slN9vmpOhHpCeV3fINcEZKNSoCojIbLACAe5snWkP65CfkStwyxUnTNNfjbnBYaK8
+         hSrU15pMUnZ5UugxWKVK733dMWh7IPNF0fkwn6OP7pnz91lsoLm0Eu+IGrShaUYbS7
+         OcrPPqNg7HadKZd5Anipk9Gs2eyNE8FRgoQwodd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Johannes Thumshirn <jth@kernel.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 017/254] null_blk: Fix the null_add_dev() error path
+        stable@vger.kernel.org, Luo bin <luobin9@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 012/232] hinic: fix a bug of waitting for IO stopped
 Date:   Thu, 16 Apr 2020 15:21:46 +0200
-Message-Id: <20200416131327.956939445@linuxfoundation.org>
+Message-Id: <20200416131317.942485260@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,95 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Luo bin <luobin9@huawei.com>
 
-[ Upstream commit 2004bfdef945fe55196db6b9cdf321fbc75bb0de ]
+[ Upstream commit 96758117dc528e6d84bd23d205e8cf7f31eda029 ]
 
-If null_add_dev() fails, clear dev->nullb.
+it's unreliable for fw to check whether IO is stopped, so driver
+wait for enough time to ensure IO process is done in hw before
+freeing resources
 
-This patch fixes the following KASAN complaint:
-
-BUG: KASAN: use-after-free in nullb_device_submit_queues_store+0xcf/0x160 [null_blk]
-Read of size 8 at addr ffff88803280fc30 by task check/8409
-
-Call Trace:
- dump_stack+0xa5/0xe6
- print_address_description.constprop.0+0x26/0x260
- __kasan_report.cold+0x7b/0x99
- kasan_report+0x16/0x20
- __asan_load8+0x58/0x90
- nullb_device_submit_queues_store+0xcf/0x160 [null_blk]
- configfs_write_file+0x1c4/0x250 [configfs]
- __vfs_write+0x4c/0x90
- vfs_write+0x145/0x2c0
- ksys_write+0xd7/0x180
- __x64_sys_write+0x47/0x50
- do_syscall_64+0x6f/0x2f0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7ff370926317
-Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
-RSP: 002b:00007fff2dd2da48 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007ff370926317
-RDX: 0000000000000002 RSI: 0000559437ef23f0 RDI: 0000000000000001
-RBP: 0000559437ef23f0 R08: 000000000000000a R09: 0000000000000001
-R10: 0000559436703471 R11: 0000000000000246 R12: 0000000000000002
-R13: 00007ff370a006a0 R14: 00007ff370a014a0 R15: 00007ff370a008a0
-
-Allocated by task 8409:
- save_stack+0x23/0x90
- __kasan_kmalloc.constprop.0+0xcf/0xe0
- kasan_kmalloc+0xd/0x10
- kmem_cache_alloc_node_trace+0x129/0x4c0
- null_add_dev+0x24a/0xe90 [null_blk]
- nullb_device_power_store+0x1b6/0x270 [null_blk]
- configfs_write_file+0x1c4/0x250 [configfs]
- __vfs_write+0x4c/0x90
- vfs_write+0x145/0x2c0
- ksys_write+0xd7/0x180
- __x64_sys_write+0x47/0x50
- do_syscall_64+0x6f/0x2f0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 8409:
- save_stack+0x23/0x90
- __kasan_slab_free+0x112/0x160
- kasan_slab_free+0x12/0x20
- kfree+0xdf/0x250
- null_add_dev+0xaf3/0xe90 [null_blk]
- nullb_device_power_store+0x1b6/0x270 [null_blk]
- configfs_write_file+0x1c4/0x250 [configfs]
- __vfs_write+0x4c/0x90
- vfs_write+0x145/0x2c0
- ksys_write+0xd7/0x180
- __x64_sys_write+0x47/0x50
- do_syscall_64+0x6f/0x2f0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Fixes: 2984c8684f96 ("nullb: factor disk parameters")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Cc: Johannes Thumshirn <jth@kernel.org>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Luo bin <luobin9@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/ethernet/huawei/hinic/hinic_hw_dev.c  | 51 +------------------
+ 1 file changed, 2 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
-index 133060431dbdb..8ada43b3eca13 100644
---- a/drivers/block/null_blk_main.c
-+++ b/drivers/block/null_blk_main.c
-@@ -1788,6 +1788,7 @@ out_cleanup_queues:
- 	cleanup_queues(nullb);
- out_free_nullb:
- 	kfree(nullb);
-+	dev->nullb = NULL;
- out:
- 	return rv;
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c
+index 79b3d53f2fbfa..c7c75b772a866 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c
+@@ -360,50 +360,6 @@ static int wait_for_db_state(struct hinic_hwdev *hwdev)
+ 	return -EFAULT;
  }
+ 
+-static int wait_for_io_stopped(struct hinic_hwdev *hwdev)
+-{
+-	struct hinic_cmd_io_status cmd_io_status;
+-	struct hinic_hwif *hwif = hwdev->hwif;
+-	struct pci_dev *pdev = hwif->pdev;
+-	struct hinic_pfhwdev *pfhwdev;
+-	unsigned long end;
+-	u16 out_size;
+-	int err;
+-
+-	if (!HINIC_IS_PF(hwif) && !HINIC_IS_PPF(hwif)) {
+-		dev_err(&pdev->dev, "Unsupported PCI Function type\n");
+-		return -EINVAL;
+-	}
+-
+-	pfhwdev = container_of(hwdev, struct hinic_pfhwdev, hwdev);
+-
+-	cmd_io_status.func_idx = HINIC_HWIF_FUNC_IDX(hwif);
+-
+-	end = jiffies + msecs_to_jiffies(IO_STATUS_TIMEOUT);
+-	do {
+-		err = hinic_msg_to_mgmt(&pfhwdev->pf_to_mgmt, HINIC_MOD_COMM,
+-					HINIC_COMM_CMD_IO_STATUS_GET,
+-					&cmd_io_status, sizeof(cmd_io_status),
+-					&cmd_io_status, &out_size,
+-					HINIC_MGMT_MSG_SYNC);
+-		if ((err) || (out_size != sizeof(cmd_io_status))) {
+-			dev_err(&pdev->dev, "Failed to get IO status, ret = %d\n",
+-				err);
+-			return err;
+-		}
+-
+-		if (cmd_io_status.status == IO_STOPPED) {
+-			dev_info(&pdev->dev, "IO stopped\n");
+-			return 0;
+-		}
+-
+-		msleep(20);
+-	} while (time_before(jiffies, end));
+-
+-	dev_err(&pdev->dev, "Wait for IO stopped - Timeout\n");
+-	return -ETIMEDOUT;
+-}
+-
+ /**
+  * clear_io_resource - set the IO resources as not active in the NIC
+  * @hwdev: the NIC HW device
+@@ -423,11 +379,8 @@ static int clear_io_resources(struct hinic_hwdev *hwdev)
+ 		return -EINVAL;
+ 	}
+ 
+-	err = wait_for_io_stopped(hwdev);
+-	if (err) {
+-		dev_err(&pdev->dev, "IO has not stopped yet\n");
+-		return err;
+-	}
++	/* sleep 100ms to wait for firmware stopping I/O */
++	msleep(100);
+ 
+ 	cmd_clear_io_res.func_idx = HINIC_HWIF_FUNC_IDX(hwif);
+ 
 -- 
 2.20.1
 
