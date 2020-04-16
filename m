@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 989651AC43E
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B6021AC941
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409213AbgDPN4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:56:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43690 "EHLO mail.kernel.org"
+        id S1730730AbgDPPVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:21:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404976AbgDPN4j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:56:39 -0400
+        id S2898637AbgDPNq5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:46:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0255F217D8;
-        Thu, 16 Apr 2020 13:56:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3421208E4;
+        Thu, 16 Apr 2020 13:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045398;
+        s=default; t=1587044816;
         bh=/BTERr8ntuoVM+oROY3RpI5yVZsGtjKuXRPEP0DY5B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pz3YIK/ZRne+TNOLnaVdpdcF01046wzzI6276LHL66QGxtrkMWVD4De0eyhx0ZB+3
-         hEqyZV7ARtd/ydAV7lRuJy/NgUMnbR88Yh9BWttgmNZs73a19aD/2DGA+w8UedsXzG
-         UXdOJdbOdcE4PmLGkQjEeZQd1FOlE/b1/CZMxOmk=
+        b=1WuGoGEgRTvfLmEDvvZlNSqIy5Dp0jBkBCWWS0+xEYqdFJJW5kAOjhy5uYJjs/Vsq
+         NnAZ5BWwc8lEdK/hQJfLoxUBLwi3F6L9RUxrSVn59aad/pmEYpDeyXSVmCftUcb8yV
+         Z6SB7rhEpQ/Kc1DKDJXZiq+DBYNLRpeWEKwOkpBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
         Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.6 118/254] pstore: pstore_ftrace_seq_next should increase position index
+Subject: [PATCH 5.4 113/232] pstore: pstore_ftrace_seq_next should increase position index
 Date:   Thu, 16 Apr 2020 15:23:27 +0200
-Message-Id: <20200416131341.034602639@linuxfoundation.org>
+Message-Id: <20200416131329.272025766@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
