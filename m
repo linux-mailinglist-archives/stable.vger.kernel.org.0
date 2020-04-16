@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A2A31AC8F5
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9ECD1ACA86
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441622AbgDPPRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:17:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34908 "EHLO mail.kernel.org"
+        id S2408935AbgDPPf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:35:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897910AbgDPNtA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:49:00 -0400
+        id S2898207AbgDPNkt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:40:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F19421974;
-        Thu, 16 Apr 2020 13:48:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E60CD20732;
+        Thu, 16 Apr 2020 13:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044938;
-        bh=sx45Uwi9HL8SOXQQ+SHRVo3vX2MTBnunEBdM1KHUGpM=;
+        s=default; t=1587044449;
+        bh=I8PHgfdD0SDvIxDAZKoac40s1IpppyWu12/+HSUbMSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I4j1tlaZqPLk951VoP4/xlwJYJ73cbDBKk1BG/qzrcgZU4fkTRefQvfmkM9dE9wFa
-         MLbyVJAR37U+kyVaJppNcFR01J3gsplQhHNtyeLFRtYzMDc9IcTb/Qlh1+eoBwCBWl
-         DKbqNY7LTEeP49mUV6yejWyI6RtjUhGrPzFsVxSM=
+        b=kM9foNme47l7hTPkYOKs/vlTBdmHiRHOTJtvvsoUvnEFcX3gaV0WWlBQk+s7B0ZUM
+         RWV3K9HGx4LQhaK8MWh7dEDpy2PMpVFsFdzpNcQfw4+0SHbjDDgi21bZO2BHqmKnDS
+         ZeolAX+kRXO407by5WfxNEO+XZRIDq8gwLTCiQwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 162/232] dm integrity: fix a crash with unusually large tag size
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 205/257] selftests/powerpc: Fix try-run when source tree is not writable
 Date:   Thu, 16 Apr 2020 15:24:16 +0200
-Message-Id: <20200416131335.281116424@linuxfoundation.org>
+Message-Id: <20200416131351.699219261@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit b93b6643e9b5a7f260b931e97f56ffa3fa65e26d upstream.
+commit 9686813f6e9d5568bc045de0be853411e44958c8 upstream.
 
-If the user specifies tag size larger than HASH_MAX_DIGESTSIZE,
-there's a crash in integrity_metadata().
+We added a usage of try-run to pmu/ebb/Makefile to detect if the
+toolchain supported the -no-pie option.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+This fails if we build out-of-tree and the source tree is not
+writable, as try-run tries to write its temporary files to the current
+directory. That leads to the -no-pie option being silently dropped,
+which leads to broken executables with some toolchains.
+
+If we remove the redirect to /dev/null in try-run, we see the error:
+
+  make[3]: Entering directory '/linux/tools/testing/selftests/powerpc/pmu/ebb'
+  /usr/bin/ld: cannot open output file .54.tmp: Read-only file system
+  collect2: error: ld returned 1 exit status
+  make[3]: Nothing to be done for 'all'.
+
+And looking with strace we see it's trying to use a file that's in the
+source tree:
+
+  lstat("/linux/tools/testing/selftests/powerpc/pmu/ebb/.54.tmp", 0x7ffffc0f83c8)
+
+We can fix it by setting TMPOUT to point to the $(OUTPUT) directory,
+and we can verify with strace it's now trying to write to the output
+directory:
+
+  lstat("/output/kselftest/powerpc/pmu/ebb/.54.tmp", 0x7fffd1bf6bf8)
+
+And also see that the -no-pie option is now correctly detected.
+
+Fixes: 0695f8bca93e ("selftests/powerpc: Handle Makefile for unrecognized option")
+Cc: stable@vger.kernel.org # v5.5+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200327095319.2347641-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-integrity.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/powerpc/pmu/ebb/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -1514,7 +1514,7 @@ static void integrity_metadata(struct wo
- 		struct bio *bio = dm_bio_from_per_bio_data(dio, sizeof(struct dm_integrity_io));
- 		char *checksums;
- 		unsigned extra_space = unlikely(digest_size > ic->tag_size) ? digest_size - ic->tag_size : 0;
--		char checksums_onstack[HASH_MAX_DIGESTSIZE];
-+		char checksums_onstack[max((size_t)HASH_MAX_DIGESTSIZE, MAX_TAG_SIZE)];
- 		unsigned sectors_to_process = dio->range.n_sectors;
- 		sector_t sector = dio->range.logical_sector;
+--- a/tools/testing/selftests/powerpc/pmu/ebb/Makefile
++++ b/tools/testing/selftests/powerpc/pmu/ebb/Makefile
+@@ -7,6 +7,7 @@ noarg:
+ # The EBB handler is 64-bit code and everything links against it
+ CFLAGS += -m64
  
-@@ -1743,7 +1743,7 @@ retry_kmap:
- 				} while (++s < ic->sectors_per_block);
- #ifdef INTERNAL_VERIFY
- 				if (ic->internal_hash) {
--					char checksums_onstack[max(HASH_MAX_DIGESTSIZE, MAX_TAG_SIZE)];
-+					char checksums_onstack[max((size_t)HASH_MAX_DIGESTSIZE, MAX_TAG_SIZE)];
- 
- 					integrity_sector_checksum(ic, logical_sector, mem + bv.bv_offset, checksums_onstack);
- 					if (unlikely(memcmp(checksums_onstack, journal_entry_tag(ic, je), ic->tag_size))) {
++TMPOUT = $(OUTPUT)/
+ # Toolchains may build PIE by default which breaks the assembly
+ no-pie-option := $(call try-run, echo 'int main() { return 0; }' | \
+         $(CC) -Werror $(KBUILD_CPPFLAGS) $(CC_OPTION_CFLAGS) -no-pie -x c - -o "$$TMP", -no-pie)
 
 
