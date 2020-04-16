@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F5691AC35F
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CB631AC706
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408485AbgDPNl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:41:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54844 "EHLO mail.kernel.org"
+        id S2506791AbgDPN6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:58:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408333AbgDPNl4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:41:56 -0400
+        id S2438757AbgDPN6u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:58:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7FE920732;
-        Thu, 16 Apr 2020 13:41:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9188E217D8;
+        Thu, 16 Apr 2020 13:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044515;
-        bh=LkFSaWD8eK5fUBwVuEfFuYOdlmwas0uXDLBhIaHcx94=;
+        s=default; t=1587045530;
+        bh=+N3wSGhx5xXf91VaNIjjGRA3BloWUmjGuMwb+iuBtpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=elPWituUXMtrpFn7POeBzEkvuRuD41kzrADC67z+4YyT17vRP5F0pz0HtmsWxi/uE
-         LOdDhRLBRdR/uykd+9w2Djedixl0DQ5nzribcXHwhZfqgZfuaxkwON/SM+XmWtYFye
-         lR5raXC4Im6sp7u9JLIgbW3yN0RMRhLSw2Vj68sk=
+        b=qhWGuoeydSg8G112oJa30yIdkJ62z1BohimmBsrzs8yRZIvUH0xnXhLH5FjtZJowp
+         sO7m0Y/IiP9Sip63P6jHjsNRklyDwUrmuv+YMEm94PzAYfnZWwBN2BUv3S0PbkZpIE
+         XeDtv0LWL8eiT++b9nVInSCOlOBBySEoAzemruTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.5 209/257] drm: Remove PageReserved manipulation from drm_pci_alloc
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.6 171/254] arm64: dts: allwinner: h5: Fix PMU compatible
 Date:   Thu, 16 Apr 2020 15:24:20 +0200
-Message-Id: <20200416131352.194060957@linuxfoundation.org>
+Message-Id: <20200416131347.864975556@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit ea36ec8623f56791c6ff6738d0509b7920f85220 upstream.
+commit 4ae7a3c3d7d31260f690d8d658f0365f3eca67a2 upstream.
 
-drm_pci_alloc/drm_pci_free are very thin wrappers around the core dma
-facilities, and we have no special reason within the drm layer to behave
-differently. In particular, since
+The commit c35a516a4618 ("arm64: dts: allwinner: H5: Add PMU node")
+introduced support for the PMU found on the Allwinner H5. However, the
+binding only allows for a single compatible, while the patch was adding
+two.
 
-commit de09d31dd38a50fdce106c15abd68432eebbd014
-Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Date:   Fri Jan 15 16:51:42 2016 -0800
+Make sure we follow the binding.
 
-    page-flags: define PG_reserved behavior on compound pages
-
-    As far as I can see there's no users of PG_reserved on compound pages.
-    Let's use PF_NO_COMPOUND here.
-
-it has been illegal to combine GFP_COMP with SetPageReserved, so lets
-stop doing both and leave the dma layer to its own devices.
-
-Reported-by: Taketo Kabe
-Bug: https://gitlab.freedesktop.org/drm/intel/issues/1027
-Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: <stable@vger.kernel.org> # v4.5+
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200202171635.4039044-1-chris@chris-wilson.co.uk
+Fixes: c35a516a4618 ("arm64: dts: allwinner: H5: Add PMU node")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_pci.c |   23 ++---------------------
- 1 file changed, 2 insertions(+), 21 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_pci.c
-+++ b/drivers/gpu/drm/drm_pci.c
-@@ -51,8 +51,6 @@
- drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t align)
- {
- 	drm_dma_handle_t *dmah;
--	unsigned long addr;
--	size_t sz;
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
+@@ -38,8 +38,7 @@
+ 	};
  
- 	/* pci_alloc_consistent only guarantees alignment to the smallest
- 	 * PAGE_SIZE order which is greater than or equal to the requested size.
-@@ -68,20 +66,13 @@ drm_dma_handle_t *drm_pci_alloc(struct d
- 	dmah->size = size;
- 	dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size,
- 					 &dmah->busaddr,
--					 GFP_KERNEL | __GFP_COMP);
-+					 GFP_KERNEL);
- 
- 	if (dmah->vaddr == NULL) {
- 		kfree(dmah);
- 		return NULL;
- 	}
- 
--	/* XXX - Is virt_to_page() legal for consistent mem? */
--	/* Reserve */
--	for (addr = (unsigned long)dmah->vaddr, sz = size;
--	     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
--		SetPageReserved(virt_to_page((void *)addr));
--	}
--
- 	return dmah;
- }
- 
-@@ -94,19 +85,9 @@ EXPORT_SYMBOL(drm_pci_alloc);
-  */
- void __drm_legacy_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
- {
--	unsigned long addr;
--	size_t sz;
--
--	if (dmah->vaddr) {
--		/* XXX - Is virt_to_page() legal for consistent mem? */
--		/* Unreserve */
--		for (addr = (unsigned long)dmah->vaddr, sz = dmah->size;
--		     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
--			ClearPageReserved(virt_to_page((void *)addr));
--		}
-+	if (dmah->vaddr)
- 		dma_free_coherent(&dev->pdev->dev, dmah->size, dmah->vaddr,
- 				  dmah->busaddr);
--	}
- }
- 
- /**
+ 	pmu {
+-		compatible = "arm,cortex-a53-pmu",
+-			     "arm,armv8-pmuv3";
++		compatible = "arm,cortex-a53-pmu";
+ 		interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 118 IRQ_TYPE_LEVEL_HIGH>,
 
 
