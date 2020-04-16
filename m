@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FFD21AC66A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C24C01AC49C
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394378AbgDPOjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:39:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49576 "EHLO mail.kernel.org"
+        id S1729665AbgDPOCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:02:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409610AbgDPOCJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:02:09 -0400
+        id S1728661AbgDPOCO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:02:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90EB52078B;
-        Thu, 16 Apr 2020 14:02:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73B1D22201;
+        Thu, 16 Apr 2020 14:02:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045729;
-        bh=v2onqnJMQEazmkuHUhSO3ULptroL/OOhJUCUP71lnjY=;
+        s=default; t=1587045733;
+        bh=/4fjXLYYFpryhyy3/f53lTW43Fu6Dn3ctaxf5l5Wdlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dHZjrKVRkRxl4wILU4VFx+ryc7F5gOjIQWv5shrD+QCV28mcDCuVQ9aViyYUVeNXy
-         MIP+9mkLCar4AK7Zu7XQK2TgxOm0QoMr5ggWsNDVM3Jjbs29sAV5ZDTQHI/ykYN1fl
-         qeNf4nhqNAvs+/8qqBKbeCHDp8iBr807XxcjWAig=
+        b=ChA2m/rZkm2QbLJrrptEcYNzRNyb+9ElRW+TqJ7ewWyq8WPt4BTrdKXgg7Dzjg27/
+         UdcrhiLoguNSF8IcUxM55tYa+QBgb4hI1aKoLtqu7qzCL7YJzPQla/mNJJsv9NDcOa
+         88+Q+AYN9sCCouAyBbIt5xDsxXtqMIYKhOKJSzEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 253/254] perf/core: Remove struct sched_in_data
-Date:   Thu, 16 Apr 2020 15:25:42 +0200
-Message-Id: <20200416131357.207561899@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 254/254] powerpc/kasan: Fix kasan_remap_early_shadow_ro()
+Date:   Thu, 16 Apr 2020 15:25:43 +0200
+Message-Id: <20200416131357.299918052@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -44,102 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 2c2366c7548ecee65adfd264517ddf50f9e2d029 ]
+[ Upstream commit af92bad615be75c6c0d1b1c5b48178360250a187 ]
 
-We can deduce the ctx and cpuctx from the event, no need to pass them
-along. Remove the structure and pass in can_add_hw directly.
+At the moment kasan_remap_early_shadow_ro() does nothing, because
+k_end is 0 and k_cur < 0 is always true.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Change the test to k_cur != k_end, as done in
+kasan_init_shadow_page_tables()
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: cbd18991e24f ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/4e7b56865e01569058914c991143f5961b5d4719.1583507333.git.christophe.leroy@c-s.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 36 +++++++++++-------------------------
- 1 file changed, 11 insertions(+), 25 deletions(-)
+ arch/powerpc/mm/kasan/kasan_init_32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index b816127367ffc..243717177f446 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -3437,17 +3437,11 @@ static int visit_groups_merge(struct perf_event_groups *groups, int cpu,
- 	return 0;
- }
+diff --git a/arch/powerpc/mm/kasan/kasan_init_32.c b/arch/powerpc/mm/kasan/kasan_init_32.c
+index d2bed3fcb7194..1169ad1b6730a 100644
+--- a/arch/powerpc/mm/kasan/kasan_init_32.c
++++ b/arch/powerpc/mm/kasan/kasan_init_32.c
+@@ -101,7 +101,7 @@ static void __init kasan_remap_early_shadow_ro(void)
  
--struct sched_in_data {
--	struct perf_event_context *ctx;
--	struct perf_cpu_context *cpuctx;
--	int can_add_hw;
--};
--
- static int merge_sched_in(struct perf_event *event, void *data)
- {
--	struct sched_in_data *sid = data;
--
--	WARN_ON_ONCE(event->ctx != sid->ctx);
-+	struct perf_event_context *ctx = event->ctx;
-+	struct perf_cpu_context *cpuctx = __get_cpu_context(ctx);
-+	int *can_add_hw = data;
+ 	kasan_populate_pte(kasan_early_shadow_pte, prot);
  
- 	if (event->state <= PERF_EVENT_STATE_OFF)
- 		return 0;
-@@ -3455,8 +3449,8 @@ static int merge_sched_in(struct perf_event *event, void *data)
- 	if (!event_filter_match(event))
- 		return 0;
+-	for (k_cur = k_start & PAGE_MASK; k_cur < k_end; k_cur += PAGE_SIZE) {
++	for (k_cur = k_start & PAGE_MASK; k_cur != k_end; k_cur += PAGE_SIZE) {
+ 		pmd_t *pmd = pmd_offset(pud_offset(pgd_offset_k(k_cur), k_cur), k_cur);
+ 		pte_t *ptep = pte_offset_kernel(pmd, k_cur);
  
--	if (group_can_go_on(event, sid->cpuctx, sid->can_add_hw)) {
--		if (!group_sched_in(event, sid->cpuctx, sid->ctx))
-+	if (group_can_go_on(event, cpuctx, *can_add_hw)) {
-+		if (!group_sched_in(event, cpuctx, ctx))
- 			list_add_tail(&event->active_list, get_event_list(event));
- 	}
- 
-@@ -3466,8 +3460,8 @@ static int merge_sched_in(struct perf_event *event, void *data)
- 			perf_event_set_state(event, PERF_EVENT_STATE_ERROR);
- 		}
- 
--		sid->can_add_hw = 0;
--		sid->ctx->rotate_necessary = 1;
-+		*can_add_hw = 0;
-+		ctx->rotate_necessary = 1;
- 	}
- 
- 	return 0;
-@@ -3477,30 +3471,22 @@ static void
- ctx_pinned_sched_in(struct perf_event_context *ctx,
- 		    struct perf_cpu_context *cpuctx)
- {
--	struct sched_in_data sid = {
--		.ctx = ctx,
--		.cpuctx = cpuctx,
--		.can_add_hw = 1,
--	};
-+	int can_add_hw = 1;
- 
- 	visit_groups_merge(&ctx->pinned_groups,
- 			   smp_processor_id(),
--			   merge_sched_in, &sid);
-+			   merge_sched_in, &can_add_hw);
- }
- 
- static void
- ctx_flexible_sched_in(struct perf_event_context *ctx,
- 		      struct perf_cpu_context *cpuctx)
- {
--	struct sched_in_data sid = {
--		.ctx = ctx,
--		.cpuctx = cpuctx,
--		.can_add_hw = 1,
--	};
-+	int can_add_hw = 1;
- 
- 	visit_groups_merge(&ctx->flexible_groups,
- 			   smp_processor_id(),
--			   merge_sched_in, &sid);
-+			   merge_sched_in, &can_add_hw);
- }
- 
- static void
 -- 
 2.20.1
 
