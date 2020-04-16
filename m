@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19C161AC8C6
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BCE91AC2A8
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406734AbgDPPO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:14:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35822 "EHLO mail.kernel.org"
+        id S2896340AbgDPNa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:30:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441657AbgDPNuL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:11 -0400
+        id S2896326AbgDPNaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:30:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C82122203;
-        Thu, 16 Apr 2020 13:49:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0BE321D94;
+        Thu, 16 Apr 2020 13:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044985;
-        bh=MkPs644BC6fRZVf3njDdZwqWGc69xsas9A4iun9REXc=;
+        s=default; t=1587043854;
+        bh=OVXRAMaUhSQWroAzhVmxDkhTa/hWRSuxxkkGdCSITOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eBPhTbx026teCN88iMpPZ09z8Mj9VpyzI1ZLGQmtu2MWcuvCJkD3u3QWnCELL+7ZC
-         dyPGwGISeZq/r70ssXjJyDwmKLwBwzpUOm7UvxeVzCzdouQXd+DwSU4I4SctswQaDO
-         sis6DpLsLo0jHFNPlTTswlgdj6qmTMvulChvKilg=
+        b=UI+z4+c2u+e7PZliZPbjjezEZyflF5XOki+kKNOfGuIu8AwWiplpMcpIMYdp2g5OX
+         8h8fLiGZpqTWX0w+VD0rhy9xSA4qnh9HMoyJOWLyu04ftZq5khuUZS7Kdkjoo9DvAo
+         M5HG1gUF3Zjsdl9bOnmG36vjitUIjFW0q1M0bJwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 175/232] scsi: lpfc: Fix lpfc_io_buf resource leak in lpfc_get_scsi_buf_s4 error path
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 128/146] powerpc/kprobes: Ignore traps that happened in real mode
 Date:   Thu, 16 Apr 2020 15:24:29 +0200
-Message-Id: <20200416131336.938168479@linuxfoundation.org>
+Message-Id: <20200416131259.984149713@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 0ab384a49c548baf132ccef249f78d9c6c506380 upstream.
+commit 21f8b2fa3ca5b01f7a2b51b89ce97a3705a15aa0 upstream.
 
-If a call to lpfc_get_cmd_rsp_buf_per_hdwq returns NULL (memory allocation
-failure), a previously allocated lpfc_io_buf resource is leaked.
+When a program check exception happens while MMU translation is
+disabled, following Oops happens in kprobe_handler() in the following
+code:
 
-Fix by releasing the lpfc_io_buf resource in the failure path.
+	} else if (*addr != BREAKPOINT_INSTRUCTION) {
 
-Fixes: d79c9e9d4b3d ("scsi: lpfc: Support dynamic unbounded SGL lists on G7 hardware.")
-Cc: <stable@vger.kernel.org> # v5.4+
-Link: https://lore.kernel.org/r/20200128002312.16346-3-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  BUG: Unable to handle kernel data access on read at 0x0000e268
+  Faulting instruction address: 0xc000ec34
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  BE PAGE_SIZE=16K PREEMPT CMPC885
+  Modules linked in:
+  CPU: 0 PID: 429 Comm: cat Not tainted 5.6.0-rc1-s3k-dev-00824-g84195dc6c58a #3267
+  NIP:  c000ec34 LR: c000ecd8 CTR: c019cab8
+  REGS: ca4d3b58 TRAP: 0300   Not tainted  (5.6.0-rc1-s3k-dev-00824-g84195dc6c58a)
+  MSR:  00001032 <ME,IR,DR,RI>  CR: 2a4d3c52  XER: 00000000
+  DAR: 0000e268 DSISR: c0000000
+  GPR00: c000b09c ca4d3c10 c66d0620 00000000 ca4d3c60 00000000 00009032 00000000
+  GPR08: 00020000 00000000 c087de44 c000afe0 c66d0ad0 100d3dd6 fffffff3 00000000
+  GPR16: 00000000 00000041 00000000 ca4d3d70 00000000 00000000 0000416d 00000000
+  GPR24: 00000004 c53b6128 00000000 0000e268 00000000 c07c0000 c07bb6fc ca4d3c60
+  NIP [c000ec34] kprobe_handler+0x128/0x290
+  LR [c000ecd8] kprobe_handler+0x1cc/0x290
+  Call Trace:
+  [ca4d3c30] [c000b09c] program_check_exception+0xbc/0x6fc
+  [ca4d3c50] [c000e43c] ret_from_except_full+0x0/0x4
+  --- interrupt: 700 at 0xe268
+  Instruction dump:
+  913e0008 81220000 38600001 3929ffff 91220000 80010024 bb410008 7c0803a6
+  38210020 4e800020 38600000 4e800020 <813b0000> 6d2a7fe0 2f8a0008 419e0154
+  ---[ end trace 5b9152d4cdadd06d ]---
+
+kprobe is not prepared to handle events in real mode and functions
+running in real mode should have been blacklisted, so kprobe_handler()
+can safely bail out telling 'this trap is not mine' for any trap that
+happened while in real-mode.
+
+If the trap happened with MSR_IR or MSR_DR cleared, return 0
+immediately.
+
+Reported-by: Larry Finger <Larry.Finger@lwfinger.net>
+Fixes: 6cc89bad60a6 ("powerpc/kprobes: Invoke handlers directly")
+Cc: stable@vger.kernel.org # v4.10+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/424331e2006e7291a1bfe40e7f3fa58825f565e1.1582054578.git.christophe.leroy@c-s.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/lpfc/lpfc_scsi.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/kprobes.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -671,8 +671,10 @@ lpfc_get_scsi_buf_s4(struct lpfc_hba *ph
- 	lpfc_cmd->prot_data_type = 0;
- #endif
- 	tmp = lpfc_get_cmd_rsp_buf_per_hdwq(phba, lpfc_cmd);
--	if (!tmp)
-+	if (!tmp) {
-+		lpfc_release_io_buf(phba, lpfc_cmd, lpfc_cmd->hdwq);
- 		return NULL;
-+	}
+--- a/arch/powerpc/kernel/kprobes.c
++++ b/arch/powerpc/kernel/kprobes.c
+@@ -277,6 +277,9 @@ int kprobe_handler(struct pt_regs *regs)
+ 	if (user_mode(regs))
+ 		return 0;
  
- 	lpfc_cmd->fcp_cmnd = tmp->fcp_cmnd;
- 	lpfc_cmd->fcp_rsp = tmp->fcp_rsp;
++	if (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR))
++		return 0;
++
+ 	/*
+ 	 * We don't want to be preempted for the entire
+ 	 * duration of kprobe processing
 
 
