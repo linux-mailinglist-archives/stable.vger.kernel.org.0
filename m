@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 004201ACC07
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6781ACA4D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506781AbgDPPxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40794 "EHLO mail.kernel.org"
+        id S2633694AbgDPPdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:33:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896257AbgDPNac (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:30:32 -0400
+        id S2898283AbgDPNlQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7946C208E4;
-        Thu, 16 Apr 2020 13:30:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0C5B2076D;
+        Thu, 16 Apr 2020 13:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043832;
-        bh=ipGa19nKKTFXIKRlrk5uJWMpFfYkR2QvtOVETI2Td8s=;
+        s=default; t=1587044476;
+        bh=cj9k2hAYAxhpwnoNJGeoddNVllBSWZVfbFc0dQYDt/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sSzqyAJ/A7jDUdZ0oTw7nE6bBabaDrxemejK0Zs/vi52OK1EezgA7YdlQlV8xmHS0
-         53FeXBapyOW7yxjMEUSLpKw9zyIm0EGgxiK5tOj/1BwGkSqj50uCrMYxJn4kXFy6NR
-         9hVzBHh5NVNkCctJGTUw1gBfjr+qwrqRppbECc8Y=
+        b=vf2LNXkFe5ZQ3XudJq52LiYLEWKnKW9REbWep05E3pG498uqcI8/UssWflM/GA8GV
+         DLGfRSLp8hih5Pss2rcSwAE2Wz6ILubBZ4zelQNo8TxsKMm79ok84PABYOYz4kReOE
+         4knCM628HbMIn8apaZsrcTA/9FggH+oPNkYEIbPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 116/146] Input: i8042 - add Acer Aspire 5738z to nomux list
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 5.5 206/257] vfio: platform: Switch to platform_get_irq_optional()
 Date:   Thu, 16 Apr 2020 15:24:17 +0200
-Message-Id: <20200416131258.486011689@linuxfoundation.org>
+Message-Id: <20200416131351.833164111@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Eric Auger <eric.auger@redhat.com>
 
-commit ebc68cedec4aead47d8d11623d013cca9bf8e825 upstream.
+commit 723fe298ad85ad1278bd2312469ad14738953cc6 upstream.
 
-The Acer Aspire 5738z has a button to disable (and re-enable) the
-touchpad next to the touchpad.
+Since commit 7723f4c5ecdb ("driver core: platform: Add an error
+message to platform_get_irq*()"), platform_get_irq() calls dev_err()
+on an error. As we enumerate all interrupts until platform_get_irq()
+fails, we now systematically get a message such as:
+"vfio-platform fff51000.ethernet: IRQ index 3 not found" which is
+a false positive.
 
-When this button is pressed a LED underneath indicates that the touchpad
-is disabled (and an event is send to userspace and GNOME shows its
-touchpad enabled / disable OSD thingie).
+Let's use platform_get_irq_optional() instead.
 
-So far so good, but after re-enabling the touchpad it no longer works.
-
-The laptop does not have an external ps2 port, so mux mode is not needed
-and disabling mux mode fixes the touchpad no longer working after toggling
-it off and back on again, so lets add this laptop model to the nomux list.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200331123947.318908-1-hdegoede@redhat.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Cc: stable@vger.kernel.org # v5.3+
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Tested-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/i8042-x86ia64io.h |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/vfio/platform/vfio_platform.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -534,6 +534,17 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo LaVie Z"),
- 		},
- 	},
-+	{
-+		/*
-+		 * Acer Aspire 5738z
-+		 * Touchpad stops working in mux mode when dis- + re-enabled
-+		 * with the touchpad enable/disable toggle hotkey
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
-+		},
-+	},
- 	{ }
- };
+--- a/drivers/vfio/platform/vfio_platform.c
++++ b/drivers/vfio/platform/vfio_platform.c
+@@ -44,7 +44,7 @@ static int get_platform_irq(struct vfio_
+ {
+ 	struct platform_device *pdev = (struct platform_device *) vdev->opaque;
  
+-	return platform_get_irq(pdev, i);
++	return platform_get_irq_optional(pdev, i);
+ }
+ 
+ static int vfio_platform_probe(struct platform_device *pdev)
 
 
