@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEC211AC901
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:19:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 821A61AC32F
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392333AbgDPNsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:48:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34250 "EHLO mail.kernel.org"
+        id S2897839AbgDPNje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:39:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898722AbgDPNsN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:48:13 -0400
+        id S2897290AbgDPNja (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:39:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CA1921734;
-        Thu, 16 Apr 2020 13:48:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2A1320732;
+        Thu, 16 Apr 2020 13:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044892;
-        bh=ToYV/2Bkn9/hAzWBU870733UkLt+U7ZE9XFkXJpdEHA=;
+        s=default; t=1587044370;
+        bh=6TTcpu+0ILQXfGivzEXVIP+0l4H93b4bpnRFX31rZqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STnUxverTbv4NCJ3WOIe1H6ntBhIH1OBfLbome8Inon1hsSBrKIXfvHIbQznwcatm
-         JtM6dd/RTyWtUWtEtE2UzYEedH/4v4ncCyV2Aw24LnDfO0DJf/47krvgHCoyanncVx
-         CU84MfHvB5W48UnsyUkTyEw+foXYwQIkHUM681Os=
+        b=zrAlq7egrIURHoUjLoU8piO1y65pyQxH/6TwlLbN8KXBBemO3Q8+kh1RsMWFkgDff
+         iw4gAcxpx6kgyY9VfdbeE1ASJIBrfcQdJN/C2FliyG7TxeN1KAa+YW38Q/SM7I8z0R
+         vKESjJPCoICjn8dayiYasXPlsOzYdDLGr2AtUzqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 145/232] btrfs: use nofs allocations for running delayed items
-Date:   Thu, 16 Apr 2020 15:23:59 +0200
-Message-Id: <20200416131333.126563854@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 5.5 189/257] xarray: Fix early termination of xas_for_each_marked
+Date:   Thu, 16 Apr 2020 15:24:00 +0200
+Message-Id: <20200416131349.892633173@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,232 +43,204 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 351cbf6e4410e7ece05e35d0a07320538f2418b4 upstream.
+commit 7e934cf5ace1dceeb804f7493fa28bb697ed3c52 upstream.
 
-Zygo reported the following lockdep splat while testing the balance
-patches
+xas_for_each_marked() is using entry == NULL as a termination condition
+of the iteration. When xas_for_each_marked() is used protected only by
+RCU, this can however race with xas_store(xas, NULL) in the following
+way:
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.6.0-c6f0579d496a+ #53 Not tainted
-------------------------------------------------------
-kswapd0/1133 is trying to acquire lock:
-ffff888092f622c0 (&delayed_node->mutex){+.+.}, at: __btrfs_release_delayed_node+0x7c/0x5b0
+TASK1                                   TASK2
+page_cache_delete()         	        find_get_pages_range_tag()
+                                          xas_for_each_marked()
+                                            xas_find_marked()
+                                              off = xas_find_chunk()
 
-but task is already holding lock:
-ffffffff8fc5f860 (fs_reclaim){+.+.}, at: __fs_reclaim_acquire+0x5/0x30
+  xas_store(&xas, NULL)
+    xas_init_marks(&xas);
+    ...
+    rcu_assign_pointer(*slot, NULL);
+                                              entry = xa_entry(off);
 
-which lock already depends on the new lock.
+And thus xas_for_each_marked() terminates prematurely possibly leading
+to missed entries in the iteration (translating to missing writeback of
+some pages or a similar problem).
 
-the existing dependency chain (in reverse order) is:
+If we find a NULL entry that has been marked, skip it (unless we're trying
+to allocate an entry).
 
--> #1 (fs_reclaim){+.+.}:
-       fs_reclaim_acquire.part.91+0x29/0x30
-       fs_reclaim_acquire+0x19/0x20
-       kmem_cache_alloc_trace+0x32/0x740
-       add_block_entry+0x45/0x260
-       btrfs_ref_tree_mod+0x6e2/0x8b0
-       btrfs_alloc_tree_block+0x789/0x880
-       alloc_tree_block_no_bg_flush+0xc6/0xf0
-       __btrfs_cow_block+0x270/0x940
-       btrfs_cow_block+0x1ba/0x3a0
-       btrfs_search_slot+0x999/0x1030
-       btrfs_insert_empty_items+0x81/0xe0
-       btrfs_insert_delayed_items+0x128/0x7d0
-       __btrfs_run_delayed_items+0xf4/0x2a0
-       btrfs_run_delayed_items+0x13/0x20
-       btrfs_commit_transaction+0x5cc/0x1390
-       insert_balance_item.isra.39+0x6b2/0x6e0
-       btrfs_balance+0x72d/0x18d0
-       btrfs_ioctl_balance+0x3de/0x4c0
-       btrfs_ioctl+0x30ab/0x44a0
-       ksys_ioctl+0xa1/0xe0
-       __x64_sys_ioctl+0x43/0x50
-       do_syscall_64+0x77/0x2c0
-       entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
--> #0 (&delayed_node->mutex){+.+.}:
-       __lock_acquire+0x197e/0x2550
-       lock_acquire+0x103/0x220
-       __mutex_lock+0x13d/0xce0
-       mutex_lock_nested+0x1b/0x20
-       __btrfs_release_delayed_node+0x7c/0x5b0
-       btrfs_remove_delayed_node+0x49/0x50
-       btrfs_evict_inode+0x6fc/0x900
-       evict+0x19a/0x2c0
-       dispose_list+0xa0/0xe0
-       prune_icache_sb+0xbd/0xf0
-       super_cache_scan+0x1b5/0x250
-       do_shrink_slab+0x1f6/0x530
-       shrink_slab+0x32e/0x410
-       shrink_node+0x2a5/0xba0
-       balance_pgdat+0x4bd/0x8a0
-       kswapd+0x35a/0x800
-       kthread+0x1e9/0x210
-       ret_from_fork+0x3a/0x50
-
-other info that might help us debug this:
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(fs_reclaim);
-                               lock(&delayed_node->mutex);
-                               lock(fs_reclaim);
-  lock(&delayed_node->mutex);
-
- *** DEADLOCK ***
-
-3 locks held by kswapd0/1133:
- #0: ffffffff8fc5f860 (fs_reclaim){+.+.}, at: __fs_reclaim_acquire+0x5/0x30
- #1: ffffffff8fc380d8 (shrinker_rwsem){++++}, at: shrink_slab+0x1e8/0x410
- #2: ffff8881e0e6c0e8 (&type->s_umount_key#42){++++}, at: trylock_super+0x1b/0x70
-
-stack backtrace:
-CPU: 2 PID: 1133 Comm: kswapd0 Not tainted 5.6.0-c6f0579d496a+ #53
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-Call Trace:
- dump_stack+0xc1/0x11a
- print_circular_bug.isra.38.cold.57+0x145/0x14a
- check_noncircular+0x2a9/0x2f0
- ? print_circular_bug.isra.38+0x130/0x130
- ? stack_trace_consume_entry+0x90/0x90
- ? save_trace+0x3cc/0x420
- __lock_acquire+0x197e/0x2550
- ? btrfs_inode_clear_file_extent_range+0x9b/0xb0
- ? register_lock_class+0x960/0x960
- lock_acquire+0x103/0x220
- ? __btrfs_release_delayed_node+0x7c/0x5b0
- __mutex_lock+0x13d/0xce0
- ? __btrfs_release_delayed_node+0x7c/0x5b0
- ? __asan_loadN+0xf/0x20
- ? pvclock_clocksource_read+0xeb/0x190
- ? __btrfs_release_delayed_node+0x7c/0x5b0
- ? mutex_lock_io_nested+0xc20/0xc20
- ? __kasan_check_read+0x11/0x20
- ? check_chain_key+0x1e6/0x2e0
- mutex_lock_nested+0x1b/0x20
- ? mutex_lock_nested+0x1b/0x20
- __btrfs_release_delayed_node+0x7c/0x5b0
- btrfs_remove_delayed_node+0x49/0x50
- btrfs_evict_inode+0x6fc/0x900
- ? btrfs_setattr+0x840/0x840
- ? do_raw_spin_unlock+0xa8/0x140
- evict+0x19a/0x2c0
- dispose_list+0xa0/0xe0
- prune_icache_sb+0xbd/0xf0
- ? invalidate_inodes+0x310/0x310
- super_cache_scan+0x1b5/0x250
- do_shrink_slab+0x1f6/0x530
- shrink_slab+0x32e/0x410
- ? do_shrink_slab+0x530/0x530
- ? do_shrink_slab+0x530/0x530
- ? __kasan_check_read+0x11/0x20
- ? mem_cgroup_protected+0x13d/0x260
- shrink_node+0x2a5/0xba0
- balance_pgdat+0x4bd/0x8a0
- ? mem_cgroup_shrink_node+0x490/0x490
- ? _raw_spin_unlock_irq+0x27/0x40
- ? finish_task_switch+0xce/0x390
- ? rcu_read_lock_bh_held+0xb0/0xb0
- kswapd+0x35a/0x800
- ? _raw_spin_unlock_irqrestore+0x4c/0x60
- ? balance_pgdat+0x8a0/0x8a0
- ? finish_wait+0x110/0x110
- ? __kasan_check_read+0x11/0x20
- ? __kthread_parkme+0xc6/0xe0
- ? balance_pgdat+0x8a0/0x8a0
- kthread+0x1e9/0x210
- ? kthread_create_worker_on_cpu+0xc0/0xc0
- ret_from_fork+0x3a/0x50
-
-This is because we hold that delayed node's mutex while doing tree
-operations.  Fix this by just wrapping the searches in nofs.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Jan Kara <jack@suse.cz>
+CC: stable@vger.kernel.org
+Fixes: ef8e5717db01 ("page cache: Convert delete_batch to XArray")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/delayed-inode.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ include/linux/xarray.h                       |    6 +
+ lib/xarray.c                                 |    2 
+ tools/testing/radix-tree/Makefile            |    4 -
+ tools/testing/radix-tree/iteration_check_2.c |   87 +++++++++++++++++++++++++++
+ tools/testing/radix-tree/main.c              |    1 
+ tools/testing/radix-tree/test.h              |    1 
+ 6 files changed, 98 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/delayed-inode.c
-+++ b/fs/btrfs/delayed-inode.c
-@@ -6,6 +6,7 @@
- 
- #include <linux/slab.h>
- #include <linux/iversion.h>
-+#include <linux/sched/mm.h>
- #include "misc.h"
- #include "delayed-inode.h"
- #include "disk-io.h"
-@@ -804,11 +805,14 @@ static int btrfs_insert_delayed_item(str
- 				     struct btrfs_delayed_item *delayed_item)
+--- a/include/linux/xarray.h
++++ b/include/linux/xarray.h
+@@ -1648,6 +1648,7 @@ static inline void *xas_next_marked(stru
+ 								xa_mark_t mark)
  {
- 	struct extent_buffer *leaf;
-+	unsigned int nofs_flag;
- 	char *ptr;
- 	int ret;
+ 	struct xa_node *node = xas->xa_node;
++	void *entry;
+ 	unsigned int offset;
  
-+	nofs_flag = memalloc_nofs_save();
- 	ret = btrfs_insert_empty_item(trans, root, path, &delayed_item->key,
- 				      delayed_item->data_len);
-+	memalloc_nofs_restore(nofs_flag);
- 	if (ret < 0 && ret != -EEXIST)
- 		return ret;
+ 	if (unlikely(xas_not_node(node) || node->shift))
+@@ -1659,7 +1660,10 @@ static inline void *xas_next_marked(stru
+ 		return NULL;
+ 	if (offset == XA_CHUNK_SIZE)
+ 		return xas_find_marked(xas, max, mark);
+-	return xa_entry(xas->xa, node, offset);
++	entry = xa_entry(xas->xa, node, offset);
++	if (!entry)
++		return xas_find_marked(xas, max, mark);
++	return entry;
+ }
  
-@@ -936,6 +940,7 @@ static int btrfs_delete_delayed_items(st
- 				      struct btrfs_delayed_node *node)
- {
- 	struct btrfs_delayed_item *curr, *prev;
-+	unsigned int nofs_flag;
- 	int ret = 0;
+ /*
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -1208,6 +1208,8 @@ void *xas_find_marked(struct xa_state *x
+ 		}
  
- do_again:
-@@ -944,7 +949,9 @@ do_again:
- 	if (!curr)
- 		goto delete_fail;
+ 		entry = xa_entry(xas->xa, xas->xa_node, xas->xa_offset);
++		if (!entry && !(xa_track_free(xas->xa) && mark == XA_FREE_MARK))
++			continue;
+ 		if (!xa_is_node(entry))
+ 			return entry;
+ 		xas->xa_node = xa_to_node(entry);
+--- a/tools/testing/radix-tree/Makefile
++++ b/tools/testing/radix-tree/Makefile
+@@ -7,8 +7,8 @@ LDLIBS+= -lpthread -lurcu
+ TARGETS = main idr-test multiorder xarray
+ CORE_OFILES := xarray.o radix-tree.o idr.o linux.o test.o find_bit.o bitmap.o
+ OFILES = main.o $(CORE_OFILES) regression1.o regression2.o regression3.o \
+-	 regression4.o \
+-	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o
++	 regression4.o tag_check.o multiorder.o idr-test.o iteration_check.o \
++	 iteration_check_2.o benchmark.o
  
-+	nofs_flag = memalloc_nofs_save();
- 	ret = btrfs_search_slot(trans, root, &curr->key, path, -1, 1);
-+	memalloc_nofs_restore(nofs_flag);
- 	if (ret < 0)
- 		goto delete_fail;
- 	else if (ret > 0) {
-@@ -1011,6 +1018,7 @@ static int __btrfs_update_delayed_inode(
- 	struct btrfs_key key;
- 	struct btrfs_inode_item *inode_item;
- 	struct extent_buffer *leaf;
-+	unsigned int nofs_flag;
- 	int mod;
- 	int ret;
- 
-@@ -1023,7 +1031,9 @@ static int __btrfs_update_delayed_inode(
- 	else
- 		mod = 1;
- 
-+	nofs_flag = memalloc_nofs_save();
- 	ret = btrfs_lookup_inode(trans, root, path, &key, mod);
-+	memalloc_nofs_restore(nofs_flag);
- 	if (ret > 0) {
- 		btrfs_release_path(path);
- 		return -ENOENT;
-@@ -1074,7 +1084,10 @@ search:
- 
- 	key.type = BTRFS_INODE_EXTREF_KEY;
- 	key.offset = -1;
+ ifndef SHIFT
+ 	SHIFT=3
+--- /dev/null
++++ b/tools/testing/radix-tree/iteration_check_2.c
+@@ -0,0 +1,87 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * iteration_check_2.c: Check that deleting a tagged entry doesn't cause
++ * an RCU walker to finish early.
++ * Copyright (c) 2020 Oracle
++ * Author: Matthew Wilcox <willy@infradead.org>
++ */
++#include <pthread.h>
++#include "test.h"
 +
-+	nofs_flag = memalloc_nofs_save();
- 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
-+	memalloc_nofs_restore(nofs_flag);
- 	if (ret < 0)
- 		goto err_out;
- 	ASSERT(ret);
++static volatile bool test_complete;
++
++static void *iterator(void *arg)
++{
++	XA_STATE(xas, arg, 0);
++	void *entry;
++
++	rcu_register_thread();
++
++	while (!test_complete) {
++		xas_set(&xas, 0);
++		rcu_read_lock();
++		xas_for_each_marked(&xas, entry, ULONG_MAX, XA_MARK_0)
++			;
++		rcu_read_unlock();
++		assert(xas.xa_index >= 100);
++	}
++
++	rcu_unregister_thread();
++	return NULL;
++}
++
++static void *throbber(void *arg)
++{
++	struct xarray *xa = arg;
++
++	rcu_register_thread();
++
++	while (!test_complete) {
++		int i;
++
++		for (i = 0; i < 100; i++) {
++			xa_store(xa, i, xa_mk_value(i), GFP_KERNEL);
++			xa_set_mark(xa, i, XA_MARK_0);
++		}
++		for (i = 0; i < 100; i++)
++			xa_erase(xa, i);
++	}
++
++	rcu_unregister_thread();
++	return NULL;
++}
++
++void iteration_test2(unsigned test_duration)
++{
++	pthread_t threads[2];
++	DEFINE_XARRAY(array);
++	int i;
++
++	printv(1, "Running iteration test 2 for %d seconds\n", test_duration);
++
++	test_complete = false;
++
++	xa_store(&array, 100, xa_mk_value(100), GFP_KERNEL);
++	xa_set_mark(&array, 100, XA_MARK_0);
++
++	if (pthread_create(&threads[0], NULL, iterator, &array)) {
++		perror("create iterator thread");
++		exit(1);
++	}
++	if (pthread_create(&threads[1], NULL, throbber, &array)) {
++		perror("create throbber thread");
++		exit(1);
++	}
++
++	sleep(test_duration);
++	test_complete = true;
++
++	for (i = 0; i < 2; i++) {
++		if (pthread_join(threads[i], NULL)) {
++			perror("pthread_join");
++			exit(1);
++		}
++	}
++
++	xa_destroy(&array);
++}
+--- a/tools/testing/radix-tree/main.c
++++ b/tools/testing/radix-tree/main.c
+@@ -311,6 +311,7 @@ int main(int argc, char **argv)
+ 	regression4_test();
+ 	iteration_test(0, 10 + 90 * long_run);
+ 	iteration_test(7, 10 + 90 * long_run);
++	iteration_test2(10 + 90 * long_run);
+ 	single_thread_tests(long_run);
+ 
+ 	/* Free any remaining preallocated nodes */
+--- a/tools/testing/radix-tree/test.h
++++ b/tools/testing/radix-tree/test.h
+@@ -34,6 +34,7 @@ void xarray_tests(void);
+ void tag_check(void);
+ void multiorder_checks(void);
+ void iteration_test(unsigned order, unsigned duration);
++void iteration_test2(unsigned duration);
+ void benchmark(void);
+ void idr_checks(void);
+ void ida_tests(void);
 
 
