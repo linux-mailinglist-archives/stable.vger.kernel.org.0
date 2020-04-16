@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B9E1AC42F
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45A9A1ACAF2
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:43:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392540AbgDPNze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42134 "EHLO mail.kernel.org"
+        id S2395298AbgDPPl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:41:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392533AbgDPNza (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:55:30 -0400
+        id S2897370AbgDPNgw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:36:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59B2A20732;
-        Thu, 16 Apr 2020 13:55:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F70021BE5;
+        Thu, 16 Apr 2020 13:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045329;
-        bh=f5G/PgNlQLorwMRYwCChGgzk+9oz/wHoIFMd326/k2A=;
+        s=default; t=1587044212;
+        bh=QmB29ly0Y71X/FgMW4b306XefznnlZC+fnySE+kruPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQj4/FDfxXoe6iWd+JW/FNU/fiVMatpnsu0tqdiVnC3R133v4qQz3iw52nY42cBxG
-         yaWduayUvHh0kvp3772FD3QFFdH6YGKAeQdcNOKJXYJuCXAs61nPV4iXx0S6v7bNdP
-         ebuhXtmvqGIH6RuPNlbNeXks2P03GHo5dRkeexBs=
+        b=qfAr3iBSPqpVnlGKrt3KvOBcqyN3GplVjVjEf3SOIRf0b8cuvQZ28tL6IDkukloZq
+         /MPWkz1PXBsJYQTpXiusjaW+SO+n1pQOOn4I1XU8KPxNcLjwechL9sd8fJj9yr6f1/
+         dvRzJ2PX1QMgDfio3HjF57DSaQ20xkLEEB4owBmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.6 089/254] seccomp: Add missing compat_ioctl for notify
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.5 127/257] genirq/debugfs: Add missing sanity checks to interrupt injection
 Date:   Thu, 16 Apr 2020 15:22:58 +0200
-Message-Id: <20200416131337.071349726@linuxfoundation.org>
+Message-Id: <20200416131342.240942269@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 3db81afd99494a33f1c3839103f0429c8f30cb9d upstream.
+commit a740a423c36932695b01a3e920f697bc55b05fec upstream.
 
-Executing the seccomp_bpf testsuite under a 64-bit kernel with 32-bit
-userland (both s390 and x86) doesn't work because there's no compat_ioctl
-handler defined. Add the handler.
+Interrupts cannot be injected when the interrupt is not activated and when
+a replay is already in progress.
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+Fixes: 536e2e34bd00 ("genirq/debugfs: Triggering of interrupts from userspace")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200310123332.42255-1-svens@linux.ibm.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lkml.kernel.org/r/20200306130623.500019114@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/seccomp.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/irq/debugfs.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/kernel/seccomp.c
-+++ b/kernel/seccomp.c
-@@ -1221,6 +1221,7 @@ static const struct file_operations secc
- 	.poll = seccomp_notify_poll,
- 	.release = seccomp_notify_release,
- 	.unlocked_ioctl = seccomp_notify_ioctl,
-+	.compat_ioctl = seccomp_notify_ioctl,
- };
+--- a/kernel/irq/debugfs.c
++++ b/kernel/irq/debugfs.c
+@@ -206,8 +206,15 @@ static ssize_t irq_debug_write(struct fi
+ 		chip_bus_lock(desc);
+ 		raw_spin_lock_irqsave(&desc->lock, flags);
  
- static struct file *init_listener(struct seccomp_filter *filter)
+-		if (irq_settings_is_level(desc) || desc->istate & IRQS_NMI) {
+-			/* Can't do level nor NMIs, sorry */
++		/*
++		 * Don't allow injection when the interrupt is:
++		 *  - Level or NMI type
++		 *  - not activated
++		 *  - replaying already
++		 */
++		if (irq_settings_is_level(desc) ||
++		    !irqd_is_activated(&desc->irq_data) ||
++		    (desc->istate & (IRQS_NMI | IRQS_REPLAY))) {
+ 			err = -EINVAL;
+ 		} else {
+ 			desc->istate |= IRQS_PENDING;
 
 
