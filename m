@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B6021AC941
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 422891ACC4C
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730730AbgDPPVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32924 "EHLO mail.kernel.org"
+        id S2442842AbgDPP5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:57:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898637AbgDPNq5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:46:57 -0400
+        id S2895763AbgDPN22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:28:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3421208E4;
-        Thu, 16 Apr 2020 13:46:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66C3721D7F;
+        Thu, 16 Apr 2020 13:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044816;
-        bh=/BTERr8ntuoVM+oROY3RpI5yVZsGtjKuXRPEP0DY5B8=;
+        s=default; t=1587043707;
+        bh=OsrLDZ9fUZQ3x6KIVJu2Krdwb1lKyp3EyZpBevJYjg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WuGoGEgRTvfLmEDvvZlNSqIy5Dp0jBkBCWWS0+xEYqdFJJW5kAOjhy5uYJjs/Vsq
-         NnAZ5BWwc8lEdK/hQJfLoxUBLwi3F6L9RUxrSVn59aad/pmEYpDeyXSVmCftUcb8yV
-         Z6SB7rhEpQ/Kc1DKDJXZiq+DBYNLRpeWEKwOkpBo=
+        b=DQ2HU/bqahP67A2kw3xKYajn7OhiN3jw2Nbyayk8jlG3B2whKMJcuPyJo4O8Ay6Ol
+         IOmVZtipkhc8Fq+WW4dV3wlityYdd1DgL2e1q1UB3PaCveQe1k4x6PoOfJ96WatuQj
+         id4ZjX/1k58slqHrKodbc+7iH7ZSyEEng1A3tzJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 113/232] pstore: pstore_ftrace_seq_next should increase position index
+        stable@vger.kernel.org, Kar Hin Ong <kar.hin.ong@ni.com>,
+        Sean V Kelley <sean.v.kelley@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 066/146] PCI: Add boot interrupt quirk mechanism for Xeon chipsets
 Date:   Thu, 16 Apr 2020 15:23:27 +0200
-Message-Id: <20200416131329.272025766@linuxfoundation.org>
+Message-Id: <20200416131251.925872369@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +45,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Sean V Kelley <sean.v.kelley@linux.intel.com>
 
-commit 6c871b7314dde9ab64f20de8f5aa3d01be4518e8 upstream.
+commit b88bf6c3b6ff77948c153cac4e564642b0b90632 upstream.
 
-In Aug 2018 NeilBrown noticed
-commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
-"Some ->next functions do not increment *pos when they return NULL...
-Note that such ->next functions are buggy and should be fixed.
-A simple demonstration is
+The following was observed by Kar Hin Ong with RT patchset:
 
- dd if=/proc/swaps bs=1000 skip=1
+  Backtrace:
+  irq 19: nobody cared (try booting with the "irqpoll" option)
+  CPU: 0 PID: 3329 Comm: irq/34-nipalk Tainted:4.14.87-rt49 #1
+  Hardware name: National Instruments NI PXIe-8880/NI PXIe-8880,
+           BIOS 2.1.5f1 01/09/2020
+  Call Trace:
+  <IRQ>
+    ? dump_stack+0x46/0x5e
+    ? __report_bad_irq+0x2e/0xb0
+    ? note_interrupt+0x242/0x290
+    ? nNIKAL100_memoryRead16+0x8/0x10 [nikal]
+    ? handle_irq_event_percpu+0x55/0x70
+    ? handle_irq_event+0x4f/0x80
+    ? handle_fasteoi_irq+0x81/0x180
+    ? handle_irq+0x1c/0x30
+    ? do_IRQ+0x41/0xd0
+    ? common_interrupt+0x84/0x84
+  </IRQ>
+  ...
+  handlers:
+  [<ffffffffb3297200>] irq_default_primary_handler threaded
+  [<ffffffffb3669180>] usb_hcd_irq
+  Disabling IRQ #19
 
-Choose any block size larger than the size of /proc/swaps. This will
-always show the whole last line of /proc/swaps"
+The problem being that this device is triggering boot interrupts
+due to threaded interrupt handling and masking of the IO-APIC. These
+boot interrupts are then forwarded on to the legacy PCH's PIRQ lines
+where there is no handler present for the device.
 
-/proc/swaps output was fixed recently, however there are lot of other
-affected files, and one of them is related to pstore subsystem.
+Whenever a PCI device fires interrupt (INTx) to Pin 20 of IOAPIC 2
+(GSI 44), the kernel receives two interrupts:
 
-If .next function does not change position index, following .show function
-will repeat output related to current position index.
+   1. Interrupt from Pin 20 of IOAPIC 2  -> Expected
+   2. Interrupt from Pin 19 of IOAPIC 1  -> UNEXPECTED
 
-There are at least 2 related problems:
-- read after lseek beyond end of file, described above by NeilBrown
-  "dd if=<AFFECTED_FILE> bs=1000 skip=1" will generate whole last list
-- read after lseek on in middle of last line will output expected rest of
-  last line but then repeat whole last line once again.
+Quirks for disabling boot interrupts (preferred) or rerouting the
+handler exist but do not address these Xeon chipsets' mechanism:
+https://lore.kernel.org/lkml/12131949181903-git-send-email-sassmann@suse.de/
 
-If .show() function generates multy-line output (like
-pstore_ftrace_seq_show() does ?) following bash script cycles endlessly
+Add a new mechanism via PCI CFG for those chipsets supporting CIPINTRC
+register's dis_intx_rout2ich bit.
 
- $ q=;while read -r r;do echo "$((++q)) $r";done < AFFECTED_FILE
-
-Unfortunately I'm not familiar enough to pstore subsystem and was unable
-to find affected pstore-related file on my test node.
-
-If .next function does not change position index, following .show function
-will repeat output related to current position index.
-
+Link: https://lore.kernel.org/r/20200220192930.64820-2-sean.v.kelley@linux.intel.com
+Reported-by: Kar Hin Ong <kar.hin.ong@ni.com>
+Tested-by: Kar Hin Ong <kar.hin.ong@ni.com>
+Signed-off-by: Sean V Kelley <sean.v.kelley@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Link: https://lore.kernel.org/r/4e49830d-4c88-0171-ee24-1ee540028dad@virtuozzo.com
-[kees: with robustness tweak from Joel Fernandes <joelaf@google.com>]
-Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/pstore/inode.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pci/quirks.c |   80 ++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 73 insertions(+), 7 deletions(-)
 
---- a/fs/pstore/inode.c
-+++ b/fs/pstore/inode.c
-@@ -87,11 +87,11 @@ static void *pstore_ftrace_seq_next(stru
- 	struct pstore_private *ps = s->private;
- 	struct pstore_ftrace_seq_data *data = v;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -1947,26 +1947,92 @@ DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_I
+ /*
+  * IO-APIC1 on 6300ESB generates boot interrupts, see Intel order no
+  * 300641-004US, section 5.7.3.
++ *
++ * Core IO on Xeon E5 1600/2600/4600, see Intel order no 326509-003.
++ * Core IO on Xeon E5 v2, see Intel order no 329188-003.
++ * Core IO on Xeon E7 v2, see Intel order no 329595-002.
++ * Core IO on Xeon E5 v3, see Intel order no 330784-003.
++ * Core IO on Xeon E7 v3, see Intel order no 332315-001US.
++ * Core IO on Xeon E5 v4, see Intel order no 333810-002US.
++ * Core IO on Xeon E7 v4, see Intel order no 332315-001US.
++ * Core IO on Xeon D-1500, see Intel order no 332051-001.
++ * Core IO on Xeon Scalable, see Intel order no 610950.
+  */
+-#define INTEL_6300_IOAPIC_ABAR		0x40
++#define INTEL_6300_IOAPIC_ABAR		0x40	/* Bus 0, Dev 29, Func 5 */
+ #define INTEL_6300_DISABLE_BOOT_IRQ	(1<<14)
  
-+	(*pos)++;
- 	data->off += REC_SIZE;
- 	if (data->off + REC_SIZE > ps->total_size)
- 		return NULL;
- 
--	(*pos)++;
- 	return data;
- }
- 
-@@ -101,6 +101,9 @@ static int pstore_ftrace_seq_show(struct
- 	struct pstore_ftrace_seq_data *data = v;
- 	struct pstore_ftrace_record *rec;
- 
-+	if (!data)
-+		return 0;
++#define INTEL_CIPINTRC_CFG_OFFSET	0x14C	/* Bus 0, Dev 5, Func 0 */
++#define INTEL_CIPINTRC_DIS_INTX_ICH	(1<<25)
 +
- 	rec = (struct pstore_ftrace_record *)(ps->record->buf + data->off);
+ static void quirk_disable_intel_boot_interrupt(struct pci_dev *dev)
+ {
+ 	u16 pci_config_word;
++	u32 pci_config_dword;
  
- 	seq_printf(s, "CPU:%d ts:%llu %08lx  %08lx  %ps <- %pS\n",
+ 	if (noioapicquirk)
+ 		return;
+ 
+-	pci_read_config_word(dev, INTEL_6300_IOAPIC_ABAR, &pci_config_word);
+-	pci_config_word |= INTEL_6300_DISABLE_BOOT_IRQ;
+-	pci_write_config_word(dev, INTEL_6300_IOAPIC_ABAR, pci_config_word);
+-
++	switch (dev->device) {
++	case PCI_DEVICE_ID_INTEL_ESB_10:
++		pci_read_config_word(dev, INTEL_6300_IOAPIC_ABAR,
++				     &pci_config_word);
++		pci_config_word |= INTEL_6300_DISABLE_BOOT_IRQ;
++		pci_write_config_word(dev, INTEL_6300_IOAPIC_ABAR,
++				      pci_config_word);
++		break;
++	case 0x3c28:	/* Xeon E5 1600/2600/4600	*/
++	case 0x0e28:	/* Xeon E5/E7 V2		*/
++	case 0x2f28:	/* Xeon E5/E7 V3,V4		*/
++	case 0x6f28:	/* Xeon D-1500			*/
++	case 0x2034:	/* Xeon Scalable Family		*/
++		pci_read_config_dword(dev, INTEL_CIPINTRC_CFG_OFFSET,
++				      &pci_config_dword);
++		pci_config_dword |= INTEL_CIPINTRC_DIS_INTX_ICH;
++		pci_write_config_dword(dev, INTEL_CIPINTRC_CFG_OFFSET,
++				       pci_config_dword);
++		break;
++	default:
++		return;
++	}
+ 	pci_info(dev, "disabled boot interrupts on device [%04x:%04x]\n",
+ 		 dev->vendor, dev->device);
+ }
+-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,   PCI_DEVICE_ID_INTEL_ESB_10,	quirk_disable_intel_boot_interrupt);
+-DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,   PCI_DEVICE_ID_INTEL_ESB_10,	quirk_disable_intel_boot_interrupt);
++/*
++ * Device 29 Func 5 Device IDs of IO-APIC
++ * containing ABAR—APIC1 Alternate Base Address Register
++ */
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ESB_10,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ESB_10,
++		quirk_disable_intel_boot_interrupt);
++
++/*
++ * Device 5 Func 0 Device IDs of Core IO modules/hubs
++ * containing Coherent Interface Protocol Interrupt Control
++ *
++ * Device IDs obtained from volume 2 datasheets of commented
++ * families above.
++ */
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x3c28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x0e28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x2f28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x6f28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x2034,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x3c28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x0e28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x2f28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x6f28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x2034,
++		quirk_disable_intel_boot_interrupt);
+ 
+ /* Disable boot interrupts on HT-1000 */
+ #define BC_HT1000_FEATURE_REG		0x64
 
 
