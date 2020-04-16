@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F10961AC400
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:54:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 509F31ACB79
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441681AbgDPNwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:52:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39000 "EHLO mail.kernel.org"
+        id S2895914AbgDPPrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:47:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441310AbgDPNwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:52:39 -0400
+        id S2896884AbgDPNeK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:34:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C4952063A;
-        Thu, 16 Apr 2020 13:52:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70BF121BE5;
+        Thu, 16 Apr 2020 13:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045158;
-        bh=oo8k5WceXRjdNhrIZURPloY5o+v2rdHZpBp5cNa6Cy0=;
+        s=default; t=1587044049;
+        bh=otK5x4Ls3x9usVl63svp8ToBMJhcukjNtYux7ORX/Ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ekLt/tsH4WlFoKZg7NNdHEqSSCCNcVaA7Gmtxo39PAjjQBVzp30D6EcVKdg/8qBxt
-         dD3LaMVup6eZuZmI5269aPsh5xUQC8AEJcFgLECdL4Nc2nm7esFb7hzra4zeCFWYqN
-         J7tq91r+aHAGhoPR/4tyRinUVhgzgc0aYSVOCky8=
+        b=c9V636ZSbHHy9VKl3wIxDywfTfiQzipMdhoQY/xB563IgbNp3n/PJDCrTzbhA00z8
+         NzCmsZKtTZ54OJ+F4ZGqKXi7RFncjg07l8yqb0wJozf8BgViAUwAPwFTy2NCwnFl2B
+         CqTlL0Zr9MzLoUc3ceR6/9lLza9ZlXWRL4ADl36I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Alexey Dobriyan (SK hynix)" <adobriyan@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 021/254] null_blk: fix spurious IO errors after failed past-wp access
+        stable@vger.kernel.org, chenqiwu <chenqiwu@xiaomi.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 059/257] pstore/platform: fix potential mem leak if pstore_init_fs failed
 Date:   Thu, 16 Apr 2020 15:21:50 +0200
-Message-Id: <20200416131328.465682024@linuxfoundation.org>
+Message-Id: <20200416131333.344416418@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: chenqiwu <chenqiwu@xiaomi.com>
 
-[ Upstream commit ff77042296d0a54535ddf74412c5ae92cb4ec76a ]
+[ Upstream commit 8a57d6d4ddfa41c49014e20493152c41a38fcbf8 ]
 
-Steps to reproduce:
+There is a potential mem leak when pstore_init_fs failed,
+since the pstore compression maybe unlikey to initialized
+successfully. We must clean up the allocation once this
+unlikey issue happens.
 
-	BLKRESETZONE zone 0
-
-	// force EIO
-	pwrite(fd, buf, 4096, 4096);
-
-	[issue more IO including zone ioctls]
-
-It will start failing randomly including IO to unrelated zones because of
-->error "reuse". Trigger can be partition detection as well if test is not
-run immediately which is even more entertaining.
-
-The fix is of course to clear ->error where necessary.
-
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: chenqiwu <chenqiwu@xiaomi.com>
+Link: https://lore.kernel.org/r/1581068800-13817-1-git-send-email-qiwuchen55@gmail.com
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/pstore/platform.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
-index 2b8b4cb447cfb..d6a8d66e98036 100644
---- a/drivers/block/null_blk_main.c
-+++ b/drivers/block/null_blk_main.c
-@@ -605,6 +605,7 @@ static struct nullb_cmd *__alloc_cmd(struct nullb_queue *nq)
- 	if (tag != -1U) {
- 		cmd = &nq->cmds[tag];
- 		cmd->tag = tag;
-+		cmd->error = BLK_STS_OK;
- 		cmd->nq = nq;
- 		if (nq->dev->irqmode == NULL_IRQ_TIMER) {
- 			hrtimer_init(&cmd->timer, CLOCK_MONOTONIC,
-@@ -1385,6 +1386,7 @@ static blk_status_t null_queue_rq(struct blk_mq_hw_ctx *hctx,
- 		cmd->timer.function = null_cmd_timer_expired;
- 	}
- 	cmd->rq = bd->rq;
-+	cmd->error = BLK_STS_OK;
- 	cmd->nq = nq;
+diff --git a/fs/pstore/platform.c b/fs/pstore/platform.c
+index d896457e7c117..408277ee3cdb9 100644
+--- a/fs/pstore/platform.c
++++ b/fs/pstore/platform.c
+@@ -823,9 +823,9 @@ static int __init pstore_init(void)
  
- 	blk_mq_start_request(bd->rq);
+ 	ret = pstore_init_fs();
+ 	if (ret)
+-		return ret;
++		free_buf_for_compression();
+ 
+-	return 0;
++	return ret;
+ }
+ late_initcall(pstore_init);
+ 
 -- 
 2.20.1
 
