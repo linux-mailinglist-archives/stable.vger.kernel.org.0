@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0181A1AC8F2
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 383AF1ACBE7
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441324AbgDPPRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:17:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35134 "EHLO mail.kernel.org"
+        id S2634983AbgDPPwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:52:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898812AbgDPNtG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:49:06 -0400
+        id S2896564AbgDPNc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:32:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C09A2222D;
-        Thu, 16 Apr 2020 13:49:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96987208E4;
+        Thu, 16 Apr 2020 13:31:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044946;
-        bh=3lMFglE0xuNtFVD+rE9EMBj52ZIUBKu2wEWZufizG9M=;
+        s=default; t=1587043920;
+        bh=SJKfbcTMFH18rnumuVrFY/CSI7v7IEsH07v35ULM5S0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pYvf6sd0N1S6ZMoYDvW4a9hjC9HOttBLSOj1xJNIZZ/NB6V4CljFmNTskRTLRpdZE
-         dYbKG+yElTDemVbBs8is5ziT/vv/SVLE1aN6vcg17hTw7Zhz1ie+yom5/Ubi+MEYgD
-         sm4YmovHunj2QoWPCvD7i+ayDJyGWfUR94TS4Gkc=
+        b=RY1lmPv5l/9kPOr0WzbkbMAGoU41f3QaChdqotfK/V31eCdNUCYxSZv1hY4G0m6rm
+         eTKuJJDygwQLBoxs/vi9gpSOeEQRAoM3AORz2OtwBI0Lt+yqKmADgt10bGxP7gmf1Z
+         ke36OOn8ejq5v4ghSsSHGzVOIaSamRXgQokn9Xgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 165/232] dm clone metadata: Fix return type of dm_clone_nr_of_hydrated_regions()
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Ben Hutchings <benh@debian.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 118/146] kmod: make request_module() return an error when autoloading is disabled
 Date:   Thu, 16 Apr 2020 15:24:19 +0200
-Message-Id: <20200416131335.651692964@linuxfoundation.org>
+Message-Id: <20200416131258.731165940@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +51,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 81d5553d1288c2ec0390f02f84d71ca0f0f9f137 upstream.
+commit d7d27cfc5cf0766a26a8f56868c5ad5434735126 upstream.
 
-dm_clone_nr_of_hydrated_regions() returns the number of regions that
-have been hydrated so far. In order to do so it employs bitmap_weight().
+Patch series "module autoloading fixes and cleanups", v5.
 
-Until now, the return type of dm_clone_nr_of_hydrated_regions() was
-unsigned long.
+This series fixes a bug where request_module() was reporting success to
+kernel code when module autoloading had been completely disabled via
+'echo > /proc/sys/kernel/modprobe'.
 
-Because bitmap_weight() returns an int, in case BITS_PER_LONG == 64 and
-the return value of bitmap_weight() is 2^31 (the maximum allowed number
-of regions for a device), the result is sign extended from 32 bits to 64
-bits and an incorrect value is displayed, in the status output of
-dm-clone, as the number of hydrated regions.
+It also addresses the issues raised on the original thread
+(https://lkml.kernel.org/lkml/20200310223731.126894-1-ebiggers@kernel.org/T/#u)
+bydocumenting the modprobe sysctl, adding a self-test for the empty path
+case, and downgrading a user-reachable WARN_ONCE().
 
-Fix this by having dm_clone_nr_of_hydrated_regions() return an unsigned
-int.
+This patch (of 4):
 
-Fixes: 7431b7835f55 ("dm: add clone target")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+It's long been possible to disable kernel module autoloading completely
+(while still allowing manual module insertion) by setting
+/proc/sys/kernel/modprobe to the empty string.
+
+This can be preferable to setting it to a nonexistent file since it
+avoids the overhead of an attempted execve(), avoids potential
+deadlocks, and avoids the call to security_kernel_module_request() and
+thus on SELinux-based systems eliminates the need to write SELinux rules
+to dontaudit module_request.
+
+However, when module autoloading is disabled in this way,
+request_module() returns 0.  This is broken because callers expect 0 to
+mean that the module was successfully loaded.
+
+Apparently this was never noticed because this method of disabling
+module autoloading isn't used much, and also most callers don't use the
+return value of request_module() since it's always necessary to check
+whether the module registered its functionality or not anyway.
+
+But improperly returning 0 can indeed confuse a few callers, for example
+get_fs_type() in fs/filesystems.c where it causes a WARNING to be hit:
+
+	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
+		fs = __get_fs_type(name, len);
+		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
+	}
+
+This is easily reproduced with:
+
+	echo > /proc/sys/kernel/modprobe
+	mount -t NONEXISTENT none /
+
+It causes:
+
+	request_module fs-NONEXISTENT succeeded, but still no fs?
+	WARNING: CPU: 1 PID: 1106 at fs/filesystems.c:275 get_fs_type+0xd6/0xf0
+	[...]
+
+This should actually use pr_warn_once() rather than WARN_ONCE(), since
+it's also user-reachable if userspace immediately unloads the module.
+Regardless, request_module() should correctly return an error when it
+fails.  So let's make it return -ENOENT, which matches the error when
+the modprobe binary doesn't exist.
+
+I've also sent patches to document and test this case.
+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Jessica Yu <jeyu@kernel.org>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jeff Vander Stoep <jeffv@google.com>
+Cc: Ben Hutchings <benh@debian.org>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200310223731.126894-1-ebiggers@kernel.org
+Link: http://lkml.kernel.org/r/20200312202552.241885-1-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-clone-metadata.c |    2 +-
- drivers/md/dm-clone-metadata.h |    2 +-
- drivers/md/dm-clone-target.c   |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ kernel/kmod.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-clone-metadata.c
-+++ b/drivers/md/dm-clone-metadata.c
-@@ -656,7 +656,7 @@ bool dm_clone_is_range_hydrated(struct d
- 	return (bit >= (start + nr_regions));
- }
- 
--unsigned long dm_clone_nr_of_hydrated_regions(struct dm_clone_metadata *cmd)
-+unsigned int dm_clone_nr_of_hydrated_regions(struct dm_clone_metadata *cmd)
- {
- 	return bitmap_weight(cmd->region_map, cmd->nr_regions);
- }
---- a/drivers/md/dm-clone-metadata.h
-+++ b/drivers/md/dm-clone-metadata.h
-@@ -154,7 +154,7 @@ bool dm_clone_is_range_hydrated(struct d
- /*
-  * Returns the number of hydrated regions.
+--- a/kernel/kmod.c
++++ b/kernel/kmod.c
+@@ -120,7 +120,7 @@ out:
+  * invoke it.
+  *
+  * If module auto-loading support is disabled then this function
+- * becomes a no-operation.
++ * simply returns -ENOENT.
   */
--unsigned long dm_clone_nr_of_hydrated_regions(struct dm_clone_metadata *cmd);
-+unsigned int dm_clone_nr_of_hydrated_regions(struct dm_clone_metadata *cmd);
+ int __request_module(bool wait, const char *fmt, ...)
+ {
+@@ -137,7 +137,7 @@ int __request_module(bool wait, const ch
+ 	WARN_ON_ONCE(wait && current_is_async());
  
- /*
-  * Returns the first unhydrated region with region_nr >= @start
---- a/drivers/md/dm-clone-target.c
-+++ b/drivers/md/dm-clone-target.c
-@@ -1455,7 +1455,7 @@ static void clone_status(struct dm_targe
- 			goto error;
- 		}
+ 	if (!modprobe_path[0])
+-		return 0;
++		return -ENOENT;
  
--		DMEMIT("%u %llu/%llu %llu %lu/%lu %u ",
-+		DMEMIT("%u %llu/%llu %llu %u/%lu %u ",
- 		       DM_CLONE_METADATA_BLOCK_SIZE,
- 		       (unsigned long long)(nr_metadata_blocks - nr_free_metadata_blocks),
- 		       (unsigned long long)nr_metadata_blocks,
+ 	va_start(args, fmt);
+ 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
 
 
