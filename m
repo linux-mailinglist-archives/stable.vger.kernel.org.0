@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2CE1AC354
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:41:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4159C1AC6D3
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898316AbgDPNl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:41:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54182 "EHLO mail.kernel.org"
+        id S1727871AbgDPOpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:45:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898298AbgDPNlV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:41:21 -0400
+        id S2898883AbgDPN7r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:59:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87E0C2222C;
-        Thu, 16 Apr 2020 13:41:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2325217D8;
+        Thu, 16 Apr 2020 13:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044481;
-        bh=T9Q/+8y+10RHMimFMocEtiqH524D6C047MMtaJaMqCU=;
+        s=default; t=1587045586;
+        bh=7Cy+Z5k2LepY15IBrx2bepvfp44ohwzM436i7z1/ZDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPLNHOHQFeZE4KQWIq1ohaV/vCTEFLXCCbJn+TuIHDZK2+0qK8WFIAaozPKficgNN
-         aLvPlnAlSQ2NwUuaOer/WldY3RWoByX3DUP92zMoqysNLqabO1zQS4tAgVn6jthBM9
-         COQaXjODFKGbwSuOJjzaN3h5VGeGOrdk+f75SJzU=
+        b=G3SIyytfbr+1dV6oLGM0QIY3Fu31AH2E2/EyQjiaR3mj9OO5Lekqfpa6xv/KeOehO
+         7vmuhmGDRES+Etc4/o15sjn00oSmjM469Y7XNrRFvVplB6+Q7OmcOXnr6OMXGaAvFW
+         A7Iq64y8ntmLryrQlEgPSM1jDQHJ3+OlsgdRLJp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
-Subject: [PATCH 5.5 234/257] xen/blkfront: fix memory allocation flags in blkfront_setup_indirect()
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Leonardo Bras <leonardo@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Shuah Khan <shuah@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.6 196/254] selftests/vm: fix map_hugetlb length used for testing read and write
 Date:   Thu, 16 Apr 2020 15:24:45 +0200
-Message-Id: <20200416131354.904795053@linuxfoundation.org>
+Message-Id: <20200416131350.710084080@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 3a169c0be75b59dd85d159493634870cdec6d3c4 upstream.
+commit cabc30da10e677c67ab9a136b1478175734715c5 upstream.
 
-Commit 1d5c76e664333 ("xen-blkfront: switch kcalloc to kvcalloc for
-large array allocation") didn't fix the issue it was meant to, as the
-flags for allocating the memory are GFP_NOIO, which will lead the
-memory allocation falling back to kmalloc().
+Commit fa7b9a805c79 ("tools/selftest/vm: allow choosing mem size and page
+size in map_hugetlb") added the possibility to change the size of memory
+mapped for the test, but left the read and write test using the default
+value.  This is unnoticed when mapping a length greater than the default
+one, but segfaults otherwise.
 
-So instead of GFP_NOIO use GFP_KERNEL and do all the memory allocation
-in blkfront_setup_indirect() in a memalloc_noio_{save,restore} section.
+Fix read_bytes() and write_bytes() by giving them the real length.
 
-Fixes: 1d5c76e664333 ("xen-blkfront: switch kcalloc to kvcalloc for large array allocation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Acked-by: Roger Pau Monné <roger.pau@citrix.com>
-Link: https://lore.kernel.org/r/20200403090034.8753-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Also fix the call to munmap().
+
+Fixes: fa7b9a805c79 ("tools/selftest/vm: allow choosing mem size and page size in map_hugetlb")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Leonardo Bras <leonardo@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/9a404a13c871c4bd0ba9ede68f69a1225180dd7e.1580978385.git.christophe.leroy@c-s.fr
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/xen-blkfront.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ tools/testing/selftests/vm/map_hugetlb.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -47,6 +47,7 @@
- #include <linux/bitmap.h>
- #include <linux/list.h>
- #include <linux/workqueue.h>
-+#include <linux/sched/mm.h>
- 
- #include <xen/xen.h>
- #include <xen/xenbus.h>
-@@ -2188,10 +2189,12 @@ static void blkfront_setup_discard(struc
- 
- static int blkfront_setup_indirect(struct blkfront_ring_info *rinfo)
- {
--	unsigned int psegs, grants;
-+	unsigned int psegs, grants, memflags;
- 	int err, i;
- 	struct blkfront_info *info = rinfo->dev_info;
- 
-+	memflags = memalloc_noio_save();
-+
- 	if (info->max_indirect_segments == 0) {
- 		if (!HAS_EXTRA_REQ)
- 			grants = BLKIF_MAX_SEGMENTS_PER_REQUEST;
-@@ -2223,7 +2226,7 @@ static int blkfront_setup_indirect(struc
- 
- 		BUG_ON(!list_empty(&rinfo->indirect_pages));
- 		for (i = 0; i < num; i++) {
--			struct page *indirect_page = alloc_page(GFP_NOIO);
-+			struct page *indirect_page = alloc_page(GFP_KERNEL);
- 			if (!indirect_page)
- 				goto out_of_memory;
- 			list_add(&indirect_page->lru, &rinfo->indirect_pages);
-@@ -2234,15 +2237,15 @@ static int blkfront_setup_indirect(struc
- 		rinfo->shadow[i].grants_used =
- 			kvcalloc(grants,
- 				 sizeof(rinfo->shadow[i].grants_used[0]),
--				 GFP_NOIO);
-+				 GFP_KERNEL);
- 		rinfo->shadow[i].sg = kvcalloc(psegs,
- 					       sizeof(rinfo->shadow[i].sg[0]),
--					       GFP_NOIO);
-+					       GFP_KERNEL);
- 		if (info->max_indirect_segments)
- 			rinfo->shadow[i].indirect_grants =
- 				kvcalloc(INDIRECT_GREFS(grants),
- 					 sizeof(rinfo->shadow[i].indirect_grants[0]),
--					 GFP_NOIO);
-+					 GFP_KERNEL);
- 		if ((rinfo->shadow[i].grants_used == NULL) ||
- 			(rinfo->shadow[i].sg == NULL) ||
- 		     (info->max_indirect_segments &&
-@@ -2251,6 +2254,7 @@ static int blkfront_setup_indirect(struc
- 		sg_init_table(rinfo->shadow[i].sg, psegs);
- 	}
- 
-+	memalloc_noio_restore(memflags);
- 
- 	return 0;
- 
-@@ -2270,6 +2274,9 @@ out_of_memory:
- 			__free_page(indirect_page);
- 		}
- 	}
-+
-+	memalloc_noio_restore(memflags);
-+
- 	return -ENOMEM;
+--- a/tools/testing/selftests/vm/map_hugetlb.c
++++ b/tools/testing/selftests/vm/map_hugetlb.c
+@@ -45,20 +45,20 @@ static void check_bytes(char *addr)
+ 	printf("First hex is %x\n", *((unsigned int *)addr));
  }
  
+-static void write_bytes(char *addr)
++static void write_bytes(char *addr, size_t length)
+ {
+ 	unsigned long i;
+ 
+-	for (i = 0; i < LENGTH; i++)
++	for (i = 0; i < length; i++)
+ 		*(addr + i) = (char)i;
+ }
+ 
+-static int read_bytes(char *addr)
++static int read_bytes(char *addr, size_t length)
+ {
+ 	unsigned long i;
+ 
+ 	check_bytes(addr);
+-	for (i = 0; i < LENGTH; i++)
++	for (i = 0; i < length; i++)
+ 		if (*(addr + i) != (char)i) {
+ 			printf("Mismatch at %lu\n", i);
+ 			return 1;
+@@ -96,11 +96,11 @@ int main(int argc, char **argv)
+ 
+ 	printf("Returned address is %p\n", addr);
+ 	check_bytes(addr);
+-	write_bytes(addr);
+-	ret = read_bytes(addr);
++	write_bytes(addr, length);
++	ret = read_bytes(addr, length);
+ 
+ 	/* munmap() length of MAP_HUGETLB memory must be hugepage aligned */
+-	if (munmap(addr, LENGTH)) {
++	if (munmap(addr, length)) {
+ 		perror("munmap");
+ 		exit(1);
+ 	}
 
 
