@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A7471ACA2D
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5691AC35F
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405236AbgDPNlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:41:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54804 "EHLO mail.kernel.org"
+        id S2408485AbgDPNl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:41:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898379AbgDPNlx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:41:53 -0400
+        id S2408333AbgDPNl4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ED732076D;
-        Thu, 16 Apr 2020 13:41:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7FE920732;
+        Thu, 16 Apr 2020 13:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044513;
-        bh=7rP73lTWU6+Q7t9AJyrmnd9s5HX/5v+B3ctmotKKrpU=;
+        s=default; t=1587044515;
+        bh=LkFSaWD8eK5fUBwVuEfFuYOdlmwas0uXDLBhIaHcx94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mvTltQ0VccKQvvceFN301QAUr2DgmyU3jnTFGyytVYUITTCMyPHkij8np9sp2erqO
-         3jSVB3rZWE9EY1A2j3IOWU6lJV4XOWP5nuj05bSGKeYqLx1/0dg1GnbgfgZSHKKmp0
-         ySO5ea0mdeRNRdLrgap+N/qzXdcmrGEV7Ns1ougg=
+        b=elPWituUXMtrpFn7POeBzEkvuRuD41kzrADC67z+4YyT17vRP5F0pz0HtmsWxi/uE
+         LOdDhRLBRdR/uykd+9w2Djedixl0DQ5nzribcXHwhZfqgZfuaxkwON/SM+XmWtYFye
+         lR5raXC4Im6sp7u9JLIgbW3yN0RMRhLSw2Vj68sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>
-Subject: [PATCH 5.5 208/257] drm/etnaviv: rework perfmon query infrastructure
-Date:   Thu, 16 Apr 2020 15:24:19 +0200
-Message-Id: <20200416131352.073781570@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.5 209/257] drm: Remove PageReserved manipulation from drm_pci_alloc
+Date:   Thu, 16 Apr 2020 15:24:20 +0200
+Message-Id: <20200416131352.194060957@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
 References: <20200416131325.891903893@linuxfoundation.org>
@@ -44,136 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit ed1dd899baa32d47d9a93d98336472da50564346 upstream.
+commit ea36ec8623f56791c6ff6738d0509b7920f85220 upstream.
 
-Report the correct perfmon domains and signals depending
-on the supported feature flags.
+drm_pci_alloc/drm_pci_free are very thin wrappers around the core dma
+facilities, and we have no special reason within the drm layer to behave
+differently. In particular, since
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 9e2c2e273012 ("drm/etnaviv: add infrastructure to query perf counter")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+commit de09d31dd38a50fdce106c15abd68432eebbd014
+Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Date:   Fri Jan 15 16:51:42 2016 -0800
+
+    page-flags: define PG_reserved behavior on compound pages
+
+    As far as I can see there's no users of PG_reserved on compound pages.
+    Let's use PF_NO_COMPOUND here.
+
+it has been illegal to combine GFP_COMP with SetPageReserved, so lets
+stop doing both and leave the dma layer to its own devices.
+
+Reported-by: Taketo Kabe
+Bug: https://gitlab.freedesktop.org/drm/intel/issues/1027
+Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: <stable@vger.kernel.org> # v4.5+
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200202171635.4039044-1-chris@chris-wilson.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/etnaviv/etnaviv_perfmon.c |   59 ++++++++++++++++++++++++++----
- 1 file changed, 52 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/drm_pci.c |   23 ++---------------------
+ 1 file changed, 2 insertions(+), 21 deletions(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-@@ -32,6 +32,7 @@ struct etnaviv_pm_domain {
- };
+--- a/drivers/gpu/drm/drm_pci.c
++++ b/drivers/gpu/drm/drm_pci.c
+@@ -51,8 +51,6 @@
+ drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t align)
+ {
+ 	drm_dma_handle_t *dmah;
+-	unsigned long addr;
+-	size_t sz;
  
- struct etnaviv_pm_domain_meta {
-+	unsigned int feature;
- 	const struct etnaviv_pm_domain *domains;
- 	u32 nr_domains;
- };
-@@ -410,36 +411,78 @@ static const struct etnaviv_pm_domain do
+ 	/* pci_alloc_consistent only guarantees alignment to the smallest
+ 	 * PAGE_SIZE order which is greater than or equal to the requested size.
+@@ -68,20 +66,13 @@ drm_dma_handle_t *drm_pci_alloc(struct d
+ 	dmah->size = size;
+ 	dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size,
+ 					 &dmah->busaddr,
+-					 GFP_KERNEL | __GFP_COMP);
++					 GFP_KERNEL);
  
- static const struct etnaviv_pm_domain_meta doms_meta[] = {
- 	{
-+		.feature = chipFeatures_PIPE_3D,
- 		.nr_domains = ARRAY_SIZE(doms_3d),
- 		.domains = &doms_3d[0]
- 	},
- 	{
-+		.feature = chipFeatures_PIPE_2D,
- 		.nr_domains = ARRAY_SIZE(doms_2d),
- 		.domains = &doms_2d[0]
- 	},
- 	{
-+		.feature = chipFeatures_PIPE_VG,
- 		.nr_domains = ARRAY_SIZE(doms_vg),
- 		.domains = &doms_vg[0]
+ 	if (dmah->vaddr == NULL) {
+ 		kfree(dmah);
+ 		return NULL;
  	}
- };
  
-+static unsigned int num_pm_domains(const struct etnaviv_gpu *gpu)
-+{
-+	unsigned int num = 0, i;
-+
-+	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
-+		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
-+
-+		if (gpu->identity.features & meta->feature)
-+			num += meta->nr_domains;
-+	}
-+
-+	return num;
-+}
-+
-+static const struct etnaviv_pm_domain *pm_domain(const struct etnaviv_gpu *gpu,
-+	unsigned int index)
-+{
-+	const struct etnaviv_pm_domain *domain = NULL;
-+	unsigned int offset = 0, i;
-+
-+	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
-+		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
-+
-+		if (!(gpu->identity.features & meta->feature))
-+			continue;
-+
-+		if (meta->nr_domains < (index - offset)) {
-+			offset += meta->nr_domains;
-+			continue;
-+		}
-+
-+		domain = meta->domains + (index - offset);
-+	}
-+
-+	return domain;
-+}
-+
- int etnaviv_pm_query_dom(struct etnaviv_gpu *gpu,
- 	struct drm_etnaviv_pm_domain *domain)
+-	/* XXX - Is virt_to_page() legal for consistent mem? */
+-	/* Reserve */
+-	for (addr = (unsigned long)dmah->vaddr, sz = size;
+-	     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
+-		SetPageReserved(virt_to_page((void *)addr));
+-	}
+-
+ 	return dmah;
+ }
+ 
+@@ -94,19 +85,9 @@ EXPORT_SYMBOL(drm_pci_alloc);
+  */
+ void __drm_legacy_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
  {
--	const struct etnaviv_pm_domain_meta *meta = &doms_meta[domain->pipe];
-+	const unsigned int nr_domains = num_pm_domains(gpu);
- 	const struct etnaviv_pm_domain *dom;
+-	unsigned long addr;
+-	size_t sz;
+-
+-	if (dmah->vaddr) {
+-		/* XXX - Is virt_to_page() legal for consistent mem? */
+-		/* Unreserve */
+-		for (addr = (unsigned long)dmah->vaddr, sz = dmah->size;
+-		     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
+-			ClearPageReserved(virt_to_page((void *)addr));
+-		}
++	if (dmah->vaddr)
+ 		dma_free_coherent(&dev->pdev->dev, dmah->size, dmah->vaddr,
+ 				  dmah->busaddr);
+-	}
+ }
  
--	if (domain->iter >= meta->nr_domains)
-+	if (domain->iter >= nr_domains)
- 		return -EINVAL;
- 
--	dom = meta->domains + domain->iter;
-+	dom = pm_domain(gpu, domain->iter);
-+	if (!dom)
-+		return -EINVAL;
- 
- 	domain->id = domain->iter;
- 	domain->nr_signals = dom->nr_signals;
- 	strncpy(domain->name, dom->name, sizeof(domain->name));
- 
- 	domain->iter++;
--	if (domain->iter == meta->nr_domains)
-+	if (domain->iter == nr_domains)
- 		domain->iter = 0xff;
- 
- 	return 0;
-@@ -448,14 +491,16 @@ int etnaviv_pm_query_dom(struct etnaviv_
- int etnaviv_pm_query_sig(struct etnaviv_gpu *gpu,
- 	struct drm_etnaviv_pm_signal *signal)
- {
--	const struct etnaviv_pm_domain_meta *meta = &doms_meta[signal->pipe];
-+	const unsigned int nr_domains = num_pm_domains(gpu);
- 	const struct etnaviv_pm_domain *dom;
- 	const struct etnaviv_pm_signal *sig;
- 
--	if (signal->domain >= meta->nr_domains)
-+	if (signal->domain >= nr_domains)
- 		return -EINVAL;
- 
--	dom = meta->domains + signal->domain;
-+	dom = pm_domain(gpu, signal->domain);
-+	if (!dom)
-+		return -EINVAL;
- 
- 	if (signal->iter >= dom->nr_signals)
- 		return -EINVAL;
+ /**
 
 
