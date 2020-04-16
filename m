@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 618A41AC1F1
+	by mail.lfdr.de (Postfix) with ESMTP id D8FEE1AC1F2
 	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:02:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2894707AbgDPNBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38052 "EHLO mail.kernel.org"
+        id S2894531AbgDPNBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:01:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2894531AbgDPNBE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:01:04 -0400
+        id S2894700AbgDPNBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:01:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 663B7206B9;
-        Thu, 16 Apr 2020 13:01:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDDFA206B9;
+        Thu, 16 Apr 2020 13:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587042063;
-        bh=fksYkj1bbYlMIjSA14x3M3OD7XTeBPHNy17Ti+blPoI=;
+        s=default; t=1587042072;
+        bh=UOhYKZo3KQr2O83LtIwsPLZmHV/P5wy9W7Ihm7anBtc=;
         h=Subject:To:From:Date:From;
-        b=OVO5LNTT9xI6pVgNA1aQqUI9BKy2bLSgc+Hk1cRzIiOGJ8DQVCAsIkxvNoWG3P1or
-         lC8Di7uw0yG7f8hHXhF6xUN3UDKVd9gO0HNHzvPf2U93cxEOZZ/W1IXCbL4UHv3oup
-         C4CB3SrO19XD5/FS0VMz/6uKAgwoS0TBw1nkVyLE=
-Subject: patch "UAS: no use logging any details in case of ENODEV" added to usb-linus
+        b=lU7GW9G0boqeO61GzCGz8VwrrcRvHzQR708TOqdkTJ8Tr0IAWYVXZA7lQFRAy6OPj
+         jUthkU/+Jv9OjlFopRDMzYHnJToxeUbNvs+7LNpGhx3L56665EduT2e58OsjNT1j/L
+         /eBtIHTbdNFHdaxwLUVEUPpm5GtAqfPwjlo3zMLI=
+Subject: patch "cdc-acm: close race betrween suspend() and acm_softint" added to usb-linus
 To:     oneukum@suse.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        jonas.karlsson@actia.se, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Apr 2020 15:01:01 +0200
-Message-ID: <1587042061228180@kroah.com>
+Date:   Thu, 16 Apr 2020 15:01:02 +0200
+Message-ID: <158704206253248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    UAS: no use logging any details in case of ENODEV
+    cdc-acm: close race betrween suspend() and acm_softint
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,37 +55,47 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5963dec98dc52d52476390485f07a29c30c6a582 Mon Sep 17 00:00:00 2001
+From 0afccd7601514c4b83d8cc58c740089cc447051d Mon Sep 17 00:00:00 2001
 From: Oliver Neukum <oneukum@suse.com>
-Date: Wed, 15 Apr 2020 16:17:49 +0200
-Subject: UAS: no use logging any details in case of ENODEV
+Date: Wed, 15 Apr 2020 17:13:57 +0200
+Subject: cdc-acm: close race betrween suspend() and acm_softint
 
-Once a device is gone, the internal state does not matter anymore.
-There is no need to spam the logs.
+Suspend increments a counter, then kills the URBs,
+then kills the scheduled work. The scheduled work, however,
+may reschedule the URBs. Fix this by having the work
+check the counter.
 
 Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Cc: stable <stable@vger.kernel.org>
-Fixes: 326349f824619 ("uas: add dead request list")
-Link: https://lore.kernel.org/r/20200415141750.811-1-oneukum@suse.com
+Tested-by: Jonas Karlsson <jonas.karlsson@actia.se>
+Link: https://lore.kernel.org/r/20200415151358.32664-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/uas.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/class/cdc-acm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/storage/uas.c b/drivers/usb/storage/uas.c
-index 3670fda02c34..08503e3507bf 100644
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -190,6 +190,9 @@ static void uas_log_cmd_state(struct scsi_cmnd *cmnd, const char *prefix,
- 	struct uas_cmd_info *ci = (void *)&cmnd->SCp;
- 	struct uas_cmd_info *cmdinfo = (void *)&cmnd->SCp;
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 84d6f7df09a4..4ef68e6671aa 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -557,14 +557,14 @@ static void acm_softint(struct work_struct *work)
+ 	struct acm *acm = container_of(work, struct acm, work);
  
-+	if (status == -ENODEV) /* too late */
-+		return;
-+
- 	scmd_printk(KERN_INFO, cmnd,
- 		    "%s %d uas-tag %d inflight:%s%s%s%s%s%s%s%s%s%s%s%s ",
- 		    prefix, status, cmdinfo->uas_tag,
+ 	if (test_bit(EVENT_RX_STALL, &acm->flags)) {
+-		if (!(usb_autopm_get_interface(acm->data))) {
++		smp_mb(); /* against acm_suspend() */
++		if (!acm->susp_count) {
+ 			for (i = 0; i < acm->rx_buflimit; i++)
+ 				usb_kill_urb(acm->read_urbs[i]);
+ 			usb_clear_halt(acm->dev, acm->in);
+ 			acm_submit_read_urbs(acm, GFP_KERNEL);
+-			usb_autopm_put_interface(acm->data);
++			clear_bit(EVENT_RX_STALL, &acm->flags);
+ 		}
+-		clear_bit(EVENT_RX_STALL, &acm->flags);
+ 	}
+ 
+ 	if (test_and_clear_bit(EVENT_TTY_WAKEUP, &acm->flags))
 -- 
 2.26.1
 
