@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DD8C1AC856
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:07:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06BCE1AC68A
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408756AbgDPNvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:51:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
+        id S2388699AbgDPOlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:41:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408717AbgDPNvp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:51:45 -0400
+        id S2409438AbgDPOBa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EE662063A;
-        Thu, 16 Apr 2020 13:51:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EB1A21734;
+        Thu, 16 Apr 2020 14:01:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045104;
-        bh=yzOCijrevyWKq0eQvi+H/8CZmlIe60H58OkBcByJv7A=;
+        s=default; t=1587045689;
+        bh=UCUtmq9O84OUYC+GZF7mjcM9yAlMLxS1lex7u964yK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=weeZ1Bb1zex6izmJaDHraPUNyljf+O6WpoAuQc+xiflMb1cZhGc841SaK/bWTb0aZ
-         68UmVr7eQsZXGOVoAd9iGeIJ1Ce5dtpWP4FPbevB4U0QQnSPrFrqEE5KB7Fzxo/ktg
-         285L6yLZWKR5DE7vdIriPoJIAS2vXp9Z3Z583QV8=
+        b=zceuCeNXK8ukPd/uddR9TAUB8yV4SINDYXCTrNFWWdPUyE1On9K8RRJGCT4rm1UYq
+         FumyjErnfHdLs7sBw9fGLzxVmi9DzrTt2EGOW+VlqrdFqrbgqElsJHKDKXIoDu8cap
+         9w5AOgNcUXxxG2g5KMmYm9I+cf252vUEadK8qdEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 232/232] mmc: sdhci: Refactor sdhci_set_timeout()
-Date:   Thu, 16 Apr 2020 15:25:26 +0200
-Message-Id: <20200416131344.569182480@linuxfoundation.org>
+        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Scott Wood <oss@buserror.net>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.6 238/254] powerpc/fsl_booke: Avoid creating duplicate tlb1 entry
+Date:   Thu, 16 Apr 2020 15:25:27 +0200
+Message-Id: <20200416131355.274598929@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faiz Abbas <faiz_abbas@ti.com>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-[ Upstream commit 7d76ed77cfbd39468ae58d419f537d35ca892d83 ]
+commit aa4113340ae6c2811e046f08c2bc21011d20a072 upstream.
 
-Refactor sdhci_set_timeout() such that platform drivers can do some
-functionality in a set_timeout() callback and then call
-__sdhci_set_timeout() to complete the operation.
+In the current implementation, the call to loadcam_multi() is wrapped
+between switch_to_as1() and restore_to_as0() calls so, when it tries
+to create its own temporary AS=1 TLB1 entry, it ends up duplicating
+the existing one created by switch_to_as1(). Add a check to skip
+creating the temporary entry if already running in AS=1.
 
-Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20200116105154.7685-7-faiz_abbas@ti.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d9e1831a4202 ("powerpc/85xx: Load all early TLB entries at once")
+Cc: stable@vger.kernel.org # v4.4+
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Acked-by: Scott Wood <oss@buserror.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200123111914.2565-1-laurentiu.tudor@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/mmc/host/sdhci.c | 38 ++++++++++++++++++++------------------
- drivers/mmc/host/sdhci.h |  1 +
- 2 files changed, 21 insertions(+), 18 deletions(-)
+ arch/powerpc/mm/nohash/tlb_low.S |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index 4c40fd4ba21b1..50514fedbc76f 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -992,27 +992,29 @@ void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable)
- }
- EXPORT_SYMBOL_GPL(sdhci_set_data_timeout_irq);
+--- a/arch/powerpc/mm/nohash/tlb_low.S
++++ b/arch/powerpc/mm/nohash/tlb_low.S
+@@ -397,7 +397,7 @@ _GLOBAL(set_context)
+  * extern void loadcam_entry(unsigned int index)
+  *
+  * Load TLBCAM[index] entry in to the L2 CAM MMU
+- * Must preserve r7, r8, r9, and r10
++ * Must preserve r7, r8, r9, r10 and r11
+  */
+ _GLOBAL(loadcam_entry)
+ 	mflr	r5
+@@ -433,6 +433,10 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_BIG_PH
+  */
+ _GLOBAL(loadcam_multi)
+ 	mflr	r8
++	/* Don't switch to AS=1 if already there */
++	mfmsr	r11
++	andi.	r11,r11,MSR_IS
++	bne	10f
  
--static void sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
-+void __sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
- {
--	u8 count;
--
--	if (host->ops->set_timeout) {
--		host->ops->set_timeout(host, cmd);
--	} else {
--		bool too_big = false;
--
--		count = sdhci_calc_timeout(host, cmd, &too_big);
-+	bool too_big = false;
-+	u8 count = sdhci_calc_timeout(host, cmd, &too_big);
+ 	/*
+ 	 * Set up temporary TLB entry that is the same as what we're
+@@ -458,6 +462,7 @@ _GLOBAL(loadcam_multi)
+ 	mtmsr	r6
+ 	isync
+ 
++10:
+ 	mr	r9,r3
+ 	add	r10,r3,r4
+ 2:	bl	loadcam_entry
+@@ -466,6 +471,10 @@ _GLOBAL(loadcam_multi)
+ 	mr	r3,r9
+ 	blt	2b
+ 
++	/* Don't return to AS=0 if we were in AS=1 at function start */
++	andi.	r11,r11,MSR_IS
++	bne	3f
 +
-+	if (too_big &&
-+	    host->quirks2 & SDHCI_QUIRK2_DISABLE_HW_TIMEOUT) {
-+		sdhci_calc_sw_timeout(host, cmd);
-+		sdhci_set_data_timeout_irq(host, false);
-+	} else if (!(host->ier & SDHCI_INT_DATA_TIMEOUT)) {
-+		sdhci_set_data_timeout_irq(host, true);
-+	}
+ 	/* Return to AS=0 and clear the temporary entry */
+ 	mfmsr	r6
+ 	rlwinm.	r6,r6,0,~(MSR_IS|MSR_DS)
+@@ -481,6 +490,7 @@ _GLOBAL(loadcam_multi)
+ 	tlbwe
+ 	isync
  
--		if (too_big &&
--		    host->quirks2 & SDHCI_QUIRK2_DISABLE_HW_TIMEOUT) {
--			sdhci_calc_sw_timeout(host, cmd);
--			sdhci_set_data_timeout_irq(host, false);
--		} else if (!(host->ier & SDHCI_INT_DATA_TIMEOUT)) {
--			sdhci_set_data_timeout_irq(host, true);
--		}
-+	sdhci_writeb(host, count, SDHCI_TIMEOUT_CONTROL);
-+}
-+EXPORT_SYMBOL_GPL(__sdhci_set_timeout);
- 
--		sdhci_writeb(host, count, SDHCI_TIMEOUT_CONTROL);
--	}
-+static void sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
-+{
-+	if (host->ops->set_timeout)
-+		host->ops->set_timeout(host, cmd);
-+	else
-+		__sdhci_set_timeout(host, cmd);
- }
- 
- static void sdhci_prepare_data(struct sdhci_host *host, struct mmc_command *cmd)
-diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
-index 4613d71b3cd6e..76e69288632db 100644
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -796,5 +796,6 @@ void sdhci_reset_tuning(struct sdhci_host *host);
- void sdhci_send_tuning(struct sdhci_host *host, u32 opcode);
- void sdhci_abort_tuning(struct sdhci_host *host, u32 opcode);
- void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable);
-+void __sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd);
- 
- #endif /* __SDHCI_HW_H */
--- 
-2.20.1
-
++3:
+ 	mtlr	r8
+ 	blr
+ #endif
 
 
