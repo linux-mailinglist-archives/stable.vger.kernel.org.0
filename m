@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB5B31AC984
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:25:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E4671AC7CB
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:59:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392261AbgDPPXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58512 "EHLO mail.kernel.org"
+        id S2394678AbgDPO7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:59:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898474AbgDPNpG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:45:06 -0400
+        id S2898868AbgDPNys (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:54:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 832FA20732;
-        Thu, 16 Apr 2020 13:45:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3A3620732;
+        Thu, 16 Apr 2020 13:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044706;
-        bh=cLAUE6W9azIyv7Ba+e+54A7+PzMWCz7hsSN19O7q4Ek=;
+        s=default; t=1587045288;
+        bh=xoMlAsrAwSFJ6j+8P0UmEPOQWgINmOoMiTSG2rIDnuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TxpIhnzApP5x1ElgykUvVwqZ1iYpeFaBS+UnxNAhYanoU+Zjdc5y4yg2fwOJPlXiC
-         MkhkVXc/aCn0c7Ya8L8D37826CSLnb8KIo6HM2AV3UMOvZGFbyHK0hwB/wdIvzOMQ4
-         rdgcJv6GLCxxHRuh035pbF+4CuI6slVk87/jEpQw=
+        b=lo9myVyvdnLn0fy30+iemr8+LtbbGtT05dcve4D96m3lS9ImYjaMwtXf2pWMHp5dq
+         olV22IHOygRO6Bryh9WYfs9mKfhBfMMO/MsGLIMiPUwv/MtK50QiErg2Q2jyjPlm4I
+         Xhxks/+zkDd1EdoMYcOkxPhNpHVNoU8ETrDqTY7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/232] btrfs: track reloc roots based on their commit root bytenr
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 073/254] ALSA: hda: Add driver blacklist
 Date:   Thu, 16 Apr 2020 15:22:42 +0200
-Message-Id: <20200416131323.836631577@linuxfoundation.org>
+Message-Id: <20200416131335.008053608@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,121 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ea287ab157c2816bf12aad4cece41372f9d146b4 ]
+commit 3c6fd1f07ed03a04debbb9a9d782205f1ef5e2ab upstream.
 
-We always search the commit root of the extent tree for looking up back
-references, however we track the reloc roots based on their current
-bytenr.
+The recent AMD platform exposes an HD-audio bus but without any actual
+codecs, which is internally tied with a USB-audio device, supposedly.
+It results in "no codecs" error of HD-audio bus driver, and it's
+nothing but a waste of resources.
 
-This is wrong, if we commit the transaction between relocating tree
-blocks we could end up in this code in build_backref_tree
+This patch introduces a static blacklist table for skipping such a
+known bogus PCI SSID entry.  As of writing this patch, the known SSIDs
+are:
+* 1043:874f - ASUS ROG Zenith II / Strix
+* 1462:cb59 - MSI TRX40 Creator
+* 1462:cb60 - MSI TRX40
 
-  if (key.objectid == key.offset) {
-	  /*
-	   * Only root blocks of reloc trees use backref
-	   * pointing to itself.
-	   */
-	  root = find_reloc_root(rc, cur->bytenr);
-	  ASSERT(root);
-	  cur->root = root;
-	  break;
-  }
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206543
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200408140449.22319-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-find_reloc_root() is looking based on the bytenr we had in the commit
-root, but if we've COWed this reloc root we will not find that bytenr,
-and we will trip over the ASSERT(root).
-
-Fix this by using the commit_root->start bytenr for indexing the commit
-root.  Then we change the __update_reloc_root() caller to be used when
-we switch the commit root for the reloc root during commit.
-
-This fixes the panic I was seeing when we started throttling relocation
-for delayed refs.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/relocation.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ sound/pci/hda/hda_intel.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index c4ed7015cc7d9..cb4a888fc9dec 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1298,7 +1298,7 @@ static int __must_check __add_reloc_root(struct btrfs_root *root)
- 	if (!node)
- 		return -ENOMEM;
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2076,6 +2076,17 @@ static void pcm_mmap_prepare(struct snd_
+ #endif
+ }
  
--	node->bytenr = root->node->start;
-+	node->bytenr = root->commit_root->start;
- 	node->data = root;
++/* Blacklist for skipping the whole probe:
++ * some HD-audio PCI entries are exposed without any codecs, and such devices
++ * should be ignored from the beginning.
++ */
++static const struct snd_pci_quirk driver_blacklist[] = {
++	SND_PCI_QUIRK(0x1043, 0x874f, "ASUS ROG Zenith II / Strix", 0),
++	SND_PCI_QUIRK(0x1462, 0xcb59, "MSI TRX40 Creator", 0),
++	SND_PCI_QUIRK(0x1462, 0xcb60, "MSI TRX40", 0),
++	{}
++};
++
+ static const struct hda_controller_ops pci_hda_ops = {
+ 	.disable_msi_reset_irq = disable_msi_reset_irq,
+ 	.pcm_mmap_prepare = pcm_mmap_prepare,
+@@ -2092,6 +2103,11 @@ static int azx_probe(struct pci_dev *pci
+ 	bool schedule_probe;
+ 	int err;
  
- 	spin_lock(&rc->reloc_root_tree.lock);
-@@ -1329,10 +1329,11 @@ static void __del_reloc_root(struct btrfs_root *root)
- 	if (rc && root->node) {
- 		spin_lock(&rc->reloc_root_tree.lock);
- 		rb_node = tree_search(&rc->reloc_root_tree.rb_root,
--				      root->node->start);
-+				      root->commit_root->start);
- 		if (rb_node) {
- 			node = rb_entry(rb_node, struct mapping_node, rb_node);
- 			rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
-+			RB_CLEAR_NODE(&node->rb_node);
- 		}
- 		spin_unlock(&rc->reloc_root_tree.lock);
- 		if (!node)
-@@ -1350,7 +1351,7 @@ static void __del_reloc_root(struct btrfs_root *root)
-  * helper to update the 'address of tree root -> reloc tree'
-  * mapping
-  */
--static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
-+static int __update_reloc_root(struct btrfs_root *root)
- {
- 	struct btrfs_fs_info *fs_info = root->fs_info;
- 	struct rb_node *rb_node;
-@@ -1359,7 +1360,7 @@ static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
- 
- 	spin_lock(&rc->reloc_root_tree.lock);
- 	rb_node = tree_search(&rc->reloc_root_tree.rb_root,
--			      root->node->start);
-+			      root->commit_root->start);
- 	if (rb_node) {
- 		node = rb_entry(rb_node, struct mapping_node, rb_node);
- 		rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
-@@ -1371,7 +1372,7 @@ static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
- 	BUG_ON((struct btrfs_root *)node->data != root);
- 
- 	spin_lock(&rc->reloc_root_tree.lock);
--	node->bytenr = new_bytenr;
-+	node->bytenr = root->node->start;
- 	rb_node = tree_insert(&rc->reloc_root_tree.rb_root,
- 			      node->bytenr, &node->rb_node);
- 	spin_unlock(&rc->reloc_root_tree.lock);
-@@ -1529,6 +1530,7 @@ int btrfs_update_reloc_root(struct btrfs_trans_handle *trans,
- 	}
- 
- 	if (reloc_root->commit_root != reloc_root->node) {
-+		__update_reloc_root(reloc_root);
- 		btrfs_set_root_node(root_item, reloc_root->node);
- 		free_extent_buffer(reloc_root->commit_root);
- 		reloc_root->commit_root = btrfs_root_node(reloc_root);
-@@ -4718,11 +4720,6 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
- 	BUG_ON(rc->stage == UPDATE_DATA_PTRS &&
- 	       root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID);
- 
--	if (root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID) {
--		if (buf == root->node)
--			__update_reloc_root(root, cow->start);
--	}
--
- 	level = btrfs_header_level(buf);
- 	if (btrfs_header_generation(buf) <=
- 	    btrfs_root_last_snapshot(&root->root_item))
--- 
-2.20.1
-
++	if (snd_pci_quirk_lookup(pci, driver_blacklist)) {
++		dev_info(&pci->dev, "Skipping the blacklisted device\n");
++		return -ENODEV;
++	}
++
+ 	if (dev >= SNDRV_CARDS)
+ 		return -ENODEV;
+ 	if (!enable[dev]) {
 
 
