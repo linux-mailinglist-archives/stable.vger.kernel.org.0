@@ -2,77 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 932D81ABFCE
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 13:41:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FB5E1AC029
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 13:50:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505925AbgDPLkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 07:40:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40312 "EHLO mail.kernel.org"
+        id S2506592AbgDPLuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 07:50:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505944AbgDPLjX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 07:39:23 -0400
+        id S2504873AbgDPLum (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 07:50:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E284B21D95;
-        Thu, 16 Apr 2020 11:39:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADF39206E9;
+        Thu, 16 Apr 2020 11:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587037162;
-        bh=qcp3Kk6bi7SjnZbnz8tvc9/xDE7T0f554GkHSi26Ygs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jDbwc/XvtbD/uCbHs5vOxwV7XSBoVeKqQIJ4ZJssPOZPrx9oHCKfGZEF46QFrq5le
-         96XFHzVlVkoTcOPAZvrioHd1PM1rIrrmQPcruKPCh+H7qpHfQZ1/tPx21v54NZCKVT
-         WNBY7WQ5ZwBGhIzYFdaDZ+64X/9o1TEPI0tco/No=
-Date:   Thu, 16 Apr 2020 13:39:20 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Szabolcs Nagy <szabolcs.nagy@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH 5.6] arm64: Always force a branch protection mode when
- the compiler has one
-Message-ID: <20200416113920.GB882109@kroah.com>
-References: <20200416112430.1256-1-broonie@kernel.org>
+        s=default; t=1587037837;
+        bh=2VpvRtKCJI31uOoBNw1tDhuPX+r8isJ8TlumbBx5bok=;
+        h=Subject:To:From:Date:From;
+        b=lM1OdW7rjXUIiqPArfcN0UnAtvRCXHi0cduXDb7MfTaKOLR1ZckWo4ORMvvi+XyGt
+         n5tenrRjpsSkkv38YKNjY9+m3BzOCeuCcFGRQTx/f4p23eX1A+rF2D8p/sQKNA6ZKw
+         lwWJ20lHCNiOJIEzGBPO6z87FM1JJBt8kfu9ODbQ=
+Subject: patch "staging: vt6656: Power save stop wake_up_count wrap around." added to staging-linus
+To:     tvboxspy@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 16 Apr 2020 13:50:34 +0200
+Message-ID: <158703783434197@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200416112430.1256-1-broonie@kernel.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 12:24:30PM +0100, Mark Brown wrote:
-> Compilers with branch protection support can be configured to enable it by
-> default, it is likely that distributions will do this as part of deploying
-> branch protection system wide. As well as the slight overhead from having
-> some extra NOPs for unused branch protection features this can cause more
-> serious problems when the kernel is providing pointer authentication to
-> userspace but not built for pointer authentication itself. In that case our
-> switching of keys for userspace can affect the kernel unexpectedly, causing
-> pointer authentication instructions in the kernel to corrupt addresses.
-> 
-> To ensure that we get consistent and reliable behaviour always explicitly
-> initialise the branch protection mode, ensuring that the kernel is built
-> the same way regardless of the compiler defaults.
-> 
-> [This is a reworked version of b8fdef311a0bd9223f1075 ("arm64: Always
-> force a branch protection mode when the compiler has one") for backport.
-> Kernels prior to 74afda4016a7 ("arm64: compile the kernel with ptrauth
-> return address signing") don't have any Makefile machinery for forcing
-> on pointer auth but still have issues if the compiler defaults it on so
-> need this reworked version. -- broonie]
-> 
-> Fixes: 7503197562567 (arm64: add basic pointer authentication support)
-> Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Cc: stable@vger.kernel.org
-> [catalin.marinas@arm.com: remove Kconfig option in favour of Makefile check]
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> ---
->  arch/arm64/Makefile | 4 ++++
->  1 file changed, 4 insertions(+)
 
-Now queued up, thanks!
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    staging: vt6656: Power save stop wake_up_count wrap around.
+
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From ea81c3486442f4643fc9825a2bb1b430b829bccd Mon Sep 17 00:00:00 2001
+From: Malcolm Priestley <tvboxspy@gmail.com>
+Date: Tue, 14 Apr 2020 11:39:23 +0100
+Subject: staging: vt6656: Power save stop wake_up_count wrap around.
+
+conf.listen_interval can sometimes be zero causing wake_up_count
+to wrap around up to many beacons too late causing
+CTRL-EVENT-BEACON-LOSS as in.
+
+wpa_supplicant[795]: message repeated 45 times: [..CTRL-EVENT-BEACON-LOSS ]
+
+Fixes: 43c93d9bf5e2 ("staging: vt6656: implement power saving code.")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Malcolm Priestley <tvboxspy@gmail.com>
+Link: https://lore.kernel.org/r/fce47bb5-7ca6-7671-5094-5c6107302f2b@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/vt6656/usbpipe.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/staging/vt6656/usbpipe.c b/drivers/staging/vt6656/usbpipe.c
+index eae211e5860f..91b62c3dff7b 100644
+--- a/drivers/staging/vt6656/usbpipe.c
++++ b/drivers/staging/vt6656/usbpipe.c
+@@ -207,7 +207,8 @@ static void vnt_int_process_data(struct vnt_private *priv)
+ 				priv->wake_up_count =
+ 					priv->hw->conf.listen_interval;
+ 
+-			--priv->wake_up_count;
++			if (priv->wake_up_count)
++				--priv->wake_up_count;
+ 
+ 			/* Turn on wake up to listen next beacon */
+ 			if (priv->wake_up_count == 1)
+-- 
+2.26.1
+
+
