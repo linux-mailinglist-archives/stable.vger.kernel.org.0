@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DDD11AC26F
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C481AC439
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:57:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895706AbgDPN2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:28:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
+        id S2409181AbgDPN4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:56:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895689AbgDPN2L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:28:11 -0400
+        id S2408942AbgDPN4W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:56:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 539F721BE5;
-        Thu, 16 Apr 2020 13:28:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C88812078B;
+        Thu, 16 Apr 2020 13:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043690;
-        bh=AbhXf+q4XJyK/m9srmt09+PwS5h3X9ucgvLiH3zxmQo=;
+        s=default; t=1587045381;
+        bh=YvEO37qKCjWeczjWU6192GteB1w/O74tNl8rInnF+to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1YAXIzUXBxuh7A/jJfcW0WxFaZFWRllNtAo6/u9Ml6YpD1rtlMJdPfnEC84ro+J/
-         4srWSHwDwpAOzu4ahLFeneEXwtziFd/xuo4bVZvAwDqPh3SW6zEznzKkEFFM2qlS+a
-         N5HP4HRacUudWnuu5cV/8CSzYSPG8PeHHPNmUWEA=
+        b=CkhIm8gItBZmnVOXqvsguodWDWUwELpdy9CY3GL3KzgvSq+uHIvGg8vNc2qQp6CGW
+         XEwcx0zSvaLuM0jv5ec9wj0gIKO+n1IC4t1nuGONcBXY10sumMmZSIo7m+JSUoHFN9
+         S7B77vIWprF7oHAKRQ2PutyfMU5IoCpKUsW6KIjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Engelhardt <jengelh@inai.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.19 060/146] acpi/x86: ignore unspecified bit positions in the ACPI global lock field
+        stable@vger.kernel.org, Boqun Feng <boqun.feng@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Pavankumar Kondeti <pkondeti@codeaurora.org>
+Subject: [PATCH 5.6 112/254] cpu/hotplug: Ignore pm_wakeup_pending() for disable_nonboot_cpus()
 Date:   Thu, 16 Apr 2020 15:23:21 +0200
-Message-Id: <20200416131251.119400098@linuxfoundation.org>
+Message-Id: <20200416131340.201976543@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Engelhardt <jengelh@inai.de>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit ecb9c790999fd6c5af0f44783bd0217f0b89ec2b upstream.
+commit e98eac6ff1b45e4e73f2e6031b37c256ccb5d36b upstream.
 
-The value in "new" is constructed from "old" such that all bits defined
-as reserved by the ACPI spec[1] are left untouched. But if those bits
-do not happen to be all zero, "new < 3" will not evaluate to true.
+A recent change to freeze_secondary_cpus() which added an early abort if a
+wakeup is pending missed the fact that the function is also invoked for
+shutdown, reboot and kexec via disable_nonboot_cpus().
 
-The firmware of the laptop(s) Medion MD63490 / Akoya P15648 comes with
-garbage inside the "FACS" ACPI table. The starting value is
-old=0x4944454d, therefore new=0x4944454e, which is >= 3. Mask off
-the reserved bits.
+In case of disable_nonboot_cpus() the wakeup event needs to be ignored as
+the purpose is to terminate the currently running kernel.
 
-[1] https://uefi.org/sites/default/files/resources/ACPI_6_2.pdf
+Add a 'suspend' argument which is only set when the freeze is in context of
+a suspend operation. If not set then an eventually pending wakeup event is
+ignored.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206553
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Jan Engelhardt <jengelh@inai.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: a66d955e910a ("cpu/hotplug: Abort disabling secondary CPUs if wakeup is pending")
+Reported-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Pavankumar Kondeti <pkondeti@codeaurora.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/874kuaxdiz.fsf@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/acpi/boot.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/cpu.h |   12 +++++++++---
+ kernel/cpu.c        |    4 ++--
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kernel/acpi/boot.c
-+++ b/arch/x86/kernel/acpi/boot.c
-@@ -1752,7 +1752,7 @@ int __acpi_acquire_global_lock(unsigned
- 		new = (((old & ~0x3) + 2) + ((old >> 1) & 0x1));
- 		val = cmpxchg(lock, old, new);
- 	} while (unlikely (val != old));
--	return (new < 3) ? -1 : 0;
-+	return ((new & 0x3) < 3) ? -1 : 0;
- }
+--- a/include/linux/cpu.h
++++ b/include/linux/cpu.h
+@@ -138,12 +138,18 @@ static inline void get_online_cpus(void)
+ static inline void put_online_cpus(void) { cpus_read_unlock(); }
  
- int __acpi_release_global_lock(unsigned int *lock)
+ #ifdef CONFIG_PM_SLEEP_SMP
+-extern int freeze_secondary_cpus(int primary);
++int __freeze_secondary_cpus(int primary, bool suspend);
++static inline int freeze_secondary_cpus(int primary)
++{
++	return __freeze_secondary_cpus(primary, true);
++}
++
+ static inline int disable_nonboot_cpus(void)
+ {
+-	return freeze_secondary_cpus(0);
++	return __freeze_secondary_cpus(0, false);
+ }
+-extern void enable_nonboot_cpus(void);
++
++void enable_nonboot_cpus(void);
+ 
+ static inline int suspend_disable_secondary_cpus(void)
+ {
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -1212,7 +1212,7 @@ EXPORT_SYMBOL_GPL(cpu_up);
+ #ifdef CONFIG_PM_SLEEP_SMP
+ static cpumask_var_t frozen_cpus;
+ 
+-int freeze_secondary_cpus(int primary)
++int __freeze_secondary_cpus(int primary, bool suspend)
+ {
+ 	int cpu, error = 0;
+ 
+@@ -1237,7 +1237,7 @@ int freeze_secondary_cpus(int primary)
+ 		if (cpu == primary)
+ 			continue;
+ 
+-		if (pm_wakeup_pending()) {
++		if (suspend && pm_wakeup_pending()) {
+ 			pr_info("Wakeup pending. Abort CPU freeze\n");
+ 			error = -EBUSY;
+ 			break;
 
 
