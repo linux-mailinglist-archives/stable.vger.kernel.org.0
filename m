@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49C481AC439
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:57:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 526671ACAD1
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409181AbgDPN4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:56:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
+        id S2395448AbgDPPkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:40:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408942AbgDPN4W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:56:22 -0400
+        id S2897598AbgDPNh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:37:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C88812078B;
-        Thu, 16 Apr 2020 13:56:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03DCC20732;
+        Thu, 16 Apr 2020 13:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045381;
-        bh=YvEO37qKCjWeczjWU6192GteB1w/O74tNl8rInnF+to=;
+        s=default; t=1587044276;
+        bh=zHhjz7bAC4lCz9BDYxtMEQD9e9rotebVujj8UYfL8g4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CkhIm8gItBZmnVOXqvsguodWDWUwELpdy9CY3GL3KzgvSq+uHIvGg8vNc2qQp6CGW
-         XEwcx0zSvaLuM0jv5ec9wj0gIKO+n1IC4t1nuGONcBXY10sumMmZSIo7m+JSUoHFN9
-         S7B77vIWprF7oHAKRQ2PutyfMU5IoCpKUsW6KIjE=
+        b=llXKZZ1uBEG3U56TLRovf9rFYcDdYx+pbs7xCJ9Ms2MVOmvQtr4t8KQkfaeTs4U3d
+         th579LuJTLCIEIi6bipnwl1lvEow5FKxH19deWx+jJn/BrFXxEofCDfjOKuBj64MZf
+         vCKGtNTYGj7AxgTvRQus6272GpDj27bdLPJW8JcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boqun Feng <boqun.feng@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Pavankumar Kondeti <pkondeti@codeaurora.org>
-Subject: [PATCH 5.6 112/254] cpu/hotplug: Ignore pm_wakeup_pending() for disable_nonboot_cpus()
-Date:   Thu, 16 Apr 2020 15:23:21 +0200
-Message-Id: <20200416131340.201976543@linuxfoundation.org>
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.5 151/257] smb3: fix performance regression with setting mtime
+Date:   Thu, 16 Apr 2020 15:23:22 +0200
+Message-Id: <20200416131345.391321329@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Steve French <stfrench@microsoft.com>
 
-commit e98eac6ff1b45e4e73f2e6031b37c256ccb5d36b upstream.
+commit cf5371ae460eb8e484e4884747af270c86c3c469 upstream.
 
-A recent change to freeze_secondary_cpus() which added an early abort if a
-wakeup is pending missed the fact that the function is also invoked for
-shutdown, reboot and kexec via disable_nonboot_cpus().
+There are cases when we don't want to send the SMB2 flush operation
+(e.g. when user specifies mount parm "nostrictsync") and it can be
+a very expensive operation on the server.  In most cases in order
+to set mtime, we simply need to flush (write) the dirtry pages from
+the client and send the writes to the server not also send a flush
+protocol operation to the server.
 
-In case of disable_nonboot_cpus() the wakeup event needs to be ignored as
-the purpose is to terminate the currently running kernel.
-
-Add a 'suspend' argument which is only set when the freeze is in context of
-a suspend operation. If not set then an eventually pending wakeup event is
-ignored.
-
-Fixes: a66d955e910a ("cpu/hotplug: Abort disabling secondary CPUs if wakeup is pending")
-Reported-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Pavankumar Kondeti <pkondeti@codeaurora.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/874kuaxdiz.fsf@nanos.tec.linutronix.de
+Fixes: aa081859b10c ("cifs: flush before set-info if we have writeable handles")
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/cpu.h |   12 +++++++++---
- kernel/cpu.c        |    4 ++--
- 2 files changed, 11 insertions(+), 5 deletions(-)
+ fs/cifs/inode.c |   23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
---- a/include/linux/cpu.h
-+++ b/include/linux/cpu.h
-@@ -138,12 +138,18 @@ static inline void get_online_cpus(void)
- static inline void put_online_cpus(void) { cpus_read_unlock(); }
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -2517,25 +2517,26 @@ cifs_setattr_nounix(struct dentry *diren
  
- #ifdef CONFIG_PM_SLEEP_SMP
--extern int freeze_secondary_cpus(int primary);
-+int __freeze_secondary_cpus(int primary, bool suspend);
-+static inline int freeze_secondary_cpus(int primary)
-+{
-+	return __freeze_secondary_cpus(primary, true);
-+}
-+
- static inline int disable_nonboot_cpus(void)
- {
--	return freeze_secondary_cpus(0);
-+	return __freeze_secondary_cpus(0, false);
- }
--extern void enable_nonboot_cpus(void);
-+
-+void enable_nonboot_cpus(void);
+ 	/*
+ 	 * Attempt to flush data before changing attributes. We need to do
+-	 * this for ATTR_SIZE and ATTR_MTIME for sure, and if we change the
+-	 * ownership or mode then we may also need to do this. Here, we take
+-	 * the safe way out and just do the flush on all setattr requests. If
+-	 * the flush returns error, store it to report later and continue.
++	 * this for ATTR_SIZE and ATTR_MTIME.  If the flush of the data
++	 * returns error, store it to report later and continue.
+ 	 *
+ 	 * BB: This should be smarter. Why bother flushing pages that
+ 	 * will be truncated anyway? Also, should we error out here if
+-	 * the flush returns error?
++	 * the flush returns error? Do we need to check for ATTR_MTIME_SET flag?
+ 	 */
+-	rc = filemap_write_and_wait(inode->i_mapping);
+-	if (is_interrupt_error(rc)) {
+-		rc = -ERESTARTSYS;
+-		goto cifs_setattr_exit;
++	if (attrs->ia_valid & (ATTR_MTIME | ATTR_SIZE | ATTR_CTIME)) {
++		rc = filemap_write_and_wait(inode->i_mapping);
++		if (is_interrupt_error(rc)) {
++			rc = -ERESTARTSYS;
++			goto cifs_setattr_exit;
++		}
++		mapping_set_error(inode->i_mapping, rc);
+ 	}
  
- static inline int suspend_disable_secondary_cpus(void)
- {
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -1212,7 +1212,7 @@ EXPORT_SYMBOL_GPL(cpu_up);
- #ifdef CONFIG_PM_SLEEP_SMP
- static cpumask_var_t frozen_cpus;
+-	mapping_set_error(inode->i_mapping, rc);
+ 	rc = 0;
  
--int freeze_secondary_cpus(int primary)
-+int __freeze_secondary_cpus(int primary, bool suspend)
- {
- 	int cpu, error = 0;
- 
-@@ -1237,7 +1237,7 @@ int freeze_secondary_cpus(int primary)
- 		if (cpu == primary)
- 			continue;
- 
--		if (pm_wakeup_pending()) {
-+		if (suspend && pm_wakeup_pending()) {
- 			pr_info("Wakeup pending. Abort CPU freeze\n");
- 			error = -EBUSY;
- 			break;
+-	if (attrs->ia_valid & ATTR_MTIME) {
++	if ((attrs->ia_valid & ATTR_MTIME) &&
++	    !(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
+ 		rc = cifs_get_writable_file(cifsInode, FIND_WR_ANY, &wfile);
+ 		if (!rc) {
+ 			tcon = tlink_tcon(wfile->tlink);
 
 
