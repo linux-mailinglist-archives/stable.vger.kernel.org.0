@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5587D1AC861
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 651C91AC485
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442082AbgDPPHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:07:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
+        id S2392728AbgDPOBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:01:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392371AbgDPNva (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:51:30 -0400
+        id S2392706AbgDPOBA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5439220732;
-        Thu, 16 Apr 2020 13:51:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50D7B21927;
+        Thu, 16 Apr 2020 14:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045089;
-        bh=Tl/oh1lZ+Gp9rx75HeDyxdbaLetuQooaBMQefpYAtJY=;
+        s=default; t=1587045659;
+        bh=lFhx4Pwgt/IIWG+kD1mKhR5l8kclKGuuGvtVWpV6au4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cn5pkcAAD0CAZJDHW2WvphGIFZbmoczGpUTdTAHKKbkS2MBK7hvE0x7a0a7e5HHtr
-         C5gFdUXlOy7YUUJrI+bityxMR1b3Ayf/82hmuXc2OvDu3eGKRteQTIv3Ug1UnpJBsE
-         yClV1R1WT74ELR7lf3n3gpQR2FcQU5kZoc2lTBz4=
+        b=TKV31BRZnqpdteFzlRODg3IJaPv+GfzJRx7nhWoGVJEYQYGgfEwqrSLCCNxVNg5mD
+         1kx7XY2PLbBpGi9uub+sOjK8nScC9nONKHZfDOYUxddOrtEI2NSc+8LXOqNLGCaf+o
+         RBSDQ01bBfIswr6RqrvIj/gWka+9hCYMAg2kudPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Liu <bob.liu@oracle.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 218/232] dm zoned: remove duplicate nr_rnd_zones increase in dmz_init_zone()
+        stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.6 223/254] s390/diag: fix display of diagnose call statistics
 Date:   Thu, 16 Apr 2020 15:25:12 +0200
-Message-Id: <20200416131342.752816897@linuxfoundation.org>
+Message-Id: <20200416131353.752423361@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Liu <bob.liu@oracle.com>
+From: Michael Mueller <mimu@linux.ibm.com>
 
-[ Upstream commit b8fdd090376a7a46d17db316638fe54b965c2fb0 ]
+commit 6c7c851f1b666a8a455678a0b480b9162de86052 upstream.
 
-zmd->nr_rnd_zones was increased twice by mistake. The other place it
-is increased in dmz_init_zone() is the only one needed:
+Show the full diag statistic table and not just parts of it.
 
-1131                 zmd->nr_useable_zones++;
-1132                 if (dmz_is_rnd(zone)) {
-1133                         zmd->nr_rnd_zones++;
-					^^^
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+The issue surfaced in a KVM guest with a number of vcpus
+defined smaller than NR_DIAG_STAT.
+
+Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
 Cc: stable@vger.kernel.org
-Signed-off-by: Bob Liu <bob.liu@oracle.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/dm-zoned-metadata.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/s390/kernel/diag.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-zoned-metadata.c b/drivers/md/dm-zoned-metadata.c
-index 5205cf9bbfd92..e0a6cf9239f1c 100644
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -1107,7 +1107,6 @@ static int dmz_init_zone(struct dmz_metadata *zmd, struct dm_zone *zone,
+--- a/arch/s390/kernel/diag.c
++++ b/arch/s390/kernel/diag.c
+@@ -84,7 +84,7 @@ static int show_diag_stat(struct seq_fil
  
- 	if (blkz->type == BLK_ZONE_TYPE_CONVENTIONAL) {
- 		set_bit(DMZ_RND, &zone->flags);
--		zmd->nr_rnd_zones++;
- 	} else if (blkz->type == BLK_ZONE_TYPE_SEQWRITE_REQ ||
- 		   blkz->type == BLK_ZONE_TYPE_SEQWRITE_PREF) {
- 		set_bit(DMZ_SEQ, &zone->flags);
--- 
-2.20.1
-
+ static void *show_diag_stat_start(struct seq_file *m, loff_t *pos)
+ {
+-	return *pos <= nr_cpu_ids ? (void *)((unsigned long) *pos + 1) : NULL;
++	return *pos <= NR_DIAG_STAT ? (void *)((unsigned long) *pos + 1) : NULL;
+ }
+ 
+ static void *show_diag_stat_next(struct seq_file *m, void *v, loff_t *pos)
 
 
