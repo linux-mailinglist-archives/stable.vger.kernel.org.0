@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15FF21AC396
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8CE1ACABE
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898522AbgDPNph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:45:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59018 "EHLO mail.kernel.org"
+        id S2896206AbgDPNib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:38:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898511AbgDPNpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:45:33 -0400
+        id S2897689AbgDPNiY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:38:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 752972076D;
-        Thu, 16 Apr 2020 13:45:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 617FC22203;
+        Thu, 16 Apr 2020 13:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044732;
-        bh=akbKUhbtfBKfRWBbrLrWfpWB85pshxJLlbLzz96tEAc=;
+        s=default; t=1587044303;
+        bh=6H1V2cPpME8yyZYSE40VWtVW+9eZQ/zpTdh4A8UwM1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HwrRfKZJlls6iB63r0sYh1M4/FtSj5Wjn+JmGcGiGCCTZxgW40Q+VShPX85cgyLZt
-         vUtwvuKFyEgNzvxahO6/sED+6SDSlHo3ucmkkFORQvw8s5iiVujAEiRyJuHEk8xP7+
-         jm36PG026uXl9cUjyWtfd0uQBPjNYeqyt0UF+QbY=
+        b=uhdM0fdH7rygOpl4+EqTJCDVPCA2ZP3Bx3ATafVZXF02vXJm0Y+1aqZxeV2gxNqSX
+         T4Ty6CxCVoKjDkp0FJE6rQ5vQIMUHYfHxhdtjDB1GhaqZujUOHZyqVqy2YIa7bRUjm
+         nfdw9OJdmqA83J/pUvz6KOZ0LeWMTeQqhRUFnZOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 078/232] ALSA: ice1724: Fix invalid access for enumerated ctl items
-Date:   Thu, 16 Apr 2020 15:22:52 +0200
-Message-Id: <20200416131324.938409068@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: [PATCH 5.5 122/257] tpm: tpm2_bios_measurements_next should increase position index
+Date:   Thu, 16 Apr 2020 15:22:53 +0200
+Message-Id: <20200416131341.565617325@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit c47914c00be346bc5b48c48de7b0da5c2d1a296c upstream.
+commit f9bf8adb55cd5a357b247a16aafddf8c97b276e0 upstream.
 
-The access to Analog Capture Source control value implemented in
-prodigy_hifi.c is wrong, as caught by the recently introduced sanity
-check; it should be accessing value.enumerated.item[] instead of
-value.integer.value[].  This patch corrects the wrong access pattern.
+If .next function does not change position index,
+following .show function will repeat output related
+to current position index.
 
-Fixes: 6b8d6e5518e2 ("[ALSA] ICE1724: Added support for Audiotrak Prodigy 7.1 HiFi & HD2, Hercules Fortissimo IV")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200407084402.25589-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+For /sys/kernel/security/tpm0/binary_bios_measurements:
+1) read after lseek beyound end of file generates whole last line.
+2) read after lseek to middle of last line generates
+expected end of last line and unexpected whole last line once again.
+
+Cc: stable@vger.kernel.org # 4.19.x
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/ice1712/prodigy_hifi.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/tpm/eventlog/tpm2.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/ice1712/prodigy_hifi.c
-+++ b/sound/pci/ice1712/prodigy_hifi.c
-@@ -536,7 +536,7 @@ static int wm_adc_mux_enum_get(struct sn
- 	struct snd_ice1712 *ice = snd_kcontrol_chip(kcontrol);
+--- a/drivers/char/tpm/eventlog/tpm2.c
++++ b/drivers/char/tpm/eventlog/tpm2.c
+@@ -94,6 +94,7 @@ static void *tpm2_bios_measurements_next
+ 	size_t event_size;
+ 	void *marker;
  
- 	mutex_lock(&ice->gpio_mutex);
--	ucontrol->value.integer.value[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
-+	ucontrol->value.enumerated.item[0] = wm_get(ice, WM_ADC_MUX) & 0x1f;
- 	mutex_unlock(&ice->gpio_mutex);
- 	return 0;
++	(*pos)++;
+ 	event_header = log->bios_event_log;
+ 
+ 	if (v == SEQ_START_TOKEN) {
+@@ -118,7 +119,6 @@ static void *tpm2_bios_measurements_next
+ 	if (((v + event_size) >= limit) || (event_size == 0))
+ 		return NULL;
+ 
+-	(*pos)++;
+ 	return v;
  }
-@@ -550,7 +550,7 @@ static int wm_adc_mux_enum_put(struct sn
  
- 	mutex_lock(&ice->gpio_mutex);
- 	oval = wm_get(ice, WM_ADC_MUX);
--	nval = (oval & 0xe0) | ucontrol->value.integer.value[0];
-+	nval = (oval & 0xe0) | ucontrol->value.enumerated.item[0];
- 	if (nval != oval) {
- 		wm_put(ice, WM_ADC_MUX, nval);
- 		change = 1;
 
 
