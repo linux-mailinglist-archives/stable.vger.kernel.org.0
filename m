@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 916291AC2CE
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA841AC9E0
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:28:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896771AbgDPNdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:33:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44912 "EHLO mail.kernel.org"
+        id S2442007AbgDPP2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:28:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896749AbgDPNdk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:33:40 -0400
+        id S2898427AbgDPNoJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:44:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC980208E4;
-        Thu, 16 Apr 2020 13:33:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 679B3218AC;
+        Thu, 16 Apr 2020 13:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044020;
-        bh=Dxv9GWgwYfpM4ZleMavZeL7T7rb9/AIQg6B8qLU2Pao=;
+        s=default; t=1587044648;
+        bh=3QmcZ+XzN2FY7ipu4OPbIdcpP94pwoaA917evhec7Xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LyHwonsuvtQeH9yygag5DTjDMgzcsxONJQyTs/T8dGxxyBga7Z3ffKPRVKkkPVISx
-         n3gjzL9FMTe3qNiH0POJFxJBot7pGOdwLccswVSHhteWJsQ9OugGw91/lJoRMPsEPo
-         6B6TgLOgXEZflYWzjNSZ+yzv++8ukUqIBKQ4xXfw=
+        b=t4Mmpdu+hUjb1PMLjUltw6NHogxZh+VmKbAJEzQNCctK7T8LVvvhf8tfsPFvuD06y
+         eW2/2gJDcWtveMFgAS6sKnbbP83eL2D+FxPwk14NXWzKD58uQtYbLByT6ENrt1FBwM
+         gy4+8I8LxS67PrqOOFpsr0wO873F0Apeg5b85o1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Michael Walle <michael@walle.cc>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 048/257] spi: spi-fsl-dspi: Avoid NULL pointer in dspi_slave_abort for non-DMA mode
+Subject: [PATCH 5.4 005/232] iwlwifi: mvm: Fix rate scale NSS configuration
 Date:   Thu, 16 Apr 2020 15:21:39 +0200
-Message-Id: <20200416131331.939656998@linuxfoundation.org>
+Message-Id: <20200416131317.218857205@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Ilan Peer <ilan.peer@intel.com>
 
-[ Upstream commit 3d6224e63be39ff26cf416492cb3923cd3d07dd0 ]
+[ Upstream commit ce19801ba75a902ab515dda03b57738c708d0781 ]
 
-The driver does not create the dspi->dma structure unless operating in
-DSPI_DMA_MODE, so it makes sense to check for that.
+The TLC configuration did not take into consideration the station's
+SMPS configuration, and thus configured rates for 2 NSS even if
+static SMPS was reported by the station. Fix this.
 
-Fixes: f4b323905d8b ("spi: Introduce dspi_slave_abort() function for NXP's dspi SPI driver")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Tested-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20200318001603.9650-8-olteanv@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200306151129.b4f940d13eca.Ieebfa889d08205a3a961ae0138fb5832e8a0f9c1@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-dspi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ .../net/wireless/intel/iwlwifi/mvm/rs-fw.c    | 29 ++++++++++++++-----
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index 8428b69c858bc..a534b8af27b8d 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -1021,8 +1021,10 @@ static int dspi_slave_abort(struct spi_master *master)
- 	 * Terminate all pending DMA transactions for the SPI working
- 	 * in SLAVE mode.
- 	 */
--	dmaengine_terminate_sync(dspi->dma->chan_rx);
--	dmaengine_terminate_sync(dspi->dma->chan_tx);
-+	if (dspi->devtype_data->trans_mode == DSPI_DMA_MODE) {
-+		dmaengine_terminate_sync(dspi->dma->chan_rx);
-+		dmaengine_terminate_sync(dspi->dma->chan_tx);
-+	}
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
+index 24df3182ec9eb..5b2bd603febfc 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
+@@ -6,7 +6,7 @@
+  * GPL LICENSE SUMMARY
+  *
+  * Copyright(c) 2017        Intel Deutschland GmbH
+- * Copyright(c) 2018 - 2019 Intel Corporation
++ * Copyright(c) 2018 - 2020 Intel Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of version 2 of the GNU General Public License as
+@@ -27,7 +27,7 @@
+  * BSD LICENSE
+  *
+  * Copyright(c) 2017        Intel Deutschland GmbH
+- * Copyright(c) 2018 - 2019 Intel Corporation
++ * Copyright(c) 2018 - 2020 Intel Corporation
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -195,11 +195,13 @@ rs_fw_vht_set_enabled_rates(const struct ieee80211_sta *sta,
+ {
+ 	u16 supp;
+ 	int i, highest_mcs;
++	u8 nss = sta->rx_nss;
  
- 	/* Clear the internal DSPI RX and TX FIFO buffers */
- 	regmap_update_bits(dspi->regmap, SPI_MCR,
+-	for (i = 0; i < sta->rx_nss; i++) {
+-		if (i == IWL_TLC_NSS_MAX)
+-			break;
++	/* the station support only a single receive chain */
++	if (sta->smps_mode == IEEE80211_SMPS_STATIC)
++		nss = 1;
+ 
++	for (i = 0; i < nss && i < IWL_TLC_NSS_MAX; i++) {
+ 		highest_mcs = rs_fw_vht_highest_rx_mcs_index(vht_cap, i + 1);
+ 		if (!highest_mcs)
+ 			continue;
+@@ -245,8 +247,13 @@ rs_fw_he_set_enabled_rates(const struct ieee80211_sta *sta,
+ 	u16 tx_mcs_160 =
+ 		le16_to_cpu(sband->iftype_data->he_cap.he_mcs_nss_supp.tx_mcs_160);
+ 	int i;
++	u8 nss = sta->rx_nss;
+ 
+-	for (i = 0; i < sta->rx_nss && i < IWL_TLC_NSS_MAX; i++) {
++	/* the station support only a single receive chain */
++	if (sta->smps_mode == IEEE80211_SMPS_STATIC)
++		nss = 1;
++
++	for (i = 0; i < nss && i < IWL_TLC_NSS_MAX; i++) {
+ 		u16 _mcs_160 = (mcs_160 >> (2 * i)) & 0x3;
+ 		u16 _mcs_80 = (mcs_80 >> (2 * i)) & 0x3;
+ 		u16 _tx_mcs_160 = (tx_mcs_160 >> (2 * i)) & 0x3;
+@@ -307,8 +314,14 @@ static void rs_fw_set_supp_rates(struct ieee80211_sta *sta,
+ 		cmd->mode = IWL_TLC_MNG_MODE_HT;
+ 		cmd->ht_rates[IWL_TLC_NSS_1][IWL_TLC_HT_BW_NONE_160] =
+ 			cpu_to_le16(ht_cap->mcs.rx_mask[0]);
+-		cmd->ht_rates[IWL_TLC_NSS_2][IWL_TLC_HT_BW_NONE_160] =
+-			cpu_to_le16(ht_cap->mcs.rx_mask[1]);
++
++		/* the station support only a single receive chain */
++		if (sta->smps_mode == IEEE80211_SMPS_STATIC)
++			cmd->ht_rates[IWL_TLC_NSS_2][IWL_TLC_HT_BW_NONE_160] =
++				0;
++		else
++			cmd->ht_rates[IWL_TLC_NSS_2][IWL_TLC_HT_BW_NONE_160] =
++				cpu_to_le16(ht_cap->mcs.rx_mask[1]);
+ 	}
+ }
+ 
 -- 
 2.20.1
 
