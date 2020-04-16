@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28A3E1AC319
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23B621AC779
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897594AbgDPNhz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:37:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50136 "EHLO mail.kernel.org"
+        id S2409193AbgDPN4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:56:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897548AbgDPNhw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:37:52 -0400
+        id S2409014AbgDPN4T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:56:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 104FA20732;
-        Thu, 16 Apr 2020 13:37:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59B5D20786;
+        Thu, 16 Apr 2020 13:56:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044271;
-        bh=Mnur4y7Z3DG/U51267RRZUuGvk/ACYGL1HqBmKdp/bo=;
+        s=default; t=1587045378;
+        bh=pToQ0G8nlkKkaq5eQ55M2R1lUalT3J/AbDnqg1tEiQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oA6z+5XFKG+YSDOydFVk0B1eYAaTy6Dd5ZWxjYdEBDe8MhNmvV0OGoghc0vCeMrwk
-         bOdSHk2x3e5ktgkgVjaGBIFgiE9o5XHwCkyYH/QM/bszSL8rLKjbZPbbwkeAOKpMy2
-         5BfDbDIWWr5/+kB+JViCx/UlCI9spvJSwLswoRPY=
+        b=ZddvgieJMsJAqBCnmthQaFspeDh+psKjEv3I1ksSfjWRwl9g0pf45T7k437L4FQov
+         KDKeUrmJTFgCN8zctdQihL/ggdyL2xbs6UpicHNUxiVKpTXgL+DZ0Ykp2Q3KqciBra
+         7pf60aIiGCcljn3/nZFANKzrskC4xxu//+rPZWMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 149/257] KVM: VMX: Add a trampoline to fix VMREAD error handling
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.6 111/254] rcu: Make rcu_barrier() account for offline no-CBs CPUs
 Date:   Thu, 16 Apr 2020 15:23:20 +0200
-Message-Id: <20200416131345.116862483@linuxfoundation.org>
+Message-Id: <20200416131340.061168935@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,149 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-commit 842f4be95899df22b5843ba1a7c8cf37e831a6e8 upstream.
+commit 127e29815b4b2206c0a97ac1d83f92ffc0e25c34 upstream.
 
-Add a hand coded assembly trampoline to preserve volatile registers
-across vmread_error(), and to handle the calling convention differences
-between 64-bit and 32-bit due to asmlinkage on vmread_error().  Pass
-@field and @fault on the stack when invoking the trampoline to avoid
-clobbering volatile registers in the context of the inline assembly.
+Currently, rcu_barrier() ignores offline CPUs,  However, it is possible
+for an offline no-CBs CPU to have callbacks queued, and rcu_barrier()
+must wait for those callbacks.  This commit therefore makes rcu_barrier()
+directly invoke the rcu_barrier_func() with interrupts disabled for such
+CPUs.  This requires passing the CPU number into this function so that
+it can entrain the rcu_barrier() callback onto the correct CPU's callback
+list, given that the code must instead execute on the current CPU.
 
-Calling vmread_error() directly from inline assembly is partially broken
-on 64-bit, and completely broken on 32-bit.  On 64-bit, it will clobber
-%rdi and %rsi (used to pass @field and @fault) and any volatile regs
-written by vmread_error().  On 32-bit, asmlinkage means vmread_error()
-expects the parameters to be passed on the stack, not via regs.
+While in the area, this commit fixes a bug where the first CPU's callback
+might have been invoked before rcu_segcblist_entrain() returned, which
+would also result in an early wakeup.
 
-Opportunistically zero out the result in the trampoline to save a few
-bytes of code for every VMREAD.  A happy side effect of the trampoline
-is that the inline code footprint is reduced by three bytes on 64-bit
-due to PUSH/POP being more efficent (in terms of opcode bytes) than MOV.
-
-Fixes: 6e2020977e3e6 ("KVM: VMX: Add error handling to VMREAD helper")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200326160712.28803-1-sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 5d6742b37727 ("rcu/nocb: Use rcu_segcblist for no-CBs CPUs")
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+[ paulmck: Apply optimization feedback from Boqun Feng. ]
+Cc: <stable@vger.kernel.org> # 5.5.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/ops.h     |   28 ++++++++++++++++-----
- arch/x86/kvm/vmx/vmenter.S |   58 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 79 insertions(+), 7 deletions(-)
+ include/trace/events/rcu.h |    1 +
+ kernel/rcu/tree.c          |   36 ++++++++++++++++++++++++------------
+ 2 files changed, 25 insertions(+), 12 deletions(-)
 
---- a/arch/x86/kvm/vmx/ops.h
-+++ b/arch/x86/kvm/vmx/ops.h
-@@ -12,7 +12,8 @@
+--- a/include/trace/events/rcu.h
++++ b/include/trace/events/rcu.h
+@@ -712,6 +712,7 @@ TRACE_EVENT_RCU(rcu_torture_read,
+  *	"Begin": rcu_barrier() started.
+  *	"EarlyExit": rcu_barrier() piggybacked, thus early exit.
+  *	"Inc1": rcu_barrier() piggyback check counter incremented.
++ *	"OfflineNoCBQ": rcu_barrier() found offline no-CBs CPU with callbacks.
+  *	"OnlineQ": rcu_barrier() found online CPU with callbacks.
+  *	"OnlineNQ": rcu_barrier() found online CPU, no callbacks.
+  *	"IRQ": An rcu_barrier_callback() callback posted on remote CPU.
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -3090,9 +3090,10 @@ static void rcu_barrier_callback(struct
+ /*
+  * Called with preemption disabled, and from cross-cpu IRQ context.
+  */
+-static void rcu_barrier_func(void *unused)
++static void rcu_barrier_func(void *cpu_in)
+ {
+-	struct rcu_data *rdp = raw_cpu_ptr(&rcu_data);
++	uintptr_t cpu = (uintptr_t)cpu_in;
++	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
  
- #define __ex(x) __kvm_handle_fault_on_reboot(x)
+ 	rcu_barrier_trace(TPS("IRQ"), -1, rcu_state.barrier_sequence);
+ 	rdp->barrier_head.func = rcu_barrier_callback;
+@@ -3119,7 +3120,7 @@ static void rcu_barrier_func(void *unuse
+  */
+ void rcu_barrier(void)
+ {
+-	int cpu;
++	uintptr_t cpu;
+ 	struct rcu_data *rdp;
+ 	unsigned long s = rcu_seq_snap(&rcu_state.barrier_sequence);
  
--asmlinkage void vmread_error(unsigned long field, bool fault);
-+__attribute__((regparm(0))) void vmread_error_trampoline(unsigned long field,
-+							 bool fault);
- void vmwrite_error(unsigned long field, unsigned long value);
- void vmclear_error(struct vmcs *vmcs, u64 phys_addr);
- void vmptrld_error(struct vmcs *vmcs, u64 phys_addr);
-@@ -70,15 +71,28 @@ static __always_inline unsigned long __v
- 	asm volatile("1: vmread %2, %1\n\t"
- 		     ".byte 0x3e\n\t" /* branch taken hint */
- 		     "ja 3f\n\t"
--		     "mov %2, %%" _ASM_ARG1 "\n\t"
--		     "xor %%" _ASM_ARG2 ", %%" _ASM_ARG2 "\n\t"
--		     "2: call vmread_error\n\t"
--		     "xor %k1, %k1\n\t"
-+
-+		     /*
-+		      * VMREAD failed.  Push '0' for @fault, push the failing
-+		      * @field, and bounce through the trampoline to preserve
-+		      * volatile registers.
-+		      */
-+		     "push $0\n\t"
-+		     "push %2\n\t"
-+		     "2:call vmread_error_trampoline\n\t"
-+
-+		     /*
-+		      * Unwind the stack.  Note, the trampoline zeros out the
-+		      * memory for @fault so that the result is '0' on error.
-+		      */
-+		     "pop %2\n\t"
-+		     "pop %1\n\t"
- 		     "3:\n\t"
+@@ -3142,13 +3143,14 @@ void rcu_barrier(void)
+ 	rcu_barrier_trace(TPS("Inc1"), -1, rcu_state.barrier_sequence);
  
-+		     /* VMREAD faulted.  As above, except push '1' for @fault. */
- 		     ".pushsection .fixup, \"ax\"\n\t"
--		     "4: mov %2, %%" _ASM_ARG1 "\n\t"
--		     "mov $1, %%" _ASM_ARG2 "\n\t"
-+		     "4: push $1\n\t"
-+		     "push %2\n\t"
- 		     "jmp 2b\n\t"
- 		     ".popsection\n\t"
- 		     _ASM_EXTABLE(1b, 4b)
---- a/arch/x86/kvm/vmx/vmenter.S
-+++ b/arch/x86/kvm/vmx/vmenter.S
-@@ -234,3 +234,61 @@ SYM_FUNC_START(__vmx_vcpu_run)
- 2:	mov $1, %eax
- 	jmp 1b
- SYM_FUNC_END(__vmx_vcpu_run)
-+
-+/**
-+ * vmread_error_trampoline - Trampoline from inline asm to vmread_error()
-+ * @field:	VMCS field encoding that failed
-+ * @fault:	%true if the VMREAD faulted, %false if it failed
-+
-+ * Save and restore volatile registers across a call to vmread_error().  Note,
-+ * all parameters are passed on the stack.
-+ */
-+SYM_FUNC_START(vmread_error_trampoline)
-+	push %_ASM_BP
-+	mov  %_ASM_SP, %_ASM_BP
-+
-+	push %_ASM_AX
-+	push %_ASM_CX
-+	push %_ASM_DX
-+#ifdef CONFIG_X86_64
-+	push %rdi
-+	push %rsi
-+	push %r8
-+	push %r9
-+	push %r10
-+	push %r11
-+#endif
-+#ifdef CONFIG_X86_64
-+	/* Load @field and @fault to arg1 and arg2 respectively. */
-+	mov 3*WORD_SIZE(%rbp), %_ASM_ARG2
-+	mov 2*WORD_SIZE(%rbp), %_ASM_ARG1
-+#else
-+	/* Parameters are passed on the stack for 32-bit (see asmlinkage). */
-+	push 3*WORD_SIZE(%ebp)
-+	push 2*WORD_SIZE(%ebp)
-+#endif
-+
-+	call vmread_error
-+
-+#ifndef CONFIG_X86_64
-+	add $8, %esp
-+#endif
-+
-+	/* Zero out @fault, which will be popped into the result register. */
-+	_ASM_MOV $0, 3*WORD_SIZE(%_ASM_BP)
-+
-+#ifdef CONFIG_X86_64
-+	pop %r11
-+	pop %r10
-+	pop %r9
-+	pop %r8
-+	pop %rsi
-+	pop %rdi
-+#endif
-+	pop %_ASM_DX
-+	pop %_ASM_CX
-+	pop %_ASM_AX
-+	pop %_ASM_BP
-+
-+	ret
-+SYM_FUNC_END(vmread_error_trampoline)
+ 	/*
+-	 * Initialize the count to one rather than to zero in order to
+-	 * avoid a too-soon return to zero in case of a short grace period
+-	 * (or preemption of this task).  Exclude CPU-hotplug operations
+-	 * to ensure that no offline CPU has callbacks queued.
++	 * Initialize the count to two rather than to zero in order
++	 * to avoid a too-soon return to zero in case of an immediate
++	 * invocation of the just-enqueued callback (or preemption of
++	 * this task).  Exclude CPU-hotplug operations to ensure that no
++	 * offline non-offloaded CPU has callbacks queued.
+ 	 */
+ 	init_completion(&rcu_state.barrier_completion);
+-	atomic_set(&rcu_state.barrier_cpu_count, 1);
++	atomic_set(&rcu_state.barrier_cpu_count, 2);
+ 	get_online_cpus();
+ 
+ 	/*
+@@ -3158,13 +3160,23 @@ void rcu_barrier(void)
+ 	 */
+ 	for_each_possible_cpu(cpu) {
+ 		rdp = per_cpu_ptr(&rcu_data, cpu);
+-		if (!cpu_online(cpu) &&
++		if (cpu_is_offline(cpu) &&
+ 		    !rcu_segcblist_is_offloaded(&rdp->cblist))
+ 			continue;
+-		if (rcu_segcblist_n_cbs(&rdp->cblist)) {
++		if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_online(cpu)) {
+ 			rcu_barrier_trace(TPS("OnlineQ"), cpu,
+ 					  rcu_state.barrier_sequence);
+-			smp_call_function_single(cpu, rcu_barrier_func, NULL, 1);
++			smp_call_function_single(cpu, rcu_barrier_func, (void *)cpu, 1);
++		} else if (rcu_segcblist_n_cbs(&rdp->cblist) &&
++			   cpu_is_offline(cpu)) {
++			rcu_barrier_trace(TPS("OfflineNoCBQ"), cpu,
++					  rcu_state.barrier_sequence);
++			local_irq_disable();
++			rcu_barrier_func((void *)cpu);
++			local_irq_enable();
++		} else if (cpu_is_offline(cpu)) {
++			rcu_barrier_trace(TPS("OfflineNoCBNoQ"), cpu,
++					  rcu_state.barrier_sequence);
+ 		} else {
+ 			rcu_barrier_trace(TPS("OnlineNQ"), cpu,
+ 					  rcu_state.barrier_sequence);
+@@ -3176,7 +3188,7 @@ void rcu_barrier(void)
+ 	 * Now that we have an rcu_barrier_callback() callback on each
+ 	 * CPU, and thus each counted, remove the initial count.
+ 	 */
+-	if (atomic_dec_and_test(&rcu_state.barrier_cpu_count))
++	if (atomic_sub_and_test(2, &rcu_state.barrier_cpu_count))
+ 		complete(&rcu_state.barrier_completion);
+ 
+ 	/* Wait for all rcu_barrier_callback() callbacks to be invoked. */
 
 
