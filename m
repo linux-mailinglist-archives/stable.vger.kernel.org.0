@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87EB11AC679
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CE981AC677
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393457AbgDPOkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:40:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49124 "EHLO mail.kernel.org"
+        id S2393404AbgDPOkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:40:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409515AbgDPOBr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:01:47 -0400
+        id S2409523AbgDPOBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59B8C20786;
-        Thu, 16 Apr 2020 14:01:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D073F217D8;
+        Thu, 16 Apr 2020 14:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045706;
-        bh=qmD2AabpT/gSApKTT7ytFVEBPKgxs9NvEOjVgOMFvy8=;
+        s=default; t=1587045709;
+        bh=Yub1giOwKwtQXE+o4mjF7bdVyPZa5e+U7KaX8DLZl8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQT2VQEekvPEF/84hreiasDXFHzboZ3gzoV/0RsdgJ4qtxNij/HXse0qYhg8x5raL
-         Tzhvw/mByaSayDcphW1EHQl9jHE51DgorQRUgzZXbnD0BdCrjlvw8vi16IkXNEy7Rh
-         mPcVaE8p5ziOMqu0eAJIkDMyLUd3v1mLoNw0cMXA=
+        b=z3pN5tjInuyJnY7dUr32otTdTqkf091VUlwMTmiwUVdA4wh7dmmAhQI6go1YExMFv
+         fIMlt5DmhsIdk6Tl/Fdzv0TelmbbwtkaryhHUC2GKAEZikMhSG3b2yCoPJZcCLOESp
+         XEHfWufATsxoma91FrdlDaRJ2VUrQT7Nmoy0c/L8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 244/254] powerpc/64: Prevent stack protection in early boot
-Date:   Thu, 16 Apr 2020 15:25:33 +0200
-Message-Id: <20200416131356.292354205@linuxfoundation.org>
+        stable@vger.kernel.org, Szabolcs Nagy <szabolcs.nagy@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.6 245/254] arm64: Always force a branch protection mode when the compiler has one
+Date:   Thu, 16 Apr 2020 15:25:34 +0200
+Message-Id: <20200416131356.384825424@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -42,96 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Mark Brown <broonie@kernel.org>
 
-commit 7053f80d96967d8e72e9f2a724bbfc3906ce2b07 upstream.
+commit b8fdef311a0bd9223f10754f94fdcf1a594a3457 upstream.
 
-The previous commit reduced the amount of code that is run before we
-setup a paca. However there are still a few remaining functions that
-run with no paca, or worse, with an arbitrary value in r13 that will
-be used as a paca pointer.
+Compilers with branch protection support can be configured to enable it by
+default, it is likely that distributions will do this as part of deploying
+branch protection system wide. As well as the slight overhead from having
+some extra NOPs for unused branch protection features this can cause more
+serious problems when the kernel is providing pointer authentication to
+userspace but not built for pointer authentication itself. In that case our
+switching of keys for userspace can affect the kernel unexpectedly, causing
+pointer authentication instructions in the kernel to corrupt addresses.
 
-In particular the stack protector canary is stored in the paca, so if
-stack protector is activated for any of these functions we will read
-the stack canary from wherever r13 points. If r13 happens to point
-outside of memory we will get a machine check / checkstop.
+To ensure that we get consistent and reliable behaviour always explicitly
+initialise the branch protection mode, ensuring that the kernel is built
+the same way regardless of the compiler defaults.
 
-For example if we modify initialise_paca() to trigger stack
-protection, and then boot in the mambo simulator with r13 poisoned in
-skiboot before calling the kernel:
+[This is a reworked version of b8fdef311a0bd9223f1075 ("arm64: Always
+force a branch protection mode when the compiler has one") for backport.
+Kernels prior to 74afda4016a7 ("arm64: compile the kernel with ptrauth
+return address signing") don't have any Makefile machinery for forcing
+on pointer auth but still have issues if the compiler defaults it on so
+need this reworked version. -- broonie]
 
-  DEBUG: 19952232: (19952232): INSTRUCTION: PC=0xC0000000191FC1E8: [0x3C4C006D]: addis   r2,r12,0x6D [fetch]
-  DEBUG: 19952236: (19952236): INSTRUCTION: PC=0xC00000001807EAD8: [0x7D8802A6]: mflr    r12 [fetch]
-  FATAL ERROR: 19952276: (19952276): Check Stop for 0:0: Machine Check with ME bit of MSR off
-  DEBUG: 19952276: (19952276): INSTRUCTION: PC=0xC0000000191FCA7C: [0xE90D0CF8]: ld      r8,0xCF8(r13) [Instruction Failed]
-  INFO: 19952276: (19952277): ** Execution stopped: Mambo Error, Machine Check Stop,  **
-  systemsim % bt
-  pc:                             0xC0000000191FCA7C      initialise_paca+0x54
-  lr:                             0xC0000000191FC22C      early_setup+0x44
-  stack:0x00000000198CBED0        0x0     +0x0
-  stack:0x00000000198CBF00        0xC0000000191FC22C      early_setup+0x44
-  stack:0x00000000198CBF90        0x1801C968      +0x1801C968
-
-So annotate the relevant functions to ensure stack protection is never
-enabled for them.
-
-Fixes: 06ec27aea9fc ("powerpc/64: add stack protector support")
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200320032116.1024773-2-mpe@ellerman.id.au
+Fixes: 7503197562567 (arm64: add basic pointer authentication support)
+Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+[catalin.marinas@arm.com: remove Kconfig option in favour of Makefile check]
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/paca.c     |    4 ++--
- arch/powerpc/kernel/setup.h    |    6 ++++++
- arch/powerpc/kernel/setup_64.c |    2 +-
- 3 files changed, 9 insertions(+), 3 deletions(-)
+ arch/arm64/Makefile |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/powerpc/kernel/paca.c
-+++ b/arch/powerpc/kernel/paca.c
-@@ -176,7 +176,7 @@ static struct slb_shadow * __init new_sl
- struct paca_struct **paca_ptrs __read_mostly;
- EXPORT_SYMBOL(paca_ptrs);
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -65,6 +65,10 @@ stack_protector_prepare: prepare0
+ 					include/generated/asm-offsets.h))
+ endif
  
--void __init initialise_paca(struct paca_struct *new_paca, int cpu)
-+void __init __nostackprotector initialise_paca(struct paca_struct *new_paca, int cpu)
- {
- #ifdef CONFIG_PPC_PSERIES
- 	new_paca->lppaca_ptr = NULL;
-@@ -205,7 +205,7 @@ void __init initialise_paca(struct paca_
- }
- 
- /* Put the paca pointer into r13 and SPRG_PACA */
--void setup_paca(struct paca_struct *new_paca)
-+void __nostackprotector setup_paca(struct paca_struct *new_paca)
- {
- 	/* Setup r13 */
- 	local_paca = new_paca;
---- a/arch/powerpc/kernel/setup.h
-+++ b/arch/powerpc/kernel/setup.h
-@@ -8,6 +8,12 @@
- #ifndef __ARCH_POWERPC_KERNEL_SETUP_H
- #define __ARCH_POWERPC_KERNEL_SETUP_H
- 
-+#ifdef CONFIG_CC_IS_CLANG
-+#define __nostackprotector
-+#else
-+#define __nostackprotector __attribute__((__optimize__("no-stack-protector")))
-+#endif
++# Ensure that if the compiler supports branch protection we default it
++# off.
++KBUILD_CFLAGS += $(call cc-option,-mbranch-protection=none)
 +
- void initialize_cache_info(void);
- void irqstack_early_init(void);
- 
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -279,7 +279,7 @@ void __init record_spr_defaults(void)
-  * device-tree is not accessible via normal means at this point.
-  */
- 
--void __init early_setup(unsigned long dt_ptr)
-+void __init __nostackprotector early_setup(unsigned long dt_ptr)
- {
- 	static __initdata struct paca_struct boot_paca;
- 
+ ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
+ KBUILD_CPPFLAGS	+= -mbig-endian
+ CHECKFLAGS	+= -D__AARCH64EB__
 
 
