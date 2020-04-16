@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90B611ACC1C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2521AC932
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2633559AbgDPPzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:55:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39458 "EHLO mail.kernel.org"
+        id S2504778AbgDPPUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:20:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896010AbgDPN3e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:29:34 -0400
+        id S2898674AbgDPNr0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:47:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29F8021D79;
-        Thu, 16 Apr 2020 13:29:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 283BD21734;
+        Thu, 16 Apr 2020 13:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043773;
-        bh=d3rPK+o6s1i/11GAyOvWBa5KXsljWQQoaILIlXSnfXM=;
+        s=default; t=1587044845;
+        bh=x3Qs4aSBXK64Z+K9htOVT9QwK/aJU4j3a0hDBID9p/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZWrLRK1GVvsdlDlxa7lbkIqigu9/hFxgfo6hcuX2dEyD+YvAUPdWM8ALn9R+6UHJ
-         6iP8R0Q4QpCxIOrFxSkqYJMcNasf4udQJor2YK8lkUj76HShaFqCd5sGdKeQFc/v4B
-         vO9ceUwqCkb8OSG01j0gjb3nJAOD83Dii6fESlIk=
+        b=rRGPeHnksUYytNB2CbaDtAmiv7EQ70K5+g1O5n+Y0D1DlRUHGLPGJa9/GyA8RW9gf
+         lRad31sJI0Zrai6ZtOFwAJ12blR/J7NGbfJahZkX4Ngr9LyXsiDuAyX+9GPBgVqop3
+         IOZQ+dRMa5XJTJCiUkkAbksBKnCF1wekFYfhNVS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4.19 077/146] signal: Extend exec_id to 64bits
+        stable@vger.kernel.org, Kristian Klausen <kristian@klausen.dk>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 124/232] platform/x86: asus-wmi: Support laptops where the first battery is named BATT
 Date:   Thu, 16 Apr 2020 15:23:38 +0200
-Message-Id: <20200416131253.455184977@linuxfoundation.org>
+Message-Id: <20200416131330.587893981@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Kristian Klausen <kristian@klausen.dk>
 
-commit d1e7fd6462ca9fc76650fbe6ca800e35b24267da upstream.
+commit 6b3586d45bba14f6912f37488090c37a3710e7b4 upstream.
 
-Replace the 32bit exec_id with a 64bit exec_id to make it impossible
-to wrap the exec_id counter.  With care an attacker can cause exec_id
-wrap and send arbitrary signals to a newly exec'd parent.  This
-bypasses the signal sending checks if the parent changes their
-credentials during exec.
+The WMI method to set the charge threshold does not provide a
+way to specific a battery, so we assume it is the first/primary
+battery (by checking if the name is BAT0).
+On some newer ASUS laptops (Zenbook UM431DA) though, the
+primary/first battery isn't named BAT0 but BATT, so we need
+to support that case.
 
-The severity of this problem can been seen that in my limited testing
-of a 32bit exec_id it can take as little as 19s to exec 65536 times.
-Which means that it can take as little as 14 days to wrap a 32bit
-exec_id.  Adam Zabrocki has succeeded wrapping the self_exe_id in 7
-days.  Even my slower timing is in the uptime of a typical server.
-Which means self_exec_id is simply a speed bump today, and if exec
-gets noticably faster self_exec_id won't even be a speed bump.
-
-Extending self_exec_id to 64bits introduces a problem on 32bit
-architectures where reading self_exec_id is no longer atomic and can
-take two read instructions.  Which means that is is possible to hit
-a window where the read value of exec_id does not match the written
-value.  So with very lucky timing after this change this still
-remains expoiltable.
-
-I have updated the update of exec_id on exec to use WRITE_ONCE
-and the read of exec_id in do_notify_parent to use READ_ONCE
-to make it clear that there is no locking between these two
-locations.
-
-Link: https://lore.kernel.org/kernel-hardening/20200324215049.GA3710@pi3.com.pl
-Fixes: 2.3.23pre2
+Fixes: 7973353e92ee ("platform/x86: asus-wmi: Refactor charge threshold to use the battery hooking API")
 Cc: stable@vger.kernel.org
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Kristian Klausen <kristian@klausen.dk>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/exec.c             |    2 +-
- include/linux/sched.h |    4 ++--
- kernel/signal.c       |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/platform/x86/asus-wmi.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1378,7 +1378,7 @@ void setup_new_exec(struct linux_binprm
+--- a/drivers/platform/x86/asus-wmi.c
++++ b/drivers/platform/x86/asus-wmi.c
+@@ -418,8 +418,11 @@ static int asus_wmi_battery_add(struct p
+ {
+ 	/* The WMI method does not provide a way to specific a battery, so we
+ 	 * just assume it is the first battery.
++	 * Note: On some newer ASUS laptops (Zenbook UM431DA), the primary/first
++	 * battery is named BATT.
+ 	 */
+-	if (strcmp(battery->desc->name, "BAT0") != 0)
++	if (strcmp(battery->desc->name, "BAT0") != 0 &&
++	    strcmp(battery->desc->name, "BATT") != 0)
+ 		return -ENODEV;
  
- 	/* An exec changes our domain. We are no longer part of the thread
- 	   group */
--	current->self_exec_id++;
-+	WRITE_ONCE(current->self_exec_id, current->self_exec_id + 1);
- 	flush_signal_handlers(current, 0);
- }
- EXPORT_SYMBOL(setup_new_exec);
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -887,8 +887,8 @@ struct task_struct {
- 	struct seccomp			seccomp;
- 
- 	/* Thread group tracking: */
--	u32				parent_exec_id;
--	u32				self_exec_id;
-+	u64				parent_exec_id;
-+	u64				self_exec_id;
- 
- 	/* Protection against (de-)allocation: mm, files, fs, tty, keyrings, mems_allowed, mempolicy: */
- 	spinlock_t			alloc_lock;
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1837,7 +1837,7 @@ bool do_notify_parent(struct task_struct
- 		 * This is only possible if parent == real_parent.
- 		 * Check if it has changed security domain.
- 		 */
--		if (tsk->parent_exec_id != tsk->parent->self_exec_id)
-+		if (tsk->parent_exec_id != READ_ONCE(tsk->parent->self_exec_id))
- 			sig = SIGCHLD;
- 	}
- 
+ 	if (device_create_file(&battery->dev,
 
 
