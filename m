@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E82B71ACA30
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A4161AC463
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726507AbgDPNmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:42:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54936 "EHLO mail.kernel.org"
+        id S1728127AbgDPN65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:58:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898381AbgDPNmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:42:00 -0400
+        id S2897689AbgDPN6z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:58:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9617214D8;
-        Thu, 16 Apr 2020 13:41:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73743221F7;
+        Thu, 16 Apr 2020 13:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044520;
-        bh=+llwUcLtdnDf5ipAJ8Q607OsR1s6kLxbaQozCIUXY1A=;
+        s=default; t=1587045534;
+        bh=IFix0bE++7BAcrmz5GMDQEpO7nymjtKzRfB8upP84vU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQhaNgh7B8CX+54m9yVC+xywwaFdeqoWW8xYa6Zy0J3V8VbmqO4Q943QBAMGbRAgB
-         EIlFT97Ll1l25MPKVxEi1GTEp8mBLs1gp5dKobyeI/qcOHMXb3n/kH08X4eRgBnEMY
-         OyvW3FIqGiV+v9VBNKQ8gmzpKY+W7kaiAw5Nkwv0=
+        b=BSW8g+KARdwGV2WBeM9PbBpSW4moIdXo9fFVXFrWjDAm6dnF4ctqg1le3CdJWWuo4
+         ZX2tqw9LM/Q5/ULXnDM2lQYGfroFv/bYGrVeo0TH5KAhZxCBzYrAii5YFOOn4Pa988
+         xoPmg+42X/amX+4ollb2HiYuMWqwuT3miUGEOgv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Liu <aaron.liu@amd.com>,
-        Yuxian Dai <Yuxian.Dai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Huang Rui <ray.huang@amd.com>
-Subject: [PATCH 5.5 211/257] drm/amdgpu: unify fw_write_wait for new gfx9 asics
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.6 173/254] dm writecache: add cond_resched to avoid CPU hangs
 Date:   Thu, 16 Apr 2020 15:24:22 +0200
-Message-Id: <20200416131352.431962090@linuxfoundation.org>
+Message-Id: <20200416131348.077905088@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Liu <aaron.liu@amd.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 2960758cce2310774de60bbbd8d6841d436c54d9 upstream.
+commit 1edaa447d958bec24c6a79685a5790d98976fd16 upstream.
 
-Make the fw_write_wait default case true since presumably all new
-gfx9 asics will have updated firmware. That is using unique WAIT_REG_MEM
-packet with opration=1.
+Initializing a dm-writecache device can take a long time when the
+persistent memory device is large.  Add cond_resched() to a few loops
+to avoid warnings that the CPU is stuck.
 
-Signed-off-by: Aaron Liu <aaron.liu@amd.com>
-Tested-by: Aaron Liu <aaron.liu@amd.com>
-Tested-by: Yuxian Dai <Yuxian.Dai@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Acked-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org # v4.18+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm-writecache.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -1040,6 +1040,8 @@ static void gfx_v9_0_check_fw_write_wait
- 			adev->gfx.mec_fw_write_wait = true;
- 		break;
- 	default:
-+		adev->gfx.me_fw_write_wait = true;
-+		adev->gfx.mec_fw_write_wait = true;
- 		break;
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -876,6 +876,7 @@ static int writecache_alloc_entries(stru
+ 		struct wc_entry *e = &wc->entries[b];
+ 		e->index = b;
+ 		e->write_in_progress = false;
++		cond_resched();
  	}
- }
+ 
+ 	return 0;
+@@ -930,6 +931,7 @@ static void writecache_resume(struct dm_
+ 			e->original_sector = le64_to_cpu(wme.original_sector);
+ 			e->seq_count = le64_to_cpu(wme.seq_count);
+ 		}
++		cond_resched();
+ 	}
+ #endif
+ 	for (b = 0; b < wc->n_blocks; b++) {
+@@ -1791,8 +1793,10 @@ static int init_memory(struct dm_writeca
+ 	pmem_assign(sb(wc)->n_blocks, cpu_to_le64(wc->n_blocks));
+ 	pmem_assign(sb(wc)->seq_count, cpu_to_le64(0));
+ 
+-	for (b = 0; b < wc->n_blocks; b++)
++	for (b = 0; b < wc->n_blocks; b++) {
+ 		write_original_sector_seq_count(wc, &wc->entries[b], -1, -1);
++		cond_resched();
++	}
+ 
+ 	writecache_flush_all_metadata(wc);
+ 	writecache_commit_flushed(wc, false);
 
 
