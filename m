@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 718721ACB83
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B3E1AC9DE
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:28:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409895AbgDPPrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:47:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44730 "EHLO mail.kernel.org"
+        id S2896829AbgDPNoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:44:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896733AbgDPNdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:33:36 -0400
+        id S2896806AbgDPNn7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:43:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11B5F21D91;
-        Thu, 16 Apr 2020 13:33:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81B0120732;
+        Thu, 16 Apr 2020 13:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044015;
-        bh=wprIwHv1JZkm3EJGqwxjmXb8VZw70uVnlQHdiVFQVO0=;
+        s=default; t=1587044639;
+        bh=A5nwW0OdeCp53ZufXzYawDW4i/yshFw8OJwKq5AarJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1s1YaywuDJDN/9Y98gkVA0CGFlsw91Eg2et9ljdvmhqUM/Jv6H9iw0RjqKk8JzHQL
-         DcjZvmd8oM8Qyvw1UtscxB7n7AxlgVtBddEWQ4nFvDd4ld3giOKq2BlQDk3uSpjEn6
-         zQkvPUgQ26xg592bRbYtseqjyI/IlMWXr7gnUGeM=
+        b=tc7VMXkcUM371BCDM8Xxafo3FYeAOQcogalKzq+sKJhm9gvWPsaIaiheRESqUG+vv
+         cblcXZ1OdSYlofaqSwQHwu9SCZ69ewVGuUcw6bbU6xZFya+FZ5QzY+tczZCyvcG1Zc
+         qOZurveu5uGCukumMNsycNqvPH34gA6Wff291iBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 047/257] debugfs: Check module state before warning in {full/open}_proxy_open()
+Subject: [PATCH 5.4 004/232] bpf: Fix deadlock with rq_lock in bpf_send_signal()
 Date:   Thu, 16 Apr 2020 15:21:38 +0200
-Message-Id: <20200416131331.812329302@linuxfoundation.org>
+Message-Id: <20200416131317.122684915@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,117 +45,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 275678e7a9be6a0ea9c1bb493e48abf2f4a01be5 ]
+[ Upstream commit 1bc7896e9ef44fd77858b3ef0b8a6840be3a4494 ]
 
-When the module is being removed, the module state is set to
-MODULE_STATE_GOING. At this point, try_module_get() fails.
-And when {full/open}_proxy_open() is being called,
-it calls try_module_get() to try to hold module reference count.
-If it fails, it warns about the possibility of debugfs file leak.
+When experimenting with bpf_send_signal() helper in our production
+environment (5.2 based), we experienced a deadlock in NMI mode:
+   #5 [ffffc9002219f770] queued_spin_lock_slowpath at ffffffff8110be24
+   #6 [ffffc9002219f770] _raw_spin_lock_irqsave at ffffffff81a43012
+   #7 [ffffc9002219f780] try_to_wake_up at ffffffff810e7ecd
+   #8 [ffffc9002219f7e0] signal_wake_up_state at ffffffff810c7b55
+   #9 [ffffc9002219f7f0] __send_signal at ffffffff810c8602
+  #10 [ffffc9002219f830] do_send_sig_info at ffffffff810ca31a
+  #11 [ffffc9002219f868] bpf_send_signal at ffffffff8119d227
+  #12 [ffffc9002219f988] bpf_overflow_handler at ffffffff811d4140
+  #13 [ffffc9002219f9e0] __perf_event_overflow at ffffffff811d68cf
+  #14 [ffffc9002219fa10] perf_swevent_overflow at ffffffff811d6a09
+  #15 [ffffc9002219fa38] ___perf_sw_event at ffffffff811e0f47
+  #16 [ffffc9002219fc30] __schedule at ffffffff81a3e04d
+  #17 [ffffc9002219fc90] schedule at ffffffff81a3e219
+  #18 [ffffc9002219fca0] futex_wait_queue_me at ffffffff8113d1b9
+  #19 [ffffc9002219fcd8] futex_wait at ffffffff8113e529
+  #20 [ffffc9002219fdf0] do_futex at ffffffff8113ffbc
+  #21 [ffffc9002219fec0] __x64_sys_futex at ffffffff81140d1c
+  #22 [ffffc9002219ff38] do_syscall_64 at ffffffff81002602
+  #23 [ffffc9002219ff50] entry_SYSCALL_64_after_hwframe at ffffffff81c00068
 
-If {full/open}_proxy_open() is called while the module is being removed,
-it fails to hold the module.
-So, It warns about debugfs file leak. But it is not the debugfs file
-leak case. So, this patch just adds module state checking routine
-in the {full/open}_proxy_open().
+The above call stack is actually very similar to an issue
+reported by Commit eac9153f2b58 ("bpf/stackmap: Fix deadlock with
+rq_lock in bpf_get_stack()") by Song Liu. The only difference is
+bpf_send_signal() helper instead of bpf_get_stack() helper.
 
-Test commands:
-    #SHELL1
-    while :
-    do
-        modprobe netdevsim
-        echo 1 > /sys/bus/netdevsim/new_device
-        modprobe -rv netdevsim
-    done
+The above deadlock is triggered with a perf_sw_event.
+Similar to Commit eac9153f2b58, the below almost identical reproducer
+used tracepoint point sched/sched_switch so the issue can be easily caught.
+  /* stress_test.c */
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <sys/mman.h>
+  #include <pthread.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <fcntl.h>
 
-    #SHELL2
-    while :
-    do
-        cat /sys/kernel/debug/netdevsim/netdevsim1/ports/0/ipsec
-    done
+  #define THREAD_COUNT 1000
+  char *filename;
+  void *worker(void *p)
+  {
+        void *ptr;
+        int fd;
+        char *pptr;
 
-Splat looks like:
-[  298.766738][T14664] debugfs file owner did not clean up at exit: ipsec
-[  298.766766][T14664] WARNING: CPU: 2 PID: 14664 at fs/debugfs/file.c:312 full_proxy_open+0x10f/0x650
-[  298.768595][T14664] Modules linked in: netdevsim(-) openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 n][  298.771343][T14664] CPU: 2 PID: 14664 Comm: cat Tainted: G        W         5.5.0+ #1
-[  298.772373][T14664] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[  298.773545][T14664] RIP: 0010:full_proxy_open+0x10f/0x650
-[  298.774247][T14664] Code: 48 c1 ea 03 80 3c 02 00 0f 85 c1 04 00 00 49 8b 3c 24 e8 e4 b5 78 ff 84 c0 75 2d 4c 89 ee 48
-[  298.776782][T14664] RSP: 0018:ffff88805b7df9b8 EFLAGS: 00010282[  298.777583][T14664] RAX: dffffc0000000008 RBX: ffff8880511725c0 RCX: 0000000000000000
-[  298.778610][T14664] RDX: 0000000000000000 RSI: 0000000000000006 RDI: ffff8880540c5c14
-[  298.779637][T14664] RBP: 0000000000000000 R08: fffffbfff15235ad R09: 0000000000000000
-[  298.780664][T14664] R10: 0000000000000001 R11: 0000000000000000 R12: ffffffffc06b5000
-[  298.781702][T14664] R13: ffff88804c234a88 R14: ffff88804c22dd00 R15: ffffffff8a1b5660
-[  298.782722][T14664] FS:  00007fafa13a8540(0000) GS:ffff88806c800000(0000) knlGS:0000000000000000
-[  298.783845][T14664] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  298.784672][T14664] CR2: 00007fafa0e9cd10 CR3: 000000004b286005 CR4: 00000000000606e0
-[  298.785739][T14664] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  298.786769][T14664] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  298.787785][T14664] Call Trace:
-[  298.788237][T14664]  do_dentry_open+0x63c/0xf50
-[  298.788872][T14664]  ? open_proxy_open+0x270/0x270
-[  298.789524][T14664]  ? __x64_sys_fchdir+0x180/0x180
-[  298.790169][T14664]  ? inode_permission+0x65/0x390
-[  298.790832][T14664]  path_openat+0xc45/0x2680
-[  298.791425][T14664]  ? save_stack+0x69/0x80
-[  298.791988][T14664]  ? save_stack+0x19/0x80
-[  298.792544][T14664]  ? path_mountpoint+0x2e0/0x2e0
-[  298.793233][T14664]  ? check_chain_key+0x236/0x5d0
-[  298.793910][T14664]  ? sched_clock_cpu+0x18/0x170
-[  298.794527][T14664]  ? find_held_lock+0x39/0x1d0
-[  298.795153][T14664]  do_filp_open+0x16a/0x260
-[ ... ]
+        fd = open(filename, O_RDONLY);
+        if (fd < 0)
+                return NULL;
+        while (1) {
+                struct timespec ts = {0, 1000 + rand() % 2000};
 
-Fixes: 9fd4dcece43a ("debugfs: prevent access to possibly dead file_operations at file open")
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Link: https://lore.kernel.org/r/20200218043150.29447-1-ap420073@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+                ptr = mmap(NULL, 4096 * 64, PROT_READ, MAP_PRIVATE, fd, 0);
+                usleep(1);
+                if (ptr == MAP_FAILED) {
+                        printf("failed to mmap\n");
+                        break;
+                }
+                munmap(ptr, 4096 * 64);
+                usleep(1);
+                pptr = malloc(1);
+                usleep(1);
+                pptr[0] = 1;
+                usleep(1);
+                free(pptr);
+                usleep(1);
+                nanosleep(&ts, NULL);
+        }
+        close(fd);
+        return NULL;
+  }
+
+  int main(int argc, char *argv[])
+  {
+        void *ptr;
+        int i;
+        pthread_t threads[THREAD_COUNT];
+
+        if (argc < 2)
+                return 0;
+
+        filename = argv[1];
+
+        for (i = 0; i < THREAD_COUNT; i++) {
+                if (pthread_create(threads + i, NULL, worker, NULL)) {
+                        fprintf(stderr, "Error creating thread\n");
+                        return 0;
+                }
+        }
+
+        for (i = 0; i < THREAD_COUNT; i++)
+                pthread_join(threads[i], NULL);
+        return 0;
+  }
+and the following command:
+  1. run `stress_test /bin/ls` in one windown
+  2. hack bcc trace.py with the following change:
+#     --- a/tools/trace.py
+#     +++ b/tools/trace.py
+     @@ -513,6 +513,7 @@ BPF_PERF_OUTPUT(%s);
+              __data.tgid = __tgid;
+              __data.pid = __pid;
+              bpf_get_current_comm(&__data.comm, sizeof(__data.comm));
+     +        bpf_send_signal(10);
+      %s
+      %s
+              %s.perf_submit(%s, &__data, sizeof(__data));
+  3. in a different window run
+     ./trace.py -p $(pidof stress_test) t:sched:sched_switch
+
+The deadlock can be reproduced in our production system.
+
+Similar to Song's fix, the fix is to delay sending signal if
+irqs is disabled to avoid deadlocks involving with rq_lock.
+With this change, my above stress-test in our production system
+won't cause deadlock any more.
+
+I also implemented a scale-down version of reproducer in the
+selftest (a subsequent commit). With latest bpf-next,
+it complains for the following potential deadlock.
+  [   32.832450] -> #1 (&p->pi_lock){-.-.}:
+  [   32.833100]        _raw_spin_lock_irqsave+0x44/0x80
+  [   32.833696]        task_rq_lock+0x2c/0xa0
+  [   32.834182]        task_sched_runtime+0x59/0xd0
+  [   32.834721]        thread_group_cputime+0x250/0x270
+  [   32.835304]        thread_group_cputime_adjusted+0x2e/0x70
+  [   32.835959]        do_task_stat+0x8a7/0xb80
+  [   32.836461]        proc_single_show+0x51/0xb0
+  ...
+  [   32.839512] -> #0 (&(&sighand->siglock)->rlock){....}:
+  [   32.840275]        __lock_acquire+0x1358/0x1a20
+  [   32.840826]        lock_acquire+0xc7/0x1d0
+  [   32.841309]        _raw_spin_lock_irqsave+0x44/0x80
+  [   32.841916]        __lock_task_sighand+0x79/0x160
+  [   32.842465]        do_send_sig_info+0x35/0x90
+  [   32.842977]        bpf_send_signal+0xa/0x10
+  [   32.843464]        bpf_prog_bc13ed9e4d3163e3_send_signal_tp_sched+0x465/0x1000
+  [   32.844301]        trace_call_bpf+0x115/0x270
+  [   32.844809]        perf_trace_run_bpf_submit+0x4a/0xc0
+  [   32.845411]        perf_trace_sched_switch+0x10f/0x180
+  [   32.846014]        __schedule+0x45d/0x880
+  [   32.846483]        schedule+0x5f/0xd0
+  ...
+
+  [   32.853148] Chain exists of:
+  [   32.853148]   &(&sighand->siglock)->rlock --> &p->pi_lock --> &rq->lock
+  [   32.853148]
+  [   32.854451]  Possible unsafe locking scenario:
+  [   32.854451]
+  [   32.855173]        CPU0                    CPU1
+  [   32.855745]        ----                    ----
+  [   32.856278]   lock(&rq->lock);
+  [   32.856671]                                lock(&p->pi_lock);
+  [   32.857332]                                lock(&rq->lock);
+  [   32.857999]   lock(&(&sighand->siglock)->rlock);
+
+  Deadlock happens on CPU0 when it tries to acquire &sighand->siglock
+  but it has been held by CPU1 and CPU1 tries to grab &rq->lock
+  and cannot get it.
+
+  This is not exactly the callstack in our production environment,
+  but sympotom is similar and both locks are using spin_lock_irqsave()
+  to acquire the lock, and both involves rq_lock. The fix to delay
+  sending signal when irq is disabled also fixed this issue.
+
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20200304191104.2796501-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/debugfs/file.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ kernel/trace/bpf_trace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
-index 18eeeb093a688..331d4071a8560 100644
---- a/fs/debugfs/file.c
-+++ b/fs/debugfs/file.c
-@@ -175,8 +175,13 @@ static int open_proxy_open(struct inode *inode, struct file *filp)
- 	if (r)
- 		goto out;
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -650,7 +650,7 @@ BPF_CALL_1(bpf_send_signal, u32, sig)
+ 	if (unlikely(!nmi_uaccess_okay()))
+ 		return -EPERM;
  
--	real_fops = fops_get(real_fops);
--	if (!real_fops) {
-+	if (!fops_get(real_fops)) {
-+#ifdef MODULE
-+		if (real_fops->owner &&
-+		    real_fops->owner->state == MODULE_STATE_GOING)
-+			goto out;
-+#endif
-+
- 		/* Huh? Module did not clean up after itself at exit? */
- 		WARN(1, "debugfs file owner did not clean up at exit: %pd",
- 			dentry);
-@@ -305,8 +310,13 @@ static int full_proxy_open(struct inode *inode, struct file *filp)
- 	if (r)
- 		goto out;
- 
--	real_fops = fops_get(real_fops);
--	if (!real_fops) {
-+	if (!fops_get(real_fops)) {
-+#ifdef MODULE
-+		if (real_fops->owner &&
-+		    real_fops->owner->state == MODULE_STATE_GOING)
-+			goto out;
-+#endif
-+
- 		/* Huh? Module did not cleanup after itself at exit? */
- 		WARN(1, "debugfs file owner did not clean up at exit: %pd",
- 			dentry);
--- 
-2.20.1
-
+-	if (in_nmi()) {
++	if (irqs_disabled()) {
+ 		/* Do an early check on signal validity. Otherwise,
+ 		 * the error is lost in deferred irq_work.
+ 		 */
 
 
