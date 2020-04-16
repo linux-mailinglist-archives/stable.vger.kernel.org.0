@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC6211AC40C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6D5D1ACAF9
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:43:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503354AbgDPNxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:53:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39910 "EHLO mail.kernel.org"
+        id S2395521AbgDPPmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:42:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409047AbgDPNx2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:53:28 -0400
+        id S2897319AbgDPNga (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:36:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38C7F2076D;
-        Thu, 16 Apr 2020 13:53:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8C81221F4;
+        Thu, 16 Apr 2020 13:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045207;
-        bh=RNwFNWBjhyFKt/046IiLuAMSumi5DABqIaiGdEpHIl4=;
+        s=default; t=1587044190;
+        bh=PXOz4bzEVUGTE+JAubp+LDxBKA0byfcSp8qYn3+w1JE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMghaPCJQkk1bkc36xf83pdL4zWbg1urlXmXnygiZuVXkeAB1ciEv+0/xblpEX9g2
-         uQzzlt5Rtw+ZCU5RO7xk8Jf2/EgoY3dm5FpQ97B/cYGqgcz+sxy4NT13w6t8LDdwA9
-         Tt6CJsGH+QOBKvuRF2aRf+quo06zCUzu0a6bkqIc=
+        b=xA7cV6KJGSPVyDfvlSw1aW5diK+R+W1Ur7Sgnkr9kUIRzlcxp/MCaX3HhsuF8Ydmc
+         cjgJQx4j5tAMCfbk5Acf+Zv56HcTMV4ABVjWp7YZqqlDR59Nkj7THUZERfupSidIoq
+         UsC4zCsHxZn99AHbW+ukV0bD1ZAeFCQo8e/PnaN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 039/254] PCI/switchtec: Fix init_completion race condition with poll_wait()
+Subject: [PATCH 5.5 077/257] btrfs: qgroup: ensure qgroup_rescan_running is only set when the worker is at least queued
 Date:   Thu, 16 Apr 2020 15:22:08 +0200
-Message-Id: <20200416131330.744544737@linuxfoundation.org>
+Message-Id: <20200416131335.580137136@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,50 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit efbdc769601f4d50018bf7ca50fc9f7c67392ece ]
+[ Upstream commit d61acbbf54c612ea9bf67eed609494cda0857b3a ]
 
-The call to init_completion() in mrpc_queue_cmd() can theoretically
-race with the call to poll_wait() in switchtec_dev_poll().
+[BUG]
+There are some reports about btrfs wait forever to unmount itself, with
+the following call trace:
 
-  poll()			write()
-    switchtec_dev_poll()   	  switchtec_dev_write()
-      poll_wait(&s->comp.wait);      mrpc_queue_cmd()
-			               init_completion(&s->comp)
-				         init_waitqueue_head(&s->comp.wait)
+  INFO: task umount:4631 blocked for more than 491 seconds.
+        Tainted: G               X  5.3.8-2-default #1
+  "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  umount          D    0  4631   3337 0x00000000
+  Call Trace:
+  ([<00000000174adf7a>] __schedule+0x342/0x748)
+   [<00000000174ae3ca>] schedule+0x4a/0xd8
+   [<00000000174b1f08>] schedule_timeout+0x218/0x420
+   [<00000000174af10c>] wait_for_common+0x104/0x1d8
+   [<000003ff804d6994>] btrfs_qgroup_wait_for_completion+0x84/0xb0 [btrfs]
+   [<000003ff8044a616>] close_ctree+0x4e/0x380 [btrfs]
+   [<0000000016fa3136>] generic_shutdown_super+0x8e/0x158
+   [<0000000016fa34d6>] kill_anon_super+0x26/0x40
+   [<000003ff8041ba88>] btrfs_kill_super+0x28/0xc8 [btrfs]
+   [<0000000016fa39f8>] deactivate_locked_super+0x68/0x98
+   [<0000000016fcb198>] cleanup_mnt+0xc0/0x140
+   [<0000000016d6a846>] task_work_run+0xc6/0x110
+   [<0000000016d04f76>] do_notify_resume+0xae/0xb8
+   [<00000000174b30ae>] system_call+0xe2/0x2c8
 
-To my knowledge, no one has hit this bug.
+[CAUSE]
+The problem happens when we have called qgroup_rescan_init(), but
+not queued the worker. It can be caused mostly by error handling.
 
-Fix this by using reinit_completion() instead of init_completion() in
-mrpc_queue_cmd().
+	Qgroup ioctl thread		|	Unmount thread
+----------------------------------------+-----------------------------------
+					|
+btrfs_qgroup_rescan()			|
+|- qgroup_rescan_init()			|
+|  |- qgroup_rescan_running = true;	|
+|					|
+|- trans = btrfs_join_transaction()	|
+|  Some error happened			|
+|					|
+|- btrfs_qgroup_rescan() returns error	|
+   But qgroup_rescan_running == true;	|
+					| close_ctree()
+					| |- btrfs_qgroup_wait_for_completion()
+					|    |- running == true;
+					|    |- wait_for_completion();
 
-Fixes: 080b47def5e5 ("MicroSemi Switchtec management interface driver")
+btrfs_qgroup_rescan_worker is never queued, thus no one is going to wake
+up close_ctree() and we get a deadlock.
 
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Link: https://lkml.kernel.org/r/20200313183608.2646-1-logang@deltatee.com
+All involved qgroup_rescan_init() callers are:
+
+- btrfs_qgroup_rescan()
+  The example above. It's possible to trigger the deadlock when error
+  happened.
+
+- btrfs_quota_enable()
+  Not possible. Just after qgroup_rescan_init() we queue the work.
+
+- btrfs_read_qgroup_config()
+  It's possible to trigger the deadlock. It only init the work, the
+  work queueing happens in btrfs_qgroup_rescan_resume().
+  Thus if error happened in between, deadlock is possible.
+
+We shouldn't set fs_info->qgroup_rescan_running just in
+qgroup_rescan_init(), as at that stage we haven't yet queued qgroup
+rescan worker to run.
+
+[FIX]
+Set qgroup_rescan_running before queueing the work, so that we ensure
+the rescan work is queued when we wait for it.
+
+Fixes: 8d9eddad1946 ("Btrfs: fix qgroup rescan worker initialization")
+Signed-off-by: Jeff Mahoney <jeffm@suse.com>
+[ Change subject and cause analyse, use a smaller fix ]
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/switch/switchtec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/qgroup.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
-index a823b4b8ef8a9..81dc7ac013817 100644
---- a/drivers/pci/switch/switchtec.c
-+++ b/drivers/pci/switch/switchtec.c
-@@ -175,7 +175,7 @@ static int mrpc_queue_cmd(struct switchtec_user *stuser)
- 	kref_get(&stuser->kref);
- 	stuser->read_len = sizeof(stuser->data);
- 	stuser_set_state(stuser, MRPC_QUEUED);
--	init_completion(&stuser->comp);
-+	reinit_completion(&stuser->comp);
- 	list_add_tail(&stuser->list, &stdev->mrpc_queue);
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index 410b791f28a56..06d4c219742f2 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -1030,6 +1030,7 @@ out_add_root:
+ 	ret = qgroup_rescan_init(fs_info, 0, 1);
+ 	if (!ret) {
+ 	        qgroup_rescan_zero_tracking(fs_info);
++		fs_info->qgroup_rescan_running = true;
+ 	        btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 	                         &fs_info->qgroup_rescan_work);
+ 	}
+@@ -3276,7 +3277,6 @@ qgroup_rescan_init(struct btrfs_fs_info *fs_info, u64 progress_objectid,
+ 		sizeof(fs_info->qgroup_rescan_progress));
+ 	fs_info->qgroup_rescan_progress.objectid = progress_objectid;
+ 	init_completion(&fs_info->qgroup_rescan_completion);
+-	fs_info->qgroup_rescan_running = true;
  
- 	mrpc_cmd_submit(stdev);
+ 	spin_unlock(&fs_info->qgroup_lock);
+ 	mutex_unlock(&fs_info->qgroup_rescan_lock);
+@@ -3339,8 +3339,11 @@ btrfs_qgroup_rescan(struct btrfs_fs_info *fs_info)
+ 
+ 	qgroup_rescan_zero_tracking(fs_info);
+ 
++	mutex_lock(&fs_info->qgroup_rescan_lock);
++	fs_info->qgroup_rescan_running = true;
+ 	btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 			 &fs_info->qgroup_rescan_work);
++	mutex_unlock(&fs_info->qgroup_rescan_lock);
+ 
+ 	return 0;
+ }
+@@ -3376,9 +3379,13 @@ int btrfs_qgroup_wait_for_completion(struct btrfs_fs_info *fs_info,
+ void
+ btrfs_qgroup_rescan_resume(struct btrfs_fs_info *fs_info)
+ {
+-	if (fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_RESCAN)
++	if (fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_RESCAN) {
++		mutex_lock(&fs_info->qgroup_rescan_lock);
++		fs_info->qgroup_rescan_running = true;
+ 		btrfs_queue_work(fs_info->qgroup_rescan_workers,
+ 				 &fs_info->qgroup_rescan_work);
++		mutex_unlock(&fs_info->qgroup_rescan_lock);
++	}
+ }
+ 
+ /*
 -- 
 2.20.1
 
