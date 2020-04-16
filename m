@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD89E1AC2E5
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA57A1AC2C7
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897040AbgDPNe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:34:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46684 "EHLO mail.kernel.org"
+        id S2896724AbgDPNdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:33:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897027AbgDPNe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:34:56 -0400
+        id S2896687AbgDPNdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:33:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D2A4208E4;
-        Thu, 16 Apr 2020 13:34:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC71722201;
+        Thu, 16 Apr 2020 13:33:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044096;
-        bh=AL4Duf7m5IvoTTD4d2+gCaDhn7bLAW1D0iwX6syCWJw=;
+        s=default; t=1587043991;
+        bh=UrwSOr4h2UrF7KC5Oh4oX+BltuND9X9C5BW/wnK2KGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=orlGN9nEI7Q8LFrkOCr705qvjWHc0FQADt7WG0WMpPGmgRfsLo3ZLeO1T/ARWhYqO
-         FmZLZ2x+xIBpl6894k1AKd8G6C3ntHMewn1rVrjd/mJrMSLHSxIpSxGNYkcKe+TLaW
-         4j9Bdj0keJER0H2cziMOvLAbUveBWYJ30Py2YY8Q=
+        b=KkPjcAYnM7agpiwmdlv0PDVFvQdJ0ocHzw6AORfV0ZPenSoRtck/wxGhRB5PLANKL
+         ii04yOT6MvUbNSoN7De91h7OB1a+pjcpN2WiVvyiSkNG5287cfYlyfMszUu2SLKjKN
+         mNwC618uvfehBD0h1zmPE6Lfrr9lE17GM8sE3utw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Robert Richter <rrichter@marvell.com>,
+        Borislav Petkov <bp@suse.de>,
+        Aristeu Rozanski <aris@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 028/257] cpufreq: imx6q: Fixes unwanted cpu overclocking on i.MX6ULL
-Date:   Thu, 16 Apr 2020 15:21:19 +0200
-Message-Id: <20200416131329.471239529@linuxfoundation.org>
+Subject: [PATCH 5.5 029/257] EDAC/mc: Report "unknown memory" on too many DIMM labels found
+Date:   Thu, 16 Apr 2020 15:21:20 +0200
+Message-Id: <20200416131329.582557948@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
 References: <20200416131325.891903893@linuxfoundation.org>
@@ -45,42 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+From: Robert Richter <rrichter@marvell.com>
 
-[ Upstream commit 36eb7dc1bd42fe5f850329c893768ff89b696fba ]
+[ Upstream commit 65bb4d1af92cf007adc0a0c59dadcc393c5cada6 ]
 
-imx6ul_opp_check_speed_grading is called for both i.MX6UL and i.MX6ULL.
-Since the i.MX6ULL was introduced to a separate ocotp compatible node
-later, it is possible that the i.MX6ULL has also dtbs with
-"fsl,imx6ull-ocotp". On a system without nvmem-cell speed grade a
-missing check on this node causes a driver fail without considering
-the cpu speed grade.
+There is a limitation to report only EDAC_MAX_LABELS in e->label of
+the error descriptor. This is to prevent a potential string overflow.
 
-This patch prevents unwanted cpu overclocking on i.MX6ULL with compatible
-node "fsl,imx6ull-ocotp" in old dtbs without nvmem-cell speed grade.
+The current implementation falls back to "any memory" in this case and
+also stops all further processing to find a unique row and channel of
+the possible error location.
 
-Fixes: 2733fb0d0699 ("cpufreq: imx6q: read OCOTP through nvmem for imx6ul/imx6ull")
-Signed-off-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reporting "any memory" is wrong as the memory controller reported an
+error location for one of the layers. Instead, report "unknown memory"
+and also do not break early in the loop to further check row and channel
+for uniqueness.
+
+ [ bp: Massage commit message. ]
+
+Signed-off-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Aristeu Rozanski <aris@redhat.com>
+Link: https://lkml.kernel.org/r/20200123090210.26933-7-rrichter@marvell.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/imx6q-cpufreq.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/edac/edac_mc.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/cpufreq/imx6q-cpufreq.c b/drivers/cpufreq/imx6q-cpufreq.c
-index 648a09a1778a3..1fcbbd53a48a2 100644
---- a/drivers/cpufreq/imx6q-cpufreq.c
-+++ b/drivers/cpufreq/imx6q-cpufreq.c
-@@ -280,6 +280,9 @@ static int imx6ul_opp_check_speed_grading(struct device *dev)
- 		void __iomem *base;
+diff --git a/drivers/edac/edac_mc.c b/drivers/edac/edac_mc.c
+index 69e0d90460e6c..2349f2ad946bb 100644
+--- a/drivers/edac/edac_mc.c
++++ b/drivers/edac/edac_mc.c
+@@ -1180,20 +1180,21 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
+ 		 * channel/memory controller/...  may be affected.
+ 		 * Also, don't show errors for empty DIMM slots.
+ 		 */
+-		if (!e->enable_per_layer_report || !dimm->nr_pages)
++		if (!dimm->nr_pages)
+ 			continue;
  
- 		np = of_find_compatible_node(NULL, NULL, "fsl,imx6ul-ocotp");
-+		if (!np)
-+			np = of_find_compatible_node(NULL, NULL,
-+						     "fsl,imx6ull-ocotp");
- 		if (!np)
- 			return -ENOENT;
+-		if (n_labels >= EDAC_MAX_LABELS) {
+-			e->enable_per_layer_report = false;
+-			break;
+-		}
+ 		n_labels++;
+-		if (p != e->label) {
+-			strcpy(p, OTHER_LABEL);
+-			p += strlen(OTHER_LABEL);
++		if (n_labels > EDAC_MAX_LABELS) {
++			p = e->label;
++			*p = '\0';
++		} else {
++			if (p != e->label) {
++				strcpy(p, OTHER_LABEL);
++				p += strlen(OTHER_LABEL);
++			}
++			strcpy(p, dimm->label);
++			p += strlen(p);
+ 		}
+-		strcpy(p, dimm->label);
+-		p += strlen(p);
  
+ 		/*
+ 		 * get csrow/channel of the DIMM, in order to allow
 -- 
 2.20.1
 
