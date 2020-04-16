@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 607281AC369
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB8421AC6BD
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:44:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441543AbgDPNmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:42:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55618 "EHLO mail.kernel.org"
+        id S1730365AbgDPOnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:43:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441524AbgDPNmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:42:35 -0400
+        id S2392596AbgDPOAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:00:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DA0F218AC;
-        Thu, 16 Apr 2020 13:42:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BED5720732;
+        Thu, 16 Apr 2020 14:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044554;
-        bh=cPcVth3C/ecITib/wFDwsrdywlBZ+L1o5W0YguVVgSs=;
+        s=default; t=1587045618;
+        bh=Uw/LefC3XCr1iMFhfr8Ok7AVKDELhZBCxDGahLsTOoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MxKSL2UBtxLm59ZsnEvasOMAT+tGLoPJAblbIXi5qnErrlsqXX+jwUqzzkrBAsU0n
-         xRGZmYHb0WqGpkTmmFmzIsK+bH+hZic3dD+w1TnL4lOwm+Fs/JLWH5ymr5sUbO3PIB
-         C8I0WX3Q8C5U8yjWziGVN70ranijeWrE8JZEJ8eI=
+        b=Qj2HNngwVJAffWY24z6qtfz7vxGznR2vqjjl6wnrsoBd/9/oYDjHwjNmhNzLFj5MV
+         BRJgsBYK3pKQ/Z4hiTFANuf5tH5rLqwOtygRjPzXvjYrLN7tk+FQVKOxtfzFFEI4fp
+         RTO9TeIHdgg9fknARs9YIjqo0yJNcDSscl8MFlRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Torsten Duwe <duwe@lst.de>,
-        Thierry Reding <treding@nvidia.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 246/257] drm/bridge: analogix-anx78xx: Fix drm_dp_link helper removal
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.6 208/254] drm/prime: fix extracting of the DMA addresses from a scatterlist
 Date:   Thu, 16 Apr 2020 15:24:57 +0200
-Message-Id: <20200416131356.465132016@linuxfoundation.org>
+Message-Id: <20200416131352.071141403@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,51 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Torsten Duwe <duwe@lst.de>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 3e138a63d6674a4567a018a31e467567c40b14d5 ]
+commit c0f83d164fb8f3a2b7bc379a6c1e27d1123a9eab upstream.
 
-drm_dp_link_rate_to_bw_code and ...bw_code_to_link_rate simply divide by
-and multiply with 27000, respectively. Avoid an overflow in the u8 dpcd[0]
-and the multiply+divide alltogether.
+Scatterlist elements contains both pages and DMA addresses, but one
+should not assume 1:1 relation between them. The sg->length is the size
+of the physical memory chunk described by the sg->page, while
+sg_dma_len(sg) is the size of the DMA (IO virtual) chunk described by
+the sg_dma_address(sg).
 
-Signed-off-by: Torsten Duwe <duwe@lst.de>
-Fixes: ff1e8fb68ea0 ("drm/bridge: analogix-anx78xx: Avoid drm_dp_link helpers")
-Cc: Thierry Reding <treding@nvidia.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Jonas Karlman <jonas@kwiboo.se>
-Cc: Jernej Skrabec <jernej.skrabec@siol.net>
-Cc: <stable@vger.kernel.org> # v5.5+
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200218155744.9675368BE1@verein.lst.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The proper way of extracting both: pages and DMA addresses of the whole
+buffer described by a scatterlist it to iterate independently over the
+sg->pages/sg->length and sg_dma_address(sg)/sg_dma_len(sg) entries.
+
+Fixes: 42e67b479eab ("drm/prime: use dma length macro when mapping sg")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200327162126.29705-1-m.szyprowski@samsung.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/bridge/analogix-anx78xx.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_prime.c |   37 +++++++++++++++++++++++++------------
+ 1 file changed, 25 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-index 274989f96a916..914263a1afab4 100644
---- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
-+++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-@@ -866,10 +866,9 @@ static int anx78xx_dp_link_training(struct anx78xx *anx78xx)
- 	if (err)
- 		return err;
+--- a/drivers/gpu/drm/drm_prime.c
++++ b/drivers/gpu/drm/drm_prime.c
+@@ -962,27 +962,40 @@ int drm_prime_sg_to_page_addr_arrays(str
+ 	unsigned count;
+ 	struct scatterlist *sg;
+ 	struct page *page;
+-	u32 len, index;
++	u32 page_len, page_index;
+ 	dma_addr_t addr;
++	u32 dma_len, dma_index;
  
--	dpcd[0] = drm_dp_max_link_rate(anx78xx->dpcd);
--	dpcd[0] = drm_dp_link_rate_to_bw_code(dpcd[0]);
- 	err = regmap_write(anx78xx->map[I2C_IDX_TX_P0],
--			   SP_DP_MAIN_LINK_BW_SET_REG, dpcd[0]);
-+			   SP_DP_MAIN_LINK_BW_SET_REG,
-+			   anx78xx->dpcd[DP_MAX_LINK_RATE]);
- 	if (err)
- 		return err;
+-	index = 0;
++	/*
++	 * Scatterlist elements contains both pages and DMA addresses, but
++	 * one shoud not assume 1:1 relation between them. The sg->length is
++	 * the size of the physical memory chunk described by the sg->page,
++	 * while sg_dma_len(sg) is the size of the DMA (IO virtual) chunk
++	 * described by the sg_dma_address(sg).
++	 */
++	page_index = 0;
++	dma_index = 0;
+ 	for_each_sg(sgt->sgl, sg, sgt->nents, count) {
+-		len = sg_dma_len(sg);
++		page_len = sg->length;
+ 		page = sg_page(sg);
++		dma_len = sg_dma_len(sg);
+ 		addr = sg_dma_address(sg);
  
--- 
-2.20.1
-
+-		while (len > 0) {
+-			if (WARN_ON(index >= max_entries))
++		while (pages && page_len > 0) {
++			if (WARN_ON(page_index >= max_entries))
+ 				return -1;
+-			if (pages)
+-				pages[index] = page;
+-			if (addrs)
+-				addrs[index] = addr;
+-
++			pages[page_index] = page;
+ 			page++;
++			page_len -= PAGE_SIZE;
++			page_index++;
++		}
++		while (addrs && dma_len > 0) {
++			if (WARN_ON(dma_index >= max_entries))
++				return -1;
++			addrs[dma_index] = addr;
+ 			addr += PAGE_SIZE;
+-			len -= PAGE_SIZE;
+-			index++;
++			dma_len -= PAGE_SIZE;
++			dma_index++;
+ 		}
+ 	}
+ 	return 0;
 
 
