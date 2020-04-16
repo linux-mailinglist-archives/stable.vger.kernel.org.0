@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA1941AC66F
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C107A1AC850
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732580AbgDPOjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:39:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49850 "EHLO mail.kernel.org"
+        id S1728777AbgDPPGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:06:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405605AbgDPOCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:02:21 -0400
+        id S2408817AbgDPNwC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:52:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEB882078B;
-        Thu, 16 Apr 2020 14:02:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 563882063A;
+        Thu, 16 Apr 2020 13:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045741;
-        bh=SoVqO3bK3jHNnFnqoHbBV+IZFxZYUJeXCaLy+Ihncvo=;
+        s=default; t=1587045121;
+        bh=hDL60ZE/KPb1rBhVBfw2gW9qxX0LLGCOEybMnmAnzYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJNfRKub5Hujh2S1Y3vDelb/d53f4SpKpZAaaiDckQvrIJcwoGhk2WNgtLQgVrsZe
-         5/4WZnyU2+J7uuUZrD0fn0xehEivourie+fMMrA4Tx+/yV8Sk9K72JVGArYQv40LrI
-         e9XnGksTnVp5QVPgxMZTxur6Wsu2KdB3X7pkJw3Y=
+        b=cl/Gf4uk4I9ODaau6hXmX1HWwKSz1ZRz5M6DzCPgmliIasuZHtBAwCYibVMRe1Ivo
+         T8z4Vk6ZFlJ6CUEaNV8H3bdT7gavWaI/wA6UZWV6CjqU5NrG7fJTik+H8kr/DeFNs2
+         94Tmt0ue+I+fUAR0T+sHtG+0DO97aEqK84/f3f00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Gander <simon@tuxera.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 230/254] hfsplus: fix crash and filesystem corruption when deleting files
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 225/232] scsi: lpfc: Fix broken Credit Recovery after driver load
 Date:   Thu, 16 Apr 2020 15:25:19 +0200
-Message-Id: <20200416131354.420861781@linuxfoundation.org>
+Message-Id: <20200416131343.655236486@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +45,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Gander <simon@tuxera.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 25efb2ffdf991177e740b2f63e92b4ec7d310a92 upstream.
+[ Upstream commit 835214f5d5f516a38069bc077c879c7da00d6108 ]
 
-When removing files containing extended attributes, the hfsplus driver may
-remove the wrong entries from the attributes b-tree, causing major
-filesystem damage and in some cases even kernel crashes.
+When driver is set to enable bb credit recovery, the switch displayed the
+setting as inactive.  If the link bounces, it switches to Active.
 
-To remove a file, all its extended attributes have to be removed as well.
-The driver does this by looking up all keys in the attributes b-tree with
-the cnid of the file.  Each of these entries then gets deleted using the
-key used for searching, which doesn't contain the attribute's name when it
-should.  Since the key doesn't contain the name, the deletion routine will
-not find the correct entry and instead remove the one in front of it.  If
-parent nodes have to be modified, these become corrupt as well.  This
-causes invalid links and unsorted entries that not even macOS's fsck_hfs
-is able to fix.
+During link up processing, the driver currently does a MBX_READ_SPARAM
+followed by a MBX_CONFIG_LINK. These mbox commands are queued to be
+executed, one at a time and the completion is processed by the worker
+thread.  Since the MBX_READ_SPARAM is done BEFORE the MBX_CONFIG_LINK, the
+BB_SC_N bit is never set the the returned values. BB Credit recovery status
+only gets set after the driver requests the feature in CONFIG_LINK, which
+is done after the link up. Thus the ordering of READ_SPARAM needs to follow
+the CONFIG_LINK.
 
-To fix this, modify the search key before an entry is deleted from the
-attributes b-tree by copying the found entry's key into the search key,
-therefore ensuring that the correct entry gets removed from the tree.
+Fix by reordering so that READ_SPARAM is done after CONFIG_LINK.  Added a
+HBA_DEFER_FLOGI flag so that any FLOGI handling waits until after the
+READ_SPARAM is done so that the proper BB credit value is set in the FLOGI
+payload.
 
-Signed-off-by: Simon Gander <simon@tuxera.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200327155541.1521-1-simon@tuxera.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 6bfb16208298 ("scsi: lpfc: Fix configuration of BB credit recovery in service parameters")
+Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://lore.kernel.org/r/20200128002312.16346-4-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/attributes.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/lpfc/lpfc.h         |  1 +
+ drivers/scsi/lpfc/lpfc_hbadisc.c | 59 +++++++++++++++++++++-----------
+ 2 files changed, 40 insertions(+), 20 deletions(-)
 
---- a/fs/hfsplus/attributes.c
-+++ b/fs/hfsplus/attributes.c
-@@ -292,6 +292,10 @@ static int __hfsplus_delete_attr(struct
- 		return -ENOENT;
+diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
+index e492ca2d0b8be..8943d42fc406e 100644
+--- a/drivers/scsi/lpfc/lpfc.h
++++ b/drivers/scsi/lpfc/lpfc.h
+@@ -742,6 +742,7 @@ struct lpfc_hba {
+ 					 * capability
+ 					 */
+ #define HBA_FLOGI_ISSUED	0x100000 /* FLOGI was issued */
++#define HBA_DEFER_FLOGI		0x800000 /* Defer FLOGI till read_sparm cmpl */
+ 
+ 	uint32_t fcp_ring_in_use; /* When polling test if intr-hndlr active*/
+ 	struct lpfc_dmabuf slim2p;
+diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
+index 3f7df471106e9..799db8a785c21 100644
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -1163,13 +1163,16 @@ lpfc_mbx_cmpl_local_config_link(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
  	}
  
-+	/* Avoid btree corruption */
-+	hfs_bnode_read(fd->bnode, fd->search_key,
-+			fd->keyoffset, fd->keylength);
+ 	/* Start discovery by sending a FLOGI. port_state is identically
+-	 * LPFC_FLOGI while waiting for FLOGI cmpl
++	 * LPFC_FLOGI while waiting for FLOGI cmpl. Check if sending
++	 * the FLOGI is being deferred till after MBX_READ_SPARAM completes.
+ 	 */
+-	if (vport->port_state != LPFC_FLOGI)
+-		lpfc_initial_flogi(vport);
+-	else if (vport->fc_flag & FC_PT2PT)
+-		lpfc_disc_start(vport);
+-
++	if (vport->port_state != LPFC_FLOGI) {
++		if (!(phba->hba_flag & HBA_DEFER_FLOGI))
++			lpfc_initial_flogi(vport);
++	} else {
++		if (vport->fc_flag & FC_PT2PT)
++			lpfc_disc_start(vport);
++	}
+ 	return;
+ 
+ out:
+@@ -3094,6 +3097,14 @@ lpfc_mbx_cmpl_read_sparam(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
+ 	lpfc_mbuf_free(phba, mp->virt, mp->phys);
+ 	kfree(mp);
+ 	mempool_free(pmb, phba->mbox_mem_pool);
 +
- 	err = hfs_brec_remove(fd);
- 	if (err)
- 		return err;
++	/* Check if sending the FLOGI is being deferred to after we get
++	 * up to date CSPs from MBX_READ_SPARAM.
++	 */
++	if (phba->hba_flag & HBA_DEFER_FLOGI) {
++		lpfc_initial_flogi(vport);
++		phba->hba_flag &= ~HBA_DEFER_FLOGI;
++	}
+ 	return;
+ 
+ out:
+@@ -3224,6 +3235,23 @@ lpfc_mbx_process_link_up(struct lpfc_hba *phba, struct lpfc_mbx_read_top *la)
+ 	}
+ 
+ 	lpfc_linkup(phba);
++	sparam_mbox = NULL;
++
++	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
++		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
++		if (!cfglink_mbox)
++			goto out;
++		vport->port_state = LPFC_LOCAL_CFG_LINK;
++		lpfc_config_link(phba, cfglink_mbox);
++		cfglink_mbox->vport = vport;
++		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
++		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
++		if (rc == MBX_NOT_FINISHED) {
++			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
++			goto out;
++		}
++	}
++
+ 	sparam_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+ 	if (!sparam_mbox)
+ 		goto out;
+@@ -3244,20 +3272,7 @@ lpfc_mbx_process_link_up(struct lpfc_hba *phba, struct lpfc_mbx_read_top *la)
+ 		goto out;
+ 	}
+ 
+-	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
+-		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+-		if (!cfglink_mbox)
+-			goto out;
+-		vport->port_state = LPFC_LOCAL_CFG_LINK;
+-		lpfc_config_link(phba, cfglink_mbox);
+-		cfglink_mbox->vport = vport;
+-		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
+-		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
+-		if (rc == MBX_NOT_FINISHED) {
+-			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
+-			goto out;
+-		}
+-	} else {
++	if (phba->hba_flag & HBA_FCOE_MODE) {
+ 		vport->port_state = LPFC_VPORT_UNKNOWN;
+ 		/*
+ 		 * Add the driver's default FCF record at FCF index 0 now. This
+@@ -3314,6 +3329,10 @@ lpfc_mbx_process_link_up(struct lpfc_hba *phba, struct lpfc_mbx_read_top *la)
+ 		}
+ 		/* Reset FCF roundrobin bmask for new discovery */
+ 		lpfc_sli4_clear_fcf_rr_bmask(phba);
++	} else {
++		if (phba->bbcredit_support && phba->cfg_enable_bbcr &&
++		    !(phba->link_flag & LS_LOOPBACK_MODE))
++			phba->hba_flag |= HBA_DEFER_FLOGI;
+ 	}
+ 
+ 	/* Prepare for LINK up registrations */
+-- 
+2.20.1
+
 
 
