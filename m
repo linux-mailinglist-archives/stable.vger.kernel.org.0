@@ -2,120 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C92821ACA65
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A4201ACA1D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898180AbgDPNkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:40:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2898167AbgDPNko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 09:40:44 -0400
-Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECBBBC061A0C;
-        Thu, 16 Apr 2020 06:40:43 -0700 (PDT)
-Received: by mail-yb1-xb42.google.com with SMTP id f13so2053141ybk.7;
-        Thu, 16 Apr 2020 06:40:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=+FTxnb1SbF3l6f2HRSoVhs1qVsC4S/0hf0CM8kyAOOY=;
-        b=EdcH+dWl3unZRbOq2+w6f6bJpyha77vf9JTSti2BOfhZMK495Y6szJrVP6/n8TzdFD
-         HEWgD9y+m6a/x4vR/8GFubM87Mt5Rhz5RcERr15ed+KNKY8pqKOsCBO/PfgeXHuNyE/o
-         V5horba89yDNfX44wRqYxFVKfWavbzTTKgtIjceW38apAkiVXKjPoJkY9rRY4URhA/eY
-         q9IcG88zIchgOQkBsHdYpMmiq6GcwJfEjMNwXkMzMnq7c7e6YYXMcu11TJ+MrYH/SngF
-         OR6H90ZORBhI7KsofrGW1vN2g1RKsUh7upOKzhtzsCkjUyQ5cVHbWZ454CPP5oYGJAHp
-         Jdmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+FTxnb1SbF3l6f2HRSoVhs1qVsC4S/0hf0CM8kyAOOY=;
-        b=Fm9f0FjJ0rxEqRISc0grKz/OZ+btyPSmb1m5X4L2TzElqhYkJfXmzTdFZvcNwN/fqO
-         MeozXxoXRnxjrHhIrNBkkGgFoEb2QAi5RT8Ae9BFOf7jqzJmdRBtyyNTRlMIp851V/+1
-         qkdQwjyhSO2nh2eteDwETWRTxRYfbd5tPq4B6Z7aoDgI+/nEX4uREgPR78YjqAH6nne/
-         9prMZu3B041UFZkppYUUAWCjPO1xa62aCWNKymcn0bE5KgDxUZnuyOoNjYaNn0rfmgoa
-         DKhSCSQl3H27doHQ0fRor6AkweqPBWzuUJWs0AHaHnygeR0xMwOZIJT3/qmRSGVGmtd5
-         BNzg==
-X-Gm-Message-State: AGi0Pua1buU4i6S6i3Q7gJrc9mQokvxHZMpwwvM6DcVhDT+J8eyVAbPr
-        IYSHyIHCTzoUuOfXr79yMFpaDWabn+UtNQbGO9k=
-X-Google-Smtp-Source: APiQypJakW3ZFcDGjfwOFPNEPeIOKgZXKt96uuOtmmwmQZ/5Sc+e3wzdV4eH+fyex8AXApQgNU1oKuSwsaQKPC0wfSQ=
-X-Received: by 2002:a25:bec2:: with SMTP id k2mr17523747ybm.129.1587044443057;
- Thu, 16 Apr 2020 06:40:43 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200411231413.26911-9-sashal@kernel.org> <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
- <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20200414015627.GA1068@sasha-vm> <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
- <20200414110911.GA341846@kroah.com> <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
- <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com> <20200414205755.GF1068@sasha-vm>
- <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com> <20200416000009.GL1068@sasha-vm>
-In-Reply-To: <20200416000009.GL1068@sasha-vm>
-From:   Or Gerlitz <gerlitz.or@gmail.com>
-Date:   Thu, 16 Apr 2020 16:40:31 +0300
-Message-ID: <CAJ3xEMjfWL=c=voGqV4pUCzWXmiTn-R6mrRi82UAVHMVysKU1g@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for representors
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Edward Cree <ecree@solarflare.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        David Miller <davem@davemloft.net>
-Content-Type: text/plain; charset="UTF-8"
+        id S2410374AbgDPPb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:31:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56116 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2392171AbgDPNm4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:42:56 -0400
+Received: from devnote2 (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5779720732;
+        Thu, 16 Apr 2020 13:42:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587044576;
+        bh=pKr2ODiezIbXVsIZUlYbDhELk4vhbLO4dwd5JanhVDs=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=DYDoeT+4hlWnZScNJWKzbPVJP6AmaxiEBcN9QaCMwpYR+ioBzx5PL3FhzIHC2+c/+
+         RtXULmJ+QUoHFlldeF7OO8+NpY0b6xRd4MEh28kb8NOorpCxOltXVb4oSb79+AIqvn
+         UMDWYBszSdyr4a5FPV5Dcb7rjUAOmOj9YorEfYTo=
+Date:   Thu, 16 Apr 2020 22:42:50 +0900
+From:   Masami Hiramatsu <mhiramat@kernel.org>
+To:     Jiri Olsa <jolsa@redhat.com>
+Cc:     Jiri Olsa <jolsa@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "bibo,mao" <bibo.mao@intel.com>,
+        "Ziqian SUN (Zamir)" <zsun@redhat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] kretprobe: Prevent triggering kretprobe from within
+ kprobe_flush_task
+Message-Id: <20200416224250.7a53fb581e50aa32df75a0cf@kernel.org>
+In-Reply-To: <20200416091320.GA322899@krava>
+References: <20200408164641.3299633-1-jolsa@kernel.org>
+        <20200409234101.8814f3cbead69337ac5a33fa@kernel.org>
+        <20200409184451.GG3309111@krava>
+        <20200409201336.GH3309111@krava>
+        <20200410093159.0d7000a08fd76c2eaf1398f8@kernel.org>
+        <20200414160338.GE208694@krava>
+        <20200415090507.GG208694@krava>
+        <20200416105506.904b7847a1b621b75463076d@kernel.org>
+        <20200416091320.GA322899@krava>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 3:00 AM Sasha Levin <sashal@kernel.org> wrote:
-> I'd maybe point out that the selection process is based on a neural
-> network which knows about the existence of a Fixes tag in a commit.
->
-> It does exactly what you're describing, but also taking a bunch more
-> factors into it's desicion process ("panic"? "oops"? "overflow"? etc).
+Hi Jiri,
 
-As Saeed commented, every extra line in stable / production kernel
-is wrong. IMHO it doesn't make any sense to take into stable automatically
-any patch that doesn't have fixes line. Do you have 1/2/3/4/5 concrete
-examples from your (referring to your Microsoft employee hat comment
-below) or other's people production environment where patches proved to
-be necessary but they lacked the fixes tag - would love to see them.
+On Thu, 16 Apr 2020 11:13:20 +0200
+Jiri Olsa <jolsa@redhat.com> wrote:
 
-We've been coaching new comers for years during internal and on-list
-code reviews to put proper fixes tag. This serves (A) for the upstream
-human review of the patch and (B) reasonable human stable considerations.
+> On Thu, Apr 16, 2020 at 10:55:06AM +0900, Masami Hiramatsu wrote:
+> 
+> SNIP
+> 
+> > >           trampoline_handler
+> > >             kretprobe_hash_lock(current, &head, &flags);  <--- deadlock
+> > > 
+> > > Adding kprobe_busy_begin/end helpers that mark code with fake
+> > > probe installed to prevent triggering of another kprobe within
+> > > this code.
+> > > 
+> > > Using these helpers in kprobe_flush_task, so the probe recursion
+> > > protection check is hit and the probe is never set to prevent
+> > > above lockup.
+> > > 
+> > > Reported-by: "Ziqian SUN (Zamir)" <zsun@redhat.com>
+> > > Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+> > 
+> > Thanks Jiri and Ziqian!
+> > 
+> > Looks good to me.
+> > 
+> > Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+> > 
+> > BTW, this is a kind of bugfix. So should it add a Fixes tag?
+> > 
+> > Fixes: ef53d9c5e4da ('kprobes: improve kretprobe scalability with hashed locking')
+> > Cc: stable@vger.kernel.org
+> 
+> ah right, do you want me to repost with those?
 
-You are practically saying that for cases we screwed up stage (A) you
-can somehow still get away with good results on stage (B) - I don't
-accept it. BTW - during my reviews I tend to ask/require developers to
-skip the word panic, and instead better explain the nature of the
-problem / result.
+Yeah, if you don't mind.
 
->>> This is great, but the kernel is more than just net/. Note that I also
->>> do not look at net/ itself, but rather drivers/net/ as those end up with
->>> a bunch of missed fixes.
+Thank you,
 
->>drivers/net/ goes through the same DaveM net/net-next trees, with the
->> same rules.
+> 
+> thanks,
+> jirka
+> 
 
-you ignored this comment, any more specific complaints?
 
-> Let me put my Microsoft employee hat on here. We have driver/net/hyperv/
-> which definitely wasn't getting all the fixes it should have been
-> getting without AUTOSEL.
-
-> While net/ is doing great, drivers/net/ is not. If it's indeed following
-> the same rules then we need to talk about how we get done right.
-
-I never [1] saw -stable push requests being ignored here in netdev.
-Your drivers have four listed maintainers and it's common habit by
-commercial companies to have paid && human (non autosel robots)
-maintainers that take care of their open source drivers. As in commercial
-SW products, Linux has a current, next and past (stable) releases, so
-something sounds as missing to me in your care matrix.
-
-[1] actually I do remember that once or twice out of the 2020 times we asked,  a
-patch was not sent to -stable by the sub-system maintainer mistake
-which he fixed(..) later
+-- 
+Masami Hiramatsu <mhiramat@kernel.org>
