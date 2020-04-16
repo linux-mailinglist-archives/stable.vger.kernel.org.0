@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B621AC779
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:55:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 966C31AC31A
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409193AbgDPN4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:56:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43368 "EHLO mail.kernel.org"
+        id S2897605AbgDPNiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:38:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409014AbgDPN4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:56:19 -0400
+        id S2896376AbgDPNhy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:37:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59B5D20786;
-        Thu, 16 Apr 2020 13:56:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8995D21BE5;
+        Thu, 16 Apr 2020 13:37:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045378;
-        bh=pToQ0G8nlkKkaq5eQ55M2R1lUalT3J/AbDnqg1tEiQs=;
+        s=default; t=1587044274;
+        bh=0QWkgSBGNSY24xOj/Y0cCCQ4J4uNUMUkBlsyxRF5Sm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZddvgieJMsJAqBCnmthQaFspeDh+psKjEv3I1ksSfjWRwl9g0pf45T7k437L4FQov
-         KDKeUrmJTFgCN8zctdQihL/ggdyL2xbs6UpicHNUxiVKpTXgL+DZ0Ykp2Q3KqciBra
-         7pf60aIiGCcljn3/nZFANKzrskC4xxu//+rPZWMw=
+        b=s9YO2dNZylBPEb8bAWgO/TFCjyVUTyNWkfcp6056IxgMMbVa5fQNkYUYEt5SBcCsr
+         KZAe1paHcO7oilvCFd6m2ii6dobkN70TInRAe03JpDE4qkOsIDTzQ8tFOCpn+XrIWD
+         Ltf+3w4HO3R62JsEECR1FTcWHJhJeSWDOEkU3JSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.6 111/254] rcu: Make rcu_barrier() account for offline no-CBs CPUs
-Date:   Thu, 16 Apr 2020 15:23:20 +0200
-Message-Id: <20200416131340.061168935@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.5 150/257] KVM: VMX: fix crash cleanup when KVM wasnt used
+Date:   Thu, 16 Apr 2020 15:23:21 +0200
+Message-Id: <20200416131345.257475880@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,122 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 127e29815b4b2206c0a97ac1d83f92ffc0e25c34 upstream.
+commit dbef2808af6c594922fe32833b30f55f35e9da6d upstream.
 
-Currently, rcu_barrier() ignores offline CPUs,  However, it is possible
-for an offline no-CBs CPU to have callbacks queued, and rcu_barrier()
-must wait for those callbacks.  This commit therefore makes rcu_barrier()
-directly invoke the rcu_barrier_func() with interrupts disabled for such
-CPUs.  This requires passing the CPU number into this function so that
-it can entrain the rcu_barrier() callback onto the correct CPU's callback
-list, given that the code must instead execute on the current CPU.
+If KVM wasn't used at all before we crash the cleanup procedure fails with
+ BUG: unable to handle page fault for address: ffffffffffffffc8
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 23215067 P4D 23215067 PUD 23217067 PMD 0
+ Oops: 0000 [#8] SMP PTI
+ CPU: 0 PID: 3542 Comm: bash Kdump: loaded Tainted: G      D           5.6.0-rc2+ #823
+ RIP: 0010:crash_vmclear_local_loaded_vmcss.cold+0x19/0x51 [kvm_intel]
 
-While in the area, this commit fixes a bug where the first CPU's callback
-might have been invoked before rcu_segcblist_entrain() returned, which
-would also result in an early wakeup.
+The root cause is that loaded_vmcss_on_cpu list is not yet initialized,
+we initialize it in hardware_enable() but this only happens when we start
+a VM.
 
-Fixes: 5d6742b37727 ("rcu/nocb: Use rcu_segcblist for no-CBs CPUs")
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-[ paulmck: Apply optimization feedback from Boqun Feng. ]
-Cc: <stable@vger.kernel.org> # 5.5.x
+Previously, we used to have a bitmap with enabled CPUs and that was
+preventing [masking] the issue.
+
+Initialized loaded_vmcss_on_cpu list earlier, right before we assign
+crash_vmclear_loaded_vmcss pointer. blocked_vcpu_on_cpu list and
+blocked_vcpu_on_cpu_lock are moved altogether for consistency.
+
+Fixes: 31603d4fc2bb ("KVM: VMX: Always VMCLEAR in-use VMCSes during crash with kexec support")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20200401081348.1345307-1-vkuznets@redhat.com>
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/trace/events/rcu.h |    1 +
- kernel/rcu/tree.c          |   36 ++++++++++++++++++++++++------------
- 2 files changed, 25 insertions(+), 12 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/include/trace/events/rcu.h
-+++ b/include/trace/events/rcu.h
-@@ -712,6 +712,7 @@ TRACE_EVENT_RCU(rcu_torture_read,
-  *	"Begin": rcu_barrier() started.
-  *	"EarlyExit": rcu_barrier() piggybacked, thus early exit.
-  *	"Inc1": rcu_barrier() piggyback check counter incremented.
-+ *	"OfflineNoCBQ": rcu_barrier() found offline no-CBs CPU with callbacks.
-  *	"OnlineQ": rcu_barrier() found online CPU with callbacks.
-  *	"OnlineNQ": rcu_barrier() found online CPU, no callbacks.
-  *	"IRQ": An rcu_barrier_callback() callback posted on remote CPU.
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -3090,9 +3090,10 @@ static void rcu_barrier_callback(struct
- /*
-  * Called with preemption disabled, and from cross-cpu IRQ context.
-  */
--static void rcu_barrier_func(void *unused)
-+static void rcu_barrier_func(void *cpu_in)
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -2232,10 +2232,6 @@ static int hardware_enable(void)
+ 	    !hv_get_vp_assist_page(cpu))
+ 		return -EFAULT;
+ 
+-	INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
+-	INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
+-	spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
+-
+ 	rdmsrl(MSR_IA32_FEATURE_CONTROL, old);
+ 
+ 	test_bits = FEATURE_CONTROL_LOCKED;
+@@ -8006,7 +8002,7 @@ module_exit(vmx_exit);
+ 
+ static int __init vmx_init(void)
  {
--	struct rcu_data *rdp = raw_cpu_ptr(&rcu_data);
-+	uintptr_t cpu = (uintptr_t)cpu_in;
-+	struct rcu_data *rdp = per_cpu_ptr(&rcu_data, cpu);
+-	int r;
++	int r, cpu;
  
- 	rcu_barrier_trace(TPS("IRQ"), -1, rcu_state.barrier_sequence);
- 	rdp->barrier_head.func = rcu_barrier_callback;
-@@ -3119,7 +3120,7 @@ static void rcu_barrier_func(void *unuse
-  */
- void rcu_barrier(void)
- {
--	int cpu;
-+	uintptr_t cpu;
- 	struct rcu_data *rdp;
- 	unsigned long s = rcu_seq_snap(&rcu_state.barrier_sequence);
- 
-@@ -3142,13 +3143,14 @@ void rcu_barrier(void)
- 	rcu_barrier_trace(TPS("Inc1"), -1, rcu_state.barrier_sequence);
- 
+ #if IS_ENABLED(CONFIG_HYPERV)
  	/*
--	 * Initialize the count to one rather than to zero in order to
--	 * avoid a too-soon return to zero in case of a short grace period
--	 * (or preemption of this task).  Exclude CPU-hotplug operations
--	 * to ensure that no offline CPU has callbacks queued.
-+	 * Initialize the count to two rather than to zero in order
-+	 * to avoid a too-soon return to zero in case of an immediate
-+	 * invocation of the just-enqueued callback (or preemption of
-+	 * this task).  Exclude CPU-hotplug operations to ensure that no
-+	 * offline non-offloaded CPU has callbacks queued.
- 	 */
- 	init_completion(&rcu_state.barrier_completion);
--	atomic_set(&rcu_state.barrier_cpu_count, 1);
-+	atomic_set(&rcu_state.barrier_cpu_count, 2);
- 	get_online_cpus();
+@@ -8060,6 +8056,12 @@ static int __init vmx_init(void)
+ 		return r;
+ 	}
  
- 	/*
-@@ -3158,13 +3160,23 @@ void rcu_barrier(void)
- 	 */
- 	for_each_possible_cpu(cpu) {
- 		rdp = per_cpu_ptr(&rcu_data, cpu);
--		if (!cpu_online(cpu) &&
-+		if (cpu_is_offline(cpu) &&
- 		    !rcu_segcblist_is_offloaded(&rdp->cblist))
- 			continue;
--		if (rcu_segcblist_n_cbs(&rdp->cblist)) {
-+		if (rcu_segcblist_n_cbs(&rdp->cblist) && cpu_online(cpu)) {
- 			rcu_barrier_trace(TPS("OnlineQ"), cpu,
- 					  rcu_state.barrier_sequence);
--			smp_call_function_single(cpu, rcu_barrier_func, NULL, 1);
-+			smp_call_function_single(cpu, rcu_barrier_func, (void *)cpu, 1);
-+		} else if (rcu_segcblist_n_cbs(&rdp->cblist) &&
-+			   cpu_is_offline(cpu)) {
-+			rcu_barrier_trace(TPS("OfflineNoCBQ"), cpu,
-+					  rcu_state.barrier_sequence);
-+			local_irq_disable();
-+			rcu_barrier_func((void *)cpu);
-+			local_irq_enable();
-+		} else if (cpu_is_offline(cpu)) {
-+			rcu_barrier_trace(TPS("OfflineNoCBNoQ"), cpu,
-+					  rcu_state.barrier_sequence);
- 		} else {
- 			rcu_barrier_trace(TPS("OnlineNQ"), cpu,
- 					  rcu_state.barrier_sequence);
-@@ -3176,7 +3188,7 @@ void rcu_barrier(void)
- 	 * Now that we have an rcu_barrier_callback() callback on each
- 	 * CPU, and thus each counted, remove the initial count.
- 	 */
--	if (atomic_dec_and_test(&rcu_state.barrier_cpu_count))
-+	if (atomic_sub_and_test(2, &rcu_state.barrier_cpu_count))
- 		complete(&rcu_state.barrier_completion);
- 
- 	/* Wait for all rcu_barrier_callback() callbacks to be invoked. */
++	for_each_possible_cpu(cpu) {
++		INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
++		INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
++		spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
++	}
++
+ #ifdef CONFIG_KEXEC_CORE
+ 	rcu_assign_pointer(crash_vmclear_loaded_vmcss,
+ 			   crash_vmclear_local_loaded_vmcss);
 
 
