@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96CF61AC2C3
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2CE1AC354
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:41:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896620AbgDPNc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:32:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44062 "EHLO mail.kernel.org"
+        id S2898316AbgDPNl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:41:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896556AbgDPNcy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:32:54 -0400
+        id S2898298AbgDPNlV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D020221F9;
-        Thu, 16 Apr 2020 13:31:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87E0C2222C;
+        Thu, 16 Apr 2020 13:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043896;
-        bh=ZvkWGyVyXoU3fn/f085zajaeF163Rb5c896Mue3TRZA=;
+        s=default; t=1587044481;
+        bh=T9Q/+8y+10RHMimFMocEtiqH524D6C047MMtaJaMqCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HaeZY9qF50Gu2Y+GaoKq4KFknUI9wJocwRt4VWLnV34eJr9Vg9UN8PD6VPJp+qwpm
-         at92FmXSL4fRUKnprB8FKwB2CVZxnSQa2nf4f9dZynwrBJpuJEUFn7ByYT26sJbOsw
-         aonmo/BgZ0JVLbLQOASv6eMgISaIIgMq1Isgd4/I=
+        b=jPLNHOHQFeZE4KQWIq1ohaV/vCTEFLXCCbJn+TuIHDZK2+0qK8WFIAaozPKficgNN
+         aLvPlnAlSQ2NwUuaOer/WldY3RWoByX3DUP92zMoqysNLqabO1zQS4tAgVn6jthBM9
+         COQaXjODFKGbwSuOJjzaN3h5VGeGOrdk+f75SJzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Scott Wood <oss@buserror.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/146] powerpc/fsl_booke: Avoid creating duplicate tlb1 entry
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
+Subject: [PATCH 5.5 234/257] xen/blkfront: fix memory allocation flags in blkfront_setup_indirect()
 Date:   Thu, 16 Apr 2020 15:24:45 +0200
-Message-Id: <20200416131302.052157709@linuxfoundation.org>
+Message-Id: <20200416131354.904795053@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,80 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit aa4113340ae6c2811e046f08c2bc21011d20a072 ]
+commit 3a169c0be75b59dd85d159493634870cdec6d3c4 upstream.
 
-In the current implementation, the call to loadcam_multi() is wrapped
-between switch_to_as1() and restore_to_as0() calls so, when it tries
-to create its own temporary AS=1 TLB1 entry, it ends up duplicating
-the existing one created by switch_to_as1(). Add a check to skip
-creating the temporary entry if already running in AS=1.
+Commit 1d5c76e664333 ("xen-blkfront: switch kcalloc to kvcalloc for
+large array allocation") didn't fix the issue it was meant to, as the
+flags for allocating the memory are GFP_NOIO, which will lead the
+memory allocation falling back to kmalloc().
 
-Fixes: d9e1831a4202 ("powerpc/85xx: Load all early TLB entries at once")
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Acked-by: Scott Wood <oss@buserror.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200123111914.2565-1-laurentiu.tudor@nxp.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So instead of GFP_NOIO use GFP_KERNEL and do all the memory allocation
+in blkfront_setup_indirect() in a memalloc_noio_{save,restore} section.
+
+Fixes: 1d5c76e664333 ("xen-blkfront: switch kcalloc to kvcalloc for large array allocation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Acked-by: Roger Pau Monné <roger.pau@citrix.com>
+Link: https://lore.kernel.org/r/20200403090034.8753-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/mm/tlb_nohash_low.S | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/block/xen-blkfront.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/mm/tlb_nohash_low.S b/arch/powerpc/mm/tlb_nohash_low.S
-index e066a658acac6..56f58a362ea56 100644
---- a/arch/powerpc/mm/tlb_nohash_low.S
-+++ b/arch/powerpc/mm/tlb_nohash_low.S
-@@ -402,7 +402,7 @@ _GLOBAL(set_context)
-  * extern void loadcam_entry(unsigned int index)
-  *
-  * Load TLBCAM[index] entry in to the L2 CAM MMU
-- * Must preserve r7, r8, r9, and r10
-+ * Must preserve r7, r8, r9, r10 and r11
-  */
- _GLOBAL(loadcam_entry)
- 	mflr	r5
-@@ -438,6 +438,10 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_BIG_PHYS)
-  */
- _GLOBAL(loadcam_multi)
- 	mflr	r8
-+	/* Don't switch to AS=1 if already there */
-+	mfmsr	r11
-+	andi.	r11,r11,MSR_IS
-+	bne	10f
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -47,6 +47,7 @@
+ #include <linux/bitmap.h>
+ #include <linux/list.h>
+ #include <linux/workqueue.h>
++#include <linux/sched/mm.h>
  
- 	/*
- 	 * Set up temporary TLB entry that is the same as what we're
-@@ -463,6 +467,7 @@ _GLOBAL(loadcam_multi)
- 	mtmsr	r6
- 	isync
+ #include <xen/xen.h>
+ #include <xen/xenbus.h>
+@@ -2188,10 +2189,12 @@ static void blkfront_setup_discard(struc
  
-+10:
- 	mr	r9,r3
- 	add	r10,r3,r4
- 2:	bl	loadcam_entry
-@@ -471,6 +476,10 @@ _GLOBAL(loadcam_multi)
- 	mr	r3,r9
- 	blt	2b
+ static int blkfront_setup_indirect(struct blkfront_ring_info *rinfo)
+ {
+-	unsigned int psegs, grants;
++	unsigned int psegs, grants, memflags;
+ 	int err, i;
+ 	struct blkfront_info *info = rinfo->dev_info;
  
-+	/* Don't return to AS=0 if we were in AS=1 at function start */
-+	andi.	r11,r11,MSR_IS
-+	bne	3f
++	memflags = memalloc_noio_save();
 +
- 	/* Return to AS=0 and clear the temporary entry */
- 	mfmsr	r6
- 	rlwinm.	r6,r6,0,~(MSR_IS|MSR_DS)
-@@ -486,6 +495,7 @@ _GLOBAL(loadcam_multi)
- 	tlbwe
- 	isync
+ 	if (info->max_indirect_segments == 0) {
+ 		if (!HAS_EXTRA_REQ)
+ 			grants = BLKIF_MAX_SEGMENTS_PER_REQUEST;
+@@ -2223,7 +2226,7 @@ static int blkfront_setup_indirect(struc
  
-+3:
- 	mtlr	r8
- 	blr
- #endif
--- 
-2.20.1
-
+ 		BUG_ON(!list_empty(&rinfo->indirect_pages));
+ 		for (i = 0; i < num; i++) {
+-			struct page *indirect_page = alloc_page(GFP_NOIO);
++			struct page *indirect_page = alloc_page(GFP_KERNEL);
+ 			if (!indirect_page)
+ 				goto out_of_memory;
+ 			list_add(&indirect_page->lru, &rinfo->indirect_pages);
+@@ -2234,15 +2237,15 @@ static int blkfront_setup_indirect(struc
+ 		rinfo->shadow[i].grants_used =
+ 			kvcalloc(grants,
+ 				 sizeof(rinfo->shadow[i].grants_used[0]),
+-				 GFP_NOIO);
++				 GFP_KERNEL);
+ 		rinfo->shadow[i].sg = kvcalloc(psegs,
+ 					       sizeof(rinfo->shadow[i].sg[0]),
+-					       GFP_NOIO);
++					       GFP_KERNEL);
+ 		if (info->max_indirect_segments)
+ 			rinfo->shadow[i].indirect_grants =
+ 				kvcalloc(INDIRECT_GREFS(grants),
+ 					 sizeof(rinfo->shadow[i].indirect_grants[0]),
+-					 GFP_NOIO);
++					 GFP_KERNEL);
+ 		if ((rinfo->shadow[i].grants_used == NULL) ||
+ 			(rinfo->shadow[i].sg == NULL) ||
+ 		     (info->max_indirect_segments &&
+@@ -2251,6 +2254,7 @@ static int blkfront_setup_indirect(struc
+ 		sg_init_table(rinfo->shadow[i].sg, psegs);
+ 	}
+ 
++	memalloc_noio_restore(memflags);
+ 
+ 	return 0;
+ 
+@@ -2270,6 +2274,9 @@ out_of_memory:
+ 			__free_page(indirect_page);
+ 		}
+ 	}
++
++	memalloc_noio_restore(memflags);
++
+ 	return -ENOMEM;
+ }
+ 
 
 
