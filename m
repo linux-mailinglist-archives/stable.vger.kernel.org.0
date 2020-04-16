@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A44C11ACBE8
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B117B1AC8E4
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2634431AbgDPPwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:52:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44082 "EHLO mail.kernel.org"
+        id S2404939AbgDPPQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:16:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896574AbgDPNc4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:32:56 -0400
+        id S2441511AbgDPNuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A7602224E;
-        Thu, 16 Apr 2020 13:31:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F6BE2223D;
+        Thu, 16 Apr 2020 13:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043905;
-        bh=mf0Gh3FsRDQw+bSMC6JREENsy/uQD/xAYXEdbkGBcnY=;
+        s=default; t=1587044955;
+        bh=VZ39YWwP05qYCay5b0xukEXzfT7EKSUhftLU/x7SAco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EjVijcd/c/hHwZG5BY7ulnSJ94QTVL0VdiMUkI1Mjf+//a8vomGdThhF4QZdt+IP8
-         Ac56ngaYtS+BSIoDzWms3cxcilNXHLK/zpXEDlNtqzS/V6w9NyYXr66z+g7wOpMglf
-         4wSooq+TlZEFqh+E80nkYir57Emle9MvL8KwVuos=
+        b=ixc+HDT3AkBDAzyzI2ZYsPsWZpRyp501fARtxlwDXBt4gjn4HV1Ah8YgPMmkT5dwr
+         h4d6p2DBUJVEWJwzNDM/zeZ4EidYMLyOEthD3loMOGtJnzxmiExF6gBivLTJZZvpA7
+         /n0mYyXl89qTXvE1fTAL9WkBnKrV1G4UEPYITZok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        Corey Minyard <minyard@acm.org>, Arnd Bergmann <arnd@arndb.de>,
-        openipmi-developer@lists.sourceforge.net,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 4.19 122/146] ipmi: fix hung processes in __get_guid()
+        stable@vger.kernel.org, Andrei Botila <andrei.botila@nxp.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 169/232] crypto: caam - update xts sector size for large input length
 Date:   Thu, 16 Apr 2020 15:24:23 +0200
-Message-Id: <20200416131259.256255132@linuxfoundation.org>
+Message-Id: <20200416131336.149713965@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Andrei Botila <andrei.botila@nxp.com>
 
-commit 32830a0534700f86366f371b150b17f0f0d140d7 upstream.
+commit 3f142b6a7b573bde6cff926f246da05652c61eb4 upstream.
 
-The wait_event() function is used to detect command completion.
-When send_guid_cmd() returns an error, smi_send() has not been
-called to send data. Therefore, wait_event() should not be used
-on the error path, otherwise it will cause the following warning:
+Since in the software implementation of XTS-AES there is
+no notion of sector every input length is processed the same way.
+CAAM implementation has the notion of sector which causes different
+results between the software implementation and the one in CAAM
+for input lengths bigger than 512 bytes.
+Increase sector size to maximum value on 16 bits.
 
-[ 1361.588808] systemd-udevd   D    0  1501   1436 0x00000004
-[ 1361.588813]  ffff883f4b1298c0 0000000000000000 ffff883f4b188000 ffff887f7e3d9f40
-[ 1361.677952]  ffff887f64bd4280 ffffc90037297a68 ffffffff8173ca3b ffffc90000000010
-[ 1361.767077]  00ffc90037297ad0 ffff887f7e3d9f40 0000000000000286 ffff883f4b188000
-[ 1361.856199] Call Trace:
-[ 1361.885578]  [<ffffffff8173ca3b>] ? __schedule+0x23b/0x780
-[ 1361.951406]  [<ffffffff8173cfb6>] schedule+0x36/0x80
-[ 1362.010979]  [<ffffffffa071f178>] get_guid+0x118/0x150 [ipmi_msghandler]
-[ 1362.091281]  [<ffffffff810d5350>] ? prepare_to_wait_event+0x100/0x100
-[ 1362.168533]  [<ffffffffa071f755>] ipmi_register_smi+0x405/0x940 [ipmi_msghandler]
-[ 1362.258337]  [<ffffffffa0230ae9>] try_smi_init+0x529/0x950 [ipmi_si]
-[ 1362.334521]  [<ffffffffa022f350>] ? std_irq_setup+0xd0/0xd0 [ipmi_si]
-[ 1362.411701]  [<ffffffffa0232bd2>] init_ipmi_si+0x492/0x9e0 [ipmi_si]
-[ 1362.487917]  [<ffffffffa0232740>] ? ipmi_pci_probe+0x280/0x280 [ipmi_si]
-[ 1362.568219]  [<ffffffff810021a0>] do_one_initcall+0x50/0x180
-[ 1362.636109]  [<ffffffff812231b2>] ? kmem_cache_alloc_trace+0x142/0x190
-[ 1362.714330]  [<ffffffff811b2ae1>] do_init_module+0x5f/0x200
-[ 1362.781208]  [<ffffffff81123ca8>] load_module+0x1898/0x1de0
-[ 1362.848069]  [<ffffffff811202e0>] ? __symbol_put+0x60/0x60
-[ 1362.913886]  [<ffffffff8130696b>] ? security_kernel_post_read_file+0x6b/0x80
-[ 1362.998514]  [<ffffffff81124465>] SYSC_finit_module+0xe5/0x120
-[ 1363.068463]  [<ffffffff81124465>] ? SYSC_finit_module+0xe5/0x120
-[ 1363.140513]  [<ffffffff811244be>] SyS_finit_module+0xe/0x10
-[ 1363.207364]  [<ffffffff81003c04>] do_syscall_64+0x74/0x180
-
-Fixes: 50c812b2b951 ("[PATCH] ipmi: add full sysfs support")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Cc: Corey Minyard <minyard@acm.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: openipmi-developer@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # 2.6.17-
-Message-Id: <20200403090408.58745-1-wenyang@linux.alibaba.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: c6415a6016bf ("crypto: caam - add support for acipher xts(aes)")
+Cc: <stable@vger.kernel.org> # v4.12+
+Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmi_msghandler.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/caam/caamalg_desc.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -3134,8 +3134,8 @@ static void __get_guid(struct ipmi_smi *
- 	if (rv)
- 		/* Send failed, no GUID available. */
- 		bmc->dyn_guid_set = 0;
--
--	wait_event(intf->waitq, bmc->dyn_guid_set != 2);
-+	else
-+		wait_event(intf->waitq, bmc->dyn_guid_set != 2);
+--- a/drivers/crypto/caam/caamalg_desc.c
++++ b/drivers/crypto/caam/caamalg_desc.c
+@@ -1524,7 +1524,13 @@ EXPORT_SYMBOL(cnstr_shdsc_skcipher_decap
+  */
+ void cnstr_shdsc_xts_skcipher_encap(u32 * const desc, struct alginfo *cdata)
+ {
+-	__be64 sector_size = cpu_to_be64(512);
++	/*
++	 * Set sector size to a big value, practically disabling
++	 * sector size segmentation in xts implementation. We cannot
++	 * take full advantage of this HW feature with existing
++	 * crypto API / dm-crypt SW architecture.
++	 */
++	__be64 sector_size = cpu_to_be64(BIT(15));
+ 	u32 *key_jump_cmd;
  
- 	/* dyn_guid_set makes the guid data available. */
- 	smp_rmb();
+ 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
+@@ -1577,7 +1583,13 @@ EXPORT_SYMBOL(cnstr_shdsc_xts_skcipher_e
+  */
+ void cnstr_shdsc_xts_skcipher_decap(u32 * const desc, struct alginfo *cdata)
+ {
+-	__be64 sector_size = cpu_to_be64(512);
++	/*
++	 * Set sector size to a big value, practically disabling
++	 * sector size segmentation in xts implementation. We cannot
++	 * take full advantage of this HW feature with existing
++	 * crypto API / dm-crypt SW architecture.
++	 */
++	__be64 sector_size = cpu_to_be64(BIT(15));
+ 	u32 *key_jump_cmd;
+ 
+ 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
 
 
