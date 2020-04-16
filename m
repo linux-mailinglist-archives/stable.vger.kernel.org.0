@@ -2,172 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 398EA1AC296
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:30:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C92821ACA65
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896165AbgDPNaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:30:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40182 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896143AbgDPNaD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:30:03 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6281217D8;
-        Thu, 16 Apr 2020 13:30:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043802;
-        bh=NITykfahClNeh2m2TORyK2cL4gxW2DmNjs/qeO0kVnU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BIFZn14rdYCx4dFnyL+zNGPkc2AZASBRY+4Vcb/NrqpwQkkWPH9CZWZbxDkFUt7HT
-         l1LiBTzdYl69rgBT2eS2Ot8hrVNagHHoj2EDFRPKW2pXszI4uB4+oGtArz+cEgV6Pz
-         gxpOijiKZbHPjzKRe65g8HGuy/O3/h5JaXWPZxSc=
-Date:   Thu, 16 Apr 2020 09:30:01 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     Saeed Mahameed <saeedm@mellanox.com>,
-        "ecree@solarflare.com" <ecree@solarflare.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "kuba@kernel.org" <kuba@kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "gerlitz.or@gmail.com" <gerlitz.or@gmail.com>,
-        "davem@davemloft.net" <davem@davemloft.net>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
- representors
-Message-ID: <20200416133001.GK1068@sasha-vm>
-References: <20200414015627.GA1068@sasha-vm>
- <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
- <20200414110911.GA341846@kroah.com>
- <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
- <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
- <20200414205755.GF1068@sasha-vm>
- <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
- <20200416000009.GL1068@sasha-vm>
- <434329130384e656f712173558f6be88c4c57107.camel@mellanox.com>
- <20200416052409.GC1309273@unreal>
+        id S2898180AbgDPNkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:40:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2898167AbgDPNko (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 09:40:44 -0400
+Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECBBBC061A0C;
+        Thu, 16 Apr 2020 06:40:43 -0700 (PDT)
+Received: by mail-yb1-xb42.google.com with SMTP id f13so2053141ybk.7;
+        Thu, 16 Apr 2020 06:40:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+FTxnb1SbF3l6f2HRSoVhs1qVsC4S/0hf0CM8kyAOOY=;
+        b=EdcH+dWl3unZRbOq2+w6f6bJpyha77vf9JTSti2BOfhZMK495Y6szJrVP6/n8TzdFD
+         HEWgD9y+m6a/x4vR/8GFubM87Mt5Rhz5RcERr15ed+KNKY8pqKOsCBO/PfgeXHuNyE/o
+         V5horba89yDNfX44wRqYxFVKfWavbzTTKgtIjceW38apAkiVXKjPoJkY9rRY4URhA/eY
+         q9IcG88zIchgOQkBsHdYpMmiq6GcwJfEjMNwXkMzMnq7c7e6YYXMcu11TJ+MrYH/SngF
+         OR6H90ZORBhI7KsofrGW1vN2g1RKsUh7upOKzhtzsCkjUyQ5cVHbWZ454CPP5oYGJAHp
+         Jdmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+FTxnb1SbF3l6f2HRSoVhs1qVsC4S/0hf0CM8kyAOOY=;
+        b=Fm9f0FjJ0rxEqRISc0grKz/OZ+btyPSmb1m5X4L2TzElqhYkJfXmzTdFZvcNwN/fqO
+         MeozXxoXRnxjrHhIrNBkkGgFoEb2QAi5RT8Ae9BFOf7jqzJmdRBtyyNTRlMIp851V/+1
+         qkdQwjyhSO2nh2eteDwETWRTxRYfbd5tPq4B6Z7aoDgI+/nEX4uREgPR78YjqAH6nne/
+         9prMZu3B041UFZkppYUUAWCjPO1xa62aCWNKymcn0bE5KgDxUZnuyOoNjYaNn0rfmgoa
+         DKhSCSQl3H27doHQ0fRor6AkweqPBWzuUJWs0AHaHnygeR0xMwOZIJT3/qmRSGVGmtd5
+         BNzg==
+X-Gm-Message-State: AGi0Pua1buU4i6S6i3Q7gJrc9mQokvxHZMpwwvM6DcVhDT+J8eyVAbPr
+        IYSHyIHCTzoUuOfXr79yMFpaDWabn+UtNQbGO9k=
+X-Google-Smtp-Source: APiQypJakW3ZFcDGjfwOFPNEPeIOKgZXKt96uuOtmmwmQZ/5Sc+e3wzdV4eH+fyex8AXApQgNU1oKuSwsaQKPC0wfSQ=
+X-Received: by 2002:a25:bec2:: with SMTP id k2mr17523747ybm.129.1587044443057;
+ Thu, 16 Apr 2020 06:40:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200416052409.GC1309273@unreal>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20200411231413.26911-9-sashal@kernel.org> <CAJ3xEMhhtj77M5vercHDMAHPPVZ8ZF-eyCVQgD4ZZ1Ur3Erbdw@mail.gmail.com>
+ <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <20200414015627.GA1068@sasha-vm> <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
+ <20200414110911.GA341846@kroah.com> <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
+ <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com> <20200414205755.GF1068@sasha-vm>
+ <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com> <20200416000009.GL1068@sasha-vm>
+In-Reply-To: <20200416000009.GL1068@sasha-vm>
+From:   Or Gerlitz <gerlitz.or@gmail.com>
+Date:   Thu, 16 Apr 2020 16:40:31 +0300
+Message-ID: <CAJ3xEMjfWL=c=voGqV4pUCzWXmiTn-R6mrRi82UAVHMVysKU1g@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for representors
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Edward Cree <ecree@solarflare.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linux Netdev List <netdev@vger.kernel.org>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        David Miller <davem@davemloft.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 08:24:09AM +0300, Leon Romanovsky wrote:
->On Thu, Apr 16, 2020 at 04:08:10AM +0000, Saeed Mahameed wrote:
->> On Wed, 2020-04-15 at 20:00 -0400, Sasha Levin wrote:
->> > On Wed, Apr 15, 2020 at 05:18:38PM +0100, Edward Cree wrote:
->> > > Firstly, let me apologise: my previous email was too harsh and too
->> > >  assertiveabout things that were really more uncertain and unclear.
->> > >
->> > > On 14/04/2020 21:57, Sasha Levin wrote:
->> > > > I've pointed out that almost 50% of commits tagged for stable do
->> > > > not
->> > > > have a fixes tag, and yet they are fixes. You really deduce
->> > > > things based
->> > > > on coin flip probability?
->> > > Yes, but far less than 50% of commits *not* tagged for stable have
->> > > a fixes
->> > >  tag.  It's not about hard-and-fast Aristotelian "deductions", like
->> > > "this
->> > >  doesn't have Fixes:, therefore it is not a stable candidate", it's
->> > > about
->> > >  probabilistic "induction".
->> > >
->> > > > "it does increase the amount of countervailing evidence needed to
->> > > > conclude a commit is a fix" - Please explain this argument given
->> > > > the
->> > > > above.
->> > > Are you familiar with Bayesian statistics?  If not, I'd suggest
->> > > reading
->> > >  something like http://yudkowsky.net/rational/bayes/ which explains
->> > > it.
->> > > There's a big difference between a coin flip and a _correlated_
->> > > coin flip.
->> >
->> > I'd maybe point out that the selection process is based on a neural
->> > network which knows about the existence of a Fixes tag in a commit.
->> >
->> > It does exactly what you're describing, but also taking a bunch more
->> > factors into it's desicion process ("panic"? "oops"? "overflow"?
->> > etc).
->> >
->>
->> I am not against AUTOSEL in general, as long as the decision to know
->> how far back it is allowed to take a patch is made deterministically
->> and not statistically based on some AI hunch.
->>
->> Any auto selection for a patch without a Fixes tags can be catastrophic
->> .. imagine a patch without a Fixes Tag with a single line that is
->> fixing some "oops", such patch can be easily applied cleanly to stable-
->> v.x and stable-v.y .. while it fixes the issue on v.x it might have
->> catastrophic results on v.y ..
+On Thu, Apr 16, 2020 at 3:00 AM Sasha Levin <sashal@kernel.org> wrote:
+> I'd maybe point out that the selection process is based on a neural
+> network which knows about the existence of a Fixes tag in a commit.
 >
->I tried to imagine such flow and failed to do so. Are you talking about
->anything specific or imaginary case?
+> It does exactly what you're describing, but also taking a bunch more
+> factors into it's desicion process ("panic"? "oops"? "overflow"? etc).
 
-It happens, rarely, but it does. However, all the cases I can think of
-happened with a stable tagged commit without a fixes where it's backport
-to an older tree caused unintended behavior (local denial of service in
-one case).
+As Saeed commented, every extra line in stable / production kernel
+is wrong. IMHO it doesn't make any sense to take into stable automatically
+any patch that doesn't have fixes line. Do you have 1/2/3/4/5 concrete
+examples from your (referring to your Microsoft employee hat comment
+below) or other's people production environment where patches proved to
+be necessary but they lacked the fixes tag - would love to see them.
 
-The scenario you have in mind is true for both stable and non-stable
-tagged patches, so it you want to restrict how we deal with commits that
-don't have a fixes tag shouldn't it be true for *all* commits?
+We've been coaching new comers for years during internal and on-list
+code reviews to put proper fixes tag. This serves (A) for the upstream
+human review of the patch and (B) reasonable human stable considerations.
 
-><...>
->> >
->> > Let me put my Microsoft employee hat on here. We have
->> > driver/net/hyperv/
->> > which definitely wasn't getting all the fixes it should have been
->> > getting without AUTOSEL.
->> >
->>
->> until some patch which shouldn't get backported slips through, believe
->> me this will happen, just give it some time ..
->
->Bugs are inevitable, I don't see many differences between bugs
->introduced by manually cherry-picking or automatically one.
+You are practically saying that for cases we screwed up stage (A) you
+can somehow still get away with good results on stage (B) - I don't
+accept it. BTW - during my reviews I tend to ask/require developers to
+skip the word panic, and instead better explain the nature of the
+problem / result.
 
-Oh bugs slip in, that's why I track how many bugs slipped via stable
-tagged commits vs non-stable tagged ones, and the statistic may surprise
-you.
+>>> This is great, but the kernel is more than just net/. Note that I also
+>>> do not look at net/ itself, but rather drivers/net/ as those end up with
+>>> a bunch of missed fixes.
 
-The solution here is to beef up your testing infrastructure rather than
-taking less patches; we still want to have *all* the fixes, right?
+>>drivers/net/ goes through the same DaveM net/net-next trees, with the
+>> same rules.
 
->Of course, it is true if this automatically cherry-picking works as
->expected and evolving.
->
->>
->> > While net/ is doing great, drivers/net/ is not. If it's indeed
->> > following
->> > the same rules then we need to talk about how we get done right.
->> >
->>
->> both net and drivers/net are managed by the same maitainer and follow
->> the same rules, can you elaborate on the difference ?
->
->The main reason is a difference in a volume between net and drivers/net.
->While net/* patches are watched by many eyes and carefully selected to be
->ported to stable@, most of the drivers/net patches are not.
->
->Except 3-5 the most active drivers, rest of the driver patches almost never
->asked to be backported.
+you ignored this comment, any more specific complaints?
 
-Right, that's exactly my point: If you're not Mellanox, e1000*, etc you
-won't see it, but the smaller drivers aren't getting the same handling
-as the big ones.
+> Let me put my Microsoft employee hat on here. We have driver/net/hyperv/
+> which definitely wasn't getting all the fixes it should have been
+> getting without AUTOSEL.
 
-I think that we all love the work DaveM does with net/ - it makes our
-lives a lot easier, and if the same thing would happen with drivers/net/
-I'll happily go away and never AUTOSEL a *net* commit, but looking at
-how our Hyper-V drivers look like it's clearly not there yet.
+> While net/ is doing great, drivers/net/ is not. If it's indeed following
+> the same rules then we need to talk about how we get done right.
 
--- 
-Thanks,
-Sasha
+I never [1] saw -stable push requests being ignored here in netdev.
+Your drivers have four listed maintainers and it's common habit by
+commercial companies to have paid && human (non autosel robots)
+maintainers that take care of their open source drivers. As in commercial
+SW products, Linux has a current, next and past (stable) releases, so
+something sounds as missing to me in your care matrix.
+
+[1] actually I do remember that once or twice out of the 2020 times we asked,  a
+patch was not sent to -stable by the sub-system maintainer mistake
+which he fixed(..) later
