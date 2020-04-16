@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1721AC28C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2DB31ACAA3
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896064AbgDPN3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:29:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39738 "EHLO mail.kernel.org"
+        id S2408265AbgDPPhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:37:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896056AbgDPN3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:29:43 -0400
+        id S2897955AbgDPNj0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:39:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7B99208E4;
-        Thu, 16 Apr 2020 13:29:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 172D62063A;
+        Thu, 16 Apr 2020 13:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043783;
-        bh=79z7BDql8stYOus3GTROCiSx/mTNrMJNRyoDBHRU8TQ=;
+        s=default; t=1587044365;
+        bh=0t/oLzkgFXhjX5DcSYiAxTJvv2saLqLGZ+qwSaWFEk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EAp+quYAmlkpHIl6yjlrtilIHz8idXSpXdxwFiHtNsBBnBvLyjzgJE6sKr1hhDdTb
-         dR3CgNEWZ8ZjuqRbKoXmai7ZXKn2W8QhmANE9CL9iXvYkctMutBurXwu/JgjZnPRFW
-         OU7JnZXMqpRd36EWzkml89lRLhOYhzyKNkCVZ+J0=
+        b=nHvjlFE5ZAb8dWaDmPvQIcpIFOgjjWLWADV7QSo+AKFLH7LsJDZtRkVHVC5vTZyjo
+         kcC/k1mAg6hNUcdLYPflIqW3g/1YfvYfn1al+yunemQGt/hl4WG5FgZ4TRS8S7u48T
+         OnBfXcfPwFzp5nKf1urdTxo38RBoN+k5BKpfPx5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 098/146] tools: gpio: Fix out-of-tree build regression
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 5.5 188/257] XArray: Fix xas_pause for large multi-index entries
 Date:   Thu, 16 Apr 2020 15:23:59 +0200
-Message-Id: <20200416131256.157696583@linuxfoundation.org>
+Message-Id: <20200416131349.783449444@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 82f04bfe2aff428b063eefd234679b2d693228ed upstream.
+commit c36d451ad386b34f452fc3c8621ff14b9eaa31a6 upstream.
 
-Commit 0161a94e2d1c7 ("tools: gpio: Correctly add make dependencies for
-gpio_utils") added a make rule for gpio-utils-in.o but used $(output)
-instead of the correct $(OUTPUT) for the output directory, breaking
-out-of-tree build (O=xx) with the following error:
+Inspired by the recent Coverity report, I looked for other places where
+the offset wasn't being converted to an unsigned long before being
+shifted, and I found one in xas_pause() when the entry being paused is
+of order >32.
 
-  No rule to make target 'out/tools/gpio/gpio-utils-in.o', needed by 'out/tools/gpio/lsgpio-in.o'.  Stop.
-
-Fix that.
-
-Fixes: 0161a94e2d1c ("tools: gpio: Correctly add make dependencies for gpio_utils")
-Cc: <stable@vger.kernel.org>
-Cc: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Link: https://lore.kernel.org/r/20200325103154.32235-1-anssi.hannula@bitwise.fi
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: b803b42823d0 ("xarray: Add XArray iterators")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/gpio/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/test_xarray.c |   37 +++++++++++++++++++++++++++++++++++++
+ lib/xarray.c      |    2 +-
+ 2 files changed, 38 insertions(+), 1 deletion(-)
 
---- a/tools/gpio/Makefile
-+++ b/tools/gpio/Makefile
-@@ -35,7 +35,7 @@ $(OUTPUT)include/linux/gpio.h: ../../inc
+--- a/lib/test_xarray.c
++++ b/lib/test_xarray.c
+@@ -1156,6 +1156,42 @@ static noinline void check_find_entry(st
+ 	XA_BUG_ON(xa, !xa_empty(xa));
+ }
  
- prepare: $(OUTPUT)include/linux/gpio.h
++static noinline void check_pause(struct xarray *xa)
++{
++	XA_STATE(xas, xa, 0);
++	void *entry;
++	unsigned int order;
++	unsigned long index = 1;
++	unsigned int count = 0;
++
++	for (order = 0; order < order_limit; order++) {
++		XA_BUG_ON(xa, xa_store_order(xa, index, order,
++					xa_mk_index(index), GFP_KERNEL));
++		index += 1UL << order;
++	}
++
++	rcu_read_lock();
++	xas_for_each(&xas, entry, ULONG_MAX) {
++		XA_BUG_ON(xa, entry != xa_mk_index(1UL << count));
++		count++;
++	}
++	rcu_read_unlock();
++	XA_BUG_ON(xa, count != order_limit);
++
++	count = 0;
++	xas_set(&xas, 0);
++	rcu_read_lock();
++	xas_for_each(&xas, entry, ULONG_MAX) {
++		XA_BUG_ON(xa, entry != xa_mk_index(1UL << count));
++		count++;
++		xas_pause(&xas);
++	}
++	rcu_read_unlock();
++	XA_BUG_ON(xa, count != order_limit);
++
++	xa_destroy(xa);
++}
++
+ static noinline void check_move_tiny(struct xarray *xa)
+ {
+ 	XA_STATE(xas, xa, 0);
+@@ -1664,6 +1700,7 @@ static int xarray_checks(void)
+ 	check_xa_alloc();
+ 	check_find(&array);
+ 	check_find_entry(&array);
++	check_pause(&array);
+ 	check_account(&array);
+ 	check_destroy(&array);
+ 	check_move(&array);
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -970,7 +970,7 @@ void xas_pause(struct xa_state *xas)
  
--GPIO_UTILS_IN := $(output)gpio-utils-in.o
-+GPIO_UTILS_IN := $(OUTPUT)gpio-utils-in.o
- $(GPIO_UTILS_IN): prepare FORCE
- 	$(Q)$(MAKE) $(build)=gpio-utils
- 
+ 	xas->xa_node = XAS_RESTART;
+ 	if (node) {
+-		unsigned int offset = xas->xa_offset;
++		unsigned long offset = xas->xa_offset;
+ 		while (++offset < XA_CHUNK_SIZE) {
+ 			if (!xa_is_sibling(xa_entry(xas->xa, node, offset)))
+ 				break;
 
 
