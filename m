@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D1B1ACC12
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3D241ACA96
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442607AbgDPPyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:54:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40346 "EHLO mail.kernel.org"
+        id S2395316AbgDPPgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:36:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896175AbgDPNaL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:30:11 -0400
+        id S2898005AbgDPNjx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:39:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1E26206E9;
-        Thu, 16 Apr 2020 13:30:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC4752222C;
+        Thu, 16 Apr 2020 13:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043810;
-        bh=n4gMo6AOjihmI1Q+oarcYaDlhVYqFweCvZItTBIEFX4=;
+        s=default; t=1587044392;
+        bh=UNh0GgZ5iRahcSR9YwXtGHyMEu2+qInqjaAHe6Rzyf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRMxyDQt7EcknNYEWyeOYSssyZ8daWQKBMjHvzftBcuv10qBXkfSiosPN/SfMPfSG
-         bU6fVNi/pa7YR0c6uKhpsoGuKIQZ3in9babEk4lRQ/p8ekGmrQosiBjFTickagO4lA
-         D5UDe4/5fAbuSLO1gJ1oR7fLMqR5kpUC4UYSmTK0=
+        b=f0rWHkqW6JY9mqbuEUvP8onDk3JfIf1ielWo2DxBHf3Qn99od5b7yBNYSI3yP+t7z
+         vyRnICmAoOc2xgdMyO7UoNWuB7TffpL5nZlKqq5vqmCxkRzufb6G4xzLESr53aWGK1
+         F8Ux2PAztjhZyYmjVgJwiSI9QCmCVX+yb4WzbKgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>
-Subject: [PATCH 4.19 108/146] drm/etnaviv: rework perfmon query infrastructure
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.5 198/257] scsi: lpfc: Fix broken Credit Recovery after driver load
 Date:   Thu, 16 Apr 2020 15:24:09 +0200
-Message-Id: <20200416131257.469946725@linuxfoundation.org>
+Message-Id: <20200416131350.895170770@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,144 +44,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit ed1dd899baa32d47d9a93d98336472da50564346 upstream.
+commit 835214f5d5f516a38069bc077c879c7da00d6108 upstream.
 
-Report the correct perfmon domains and signals depending
-on the supported feature flags.
+When driver is set to enable bb credit recovery, the switch displayed the
+setting as inactive.  If the link bounces, it switches to Active.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 9e2c2e273012 ("drm/etnaviv: add infrastructure to query perf counter")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+During link up processing, the driver currently does a MBX_READ_SPARAM
+followed by a MBX_CONFIG_LINK. These mbox commands are queued to be
+executed, one at a time and the completion is processed by the worker
+thread.  Since the MBX_READ_SPARAM is done BEFORE the MBX_CONFIG_LINK, the
+BB_SC_N bit is never set the the returned values. BB Credit recovery status
+only gets set after the driver requests the feature in CONFIG_LINK, which
+is done after the link up. Thus the ordering of READ_SPARAM needs to follow
+the CONFIG_LINK.
+
+Fix by reordering so that READ_SPARAM is done after CONFIG_LINK.  Added a
+HBA_DEFER_FLOGI flag so that any FLOGI handling waits until after the
+READ_SPARAM is done so that the proper BB credit value is set in the FLOGI
+payload.
+
+Fixes: 6bfb16208298 ("scsi: lpfc: Fix configuration of BB credit recovery in service parameters")
+Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://lore.kernel.org/r/20200128002312.16346-4-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/etnaviv/etnaviv_perfmon.c |   60 ++++++++++++++++++++++++++----
- 1 file changed, 53 insertions(+), 7 deletions(-)
+ drivers/scsi/lpfc/lpfc.h         |    1 
+ drivers/scsi/lpfc/lpfc_hbadisc.c |   59 +++++++++++++++++++++++++--------------
+ 2 files changed, 40 insertions(+), 20 deletions(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-@@ -4,6 +4,7 @@
-  * Copyright (C) 2017 Zodiac Inflight Innovations
-  */
+--- a/drivers/scsi/lpfc/lpfc.h
++++ b/drivers/scsi/lpfc/lpfc.h
+@@ -749,6 +749,7 @@ struct lpfc_hba {
+ 					 * capability
+ 					 */
+ #define HBA_FLOGI_ISSUED	0x100000 /* FLOGI was issued */
++#define HBA_DEFER_FLOGI		0x800000 /* Defer FLOGI till read_sparm cmpl */
  
-+#include "common.xml.h"
- #include "etnaviv_gpu.h"
- #include "etnaviv_perfmon.h"
- #include "state_hi.xml.h"
-@@ -31,6 +32,7 @@ struct etnaviv_pm_domain {
- };
- 
- struct etnaviv_pm_domain_meta {
-+	unsigned int feature;
- 	const struct etnaviv_pm_domain *domains;
- 	u32 nr_domains;
- };
-@@ -388,36 +390,78 @@ static const struct etnaviv_pm_domain do
- 
- static const struct etnaviv_pm_domain_meta doms_meta[] = {
- 	{
-+		.feature = chipFeatures_PIPE_3D,
- 		.nr_domains = ARRAY_SIZE(doms_3d),
- 		.domains = &doms_3d[0]
- 	},
- 	{
-+		.feature = chipFeatures_PIPE_2D,
- 		.nr_domains = ARRAY_SIZE(doms_2d),
- 		.domains = &doms_2d[0]
- 	},
- 	{
-+		.feature = chipFeatures_PIPE_VG,
- 		.nr_domains = ARRAY_SIZE(doms_vg),
- 		.domains = &doms_vg[0]
+ 	uint32_t fcp_ring_in_use; /* When polling test if intr-hndlr active*/
+ 	struct lpfc_dmabuf slim2p;
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -1162,13 +1162,16 @@ lpfc_mbx_cmpl_local_config_link(struct l
  	}
- };
  
-+static unsigned int num_pm_domains(const struct etnaviv_gpu *gpu)
-+{
-+	unsigned int num = 0, i;
-+
-+	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
-+		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
-+
-+		if (gpu->identity.features & meta->feature)
-+			num += meta->nr_domains;
+ 	/* Start discovery by sending a FLOGI. port_state is identically
+-	 * LPFC_FLOGI while waiting for FLOGI cmpl
++	 * LPFC_FLOGI while waiting for FLOGI cmpl. Check if sending
++	 * the FLOGI is being deferred till after MBX_READ_SPARAM completes.
+ 	 */
+-	if (vport->port_state != LPFC_FLOGI)
+-		lpfc_initial_flogi(vport);
+-	else if (vport->fc_flag & FC_PT2PT)
+-		lpfc_disc_start(vport);
+-
++	if (vport->port_state != LPFC_FLOGI) {
++		if (!(phba->hba_flag & HBA_DEFER_FLOGI))
++			lpfc_initial_flogi(vport);
++	} else {
++		if (vport->fc_flag & FC_PT2PT)
++			lpfc_disc_start(vport);
 +	}
+ 	return;
+ 
+ out:
+@@ -3093,6 +3096,14 @@ lpfc_mbx_cmpl_read_sparam(struct lpfc_hb
+ 	lpfc_mbuf_free(phba, mp->virt, mp->phys);
+ 	kfree(mp);
+ 	mempool_free(pmb, phba->mbox_mem_pool);
 +
-+	return num;
-+}
++	/* Check if sending the FLOGI is being deferred to after we get
++	 * up to date CSPs from MBX_READ_SPARAM.
++	 */
++	if (phba->hba_flag & HBA_DEFER_FLOGI) {
++		lpfc_initial_flogi(vport);
++		phba->hba_flag &= ~HBA_DEFER_FLOGI;
++	}
+ 	return;
+ 
+ out:
+@@ -3223,6 +3234,23 @@ lpfc_mbx_process_link_up(struct lpfc_hba
+ 	}
+ 
+ 	lpfc_linkup(phba);
++	sparam_mbox = NULL;
 +
-+static const struct etnaviv_pm_domain *pm_domain(const struct etnaviv_gpu *gpu,
-+	unsigned int index)
-+{
-+	const struct etnaviv_pm_domain *domain = NULL;
-+	unsigned int offset = 0, i;
-+
-+	for (i = 0; i < ARRAY_SIZE(doms_meta); i++) {
-+		const struct etnaviv_pm_domain_meta *meta = &doms_meta[i];
-+
-+		if (!(gpu->identity.features & meta->feature))
-+			continue;
-+
-+		if (meta->nr_domains < (index - offset)) {
-+			offset += meta->nr_domains;
-+			continue;
++	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
++		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
++		if (!cfglink_mbox)
++			goto out;
++		vport->port_state = LPFC_LOCAL_CFG_LINK;
++		lpfc_config_link(phba, cfglink_mbox);
++		cfglink_mbox->vport = vport;
++		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
++		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
++		if (rc == MBX_NOT_FINISHED) {
++			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
++			goto out;
 +		}
-+
-+		domain = meta->domains + (index - offset);
 +	}
 +
-+	return domain;
-+}
-+
- int etnaviv_pm_query_dom(struct etnaviv_gpu *gpu,
- 	struct drm_etnaviv_pm_domain *domain)
- {
--	const struct etnaviv_pm_domain_meta *meta = &doms_meta[domain->pipe];
-+	const unsigned int nr_domains = num_pm_domains(gpu);
- 	const struct etnaviv_pm_domain *dom;
+ 	sparam_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+ 	if (!sparam_mbox)
+ 		goto out;
+@@ -3243,20 +3271,7 @@ lpfc_mbx_process_link_up(struct lpfc_hba
+ 		goto out;
+ 	}
  
--	if (domain->iter >= meta->nr_domains)
-+	if (domain->iter >= nr_domains)
- 		return -EINVAL;
+-	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
+-		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+-		if (!cfglink_mbox)
+-			goto out;
+-		vport->port_state = LPFC_LOCAL_CFG_LINK;
+-		lpfc_config_link(phba, cfglink_mbox);
+-		cfglink_mbox->vport = vport;
+-		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
+-		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
+-		if (rc == MBX_NOT_FINISHED) {
+-			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
+-			goto out;
+-		}
+-	} else {
++	if (phba->hba_flag & HBA_FCOE_MODE) {
+ 		vport->port_state = LPFC_VPORT_UNKNOWN;
+ 		/*
+ 		 * Add the driver's default FCF record at FCF index 0 now. This
+@@ -3313,6 +3328,10 @@ lpfc_mbx_process_link_up(struct lpfc_hba
+ 		}
+ 		/* Reset FCF roundrobin bmask for new discovery */
+ 		lpfc_sli4_clear_fcf_rr_bmask(phba);
++	} else {
++		if (phba->bbcredit_support && phba->cfg_enable_bbcr &&
++		    !(phba->link_flag & LS_LOOPBACK_MODE))
++			phba->hba_flag |= HBA_DEFER_FLOGI;
+ 	}
  
--	dom = meta->domains + domain->iter;
-+	dom = pm_domain(gpu, domain->iter);
-+	if (!dom)
-+		return -EINVAL;
- 
- 	domain->id = domain->iter;
- 	domain->nr_signals = dom->nr_signals;
- 	strncpy(domain->name, dom->name, sizeof(domain->name));
- 
- 	domain->iter++;
--	if (domain->iter == meta->nr_domains)
-+	if (domain->iter == nr_domains)
- 		domain->iter = 0xff;
- 
- 	return 0;
-@@ -426,14 +470,16 @@ int etnaviv_pm_query_dom(struct etnaviv_
- int etnaviv_pm_query_sig(struct etnaviv_gpu *gpu,
- 	struct drm_etnaviv_pm_signal *signal)
- {
--	const struct etnaviv_pm_domain_meta *meta = &doms_meta[signal->pipe];
-+	const unsigned int nr_domains = num_pm_domains(gpu);
- 	const struct etnaviv_pm_domain *dom;
- 	const struct etnaviv_pm_signal *sig;
- 
--	if (signal->domain >= meta->nr_domains)
-+	if (signal->domain >= nr_domains)
- 		return -EINVAL;
- 
--	dom = meta->domains + signal->domain;
-+	dom = pm_domain(gpu, signal->domain);
-+	if (!dom)
-+		return -EINVAL;
- 
- 	if (signal->iter >= dom->nr_signals)
- 		return -EINVAL;
+ 	return;
 
 
