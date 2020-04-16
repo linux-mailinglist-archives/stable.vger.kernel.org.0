@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61A191AC8DF
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7205E1AC344
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408368AbgDPPPX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:15:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35834 "EHLO mail.kernel.org"
+        id S2898127AbgDPNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:40:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441643AbgDPNuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:02 -0400
+        id S2898117AbgDPNka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:40:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBE9A20786;
-        Thu, 16 Apr 2020 13:49:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A8CA2076D;
+        Thu, 16 Apr 2020 13:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044965;
-        bh=cIOg4crpwTP9ciJe671gs1El4Wkf8mdK+l18SkpVrV8=;
+        s=default; t=1587044429;
+        bh=5Ty25x7/siPUKilRYHMcLb7XfHJHNLiTxo6srGlszyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FD8VPc0KNBXRzlPq83OOYxIUari7/uvbiIIhn8JXVHW5ayxEHLN8sA9G04gSNGDK2
-         1+yrIdqr0lMHSDZZkX2KyixjVqG4ZKtiN9moZpp+qTaxXMVM251uRWVk1XqrWYB5L6
-         JqECHt2cGdPQewRUPEmsUsMmSHBXUK/uY+P6e6dU=
+        b=hSTSxxJXVaeM4438vLQs9f822KEbHhGWGMNqHNjft082pO+269pi9ZAPH5mtZuKNV
+         Y8tsIORMdZa1ukllD+le+cR6Syu4tncCgk8RvaAHOAw87xRKppPdPPWWUODejFZs1W
+         +/qZXgS2UyobRspkOgNxr7ojKdY1J6Z0A3Zvs7S0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 172/232] crypto: ccree - dec auth tag size from cryptlen map
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.5 215/257] drm/vboxvideo: Add missing remove_conflicting_pci_framebuffers call, v2
 Date:   Thu, 16 Apr 2020 15:24:26 +0200
-Message-Id: <20200416131336.541747933@linuxfoundation.org>
+Message-Id: <20200416131352.888156549@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 8962c6d2c2b8ca51b0f188109015b15fc5f4da44 upstream.
+commit a65a97b48694d34248195eb89bf3687403261056 upstream.
 
-Remove the auth tag size from cryptlen before mapping the destination
-in out-of-place AEAD decryption thus resolving a crash with
-extended testmgr tests.
+The vboxvideo driver is missing a call to remove conflicting framebuffers.
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: stable@vger.kernel.org # v4.19+
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Surprisingly, when using legacy BIOS booting this does not really cause
+any issues. But when using UEFI to boot the VM then plymouth will draw
+on both the efifb /dev/fb0 and /dev/drm/card0 (which has registered
+/dev/fb1 as fbdev emulation).
+
+VirtualBox will actual display the output of both devices (I guess it is
+showing whatever was drawn last), this causes weird artifacts because of
+pitch issues in the efifb when the VM window is not sized at 1024x768
+(the window will resize to its last size once the vboxvideo driver loads,
+changing the pitch).
+
+Adding the missing drm_fb_helper_remove_conflicting_pci_framebuffers()
+call fixes this.
+
+Changes in v2:
+-Make the drm_fb_helper_remove_conflicting_pci_framebuffers() call one of
+ the first things we do in our probe() method
+
+Cc: stable@vger.kernel.org
+Fixes: 2695eae1f6d3 ("drm/vboxvideo: Switch to generic fbdev emulation")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200325144310.36779-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_buffer_mgr.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vboxvideo/vbox_drv.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/crypto/ccree/cc_buffer_mgr.c
-+++ b/drivers/crypto/ccree/cc_buffer_mgr.c
-@@ -894,8 +894,12 @@ static int cc_aead_chain_data(struct cc_
+--- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+@@ -41,6 +41,10 @@ static int vbox_pci_probe(struct pci_dev
+ 	if (!vbox_check_supported(VBE_DISPI_ID_HGSMI))
+ 		return -ENODEV;
  
- 	if (req->src != req->dst) {
- 		size_for_map = areq_ctx->assoclen + req->cryptlen;
--		size_for_map += (direct == DRV_CRYPTO_DIRECTION_ENCRYPT) ?
--				authsize : 0;
++	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "vboxvideodrmfb");
++	if (ret)
++		return ret;
 +
-+		if (direct == DRV_CRYPTO_DIRECTION_ENCRYPT)
-+			size_for_map += authsize;
-+		else
-+			size_for_map -= authsize;
-+
- 		if (is_gcm4543)
- 			size_for_map += crypto_aead_ivsize(tfm);
- 
+ 	vbox = kzalloc(sizeof(*vbox), GFP_KERNEL);
+ 	if (!vbox)
+ 		return -ENOMEM;
 
 
