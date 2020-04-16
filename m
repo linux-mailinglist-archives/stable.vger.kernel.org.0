@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E86421AC67E
+	by mail.lfdr.de (Postfix) with ESMTP id 7B39B1AC67D
 	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393818AbgDPOkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:40:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48816 "EHLO mail.kernel.org"
+        id S2393381AbgDPOka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:40:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409453AbgDPOBc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:01:32 -0400
+        id S2409468AbgDPOBf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88D4C22209;
-        Thu, 16 Apr 2020 14:01:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03EEC20786;
+        Thu, 16 Apr 2020 14:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045692;
-        bh=g1PfHpNPZ94VFzqvVTuE+t5CXA4UXTCnIYtxGm8+ha4=;
+        s=default; t=1587045694;
+        bh=28OW14Pg6V+cY9SZW+S9pbIyd0BluxIjxSwJPQi4yws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fcX/fL7au07b8IGN3gMSh+/z/G6OFCiQFXUlW0/GJM3frdIk5AOI5wUO0kv7hWH8I
-         BHxoMOBBfltzQLTEjPMVrScxucJN3fY6dz7i+jJCiKxoktBDrsBGTVsDPJmwVldeC5
-         5clOrlp/lR8xCgZV4U6IC2xPWygIknHfxaIVjOIU=
+        b=dYK+C+uXEjLmMFyzUemRLiKUK3xaThSc51KIE2VZlo1ZnHCXxcnVkSPpOzqbdZOCX
+         zFSZ8FkOyQ7bFsaBIJa7Marza7sFHHzy5/EZ7nVe3vNjHe4l8dXptBdcaymo8Qpxyq
+         CCIy8wdFzKmWNsIPPD92BGeNa92SC0nzPCyqNk18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        stable@vger.kernel.org, David Gibson <david@gibson.dropbear.id.au>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 239/254] powerpc/hash64/devmap: Use H_PAGE_THP_HUGE when setting up huge devmap PTE entries
-Date:   Thu, 16 Apr 2020 15:25:28 +0200
-Message-Id: <20200416131355.383857451@linuxfoundation.org>
+Subject: [PATCH 5.6 240/254] powerpc/xive: Use XIVE_BAD_IRQ instead of zero to catch non configured IPIs
+Date:   Thu, 16 Apr 2020 15:25:29 +0200
+Message-Id: <20200416131355.484276649@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -44,136 +44,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Cédric Le Goater <clg@kaod.org>
 
-commit 36b78402d97a3b9aeab136feb9b00d8647ec2c20 upstream.
+commit b1a504a6500df50e83b701b7946b34fce27ad8a3 upstream.
 
-H_PAGE_THP_HUGE is used to differentiate between a THP hugepage and
-hugetlb hugepage entries. The difference is WRT how we handle hash
-fault on these address. THP address enables MPSS in segments. We want
-to manage devmap hugepage entries similar to THP pt entries. Hence use
-H_PAGE_THP_HUGE for devmap huge PTE entries.
+When a CPU is brought up, an IPI number is allocated and recorded
+under the XIVE CPU structure. Invalid IPI numbers are tracked with
+interrupt number 0x0.
 
-With current code while handling hash PTE fault, we do set is_thp =
-true when finding devmap PTE huge PTE entries.
+On the PowerNV platform, the interrupt number space starts at 0x10 and
+this works fine. However, on the sPAPR platform, it is possible to
+allocate the interrupt number 0x0 and this raises an issue when CPU 0
+is unplugged. The XIVE spapr driver tracks allocated interrupt numbers
+in a bitmask and it is not correctly updated when interrupt number 0x0
+is freed. It stays allocated and it is then impossible to reallocate.
 
-Current code also does the below sequence we setting up huge devmap
-entries.
+Fix by using the XIVE_BAD_IRQ value instead of zero on both platforms.
 
-	entry = pmd_mkhuge(pfn_t_pmd(pfn, prot));
-	if (pfn_t_devmap(pfn))
-		entry = pmd_mkdevmap(entry);
-
-In that case we would find both H_PAGE_THP_HUGE and PAGE_DEVMAP set
-for huge devmap PTE entries. This results in false positive error like
-below.
-
-  kernel BUG at /home/kvaneesh/src/linux/mm/memory.c:4321!
-  Oops: Exception in kernel mode, sig: 5 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-  Modules linked in:
-  CPU: 56 PID: 67996 Comm: t_mmap_dio Not tainted 5.6.0-rc4-59640-g371c804dedbc #128
-  ....
-  NIP [c00000000044c9e4] __follow_pte_pmd+0x264/0x900
-  LR [c0000000005d45f8] dax_writeback_one+0x1a8/0x740
-  Call Trace:
-    str_spec.74809+0x22ffb4/0x2d116c (unreliable)
-    dax_writeback_one+0x1a8/0x740
-    dax_writeback_mapping_range+0x26c/0x700
-    ext4_dax_writepages+0x150/0x5a0
-    do_writepages+0x68/0x180
-    __filemap_fdatawrite_range+0x138/0x180
-    file_write_and_wait_range+0xa4/0x110
-    ext4_sync_file+0x370/0x6e0
-    vfs_fsync_range+0x70/0xf0
-    sys_msync+0x220/0x2e0
-    system_call+0x5c/0x68
-
-This is because our pmd_trans_huge check doesn't exclude _PAGE_DEVMAP.
-
-To make this all consistent, update pmd_mkdevmap to set
-H_PAGE_THP_HUGE and pmd_trans_huge check now excludes _PAGE_DEVMAP
-correctly.
-
-Fixes: ebd31197931d ("powerpc/mm: Add devmap support for ppc64")
-Cc: stable@vger.kernel.org # v4.13+
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reported-by: David Gibson <david@gibson.dropbear.id.au>
+Fixes: eac1e731b59e ("powerpc/xive: guest exploitation of the XIVE interrupt controller")
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+Tested-by: David Gibson <david@gibson.dropbear.id.au>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200313094842.351830-1-aneesh.kumar@linux.ibm.com
+Link: https://lore.kernel.org/r/20200306150143.5551-2-clg@kaod.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/book3s/64/hash-4k.h  |    6 ++++++
- arch/powerpc/include/asm/book3s/64/hash-64k.h |    8 +++++++-
- arch/powerpc/include/asm/book3s/64/pgtable.h  |    4 +++-
- arch/powerpc/include/asm/book3s/64/radix.h    |    5 +++++
- 4 files changed, 21 insertions(+), 2 deletions(-)
+ arch/powerpc/sysdev/xive/common.c        |   12 +++---------
+ arch/powerpc/sysdev/xive/native.c        |    4 ++--
+ arch/powerpc/sysdev/xive/spapr.c         |    4 ++--
+ arch/powerpc/sysdev/xive/xive-internal.h |    7 +++++++
+ 4 files changed, 14 insertions(+), 13 deletions(-)
 
---- a/arch/powerpc/include/asm/book3s/64/hash-4k.h
-+++ b/arch/powerpc/include/asm/book3s/64/hash-4k.h
-@@ -156,6 +156,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
- extern int hash__has_transparent_hugepage(void);
- #endif
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -68,13 +68,6 @@ static u32 xive_ipi_irq;
+ /* Xive state for each CPU */
+ static DEFINE_PER_CPU(struct xive_cpu *, xive_cpu);
  
-+static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
-+{
-+	BUG();
-+	return pmd;
-+}
-+
- #endif /* !__ASSEMBLY__ */
+-/*
+- * A "disabled" interrupt should never fire, to catch problems
+- * we set its logical number to this
+- */
+-#define XIVE_BAD_IRQ		0x7fffffff
+-#define XIVE_MAX_IRQ		(XIVE_BAD_IRQ - 1)
+-
+ /* An invalid CPU target */
+ #define XIVE_INVALID_TARGET	(-1)
  
- #endif /* _ASM_POWERPC_BOOK3S_64_HASH_4K_H */
---- a/arch/powerpc/include/asm/book3s/64/hash-64k.h
-+++ b/arch/powerpc/include/asm/book3s/64/hash-64k.h
-@@ -246,7 +246,7 @@ static inline void mark_hpte_slot_valid(
-  */
- static inline int hash__pmd_trans_huge(pmd_t pmd)
+@@ -1150,7 +1143,7 @@ static int xive_setup_cpu_ipi(unsigned i
+ 	xc = per_cpu(xive_cpu, cpu);
+ 
+ 	/* Check if we are already setup */
+-	if (xc->hw_ipi != 0)
++	if (xc->hw_ipi != XIVE_BAD_IRQ)
+ 		return 0;
+ 
+ 	/* Grab an IPI from the backend, this will populate xc->hw_ipi */
+@@ -1187,7 +1180,7 @@ static void xive_cleanup_cpu_ipi(unsigne
+ 	/* Disable the IPI and free the IRQ data */
+ 
+ 	/* Already cleaned up ? */
+-	if (xc->hw_ipi == 0)
++	if (xc->hw_ipi == XIVE_BAD_IRQ)
+ 		return;
+ 
+ 	/* Mask the IPI */
+@@ -1343,6 +1336,7 @@ static int xive_prepare_cpu(unsigned int
+ 		if (np)
+ 			xc->chip_id = of_get_ibm_chip_id(np);
+ 		of_node_put(np);
++		xc->hw_ipi = XIVE_BAD_IRQ;
+ 
+ 		per_cpu(xive_cpu, cpu) = xc;
+ 	}
+--- a/arch/powerpc/sysdev/xive/native.c
++++ b/arch/powerpc/sysdev/xive/native.c
+@@ -312,7 +312,7 @@ static void xive_native_put_ipi(unsigned
+ 	s64 rc;
+ 
+ 	/* Free the IPI */
+-	if (!xc->hw_ipi)
++	if (xc->hw_ipi == XIVE_BAD_IRQ)
+ 		return;
+ 	for (;;) {
+ 		rc = opal_xive_free_irq(xc->hw_ipi);
+@@ -320,7 +320,7 @@ static void xive_native_put_ipi(unsigned
+ 			msleep(OPAL_BUSY_DELAY_MS);
+ 			continue;
+ 		}
+-		xc->hw_ipi = 0;
++		xc->hw_ipi = XIVE_BAD_IRQ;
+ 		break;
+ 	}
+ }
+--- a/arch/powerpc/sysdev/xive/spapr.c
++++ b/arch/powerpc/sysdev/xive/spapr.c
+@@ -560,11 +560,11 @@ static int xive_spapr_get_ipi(unsigned i
+ 
+ static void xive_spapr_put_ipi(unsigned int cpu, struct xive_cpu *xc)
  {
--	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE)) ==
-+	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP)) ==
- 		  (_PAGE_PTE | H_PAGE_THP_HUGE));
+-	if (!xc->hw_ipi)
++	if (xc->hw_ipi == XIVE_BAD_IRQ)
+ 		return;
+ 
+ 	xive_irq_bitmap_free(xc->hw_ipi);
+-	xc->hw_ipi = 0;
++	xc->hw_ipi = XIVE_BAD_IRQ;
  }
+ #endif /* CONFIG_SMP */
  
-@@ -272,6 +272,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
- 				       unsigned long addr, pmd_t *pmdp);
- extern int hash__has_transparent_hugepage(void);
- #endif /*  CONFIG_TRANSPARENT_HUGEPAGE */
+--- a/arch/powerpc/sysdev/xive/xive-internal.h
++++ b/arch/powerpc/sysdev/xive/xive-internal.h
+@@ -5,6 +5,13 @@
+ #ifndef __XIVE_INTERNAL_H
+ #define __XIVE_INTERNAL_H
+ 
++/*
++ * A "disabled" interrupt should never fire, to catch problems
++ * we set its logical number to this
++ */
++#define XIVE_BAD_IRQ		0x7fffffff
++#define XIVE_MAX_IRQ		(XIVE_BAD_IRQ - 1)
 +
-+static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
-+{
-+	return __pmd(pmd_val(pmd) | (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP));
-+}
-+
- #endif	/* __ASSEMBLY__ */
- 
- #endif /* _ASM_POWERPC_BOOK3S_64_HASH_64K_H */
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -1303,7 +1303,9 @@ extern void serialize_against_pte_lookup
- 
- static inline pmd_t pmd_mkdevmap(pmd_t pmd)
- {
--	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
-+	if (radix_enabled())
-+		return radix__pmd_mkdevmap(pmd);
-+	return hash__pmd_mkdevmap(pmd);
- }
- 
- static inline int pmd_devmap(pmd_t pmd)
---- a/arch/powerpc/include/asm/book3s/64/radix.h
-+++ b/arch/powerpc/include/asm/book3s/64/radix.h
-@@ -263,6 +263,11 @@ static inline int radix__has_transparent
- }
- #endif
- 
-+static inline pmd_t radix__pmd_mkdevmap(pmd_t pmd)
-+{
-+	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
-+}
-+
- extern int __meminit radix__vmemmap_create_mapping(unsigned long start,
- 					     unsigned long page_size,
- 					     unsigned long phys);
+ /* Each CPU carry one of these with various per-CPU state */
+ struct xive_cpu {
+ #ifdef CONFIG_SMP
 
 
