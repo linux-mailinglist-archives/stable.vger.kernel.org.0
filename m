@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40A551AC65C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:38:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D20901AC4E8
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:07:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729132AbgDPOiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:38:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53316 "EHLO mail.kernel.org"
+        id S2440088AbgDPOHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438582AbgDPOHC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:07:02 -0400
+        id S2409718AbgDPOG7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:06:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B6202078B;
-        Thu, 16 Apr 2020 14:07:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91F662076D;
+        Thu, 16 Apr 2020 14:06:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587046021;
-        bh=TnRzJ5Aa+/cOZXVDb7AJ0YyPgqQm+uwLyVLwcF8JVww=;
+        s=default; t=1587046019;
+        bh=l3v9CoxUZqrg9QHEIsXiElZ9JBKdPaTrHQD6VWGXmf4=;
         h=Subject:To:From:Date:From;
-        b=xY/DBAyCmC6VLCmdrDvL++XoKTStmSMpDyYkGfrw8n95DvTLPACtjGZZhcTN1tHpA
-         IE4M0lfrVUs+ZOQ1Juqpbu1yDNugxleYYRqDzK7Un+w86CWPo66y3OZPJly1h0z1MC
-         TStPqXWNgAe/otgiIDaxT/ZZGrC951RiwdHBtnyQ=
-Subject: patch "Revert "serial: uartps: Change uart ID port allocation"" added to tty-linus
+        b=FUtOJQraB8fBh6HnlYMZSpYI5N2oH0FKQv1Uit/tze3qaeLQnmF0iiTuZv7PxMW0n
+         qJ1P+ZBWL8GLktoEY/OsNeKd60drwZDfb643OaEChXrv5KntNMxWrs0aPGO7UCcyCU
+         EMsu2pZN2jQrursegMTgJytfkrvtR30D1evhMQE4=
+Subject: patch "Revert "serial: uartps: Register own uart console and driver" added to tty-linus
 To:     michal.simek@xilinx.com, gregkh@linuxfoundation.org,
         johan@kernel.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 16 Apr 2020 16:06:40 +0200
-Message-ID: <158704600045114@kroah.com>
+Message-ID: <1587046000103236@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    Revert "serial: uartps: Change uart ID port allocation"
+    Revert "serial: uartps: Register own uart console and driver
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -55,15 +55,13 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 72d68197281e2ad313960504d10b0c41ff87fd55 Mon Sep 17 00:00:00 2001
+From 18cc7ac8a28e28cd005c2475f52576cfe10cabfb Mon Sep 17 00:00:00 2001
 From: Michal Simek <michal.simek@xilinx.com>
-Date: Fri, 3 Apr 2020 11:24:34 +0200
-Subject: Revert "serial: uartps: Change uart ID port allocation"
+Date: Fri, 3 Apr 2020 11:24:36 +0200
+Subject: Revert "serial: uartps: Register own uart console and driver
+ structures"
 
-This reverts commit ae1cca3fa3478be92948dbbcd722390272032ade.
-
-With setting up NR_PORTS to 16 to be able to use serial2 and higher
-aliases and don't loose functionality which was intended by these changes.
+This reverts commit 024ca329bfb9a948f76eaff3243e21b7e70182f2.
 
 As Johan says, this driver needs a lot more work and these changes are
 only going in the wrong direction:
@@ -72,174 +70,205 @@ only going in the wrong direction:
 Reported-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/a94931b65ce0089f76fb1fe6b446a08731bff754.1585905873.git.michal.simek@xilinx.com
+Link: https://lore.kernel.org/r/1ee35667e36a8efddee381df5fe495ad65f4d15c.1585905873.git.michal.simek@xilinx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/xilinx_uartps.c | 111 ++++-------------------------
- 1 file changed, 13 insertions(+), 98 deletions(-)
+ drivers/tty/serial/xilinx_uartps.c | 95 +++++++++++++-----------------
+ 1 file changed, 40 insertions(+), 55 deletions(-)
 
 diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
-index 9db3cd120057..58f0fa07ecdb 100644
+index 41d9c2f188f0..ac137b6a1dc1 100644
 --- a/drivers/tty/serial/xilinx_uartps.c
 +++ b/drivers/tty/serial/xilinx_uartps.c
 @@ -27,6 +27,7 @@
  #define CDNS_UART_TTY_NAME	"ttyPS"
  #define CDNS_UART_NAME		"xuartps"
  #define CDNS_UART_MAJOR		0	/* use dynamic node allocation */
-+#define CDNS_UART_NR_PORTS	16
++#define CDNS_UART_MINOR		0	/* works best with devtmpfs */
+ #define CDNS_UART_NR_PORTS	16
  #define CDNS_UART_FIFO_SIZE	64	/* FIFO size */
  #define CDNS_UART_REGISTER_SPACE	0x1000
- #define TX_TIMEOUT		500000
-@@ -1403,90 +1404,6 @@ static const struct of_device_id cdns_uart_of_match[] = {
+@@ -1132,6 +1133,8 @@ static const struct uart_ops cdns_uart_ops = {
+ #endif
+ };
+ 
++static struct uart_driver cdns_uart_uart_driver;
++
+ #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
+ /**
+  * cdns_uart_console_putchar - write the character to the FIFO buffer
+@@ -1271,6 +1274,16 @@ static int cdns_uart_console_setup(struct console *co, char *options)
+ 
+ 	return uart_set_options(port, co, baud, parity, bits, flow);
+ }
++
++static struct console cdns_uart_console = {
++	.name	= CDNS_UART_TTY_NAME,
++	.write	= cdns_uart_console_write,
++	.device	= uart_console_device,
++	.setup	= cdns_uart_console_setup,
++	.flags	= CON_PRINTBUFFER,
++	.index	= -1, /* Specified on the cmdline (e.g. console=ttyPS ) */
++	.data	= &cdns_uart_uart_driver,
++};
+ #endif /* CONFIG_SERIAL_XILINX_PS_UART_CONSOLE */
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -1402,6 +1415,9 @@ static const struct of_device_id cdns_uart_of_match[] = {
  };
  MODULE_DEVICE_TABLE(of, cdns_uart_of_match);
  
--/*
-- * Maximum number of instances without alias IDs but if there is alias
-- * which target "< MAX_UART_INSTANCES" range this ID can't be used.
-- */
--#define MAX_UART_INSTANCES	32
--
--/* Stores static aliases list */
--static DECLARE_BITMAP(alias_bitmap, MAX_UART_INSTANCES);
--static int alias_bitmap_initialized;
--
--/* Stores actual bitmap of allocated IDs with alias IDs together */
--static DECLARE_BITMAP(bitmap, MAX_UART_INSTANCES);
--/* Protect bitmap operations to have unique IDs */
--static DEFINE_MUTEX(bitmap_lock);
--
--static int cdns_get_id(struct platform_device *pdev)
--{
--	int id, ret;
--
--	mutex_lock(&bitmap_lock);
--
--	/* Alias list is stable that's why get alias bitmap only once */
--	if (!alias_bitmap_initialized) {
--		ret = of_alias_get_alias_list(cdns_uart_of_match, "serial",
--					      alias_bitmap, MAX_UART_INSTANCES);
--		if (ret && ret != -EOVERFLOW) {
--			mutex_unlock(&bitmap_lock);
--			return ret;
--		}
--
--		alias_bitmap_initialized++;
--	}
--
--	/* Make sure that alias ID is not taken by instance without alias */
--	bitmap_or(bitmap, bitmap, alias_bitmap, MAX_UART_INSTANCES);
--
--	dev_dbg(&pdev->dev, "Alias bitmap: %*pb\n",
--		MAX_UART_INSTANCES, bitmap);
--
--	/* Look for a serialN alias */
--	id = of_alias_get_id(pdev->dev.of_node, "serial");
--	if (id < 0) {
--		dev_warn(&pdev->dev,
--			 "No serial alias passed. Using the first free id\n");
--
--		/*
--		 * Start with id 0 and check if there is no serial0 alias
--		 * which points to device which is compatible with this driver.
--		 * If alias exists then try next free position.
--		 */
--		id = 0;
--
--		for (;;) {
--			dev_info(&pdev->dev, "Checking id %d\n", id);
--			id = find_next_zero_bit(bitmap, MAX_UART_INSTANCES, id);
--
--			/* No free empty instance */
--			if (id == MAX_UART_INSTANCES) {
--				dev_err(&pdev->dev, "No free ID\n");
--				mutex_unlock(&bitmap_lock);
--				return -EINVAL;
--			}
--
--			dev_dbg(&pdev->dev, "The empty id is %d\n", id);
--			/* Check if ID is empty */
--			if (!test_and_set_bit(id, bitmap)) {
--				/* Break the loop if bit is taken */
--				dev_dbg(&pdev->dev,
--					"Selected ID %d allocation passed\n",
--					id);
--				break;
--			}
--			dev_dbg(&pdev->dev,
--				"Selected ID %d allocation failed\n", id);
--			/* if taking bit fails then try next one */
--			id++;
--		}
--	}
--
--	mutex_unlock(&bitmap_lock);
--
--	return id;
--}
--
++/* Temporary variable for storing number of instances */
++static int instances;
++
  /**
   * cdns_uart_probe - Platform driver probe
   * @pdev: Pointer to the platform device structure
-@@ -1520,17 +1437,21 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 	if (!cdns_uart_uart_driver)
+@@ -1415,11 +1431,6 @@ static int cdns_uart_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	struct cdns_uart *cdns_uart_data;
+ 	const struct of_device_id *match;
+-	struct uart_driver *cdns_uart_uart_driver;
+-	char *driver_name;
+-#ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
+-	struct console *cdns_uart_console;
+-#endif
+ 
+ 	cdns_uart_data = devm_kzalloc(&pdev->dev, sizeof(*cdns_uart_data),
+ 			GFP_KERNEL);
+@@ -1429,12 +1440,6 @@ static int cdns_uart_probe(struct platform_device *pdev)
+ 	if (!port)
  		return -ENOMEM;
  
--	cdns_uart_data->id = cdns_get_id(pdev);
-+	/* Look for a serialN alias */
-+	cdns_uart_data->id = of_alias_get_id(pdev->dev.of_node, "serial");
- 	if (cdns_uart_data->id < 0)
--		return cdns_uart_data->id;
-+		cdns_uart_data->id = 0;
-+
-+	if (cdns_uart_data->id >= CDNS_UART_NR_PORTS) {
-+		dev_err(&pdev->dev, "Cannot get uart_port structure\n");
-+		return -ENODEV;
-+	}
- 
- 	/* There is a need to use unique driver name */
- 	driver_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s%d",
- 				     CDNS_UART_NAME, cdns_uart_data->id);
--	if (!driver_name) {
--		rc = -ENOMEM;
--		goto err_out_id;
--	}
-+	if (!driver_name)
-+		return -ENOMEM;
- 
- 	cdns_uart_uart_driver->owner = THIS_MODULE;
- 	cdns_uart_uart_driver->driver_name = driver_name;
-@@ -1559,7 +1480,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 	rc = uart_register_driver(cdns_uart_uart_driver);
- 	if (rc < 0) {
- 		dev_err(&pdev->dev, "Failed to register driver\n");
--		goto err_out_id;
-+		return rc;
+-	cdns_uart_uart_driver = devm_kzalloc(&pdev->dev,
+-					     sizeof(*cdns_uart_uart_driver),
+-					     GFP_KERNEL);
+-	if (!cdns_uart_uart_driver)
+-		return -ENOMEM;
+-
+ 	/* Look for a serialN alias */
+ 	id = of_alias_get_id(pdev->dev.of_node, "serial");
+ 	if (id < 0)
+@@ -1445,50 +1450,25 @@ static int cdns_uart_probe(struct platform_device *pdev)
+ 		return -ENODEV;
  	}
  
- 	cdns_uart_data->cdns_uart_driver = cdns_uart_uart_driver;
-@@ -1710,10 +1631,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
+-	/* There is a need to use unique driver name */
+-	driver_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s%d",
+-				     CDNS_UART_NAME, id);
+-	if (!driver_name)
+-		return -ENOMEM;
+-
+-	cdns_uart_uart_driver->owner = THIS_MODULE;
+-	cdns_uart_uart_driver->driver_name = driver_name;
+-	cdns_uart_uart_driver->dev_name	= CDNS_UART_TTY_NAME;
+-	cdns_uart_uart_driver->major = CDNS_UART_MAJOR;
+-	cdns_uart_uart_driver->minor = id;
+-	cdns_uart_uart_driver->nr = 1;
+-
++	if (!cdns_uart_uart_driver.state) {
++		cdns_uart_uart_driver.owner = THIS_MODULE;
++		cdns_uart_uart_driver.driver_name = CDNS_UART_NAME;
++		cdns_uart_uart_driver.dev_name = CDNS_UART_TTY_NAME;
++		cdns_uart_uart_driver.major = CDNS_UART_MAJOR;
++		cdns_uart_uart_driver.minor = CDNS_UART_MINOR;
++		cdns_uart_uart_driver.nr = CDNS_UART_NR_PORTS;
+ #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
+-	cdns_uart_console = devm_kzalloc(&pdev->dev, sizeof(*cdns_uart_console),
+-					 GFP_KERNEL);
+-	if (!cdns_uart_console)
+-		return -ENOMEM;
+-
+-	strncpy(cdns_uart_console->name, CDNS_UART_TTY_NAME,
+-		sizeof(cdns_uart_console->name));
+-	cdns_uart_console->index = id;
+-	cdns_uart_console->write = cdns_uart_console_write;
+-	cdns_uart_console->device = uart_console_device;
+-	cdns_uart_console->setup = cdns_uart_console_setup;
+-	cdns_uart_console->flags = CON_PRINTBUFFER;
+-	cdns_uart_console->data = cdns_uart_uart_driver;
+-	cdns_uart_uart_driver->cons = cdns_uart_console;
++		cdns_uart_uart_driver.cons = &cdns_uart_console;
+ #endif
+ 
+-	rc = uart_register_driver(cdns_uart_uart_driver);
+-	if (rc < 0) {
+-		dev_err(&pdev->dev, "Failed to register driver\n");
+-		return rc;
++		rc = uart_register_driver(&cdns_uart_uart_driver);
++		if (rc < 0) {
++			dev_err(&pdev->dev, "Failed to register driver\n");
++			return rc;
++		}
+ 	}
+ 
+-	cdns_uart_data->cdns_uart_driver = cdns_uart_uart_driver;
+-
+-	/*
+-	 * Setting up proper name_base needs to be done after uart
+-	 * registration because tty_driver structure is not filled.
+-	 * name_base is 0 by default.
+-	 */
+-	cdns_uart_uart_driver->tty_driver->name_base = id;
++	cdns_uart_data->cdns_uart_driver = &cdns_uart_uart_driver;
+ 
+ 	match = of_match_node(cdns_uart_of_match, pdev->dev.of_node);
+ 	if (match && match->data) {
+@@ -1566,6 +1546,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
+ 	port->ops	= &cdns_uart_ops;
+ 	port->fifosize	= CDNS_UART_FIFO_SIZE;
+ 	port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_XILINX_PS_UART_CONSOLE);
++	port->line	= id;
+ 
+ 	/*
+ 	 * Register the port.
+@@ -1597,7 +1578,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
+ 		console_port = port;
+ #endif
+ 
+-	rc = uart_add_one_port(cdns_uart_uart_driver, port);
++	rc = uart_add_one_port(&cdns_uart_uart_driver, port);
+ 	if (rc) {
+ 		dev_err(&pdev->dev,
+ 			"uart_add_one_port() failed; err=%i\n", rc);
+@@ -1607,12 +1588,15 @@ static int cdns_uart_probe(struct platform_device *pdev)
+ #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
+ 	/* This is not port which is used for console that's why clean it up */
+ 	if (console_port == port &&
+-	    !(cdns_uart_uart_driver->cons->flags & CON_ENABLED))
++	    !(cdns_uart_uart_driver.cons->flags & CON_ENABLED))
+ 		console_port = NULL;
+ #endif
+ 
+ 	cdns_uart_data->cts_override = of_property_read_bool(pdev->dev.of_node,
+ 							     "cts-override");
++
++	instances++;
++
+ 	return 0;
+ 
+ err_out_pm_disable:
+@@ -1628,8 +1612,8 @@ static int cdns_uart_probe(struct platform_device *pdev)
+ err_out_clk_dis_pclk:
  	clk_disable_unprepare(cdns_uart_data->pclk);
  err_out_unregister_driver:
- 	uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
--err_out_id:
--	mutex_lock(&bitmap_lock);
--	clear_bit(cdns_uart_data->id, bitmap);
--	mutex_unlock(&bitmap_lock);
-+
+-	uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
+-
++	if (!instances)
++		uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
  	return rc;
  }
  
-@@ -1736,9 +1654,6 @@ static int cdns_uart_remove(struct platform_device *pdev)
+@@ -1664,7 +1648,8 @@ static int cdns_uart_remove(struct platform_device *pdev)
+ 		console_port = NULL;
  #endif
- 	rc = uart_remove_one_port(cdns_uart_data->cdns_uart_driver, port);
- 	port->mapbase = 0;
--	mutex_lock(&bitmap_lock);
--	clear_bit(cdns_uart_data->id, bitmap);
--	mutex_unlock(&bitmap_lock);
- 	clk_disable_unprepare(cdns_uart_data->uartclk);
- 	clk_disable_unprepare(cdns_uart_data->pclk);
- 	pm_runtime_disable(&pdev->dev);
+ 
+-	uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
++	if (!--instances)
++		uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
+ 	return rc;
+ }
+ 
 -- 
 2.26.1
 
