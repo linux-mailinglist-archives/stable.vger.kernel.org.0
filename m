@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 031F91ACA2E
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D3BB1AC476
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408455AbgDPNl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:41:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54776 "EHLO mail.kernel.org"
+        id S2391788AbgDPOAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:00:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389073AbgDPNlv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:41:51 -0400
+        id S1730047AbgDPOAQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:00:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 032422223E;
-        Thu, 16 Apr 2020 13:41:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E3D620732;
+        Thu, 16 Apr 2020 14:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044510;
-        bh=mDp69Lb0S9CHcaaZ0egFJJ01Dml5CiR2KtDUpVg1cCs=;
+        s=default; t=1587045615;
+        bh=WS83ZMqbmaiP+n7ZUVBZyuzfyW0XaIhuQfMBGWKJQ+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jbn2uPwD8XHh/5Xa8HhIsEHsmSJktJqKzMQ9nXFRhS2LlnZrLN/FGSRhp1H6gKDOk
-         F5+7Mc15xpMSthE4zPC+IdGVAkabihh6bBeUn8CIglXhfduHrXR+wXawJAOA/YoSoK
-         mcaEfbWLtkzH9ApY/q18eHMMgwQOYvtnSfiEZbbA=
+        b=o570yroOUnw40nG5DsiyKymJqWdFMTctBFBrXfXJT1hT1JjqFS2B0Ng6oCFiw3YJG
+         kKyabNu19ppktHTABog0Ch8WsYWw3Q3V1QwdMn/OXOSMlkZDX/CzbmKe42uEF4WCUX
+         zeRP4oLS9UdBsgYEsAnUUlC6/myzwqDASOMZgla8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Szabolcs Nagy <szabolcs.nagy@arm.com>,
-        Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.5 245/257] arm64: Always force a branch protection mode when the compiler has one
+        stable@vger.kernel.org, Michael Strauss <michael.strauss@amd.com>,
+        Eric Yang <eric.yang2@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.6 207/254] drm/amd/display: Check for null fclk voltage when parsing clock table
 Date:   Thu, 16 Apr 2020 15:24:56 +0200
-Message-Id: <20200416131356.363859412@linuxfoundation.org>
+Message-Id: <20200416131351.945784577@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Michael Strauss <michael.strauss@amd.com>
 
-commit b8fdef311a0bd9223f10754f94fdcf1a594a3457 upstream.
+commit 72f5b5a308c744573fdbc6c78202c52196d2c162 upstream.
 
-Compilers with branch protection support can be configured to enable it by
-default, it is likely that distributions will do this as part of deploying
-branch protection system wide. As well as the slight overhead from having
-some extra NOPs for unused branch protection features this can cause more
-serious problems when the kernel is providing pointer authentication to
-userspace but not built for pointer authentication itself. In that case our
-switching of keys for userspace can affect the kernel unexpectedly, causing
-pointer authentication instructions in the kernel to corrupt addresses.
+[WHY]
+In cases where a clock table is malformed such that fclk entries have
+frequencies but not voltages listed, we don't catch the error and set
+clocks to 0 instead of using hardcoded values as we should.
 
-To ensure that we get consistent and reliable behaviour always explicitly
-initialise the branch protection mode, ensuring that the kernel is built
-the same way regardless of the compiler defaults.
+[HOW]
+Add check for clock tables fclk entry's voltage as well
 
-[This is a reworked version of b8fdef311a0bd9223f1075 ("arm64: Always
-force a branch protection mode when the compiler has one") for backport.
-Kernels prior to 74afda4016a7 ("arm64: compile the kernel with ptrauth
-return address signing") don't have any Makefile machinery for forcing
-on pointer auth but still have issues if the compiler defaults it on so
-need this reworked version. -- broonie]
-
-Fixes: 7503197562567 (arm64: add basic pointer authentication support)
-Reported-by: Szabolcs Nagy <szabolcs.nagy@arm.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Michael Strauss <michael.strauss@amd.com>
+Reviewed-by: Eric Yang <eric.yang2@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-[catalin.marinas@arm.com: remove Kconfig option in favour of Makefile check]
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/Makefile |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -72,6 +72,10 @@ stack_protector_prepare: prepare0
- 					include/generated/asm-offsets.h))
- endif
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
+@@ -643,7 +643,7 @@ static void rn_clk_mgr_helper_populate_b
+ 	/* Find lowest DPM, FCLK is filled in reverse order*/
  
-+# Ensure that if the compiler supports branch protection we default it
-+# off.
-+KBUILD_CFLAGS += $(call cc-option,-mbranch-protection=none)
-+
- ifeq ($(CONFIG_CPU_BIG_ENDIAN), y)
- KBUILD_CPPFLAGS	+= -mbig-endian
- CHECKFLAGS	+= -D__AARCH64EB__
+ 	for (i = PP_SMU_NUM_FCLK_DPM_LEVELS - 1; i >= 0; i--) {
+-		if (clock_table->FClocks[i].Freq != 0) {
++		if (clock_table->FClocks[i].Freq != 0 && clock_table->FClocks[i].Vol != 0) {
+ 			j = i;
+ 			break;
+ 		}
 
 
