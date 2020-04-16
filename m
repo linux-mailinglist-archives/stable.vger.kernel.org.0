@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 205561AC6C2
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3759A1AC359
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394586AbgDPOoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:44:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47180 "EHLO mail.kernel.org"
+        id S2898347AbgDPNll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:41:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2506799AbgDPOAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:07 -0400
+        id S2898336AbgDPNli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74A5F20732;
-        Thu, 16 Apr 2020 14:00:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B95B220732;
+        Thu, 16 Apr 2020 13:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045605;
-        bh=LkFSaWD8eK5fUBwVuEfFuYOdlmwas0uXDLBhIaHcx94=;
+        s=default; t=1587044498;
+        bh=QXDIIPH8GK3Ux1ynVTxNG6RvRhtHCDyClAcTXjsslm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xY3Q6rXRs+sHMlUWwUkEqGTCwx+fN54hX9caW8Doknsj4bAE468lrfnEcHMbloTbI
-         BGZ/L4s4dQuR0hLJTQHx05mNgisY8jYAoy3O4RVpgBwUjTz3iu/r+gCdFzXrV+0qkM
-         NToqtWdRyHmLzPYt0LtloM9XifoaiYCPoN6Vu+2U=
+        b=io20Vhn7yFnuaIwrGn4pY/4IKrQjW/eEIUkRsserv7zThRuna8xfQ+taO8Fb54v0h
+         jcWlLtIG/S/fBo4+3jtWxAMgXn8N+A1HefkQZjUdcFDfo+rvf47Ap9eSSv+nO4ERkQ
+         ECnZanO7M2gnVs4UdWcg80ijn7oJV6119i8vk2Es=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.6 203/254] drm: Remove PageReserved manipulation from drm_pci_alloc
+        stable@vger.kernel.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Greg Kurz <groug@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 241/257] powerpc/xive: Fix xmon support on the PowerNV platform
 Date:   Thu, 16 Apr 2020 15:24:52 +0200
-Message-Id: <20200416131351.475665135@linuxfoundation.org>
+Message-Id: <20200416131355.977857219@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Cédric Le Goater <clg@kaod.org>
 
-commit ea36ec8623f56791c6ff6738d0509b7920f85220 upstream.
+commit 97ef275077932c65b1b8ec5022abd737a9fbf3e0 upstream.
 
-drm_pci_alloc/drm_pci_free are very thin wrappers around the core dma
-facilities, and we have no special reason within the drm layer to behave
-differently. In particular, since
+The PowerNV platform has multiple IRQ chips and the xmon command
+dumping the state of the XIVE interrupt should only operate on the
+XIVE IRQ chip.
 
-commit de09d31dd38a50fdce106c15abd68432eebbd014
-Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Date:   Fri Jan 15 16:51:42 2016 -0800
-
-    page-flags: define PG_reserved behavior on compound pages
-
-    As far as I can see there's no users of PG_reserved on compound pages.
-    Let's use PF_NO_COMPOUND here.
-
-it has been illegal to combine GFP_COMP with SetPageReserved, so lets
-stop doing both and leave the dma layer to its own devices.
-
-Reported-by: Taketo Kabe
-Bug: https://gitlab.freedesktop.org/drm/intel/issues/1027
-Fixes: de09d31dd38a ("page-flags: define PG_reserved behavior on compound pages")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: <stable@vger.kernel.org> # v4.5+
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200202171635.4039044-1-chris@chris-wilson.co.uk
+Fixes: 5896163f7f91 ("powerpc/xmon: Improve output of XIVE interrupts")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200306150143.5551-3-clg@kaod.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_pci.c |   23 ++---------------------
- 1 file changed, 2 insertions(+), 21 deletions(-)
+ arch/powerpc/sysdev/xive/common.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/drm_pci.c
-+++ b/drivers/gpu/drm/drm_pci.c
-@@ -51,8 +51,6 @@
- drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t align)
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -258,11 +258,15 @@ notrace void xmon_xive_do_dump(int cpu)
+ 
+ int xmon_xive_get_irq_config(u32 hw_irq, struct irq_data *d)
  {
- 	drm_dma_handle_t *dmah;
--	unsigned long addr;
--	size_t sz;
++	struct irq_chip *chip = irq_data_get_irq_chip(d);
+ 	int rc;
+ 	u32 target;
+ 	u8 prio;
+ 	u32 lirq;
  
- 	/* pci_alloc_consistent only guarantees alignment to the smallest
- 	 * PAGE_SIZE order which is greater than or equal to the requested size.
-@@ -68,20 +66,13 @@ drm_dma_handle_t *drm_pci_alloc(struct d
- 	dmah->size = size;
- 	dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size,
- 					 &dmah->busaddr,
--					 GFP_KERNEL | __GFP_COMP);
-+					 GFP_KERNEL);
- 
- 	if (dmah->vaddr == NULL) {
- 		kfree(dmah);
- 		return NULL;
- 	}
- 
--	/* XXX - Is virt_to_page() legal for consistent mem? */
--	/* Reserve */
--	for (addr = (unsigned long)dmah->vaddr, sz = size;
--	     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
--		SetPageReserved(virt_to_page((void *)addr));
--	}
--
- 	return dmah;
- }
- 
-@@ -94,19 +85,9 @@ EXPORT_SYMBOL(drm_pci_alloc);
-  */
- void __drm_legacy_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
- {
--	unsigned long addr;
--	size_t sz;
--
--	if (dmah->vaddr) {
--		/* XXX - Is virt_to_page() legal for consistent mem? */
--		/* Unreserve */
--		for (addr = (unsigned long)dmah->vaddr, sz = dmah->size;
--		     sz > 0; addr += PAGE_SIZE, sz -= PAGE_SIZE) {
--			ClearPageReserved(virt_to_page((void *)addr));
--		}
-+	if (dmah->vaddr)
- 		dma_free_coherent(&dev->pdev->dev, dmah->size, dmah->vaddr,
- 				  dmah->busaddr);
--	}
- }
- 
- /**
++	if (!is_xive_irq(chip))
++		return -EINVAL;
++
+ 	rc = xive_ops->get_irq_config(hw_irq, &target, &prio, &lirq);
+ 	if (rc) {
+ 		xmon_printf("IRQ 0x%08x : no config rc=%d\n", hw_irq, rc);
 
 
