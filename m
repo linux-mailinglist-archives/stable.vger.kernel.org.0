@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89D791AC311
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F19081AC741
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897451AbgDPNhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:37:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49604 "EHLO mail.kernel.org"
+        id S1731238AbgDPOw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:52:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897440AbgDPNhU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:37:20 -0400
+        id S1731495AbgDPN5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:57:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23400221EB;
-        Thu, 16 Apr 2020 13:37:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A99832076D;
+        Thu, 16 Apr 2020 13:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044239;
-        bh=vHr6g5MwzQjKMd6VRdS/hjjFnOfpLL/Nb7slM5ESHiA=;
+        s=default; t=1587045442;
+        bh=3ScBCzDGVqDqZeQ7247CTqy5NBsjjC2WXKUdOEqo8bM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RruWCNQF5GOb2zW2bE5AGKKFQGRLsio4XazyG/CI7ZMFaYkqXGP4Qli/F6qSQ0GLe
-         e9kH8+GJebY22zP18i3j9UfHn6t5cd1dhDF8989dm9LlDDx07rbkHYgGNH+a+nbfU/
-         DoA80IdHW8yeRr0NvPVHhqOw2Tlvj1KWgDwaoS5g=
+        b=nXeQSY1ZeOg7i9Cyyi35P/4n4XVaWWDzMFS6ok5Xauh84l8N1AFmJPBGOtKW5rkwk
+         T3hFE/bG54KE+TpVDb67HO0Mux6iSp5m3Q0J8WYzj1O3mgw8z4Row5iyTahll1IxVJ
+         i5FH3xFtvdFjT+6ndNtvGRmQdnEuUDeHXfHrZpPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.5 137/257] x86/tsc_msr: Use named struct initializers
+        stable@vger.kernel.org, David Hoyer <David.Hoyer@netapp.com>,
+        Lukas Wunner <lukas@wunner.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Keith Busch <kbusch@kernel.org>
+Subject: [PATCH 5.6 099/254] PCI: pciehp: Fix indefinite wait on sysfs requests
 Date:   Thu, 16 Apr 2020 15:23:08 +0200
-Message-Id: <20200416131343.577957826@linuxfoundation.org>
+Message-Id: <20200416131338.404165180@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,94 +45,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 812c2d7506fde7cdf83cb2532810a65782b51741 upstream.
+commit 3e487d2e4aa466decd226353755c9d423e8fbacc upstream.
 
-Use named struct initializers for the freq_desc struct-s initialization
-and change the "u8 msr_plat" to a "bool use_msr_plat" to make its meaning
-more clear instead of relying on a comment to explain it.
+David Hoyer reports that powering pciehp slots up or down via sysfs may
+hang:  The call to wait_event() in pciehp_sysfs_enable_slot() and
+_disable_slot() does not return because ctrl->ist_running remains true.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200223140610.59612-1-hdegoede@redhat.com
+This flag, which was introduced by commit 157c1062fcd8 ("PCI: pciehp: Avoid
+returning prematurely from sysfs requests"), signifies that the IRQ thread
+pciehp_ist() is running.  It is set to true at the top of pciehp_ist() and
+reset to false at the end.  However there are two additional return
+statements in pciehp_ist() before which the commit neglected to reset the
+flag to false and wake up waiters for the flag.
+
+That omission opens up the following race when powering up the slot:
+
+* pciehp_ist() runs because a PCI_EXP_SLTSTA_PDC event was requested
+  by pciehp_sysfs_enable_slot()
+
+* pciehp_ist() turns on slot power via the following call stack:
+  pciehp_handle_presence_or_link_change() -> pciehp_enable_slot() ->
+  __pciehp_enable_slot() -> board_added() -> pciehp_power_on_slot()
+
+* after slot power is turned on, the link comes up, resulting in a
+  PCI_EXP_SLTSTA_DLLSC event
+
+* the IRQ handler pciehp_isr() stores the event in ctrl->pending_events
+  and returns IRQ_WAKE_THREAD
+
+* the IRQ thread is already woken (it's bringing up the slot), but the
+  genirq code remembers to re-run the IRQ thread after it has finished
+  (such that it can deal with the new event) by setting IRQTF_RUNTHREAD
+  via __handle_irq_event_percpu() -> __irq_wake_thread()
+
+* the IRQ thread removes PCI_EXP_SLTSTA_DLLSC from ctrl->pending_events
+  via board_added() -> pciehp_check_link_status() in order to deal with
+  presence and link flaps per commit 6c35a1ac3da6 ("PCI: pciehp:
+  Tolerate initially unstable link")
+
+* after pciehp_ist() has successfully brought up the slot, it resets
+  ctrl->ist_running to false and wakes up the sysfs requester
+
+* the genirq code re-runs pciehp_ist(), which sets ctrl->ist_running
+  to true but then returns with IRQ_NONE because ctrl->pending_events
+  is empty
+
+* pciehp_sysfs_enable_slot() is finally woken but notices that
+  ctrl->ist_running is true, hence continues waiting
+
+The only way to get the hung task going again is to trigger a hotplug
+event which brings down the slot, e.g. by yanking out the card.
+
+The same race exists when powering down the slot because remove_board()
+likewise clears link or presence changes in ctrl->pending_events per commit
+3943af9d01e9 ("PCI: pciehp: Ignore Link State Changes after powering off a
+slot") and thereby may cause a re-run of pciehp_ist() which returns with
+IRQ_NONE without resetting ctrl->ist_running to false.
+
+Fix by adding a goto label before the teardown steps at the end of
+pciehp_ist() and jumping to that label from the two return statements which
+currently neglect to reset the ctrl->ist_running flag.
+
+Fixes: 157c1062fcd8 ("PCI: pciehp: Avoid returning prematurely from sysfs requests")
+Link: https://lore.kernel.org/r/cca1effa488065cb055120aa01b65719094bdcb5.1584530321.git.lukas@wunner.de
+Reported-by: David Hoyer <David.Hoyer@netapp.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Cc: stable@vger.kernel.org	# v4.19+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/tsc_msr.c |   28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ drivers/pci/hotplug/pciehp_hpc.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kernel/tsc_msr.c
-+++ b/arch/x86/kernel/tsc_msr.c
-@@ -22,10 +22,10 @@
-  * read in MSR_PLATFORM_ID[12:8], otherwise in MSR_PERF_STAT[44:40].
-  * Unfortunately some Intel Atom SoCs aren't quite compliant to this,
-  * so we need manually differentiate SoC families. This is what the
-- * field msr_plat does.
-+ * field use_msr_plat does.
-  */
- struct freq_desc {
--	u8 msr_plat;	/* 1: use MSR_PLATFORM_INFO, 0: MSR_IA32_PERF_STATUS */
-+	bool use_msr_plat;
- 	u32 freqs[MAX_NUM_FREQS];
- };
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -625,17 +625,15 @@ static irqreturn_t pciehp_ist(int irq, v
+ 	if (atomic_fetch_and(~RERUN_ISR, &ctrl->pending_events) & RERUN_ISR) {
+ 		ret = pciehp_isr(irq, dev_id);
+ 		enable_irq(irq);
+-		if (ret != IRQ_WAKE_THREAD) {
+-			pci_config_pm_runtime_put(pdev);
+-			return ret;
+-		}
++		if (ret != IRQ_WAKE_THREAD)
++			goto out;
+ 	}
  
-@@ -35,31 +35,39 @@ struct freq_desc {
-  * by MSR based on SDM.
-  */
- static const struct freq_desc freq_desc_pnw = {
--	0, { 0, 0, 0, 0, 0, 99840, 0, 83200 }
-+	.use_msr_plat = false,
-+	.freqs = { 0, 0, 0, 0, 0, 99840, 0, 83200 },
- };
+ 	synchronize_hardirq(irq);
+ 	events = atomic_xchg(&ctrl->pending_events, 0);
+ 	if (!events) {
+-		pci_config_pm_runtime_put(pdev);
+-		return IRQ_NONE;
++		ret = IRQ_NONE;
++		goto out;
+ 	}
  
- static const struct freq_desc freq_desc_clv = {
--	0, { 0, 133200, 0, 0, 0, 99840, 0, 83200 }
-+	.use_msr_plat = false,
-+	.freqs = { 0, 133200, 0, 0, 0, 99840, 0, 83200 },
- };
+ 	/* Check Attention Button Pressed */
+@@ -664,10 +662,12 @@ static irqreturn_t pciehp_ist(int irq, v
+ 		pciehp_handle_presence_or_link_change(ctrl, events);
+ 	up_read(&ctrl->reset_lock);
  
- static const struct freq_desc freq_desc_byt = {
--	1, { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 }
-+	.use_msr_plat = true,
-+	.freqs = { 83300, 100000, 133300, 116700, 80000, 0, 0, 0 },
- };
++	ret = IRQ_HANDLED;
++out:
+ 	pci_config_pm_runtime_put(pdev);
+ 	ctrl->ist_running = false;
+ 	wake_up(&ctrl->requester);
+-	return IRQ_HANDLED;
++	return ret;
+ }
  
- static const struct freq_desc freq_desc_cht = {
--	1, { 83300, 100000, 133300, 116700, 80000, 93300, 90000, 88900, 87500 }
-+	.use_msr_plat = true,
-+	.freqs = { 83300, 100000, 133300, 116700, 80000, 93300, 90000,
-+		   88900, 87500 },
- };
- 
- static const struct freq_desc freq_desc_tng = {
--	1, { 0, 100000, 133300, 0, 0, 0, 0, 0 }
-+	.use_msr_plat = true,
-+	.freqs = { 0, 100000, 133300, 0, 0, 0, 0, 0 },
- };
- 
- static const struct freq_desc freq_desc_ann = {
--	1, { 83300, 100000, 133300, 100000, 0, 0, 0, 0 }
-+	.use_msr_plat = true,
-+	.freqs = { 83300, 100000, 133300, 100000, 0, 0, 0, 0 },
- };
- 
- static const struct freq_desc freq_desc_lgm = {
--	1, { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 }
-+	.use_msr_plat = true,
-+	.freqs = { 78000, 78000, 78000, 78000, 78000, 78000, 78000, 78000 },
- };
- 
- static const struct x86_cpu_id tsc_msr_cpu_ids[] = {
-@@ -91,7 +99,7 @@ unsigned long cpu_khz_from_msr(void)
- 		return 0;
- 
- 	freq_desc = (struct freq_desc *)id->driver_data;
--	if (freq_desc->msr_plat) {
-+	if (freq_desc->use_msr_plat) {
- 		rdmsr(MSR_PLATFORM_INFO, lo, hi);
- 		ratio = (lo >> 8) & 0xff;
- 	} else {
+ static int pciehp_poll(void *data)
 
 
