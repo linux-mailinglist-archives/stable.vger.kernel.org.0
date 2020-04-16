@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 559531ACA45
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35DDF1AC6D1
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:45:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898319AbgDPNl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:41:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54342 "EHLO mail.kernel.org"
+        id S1730929AbgDPOo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:44:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898296AbgDPNl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:41:26 -0400
+        id S2409349AbgDPN7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:59:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6676F2076D;
-        Thu, 16 Apr 2020 13:41:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF7F121734;
+        Thu, 16 Apr 2020 13:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044485;
-        bh=6yOYKSkkjiW+PSa9ceaqSZizZQtvjSKI5yYQ7sjHvpw=;
+        s=default; t=1587045591;
+        bh=I8PHgfdD0SDvIxDAZKoac40s1IpppyWu12/+HSUbMSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eb1WvXAMT3rKA22phbR6c60FmSMffd3q6oM8z8C+9KvTsGuJgqAhoJC//FdvMwtjs
-         NZ7lLrQ1btdvJUGQi/ELcUwPcjpQvqyOt8+Euv3d2zhMcg29hUGoF3NMXdDUufCggE
-         usdGpvbLL8zqgnnmV5voquYcrVNgRtEyt3Xd7xyg=
+        b=HZPKcc0eiQEO45bCcBNcKCC36C3wP3Z0+SfIpX/5y4d1jo7Y5ktG9Uar/VyjQYkxN
+         0kTxKlIrS52qQ3P0IapTSED/MpshMGSffi6cxKsyF3mLWGNNA0b727PZbgwouJVt0j
+         pifZfP2G7XC0dUsPBNsIuHdzqACbe7w0+Y9lUZZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.5 236/257] powerpc/64/tm: Dont let userspace set regs->trap via sigreturn
+Subject: [PATCH 5.6 198/254] selftests/powerpc: Fix try-run when source tree is not writable
 Date:   Thu, 16 Apr 2020 15:24:47 +0200
-Message-Id: <20200416131355.116663460@linuxfoundation.org>
+Message-Id: <20200416131350.920961896@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit c7def7fbdeaa25feaa19caf4a27c5d10bd8789e4 upstream.
+commit 9686813f6e9d5568bc045de0be853411e44958c8 upstream.
 
-In restore_tm_sigcontexts() we take the trap value directly from the
-user sigcontext with no checking:
+We added a usage of try-run to pmu/ebb/Makefile to detect if the
+toolchain supported the -no-pie option.
 
-	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
+This fails if we build out-of-tree and the source tree is not
+writable, as try-run tries to write its temporary files to the current
+directory. That leads to the -no-pie option being silently dropped,
+which leads to broken executables with some toolchains.
 
-This means we can be in the kernel with an arbitrary regs->trap value.
+If we remove the redirect to /dev/null in try-run, we see the error:
 
-Although that's not immediately problematic, there is a risk we could
-trigger one of the uses of CHECK_FULL_REGS():
+  make[3]: Entering directory '/linux/tools/testing/selftests/powerpc/pmu/ebb'
+  /usr/bin/ld: cannot open output file .54.tmp: Read-only file system
+  collect2: error: ld returned 1 exit status
+  make[3]: Nothing to be done for 'all'.
 
-	#define CHECK_FULL_REGS(regs)	BUG_ON(regs->trap & 1)
+And looking with strace we see it's trying to use a file that's in the
+source tree:
 
-It can also cause us to unnecessarily save non-volatile GPRs again in
-save_nvgprs(), which shouldn't be problematic but is still wrong.
+  lstat("/linux/tools/testing/selftests/powerpc/pmu/ebb/.54.tmp", 0x7ffffc0f83c8)
 
-It's also possible it could trick the syscall restart machinery, which
-relies on regs->trap not being == 0xc00 (see 9a81c16b5275 ("powerpc:
-fix double syscall restarts")), though I haven't been able to make
-that happen.
+We can fix it by setting TMPOUT to point to the $(OUTPUT) directory,
+and we can verify with strace it's now trying to write to the output
+directory:
 
-Finally it doesn't match the behaviour of the non-TM case, in
-restore_sigcontext() which zeroes regs->trap.
+  lstat("/output/kselftest/powerpc/pmu/ebb/.54.tmp", 0x7fffd1bf6bf8)
 
-So change restore_tm_sigcontexts() to zero regs->trap.
+And also see that the -no-pie option is now correctly detected.
 
-This was discovered while testing Nick's upcoming rewrite of the
-syscall entry path. In that series the call to save_nvgprs() prior to
-signal handling (do_notify_resume()) is removed, which leaves the
-low-bit of regs->trap uncleared which can then trigger the FULL_REGS()
-WARNs in setup_tm_sigcontexts().
-
-Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
-Cc: stable@vger.kernel.org # v3.9+
+Fixes: 0695f8bca93e ("selftests/powerpc: Handle Makefile for unrecognized option")
+Cc: stable@vger.kernel.org # v5.5+
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200401023836.3286664-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20200327095319.2347641-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/signal_64.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/testing/selftests/powerpc/pmu/ebb/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/powerpc/kernel/signal_64.c
-+++ b/arch/powerpc/kernel/signal_64.c
-@@ -473,8 +473,10 @@ static long restore_tm_sigcontexts(struc
- 	err |= __get_user(tsk->thread.ckpt_regs.ccr,
- 			  &sc->gp_regs[PT_CCR]);
+--- a/tools/testing/selftests/powerpc/pmu/ebb/Makefile
++++ b/tools/testing/selftests/powerpc/pmu/ebb/Makefile
+@@ -7,6 +7,7 @@ noarg:
+ # The EBB handler is 64-bit code and everything links against it
+ CFLAGS += -m64
  
-+	/* Don't allow userspace to set the trap value */
-+	regs->trap = 0;
-+
- 	/* These regs are not checkpointed; they can go in 'regs'. */
--	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
- 	err |= __get_user(regs->dar, &sc->gp_regs[PT_DAR]);
- 	err |= __get_user(regs->dsisr, &sc->gp_regs[PT_DSISR]);
- 	err |= __get_user(regs->result, &sc->gp_regs[PT_RESULT]);
++TMPOUT = $(OUTPUT)/
+ # Toolchains may build PIE by default which breaks the assembly
+ no-pie-option := $(call try-run, echo 'int main() { return 0; }' | \
+         $(CC) -Werror $(KBUILD_CPPFLAGS) $(CC_OPTION_CFLAGS) -no-pie -x c - -o "$$TMP", -no-pie)
 
 
