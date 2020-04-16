@@ -2,173 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55C781ACF5D
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 20:08:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B9021ACFB5
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 20:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729219AbgDPSIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 14:08:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43184 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729053AbgDPSIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 14:08:00 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A3E1C061A0F
-        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 11:08:00 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id u10so6297627lfo.8
-        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 11:08:00 -0700 (PDT)
+        id S1728029AbgDPSdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 14:33:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47066 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727792AbgDPSdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 14:33:09 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE3AC061A0C
+        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 11:33:09 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id n16so2027196pgb.7
+        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 11:33:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=/jeBVrKCSTz6BXkemvfuZzibOp/NI30GK2F1rleWJg0=;
-        b=vjGtAumvfCtlRH6CAP/IO6Lap1bsQ2dTI3kRVDElmxEhvW+u66SIvtvF4cykEmiELV
-         C2hRodFA6KCf/bIIaMhxpRm+QlZ51KL8OwsuqAbrUm+AEj3JT+/IBxpze6KHYP4ka4Mj
-         V9ugTNcW5Cwbaax6NbR1IhXJtKdGPasEXfwF4CVmDS9PzDVa2zIkds2NHNWV/78XNzi/
-         j2AHUAxyAkZk3oYwm6VZ6qik0+jGikyk802AIthfVwYZcYjTp1hbo+nKGOIx1VYigq5Q
-         6eSsQwpcPediLoNTZcWv0iQvYzO2GQ9AWhrlEK+Pr9R6+0XeL8SwupStrlg2CJqAQasS
-         7wbg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xIeaTrISHv/2qN73zZFj7p9GWBSwuaAuoS7mHi8Z29c=;
+        b=OYVrbHWiNutEEPKGqijcTzkeC79TDOqJHQzj2AsZlALkpRY7pP+TgkHKBJ1FWL9gPF
+         4w0iDDUJCbfmf56OoFHklOs2RLpDEmAB3lTqXciqpKeOb6Zyr78PMV78oQNezyFPk2yT
+         XrBF19w4v3j/Hnz4DRNVqsYZedsaZr8CDmnCSkhUEScPvF6HikvdggKn+yY6b16pIl/R
+         h7fziZ8m1NB/dEFLob7HF3oPNeg5l+4yXRQS13Fn4vQrmCr897R/rWGEGTl+HjOEIG0c
+         BrIxLAHK8dHy4mOuZBK9sYwMc8Dv83fADn4RUGfEkVlBa9cel8CtvKf4icOMJ+Orzzo/
+         Ag6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/jeBVrKCSTz6BXkemvfuZzibOp/NI30GK2F1rleWJg0=;
-        b=gbhkhEQ/tARq7vcX9vWvWEJf1tsC5DdJZgcEcrBm+1077iitIbaygK1CQAelt2hmTy
-         p0RMU5EoNJsyF+sM12uhW7LYpvtIizPkxoBSJrIkD18D1AgIx6MMNl3Y7ho38sW3ahBs
-         XdskQ0eLWftJHRBkE05gk8sQn8TlLZkoRFQZUlK9A8Qnh80Dmo9d+85r12L4UpF9oCbm
-         1hLqXpduDiotqQlMxb+KskdH92pIGnxu/Ki1IaZ5qeVxtgtJSSdL4FsSTAFfrolv/i3d
-         VAhPeQqsoBgdKnCyUUtxXqR2yNsgjS7fwwQ9OIG2xV7MCoW4RCDJ6veiDvW5mMXJpQJO
-         MTYQ==
-X-Gm-Message-State: AGi0PubIvpmEYjlsPafOUBDmYwLQZAxb7amtkIWZkuf+MfQ54APNM4k+
-        s4kcG10hQ/9kcIMSQcr94VbeDXEQ8I8qTmHe+QxdgQ==
-X-Google-Smtp-Source: APiQypIz1Nyt0YvK5h9ya5Ont4Bp/erVWj19vId3QI1k/cHk1N3ALIIaOb77r4ac04xrwFe3OnMJV0bWrWCZRgvd5oQ=
-X-Received: by 2002:a19:4014:: with SMTP id n20mr6483217lfa.6.1587060478709;
- Thu, 16 Apr 2020 11:07:58 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xIeaTrISHv/2qN73zZFj7p9GWBSwuaAuoS7mHi8Z29c=;
+        b=VYOiddBEOJXcFvKMuHVz0dn2HErbQUFtGWeFsIW4QiXD2LHjpe7REjoijlaLXzaRgy
+         cUmC+Zkjqtk3wGgJ8lVDaNfNGSo51h5H3JTY87G51Y5vHe1IobIX0FtAxpehP1UNRXGY
+         EKJtW0bXYsw2/gf/Plv6J65VeyJGj78xcEoSEvgeyeUV86sCoXyqBFIzHsiMwlYTCHKg
+         MYbUgMg+ehy4IL32nDuPGTdTaRmJ0N5vt10nUhFK+t/ZNBeNSo9T4OsQgFzQtk1S4pc2
+         tbnuJxTQ67GAbkmWXnq23U+UBco9QFuv/rN4NOOJzNKHV4LEGr68AQTi2C2sHzHQtLFE
+         7q6A==
+X-Gm-Message-State: AGi0PuZbtFPHFamTiGCW9BWz39QybkTekSaJuZU84zEVUvK6Q9XHedTq
+        ZxmiTvm4ijDS7kLD0LTlweZ9ftJv6Sg=
+X-Google-Smtp-Source: APiQypIjkSBPVKvN/NBgmXMboeGVQUjpmsl13Yn5nLAHjSEUcllxeeZXk7rJOZeDmuCJbNLMPoA1vQ==
+X-Received: by 2002:a63:1562:: with SMTP id 34mr8016248pgv.150.1587061988439;
+        Thu, 16 Apr 2020 11:33:08 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q11sm5268133pgs.25.2020.04.16.11.33.07
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Apr 2020 11:33:07 -0700 (PDT)
+Message-ID: <5e98a4e3.1c69fb81.5ae1d.20ee@mx.google.com>
+Date:   Thu, 16 Apr 2020 11:33:07 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200416131325.804095985@linuxfoundation.org>
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 16 Apr 2020 23:37:47 +0530
-Message-ID: <CA+G9fYtm0vpovNM5exU69WnQxpa3LHaumogCE9V8BCHgdcFr2A@mail.gmail.com>
-Subject: Re: [PATCH 5.6 000/254] 5.6.5-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.218-99-gbd51c04713a4
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 113 boots: 1 failed,
+ 104 passed with 2 offline, 5 untried/unknown,
+ 1 conflict (v4.9.218-99-gbd51c04713a4)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 16 Apr 2020 at 19:26, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.6.5 release.
-> There are 254 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 18 Apr 2020 13:11:20 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.6.5-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.6.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable-rc/linux-4.9.y boot: 113 boots: 1 failed, 104 passed with 2 offline,=
+ 5 untried/unknown, 1 conflict (v4.9.218-99-gbd51c04713a4)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.218-99-gbd51c04713a4/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.218-99-gbd51c04713a4/
 
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.218-99-gbd51c04713a4
+Git Commit: bd51c04713a4f34dd89ff3897c11e9bef252825b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 60 unique boards, 20 SoC families, 19 builds out of 197
 
-Summary
-------------------------------------------------------------------------
+Boot Regressions Detected:
 
-kernel: 5.6.5-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.6.y
-git commit: 576aa353744ce5f1279071363e4a55e97f486f39
-git describe: v5.6.4-255-g576aa353744c
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.6-oe/bui=
-ld/v5.6.4-255-g576aa353744c
+arm:
 
-No regressions (compared to build v5.6.3-39-g62251e4703ac)
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 68 days (last pass: v4.9.=
+213 - first fail: v4.9.213-37-g860ec95da9ad)
 
-No fixes (compared to build v5.6.3-39-g62251e4703ac)
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.9.218-93-g827144487=
+8fc)
 
-Ran 33508 total tests in the following environments and test suites.
+x86_64:
 
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
+    x86_64_defconfig:
+        gcc-8:
+          qemu_x86_64:
+              lab-baylibre: new failure (last pass: v4.9.218-93-g8271444878=
+fc)
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* kselftest
-* ltp-dio-tests
-* ltp-io-tests
-* ltp-open-posix-tests
-* ltp-sched-tests
-* network-basic-tests
-* spectre-meltdown-checker-test
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
+Boot Failure Detected:
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
