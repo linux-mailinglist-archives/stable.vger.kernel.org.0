@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 112E01AC823
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:04:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EBAD1AC2F9
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729860AbgDPPEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39744 "EHLO mail.kernel.org"
+        id S2896029AbgDPNf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:35:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408983AbgDPNxU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:53:20 -0400
+        id S2897207AbgDPNfx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:35:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE4B82076D;
-        Thu, 16 Apr 2020 13:53:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1626321BE5;
+        Thu, 16 Apr 2020 13:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045200;
-        bh=4PpD070jqdkedZt8ThZiTCX383+wNv8MLoZ3mDIv1Aw=;
+        s=default; t=1587044153;
+        bh=nUyyFBPLL/D22YbTWaXKhSr8m7tLa7bkRcmk4XL9nQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B5mbzYANFoihGrbsvOwtmQ4dLKrj048dDVSZLVsrUmILsRM67dhL5qf90nyYdnOIS
-         dle7g3XQgsC8Mid6QOXHs7QC3Ywxt+14koYxJ/V3LvjcKsrF/Fsrx8cs2L/GTLXFOT
-         9+/YUiW0ytOyfPLtRdksII6Dq6NaXRvCWqEzrBFI=
+        b=JPINk5ad+nadXKJppUzrbqpiT8Ldaj13wYUt+x688dNXw6cm/fLUFpzLcOTp2kFwo
+         pixxOFSGMRAI1pwVVwH40rnensjyW5Cwjst3A9JejrYoi05Cx2igRSJ3R5Zm6rjx4R
+         Gq4CHr6bE4GPTC0usWN7Y/hY28xjheFM+M/zoaDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Zhou <ouwen210@hotmail.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Boqun Feng <boqun.feng@gmail.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 037/254] sched/fair: Fix condition of avg_load calculation
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 075/257] locking/lockdep: Avoid recursion in lockdep_count_{for,back}ward_deps()
 Date:   Thu, 16 Apr 2020 15:22:06 +0200
-Message-Id: <20200416131330.497922858@linuxfoundation.org>
+Message-Id: <20200416131335.345336402@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Zhou <ouwen210@hotmail.com>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit 6c8116c914b65be5e4d6f66d69c8142eb0648c22 ]
+[ Upstream commit 25016bd7f4caf5fc983bbab7403d08e64cba3004 ]
 
-In update_sg_wakeup_stats(), the comment says:
+Qian Cai reported a bug when PROVE_RCU_LIST=y, and read on /proc/lockdep
+triggered a warning:
 
-Computing avg_load makes sense only when group is fully
-busy or overloaded.
+  [ ] DEBUG_LOCKS_WARN_ON(current->hardirqs_enabled)
+  ...
+  [ ] Call Trace:
+  [ ]  lock_is_held_type+0x5d/0x150
+  [ ]  ? rcu_lockdep_current_cpu_online+0x64/0x80
+  [ ]  rcu_read_lock_any_held+0xac/0x100
+  [ ]  ? rcu_read_lock_held+0xc0/0xc0
+  [ ]  ? __slab_free+0x421/0x540
+  [ ]  ? kasan_kmalloc+0x9/0x10
+  [ ]  ? __kmalloc_node+0x1d7/0x320
+  [ ]  ? kvmalloc_node+0x6f/0x80
+  [ ]  __bfs+0x28a/0x3c0
+  [ ]  ? class_equal+0x30/0x30
+  [ ]  lockdep_count_forward_deps+0x11a/0x1a0
 
-But, the code below this comment does not check like this.
+The warning got triggered because lockdep_count_forward_deps() call
+__bfs() without current->lockdep_recursion being set, as a result
+a lockdep internal function (__bfs()) is checked by lockdep, which is
+unexpected, and the inconsistency between the irq-off state and the
+state traced by lockdep caused the warning.
 
->From reading the code about avg_load in other functions, I
-confirm that avg_load should be calculated in fully busy or
-overloaded case. The comment is correct and the checking
-condition is wrong. So, change that condition.
+Apart from this warning, lockdep internal functions like __bfs() should
+always be protected by current->lockdep_recursion to avoid potential
+deadlocks and data inconsistency, therefore add the
+current->lockdep_recursion on-and-off section to protect __bfs() in both
+lockdep_count_forward_deps() and lockdep_count_backward_deps()
 
-Fixes: 57abff067a08 ("sched/fair: Rework find_idlest_group()")
-Signed-off-by: Tao Zhou <ouwen210@hotmail.com>
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Acked-by: Mel Gorman <mgorman@suse.de>
-Link: https://lkml.kernel.org/r/Message-ID:
+Link: https://lkml.kernel.org/r/20200312151258.128036-1-boqun.feng@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/locking/lockdep.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index c1217bfe5e819..7f895d5139948 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -8345,7 +8345,8 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
- 	 * Computing avg_load makes sense only when group is fully busy or
- 	 * overloaded
- 	 */
--	if (sgs->group_type < group_fully_busy)
-+	if (sgs->group_type == group_fully_busy ||
-+		sgs->group_type == group_overloaded)
- 		sgs->avg_load = (sgs->group_load * SCHED_CAPACITY_SCALE) /
- 				sgs->group_capacity;
- }
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 32406ef0d6a2d..5142a6b11bf5b 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -1719,9 +1719,11 @@ unsigned long lockdep_count_forward_deps(struct lock_class *class)
+ 	this.class = class;
+ 
+ 	raw_local_irq_save(flags);
++	current->lockdep_recursion = 1;
+ 	arch_spin_lock(&lockdep_lock);
+ 	ret = __lockdep_count_forward_deps(&this);
+ 	arch_spin_unlock(&lockdep_lock);
++	current->lockdep_recursion = 0;
+ 	raw_local_irq_restore(flags);
+ 
+ 	return ret;
+@@ -1746,9 +1748,11 @@ unsigned long lockdep_count_backward_deps(struct lock_class *class)
+ 	this.class = class;
+ 
+ 	raw_local_irq_save(flags);
++	current->lockdep_recursion = 1;
+ 	arch_spin_lock(&lockdep_lock);
+ 	ret = __lockdep_count_backward_deps(&this);
+ 	arch_spin_unlock(&lockdep_lock);
++	current->lockdep_recursion = 0;
+ 	raw_local_irq_restore(flags);
+ 
+ 	return ret;
 -- 
 2.20.1
 
