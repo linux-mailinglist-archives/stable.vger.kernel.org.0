@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CEDA1AC25E
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D9741ACAE6
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:41:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895522AbgDPN1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:27:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36016 "EHLO mail.kernel.org"
+        id S2395435AbgDPPk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:40:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895515AbgDPN1c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:27:32 -0400
+        id S2897428AbgDPNhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:37:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79A14221F4;
-        Thu, 16 Apr 2020 13:27:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38A7C221F9;
+        Thu, 16 Apr 2020 13:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043651;
-        bh=plcbiY9bqamDGSPKaGgFotz/H0XVxLwbhltRpzxUrCc=;
+        s=default; t=1587044234;
+        bh=WtyTCRlFyMzJAkJbuvSlHht8TZrezfj5ottSM/w2hRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vh/bCgdquOKArxbgpKsmFP9I4d1DNg2tWCJ+WQCB3FgiTctwEnvC1Ivko6yQ0Rkgq
-         2XVFMAzR0lNpPJgrDukuw8vjpgqSEFw/Gse1fe5734E/tjgmfmvjH9DUIFD4/eh6i2
-         Ez/x+MhZjGY/XY/aUqO5Ffu9WmtLU9MiBBTuxGxM=
+        b=qBu8xALIy2nsCst/Fx+ArA/v0up1T6TWVMX2rYKlfeLeI3Iz/LHDH2HtO8px5LKUD
+         zuwzqmS0/+UP6h/iODMIHo1Q2yHIfn63bmNNls0LWYKRYiuQD+P2Jo6ryD5IXdi2tP
+         YY0VpCf2u6Y+h2M0WB88p/lP9FpGsc4npI7E7QO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 045/146] ASoC: dapm: connect virtual mux with default value
+        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.5 135/257] ath9k: Handle txpower changes even when TPC is disabled
 Date:   Thu, 16 Apr 2020 15:23:06 +0200
-Message-Id: <20200416131248.943645694@linuxfoundation.org>
+Message-Id: <20200416131343.334987227@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 이경택 <gt82.lee@samsung.com>
+From: Remi Pommarel <repk@triplefau.lt>
 
-commit 3bbbb7728fc853d71dbce4073fef9f281fbfb4dd upstream.
+commit 968ae2caad0782db5dbbabb560d3cdefd2945d38 upstream.
 
-Since a virtual mixer has no backing registers
-to decide which path to connect,
-it will try to match with initial state.
-This is to ensure that the default mixer choice will be
-correctly powered up during initialization.
-Invert flag is used to select initial state of the virtual switch.
-Since actual hardware can't be disconnected by virtual switch,
-connected is better choice as initial state in many cases.
+When TPC is disabled IEEE80211_CONF_CHANGE_POWER event can be handled to
+reconfigure HW's maximum txpower.
 
-Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
-Link: https://lore.kernel.org/r/01a301d60731$b724ea10$256ebe30$@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This fixes 0dBm txpower setting when user attaches to an interface for
+the first time with the following scenario:
+
+ieee80211_do_open()
+    ath9k_add_interface()
+        ath9k_set_txpower() /* Set TX power with not yet initialized
+                               sc->hw->conf.power_level */
+
+    ieee80211_hw_config() /* Iniatilize sc->hw->conf.power_level and
+                             raise IEEE80211_CONF_CHANGE_POWER */
+
+    ath9k_config() /* IEEE80211_CONF_CHANGE_POWER is ignored */
+
+This issue can be reproduced with the following:
+
+  $ modprobe -r ath9k
+  $ modprobe ath9k
+  $ wpa_supplicant -i wlan0 -c /tmp/wpa.conf &
+  $ iw dev /* Here TX power is either 0 or 3 depending on RF chain */
+  $ killall wpa_supplicant
+  $ iw dev /* TX power goes back to calibrated value and subsequent
+              calls will be fine */
+
+Fixes: 283dd11994cde ("ath9k: add per-vif TX power capability")
+Cc: stable@vger.kernel.org
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/soc-dapm.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -792,7 +792,13 @@ static void dapm_set_mixer_path_status(s
- 			val = max - val;
- 		p->connect = !!val;
- 	} else {
--		p->connect = 0;
-+		/* since a virtual mixer has no backing registers to
-+		 * decide which path to connect, it will try to match
-+		 * with initial state.  This is to ensure
-+		 * that the default mixer choice will be
-+		 * correctly powered up during initialization.
-+		 */
-+		p->connect = invert;
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -1457,6 +1457,9 @@ static int ath9k_config(struct ieee80211
+ 		ath_chanctx_set_channel(sc, ctx, &hw->conf.chandef);
  	}
- }
+ 
++	if (changed & IEEE80211_CONF_CHANGE_POWER)
++		ath9k_set_txpower(sc, NULL);
++
+ 	mutex_unlock(&sc->mutex);
+ 	ath9k_ps_restore(sc);
  
 
 
