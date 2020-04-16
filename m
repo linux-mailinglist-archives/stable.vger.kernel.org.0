@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D56D1AC810
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB4C81AC9EC
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:29:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405118AbgDPPDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:03:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40090 "EHLO mail.kernel.org"
+        id S2409824AbgDPP3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:29:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2636240AbgDPNxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:53:38 -0400
+        id S2898087AbgDPNny (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:43:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0394320732;
-        Thu, 16 Apr 2020 13:53:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F23A214D8;
+        Thu, 16 Apr 2020 13:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045217;
-        bh=otK5x4Ls3x9usVl63svp8ToBMJhcukjNtYux7ORX/Ps=;
+        s=default; t=1587044634;
+        bh=rcjh3l3DjFWYTa13HVk4wQSTUrOgmQ2s6RvdNQnB9Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXvLj2p62U9GT/9nhMLM2FFxGL9C3sp9GfqpR7DNB6pIVIun1SxwCdMsVBpmcrcNK
-         oRyGDORidU4B5+8YIALngH6drucfUlzQnLRQWMgRkfjvT1GwcPry0SgOGy3IUOpiVp
-         UGN9+kG4csMnmSFZ8f4i4ot20smS76fRMfDXf48A=
+        b=hJLECXd52pe7AK0fypno84sg6vrvRXMfZlH+zbz7DALVgNjigl2eo2afdcaGxHq/b
+         g8VLJ63499l2KlP5hpuHMRG+J7IBvSw05fTm8FRCy2pI+6SLLxc8NWTTZMb1zPEWt4
+         3xoNjNqxzHteeiB96WafyQ3lV9YeaedDD+k0Us64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chenqiwu <chenqiwu@xiaomi.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Bob Liu <bob.liu@oracle.com>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 043/254] pstore/platform: fix potential mem leak if pstore_init_fs failed
+Subject: [PATCH 5.4 038/232] block: keep bdi->io_pages in sync with max_sectors_kb for stacked devices
 Date:   Thu, 16 Apr 2020 15:22:12 +0200
-Message-Id: <20200416131331.267012318@linuxfoundation.org>
+Message-Id: <20200416131320.692007316@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chenqiwu <chenqiwu@xiaomi.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-[ Upstream commit 8a57d6d4ddfa41c49014e20493152c41a38fcbf8 ]
+[ Upstream commit e74d93e96d721c4297f2a900ad0191890d2fc2b0 ]
 
-There is a potential mem leak when pstore_init_fs failed,
-since the pstore compression maybe unlikey to initialized
-successfully. We must clean up the allocation once this
-unlikey issue happens.
+Field bdi->io_pages added in commit 9491ae4aade6 ("mm: don't cap request
+size based on read-ahead setting") removes unneeded split of read requests.
 
-Signed-off-by: chenqiwu <chenqiwu@xiaomi.com>
-Link: https://lore.kernel.org/r/1581068800-13817-1-git-send-email-qiwuchen55@gmail.com
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Stacked drivers do not call blk_queue_max_hw_sectors(). Instead they set
+limits of their devices by blk_set_stacking_limits() + disk_stack_limits().
+Field bio->io_pages stays zero until user set max_sectors_kb via sysfs.
+
+This patch updates io_pages after merging limits in disk_stack_limits().
+
+Commit c6d6e9b0f6b4 ("dm: do not allow readahead to limit IO size") fixed
+the same problem for device-mapper devices, this one fixes MD RAIDs.
+
+Fixes: 9491ae4aade6 ("mm: don't cap request size based on read-ahead setting")
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reviewed-by: Bob Liu <bob.liu@oracle.com>
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/platform.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ block/blk-settings.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/pstore/platform.c b/fs/pstore/platform.c
-index d896457e7c117..408277ee3cdb9 100644
---- a/fs/pstore/platform.c
-+++ b/fs/pstore/platform.c
-@@ -823,9 +823,9 @@ static int __init pstore_init(void)
- 
- 	ret = pstore_init_fs();
- 	if (ret)
--		return ret;
-+		free_buf_for_compression();
- 
--	return 0;
-+	return ret;
+diff --git a/block/blk-settings.c b/block/blk-settings.c
+index c8eda2e7b91e4..be1dca0103a45 100644
+--- a/block/blk-settings.c
++++ b/block/blk-settings.c
+@@ -664,6 +664,9 @@ void disk_stack_limits(struct gendisk *disk, struct block_device *bdev,
+ 		printk(KERN_NOTICE "%s: Warning: Device %s is misaligned\n",
+ 		       top, bottom);
+ 	}
++
++	t->backing_dev_info->io_pages =
++		t->limits.max_sectors >> (PAGE_SHIFT - 9);
  }
- late_initcall(pstore_init);
+ EXPORT_SYMBOL(disk_stack_limits);
  
 -- 
 2.20.1
