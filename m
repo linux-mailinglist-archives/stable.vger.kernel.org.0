@@ -2,123 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1730A1ACECA
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 19:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CD651ACECD
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 19:37:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729191AbgDPRgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 13:36:51 -0400
-Received: from mga18.intel.com ([134.134.136.126]:42247 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726207AbgDPRgu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 13:36:50 -0400
-IronPort-SDR: U80Y4mR5nyZ1KWDhIkMJnTphkDecLtBp+B9NNbPBbhorE+eoM6FgHGJzGfKvxMvxEOmXmAKmy6
- nubXqEtzy3HQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2020 10:36:49 -0700
-IronPort-SDR: bYcMqP7HHeFuyMHxyG2Cy/+9vdE3DmC7lIFJbp3qnzvpgt9XWYaneT880u5jTfPqaavYiHzmuL
- OPHinUX3Hxog==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,391,1580803200"; 
-   d="scan'208";a="364065411"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga001.fm.intel.com with SMTP; 16 Apr 2020 10:36:46 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Thu, 16 Apr 2020 20:36:45 +0300
-Date:   Thu, 16 Apr 2020 20:36:45 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] drm: Fix page flip ioctl format check
-Message-ID: <20200416173645.GK6112@intel.com>
-References: <20200416170420.23657-1-ville.syrjala@linux.intel.com>
- <20200416170814.GI4796@pendragon.ideasonboard.com>
+        id S1729208AbgDPRg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 13:36:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38318 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726207AbgDPRg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 13:36:57 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7F7C061A0C
+        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 10:36:57 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id e25so2239428ljg.5
+        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 10:36:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=arrikto-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=JgCnAsKYInpmVcComEu1siRHmayq7ys3fnurxAfmQNg=;
+        b=weSI6gXMa6eaaA9dVjqRNfD3pW6Bvg93APb/CbCuzq6u5f0j4fb/irlOyhFZEo1I9Q
+         aEx1tmQLw+RmcAC6OebDDG+sO0g04lx+hNR5skGYUHHjeFe33VZpVqv4ojGLM5c3dDyR
+         CgsqrmAAAucNImomEwVy8OgeFxEQrdlULgWNnKF0KtJzgJlONj2HSx+GRScxuxtGr7h0
+         I8XZuhEFPAH6qDIv1KEIet0X3JOKaD26nnDUbdhf2+CAvQXmD3qtRPc0sfm0n6v+6Ixb
+         VxhSKuuy4AFjP7CTIKo9G1AAAGFg7pUFYMw+soYfuH/fKyOwcxSjmLhvPkjo0+kXSoBw
+         lbFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=JgCnAsKYInpmVcComEu1siRHmayq7ys3fnurxAfmQNg=;
+        b=UrQcLreRdnyRUuBDThoh3cWOMTSsahVkO8X4E8quXY1jkrxrFOA/Mdtjr7OdVoJTXu
+         YH5ReN2nUtJL02OtpZqbdkkaPcBIIxwyEVXROdNfBlPqcaVoo7Y7ylLrs6rgQm6frlC4
+         DnLKnr7Km3GGhAwHbNC7dWv9IE3hQqCZrGsMuj2j8AolJ/LV+L8GzspthtV7wzit/v8C
+         itOucOKUUhduomXVFw13ncyeqMv8buQhSr5HrImZLjHEK+6YgNS22IhM0olxiYsD0x9K
+         wW2ngilao9wPdAo83lA8A3U2iT46NKMq57UEdJnOLQ7XmrBoMALXHmdUIR6gjwYw58PA
+         inrA==
+X-Gm-Message-State: AGi0Puaihsh0Io/TpDfWCCjXlC4eXG4+qXslmu4SgwZ134WHbzLrQNO3
+        W9ZKucvKbZ/IussqiTa4ypqE7Cb0JT4=
+X-Google-Smtp-Source: APiQypJ6uL/Fp33oHmrn1tpTT+LRfqnvjDbRoKAYNMkfWjRRjznTlJiQuyPhz9axNTiIAQSBtYsGDw==
+X-Received: by 2002:a2e:9a0d:: with SMTP id o13mr6732378lji.142.1587058615397;
+        Thu, 16 Apr 2020 10:36:55 -0700 (PDT)
+Received: from [192.168.1.112] (62.1.247.111.dsl.dyn.forthnet.gr. [62.1.247.111])
+        by smtp.gmail.com with ESMTPSA id j14sm15258294lfm.73.2020.04.16.10.36.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Apr 2020 10:36:54 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] dm clone: Fix handling of partial region
+ discards" failed to apply to 5.4-stable tree
+To:     Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org
+Cc:     snitzer@redhat.com, stable@vger.kernel.org
+References: <1586948589138112@kroah.com> <20200416005702.GP1068@sasha-vm>
+From:   Nikos Tsironis <ntsironis@arrikto.com>
+Message-ID: <c762398d-2ce1-7046-907c-392bb26f9758@arrikto.com>
+Date:   Thu, 16 Apr 2020 20:36:53 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200416170814.GI4796@pendragon.ideasonboard.com>
-X-Patchwork-Hint: comment
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200416005702.GP1068@sasha-vm>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 08:08:14PM +0300, Laurent Pinchart wrote:
-> Hi Ville,
+On 4/16/20 3:57 AM, Sasha Levin wrote:
+> On Wed, Apr 15, 2020 at 01:03:09PM +0200, gregkh@linuxfoundation.org wrote:
+>>
+>> The patch below does not apply to the 5.4-stable tree.
+>> If someone wants it applied there, or to any other stable or longterm
+>> tree, then please email the backport, including the original git commit
+>> id to <stable@vger.kernel.org>.
+>>
+>> thanks,
+>>
+>> greg k-h
+>>
+>> ------------------ original commit in Linus's tree ------------------
+>>
+>> From 4b5142905d4ff58a4b93f7c8eaa7ba829c0a53c9 Mon Sep 17 00:00:00 2001
+>> From: Nikos Tsironis <ntsironis@arrikto.com>
+>> Date: Fri, 27 Mar 2020 16:01:08 +0200
+>> Subject: [PATCH] dm clone: Fix handling of partial region discards
+>>
+>> There is a bug in the way dm-clone handles discards, which can lead to
+>> discarding the wrong blocks or trying to discard blocks beyond the end
+>> of the device.
+>>
+>> This could lead to data corruption, if the destination device indeed
+>> discards the underlying blocks, i.e., if the discard operation results
+>> in the original contents of a block to be lost.
+>>
+>> The root of the problem is the code that calculates the range of regions
+>> covered by a discard request and decides which regions to discard.
+>>
+>> Since dm-clone handles the device in units of regions, we don't discard
+>> parts of a region, only whole regions.
+>>
+>> The range is calculated as:
+>>
+>>    rs = dm_sector_div_up(bio->bi_iter.bi_sector, clone->region_size);
+>>    re = bio_end_sector(bio) >> clone->region_shift;
+>>
+>> , where 'rs' is the first region to discard and (re - rs) is the number
+>> of regions to discard.
+>>
+>> The bug manifests when we try to discard part of a single region, i.e.,
+>> when we try to discard a block with size < region_size, and the discard
+>> request both starts at an offset with respect to the beginning of that
+>> region and ends before the end of the region.
+>>
+>> The root cause is the following comparison:
+>>
+>>  if (rs == re)
+>>    // skip discard and complete original bio immediately
+>>
+>> , which doesn't take into account that 'rs' might be greater than 're'.
+>>
+>> Thus, we then issue a discard request for the wrong blocks, instead of
+>> skipping the discard all together.
+>>
+>> Fix the check to also take into account the above case, so we don't end
+>> up discarding the wrong blocks.
+>>
+>> Also, add some range checks to dm_clone_set_region_hydrated() and
+>> dm_clone_cond_set_range(), which update dm-clone's region bitmap.
+>>
+>> Note that the aforementioned bug doesn't cause invalid memory accesses,
+>> because dm_clone_is_range_hydrated() returns True for this case, so the
+>> checks are just precautionary.
+>>
+>> Fixes: 7431b7835f55 ("dm: add clone target")
+>> Cc: stable@vger.kernel.org # v5.4+
+>> Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+>> Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 > 
-> Thank you for the patch.
+> I've also grabbed 6ca43ed8376a ("dm clone: replace spin_lock_irqsave
+> with spin_lock_irq") to deal with this conflict.
 > 
-> On Thu, Apr 16, 2020 at 08:04:20PM +0300, Ville Syrjala wrote:
-> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > 
-> > Revert back to comparing fb->format->format instead fb->format for the
-> > page flip ioctl. This check was originally only here to disallow pixel
-> > format changes, but when we changed it to do the pointer comparison
-> > we potentially started to reject some (but definitely not all) modifier
-> > changes as well. In fact the current behaviour depends on whether the
-> > driver overrides the format info for a specific format+modifier combo.
-> > Eg. on i915 this now rejects compression vs. no compression changes but
-> > does not reject any other tiling changes. That's just inconsistent
-> > nonsense.
-> > 
-> > The main reason we have to go back to the old behaviour is to fix page
-> > flipping with Xorg. At some point Xorg got its atomic rights taken away
-> > and since then we can't page flip between compressed and non-compressed
-> > fbs on i915. Currently we get no page flipping for any games pretty much
-> > since Mesa likes to use compressed buffers. Not sure how compositors are
-> > working around this (don't use one myself). I guess they must be doing
-> > something to get non-compressed buffers instead. Either that or
-> > somehow no one noticed the tearing from the blit fallback.
-> > 
-> > Looking back at the original discussion on this change we pretty much
-> > just did it in the name of skipping a few extra pointer dereferences.
-> > However, I've decided not to revert the whole thing in case someone
-> > has since started to depend on these changes. None of the other checks
-> > are relevant for i915 anyways.
-> 
-> Do display controller usually support changing modifiers for page flips
-> ? I understand from the information about that i915 does, but is that
-> usual ? Could there be drivers that really on this check to reject
-> modifier changes, and that aren't prepared to handle them if they are
-> not rejected by the core ? I'm not opposed to this change, but I'd like
-> to carefully consider the fallout.
 
-After a bit of grepping I can't actually see any other driver providing
-a .get_format_info() hook. So looks like there is no change in behaviour
-for any other driver. Based on that we could even do a full revert, but
-meh.
+I just saw the mail, thanks a lot for resolving this.
 
-> 
-> > Cc: stable@vger.kernel.org
-> > Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > Fixes: dbd4d5761e1f ("drm: Replace 'format->format' comparisons to just 'format' comparisons")
-> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > ---
-> >  drivers/gpu/drm/drm_plane.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
-> > index d6ad60ab0d38..f2ca5315f23b 100644
-> > --- a/drivers/gpu/drm/drm_plane.c
-> > +++ b/drivers/gpu/drm/drm_plane.c
-> > @@ -1153,7 +1153,7 @@ int drm_mode_page_flip_ioctl(struct drm_device *dev,
-> >  	if (ret)
-> >  		goto out;
-> >  
-> > -	if (old_fb->format != fb->format) {
-> > +	if (old_fb->format->format != fb->format->format) {
-> >  		DRM_DEBUG_KMS("Page flip is not allowed to change frame buffer format.\n");
-> >  		ret = -EINVAL;
-> >  		goto out;
-> 
-> -- 
-> Regards,
-> 
-> Laurent Pinchart
-
--- 
-Ville Syrjälä
-Intel
+Nikos
