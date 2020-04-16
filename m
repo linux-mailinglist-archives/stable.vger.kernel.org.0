@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B47B1AC89A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:12:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B86951AC897
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:12:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404350AbgDPPLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:11:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36224 "EHLO mail.kernel.org"
+        id S2394949AbgDPPLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:11:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732677AbgDPNuR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:17 -0400
+        id S1729119AbgDPNuZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1967220732;
-        Thu, 16 Apr 2020 13:50:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8674620786;
+        Thu, 16 Apr 2020 13:50:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045016;
-        bh=OX08Yy+S0/dVbFy6XcBFg78t8CZ/ZdRHwjDiG4BWfVM=;
+        s=default; t=1587045019;
+        bh=lFhx4Pwgt/IIWG+kD1mKhR5l8kclKGuuGvtVWpV6au4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TIx8u/QMCC6vvYKUt2XG+deqpgfZNbPUzyk42qQd3AnRFBUQ98QbEj+oj4Uu/0J7x
-         Hge/TFg6GFbql5rnd0vVikPDLFmpxQrWRsVJYGzwZOSQuT8lFSW0BNd7tLxKdlnqU4
-         8ZqWAy7Zl+qd/nxVE32H1m7cLFkHTX4/0lI1E61w=
+        b=zT0tQHVvR612Mk80UTb1cx3orxP7UiIi53uIIKVHx8pkbLjS+XoSJhQh5rQvtUpjV
+         76YMUE9jRTXr02y0Vo8H46YyM944MNzLm/YynqYY4ayV66vHZ0toa213Rlj7mMhAuV
+         /giyZluQKDwaq4vo5Son6wb8PRr8UqR9AIN33mtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Lunt <samuel.j.lunt@gmail.com>,
-        He Zhe <zhe.he@windriver.com>, Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, trivial@kernel.org,
-        stable@kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 195/232] perf tools: Support Python 3.8+ in Makefile
-Date:   Thu, 16 Apr 2020 15:24:49 +0200
-Message-Id: <20200416131339.582130882@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Mueller <mimu@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 196/232] s390/diag: fix display of diagnose call statistics
+Date:   Thu, 16 Apr 2020 15:24:50 +0200
+Message-Id: <20200416131339.718575125@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
 References: <20200416131316.640996080@linuxfoundation.org>
@@ -48,59 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Lunt <samueljlunt@gmail.com>
+From: Michael Mueller <mimu@linux.ibm.com>
 
-commit b9c9ce4e598e012ca7c1813fae2f4d02395807de upstream.
+commit 6c7c851f1b666a8a455678a0b480b9162de86052 upstream.
 
-Python 3.8 changed the output of 'python-config --ldflags' to no longer
-include the '-lpythonX.Y' flag (this apparently fixed an issue loading
-modules with a statically linked Python executable).  The libpython
-feature check in linux/build/feature fails if the Python library is not
-included in FEATURE_CHECK_LDFLAGS-libpython variable.
+Show the full diag statistic table and not just parts of it.
 
-This adds a check in the Makefile to determine if PYTHON_CONFIG accepts
-the '--embed' flag and passes that flag alongside '--ldflags' if so.
+The issue surfaced in a KVM guest with a number of vcpus
+defined smaller than NR_DIAG_STAT.
 
-tools/perf is the only place the libpython feature check is used.
-
-Signed-off-by: Sam Lunt <samuel.j.lunt@gmail.com>
-Tested-by: He Zhe <zhe.he@windriver.com>
-Link: http://lore.kernel.org/lkml/c56be2e1-8111-9dfe-8298-f7d0f9ab7431@windriver.com
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: trivial@kernel.org
-Cc: stable@kernel.org
-Link: http://lore.kernel.org/lkml/20200131181123.tmamivhq4b7uqasr@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/Makefile.config |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/s390/kernel/diag.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -228,8 +228,17 @@ strip-libs  = $(filter-out -l%,$(1))
+--- a/arch/s390/kernel/diag.c
++++ b/arch/s390/kernel/diag.c
+@@ -84,7 +84,7 @@ static int show_diag_stat(struct seq_fil
  
- PYTHON_CONFIG_SQ := $(call shell-sq,$(PYTHON_CONFIG))
+ static void *show_diag_stat_start(struct seq_file *m, loff_t *pos)
+ {
+-	return *pos <= nr_cpu_ids ? (void *)((unsigned long) *pos + 1) : NULL;
++	return *pos <= NR_DIAG_STAT ? (void *)((unsigned long) *pos + 1) : NULL;
+ }
  
-+# Python 3.8 changed the output of `python-config --ldflags` to not include the
-+# '-lpythonX.Y' flag unless '--embed' is also passed. The feature check for
-+# libpython fails if that flag is not included in LDFLAGS
-+ifeq ($(shell $(PYTHON_CONFIG_SQ) --ldflags --embed 2>&1 1>/dev/null; echo $$?), 0)
-+  PYTHON_CONFIG_LDFLAGS := --ldflags --embed
-+else
-+  PYTHON_CONFIG_LDFLAGS := --ldflags
-+endif
-+
- ifdef PYTHON_CONFIG
--  PYTHON_EMBED_LDOPTS := $(shell $(PYTHON_CONFIG_SQ) --ldflags 2>/dev/null)
-+  PYTHON_EMBED_LDOPTS := $(shell $(PYTHON_CONFIG_SQ) $(PYTHON_CONFIG_LDFLAGS) 2>/dev/null)
-   PYTHON_EMBED_LDFLAGS := $(call strip-libs,$(PYTHON_EMBED_LDOPTS))
-   PYTHON_EMBED_LIBADD := $(call grep-libs,$(PYTHON_EMBED_LDOPTS)) -lutil
-   PYTHON_EMBED_CCOPTS := $(shell $(PYTHON_CONFIG_SQ) --includes 2>/dev/null)
+ static void *show_diag_stat_next(struct seq_file *m, void *v, loff_t *pos)
 
 
