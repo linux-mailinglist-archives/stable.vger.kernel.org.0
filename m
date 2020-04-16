@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C7561AC7C2
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:59:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F291ACB18
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:46:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394817AbgDPO6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:58:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41756 "EHLO mail.kernel.org"
+        id S1729859AbgDPPno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:43:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409133AbgDPNzL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:55:11 -0400
+        id S2897149AbgDPNfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:35:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEEA421744;
-        Thu, 16 Apr 2020 13:55:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABE7122201;
+        Thu, 16 Apr 2020 13:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045310;
-        bh=30hy3yBwfYpGQ3YmwExCQUUPvJUTtZHkZv+HN2q/6M4=;
+        s=default; t=1587044131;
+        bh=QacHWWHP2ypjKPjprKD6bhOij6cFw/F0WEMxr8v+1t4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bn5dqy84busxFTxp+oOMZyEFx5tP1zCtAU4TiMBv+WVc4lmy23gLLmVLL3rDzS7Zv
-         PSDWsoyD6onkMSujb+Ce0Tma40XqCB4JFYSyj7jxsAeOY5bLaFe9g8wLZN3mPpu88l
-         TzUE/TIqyAtabM2K6gXGxadI8qF0EfawXhcPxFlI=
+        b=Bp0TcgcgPPW8m9HQKASJjp8yNU0T9CdsvmVM03UORnzyCKpoqVTelt6fVBI1Ga7wW
+         dmLKs6fOcwWQhm6gc+b93lcR+zo9RWWzjU61EntXpMTk/xj6zqig7w2CBMvuUacPPO
+         sCVJkKeQa0IQH1vxDLnu1Uo8n/0mowGr6qnr3t1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 055/254] irqchip/gic-v4: Provide irq_retrigger to avoid circular locking dependency
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 093/257] ALSA: hda/realtek - a fake key event is triggered by running shutup
 Date:   Thu, 16 Apr 2020 15:22:24 +0200
-Message-Id: <20200416131332.790863670@linuxfoundation.org>
+Message-Id: <20200416131337.640811681@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,145 +43,248 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit 7809f7011c3bce650e502a98afeb05961470d865 ]
+commit 476c02e0b4fd9071d158f6a1a1dfea1d36ee0ffd upstream.
 
-On a very heavily loaded D05 with GICv4, I managed to trigger the
-following lockdep splat:
+On the Lenovo X1C7 machines, after we plug the headset, the rt_resume()
+and rt_suspend() of the codec driver will be called periodically, the
+driver can't stay in the rt_suspend state even users doen't use the
+sound card.
 
-[ 6022.598864] ======================================================
-[ 6022.605031] WARNING: possible circular locking dependency detected
-[ 6022.611200] 5.6.0-rc4-00026-geee7c7b0f498 #680 Tainted: G            E
-[ 6022.618061] ------------------------------------------------------
-[ 6022.624227] qemu-system-aar/7569 is trying to acquire lock:
-[ 6022.629789] ffff042f97606808 (&p->pi_lock){-.-.}, at: try_to_wake_up+0x54/0x7a0
-[ 6022.637102]
-[ 6022.637102] but task is already holding lock:
-[ 6022.642921] ffff002fae424cf0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x5c/0x98
-[ 6022.651350]
-[ 6022.651350] which lock already depends on the new lock.
-[ 6022.651350]
-[ 6022.659512]
-[ 6022.659512] the existing dependency chain (in reverse order) is:
-[ 6022.666980]
-[ 6022.666980] -> #2 (&irq_desc_lock_class){-.-.}:
-[ 6022.672983]        _raw_spin_lock_irqsave+0x50/0x78
-[ 6022.677848]        __irq_get_desc_lock+0x5c/0x98
-[ 6022.682453]        irq_set_vcpu_affinity+0x40/0xc0
-[ 6022.687236]        its_make_vpe_non_resident+0x6c/0xb8
-[ 6022.692364]        vgic_v4_put+0x54/0x70
-[ 6022.696273]        vgic_v3_put+0x20/0xd8
-[ 6022.700183]        kvm_vgic_put+0x30/0x48
-[ 6022.704182]        kvm_arch_vcpu_put+0x34/0x50
-[ 6022.708614]        kvm_sched_out+0x34/0x50
-[ 6022.712700]        __schedule+0x4bc/0x7f8
-[ 6022.716697]        schedule+0x50/0xd8
-[ 6022.720347]        kvm_arch_vcpu_ioctl_run+0x5f0/0x978
-[ 6022.725473]        kvm_vcpu_ioctl+0x3d4/0x8f8
-[ 6022.729820]        ksys_ioctl+0x90/0xd0
-[ 6022.733642]        __arm64_sys_ioctl+0x24/0x30
-[ 6022.738074]        el0_svc_common.constprop.3+0xa8/0x1e8
-[ 6022.743373]        do_el0_svc+0x28/0x88
-[ 6022.747198]        el0_svc+0x14/0x40
-[ 6022.750761]        el0_sync_handler+0x124/0x2b8
-[ 6022.755278]        el0_sync+0x140/0x180
-[ 6022.759100]
-[ 6022.759100] -> #1 (&rq->lock){-.-.}:
-[ 6022.764143]        _raw_spin_lock+0x38/0x50
-[ 6022.768314]        task_fork_fair+0x40/0x128
-[ 6022.772572]        sched_fork+0xe0/0x210
-[ 6022.776484]        copy_process+0x8c4/0x18d8
-[ 6022.780742]        _do_fork+0x88/0x6d8
-[ 6022.784478]        kernel_thread+0x64/0x88
-[ 6022.788563]        rest_init+0x30/0x270
-[ 6022.792390]        arch_call_rest_init+0x14/0x1c
-[ 6022.796995]        start_kernel+0x498/0x4c4
-[ 6022.801164]
-[ 6022.801164] -> #0 (&p->pi_lock){-.-.}:
-[ 6022.806382]        __lock_acquire+0xdd8/0x15c8
-[ 6022.810813]        lock_acquire+0xd0/0x218
-[ 6022.814896]        _raw_spin_lock_irqsave+0x50/0x78
-[ 6022.819761]        try_to_wake_up+0x54/0x7a0
-[ 6022.824018]        wake_up_process+0x1c/0x28
-[ 6022.828276]        wakeup_softirqd+0x38/0x40
-[ 6022.832533]        __tasklet_schedule_common+0xc4/0xf0
-[ 6022.837658]        __tasklet_schedule+0x24/0x30
-[ 6022.842176]        check_irq_resend+0xc8/0x158
-[ 6022.846609]        irq_startup+0x74/0x128
-[ 6022.850606]        __enable_irq+0x6c/0x78
-[ 6022.854602]        enable_irq+0x54/0xa0
-[ 6022.858431]        its_make_vpe_non_resident+0xa4/0xb8
-[ 6022.863557]        vgic_v4_put+0x54/0x70
-[ 6022.867469]        kvm_arch_vcpu_blocking+0x28/0x38
-[ 6022.872336]        kvm_vcpu_block+0x48/0x490
-[ 6022.876594]        kvm_handle_wfx+0x18c/0x310
-[ 6022.880938]        handle_exit+0x138/0x198
-[ 6022.885022]        kvm_arch_vcpu_ioctl_run+0x4d4/0x978
-[ 6022.890148]        kvm_vcpu_ioctl+0x3d4/0x8f8
-[ 6022.894494]        ksys_ioctl+0x90/0xd0
-[ 6022.898317]        __arm64_sys_ioctl+0x24/0x30
-[ 6022.902748]        el0_svc_common.constprop.3+0xa8/0x1e8
-[ 6022.908046]        do_el0_svc+0x28/0x88
-[ 6022.911871]        el0_svc+0x14/0x40
-[ 6022.915434]        el0_sync_handler+0x124/0x2b8
-[ 6022.919951]        el0_sync+0x140/0x180
-[ 6022.923773]
-[ 6022.923773] other info that might help us debug this:
-[ 6022.923773]
-[ 6022.931762] Chain exists of:
-[ 6022.931762]   &p->pi_lock --> &rq->lock --> &irq_desc_lock_class
-[ 6022.931762]
-[ 6022.942101]  Possible unsafe locking scenario:
-[ 6022.942101]
-[ 6022.948007]        CPU0                    CPU1
-[ 6022.952523]        ----                    ----
-[ 6022.957039]   lock(&irq_desc_lock_class);
-[ 6022.961036]                                lock(&rq->lock);
-[ 6022.966595]                                lock(&irq_desc_lock_class);
-[ 6022.973109]   lock(&p->pi_lock);
-[ 6022.976324]
-[ 6022.976324]  *** DEADLOCK ***
+Through debugging, I found  when running rt_suspend(), it will call
+alc225_shutup(), in this function, it will change 3k pull down control
+by alc_update_coef_idx(codec, 0x4a, 0, 3 << 10), this will trigger a
+fake key event and that event will resume the codec, when codec
+suspend agin, it will trigger the fake key event one more time, this
+process will repeat.
 
-This is happening because we have a pending doorbell that requires
-retrigger. As SW retriggering is done in a tasklet, we trigger the
-circular dependency above.
+If disable the key event before changing the pull down control, it
+will not trigger fake key event. It also needs to restore the pull
+down control and re-enable the key event, otherwise the system can't
+get key event when codec is in rt_suspend state.
 
-The easy cop-out is to provide a retrigger callback that doesn't
-require acquiring any extra lock.
+Also move some functions ahead of alc225_shutup(), this can save the
+function declaration.
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200310184921.23552-5-maz@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 76f7dec08fd6 (ALSA: hda/realtek - Add Headset Button supported for ThinkPad X1)
+Cc: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20200329082018.20486-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/irqchip/irq-gic-v3-its.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/pci/hda/patch_realtek.c |  170 ++++++++++++++++++++++++++----------------
+ 1 file changed, 107 insertions(+), 63 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index da883a6910284..7c8f65c9c32de 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -3679,12 +3679,18 @@ static int its_vpe_set_irqchip_state(struct irq_data *d,
- 	return 0;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -107,6 +107,7 @@ struct alc_spec {
+ 	unsigned int done_hp_init:1;
+ 	unsigned int no_shutup_pins:1;
+ 	unsigned int ultra_low_power:1;
++	unsigned int has_hs_key:1;
+ 
+ 	/* for PLL fix */
+ 	hda_nid_t pll_nid;
+@@ -2982,6 +2983,107 @@ static int alc269_parse_auto_config(stru
+ 	return alc_parse_auto_config(codec, alc269_ignore, ssids);
  }
  
-+static int its_vpe_retrigger(struct irq_data *d)
++static const struct hda_jack_keymap alc_headset_btn_keymap[] = {
++	{ SND_JACK_BTN_0, KEY_PLAYPAUSE },
++	{ SND_JACK_BTN_1, KEY_VOICECOMMAND },
++	{ SND_JACK_BTN_2, KEY_VOLUMEUP },
++	{ SND_JACK_BTN_3, KEY_VOLUMEDOWN },
++	{}
++};
++
++static void alc_headset_btn_callback(struct hda_codec *codec,
++				     struct hda_jack_callback *jack)
 +{
-+	return !its_vpe_set_irqchip_state(d, IRQCHIP_STATE_PENDING, true);
++	int report = 0;
++
++	if (jack->unsol_res & (7 << 13))
++		report |= SND_JACK_BTN_0;
++
++	if (jack->unsol_res  & (1 << 16 | 3 << 8))
++		report |= SND_JACK_BTN_1;
++
++	/* Volume up key */
++	if (jack->unsol_res & (7 << 23))
++		report |= SND_JACK_BTN_2;
++
++	/* Volume down key */
++	if (jack->unsol_res & (7 << 10))
++		report |= SND_JACK_BTN_3;
++
++	jack->jack->button_state = report;
 +}
 +
- static struct irq_chip its_vpe_irq_chip = {
- 	.name			= "GICv4-vpe",
- 	.irq_mask		= its_vpe_mask_irq,
- 	.irq_unmask		= its_vpe_unmask_irq,
- 	.irq_eoi		= irq_chip_eoi_parent,
- 	.irq_set_affinity	= its_vpe_set_affinity,
-+	.irq_retrigger		= its_vpe_retrigger,
- 	.irq_set_irqchip_state	= its_vpe_set_irqchip_state,
- 	.irq_set_vcpu_affinity	= its_vpe_set_vcpu_affinity,
- };
--- 
-2.20.1
-
++static void alc_disable_headset_jack_key(struct hda_codec *codec)
++{
++	struct alc_spec *spec = codec->spec;
++
++	if (!spec->has_hs_key)
++		return;
++
++	switch (codec->core.vendor_id) {
++	case 0x10ec0215:
++	case 0x10ec0225:
++	case 0x10ec0285:
++	case 0x10ec0295:
++	case 0x10ec0289:
++	case 0x10ec0299:
++		alc_write_coef_idx(codec, 0x48, 0x0);
++		alc_update_coef_idx(codec, 0x49, 0x0045, 0x0);
++		alc_update_coef_idx(codec, 0x44, 0x0045 << 8, 0x0);
++		break;
++	case 0x10ec0236:
++	case 0x10ec0256:
++		alc_write_coef_idx(codec, 0x48, 0x0);
++		alc_update_coef_idx(codec, 0x49, 0x0045, 0x0);
++		break;
++	}
++}
++
++static void alc_enable_headset_jack_key(struct hda_codec *codec)
++{
++	struct alc_spec *spec = codec->spec;
++
++	if (!spec->has_hs_key)
++		return;
++
++	switch (codec->core.vendor_id) {
++	case 0x10ec0215:
++	case 0x10ec0225:
++	case 0x10ec0285:
++	case 0x10ec0295:
++	case 0x10ec0289:
++	case 0x10ec0299:
++		alc_write_coef_idx(codec, 0x48, 0xd011);
++		alc_update_coef_idx(codec, 0x49, 0x007f, 0x0045);
++		alc_update_coef_idx(codec, 0x44, 0x007f << 8, 0x0045 << 8);
++		break;
++	case 0x10ec0236:
++	case 0x10ec0256:
++		alc_write_coef_idx(codec, 0x48, 0xd011);
++		alc_update_coef_idx(codec, 0x49, 0x007f, 0x0045);
++		break;
++	}
++}
++
++static void alc_fixup_headset_jack(struct hda_codec *codec,
++				    const struct hda_fixup *fix, int action)
++{
++	struct alc_spec *spec = codec->spec;
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		spec->has_hs_key = 1;
++		snd_hda_jack_detect_enable_callback(codec, 0x55,
++						    alc_headset_btn_callback);
++		snd_hda_jack_add_kctl(codec, 0x55, "Headset Jack", false,
++				      SND_JACK_HEADSET, alc_headset_btn_keymap);
++		break;
++	case HDA_FIXUP_ACT_INIT:
++		alc_enable_headset_jack_key(codec);
++		break;
++	}
++}
++
+ static void alc269vb_toggle_power_output(struct hda_codec *codec, int power_up)
+ {
+ 	alc_update_coef_idx(codec, 0x04, 1 << 11, power_up ? (1 << 11) : 0);
+@@ -3372,6 +3474,8 @@ static void alc225_shutup(struct hda_cod
+ 
+ 	if (!hp_pin)
+ 		hp_pin = 0x21;
++
++	alc_disable_headset_jack_key(codec);
+ 	/* 3k pull low control for Headset jack. */
+ 	alc_update_coef_idx(codec, 0x4a, 0, 3 << 10);
+ 
+@@ -3411,6 +3515,9 @@ static void alc225_shutup(struct hda_cod
+ 		alc_update_coef_idx(codec, 0x4a, 3<<4, 2<<4);
+ 		msleep(30);
+ 	}
++
++	alc_update_coef_idx(codec, 0x4a, 3 << 10, 0);
++	alc_enable_headset_jack_key(codec);
+ }
+ 
+ static void alc_default_init(struct hda_codec *codec)
+@@ -5668,69 +5775,6 @@ static void alc285_fixup_invalidate_dacs
+ 	snd_hda_override_wcaps(codec, 0x03, 0);
+ }
+ 
+-static const struct hda_jack_keymap alc_headset_btn_keymap[] = {
+-	{ SND_JACK_BTN_0, KEY_PLAYPAUSE },
+-	{ SND_JACK_BTN_1, KEY_VOICECOMMAND },
+-	{ SND_JACK_BTN_2, KEY_VOLUMEUP },
+-	{ SND_JACK_BTN_3, KEY_VOLUMEDOWN },
+-	{}
+-};
+-
+-static void alc_headset_btn_callback(struct hda_codec *codec,
+-				     struct hda_jack_callback *jack)
+-{
+-	int report = 0;
+-
+-	if (jack->unsol_res & (7 << 13))
+-		report |= SND_JACK_BTN_0;
+-
+-	if (jack->unsol_res  & (1 << 16 | 3 << 8))
+-		report |= SND_JACK_BTN_1;
+-
+-	/* Volume up key */
+-	if (jack->unsol_res & (7 << 23))
+-		report |= SND_JACK_BTN_2;
+-
+-	/* Volume down key */
+-	if (jack->unsol_res & (7 << 10))
+-		report |= SND_JACK_BTN_3;
+-
+-	jack->jack->button_state = report;
+-}
+-
+-static void alc_fixup_headset_jack(struct hda_codec *codec,
+-				    const struct hda_fixup *fix, int action)
+-{
+-
+-	switch (action) {
+-	case HDA_FIXUP_ACT_PRE_PROBE:
+-		snd_hda_jack_detect_enable_callback(codec, 0x55,
+-						    alc_headset_btn_callback);
+-		snd_hda_jack_add_kctl(codec, 0x55, "Headset Jack", false,
+-				      SND_JACK_HEADSET, alc_headset_btn_keymap);
+-		break;
+-	case HDA_FIXUP_ACT_INIT:
+-		switch (codec->core.vendor_id) {
+-		case 0x10ec0215:
+-		case 0x10ec0225:
+-		case 0x10ec0285:
+-		case 0x10ec0295:
+-		case 0x10ec0289:
+-		case 0x10ec0299:
+-			alc_write_coef_idx(codec, 0x48, 0xd011);
+-			alc_update_coef_idx(codec, 0x49, 0x007f, 0x0045);
+-			alc_update_coef_idx(codec, 0x44, 0x007f << 8, 0x0045 << 8);
+-			break;
+-		case 0x10ec0236:
+-		case 0x10ec0256:
+-			alc_write_coef_idx(codec, 0x48, 0xd011);
+-			alc_update_coef_idx(codec, 0x49, 0x007f, 0x0045);
+-			break;
+-		}
+-		break;
+-	}
+-}
+-
+ static void alc295_fixup_chromebook(struct hda_codec *codec,
+ 				    const struct hda_fixup *fix, int action)
+ {
 
 
