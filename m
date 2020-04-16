@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7205E1AC344
+	by mail.lfdr.de (Postfix) with ESMTP id E05FB1AC345
 	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898127AbgDPNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53124 "EHLO mail.kernel.org"
+        id S2898121AbgDPNke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:40:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898117AbgDPNka (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:40:30 -0400
+        id S2898122AbgDPNkc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:40:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A8CA2076D;
-        Thu, 16 Apr 2020 13:40:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8299214D8;
+        Thu, 16 Apr 2020 13:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044429;
-        bh=5Ty25x7/siPUKilRYHMcLb7XfHJHNLiTxo6srGlszyA=;
+        s=default; t=1587044432;
+        bh=RsUqFbevd0j8uU6mYkKun4A8c/pDL5nw1j9+lNF+rHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hSTSxxJXVaeM4438vLQs9f822KEbHhGWGMNqHNjft082pO+269pi9ZAPH5mtZuKNV
-         Y8tsIORMdZa1ukllD+le+cR6Syu4tncCgk8RvaAHOAw87xRKppPdPPWWUODejFZs1W
-         +/qZXgS2UyobRspkOgNxr7ojKdY1J6Z0A3Zvs7S0=
+        b=fGr8nXWilphGU102yFpLuurTJeQDyINsfhohjYGB1H3U7E7O3HgTVAhLsSs03pSe5
+         Yxp0UQLDkF+cpkmPG6KomhqD3tVLEriUjRmccPKoo7P3VMI5h5FKXOMcAncDXBmVQv
+         1ca/1R+2TnzaFfUDXMDyYTPyHkcTFLxYBeJ1ynuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.5 215/257] drm/vboxvideo: Add missing remove_conflicting_pci_framebuffers call, v2
-Date:   Thu, 16 Apr 2020 15:24:26 +0200
-Message-Id: <20200416131352.888156549@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.5 216/257] nfsd: fsnotify on rmdir under nfsd/clients/
+Date:   Thu, 16 Apr 2020 15:24:27 +0200
+Message-Id: <20200416131353.008008560@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
 References: <20200416131325.891903893@linuxfoundation.org>
@@ -43,53 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-commit a65a97b48694d34248195eb89bf3687403261056 upstream.
+commit 69afd267982e733a555fede4e85fe30329ed0588 upstream.
 
-The vboxvideo driver is missing a call to remove conflicting framebuffers.
+Userspace should be able to monitor nfsd/clients/ to see when clients
+come and go, but we're failing to send fsnotify events.
 
-Surprisingly, when using legacy BIOS booting this does not really cause
-any issues. But when using UEFI to boot the VM then plymouth will draw
-on both the efifb /dev/fb0 and /dev/drm/card0 (which has registered
-/dev/fb1 as fbdev emulation).
-
-VirtualBox will actual display the output of both devices (I guess it is
-showing whatever was drawn last), this causes weird artifacts because of
-pitch issues in the efifb when the VM window is not sized at 1024x768
-(the window will resize to its last size once the vboxvideo driver loads,
-changing the pitch).
-
-Adding the missing drm_fb_helper_remove_conflicting_pci_framebuffers()
-call fixes this.
-
-Changes in v2:
--Make the drm_fb_helper_remove_conflicting_pci_framebuffers() call one of
- the first things we do in our probe() method
-
-Cc: stable@vger.kernel.org
-Fixes: 2695eae1f6d3 ("drm/vboxvideo: Switch to generic fbdev emulation")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200325144310.36779-1-hdegoede@redhat.com
+Cc: stable@kernel.org
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vboxvideo/vbox_drv.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfsd/nfsctl.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
-@@ -41,6 +41,10 @@ static int vbox_pci_probe(struct pci_dev
- 	if (!vbox_check_supported(VBE_DISPI_ID_HGSMI))
- 		return -ENODEV;
- 
-+	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "vboxvideodrmfb");
-+	if (ret)
-+		return ret;
-+
- 	vbox = kzalloc(sizeof(*vbox), GFP_KERNEL);
- 	if (!vbox)
- 		return -ENOMEM;
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -1333,6 +1333,7 @@ void nfsd_client_rmdir(struct dentry *de
+ 	dget(dentry);
+ 	ret = simple_rmdir(dir, dentry);
+ 	WARN_ON_ONCE(ret);
++	fsnotify_rmdir(dir, dentry);
+ 	d_delete(dentry);
+ 	inode_unlock(dir);
+ }
 
 
