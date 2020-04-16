@@ -2,105 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 634071ACE8C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 19:20:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1730A1ACECA
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 19:36:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729355AbgDPRUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 13:20:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
+        id S1729191AbgDPRgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 13:36:51 -0400
+Received: from mga18.intel.com ([134.134.136.126]:42247 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728494AbgDPRUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 13:20:04 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CB562076D;
-        Thu, 16 Apr 2020 17:20:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587057603;
-        bh=Wk7+i30v37qY0mX+qzS0pNeXKWGSUHDgHHiYH1bxSPI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HjIuN20+tHuKI4fLU25dw+bcXktBNJjtB0smjVsvGGBvKvASQ6eYaV0iW6TCEwLvU
-         lISAj0dOsUaxaLdr9WzJSiXWXKefOTUcVs0YD7wE+M38+E4Ft+9oJEiGUlV07tXAcY
-         186yd1BtBtiOvHRpR+1h5Kc8zR9UOpMOqL9uhBBw=
-Date:   Thu, 16 Apr 2020 19:20:01 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Or Gerlitz <gerlitz.or@gmail.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Edward Cree <ecree@solarflare.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linux Netdev List <netdev@vger.kernel.org>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        David Miller <davem@davemloft.net>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
- representors
-Message-ID: <20200416172001.GC1388618@kroah.com>
-References: <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <20200414015627.GA1068@sasha-vm>
- <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
- <20200414110911.GA341846@kroah.com>
- <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
- <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
- <20200414205755.GF1068@sasha-vm>
- <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
- <20200416000009.GL1068@sasha-vm>
- <CAJ3xEMjfWL=c=voGqV4pUCzWXmiTn-R6mrRi82UAVHMVysKU1g@mail.gmail.com>
+        id S1726207AbgDPRgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 13:36:50 -0400
+IronPort-SDR: U80Y4mR5nyZ1KWDhIkMJnTphkDecLtBp+B9NNbPBbhorE+eoM6FgHGJzGfKvxMvxEOmXmAKmy6
+ nubXqEtzy3HQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2020 10:36:49 -0700
+IronPort-SDR: bYcMqP7HHeFuyMHxyG2Cy/+9vdE3DmC7lIFJbp3qnzvpgt9XWYaneT880u5jTfPqaavYiHzmuL
+ OPHinUX3Hxog==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,391,1580803200"; 
+   d="scan'208";a="364065411"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by fmsmga001.fm.intel.com with SMTP; 16 Apr 2020 10:36:46 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Thu, 16 Apr 2020 20:36:45 +0300
+Date:   Thu, 16 Apr 2020 20:36:45 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] drm: Fix page flip ioctl format check
+Message-ID: <20200416173645.GK6112@intel.com>
+References: <20200416170420.23657-1-ville.syrjala@linux.intel.com>
+ <20200416170814.GI4796@pendragon.ideasonboard.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <CAJ3xEMjfWL=c=voGqV4pUCzWXmiTn-R6mrRi82UAVHMVysKU1g@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200416170814.GI4796@pendragon.ideasonboard.com>
+X-Patchwork-Hint: comment
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 04:40:31PM +0300, Or Gerlitz wrote:
-> On Thu, Apr 16, 2020 at 3:00 AM Sasha Levin <sashal@kernel.org> wrote:
-> > I'd maybe point out that the selection process is based on a neural
-> > network which knows about the existence of a Fixes tag in a commit.
-> >
-> > It does exactly what you're describing, but also taking a bunch more
-> > factors into it's desicion process ("panic"? "oops"? "overflow"? etc).
+On Thu, Apr 16, 2020 at 08:08:14PM +0300, Laurent Pinchart wrote:
+> Hi Ville,
 > 
-> As Saeed commented, every extra line in stable / production kernel
-> is wrong.
+> Thank you for the patch.
+> 
+> On Thu, Apr 16, 2020 at 08:04:20PM +0300, Ville Syrjala wrote:
+> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > 
+> > Revert back to comparing fb->format->format instead fb->format for the
+> > page flip ioctl. This check was originally only here to disallow pixel
+> > format changes, but when we changed it to do the pointer comparison
+> > we potentially started to reject some (but definitely not all) modifier
+> > changes as well. In fact the current behaviour depends on whether the
+> > driver overrides the format info for a specific format+modifier combo.
+> > Eg. on i915 this now rejects compression vs. no compression changes but
+> > does not reject any other tiling changes. That's just inconsistent
+> > nonsense.
+> > 
+> > The main reason we have to go back to the old behaviour is to fix page
+> > flipping with Xorg. At some point Xorg got its atomic rights taken away
+> > and since then we can't page flip between compressed and non-compressed
+> > fbs on i915. Currently we get no page flipping for any games pretty much
+> > since Mesa likes to use compressed buffers. Not sure how compositors are
+> > working around this (don't use one myself). I guess they must be doing
+> > something to get non-compressed buffers instead. Either that or
+> > somehow no one noticed the tearing from the blit fallback.
+> > 
+> > Looking back at the original discussion on this change we pretty much
+> > just did it in the name of skipping a few extra pointer dereferences.
+> > However, I've decided not to revert the whole thing in case someone
+> > has since started to depend on these changes. None of the other checks
+> > are relevant for i915 anyways.
+> 
+> Do display controller usually support changing modifiers for page flips
+> ? I understand from the information about that i915 does, but is that
+> usual ? Could there be drivers that really on this check to reject
+> modifier changes, and that aren't prepared to handle them if they are
+> not rejected by the core ? I'm not opposed to this change, but I'd like
+> to carefully consider the fallout.
 
-What?  On what do you base that crazy statement on?  I have 18+ years of
-direct experience of that being the exact opposite.
+After a bit of grepping I can't actually see any other driver providing
+a .get_format_info() hook. So looks like there is no change in behaviour
+for any other driver. Based on that we could even do a full revert, but
+meh.
 
-> IMHO it doesn't make any sense to take into stable automatically
-> any patch that doesn't have fixes line. Do you have 1/2/3/4/5 concrete
-> examples from your (referring to your Microsoft employee hat comment
-> below) or other's people production environment where patches proved to
-> be necessary but they lacked the fixes tag - would love to see them.
+> 
+> > Cc: stable@vger.kernel.org
+> > Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> > Fixes: dbd4d5761e1f ("drm: Replace 'format->format' comparisons to just 'format' comparisons")
+> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > ---
+> >  drivers/gpu/drm/drm_plane.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
+> > index d6ad60ab0d38..f2ca5315f23b 100644
+> > --- a/drivers/gpu/drm/drm_plane.c
+> > +++ b/drivers/gpu/drm/drm_plane.c
+> > @@ -1153,7 +1153,7 @@ int drm_mode_page_flip_ioctl(struct drm_device *dev,
+> >  	if (ret)
+> >  		goto out;
+> >  
+> > -	if (old_fb->format != fb->format) {
+> > +	if (old_fb->format->format != fb->format->format) {
+> >  		DRM_DEBUG_KMS("Page flip is not allowed to change frame buffer format.\n");
+> >  		ret = -EINVAL;
+> >  		goto out;
+> 
+> -- 
+> Regards,
+> 
+> Laurent Pinchart
 
-Oh wow, where do you want me to start.  I have zillions of these.
-
-But wait, don't trust me, trust a 3rd party.  Here's what Google's
-security team said about the last 9 months of 2019:
-	- 209 known vulnerabilities patched in LTS kernels, most without
-	  CVEs
-	- 950+ criticial non-security bugs fixes for device XXXX alone
-	  with LTS releases
-
-> We've been coaching new comers for years during internal and on-list
-> code reviews to put proper fixes tag. This serves (A) for the upstream
-> human review of the patch and (B) reasonable human stable considerations.
-
-If your driver/subsystem is doing this, wonderful, just opt-out of the
-autosel process and you will never be bothered again.
-
-But, trust me, I think I know a bit about tagging stuff for stable
-kernels, and yet the AUTOSEL tool keeps finding patches that _I_ forgot
-to tag as such.  So, don't be so sure of yourself, it's humbling :)
-
-Let the AUTOSEL tool run, and if it finds things you don't agree with, a
-simple "No, please do not include this" email is all you need to do to
-keep it out of a stable kernel.
-
-So far the AUTOSEL tool has found so many real bugfixes that it isn't
-funny.  If you don't like it, fine, but it has proven itself _way_
-beyond my wildest hopes already, and it just keeps getting better.
-
-greg k-h
+-- 
+Ville Syrjälä
+Intel
