@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA57A1AC2C7
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2269C1AC2CD
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:34:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896724AbgDPNdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:33:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44414 "EHLO mail.kernel.org"
+        id S2896736AbgDPNdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:33:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896687AbgDPNdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:33:12 -0400
+        id S2896718AbgDPNdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:33:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC71722201;
-        Thu, 16 Apr 2020 13:33:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76C36208E4;
+        Thu, 16 Apr 2020 13:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043991;
-        bh=UrwSOr4h2UrF7KC5Oh4oX+BltuND9X9C5BW/wnK2KGY=;
+        s=default; t=1587044017;
+        bh=waxjwsUxMpAJQV3TodVhI9ljrf0utE6GoyP7N1UZFnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KkPjcAYnM7agpiwmdlv0PDVFvQdJ0ocHzw6AORfV0ZPenSoRtck/wxGhRB5PLANKL
-         ii04yOT6MvUbNSoN7De91h7OB1a+pjcpN2WiVvyiSkNG5287cfYlyfMszUu2SLKjKN
-         mNwC618uvfehBD0h1zmPE6Lfrr9lE17GM8sE3utw=
+        b=ocN7UUon5Lvmm/eFzSRwwVQx289JBpfuAlFS4mywgSSTyPptC2z0lngkU1ZZFDXBr
+         kpOD0eKgZu7o0gLGs2zgTKTOwyP27r9oniCOdN2/B2Qz/IWB8Klnb1KxcbWR9RPwWO
+         K8AexPoC+hz0epq8I+gmQVGMgJeSZDUD7wb4wMyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Richter <rrichter@marvell.com>,
-        Borislav Petkov <bp@suse.de>,
-        Aristeu Rozanski <aris@redhat.com>,
+        stable@vger.kernel.org, Ajay Gupta <ajayg@nvidia.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 029/257] EDAC/mc: Report "unknown memory" on too many DIMM labels found
-Date:   Thu, 16 Apr 2020 15:21:20 +0200
-Message-Id: <20200416131329.582557948@linuxfoundation.org>
+Subject: [PATCH 5.5 030/257] usb: ucsi: ccg: disable runtime pm during fw flashing
+Date:   Thu, 16 Apr 2020 15:21:21 +0200
+Message-Id: <20200416131329.714855676@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
 References: <20200416131325.891903893@linuxfoundation.org>
@@ -45,69 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Richter <rrichter@marvell.com>
+From: Ajay Gupta <ajayg@nvidia.com>
 
-[ Upstream commit 65bb4d1af92cf007adc0a0c59dadcc393c5cada6 ]
+[ Upstream commit 57a5e5f936be583d2c6cef3661c169e3ea4bf922 ]
 
-There is a limitation to report only EDAC_MAX_LABELS in e->label of
-the error descriptor. This is to prevent a potential string overflow.
+Ucsi ppm is unregistered during fw flashing so disable
+runtime pm also and reenable after fw flashing is completed
+and ppm is re-registered.
 
-The current implementation falls back to "any memory" in this case and
-also stops all further processing to find a unique row and channel of
-the possible error location.
-
-Reporting "any memory" is wrong as the memory controller reported an
-error location for one of the layers. Instead, report "unknown memory"
-and also do not break early in the loop to further check row and channel
-for uniqueness.
-
- [ bp: Massage commit message. ]
-
-Signed-off-by: Robert Richter <rrichter@marvell.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Aristeu Rozanski <aris@redhat.com>
-Link: https://lkml.kernel.org/r/20200123090210.26933-7-rrichter@marvell.com
+Signed-off-by: Ajay Gupta <ajayg@nvidia.com>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20200217144913.55330-3-heikki.krogerus@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_mc.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/usb/typec/ucsi/ucsi_ccg.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/edac/edac_mc.c b/drivers/edac/edac_mc.c
-index 69e0d90460e6c..2349f2ad946bb 100644
---- a/drivers/edac/edac_mc.c
-+++ b/drivers/edac/edac_mc.c
-@@ -1180,20 +1180,21 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
- 		 * channel/memory controller/...  may be affected.
- 		 * Also, don't show errors for empty DIMM slots.
- 		 */
--		if (!e->enable_per_layer_report || !dimm->nr_pages)
-+		if (!dimm->nr_pages)
- 			continue;
+diff --git a/drivers/usb/typec/ucsi/ucsi_ccg.c b/drivers/usb/typec/ucsi/ucsi_ccg.c
+index 3370b3fc37b10..bd374cea3ba6c 100644
+--- a/drivers/usb/typec/ucsi/ucsi_ccg.c
++++ b/drivers/usb/typec/ucsi/ucsi_ccg.c
+@@ -1032,6 +1032,7 @@ static int ccg_restart(struct ucsi_ccg *uc)
+ 		return status;
+ 	}
  
--		if (n_labels >= EDAC_MAX_LABELS) {
--			e->enable_per_layer_report = false;
--			break;
--		}
- 		n_labels++;
--		if (p != e->label) {
--			strcpy(p, OTHER_LABEL);
--			p += strlen(OTHER_LABEL);
-+		if (n_labels > EDAC_MAX_LABELS) {
-+			p = e->label;
-+			*p = '\0';
-+		} else {
-+			if (p != e->label) {
-+				strcpy(p, OTHER_LABEL);
-+				p += strlen(OTHER_LABEL);
-+			}
-+			strcpy(p, dimm->label);
-+			p += strlen(p);
- 		}
--		strcpy(p, dimm->label);
--		p += strlen(p);
++	pm_runtime_enable(uc->dev);
+ 	return 0;
+ }
  
- 		/*
- 		 * get csrow/channel of the DIMM, in order to allow
+@@ -1047,6 +1048,7 @@ static void ccg_update_firmware(struct work_struct *work)
+ 
+ 	if (flash_mode != FLASH_NOT_NEEDED) {
+ 		ucsi_unregister(uc->ucsi);
++		pm_runtime_disable(uc->dev);
+ 		free_irq(uc->irq, uc);
+ 
+ 		ccg_fw_update(uc, flash_mode);
 -- 
 2.20.1
 
