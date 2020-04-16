@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43ED11AC710
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D102B1AC8E0
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731443AbgDPOsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:48:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45872 "EHLO mail.kernel.org"
+        id S2408094AbgDPPPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:15:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2506792AbgDPN6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:58:53 -0400
+        id S2441634AbgDPNuD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C3D42192A;
-        Thu, 16 Apr 2020 13:58:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B98721744;
+        Thu, 16 Apr 2020 13:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045532;
-        bh=RDjO3YYy/MdIUEH1+yLlqQdclPfYbYEFsqVHv24n7HY=;
+        s=default; t=1587044950;
+        bh=4cmYFuZIvrPD00tqCGA8A3E+BrUOuvrUQXc12DEPsCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ItWe3DapJXVtz2JyTy8t4kDEIGwpQm49WbL8PZPqint++1mKO7E8O5JjR7irAuXV8
-         iL42kXO7KOpFfTUtZZjvoZA8LA0L3f0WgL62y2rJCfwsOqFMnLtGU6hogfS5zYszYF
-         9r5Zc6nht/lE5mt2hrq8v8SMH1ndYlRVrMQBPe5I=
+        b=HYfgCMKEZHXdifJXvmrrYUf3OaFfliTtWmkETGc/epDOLTxlhcmqwH7Bu1qC7XAzZ
+         +f4zpvdEPdEyf6pydVwaGYPWFA/NtTf9UfIiuSZH2m6bPAtd22CQTZIvw9PDlQgK4n
+         UxzT3Qi6uX+8ebLhbiWqGoQBOkr3KJSo/jfB1J8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Chris Down <chris@chrisdown.name>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.6 172/254] mm, memcg: do not high throttle allocators based on wraparound
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 5.4 167/232] xarray: Fix early termination of xas_for_each_marked
 Date:   Thu, 16 Apr 2020 15:24:21 +0200
-Message-Id: <20200416131347.961450401@linuxfoundation.org>
+Message-Id: <20200416131335.900290572@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,60 +43,204 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 9b8b17541f13809d06f6f873325305ddbb760e3e upstream.
+commit 7e934cf5ace1dceeb804f7493fa28bb697ed3c52 upstream.
 
-If a cgroup violates its memory.high constraints, we may end up unduly
-penalising it.  For example, for the following hierarchy:
+xas_for_each_marked() is using entry == NULL as a termination condition
+of the iteration. When xas_for_each_marked() is used protected only by
+RCU, this can however race with xas_store(xas, NULL) in the following
+way:
 
-  A:   max high, 20 usage
-  A/B: 9 high, 10 usage
-  A/C: max high, 10 usage
+TASK1                                   TASK2
+page_cache_delete()         	        find_get_pages_range_tag()
+                                          xas_for_each_marked()
+                                            xas_find_marked()
+                                              off = xas_find_chunk()
 
-We would end up doing the following calculation below when calculating
-high delay for A/B:
+  xas_store(&xas, NULL)
+    xas_init_marks(&xas);
+    ...
+    rcu_assign_pointer(*slot, NULL);
+                                              entry = xa_entry(off);
 
-  A/B: 10 - 9 = 1...
-  A:   20 - PAGE_COUNTER_MAX = 21, so set max_overage to 21.
+And thus xas_for_each_marked() terminates prematurely possibly leading
+to missed entries in the iteration (translating to missing writeback of
+some pages or a similar problem).
 
-This gets worse with higher disparities in usage in the parent.
+If we find a NULL entry that has been marked, skip it (unless we're trying
+to allocate an entry).
 
-I have no idea how this disappeared from the final version of the patch,
-but it is certainly Not Good(tm).  This wasn't obvious in testing because,
-for a simple cgroup hierarchy with only one child, the result is usually
-roughly the same.  It's only in more complex hierarchies that things go
-really awry (although still, the effects are limited to a maximum of 2
-seconds in schedule_timeout_killable at a maximum).
-
-[chris@chrisdown.name: changelog]
-Fixes: e26733e0d0ec ("mm, memcg: throttle allocators based on ancestral memory.high")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Chris Down <chris@chrisdown.name>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>	[5.4.x]
-Link: http://lkml.kernel.org/r/20200331152424.GA1019937@chrisdown.name
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Reported-by: Jan Kara <jack@suse.cz>
+CC: stable@vger.kernel.org
+Fixes: ef8e5717db01 ("page cache: Convert delete_batch to XArray")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/memcontrol.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/xarray.h                       |    6 +
+ lib/xarray.c                                 |    2 
+ tools/testing/radix-tree/Makefile            |    4 -
+ tools/testing/radix-tree/iteration_check_2.c |   87 +++++++++++++++++++++++++++
+ tools/testing/radix-tree/main.c              |    1 
+ tools/testing/radix-tree/test.h              |    1 
+ 6 files changed, 98 insertions(+), 3 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -2324,6 +2324,9 @@ static unsigned long calculate_high_dela
- 		usage = page_counter_read(&memcg->memory);
- 		high = READ_ONCE(memcg->high);
+--- a/include/linux/xarray.h
++++ b/include/linux/xarray.h
+@@ -1613,6 +1613,7 @@ static inline void *xas_next_marked(stru
+ 								xa_mark_t mark)
+ {
+ 	struct xa_node *node = xas->xa_node;
++	void *entry;
+ 	unsigned int offset;
  
-+		if (usage <= high)
+ 	if (unlikely(xas_not_node(node) || node->shift))
+@@ -1624,7 +1625,10 @@ static inline void *xas_next_marked(stru
+ 		return NULL;
+ 	if (offset == XA_CHUNK_SIZE)
+ 		return xas_find_marked(xas, max, mark);
+-	return xa_entry(xas->xa, node, offset);
++	entry = xa_entry(xas->xa, node, offset);
++	if (!entry)
++		return xas_find_marked(xas, max, mark);
++	return entry;
+ }
+ 
+ /*
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -1208,6 +1208,8 @@ void *xas_find_marked(struct xa_state *x
+ 		}
+ 
+ 		entry = xa_entry(xas->xa, xas->xa_node, xas->xa_offset);
++		if (!entry && !(xa_track_free(xas->xa) && mark == XA_FREE_MARK))
 +			continue;
+ 		if (!xa_is_node(entry))
+ 			return entry;
+ 		xas->xa_node = xa_to_node(entry);
+--- a/tools/testing/radix-tree/Makefile
++++ b/tools/testing/radix-tree/Makefile
+@@ -7,8 +7,8 @@ LDLIBS+= -lpthread -lurcu
+ TARGETS = main idr-test multiorder xarray
+ CORE_OFILES := xarray.o radix-tree.o idr.o linux.o test.o find_bit.o bitmap.o
+ OFILES = main.o $(CORE_OFILES) regression1.o regression2.o regression3.o \
+-	 regression4.o \
+-	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o
++	 regression4.o tag_check.o multiorder.o idr-test.o iteration_check.o \
++	 iteration_check_2.o benchmark.o
+ 
+ ifndef SHIFT
+ 	SHIFT=3
+--- /dev/null
++++ b/tools/testing/radix-tree/iteration_check_2.c
+@@ -0,0 +1,87 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * iteration_check_2.c: Check that deleting a tagged entry doesn't cause
++ * an RCU walker to finish early.
++ * Copyright (c) 2020 Oracle
++ * Author: Matthew Wilcox <willy@infradead.org>
++ */
++#include <pthread.h>
++#include "test.h"
 +
- 		/*
- 		 * Prevent division by 0 in overage calculation by acting as if
- 		 * it was a threshold of 1 page
++static volatile bool test_complete;
++
++static void *iterator(void *arg)
++{
++	XA_STATE(xas, arg, 0);
++	void *entry;
++
++	rcu_register_thread();
++
++	while (!test_complete) {
++		xas_set(&xas, 0);
++		rcu_read_lock();
++		xas_for_each_marked(&xas, entry, ULONG_MAX, XA_MARK_0)
++			;
++		rcu_read_unlock();
++		assert(xas.xa_index >= 100);
++	}
++
++	rcu_unregister_thread();
++	return NULL;
++}
++
++static void *throbber(void *arg)
++{
++	struct xarray *xa = arg;
++
++	rcu_register_thread();
++
++	while (!test_complete) {
++		int i;
++
++		for (i = 0; i < 100; i++) {
++			xa_store(xa, i, xa_mk_value(i), GFP_KERNEL);
++			xa_set_mark(xa, i, XA_MARK_0);
++		}
++		for (i = 0; i < 100; i++)
++			xa_erase(xa, i);
++	}
++
++	rcu_unregister_thread();
++	return NULL;
++}
++
++void iteration_test2(unsigned test_duration)
++{
++	pthread_t threads[2];
++	DEFINE_XARRAY(array);
++	int i;
++
++	printv(1, "Running iteration test 2 for %d seconds\n", test_duration);
++
++	test_complete = false;
++
++	xa_store(&array, 100, xa_mk_value(100), GFP_KERNEL);
++	xa_set_mark(&array, 100, XA_MARK_0);
++
++	if (pthread_create(&threads[0], NULL, iterator, &array)) {
++		perror("create iterator thread");
++		exit(1);
++	}
++	if (pthread_create(&threads[1], NULL, throbber, &array)) {
++		perror("create throbber thread");
++		exit(1);
++	}
++
++	sleep(test_duration);
++	test_complete = true;
++
++	for (i = 0; i < 2; i++) {
++		if (pthread_join(threads[i], NULL)) {
++			perror("pthread_join");
++			exit(1);
++		}
++	}
++
++	xa_destroy(&array);
++}
+--- a/tools/testing/radix-tree/main.c
++++ b/tools/testing/radix-tree/main.c
+@@ -311,6 +311,7 @@ int main(int argc, char **argv)
+ 	regression4_test();
+ 	iteration_test(0, 10 + 90 * long_run);
+ 	iteration_test(7, 10 + 90 * long_run);
++	iteration_test2(10 + 90 * long_run);
+ 	single_thread_tests(long_run);
+ 
+ 	/* Free any remaining preallocated nodes */
+--- a/tools/testing/radix-tree/test.h
++++ b/tools/testing/radix-tree/test.h
+@@ -34,6 +34,7 @@ void xarray_tests(void);
+ void tag_check(void);
+ void multiorder_checks(void);
+ void iteration_test(unsigned order, unsigned duration);
++void iteration_test2(unsigned duration);
+ void benchmark(void);
+ void idr_checks(void);
+ void ida_tests(void);
 
 
