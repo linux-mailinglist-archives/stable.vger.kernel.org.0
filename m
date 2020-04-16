@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F411ACC73
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 18:02:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C4E21ACB1B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442889AbgDPQAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 12:00:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35648 "EHLO mail.kernel.org"
+        id S2635624AbgDPPnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:43:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895455AbgDPN1R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:27:17 -0400
+        id S2896204AbgDPNf3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:35:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D357121D94;
-        Thu, 16 Apr 2020 13:27:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B712221F9;
+        Thu, 16 Apr 2020 13:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043637;
-        bh=Ew9ijdVo0MZy0U3RGxQUl97TyvgHRME/rCP+4QrqC+4=;
+        s=default; t=1587044128;
+        bh=UqFZh/1eEoluZP1qvKMPPJGO87tS/2gzODxY+9ZVkYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkgbMrE6re9xET3J4LLWbtnK+QDCuVcTWXNfkTL/P18kzWAZAfE/Q3fcXcK9Y7mLk
-         SL2IkL/5tQffS1aECvu4YYhqL1v9fWyDoPBI3P6HWOljT0kCgDphbl93c7WQwZaILg
-         ICI1h91KaP4yW0GBawvcoiQI1nInVg1kVeOy3ExY=
+        b=Nnb+oW0PyzvZatmM1g+2/KGi+39K3OJCjNXtAzeH8gm55Xe9jhgepr+6DpFCttaiN
+         cWkCR2SB07aWFvBCXB+Po9FG/ByrvkK+WSxPuqW6Z/an7bubQs0HChVJKi/pAmTdEw
+         Kr9jVEsz0T3P0tBkjIyNeLG1RN3OUvOXWti22670=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 002/146] bus: sunxi-rsb: Return correct data when mixing 16-bit and 8-bit reads
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 092/257] ALSA: hda/realtek: Enable mute LED on an HP system
 Date:   Thu, 16 Apr 2020 15:22:23 +0200
-Message-Id: <20200416131242.729748289@linuxfoundation.org>
+Message-Id: <20200416131337.512556901@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Jirman <megous@megous.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit a43ab30dcd4a1abcdd0d2461bf1cf7c0817f6cd3 ]
+commit f5a88b0accc24c4a9021247d7a3124f90aa4c586 upstream.
 
-When doing a 16-bit read that returns data in the MSB byte, the
-RSB_DATA register will keep the MSB byte unchanged when doing
-the following 8-bit read. sunxi_rsb_read() will then return
-a result that contains high byte from 16-bit read mixed with
-the 8-bit result.
+The system in question uses ALC285, and it uses GPIO 0x04 to control its
+mute LED.
 
-The consequence is that after this happens the PMIC's regmap will
-look like this: (0x33 is the high byte from the 16-bit read)
+The mic mute LED can be controlled by GPIO 0x01, however the system uses
+DMIC so we should use that to control mic mute LED.
 
-% cat /sys/kernel/debug/regmap/sunxi-rsb-3a3/registers
-00: 33
-01: 33
-02: 33
-03: 33
-04: 33
-05: 33
-06: 33
-07: 33
-08: 33
-09: 33
-0a: 33
-0b: 33
-0c: 33
-0d: 33
-0e: 33
-[snip]
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200327044626.29582-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix this by masking the result of the read with the correct mask
-based on the size of the read. There are no 16-bit users in the
-mainline kernel, so this doesn't need to get into the stable tree.
-
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/sunxi-rsb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
-index 1b76d95859027..2ca2cc56bcef6 100644
---- a/drivers/bus/sunxi-rsb.c
-+++ b/drivers/bus/sunxi-rsb.c
-@@ -345,7 +345,7 @@ static int sunxi_rsb_read(struct sunxi_rsb *rsb, u8 rtaddr, u8 addr,
- 	if (ret)
- 		goto unlock;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4008,6 +4008,12 @@ static void alc269_fixup_hp_gpio_led(str
+ 	alc_fixup_hp_gpio_led(codec, action, 0x08, 0x10);
+ }
  
--	*buf = readl(rsb->regs + RSB_DATA);
-+	*buf = readl(rsb->regs + RSB_DATA) & GENMASK(len * 8 - 1, 0);
++static void alc285_fixup_hp_gpio_led(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	alc_fixup_hp_gpio_led(codec, action, 0x04, 0x00);
++}
++
+ static void alc286_fixup_hp_gpio_led(struct hda_codec *codec,
+ 				const struct hda_fixup *fix, int action)
+ {
+@@ -5923,6 +5929,7 @@ enum {
+ 	ALC294_FIXUP_ASUS_DUAL_SPK,
+ 	ALC285_FIXUP_THINKPAD_HEADSET_JACK,
+ 	ALC294_FIXUP_ASUS_HPE,
++	ALC285_FIXUP_HP_GPIO_LED,
+ };
  
- unlock:
- 	mutex_unlock(&rsb->lock);
--- 
-2.20.1
-
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7061,6 +7068,10 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC294_FIXUP_ASUS_HEADSET_MIC
+ 	},
++	[ALC285_FIXUP_HP_GPIO_LED] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_hp_gpio_led,
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7208,6 +7219,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
++	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+ 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
 
 
