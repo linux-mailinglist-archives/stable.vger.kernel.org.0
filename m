@@ -2,294 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 084631AC5F7
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 414E71AC63E
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408648AbgDPObZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:31:25 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:34120 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2388296AbgDPObT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 10:31:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1587047477;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=QTWMpbTktAVYk+SbLJpTXF8mGx9KiEfJHn3C7GjisGs=;
-        b=P1eQSXPUKJMOQpJOfeRv058N7M9FZ+rzNojpI0GYlxznp9c5qnul4JiJc/ahk8x4LeyjyV
-        HjwRTS+tH2aBiHeXV97Z+ox5Ix4jSOtBrdhc4mNGlaSuSD67ahw7+RqzOf1S8UgNqbbZeH
-        prQp6B6FcJ42zRd3XyS69EvRCihemgo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-478-5XOMxQSkN2SrvotDeDjguw-1; Thu, 16 Apr 2020 10:31:12 -0400
-X-MC-Unique: 5XOMxQSkN2SrvotDeDjguw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S2393693AbgDPOgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:36:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41432 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732727AbgDPOgj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:36:39 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 46FDB13FA;
-        Thu, 16 Apr 2020 14:31:11 +0000 (UTC)
-Received: from krava (unknown [10.40.195.119])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 809395E241;
-        Thu, 16 Apr 2020 14:31:07 +0000 (UTC)
-Date:   Thu, 16 Apr 2020 16:31:04 +0200
-From:   Jiri Olsa <jolsa@redhat.com>
-To:     Masami Hiramatsu <mhiramat@kernel.org>
-Cc:     Jiri Olsa <jolsa@kernel.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "bibo,mao" <bibo.mao@intel.com>,
-        "Ziqian SUN (Zamir)" <zsun@redhat.com>, stable@vger.kernel.org
-Subject: [PATCHv2] kretprobe: Prevent triggering kretprobe from within
- kprobe_flush_task
-Message-ID: <20200416143104.GA400699@krava>
-References: <20200408164641.3299633-1-jolsa@kernel.org>
- <20200409234101.8814f3cbead69337ac5a33fa@kernel.org>
- <20200409184451.GG3309111@krava>
- <20200409201336.GH3309111@krava>
- <20200410093159.0d7000a08fd76c2eaf1398f8@kernel.org>
- <20200414160338.GE208694@krava>
- <20200415090507.GG208694@krava>
- <20200416105506.904b7847a1b621b75463076d@kernel.org>
- <20200416091320.GA322899@krava>
- <20200416224250.7a53fb581e50aa32df75a0cf@kernel.org>
+        by mail.kernel.org (Postfix) with ESMTPSA id B425721927;
+        Thu, 16 Apr 2020 14:36:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587047798;
+        bh=K05TjfuN0mVanbfhM9527Uua1VL4QgBScX7Spl6twYw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cSlPbuF8brl0bdxWL4PZWiqPVPSvkBlP03kjxdkua7AsabxXBKoU8hvIwQ+oQtqa6
+         Ew90Zh4aOYUjojrUzchwpgtH6W2Z4yWqBJaw4mizPOIU4BC/hLoJxZ+i4cAO4pYD6d
+         rIpH9rzO/H9b8D+ujNbFxbWCv52IX/blltDQ3YZE=
+Date:   Thu, 16 Apr 2020 10:36:36 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Or Gerlitz <gerlitz.or@gmail.com>
+Cc:     Edward Cree <ecree@solarflare.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linux Netdev List <netdev@vger.kernel.org>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        David Miller <davem@davemloft.net>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
+ representors
+Message-ID: <20200416143636.GM1068@sasha-vm>
+References: <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
+ <20200414110911.GA341846@kroah.com>
+ <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
+ <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
+ <20200414205755.GF1068@sasha-vm>
+ <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
+ <20200416000009.GL1068@sasha-vm>
+ <CAJ3xEMjfWL=c=voGqV4pUCzWXmiTn-R6mrRi82UAVHMVysKU1g@mail.gmail.com>
+ <20200416140441.GL1068@sasha-vm>
+ <CAJ3xEMjobvx=S4JC4n+TLwN9xnJcwNa-B4O_Evi6PUq30VJchQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200416224250.7a53fb581e50aa32df75a0cf@kernel.org>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+In-Reply-To: <CAJ3xEMjobvx=S4JC4n+TLwN9xnJcwNa-B4O_Evi6PUq30VJchQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ziqian reported lockup when adding retprobe on _raw_spin_lock_irqsave.
-My test was also able to trigger lockdep output:
+On Thu, Apr 16, 2020 at 05:17:09PM +0300, Or Gerlitz wrote:
+>On Thu, Apr 16, 2020 at 5:04 PM Sasha Levin <sashal@kernel.org> wrote:
+>> On Thu, Apr 16, 2020 at 04:40:31PM +0300, Or Gerlitz wrote:
+>> >On Thu, Apr 16, 2020 at 3:00 AM Sasha Levin <sashal@kernel.org> wrote:
+>> >> I'd maybe point out that the selection process is based on a neural
+>> >> network which knows about the existence of a Fixes tag in a commit.
+>> >>
+>> >> It does exactly what you're describing, but also taking a bunch more
+>> >> factors into it's desicion process ("panic"? "oops"? "overflow"? etc).
+>> >
+>> >As Saeed commented, every extra line in stable / production kernel
+>> >is wrong. IMHO it doesn't make any sense to take into stable automatically
+>> >any patch that doesn't have fixes line. Do you have 1/2/3/4/5 concrete
+>> >examples from your (referring to your Microsoft employee hat comment
+>> >below) or other's people production environment where patches proved to
+>> >be necessary but they lacked the fixes tag - would love to see them.
+>>
+>> Sure, here are 5 from the past few months:
+>>
+>> e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss descriptor")
+>> 3d94a4a8373b ("mwifiex: fix possible heap overflow in mwifiex_process_country_ie()")
+>> 39d170b3cb62 ("ath6kl: fix a NULL-ptr-deref bug in ath6kl_usb_alloc_urb_from_pipe()")
+>> 8b51dc729147 ("rsi: fix a double free bug in rsi_91x_deinit()")
+>> 5146f95df782 ("USB: hso: Fix OOB memory access in hso_probe/hso_get_config_data")
+>>
+>> 5 Different drivers, neither has a stable tag or a Fixes: tag, all 5
+>> have a CVE number assigned to them.
+>
+>CVE number sounds good enough to me to AI around and pull to
+>stable,  BUT only to where relevant, and nothing beyond (see below).
 
- ============================================
- WARNING: possible recursive locking detected
- 5.6.0-rc6+ #6 Not tainted
- --------------------------------------------
- sched-messaging/2767 is trying to acquire lock:
- ffffffff9a492798 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_hash_lock+0x52/0xa0
+But this is true with so many other things... This example was easy
+because I could grep for CVE, but what about commits that don't get
+assigned a CVE number but are just as severe?
 
- but task is already holding lock:
- ffffffff9a491a18 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_trampoline+0x0/0x50
+Here are few without a CVE ID:
 
- other info that might help us debug this:
-  Possible unsafe locking scenario:
+f700546682a6 ("rsi: fix nommu_map_sg overflow kernel panic")
+3c68b8fffb48 ("dpaa_eth: FMan erratum A050385 workaround")
+536dc5df2808 ("hv_netvsc: Fix memory leak when removing rndis device")
 
-        CPU0
-        ----
-   lock(&(kretprobe_table_locks[i].lock));
-   lock(&(kretprobe_table_locks[i].lock));
+Could we agree here that important commits from drivers/net/ don't have
+a fixes tag but still should end up in stable?
 
-  *** DEADLOCK ***
+>> >We've been coaching new comers for years during internal and on-list
+>> >code reviews to put proper fixes tag. This serves (A) for the upstream
+>> >human review of the patch and (B) reasonable human stable considerations.
+>>
+>> Thanks for doing it - we do see more and more fixes tags.
+>>
+>> >You are practically saying that for cases we screwed up stage (A) you
+>> >can somehow still get away with good results on stage (B) - I don't
+>> >accept it. BTW - during my reviews I tend to ask/require developers to
+>> >skip the word panic, and instead better explain the nature of the
+>> >problem / result.
+>>
+>> Humans are still humans, and humans make mistakes. Fixes tags get
+>> forgotten
+>
+>In the netdev land, the very much usual habit is for -rc patches to have
+>Fixes tag, so maybe some RCA comment here would be to
+>enforce that better across the kermel land?
 
-  May be due to missing lock nesting notation
+I'd be very happy to see better tagging (not just fixes, but also
+reported-by/tested-by/etc).
 
- 1 lock held by sched-messaging/2767:
-  #0: ffffffff9a491a18 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_trampoline+0x0/0x50
+>> stable tags get forgotten.
+>
+>An easy AI would be to deduce the -stable tag from the -fixes tag, just
+>find out where the offending patch was accepted and never/ever (please!)
+>push a fix beyond that kernel.
 
- stack backtrace:
- CPU: 3 PID: 2767 Comm: sched-messaging Not tainted 5.6.0-rc6+ #6
- Call Trace:
-  dump_stack+0x96/0xe0
-  __lock_acquire.cold.57+0x173/0x2b7
-  ? native_queued_spin_lock_slowpath+0x42b/0x9e0
-  ? lockdep_hardirqs_on+0x590/0x590
-  ? __lock_acquire+0xf63/0x4030
-  lock_acquire+0x15a/0x3d0
-  ? kretprobe_hash_lock+0x52/0xa0
-  _raw_spin_lock_irqsave+0x36/0x70
-  ? kretprobe_hash_lock+0x52/0xa0
-  kretprobe_hash_lock+0x52/0xa0
-  trampoline_handler+0xf8/0x940
-  ? kprobe_fault_handler+0x380/0x380
-  ? find_held_lock+0x3a/0x1c0
-  kretprobe_trampoline+0x25/0x50
-  ? lock_acquired+0x392/0xbc0
-  ? _raw_spin_lock_irqsave+0x50/0x70
-  ? __get_valid_kprobe+0x1f0/0x1f0
-  ? _raw_spin_unlock_irqrestore+0x3b/0x40
-  ? finish_task_switch+0x4b9/0x6d0
-  ? __switch_to_asm+0x34/0x70
-  ? __switch_to_asm+0x40/0x70
+This is tricky because not all commits with a fixes tag need to go to
+stable, right?
 
-The code within the kretprobe handler checks for probe reentrancy,
-so we won't trigger any _raw_spin_lock_irqsave probe in there.
+We have a bunch of commits that "fix" a documentation typo for example.
 
-The problem is in outside kprobe_flush_task, where we call:
+>> I very much belive you that the mellanox stuff are in good shape thanks
+>> to your efforts, but the kernel world is bigger than a few select drivers.
+>
+>>>>>> This is great, but the kernel is more than just net/. Note that I also
+>>>>>> do not look at net/ itself, but rather drivers/net/ as those end up with
+>>>>>> a bunch of missed fixes.
+>
+>>>>>drivers/net/ goes through the same DaveM net/net-next trees, with the
+>>>>> same rules.
+>
+>>>you ignored this comment, any more specific complaints?
+>
+>> See above (the example commits). The drivers/net/ stuff don't work as
+>> well as net/ sadly.
+>
+>Disagree.
+>
+>If there is a problem it is due to some driver/net/ driver maintainers
+>not doing their job good enough.
 
-  kprobe_flush_task
-    kretprobe_table_lock
-      raw_spin_lock_irqsave
-        _raw_spin_lock_irqsave
+Maybe it's just me missing something here, but I thought that
+drivers/net/ aren't supposed to add a stable tag, they're just supposed
+to write good commit message, add a fixes tag if necessary, and the
+netdev maintainers will do the rest?
 
-where _raw_spin_lock_irqsave triggers the kretprobe and installs
-kretprobe_trampoline handler on _raw_spin_lock_irqsave return.
+"""
+Q: How can I tell what patches are queued up for backporting to the various stable releases?
+A: Normally Greg Kroah-Hartman collects stable commits himself, but for networking, Dave collects up patches he deems critical for the networking subsystem, and then hands them off to Greg.
+"""
 
-The kretprobe_trampoline handler is then executed with already
-locked kretprobe_table_locks, and first thing it does is to
-lock kretprobe_table_locks ;-) the whole lockup path like:
+There are 2 things I understood from this:
 
-  kprobe_flush_task
-    kretprobe_table_lock
-      raw_spin_lock_irqsave
-        _raw_spin_lock_irqsave ---> probe triggered, kretprobe_trampoline installed
+1. "networking subsystem" == net/
+2. Dave does patch selection.
 
-        ---> kretprobe_table_locks locked
+>> >> Let me put my Microsoft employee hat on here. We have driver/net/hyperv/
+>> >> which definitely wasn't getting all the fixes it should have been
+>> >> getting without AUTOSEL.
+>> >
+>> >> While net/ is doing great, drivers/net/ is not. If it's indeed following
+>> >> the same rules then we need to talk about how we get done right.
+>> >
+>> >I never [1] saw -stable push requests being ignored here in netdev.
+>> >Your drivers have four listed maintainers and it's common habit by
+>> >commercial companies to have paid && human (non autosel robots)
+>> >maintainers that take care of their open source drivers. As in commercial
+>> >SW products, Linux has a current, next and past (stable) releases, so
+>> >something sounds as missing to me in your care matrix.
+>>
+>> How come? DaveM is specifically asking not to add stable tags because he
+>> will do the selection himself, right? So the hyperv stuff indeed don't
+>> include a stable tag, but all fixes should have a proper Fixes: tag.
+>
+>Ask/tell your maintainer to note that in their cover letters, it will be taken.
 
-        kretprobe_trampoline
-          trampoline_handler
-            kretprobe_hash_lock(current, &head, &flags);  <--- deadlock
+Or allow them to tag stuff for stable? :)
 
-Adding kprobe_busy_begin/end helpers that mark code with fake
-probe installed to prevent triggering of another kprobe within
-this code.
+>> So why don't they end up in a stable tree?
+>
+>> If we need to send a mail saying which commits should go to stable, we
+>> might as well tag them for stable to begin with, right?
+>
+>so how about you go and argue with the netdev maintainer and
+>settle your complaints instead of WA your disagreements using autosel?
 
-Using these helpers in kprobe_flush_task, so the probe recursion
-protection check is hit and the probe is never set to prevent
-above lockup.
+So we had this discussion a while back and what I thought the outcome
+was that I'll ignore net/ and so I did.
 
-Fixes: ef53d9c5e4da ('kprobes: improve kretprobe scalability with hashed locking')
-Cc: stable@vger.kernel.org
-Reported-by: "Ziqian SUN (Zamir)" <zsun@redhat.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
----
- arch/x86/kernel/kprobes/core.c | 16 +++-------------
- include/linux/kprobes.h        |  4 ++++
- kernel/kprobes.c               | 24 ++++++++++++++++++++++++
- 3 files changed, 31 insertions(+), 13 deletions(-)
+I've mentioned it before - I'm not stuck on doing what I'm doing now for
+no reason. If the netdev maintainers want this done in a different way,
+or if you can show me data that what I'm doing is wrong, I'll be happy
+to change my workflow.
 
-v2 changes: updated changelog with Fixes/Ack and Cc stable
-
-diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
-index 4d7022a740ab..a12adbe1559d 100644
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -753,16 +753,11 @@ asm(
- NOKPROBE_SYMBOL(kretprobe_trampoline);
- STACK_FRAME_NON_STANDARD(kretprobe_trampoline);
- 
--static struct kprobe kretprobe_kprobe = {
--	.addr = (void *)kretprobe_trampoline,
--};
--
- /*
-  * Called from kretprobe_trampoline
-  */
- __used __visible void *trampoline_handler(struct pt_regs *regs)
- {
--	struct kprobe_ctlblk *kcb;
- 	struct kretprobe_instance *ri = NULL;
- 	struct hlist_head *head, empty_rp;
- 	struct hlist_node *tmp;
-@@ -772,16 +767,12 @@ __used __visible void *trampoline_handler(struct pt_regs *regs)
- 	void *frame_pointer;
- 	bool skipped = false;
- 
--	preempt_disable();
--
- 	/*
- 	 * Set a dummy kprobe for avoiding kretprobe recursion.
- 	 * Since kretprobe never run in kprobe handler, kprobe must not
- 	 * be running at this point.
- 	 */
--	kcb = get_kprobe_ctlblk();
--	__this_cpu_write(current_kprobe, &kretprobe_kprobe);
--	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
-+	kprobe_busy_begin();
- 
- 	INIT_HLIST_HEAD(&empty_rp);
- 	kretprobe_hash_lock(current, &head, &flags);
-@@ -857,7 +848,7 @@ __used __visible void *trampoline_handler(struct pt_regs *regs)
- 			__this_cpu_write(current_kprobe, &ri->rp->kp);
- 			ri->ret_addr = correct_ret_addr;
- 			ri->rp->handler(ri, regs);
--			__this_cpu_write(current_kprobe, &kretprobe_kprobe);
-+			__this_cpu_write(current_kprobe, &kprobe_busy);
- 		}
- 
- 		recycle_rp_inst(ri, &empty_rp);
-@@ -873,8 +864,7 @@ __used __visible void *trampoline_handler(struct pt_regs *regs)
- 
- 	kretprobe_hash_unlock(current, &flags);
- 
--	__this_cpu_write(current_kprobe, NULL);
--	preempt_enable();
-+	kprobe_busy_end();
- 
- 	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
- 		hlist_del(&ri->hlist);
-diff --git a/include/linux/kprobes.h b/include/linux/kprobes.h
-index 04bdaf01112c..645fd401c856 100644
---- a/include/linux/kprobes.h
-+++ b/include/linux/kprobes.h
-@@ -350,6 +350,10 @@ static inline struct kprobe_ctlblk *get_kprobe_ctlblk(void)
- 	return this_cpu_ptr(&kprobe_ctlblk);
- }
- 
-+extern struct kprobe kprobe_busy;
-+void kprobe_busy_begin(void);
-+void kprobe_busy_end(void);
-+
- kprobe_opcode_t *kprobe_lookup_name(const char *name, unsigned int offset);
- int register_kprobe(struct kprobe *p);
- void unregister_kprobe(struct kprobe *p);
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 2625c241ac00..75bb4a8458e7 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1236,6 +1236,26 @@ __releases(hlist_lock)
- }
- NOKPROBE_SYMBOL(kretprobe_table_unlock);
- 
-+struct kprobe kprobe_busy = {
-+	.addr = (void *) get_kprobe,
-+};
-+
-+void kprobe_busy_begin(void)
-+{
-+	struct kprobe_ctlblk *kcb;
-+
-+	preempt_disable();
-+	__this_cpu_write(current_kprobe, &kprobe_busy);
-+	kcb = get_kprobe_ctlblk();
-+	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
-+}
-+
-+void kprobe_busy_end(void)
-+{
-+	__this_cpu_write(current_kprobe, NULL);
-+	preempt_enable();
-+}
-+
- /*
-  * This function is called from finish_task_switch when task tk becomes dead,
-  * so that we can recycle any function-return probe instances associated
-@@ -1253,6 +1273,8 @@ void kprobe_flush_task(struct task_struct *tk)
- 		/* Early boot.  kretprobe_table_locks not yet initialized. */
- 		return;
- 
-+	kprobe_busy_begin();
-+
- 	INIT_HLIST_HEAD(&empty_rp);
- 	hash = hash_ptr(tk, KPROBE_HASH_BITS);
- 	head = &kretprobe_inst_table[hash];
-@@ -1266,6 +1288,8 @@ void kprobe_flush_task(struct task_struct *tk)
- 		hlist_del(&ri->hlist);
- 		kfree(ri);
- 	}
-+
-+	kprobe_busy_end();
- }
- NOKPROBE_SYMBOL(kprobe_flush_task);
- 
 -- 
-2.18.2
-
+Thanks,
+Sasha
