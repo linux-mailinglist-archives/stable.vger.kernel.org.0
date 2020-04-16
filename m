@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6051AC48B
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 751121AC3F0
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:52:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392757AbgDPOBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:01:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48488 "EHLO mail.kernel.org"
+        id S1727773AbgDPNvy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:51:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392753AbgDPOBR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:01:17 -0400
+        id S2408766AbgDPNvu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:51:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3EA220786;
-        Thu, 16 Apr 2020 14:01:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07D0320732;
+        Thu, 16 Apr 2020 13:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045677;
-        bh=NIfD1hK5pPn8ZzH1+MpzrsVPbWvO7PPVI91BpOhzswU=;
+        s=default; t=1587045109;
+        bh=LVBm2hktWvpKiFaRYPbCFyMY9DyIRxdosugM2+0wweE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ItxR51cSIIVj0kUQF8XZ4xTRTSE37IoZHdQsQjCcaTSUrzVszndAfXyfhJCsyVNOg
-         1b88j6cMRGVml9DMCqEsyk25dG+UNDMtQc5C4whcAVCuPBD1WjlSQqypl970GUYEw8
-         0iAmotmbmYQtCkrrv6O7Yhj/7oyfjb97Mc1Ya5Lw=
+        b=qBkhs+h0V1Sc9LieYo+gE9mkTpqxbLNDrM86HKiUy78OEpUvmgYrDSZipeJfVetKI
+         dD+6NbZIQ87uYwTw6hvbSZWfjO5e+U97lEjel4bx0ufTfSbC8VGJ6Dy8Ec+qUqpVx0
+         W+N4/Y+A+KZc9oX+r0+eD3KlfLuEQtq7D14Vs5Po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taeung Song <treeze.taeung@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.6 225/254] ftrace/kprobe: Show the maxactive number on kprobe_events
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 220/232] dm clone: Fix handling of partial region discards
 Date:   Thu, 16 Apr 2020 15:25:14 +0200
-Message-Id: <20200416131353.946996077@linuxfoundation.org>
+Message-Id: <20200416131343.007328083@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 6a13a0d7b4d1171ef9b80ad69abc37e1daa941b3 upstream.
+[ Upstream commit 4b5142905d4ff58a4b93f7c8eaa7ba829c0a53c9 ]
 
-Show maxactive parameter on kprobe_events.
-This allows user to save the current configuration and
-restore it without losing maxactive parameter.
+There is a bug in the way dm-clone handles discards, which can lead to
+discarding the wrong blocks or trying to discard blocks beyond the end
+of the device.
 
-Link: http://lkml.kernel.org/r/4762764a-6df7-bc93-ed60-e336146dce1f@gmail.com
-Link: http://lkml.kernel.org/r/158503528846.22706.5549974121212526020.stgit@devnote2
+This could lead to data corruption, if the destination device indeed
+discards the underlying blocks, i.e., if the discard operation results
+in the original contents of a block to be lost.
 
-Cc: stable@vger.kernel.org
-Fixes: 696ced4fb1d76 ("tracing/kprobes: expose maxactive for kretprobe in kprobe_events")
-Reported-by: Taeung Song <treeze.taeung@gmail.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The root of the problem is the code that calculates the range of regions
+covered by a discard request and decides which regions to discard.
 
+Since dm-clone handles the device in units of regions, we don't discard
+parts of a region, only whole regions.
+
+The range is calculated as:
+
+    rs = dm_sector_div_up(bio->bi_iter.bi_sector, clone->region_size);
+    re = bio_end_sector(bio) >> clone->region_shift;
+
+, where 'rs' is the first region to discard and (re - rs) is the number
+of regions to discard.
+
+The bug manifests when we try to discard part of a single region, i.e.,
+when we try to discard a block with size < region_size, and the discard
+request both starts at an offset with respect to the beginning of that
+region and ends before the end of the region.
+
+The root cause is the following comparison:
+
+  if (rs == re)
+    // skip discard and complete original bio immediately
+
+, which doesn't take into account that 'rs' might be greater than 're'.
+
+Thus, we then issue a discard request for the wrong blocks, instead of
+skipping the discard all together.
+
+Fix the check to also take into account the above case, so we don't end
+up discarding the wrong blocks.
+
+Also, add some range checks to dm_clone_set_region_hydrated() and
+dm_clone_cond_set_range(), which update dm-clone's region bitmap.
+
+Note that the aforementioned bug doesn't cause invalid memory accesses,
+because dm_clone_is_range_hydrated() returns True for this case, so the
+checks are just precautionary.
+
+Fixes: 7431b7835f55 ("dm: add clone target")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_kprobe.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm-clone-metadata.c | 13 ++++++++++
+ drivers/md/dm-clone-target.c   | 43 +++++++++++++++++++++++-----------
+ 2 files changed, 42 insertions(+), 14 deletions(-)
 
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -1078,6 +1078,8 @@ static int trace_kprobe_show(struct seq_
- 	int i;
+diff --git a/drivers/md/dm-clone-metadata.c b/drivers/md/dm-clone-metadata.c
+index 581d11250333a..17712456fa634 100644
+--- a/drivers/md/dm-clone-metadata.c
++++ b/drivers/md/dm-clone-metadata.c
+@@ -850,6 +850,12 @@ int dm_clone_set_region_hydrated(struct dm_clone_metadata *cmd, unsigned long re
+ 	struct dirty_map *dmap;
+ 	unsigned long word, flags;
  
- 	seq_putc(m, trace_kprobe_is_return(tk) ? 'r' : 'p');
-+	if (trace_kprobe_is_return(tk) && tk->rp.maxactive)
-+		seq_printf(m, "%d", tk->rp.maxactive);
- 	seq_printf(m, ":%s/%s", trace_probe_group_name(&tk->tp),
- 				trace_probe_name(&tk->tp));
++	if (unlikely(region_nr >= cmd->nr_regions)) {
++		DMERR("Region %lu out of range (total number of regions %lu)",
++		      region_nr, cmd->nr_regions);
++		return -ERANGE;
++	}
++
+ 	word = region_nr / BITS_PER_LONG;
  
+ 	spin_lock_irqsave(&cmd->bitmap_lock, flags);
+@@ -879,6 +885,13 @@ int dm_clone_cond_set_range(struct dm_clone_metadata *cmd, unsigned long start,
+ 	struct dirty_map *dmap;
+ 	unsigned long word, region_nr;
+ 
++	if (unlikely(start >= cmd->nr_regions || (start + nr_regions) < start ||
++		     (start + nr_regions) > cmd->nr_regions)) {
++		DMERR("Invalid region range: start %lu, nr_regions %lu (total number of regions %lu)",
++		      start, nr_regions, cmd->nr_regions);
++		return -ERANGE;
++	}
++
+ 	spin_lock_irq(&cmd->bitmap_lock);
+ 
+ 	if (cmd->read_only) {
+diff --git a/drivers/md/dm-clone-target.c b/drivers/md/dm-clone-target.c
+index ad5dca5d20707..315d3bca59792 100644
+--- a/drivers/md/dm-clone-target.c
++++ b/drivers/md/dm-clone-target.c
+@@ -293,10 +293,17 @@ static inline unsigned long bio_to_region(struct clone *clone, struct bio *bio)
+ 
+ /* Get the region range covered by the bio */
+ static void bio_region_range(struct clone *clone, struct bio *bio,
+-			     unsigned long *rs, unsigned long *re)
++			     unsigned long *rs, unsigned long *nr_regions)
+ {
++	unsigned long end;
++
+ 	*rs = dm_sector_div_up(bio->bi_iter.bi_sector, clone->region_size);
+-	*re = bio_end_sector(bio) >> clone->region_shift;
++	end = bio_end_sector(bio) >> clone->region_shift;
++
++	if (*rs >= end)
++		*nr_regions = 0;
++	else
++		*nr_regions = end - *rs;
+ }
+ 
+ /* Check whether a bio overwrites a region */
+@@ -454,7 +461,7 @@ static void trim_bio(struct bio *bio, sector_t sector, unsigned int len)
+ 
+ static void complete_discard_bio(struct clone *clone, struct bio *bio, bool success)
+ {
+-	unsigned long rs, re;
++	unsigned long rs, nr_regions;
+ 
+ 	/*
+ 	 * If the destination device supports discards, remap and trim the
+@@ -463,9 +470,9 @@ static void complete_discard_bio(struct clone *clone, struct bio *bio, bool succ
+ 	 */
+ 	if (test_bit(DM_CLONE_DISCARD_PASSDOWN, &clone->flags) && success) {
+ 		remap_to_dest(clone, bio);
+-		bio_region_range(clone, bio, &rs, &re);
++		bio_region_range(clone, bio, &rs, &nr_regions);
+ 		trim_bio(bio, rs << clone->region_shift,
+-			 (re - rs) << clone->region_shift);
++			 nr_regions << clone->region_shift);
+ 		generic_make_request(bio);
+ 	} else
+ 		bio_endio(bio);
+@@ -473,12 +480,21 @@ static void complete_discard_bio(struct clone *clone, struct bio *bio, bool succ
+ 
+ static void process_discard_bio(struct clone *clone, struct bio *bio)
+ {
+-	unsigned long rs, re;
++	unsigned long rs, nr_regions;
+ 
+-	bio_region_range(clone, bio, &rs, &re);
+-	BUG_ON(re > clone->nr_regions);
++	bio_region_range(clone, bio, &rs, &nr_regions);
++	if (!nr_regions) {
++		bio_endio(bio);
++		return;
++	}
+ 
+-	if (unlikely(rs == re)) {
++	if (WARN_ON(rs >= clone->nr_regions || (rs + nr_regions) < rs ||
++		    (rs + nr_regions) > clone->nr_regions)) {
++		DMERR("%s: Invalid range (%lu + %lu, total regions %lu) for discard (%llu + %u)",
++		      clone_device_name(clone), rs, nr_regions,
++		      clone->nr_regions,
++		      (unsigned long long)bio->bi_iter.bi_sector,
++		      bio_sectors(bio));
+ 		bio_endio(bio);
+ 		return;
+ 	}
+@@ -487,7 +503,7 @@ static void process_discard_bio(struct clone *clone, struct bio *bio)
+ 	 * The covered regions are already hydrated so we just need to pass
+ 	 * down the discard.
+ 	 */
+-	if (dm_clone_is_range_hydrated(clone->cmd, rs, re - rs)) {
++	if (dm_clone_is_range_hydrated(clone->cmd, rs, nr_regions)) {
+ 		complete_discard_bio(clone, bio, true);
+ 		return;
+ 	}
+@@ -1165,7 +1181,7 @@ static void process_deferred_discards(struct clone *clone)
+ 	int r = -EPERM;
+ 	struct bio *bio;
+ 	struct blk_plug plug;
+-	unsigned long rs, re;
++	unsigned long rs, nr_regions;
+ 	struct bio_list discards = BIO_EMPTY_LIST;
+ 
+ 	spin_lock_irq(&clone->lock);
+@@ -1181,14 +1197,13 @@ static void process_deferred_discards(struct clone *clone)
+ 
+ 	/* Update the metadata */
+ 	bio_list_for_each(bio, &discards) {
+-		bio_region_range(clone, bio, &rs, &re);
++		bio_region_range(clone, bio, &rs, &nr_regions);
+ 		/*
+ 		 * A discard request might cover regions that have been already
+ 		 * hydrated. There is no need to update the metadata for these
+ 		 * regions.
+ 		 */
+-		r = dm_clone_cond_set_range(clone->cmd, rs, re - rs);
+-
++		r = dm_clone_cond_set_range(clone->cmd, rs, nr_regions);
+ 		if (unlikely(r))
+ 			break;
+ 	}
+-- 
+2.20.1
+
 
 
