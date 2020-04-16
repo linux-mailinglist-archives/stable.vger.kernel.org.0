@@ -2,118 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08E761AC198
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 14:44:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 528451AC1D0
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 14:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2635998AbgDPMoL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 08:44:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48908 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2636076AbgDPMoH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 08:44:07 -0400
-Received: from mail-ua1-x944.google.com (mail-ua1-x944.google.com [IPv6:2607:f8b0:4864:20::944])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4359EC061A0C
-        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 05:44:07 -0700 (PDT)
-Received: by mail-ua1-x944.google.com with SMTP id g10so2746374uae.5
-        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 05:44:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=benyossef-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=wCyXe2LNfXES/+fuBLMBi1HmDfF4xps6SbKRv0RhJOY=;
-        b=nL5eZOFQVya7TB//Ow18yga9pS/iU9qKjkD7Daszmv3+y4yf+TL/RM8YMMQUDUfQfT
-         qPZzlOtuzsdz3AWqSylUcyni9VnTRhjVBrrrpmdYAtj/jwnKl93pq4VxmBm1S2xKKdXn
-         0P6hHljqAK2PbE3tcr0QkEjjg9oQNE51WjoG0DfkBDug42j+kHUcSkX3e9Nlvq+6Kqrr
-         woVvnFq0rXIbQVvDyjUo87M2DOMG+SecftA7IXHi25E+L0DUuRIj6W+WGn1WiyNJjY/N
-         kq3ERcqHs622LdgcL8O8TWysdTNbOKwHUYkuqPeQWMpp7QvMQbTXV0s1s9Ih/3vd4EY3
-         6Z7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=wCyXe2LNfXES/+fuBLMBi1HmDfF4xps6SbKRv0RhJOY=;
-        b=Rxjrr6HYSv8/nqPIrZoVUia+6dpnNzNlPq1DYKzoxSJc9k9FiM2VjBGxb8Rafr1fOO
-         oFP18pqtnvNfWFPtc0kCjc/ynvh6iADOO1NFIaXqyo5Owzph6gb7CtVBsk7YNywIZq1s
-         J9ITEViQ93AK4dkuwcs0hThAPddJcDBCyLMzd9oWTYdOaYL1lw7oYktAwlDnBSbwOT/J
-         F3XRmtAnM+TLAKM7gZVGfxpwgRbCjmLOyAsyKDB7ghp/RUh5UKrzwte//BEmT9znOERM
-         0Kl/nZ9xInCTwMU7Nhpd//k+JXO85sJREYst0tBqIlrBGTYR3CGacS42JSckrx5NQnY4
-         2C7A==
-X-Gm-Message-State: AGi0PubnKEYjjWgx/oUBZBhMpeXG34Yc5CzkP8lA7BnvchcWul8WYcI/
-        6pABlqdvHCfznRQrXDu4/TVfquXz3XvmwPITd0ITKFNUmTE=
-X-Google-Smtp-Source: APiQypJD1XdR20i1jzUfd1IoobYd4OUlC2K8MDhL+NVgo12H0K+NBfo/ive5S0c5TNRw3fZfwi0Tj6AD6vJmwF/vlZY=
-X-Received: by 2002:ab0:2852:: with SMTP id c18mr8491370uaq.27.1587041046427;
- Thu, 16 Apr 2020 05:44:06 -0700 (PDT)
+        id S2636287AbgDPMwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 08:52:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54304 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2636303AbgDPMw3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 08:52:29 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AE32208E4;
+        Thu, 16 Apr 2020 12:52:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587041545;
+        bh=vxpLHTIPScZc/0k62PftfmybZ8G3ki6AJs7CuruYu4k=;
+        h=Subject:To:From:Date:From;
+        b=sNS95g11Q5+aTmSYKWk6m3f7Nfq79ne0ZaFt68DBpEEAV2TMA6drQUzCyKeTeLm3L
+         SBPsFd3hiuFt8qQtbr6d8wLBU5uxdeCVCAxK5oKYLLwfQwFczO45edTc/QbwQ5cwnG
+         SLuAQ7Z/ow5ed3UU0R4xr6GceSLytvhszkxec3Lg=
+Subject: patch "USB: core: Fix free-while-in-use bug in the USB S-Glibrary" added to usb-linus
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        kt0755@gmail.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 16 Apr 2020 14:52:22 +0200
+Message-ID: <1587041542115205@kroah.com>
 MIME-Version: 1.0
-References: <158694882829120@kroah.com> <20200416013757.GT1068@sasha-vm>
-In-Reply-To: <20200416013757.GT1068@sasha-vm>
-From:   Gilad Ben-Yossef <gilad@benyossef.com>
-Date:   Thu, 16 Apr 2020 15:43:56 +0300
-Message-ID: <CAOtvUMe5heE1yMUYcr7Gab9kktvV1h=F1N0OKtNUw8yaLoKUow@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] crypto: ccree - only try to map auth tag
- if needed" failed to apply to 4.19-stable tree
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 4:37 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> On Wed, Apr 15, 2020 at 01:07:08PM +0200, gregkh@linuxfoundation.org wrot=
-e:
-> >
-> >The patch below does not apply to the 4.19-stable tree.
-> >If someone wants it applied there, or to any other stable or longterm
-> >tree, then please email the backport, including the original git commit
-> >id to <stable@vger.kernel.org>.
-> >
-> >thanks,
-> >
-> >greg k-h
-> >
-> >------------------ original commit in Linus's tree ------------------
-> >
-> >From 504e84abec7a635b861afd8d7f92ecd13eaa2b09 Mon Sep 17 00:00:00 2001
-> >From: Gilad Ben-Yossef <gilad@benyossef.com>
-> >Date: Wed, 29 Jan 2020 16:37:55 +0200
-> >Subject: [PATCH] crypto: ccree - only try to map auth tag if needed
-> >
-> >Make sure to only add the size of the auth tag to the source mapping
-> >for encryption if it is an in-place operation. Failing to do this
-> >previously caused us to try and map auth size len bytes from a NULL
-> >mapping and crashing if both the cryptlen and assoclen are zero.
-> >
-> >Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> >Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> >Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-> >Cc: stable@vger.kernel.org # v4.19+
-> >Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
->
-> Grabbing:
->
-> da3cf67f1bcf ("crypto: ccree - don't mangle the request assoclen")
-> 9f31eb6e08cc ("crypto: ccree - zero out internal struct before use")
-> ccba2f1112d4 ("crypto: ccree - improve error handling")
->
-> resolved this conflict.
->
 
-Acked-by: Gilad Ben-Yossef <gilad@benyossef.com>
+This is a note to let you know that I've just added the patch titled
 
-Thanks,
-Gilad
---=20
-Gilad Ben-Yossef
-Chief Coffee Drinker
+    USB: core: Fix free-while-in-use bug in the USB S-Glibrary
 
-values of =CE=B2 will give rise to dom!
-Acked-by: Gilad Ben-Yossef <gilad@benyossef.com>
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-Thanks,
-Gilad
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 056ad39ee9253873522f6469c3364964a322912b Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Sat, 28 Mar 2020 16:18:11 -0400
+Subject: USB: core: Fix free-while-in-use bug in the USB S-Glibrary
+
+FuzzUSB (a variant of syzkaller) found a free-while-still-in-use bug
+in the USB scatter-gather library:
+
+BUG: KASAN: use-after-free in atomic_read
+include/asm-generic/atomic-instrumented.h:26 [inline]
+BUG: KASAN: use-after-free in usb_hcd_unlink_urb+0x5f/0x170
+drivers/usb/core/hcd.c:1607
+Read of size 4 at addr ffff888065379610 by task kworker/u4:1/27
+
+CPU: 1 PID: 27 Comm: kworker/u4:1 Not tainted 5.5.11 #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+1.10.2-1ubuntu1 04/01/2014
+Workqueue: scsi_tmf_2 scmd_eh_abort_handler
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
+ __kasan_report+0x153/0x1cb mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:639
+ check_memory_region_inline mm/kasan/generic.c:185 [inline]
+ check_memory_region+0x152/0x1b0 mm/kasan/generic.c:192
+ __kasan_check_read+0x11/0x20 mm/kasan/common.c:95
+ atomic_read include/asm-generic/atomic-instrumented.h:26 [inline]
+ usb_hcd_unlink_urb+0x5f/0x170 drivers/usb/core/hcd.c:1607
+ usb_unlink_urb+0x72/0xb0 drivers/usb/core/urb.c:657
+ usb_sg_cancel+0x14e/0x290 drivers/usb/core/message.c:602
+ usb_stor_stop_transport+0x5e/0xa0 drivers/usb/storage/transport.c:937
+
+This bug occurs when cancellation of the S-G transfer races with
+transfer completion.  When that happens, usb_sg_cancel() may continue
+to access the transfer's URBs after usb_sg_wait() has freed them.
+
+The bug is caused by the fact that usb_sg_cancel() does not take any
+sort of reference to the transfer, and so there is nothing to prevent
+the URBs from being deallocated while the routine is trying to use
+them.  The fix is to take such a reference by incrementing the
+transfer's io->count field while the cancellation is in progres and
+decrementing it afterward.  The transfer's URBs are not deallocated
+until io->complete is triggered, which happens when io->count reaches
+zero.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
+CC: <stable@vger.kernel.org>
+
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2003281615140.14837-100000@netrider.rowland.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/message.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index d5f834f16993..a48678a0c83a 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -589,12 +589,13 @@ void usb_sg_cancel(struct usb_sg_request *io)
+ 	int i, retval;
+ 
+ 	spin_lock_irqsave(&io->lock, flags);
+-	if (io->status) {
++	if (io->status || io->count == 0) {
+ 		spin_unlock_irqrestore(&io->lock, flags);
+ 		return;
+ 	}
+ 	/* shut everything down */
+ 	io->status = -ECONNRESET;
++	io->count++;		/* Keep the request alive until we're done */
+ 	spin_unlock_irqrestore(&io->lock, flags);
+ 
+ 	for (i = io->entries - 1; i >= 0; --i) {
+@@ -608,6 +609,12 @@ void usb_sg_cancel(struct usb_sg_request *io)
+ 			dev_warn(&io->dev->dev, "%s, unlink --> %d\n",
+ 				 __func__, retval);
+ 	}
++
++	spin_lock_irqsave(&io->lock, flags);
++	io->count--;
++	if (!io->count)
++		complete(&io->complete);
++	spin_unlock_irqrestore(&io->lock, flags);
+ }
+ EXPORT_SYMBOL_GPL(usb_sg_cancel);
+ 
+-- 
+2.26.1
+
+
