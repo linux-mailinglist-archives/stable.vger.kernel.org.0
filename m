@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01AD71ACC33
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A64761AC768
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895799AbgDPN2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:28:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37512 "EHLO mail.kernel.org"
+        id S2405991AbgDPOyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:54:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895770AbgDPN2b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:28:31 -0400
+        id S2409176AbgDPN4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:56:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D41EF206E9;
-        Thu, 16 Apr 2020 13:28:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D39CC2078B;
+        Thu, 16 Apr 2020 13:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043710;
-        bh=O7V0h3Pp//Pa004XuacvG1SJV34cloXKEn9Xo9N6PpM=;
+        s=default; t=1587045403;
+        bh=sPrl9R+yoAc0NrziY7jtHcAjfyMMgN98O+1GI2m295k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fr5NxINFZ7gZCMP2fiqG0bvugiH+MqLuJxutpB0jU0plK1GUdYygFbNEf14bcwixe
-         A9kMH2IsRapo1yX2zhqOXpgQjFOdjtVkM1NhpPQEZMBP8k0yu8Wg4xYGRmlz+yyhsL
-         /AYpYz6Av/qkzCwGQQ9e9VDsJgnx4pnwXP+D+flY=
+        b=pW+m7ZJvEff5v6juMYfUgZzjXMk/3SW3O/VbYGDJxvwU4bfcAC7RZ3ASubKbZiRqz
+         FJYCJnr+MgA8oHOLbwFT6cGHNlQWQ8Q2906VpE+oqBlS8IA5gkytZe9earTJ6QJsqV
+         8GUfKgq1q9KlMM4gHg+RQBt8z4AFaHzAdP6UiIw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 4.19 067/146] PCI: endpoint: Fix for concurrent memory allocation in OB address region
-Date:   Thu, 16 Apr 2020 15:23:28 +0200
-Message-Id: <20200416131252.072173927@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.6 120/254] MIPS: OCTEON: irq: Fix potential NULL pointer dereference
+Date:   Thu, 16 Apr 2020 15:23:29 +0200
+Message-Id: <20200416131341.332807361@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,95 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 04e046ca57ebed3943422dee10eec9e73aec081e upstream.
+commit 792a402c2840054533ef56279c212ef6da87d811 upstream.
 
-pci-epc-mem uses a bitmap to manage the Endpoint outbound (OB) address
-region. This address region will be shared by multiple endpoint
-functions (in the case of multi function endpoint) and it has to be
-protected from concurrent access to avoid updating an inconsistent state.
+There is a potential NULL pointer dereference in case kzalloc()
+fails and returns NULL.
 
-Use a mutex to protect bitmap updates to prevent the memory
-allocation API from returning incorrect addresses.
+Fix this by adding a NULL check on *cd*
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # v4.14+
+This bug was detected with the help of Coccinelle.
+
+Fixes: 64b139f97c01 ("MIPS: OCTEON: irq: add CIB and other fixes")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/endpoint/pci-epc-mem.c |   10 ++++++++--
- include/linux/pci-epc.h            |    3 +++
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ arch/mips/cavium-octeon/octeon-irq.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/pci/endpoint/pci-epc-mem.c
-+++ b/drivers/pci/endpoint/pci-epc-mem.c
-@@ -79,6 +79,7 @@ int __pci_epc_mem_init(struct pci_epc *e
- 	mem->page_size = page_size;
- 	mem->pages = pages;
- 	mem->size = size;
-+	mutex_init(&mem->lock);
+--- a/arch/mips/cavium-octeon/octeon-irq.c
++++ b/arch/mips/cavium-octeon/octeon-irq.c
+@@ -2199,6 +2199,9 @@ static int octeon_irq_cib_map(struct irq
+ 	}
  
- 	epc->mem = mem;
+ 	cd = kzalloc(sizeof(*cd), GFP_KERNEL);
++	if (!cd)
++		return -ENOMEM;
++
+ 	cd->host_data = host_data;
+ 	cd->bit = hw;
  
-@@ -122,7 +123,7 @@ void __iomem *pci_epc_mem_alloc_addr(str
- 				     phys_addr_t *phys_addr, size_t size)
- {
- 	int pageno;
--	void __iomem *virt_addr;
-+	void __iomem *virt_addr = NULL;
- 	struct pci_epc_mem *mem = epc->mem;
- 	unsigned int page_shift = ilog2(mem->page_size);
- 	int order;
-@@ -130,15 +131,18 @@ void __iomem *pci_epc_mem_alloc_addr(str
- 	size = ALIGN(size, mem->page_size);
- 	order = pci_epc_mem_get_order(mem, size);
- 
-+	mutex_lock(&mem->lock);
- 	pageno = bitmap_find_free_region(mem->bitmap, mem->pages, order);
- 	if (pageno < 0)
--		return NULL;
-+		goto ret;
- 
- 	*phys_addr = mem->phys_base + (pageno << page_shift);
- 	virt_addr = ioremap(*phys_addr, size);
- 	if (!virt_addr)
- 		bitmap_release_region(mem->bitmap, pageno, order);
- 
-+ret:
-+	mutex_unlock(&mem->lock);
- 	return virt_addr;
- }
- EXPORT_SYMBOL_GPL(pci_epc_mem_alloc_addr);
-@@ -164,7 +168,9 @@ void pci_epc_mem_free_addr(struct pci_ep
- 	pageno = (phys_addr - mem->phys_base) >> page_shift;
- 	size = ALIGN(size, mem->page_size);
- 	order = pci_epc_mem_get_order(mem, size);
-+	mutex_lock(&mem->lock);
- 	bitmap_release_region(mem->bitmap, pageno, order);
-+	mutex_unlock(&mem->lock);
- }
- EXPORT_SYMBOL_GPL(pci_epc_mem_free_addr);
- 
---- a/include/linux/pci-epc.h
-+++ b/include/linux/pci-epc.h
-@@ -69,6 +69,7 @@ struct pci_epc_ops {
-  * @bitmap: bitmap to manage the PCI address space
-  * @pages: number of bits representing the address region
-  * @page_size: size of each page
-+ * @lock: mutex to protect bitmap
-  */
- struct pci_epc_mem {
- 	phys_addr_t	phys_base;
-@@ -76,6 +77,8 @@ struct pci_epc_mem {
- 	unsigned long	*bitmap;
- 	size_t		page_size;
- 	int		pages;
-+	/* mutex to protect against concurrent access for memory allocation*/
-+	struct mutex	lock;
- };
- 
- /**
 
 
