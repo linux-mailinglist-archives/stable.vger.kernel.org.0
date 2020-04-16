@@ -2,87 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D60A1ABD79
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 12:03:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60ADE1ABDB9
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 12:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504322AbgDPKDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 06:03:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33702 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2504310AbgDPKC6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 06:02:58 -0400
-Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B4C82076A;
-        Thu, 16 Apr 2020 10:02:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587031378;
-        bh=0PYw1oIxICIVQhf6Df2ZyRpfOwqyaClwsDe/u+1KAtg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hJNoGqTlSjAJ8PnagsHa4yFy0YOfvnrc/0Q5XvB9gLPzAV0D0i/h+OUGwhXepeCb1
-         ZYqJrwfEOEnyMmecP1V1mXuQ3+HxW/hYTX/T5e02ifHI9ZqbSRQ4Lchg5N+VLH3m/0
-         DIrr8COjqU2q+IqLE9VmfTo4kqmQ0bk6CGych1R8=
-Date:   Thu, 16 Apr 2020 11:02:55 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        szabolcs.nagy@arm.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] arm64: Always force a branch protection
- mode when the" failed to apply to 5.6-stable tree
-Message-ID: <20200416100255.GC5354@sirena.org.uk>
-References: <158694980415630@kroah.com>
- <20200416015121.GV1068@sasha-vm>
- <20200416083204.GA19241@gaia>
- <20200416093517.GA5354@sirena.org.uk>
+        id S2441518AbgDPKQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 06:16:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53890 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2441482AbgDPKPo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 06:15:44 -0400
+Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD73C061A0C;
+        Thu, 16 Apr 2020 03:15:43 -0700 (PDT)
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jP1Ya-00046E-CQ; Thu, 16 Apr 2020 12:15:40 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id A873C1C001F;
+        Thu, 16 Apr 2020 12:15:39 +0200 (CEST)
+Date:   Thu, 16 Apr 2020 10:15:39 -0000
+From:   "tip-bot2 for Andrei Vagin" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/urgent] proc, time/namespace: Show clock symbolic names
+ in /proc/pid/timens_offsets
+Cc:     Michael Kerrisk <mtk.manpages@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200411154031.642557-1-avagin@gmail.com>
+References: <20200411154031.642557-1-avagin@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="xo44VMWPx7vlQ2+2"
-Content-Disposition: inline
-In-Reply-To: <20200416093517.GA5354@sirena.org.uk>
-X-Cookie: Tempt me with a spoon!
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Message-ID: <158703213918.28353.5534603422697683760.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the timers/urgent branch of tip:
 
---xo44VMWPx7vlQ2+2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Commit-ID:     94d440d618467806009c8edc70b094d64e12ee5a
+Gitweb:        https://git.kernel.org/tip/94d440d618467806009c8edc70b094d64e12ee5a
+Author:        Andrei Vagin <avagin@gmail.com>
+AuthorDate:    Sat, 11 Apr 2020 08:40:31 -07:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Thu, 16 Apr 2020 12:10:54 +02:00
 
-On Thu, Apr 16, 2020 at 10:35:17AM +0100, Mark Brown wrote:
-> On Thu, Apr 16, 2020 at 09:32:05AM +0100, Catalin Marinas wrote:
-> > On Wed, Apr 15, 2020 at 09:51:21PM -0400, Sasha Levin wrote:
+proc, time/namespace: Show clock symbolic names in /proc/pid/timens_offsets
 
-> > > I don't think that this is needed anywhere without 74afda4016a7 ("arm64:
-> > > compile the kernel with ptrauth return address signing")?
+Michael Kerrisk suggested to replace numeric clock IDs with symbolic names.
 
-> > Good point. Mark, is the Fixes line above correct or it should have been
-> > the one Sasha mentions?
+Now the content of these files looks like this:
+$ cat /proc/774/timens_offsets
+monotonic      864000         0
+boottime      1728000         0
 
-> Yes, Sasha's is right.
+For setting offsets, both representations of clocks (numeric and symbolic)
+can be used.
 
-Actually, no - we do need a version of the fix for older versions prior
-to the kernel having pointer auth support since the goal was to ensure
-that the kernel doesn't actually get built with pointer auth when we are
-doing it for userspace as that leaves us with half baked pointer auth in
-the code.  The original fixes was right and we want a redone backport.
+As for compatibility, it is acceptable to change things as long as
+userspace doesn't care. The format of timens_offsets files is very new and
+there are no userspace tools yet which rely on this format.
 
---xo44VMWPx7vlQ2+2
-Content-Type: application/pgp-signature; name="signature.asc"
+But three projects crun, util-linux and criu rely on the interface of
+setting time offsets and this is why it's required to continue supporting
+the numeric clock IDs on write.
 
------BEGIN PGP SIGNATURE-----
+Fixes: 04a8682a71be ("fs/proc: Introduce /proc/pid/timens_offsets")
+Suggested-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Signed-off-by: Andrei Vagin <avagin@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Acked-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200411154031.642557-1-avagin@gmail.com
+---
+ fs/proc/base.c          | 14 +++++++++++++-
+ kernel/time/namespace.c | 15 ++++++++++++++-
+ 2 files changed, 27 insertions(+), 2 deletions(-)
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl6YLU4ACgkQJNaLcl1U
-h9DjtAf/cmJpPsTWlvwKZIqw49Nz1LXaXEstMQEh8Bc6UQ1VJPwyMdKVK8IJXkS/
-1a/wQxO7q0Rzk+sqzljdXYk0bCc4c5XaofGkSGvXw5It/yYqJRaT1wVbrOsu70cm
-5c0oqFUCHM531DADtWe7KsqVg9Fpile7V32IetGUgsI3JNJ63myQaqLW+5KqbzWa
-pcVHfzOsFwdmUN7k8iDGEYzQjZZieWi2jDEJHUUir2kOqdvppIHrugG68ETmnkFA
-xDNmN1wFiwOGWvSEdQOi0pI42Vnhh5UelrB62mLtUlRPjMJoebz+X2kyIzEAT53i
-YIiFc4+NZkVKKTD3Q0fpfRk2Eo9fLg==
-=hOxk
------END PGP SIGNATURE-----
-
---xo44VMWPx7vlQ2+2--
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 6042b64..572898d 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -1573,6 +1573,7 @@ static ssize_t timens_offsets_write(struct file *file, const char __user *buf,
+ 	noffsets = 0;
+ 	for (pos = kbuf; pos; pos = next_line) {
+ 		struct proc_timens_offset *off = &offsets[noffsets];
++		char clock[10];
+ 		int err;
+ 
+ 		/* Find the end of line and ensure we don't look past it */
+@@ -1584,10 +1585,21 @@ static ssize_t timens_offsets_write(struct file *file, const char __user *buf,
+ 				next_line = NULL;
+ 		}
+ 
+-		err = sscanf(pos, "%u %lld %lu", &off->clockid,
++		err = sscanf(pos, "%9s %lld %lu", clock,
+ 				&off->val.tv_sec, &off->val.tv_nsec);
+ 		if (err != 3 || off->val.tv_nsec >= NSEC_PER_SEC)
+ 			goto out;
++
++		clock[sizeof(clock) - 1] = 0;
++		if (strcmp(clock, "monotonic") == 0 ||
++		    strcmp(clock, __stringify(CLOCK_MONOTONIC)) == 0)
++			off->clockid = CLOCK_MONOTONIC;
++		else if (strcmp(clock, "boottime") == 0 ||
++			 strcmp(clock, __stringify(CLOCK_BOOTTIME)) == 0)
++			off->clockid = CLOCK_BOOTTIME;
++		else
++			goto out;
++
+ 		noffsets++;
+ 		if (noffsets == ARRAY_SIZE(offsets)) {
+ 			if (next_line)
+diff --git a/kernel/time/namespace.c b/kernel/time/namespace.c
+index 3b30288..53bce34 100644
+--- a/kernel/time/namespace.c
++++ b/kernel/time/namespace.c
+@@ -338,7 +338,20 @@ static struct user_namespace *timens_owner(struct ns_common *ns)
+ 
+ static void show_offset(struct seq_file *m, int clockid, struct timespec64 *ts)
+ {
+-	seq_printf(m, "%d %lld %ld\n", clockid, ts->tv_sec, ts->tv_nsec);
++	char *clock;
++
++	switch (clockid) {
++	case CLOCK_BOOTTIME:
++		clock = "boottime";
++		break;
++	case CLOCK_MONOTONIC:
++		clock = "monotonic";
++		break;
++	default:
++		clock = "unknown";
++		break;
++	}
++	seq_printf(m, "%-10s %10lld %9ld\n", clock, ts->tv_sec, ts->tv_nsec);
+ }
+ 
+ void proc_timens_show_offsets(struct task_struct *p, struct seq_file *m)
