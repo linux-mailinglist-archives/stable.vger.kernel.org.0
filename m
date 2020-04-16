@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D7321ACA47
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F421AC894
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441495AbgDPPc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:32:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54666 "EHLO mail.kernel.org"
+        id S1727788AbgDPPLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:11:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897763AbgDPNlt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:41:49 -0400
+        id S2405269AbgDPNuc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15ED22222D;
-        Thu, 16 Apr 2020 13:41:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 864512063A;
+        Thu, 16 Apr 2020 13:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044505;
-        bh=qmD2AabpT/gSApKTT7ytFVEBPKgxs9NvEOjVgOMFvy8=;
+        s=default; t=1587045031;
+        bh=SJKfbcTMFH18rnumuVrFY/CSI7v7IEsH07v35ULM5S0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJbS4hW+tk4dVwi8Ssd6IiQ5pPWWxw+MjgVmSeZZfeEeqrgaBZvR8LHflULn+1RBQ
-         qUqvCWagKt/jj7hDtSe4WauKYyTb5Zg9czi8C6QLSKXqg1ERdu2rmz6A88HJR91sM2
-         xkdbsAinMBm4TTtE9Y7NVvsSiEoCf53xkJEmVjug=
+        b=1R2UijIzD9M4rMBT++lxvHwacBiyUNWlMFjy1N6GHJdjXCXsyS7oMkts9RytY8PVk
+         +1ewVLVXvoOFU4SaExQoQLQ7U1sKE1fHQjcnwPjLX95vXcbnCzinGTJZLMmad7TCbC
+         R8xR7LxmFkO5GkTnTuW3rKPtmx9QNwOuOg9q9vXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.5 243/257] powerpc/64: Prevent stack protection in early boot
-Date:   Thu, 16 Apr 2020 15:24:54 +0200
-Message-Id: <20200416131356.189312593@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Ben Hutchings <benh@debian.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 201/232] kmod: make request_module() return an error when autoloading is disabled
+Date:   Thu, 16 Apr 2020 15:24:55 +0200
+Message-Id: <20200416131340.395683273@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,96 +51,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 7053f80d96967d8e72e9f2a724bbfc3906ce2b07 upstream.
+commit d7d27cfc5cf0766a26a8f56868c5ad5434735126 upstream.
 
-The previous commit reduced the amount of code that is run before we
-setup a paca. However there are still a few remaining functions that
-run with no paca, or worse, with an arbitrary value in r13 that will
-be used as a paca pointer.
+Patch series "module autoloading fixes and cleanups", v5.
 
-In particular the stack protector canary is stored in the paca, so if
-stack protector is activated for any of these functions we will read
-the stack canary from wherever r13 points. If r13 happens to point
-outside of memory we will get a machine check / checkstop.
+This series fixes a bug where request_module() was reporting success to
+kernel code when module autoloading had been completely disabled via
+'echo > /proc/sys/kernel/modprobe'.
 
-For example if we modify initialise_paca() to trigger stack
-protection, and then boot in the mambo simulator with r13 poisoned in
-skiboot before calling the kernel:
+It also addresses the issues raised on the original thread
+(https://lkml.kernel.org/lkml/20200310223731.126894-1-ebiggers@kernel.org/T/#u)
+bydocumenting the modprobe sysctl, adding a self-test for the empty path
+case, and downgrading a user-reachable WARN_ONCE().
 
-  DEBUG: 19952232: (19952232): INSTRUCTION: PC=0xC0000000191FC1E8: [0x3C4C006D]: addis   r2,r12,0x6D [fetch]
-  DEBUG: 19952236: (19952236): INSTRUCTION: PC=0xC00000001807EAD8: [0x7D8802A6]: mflr    r12 [fetch]
-  FATAL ERROR: 19952276: (19952276): Check Stop for 0:0: Machine Check with ME bit of MSR off
-  DEBUG: 19952276: (19952276): INSTRUCTION: PC=0xC0000000191FCA7C: [0xE90D0CF8]: ld      r8,0xCF8(r13) [Instruction Failed]
-  INFO: 19952276: (19952277): ** Execution stopped: Mambo Error, Machine Check Stop,  **
-  systemsim % bt
-  pc:                             0xC0000000191FCA7C      initialise_paca+0x54
-  lr:                             0xC0000000191FC22C      early_setup+0x44
-  stack:0x00000000198CBED0        0x0     +0x0
-  stack:0x00000000198CBF00        0xC0000000191FC22C      early_setup+0x44
-  stack:0x00000000198CBF90        0x1801C968      +0x1801C968
+This patch (of 4):
 
-So annotate the relevant functions to ensure stack protection is never
-enabled for them.
+It's long been possible to disable kernel module autoloading completely
+(while still allowing manual module insertion) by setting
+/proc/sys/kernel/modprobe to the empty string.
 
-Fixes: 06ec27aea9fc ("powerpc/64: add stack protector support")
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200320032116.1024773-2-mpe@ellerman.id.au
+This can be preferable to setting it to a nonexistent file since it
+avoids the overhead of an attempted execve(), avoids potential
+deadlocks, and avoids the call to security_kernel_module_request() and
+thus on SELinux-based systems eliminates the need to write SELinux rules
+to dontaudit module_request.
+
+However, when module autoloading is disabled in this way,
+request_module() returns 0.  This is broken because callers expect 0 to
+mean that the module was successfully loaded.
+
+Apparently this was never noticed because this method of disabling
+module autoloading isn't used much, and also most callers don't use the
+return value of request_module() since it's always necessary to check
+whether the module registered its functionality or not anyway.
+
+But improperly returning 0 can indeed confuse a few callers, for example
+get_fs_type() in fs/filesystems.c where it causes a WARNING to be hit:
+
+	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
+		fs = __get_fs_type(name, len);
+		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
+	}
+
+This is easily reproduced with:
+
+	echo > /proc/sys/kernel/modprobe
+	mount -t NONEXISTENT none /
+
+It causes:
+
+	request_module fs-NONEXISTENT succeeded, but still no fs?
+	WARNING: CPU: 1 PID: 1106 at fs/filesystems.c:275 get_fs_type+0xd6/0xf0
+	[...]
+
+This should actually use pr_warn_once() rather than WARN_ONCE(), since
+it's also user-reachable if userspace immediately unloads the module.
+Regardless, request_module() should correctly return an error when it
+fails.  So let's make it return -ENOENT, which matches the error when
+the modprobe binary doesn't exist.
+
+I've also sent patches to document and test this case.
+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Jessica Yu <jeyu@kernel.org>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jeff Vander Stoep <jeffv@google.com>
+Cc: Ben Hutchings <benh@debian.org>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200310223731.126894-1-ebiggers@kernel.org
+Link: http://lkml.kernel.org/r/20200312202552.241885-1-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/paca.c     |    4 ++--
- arch/powerpc/kernel/setup.h    |    6 ++++++
- arch/powerpc/kernel/setup_64.c |    2 +-
- 3 files changed, 9 insertions(+), 3 deletions(-)
+ kernel/kmod.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/paca.c
-+++ b/arch/powerpc/kernel/paca.c
-@@ -176,7 +176,7 @@ static struct slb_shadow * __init new_sl
- struct paca_struct **paca_ptrs __read_mostly;
- EXPORT_SYMBOL(paca_ptrs);
- 
--void __init initialise_paca(struct paca_struct *new_paca, int cpu)
-+void __init __nostackprotector initialise_paca(struct paca_struct *new_paca, int cpu)
- {
- #ifdef CONFIG_PPC_PSERIES
- 	new_paca->lppaca_ptr = NULL;
-@@ -205,7 +205,7 @@ void __init initialise_paca(struct paca_
- }
- 
- /* Put the paca pointer into r13 and SPRG_PACA */
--void setup_paca(struct paca_struct *new_paca)
-+void __nostackprotector setup_paca(struct paca_struct *new_paca)
- {
- 	/* Setup r13 */
- 	local_paca = new_paca;
---- a/arch/powerpc/kernel/setup.h
-+++ b/arch/powerpc/kernel/setup.h
-@@ -8,6 +8,12 @@
- #ifndef __ARCH_POWERPC_KERNEL_SETUP_H
- #define __ARCH_POWERPC_KERNEL_SETUP_H
- 
-+#ifdef CONFIG_CC_IS_CLANG
-+#define __nostackprotector
-+#else
-+#define __nostackprotector __attribute__((__optimize__("no-stack-protector")))
-+#endif
-+
- void initialize_cache_info(void);
- void irqstack_early_init(void);
- 
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -279,7 +279,7 @@ void __init record_spr_defaults(void)
-  * device-tree is not accessible via normal means at this point.
+--- a/kernel/kmod.c
++++ b/kernel/kmod.c
+@@ -120,7 +120,7 @@ out:
+  * invoke it.
+  *
+  * If module auto-loading support is disabled then this function
+- * becomes a no-operation.
++ * simply returns -ENOENT.
   */
- 
--void __init early_setup(unsigned long dt_ptr)
-+void __init __nostackprotector early_setup(unsigned long dt_ptr)
+ int __request_module(bool wait, const char *fmt, ...)
  {
- 	static __initdata struct paca_struct boot_paca;
+@@ -137,7 +137,7 @@ int __request_module(bool wait, const ch
+ 	WARN_ON_ONCE(wait && current_is_async());
  
+ 	if (!modprobe_path[0])
+-		return 0;
++		return -ENOENT;
+ 
+ 	va_start(args, fmt);
+ 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
 
 
