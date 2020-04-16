@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DF581AC92C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B2061AC449
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728810AbgDPPTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:19:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33736 "EHLO mail.kernel.org"
+        id S2409332AbgDPN53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:57:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898696AbgDPNrk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:47:40 -0400
+        id S1731540AbgDPN5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:57:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A825921734;
-        Thu, 16 Apr 2020 13:47:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DB1D21734;
+        Thu, 16 Apr 2020 13:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044860;
-        bh=EJt1zxE3Dw7U70czLT6GAlEXQmogHRnm8l2IKKSPbVs=;
+        s=default; t=1587045444;
+        bh=dCX/9VEFD6+WLI0a2M54V2K3mrAnSiT8YLP0Wpigb/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5z444mWIHgGNLO1tR44T9FOJht36r+3ACQSnHP/rSmxxhiP+S5wpyl3JKNWPXXBX
-         QmUs9vOZGJyPSyNCWIN2vwCXOYD666S2DFJ9Rauyi60JaAF/23cmhC2ZsLTh1cSsSZ
-         qSynKaOsjE0EPsO8jmy5V8tXnfv48Exmi3BSfKvA=
+        b=KG5+YPL6d2tESrpsisgBHB0pf8lNRkhlOWTdsJd+16LlFFViWnN/d1k0oLvBRmR4S
+         gpIcrn+GkFatzc4r1RBRH9PdXYtbp+BJAtWb8zDO2D16DkUo8rEd0MlJ6zKxGDkwQW
+         te2dwZhWgPRCOCj83fONsozKyqCM2efeEcX318uI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         Vitaly Kuznetsov <vkuznets@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 129/232] KVM: VMX: Always VMCLEAR in-use VMCSes during crash with kexec support
-Date:   Thu, 16 Apr 2020 15:23:43 +0200
-Message-Id: <20200416131331.181618025@linuxfoundation.org>
+Subject: [PATCH 5.6 135/254] KVM: VMX: Always VMCLEAR in-use VMCSes during crash with kexec support
+Date:   Thu, 16 Apr 2020 15:23:44 +0200
+Message-Id: <20200416131343.390099626@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -103,7 +103,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -648,43 +648,15 @@ void loaded_vmcs_init(struct loaded_vmcs
+@@ -666,43 +666,15 @@ void loaded_vmcs_init(struct loaded_vmcs
  }
  
  #ifdef CONFIG_KEXEC_CORE
@@ -147,7 +147,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #endif /* CONFIG_KEXEC_CORE */
  
  static void __loaded_vmcs_clear(void *arg)
-@@ -696,19 +668,24 @@ static void __loaded_vmcs_clear(void *ar
+@@ -714,19 +686,24 @@ static void __loaded_vmcs_clear(void *ar
  		return; /* vcpu migration can race with cpu offline */
  	if (per_cpu(current_vmcs, cpu) == loaded_vmcs->vmcs)
  		per_cpu(current_vmcs, cpu) = NULL;
@@ -179,7 +179,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  void loaded_vmcs_clear(struct loaded_vmcs *loaded_vmcs)
-@@ -1317,18 +1294,17 @@ void vmx_vcpu_load_vmcs(struct kvm_vcpu
+@@ -1345,18 +1322,17 @@ void vmx_vcpu_load_vmcs(struct kvm_vcpu
  	if (!already_loaded) {
  		loaded_vmcs_clear(vmx->loaded_vmcs);
  		local_irq_disable();
@@ -202,7 +202,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		local_irq_enable();
  	}
  
-@@ -2256,17 +2232,6 @@ static int hardware_enable(void)
+@@ -2292,17 +2268,6 @@ static int hardware_enable(void)
  	INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
  	spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
  
@@ -217,8 +217,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -	 */
 -	crash_enable_local_vmclear(cpu);
 -
- 	rdmsrl(MSR_IA32_FEATURE_CONTROL, old);
- 
- 	test_bits = FEATURE_CONTROL_LOCKED;
+ 	kvm_cpu_vmxon(phys_addr);
+ 	if (enable_ept)
+ 		ept_sync_global();
 
 
