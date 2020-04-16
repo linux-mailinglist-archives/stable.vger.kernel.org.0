@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B2A1ACA7C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 497011AC46B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442528AbgDPPfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53198 "EHLO mail.kernel.org"
+        id S2898875AbgDPN7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:59:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898137AbgDPNkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:40:35 -0400
+        id S2898029AbgDPN7N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:59:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5851020732;
-        Thu, 16 Apr 2020 13:40:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78CB421744;
+        Thu, 16 Apr 2020 13:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044434;
-        bh=7TCSdWKuzTv+3biIWXj1nC1I9NWCKG66xkzKdYXC158=;
+        s=default; t=1587045552;
+        bh=9dyaT9wnAWhQSKmAiJwAuMsv2hIYneiLsOUo5frnMTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUkXeRLCEvr5b/rIeP4aqcFMV3TGdW68dkaPblQ+J/Ut17aVUo2lrRbQOHfJcd54y
-         XnStYaUhJUwAkfD9bZBre40IISFCdss11PxB2bC0nOW/erjzg2qNVyEUNiLruPNdi5
-         MjQA5mlZvT8ImRNxhEnE2XODE2rBm60OBrRKj9G0=
+        b=jM6AW8hsudG+VGCggsf9v3hjQ75RuTrHf2UnFDNPZxlLOIp7rAycirb+qYYMQVJOo
+         Ub9CQlwbCWN7ubmJEGxQ3hnAzCJId/IR9OdGYqOPUdSjGejMOSxH/gMMbFvOmBmZGt
+         6Dx5vWqOg9kpe3cr1xVsdM5rKY8htk/uh5GC/rBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.5 217/257] NFS: Fix use-after-free issues in nfs_pageio_add_request()
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.6 179/254] dm clone: Add missing casts to prevent overflows and data corruption
 Date:   Thu, 16 Apr 2020 15:24:28 +0200
-Message-Id: <20200416131353.126075880@linuxfoundation.org>
+Message-Id: <20200416131348.759928574@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit dc9dc2febb17f72e9878eb540ad3996f7984239a upstream.
+commit 9fc06ff56845cc5ccafec52f545fc2e08d22f849 upstream.
 
-We need to ensure that we create the mirror requests before calling
-nfs_pageio_add_request_mirror() on the request we are adding.
-Otherwise, we can end up with a use-after-free if the call to
-nfs_pageio_add_request_mirror() triggers I/O.
+Add missing casts when converting from regions to sectors.
 
-Fixes: c917cfaf9bbe ("NFS: Fix up NFS I/O subrequest creation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+In case BITS_PER_LONG == 32, the lack of the appropriate casts can lead
+to overflows and miscalculation of the device sector.
+
+As a result, we could end up discarding and/or copying the wrong parts
+of the device, thus corrupting the device's data.
+
+Fixes: 7431b7835f55 ("dm: add clone target")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/pagelist.c |   48 ++++++++++++++++++++++++------------------------
- 1 file changed, 24 insertions(+), 24 deletions(-)
+ drivers/md/dm-clone-target.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -1177,38 +1177,38 @@ int nfs_pageio_add_request(struct nfs_pa
- 	if (desc->pg_error < 0)
- 		goto out_failed;
+--- a/drivers/md/dm-clone-target.c
++++ b/drivers/md/dm-clone-target.c
+@@ -282,7 +282,7 @@ static bool bio_triggers_commit(struct c
+ /* Get the address of the region in sectors */
+ static inline sector_t region_to_sector(struct clone *clone, unsigned long region_nr)
+ {
+-	return (region_nr << clone->region_shift);
++	return ((sector_t)region_nr << clone->region_shift);
+ }
  
--	for (midx = 0; midx < desc->pg_mirror_count; midx++) {
--		if (midx) {
--			nfs_page_group_lock(req);
--
--			/* find the last request */
--			for (lastreq = req->wb_head;
--			     lastreq->wb_this_page != req->wb_head;
--			     lastreq = lastreq->wb_this_page)
--				;
--
--			dupreq = nfs_create_subreq(req, lastreq,
--					pgbase, offset, bytes);
--
--			nfs_page_group_unlock(req);
--			if (IS_ERR(dupreq)) {
--				desc->pg_error = PTR_ERR(dupreq);
--				goto out_failed;
--			}
--		} else
--			dupreq = req;
-+	/* Create the mirror instances first, and fire them off */
-+	for (midx = 1; midx < desc->pg_mirror_count; midx++) {
-+		nfs_page_group_lock(req);
-+
-+		/* find the last request */
-+		for (lastreq = req->wb_head;
-+		     lastreq->wb_this_page != req->wb_head;
-+		     lastreq = lastreq->wb_this_page)
-+			;
-+
-+		dupreq = nfs_create_subreq(req, lastreq,
-+				pgbase, offset, bytes);
-+
-+		nfs_page_group_unlock(req);
-+		if (IS_ERR(dupreq)) {
-+			desc->pg_error = PTR_ERR(dupreq);
-+			goto out_failed;
-+		}
+ /* Get the region number of the bio */
+@@ -471,7 +471,7 @@ static void complete_discard_bio(struct
+ 	if (test_bit(DM_CLONE_DISCARD_PASSDOWN, &clone->flags) && success) {
+ 		remap_to_dest(clone, bio);
+ 		bio_region_range(clone, bio, &rs, &nr_regions);
+-		trim_bio(bio, rs << clone->region_shift,
++		trim_bio(bio, region_to_sector(clone, rs),
+ 			 nr_regions << clone->region_shift);
+ 		generic_make_request(bio);
+ 	} else
+@@ -804,11 +804,14 @@ static void hydration_copy(struct dm_clo
+ 	struct dm_io_region from, to;
+ 	struct clone *clone = hd->clone;
  
--		if (nfs_pgio_has_mirroring(desc))
--			desc->pg_mirror_idx = midx;
-+		desc->pg_mirror_idx = midx;
- 		if (!nfs_pageio_add_request_mirror(desc, dupreq))
- 			goto out_cleanup_subreq;
- 	}
- 
-+	desc->pg_mirror_idx = 0;
-+	if (!nfs_pageio_add_request_mirror(desc, req))
-+		goto out_failed;
++	if (WARN_ON(!nr_regions))
++		return;
 +
- 	return 1;
+ 	region_size = clone->region_size;
+ 	region_start = hd->region_nr;
+ 	region_end = region_start + nr_regions - 1;
  
- out_cleanup_subreq:
--	if (req != dupreq)
--		nfs_pageio_cleanup_request(desc, dupreq);
-+	nfs_pageio_cleanup_request(desc, dupreq);
- out_failed:
- 	nfs_pageio_error_cleanup(desc);
- 	return 0;
+-	total_size = (nr_regions - 1) << clone->region_shift;
++	total_size = region_to_sector(clone, nr_regions - 1);
+ 
+ 	if (region_end == clone->nr_regions - 1) {
+ 		/*
 
 
