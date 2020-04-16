@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD0A11ACC1A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D988C1AC332
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2636156AbgDPPzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
+        id S2896274AbgDPNjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:39:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896105AbgDPN3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:29:53 -0400
+        id S2897894AbgDPNjk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:39:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 970E721D94;
-        Thu, 16 Apr 2020 13:29:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5CC22063A;
+        Thu, 16 Apr 2020 13:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043793;
-        bh=CSAq5rROppY5//OEGvd2X8BZ1Ko3UATRHocojnY+lYU=;
+        s=default; t=1587044380;
+        bh=W67J4mpFhxI5aIfA8+lYU7Gbb6BRpGz4wwe69mq9YR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sGExd6hdJkc8L7/s8FF/iEjWdBF/E+YM4AXfuV4V+sVE2l+yHO7FVxokmiC8IiBnM
-         2VAmatjKfRCZXOVHU8nr1xvnlrBZlXVEBT+chbz4J4NyuAAP3rysyD9UpQV344s4II
-         cEKBicUxEpNgEWuiqZyaqp2w9z+yUXNYvb6QO64s=
+        b=kHyZhJZgjyya+9BBMMF/6sOJBWyMDBjtb23py6HWu+pK52L37ySqQ+tM4Sta5Q8K/
+         SjWPA27sB6nqt3ki5NYHnin7ETynNv6KHduYFuyiE91Llh2SzsUxe9PHNHG39bgdJP
+         IX9Oa0l68L1ydS3W/YuNy043vZIslimkK3k1c9+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 102/146] dm writecache: add cond_resched to avoid CPU hangs
-Date:   Thu, 16 Apr 2020 15:24:03 +0200
-Message-Id: <20200416131256.671279018@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.5 193/257] crypto: ccree - only try to map auth tag if needed
+Date:   Thu, 16 Apr 2020 15:24:04 +0200
+Message-Id: <20200416131350.357933492@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit 1edaa447d958bec24c6a79685a5790d98976fd16 upstream.
+commit 504e84abec7a635b861afd8d7f92ecd13eaa2b09 upstream.
 
-Initializing a dm-writecache device can take a long time when the
-persistent memory device is large.  Add cond_resched() to a few loops
-to avoid warnings that the CPU is stuck.
+Make sure to only add the size of the auth tag to the source mapping
+for encryption if it is an in-place operation. Failing to do this
+previously caused us to try and map auth size len bytes from a NULL
+mapping and crashing if both the cryptlen and assoclen are zero.
 
-Cc: stable@vger.kernel.org # v4.18+
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-writecache.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/crypto/ccree/cc_buffer_mgr.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -878,6 +878,7 @@ static int writecache_alloc_entries(stru
- 		struct wc_entry *e = &wc->entries[b];
- 		e->index = b;
- 		e->write_in_progress = false;
-+		cond_resched();
+--- a/drivers/crypto/ccree/cc_buffer_mgr.c
++++ b/drivers/crypto/ccree/cc_buffer_mgr.c
+@@ -1109,9 +1109,11 @@ int cc_map_aead_request(struct cc_drvdat
  	}
  
- 	return 0;
-@@ -932,6 +933,7 @@ static void writecache_resume(struct dm_
- 			e->original_sector = le64_to_cpu(wme.original_sector);
- 			e->seq_count = le64_to_cpu(wme.seq_count);
- 		}
-+		cond_resched();
- 	}
- #endif
- 	for (b = 0; b < wc->n_blocks; b++) {
-@@ -1764,8 +1766,10 @@ static int init_memory(struct dm_writeca
- 	pmem_assign(sb(wc)->n_blocks, cpu_to_le64(wc->n_blocks));
- 	pmem_assign(sb(wc)->seq_count, cpu_to_le64(0));
- 
--	for (b = 0; b < wc->n_blocks; b++)
-+	for (b = 0; b < wc->n_blocks; b++) {
- 		write_original_sector_seq_count(wc, &wc->entries[b], -1, -1);
-+		cond_resched();
+ 	size_to_map = req->cryptlen + areq_ctx->assoclen;
+-	if (areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT)
++	/* If we do in-place encryption, we also need the auth tag */
++	if ((areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT) &&
++	   (req->src == req->dst)) {
+ 		size_to_map += authsize;
+-
 +	}
- 
- 	writecache_flush_all_metadata(wc);
- 	writecache_commit_flushed(wc, false);
+ 	if (is_gcm4543)
+ 		size_to_map += crypto_aead_ivsize(tfm);
+ 	rc = cc_map_sg(dev, req->src, size_to_map, DMA_BIDIRECTIONAL,
 
 
