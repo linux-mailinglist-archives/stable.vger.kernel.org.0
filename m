@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A51E1AC473
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D0D1AC86D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:08:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406204AbgDPOAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:00:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47062 "EHLO mail.kernel.org"
+        id S1728670AbgDPPI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:08:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728635AbgDPOAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:01 -0400
+        id S2408731AbgDPNvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:51:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 787B2217D8;
-        Thu, 16 Apr 2020 14:00:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18BD220732;
+        Thu, 16 Apr 2020 13:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045600;
-        bh=VZ39YWwP05qYCay5b0xukEXzfT7EKSUhftLU/x7SAco=;
+        s=default; t=1587045077;
+        bh=7Cy+Z5k2LepY15IBrx2bepvfp44ohwzM436i7z1/ZDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKSQOdA6vlcU/3I6S3Fl41ge9LYvCc75MF7TOzMJCkcFuJoc6azoCk8Kgtv7/YEcB
-         XmE8Ip648l3NNrKhG4eMSSBMyx9WIkjwyUxNqjGQ/aiY1856PY5lzhOxqmg6uBoTND
-         qVmSoSJwW/5kpcte279iZ28WypM71HUb0k+fSTDY=
+        b=TBXUbhs6Hr2FPmaLsR7XGdKLKygGeAkzN5uMI1ZGouFbDrynUcF5nPxoYpj5woNXE
+         qvgoDAsdKoco+qrTHuQGKjHeZgIhu+h4XZ86Wn0K4CcGgAI4l0CZyzp45Ig93eSTjw
+         a/LmiRAonQ//4N4GYFop7QHDGtGMoxxlOra1spI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrei Botila <andrei.botila@nxp.com>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.6 184/254] crypto: caam - update xts sector size for large input length
-Date:   Thu, 16 Apr 2020 15:24:33 +0200
-Message-Id: <20200416131349.381275941@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Leonardo Bras <leonardo@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Shuah Khan <shuah@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 180/232] selftests/vm: fix map_hugetlb length used for testing read and write
+Date:   Thu, 16 Apr 2020 15:24:34 +0200
+Message-Id: <20200416131337.587177556@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Botila <andrei.botila@nxp.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 3f142b6a7b573bde6cff926f246da05652c61eb4 upstream.
+commit cabc30da10e677c67ab9a136b1478175734715c5 upstream.
 
-Since in the software implementation of XTS-AES there is
-no notion of sector every input length is processed the same way.
-CAAM implementation has the notion of sector which causes different
-results between the software implementation and the one in CAAM
-for input lengths bigger than 512 bytes.
-Increase sector size to maximum value on 16 bits.
+Commit fa7b9a805c79 ("tools/selftest/vm: allow choosing mem size and page
+size in map_hugetlb") added the possibility to change the size of memory
+mapped for the test, but left the read and write test using the default
+value.  This is unnoticed when mapping a length greater than the default
+one, but segfaults otherwise.
 
-Fixes: c6415a6016bf ("crypto: caam - add support for acipher xts(aes)")
-Cc: <stable@vger.kernel.org> # v4.12+
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fix read_bytes() and write_bytes() by giving them the real length.
+
+Also fix the call to munmap().
+
+Fixes: fa7b9a805c79 ("tools/selftest/vm: allow choosing mem size and page size in map_hugetlb")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Leonardo Bras <leonardo@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/9a404a13c871c4bd0ba9ede68f69a1225180dd7e.1580978385.git.christophe.leroy@c-s.fr
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/caam/caamalg_desc.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ tools/testing/selftests/vm/map_hugetlb.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/crypto/caam/caamalg_desc.c
-+++ b/drivers/crypto/caam/caamalg_desc.c
-@@ -1524,7 +1524,13 @@ EXPORT_SYMBOL(cnstr_shdsc_skcipher_decap
-  */
- void cnstr_shdsc_xts_skcipher_encap(u32 * const desc, struct alginfo *cdata)
- {
--	__be64 sector_size = cpu_to_be64(512);
-+	/*
-+	 * Set sector size to a big value, practically disabling
-+	 * sector size segmentation in xts implementation. We cannot
-+	 * take full advantage of this HW feature with existing
-+	 * crypto API / dm-crypt SW architecture.
-+	 */
-+	__be64 sector_size = cpu_to_be64(BIT(15));
- 	u32 *key_jump_cmd;
+--- a/tools/testing/selftests/vm/map_hugetlb.c
++++ b/tools/testing/selftests/vm/map_hugetlb.c
+@@ -45,20 +45,20 @@ static void check_bytes(char *addr)
+ 	printf("First hex is %x\n", *((unsigned int *)addr));
+ }
  
- 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
-@@ -1577,7 +1583,13 @@ EXPORT_SYMBOL(cnstr_shdsc_xts_skcipher_e
-  */
- void cnstr_shdsc_xts_skcipher_decap(u32 * const desc, struct alginfo *cdata)
+-static void write_bytes(char *addr)
++static void write_bytes(char *addr, size_t length)
  {
--	__be64 sector_size = cpu_to_be64(512);
-+	/*
-+	 * Set sector size to a big value, practically disabling
-+	 * sector size segmentation in xts implementation. We cannot
-+	 * take full advantage of this HW feature with existing
-+	 * crypto API / dm-crypt SW architecture.
-+	 */
-+	__be64 sector_size = cpu_to_be64(BIT(15));
- 	u32 *key_jump_cmd;
+ 	unsigned long i;
  
- 	init_sh_desc(desc, HDR_SHARE_SERIAL | HDR_SAVECTX);
+-	for (i = 0; i < LENGTH; i++)
++	for (i = 0; i < length; i++)
+ 		*(addr + i) = (char)i;
+ }
+ 
+-static int read_bytes(char *addr)
++static int read_bytes(char *addr, size_t length)
+ {
+ 	unsigned long i;
+ 
+ 	check_bytes(addr);
+-	for (i = 0; i < LENGTH; i++)
++	for (i = 0; i < length; i++)
+ 		if (*(addr + i) != (char)i) {
+ 			printf("Mismatch at %lu\n", i);
+ 			return 1;
+@@ -96,11 +96,11 @@ int main(int argc, char **argv)
+ 
+ 	printf("Returned address is %p\n", addr);
+ 	check_bytes(addr);
+-	write_bytes(addr);
+-	ret = read_bytes(addr);
++	write_bytes(addr, length);
++	ret = read_bytes(addr, length);
+ 
+ 	/* munmap() length of MAP_HUGETLB memory must be hugepage aligned */
+-	if (munmap(addr, LENGTH)) {
++	if (munmap(addr, length)) {
+ 		perror("munmap");
+ 		exit(1);
+ 	}
 
 
