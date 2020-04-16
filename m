@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 640BA1AC6CE
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:45:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F8461ACB6A
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409250AbgDPN7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:59:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46898 "EHLO mail.kernel.org"
+        id S2896137AbgDPNdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:33:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409043AbgDPN7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:59:49 -0400
+        id S2896549AbgDPNcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:32:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A7F62078B;
-        Thu, 16 Apr 2020 13:59:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E723E2222C;
+        Thu, 16 Apr 2020 13:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045588;
-        bh=gCFa4uuwm4XERH0jUZR1oplIf17Y25xXY4RyOKeKdfY=;
+        s=default; t=1587043898;
+        bh=fVibvqL9DMu1Yg/IVcb6cWJg7YBQvJjwZVNu2jm5AaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJdOH8Skh/valhlFFREfGbz+o+ah2bz8K7Be8n9aBF8HjajvEgbKDeEm4fHxskMb3
-         UFt9uw2gYD2j8YQmT3bft4dlGg943XJMMKP8n0B5BdSi8gQKc0uPlesvA3xh7vomJb
-         9QlzzgTx4KlE7Q/tCr8pRb2jGOYWkWLXIcOZXNco=
+        b=Z0WJil4sqgcoR5FJZvTOuLlE2hoDQvc+F/p+ahTfIGAqDpG21T1A7UD8tS0lJDlCh
+         J1t2kyQwl2r702hT6SQA1Y42AbJsRX+M3sGU/uj/Mg15WEAHkE8tWExV/dMfe3gJrA
+         SxBm0rh7O1eD+5sYg73W8J/PNFTq7qBHjRmBt9eQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 197/254] selftests/powerpc: Add tlbie_test in .gitignore
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 145/146] misc: echo: Remove unnecessary parentheses and simplify check for zero
 Date:   Thu, 16 Apr 2020 15:24:46 +0200
-Message-Id: <20200416131350.820126586@linuxfoundation.org>
+Message-Id: <20200416131302.195343029@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,30 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 47bf235f324c696395c30541fe4fcf99fcd24188 upstream.
+[ Upstream commit 85dc2c65e6c975baaf36ea30f2ccc0a36a8c8add ]
 
-The commit identified below added tlbie_test but forgot to add it in
-.gitignore.
+Clang warns when multiple pairs of parentheses are used for a single
+conditional statement.
 
-Fixes: 93cad5f78995 ("selftests/powerpc: Add test case for tlbie vs mtpidr ordering issue")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/259f9c06ed4563c4fa4fa8ffa652347278d769e7.1582847784.git.christophe.leroy@c-s.fr
+drivers/misc/echo/echo.c:384:27: warning: equality comparison with
+extraneous parentheses [-Wparentheses-equality]
+        if ((ec->nonupdate_dwell == 0)) {
+             ~~~~~~~~~~~~~~~~~~~~^~~~
+drivers/misc/echo/echo.c:384:27: note: remove extraneous parentheses
+around the comparison to silence this warning
+        if ((ec->nonupdate_dwell == 0)) {
+            ~                    ^   ~
+drivers/misc/echo/echo.c:384:27: note: use '=' to turn this equality
+comparison into an assignment
+        if ((ec->nonupdate_dwell == 0)) {
+                                 ^~
+                                 =
+1 warning generated.
+
+Remove them and while we're at it, simplify the zero check as '!var' is
+used more than 'var == 0'.
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/mm/.gitignore |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/echo/echo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/powerpc/mm/.gitignore
-+++ b/tools/testing/selftests/powerpc/mm/.gitignore
-@@ -6,3 +6,4 @@ segv_errors
- wild_bctr
- large_vm_fork_separation
- bad_accesses
-+tlbie_test
+diff --git a/drivers/misc/echo/echo.c b/drivers/misc/echo/echo.c
+index 8a5adc0d2e887..3ebe5d75ad6a2 100644
+--- a/drivers/misc/echo/echo.c
++++ b/drivers/misc/echo/echo.c
+@@ -381,7 +381,7 @@ int16_t oslec_update(struct oslec_state *ec, int16_t tx, int16_t rx)
+ 	 */
+ 	ec->factor = 0;
+ 	ec->shift = 0;
+-	if ((ec->nonupdate_dwell == 0)) {
++	if (!ec->nonupdate_dwell) {
+ 		int p, logp, shift;
+ 
+ 		/* Determine:
+-- 
+2.20.1
+
 
 
