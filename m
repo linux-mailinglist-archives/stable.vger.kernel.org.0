@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F05B1ACB8A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6DB21AC840
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:05:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728654AbgDPPsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:48:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44656 "EHLO mail.kernel.org"
+        id S2438828AbgDPPFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:05:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896712AbgDPNd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:33:27 -0400
+        id S2408879AbgDPNwW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:52:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 567AE21D91;
-        Thu, 16 Apr 2020 13:33:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1B5820786;
+        Thu, 16 Apr 2020 13:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044005;
-        bh=Gs1eguIB+STlCGpdeVeI2MCI/YDexRL4AJkRKfer9Ao=;
+        s=default; t=1587045141;
+        bh=YoydgxVY04JUElx6pTX1WVnIwMMo7Gnp01oStplhfd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PeeKLvCM1D7qsEeOVkprgOV5qaZzJuVT+vrBRUkU18E8OMVS+lFeRhjk8mTVcVkdw
-         K5cNyCFFLpVYzqy5gDqBqY5dpueR+uKA5bbX1fi/kTrTBlwCb728u+Mfz32ExLjvrJ
-         UFbScpuuPrF21MPk7Fr4FUImCDB8NG7aoS9tttrU=
+        b=K4nsrnokAg3eHpck/mFD7+Q4lUAxmHUlemT6bf2JcIYuHhb/oKZSt7wyk6ZsfSc05
+         f92n5SvcG4FR8+IDLSI9Q/L9QjOmNnIo4/recl4QF6oM8BL7LQOn8ZbzOxccTEd4fV
+         68CxezYUGoYHfLGAViOCNSOe73lIf4zIrLKmOhnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Helen Koike <helen.koike@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 043/257] ACPI: EC: Do not clear boot_ec_is_ecdt in acpi_ec_add()
-Date:   Thu, 16 Apr 2020 15:21:34 +0200
-Message-Id: <20200416131331.318536376@linuxfoundation.org>
+Subject: [PATCH 5.6 006/254] media: vimc: streamer: fix memory leak in vimc subdevs if kthread_run fails
+Date:   Thu, 16 Apr 2020 15:21:35 +0200
+Message-Id: <20200416131326.511984176@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 65a691f5f8f0bb63d6a82eec7b0ffd193d8d8a5f ]
+[ Upstream commit ceeb2e6166dddf3c9757abbbf84032027e2fa2d2 ]
 
-The reason for clearing boot_ec_is_ecdt in acpi_ec_add() (if a
-PNP0C09 device object matching the ECDT boot EC had been found in
-the namespace) was to cause acpi_ec_ecdt_start() to return early,
-but since the latter does not look at boot_ec_is_ecdt any more,
-acpi_ec_add() need not clear it.
+In case kthread_run fails, the vimc subdevices
+should be notified that streaming stopped so they can
+release the memory for the streaming. Also, kthread should be
+set to NULL.
 
-Moreover, doing that may be confusing as it may cause "DSDT" to be
-printed instead of "ECDT" in the EC initialization completion
-message, so stop doing it.
-
-While at it, split the EC initialization completion message into
-two messages, one regarding the boot EC and another one printed
-regardless of whether or not the EC at hand is the boot one.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Acked-by: Helen Koike <helen.koike@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/platform/vimc/vimc-streamer.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index bd74c78366759..f351d0711e495 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -1649,7 +1649,6 @@ static int acpi_ec_add(struct acpi_device *device)
+diff --git a/drivers/media/platform/vimc/vimc-streamer.c b/drivers/media/platform/vimc/vimc-streamer.c
+index cd6b55433c9ee..43e494df61d88 100644
+--- a/drivers/media/platform/vimc/vimc-streamer.c
++++ b/drivers/media/platform/vimc/vimc-streamer.c
+@@ -207,8 +207,13 @@ int vimc_streamer_s_stream(struct vimc_stream *stream,
+ 		stream->kthread = kthread_run(vimc_streamer_thread, stream,
+ 					      "vimc-streamer thread");
  
- 		if (boot_ec && ec->command_addr == boot_ec->command_addr &&
- 		    ec->data_addr == boot_ec->data_addr) {
--			boot_ec_is_ecdt = false;
- 			/*
- 			 * Trust PNP0C09 namespace location rather than
- 			 * ECDT ID. But trust ECDT GPE rather than _GPE
-@@ -1669,9 +1668,12 @@ static int acpi_ec_add(struct acpi_device *device)
+-		if (IS_ERR(stream->kthread))
+-			return PTR_ERR(stream->kthread);
++		if (IS_ERR(stream->kthread)) {
++			ret = PTR_ERR(stream->kthread);
++			dev_err(ved->dev, "kthread_run failed with %d\n", ret);
++			vimc_streamer_pipeline_terminate(stream);
++			stream->kthread = NULL;
++			return ret;
++		}
  
- 	if (ec == boot_ec)
- 		acpi_handle_info(boot_ec->handle,
--				 "Boot %s EC used to handle transactions and events\n",
-+				 "Boot %s EC initialization complete\n",
- 				 boot_ec_is_ecdt ? "ECDT" : "DSDT");
- 
-+	acpi_handle_info(ec->handle,
-+			 "EC: Used to handle transactions and events\n");
-+
- 	device->driver_data = ec;
- 
- 	ret = !!request_region(ec->data_addr, 1, "EC data");
+ 	} else {
+ 		if (!stream->kthread)
 -- 
 2.20.1
 
