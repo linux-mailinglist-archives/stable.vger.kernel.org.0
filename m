@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2981AC877
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:09:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 149BF1ACA28
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:32:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408696AbgDPNvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
+        id S2410393AbgDPPcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:32:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408679AbgDPNu6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:58 -0400
+        id S2441495AbgDPNmd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:42:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6831D2063A;
-        Thu, 16 Apr 2020 13:50:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 041CF214D8;
+        Thu, 16 Apr 2020 13:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045057;
-        bh=n1bLVtJgCFDyQmkPMBtUcl4icWO08qCoipDnEmRv7Js=;
+        s=default; t=1587044552;
+        bh=OGZkcncoHPVJmL7cRIy9th8i3wkYCksTTNGUQW77P4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CV1GGENQbjvuMSDRuWDLwUM7GfCcW2GzdgtrFKkfEA1EJ/3T/WWIZyvtkSMK4RUkp
-         /1514FR+GcON6XXZbkjQM/IZAbGpqq73u26fOnpqpWaBG4JE0nPKPmMjwiNriEN1D0
-         AyZeD3GCqh4AbqqUC2s1ps7jAhOmpYfnGKA8z/cQ=
+        b=1oeV22Iik909cdMJcu6fBvKrD7Hja1P4heeh831+593Jko0EQaBEKIU3Vu2AfGhy4
+         7OXI9ND3QlKtD9gf2N6ZYi7Z2Q5KiXGNNt6gcFC1+xKXeNYIrRNMt/tQJPGEsm69sF
+         0hgnp+qkVNbZ5FcWJuPxSo+4VzOagUhnFcy85sJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Donnellan <ajd@linux.ibm.com>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Daniel Axtens <dja@axtens.net>
-Subject: [PATCH 5.4 211/232] powerpc/64: Setup a paca before parsing device tree etc.
-Date:   Thu, 16 Apr 2020 15:25:05 +0200
-Message-Id: <20200416131341.816473508@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 255/257] powerpc/kasan: Fix kasan_remap_early_shadow_ro()
+Date:   Thu, 16 Apr 2020 15:25:06 +0200
+Message-Id: <20200416131357.383473013@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,132 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit d4a8e98621543d5798421eed177978bf2b3cdd11 upstream.
+[ Upstream commit af92bad615be75c6c0d1b1c5b48178360250a187 ]
 
-Currently we set up the paca after parsing the device tree for CPU
-features. Prior to that, r13 contains random data, which means there
-is random data in r13 while we're running the generic dt parsing code.
+At the moment kasan_remap_early_shadow_ro() does nothing, because
+k_end is 0 and k_cur < 0 is always true.
 
-This random data varies depending on whether we boot through a vmlinux
-or a zImage: for the vmlinux case it's usually around zero, but for
-zImages we see random values like 912a72603d420015.
+Change the test to k_cur != k_end, as done in
+kasan_init_shadow_page_tables()
 
-This is poor practice, and can also lead to difficult-to-debug
-crashes. For example, when kcov is enabled, the kcov instrumentation
-attempts to read preempt_count out of the current task, which goes via
-the paca. This then crashes in the zImage case.
-
-Similarly stack protector can cause crashes if r13 is bogus, by
-reading from the stack canary in the paca.
-
-To resolve this:
-
- - move the paca setup to before the CPU feature parsing.
-
- - because we no longer have access to CPU feature flags in paca
- setup, change the HV feature test in the paca setup path to consider
- the actual value of the MSR rather than the CPU feature.
-
-Translations get switched on once we leave early_setup, so I think
-we'd already catch any other cases where the paca or task aren't set
-up.
-
-Boot tested on a P9 guest and host.
-
-Fixes: fb0b0a73b223 ("powerpc: Enable kcov")
-Fixes: 06ec27aea9fc ("powerpc/64: add stack protector support")
-Cc: stable@vger.kernel.org # v4.20+
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-[mpe: Reword comments & change log a bit to mention stack protector]
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: cbd18991e24f ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
+Cc: stable@vger.kernel.org
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200320032116.1024773-1-mpe@ellerman.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/4e7b56865e01569058914c991143f5961b5d4719.1583507333.git.christophe.leroy@c-s.fr
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/dt_cpu_ftrs.c |    1 -
- arch/powerpc/kernel/paca.c        |   10 +++++++---
- arch/powerpc/kernel/setup_64.c    |   30 ++++++++++++++++++++++++------
- 3 files changed, 31 insertions(+), 10 deletions(-)
+ arch/powerpc/mm/kasan/kasan_init_32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/dt_cpu_ftrs.c
-+++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
-@@ -139,7 +139,6 @@ static void __init cpufeatures_setup_cpu
- 	/* Initialize the base environment -- clear FSCR/HFSCR.  */
- 	hv_mode = !!(mfmsr() & MSR_HV);
- 	if (hv_mode) {
--		/* CPU_FTR_HVMODE is used early in PACA setup */
- 		cur_cpu_spec->cpu_features |= CPU_FTR_HVMODE;
- 		mtspr(SPRN_HFSCR, 0);
- 	}
---- a/arch/powerpc/kernel/paca.c
-+++ b/arch/powerpc/kernel/paca.c
-@@ -214,11 +214,15 @@ void setup_paca(struct paca_struct *new_
- 	/* On Book3E, initialize the TLB miss exception frames */
- 	mtspr(SPRN_SPRG_TLB_EXFRAME, local_paca->extlb);
- #else
--	/* In HV mode, we setup both HPACA and PACA to avoid problems
-+	/*
-+	 * In HV mode, we setup both HPACA and PACA to avoid problems
- 	 * if we do a GET_PACA() before the feature fixups have been
--	 * applied
-+	 * applied.
-+	 *
-+	 * Normally you should test against CPU_FTR_HVMODE, but CPU features
-+	 * are not yet set up when we first reach here.
- 	 */
--	if (early_cpu_has_feature(CPU_FTR_HVMODE))
-+	if (mfmsr() & MSR_HV)
- 		mtspr(SPRN_SPRG_HPACA, local_paca);
- #endif
- 	mtspr(SPRN_SPRG_PACA, local_paca);
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -290,18 +290,36 @@ void __init early_setup(unsigned long dt
+diff --git a/arch/powerpc/mm/kasan/kasan_init_32.c b/arch/powerpc/mm/kasan/kasan_init_32.c
+index 0e6ed4413eeac..1cfe57b51d7e3 100644
+--- a/arch/powerpc/mm/kasan/kasan_init_32.c
++++ b/arch/powerpc/mm/kasan/kasan_init_32.c
+@@ -117,7 +117,7 @@ static void __init kasan_remap_early_shadow_ro(void)
  
- 	/* -------- printk is _NOT_ safe to use here ! ------- */
+ 	kasan_populate_pte(kasan_early_shadow_pte, prot);
  
--	/* Try new device tree based feature discovery ... */
--	if (!dt_cpu_ftrs_init(__va(dt_ptr)))
--		/* Otherwise use the old style CPU table */
--		identify_cpu(0, mfspr(SPRN_PVR));
--
--	/* Assume we're on cpu 0 for now. Don't write to the paca yet! */
-+	/*
-+	 * Assume we're on cpu 0 for now.
-+	 *
-+	 * We need to load a PACA very early for a few reasons.
-+	 *
-+	 * The stack protector canary is stored in the paca, so as soon as we
-+	 * call any stack protected code we need r13 pointing somewhere valid.
-+	 *
-+	 * If we are using kcov it will call in_task() in its instrumentation,
-+	 * which relies on the current task from the PACA.
-+	 *
-+	 * dt_cpu_ftrs_init() calls into generic OF/fdt code, as well as
-+	 * printk(), which can trigger both stack protector and kcov.
-+	 *
-+	 * percpu variables and spin locks also use the paca.
-+	 *
-+	 * So set up a temporary paca. It will be replaced below once we know
-+	 * what CPU we are on.
-+	 */
- 	initialise_paca(&boot_paca, 0);
- 	setup_paca(&boot_paca);
- 	fixup_boot_paca();
+-	for (k_cur = k_start & PAGE_MASK; k_cur < k_end; k_cur += PAGE_SIZE) {
++	for (k_cur = k_start & PAGE_MASK; k_cur != k_end; k_cur += PAGE_SIZE) {
+ 		pmd_t *pmd = pmd_offset(pud_offset(pgd_offset_k(k_cur), k_cur), k_cur);
+ 		pte_t *ptep = pte_offset_kernel(pmd, k_cur);
  
- 	/* -------- printk is now safe to use ------- */
- 
-+	/* Try new device tree based feature discovery ... */
-+	if (!dt_cpu_ftrs_init(__va(dt_ptr)))
-+		/* Otherwise use the old style CPU table */
-+		identify_cpu(0, mfspr(SPRN_PVR));
-+
- 	/* Enable early debugging if any specified (see udbg.h) */
- 	udbg_early_init();
- 
+-- 
+2.20.1
+
 
 
