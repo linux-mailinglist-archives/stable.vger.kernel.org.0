@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B35961AC6AA
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E56D21AC368
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405042AbgDPOm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:42:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47692 "EHLO mail.kernel.org"
+        id S2441510AbgDPNmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:42:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392640AbgDPOAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:42 -0400
+        id S1729449AbgDPNm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:42:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B6A120732;
-        Thu, 16 Apr 2020 14:00:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07228218AC;
+        Thu, 16 Apr 2020 13:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045637;
-        bh=20+WhrVt6rOuqY2+VFAix3C62pXVZPh2cqoTL8DX7PE=;
+        s=default; t=1587044547;
+        bh=BYdPEXJBTLi5fioJgmW+52R0jnz4wvLjTLtdWrvrGdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rxsf3KDcfC4bpYQ3ncFQ1IXTB9mJd4iAsxMYtptbpOt8THSAe6RackN37G+5nfKic
-         SnbF5705oHU4LyNv0O57W9sG++7sFqeMxJbv8sjRkzmr/gYDTGibStKQ28Ng0TVxa3
-         R9ESayLm68vRhLKziEfTymnVv0Uo3XkFi9FjLzQM=
+        b=Ml5xYhGse6WsiTqnW1PTOmm/4fgz4bfJO8BUIqvxI8D8uAC0HaE5cAmmU2BdQSbi+
+         itP4gkMUe5hhzZgsYX3LirLwWguwnkyDSuCU5uCY6gpuJA6qeqA6q+Rx/Fha5jWs2u
+         /7BjsStqFbwtoJbuLxQafhPkFGu4Y1ix8a9GuQnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.6 215/254] NFS: finish_automount() requires us to hold 2 refs to the mount record
+        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 253/257] perf/core: Fix event cgroup tracking
 Date:   Thu, 16 Apr 2020 15:25:04 +0200
-Message-Id: <20200416131352.894907687@linuxfoundation.org>
+Message-Id: <20200416131357.171506561@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +44,214 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 75da98586af75eb80664714a67a9895bf0a5517e upstream.
+[ Upstream commit 33238c50451596be86db1505ab65fee5172844d0 ]
 
-We must not return from nfs_d_automount() without holding 2 references
-to the mount record. Doing so, will trigger the BUG() in finish_automount().
-Also ensure that we don't try to reschedule the automount timer with
-a negative or zero timeout value.
+Song reports that installing cgroup events is broken since:
 
-Fixes: 22a1ae9a93fb ("NFS: If nfs_mountpoint_expiry_timeout < 0, do not expire submounts")
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
 
+The problem being that cgroup events try to track cpuctx->cgrp even
+for disabled events, which is pointless and actively harmful since the
+above commit. Rework the code to have explicit enable/disable hooks
+for cgroup events, such that we can limit cgroup tracking to active
+events.
+
+More specifically, since the above commit disabled events are no
+longer added to their context from the 'right' CPU, and we can't
+access things like the current cgroup for a remote CPU.
+
+Cc: <stable@vger.kernel.org> # v5.5+
+Fixes: db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
+Reported-by: Song Liu <songliubraving@fb.com>
+Tested-by: Song Liu <songliubraving@fb.com>
+Reviewed-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200318193337.GB20760@hirez.programming.kicks-ass.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/namespace.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ kernel/events/core.c | 70 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 43 insertions(+), 27 deletions(-)
 
---- a/fs/nfs/namespace.c
-+++ b/fs/nfs/namespace.c
-@@ -145,6 +145,7 @@ struct vfsmount *nfs_d_automount(struct
- 	struct vfsmount *mnt = ERR_PTR(-ENOMEM);
- 	struct nfs_server *server = NFS_SERVER(d_inode(path->dentry));
- 	struct nfs_client *client = server->nfs_client;
-+	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
- 	int ret;
- 
- 	if (IS_ROOT(path->dentry))
-@@ -190,12 +191,12 @@ struct vfsmount *nfs_d_automount(struct
- 	if (IS_ERR(mnt))
- 		goto out_fc;
- 
--	if (nfs_mountpoint_expiry_timeout < 0)
-+	mntget(mnt); /* prevent immediate expiration */
-+	if (timeout <= 0)
- 		goto out_fc;
- 
--	mntget(mnt); /* prevent immediate expiration */
- 	mnt_set_expiry(mnt, &nfs_automount_list);
--	schedule_delayed_work(&nfs_automount_task, nfs_mountpoint_expiry_timeout);
-+	schedule_delayed_work(&nfs_automount_task, timeout);
- 
- out_fc:
- 	put_fs_context(fc);
-@@ -233,10 +234,11 @@ const struct inode_operations nfs_referr
- static void nfs_expire_automounts(struct work_struct *work)
- {
- 	struct list_head *list = &nfs_automount_list;
-+	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
- 
- 	mark_mounts_for_expiry(list);
--	if (!list_empty(list))
--		schedule_delayed_work(&nfs_automount_task, nfs_mountpoint_expiry_timeout);
-+	if (!list_empty(list) && timeout > 0)
-+		schedule_delayed_work(&nfs_automount_task, timeout);
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index b3d4f485bcfa6..8d8e52a0922f4 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -935,16 +935,10 @@ perf_cgroup_set_shadow_time(struct perf_event *event, u64 now)
+ 	event->shadow_ctx_time = now - t->timestamp;
  }
  
- void nfs_release_automount_timer(void)
+-/*
+- * Update cpuctx->cgrp so that it is set when first cgroup event is added and
+- * cleared when last cgroup event is removed.
+- */
+ static inline void
+-list_update_cgroup_event(struct perf_event *event,
+-			 struct perf_event_context *ctx, bool add)
++perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
+ {
+ 	struct perf_cpu_context *cpuctx;
+-	struct list_head *cpuctx_entry;
+ 
+ 	if (!is_cgroup_event(event))
+ 		return;
+@@ -961,28 +955,41 @@ list_update_cgroup_event(struct perf_event *event,
+ 	 * because if the first would mismatch, the second would not try again
+ 	 * and we would leave cpuctx->cgrp unset.
+ 	 */
+-	if (add && !cpuctx->cgrp) {
++	if (ctx->is_active && !cpuctx->cgrp) {
+ 		struct perf_cgroup *cgrp = perf_cgroup_from_task(current, ctx);
+ 
+ 		if (cgroup_is_descendant(cgrp->css.cgroup, event->cgrp->css.cgroup))
+ 			cpuctx->cgrp = cgrp;
+ 	}
+ 
+-	if (add && ctx->nr_cgroups++)
++	if (ctx->nr_cgroups++)
+ 		return;
+-	else if (!add && --ctx->nr_cgroups)
++
++	list_add(&cpuctx->cgrp_cpuctx_entry,
++			per_cpu_ptr(&cgrp_cpuctx_list, event->cpu));
++}
++
++static inline void
++perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
++{
++	struct perf_cpu_context *cpuctx;
++
++	if (!is_cgroup_event(event))
+ 		return;
+ 
+-	/* no cgroup running */
+-	if (!add)
++	/*
++	 * Because cgroup events are always per-cpu events,
++	 * @ctx == &cpuctx->ctx.
++	 */
++	cpuctx = container_of(ctx, struct perf_cpu_context, ctx);
++
++	if (--ctx->nr_cgroups)
++		return;
++
++	if (ctx->is_active && cpuctx->cgrp)
+ 		cpuctx->cgrp = NULL;
+ 
+-	cpuctx_entry = &cpuctx->cgrp_cpuctx_entry;
+-	if (add)
+-		list_add(cpuctx_entry,
+-			 per_cpu_ptr(&cgrp_cpuctx_list, event->cpu));
+-	else
+-		list_del(cpuctx_entry);
++	list_del(&cpuctx->cgrp_cpuctx_entry);
+ }
+ 
+ #else /* !CONFIG_CGROUP_PERF */
+@@ -1048,11 +1055,14 @@ static inline u64 perf_cgroup_event_time(struct perf_event *event)
+ }
+ 
+ static inline void
+-list_update_cgroup_event(struct perf_event *event,
+-			 struct perf_event_context *ctx, bool add)
++perf_cgroup_event_enable(struct perf_event *event, struct perf_event_context *ctx)
+ {
+ }
+ 
++static inline void
++perf_cgroup_event_disable(struct perf_event *event, struct perf_event_context *ctx)
++{
++}
+ #endif
+ 
+ /*
+@@ -1682,13 +1692,14 @@ list_add_event(struct perf_event *event, struct perf_event_context *ctx)
+ 		add_event_to_groups(event, ctx);
+ 	}
+ 
+-	list_update_cgroup_event(event, ctx, true);
+-
+ 	list_add_rcu(&event->event_entry, &ctx->event_list);
+ 	ctx->nr_events++;
+ 	if (event->attr.inherit_stat)
+ 		ctx->nr_stat++;
+ 
++	if (event->state > PERF_EVENT_STATE_OFF)
++		perf_cgroup_event_enable(event, ctx);
++
+ 	ctx->generation++;
+ }
+ 
+@@ -1864,8 +1875,6 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
+ 
+ 	event->attach_state &= ~PERF_ATTACH_CONTEXT;
+ 
+-	list_update_cgroup_event(event, ctx, false);
+-
+ 	ctx->nr_events--;
+ 	if (event->attr.inherit_stat)
+ 		ctx->nr_stat--;
+@@ -1882,8 +1891,10 @@ list_del_event(struct perf_event *event, struct perf_event_context *ctx)
+ 	 * of error state is by explicit re-enabling
+ 	 * of the event
+ 	 */
+-	if (event->state > PERF_EVENT_STATE_OFF)
++	if (event->state > PERF_EVENT_STATE_OFF) {
++		perf_cgroup_event_disable(event, ctx);
+ 		perf_event_set_state(event, PERF_EVENT_STATE_OFF);
++	}
+ 
+ 	ctx->generation++;
+ }
+@@ -2114,6 +2125,7 @@ event_sched_out(struct perf_event *event,
+ 
+ 	if (READ_ONCE(event->pending_disable) >= 0) {
+ 		WRITE_ONCE(event->pending_disable, -1);
++		perf_cgroup_event_disable(event, ctx);
+ 		state = PERF_EVENT_STATE_OFF;
+ 	}
+ 	perf_event_set_state(event, state);
+@@ -2250,6 +2262,7 @@ static void __perf_event_disable(struct perf_event *event,
+ 		event_sched_out(event, cpuctx, ctx);
+ 
+ 	perf_event_set_state(event, PERF_EVENT_STATE_OFF);
++	perf_cgroup_event_disable(event, ctx);
+ }
+ 
+ /*
+@@ -2633,7 +2646,7 @@ static int  __perf_install_in_context(void *info)
+ 	}
+ 
+ #ifdef CONFIG_CGROUP_PERF
+-	if (is_cgroup_event(event)) {
++	if (event->state > PERF_EVENT_STATE_OFF && is_cgroup_event(event)) {
+ 		/*
+ 		 * If the current cgroup doesn't match the event's
+ 		 * cgroup, we should not try to schedule it.
+@@ -2793,6 +2806,7 @@ static void __perf_event_enable(struct perf_event *event,
+ 		ctx_sched_out(ctx, cpuctx, EVENT_TIME);
+ 
+ 	perf_event_set_state(event, PERF_EVENT_STATE_INACTIVE);
++	perf_cgroup_event_enable(event, ctx);
+ 
+ 	if (!ctx->is_active)
+ 		return;
+@@ -3447,8 +3461,10 @@ static int merge_sched_in(struct perf_event *event, void *data)
+ 	}
+ 
+ 	if (event->state == PERF_EVENT_STATE_INACTIVE) {
+-		if (event->attr.pinned)
++		if (event->attr.pinned) {
++			perf_cgroup_event_disable(event, ctx);
+ 			perf_event_set_state(event, PERF_EVENT_STATE_ERROR);
++		}
+ 
+ 		sid->can_add_hw = 0;
+ 		sid->ctx->rotate_necessary = 1;
+-- 
+2.20.1
+
 
 
