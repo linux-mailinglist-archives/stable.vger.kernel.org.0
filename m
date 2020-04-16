@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5781AC3B6
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01AD71ACC33
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898649AbgDPNrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:47:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32988 "EHLO mail.kernel.org"
+        id S2895799AbgDPN2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:28:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898641AbgDPNq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:46:59 -0400
+        id S2895770AbgDPN2b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:28:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4701521974;
-        Thu, 16 Apr 2020 13:46:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D41EF206E9;
+        Thu, 16 Apr 2020 13:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044818;
-        bh=wttoton6TEU7iHeRKVPjij7bCAVwDWT6iBkWVBDZgs8=;
+        s=default; t=1587043710;
+        bh=O7V0h3Pp//Pa004XuacvG1SJV34cloXKEn9Xo9N6PpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsBVNTazxCiOfyRKwPgUiS0pmylwg47ggYqZw8+rDo/iy8vDOWEMwyueigPL4sdDx
-         UBSyu5zJ40f4a4hCGzj+gef6HnJmp/22TvcbhENs0Ax5xj9s+5S0m+ZIhessDLRl3c
-         HWTi0rE1a3yme/oI547yMM/Lom6Fjy4v9rqoqEd4=
+        b=Fr5NxINFZ7gZCMP2fiqG0bvugiH+MqLuJxutpB0jU0plK1GUdYygFbNEf14bcwixe
+         A9kMH2IsRapo1yX2zhqOXpgQjFOdjtVkM1NhpPQEZMBP8k0yu8Wg4xYGRmlz+yyhsL
+         /AYpYz6Av/qkzCwGQQ9e9VDsJgnx4pnwXP+D+flY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pei Huang <huangpei@loongson.cn>,
-        Huacai Chen <chenhc@lemote.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.4 114/232] MIPS/tlbex: Fix LDDIR usage in setup_pw() for Loongson-3
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.19 067/146] PCI: endpoint: Fix for concurrent memory allocation in OB address region
 Date:   Thu, 16 Apr 2020 15:23:28 +0200
-Message-Id: <20200416131329.401367116@linuxfoundation.org>
+Message-Id: <20200416131252.072173927@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit d191aaffe3687d1e73e644c185f5f0550ec242b5 upstream.
+commit 04e046ca57ebed3943422dee10eec9e73aec081e upstream.
 
-LDDIR/LDPTE is Loongson-3's acceleration for Page Table Walking. If BD
-(Base Directory, the 4th page directory) is not enabled, then GDOffset
-is biased by BadVAddr[63:62]. So, if GDOffset (aka. BadVAddr[47:36] for
-Loongson-3) is big enough, "0b11(BadVAddr[63:62])|BadVAddr[47:36]|...."
-can far beyond pg_swapper_dir. This means the pg_swapper_dir may NOT be
-accessed by LDDIR correctly, so fix it by set PWDirExt in CP0_PWCtl.
+pci-epc-mem uses a bitmap to manage the Endpoint outbound (OB) address
+region. This address region will be shared by multiple endpoint
+functions (in the case of multi function endpoint) and it has to be
+protected from concurrent access to avoid updating an inconsistent state.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Pei Huang <huangpei@loongson.cn>
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Use a mutex to protect bitmap updates to prevent the memory
+allocation API from returning incorrect addresses.
+
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org # v4.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/mm/tlbex.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pci/endpoint/pci-epc-mem.c |   10 ++++++++--
+ include/linux/pci-epc.h            |    3 +++
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
---- a/arch/mips/mm/tlbex.c
-+++ b/arch/mips/mm/tlbex.c
-@@ -1480,6 +1480,7 @@ static void build_r4000_tlb_refill_handl
+--- a/drivers/pci/endpoint/pci-epc-mem.c
++++ b/drivers/pci/endpoint/pci-epc-mem.c
+@@ -79,6 +79,7 @@ int __pci_epc_mem_init(struct pci_epc *e
+ 	mem->page_size = page_size;
+ 	mem->pages = pages;
+ 	mem->size = size;
++	mutex_init(&mem->lock);
  
- static void setup_pw(void)
+ 	epc->mem = mem;
+ 
+@@ -122,7 +123,7 @@ void __iomem *pci_epc_mem_alloc_addr(str
+ 				     phys_addr_t *phys_addr, size_t size)
  {
-+	unsigned int pwctl;
- 	unsigned long pgd_i, pgd_w;
- #ifndef __PAGETABLE_PMD_FOLDED
- 	unsigned long pmd_i, pmd_w;
-@@ -1506,6 +1507,7 @@ static void setup_pw(void)
+ 	int pageno;
+-	void __iomem *virt_addr;
++	void __iomem *virt_addr = NULL;
+ 	struct pci_epc_mem *mem = epc->mem;
+ 	unsigned int page_shift = ilog2(mem->page_size);
+ 	int order;
+@@ -130,15 +131,18 @@ void __iomem *pci_epc_mem_alloc_addr(str
+ 	size = ALIGN(size, mem->page_size);
+ 	order = pci_epc_mem_get_order(mem, size);
  
- 	pte_i = ilog2(_PAGE_GLOBAL);
- 	pte_w = 0;
-+	pwctl = 1 << 30; /* Set PWDirExt */
++	mutex_lock(&mem->lock);
+ 	pageno = bitmap_find_free_region(mem->bitmap, mem->pages, order);
+ 	if (pageno < 0)
+-		return NULL;
++		goto ret;
  
- #ifndef __PAGETABLE_PMD_FOLDED
- 	write_c0_pwfield(pgd_i << 24 | pmd_i << 12 | pt_i << 6 | pte_i);
-@@ -1516,8 +1518,9 @@ static void setup_pw(void)
- #endif
+ 	*phys_addr = mem->phys_base + (pageno << page_shift);
+ 	virt_addr = ioremap(*phys_addr, size);
+ 	if (!virt_addr)
+ 		bitmap_release_region(mem->bitmap, pageno, order);
  
- #ifdef CONFIG_MIPS_HUGE_TLB_SUPPORT
--	write_c0_pwctl(1 << 6 | psn);
-+	pwctl |= (1 << 6 | psn);
- #endif
-+	write_c0_pwctl(pwctl);
- 	write_c0_kpgd((long)swapper_pg_dir);
- 	kscratch_used_mask |= (1 << 7); /* KScratch6 is used for KPGD */
++ret:
++	mutex_unlock(&mem->lock);
+ 	return virt_addr;
  }
+ EXPORT_SYMBOL_GPL(pci_epc_mem_alloc_addr);
+@@ -164,7 +168,9 @@ void pci_epc_mem_free_addr(struct pci_ep
+ 	pageno = (phys_addr - mem->phys_base) >> page_shift;
+ 	size = ALIGN(size, mem->page_size);
+ 	order = pci_epc_mem_get_order(mem, size);
++	mutex_lock(&mem->lock);
+ 	bitmap_release_region(mem->bitmap, pageno, order);
++	mutex_unlock(&mem->lock);
+ }
+ EXPORT_SYMBOL_GPL(pci_epc_mem_free_addr);
+ 
+--- a/include/linux/pci-epc.h
++++ b/include/linux/pci-epc.h
+@@ -69,6 +69,7 @@ struct pci_epc_ops {
+  * @bitmap: bitmap to manage the PCI address space
+  * @pages: number of bits representing the address region
+  * @page_size: size of each page
++ * @lock: mutex to protect bitmap
+  */
+ struct pci_epc_mem {
+ 	phys_addr_t	phys_base;
+@@ -76,6 +77,8 @@ struct pci_epc_mem {
+ 	unsigned long	*bitmap;
+ 	size_t		page_size;
+ 	int		pages;
++	/* mutex to protect against concurrent access for memory allocation*/
++	struct mutex	lock;
+ };
+ 
+ /**
 
 
