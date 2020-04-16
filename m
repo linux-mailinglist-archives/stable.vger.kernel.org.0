@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DA021AC380
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:45:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C266F1ACB46
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898425AbgDPNoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:44:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57368 "EHLO mail.kernel.org"
+        id S2442552AbgDPPpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:45:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898422AbgDPNoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:44:04 -0400
+        id S2897063AbgDPNfI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:35:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73A1D20732;
-        Thu, 16 Apr 2020 13:44:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 227B520732;
+        Thu, 16 Apr 2020 13:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044643;
-        bh=58Vk06b0j3aXbBGmy0Io28RxmfmRhNpj7yF6V6krN1w=;
+        s=default; t=1587044106;
+        bh=g0JPxNPuqoHUzF/vEU+fleh3hf32aKcWMVB7AZyvb9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pJv9T8MHUnGvfBH0dABaQ08ATrynJGu/Okj6yDpSNWyKBmMkHLihAVEEWRnjj87d
-         3r9LY0ToEKdidRqiGpIdQElvEF0vGdxusu/JO79Qd30YXAT+FC2y16fvVGesEpssil
-         pnzom8Q8B1DzHspV9/9Ph3u5g63qZXwg6HhljgSs=
+        b=XS5nQHAc3M+WYE04inD/mxaX/8lgEfnCt5m9NbXWl6z5cSyWPJRqDdxGk8EoF/Dw3
+         tzMGBeww49wVd3F2v7bZZlS0gYg9E8a4VnKTgiIO+r+P6t3XkhZ5BVaDQ0OwrSqtxO
+         erqY9KSWzONWmZNXMQ0xjoysmXDs1V99nRHI+dDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 041/232] time/sched_clock: Expire timer in hardirq context
+        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.5 084/257] ASoC: topology: use name_prefix for new kcontrol
 Date:   Thu, 16 Apr 2020 15:22:15 +0200
-Message-Id: <20200416131320.988812352@linuxfoundation.org>
+Message-Id: <20200416131336.457554916@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmed S. Darwish <a.darwish@linutronix.de>
+From: 이경택 <gt82.lee@samsung.com>
 
-[ Upstream commit 2c8bd58812ee3dbf0d78b566822f7eacd34bdd7b ]
+commit abca9e4a04fbe9c6df4d48ca7517e1611812af25 upstream.
 
-To minimize latency, PREEMPT_RT kernels expires hrtimers in preemptible
-softirq context by default. This can be overriden by marking the timer's
-expiry with HRTIMER_MODE_HARD.
+Current topology doesn't add prefix of component to new kcontrol.
 
-sched_clock_timer is missing this annotation: if its callback is preempted
-and the duration of the preemption exceeds the wrap around time of the
-underlying clocksource, sched clock will get out of sync.
+Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
+Link: https://lore.kernel.org/r/009b01d60804$ae25c2d0$0a714870$@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Mark the sched_clock_timer for expiry in hard interrupt context.
-
-Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200309181529.26558-1-a.darwish@linutronix.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/sched_clock.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ sound/soc/soc-topology.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/time/sched_clock.c b/kernel/time/sched_clock.c
-index dbd69052eaa66..a5538dd76a819 100644
---- a/kernel/time/sched_clock.c
-+++ b/kernel/time/sched_clock.c
-@@ -207,7 +207,8 @@ sched_clock_register(u64 (*read)(void), int bits, unsigned long rate)
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -362,7 +362,7 @@ static int soc_tplg_add_kcontrol(struct
+ 	struct snd_soc_component *comp = tplg->comp;
  
- 	if (sched_clock_timer.function != NULL) {
- 		/* update timeout for clock wrap */
--		hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
-+		hrtimer_start(&sched_clock_timer, cd.wrap_kt,
-+			      HRTIMER_MODE_REL_HARD);
- 	}
- 
- 	r = rate;
-@@ -251,9 +252,9 @@ void __init generic_sched_clock_init(void)
- 	 * Start the timer to keep sched_clock() properly updated and
- 	 * sets the initial epoch.
- 	 */
--	hrtimer_init(&sched_clock_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+	hrtimer_init(&sched_clock_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
- 	sched_clock_timer.function = sched_clock_poll;
--	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
-+	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL_HARD);
+ 	return soc_tplg_add_dcontrol(comp->card->snd_card,
+-				comp->dev, k, NULL, comp, kcontrol);
++				comp->dev, k, comp->name_prefix, comp, kcontrol);
  }
  
- /*
-@@ -290,7 +291,7 @@ void sched_clock_resume(void)
- 	struct clock_read_data *rd = &cd.read_data[0];
- 
- 	rd->epoch_cyc = cd.actual_read_sched_clock();
--	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
-+	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL_HARD);
- 	rd->read_sched_clock = cd.actual_read_sched_clock;
- }
- 
--- 
-2.20.1
-
+ /* remove a mixer kcontrol */
 
 
