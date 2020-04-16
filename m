@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E76D1AC735
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC211AC901
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394811AbgDPOvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:51:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
+        id S2392333AbgDPNsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:48:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2506771AbgDPN5z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:57:55 -0400
+        id S2898722AbgDPNsN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:48:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62ACF20732;
-        Thu, 16 Apr 2020 13:57:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CA1921734;
+        Thu, 16 Apr 2020 13:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045473;
-        bh=kUPRNmMLMkGPXmXK59+RIoKgnuN2D6FMyg0Ojm+JMPI=;
+        s=default; t=1587044892;
+        bh=ToYV/2Bkn9/hAzWBU870733UkLt+U7ZE9XFkXJpdEHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xub0eumCIKBrViqyzxcWRh0v9tLRc6QZ0y/J/l+c4CtjrgPkmc4EXrtsxYaa+6O5g
-         5CVt+7BBacJIBEE41amkekbIuWHspB8yaWuo0CHLBMyMf9mUy/mgXPD4S5vjhBbaHd
-         Y2ELwiDGBXRSkKTADUvWj9ii1aJ/zVvFiHFRmWas=
+        b=STnUxverTbv4NCJ3WOIe1H6ntBhIH1OBfLbome8Inon1hsSBrKIXfvHIbQznwcatm
+         JtM6dd/RTyWtUWtEtE2UzYEedH/4v4ncCyV2Aw24LnDfO0DJf/47krvgHCoyanncVx
+         CU84MfHvB5W48UnsyUkTyEw+foXYwQIkHUM681Os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.6 150/254] Btrfs: fix crash during unmount due to race with delayed inode workers
+Subject: [PATCH 5.4 145/232] btrfs: use nofs allocations for running delayed items
 Date:   Thu, 16 Apr 2020 15:23:59 +0200
-Message-Id: <20200416131345.344066178@linuxfoundation.org>
+Message-Id: <20200416131333.126563854@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,222 +43,232 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit f0cc2cd70164efe8f75c5d99560f0f69969c72e4 upstream.
+commit 351cbf6e4410e7ece05e35d0a07320538f2418b4 upstream.
 
-During unmount we can have a job from the delayed inode items work queue
-still running, that can lead to at least two bad things:
+Zygo reported the following lockdep splat while testing the balance
+patches
 
-1) A crash, because the worker can try to create a transaction just
-   after the fs roots were freed;
+======================================================
+WARNING: possible circular locking dependency detected
+5.6.0-c6f0579d496a+ #53 Not tainted
+------------------------------------------------------
+kswapd0/1133 is trying to acquire lock:
+ffff888092f622c0 (&delayed_node->mutex){+.+.}, at: __btrfs_release_delayed_node+0x7c/0x5b0
 
-2) A transaction leak, because the worker can create a transaction
-   before the fs roots are freed and just after we committed the last
-   transaction and after we stopped the transaction kthread.
+but task is already holding lock:
+ffffffff8fc5f860 (fs_reclaim){+.+.}, at: __fs_reclaim_acquire+0x5/0x30
 
-A stack trace example of the crash:
+which lock already depends on the new lock.
 
- [79011.691214] kernel BUG at lib/radix-tree.c:982!
- [79011.692056] invalid opcode: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
- [79011.693180] CPU: 3 PID: 1394 Comm: kworker/u8:2 Tainted: G        W         5.6.0-rc2-btrfs-next-54 #2
- (...)
- [79011.696789] Workqueue: btrfs-delayed-meta btrfs_work_helper [btrfs]
- [79011.697904] RIP: 0010:radix_tree_tag_set+0xe7/0x170
- (...)
- [79011.702014] RSP: 0018:ffffb3c84a317ca0 EFLAGS: 00010293
- [79011.702949] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
- [79011.704202] RDX: ffffb3c84a317cb0 RSI: ffffb3c84a317ca8 RDI: ffff8db3931340a0
- [79011.705463] RBP: 0000000000000005 R08: 0000000000000005 R09: ffffffff974629d0
- [79011.706756] R10: ffffb3c84a317bc0 R11: 0000000000000001 R12: ffff8db393134000
- [79011.708010] R13: ffff8db3931340a0 R14: ffff8db393134068 R15: 0000000000000001
- [79011.709270] FS:  0000000000000000(0000) GS:ffff8db3b6a00000(0000) knlGS:0000000000000000
- [79011.710699] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [79011.711710] CR2: 00007f22c2a0a000 CR3: 0000000232ad4005 CR4: 00000000003606e0
- [79011.712958] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- [79011.714205] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- [79011.715448] Call Trace:
- [79011.715925]  record_root_in_trans+0x72/0xf0 [btrfs]
- [79011.716819]  btrfs_record_root_in_trans+0x4b/0x70 [btrfs]
- [79011.717925]  start_transaction+0xdd/0x5c0 [btrfs]
- [79011.718829]  btrfs_async_run_delayed_root+0x17e/0x2b0 [btrfs]
- [79011.719915]  btrfs_work_helper+0xaa/0x720 [btrfs]
- [79011.720773]  process_one_work+0x26d/0x6a0
- [79011.721497]  worker_thread+0x4f/0x3e0
- [79011.722153]  ? process_one_work+0x6a0/0x6a0
- [79011.722901]  kthread+0x103/0x140
- [79011.723481]  ? kthread_create_worker_on_cpu+0x70/0x70
- [79011.724379]  ret_from_fork+0x3a/0x50
- (...)
+the existing dependency chain (in reverse order) is:
 
-The following diagram shows a sequence of steps that lead to the crash
-during ummount of the filesystem:
+-> #1 (fs_reclaim){+.+.}:
+       fs_reclaim_acquire.part.91+0x29/0x30
+       fs_reclaim_acquire+0x19/0x20
+       kmem_cache_alloc_trace+0x32/0x740
+       add_block_entry+0x45/0x260
+       btrfs_ref_tree_mod+0x6e2/0x8b0
+       btrfs_alloc_tree_block+0x789/0x880
+       alloc_tree_block_no_bg_flush+0xc6/0xf0
+       __btrfs_cow_block+0x270/0x940
+       btrfs_cow_block+0x1ba/0x3a0
+       btrfs_search_slot+0x999/0x1030
+       btrfs_insert_empty_items+0x81/0xe0
+       btrfs_insert_delayed_items+0x128/0x7d0
+       __btrfs_run_delayed_items+0xf4/0x2a0
+       btrfs_run_delayed_items+0x13/0x20
+       btrfs_commit_transaction+0x5cc/0x1390
+       insert_balance_item.isra.39+0x6b2/0x6e0
+       btrfs_balance+0x72d/0x18d0
+       btrfs_ioctl_balance+0x3de/0x4c0
+       btrfs_ioctl+0x30ab/0x44a0
+       ksys_ioctl+0xa1/0xe0
+       __x64_sys_ioctl+0x43/0x50
+       do_syscall_64+0x77/0x2c0
+       entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-        CPU 1                                             CPU 2                                CPU 3
+-> #0 (&delayed_node->mutex){+.+.}:
+       __lock_acquire+0x197e/0x2550
+       lock_acquire+0x103/0x220
+       __mutex_lock+0x13d/0xce0
+       mutex_lock_nested+0x1b/0x20
+       __btrfs_release_delayed_node+0x7c/0x5b0
+       btrfs_remove_delayed_node+0x49/0x50
+       btrfs_evict_inode+0x6fc/0x900
+       evict+0x19a/0x2c0
+       dispose_list+0xa0/0xe0
+       prune_icache_sb+0xbd/0xf0
+       super_cache_scan+0x1b5/0x250
+       do_shrink_slab+0x1f6/0x530
+       shrink_slab+0x32e/0x410
+       shrink_node+0x2a5/0xba0
+       balance_pgdat+0x4bd/0x8a0
+       kswapd+0x35a/0x800
+       kthread+0x1e9/0x210
+       ret_from_fork+0x3a/0x50
 
- btrfs_punch_hole()
-   btrfs_btree_balance_dirty()
-     btrfs_balance_delayed_items()
-       --> sees
-           fs_info->delayed_root->items
-           with value 200, which is greater
-           than
-           BTRFS_DELAYED_BACKGROUND (128)
-           and smaller than
-           BTRFS_DELAYED_WRITEBACK (512)
-       btrfs_wq_run_delayed_node()
-         --> queues a job for
-             fs_info->delayed_workers to run
-             btrfs_async_run_delayed_root()
+other info that might help us debug this:
 
-                                                                                            btrfs_async_run_delayed_root()
-                                                                                              --> job queued by CPU 1
+ Possible unsafe locking scenario:
 
-                                                                                              --> starts picking and running
-                                                                                                  delayed nodes from the
-                                                                                                  prepare_list list
+       CPU0                    CPU1
+       ----                    ----
+  lock(fs_reclaim);
+                               lock(&delayed_node->mutex);
+                               lock(fs_reclaim);
+  lock(&delayed_node->mutex);
 
-                                                 close_ctree()
+ *** DEADLOCK ***
 
-                                                   btrfs_delete_unused_bgs()
+3 locks held by kswapd0/1133:
+ #0: ffffffff8fc5f860 (fs_reclaim){+.+.}, at: __fs_reclaim_acquire+0x5/0x30
+ #1: ffffffff8fc380d8 (shrinker_rwsem){++++}, at: shrink_slab+0x1e8/0x410
+ #2: ffff8881e0e6c0e8 (&type->s_umount_key#42){++++}, at: trylock_super+0x1b/0x70
 
-                                                   btrfs_commit_super()
+stack backtrace:
+CPU: 2 PID: 1133 Comm: kswapd0 Not tainted 5.6.0-c6f0579d496a+ #53
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+Call Trace:
+ dump_stack+0xc1/0x11a
+ print_circular_bug.isra.38.cold.57+0x145/0x14a
+ check_noncircular+0x2a9/0x2f0
+ ? print_circular_bug.isra.38+0x130/0x130
+ ? stack_trace_consume_entry+0x90/0x90
+ ? save_trace+0x3cc/0x420
+ __lock_acquire+0x197e/0x2550
+ ? btrfs_inode_clear_file_extent_range+0x9b/0xb0
+ ? register_lock_class+0x960/0x960
+ lock_acquire+0x103/0x220
+ ? __btrfs_release_delayed_node+0x7c/0x5b0
+ __mutex_lock+0x13d/0xce0
+ ? __btrfs_release_delayed_node+0x7c/0x5b0
+ ? __asan_loadN+0xf/0x20
+ ? pvclock_clocksource_read+0xeb/0x190
+ ? __btrfs_release_delayed_node+0x7c/0x5b0
+ ? mutex_lock_io_nested+0xc20/0xc20
+ ? __kasan_check_read+0x11/0x20
+ ? check_chain_key+0x1e6/0x2e0
+ mutex_lock_nested+0x1b/0x20
+ ? mutex_lock_nested+0x1b/0x20
+ __btrfs_release_delayed_node+0x7c/0x5b0
+ btrfs_remove_delayed_node+0x49/0x50
+ btrfs_evict_inode+0x6fc/0x900
+ ? btrfs_setattr+0x840/0x840
+ ? do_raw_spin_unlock+0xa8/0x140
+ evict+0x19a/0x2c0
+ dispose_list+0xa0/0xe0
+ prune_icache_sb+0xbd/0xf0
+ ? invalidate_inodes+0x310/0x310
+ super_cache_scan+0x1b5/0x250
+ do_shrink_slab+0x1f6/0x530
+ shrink_slab+0x32e/0x410
+ ? do_shrink_slab+0x530/0x530
+ ? do_shrink_slab+0x530/0x530
+ ? __kasan_check_read+0x11/0x20
+ ? mem_cgroup_protected+0x13d/0x260
+ shrink_node+0x2a5/0xba0
+ balance_pgdat+0x4bd/0x8a0
+ ? mem_cgroup_shrink_node+0x490/0x490
+ ? _raw_spin_unlock_irq+0x27/0x40
+ ? finish_task_switch+0xce/0x390
+ ? rcu_read_lock_bh_held+0xb0/0xb0
+ kswapd+0x35a/0x800
+ ? _raw_spin_unlock_irqrestore+0x4c/0x60
+ ? balance_pgdat+0x8a0/0x8a0
+ ? finish_wait+0x110/0x110
+ ? __kasan_check_read+0x11/0x20
+ ? __kthread_parkme+0xc6/0xe0
+ ? balance_pgdat+0x8a0/0x8a0
+ kthread+0x1e9/0x210
+ ? kthread_create_worker_on_cpu+0xc0/0xc0
+ ret_from_fork+0x3a/0x50
 
-                                                     btrfs_join_transaction()
-                                                       --> gets transaction N
-
-                                                     btrfs_commit_transaction(N)
-                                                       --> set transaction state
-                                                        to TRANTS_STATE_COMMIT_START
-
-                                                                                             btrfs_first_prepared_delayed_node()
-                                                                                               --> picks delayed node X through
-                                                                                                   the prepared_list list
-
-                                                       btrfs_run_delayed_items()
-
-                                                         btrfs_first_delayed_node()
-                                                           --> also picks delayed node X
-                                                               but through the node_list
-                                                               list
-
-                                                         __btrfs_commit_inode_delayed_items()
-                                                            --> runs all delayed items from
-                                                                this node and drops the
-                                                                node's item count to 0
-                                                                through call to
-                                                                btrfs_release_delayed_inode()
-
-                                                         --> finishes running any remaining
-                                                             delayed nodes
-
-                                                       --> finishes transaction commit
-
-                                                   --> stops cleaner and transaction threads
-
-                                                   btrfs_free_fs_roots()
-                                                     --> frees all roots and removes them
-                                                         from the radix tree
-                                                         fs_info->fs_roots_radix
-
-                                                                                             btrfs_join_transaction()
-                                                                                               start_transaction()
-                                                                                                 btrfs_record_root_in_trans()
-                                                                                                   record_root_in_trans()
-                                                                                                     radix_tree_tag_set()
-                                                                                                       --> crashes because
-                                                                                                           the root is not in
-                                                                                                           the radix tree
-                                                                                                           anymore
-
-If the worker is able to call btrfs_join_transaction() before the unmount
-task frees the fs roots, we end up leaking a transaction and all its
-resources, since after the call to btrfs_commit_super() and stopping the
-transaction kthread, we don't expect to have any transaction open anymore.
-
-When this situation happens the worker has a delayed node that has no
-more items to run, since the task calling btrfs_run_delayed_items(),
-which is doing a transaction commit, picks the same node and runs all
-its items first.
-
-We can not wait for the worker to complete when running delayed items
-through btrfs_run_delayed_items(), because we call that function in
-several phases of a transaction commit, and that could cause a deadlock
-because the worker calls btrfs_join_transaction() and the task doing the
-transaction commit may have already set the transaction state to
-TRANS_STATE_COMMIT_DOING.
-
-Also it's not possible to get into a situation where only some of the
-items of a delayed node are added to the fs/subvolume tree in the current
-transaction and the remaining ones in the next transaction, because when
-running the items of a delayed inode we lock its mutex, effectively
-waiting for the worker if the worker is running the items of the delayed
-node already.
-
-Since this can only cause issues when unmounting a filesystem, fix it in
-a simple way by waiting for any jobs on the delayed workers queue before
-calling btrfs_commit_supper() at close_ctree(). This works because at this
-point no one can call btrfs_btree_balance_dirty() or
-btrfs_balance_delayed_items(), and if we end up waiting for any worker to
-complete, btrfs_commit_super() will commit the transaction created by the
-worker.
+This is because we hold that delayed node's mutex while doing tree
+operations.  Fix this by just wrapping the searches in nofs.
 
 CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/async-thread.c |    8 ++++++++
- fs/btrfs/async-thread.h |    1 +
- fs/btrfs/disk-io.c      |   13 +++++++++++++
- 3 files changed, 22 insertions(+)
+ fs/btrfs/delayed-inode.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/btrfs/async-thread.c
-+++ b/fs/btrfs/async-thread.c
-@@ -395,3 +395,11 @@ void btrfs_set_work_high_priority(struct
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -6,6 +6,7 @@
+ 
+ #include <linux/slab.h>
+ #include <linux/iversion.h>
++#include <linux/sched/mm.h>
+ #include "misc.h"
+ #include "delayed-inode.h"
+ #include "disk-io.h"
+@@ -804,11 +805,14 @@ static int btrfs_insert_delayed_item(str
+ 				     struct btrfs_delayed_item *delayed_item)
  {
- 	set_bit(WORK_HIGH_PRIO_BIT, &work->flags);
- }
-+
-+void btrfs_flush_workqueue(struct btrfs_workqueue *wq)
-+{
-+	if (wq->high)
-+		flush_workqueue(wq->high->normal_wq);
-+
-+	flush_workqueue(wq->normal->normal_wq);
-+}
---- a/fs/btrfs/async-thread.h
-+++ b/fs/btrfs/async-thread.h
-@@ -44,5 +44,6 @@ void btrfs_set_work_high_priority(struct
- struct btrfs_fs_info * __pure btrfs_work_owner(const struct btrfs_work *work);
- struct btrfs_fs_info * __pure btrfs_workqueue_owner(const struct __btrfs_workqueue *wq);
- bool btrfs_workqueue_normal_congested(const struct btrfs_workqueue *wq);
-+void btrfs_flush_workqueue(struct btrfs_workqueue *wq);
+ 	struct extent_buffer *leaf;
++	unsigned int nofs_flag;
+ 	char *ptr;
+ 	int ret;
  
- #endif
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3990,6 +3990,19 @@ void __cold close_ctree(struct btrfs_fs_
- 		 */
- 		btrfs_delete_unused_bgs(fs_info);
++	nofs_flag = memalloc_nofs_save();
+ 	ret = btrfs_insert_empty_item(trans, root, path, &delayed_item->key,
+ 				      delayed_item->data_len);
++	memalloc_nofs_restore(nofs_flag);
+ 	if (ret < 0 && ret != -EEXIST)
+ 		return ret;
  
-+		/*
-+		 * There might be existing delayed inode workers still running
-+		 * and holding an empty delayed inode item. We must wait for
-+		 * them to complete first because they can create a transaction.
-+		 * This happens when someone calls btrfs_balance_delayed_items()
-+		 * and then a transaction commit runs the same delayed nodes
-+		 * before any delayed worker has done something with the nodes.
-+		 * We must wait for any worker here and not at transaction
-+		 * commit time since that could cause a deadlock.
-+		 * This is a very rare case.
-+		 */
-+		btrfs_flush_workqueue(fs_info->delayed_workers);
+@@ -936,6 +940,7 @@ static int btrfs_delete_delayed_items(st
+ 				      struct btrfs_delayed_node *node)
+ {
+ 	struct btrfs_delayed_item *curr, *prev;
++	unsigned int nofs_flag;
+ 	int ret = 0;
+ 
+ do_again:
+@@ -944,7 +949,9 @@ do_again:
+ 	if (!curr)
+ 		goto delete_fail;
+ 
++	nofs_flag = memalloc_nofs_save();
+ 	ret = btrfs_search_slot(trans, root, &curr->key, path, -1, 1);
++	memalloc_nofs_restore(nofs_flag);
+ 	if (ret < 0)
+ 		goto delete_fail;
+ 	else if (ret > 0) {
+@@ -1011,6 +1018,7 @@ static int __btrfs_update_delayed_inode(
+ 	struct btrfs_key key;
+ 	struct btrfs_inode_item *inode_item;
+ 	struct extent_buffer *leaf;
++	unsigned int nofs_flag;
+ 	int mod;
+ 	int ret;
+ 
+@@ -1023,7 +1031,9 @@ static int __btrfs_update_delayed_inode(
+ 	else
+ 		mod = 1;
+ 
++	nofs_flag = memalloc_nofs_save();
+ 	ret = btrfs_lookup_inode(trans, root, path, &key, mod);
++	memalloc_nofs_restore(nofs_flag);
+ 	if (ret > 0) {
+ 		btrfs_release_path(path);
+ 		return -ENOENT;
+@@ -1074,7 +1084,10 @@ search:
+ 
+ 	key.type = BTRFS_INODE_EXTREF_KEY;
+ 	key.offset = -1;
 +
- 		ret = btrfs_commit_super(fs_info);
- 		if (ret)
- 			btrfs_err(fs_info, "commit super ret %d", ret);
++	nofs_flag = memalloc_nofs_save();
+ 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
++	memalloc_nofs_restore(nofs_flag);
+ 	if (ret < 0)
+ 		goto err_out;
+ 	ASSERT(ret);
 
 
