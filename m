@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 369C61ACA35
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F141AC6B7
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410442AbgDPPcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:32:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55196 "EHLO mail.kernel.org"
+        id S2392626AbgDPOnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:43:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726599AbgDPNmP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:42:15 -0400
+        id S2392606AbgDPOAX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:00:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98C70218AC;
-        Thu, 16 Apr 2020 13:42:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAF5A20786;
+        Thu, 16 Apr 2020 14:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044535;
-        bh=K9lFfffFugUy+h1cvQ1mHkNgiJTJE5NKNzyDaEc4UG4=;
+        s=default; t=1587045623;
+        bh=iGAvezQIXpomV+U2h6LGXS5TodfnQCAsqZ5z6i5QdVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dA4w+rqnC65WTS1y2oKSQrtsSzklK2uOH8wU635zj6nsXGnXU3NP2tSx1cyR2e6g7
-         xXB+rIJwU794/4oB6Ym2YNdM1qX9+0cuFRzF+4pcHEvIzHj8EyObBhzgsx7J8RIz1C
-         4FR1sbOmr2IYpv7DSRRMLw4DVfb3o6dE6JEjyTF4=
+        b=sgd9EQe6dUZaZLzFHKJGznnK8YBtR7DahVcw35bgZE0vdjFNeHntuVRNeZ29vUWH7
+         iuuK59MSEN+n9DSzgfcJbg4PCkcrUW3UZrVhdjXH1x4nRFa66n0gRNuSqwwUj1psF7
+         ze4FpMWTMIusrlSADZYCpRAvLKD9upPUCR+kZ4ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Paul <sean@poorly.run>,
-        Wayne Lin <Wayne.Lin@amd.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Lyude Paul <lyude@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 248/257] drm/dp_mst: Fix clearing payload state on topology disable
+        stable@vger.kernel.org, Libor Pechacek <lpechacek@suse.cz>,
+        Michal Suchanek <msuchanek@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.6 210/254] powerpc/pseries: Avoid NULL pointer dereference when drmem is unavailable
 Date:   Thu, 16 Apr 2020 15:24:59 +0200
-Message-Id: <20200416131356.646429535@linuxfoundation.org>
+Message-Id: <20200416131352.322391634@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,91 +44,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Libor Pechacek <lpechacek@suse.cz>
 
-[ Upstream commit 8732fe46b20c951493bfc4dba0ad08efdf41de81 ]
+commit a83836dbc53e96f13fec248ecc201d18e1e3111d upstream.
 
-The issues caused by:
+In guests without hotplugagble memory drmem structure is only zero
+initialized. Trying to manipulate DLPAR parameters results in a crash.
 
-commit 64e62bdf04ab ("drm/dp_mst: Remove VCPI while disabling topology
-mgr")
+  $ echo "memory add count 1" > /sys/kernel/dlpar
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  ...
+  NIP:  c0000000000ff294 LR: c0000000000ff248 CTR: 0000000000000000
+  REGS: c0000000fb9d3880 TRAP: 0300   Tainted: G            E      (5.5.0-rc6-2-default)
+  MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28242428  XER: 20000000
+  CFAR: c0000000009a6c10 DAR: 0000000000000010 DSISR: 40000000 IRQMASK: 0
+  ...
+  NIP dlpar_memory+0x6e4/0xd00
+  LR  dlpar_memory+0x698/0xd00
+  Call Trace:
+    dlpar_memory+0x698/0xd00 (unreliable)
+    handle_dlpar_errorlog+0xc0/0x190
+    dlpar_store+0x198/0x4a0
+    kobj_attr_store+0x30/0x50
+    sysfs_kf_write+0x64/0x90
+    kernfs_fop_write+0x1b0/0x290
+    __vfs_write+0x3c/0x70
+    vfs_write+0xd0/0x260
+    ksys_write+0xdc/0x130
+    system_call+0x5c/0x68
 
-Prompted me to take a closer look at how we clear the payload state in
-general when disabling the topology, and it turns out there's actually
-two subtle issues here.
+Taking closer look at the code, I can see that for_each_drmem_lmb is a
+macro expanding into `for (lmb = &drmem_info->lmbs[0]; lmb <=
+&drmem_info->lmbs[drmem_info->n_lmbs - 1]; lmb++)`. When drmem_info->lmbs
+is NULL, the loop would iterate through the whole address range if it
+weren't stopped by the NULL pointer dereference on the next line.
 
-The first is that we're not grabbing &mgr.payload_lock when clearing the
-payloads in drm_dp_mst_topology_mgr_set_mst(). Seeing as the canonical
-lock order is &mgr.payload_lock -> &mgr.lock (because we always want
-&mgr.lock to be the inner-most lock so topology validation always
-works), this makes perfect sense. It also means that -technically- there
-could be racing between someone calling
-drm_dp_mst_topology_mgr_set_mst() to disable the topology, along with a
-modeset occurring that's modifying the payload state at the same time.
+This patch aligns for_each_drmem_lmb and for_each_drmem_lmb_in_range
+macro behavior with the common C semantics, where the end marker does
+not belong to the scanned range, and alters get_lmb_range() semantics.
+As a side effect, the wraparound observed in the crash is prevented.
 
-The second is the more obvious issue that Wayne Lin discovered, that
-we're not clearing proposed_payloads when disabling the topology.
+Fixes: 6c6ea53725b3 ("powerpc/mm: Separate ibm, dynamic-memory data from DT format")
+Cc: stable@vger.kernel.org # v4.16+
+Signed-off-by: Libor Pechacek <lpechacek@suse.cz>
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200131132829.10281-1-msuchanek@suse.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I actually can't see any obvious places where the racing caused by the
-first issue would break something, and it could be that some of our
-higher-level locks already prevent this by happenstance, but better safe
-then sorry. So, let's make it so that drm_dp_mst_topology_mgr_set_mst()
-first grabs &mgr.payload_lock followed by &mgr.lock so that we never
-race when modifying the payload state. Then, we also clear
-proposed_payloads to fix the original issue of enabling a new topology
-with a dirty payload state. This doesn't clear any of the drm_dp_vcpi
-structures, but those are getting destroyed along with the ports anyway.
-
-Changes since v1:
-* Use sizeof(mgr->payloads[0])/sizeof(mgr->proposed_vcpis[0]) instead -
-  vsyrjala
-
-Cc: Sean Paul <sean@poorly.run>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200122194321.14953-1-lyude@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/drmem.h                |    4 ++--
+ arch/powerpc/platforms/pseries/hotplug-memory.c |    8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index c4b692dff5956..c9dd41175853e 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -3439,6 +3439,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
- 	int ret = 0;
- 	struct drm_dp_mst_branch *mstb = NULL;
+--- a/arch/powerpc/include/asm/drmem.h
++++ b/arch/powerpc/include/asm/drmem.h
+@@ -27,12 +27,12 @@ struct drmem_lmb_info {
+ extern struct drmem_lmb_info *drmem_info;
  
-+	mutex_lock(&mgr->payload_lock);
- 	mutex_lock(&mgr->lock);
- 	if (mst_state == mgr->mst_state)
- 		goto out_unlock;
-@@ -3497,7 +3498,10 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
- 		/* this can fail if the device is gone */
- 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
- 		ret = 0;
--		memset(mgr->payloads, 0, mgr->max_payloads * sizeof(struct drm_dp_payload));
-+		memset(mgr->payloads, 0,
-+		       mgr->max_payloads * sizeof(mgr->payloads[0]));
-+		memset(mgr->proposed_vcpis, 0,
-+		       mgr->max_payloads * sizeof(mgr->proposed_vcpis[0]));
- 		mgr->payload_mask = 0;
- 		set_bit(0, &mgr->payload_mask);
- 		mgr->vcpi_mask = 0;
-@@ -3505,6 +3509,7 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+ #define for_each_drmem_lmb_in_range(lmb, start, end)		\
+-	for ((lmb) = (start); (lmb) <= (end); (lmb)++)
++	for ((lmb) = (start); (lmb) < (end); (lmb)++)
  
- out_unlock:
- 	mutex_unlock(&mgr->lock);
-+	mutex_unlock(&mgr->payload_lock);
- 	if (mstb)
- 		drm_dp_mst_topology_put_mstb(mstb);
- 	return ret;
--- 
-2.20.1
-
+ #define for_each_drmem_lmb(lmb)					\
+ 	for_each_drmem_lmb_in_range((lmb),			\
+ 		&drmem_info->lmbs[0],				\
+-		&drmem_info->lmbs[drmem_info->n_lmbs - 1])
++		&drmem_info->lmbs[drmem_info->n_lmbs])
+ 
+ /*
+  * The of_drconf_cell_v1 struct defines the layout of the LMB data
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -223,7 +223,7 @@ static int get_lmb_range(u32 drc_index,
+ 			 struct drmem_lmb **end_lmb)
+ {
+ 	struct drmem_lmb *lmb, *start, *end;
+-	struct drmem_lmb *last_lmb;
++	struct drmem_lmb *limit;
+ 
+ 	start = NULL;
+ 	for_each_drmem_lmb(lmb) {
+@@ -236,10 +236,10 @@ static int get_lmb_range(u32 drc_index,
+ 	if (!start)
+ 		return -EINVAL;
+ 
+-	end = &start[n_lmbs - 1];
++	end = &start[n_lmbs];
+ 
+-	last_lmb = &drmem_info->lmbs[drmem_info->n_lmbs - 1];
+-	if (end > last_lmb)
++	limit = &drmem_info->lmbs[drmem_info->n_lmbs];
++	if (end > limit)
+ 		return -EINVAL;
+ 
+ 	*start_lmb = start;
 
 
