@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65F421AC894
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:12:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7879B1AC6BA
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:44:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727788AbgDPPLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36540 "EHLO mail.kernel.org"
+        id S2387397AbgDPOAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:00:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405269AbgDPNuc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:32 -0400
+        id S2389268AbgDPOAN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:00:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 864512063A;
-        Thu, 16 Apr 2020 13:50:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCDC321734;
+        Thu, 16 Apr 2020 14:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045031;
-        bh=SJKfbcTMFH18rnumuVrFY/CSI7v7IEsH07v35ULM5S0=;
+        s=default; t=1587045613;
+        bh=dKLE2DEaAkzukeVvjhm9zg671Tf8W6M20xZ5qET7fBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1R2UijIzD9M4rMBT++lxvHwacBiyUNWlMFjy1N6GHJdjXCXsyS7oMkts9RytY8PVk
-         +1ewVLVXvoOFU4SaExQoQLQ7U1sKE1fHQjcnwPjLX95vXcbnCzinGTJZLMmad7TCbC
-         R8xR7LxmFkO5GkTnTuW3rKPtmx9QNwOuOg9q9vXU=
+        b=zHZmT/fMDA8yiRakhxxglEwFzbs+wbW7PJPSBhGrDd3MQezvs/ENSFkUyqqrEevdB
+         0y6Vi8NmaKfztYjf8EvaD+JpbAL9AxT8MACWmAjJy8EMGB7FXjULFz320/y+BdPs7K
+         589mW3CH5eJNUgO84uS2YQZBznhSFU2lBOTd2Ebw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jessica Yu <jeyu@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Ben Hutchings <benh@debian.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 201/232] kmod: make request_module() return an error when autoloading is disabled
+        stable@vger.kernel.org, Aaron Liu <aaron.liu@amd.com>,
+        Yuxian Dai <Yuxian.Dai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Huang Rui <ray.huang@amd.com>
+Subject: [PATCH 5.6 206/254] drm/amdgpu: unify fw_write_wait for new gfx9 asics
 Date:   Thu, 16 Apr 2020 15:24:55 +0200
-Message-Id: <20200416131340.395683273@linuxfoundation.org>
+Message-Id: <20200416131351.819382596@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,108 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Aaron Liu <aaron.liu@amd.com>
 
-commit d7d27cfc5cf0766a26a8f56868c5ad5434735126 upstream.
+commit 2960758cce2310774de60bbbd8d6841d436c54d9 upstream.
 
-Patch series "module autoloading fixes and cleanups", v5.
+Make the fw_write_wait default case true since presumably all new
+gfx9 asics will have updated firmware. That is using unique WAIT_REG_MEM
+packet with opration=1.
 
-This series fixes a bug where request_module() was reporting success to
-kernel code when module autoloading had been completely disabled via
-'echo > /proc/sys/kernel/modprobe'.
-
-It also addresses the issues raised on the original thread
-(https://lkml.kernel.org/lkml/20200310223731.126894-1-ebiggers@kernel.org/T/#u)
-bydocumenting the modprobe sysctl, adding a self-test for the empty path
-case, and downgrading a user-reachable WARN_ONCE().
-
-This patch (of 4):
-
-It's long been possible to disable kernel module autoloading completely
-(while still allowing manual module insertion) by setting
-/proc/sys/kernel/modprobe to the empty string.
-
-This can be preferable to setting it to a nonexistent file since it
-avoids the overhead of an attempted execve(), avoids potential
-deadlocks, and avoids the call to security_kernel_module_request() and
-thus on SELinux-based systems eliminates the need to write SELinux rules
-to dontaudit module_request.
-
-However, when module autoloading is disabled in this way,
-request_module() returns 0.  This is broken because callers expect 0 to
-mean that the module was successfully loaded.
-
-Apparently this was never noticed because this method of disabling
-module autoloading isn't used much, and also most callers don't use the
-return value of request_module() since it's always necessary to check
-whether the module registered its functionality or not anyway.
-
-But improperly returning 0 can indeed confuse a few callers, for example
-get_fs_type() in fs/filesystems.c where it causes a WARNING to be hit:
-
-	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
-		fs = __get_fs_type(name, len);
-		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
-	}
-
-This is easily reproduced with:
-
-	echo > /proc/sys/kernel/modprobe
-	mount -t NONEXISTENT none /
-
-It causes:
-
-	request_module fs-NONEXISTENT succeeded, but still no fs?
-	WARNING: CPU: 1 PID: 1106 at fs/filesystems.c:275 get_fs_type+0xd6/0xf0
-	[...]
-
-This should actually use pr_warn_once() rather than WARN_ONCE(), since
-it's also user-reachable if userspace immediately unloads the module.
-Regardless, request_module() should correctly return an error when it
-fails.  So let's make it return -ENOENT, which matches the error when
-the modprobe binary doesn't exist.
-
-I've also sent patches to document and test this case.
-
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Jessica Yu <jeyu@kernel.org>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jeff Vander Stoep <jeffv@google.com>
-Cc: Ben Hutchings <benh@debian.org>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200310223731.126894-1-ebiggers@kernel.org
-Link: http://lkml.kernel.org/r/20200312202552.241885-1-ebiggers@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Aaron Liu <aaron.liu@amd.com>
+Tested-by: Aaron Liu <aaron.liu@amd.com>
+Tested-by: Yuxian Dai <Yuxian.Dai@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Acked-by: Huang Rui <ray.huang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kmod.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/kmod.c
-+++ b/kernel/kmod.c
-@@ -120,7 +120,7 @@ out:
-  * invoke it.
-  *
-  * If module auto-loading support is disabled then this function
-- * becomes a no-operation.
-+ * simply returns -ENOENT.
-  */
- int __request_module(bool wait, const char *fmt, ...)
- {
-@@ -137,7 +137,7 @@ int __request_module(bool wait, const ch
- 	WARN_ON_ONCE(wait && current_is_async());
- 
- 	if (!modprobe_path[0])
--		return 0;
-+		return -ENOENT;
- 
- 	va_start(args, fmt);
- 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -1158,6 +1158,8 @@ static void gfx_v9_0_check_fw_write_wait
+ 			adev->gfx.mec_fw_write_wait = true;
+ 		break;
+ 	default:
++		adev->gfx.me_fw_write_wait = true;
++		adev->gfx.mec_fw_write_wait = true;
+ 		break;
+ 	}
+ }
 
 
