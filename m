@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DE01AC2DB
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F5161AC406
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:54:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896486AbgDPNeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:34:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45942 "EHLO mail.kernel.org"
+        id S2408944AbgDPNxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:53:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896924AbgDPNeZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:34:25 -0400
+        id S2408928AbgDPNw7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:52:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51C1821D91;
-        Thu, 16 Apr 2020 13:34:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED3062076D;
+        Thu, 16 Apr 2020 13:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044064;
-        bh=skWxrDeaTk6+jv+cXjW6TzCDWVjh/oty9QB9S9uiJkE=;
+        s=default; t=1587045178;
+        bh=bLaYknW8xJkpruAeW9vzpZ0HesbH5LKBqP1T/qNO/0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CXZnwtaS1Wb5BsU9G5E1jkS/MrXapoVv67+YiKgr7mwjV8qU3w1bHkLveyD8sfhlE
-         h6BYfOUAxlyDG03aGlFM/0i9wW/jJqOMYJTiCobVbcwrUOO1QlwZrfmHjBSsWOsttt
-         2R1uhZKg7x6VOaUd6CwbwLMcprelK7DPi+GR99dQ=
+        b=LOm4FXCJ8SmBfOYWoWlqlxd2L/b1Qoe812WPig5NUf3GM1RhQJwkPOJMRZmLlzJtt
+         o0xS7LgT2tkFOEmw6OnUjO4YZ8ilY/xo03xQ10fDuprnhDt5/T1WyKZVDY32bqlPDS
+         xBiA671V6OsEnmqjDHcTrLFZ5fsPc0A8XrfbsCy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
+        Borislav Petkov <bp@suse.de>, Christoph Hellwig <hch@lst.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 065/257] genirq/irqdomain: Check pointer in irq_domain_alloc_irqs_hierarchy()
-Date:   Thu, 16 Apr 2020 15:21:56 +0200
-Message-Id: <20200416131334.081804238@linuxfoundation.org>
+Subject: [PATCH 5.6 028/254] dma-mapping: Fix dma_pgprot() for unencrypted coherent pages
+Date:   Thu, 16 Apr 2020 15:21:57 +0200
+Message-Id: <20200416131329.359655264@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+From: Thomas Hellstrom <thellstrom@vmware.com>
 
-[ Upstream commit 87f2d1c662fa1761359fdf558246f97e484d177a ]
+[ Upstream commit 17c4a2ae15a7aaefe84bdb271952678c5c9cd8e1 ]
 
-irq_domain_alloc_irqs_hierarchy() has 3 call sites in the compilation unit
-but only one of them checks for the pointer which is being dereferenced
-inside the called function. Move the check into the function. This allows
-for catching the error instead of the following crash:
+When dma_mmap_coherent() sets up a mapping to unencrypted coherent memory
+under SEV encryption and sometimes under SME encryption, it will actually
+set up an encrypted mapping rather than an unencrypted, causing devices
+that DMAs from that memory to read encrypted contents. Fix this.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-PC is at 0x0
-LR is at gpiochip_hierarchy_irq_domain_alloc+0x11f/0x140
-...
-[<c06c23ff>] (gpiochip_hierarchy_irq_domain_alloc)
-[<c0462a89>] (__irq_domain_alloc_irqs)
-[<c0462dad>] (irq_create_fwspec_mapping)
-[<c06c2251>] (gpiochip_to_irq)
-[<c06c1c9b>] (gpiod_to_irq)
-[<bf973073>] (gpio_irqs_init [gpio_irqs])
-[<bf974048>] (gpio_irqs_exit+0xecc/0xe84 [gpio_irqs])
-Code: bad PC value
+When force_dma_unencrypted() returns true, the linear kernel map of the
+coherent pages have had the encryption bit explicitly cleared and the
+page content is unencrypted. Make sure that any additional PTEs we set
+up to these pages also have the encryption bit cleared by having
+dma_pgprot() return a protection with the encryption bit cleared in this
+case.
 
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200306174720.82604-1-alexander.sverdlin@nokia.com
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Link: https://lkml.kernel.org/r/20200304114527.3636-3-thomas_os@shipmail.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/irqdomain.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ kernel/dma/mapping.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index 480df36597206..c776b8e86fbcc 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -1293,6 +1293,11 @@ int irq_domain_alloc_irqs_hierarchy(struct irq_domain *domain,
- 				    unsigned int irq_base,
- 				    unsigned int nr_irqs, void *arg)
+diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
+index 12ff766ec1fa3..98e3d873792ea 100644
+--- a/kernel/dma/mapping.c
++++ b/kernel/dma/mapping.c
+@@ -154,6 +154,8 @@ EXPORT_SYMBOL(dma_get_sgtable_attrs);
+  */
+ pgprot_t dma_pgprot(struct device *dev, pgprot_t prot, unsigned long attrs)
  {
-+	if (!domain->ops->alloc) {
-+		pr_debug("domain->ops->alloc() is NULL\n");
-+		return -ENOSYS;
-+	}
-+
- 	return domain->ops->alloc(domain, irq_base, nr_irqs, arg);
- }
- 
-@@ -1330,11 +1335,6 @@ int __irq_domain_alloc_irqs(struct irq_domain *domain, int irq_base,
- 			return -EINVAL;
- 	}
- 
--	if (!domain->ops->alloc) {
--		pr_debug("domain->ops->alloc() is NULL\n");
--		return -ENOSYS;
--	}
--
- 	if (realloc && irq_base >= 0) {
- 		virq = irq_base;
- 	} else {
++	if (force_dma_unencrypted(dev))
++		prot = pgprot_decrypted(prot);
+ 	if (dev_is_dma_coherent(dev) ||
+ 	    (IS_ENABLED(CONFIG_DMA_NONCOHERENT_CACHE_SYNC) &&
+              (attrs & DMA_ATTR_NON_CONSISTENT)))
 -- 
 2.20.1
 
