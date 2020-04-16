@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DCA1AC795
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:57:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5401AC2F3
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502239AbgDPNzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:55:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42598 "EHLO mail.kernel.org"
+        id S2897176AbgDPNfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:35:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392532AbgDPNzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:55:37 -0400
+        id S2897161AbgDPNfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:35:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC94B20732;
-        Thu, 16 Apr 2020 13:55:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE56E2220A;
+        Thu, 16 Apr 2020 13:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045337;
-        bh=HfNeRFiC2zUx8WJjFYhP6dY0KTPulHcHSfWzbYvafII=;
+        s=default; t=1587044136;
+        bh=nJdRoDoxFz3pSFS9qZM5LkWIVbVtBTHPKmC7MDR6Yj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpGKEpyppJrLYnyzuWjoRdYEQNyglB8OwhF4vMc/Vp0MpUAPJ9B+DnrkkDRjOYsSr
-         b/yp12N28/foyapi22sFwMXFqVd0RF4YmfrK5wAN2iXLMB2LvFnRwlSGcxRvTIUL8k
-         cerQ7XIMqDDQBQIus3XSmVztXGvYIi14xQgwddiY=
+        b=FSJYe/GQjefvFCag3Ja8++eaKqEvWfrOZJVIECBjQtKjeOje4ZJOYSgpzBIMkiMft
+         0L1YBfqIs92yoOFg382EU5JMTlaRWbVWf9/IEJGaqS4mJz+PlgF3NKvaPTl6du649q
+         mdCAOvCnyhOOkaRu9pmCuIRp3Qwv/jbKLkY1Ehs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 056/254] md: check arrays is suspended in mddev_detach before call quiesce operations
-Date:   Thu, 16 Apr 2020 15:22:25 +0200
-Message-Id: <20200416131332.917942474@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 095/257] ALSA: hda/realtek - Set principled PC Beep configuration for ALC256
+Date:   Thu, 16 Apr 2020 15:22:26 +0200
+Message-Id: <20200416131337.924834348@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-[ Upstream commit 6b40bec3b13278d21fa6c1ae7a0bdf2e550eed5f ]
+commit c44737449468a0bdc50e09ec75e530f208391561 upstream.
 
-Don't call quiesce(1) and quiesce(0) if array is already suspended,
-otherwise in level_store, the array is writable after mddev_detach
-in below part though the intention is to make array writable after
-resume.
+The Realtek PC Beep Hidden Register[1] is currently set by
+patch_realtek.c in two different places:
 
-	mddev_suspend(mddev);
-	mddev_detach(mddev);
-	...
-	mddev_resume(mddev);
+In alc_fill_eapd_coef(), it's set to the value 0x5757, corresponding to
+non-beep input on 1Ah and no 1Ah loopback to either headphones or
+speakers. (Although, curiously, the loopback amp is still enabled.) This
+write was added fairly recently by commit e3743f431143 ("ALSA:
+hda/realtek - Dell headphone has noise on unmute for ALC236") and is a
+safe default. However, it happens in the wrong place:
+alc_fill_eapd_coef() runs on module load and cold boot but not on S3
+resume, meaning the register loses its value after suspend.
 
-And it also causes calltrace as follows in [1].
+Conversely, in alc256_init(), the register is updated to unset bit 13
+(disable speaker loopback) and set bit 5 (set non-beep input on 1Ah).
+Although this write does run on S3 resume, it's not quite enough to fix
+up the register's default value of 0x3717. What's missing is a set of
+bit 14 to disable headphone loopback. Without that, we end up with a
+feedback loop where the headphone jack is being driven by amplified
+samples of itself[2].
 
-[48005.653834] WARNING: CPU: 1 PID: 45380 at kernel/kthread.c:510 kthread_park+0x77/0x90
-[...]
-[48005.653976] CPU: 1 PID: 45380 Comm: mdadm Tainted: G           OE     5.4.10-arch1-1 #1
-[48005.653979] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./J4105-ITX, BIOS P1.40 08/06/2018
-[48005.653984] RIP: 0010:kthread_park+0x77/0x90
-[48005.654015] Call Trace:
-[48005.654039]  r5l_quiesce+0x3c/0x70 [raid456]
-[48005.654052]  raid5_quiesce+0x228/0x2e0 [raid456]
-[48005.654073]  mddev_detach+0x30/0x70 [md_mod]
-[48005.654090]  level_store+0x202/0x670 [md_mod]
-[48005.654099]  ? security_capable+0x40/0x60
-[48005.654114]  md_attr_store+0x7b/0xc0 [md_mod]
-[48005.654123]  kernfs_fop_write+0xce/0x1b0
-[48005.654132]  vfs_write+0xb6/0x1a0
-[48005.654138]  ksys_write+0x67/0xe0
-[48005.654146]  do_syscall_64+0x4e/0x140
-[48005.654155]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[48005.654161] RIP: 0033:0x7fa0c8737497
+This change eliminates the update in alc256_init() and replaces it with
+the 0x5757 write from alc_fill_eapd_coef(). Kailang says that 0x5757 is
+supposed to be the codec's default value, so using it will make
+debugging easier for Realtek.
 
-[1]: https://bugzilla.kernel.org/show_bug.cgi?id=206161
+Affects the ALC255, ALC256, ALC257, ALC235, and ALC236 codecs.
 
-Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] Newly documented in Documentation/sound/hd-audio/realtek-pc-beep.rst
+
+[2] Setting the "Headphone Mic Boost" control from userspace changes
+this feedback loop and has been a widely-shared workaround for headphone
+noise on laptops like the Dell XPS 13 9350. This commit eliminates the
+feedback loop and makes the workaround unnecessary.
+
+Fixes: e1e8c1fdce8b ("ALSA: hda/realtek - Dell headphone has noise on unmute for ALC236")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Link: https://lore.kernel.org/r/bf22b417d1f2474b12011c2a39ed6cf8b06d3bf5.1585584498.git.tommyhebb@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/md.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 469f551863bea..0b30ada971c14 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -6184,7 +6184,7 @@ EXPORT_SYMBOL_GPL(md_stop_writes);
- static void mddev_detach(struct mddev *mddev)
- {
- 	md_bitmap_wait_behind_writes(mddev);
--	if (mddev->pers && mddev->pers->quiesce) {
-+	if (mddev->pers && mddev->pers->quiesce && !mddev->suspended) {
- 		mddev->pers->quiesce(mddev, 1);
- 		mddev->pers->quiesce(mddev, 0);
- 	}
--- 
-2.20.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -368,7 +368,9 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0215:
+ 	case 0x10ec0233:
+ 	case 0x10ec0235:
++	case 0x10ec0236:
+ 	case 0x10ec0255:
++	case 0x10ec0256:
+ 	case 0x10ec0257:
+ 	case 0x10ec0282:
+ 	case 0x10ec0283:
+@@ -380,11 +382,6 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0300:
+ 		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
+ 		break;
+-	case 0x10ec0236:
+-	case 0x10ec0256:
+-		alc_write_coef_idx(codec, 0x36, 0x5757);
+-		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
+-		break;
+ 	case 0x10ec0275:
+ 		alc_update_coef_idx(codec, 0xe, 0, 1<<0);
+ 		break;
+@@ -3371,7 +3368,13 @@ static void alc256_init(struct hda_codec
+ 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x4); /* Hight power */
+ 	alc_update_coefex_idx(codec, 0x53, 0x02, 0x8000, 1 << 15); /* Clear bit */
+ 	alc_update_coefex_idx(codec, 0x53, 0x02, 0x8000, 0 << 15);
+-	alc_update_coef_idx(codec, 0x36, 1 << 13, 1 << 5); /* Switch pcbeep path to Line in path*/
++	/*
++	 * Expose headphone mic (or possibly Line In on some machines) instead
++	 * of PC Beep on 1Ah, and disable 1Ah loopback for all outputs. See
++	 * Documentation/sound/hd-audio/realtek-pc-beep.rst for details of
++	 * this register.
++	 */
++	alc_write_coef_idx(codec, 0x36, 0x5757);
+ }
+ 
+ static void alc256_shutup(struct hda_codec *codec)
 
 
