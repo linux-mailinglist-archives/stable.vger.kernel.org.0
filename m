@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8327B1AC871
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 550BF1AC6A0
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394905AbgDPPIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37252 "EHLO mail.kernel.org"
+        id S2394502AbgDPOma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:42:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729003AbgDPNvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:51:08 -0400
+        id S2392656AbgDPOAs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:00:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DA6621734;
-        Thu, 16 Apr 2020 13:51:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4031A2078B;
+        Thu, 16 Apr 2020 14:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045067;
-        bh=Sjs80iM7dlKK1UU6/VX9BBc0IvrYYHxbddJ1dweZHfU=;
+        s=default; t=1587045647;
+        bh=I0O0ffcTQDLvbIA9cqZLny6cy4vZJ+L0A/xovm88QmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FDyIgk/3oKwejTx2p0g09IXSHmT/EI9IHiMLjaP9Evz5U4LEZjmmjgZAx6XunRV6A
-         W/v4Bvg4Wcopwyi0zDKVgFqWnqeOASYo2RL405MHsUm7BvR6EjBU9rYb/Rnrm055lk
-         KbJb93wOTF7g++YuTu7j3vVtDjFZWdyKqk4oWTMk=
+        b=LIFTSmK2LK30HH3Ev1Ek39UboBrgNtAAUgWjhtbY3nY/uJNF65yW9eS4qqAe47GZy
+         x7mhPsmtwxPiL0UFOaSbhGhPA4vFUUuyfwnf1eSrSezzApY3U+qJYKDfmlFReWLlAC
+         b0XbonVXxI++mG97FGHr04K+mJTs2rNfr1Zl1A1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 214/232] powerpc/64: Prevent stack protection in early boot
+        stable@vger.kernel.org, Mike Willard <mwillard@izotope.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.6 219/254] ASoC: cs4270: pull reset GPIO low then high
 Date:   Thu, 16 Apr 2020 15:25:08 +0200
-Message-Id: <20200416131342.244634436@linuxfoundation.org>
+Message-Id: <20200416131353.339943848@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,96 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Mike Willard <mwillard@izotope.com>
 
-commit 7053f80d96967d8e72e9f2a724bbfc3906ce2b07 upstream.
+commit ccfc531695f3a4aada042f6bdb33ac6be24e1aec upstream.
 
-The previous commit reduced the amount of code that is run before we
-setup a paca. However there are still a few remaining functions that
-run with no paca, or worse, with an arbitrary value in r13 that will
-be used as a paca pointer.
+Pull the RST line low then high when initializing the driver,
+in order to force a reset of the chip.
+Previously, the line was not pulled low, which could result in
+the chip registers not resetting to their default values on boot.
 
-In particular the stack protector canary is stored in the paca, so if
-stack protector is activated for any of these functions we will read
-the stack canary from wherever r13 points. If r13 happens to point
-outside of memory we will get a machine check / checkstop.
-
-For example if we modify initialise_paca() to trigger stack
-protection, and then boot in the mambo simulator with r13 poisoned in
-skiboot before calling the kernel:
-
-  DEBUG: 19952232: (19952232): INSTRUCTION: PC=0xC0000000191FC1E8: [0x3C4C006D]: addis   r2,r12,0x6D [fetch]
-  DEBUG: 19952236: (19952236): INSTRUCTION: PC=0xC00000001807EAD8: [0x7D8802A6]: mflr    r12 [fetch]
-  FATAL ERROR: 19952276: (19952276): Check Stop for 0:0: Machine Check with ME bit of MSR off
-  DEBUG: 19952276: (19952276): INSTRUCTION: PC=0xC0000000191FCA7C: [0xE90D0CF8]: ld      r8,0xCF8(r13) [Instruction Failed]
-  INFO: 19952276: (19952277): ** Execution stopped: Mambo Error, Machine Check Stop,  **
-  systemsim % bt
-  pc:                             0xC0000000191FCA7C      initialise_paca+0x54
-  lr:                             0xC0000000191FC22C      early_setup+0x44
-  stack:0x00000000198CBED0        0x0     +0x0
-  stack:0x00000000198CBF00        0xC0000000191FC22C      early_setup+0x44
-  stack:0x00000000198CBF90        0x1801C968      +0x1801C968
-
-So annotate the relevant functions to ensure stack protection is never
-enabled for them.
-
-Fixes: 06ec27aea9fc ("powerpc/64: add stack protector support")
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200320032116.1024773-2-mpe@ellerman.id.au
+Signed-off-by: Mike Willard <mwillard@izotope.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200401205454.79792-1-mwillard@izotope.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/paca.c     |    4 ++--
- arch/powerpc/kernel/setup.h    |    6 ++++++
- arch/powerpc/kernel/setup_64.c |    2 +-
- 3 files changed, 9 insertions(+), 3 deletions(-)
+ sound/soc/codecs/cs4270.c |   40 +++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 35 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/kernel/paca.c
-+++ b/arch/powerpc/kernel/paca.c
-@@ -176,7 +176,7 @@ static struct slb_shadow * __init new_sl
- struct paca_struct **paca_ptrs __read_mostly;
- EXPORT_SYMBOL(paca_ptrs);
+--- a/sound/soc/codecs/cs4270.c
++++ b/sound/soc/codecs/cs4270.c
+@@ -137,6 +137,9 @@ struct cs4270_private {
  
--void __init initialise_paca(struct paca_struct *new_paca, int cpu)
-+void __init __nostackprotector initialise_paca(struct paca_struct *new_paca, int cpu)
- {
- #ifdef CONFIG_PPC_PSERIES
- 	new_paca->lppaca_ptr = NULL;
-@@ -205,7 +205,7 @@ void __init initialise_paca(struct paca_
- }
- 
- /* Put the paca pointer into r13 and SPRG_PACA */
--void setup_paca(struct paca_struct *new_paca)
-+void __nostackprotector setup_paca(struct paca_struct *new_paca)
- {
- 	/* Setup r13 */
- 	local_paca = new_paca;
---- a/arch/powerpc/kernel/setup.h
-+++ b/arch/powerpc/kernel/setup.h
-@@ -8,6 +8,12 @@
- #ifndef __ARCH_POWERPC_KERNEL_SETUP_H
- #define __ARCH_POWERPC_KERNEL_SETUP_H
- 
-+#ifdef CONFIG_CC_IS_CLANG
-+#define __nostackprotector
-+#else
-+#define __nostackprotector __attribute__((__optimize__("no-stack-protector")))
-+#endif
+ 	/* power domain regulators */
+ 	struct regulator_bulk_data supplies[ARRAY_SIZE(supply_names)];
 +
- void initialize_cache_info(void);
- void irqstack_early_init(void);
++	/* reset gpio */
++	struct gpio_desc *reset_gpio;
+ };
  
---- a/arch/powerpc/kernel/setup_64.c
-+++ b/arch/powerpc/kernel/setup_64.c
-@@ -284,7 +284,7 @@ void __init record_spr_defaults(void)
-  * device-tree is not accessible via normal means at this point.
-  */
+ static const struct snd_soc_dapm_widget cs4270_dapm_widgets[] = {
+@@ -649,6 +652,22 @@ static const struct regmap_config cs4270
+ };
  
--void __init early_setup(unsigned long dt_ptr)
-+void __init __nostackprotector early_setup(unsigned long dt_ptr)
+ /**
++ * cs4270_i2c_remove - deinitialize the I2C interface of the CS4270
++ * @i2c_client: the I2C client object
++ *
++ * This function puts the chip into low power mode when the i2c device
++ * is removed.
++ */
++static int cs4270_i2c_remove(struct i2c_client *i2c_client)
++{
++	struct cs4270_private *cs4270 = i2c_get_clientdata(i2c_client);
++
++	gpiod_set_value_cansleep(cs4270->reset_gpio, 0);
++
++	return 0;
++}
++
++/**
+  * cs4270_i2c_probe - initialize the I2C interface of the CS4270
+  * @i2c_client: the I2C client object
+  * @id: the I2C device ID (ignored)
+@@ -660,7 +679,6 @@ static int cs4270_i2c_probe(struct i2c_c
+ 	const struct i2c_device_id *id)
  {
- 	static __initdata struct paca_struct boot_paca;
+ 	struct cs4270_private *cs4270;
+-	struct gpio_desc *reset_gpiod;
+ 	unsigned int val;
+ 	int ret, i;
  
+@@ -679,10 +697,21 @@ static int cs4270_i2c_probe(struct i2c_c
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	reset_gpiod = devm_gpiod_get_optional(&i2c_client->dev, "reset",
+-					      GPIOD_OUT_HIGH);
+-	if (PTR_ERR(reset_gpiod) == -EPROBE_DEFER)
+-		return -EPROBE_DEFER;
++	/* reset the device */
++	cs4270->reset_gpio = devm_gpiod_get_optional(&i2c_client->dev, "reset",
++						     GPIOD_OUT_LOW);
++	if (IS_ERR(cs4270->reset_gpio)) {
++		dev_dbg(&i2c_client->dev, "Error getting CS4270 reset GPIO\n");
++		return PTR_ERR(cs4270->reset_gpio);
++	}
++
++	if (cs4270->reset_gpio) {
++		dev_dbg(&i2c_client->dev, "Found reset GPIO\n");
++		gpiod_set_value_cansleep(cs4270->reset_gpio, 1);
++	}
++
++	/* Sleep 500ns before i2c communications */
++	ndelay(500);
+ 
+ 	cs4270->regmap = devm_regmap_init_i2c(i2c_client, &cs4270_regmap);
+ 	if (IS_ERR(cs4270->regmap))
+@@ -735,6 +764,7 @@ static struct i2c_driver cs4270_i2c_driv
+ 	},
+ 	.id_table = cs4270_id,
+ 	.probe = cs4270_i2c_probe,
++	.remove = cs4270_i2c_remove,
+ };
+ 
+ module_i2c_driver(cs4270_i2c_driver);
 
 
