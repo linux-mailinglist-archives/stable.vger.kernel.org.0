@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 029781AC916
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C12691AC295
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2632799AbgDPPSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:18:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34434 "EHLO mail.kernel.org"
+        id S2896136AbgDPNaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:30:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898742AbgDPNs2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:48:28 -0400
+        id S2896126AbgDPN36 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:29:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54BF321744;
-        Thu, 16 Apr 2020 13:48:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8309B20767;
+        Thu, 16 Apr 2020 13:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044906;
-        bh=fMLIyDP/lYEuiTPFzI3pkD5ODNrHkB8NU4tNj+hxTOQ=;
+        s=default; t=1587043798;
+        bh=Kg52UF7dQY9Sf+deKr36hslebsYGobv18eyGyjKLoGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PuSSBMwqY23MxjoBoDX1bX0LxiGk4f1oiWHKS82/GH/r1I9kJgY2/z1a6lWaYQPWX
-         mPzROdt8YaBzmcH5V8dvlNyPi4/MeDg7VCPyTJDtrMzSPuAji/U0f4IusuL0oXb+mT
-         Gqy6K0KIyRfdwakaUCEQkcdnwV7bK2Y+5sd6/cdE=
+        b=M9/+2lGct4Ar2y0hogWmcaY5/EPQGARYvurU7eb5oqvs4lcpcaHQzTr0ao4ZGr0EA
+         JDMc97/SOWQIKYSM5z3z5nm9Fdokl5HUwtm3/ZNvVgKfq8sJjsJgA/fBCcLDw+NQe+
+         A+mAo+47Oo+2szE7qmxFUdKyFkGoEGEKVNkkODoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rosioru Dragos <dragos.rosioru@nxp.com>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 150/232] crypto: mxs-dcp - fix scatterlist linearization for hash
-Date:   Thu, 16 Apr 2020 15:24:04 +0200
-Message-Id: <20200416131333.754132608@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Remus <jremus@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 104/146] scsi: zfcp: fix missing erp_lock in port recovery trigger for point-to-point
+Date:   Thu, 16 Apr 2020 15:24:05 +0200
+Message-Id: <20200416131256.932172858@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rosioru Dragos <dragos.rosioru@nxp.com>
+From: Steffen Maier <maier@linux.ibm.com>
 
-commit fa03481b6e2e82355c46644147b614f18c7a8161 upstream.
+commit 819732be9fea728623e1ed84eba28def7384ad1f upstream.
 
-The incorrect traversal of the scatterlist, during the linearization phase
-lead to computing the hash value of the wrong input buffer.
-New implementation uses scatterwalk_map_and_copy()
-to address this issue.
+v2.6.27 commit cc8c282963bd ("[SCSI] zfcp: Automatically attach remote
+ports") introduced zfcp automatic port scan.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 15b59e7c3733 ("crypto: mxs - Add Freescale MXS DCP driver")
-Signed-off-by: Rosioru Dragos <dragos.rosioru@nxp.com>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Before that, the user had to use the sysfs attribute "port_add" of an FCP
+device (adapter) to add and open remote (target) ports, even for the remote
+peer port in point-to-point topology. That code path did a proper port open
+recovery trigger taking the erp_lock.
+
+Since above commit, a new helper function zfcp_erp_open_ptp_port()
+performed an UNlocked port open recovery trigger. This can race with other
+parallel recovery triggers. In zfcp_erp_action_enqueue() this could corrupt
+e.g. adapter->erp_total_count or adapter->erp_ready_head.
+
+As already found for fabric topology in v4.17 commit fa89adba1941 ("scsi:
+zfcp: fix infinite iteration on ERP ready list"), there was an endless loop
+during tracing of rport (un)block.  A subsequent v4.18 commit 9e156c54ace3
+("scsi: zfcp: assert that the ERP lock is held when tracing a recovery
+trigger") introduced a lockdep assertion for that case.
+
+As a side effect, that lockdep assertion now uncovered the unlocked code
+path for PtP. It is from within an adapter ERP action:
+
+zfcp_erp_strategy[1479]  intentionally DROPs erp lock around
+                         zfcp_erp_strategy_do_action()
+zfcp_erp_strategy_do_action[1441]      NO erp lock
+zfcp_erp_adapter_strategy[876]         NO erp lock
+zfcp_erp_adapter_strategy_open[855]    NO erp lock
+zfcp_erp_adapter_strategy_open_fsf[806]NO erp lock
+zfcp_erp_adapter_strat_fsf_xconf[772]  erp lock only around
+                                       zfcp_erp_action_to_running(),
+                                       BUT *_not_* around
+                                       zfcp_erp_enqueue_ptp_port()
+zfcp_erp_enqueue_ptp_port[728]         BUG: *_not_* taking erp lock
+_zfcp_erp_port_reopen[432]             assumes to be called with erp lock
+zfcp_erp_action_enqueue[314]           assumes to be called with erp lock
+zfcp_dbf_rec_trig[288]                 _checks_ to be called with erp lock:
+	lockdep_assert_held(&adapter->erp_lock);
+
+It causes the following lockdep warning:
+
+WARNING: CPU: 2 PID: 775 at drivers/s390/scsi/zfcp_dbf.c:288
+                            zfcp_dbf_rec_trig+0x16a/0x188
+no locks held by zfcperp0.0.17c0/775.
+
+Fix this by using the proper locked recovery trigger helper function.
+
+Link: https://lore.kernel.org/r/20200312174505.51294-2-maier@linux.ibm.com
+Fixes: cc8c282963bd ("[SCSI] zfcp: Automatically attach remote ports")
+Cc: <stable@vger.kernel.org> #v2.6.27+
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/mxs-dcp.c |   54 ++++++++++++++++++++++-------------------------
- 1 file changed, 26 insertions(+), 28 deletions(-)
+ drivers/s390/scsi/zfcp_erp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/crypto/mxs-dcp.c
-+++ b/drivers/crypto/mxs-dcp.c
-@@ -20,6 +20,7 @@
- #include <crypto/sha.h>
- #include <crypto/internal/hash.h>
- #include <crypto/internal/skcipher.h>
-+#include <crypto/scatterwalk.h>
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -738,7 +738,7 @@ static void zfcp_erp_enqueue_ptp_port(st
+ 				 adapter->peer_d_id);
+ 	if (IS_ERR(port)) /* error or port already attached */
+ 		return;
+-	_zfcp_erp_port_reopen(port, 0, "ereptp1");
++	zfcp_erp_port_reopen(port, 0, "ereptp1");
+ }
  
- #define DCP_MAX_CHANS	4
- #define DCP_BUF_SZ	PAGE_SIZE
-@@ -621,49 +622,46 @@ static int dcp_sha_req_to_buf(struct cry
- 	struct dcp_async_ctx *actx = crypto_ahash_ctx(tfm);
- 	struct dcp_sha_req_ctx *rctx = ahash_request_ctx(req);
- 	struct hash_alg_common *halg = crypto_hash_alg_common(tfm);
--	const int nents = sg_nents(req->src);
- 
- 	uint8_t *in_buf = sdcp->coh->sha_in_buf;
- 	uint8_t *out_buf = sdcp->coh->sha_out_buf;
- 
--	uint8_t *src_buf;
--
- 	struct scatterlist *src;
- 
--	unsigned int i, len, clen;
-+	unsigned int i, len, clen, oft = 0;
- 	int ret;
- 
- 	int fin = rctx->fini;
- 	if (fin)
- 		rctx->fini = 0;
- 
--	for_each_sg(req->src, src, nents, i) {
--		src_buf = sg_virt(src);
--		len = sg_dma_len(src);
-+	src = req->src;
-+	len = req->nbytes;
- 
--		do {
--			if (actx->fill + len > DCP_BUF_SZ)
--				clen = DCP_BUF_SZ - actx->fill;
--			else
--				clen = len;
-+	while (len) {
-+		if (actx->fill + len > DCP_BUF_SZ)
-+			clen = DCP_BUF_SZ - actx->fill;
-+		else
-+			clen = len;
- 
--			memcpy(in_buf + actx->fill, src_buf, clen);
--			len -= clen;
--			src_buf += clen;
--			actx->fill += clen;
-+		scatterwalk_map_and_copy(in_buf + actx->fill, src, oft, clen,
-+					 0);
- 
--			/*
--			 * If we filled the buffer and still have some
--			 * more data, submit the buffer.
--			 */
--			if (len && actx->fill == DCP_BUF_SZ) {
--				ret = mxs_dcp_run_sha(req);
--				if (ret)
--					return ret;
--				actx->fill = 0;
--				rctx->init = 0;
--			}
--		} while (len);
-+		len -= clen;
-+		oft += clen;
-+		actx->fill += clen;
-+
-+		/*
-+		 * If we filled the buffer and still have some
-+		 * more data, submit the buffer.
-+		 */
-+		if (len && actx->fill == DCP_BUF_SZ) {
-+			ret = mxs_dcp_run_sha(req);
-+			if (ret)
-+				return ret;
-+			actx->fill = 0;
-+			rctx->init = 0;
-+		}
- 	}
- 
- 	if (fin) {
+ static int zfcp_erp_adapter_strat_fsf_xconf(struct zfcp_erp_action *erp_action)
 
 
