@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF89C1ACABA
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67BA71AC280
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395361AbgDPPil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:38:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51282 "EHLO mail.kernel.org"
+        id S2895971AbgDPN3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:29:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897754AbgDPNiv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:38:51 -0400
+        id S2895952AbgDPN3J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:29:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F5B821BE5;
-        Thu, 16 Apr 2020 13:38:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB40721D79;
+        Thu, 16 Apr 2020 13:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044331;
-        bh=aBs0U7UDsdXOR98ZbF/DFAx8LAlxF0lzVvph7LALPJo=;
+        s=default; t=1587043749;
+        bh=jU2NGxoZVfqGEeV789O2fBDa8eNmaSTF3BTMq0ydWxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+Sh0eiJODW4xoginZykbFYRET/PcDU+aRE841Qsuy/kkd7AYZM8SxaSSGdwJG5EZ
-         Uh1B0fr0ykWk2yIfI9b46EOvB1zJq1uZYlJseLNe3ui+brGXtFSVm/NEaLRBa7CvNn
-         ZSR6PNxI8qARdV/hjcUVrcmDyv3eb35B2Fr99UJA=
+        b=bvYc46qRBpPM+/I2TOvC5FDWN57abOAyWvlKLP7W2zeZDijjzRoYmCR/d/NA0TYI4
+         LNeuNuUIIsQsjzk429YwkCBRvtM+vKkqYyoLTAYourgc4BdP0DBBIWfqfYrBuCSh4f
+         EjbQe+Hz5Gkheyp7bhFgY60iRkFYX1xjNGawcaPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
-        Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Alex Elder <elder@linaro.org>
-Subject: [PATCH 5.5 175/257] net: qualcomm: rmnet: Allow configuration updates to existing devices
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 085/146] KVM: VMX: fix crash cleanup when KVM wasnt used
 Date:   Thu, 16 Apr 2020 15:23:46 +0200
-Message-Id: <20200416131348.227637049@linuxfoundation.org>
+Message-Id: <20200416131254.426476528@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 2abb5792387eb188b12051337d5dcd2cba615cb0 upstream.
+commit dbef2808af6c594922fe32833b30f55f35e9da6d upstream.
 
-This allows the changelink operation to succeed if the mux_id was
-specified as an argument. Note that the mux_id must match the
-existing mux_id of the rmnet device or should be an unused mux_id.
+If KVM wasn't used at all before we crash the cleanup procedure fails with
+ BUG: unable to handle page fault for address: ffffffffffffffc8
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 23215067 P4D 23215067 PUD 23217067 PMD 0
+ Oops: 0000 [#8] SMP PTI
+ CPU: 0 PID: 3542 Comm: bash Kdump: loaded Tainted: G      D           5.6.0-rc2+ #823
+ RIP: 0010:crash_vmclear_local_loaded_vmcss.cold+0x19/0x51 [kvm_intel]
 
-Fixes: 1dc49e9d164c ("net: rmnet: do not allow to change mux id if mux id is duplicated")
-Reported-and-tested-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
-Signed-off-by: Subash Abhinov Kasiviswanathan <subashab@codeaurora.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Guenter Roeck <linux@roeck-us.net>
+The root cause is that loaded_vmcss_on_cpu list is not yet initialized,
+we initialize it in hardware_enable() but this only happens when we start
+a VM.
+
+Previously, we used to have a bitmap with enabled CPUs and that was
+preventing [masking] the issue.
+
+Initialized loaded_vmcss_on_cpu list earlier, right before we assign
+crash_vmclear_loaded_vmcss pointer. blocked_vcpu_on_cpu list and
+blocked_vcpu_on_cpu_lock are moved altogether for consistency.
+
+Fixes: 31603d4fc2bb ("KVM: VMX: Always VMCLEAR in-use VMCSes during crash with kexec support")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20200401081348.1345307-1-vkuznets@redhat.com>
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c |   31 ++++++++++++---------
- 1 file changed, 19 insertions(+), 12 deletions(-)
+ arch/x86/kvm/vmx.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-@@ -279,7 +279,6 @@ static int rmnet_changelink(struct net_d
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -4398,10 +4398,6 @@ static int hardware_enable(void)
+ 	    !hv_get_vp_assist_page(cpu))
+ 		return -EFAULT;
+ 
+-	INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
+-	INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
+-	spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
+-
+ 	rdmsrl(MSR_IA32_FEATURE_CONTROL, old);
+ 
+ 	test_bits = FEATURE_CONTROL_LOCKED;
+@@ -14554,7 +14550,7 @@ module_exit(vmx_exit);
+ 
+ static int __init vmx_init(void)
  {
- 	struct rmnet_priv *priv = netdev_priv(dev);
- 	struct net_device *real_dev;
--	struct rmnet_endpoint *ep;
- 	struct rmnet_port *port;
- 	u16 mux_id;
+-	int r;
++	int r, cpu;
  
-@@ -294,19 +293,27 @@ static int rmnet_changelink(struct net_d
- 
- 	if (data[IFLA_RMNET_MUX_ID]) {
- 		mux_id = nla_get_u16(data[IFLA_RMNET_MUX_ID]);
--		if (rmnet_get_endpoint(port, mux_id)) {
--			NL_SET_ERR_MSG_MOD(extack, "MUX ID already exists");
--			return -EINVAL;
--		}
--		ep = rmnet_get_endpoint(port, priv->mux_id);
--		if (!ep)
--			return -ENODEV;
- 
--		hlist_del_init_rcu(&ep->hlnode);
--		hlist_add_head_rcu(&ep->hlnode, &port->muxed_ep[mux_id]);
-+		if (mux_id != priv->mux_id) {
-+			struct rmnet_endpoint *ep;
-+
-+			ep = rmnet_get_endpoint(port, priv->mux_id);
-+			if (!ep)
-+				return -ENODEV;
-+
-+			if (rmnet_get_endpoint(port, mux_id)) {
-+				NL_SET_ERR_MSG_MOD(extack,
-+						   "MUX ID already exists");
-+				return -EINVAL;
-+			}
-+
-+			hlist_del_init_rcu(&ep->hlnode);
-+			hlist_add_head_rcu(&ep->hlnode,
-+					   &port->muxed_ep[mux_id]);
- 
--		ep->mux_id = mux_id;
--		priv->mux_id = mux_id;
-+			ep->mux_id = mux_id;
-+			priv->mux_id = mux_id;
-+		}
+ #if IS_ENABLED(CONFIG_HYPERV)
+ 	/*
+@@ -14605,6 +14601,12 @@ static int __init vmx_init(void)
+ 		}
  	}
  
- 	if (data[IFLA_RMNET_FLAGS]) {
++	for_each_possible_cpu(cpu) {
++		INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
++		INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
++		spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
++	}
++
+ #ifdef CONFIG_KEXEC_CORE
+ 	rcu_assign_pointer(crash_vmclear_loaded_vmcss,
+ 			   crash_vmclear_local_loaded_vmcss);
 
 
