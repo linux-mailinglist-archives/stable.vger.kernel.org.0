@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3D241ACA96
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F8621AC45B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:59:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395316AbgDPPgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:36:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52354 "EHLO mail.kernel.org"
+        id S2387433AbgDPN61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:58:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898005AbgDPNjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:39:53 -0400
+        id S1728926AbgDPN6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:58:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC4752222C;
-        Thu, 16 Apr 2020 13:39:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1D5B21744;
+        Thu, 16 Apr 2020 13:58:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044392;
-        bh=UNh0GgZ5iRahcSR9YwXtGHyMEu2+qInqjaAHe6Rzyf8=;
+        s=default; t=1587045503;
+        bh=LY47aTPPMAmsiUBhTInmnH4kGMQUiyaa/B9hGY7Hsd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f0rWHkqW6JY9mqbuEUvP8onDk3JfIf1ielWo2DxBHf3Qn99od5b7yBNYSI3yP+t7z
-         vyRnICmAoOc2xgdMyO7UoNWuB7TffpL5nZlKqq5vqmCxkRzufb6G4xzLESr53aWGK1
-         F8Ux2PAztjhZyYmjVgJwiSI9QCmCVX+yb4WzbKgA=
+        b=Li4StG1GgoqCnu7On+Swp6GftdHmG28viKEnxQ3SSX7qQ48HvJe3wUz+vsvkdSrZ/
+         IPIsmoenbk2JemQKVQA1uq+speLfLvSPj5NMiwILlr2ZFyqdpqpA8eROzXe993EMFj
+         zitAcIHm8Ouv7QeKexpmmSRMlGejFv0M+3/mJqbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.5 198/257] scsi: lpfc: Fix broken Credit Recovery after driver load
-Date:   Thu, 16 Apr 2020 15:24:09 +0200
-Message-Id: <20200416131350.895170770@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kerrisk <mtk.manpages@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Dmitry Safonov <dima@arista.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andrei Vagin <avagin@gmail.com>
+Subject: [PATCH 5.6 161/254] time/namespace: Fix time_for_children symlink
+Date:   Thu, 16 Apr 2020 15:24:10 +0200
+Message-Id: <20200416131346.748653817@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,146 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Michael Kerrisk (man-pages) <mtk.manpages@gmail.com>
 
-commit 835214f5d5f516a38069bc077c879c7da00d6108 upstream.
+commit b801f1e22c23c259d6a2c955efddd20370de19a6 upstream.
 
-When driver is set to enable bb credit recovery, the switch displayed the
-setting as inactive.  If the link bounces, it switches to Active.
+Looking at the contents of the /proc/PID/ns/time_for_children symlink shows
+an anomaly:
 
-During link up processing, the driver currently does a MBX_READ_SPARAM
-followed by a MBX_CONFIG_LINK. These mbox commands are queued to be
-executed, one at a time and the completion is processed by the worker
-thread.  Since the MBX_READ_SPARAM is done BEFORE the MBX_CONFIG_LINK, the
-BB_SC_N bit is never set the the returned values. BB Credit recovery status
-only gets set after the driver requests the feature in CONFIG_LINK, which
-is done after the link up. Thus the ordering of READ_SPARAM needs to follow
-the CONFIG_LINK.
+$ ls -l /proc/self/ns/* |awk '{print $9, $10, $11}'
+...
+/proc/self/ns/pid -> pid:[4026531836]
+/proc/self/ns/pid_for_children -> pid:[4026531836]
+/proc/self/ns/time -> time:[4026531834]
+/proc/self/ns/time_for_children -> time_for_children:[4026531834]
+/proc/self/ns/user -> user:[4026531837]
+...
 
-Fix by reordering so that READ_SPARAM is done after CONFIG_LINK.  Added a
-HBA_DEFER_FLOGI flag so that any FLOGI handling waits until after the
-READ_SPARAM is done so that the proper BB credit value is set in the FLOGI
-payload.
+The reference for 'time_for_children' should be a 'time' namespace, just as
+the reference for 'pid_for_children' is a 'pid' namespace.  In other words,
+the above time_for_children link should read:
 
-Fixes: 6bfb16208298 ("scsi: lpfc: Fix configuration of BB credit recovery in service parameters")
-Cc: <stable@vger.kernel.org> # v5.4+
-Link: https://lore.kernel.org/r/20200128002312.16346-4-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+/proc/self/ns/time_for_children -> time:[4026531834]
+
+Fixes: 769071ac9f20 ("ns: Introduce Time Namespace")
+Signed-off-by: Michael Kerrisk <mtk.manpages@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Dmitry Safonov <dima@arista.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Acked-by: Andrei Vagin <avagin@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/a2418c48-ed80-3afe-116e-6611cb799557@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/lpfc/lpfc.h         |    1 
- drivers/scsi/lpfc/lpfc_hbadisc.c |   59 +++++++++++++++++++++++++--------------
- 2 files changed, 40 insertions(+), 20 deletions(-)
+ kernel/time/namespace.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -749,6 +749,7 @@ struct lpfc_hba {
- 					 * capability
- 					 */
- #define HBA_FLOGI_ISSUED	0x100000 /* FLOGI was issued */
-+#define HBA_DEFER_FLOGI		0x800000 /* Defer FLOGI till read_sparm cmpl */
+--- a/kernel/time/namespace.c
++++ b/kernel/time/namespace.c
+@@ -446,6 +446,7 @@ const struct proc_ns_operations timens_o
  
- 	uint32_t fcp_ring_in_use; /* When polling test if intr-hndlr active*/
- 	struct lpfc_dmabuf slim2p;
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -1162,13 +1162,16 @@ lpfc_mbx_cmpl_local_config_link(struct l
- 	}
- 
- 	/* Start discovery by sending a FLOGI. port_state is identically
--	 * LPFC_FLOGI while waiting for FLOGI cmpl
-+	 * LPFC_FLOGI while waiting for FLOGI cmpl. Check if sending
-+	 * the FLOGI is being deferred till after MBX_READ_SPARAM completes.
- 	 */
--	if (vport->port_state != LPFC_FLOGI)
--		lpfc_initial_flogi(vport);
--	else if (vport->fc_flag & FC_PT2PT)
--		lpfc_disc_start(vport);
--
-+	if (vport->port_state != LPFC_FLOGI) {
-+		if (!(phba->hba_flag & HBA_DEFER_FLOGI))
-+			lpfc_initial_flogi(vport);
-+	} else {
-+		if (vport->fc_flag & FC_PT2PT)
-+			lpfc_disc_start(vport);
-+	}
- 	return;
- 
- out:
-@@ -3093,6 +3096,14 @@ lpfc_mbx_cmpl_read_sparam(struct lpfc_hb
- 	lpfc_mbuf_free(phba, mp->virt, mp->phys);
- 	kfree(mp);
- 	mempool_free(pmb, phba->mbox_mem_pool);
-+
-+	/* Check if sending the FLOGI is being deferred to after we get
-+	 * up to date CSPs from MBX_READ_SPARAM.
-+	 */
-+	if (phba->hba_flag & HBA_DEFER_FLOGI) {
-+		lpfc_initial_flogi(vport);
-+		phba->hba_flag &= ~HBA_DEFER_FLOGI;
-+	}
- 	return;
- 
- out:
-@@ -3223,6 +3234,23 @@ lpfc_mbx_process_link_up(struct lpfc_hba
- 	}
- 
- 	lpfc_linkup(phba);
-+	sparam_mbox = NULL;
-+
-+	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
-+		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
-+		if (!cfglink_mbox)
-+			goto out;
-+		vport->port_state = LPFC_LOCAL_CFG_LINK;
-+		lpfc_config_link(phba, cfglink_mbox);
-+		cfglink_mbox->vport = vport;
-+		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
-+		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
-+		if (rc == MBX_NOT_FINISHED) {
-+			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
-+			goto out;
-+		}
-+	}
-+
- 	sparam_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
- 	if (!sparam_mbox)
- 		goto out;
-@@ -3243,20 +3271,7 @@ lpfc_mbx_process_link_up(struct lpfc_hba
- 		goto out;
- 	}
- 
--	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
--		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
--		if (!cfglink_mbox)
--			goto out;
--		vport->port_state = LPFC_LOCAL_CFG_LINK;
--		lpfc_config_link(phba, cfglink_mbox);
--		cfglink_mbox->vport = vport;
--		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
--		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
--		if (rc == MBX_NOT_FINISHED) {
--			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
--			goto out;
--		}
--	} else {
-+	if (phba->hba_flag & HBA_FCOE_MODE) {
- 		vport->port_state = LPFC_VPORT_UNKNOWN;
- 		/*
- 		 * Add the driver's default FCF record at FCF index 0 now. This
-@@ -3313,6 +3328,10 @@ lpfc_mbx_process_link_up(struct lpfc_hba
- 		}
- 		/* Reset FCF roundrobin bmask for new discovery */
- 		lpfc_sli4_clear_fcf_rr_bmask(phba);
-+	} else {
-+		if (phba->bbcredit_support && phba->cfg_enable_bbcr &&
-+		    !(phba->link_flag & LS_LOOPBACK_MODE))
-+			phba->hba_flag |= HBA_DEFER_FLOGI;
- 	}
- 
- 	return;
+ const struct proc_ns_operations timens_for_children_operations = {
+ 	.name		= "time_for_children",
++	.real_ns_name	= "time",
+ 	.type		= CLONE_NEWTIME,
+ 	.get		= timens_for_children_get,
+ 	.put		= timens_put,
 
 
