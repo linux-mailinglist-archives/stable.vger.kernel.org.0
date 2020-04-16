@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBA3B1AC827
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 112E01AC823
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394872AbgDPPEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:04:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
+        id S1729860AbgDPPEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:04:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408967AbgDPNxS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:53:18 -0400
+        id S2408983AbgDPNxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:53:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D68720732;
-        Thu, 16 Apr 2020 13:53:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE4B82076D;
+        Thu, 16 Apr 2020 13:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045197;
-        bh=F82Aeypw6OM8mgKESuyYgGleTKbJ+gGMp9FjnyoILqw=;
+        s=default; t=1587045200;
+        bh=4PpD070jqdkedZt8ThZiTCX383+wNv8MLoZ3mDIv1Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CSRuRTr0/j+KeyMYvj5pSmKBmsUylkVAqMJpPNpGwF/yLAZoZQP2pFZOA2V/cgd52
-         rRyKVSoohf3xL8Q6PTp57CEPFmPv56/OQXxLw9V5/W4hZ5QP3jYKnb+lXwrH9k3jLe
-         teKwBHiQ2b2mSN/fsEbRVU0OqudjHWk7qEXh2IQw=
+        b=B5mbzYANFoihGrbsvOwtmQ4dLKrj048dDVSZLVsrUmILsRM67dhL5qf90nyYdnOIS
+         dle7g3XQgsC8Mid6QOXHs7QC3Ywxt+14koYxJ/V3LvjcKsrF/Fsrx8cs2L/GTLXFOT
+         9+/YUiW0ytOyfPLtRdksII6Dq6NaXRvCWqEzrBFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
+        stable@vger.kernel.org, Tao Zhou <ouwen210@hotmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Vincent Guittot <vincent.guittot@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 036/254] sched: Avoid scale real weight down to zero
-Date:   Thu, 16 Apr 2020 15:22:05 +0200
-Message-Id: <20200416131330.377950623@linuxfoundation.org>
+        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 037/254] sched/fair: Fix condition of avg_load calculation
+Date:   Thu, 16 Apr 2020 15:22:06 +0200
+Message-Id: <20200416131330.497922858@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -45,80 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Wang <yun.wang@linux.alibaba.com>
+From: Tao Zhou <ouwen210@hotmail.com>
 
-[ Upstream commit 26cf52229efc87e2effa9d788f9b33c40fb3358a ]
+[ Upstream commit 6c8116c914b65be5e4d6f66d69c8142eb0648c22 ]
 
-During our testing, we found a case that shares no longer
-working correctly, the cgroup topology is like:
+In update_sg_wakeup_stats(), the comment says:
 
-  /sys/fs/cgroup/cpu/A		(shares=102400)
-  /sys/fs/cgroup/cpu/A/B	(shares=2)
-  /sys/fs/cgroup/cpu/A/B/C	(shares=1024)
+Computing avg_load makes sense only when group is fully
+busy or overloaded.
 
-  /sys/fs/cgroup/cpu/D		(shares=1024)
-  /sys/fs/cgroup/cpu/D/E	(shares=1024)
-  /sys/fs/cgroup/cpu/D/E/F	(shares=1024)
+But, the code below this comment does not check like this.
 
-The same benchmark is running in group C & F, no other tasks are
-running, the benchmark is capable to consumed all the CPUs.
+>From reading the code about avg_load in other functions, I
+confirm that avg_load should be calculated in fully busy or
+overloaded case. The comment is correct and the checking
+condition is wrong. So, change that condition.
 
-We suppose the group C will win more CPU resources since it could
-enjoy all the shares of group A, but it's F who wins much more.
-
-The reason is because we have group B with shares as 2, since
-A->cfs_rq.load.weight == B->se.load.weight == B->shares/nr_cpus,
-so A->cfs_rq.load.weight become very small.
-
-And in calc_group_shares() we calculate shares as:
-
-  load = max(scale_load_down(cfs_rq->load.weight), cfs_rq->avg.load_avg);
-  shares = (tg_shares * load) / tg_weight;
-
-Since the 'cfs_rq->load.weight' is too small, the load become 0
-after scale down, although 'tg_shares' is 102400, shares of the se
-which stand for group A on root cfs_rq become 2.
-
-While the se of D on root cfs_rq is far more bigger than 2, so it
-wins the battle.
-
-Thus when scale_load_down() scale real weight down to 0, it's no
-longer telling the real story, the caller will have the wrong
-information and the calculation will be buggy.
-
-This patch add check in scale_load_down(), so the real weight will
-be >= MIN_SHARES after scale, after applied the group C wins as
-expected.
-
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Fixes: 57abff067a08 ("sched/fair: Rework find_idlest_group()")
+Signed-off-by: Tao Zhou <ouwen210@hotmail.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lkml.kernel.org/r/38e8e212-59a1-64b2-b247-b6d0b52d8dc1@linux.alibaba.com
+Acked-by: Mel Gorman <mgorman@suse.de>
+Link: https://lkml.kernel.org/r/Message-ID:
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/sched.h | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 9ea647835fd6f..b056149c228ba 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -118,7 +118,13 @@ extern long calc_load_fold_active(struct rq *this_rq, long adjust);
- #ifdef CONFIG_64BIT
- # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT + SCHED_FIXEDPOINT_SHIFT)
- # define scale_load(w)		((w) << SCHED_FIXEDPOINT_SHIFT)
--# define scale_load_down(w)	((w) >> SCHED_FIXEDPOINT_SHIFT)
-+# define scale_load_down(w) \
-+({ \
-+	unsigned long __w = (w); \
-+	if (__w) \
-+		__w = max(2UL, __w >> SCHED_FIXEDPOINT_SHIFT); \
-+	__w; \
-+})
- #else
- # define NICE_0_LOAD_SHIFT	(SCHED_FIXEDPOINT_SHIFT)
- # define scale_load(w)		(w)
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index c1217bfe5e819..7f895d5139948 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -8345,7 +8345,8 @@ static inline void update_sg_wakeup_stats(struct sched_domain *sd,
+ 	 * Computing avg_load makes sense only when group is fully busy or
+ 	 * overloaded
+ 	 */
+-	if (sgs->group_type < group_fully_busy)
++	if (sgs->group_type == group_fully_busy ||
++		sgs->group_type == group_overloaded)
+ 		sgs->avg_load = (sgs->group_load * SCHED_CAPACITY_SCALE) /
+ 				sgs->group_capacity;
+ }
 -- 
 2.20.1
 
