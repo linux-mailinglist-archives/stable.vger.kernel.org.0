@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2881C1AC6E4
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B220B1ACAA9
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:38:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392584AbgDPN7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:59:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46392 "EHLO mail.kernel.org"
+        id S2897766AbgDPNiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:38:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389857AbgDPN7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:59:32 -0400
+        id S2896502AbgDPNix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:38:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19B5720786;
-        Thu, 16 Apr 2020 13:59:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 049A8221F7;
+        Thu, 16 Apr 2020 13:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045571;
-        bh=tNQiznTZr5UZXT8EsdnvaiE1cyih/pzpSTRVjS6ghjs=;
+        s=default; t=1587044333;
+        bh=OCDPV2zz/YIKZU9qI9+BSym+ivqyXOy7+eJgm5P65Ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KBP2/mwmzq+4aJMt35fAdLnJ4bxD8yh4zxVDrrqxghD1dBzeMeM3Q1xMovRiBNJhD
-         HRoG5tTp+Ybem/r3v9l3/aBMy3i5PJicHwiNMzfdRp64Jz6U6OWAo+2G+eXmO3eynw
-         bjBPD30fZLyJfxA3gISHhPMXkZeSpJhrC2dafUfo=
+        b=UbTIfK49H7t1N6w4pHC9GXaoYwPR/kcvuIp44YmOdxTm+cdzS8jLQ02EkP10izJxV
+         zue5irsC0l9YSrPNwdAA+llii1d+6Uby8gi0HZKp4RToTm1Q75BmE1Z2MSCIzi6Y96
+         YM5DI2KSjTxCqWEqBbNYbotMXRf6ubVMMm6GOeC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.6 138/254] KVM: VMX: fix crash cleanup when KVM wasnt used
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.5 176/257] arm64: dts: allwinner: h6: Fix PMU compatible
 Date:   Thu, 16 Apr 2020 15:23:47 +0200
-Message-Id: <20200416131343.727101780@linuxfoundation.org>
+Message-Id: <20200416131348.350939002@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit dbef2808af6c594922fe32833b30f55f35e9da6d upstream.
+commit 4c7eeb9af3e41ae7d840977119c58f3bbb3f4f59 upstream.
 
-If KVM wasn't used at all before we crash the cleanup procedure fails with
- BUG: unable to handle page fault for address: ffffffffffffffc8
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 23215067 P4D 23215067 PUD 23217067 PMD 0
- Oops: 0000 [#8] SMP PTI
- CPU: 0 PID: 3542 Comm: bash Kdump: loaded Tainted: G      D           5.6.0-rc2+ #823
- RIP: 0010:crash_vmclear_local_loaded_vmcss.cold+0x19/0x51 [kvm_intel]
+The commit 7aa9b9eb7d6a ("arm64: dts: allwinner: H6: Add PMU mode")
+introduced support for the PMU found on the Allwinner H6. However, the
+binding only allows for a single compatible, while the patch was adding
+two.
 
-The root cause is that loaded_vmcss_on_cpu list is not yet initialized,
-we initialize it in hardware_enable() but this only happens when we start
-a VM.
+Make sure we follow the binding.
 
-Previously, we used to have a bitmap with enabled CPUs and that was
-preventing [masking] the issue.
-
-Initialized loaded_vmcss_on_cpu list earlier, right before we assign
-crash_vmclear_loaded_vmcss pointer. blocked_vcpu_on_cpu list and
-blocked_vcpu_on_cpu_lock are moved altogether for consistency.
-
-Fixes: 31603d4fc2bb ("KVM: VMX: Always VMCLEAR in-use VMCSes during crash with kexec support")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20200401081348.1345307-1-vkuznets@redhat.com>
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 7aa9b9eb7d6a ("arm64: dts: allwinner: H6: Add PMU mode")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/vmx.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2264,10 +2264,6 @@ static int hardware_enable(void)
- 	    !hv_get_vp_assist_page(cpu))
- 		return -EFAULT;
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
+@@ -71,8 +71,7 @@
+ 	};
  
--	INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
--	INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
--	spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
--
- 	kvm_cpu_vmxon(phys_addr);
- 	if (enable_ept)
- 		ept_sync_global();
-@@ -8025,7 +8021,7 @@ module_exit(vmx_exit);
- 
- static int __init vmx_init(void)
- {
--	int r;
-+	int r, cpu;
- 
- #if IS_ENABLED(CONFIG_HYPERV)
- 	/*
-@@ -8079,6 +8075,12 @@ static int __init vmx_init(void)
- 		return r;
- 	}
- 
-+	for_each_possible_cpu(cpu) {
-+		INIT_LIST_HEAD(&per_cpu(loaded_vmcss_on_cpu, cpu));
-+		INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
-+		spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
-+	}
-+
- #ifdef CONFIG_KEXEC_CORE
- 	rcu_assign_pointer(crash_vmclear_loaded_vmcss,
- 			   crash_vmclear_local_loaded_vmcss);
+ 	pmu {
+-		compatible = "arm,cortex-a53-pmu",
+-			     "arm,armv8-pmuv3";
++		compatible = "arm,cortex-a53-pmu";
+ 		interrupts = <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 142 IRQ_TYPE_LEVEL_HIGH>,
 
 
