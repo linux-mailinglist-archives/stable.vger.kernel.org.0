@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CFC81ACB99
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C391ACBC1
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442676AbgDPPtK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2442674AbgDPPtK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Apr 2020 11:49:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42824 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896598AbgDPNc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2896593AbgDPNc6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Apr 2020 09:32:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A8A322253;
-        Thu, 16 Apr 2020 13:32:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11A7A22274;
+        Thu, 16 Apr 2020 13:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043942;
-        bh=+tDhdjPDbjaCxf9tPz+nxKTRrunX02hgzKXcO8H4XSM=;
+        s=default; t=1587043944;
+        bh=11vf19ynF9ce2u3AKITi0k04euLov3bRklA1vKBe+5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w8n1QDaLdG8vyOpRv9QLZ1htxAvvGr/d2dyL6opHk+N9kLAvbcr2ha34kUc6yndM0
-         gaRXUyicgH6TdEZY6ap10NAcOdgl0+/ssL2xrvBpInSqvGyIrsCc6v43khmmTJG/sG
-         0EDxXYoUHH0LQ7qt7uZzczx5La+LMtVpAe4/CEtE=
+        b=Ia/x7Or07z3rLfkwI3QYVW0EVKzj4y91xuza5om4wJxc5YPBPYciz765PJr7lnlDd
+         lgccWwrsPLK4H2Qn/DnvBKpOIznNR8lwPXrtanBle1lcguLUvm65J4HjOLXIrqhK7v
+         K739ThgJnj+PIyxLb/tkxX40Sk2lwBwDtPs1PtdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Luo bin <luobin9@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 017/257] hinic: fix out-of-order excution in arm cpu
-Date:   Thu, 16 Apr 2020 15:21:08 +0200
-Message-Id: <20200416131328.049050341@linuxfoundation.org>
+Subject: [PATCH 5.5 018/257] hinic: fix wrong para of wait_for_completion_timeout
+Date:   Thu, 16 Apr 2020 15:21:09 +0200
+Message-Id: <20200416131328.185985326@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
 References: <20200416131325.891903893@linuxfoundation.org>
@@ -46,75 +46,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luo bin <luobin9@huawei.com>
 
-[ Upstream commit 33f15da216a1f4566b4ec880942556ace30615df ]
+[ Upstream commit 0da7c322f116210ebfdda59c7da663a6fc5e9cc8 ]
 
-add read barrier in driver code to keep from reading other fileds
-in dma memory which is writable for hw until we have verified the
-memory is valid for driver
+the second input parameter of wait_for_completion_timeout should
+be jiffies instead of millisecond
 
 Signed-off-by: Luo bin <luobin9@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c | 2 ++
- drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c  | 2 ++
- drivers/net/ethernet/huawei/hinic/hinic_rx.c      | 3 +++
- drivers/net/ethernet/huawei/hinic/hinic_tx.c      | 2 ++
- 4 files changed, 9 insertions(+)
+ drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c | 3 ++-
+ drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c | 5 +++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c
-index eb53c15b13f33..33f93cc25193a 100644
+index 33f93cc25193a..5f2d57d1b2d37 100644
 --- a/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c
 +++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c
-@@ -623,6 +623,8 @@ static int cmdq_cmd_ceq_handler(struct hinic_cmdq *cmdq, u16 ci,
- 	if (!CMDQ_WQE_COMPLETED(be32_to_cpu(ctrl->ctrl_info)))
- 		return -EBUSY;
+@@ -389,7 +389,8 @@ static int cmdq_sync_cmd_direct_resp(struct hinic_cmdq *cmdq,
  
-+	dma_rmb();
-+
- 	errcode = CMDQ_WQE_ERRCODE_GET(be32_to_cpu(status->status_info), VAL);
+ 	spin_unlock_bh(&cmdq->cmdq_lock);
  
- 	cmdq_sync_cmd_handler(cmdq, ci, errcode);
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c
-index 6a723c4757bce..c0b6bcb067cd4 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c
-@@ -235,6 +235,8 @@ static void aeq_irq_handler(struct hinic_eq *eq)
- 		if (HINIC_EQ_ELEM_DESC_GET(aeqe_desc, WRAPPED) == eq->wrapped)
- 			break;
+-	if (!wait_for_completion_timeout(&done, CMDQ_TIMEOUT)) {
++	if (!wait_for_completion_timeout(&done,
++					 msecs_to_jiffies(CMDQ_TIMEOUT))) {
+ 		spin_lock_bh(&cmdq->cmdq_lock);
  
-+		dma_rmb();
-+
- 		event = HINIC_EQ_ELEM_DESC_GET(aeqe_desc, TYPE);
- 		if (event >= HINIC_MAX_AEQ_EVENTS) {
- 			dev_err(&pdev->dev, "Unknown AEQ Event %d\n", event);
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_rx.c b/drivers/net/ethernet/huawei/hinic/hinic_rx.c
-index 2695ad69fca60..815649e37cb15 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_rx.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_rx.c
-@@ -350,6 +350,9 @@ static int rxq_recv(struct hinic_rxq *rxq, int budget)
- 		if (!rq_wqe)
- 			break;
+ 		if (cmdq->errcode[curr_prod_idx] == &errcode)
+diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
+index c1a6be6bf6a8c..8995e32dd1c00 100644
+--- a/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c
+@@ -43,7 +43,7 @@
  
-+		/* make sure we read rx_done before packet length */
-+		dma_rmb();
-+
- 		cqe = rq->cqe[ci];
- 		status =  be32_to_cpu(cqe->status);
- 		hinic_rq_get_sge(rxq->rq, rq_wqe, ci, &sge);
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_tx.c b/drivers/net/ethernet/huawei/hinic/hinic_tx.c
-index 0e13d1c7e4746..375d81d03e866 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_tx.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_tx.c
-@@ -622,6 +622,8 @@ static int free_tx_poll(struct napi_struct *napi, int budget)
- 	do {
- 		hw_ci = HW_CONS_IDX(sq) & wq->mask;
+ #define MSG_NOT_RESP                    0xFFFF
  
-+		dma_rmb();
-+
- 		/* Reading a WQEBB to get real WQE size and consumer index. */
- 		sq_wqe = hinic_sq_read_wqebb(sq, &skb, &wqe_size, &sw_ci);
- 		if ((!sq_wqe) ||
+-#define MGMT_MSG_TIMEOUT                1000
++#define MGMT_MSG_TIMEOUT                5000
+ 
+ #define mgmt_to_pfhwdev(pf_mgmt)        \
+ 		container_of(pf_mgmt, struct hinic_pfhwdev, pf_to_mgmt)
+@@ -267,7 +267,8 @@ static int msg_to_mgmt_sync(struct hinic_pf_to_mgmt *pf_to_mgmt,
+ 		goto unlock_sync_msg;
+ 	}
+ 
+-	if (!wait_for_completion_timeout(recv_done, MGMT_MSG_TIMEOUT)) {
++	if (!wait_for_completion_timeout(recv_done,
++					 msecs_to_jiffies(MGMT_MSG_TIMEOUT))) {
+ 		dev_err(&pdev->dev, "MGMT timeout, MSG id = %d\n", msg_id);
+ 		err = -ETIMEDOUT;
+ 		goto unlock_sync_msg;
 -- 
 2.20.1
 
