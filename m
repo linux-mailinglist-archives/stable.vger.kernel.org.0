@@ -2,64 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F0561AB8B4
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 08:53:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B29CF1AB955
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 09:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437224AbgDPGxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 02:53:03 -0400
-Received: from helcar.hmeau.com ([216.24.177.18]:41506 "EHLO fornost.hmeau.com"
+        id S2437960AbgDPHGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 03:06:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437083AbgDPGws (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 02:52:48 -0400
-Received: from gwarestrin.me.apana.org.au ([192.168.0.7] helo=gwarestrin.arnor.me.apana.org.au)
-        by fornost.hmeau.com with smtp (Exim 4.89 #2 (Debian))
-        id 1jOyOA-0005NM-R2; Thu, 16 Apr 2020 16:52:44 +1000
-Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Thu, 16 Apr 2020 16:52:42 +1000
-Date:   Thu, 16 Apr 2020 16:52:42 +1000
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-crypto@vger.kernel.org, stable@vger.kernel.org,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH v2] crypto: algapi - Avoid spurious modprobe on LOADED
-Message-ID: <20200416065242.GA8061@gondor.apana.org.au>
-References: <20200407051744.GA13037@gondor.apana.org.au>
- <20200407060240.175837-1-ebiggers@kernel.org>
+        id S2437819AbgDPHGU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 03:06:20 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C39621569;
+        Thu, 16 Apr 2020 07:06:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587020780;
+        bh=0D0CpGuyVJ99Ff+dpeV0hzpZeaXOF7wy4rUZSiWqSiE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=M9+v6N2Tq0XEEM0QBlUUd0Q2cZ12pWxhBvCDtuzSLe+6jcZKs2MkpkIyaBxh3pNkm
+         wsdHYJU5FBGrkMqHLgPHFj/Y6/Wivl8vMrbhXSWclij22oaDSIjYT1N2gUHNUoNctS
+         maMKDeDJF88iZ7jbBVsSLC6qm114P+4und4mLMAU=
+Date:   Thu, 16 Apr 2020 09:06:17 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Matthew Wilcox <willy@infradead.org>, bhelgaas@google.com,
+        keescook@chromium.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] XArray: Fix xa_find_next for large
+ multi-index entries" failed to apply to 5.4-stable tree
+Message-ID: <20200416070617.GB372946@kroah.com>
+References: <1586948677159164@kroah.com>
+ <20200415150222.GD5820@bombadil.infradead.org>
+ <20200415165122.GA3654762@kroah.com>
+ <20200415224949.GK1068@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200407060240.175837-1-ebiggers@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200415224949.GK1068@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 06, 2020 at 11:02:40PM -0700, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
+On Wed, Apr 15, 2020 at 06:49:49PM -0400, Sasha Levin wrote:
+> On Wed, Apr 15, 2020 at 06:51:22PM +0200, Greg KH wrote:
+> > On Wed, Apr 15, 2020 at 08:02:22AM -0700, Matthew Wilcox wrote:
+> > > On Wed, Apr 15, 2020 at 01:04:37PM +0200, gregkh@linuxfoundation.org wrote:
+> > > > The patch below does not apply to the 5.4-stable tree.
+> > > > If someone wants it applied there, or to any other stable or longterm
+> > > > tree, then please email the backport, including the original git commit
+> > > > id to <stable@vger.kernel.org>.
+> > > >
+> > > > thanks,
+> > > >
+> > > > greg k-h
+> > > >
+> > > > ------------------ original commit in Linus's tree ------------------
+> > > >
+> > > > >From bd40b17ca49d7d110adf456e647701ce74de2241 Mon Sep 17 00:00:00 2001
+> > > 
+> > > Seems like it's already there as commit
+> > > 16696ee7b58101c90bf21c3ab2443c57df4af24e
+> > 
+> > Ugh.
+> > 
+> > Sasha, your scripts are applying patches to older kernels before newer
+> > ones for some odd reason again, which confuses mine to no end :(
 > 
-> Currently after any algorithm is registered and tested, there's an
-> unnecessary request_module("cryptomgr") even if it's already loaded.
-> Also, CRYPTO_MSG_ALG_LOADED is sent twice, and thus if the algorithm is
-> "crct10dif", lib/crc-t10dif.c replaces the tfm twice rather than once.
+> /me scratches head
 > 
-> This occurs because CRYPTO_MSG_ALG_LOADED is sent using
-> crypto_probing_notify(), which tries to load "cryptomgr" if the
-> notification is not handled (NOTIFY_DONE).  This doesn't make sense
-> because "cryptomgr" doesn't handle this notification.
+> It's in 5.6, 5.5, and 5.4. I've also queued them all at the same time
+> and you've released them all at the same time (Apr 8th).
 > 
-> Fix this by using crypto_notify() instead of crypto_probing_notify().
+> Yes, it's tagged for stable, but I've grabbed it for the Fixes: tag.
 > 
-> Fixes: dd8b083f9a5e ("crypto: api - Introduce notifier for new crypto algorithms")
-> Cc: <stable@vger.kernel.org> # v4.20+
-> Cc: Martin K. Petersen <martin.petersen@oracle.com>
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-> ---
->  crypto/algapi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> What am I missing?
 
-Patch applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+{sigh} nothing, my fault, it was a long day of stable patches, all is
+fine :)
+
+greg k-h
