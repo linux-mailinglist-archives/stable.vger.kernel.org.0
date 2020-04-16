@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0608C1ACAED
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:43:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB5B31AC984
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897323AbgDPNgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:36:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48406 "EHLO mail.kernel.org"
+        id S2392261AbgDPPXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:23:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897300AbgDPNgS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:36:18 -0400
+        id S2898474AbgDPNpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:45:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98D9D221F7;
-        Thu, 16 Apr 2020 13:36:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 832FA20732;
+        Thu, 16 Apr 2020 13:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044178;
-        bh=WQ2GBdbncs0pgwwcbxwy8DH/t/mkVeV1o2bgg3dntvg=;
+        s=default; t=1587044706;
+        bh=cLAUE6W9azIyv7Ba+e+54A7+PzMWCz7hsSN19O7q4Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5nZVDiK+58gquh/nwpqCAtfFmUtDUwwsLDLPHLwML5joS9fVQc29BPeD6nX0G1Ny
-         w4/4G/hJ/0a8RdmxTohhcJvF26xQ5U2Pxpddw6BFaR3CWQsjg0812HXQUjaokkPpN/
-         y7dEd9qkmcJsAPyoQSmk/624dpBi0w/2V9AhBlz4=
+        b=TxpIhnzApP5x1ElgykUvVwqZ1iYpeFaBS+UnxNAhYanoU+Zjdc5y4yg2fwOJPlXiC
+         MkhkVXc/aCn0c7Ya8L8D37826CSLnb8KIo6HM2AV3UMOvZGFbyHK0hwB/wdIvzOMQ4
+         rdgcJv6GLCxxHRuh035pbF+4CuI6slVk87/jEpQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.5 111/257] nvme-fc: Revert "add module to ops template to allow module references"
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 068/232] btrfs: track reloc roots based on their commit root bytenr
 Date:   Thu, 16 Apr 2020 15:22:42 +0200
-Message-Id: <20200416131340.114502108@linuxfoundation.org>
+Message-Id: <20200416131323.836631577@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,136 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 8c5c660529209a0e324c1c1a35ce3f83d67a2aa5 upstream.
+[ Upstream commit ea287ab157c2816bf12aad4cece41372f9d146b4 ]
 
-The original patch was to resolve the lldd being able to be unloaded
-while being used to talk to the boot device of the system. However, the
-end result of the original patch is that any driver unload while a nvme
-controller is live via the lldd is now being prohibited. Given the module
-reference, the module teardown routine can't be called, thus there's no
-way, other than manual actions to terminate the controllers.
+We always search the commit root of the extent tree for looking up back
+references, however we track the reloc roots based on their current
+bytenr.
 
-Fixes: 863fbae929c7 ("nvme_fc: add module to ops template to allow module references")
-Cc: <stable@vger.kernel.org> # v5.4+
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is wrong, if we commit the transaction between relocating tree
+blocks we could end up in this code in build_backref_tree
 
+  if (key.objectid == key.offset) {
+	  /*
+	   * Only root blocks of reloc trees use backref
+	   * pointing to itself.
+	   */
+	  root = find_reloc_root(rc, cur->bytenr);
+	  ASSERT(root);
+	  cur->root = root;
+	  break;
+  }
+
+find_reloc_root() is looking based on the bytenr we had in the commit
+root, but if we've COWed this reloc root we will not find that bytenr,
+and we will trip over the ASSERT(root).
+
+Fix this by using the commit_root->start bytenr for indexing the commit
+root.  Then we change the __update_reloc_root() caller to be used when
+we switch the commit root for the reloc root during commit.
+
+This fixes the panic I was seeing when we started throttling relocation
+for delayed refs.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c          |   14 ++------------
- drivers/nvme/target/fcloop.c    |    1 -
- drivers/scsi/lpfc/lpfc_nvme.c   |    2 --
- drivers/scsi/qla2xxx/qla_nvme.c |    1 -
- include/linux/nvme-fc-driver.h  |    4 ----
- 5 files changed, 2 insertions(+), 20 deletions(-)
+ fs/btrfs/relocation.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -342,8 +342,7 @@ nvme_fc_register_localport(struct nvme_f
- 	    !template->ls_req || !template->fcp_io ||
- 	    !template->ls_abort || !template->fcp_abort ||
- 	    !template->max_hw_queues || !template->max_sgl_segments ||
--	    !template->max_dif_sgl_segments || !template->dma_boundary ||
--	    !template->module) {
-+	    !template->max_dif_sgl_segments || !template->dma_boundary) {
- 		ret = -EINVAL;
- 		goto out_reghost_failed;
- 	}
-@@ -2016,7 +2015,6 @@ nvme_fc_ctrl_free(struct kref *ref)
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index c4ed7015cc7d9..cb4a888fc9dec 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1298,7 +1298,7 @@ static int __must_check __add_reloc_root(struct btrfs_root *root)
+ 	if (!node)
+ 		return -ENOMEM;
+ 
+-	node->bytenr = root->node->start;
++	node->bytenr = root->commit_root->start;
+ 	node->data = root;
+ 
+ 	spin_lock(&rc->reloc_root_tree.lock);
+@@ -1329,10 +1329,11 @@ static void __del_reloc_root(struct btrfs_root *root)
+ 	if (rc && root->node) {
+ 		spin_lock(&rc->reloc_root_tree.lock);
+ 		rb_node = tree_search(&rc->reloc_root_tree.rb_root,
+-				      root->node->start);
++				      root->commit_root->start);
+ 		if (rb_node) {
+ 			node = rb_entry(rb_node, struct mapping_node, rb_node);
+ 			rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
++			RB_CLEAR_NODE(&node->rb_node);
+ 		}
+ 		spin_unlock(&rc->reloc_root_tree.lock);
+ 		if (!node)
+@@ -1350,7 +1351,7 @@ static void __del_reloc_root(struct btrfs_root *root)
+  * helper to update the 'address of tree root -> reloc tree'
+  * mapping
+  */
+-static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
++static int __update_reloc_root(struct btrfs_root *root)
  {
- 	struct nvme_fc_ctrl *ctrl =
- 		container_of(ref, struct nvme_fc_ctrl, ref);
--	struct nvme_fc_lport *lport = ctrl->lport;
- 	unsigned long flags;
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	struct rb_node *rb_node;
+@@ -1359,7 +1360,7 @@ static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
  
- 	if (ctrl->ctrl.tagset) {
-@@ -2043,7 +2041,6 @@ nvme_fc_ctrl_free(struct kref *ref)
- 	if (ctrl->ctrl.opts)
- 		nvmf_free_options(ctrl->ctrl.opts);
- 	kfree(ctrl);
--	module_put(lport->ops->module);
- }
+ 	spin_lock(&rc->reloc_root_tree.lock);
+ 	rb_node = tree_search(&rc->reloc_root_tree.rb_root,
+-			      root->node->start);
++			      root->commit_root->start);
+ 	if (rb_node) {
+ 		node = rb_entry(rb_node, struct mapping_node, rb_node);
+ 		rb_erase(&node->rb_node, &rc->reloc_root_tree.rb_root);
+@@ -1371,7 +1372,7 @@ static int __update_reloc_root(struct btrfs_root *root, u64 new_bytenr)
+ 	BUG_ON((struct btrfs_root *)node->data != root);
  
- static void
-@@ -3074,15 +3071,10 @@ nvme_fc_init_ctrl(struct device *dev, st
- 		goto out_fail;
+ 	spin_lock(&rc->reloc_root_tree.lock);
+-	node->bytenr = new_bytenr;
++	node->bytenr = root->node->start;
+ 	rb_node = tree_insert(&rc->reloc_root_tree.rb_root,
+ 			      node->bytenr, &node->rb_node);
+ 	spin_unlock(&rc->reloc_root_tree.lock);
+@@ -1529,6 +1530,7 @@ int btrfs_update_reloc_root(struct btrfs_trans_handle *trans,
  	}
  
--	if (!try_module_get(lport->ops->module)) {
--		ret = -EUNATCH;
--		goto out_free_ctrl;
+ 	if (reloc_root->commit_root != reloc_root->node) {
++		__update_reloc_root(reloc_root);
+ 		btrfs_set_root_node(root_item, reloc_root->node);
+ 		free_extent_buffer(reloc_root->commit_root);
+ 		reloc_root->commit_root = btrfs_root_node(reloc_root);
+@@ -4718,11 +4720,6 @@ int btrfs_reloc_cow_block(struct btrfs_trans_handle *trans,
+ 	BUG_ON(rc->stage == UPDATE_DATA_PTRS &&
+ 	       root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID);
+ 
+-	if (root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID) {
+-		if (buf == root->node)
+-			__update_reloc_root(root, cow->start);
 -	}
 -
- 	idx = ida_simple_get(&nvme_fc_ctrl_cnt, 0, 0, GFP_KERNEL);
- 	if (idx < 0) {
- 		ret = -ENOSPC;
--		goto out_mod_put;
-+		goto out_free_ctrl;
- 	}
- 
- 	ctrl->ctrl.opts = opts;
-@@ -3235,8 +3227,6 @@ out_free_queues:
- out_free_ida:
- 	put_device(ctrl->dev);
- 	ida_simple_remove(&nvme_fc_ctrl_cnt, ctrl->cnum);
--out_mod_put:
--	module_put(lport->ops->module);
- out_free_ctrl:
- 	kfree(ctrl);
- out_fail:
---- a/drivers/nvme/target/fcloop.c
-+++ b/drivers/nvme/target/fcloop.c
-@@ -850,7 +850,6 @@ fcloop_targetport_delete(struct nvmet_fc
- #define FCLOOP_DMABOUND_4G		0xFFFFFFFF
- 
- static struct nvme_fc_port_template fctemplate = {
--	.module			= THIS_MODULE,
- 	.localport_delete	= fcloop_localport_delete,
- 	.remoteport_delete	= fcloop_remoteport_delete,
- 	.create_queue		= fcloop_create_queue,
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -1985,8 +1985,6 @@ out_unlock:
- 
- /* Declare and initialization an instance of the FC NVME template. */
- static struct nvme_fc_port_template lpfc_nvme_template = {
--	.module	= THIS_MODULE,
--
- 	/* initiator-based functions */
- 	.localport_delete  = lpfc_nvme_localport_delete,
- 	.remoteport_delete = lpfc_nvme_remoteport_delete,
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -610,7 +610,6 @@ static void qla_nvme_remoteport_delete(s
- }
- 
- static struct nvme_fc_port_template qla_nvme_fc_transport = {
--	.module	= THIS_MODULE,
- 	.localport_delete = qla_nvme_localport_delete,
- 	.remoteport_delete = qla_nvme_remoteport_delete,
- 	.create_queue   = qla_nvme_alloc_queue,
---- a/include/linux/nvme-fc-driver.h
-+++ b/include/linux/nvme-fc-driver.h
-@@ -270,8 +270,6 @@ struct nvme_fc_remote_port {
-  *
-  * Host/Initiator Transport Entrypoints/Parameters:
-  *
-- * @module:  The LLDD module using the interface
-- *
-  * @localport_delete:  The LLDD initiates deletion of a localport via
-  *       nvme_fc_deregister_localport(). However, the teardown is
-  *       asynchronous. This routine is called upon the completion of the
-@@ -385,8 +383,6 @@ struct nvme_fc_remote_port {
-  *       Value is Mandatory. Allowed to be zero.
-  */
- struct nvme_fc_port_template {
--	struct module	*module;
--
- 	/* initiator-based functions */
- 	void	(*localport_delete)(struct nvme_fc_local_port *);
- 	void	(*remoteport_delete)(struct nvme_fc_remote_port *);
+ 	level = btrfs_header_level(buf);
+ 	if (btrfs_header_generation(buf) <=
+ 	    btrfs_root_last_snapshot(&root->root_item))
+-- 
+2.20.1
+
 
 
