@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFA2D1ACAFF
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:43:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 264DB1ACC97
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 18:04:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391990AbgDPPmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:42:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
+        id S2410717AbgDPQCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 12:02:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897280AbgDPNgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:36:09 -0400
+        id S2895264AbgDPN0f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:26:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CED29221F4;
-        Thu, 16 Apr 2020 13:36:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C100C21D94;
+        Thu, 16 Apr 2020 13:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044168;
-        bh=lmkka/v+e0LVHKZ2vvrySdat1p0yz6685QOOxkl6kLo=;
+        s=default; t=1587043586;
+        bh=0dCjT5nFRePwKB1f0perCjVU+KxOZ4mV+cUHzcKpO9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sp0o5gegMFIHzpzEeJ/7vvtRUfoRDcGRBjWQVNn2zcs3fSIHfNnc87TV3kMHkUdTB
-         Nv+lciryOSKCJRpI+o87uKkYxSC0jJVEZ7+OsFUfo7y+Sx+zMJLojeEZxQ0QhzquJf
-         5BgmmLl7z50KaINiVT+Qbrc7V2iTbHnE1RemUyi4=
+        b=esQmO9hGlxbp+UR/reyNqb62RauyXI+lxONZhe01NNRGP/bTWXjOY71pv0Z/p8/bw
+         7lF1Gq8WMmqzIN/bPunPXfaWR2b3DuqHmFgvHYqOt5gcOJHR8iYsrDHK1OfcTBv3cD
+         ZlxqAECl5B0xotxfV7ODq5DdoR4J3AUBcG9T0AW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ond=C5=99ej=20Caletka?= <ondrej@caletka.cz>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.5 107/257] ACPICA: Allow acpi_any_gpe_status_set() to skip one GPE
-Date:   Thu, 16 Apr 2020 15:22:38 +0200
-Message-Id: <20200416131339.556308465@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Bob Liu <bob.liu@oracle.com>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 018/146] block: keep bdi->io_pages in sync with max_sectors_kb for stacked devices
+Date:   Thu, 16 Apr 2020 15:22:39 +0200
+Message-Id: <20200416131245.009435547@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,204 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-commit 0ce792d660bda990c675eaf14ce09594a9b85cbf upstream.
+[ Upstream commit e74d93e96d721c4297f2a900ad0191890d2fc2b0 ]
 
-The check carried out by acpi_any_gpe_status_set() is not precise enough
-for the suspend-to-idle implementation in Linux and in some cases it is
-necessary make it skip one GPE (specifically, the EC GPE) from the check
-to prevent a race condition leading to a premature system resume from
-occurring.
+Field bdi->io_pages added in commit 9491ae4aade6 ("mm: don't cap request
+size based on read-ahead setting") removes unneeded split of read requests.
 
-For this reason, redefine acpi_any_gpe_status_set() to take the number
-of a GPE to skip as an argument.
+Stacked drivers do not call blk_queue_max_hw_sectors(). Instead they set
+limits of their devices by blk_set_stacking_limits() + disk_stack_limits().
+Field bio->io_pages stays zero until user set max_sectors_kb via sysfs.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206629
-Tested-by: Ondřej Caletka <ondrej@caletka.cz>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch updates io_pages after merging limits in disk_stack_limits().
 
+Commit c6d6e9b0f6b4 ("dm: do not allow readahead to limit IO size") fixed
+the same problem for device-mapper devices, this one fixes MD RAIDs.
+
+Fixes: 9491ae4aade6 ("mm: don't cap request size based on read-ahead setting")
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Reviewed-by: Bob Liu <bob.liu@oracle.com>
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/achware.h |    2 -
- drivers/acpi/acpica/evxfgpe.c |   17 ++++++++++-----
- drivers/acpi/acpica/hwgpe.c   |   47 +++++++++++++++++++++++++++++++++---------
- drivers/acpi/sleep.c          |    2 -
- include/acpi/acpixf.h         |    2 -
- 5 files changed, 53 insertions(+), 17 deletions(-)
+ block/blk-settings.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/acpi/acpica/achware.h
-+++ b/drivers/acpi/acpica/achware.h
-@@ -101,7 +101,7 @@ acpi_status acpi_hw_enable_all_runtime_g
- 
- acpi_status acpi_hw_enable_all_wakeup_gpes(void);
- 
--u8 acpi_hw_check_all_gpes(void);
-+u8 acpi_hw_check_all_gpes(acpi_handle gpe_skip_device, u32 gpe_skip_number);
- 
- acpi_status
- acpi_hw_enable_runtime_gpe_block(struct acpi_gpe_xrupt_info *gpe_xrupt_info,
---- a/drivers/acpi/acpica/evxfgpe.c
-+++ b/drivers/acpi/acpica/evxfgpe.c
-@@ -799,17 +799,19 @@ ACPI_EXPORT_SYMBOL(acpi_enable_all_wakeu
-  *
-  * FUNCTION:    acpi_any_gpe_status_set
-  *
-- * PARAMETERS:  None
-+ * PARAMETERS:  gpe_skip_number      - Number of the GPE to skip
-  *
-  * RETURN:      Whether or not the status bit is set for any GPE
-  *
-- * DESCRIPTION: Check the status bits of all enabled GPEs and return TRUE if any
-- *              of them is set or FALSE otherwise.
-+ * DESCRIPTION: Check the status bits of all enabled GPEs, except for the one
-+ *              represented by the "skip" argument, and return TRUE if any of
-+ *              them is set or FALSE otherwise.
-  *
-  ******************************************************************************/
--u32 acpi_any_gpe_status_set(void)
-+u32 acpi_any_gpe_status_set(u32 gpe_skip_number)
- {
- 	acpi_status status;
-+	acpi_handle gpe_device;
- 	u8 ret;
- 
- 	ACPI_FUNCTION_TRACE(acpi_any_gpe_status_set);
-@@ -819,7 +821,12 @@ u32 acpi_any_gpe_status_set(void)
- 		return (FALSE);
+diff --git a/block/blk-settings.c b/block/blk-settings.c
+index be9b39caadbd2..01093b8f3e624 100644
+--- a/block/blk-settings.c
++++ b/block/blk-settings.c
+@@ -717,6 +717,9 @@ void disk_stack_limits(struct gendisk *disk, struct block_device *bdev,
+ 		printk(KERN_NOTICE "%s: Warning: Device %s is misaligned\n",
+ 		       top, bottom);
  	}
- 
--	ret = acpi_hw_check_all_gpes();
-+	status = acpi_get_gpe_device(gpe_skip_number, &gpe_device);
-+	if (ACPI_FAILURE(status)) {
-+		gpe_device = NULL;
-+	}
 +
-+	ret = acpi_hw_check_all_gpes(gpe_device, gpe_skip_number);
- 	(void)acpi_ut_release_mutex(ACPI_MTX_EVENTS);
- 
- 	return (ret);
---- a/drivers/acpi/acpica/hwgpe.c
-+++ b/drivers/acpi/acpica/hwgpe.c
-@@ -444,12 +444,19 @@ acpi_hw_enable_wakeup_gpe_block(struct a
- 	return (AE_OK);
++	t->backing_dev_info->io_pages =
++		t->limits.max_sectors >> (PAGE_SHIFT - 9);
  }
+ EXPORT_SYMBOL(disk_stack_limits);
  
-+struct acpi_gpe_block_status_context {
-+	struct acpi_gpe_register_info *gpe_skip_register_info;
-+	u8 gpe_skip_mask;
-+	u8 retval;
-+};
-+
- /******************************************************************************
-  *
-  * FUNCTION:    acpi_hw_get_gpe_block_status
-  *
-  * PARAMETERS:  gpe_xrupt_info      - GPE Interrupt info
-  *              gpe_block           - Gpe Block info
-+ *              context             - GPE list walk context data
-  *
-  * RETURN:      Success
-  *
-@@ -460,12 +467,13 @@ acpi_hw_enable_wakeup_gpe_block(struct a
- static acpi_status
- acpi_hw_get_gpe_block_status(struct acpi_gpe_xrupt_info *gpe_xrupt_info,
- 			     struct acpi_gpe_block_info *gpe_block,
--			     void *ret_ptr)
-+			     void *context)
- {
-+	struct acpi_gpe_block_status_context *c = context;
- 	struct acpi_gpe_register_info *gpe_register_info;
- 	u64 in_enable, in_status;
- 	acpi_status status;
--	u8 *ret = ret_ptr;
-+	u8 ret_mask;
- 	u32 i;
- 
- 	/* Examine each GPE Register within the block */
-@@ -485,7 +493,11 @@ acpi_hw_get_gpe_block_status(struct acpi
- 			continue;
- 		}
- 
--		*ret |= in_enable & in_status;
-+		ret_mask = in_enable & in_status;
-+		if (ret_mask && c->gpe_skip_register_info == gpe_register_info) {
-+			ret_mask &= ~c->gpe_skip_mask;
-+		}
-+		c->retval |= ret_mask;
- 	}
- 
- 	return (AE_OK);
-@@ -561,24 +573,41 @@ acpi_status acpi_hw_enable_all_wakeup_gp
-  *
-  * FUNCTION:    acpi_hw_check_all_gpes
-  *
-- * PARAMETERS:  None
-+ * PARAMETERS:  gpe_skip_device      - GPE devoce of the GPE to skip
-+ *              gpe_skip_number      - Number of the GPE to skip
-  *
-  * RETURN:      Combined status of all GPEs
-  *
-- * DESCRIPTION: Check all enabled GPEs in all GPE blocks and return TRUE if the
-+ * DESCRIPTION: Check all enabled GPEs in all GPE blocks, except for the one
-+ *              represented by the "skip" arguments, and return TRUE if the
-  *              status bit is set for at least one of them of FALSE otherwise.
-  *
-  ******************************************************************************/
- 
--u8 acpi_hw_check_all_gpes(void)
-+u8 acpi_hw_check_all_gpes(acpi_handle gpe_skip_device, u32 gpe_skip_number)
- {
--	u8 ret = 0;
-+	struct acpi_gpe_block_status_context context = {
-+		.gpe_skip_register_info = NULL,
-+		.retval = 0,
-+	};
-+	struct acpi_gpe_event_info *gpe_event_info;
-+	acpi_cpu_flags flags;
- 
- 	ACPI_FUNCTION_TRACE(acpi_hw_check_all_gpes);
- 
--	(void)acpi_ev_walk_gpe_list(acpi_hw_get_gpe_block_status, &ret);
-+	flags = acpi_os_acquire_lock(acpi_gbl_gpe_lock);
-+
-+	gpe_event_info = acpi_ev_get_gpe_event_info(gpe_skip_device,
-+						    gpe_skip_number);
-+	if (gpe_event_info) {
-+		context.gpe_skip_register_info = gpe_event_info->register_info;
-+		context.gpe_skip_mask = acpi_hw_get_gpe_register_bit(gpe_event_info);
-+	}
-+
-+	acpi_os_release_lock(acpi_gbl_gpe_lock, flags);
- 
--	return (ret != 0);
-+	(void)acpi_ev_walk_gpe_list(acpi_hw_get_gpe_block_status, &context);
-+	return (context.retval != 0);
- }
- 
- #endif				/* !ACPI_REDUCED_HARDWARE */
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -1023,7 +1023,7 @@ static bool acpi_s2idle_wake(void)
- 		 * status bit from unset to set between the checks with the
- 		 * status bits of all the other GPEs unset.
- 		 */
--		if (acpi_any_gpe_status_set() && !acpi_ec_dispatch_gpe())
-+		if (acpi_any_gpe_status_set(U32_MAX) && !acpi_ec_dispatch_gpe())
- 			return true;
- 
- 		/*
---- a/include/acpi/acpixf.h
-+++ b/include/acpi/acpixf.h
-@@ -752,7 +752,7 @@ ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_disable_all_gpes(void))
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_enable_all_runtime_gpes(void))
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_enable_all_wakeup_gpes(void))
--ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi_any_gpe_status_set(void))
-+ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi_any_gpe_status_set(u32 gpe_skip_number))
- ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi_any_fixed_event_status_set(void))
- 
- ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status
+-- 
+2.20.1
+
 
 
