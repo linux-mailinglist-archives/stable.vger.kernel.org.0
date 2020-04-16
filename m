@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8843F1ACA4E
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4601C1AC6D9
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:45:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2634200AbgDPPdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:33:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53938 "EHLO mail.kernel.org"
+        id S2394005AbgDPOpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:45:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898275AbgDPNlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:41:14 -0400
+        id S2897478AbgDPN7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:59:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3793D20732;
-        Thu, 16 Apr 2020 13:41:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08B212078B;
+        Thu, 16 Apr 2020 13:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044473;
-        bh=x88x2MROQSuasxIps+Xd6wS0fxFRe6Oh0oZV5yoekJ8=;
+        s=default; t=1587045581;
+        bh=P/0lskj5n+fVsZdBwi59YdaK/6ajOC5ljhBBmqt4dHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlThskKRTMsg/uUydlpgtXeDRSECX+LHeyYjMESP7SF3lFtQDHrAQpOzxy91o4Qa6
-         RURMDRTCZJ+snwiz1pA0e38AVMx+Hr63bDFKVTnNC1Co+A+YNC7FiGbPy8ExI++Dfx
-         yuTevCQsBxJ/BRCzWDttVkvK4pkdMSxLFB8+4ODc=
+        b=xQKbYGKuIMV7BdbYmqJyUdE3o2n+mviEYWP9lccNJ6LNFJL8oQk8LfWHbT5bl7s+O
+         /mREPVYfMGvD8XwPic2Zm3EIZie4vzZN801aelI9S0ku87u048eUhr1qOkbKXoSWSz
+         xXWyv+Z2nCcSCMOJHjENMNkqr7SziwpmZ4jFYEuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.5 232/257] libata: Return correct status in sata_pmp_eh_recover_pm() when ATA_DFLAG_DETACH is set
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Fredrik Strupe <fredrik@strupe.net>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.6 194/254] arm64: armv8_deprecated: Fix undef_hook mask for thumb setend
 Date:   Thu, 16 Apr 2020 15:24:43 +0200
-Message-Id: <20200416131354.691542527@linuxfoundation.org>
+Message-Id: <20200416131350.493998717@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Fredrik Strupe <fredrik@strupe.net>
 
-commit 8305f72f952cff21ce8109dc1ea4b321c8efc5af upstream.
+commit fc2266011accd5aeb8ebc335c381991f20e26e33 upstream.
 
-During system resume from suspend, this can be observed on ASM1062 PMP
-controller:
+For thumb instructions, call_undef_hook() in traps.c first reads a u16,
+and if the u16 indicates a T32 instruction (u16 >= 0xe800), a second
+u16 is read, which then makes up the the lower half-word of a T32
+instruction. For T16 instructions, the second u16 is not read,
+which makes the resulting u32 opcode always have the upper half set to
+0.
 
-ata10.01: SATA link down (SStatus 0 SControl 330)
-ata10.02: hard resetting link
-ata10.02: SATA link down (SStatus 0 SControl 330)
-ata10.00: configured for UDMA/133
-Kernel panic - not syncing: stack-protector: Kernel
- in: sata_pmp_eh_recover+0xa2b/0xa40
+However, having the upper half of instr_mask in the undef_hook set to 0
+masks out the upper half of all thumb instructions - both T16 and T32.
+This results in trapped T32 instructions with the lower half-word equal
+to the T16 encoding of setend (b650) being matched, even though the upper
+half-word is not 0000 and thus indicates a T32 opcode.
 
-CPU: 2 PID: 230 Comm: scsi_eh_9 Tainted: P OE
-#49-Ubuntu
-Hardware name: System manufacturer System Product
- 1001 12/10/2017
-Call Trace:
-dump_stack+0x63/0x8b
-panic+0xe4/0x244
-? sata_pmp_eh_recover+0xa2b/0xa40
-__stack_chk_fail+0x19/0x20
-sata_pmp_eh_recover+0xa2b/0xa40
-? ahci_do_softreset+0x260/0x260 [libahci]
-? ahci_do_hardreset+0x140/0x140 [libahci]
-? ata_phys_link_offline+0x60/0x60
-? ahci_stop_engine+0xc0/0xc0 [libahci]
-sata_pmp_error_handler+0x22/0x30
-ahci_error_handler+0x45/0x80 [libahci]
-ata_scsi_port_error_handler+0x29b/0x770
-? ata_scsi_cmd_error_handler+0x101/0x140
-ata_scsi_error+0x95/0xd0
-? scsi_try_target_reset+0x90/0x90
-scsi_error_handler+0xd0/0x5b0
-kthread+0x121/0x140
-? scsi_eh_get_sense+0x200/0x200
-? kthread_create_worker_on_cpu+0x70/0x70
-ret_from_fork+0x22/0x40
-Kernel Offset: 0xcc00000 from 0xffffffff81000000
-(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+An example of such a T32 instruction is eaa0b650, which should raise a
+SIGILL since T32 instructions with an eaa prefix are unallocated as per
+Arm ARM, but instead works as a SETEND because the second half-word is set
+to b650.
 
-Since sata_pmp_eh_recover_pmp() doens't set rc when ATA_DFLAG_DETACH is
-set, sata_pmp_eh_recover() continues to run. During retry it triggers
-the stack protector.
+This patch fixes the issue by extending instr_mask to include the
+upper u32 half, which will still match T16 instructions where the upper
+half is 0, but not T32 instructions.
 
-Set correct rc in sata_pmp_eh_recover_pmp() to let sata_pmp_eh_recover()
-jump to pmp_fail directly.
-
-BugLink: https://bugs.launchpad.net/bugs/1821434
-Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 2d888f48e056 ("arm64: Emulate SETEND for AArch32 tasks")
+Cc: <stable@vger.kernel.org> # 4.0.x-
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ata/libata-pmp.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kernel/armv8_deprecated.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/libata-pmp.c
-+++ b/drivers/ata/libata-pmp.c
-@@ -763,6 +763,7 @@ static int sata_pmp_eh_recover_pmp(struc
- 
- 	if (dev->flags & ATA_DFLAG_DETACH) {
- 		detach = 1;
-+		rc = -ENODEV;
- 		goto fail;
- 	}
- 
+--- a/arch/arm64/kernel/armv8_deprecated.c
++++ b/arch/arm64/kernel/armv8_deprecated.c
+@@ -601,7 +601,7 @@ static struct undef_hook setend_hooks[]
+ 	},
+ 	{
+ 		/* Thumb mode */
+-		.instr_mask	= 0x0000fff7,
++		.instr_mask	= 0xfffffff7,
+ 		.instr_val	= 0x0000b650,
+ 		.pstate_mask	= (PSR_AA32_T_BIT | PSR_AA32_MODE_MASK),
+ 		.pstate_val	= (PSR_AA32_T_BIT | PSR_AA32_MODE_USR),
 
 
