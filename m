@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 286A01AC3E5
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 359011AC878
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:09:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408715AbgDPNvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:51:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37104 "EHLO mail.kernel.org"
+        id S2394981AbgDPPJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:09:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408690AbgDPNvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:51:00 -0400
+        id S2408700AbgDPNvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:51:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D37642078B;
-        Thu, 16 Apr 2020 13:50:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40DA92063A;
+        Thu, 16 Apr 2020 13:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045060;
-        bh=QXDIIPH8GK3Ux1ynVTxNG6RvRhtHCDyClAcTXjsslm8=;
+        s=default; t=1587045062;
+        bh=/lUnU82i9NCKa7Nb5n2dmWvwoPHTtDhXL68RLJzcs/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFBwl/tdeKdlRPmvCynDzv6MyN+qcJmUqVCyVQL+5weoUIyRHejjoAXstBfIRckDr
-         MAWlVTZzYw4KzPYWB4sHezVIreAnsqs2ns/jxGSXdemHFmd+k0UoE6Wslg4jx9hnDu
-         sB0wVM8BAHhZulOpegYA73H6LMyyW3LkNf0qbaJg=
+        b=Zrk1VlL2onMn7B2qu550fay1Caw8dBgCfXtkOoLtQAXFPom2Cl7VqIdrc5Bh1U02C
+         dGMoObD/UuSvZLFOGVn2Km475kvsovR4kapJOWH5DRSieR/XSMM/909hBjNzqfkosJ
+         W1n3B7lT5g0TrLYRxSuHaOuunRlJ5cjHqaAwDh2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Greg Kurz <groug@kaod.org>,
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 212/232] powerpc/xive: Fix xmon support on the PowerNV platform
-Date:   Thu, 16 Apr 2020 15:25:06 +0200
-Message-Id: <20200416131341.950407994@linuxfoundation.org>
+Subject: [PATCH 5.4 213/232] powerpc/kprobes: Ignore traps that happened in real mode
+Date:   Thu, 16 Apr 2020 15:25:07 +0200
+Message-Id: <20200416131342.089125464@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
 References: <20200416131316.640996080@linuxfoundation.org>
@@ -45,43 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 97ef275077932c65b1b8ec5022abd737a9fbf3e0 upstream.
+commit 21f8b2fa3ca5b01f7a2b51b89ce97a3705a15aa0 upstream.
 
-The PowerNV platform has multiple IRQ chips and the xmon command
-dumping the state of the XIVE interrupt should only operate on the
-XIVE IRQ chip.
+When a program check exception happens while MMU translation is
+disabled, following Oops happens in kprobe_handler() in the following
+code:
 
-Fixes: 5896163f7f91 ("powerpc/xmon: Improve output of XIVE interrupts")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Reviewed-by: Greg Kurz <groug@kaod.org>
+	} else if (*addr != BREAKPOINT_INSTRUCTION) {
+
+  BUG: Unable to handle kernel data access on read at 0x0000e268
+  Faulting instruction address: 0xc000ec34
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  BE PAGE_SIZE=16K PREEMPT CMPC885
+  Modules linked in:
+  CPU: 0 PID: 429 Comm: cat Not tainted 5.6.0-rc1-s3k-dev-00824-g84195dc6c58a #3267
+  NIP:  c000ec34 LR: c000ecd8 CTR: c019cab8
+  REGS: ca4d3b58 TRAP: 0300   Not tainted  (5.6.0-rc1-s3k-dev-00824-g84195dc6c58a)
+  MSR:  00001032 <ME,IR,DR,RI>  CR: 2a4d3c52  XER: 00000000
+  DAR: 0000e268 DSISR: c0000000
+  GPR00: c000b09c ca4d3c10 c66d0620 00000000 ca4d3c60 00000000 00009032 00000000
+  GPR08: 00020000 00000000 c087de44 c000afe0 c66d0ad0 100d3dd6 fffffff3 00000000
+  GPR16: 00000000 00000041 00000000 ca4d3d70 00000000 00000000 0000416d 00000000
+  GPR24: 00000004 c53b6128 00000000 0000e268 00000000 c07c0000 c07bb6fc ca4d3c60
+  NIP [c000ec34] kprobe_handler+0x128/0x290
+  LR [c000ecd8] kprobe_handler+0x1cc/0x290
+  Call Trace:
+  [ca4d3c30] [c000b09c] program_check_exception+0xbc/0x6fc
+  [ca4d3c50] [c000e43c] ret_from_except_full+0x0/0x4
+  --- interrupt: 700 at 0xe268
+  Instruction dump:
+  913e0008 81220000 38600001 3929ffff 91220000 80010024 bb410008 7c0803a6
+  38210020 4e800020 38600000 4e800020 <813b0000> 6d2a7fe0 2f8a0008 419e0154
+  ---[ end trace 5b9152d4cdadd06d ]---
+
+kprobe is not prepared to handle events in real mode and functions
+running in real mode should have been blacklisted, so kprobe_handler()
+can safely bail out telling 'this trap is not mine' for any trap that
+happened while in real-mode.
+
+If the trap happened with MSR_IR or MSR_DR cleared, return 0
+immediately.
+
+Reported-by: Larry Finger <Larry.Finger@lwfinger.net>
+Fixes: 6cc89bad60a6 ("powerpc/kprobes: Invoke handlers directly")
+Cc: stable@vger.kernel.org # v4.10+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200306150143.5551-3-clg@kaod.org
+Link: https://lore.kernel.org/r/424331e2006e7291a1bfe40e7f3fa58825f565e1.1582054578.git.christophe.leroy@c-s.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/sysdev/xive/common.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/kernel/kprobes.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -258,11 +258,15 @@ notrace void xmon_xive_do_dump(int cpu)
+--- a/arch/powerpc/kernel/kprobes.c
++++ b/arch/powerpc/kernel/kprobes.c
+@@ -264,6 +264,9 @@ int kprobe_handler(struct pt_regs *regs)
+ 	if (user_mode(regs))
+ 		return 0;
  
- int xmon_xive_get_irq_config(u32 hw_irq, struct irq_data *d)
- {
-+	struct irq_chip *chip = irq_data_get_irq_chip(d);
- 	int rc;
- 	u32 target;
- 	u8 prio;
- 	u32 lirq;
- 
-+	if (!is_xive_irq(chip))
-+		return -EINVAL;
++	if (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR))
++		return 0;
 +
- 	rc = xive_ops->get_irq_config(hw_irq, &target, &prio, &lirq);
- 	if (rc) {
- 		xmon_printf("IRQ 0x%08x : no config rc=%d\n", hw_irq, rc);
+ 	/*
+ 	 * We don't want to be preempted for the entire
+ 	 * duration of kprobe processing
 
 
