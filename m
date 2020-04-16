@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CD181AC3DE
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 607281AC369
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731485AbgDPNuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:50:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36626 "EHLO mail.kernel.org"
+        id S2441543AbgDPNmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:42:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732673AbgDPNuh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:37 -0400
+        id S2441524AbgDPNmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:42:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E3FC2078B;
-        Thu, 16 Apr 2020 13:50:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DA0F218AC;
+        Thu, 16 Apr 2020 13:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045035;
-        bh=SoVqO3bK3jHNnFnqoHbBV+IZFxZYUJeXCaLy+Ihncvo=;
+        s=default; t=1587044554;
+        bh=cPcVth3C/ecITib/wFDwsrdywlBZ+L1o5W0YguVVgSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZlZZNE42wDifE3HxD0bUQfdG1hPfUcFISsrcF07BipIPJORRarveAz86Jf6YorOC
-         vcgTGOjhAuYs3ZTl3YNiJ6cu5PdTcc+7HUNic53Kjz0AFrP2qyEJBNNqjxT2C2Is+J
-         VNdvBjDq/E1oguEtMdmAUhaFzohKEYv0+GLUfeZI=
+        b=MxKSL2UBtxLm59ZsnEvasOMAT+tGLoPJAblbIXi5qnErrlsqXX+jwUqzzkrBAsU0n
+         xRGZmYHb0WqGpkTmmFmzIsK+bH+hZic3dD+w1TnL4lOwm+Fs/JLWH5ymr5sUbO3PIB
+         C8I0WX3Q8C5U8yjWziGVN70ranijeWrE8JZEJ8eI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Gander <simon@tuxera.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 203/232] hfsplus: fix crash and filesystem corruption when deleting files
+        stable@vger.kernel.org, Torsten Duwe <duwe@lst.de>,
+        Thierry Reding <treding@nvidia.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
+        Jonas Karlman <jonas@kwiboo.se>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 246/257] drm/bridge: analogix-anx78xx: Fix drm_dp_link helper removal
 Date:   Thu, 16 Apr 2020 15:24:57 +0200
-Message-Id: <20200416131340.665541457@linuxfoundation.org>
+Message-Id: <20200416131356.465132016@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +51,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Gander <simon@tuxera.com>
+From: Torsten Duwe <duwe@lst.de>
 
-commit 25efb2ffdf991177e740b2f63e92b4ec7d310a92 upstream.
+[ Upstream commit 3e138a63d6674a4567a018a31e467567c40b14d5 ]
 
-When removing files containing extended attributes, the hfsplus driver may
-remove the wrong entries from the attributes b-tree, causing major
-filesystem damage and in some cases even kernel crashes.
+drm_dp_link_rate_to_bw_code and ...bw_code_to_link_rate simply divide by
+and multiply with 27000, respectively. Avoid an overflow in the u8 dpcd[0]
+and the multiply+divide alltogether.
 
-To remove a file, all its extended attributes have to be removed as well.
-The driver does this by looking up all keys in the attributes b-tree with
-the cnid of the file.  Each of these entries then gets deleted using the
-key used for searching, which doesn't contain the attribute's name when it
-should.  Since the key doesn't contain the name, the deletion routine will
-not find the correct entry and instead remove the one in front of it.  If
-parent nodes have to be modified, these become corrupt as well.  This
-causes invalid links and unsorted entries that not even macOS's fsck_hfs
-is able to fix.
-
-To fix this, modify the search key before an entry is deleted from the
-attributes b-tree by copying the found entry's key into the search key,
-therefore ensuring that the correct entry gets removed from the tree.
-
-Signed-off-by: Simon Gander <simon@tuxera.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200327155541.1521-1-simon@tuxera.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Torsten Duwe <duwe@lst.de>
+Fixes: ff1e8fb68ea0 ("drm/bridge: analogix-anx78xx: Avoid drm_dp_link helpers")
+Cc: Thierry Reding <treding@nvidia.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
+Cc: Jonas Karlman <jonas@kwiboo.se>
+Cc: Jernej Skrabec <jernej.skrabec@siol.net>
+Cc: <stable@vger.kernel.org> # v5.5+
+Reviewed-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200218155744.9675368BE1@verein.lst.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/attributes.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/bridge/analogix-anx78xx.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/fs/hfsplus/attributes.c
-+++ b/fs/hfsplus/attributes.c
-@@ -292,6 +292,10 @@ static int __hfsplus_delete_attr(struct
- 		return -ENOENT;
- 	}
- 
-+	/* Avoid btree corruption */
-+	hfs_bnode_read(fd->bnode, fd->search_key,
-+			fd->keyoffset, fd->keylength);
-+
- 	err = hfs_brec_remove(fd);
+diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
+index 274989f96a916..914263a1afab4 100644
+--- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
++++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
+@@ -866,10 +866,9 @@ static int anx78xx_dp_link_training(struct anx78xx *anx78xx)
  	if (err)
  		return err;
+ 
+-	dpcd[0] = drm_dp_max_link_rate(anx78xx->dpcd);
+-	dpcd[0] = drm_dp_link_rate_to_bw_code(dpcd[0]);
+ 	err = regmap_write(anx78xx->map[I2C_IDX_TX_P0],
+-			   SP_DP_MAIN_LINK_BW_SET_REG, dpcd[0]);
++			   SP_DP_MAIN_LINK_BW_SET_REG,
++			   anx78xx->dpcd[DP_MAX_LINK_RATE]);
+ 	if (err)
+ 		return err;
+ 
+-- 
+2.20.1
+
 
 
