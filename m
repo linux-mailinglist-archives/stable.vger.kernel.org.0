@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB9A41AC71C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 395121AC35D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388366AbgDPOtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:49:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45776 "EHLO mail.kernel.org"
+        id S2898376AbgDPNlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:41:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409396AbgDPN6s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:58:48 -0400
+        id S2898352AbgDPNln (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B174221927;
-        Thu, 16 Apr 2020 13:58:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E952214D8;
+        Thu, 16 Apr 2020 13:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045525;
-        bh=rXkh2aRrbIIG14idHHtgzlWycyi8V8ynYJ10c0RNDbc=;
+        s=default; t=1587044503;
+        bh=BOu0AN0pfQjoXKcTkTU6Nc2Y2gjBUNMbPmTmThh6Y0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qfWiQtbhwJgJdQiPUo05hKmJBWcQtlsJofCswyXaNeD+xmV8v4gsbm7lhwlMzl54R
-         lbar+qxDbNkEXseyoM3zdmsFoW3suC4c6k3FFn6XYLfqgptTQQQrbdKPLpgX55htGe
-         ZvyrSB4rqWnHey/UVuTRfg/2+q9exM/DdkHo/p9w=
+        b=kr3qPryl//Ul4T2HMr/LiU/v4eZLTvBetroyIu0IxMEVPXCccqCLpI9Z8sLPgo8Sc
+         V0qs3Kfam9Y9oa8IzbQ0gN6wlUzqTQbUaejgwwWWeEnFwrmsPGgRj645Y9/IDgJFLx
+         0ul6O+535x0Bed5STIVyhO/1m9diGUCHXLeJ3ngA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.6 169/254] arm64: dts: allwinner: h6: Fix PMU compatible
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.william.auld@gmail.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.5 207/257] drm/i915/gem: Flush all the reloc_gpu batch
 Date:   Thu, 16 Apr 2020 15:24:18 +0200
-Message-Id: <20200416131347.657042268@linuxfoundation.org>
+Message-Id: <20200416131351.953230891@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 4c7eeb9af3e41ae7d840977119c58f3bbb3f4f59 upstream.
+commit 1aaea8476d9f014667d2cb24819f9bcaf3ebb7a4 upstream.
 
-The commit 7aa9b9eb7d6a ("arm64: dts: allwinner: H6: Add PMU mode")
-introduced support for the PMU found on the Allwinner H6. However, the
-binding only allows for a single compatible, while the patch was adding
-two.
+__i915_gem_object_flush_map() takes a byte range, so feed it the written
+bytes and do not mistake the u32 index as bytes!
 
-Make sure we follow the binding.
-
-Fixes: 7aa9b9eb7d6a ("arm64: dts: allwinner: H6: Add PMU mode")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Fixes: a679f58d0510 ("drm/i915: Flush pages on acquisition")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.william.auld@gmail.com>
+Cc: <stable@vger.kernel.org> # v5.2+
+Reviewed-by: Matthew Auld <matthew.william.auld@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200406114821.10949-1-chris@chris-wilson.co.uk
+(cherry picked from commit 30c88a47f1abd5744908d3681f54dcf823fe2a12)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
-@@ -70,8 +70,7 @@
- 	};
+--- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+@@ -939,11 +939,13 @@ static inline struct i915_ggtt *cache_to
  
- 	pmu {
--		compatible = "arm,cortex-a53-pmu",
--			     "arm,armv8-pmuv3";
-+		compatible = "arm,cortex-a53-pmu";
- 		interrupts = <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 142 IRQ_TYPE_LEVEL_HIGH>,
+ static void reloc_gpu_flush(struct reloc_cache *cache)
+ {
+-	GEM_BUG_ON(cache->rq_size >= cache->rq->batch->obj->base.size / sizeof(u32));
++	struct drm_i915_gem_object *obj = cache->rq->batch->obj;
++
++	GEM_BUG_ON(cache->rq_size >= obj->base.size / sizeof(u32));
+ 	cache->rq_cmd[cache->rq_size] = MI_BATCH_BUFFER_END;
+ 
+-	__i915_gem_object_flush_map(cache->rq->batch->obj, 0, cache->rq_size);
+-	i915_gem_object_unpin_map(cache->rq->batch->obj);
++	__i915_gem_object_flush_map(obj, 0, sizeof(u32) * (cache->rq_size + 1));
++	i915_gem_object_unpin_map(obj);
+ 
+ 	intel_gt_chipset_flush(cache->rq->engine->gt);
+ 
 
 
