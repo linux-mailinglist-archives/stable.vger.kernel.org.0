@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0DA1ACA48
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2EB01AC895
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442498AbgDPPdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:33:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54604 "EHLO mail.kernel.org"
+        id S1728695AbgDPPLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898345AbgDPNll (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:41:41 -0400
+        id S1731454AbgDPNu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30AE52076D;
-        Thu, 16 Apr 2020 13:41:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEA8A2078B;
+        Thu, 16 Apr 2020 13:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044500;
-        bh=/lUnU82i9NCKa7Nb5n2dmWvwoPHTtDhXL68RLJzcs/I=;
+        s=default; t=1587045026;
+        bh=0xsYi/11uzlyBJ4Trt/P+eIrlBBktqV/M2hg5BUuIQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNufUoMH6yM3rdOIrJZ4S7VMmk+zAsam+Rhoz7tapOAkWehz8rMw4tkMiyK3gxUnM
-         WqpB0ZKoid8xjfReKYUTIqM3WWzf2qeC8QmGG2DwvUoiuL8tUF2m00UDj4d6KrFTHn
-         OIXDSD7ZA+viVjLlUOvzHIlKxh41gHDysyWi73QM=
+        b=JnM8Z+6pR2Hutbb6jFqAA+IeeiMaH0paV0mvhyQ93RfBMf/BkDRQ520L2/rA6qPOv
+         gBBZUwukxwah31tJcuGtvxUcDhDK8EotEu58RDJmc1IWIJn80YTKsg4OV7k9T2B/oL
+         x/hDx+fmzyt0TPr2iB95fKX9bvg5fZrEKODv9Xro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.5 242/257] powerpc/kprobes: Ignore traps that happened in real mode
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        kbuild test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.4 199/232] clk: ingenic/jz4770: Exit with error if CGU init failed
 Date:   Thu, 16 Apr 2020 15:24:53 +0200
-Message-Id: <20200416131356.111001294@linuxfoundation.org>
+Message-Id: <20200416131340.119884887@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 21f8b2fa3ca5b01f7a2b51b89ce97a3705a15aa0 upstream.
+commit c067b46d731a764fc46ecc466c2967088c97089e upstream.
 
-When a program check exception happens while MMU translation is
-disabled, following Oops happens in kprobe_handler() in the following
-code:
+Exit jz4770_cgu_init() if the 'cgu' pointer we get is NULL, since the
+pointer is passed as argument to functions later on.
 
-	} else if (*addr != BREAKPOINT_INSTRUCTION) {
-
-  BUG: Unable to handle kernel data access on read at 0x0000e268
-  Faulting instruction address: 0xc000ec34
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  BE PAGE_SIZE=16K PREEMPT CMPC885
-  Modules linked in:
-  CPU: 0 PID: 429 Comm: cat Not tainted 5.6.0-rc1-s3k-dev-00824-g84195dc6c58a #3267
-  NIP:  c000ec34 LR: c000ecd8 CTR: c019cab8
-  REGS: ca4d3b58 TRAP: 0300   Not tainted  (5.6.0-rc1-s3k-dev-00824-g84195dc6c58a)
-  MSR:  00001032 <ME,IR,DR,RI>  CR: 2a4d3c52  XER: 00000000
-  DAR: 0000e268 DSISR: c0000000
-  GPR00: c000b09c ca4d3c10 c66d0620 00000000 ca4d3c60 00000000 00009032 00000000
-  GPR08: 00020000 00000000 c087de44 c000afe0 c66d0ad0 100d3dd6 fffffff3 00000000
-  GPR16: 00000000 00000041 00000000 ca4d3d70 00000000 00000000 0000416d 00000000
-  GPR24: 00000004 c53b6128 00000000 0000e268 00000000 c07c0000 c07bb6fc ca4d3c60
-  NIP [c000ec34] kprobe_handler+0x128/0x290
-  LR [c000ecd8] kprobe_handler+0x1cc/0x290
-  Call Trace:
-  [ca4d3c30] [c000b09c] program_check_exception+0xbc/0x6fc
-  [ca4d3c50] [c000e43c] ret_from_except_full+0x0/0x4
-  --- interrupt: 700 at 0xe268
-  Instruction dump:
-  913e0008 81220000 38600001 3929ffff 91220000 80010024 bb410008 7c0803a6
-  38210020 4e800020 38600000 4e800020 <813b0000> 6d2a7fe0 2f8a0008 419e0154
-  ---[ end trace 5b9152d4cdadd06d ]---
-
-kprobe is not prepared to handle events in real mode and functions
-running in real mode should have been blacklisted, so kprobe_handler()
-can safely bail out telling 'this trap is not mine' for any trap that
-happened while in real-mode.
-
-If the trap happened with MSR_IR or MSR_DR cleared, return 0
-immediately.
-
-Reported-by: Larry Finger <Larry.Finger@lwfinger.net>
-Fixes: 6cc89bad60a6 ("powerpc/kprobes: Invoke handlers directly")
-Cc: stable@vger.kernel.org # v4.10+
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/424331e2006e7291a1bfe40e7f3fa58825f565e1.1582054578.git.christophe.leroy@c-s.fr
+Fixes: 7a01c19007ad ("clk: Add Ingenic jz4770 CGU driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lkml.kernel.org/r/20200213161952.37460-1-paul@crapouillou.net
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/kprobes.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/ingenic/jz4770-cgu.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/kprobes.c
-+++ b/arch/powerpc/kernel/kprobes.c
-@@ -264,6 +264,9 @@ int kprobe_handler(struct pt_regs *regs)
- 	if (user_mode(regs))
- 		return 0;
+--- a/drivers/clk/ingenic/jz4770-cgu.c
++++ b/drivers/clk/ingenic/jz4770-cgu.c
+@@ -432,8 +432,10 @@ static void __init jz4770_cgu_init(struc
  
-+	if (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR))
-+		return 0;
-+
- 	/*
- 	 * We don't want to be preempted for the entire
- 	 * duration of kprobe processing
+ 	cgu = ingenic_cgu_new(jz4770_cgu_clocks,
+ 			      ARRAY_SIZE(jz4770_cgu_clocks), np);
+-	if (!cgu)
++	if (!cgu) {
+ 		pr_err("%s: failed to initialise CGU\n", __func__);
++		return;
++	}
+ 
+ 	retval = ingenic_cgu_register_clocks(cgu);
+ 	if (retval)
 
 
