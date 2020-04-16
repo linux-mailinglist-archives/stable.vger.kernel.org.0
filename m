@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B86D1ACC31
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:57:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 157E61ACAB6
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895819AbgDPN2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:28:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37880 "EHLO mail.kernel.org"
+        id S2395350AbgDPPiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:38:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895827AbgDPN2n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:28:43 -0400
+        id S2897789AbgDPNjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:39:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0767721BE5;
-        Thu, 16 Apr 2020 13:28:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CA9822203;
+        Thu, 16 Apr 2020 13:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043722;
-        bh=s2KdDNJtF0qnO4d32B5YxCq8JiwYZ0+8BfvcQJBlUoM=;
+        s=default; t=1587044340;
+        bh=ZrHzyFlGKUss73Jc+wNUE+fZkpYQLAwarN1zR6GzVN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHjBcKf4M+ToL3uc+kpHrWbqOE0Ltn9rkPxsncJHVIBtXEVC/rpgfEg44BEzB45aI
-         b6cPvrBys5AhshDl1nozLFrZCeuzVzU3WM/GbhkZxYNJPLiz6DbqzkvRUMu82D3eno
-         +hfRKe/z29DGztNRgYJOuGejagb4GutLD8BRTKfw=
+        b=N97JfX5VpLh9VroROYJjg5P+GfJAMbIf66KBijuCn+69PuB099ZLaN1X/0CQWuU8J
+         ECpvcfJ160uQhMTlE4MrkJ5lfCVxJ4BPztyy10Do/Jk7wYhmhpol0FveLS+r/ISyjs
+         oe9p2XY0V1vOQcn00gJJ7WuX3XQ6Jox7mhmO3ibQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Yang Xu <xuyang2018.jy@cn.fujitsu.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 4.19 071/146] KEYS: reaching the keys quotas correctly
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.5 161/257] btrfs: set update the uuid generation as soon as possible
 Date:   Thu, 16 Apr 2020 15:23:32 +0200
-Message-Id: <20200416131252.657768617@linuxfoundation.org>
+Message-Id: <20200416131346.690964572@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 2e356101e72ab1361821b3af024d64877d9a798d upstream.
+commit 75ec1db8717a8f0a9d9c8d033e542fdaa7b73898 upstream.
 
-Currently, when we add a new user key, the calltrace as below:
+In my EIO stress testing I noticed I was getting forced to rescan the
+uuid tree pretty often, which was weird.  This is because my error
+injection stuff would sometimes inject an error after log replay but
+before we loaded the UUID tree.  If log replay committed the transaction
+it wouldn't have updated the uuid tree generation, but the tree was
+valid and didn't change, so there's no reason to not update the
+generation here.
 
-add_key()
-  key_create_or_update()
-    key_alloc()
-    __key_instantiate_and_link
-      generic_key_instantiate
-        key_payload_reserve
-          ......
+Fix this by setting the BTRFS_FS_UPDATE_UUID_TREE_GEN bit immediately
+after reading all the fs roots if the uuid tree generation matches the
+fs generation.  Then any transaction commits that happen during mount
+won't screw up our uuid tree state, forcing us to do needless uuid
+rescans.
 
-Since commit a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly"),
-we can reach max bytes/keys in key_alloc, but we forget to remove this
-limit when we reserver space for payload in key_payload_reserve. So we
-can only reach max keys but not max bytes when having delta between plen
-and type->def_datalen. Remove this limit when instantiating the key, so we
-can keep consistent with key_alloc.
-
-Also, fix the similar problem in keyctl_chown_key().
-
-Fixes: 0b77f5bfb45c ("keys: make the keyring quotas controllable through /proc/sys")
-Fixes: a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly")
-Cc: stable@vger.kernel.org # 5.0.x
-Cc: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Fixes: 70f801754728 ("Btrfs: check UUID tree during mount if required")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/keys/key.c    |    2 +-
- security/keys/keyctl.c |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/btrfs/disk-io.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -383,7 +383,7 @@ int key_payload_reserve(struct key *key,
- 		spin_lock(&key->user->lock);
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3054,6 +3054,18 @@ int __cold open_ctree(struct super_block
+ 	if (ret)
+ 		goto fail_tree_roots;
  
- 		if (delta > 0 &&
--		    (key->user->qnbytes + delta >= maxbytes ||
-+		    (key->user->qnbytes + delta > maxbytes ||
- 		     key->user->qnbytes + delta < key->user->qnbytes)) {
- 			ret = -EDQUOT;
++	/*
++	 * If we have a uuid root and we're not being told to rescan we need to
++	 * check the generation here so we can set the
++	 * BTRFS_FS_UPDATE_UUID_TREE_GEN bit.  Otherwise we could commit the
++	 * transaction during a balance or the log replay without updating the
++	 * uuid generation, and then if we crash we would rescan the uuid tree,
++	 * even though it was perfectly fine.
++	 */
++	if (fs_info->uuid_root && !btrfs_test_opt(fs_info, RESCAN_UUID_TREE) &&
++	    fs_info->generation == btrfs_super_uuid_tree_generation(disk_super))
++		set_bit(BTRFS_FS_UPDATE_UUID_TREE_GEN, &fs_info->flags);
++
+ 	ret = btrfs_verify_dev_extents(fs_info);
+ 	if (ret) {
+ 		btrfs_err(fs_info,
+@@ -3284,8 +3296,6 @@ int __cold open_ctree(struct super_block
+ 			close_ctree(fs_info);
+ 			return ret;
  		}
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -882,8 +882,8 @@ long keyctl_chown_key(key_serial_t id, u
- 				key_quota_root_maxbytes : key_quota_maxbytes;
+-	} else {
+-		set_bit(BTRFS_FS_UPDATE_UUID_TREE_GEN, &fs_info->flags);
+ 	}
+ 	set_bit(BTRFS_FS_OPEN, &fs_info->flags);
  
- 			spin_lock(&newowner->lock);
--			if (newowner->qnkeys + 1 >= maxkeys ||
--			    newowner->qnbytes + key->quotalen >= maxbytes ||
-+			if (newowner->qnkeys + 1 > maxkeys ||
-+			    newowner->qnbytes + key->quotalen > maxbytes ||
- 			    newowner->qnbytes + key->quotalen <
- 			    newowner->qnbytes)
- 				goto quota_overrun;
 
 
