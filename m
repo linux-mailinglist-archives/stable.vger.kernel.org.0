@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 738CE1AC937
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 318161AC445
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504359AbgDPPU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33448 "EHLO mail.kernel.org"
+        id S2409275AbgDPN5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898667AbgDPNrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:47:23 -0400
+        id S2441850AbgDPN5F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:57:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF4B82222C;
-        Thu, 16 Apr 2020 13:47:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7F6621744;
+        Thu, 16 Apr 2020 13:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044843;
-        bh=dDkcbgK3ffEB2mTKQRx9e4Lyh2KH5LHD9ttx5tTYxkY=;
+        s=default; t=1587045425;
+        bh=Jj+GGfDdlj3TRVPdVrSJJ8ezWc1W8N/aHDoly8TLtDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2BuLe8zDP4+7nr3zNFm9zbc0fufLiq76Sq2rO1caF8yA39MFp5kFl5mMconwgggb5
-         ufIMnTbXxtaDdHBYi8UIialUGypEaDhadr5yEsg86t/0y7YU9Lh7j0mYd/LXg3GL2q
-         2Ae8yekwEwoqD5d1x/K2cvo330E2ZWDvDcsq3tnc=
+        b=NSmVI604vlfeSvlUAGL6IP6pi2wI35K+G3eLn2I5l2HMU5KRjzicAt1WHTTRp5TZD
+         R2E6jmXK97K8RASp+PTI1yLaQyLJBVysyBXZkHmP76JSWggfjnguKGQ7aKQSHACKr5
+         DFCusWDzgj1NSCTz0C6OW4UlA1ER/g1irqNZQMwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Frederic Weisbecker <frederic@kernel.org>,
         Alexandre Chartre <alexandre.chartre@oracle.com>,
         Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH 5.4 123/232] x86/entry/32: Add missing ASM_CLAC to general_protection entry
+Subject: [PATCH 5.6 128/254] x86/entry/32: Add missing ASM_CLAC to general_protection entry
 Date:   Thu, 16 Apr 2020 15:23:37 +0200
-Message-Id: <20200416131330.475322058@linuxfoundation.org>
+Message-Id: <20200416131342.428037434@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,13 +67,13 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/entry/entry_32.S
 +++ b/arch/x86/entry/entry_32.S
-@@ -1647,6 +1647,7 @@ ENTRY(int3)
- END(int3)
+@@ -1694,6 +1694,7 @@ SYM_CODE_START(int3)
+ SYM_CODE_END(int3)
  
- ENTRY(general_protection)
+ SYM_CODE_START(general_protection)
 +	ASM_CLAC
  	pushl	$do_general_protection
  	jmp	common_exception
- END(general_protection)
+ SYM_CODE_END(general_protection)
 
 
