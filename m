@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6904D1AC3E2
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:51:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 020991AC366
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408557AbgDPNu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:50:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36690 "EHLO mail.kernel.org"
+        id S2407334AbgDPNm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:42:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408627AbgDPNuv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:51 -0400
+        id S1731890AbgDPNmX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:42:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23CBE2063A;
-        Thu, 16 Apr 2020 13:50:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F8762222C;
+        Thu, 16 Apr 2020 13:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045050;
-        bh=UCUtmq9O84OUYC+GZF7mjcM9yAlMLxS1lex7u964yK4=;
+        s=default; t=1587044542;
+        bh=Gi5aYHDbBdeR3ComheznLyhNlX0DWXrgdPGx2PutU7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5RGujE+fNX6kiMplq0hXlZhC9XcY5ldNQ9zVmW+COyIqgCQt5wQdptfArriRsFzb
-         4CSdQ46ctXrAiGNK8g0ToneW5dpoitJQWDg90REpx/I3xoonZHsSbNCurTe1V54Org
-         Y5ODS8H+6VVDkNxjbFUnOKqrjJFEZEc73pP9YI3E=
+        b=CLLwePG6Q+iKH/lmXUxM+jOJmKqVkO1jWN50pqUPe4ZGbP69VLJokxrlzk1qmKECU
+         vPFjkLXvN9G3o2iyTDAkbidiUadoBVmkp6Ji/hHe7tIzdjgMJPZy/mKEnEAYEY9kdJ
+         EXThQq0i2IhgOeQUenHp7kuJZdmT/OcYHm1JSuLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Scott Wood <oss@buserror.net>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 208/232] powerpc/fsl_booke: Avoid creating duplicate tlb1 entry
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.5 251/257] NFS: finish_automount() requires us to hold 2 refs to the mount record
 Date:   Thu, 16 Apr 2020 15:25:02 +0200
-Message-Id: <20200416131341.389410749@linuxfoundation.org>
+Message-Id: <20200416131356.946582634@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit aa4113340ae6c2811e046f08c2bc21011d20a072 upstream.
+[ Upstream commit 75da98586af75eb80664714a67a9895bf0a5517e ]
 
-In the current implementation, the call to loadcam_multi() is wrapped
-between switch_to_as1() and restore_to_as0() calls so, when it tries
-to create its own temporary AS=1 TLB1 entry, it ends up duplicating
-the existing one created by switch_to_as1(). Add a check to skip
-creating the temporary entry if already running in AS=1.
+We must not return from nfs_d_automount() without holding 2 references
+to the mount record. Doing so, will trigger the BUG() in finish_automount().
+Also ensure that we don't try to reschedule the automount timer with
+a negative or zero timeout value.
 
-Fixes: d9e1831a4202 ("powerpc/85xx: Load all early TLB entries at once")
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Acked-by: Scott Wood <oss@buserror.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200123111914.2565-1-laurentiu.tudor@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 22a1ae9a93fb ("NFS: If nfs_mountpoint_expiry_timeout < 0, do not expire submounts")
+Cc: stable@vger.kernel.org # v5.5+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/nohash/tlb_low.S |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/nfs/namespace.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/mm/nohash/tlb_low.S
-+++ b/arch/powerpc/mm/nohash/tlb_low.S
-@@ -397,7 +397,7 @@ _GLOBAL(set_context)
-  * extern void loadcam_entry(unsigned int index)
-  *
-  * Load TLBCAM[index] entry in to the L2 CAM MMU
-- * Must preserve r7, r8, r9, and r10
-+ * Must preserve r7, r8, r9, r10 and r11
-  */
- _GLOBAL(loadcam_entry)
- 	mflr	r5
-@@ -433,6 +433,10 @@ END_MMU_FTR_SECTION_IFSET(MMU_FTR_BIG_PH
-  */
- _GLOBAL(loadcam_multi)
- 	mflr	r8
-+	/* Don't switch to AS=1 if already there */
-+	mfmsr	r11
-+	andi.	r11,r11,MSR_IS
-+	bne	10f
+diff --git a/fs/nfs/namespace.c b/fs/nfs/namespace.c
+index 5e0e9d29f5c57..0c5db17607411 100644
+--- a/fs/nfs/namespace.c
++++ b/fs/nfs/namespace.c
+@@ -143,6 +143,7 @@ struct vfsmount *nfs_d_automount(struct path *path)
+ 	struct nfs_server *server = NFS_SERVER(d_inode(path->dentry));
+ 	struct nfs_fh *fh = NULL;
+ 	struct nfs_fattr *fattr = NULL;
++	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
  
- 	/*
- 	 * Set up temporary TLB entry that is the same as what we're
-@@ -458,6 +462,7 @@ _GLOBAL(loadcam_multi)
- 	mtmsr	r6
- 	isync
+ 	if (IS_ROOT(path->dentry))
+ 		return ERR_PTR(-ESTALE);
+@@ -157,12 +158,12 @@ struct vfsmount *nfs_d_automount(struct path *path)
+ 	if (IS_ERR(mnt))
+ 		goto out;
  
-+10:
- 	mr	r9,r3
- 	add	r10,r3,r4
- 2:	bl	loadcam_entry
-@@ -466,6 +471,10 @@ _GLOBAL(loadcam_multi)
- 	mr	r3,r9
- 	blt	2b
+-	if (nfs_mountpoint_expiry_timeout < 0)
++	mntget(mnt); /* prevent immediate expiration */
++	if (timeout <= 0)
+ 		goto out;
  
-+	/* Don't return to AS=0 if we were in AS=1 at function start */
-+	andi.	r11,r11,MSR_IS
-+	bne	3f
-+
- 	/* Return to AS=0 and clear the temporary entry */
- 	mfmsr	r6
- 	rlwinm.	r6,r6,0,~(MSR_IS|MSR_DS)
-@@ -481,6 +490,7 @@ _GLOBAL(loadcam_multi)
- 	tlbwe
- 	isync
+-	mntget(mnt); /* prevent immediate expiration */
+ 	mnt_set_expiry(mnt, &nfs_automount_list);
+-	schedule_delayed_work(&nfs_automount_task, nfs_mountpoint_expiry_timeout);
++	schedule_delayed_work(&nfs_automount_task, timeout);
  
-+3:
- 	mtlr	r8
- 	blr
- #endif
+ out:
+ 	nfs_free_fattr(fattr);
+@@ -201,10 +202,11 @@ const struct inode_operations nfs_referral_inode_operations = {
+ static void nfs_expire_automounts(struct work_struct *work)
+ {
+ 	struct list_head *list = &nfs_automount_list;
++	int timeout = READ_ONCE(nfs_mountpoint_expiry_timeout);
+ 
+ 	mark_mounts_for_expiry(list);
+-	if (!list_empty(list))
+-		schedule_delayed_work(&nfs_automount_task, nfs_mountpoint_expiry_timeout);
++	if (!list_empty(list) && timeout > 0)
++		schedule_delayed_work(&nfs_automount_task, timeout);
+ }
+ 
+ void nfs_release_automount_timer(void)
+-- 
+2.20.1
+
 
 
