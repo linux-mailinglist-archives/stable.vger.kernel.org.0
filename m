@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E351AC3D8
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B6431AC6C8
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:44:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732681AbgDPNuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:50:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36106 "EHLO mail.kernel.org"
+        id S2394578AbgDPOoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:44:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726022AbgDPNuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:14 -0400
+        id S2898884AbgDPN74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:59:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3C522063A;
-        Thu, 16 Apr 2020 13:50:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4C8820786;
+        Thu, 16 Apr 2020 13:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045014;
-        bh=GMCeEdBjC+Mv67Ici8GialvdPUryQ4WJJTJWdXnnZhc=;
+        s=default; t=1587045596;
+        bh=R1qOEZEcahNuX1xx6660KQkNmnV8rG9Y5gYQ8dk1pVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Td8haKEPPkStV8mFyrcEj2SMdzwx2D4nkl/yFalt4t5lsy3b8bLTAKGVTsvYz29CW
-         WERN7mFsgBPF2TgPPQiWIakDScf/SfryAZTD7oqupLjl4MWNGjVHZoIp28JCU21C3S
-         LHIP1Pd83KmrWEI1l5WCMf5/L2R23oXsqbnVxQZQ=
+        b=bZ4i6654Fia6tyd+hjftZv9E/XP0jZ4WrxXGkKrMLdOk3KtW78Fl/tu2uEVR/9zkY
+         +pR5a2y5EI4cjaDTa8IJQcl5x11Yn2bAigSQrqz9P8A2s42kVBDwkqHR0uX+pj2b7o
+         CsaJuqJ93x537EsC3jH7sINVwvfAbFT/QvYb+GMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Changwei Ge <chge@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 194/232] ocfs2: no need try to truncate file beyond i_size
-Date:   Thu, 16 Apr 2020 15:24:48 +0200
-Message-Id: <20200416131339.437707967@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.william.auld@gmail.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.6 200/254] drm/i915/gem: Flush all the reloc_gpu batch
+Date:   Thu, 16 Apr 2020 15:24:49 +0200
+Message-Id: <20200416131351.136348874@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,59 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changwei Ge <chge@linux.alibaba.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 783fda856e1034dee90a873f7654c418212d12d7 upstream.
+commit 1aaea8476d9f014667d2cb24819f9bcaf3ebb7a4 upstream.
 
-Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
-exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
-size.  This restriction is not necessary and violates fallocate(2)
-semantics.
+__i915_gem_object_flush_map() takes a byte range, so feed it the written
+bytes and do not mistake the u32 index as bytes!
 
-If fallocate(2) offset is beyond inode size, just return success and do
-nothing further.
-
-Otherwise, ocfs2 will crash the kernel.
-
-  kernel BUG at fs/ocfs2//alloc.c:7264!
-   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
-   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
-   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
-   ocfs2_fallocate+0x83/0xa0 [ocfs2]
-   vfs_fallocate+0x148/0x230
-   SyS_fallocate+0x48/0x80
-   do_syscall_64+0x79/0x170
-
-Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: a679f58d0510 ("drm/i915: Flush pages on acquisition")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.william.auld@gmail.com>
+Cc: <stable@vger.kernel.org> # v5.2+
+Reviewed-by: Matthew Auld <matthew.william.auld@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200406114821.10949-1-chris@chris-wilson.co.uk
+(cherry picked from commit 30c88a47f1abd5744908d3681f54dcf823fe2a12)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ocfs2/alloc.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/ocfs2/alloc.c
-+++ b/fs/ocfs2/alloc.c
-@@ -7403,6 +7403,10 @@ int ocfs2_truncate_inline(struct inode *
- 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
- 	struct ocfs2_inline_data *idata = &di->id2.i_data;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+@@ -914,11 +914,13 @@ static inline struct i915_ggtt *cache_to
  
-+	/* No need to punch hole beyond i_size. */
-+	if (start >= i_size_read(inode))
-+		return 0;
+ static void reloc_gpu_flush(struct reloc_cache *cache)
+ {
+-	GEM_BUG_ON(cache->rq_size >= cache->rq->batch->obj->base.size / sizeof(u32));
++	struct drm_i915_gem_object *obj = cache->rq->batch->obj;
 +
- 	if (end > i_size_read(inode))
- 		end = i_size_read(inode);
++	GEM_BUG_ON(cache->rq_size >= obj->base.size / sizeof(u32));
+ 	cache->rq_cmd[cache->rq_size] = MI_BATCH_BUFFER_END;
+ 
+-	__i915_gem_object_flush_map(cache->rq->batch->obj, 0, cache->rq_size);
+-	i915_gem_object_unpin_map(cache->rq->batch->obj);
++	__i915_gem_object_flush_map(obj, 0, sizeof(u32) * (cache->rq_size + 1));
++	i915_gem_object_unpin_map(obj);
+ 
+ 	intel_gt_chipset_flush(cache->rq->engine->gt);
  
 
 
