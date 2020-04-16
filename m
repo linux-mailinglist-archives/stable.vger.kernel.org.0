@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C181AC36C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 598211AC83D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392148AbgDPNmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:42:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55904 "EHLO mail.kernel.org"
+        id S2394923AbgDPPFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:05:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441572AbgDPNmr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:42:47 -0400
+        id S2439819AbgDPNwc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:52:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D73402222C;
-        Thu, 16 Apr 2020 13:42:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F175B20786;
+        Thu, 16 Apr 2020 13:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044567;
-        bh=F86Uvr/8Vvq5iRg6CyvWRy8iUXPMXaS3bKVGg6vxyPU=;
+        s=default; t=1587045151;
+        bh=o/zhxWKrYxQOVMKe1OWh0TvBd4TNJW8cPkJoCHrfu9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uo5dNhhS/UEycXGm4TfCeRS5HJIFNTS6mbvwjmMwOusjA/A+JGXj13FOauG9xbli9
-         Y/U+ZbeLpxNHQ1Ik2uvnulZ64uokHur2+aza1+hPQrHYD4tBd1+Wvu/QXuEepgDWky
-         SEsfEwWp2kvfV5ya58+39gzPf28pXaCsstySO4TI=
+        b=J1xEkBtqwLvjYRMB9rEPg0ZSZqBmkkr81NlL6RyVyn4j4dS74laypro9F6/VzXqKf
+         HuZkjSFm0nWNLKrhqa86Zh0ebNZL9C39Zz711ViuEpSNwqJink35083r3o2Z6gst6Z
+         xAh8W81oNGcwVVnFUadRhVnMikqiU6N9nc26UVHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luo bin <luobin9@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 013/232] hinic: fix the bug of clearing event queue
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Johannes Thumshirn <jth@kernel.org>,
+        Hannes Reinecke <hare@suse.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 018/254] blk-mq: Fix a recently introduced regression in blk_mq_realloc_hw_ctxs()
 Date:   Thu, 16 Apr 2020 15:21:47 +0200
-Message-Id: <20200416131318.053610461@linuxfoundation.org>
+Message-Id: <20200416131328.079987030@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo bin <luobin9@huawei.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 614eaa943e9fc3fcdbd4aa0692ae84973d363333 ]
+[ Upstream commit d0930bb8f46b8fb4a7d429c0bf1c91b3ed00a7cf ]
 
-should disable eq irq before freeing it, must clear event queue
-depth in hw before freeing relevant memory to avoid illegal
-memory access and update consumer idx to avoid invalid interrupt
+q->nr_hw_queues must only be updated once it is known that
+blk_mq_realloc_hw_ctxs() has succeeded. Otherwise it can happen that
+reallocation fails and that q->nr_hw_queues is larger than the number of
+allocated hardware queues. This patch fixes the following crash if
+increasing the number of hardware queues fails:
 
-Signed-off-by: Luo bin <luobin9@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BUG: KASAN: null-ptr-deref in blk_mq_map_swqueue+0x775/0x810
+Write of size 8 at addr 0000000000000118 by task check/977
+
+CPU: 3 PID: 977 Comm: check Not tainted 5.6.0-rc1-dbg+ #8
+Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+Call Trace:
+ dump_stack+0xa5/0xe6
+ __kasan_report.cold+0x65/0x99
+ kasan_report+0x16/0x20
+ check_memory_region+0x140/0x1b0
+ memset+0x28/0x40
+ blk_mq_map_swqueue+0x775/0x810
+ blk_mq_update_nr_hw_queues+0x468/0x710
+ nullb_device_submit_queues_store+0xf7/0x1a0 [null_blk]
+ configfs_write_file+0x1c4/0x250 [configfs]
+ __vfs_write+0x4c/0x90
+ vfs_write+0x145/0x2c0
+ ksys_write+0xd7/0x180
+ __x64_sys_write+0x47/0x50
+ do_syscall_64+0x6f/0x2f0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: ac0d6b926e74 ("block: Reduce the amount of memory required per request queue")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Cc: Keith Busch <kbusch@kernel.org>
+Cc: Johannes Thumshirn <jth@kernel.org>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/huawei/hinic/hinic_hw_eqs.c  | 24 +++++++++++++------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ block/blk-mq.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c b/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c
-index 79243b626ddbe..6a723c4757bce 100644
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c
-@@ -188,7 +188,7 @@ static u8 eq_cons_idx_checksum_set(u32 val)
-  * eq_update_ci - update the HW cons idx of event queue
-  * @eq: the event queue to update the cons idx for
-  **/
--static void eq_update_ci(struct hinic_eq *eq)
-+static void eq_update_ci(struct hinic_eq *eq, u32 arm_state)
- {
- 	u32 val, addr = EQ_CONS_IDX_REG_ADDR(eq);
- 
-@@ -202,7 +202,7 @@ static void eq_update_ci(struct hinic_eq *eq)
- 
- 	val |= HINIC_EQ_CI_SET(eq->cons_idx, IDX)    |
- 	       HINIC_EQ_CI_SET(eq->wrapped, WRAPPED) |
--	       HINIC_EQ_CI_SET(EQ_ARMED, INT_ARMED);
-+	       HINIC_EQ_CI_SET(arm_state, INT_ARMED);
- 
- 	val |= HINIC_EQ_CI_SET(eq_cons_idx_checksum_set(val), XOR_CHKSUM);
- 
-@@ -347,7 +347,7 @@ static void eq_irq_handler(void *data)
- 	else if (eq->type == HINIC_CEQ)
- 		ceq_irq_handler(eq);
- 
--	eq_update_ci(eq);
-+	eq_update_ci(eq, EQ_ARMED);
- }
- 
- /**
-@@ -702,7 +702,7 @@ static int init_eq(struct hinic_eq *eq, struct hinic_hwif *hwif,
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index d4bd9b961726a..37ff8dfb8ab9f 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2824,7 +2824,6 @@ static void blk_mq_realloc_hw_ctxs(struct blk_mq_tag_set *set,
+ 			memcpy(new_hctxs, hctxs, q->nr_hw_queues *
+ 			       sizeof(*hctxs));
+ 		q->queue_hw_ctx = new_hctxs;
+-		q->nr_hw_queues = set->nr_hw_queues;
+ 		kfree(hctxs);
+ 		hctxs = new_hctxs;
  	}
- 
- 	set_eq_ctrls(eq);
--	eq_update_ci(eq);
-+	eq_update_ci(eq, EQ_ARMED);
- 
- 	err = alloc_eq_pages(eq);
- 	if (err) {
-@@ -752,18 +752,28 @@ err_req_irq:
-  **/
- static void remove_eq(struct hinic_eq *eq)
- {
--	struct msix_entry *entry = &eq->msix_entry;
--
--	free_irq(entry->vector, eq);
-+	hinic_set_msix_state(eq->hwif, eq->msix_entry.entry,
-+			     HINIC_MSIX_DISABLE);
-+	free_irq(eq->msix_entry.vector, eq);
- 
- 	if (eq->type == HINIC_AEQ) {
- 		struct hinic_eq_work *aeq_work = &eq->aeq_work;
- 
- 		cancel_work_sync(&aeq_work->work);
-+		/* clear aeq_len to avoid hw access host memory */
-+		hinic_hwif_write_reg(eq->hwif,
-+				     HINIC_CSR_AEQ_CTRL_1_ADDR(eq->q_id), 0);
- 	} else if (eq->type == HINIC_CEQ) {
- 		tasklet_kill(&eq->ceq_tasklet);
-+		/* clear ceq_len to avoid hw access host memory */
-+		hinic_hwif_write_reg(eq->hwif,
-+				     HINIC_CSR_CEQ_CTRL_1_ADDR(eq->q_id), 0);
- 	}
- 
-+	/* update cons_idx to avoid invalid interrupt */
-+	eq->cons_idx = hinic_hwif_read_reg(eq->hwif, EQ_PROD_IDX_REG_ADDR(eq));
-+	eq_update_ci(eq, EQ_NOT_ARMED);
-+
- 	free_eq_pages(eq);
- }
- 
 -- 
 2.20.1
 
