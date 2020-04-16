@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA7EF1AC430
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 327221AC3B5
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392575AbgDPNzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:55:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42706 "EHLO mail.kernel.org"
+        id S2898645AbgDPNrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:47:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409147AbgDPNzm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:55:42 -0400
+        id S1731780AbgDPNrE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:47:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 913CE20786;
-        Thu, 16 Apr 2020 13:55:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BBC7208E4;
+        Thu, 16 Apr 2020 13:47:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045342;
-        bh=dB2KDjlcVCRYXWZJQZqtT4mhyHRjUEp26h/b+SX/bSs=;
+        s=default; t=1587044823;
+        bh=LVIw4RglqMHO9GLqQAM4ex7xZERbrnRufJ49tt/+4Ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FY/O8hwmlb8NUYj/UpfDOShIPBB2QR3KomCjUoanWI8MrU4q7cx2YK4gBgBFiBFT7
-         eVMpmqwo187QRSK9F0DAckfMCHtopAAAsU47CWzwdcox5NSswjR9c7kHfzYHMgSrwS
-         BbVrbDAEplNpZcAPEmJsq+BsQruZwzvigQmjMkj8=
+        b=M81L0eq6ux8kFQyGS+1NMWNtW/+Gj3iJyi9BS0yOq6kb/Vk6ubf9Ays/4IK2zRxv5
+         bvHMCDbmnwQAwUEy9YPjeFFxXmzR0eEnezSjUhKySztJIhrniatU8t8Ovt6BENb6TT
+         6Ne1n8QgUgSv/oOhxmGHYnEkqwwAcPuWw3GBzeck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ond=C5=99ej=20Caletka?= <ondrej@caletka.cz>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.6 093/254] ACPI: PM: s2idle: Refine active GPEs check
-Date:   Thu, 16 Apr 2020 15:23:02 +0200
-Message-Id: <20200416131337.567498669@linuxfoundation.org>
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 089/232] media: ti-vpe: cal: fix disable_irqs to only the intended target
+Date:   Thu, 16 Apr 2020 15:23:03 +0200
+Message-Id: <20200416131326.124301479@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,87 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Benoit Parrot <bparrot@ti.com>
 
-commit d5406284ff803a578ca503373624312770319054 upstream.
+commit 1db56284b9da9056093681f28db48a09a243274b upstream.
 
-The check for any active GPEs added by commit fdde0ff8590b ("ACPI:
-PM: s2idle: Prevent spurious SCIs from waking up the system") turns
-out to be insufficiently precise to prevent some systems from
-resuming prematurely due to a spurious EC wakeup, so refine it
-by first checking if any GPEs other than the EC GPE are active
-and skipping all of the SCIs coming from the EC that do not produce
-any genuine wakeup events after processing.
+disable_irqs() was mistakenly disabling all interrupts when called.
+This cause all port stream to stop even if only stopping one of them.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206629
-Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system")
-Reported-by: Ondřej Caletka <ondrej@caletka.cz>
-Tested-by: Ondřej Caletka <ondrej@caletka.cz>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/ec.c       |    5 +++++
- drivers/acpi/internal.h |    1 +
- drivers/acpi/sleep.c    |   19 ++++++++++---------
- 3 files changed, 16 insertions(+), 9 deletions(-)
+ drivers/media/platform/ti-vpe/cal.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -2044,6 +2044,11 @@ void acpi_ec_set_gpe_wake_mask(u8 action
- 		acpi_set_gpe_wake_mask(NULL, first_ec->gpe, action);
- }
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -537,16 +537,16 @@ static void enable_irqs(struct cal_ctx *
  
-+bool acpi_ec_other_gpes_active(void)
-+{
-+	return acpi_any_gpe_status_set(first_ec ? first_ec->gpe : U32_MAX);
-+}
-+
- bool acpi_ec_dispatch_gpe(void)
+ static void disable_irqs(struct cal_ctx *ctx)
  {
- 	u32 ret;
---- a/drivers/acpi/internal.h
-+++ b/drivers/acpi/internal.h
-@@ -202,6 +202,7 @@ void acpi_ec_remove_query_handler(struct
- 
- #ifdef CONFIG_PM_SLEEP
- void acpi_ec_flush_work(void);
-+bool acpi_ec_other_gpes_active(void);
- bool acpi_ec_dispatch_gpe(void);
- #endif
- 
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -1017,19 +1017,20 @@ static bool acpi_s2idle_wake(void)
- 			return true;
- 
- 		/*
--		 * If there are no EC events to process and at least one of the
--		 * other enabled GPEs is active, the wakeup is regarded as a
--		 * genuine one.
--		 *
--		 * Note that the checks below must be carried out in this order
--		 * to avoid returning prematurely due to a change of the EC GPE
--		 * status bit from unset to set between the checks with the
--		 * status bits of all the other GPEs unset.
-+		 * If the status bit is set for any enabled GPE other than the
-+		 * EC one, the wakeup is regarded as a genuine one.
- 		 */
--		if (acpi_any_gpe_status_set(U32_MAX) && !acpi_ec_dispatch_gpe())
-+		if (acpi_ec_other_gpes_active())
- 			return true;
- 
- 		/*
-+		 * If the EC GPE status bit has not been set, the wakeup is
-+		 * regarded as a spurious one.
-+		 */
-+		if (!acpi_ec_dispatch_gpe())
-+			return false;
++	u32 val;
 +
-+		/*
- 		 * Cancel the wakeup and process all pending events in case
- 		 * there are any wakeup ones in there.
- 		 *
+ 	/* Disable IRQ_WDMA_END 0/1 */
+-	reg_write_field(ctx->dev,
+-			CAL_HL_IRQENABLE_CLR(2),
+-			CAL_HL_IRQ_CLEAR,
+-			CAL_HL_IRQ_MASK(ctx->csi2_port));
++	val = 0;
++	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
++	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), val);
+ 	/* Disable IRQ_WDMA_START 0/1 */
+-	reg_write_field(ctx->dev,
+-			CAL_HL_IRQENABLE_CLR(3),
+-			CAL_HL_IRQ_CLEAR,
+-			CAL_HL_IRQ_MASK(ctx->csi2_port));
++	val = 0;
++	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
++	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), val);
+ 	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
+ 	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
+ }
 
 
