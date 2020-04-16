@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A68121AC91C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38F601AC7A9
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:58:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442413AbgDPPTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:19:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33982 "EHLO mail.kernel.org"
+        id S1732104AbgDPO5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:57:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898723AbgDPNrz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:47:55 -0400
+        id S2392542AbgDPNze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:55:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D8C8208E4;
-        Thu, 16 Apr 2020 13:47:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D06E2076D;
+        Thu, 16 Apr 2020 13:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044874;
-        bh=P0Kbr+jaiAUTu7vRnV1VEh+m2Ui/C/b38dc6jJjmH4w=;
+        s=default; t=1587045334;
+        bh=yJIkyK8GkRpK/3XpjVDYAwzoCs2uv8iHW55ZABuRjzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7K1vAMwvVl5gKWujdNMQVk+9koJk8biI1iuVWHQ0VkQFMZ2FzNnfcTzT+gSOwfvd
-         /7w8C0Sq44xO/kp2dBYyCoXOkIk2dp/sdmezNYATlgn65W568DGFRsrZIMzh4wKAg+
-         63mwySlgdEJpY3D2lN64GwVFnWtctcWZNFw3t4Vk=
+        b=fhLc+D/3T1sgzjXilsc8Ak3hV8rEUbBcIDPyjJnMR/h4DJUfbwkIvkYRIulW3RZlO
+         aPAy068+O+YeBYFCoo46I1Qt34lc8Izr5OaA0JHIjmYs62Nga/8KNpxJmljO1+dW/+
+         kyr79s+ZE73JrLpZiYRmw/QqD65/pAKhrGOk/ySg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 086/232] ALSA: hda/realtek - Add quirk for MSI GL63
+        stable@vger.kernel.org, Jan Engelhardt <jengelh@inai.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.6 091/254] acpi/x86: ignore unspecified bit positions in the ACPI global lock field
 Date:   Thu, 16 Apr 2020 15:23:00 +0200
-Message-Id: <20200416131325.778286538@linuxfoundation.org>
+Message-Id: <20200416131337.300305062@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jan Engelhardt <jengelh@inai.de>
 
-commit 1d3aa4a5516d2e4933fe3cca11d3349ef63bc547 upstream.
+commit ecb9c790999fd6c5af0f44783bd0217f0b89ec2b upstream.
 
-MSI GL63 laptop requires the similar quirk like other MSI models,
-ALC1220_FIXUP_CLEVO_P950.  The board BIOS doesn't provide a PCI SSID
-for the device, hence we need to take the codec SSID (1462:1275)
-instead.
+The value in "new" is constructed from "old" such that all bits defined
+as reserved by the ACPI spec[1] are left untouched. But if those bits
+do not happen to be all zero, "new < 3" will not evaluate to true.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207157
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200408135645.21896-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The firmware of the laptop(s) Medion MD63490 / Akoya P15648 comes with
+garbage inside the "FACS" ACPI table. The starting value is
+old=0x4944454d, therefore new=0x4944454e, which is >= 3. Mask off
+the reserved bits.
+
+[1] https://uefi.org/sites/default/files/resources/ACPI_6_2.pdf
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206553
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Jan Engelhardt <jengelh@inai.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/acpi/boot.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2447,6 +2447,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
-+	SND_PCI_QUIRK(0x1462, 0x1275, "MSI-GL63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x7350, "MSI-7350", ALC889_FIXUP_CD),
+--- a/arch/x86/kernel/acpi/boot.c
++++ b/arch/x86/kernel/acpi/boot.c
+@@ -1740,7 +1740,7 @@ int __acpi_acquire_global_lock(unsigned
+ 		new = (((old & ~0x3) + 2) + ((old >> 1) & 0x1));
+ 		val = cmpxchg(lock, old, new);
+ 	} while (unlikely (val != old));
+-	return (new < 3) ? -1 : 0;
++	return ((new & 0x3) < 3) ? -1 : 0;
+ }
+ 
+ int __acpi_release_global_lock(unsigned int *lock)
 
 
