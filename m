@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F601AC7A9
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA7571ACBD3
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732104AbgDPO5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:57:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42532 "EHLO mail.kernel.org"
+        id S2895935AbgDPN3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:29:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392542AbgDPNze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:55:34 -0400
+        id S2895233AbgDPN3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:29:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D06E2076D;
-        Thu, 16 Apr 2020 13:55:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12232217D8;
+        Thu, 16 Apr 2020 13:28:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045334;
-        bh=yJIkyK8GkRpK/3XpjVDYAwzoCs2uv8iHW55ZABuRjzg=;
+        s=default; t=1587043739;
+        bh=0XSTBhX2zm6ioqTEpMmLcdqllM/RPn/aU26VIs+NCX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhLc+D/3T1sgzjXilsc8Ak3hV8rEUbBcIDPyjJnMR/h4DJUfbwkIvkYRIulW3RZlO
-         aPAy068+O+YeBYFCoo46I1Qt34lc8Izr5OaA0JHIjmYs62Nga/8KNpxJmljO1+dW/+
-         kyr79s+ZE73JrLpZiYRmw/QqD65/pAKhrGOk/ySg=
+        b=OT/pTNfSSzc8bH68LZLwZMvJf3F4TUxEncqmkhWk/at6+qeu30WbNkliR4CHpHpYn
+         k2rsJGy6ZmhzVYoybDDuYRzqtWub1yIjXxzoqVZl0iQucX6X6ptV3p8Tnu1Vz03Zi0
+         hDUOtTGk3KabDvKLxqIXFc0mp2M5ZkjWyHojrFMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Engelhardt <jengelh@inai.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.6 091/254] acpi/x86: ignore unspecified bit positions in the ACPI global lock field
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 039/146] btrfs: remove a BUG_ON() from merge_reloc_roots()
 Date:   Thu, 16 Apr 2020 15:23:00 +0200
-Message-Id: <20200416131337.300305062@linuxfoundation.org>
+Message-Id: <20200416131247.884032479@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Engelhardt <jengelh@inai.de>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit ecb9c790999fd6c5af0f44783bd0217f0b89ec2b upstream.
+[ Upstream commit 7b7b74315b24dc064bc1c683659061c3d48f8668 ]
 
-The value in "new" is constructed from "old" such that all bits defined
-as reserved by the ACPI spec[1] are left untouched. But if those bits
-do not happen to be all zero, "new < 3" will not evaluate to true.
+This was pretty subtle, we default to reloc roots having 0 root refs, so
+if we crash in the middle of the relocation they can just be deleted.
+If we successfully complete the relocation operations we'll set our root
+refs to 1 in prepare_to_merge() and then go on to merge_reloc_roots().
 
-The firmware of the laptop(s) Medion MD63490 / Akoya P15648 comes with
-garbage inside the "FACS" ACPI table. The starting value is
-old=0x4944454d, therefore new=0x4944454e, which is >= 3. Mask off
-the reserved bits.
+At prepare_to_merge() time if any of the reloc roots have a 0 reference
+still, we will remove that reloc root from our reloc root rb tree, and
+then clean it up later.
 
-[1] https://uefi.org/sites/default/files/resources/ACPI_6_2.pdf
+However this only happens if we successfully start a transaction.  If
+we've aborted previously we will skip this step completely, and only
+have reloc roots with a reference count of 0, but were never properly
+removed from the reloc control's rb tree.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206553
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Jan Engelhardt <jengelh@inai.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This isn't a problem per-se, our references are held by the list the
+reloc roots are on, and by the original root the reloc root belongs to.
+If we end up in this situation all the reloc roots will be added to the
+dirty_reloc_list, and then properly dropped at that point.  The reloc
+control will be free'd and the rb tree is no longer used.
 
+There were two options when fixing this, one was to remove the BUG_ON(),
+the other was to make prepare_to_merge() handle the case where we
+couldn't start a trans handle.
+
+IMO this is the cleaner solution.  I started with handling the error in
+prepare_to_merge(), but it turned out super ugly.  And in the end this
+BUG_ON() simply doesn't matter, the cleanup was happening properly, we
+were just panicing because this BUG_ON() only matters in the success
+case.  So I've opted to just remove it and add a comment where it was.
+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/acpi/boot.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/relocation.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/acpi/boot.c
-+++ b/arch/x86/kernel/acpi/boot.c
-@@ -1740,7 +1740,7 @@ int __acpi_acquire_global_lock(unsigned
- 		new = (((old & ~0x3) + 2) + ((old >> 1) & 0x1));
- 		val = cmpxchg(lock, old, new);
- 	} while (unlikely (val != old));
--	return (new < 3) ? -1 : 0;
-+	return ((new & 0x3) < 3) ? -1 : 0;
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index f98913061a40c..6f4cb2db3b1a0 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -2434,7 +2434,21 @@ out:
+ 			free_reloc_roots(&reloc_roots);
+ 	}
+ 
+-	BUG_ON(!RB_EMPTY_ROOT(&rc->reloc_root_tree.rb_root));
++	/*
++	 * We used to have
++	 *
++	 * BUG_ON(!RB_EMPTY_ROOT(&rc->reloc_root_tree.rb_root));
++	 *
++	 * here, but it's wrong.  If we fail to start the transaction in
++	 * prepare_to_merge() we will have only 0 ref reloc roots, none of which
++	 * have actually been removed from the reloc_root_tree rb tree.  This is
++	 * fine because we're bailing here, and we hold a reference on the root
++	 * for the list that holds it, so these roots will be cleaned up when we
++	 * do the reloc_dirty_list afterwards.  Meanwhile the root->reloc_root
++	 * will be cleaned up on unmount.
++	 *
++	 * The remaining nodes will be cleaned up by free_reloc_control.
++	 */
  }
  
- int __acpi_release_global_lock(unsigned int *lock)
+ static void free_block_list(struct rb_root *blocks)
+-- 
+2.20.1
+
 
 
