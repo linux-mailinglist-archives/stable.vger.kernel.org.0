@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 499DA1AC320
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C04BC1AC7A8
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897699AbgDPNic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:38:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50884 "EHLO mail.kernel.org"
+        id S2392501AbgDPNzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:55:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897693AbgDPNi1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:38:27 -0400
+        id S2392497AbgDPNzW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:55:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD1A920732;
-        Thu, 16 Apr 2020 13:38:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14ED221734;
+        Thu, 16 Apr 2020 13:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044306;
-        bh=ESA2Q8qNEyYMT9qiYnzTb8YCAnx8roVpY6pxsaqV8pw=;
+        s=default; t=1587045322;
+        bh=W2NX7RUrjeSGIxVbUNcuOSZnXLYhBIfIG0GMm8GFxD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITNuYaKTM9xsP2Q85qa0GZK5pa6Gs2sEN9q5vjg7jiWXPuSJyx2WIMuW05uK2AQIG
-         EbXflS1hNoJCdm6ZvP3bujUonnZAVPb8Xlw5TXW09BhgODOv/POqhJH42xbAbD/tBD
-         htBqVUcicjybsuSr6jSNcK0dIbTVAd5I2tLvPESc=
+        b=ihjbL9ASNV13k6r/s/cIiJ1Ee3F0rVPep0H0FbLYsO6a/I5QNdHj8ARB0a1PDqz9b
+         1wk5Fs0y2UO+hz1Dxr6uI+wduIiCvwNGng0wZrvc9d7RkX+JDlWYtsE0qbX4FgF92T
+         +1RLNhfxV6LOTwiiItkRjXgQneHV01+QqtF5GBSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Yang Xu <xuyang2018.jy@cn.fujitsu.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.5 123/257] KEYS: reaching the keys quotas correctly
-Date:   Thu, 16 Apr 2020 15:22:54 +0200
-Message-Id: <20200416131341.705090440@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.6 086/254] media: hantro: Read be32 words starting at every fourth byte
+Date:   Thu, 16 Apr 2020 15:22:55 +0200
+Message-Id: <20200416131336.676371735@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
+From: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 
-commit 2e356101e72ab1361821b3af024d64877d9a798d upstream.
+commit e34bca49e4953e5c2afc0425303199a5fd515f82 upstream.
 
-Currently, when we add a new user key, the calltrace as below:
+Since (luma/chroma)_qtable is an array of unsigned char, indexing it
+returns consecutive byte locations, but we are supposed to read the arrays
+in four-byte words. Consequently, we should be pointing
+get_unaligned_be32() at consecutive word locations instead.
 
-add_key()
-  key_create_or_update()
-    key_alloc()
-    __key_instantiate_and_link
-      generic_key_instantiate
-        key_payload_reserve
-          ......
-
-Since commit a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly"),
-we can reach max bytes/keys in key_alloc, but we forget to remove this
-limit when we reserver space for payload in key_payload_reserve. So we
-can only reach max keys but not max bytes when having delta between plen
-and type->def_datalen. Remove this limit when instantiating the key, so we
-can keep consistent with key_alloc.
-
-Also, fix the similar problem in keyctl_chown_key().
-
-Fixes: 0b77f5bfb45c ("keys: make the keyring quotas controllable through /proc/sys")
-Fixes: a08bf91ce28e ("KEYS: allow reaching the keys quotas exactly")
-Cc: stable@vger.kernel.org # 5.0.x
-Cc: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+Tested-by: Ezequiel Garcia <ezequiel@collabora.com>
+Cc: stable@vger.kernel.org
+Fixes: 00c30f42c7595f "media: rockchip vpu: remove some unused vars"
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/keys/key.c    |    2 +-
- security/keys/keyctl.c |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/media/hantro/hantro_h1_jpeg_enc.c     |    9 +++++++--
+ drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c |    9 +++++++--
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -381,7 +381,7 @@ int key_payload_reserve(struct key *key,
- 		spin_lock(&key->user->lock);
+--- a/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
++++ b/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
+@@ -67,12 +67,17 @@ hantro_h1_jpeg_enc_set_qtable(struct han
+ 			      unsigned char *chroma_qtable)
+ {
+ 	u32 reg, i;
++	__be32 *luma_qtable_p;
++	__be32 *chroma_qtable_p;
++
++	luma_qtable_p = (__be32 *)luma_qtable;
++	chroma_qtable_p = (__be32 *)chroma_qtable;
  
- 		if (delta > 0 &&
--		    (key->user->qnbytes + delta >= maxbytes ||
-+		    (key->user->qnbytes + delta > maxbytes ||
- 		     key->user->qnbytes + delta < key->user->qnbytes)) {
- 			ret = -EDQUOT;
- 		}
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -937,8 +937,8 @@ long keyctl_chown_key(key_serial_t id, u
- 				key_quota_root_maxbytes : key_quota_maxbytes;
+ 	for (i = 0; i < H1_JPEG_QUANT_TABLE_COUNT; i++) {
+-		reg = get_unaligned_be32(&luma_qtable[i]);
++		reg = get_unaligned_be32(&luma_qtable_p[i]);
+ 		vepu_write_relaxed(vpu, reg, H1_REG_JPEG_LUMA_QUAT(i));
  
- 			spin_lock(&newowner->lock);
--			if (newowner->qnkeys + 1 >= maxkeys ||
--			    newowner->qnbytes + key->quotalen >= maxbytes ||
-+			if (newowner->qnkeys + 1 > maxkeys ||
-+			    newowner->qnbytes + key->quotalen > maxbytes ||
- 			    newowner->qnbytes + key->quotalen <
- 			    newowner->qnbytes)
- 				goto quota_overrun;
+-		reg = get_unaligned_be32(&chroma_qtable[i]);
++		reg = get_unaligned_be32(&chroma_qtable_p[i]);
+ 		vepu_write_relaxed(vpu, reg, H1_REG_JPEG_CHROMA_QUAT(i));
+ 	}
+ }
+--- a/drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c
++++ b/drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c
+@@ -98,12 +98,17 @@ rk3399_vpu_jpeg_enc_set_qtable(struct ha
+ 			       unsigned char *chroma_qtable)
+ {
+ 	u32 reg, i;
++	__be32 *luma_qtable_p;
++	__be32 *chroma_qtable_p;
++
++	luma_qtable_p = (__be32 *)luma_qtable;
++	chroma_qtable_p = (__be32 *)chroma_qtable;
+ 
+ 	for (i = 0; i < VEPU_JPEG_QUANT_TABLE_COUNT; i++) {
+-		reg = get_unaligned_be32(&luma_qtable[i]);
++		reg = get_unaligned_be32(&luma_qtable_p[i]);
+ 		vepu_write_relaxed(vpu, reg, VEPU_REG_JPEG_LUMA_QUAT(i));
+ 
+-		reg = get_unaligned_be32(&chroma_qtable[i]);
++		reg = get_unaligned_be32(&chroma_qtable_p[i]);
+ 		vepu_write_relaxed(vpu, reg, VEPU_REG_JPEG_CHROMA_QUAT(i));
+ 	}
+ }
 
 
