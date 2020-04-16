@@ -2,90 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D71101AB614
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 05:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1851AB615
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 05:09:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389213AbgDPDGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Apr 2020 23:06:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43692 "EHLO mail.kernel.org"
+        id S2389135AbgDPDJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Apr 2020 23:09:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388679AbgDPDGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Apr 2020 23:06:11 -0400
+        id S2388679AbgDPDJI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Apr 2020 23:09:08 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6E8F2072D;
-        Thu, 16 Apr 2020 03:06:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FE0E2072D;
+        Thu, 16 Apr 2020 03:09:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587006371;
-        bh=QdOIPJY37z5Bhj4Kb2AzpT4wuAiIaN//bJlmctjnngc=;
+        s=default; t=1587006548;
+        bh=iWZRq6tWLslJqU+dIvBTOVdHi3+1e7pVb4r0dKHaO4s=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=V+jn1KGlBReCwH81hhdMZNqyzRTTQd76zW4AqNmVUjYm/0LPYnxYPO9BMyZFXL6qd
-         2OrTAaagXn7eypwapFCvql0WgMUiYaatZnXEqSS4dMmI5XUREauhP0iCCeJmCJMNTo
-         hPs1+wJCsdkcNvdPucf23OGskmYON7XN4kqn0KgA=
-Date:   Wed, 15 Apr 2020 23:06:09 -0400
+        b=rIfjd/Nt+sqtmnfJiZdFp2lP90Sr6J0OmO217RZtNJ66ErsxwB4Xel0lpaJF6b4/D
+         ToyJG9epbcrQp0wn3UQPbxKWUVO3X9T57PcSrv/DcW6r1YnaCZlntaV3myNKmdRSAC
+         MpPP1ISI2AoqkZKIkHSDvDdUNW+oREiWyzugYiBw=
+Date:   Wed, 15 Apr 2020 23:09:07 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     peterz@infradead.org, mingo@kernel.org, songliubraving@fb.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] perf/core: Fix event cgroup tracking"
- failed to apply to 5.6-stable tree
-Message-ID: <20200416030609.GC1068@sasha-vm>
-References: <1586950934055@kroah.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     gregkh@linuxfoundation.org, mhiramat@kernel.org,
+        treeze.taeung@gmail.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] ftrace/kprobe: Show the maxactive number
+ on kprobe_events" failed to apply to 4.19-stable tree
+Message-ID: <20200416030907.GD1068@sasha-vm>
+References: <158695112724822@kroah.com>
+ <20200415151400.2347497b@gandalf.local.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1586950934055@kroah.com>
+In-Reply-To: <20200415151400.2347497b@gandalf.local.home>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 15, 2020 at 01:42:14PM +0200, gregkh@linuxfoundation.org wrote:
+On Wed, Apr 15, 2020 at 03:14:00PM -0400, Steven Rostedt wrote:
+>On Wed, 15 Apr 2020 13:45:27 +0200
+><gregkh@linuxfoundation.org> wrote:
 >
->The patch below does not apply to the 5.6-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
+>> The patch below does not apply to the 4.19-stable tree.
+>> If someone wants it applied there, or to any other stable or longterm
+>> tree, then please email the backport, including the original git commit
+>> id to <stable@vger.kernel.org>.
+>>
+>> thanks,
+>>
+>> greg k-h
+>>
+>>
 >
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 33238c50451596be86db1505ab65fee5172844d0 Mon Sep 17 00:00:00 2001
->From: Peter Zijlstra <peterz@infradead.org>
->Date: Wed, 18 Mar 2020 20:33:37 +0100
->Subject: [PATCH] perf/core: Fix event cgroup tracking
->
->Song reports that installing cgroup events is broken since:
->
->  db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
->
->The problem being that cgroup events try to track cpuctx->cgrp even
->for disabled events, which is pointless and actively harmful since the
->above commit. Rework the code to have explicit enable/disable hooks
->for cgroup events, such that we can limit cgroup tracking to active
->events.
->
->More specifically, since the above commit disabled events are no
->longer added to their context from the 'right' CPU, and we can't
->access things like the current cgroup for a remote CPU.
->
->Cc: <stable@vger.kernel.org> # v5.5+
->Fixes: db0503e4f675 ("perf/core: Optimize perf_install_in_event()")
->Reported-by: Song Liu <songliubraving@fb.com>
->Tested-by: Song Liu <songliubraving@fb.com>
->Reviewed-by: Song Liu <songliubraving@fb.com>
->Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
->Signed-off-by: Ingo Molnar <mingo@kernel.org>
->Link: https://lkml.kernel.org/r/20200318193337.GB20760@hirez.programming.kicks-ass.net
+>This should apply to both 4.14 and 4.19 and fix the same issue:
 
-I've also grabbed ab6f824cfdf7 ("perf/core: Unify
-{pinned,flexible}_sched_in()") and 2c2366c7548e ("perf/core: Remove
-'struct sched_in_data'"), and queued both for 5.6 and 5.5.
+Queued up for 4.19 and 4.14, thanks Steve!
 
 -- 
 Thanks,
