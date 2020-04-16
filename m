@@ -2,135 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A4571AD1BC
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 23:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 829331AD1C3
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 23:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728070AbgDPVLn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 17:11:43 -0400
-Received: from mail-vi1eur05on2077.outbound.protection.outlook.com ([40.107.21.77]:23069
-        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725928AbgDPVLm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 17:11:42 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MkoTmTIVQ2pT3MvF9MRDh+asr9/yDdlO1WD3eJNjCrgtt/MNDAG8tiQQv64B4+P0SMZbzs7ThJY0aylZ9F8j3Xhn4v61qi8B598U7ks1pXt2BmyT4lzhRFxcNnRq+mIOzPl7KlBDKb4cD7S2NDPHq+GRUYyka2PqZ15aOEIa5IZ2Vrk4gh+J9HNbygMcN/OjQTmlDFyeTmy+JuYAdWlSRfw+CIQbv+rllqqeBJPEbNKrFoCo4X71qpE3HyByjgVChUaK8Cfl3Oj2YScRpOopR2bTFJIHhmWR4TDX5eBAeAXsH0nvUYtJWCa9J1oll0VyOnqktoug483ksizzbjJYhA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IWVewDVCTD+kTg3S33RK/F90qpyIEBR2RBqZDocjms8=;
- b=oPtHv4VSKvMJiUbqI9U49S3hD/anSvrgYnSO5aYiuDvxj7kbkvLC/WJMM1IXP0KmxWOBbKgbh4ELkZESNxG4aopi2lPHAcFampbAd+V3/ZcWpK41gDoGTFmBYVRaXLILunDoQe83XGsa81FNcVfumAWDyWQg6RHN/C5BItgHwERpz8Ydn/+qaaiX8K21n8i+avke9TH5a4qnlCYhyK79nQ7hWHL3jeVzch+s0KisS7qSIovoLTn0+9uZhw+1lmJnmBHxksk697+F/OmITOQVunRLsujuFDqLvBUs23r6LhcaCf/enOIj4N7m0ALbil/bMPiy8JB+RFepAu8PjtS9aw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=mellanox.com; dmarc=pass action=none header.from=mellanox.com;
- dkim=pass header.d=mellanox.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IWVewDVCTD+kTg3S33RK/F90qpyIEBR2RBqZDocjms8=;
- b=Y+L2hAVK9eQ5pH1mADOufv37WR1eHRjSjl4JVo+TUAhyeZXRAKE3LwOTWEhr+ceq5fBgEMqsXTGjVnY/Bpl5iNxQ57Vn4MMiOdyD/y70yek+juYtNJjal89ZSc8MYOnzyF7MgTKmJY4HmWBN2Zw1OsLT6t7xj/Tm6FU5NjD5nqc=
-Received: from VI1PR05MB5102.eurprd05.prod.outlook.com (2603:10a6:803:5e::23)
- by VI1PR05MB6752.eurprd05.prod.outlook.com (2603:10a6:800:131::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2921.27; Thu, 16 Apr
- 2020 21:11:38 +0000
-Received: from VI1PR05MB5102.eurprd05.prod.outlook.com
- ([fe80::9d19:a564:b84e:7c19]) by VI1PR05MB5102.eurprd05.prod.outlook.com
- ([fe80::9d19:a564:b84e:7c19%7]) with mapi id 15.20.2900.028; Thu, 16 Apr 2020
- 21:11:38 +0000
-From:   Saeed Mahameed <saeedm@mellanox.com>
-To:     "kuba@kernel.org" <kuba@kernel.org>
-CC:     "sashal@kernel.org" <sashal@kernel.org>,
-        "ecree@solarflare.com" <ecree@solarflare.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "gerlitz.or@gmail.com" <gerlitz.or@gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
- representors
-Thread-Topic: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
- representors
-Thread-Index: AQHWEFb6WRVOJO0/j0GE4IB+QkA/0qh1Ei4AgAC1ZICAAheSAIAAjYWAgAAM6ICAADp+AIAAE8gAgABWOICAAURNAIAAgPKAgADlNYCAAD1UgIAAJLSAgAAKXACAABGkAA==
-Date:   Thu, 16 Apr 2020 21:11:38 +0000
-Message-ID: <4a5bc4cf3225682e3d79590eeec1ae81774e3c2a.camel@mellanox.com>
-References: <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-         <20200414015627.GA1068@sasha-vm>
-         <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
-         <20200414110911.GA341846@kroah.com>
-         <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
-         <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
-         <20200414205755.GF1068@sasha-vm>
-         <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
-         <20200416000009.GL1068@sasha-vm>
-         <CAJ3xEMjfWL=c=voGqV4pUCzWXmiTn-R6mrRi82UAVHMVysKU1g@mail.gmail.com>
-         <20200416172001.GC1388618@kroah.com>
-         <b8651ce6d7d6c6dcb8b2d66f07148413892b48d0.camel@mellanox.com>
-         <20200416130828.1f35b6cf@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20200416130828.1f35b6cf@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Evolution 3.34.4 (3.34.4-1.fc31) 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=saeedm@mellanox.com; 
-x-originating-ip: [73.15.39.150]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: f2f8bcef-c1f1-478b-323c-08d7e24ac0a5
-x-ms-traffictypediagnostic: VI1PR05MB6752:
-x-microsoft-antispam-prvs: <VI1PR05MB6752E3B8D93DA49BE667AC23BED80@VI1PR05MB6752.eurprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-forefront-prvs: 0375972289
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR05MB5102.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10009020)(4636009)(376002)(346002)(366004)(136003)(39860400002)(396003)(2616005)(6916009)(71200400001)(6512007)(45080400002)(36756003)(6486002)(8936002)(26005)(2906002)(186003)(81156014)(8676002)(5660300002)(6506007)(66476007)(64756008)(86362001)(316002)(478600001)(66556008)(66446008)(91956017)(66946007)(76116006)(54906003)(4326008);DIR:OUT;SFP:1101;
-received-spf: None (protection.outlook.com: mellanox.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 7maPaUfPHk3Zss0WXBGP7DPHM25Zhpjqx+NKSpW6JXUt3/kpoLiy/L7J9uDNKVzoxMeHfeYjs6yzZ9iGAcIzQ0h42pENYCKf2Xsmpbw2QgoPDBidnaoRlj4my9DAzILubPBcPV5BVQWDPy5Tb5WUCS/fnR/l/tY/LY66vXqHY4kYl4rmDS3Y8wKFrVzkEY9CyUHjRY7MiD2iOIJxvWfWRRlWU9f65wrOdIfnBVHfEF3lGvqFazYNYKymkcDXiA+ygoKjYsvqAndoy7shkAfl/71kfAai5fI278xLtXqyTmFmgTpWLD+1AoxY60FD/N9lGYpMJEefgRAuTFCv4AxI76gKGAcMfoI/eTexEy1f3+l9wqAo4BHVjvuhOWqIcZJBFReyuoXZARnpaAdnBvO4oHdqAkDKd7SXnAdPhMrQDcvMYCENxWivBsCPHq6Vpsy/
-x-ms-exchange-antispam-messagedata: wiLwSQHzkjAHw+1Bp1j+jB5YQbViXHLGyWwfANsw/PHBFXTfAXzuEK91ktziyu+HnO0X74/korpPotA9OPFana5v2qQ/t0l886Sw6hhqmVLl6T0IEVi184o/09nJXADtQfvmckfcC7PKYmrY6sdGdA==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <7AFC0E461E539545BEE20687E3D4FFFB@eurprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S1725849AbgDPVPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 17:15:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43940 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728976AbgDPVPL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 17:15:11 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144A9C061A0C;
+        Thu, 16 Apr 2020 14:15:11 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id cl8so94067pjb.3;
+        Thu, 16 Apr 2020 14:15:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=qHLu4Utm9iKRdRRBpVP1VU9Un3Vy8XnbKRRI7QdNmJY=;
+        b=CsTARmjzuCV6mWwuWkb7COD8a6bXCsGPCSryPquvb4lppE6nFNS18KNTVV1VT2OGPF
+         j4hyCygljtOr3uiN3H1h5aeakm9yu5Ena2Pxqm9jiK6K8wcnBWEzNYiSX924WBbPF2DN
+         D1C7/k9Jz/ASAv66w3vt6CGPZA/G7pO60PUa1P38Rya4ExOV37U+8g3UDElm8o+9g78Q
+         JFbsMWopWLiWi6KtBEfC7mVwH4d7lnzLIbl5KfpAYfdm0spAfDyGILh/wMn5oUw9T1TM
+         kjrPplQBAMeKG44yTQE9IFFVjGWsd/J/da5wms8JmVSH2gfwUQRdTh/Hpnzr3bCU2D6s
+         lOdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=qHLu4Utm9iKRdRRBpVP1VU9Un3Vy8XnbKRRI7QdNmJY=;
+        b=BAH2U4G8rXS/YNIX67zmwYePAkoUW1Yw6ygyfAmdSftRI2BjRJpP2lpgeI2NJcFDDy
+         ooxXmUQwAHmJrzyJ6AwmDs0bYbrkpfcG2ceNX46wTYzNVtZeza3+Hu03OuMkXxrDloSm
+         1SzDWu4QNKRsgi1bjICB3NCSgmO5gq5WtW8M0+atcOyS12fnO+GlIdsGcau1eZDqjCBE
+         H1cpLo0dXyGUUZu/NWqyKBrHbjc7gPFqtIat0asVbVjgfCtjakqKiFueabDa8XHJirTs
+         4ULWUUA65m3WAt3CESXU5ONwhychclQRVqNCxJldue0Fwe694t4PkO2JbbPQcAbNCbmc
+         Oxow==
+X-Gm-Message-State: AGi0PuZHygrsYbZK0NM2g4j2JsjZFQgW3UF5ZNvML1qNNIHu/JRyrgb9
+        L6ZuVFEsNAC3YXGNkwlRwzS0FXwg
+X-Google-Smtp-Source: APiQypJdDLBAxnnQOoLdskZCHix9tS6Z6kUatSlDRONPajedBw5Smi+BKWRrhvhk2u6+u7xT+fWe1w==
+X-Received: by 2002:a17:90b:4c0e:: with SMTP id na14mr314769pjb.73.1587071710525;
+        Thu, 16 Apr 2020 14:15:10 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id k189sm16282123pgc.24.2020.04.16.14.15.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Apr 2020 14:15:10 -0700 (PDT)
+Subject: Re: [PATCH 4.19 000/146] 4.19.116-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20200416131242.353444678@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <a9f9b3d7-4660-07df-ec16-14a80a07679f@roeck-us.net>
+Date:   Thu, 16 Apr 2020 14:15:08 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-X-OriginatorOrg: Mellanox.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f2f8bcef-c1f1-478b-323c-08d7e24ac0a5
-X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Apr 2020 21:11:38.2854
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: tbQLcL1pwk/B0gThekhqMWBg/+b5JlkrYFwGpmSj7Ackxxa1VzI4JWxJx01ngypRFCwzEGGM03EeEm9gK1BLwQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR05MB6752
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVGh1LCAyMDIwLTA0LTE2IGF0IDEzOjA4IC0wNzAwLCBKYWt1YiBLaWNpbnNraSB3cm90ZToN
-Cj4gT24gVGh1LCAxNiBBcHIgMjAyMCAxOTozMToyNSArMDAwMCBTYWVlZCBNYWhhbWVlZCB3cm90
-ZToNCj4gPiA+ID4gSU1ITyBpdCBkb2Vzbid0IG1ha2UgYW55IHNlbnNlIHRvIHRha2UgaW50byBz
-dGFibGUNCj4gPiA+ID4gYXV0b21hdGljYWxseQ0KPiA+ID4gPiBhbnkgcGF0Y2ggdGhhdCBkb2Vz
-bid0IGhhdmUgZml4ZXMgbGluZS4gRG8geW91IGhhdmUgMS8yLzMvNC81DQo+ID4gPiA+IGNvbmNy
-ZXRlDQo+ID4gPiA+IGV4YW1wbGVzIGZyb20geW91ciAocmVmZXJyaW5nIHRvIHlvdXIgTWljcm9z
-b2Z0IGVtcGxveWVlIGhhdA0KPiA+ID4gPiBjb21tZW50DQo+ID4gPiA+IGJlbG93KSBvciBvdGhl
-cidzIHBlb3BsZSBwcm9kdWN0aW9uIGVudmlyb25tZW50IHdoZXJlIHBhdGNoZXMNCj4gPiA+ID4g
-cHJvdmVkIHRvDQo+ID4gPiA+IGJlIG5lY2Vzc2FyeSBidXQgdGhleSBsYWNrZWQgdGhlIGZpeGVz
-IHRhZyAtIHdvdWxkIGxvdmUgdG8gc2VlDQo+ID4gPiA+IHRoZW0uICANCj4gPiA+IA0KPiA+ID4g
-T2ggd293LCB3aGVyZSBkbyB5b3Ugd2FudCBtZSB0byBzdGFydC4gIEkgaGF2ZSB6aWxsaW9ucyBv
-ZiB0aGVzZS4NCj4gPiA+IA0KPiA+ID4gQnV0IHdhaXQsIGRvbid0IHRydXN0IG1lLCB0cnVzdCBh
-IDNyZCBwYXJ0eS4gIEhlcmUncyB3aGF0DQo+ID4gPiBHb29nbGUncw0KPiA+ID4gc2VjdXJpdHkg
-dGVhbSBzYWlkIGFib3V0IHRoZSBsYXN0IDkgbW9udGhzIG9mIDIwMTk6DQo+ID4gPiAJLSAyMDkg
-a25vd24gdnVsbmVyYWJpbGl0aWVzIHBhdGNoZWQgaW4gTFRTIGtlcm5lbHMsIG1vc3QNCj4gPiA+
-IHdpdGhvdXQNCj4gPiA+IAkgIENWRXMNCj4gPiA+IAktIDk1MCsgY3JpdGljaWFsIG5vbi1zZWN1
-cml0eSBidWdzIGZpeGVzIGZvciBkZXZpY2UgWFhYWCBhbG9uZQ0KPiA+ID4gCSAgd2l0aCBMVFMg
-cmVsZWFzZXMNCj4gPiANCj4gPiBTbyBvcHQtaW4gZm9yIHRoZXNlIGNyaXRpY2FsIG9yIF9hbHdh
-eXNfIGluIHVzZSBiYXNpYyBrZXJuZWwNCj4gPiBzZWN0aW9ucy4NCj4gPiBidXQgbWFrZSB0aGUg
-ZGVmYXVsdCBvcHQtb3V0Li4gDQo+IA0KPiBCdXQgdGhlIGxlc3MgYXR0ZW50aXZlL3dlYWtlciB0
-aGUgbWFpbnRhaW5lcnMgdGhlIG1vcmUgYmVuZWZpdCBmcm9tDQo+IGF1dG9zZWwgdGhleSBnZXQu
-IFRoZSBkZWZhdWx0IGhhcyB0byBiZSBjb3JyZWN0IGZvciB0aGUgZ3JvdXAgd2hpY2ggDQo+IGlz
-IG1vcmUgbGlrZWx5IHRvIHRha2Ugbm8gYWN0aW9uLg0KDQpvciB0aGUgbW9yZSBleHBvc2VkIHRo
-ZXkgYXJlIHRvIGZhbHNlIHBvc2l0aXZlcyA6KSwgdW5ub3RpY2VkIGJ1Z3MgZHVlDQp0byB3cm9u
-ZyBwYXRjaGVzIGdldHRpbmcgYmFja3BvcnRlZC4uIHRoaXMgY291bGQgZ28gZm9yIHllYXJzIGZv
-ciBsZXNzDQphdHRlbnRpdmUgd2Vha2VyIG1vZHVsZXMsIHVudGlsIHNvbWVvbmUgc3RlcHMgb24g
-aXQuDQo=
+On 4/16/20 6:22 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.116 release.
+> There are 146 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 18 Apr 2020 13:11:20 +0000.
+> Anything received after that time might be too late.
+> 
+
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 418 pass: 418 fail: 0
+
+Guenter
