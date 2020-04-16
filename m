@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E0A71AC310
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2671AC3C0
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897431AbgDPNhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:37:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49558 "EHLO mail.kernel.org"
+        id S2898710AbgDPNru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:47:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897436AbgDPNhR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:37:17 -0400
+        id S2898707AbgDPNrs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:47:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A757221BE5;
-        Thu, 16 Apr 2020 13:37:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9B09208E4;
+        Thu, 16 Apr 2020 13:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044237;
-        bh=YhHQ8Pn5tnS3rOozkj3F34JxgYMy1nVFrfal4eA4U58=;
+        s=default; t=1587044867;
+        bh=1jTEOjbbqZqMDyQ2xOHIV16ONyyQQ+sGxmcnS/qIDE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yAwxnDc0YfMlE6Jv1fANE7jmWEUYLuYD2NzMn+cCyQmcTzIzjTUhNaO7VHHVP0mNF
-         7CLUJortZTY/CIn1AG/bRLeREKi7LQ8GwAr5zzhFdNJBSla0YrbBKYW5n1YXkPrWFl
-         3W/p1gmgFJAilkUEOPuJbPr3gPsures2WqH9DmY4=
+        b=T9Cp3+GvPaPe98paaXh2wsjsG71Mr8xmvTAjsM5xnC29YzHzDvgRxGeE8KSkRYTK6
+         Or2KgVM0Nct4DADTA9ob+RA5ErXHSL+VKkMTSADKhQ43irC9rWs1S/0X3OXEddOvga
+         FeWSPSf9jWjgDdQsVyhCSVmm7QORmG6eapJmNd0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.5 136/257] signal: Extend exec_id to 64bits
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ond=C5=99ej=20Caletka?= <ondrej@caletka.cz>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 093/232] ACPICA: Allow acpi_any_gpe_status_set() to skip one GPE
 Date:   Thu, 16 Apr 2020 15:23:07 +0200
-Message-Id: <20200416131343.468200755@linuxfoundation.org>
+Message-Id: <20200416131326.620226064@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +44,204 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit d1e7fd6462ca9fc76650fbe6ca800e35b24267da upstream.
+commit 0ce792d660bda990c675eaf14ce09594a9b85cbf upstream.
 
-Replace the 32bit exec_id with a 64bit exec_id to make it impossible
-to wrap the exec_id counter.  With care an attacker can cause exec_id
-wrap and send arbitrary signals to a newly exec'd parent.  This
-bypasses the signal sending checks if the parent changes their
-credentials during exec.
+The check carried out by acpi_any_gpe_status_set() is not precise enough
+for the suspend-to-idle implementation in Linux and in some cases it is
+necessary make it skip one GPE (specifically, the EC GPE) from the check
+to prevent a race condition leading to a premature system resume from
+occurring.
 
-The severity of this problem can been seen that in my limited testing
-of a 32bit exec_id it can take as little as 19s to exec 65536 times.
-Which means that it can take as little as 14 days to wrap a 32bit
-exec_id.  Adam Zabrocki has succeeded wrapping the self_exe_id in 7
-days.  Even my slower timing is in the uptime of a typical server.
-Which means self_exec_id is simply a speed bump today, and if exec
-gets noticably faster self_exec_id won't even be a speed bump.
+For this reason, redefine acpi_any_gpe_status_set() to take the number
+of a GPE to skip as an argument.
 
-Extending self_exec_id to 64bits introduces a problem on 32bit
-architectures where reading self_exec_id is no longer atomic and can
-take two read instructions.  Which means that is is possible to hit
-a window where the read value of exec_id does not match the written
-value.  So with very lucky timing after this change this still
-remains expoiltable.
-
-I have updated the update of exec_id on exec to use WRITE_ONCE
-and the read of exec_id in do_notify_parent to use READ_ONCE
-to make it clear that there is no locking between these two
-locations.
-
-Link: https://lore.kernel.org/kernel-hardening/20200324215049.GA3710@pi3.com.pl
-Fixes: 2.3.23pre2
-Cc: stable@vger.kernel.org
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206629
+Tested-by: Ondřej Caletka <ondrej@caletka.cz>
+Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/exec.c             |    2 +-
- include/linux/sched.h |    4 ++--
- kernel/signal.c       |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/acpi/acpica/achware.h |    2 -
+ drivers/acpi/acpica/evxfgpe.c |   17 ++++++++++-----
+ drivers/acpi/acpica/hwgpe.c   |   47 +++++++++++++++++++++++++++++++++---------
+ drivers/acpi/sleep.c          |    2 -
+ include/acpi/acpixf.h         |    2 -
+ 5 files changed, 53 insertions(+), 17 deletions(-)
 
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1382,7 +1382,7 @@ void setup_new_exec(struct linux_binprm
+--- a/drivers/acpi/acpica/achware.h
++++ b/drivers/acpi/acpica/achware.h
+@@ -101,7 +101,7 @@ acpi_status acpi_hw_enable_all_runtime_g
  
- 	/* An exec changes our domain. We are no longer part of the thread
- 	   group */
--	current->self_exec_id++;
-+	WRITE_ONCE(current->self_exec_id, current->self_exec_id + 1);
- 	flush_signal_handlers(current, 0);
- }
- EXPORT_SYMBOL(setup_new_exec);
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -939,8 +939,8 @@ struct task_struct {
- 	struct seccomp			seccomp;
+ acpi_status acpi_hw_enable_all_wakeup_gpes(void);
  
- 	/* Thread group tracking: */
--	u32				parent_exec_id;
--	u32				self_exec_id;
-+	u64				parent_exec_id;
-+	u64				self_exec_id;
+-u8 acpi_hw_check_all_gpes(void);
++u8 acpi_hw_check_all_gpes(acpi_handle gpe_skip_device, u32 gpe_skip_number);
  
- 	/* Protection against (de-)allocation: mm, files, fs, tty, keyrings, mems_allowed, mempolicy: */
- 	spinlock_t			alloc_lock;
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1931,7 +1931,7 @@ bool do_notify_parent(struct task_struct
- 		 * This is only possible if parent == real_parent.
- 		 * Check if it has changed security domain.
- 		 */
--		if (tsk->parent_exec_id != tsk->parent->self_exec_id)
-+		if (tsk->parent_exec_id != READ_ONCE(tsk->parent->self_exec_id))
- 			sig = SIGCHLD;
+ acpi_status
+ acpi_hw_enable_runtime_gpe_block(struct acpi_gpe_xrupt_info *gpe_xrupt_info,
+--- a/drivers/acpi/acpica/evxfgpe.c
++++ b/drivers/acpi/acpica/evxfgpe.c
+@@ -799,17 +799,19 @@ ACPI_EXPORT_SYMBOL(acpi_enable_all_wakeu
+  *
+  * FUNCTION:    acpi_any_gpe_status_set
+  *
+- * PARAMETERS:  None
++ * PARAMETERS:  gpe_skip_number      - Number of the GPE to skip
+  *
+  * RETURN:      Whether or not the status bit is set for any GPE
+  *
+- * DESCRIPTION: Check the status bits of all enabled GPEs and return TRUE if any
+- *              of them is set or FALSE otherwise.
++ * DESCRIPTION: Check the status bits of all enabled GPEs, except for the one
++ *              represented by the "skip" argument, and return TRUE if any of
++ *              them is set or FALSE otherwise.
+  *
+  ******************************************************************************/
+-u32 acpi_any_gpe_status_set(void)
++u32 acpi_any_gpe_status_set(u32 gpe_skip_number)
+ {
+ 	acpi_status status;
++	acpi_handle gpe_device;
+ 	u8 ret;
+ 
+ 	ACPI_FUNCTION_TRACE(acpi_any_gpe_status_set);
+@@ -819,7 +821,12 @@ u32 acpi_any_gpe_status_set(void)
+ 		return (FALSE);
  	}
  
+-	ret = acpi_hw_check_all_gpes();
++	status = acpi_get_gpe_device(gpe_skip_number, &gpe_device);
++	if (ACPI_FAILURE(status)) {
++		gpe_device = NULL;
++	}
++
++	ret = acpi_hw_check_all_gpes(gpe_device, gpe_skip_number);
+ 	(void)acpi_ut_release_mutex(ACPI_MTX_EVENTS);
+ 
+ 	return (ret);
+--- a/drivers/acpi/acpica/hwgpe.c
++++ b/drivers/acpi/acpica/hwgpe.c
+@@ -444,12 +444,19 @@ acpi_hw_enable_wakeup_gpe_block(struct a
+ 	return (AE_OK);
+ }
+ 
++struct acpi_gpe_block_status_context {
++	struct acpi_gpe_register_info *gpe_skip_register_info;
++	u8 gpe_skip_mask;
++	u8 retval;
++};
++
+ /******************************************************************************
+  *
+  * FUNCTION:    acpi_hw_get_gpe_block_status
+  *
+  * PARAMETERS:  gpe_xrupt_info      - GPE Interrupt info
+  *              gpe_block           - Gpe Block info
++ *              context             - GPE list walk context data
+  *
+  * RETURN:      Success
+  *
+@@ -460,12 +467,13 @@ acpi_hw_enable_wakeup_gpe_block(struct a
+ static acpi_status
+ acpi_hw_get_gpe_block_status(struct acpi_gpe_xrupt_info *gpe_xrupt_info,
+ 			     struct acpi_gpe_block_info *gpe_block,
+-			     void *ret_ptr)
++			     void *context)
+ {
++	struct acpi_gpe_block_status_context *c = context;
+ 	struct acpi_gpe_register_info *gpe_register_info;
+ 	u64 in_enable, in_status;
+ 	acpi_status status;
+-	u8 *ret = ret_ptr;
++	u8 ret_mask;
+ 	u32 i;
+ 
+ 	/* Examine each GPE Register within the block */
+@@ -485,7 +493,11 @@ acpi_hw_get_gpe_block_status(struct acpi
+ 			continue;
+ 		}
+ 
+-		*ret |= in_enable & in_status;
++		ret_mask = in_enable & in_status;
++		if (ret_mask && c->gpe_skip_register_info == gpe_register_info) {
++			ret_mask &= ~c->gpe_skip_mask;
++		}
++		c->retval |= ret_mask;
+ 	}
+ 
+ 	return (AE_OK);
+@@ -561,24 +573,41 @@ acpi_status acpi_hw_enable_all_wakeup_gp
+  *
+  * FUNCTION:    acpi_hw_check_all_gpes
+  *
+- * PARAMETERS:  None
++ * PARAMETERS:  gpe_skip_device      - GPE devoce of the GPE to skip
++ *              gpe_skip_number      - Number of the GPE to skip
+  *
+  * RETURN:      Combined status of all GPEs
+  *
+- * DESCRIPTION: Check all enabled GPEs in all GPE blocks and return TRUE if the
++ * DESCRIPTION: Check all enabled GPEs in all GPE blocks, except for the one
++ *              represented by the "skip" arguments, and return TRUE if the
+  *              status bit is set for at least one of them of FALSE otherwise.
+  *
+  ******************************************************************************/
+ 
+-u8 acpi_hw_check_all_gpes(void)
++u8 acpi_hw_check_all_gpes(acpi_handle gpe_skip_device, u32 gpe_skip_number)
+ {
+-	u8 ret = 0;
++	struct acpi_gpe_block_status_context context = {
++		.gpe_skip_register_info = NULL,
++		.retval = 0,
++	};
++	struct acpi_gpe_event_info *gpe_event_info;
++	acpi_cpu_flags flags;
+ 
+ 	ACPI_FUNCTION_TRACE(acpi_hw_check_all_gpes);
+ 
+-	(void)acpi_ev_walk_gpe_list(acpi_hw_get_gpe_block_status, &ret);
++	flags = acpi_os_acquire_lock(acpi_gbl_gpe_lock);
++
++	gpe_event_info = acpi_ev_get_gpe_event_info(gpe_skip_device,
++						    gpe_skip_number);
++	if (gpe_event_info) {
++		context.gpe_skip_register_info = gpe_event_info->register_info;
++		context.gpe_skip_mask = acpi_hw_get_gpe_register_bit(gpe_event_info);
++	}
++
++	acpi_os_release_lock(acpi_gbl_gpe_lock, flags);
+ 
+-	return (ret != 0);
++	(void)acpi_ev_walk_gpe_list(acpi_hw_get_gpe_block_status, &context);
++	return (context.retval != 0);
+ }
+ 
+ #endif				/* !ACPI_REDUCED_HARDWARE */
+--- a/drivers/acpi/sleep.c
++++ b/drivers/acpi/sleep.c
+@@ -1023,7 +1023,7 @@ static bool acpi_s2idle_wake(void)
+ 		 * status bit from unset to set between the checks with the
+ 		 * status bits of all the other GPEs unset.
+ 		 */
+-		if (acpi_any_gpe_status_set() && !acpi_ec_dispatch_gpe())
++		if (acpi_any_gpe_status_set(U32_MAX) && !acpi_ec_dispatch_gpe())
+ 			return true;
+ 
+ 		/*
+--- a/include/acpi/acpixf.h
++++ b/include/acpi/acpixf.h
+@@ -748,7 +748,7 @@ ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi
+ ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_disable_all_gpes(void))
+ ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_enable_all_runtime_gpes(void))
+ ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status acpi_enable_all_wakeup_gpes(void))
+-ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi_any_gpe_status_set(void))
++ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi_any_gpe_status_set(u32 gpe_skip_number))
+ ACPI_HW_DEPENDENT_RETURN_UINT32(u32 acpi_any_fixed_event_status_set(void))
+ 
+ ACPI_HW_DEPENDENT_RETURN_STATUS(acpi_status
 
 
