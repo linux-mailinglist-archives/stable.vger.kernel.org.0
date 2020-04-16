@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D9F91AC486
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C6CC1AC695
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392740AbgDPOBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:01:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48302 "EHLO mail.kernel.org"
+        id S2394465AbgDPOls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392733AbgDPOBF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:01:05 -0400
+        id S2392735AbgDPOBH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45FB920732;
-        Thu, 16 Apr 2020 14:01:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C622A20786;
+        Thu, 16 Apr 2020 14:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045664;
-        bh=Myj1CDp0UdOsG9VN9HTP9WtLs++9igsmwDL49tx1CsU=;
+        s=default; t=1587045667;
+        bh=Ghx6xE0one3FXvuhEKBgMPVvQh3g7jyOOfCdBYgRiFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lpx8lo13nmy+orFGG+eII+xyJ7H4xcwJauXomNDwdMJFELKAvYZGRmXTzns6kE2Lm
-         YAe3zNOOHsjKjAPBZIbJbA99NN9qQS3r+oaVHDqin2haD6sVAzSbdbEx30a7mKdu/O
-         4qWxk6UNe5b7buZG4PFc1nN3GGccUjTBdTw2kf34=
+        b=0G8dX3c8NITod7CXgFRPD0nZk+LRgICvm6Jl+uMyaSPtfnJFuW2ywC3LadNfDIC8P
+         KzBz96SOMH2KK12jT/W6mDdDwKSQfBUSUTsFhqT0C5gBs/aAlPvA8wrGw1gPJGPbkH
+         gBS8DDBVOT/pu/DosnV8r1dZ3QP96VgextUVGzzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Remus <jremus@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Asutosh Das <asutoshd@codeaurora.org>,
+        Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.6 188/254] scsi: zfcp: fix missing erp_lock in port recovery trigger for point-to-point
-Date:   Thu, 16 Apr 2020 15:24:37 +0200
-Message-Id: <20200416131349.837848032@linuxfoundation.org>
+Subject: [PATCH 5.6 189/254] scsi: ufs: fix Auto-Hibern8 error detection
+Date:   Thu, 16 Apr 2020 15:24:38 +0200
+Message-Id: <20200416131349.953045141@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -45,79 +47,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-commit 819732be9fea728623e1ed84eba28def7384ad1f upstream.
+commit 5a244e0ea67b293abb1d26c825db2ddde5f2862f upstream.
 
-v2.6.27 commit cc8c282963bd ("[SCSI] zfcp: Automatically attach remote
-ports") introduced zfcp automatic port scan.
+Auto-Hibern8 may be disabled by some vendors or sysfs in runtime even if
+Auto-Hibern8 capability is supported by host. If Auto-Hibern8 capability is
+supported by host but not actually enabled, Auto-Hibern8 error shall not
+happen.
 
-Before that, the user had to use the sysfs attribute "port_add" of an FCP
-device (adapter) to add and open remote (target) ports, even for the remote
-peer port in point-to-point topology. That code path did a proper port open
-recovery trigger taking the erp_lock.
+To fix this, provide a way to detect if Auto-Hibern8 is actually enabled
+first, and bypass Auto-Hibern8 disabling case in
+ufshcd_is_auto_hibern8_error().
 
-Since above commit, a new helper function zfcp_erp_open_ptp_port()
-performed an UNlocked port open recovery trigger. This can race with other
-parallel recovery triggers. In zfcp_erp_action_enqueue() this could corrupt
-e.g. adapter->erp_total_count or adapter->erp_ready_head.
-
-As already found for fabric topology in v4.17 commit fa89adba1941 ("scsi:
-zfcp: fix infinite iteration on ERP ready list"), there was an endless loop
-during tracing of rport (un)block.  A subsequent v4.18 commit 9e156c54ace3
-("scsi: zfcp: assert that the ERP lock is held when tracing a recovery
-trigger") introduced a lockdep assertion for that case.
-
-As a side effect, that lockdep assertion now uncovered the unlocked code
-path for PtP. It is from within an adapter ERP action:
-
-zfcp_erp_strategy[1479]  intentionally DROPs erp lock around
-                         zfcp_erp_strategy_do_action()
-zfcp_erp_strategy_do_action[1441]      NO erp lock
-zfcp_erp_adapter_strategy[876]         NO erp lock
-zfcp_erp_adapter_strategy_open[855]    NO erp lock
-zfcp_erp_adapter_strategy_open_fsf[806]NO erp lock
-zfcp_erp_adapter_strat_fsf_xconf[772]  erp lock only around
-                                       zfcp_erp_action_to_running(),
-                                       BUT *_not_* around
-                                       zfcp_erp_enqueue_ptp_port()
-zfcp_erp_enqueue_ptp_port[728]         BUG: *_not_* taking erp lock
-_zfcp_erp_port_reopen[432]             assumes to be called with erp lock
-zfcp_erp_action_enqueue[314]           assumes to be called with erp lock
-zfcp_dbf_rec_trig[288]                 _checks_ to be called with erp lock:
-	lockdep_assert_held(&adapter->erp_lock);
-
-It causes the following lockdep warning:
-
-WARNING: CPU: 2 PID: 775 at drivers/s390/scsi/zfcp_dbf.c:288
-                            zfcp_dbf_rec_trig+0x16a/0x188
-no locks held by zfcperp0.0.17c0/775.
-
-Fix this by using the proper locked recovery trigger helper function.
-
-Link: https://lore.kernel.org/r/20200312174505.51294-2-maier@linux.ibm.com
-Fixes: cc8c282963bd ("[SCSI] zfcp: Automatically attach remote ports")
-Cc: <stable@vger.kernel.org> #v2.6.27+
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: 821744403913 ("scsi: ufs: Add error-handling of Auto-Hibernate")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200129105251.12466-4-stanley.chu@mediatek.com
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Reviewed-by: Asutosh Das <asutoshd@codeaurora.org>
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/scsi/zfcp_erp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c |    3 ++-
+ drivers/scsi/ufs/ufshcd.h |    6 ++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -725,7 +725,7 @@ static void zfcp_erp_enqueue_ptp_port(st
- 				 adapter->peer_d_id);
- 	if (IS_ERR(port)) /* error or port already attached */
- 		return;
--	_zfcp_erp_port_reopen(port, 0, "ereptp1");
-+	zfcp_erp_port_reopen(port, 0, "ereptp1");
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -5486,7 +5486,8 @@ static irqreturn_t ufshcd_update_uic_err
+ static bool ufshcd_is_auto_hibern8_error(struct ufs_hba *hba,
+ 					 u32 intr_mask)
+ {
+-	if (!ufshcd_is_auto_hibern8_supported(hba))
++	if (!ufshcd_is_auto_hibern8_supported(hba) ||
++	    !ufshcd_is_auto_hibern8_enabled(hba))
+ 		return false;
+ 
+ 	if (!(intr_mask & UFSHCD_UIC_HIBERN8_MASK))
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -55,6 +55,7 @@
+ #include <linux/clk.h>
+ #include <linux/completion.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/bitfield.h>
+ #include "unipro.h"
+ 
+ #include <asm/irq.h>
+@@ -773,6 +774,11 @@ static inline bool ufshcd_is_auto_hibern
+ 	return (hba->capabilities & MASK_AUTO_HIBERN8_SUPPORT);
  }
  
- static enum zfcp_erp_act_result zfcp_erp_adapter_strat_fsf_xconf(
++static inline bool ufshcd_is_auto_hibern8_enabled(struct ufs_hba *hba)
++{
++	return FIELD_GET(UFSHCI_AHIBERN8_TIMER_MASK, hba->ahit) ? true : false;
++}
++
+ #define ufshcd_writel(hba, val, reg)	\
+ 	writel((val), (hba)->mmio_base + (reg))
+ #define ufshcd_readl(hba, reg)	\
 
 
