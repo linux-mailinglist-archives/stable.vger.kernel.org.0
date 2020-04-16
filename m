@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C266F1ACB46
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:46:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36FD01AC807
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:03:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442552AbgDPPpk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:45:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46956 "EHLO mail.kernel.org"
+        id S2440835AbgDPPC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:02:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897063AbgDPNfI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:35:08 -0400
+        id S2894618AbgDPNxp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:53:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 227B520732;
-        Thu, 16 Apr 2020 13:35:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E7DE2076D;
+        Thu, 16 Apr 2020 13:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044106;
-        bh=g0JPxNPuqoHUzF/vEU+fleh3hf32aKcWMVB7AZyvb9Y=;
+        s=default; t=1587045224;
+        bh=Ikc0AYvLKTZZv4VYpqWl7cUBvSOW5ZMNjoOQKDLh2aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XS5nQHAc3M+WYE04inD/mxaX/8lgEfnCt5m9NbXWl6z5cSyWPJRqDdxGk8EoF/Dw3
-         tzMGBeww49wVd3F2v7bZZlS0gYg9E8a4VnKTgiIO+r+P6t3XkhZ5BVaDQ0OwrSqtxO
-         erqY9KSWzONWmZNXMQ0xjoysmXDs1V99nRHI+dDA=
+        b=AX5tC+R9nyvfjeV8Q2D3Nz2cnDw74k2NQ6/e+HvmyiegNYyd5FES3QHoLz3oqjv5u
+         i99BC8KgV+THI8gPJmwtxf7e4adSleLXvH7xrf6QrsCJOHIV0D+9fPq7GUGJYPbDW1
+         MWxsgZHZGW4xvcdVve8Gfhc7ie4A4s+6smzIWlQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gyeongtaek Lee <gt82.lee@samsung.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.5 084/257] ASoC: topology: use name_prefix for new kcontrol
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 046/254] cpufreq: imx6q: fix error handling
 Date:   Thu, 16 Apr 2020 15:22:15 +0200
-Message-Id: <20200416131336.457554916@linuxfoundation.org>
+Message-Id: <20200416131331.659823791@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 이경택 <gt82.lee@samsung.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-commit abca9e4a04fbe9c6df4d48ca7517e1611812af25 upstream.
+[ Upstream commit 3646f50a3838c5949a89ecbdb868497cdc05b8fd ]
 
-Current topology doesn't add prefix of component to new kcontrol.
+When speed checking failed, direclty jumping to put_node label
+is not correct. Need jump to out_free_opp to avoid resources leak.
 
-Signed-off-by: Gyeongtaek Lee <gt82.lee@samsung.com>
-Link: https://lore.kernel.org/r/009b01d60804$ae25c2d0$0a714870$@samsung.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 2733fb0d0699 ("cpufreq: imx6q: read OCOTP through nvmem for imx6ul/imx6ull")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/imx6q-cpufreq.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -362,7 +362,7 @@ static int soc_tplg_add_kcontrol(struct
- 	struct snd_soc_component *comp = tplg->comp;
+diff --git a/drivers/cpufreq/imx6q-cpufreq.c b/drivers/cpufreq/imx6q-cpufreq.c
+index 1fcbbd53a48a2..edef3399c9794 100644
+--- a/drivers/cpufreq/imx6q-cpufreq.c
++++ b/drivers/cpufreq/imx6q-cpufreq.c
+@@ -381,23 +381,24 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
+ 		goto put_reg;
+ 	}
  
- 	return soc_tplg_add_dcontrol(comp->card->snd_card,
--				comp->dev, k, NULL, comp, kcontrol);
-+				comp->dev, k, comp->name_prefix, comp, kcontrol);
- }
++	/* Because we have added the OPPs here, we must free them */
++	free_opp = true;
++
+ 	if (of_machine_is_compatible("fsl,imx6ul") ||
+ 	    of_machine_is_compatible("fsl,imx6ull")) {
+ 		ret = imx6ul_opp_check_speed_grading(cpu_dev);
+ 		if (ret) {
+ 			if (ret == -EPROBE_DEFER)
+-				goto put_node;
++				goto out_free_opp;
  
- /* remove a mixer kcontrol */
+ 			dev_err(cpu_dev, "failed to read ocotp: %d\n",
+ 				ret);
+-			goto put_node;
++			goto out_free_opp;
+ 		}
+ 	} else {
+ 		imx6q_opp_check_speed_grading(cpu_dev);
+ 	}
+ 
+-	/* Because we have added the OPPs here, we must free them */
+-	free_opp = true;
+ 	num = dev_pm_opp_get_opp_count(cpu_dev);
+ 	if (num < 0) {
+ 		ret = num;
+-- 
+2.20.1
+
 
 
