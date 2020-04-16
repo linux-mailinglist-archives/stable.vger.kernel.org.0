@@ -2,151 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0BA11AC200
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:03:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C311AC20B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:06:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2894744AbgDPNCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:02:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40404 "EHLO mail.kernel.org"
+        id S2894738AbgDPNFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:05:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2894629AbgDPNCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:02:18 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S2894562AbgDPNFa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:05:30 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E64C8206B9;
-        Thu, 16 Apr 2020 13:02:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCE36214AF;
+        Thu, 16 Apr 2020 13:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587042138;
-        bh=CZSrTELTAkZf3umSKl0wTgGl7NOH2/aHcZzKZGHJ0D8=;
-        h=Subject:To:From:Date:From;
-        b=p+cSLs2H0FbrDfwUNsfutWY5Wbc9i6IVoi7+m2Phdd+5GErzECejKfyovSZoAvuyy
-         ZLvLzBtyQlKSCpwwDC/Q1iU6v6NpVuTLKV/Bd2SDQbSYQ+Izl/h4m+2evjt9XUhqPr
-         OTi2L50k1e4yjmBT9gJcrjbubtt+2sA32nLtN6a4=
-Subject: patch "usb: typec: tcpm: Ignore CC and vbus changes in PORT_RESET change" added to usb-linus
-To:     badhri@google.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Apr 2020 15:02:16 +0200
-Message-ID: <1587042136205249@kroah.com>
+        s=default; t=1587042330;
+        bh=1aqS3ApOJZL131b3+GP4SDwvys2LjxC6LVYadv4Jp5Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=F7dA11MECDQf4JRUI8jcS2j/XplUbOOQt9U0ycAufMCNc2mDB7BMRu69WD8M4pfMq
+         Urx4i6xs4ZVVS9aWy5B5XZPquKMA4X/9JJmzpZjWSw+7cFci1b8IgiLMCglXKvSdeg
+         hgtPgRa8cu2vmXNAXKw3FgQlTdV+XP355S+kWs4M=
+Date:   Thu, 16 Apr 2020 09:05:28 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     josef@toxicpanda.com, dsterba@suse.com, johannes.thumshirn@wdc.com,
+        nborisov@suse.com, wqu@suse.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] btrfs: handle logged extent failure
+ properly" failed to apply to 5.6-stable tree
+Message-ID: <20200416130528.GJ1068@sasha-vm>
+References: <158687410512288@kroah.com>
+ <20200416004154.GN1068@sasha-vm>
+ <20200416070720.GC372946@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200416070720.GC372946@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Apr 16, 2020 at 09:07:20AM +0200, Greg KH wrote:
+>On Wed, Apr 15, 2020 at 08:41:54PM -0400, Sasha Levin wrote:
+>> On Tue, Apr 14, 2020 at 04:21:45PM +0200, gregkh@linuxfoundation.org wrote:
+>> >
+>> > The patch below does not apply to the 5.6-stable tree.
+>> > If someone wants it applied there, or to any other stable or longterm
+>> > tree, then please email the backport, including the original git commit
+>> > id to <stable@vger.kernel.org>.
+>> >
+>> > thanks,
+>> >
+>> > greg k-h
+>> >
+>> > ------------------ original commit in Linus's tree ------------------
+>> >
+>> > > From ab9b2c7b32e6be53cac2e23f5b2db66815a7d972 Mon Sep 17 00:00:00 2001
+>> > From: Josef Bacik <josef@toxicpanda.com>
+>> > Date: Thu, 13 Feb 2020 10:47:30 -0500
+>> > Subject: [PATCH] btrfs: handle logged extent failure properly
+>> >
+>> > If we're allocating a logged extent we attempt to insert an extent
+>> > record for the file extent directly.  We increase
+>> > space_info->bytes_reserved, because the extent entry addition will call
+>> > btrfs_update_block_group(), which will convert the ->bytes_reserved to
+>> > ->bytes_used.  However if we fail at any point while inserting the
+>> > extent entry we will bail and leave space on ->bytes_reserved, which
+>> > will trigger a WARN_ON() on umount.  Fix this by pinning the space if we
+>> > fail to insert, which is what happens in every other failure case that
+>> > involves adding the extent entry.
+>> >
+>> > CC: stable@vger.kernel.org # 5.4+
+>> > Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+>> > Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+>> > Reviewed-by: Qu Wenruo <wqu@suse.com>
+>> > Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+>> > Reviewed-by: David Sterba <dsterba@suse.com>
+>> > Signed-off-by: David Sterba <dsterba@suse.com>
+>>
+>> Greg, I've noticed that you've fixed it up for 5.5 and 5.4 but no for
+>> 5.6? I've queued it up for 5.6 as well.
+>
+>I didn't include this in 5.5 or 5.4, so please queue it up in those two
+>trees as well.
 
-This is a note to let you know that I've just added the patch titled
+Hm, looking at the patch:
 
-    usb: typec: tcpm: Ignore CC and vbus changes in PORT_RESET change
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index a7bc66121330e..219ac9990513e 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -4431,7 +4431,7 @@ int btrfs_alloc_logged_file_extent(struct btrfs_trans_handle *trans,
+        ret = alloc_reserved_file_extent(trans, 0, root_objectid, 0, owner,
+                                         offset, ins, 1);
+        if (ret)
+-               btrfs_pin_extent(fs_info, ins->objectid, ins->offset, 1);
++               btrfs_pin_extent(trans, ins->objectid, ins->offset, 1);
+        btrfs_put_block_group(block_group);
+        return ret;
+ }
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+It changes the var and type used to call btrfs_pin_extent() without
+changing the declaration of btrfs_pin_extent() itself - which is weird.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+The change to btrfs_pin_extent() was done in b25c36f84b59 ("btrfs: Make
+btrfs_pin_extent take trans handle"), but then I'm confused how this
+patch on it's own fixes anything but a build issue - which makes the
+commit message confusing :)
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+Maybe one of the btrfs folks could clarify?
 
-If you have any questions about this process, please let me know.
-
-
-From 901789745a053286e0ced37960d44fa60267b940 Mon Sep 17 00:00:00 2001
-From: Badhri Jagan Sridharan <badhri@google.com>
-Date: Thu, 2 Apr 2020 14:59:47 -0700
-Subject: usb: typec: tcpm: Ignore CC and vbus changes in PORT_RESET change
-
-After PORT_RESET, the port is set to the appropriate
-default_state. Ignore processing CC changes here as this
-could cause the port to be switched into sink states
-by default.
-
-echo source > /sys/class/typec/port0/port_type
-
-Before:
-[  154.528547] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms
-[  154.528560] CC1: 0 -> 0, CC2: 3 -> 0 [state PORT_RESET, polarity 0, disconnected]
-[  154.528564] state change PORT_RESET -> SNK_UNATTACHED
-
-After:
-[  151.068814] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev3 NONE_AMS]
-[  151.072440] CC1: 3 -> 0, CC2: 0 -> 0 [state PORT_RESET, polarity 0, disconnected]
-[  151.172117] state change PORT_RESET -> PORT_RESET_WAIT_OFF [delayed 100 ms]
-[  151.172136] pending state change PORT_RESET_WAIT_OFF -> SRC_UNATTACHED @ 870 ms [rev3 NONE_AMS]
-[  152.060106] state change PORT_RESET_WAIT_OFF -> SRC_UNATTACHED [delayed 870 ms]
-[  152.060118] Start toggling
-
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200402215947.176577-1-badhri@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/tcpm/tcpm.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
-
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index de3576e6530a..82b19ebd7838 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -3794,6 +3794,14 @@ static void _tcpm_cc_change(struct tcpm_port *port, enum typec_cc_status cc1,
- 		 */
- 		break;
- 
-+	case PORT_RESET:
-+	case PORT_RESET_WAIT_OFF:
-+		/*
-+		 * State set back to default mode once the timer completes.
-+		 * Ignore CC changes here.
-+		 */
-+		break;
-+
- 	default:
- 		if (tcpm_port_is_disconnected(port))
- 			tcpm_set_state(port, unattached_state(port), 0);
-@@ -3855,6 +3863,15 @@ static void _tcpm_pd_vbus_on(struct tcpm_port *port)
- 	case SRC_TRY_DEBOUNCE:
- 		/* Do nothing, waiting for sink detection */
- 		break;
-+
-+	case PORT_RESET:
-+	case PORT_RESET_WAIT_OFF:
-+		/*
-+		 * State set back to default mode once the timer completes.
-+		 * Ignore vbus changes here.
-+		 */
-+		break;
-+
- 	default:
- 		break;
- 	}
-@@ -3908,10 +3925,19 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
- 	case PORT_RESET_WAIT_OFF:
- 		tcpm_set_state(port, tcpm_default_state(port), 0);
- 		break;
-+
- 	case SRC_TRY_WAIT:
- 	case SRC_TRY_DEBOUNCE:
- 		/* Do nothing, waiting for sink detection */
- 		break;
-+
-+	case PORT_RESET:
-+		/*
-+		 * State set back to default mode once the timer completes.
-+		 * Ignore vbus changes here.
-+		 */
-+		break;
-+
- 	default:
- 		if (port->pwr_role == TYPEC_SINK &&
- 		    port->attached)
 -- 
-2.26.1
-
-
+Thanks,
+Sasha
