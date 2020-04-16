@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD5531AC32A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F48B1AC8EC
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896303AbgDPNjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:39:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51406 "EHLO mail.kernel.org"
+        id S2395070AbgDPPQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:16:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897786AbgDPNi6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:38:58 -0400
+        id S2441377AbgDPNuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED85B22202;
-        Thu, 16 Apr 2020 13:38:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF763217D8;
+        Thu, 16 Apr 2020 13:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044338;
-        bh=qeJIGrrKdtjjhYFAXGoPTkTclmMEdQSo7v/P9jFqUMA=;
+        s=default; t=1587044970;
+        bh=TFXnfxHugoSP3Q7WZCuT3ZsZo+7q/qP8JgVFHiV9l8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b24VPXW/zjC+7uKUOYHXoe5syDFUrsEB5rfCFSJdhRwZrynOHNPN+MD0dlnUFpoX1
-         CWPQp78H0aV6sTiPNCrUQ5oXoNrAalo2jYMSLtTAOWdvcZSxezO19AZzH2PZUPVfll
-         2F7hYDAK8FOgC/jr7iNmSrWEW4UJEIcniyfeeObk=
+        b=EMQqW2YOeM58uqXzkbAPVP9xYwJE+5x9cu3slGF5Ld4k2UtkU9h5qB5etMnXEYhUV
+         3vZCnHtaidqNkaiDAseKrTbYA8ctsYSNHU9/25pi5TUY/NNaFbQiiQrm2SpNfD6Xmd
+         l4ZsmFLH2rXzuOtn95UJnw+/TRyDAvOehwrmBHyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.5 178/257] arm64: dts: allwinner: h5: Fix PMU compatible
+        stable@vger.kernel.org,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.4 135/232] mtd: spinand: Stop using spinand->oobbuf for buffering bad block markers
 Date:   Thu, 16 Apr 2020 15:23:49 +0200
-Message-Id: <20200416131348.603331667@linuxfoundation.org>
+Message-Id: <20200416131331.864786637@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-commit 4ae7a3c3d7d31260f690d8d658f0365f3eca67a2 upstream.
+commit 2148937501ee3d663e0010e519a553fea67ad103 upstream.
 
-The commit c35a516a4618 ("arm64: dts: allwinner: H5: Add PMU node")
-introduced support for the PMU found on the Allwinner H5. However, the
-binding only allows for a single compatible, while the patch was adding
-two.
+For reading and writing the bad block markers, spinand->oobbuf is
+currently used as a buffer for the marker bytes. During the
+underlying read and write operations to actually get/set the content
+of the OOB area, the content of spinand->oobbuf is reused and changed
+by accessing it through spinand->oobbuf and/or spinand->databuf.
 
-Make sure we follow the binding.
+This is a flaw in the original design of the SPI NAND core and at the
+latest from 13c15e07eedf ("mtd: spinand: Handle the case where
+PROGRAM LOAD does not reset the cache") on, it results in not having
+the bad block marker written at all, as the spinand->oobbuf is
+cleared to 0xff after setting the marker bytes to zero.
 
-Fixes: c35a516a4618 ("arm64: dts: allwinner: H5: Add PMU node")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Cc: Guenter Roeck <linux@roeck-us.net>
+To fix it, we now just store the two bytes for the marker on the
+stack and let the read/write operations copy it from/to the page
+buffer later.
+
+Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200218100432.32433-2-frieder.schrempf@kontron.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/mtd/nand/spi/core.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-@@ -77,8 +77,7 @@
+--- a/drivers/mtd/nand/spi/core.c
++++ b/drivers/mtd/nand/spi/core.c
+@@ -568,18 +568,18 @@ static int spinand_mtd_write(struct mtd_
+ static bool spinand_isbad(struct nand_device *nand, const struct nand_pos *pos)
+ {
+ 	struct spinand_device *spinand = nand_to_spinand(nand);
++	u8 marker[2] = { };
+ 	struct nand_page_io_req req = {
+ 		.pos = *pos,
+-		.ooblen = 2,
++		.ooblen = sizeof(marker),
+ 		.ooboffs = 0,
+-		.oobbuf.in = spinand->oobbuf,
++		.oobbuf.in = marker,
+ 		.mode = MTD_OPS_RAW,
  	};
  
- 	pmu {
--		compatible = "arm,cortex-a53-pmu",
--			     "arm,armv8-pmuv3";
-+		compatible = "arm,cortex-a53-pmu";
- 		interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 118 IRQ_TYPE_LEVEL_HIGH>,
+-	memset(spinand->oobbuf, 0, 2);
+ 	spinand_select_target(spinand, pos->target);
+ 	spinand_read_page(spinand, &req, false);
+-	if (spinand->oobbuf[0] != 0xff || spinand->oobbuf[1] != 0xff)
++	if (marker[0] != 0xff || marker[1] != 0xff)
+ 		return true;
+ 
+ 	return false;
+@@ -603,11 +603,12 @@ static int spinand_mtd_block_isbad(struc
+ static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
+ {
+ 	struct spinand_device *spinand = nand_to_spinand(nand);
++	u8 marker[2] = { };
+ 	struct nand_page_io_req req = {
+ 		.pos = *pos,
+ 		.ooboffs = 0,
+-		.ooblen = 2,
+-		.oobbuf.out = spinand->oobbuf,
++		.ooblen = sizeof(marker),
++		.oobbuf.out = marker,
+ 	};
+ 	int ret;
+ 
+@@ -622,7 +623,6 @@ static int spinand_markbad(struct nand_d
+ 
+ 	spinand_erase_op(spinand, pos);
+ 
+-	memset(spinand->oobbuf, 0, 2);
+ 	return spinand_write_page(spinand, &req);
+ }
+ 
 
 
