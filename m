@@ -2,103 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDCA91ACE5B
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 19:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 813331ACE66
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 19:08:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389279AbgDPRFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 13:05:19 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:46456 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730647AbgDPRFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 13:05:18 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id DB6931C01E5; Thu, 16 Apr 2020 19:05:15 +0200 (CEST)
-Date:   Thu, 16 Apr 2020 19:05:15 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 003/146] rxrpc: Abstract out the calculation of
- whether theres Tx space
-Message-ID: <20200416170515.GA29803@duo.ucw.cz>
-References: <20200416131242.353444678@linuxfoundation.org>
- <20200416131242.886803103@linuxfoundation.org>
+        id S1729339AbgDPRIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 13:08:31 -0400
+Received: from perceval.ideasonboard.com ([213.167.242.64]:45476 "EHLO
+        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727795AbgDPRIa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 13:08:30 -0400
+Received: from pendragon.ideasonboard.com (81-175-216-236.bb.dnainternet.fi [81.175.216.236])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id C473B97D;
+        Thu, 16 Apr 2020 19:08:26 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1587056907;
+        bh=K0mOM4H6FgfHW3pGrtqvqk5/8aQTEAC2tBSYLPwGdzE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KP+bGVGExbrP/7TaCTeVbAB56HRP2M7DQSQ+VDGMOJ8oFIuBbhbYyjE2nPdnwNuoO
+         YHQxCjpa6RU9imTzUKOfg5weDArn+38tcLPINFIZllCTPFtBOILUdWI+YVdy7tEYva
+         setK70L3qusC8eSBsedTEIJjjh36YBPLxEVO93mo=
+Date:   Thu, 16 Apr 2020 20:08:14 +0300
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] drm: Fix page flip ioctl format check
+Message-ID: <20200416170814.GI4796@pendragon.ideasonboard.com>
+References: <20200416170420.23657-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200416131242.886803103@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200416170420.23657-1-ville.syrjala@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Ville,
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thank you for the patch.
 
-Hi!
+On Thu, Apr 16, 2020 at 08:04:20PM +0300, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> 
+> Revert back to comparing fb->format->format instead fb->format for the
+> page flip ioctl. This check was originally only here to disallow pixel
+> format changes, but when we changed it to do the pointer comparison
+> we potentially started to reject some (but definitely not all) modifier
+> changes as well. In fact the current behaviour depends on whether the
+> driver overrides the format info for a specific format+modifier combo.
+> Eg. on i915 this now rejects compression vs. no compression changes but
+> does not reject any other tiling changes. That's just inconsistent
+> nonsense.
+> 
+> The main reason we have to go back to the old behaviour is to fix page
+> flipping with Xorg. At some point Xorg got its atomic rights taken away
+> and since then we can't page flip between compressed and non-compressed
+> fbs on i915. Currently we get no page flipping for any games pretty much
+> since Mesa likes to use compressed buffers. Not sure how compositors are
+> working around this (don't use one myself). I guess they must be doing
+> something to get non-compressed buffers instead. Either that or
+> somehow no one noticed the tearing from the blit fallback.
+> 
+> Looking back at the original discussion on this change we pretty much
+> just did it in the name of skipping a few extra pointer dereferences.
+> However, I've decided not to revert the whole thing in case someone
+> has since started to depend on these changes. None of the other checks
+> are relevant for i915 anyways.
 
-> Abstract out the calculation of there being sufficient Tx buffer space.
-> This is reproduced several times in the rxrpc sendmsg code.
+Do display controller usually support changing modifiers for page flips
+? I understand from the information about that i915 does, but is that
+usual ? Could there be drivers that really on this check to reject
+modifier changes, and that aren't prepared to handle them if they are
+not rejected by the core ? I'm not opposed to this change, but I'd like
+to carefully consider the fallout.
 
-I don't think this is suitable for stable. It does not fix anything.
+> Cc: stable@vger.kernel.org
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Fixes: dbd4d5761e1f ("drm: Replace 'format->format' comparisons to just 'format' comparisons")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> ---
+>  drivers/gpu/drm/drm_plane.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
+> index d6ad60ab0d38..f2ca5315f23b 100644
+> --- a/drivers/gpu/drm/drm_plane.c
+> +++ b/drivers/gpu/drm/drm_plane.c
+> @@ -1153,7 +1153,7 @@ int drm_mode_page_flip_ioctl(struct drm_device *dev,
+>  	if (ret)
+>  		goto out;
+>  
+> -	if (old_fb->format != fb->format) {
+> +	if (old_fb->format->format != fb->format->format) {
+>  		DRM_DEBUG_KMS("Page flip is not allowed to change frame buffer format.\n");
+>  		ret = -EINVAL;
+>  		goto out;
 
-> +/*
-> + * Return true if there's sufficient Tx queue space.
-> + */
-> +static bool rxrpc_check_tx_space(struct rxrpc_call *call, rxrpc_seq_t *_=
-tx_win)
-> +{
-> +	unsigned int win_size =3D
-> +		min_t(unsigned int, call->tx_winsize,
-> +		      call->cong_cwnd + call->cong_extra);
-> +	rxrpc_seq_t tx_win =3D READ_ONCE(call->tx_hard_ack);
-> +
-> +	if (_tx_win)
-> +		*_tx_win =3D tx_win;
+-- 
+Regards,
 
-Plus, this is very very strange. Most callers pass NULL here, so we
-do READ_ONCE(call->tx_hard_ack) and it can't be optimized out, and
-then we drop the result.
-
-> @@ -72,9 +85,7 @@ static int rxrpc_wait_for_tx_window_nonintr(struct rxrp=
-c_sock *rx,
->  		set_current_state(TASK_UNINTERRUPTIBLE);
-> =20
->  		tx_win =3D READ_ONCE(call->tx_hard_ack);
-> -		if (call->tx_top - tx_win <
-> -		    min_t(unsigned int, call->tx_winsize,
-> -			  call->cong_cwnd + call->cong_extra))
-> +		if (rxrpc_check_tx_space(call, &tx_win))
->  			return 0;
-> =20
->  		if (call->state >=3D RXRPC_CALL_COMPLETE)
-
-And the remaining caller already has right value in tx_win, and it is
-discarded and READ again.
-
-This does not make sense.
-
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXpiQSwAKCRAw5/Bqldv6
-8pxlAJ4jlYRivfobYEnRilD+7i/P/WH66QCeK3UC3V/yoW3FBSFpofNrBuqkwgs=
-=oxcX
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
+Laurent Pinchart
