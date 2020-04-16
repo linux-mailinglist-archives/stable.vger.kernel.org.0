@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A63831AC285
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:29:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 166691ACAA6
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:37:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896026AbgDPN3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:29:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39412 "EHLO mail.kernel.org"
+        id S2408249AbgDPPhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:37:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896025AbgDPN3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:29:31 -0400
+        id S2897913AbgDPNjQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:39:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B872D217D8;
-        Thu, 16 Apr 2020 13:29:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CEED20732;
+        Thu, 16 Apr 2020 13:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043771;
-        bh=XjmrEhuophM687LSAaFi/HfiN1o+mJnwbGhVRoqqK60=;
+        s=default; t=1587044355;
+        bh=16MRUCU6snLRWWVpqH8LfJr+huMqXQc8E9e/L4ZEB34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ynKOSd54krTP+lksKeb9H9v63foucAMxCJf01ZyIdVpxScWfg8X4+9ruqrKG1nZdy
-         FM8FJGxoWBY3uDRijXEE78xJN8rmR+vE2juxNrWpuS6wPcv90XKiXz6dgL6r13TpjX
-         AezSxTri9eLOSBgmL9QcoeVus6S/+IN6NPpFN5kk=
+        b=eF94o2dzxQ+BzdAqYCUV0h5tZw0p2IyNEoi99f1t39mF/3726ZOawATa8I8Kki5vp
+         7sB9YPBsLGrrgBcCGiW1COAdAL+vS7+1MwJ+dZQeBiq1ool80ByFwPK5MpJRyYOVnJ
+         T8JPee7xKQlFVNpuRZMZocAeqaygCK+/CQf26PhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rosioru Dragos <dragos.rosioru@nxp.com>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 094/146] crypto: mxs-dcp - fix scatterlist linearization for hash
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.5 184/257] dm clone: Fix handling of partial region discards
 Date:   Thu, 16 Apr 2020 15:23:55 +0200
-Message-Id: <20200416131255.640682897@linuxfoundation.org>
+Message-Id: <20200416131349.329846347@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +43,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rosioru Dragos <dragos.rosioru@nxp.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit fa03481b6e2e82355c46644147b614f18c7a8161 upstream.
+commit 4b5142905d4ff58a4b93f7c8eaa7ba829c0a53c9 upstream.
 
-The incorrect traversal of the scatterlist, during the linearization phase
-lead to computing the hash value of the wrong input buffer.
-New implementation uses scatterwalk_map_and_copy()
-to address this issue.
+There is a bug in the way dm-clone handles discards, which can lead to
+discarding the wrong blocks or trying to discard blocks beyond the end
+of the device.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 15b59e7c3733 ("crypto: mxs - Add Freescale MXS DCP driver")
-Signed-off-by: Rosioru Dragos <dragos.rosioru@nxp.com>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This could lead to data corruption, if the destination device indeed
+discards the underlying blocks, i.e., if the discard operation results
+in the original contents of a block to be lost.
+
+The root of the problem is the code that calculates the range of regions
+covered by a discard request and decides which regions to discard.
+
+Since dm-clone handles the device in units of regions, we don't discard
+parts of a region, only whole regions.
+
+The range is calculated as:
+
+    rs = dm_sector_div_up(bio->bi_iter.bi_sector, clone->region_size);
+    re = bio_end_sector(bio) >> clone->region_shift;
+
+, where 'rs' is the first region to discard and (re - rs) is the number
+of regions to discard.
+
+The bug manifests when we try to discard part of a single region, i.e.,
+when we try to discard a block with size < region_size, and the discard
+request both starts at an offset with respect to the beginning of that
+region and ends before the end of the region.
+
+The root cause is the following comparison:
+
+  if (rs == re)
+    // skip discard and complete original bio immediately
+
+, which doesn't take into account that 'rs' might be greater than 're'.
+
+Thus, we then issue a discard request for the wrong blocks, instead of
+skipping the discard all together.
+
+Fix the check to also take into account the above case, so we don't end
+up discarding the wrong blocks.
+
+Also, add some range checks to dm_clone_set_region_hydrated() and
+dm_clone_cond_set_range(), which update dm-clone's region bitmap.
+
+Note that the aforementioned bug doesn't cause invalid memory accesses,
+because dm_clone_is_range_hydrated() returns True for this case, so the
+checks are just precautionary.
+
+Fixes: 7431b7835f55 ("dm: add clone target")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/mxs-dcp.c |   54 ++++++++++++++++++++++-------------------------
- 1 file changed, 26 insertions(+), 28 deletions(-)
+ drivers/md/dm-clone-metadata.c |   13 ++++++++++++
+ drivers/md/dm-clone-target.c   |   43 +++++++++++++++++++++++++++--------------
+ 2 files changed, 42 insertions(+), 14 deletions(-)
 
---- a/drivers/crypto/mxs-dcp.c
-+++ b/drivers/crypto/mxs-dcp.c
-@@ -25,6 +25,7 @@
- #include <crypto/sha.h>
- #include <crypto/internal/hash.h>
- #include <crypto/internal/skcipher.h>
-+#include <crypto/scatterwalk.h>
+--- a/drivers/md/dm-clone-metadata.c
++++ b/drivers/md/dm-clone-metadata.c
+@@ -850,6 +850,12 @@ int dm_clone_set_region_hydrated(struct
+ 	struct dirty_map *dmap;
+ 	unsigned long word, flags;
  
- #define DCP_MAX_CHANS	4
- #define DCP_BUF_SZ	PAGE_SIZE
-@@ -621,49 +622,46 @@ static int dcp_sha_req_to_buf(struct cry
- 	struct dcp_async_ctx *actx = crypto_ahash_ctx(tfm);
- 	struct dcp_sha_req_ctx *rctx = ahash_request_ctx(req);
- 	struct hash_alg_common *halg = crypto_hash_alg_common(tfm);
--	const int nents = sg_nents(req->src);
- 
- 	uint8_t *in_buf = sdcp->coh->sha_in_buf;
- 	uint8_t *out_buf = sdcp->coh->sha_out_buf;
- 
--	uint8_t *src_buf;
--
- 	struct scatterlist *src;
- 
--	unsigned int i, len, clen;
-+	unsigned int i, len, clen, oft = 0;
- 	int ret;
- 
- 	int fin = rctx->fini;
- 	if (fin)
- 		rctx->fini = 0;
- 
--	for_each_sg(req->src, src, nents, i) {
--		src_buf = sg_virt(src);
--		len = sg_dma_len(src);
-+	src = req->src;
-+	len = req->nbytes;
- 
--		do {
--			if (actx->fill + len > DCP_BUF_SZ)
--				clen = DCP_BUF_SZ - actx->fill;
--			else
--				clen = len;
-+	while (len) {
-+		if (actx->fill + len > DCP_BUF_SZ)
-+			clen = DCP_BUF_SZ - actx->fill;
-+		else
-+			clen = len;
- 
--			memcpy(in_buf + actx->fill, src_buf, clen);
--			len -= clen;
--			src_buf += clen;
--			actx->fill += clen;
-+		scatterwalk_map_and_copy(in_buf + actx->fill, src, oft, clen,
-+					 0);
- 
--			/*
--			 * If we filled the buffer and still have some
--			 * more data, submit the buffer.
--			 */
--			if (len && actx->fill == DCP_BUF_SZ) {
--				ret = mxs_dcp_run_sha(req);
--				if (ret)
--					return ret;
--				actx->fill = 0;
--				rctx->init = 0;
--			}
--		} while (len);
-+		len -= clen;
-+		oft += clen;
-+		actx->fill += clen;
++	if (unlikely(region_nr >= cmd->nr_regions)) {
++		DMERR("Region %lu out of range (total number of regions %lu)",
++		      region_nr, cmd->nr_regions);
++		return -ERANGE;
++	}
 +
-+		/*
-+		 * If we filled the buffer and still have some
-+		 * more data, submit the buffer.
-+		 */
-+		if (len && actx->fill == DCP_BUF_SZ) {
-+			ret = mxs_dcp_run_sha(req);
-+			if (ret)
-+				return ret;
-+			actx->fill = 0;
-+			rctx->init = 0;
-+		}
- 	}
+ 	word = region_nr / BITS_PER_LONG;
  
- 	if (fin) {
+ 	spin_lock_irqsave(&cmd->bitmap_lock, flags);
+@@ -879,6 +885,13 @@ int dm_clone_cond_set_range(struct dm_cl
+ 	struct dirty_map *dmap;
+ 	unsigned long word, region_nr;
+ 
++	if (unlikely(start >= cmd->nr_regions || (start + nr_regions) < start ||
++		     (start + nr_regions) > cmd->nr_regions)) {
++		DMERR("Invalid region range: start %lu, nr_regions %lu (total number of regions %lu)",
++		      start, nr_regions, cmd->nr_regions);
++		return -ERANGE;
++	}
++
+ 	spin_lock_irq(&cmd->bitmap_lock);
+ 
+ 	if (cmd->read_only) {
+--- a/drivers/md/dm-clone-target.c
++++ b/drivers/md/dm-clone-target.c
+@@ -293,10 +293,17 @@ static inline unsigned long bio_to_regio
+ 
+ /* Get the region range covered by the bio */
+ static void bio_region_range(struct clone *clone, struct bio *bio,
+-			     unsigned long *rs, unsigned long *re)
++			     unsigned long *rs, unsigned long *nr_regions)
+ {
++	unsigned long end;
++
+ 	*rs = dm_sector_div_up(bio->bi_iter.bi_sector, clone->region_size);
+-	*re = bio_end_sector(bio) >> clone->region_shift;
++	end = bio_end_sector(bio) >> clone->region_shift;
++
++	if (*rs >= end)
++		*nr_regions = 0;
++	else
++		*nr_regions = end - *rs;
+ }
+ 
+ /* Check whether a bio overwrites a region */
+@@ -454,7 +461,7 @@ static void trim_bio(struct bio *bio, se
+ 
+ static void complete_discard_bio(struct clone *clone, struct bio *bio, bool success)
+ {
+-	unsigned long rs, re;
++	unsigned long rs, nr_regions;
+ 
+ 	/*
+ 	 * If the destination device supports discards, remap and trim the
+@@ -463,9 +470,9 @@ static void complete_discard_bio(struct
+ 	 */
+ 	if (test_bit(DM_CLONE_DISCARD_PASSDOWN, &clone->flags) && success) {
+ 		remap_to_dest(clone, bio);
+-		bio_region_range(clone, bio, &rs, &re);
++		bio_region_range(clone, bio, &rs, &nr_regions);
+ 		trim_bio(bio, rs << clone->region_shift,
+-			 (re - rs) << clone->region_shift);
++			 nr_regions << clone->region_shift);
+ 		generic_make_request(bio);
+ 	} else
+ 		bio_endio(bio);
+@@ -473,12 +480,21 @@ static void complete_discard_bio(struct
+ 
+ static void process_discard_bio(struct clone *clone, struct bio *bio)
+ {
+-	unsigned long rs, re;
++	unsigned long rs, nr_regions;
+ 
+-	bio_region_range(clone, bio, &rs, &re);
+-	BUG_ON(re > clone->nr_regions);
++	bio_region_range(clone, bio, &rs, &nr_regions);
++	if (!nr_regions) {
++		bio_endio(bio);
++		return;
++	}
+ 
+-	if (unlikely(rs == re)) {
++	if (WARN_ON(rs >= clone->nr_regions || (rs + nr_regions) < rs ||
++		    (rs + nr_regions) > clone->nr_regions)) {
++		DMERR("%s: Invalid range (%lu + %lu, total regions %lu) for discard (%llu + %u)",
++		      clone_device_name(clone), rs, nr_regions,
++		      clone->nr_regions,
++		      (unsigned long long)bio->bi_iter.bi_sector,
++		      bio_sectors(bio));
+ 		bio_endio(bio);
+ 		return;
+ 	}
+@@ -487,7 +503,7 @@ static void process_discard_bio(struct c
+ 	 * The covered regions are already hydrated so we just need to pass
+ 	 * down the discard.
+ 	 */
+-	if (dm_clone_is_range_hydrated(clone->cmd, rs, re - rs)) {
++	if (dm_clone_is_range_hydrated(clone->cmd, rs, nr_regions)) {
+ 		complete_discard_bio(clone, bio, true);
+ 		return;
+ 	}
+@@ -1169,7 +1185,7 @@ static void process_deferred_discards(st
+ 	int r = -EPERM;
+ 	struct bio *bio;
+ 	struct blk_plug plug;
+-	unsigned long rs, re;
++	unsigned long rs, nr_regions;
+ 	struct bio_list discards = BIO_EMPTY_LIST;
+ 
+ 	spin_lock_irq(&clone->lock);
+@@ -1185,14 +1201,13 @@ static void process_deferred_discards(st
+ 
+ 	/* Update the metadata */
+ 	bio_list_for_each(bio, &discards) {
+-		bio_region_range(clone, bio, &rs, &re);
++		bio_region_range(clone, bio, &rs, &nr_regions);
+ 		/*
+ 		 * A discard request might cover regions that have been already
+ 		 * hydrated. There is no need to update the metadata for these
+ 		 * regions.
+ 		 */
+-		r = dm_clone_cond_set_range(clone->cmd, rs, re - rs);
+-
++		r = dm_clone_cond_set_range(clone->cmd, rs, nr_regions);
+ 		if (unlikely(r))
+ 			break;
+ 	}
 
 
