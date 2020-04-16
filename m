@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4344E1AC951
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D26571AC30B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408175AbgDPPVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60740 "EHLO mail.kernel.org"
+        id S2897413AbgDPNhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:37:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898606AbgDPNqh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:46:37 -0400
+        id S2896190AbgDPNhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:37:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43784208E4;
-        Thu, 16 Apr 2020 13:46:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E28A7208E4;
+        Thu, 16 Apr 2020 13:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044796;
-        bh=W2NX7RUrjeSGIxVbUNcuOSZnXLYhBIfIG0GMm8GFxD4=;
+        s=default; t=1587044222;
+        bh=wttoton6TEU7iHeRKVPjij7bCAVwDWT6iBkWVBDZgs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CGncjACT2BLWQWusMJ66/omnKwDE3tSKZPK6VjtaCG6zySy1d48kizrxb53TQW0OU
-         O9YB7TiBJFQNtooayTAPFdKeIT+SQgNyI7BA7HBmVQ40h3Ka8ScumGOqUQhEnJVjg2
-         JYgG31+ofFN7uoRNV+4Hlvu9NYF2k6ShizC46Fgc=
+        b=zCdGBgxRhPo17UVo9PmKgFCjwkgOJpZUaHylt4pzbfEJr1GCXr2oi/pdcCZS6qSwO
+         4uLQWr31yzYCoMgMY8bgL1+jpJfdRY6b9PmLLarxD3j3OBSC0JAWgsr6wFpyj2p9Oj
+         VP7DVNrer8vOEZw/ZcPavXCmfbHk8nDqArkqhFE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 088/232] media: hantro: Read be32 words starting at every fourth byte
+        stable@vger.kernel.org, Pei Huang <huangpei@loongson.cn>,
+        Huacai Chen <chenhc@lemote.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.5 131/257] MIPS/tlbex: Fix LDDIR usage in setup_pw() for Loongson-3
 Date:   Thu, 16 Apr 2020 15:23:02 +0200
-Message-Id: <20200416131326.002278291@linuxfoundation.org>
+Message-Id: <20200416131342.796318254@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-commit e34bca49e4953e5c2afc0425303199a5fd515f82 upstream.
+commit d191aaffe3687d1e73e644c185f5f0550ec242b5 upstream.
 
-Since (luma/chroma)_qtable is an array of unsigned char, indexing it
-returns consecutive byte locations, but we are supposed to read the arrays
-in four-byte words. Consequently, we should be pointing
-get_unaligned_be32() at consecutive word locations instead.
+LDDIR/LDPTE is Loongson-3's acceleration for Page Table Walking. If BD
+(Base Directory, the 4th page directory) is not enabled, then GDOffset
+is biased by BadVAddr[63:62]. So, if GDOffset (aka. BadVAddr[47:36] for
+Loongson-3) is big enough, "0b11(BadVAddr[63:62])|BadVAddr[47:36]|...."
+can far beyond pg_swapper_dir. This means the pg_swapper_dir may NOT be
+accessed by LDDIR correctly, so fix it by set PWDirExt in CP0_PWCtl.
 
-Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Tested-by: Ezequiel Garcia <ezequiel@collabora.com>
-Cc: stable@vger.kernel.org
-Fixes: 00c30f42c7595f "media: rockchip vpu: remove some unused vars"
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pei Huang <huangpei@loongson.cn>
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/media/hantro/hantro_h1_jpeg_enc.c     |    9 +++++++--
- drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c |    9 +++++++--
- 2 files changed, 14 insertions(+), 4 deletions(-)
+ arch/mips/mm/tlbex.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
-+++ b/drivers/staging/media/hantro/hantro_h1_jpeg_enc.c
-@@ -67,12 +67,17 @@ hantro_h1_jpeg_enc_set_qtable(struct han
- 			      unsigned char *chroma_qtable)
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -1480,6 +1480,7 @@ static void build_r4000_tlb_refill_handl
+ 
+ static void setup_pw(void)
  {
- 	u32 reg, i;
-+	__be32 *luma_qtable_p;
-+	__be32 *chroma_qtable_p;
-+
-+	luma_qtable_p = (__be32 *)luma_qtable;
-+	chroma_qtable_p = (__be32 *)chroma_qtable;
++	unsigned int pwctl;
+ 	unsigned long pgd_i, pgd_w;
+ #ifndef __PAGETABLE_PMD_FOLDED
+ 	unsigned long pmd_i, pmd_w;
+@@ -1506,6 +1507,7 @@ static void setup_pw(void)
  
- 	for (i = 0; i < H1_JPEG_QUANT_TABLE_COUNT; i++) {
--		reg = get_unaligned_be32(&luma_qtable[i]);
-+		reg = get_unaligned_be32(&luma_qtable_p[i]);
- 		vepu_write_relaxed(vpu, reg, H1_REG_JPEG_LUMA_QUAT(i));
+ 	pte_i = ilog2(_PAGE_GLOBAL);
+ 	pte_w = 0;
++	pwctl = 1 << 30; /* Set PWDirExt */
  
--		reg = get_unaligned_be32(&chroma_qtable[i]);
-+		reg = get_unaligned_be32(&chroma_qtable_p[i]);
- 		vepu_write_relaxed(vpu, reg, H1_REG_JPEG_CHROMA_QUAT(i));
- 	}
- }
---- a/drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c
-+++ b/drivers/staging/media/hantro/rk3399_vpu_hw_jpeg_enc.c
-@@ -98,12 +98,17 @@ rk3399_vpu_jpeg_enc_set_qtable(struct ha
- 			       unsigned char *chroma_qtable)
- {
- 	u32 reg, i;
-+	__be32 *luma_qtable_p;
-+	__be32 *chroma_qtable_p;
-+
-+	luma_qtable_p = (__be32 *)luma_qtable;
-+	chroma_qtable_p = (__be32 *)chroma_qtable;
+ #ifndef __PAGETABLE_PMD_FOLDED
+ 	write_c0_pwfield(pgd_i << 24 | pmd_i << 12 | pt_i << 6 | pte_i);
+@@ -1516,8 +1518,9 @@ static void setup_pw(void)
+ #endif
  
- 	for (i = 0; i < VEPU_JPEG_QUANT_TABLE_COUNT; i++) {
--		reg = get_unaligned_be32(&luma_qtable[i]);
-+		reg = get_unaligned_be32(&luma_qtable_p[i]);
- 		vepu_write_relaxed(vpu, reg, VEPU_REG_JPEG_LUMA_QUAT(i));
- 
--		reg = get_unaligned_be32(&chroma_qtable[i]);
-+		reg = get_unaligned_be32(&chroma_qtable_p[i]);
- 		vepu_write_relaxed(vpu, reg, VEPU_REG_JPEG_CHROMA_QUAT(i));
- 	}
+ #ifdef CONFIG_MIPS_HUGE_TLB_SUPPORT
+-	write_c0_pwctl(1 << 6 | psn);
++	pwctl |= (1 << 6 | psn);
+ #endif
++	write_c0_pwctl(pwctl);
+ 	write_c0_kpgd((long)swapper_pg_dir);
+ 	kscratch_used_mask |= (1 << 7); /* KScratch6 is used for KPGD */
  }
 
 
