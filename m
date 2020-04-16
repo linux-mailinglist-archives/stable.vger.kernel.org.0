@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C3F1AC3A6
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A4351ACAD8
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2898596AbgDPNq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:46:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60498 "EHLO mail.kernel.org"
+        id S2395415AbgDPPk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:40:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898592AbgDPNq1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:46:27 -0400
+        id S2897510AbgDPNhm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:37:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 761382076D;
-        Thu, 16 Apr 2020 13:46:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3268B22203;
+        Thu, 16 Apr 2020 13:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044786;
-        bh=+uJIfhq4To9PPx/vDjuWEYrcyKoHKGRkmagYR3usmxQ=;
+        s=default; t=1587044261;
+        bh=kxAl/kLJfUsCpIvICM6QwVBnOzWBV/taZCwvMzq5wjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NFIV2OQE6qZN61gMLsHRSKMI+9AlHc08TZ+4v22FwJuDooLVn61AHhN2UOaZMRyjo
-         g+f4P8S24U4JIwUR71h0dfvwwAQ4c0xVFz0B/ToDd6PvxFbTkLyLiYNNP4PeWUgSGP
-         2O9fZ3noZKMmYxrbpU0iA9skvpKbm77oqFMP/kfg=
+        b=hzlpErWkarf34ALBF2+cBnWHa3Znq7JZabslqLbg/1sXh3gNrAjrD6uRFkPSdh3xB
+         rJrOuXX/E/Jkowj976VrWSCBSL9lfWrPGvg0EQk24Fq+ziurpd//Tb1mwJVQKidecF
+         u+jXb8LxILsRWwRtzkUbXO7xNQ/wxZc89i3GA9UA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Stanimir Varbanov <svarbanov@mm-sol.com>
-Subject: [PATCH 5.4 102/232] PCI: qcom: Fix the fixup of PCI_VENDOR_ID_QCOM
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 5.5 145/257] KVM: s390: vsie: Fix delivery of addressing exceptions
 Date:   Thu, 16 Apr 2020 15:23:16 +0200
-Message-Id: <20200416131327.815719699@linuxfoundation.org>
+Message-Id: <20200416131344.575648040@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: David Hildenbrand <david@redhat.com>
 
-commit 604f3956524a6a53c1e3dd27b4b685b664d181ec upstream.
+commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 upstream.
 
-There exists non-bridge PCIe devices with PCI_VENDOR_ID_QCOM, so limit
-the fixup to only affect the relevant PCIe bridges.
+Whenever we get an -EFAULT, we failed to read in guest 2 physical
+address space. Such addressing exceptions are reported via a program
+intercept to the nested hypervisor.
 
-Fixes: 322f03436692 ("PCI: qcom: Use default config space read function")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
-Cc: stable@vger.kernel.org # v5.2+
+We faked the intercept, we have to return to guest 2. Instead, right
+now we would be returning -EFAULT from the intercept handler, eventually
+crashing the VM.
+the correct thing to do is to return 1 as rc == 1 is the internal
+representation of "we have to go back into g2".
+
+Addressing exceptions can only happen if the g2->g3 page tables
+reference invalid g2 addresses (say, either a table or the final page is
+not accessible - so something that basically never happens in sane
+environments.
+
+Identified by manual code inspection.
+
+Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[borntraeger@de.ibm.com: fix patch description]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/dwc/pcie-qcom.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/s390/kvm/vsie.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/controller/dwc/pcie-qcom.c
-+++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -1289,7 +1289,13 @@ static void qcom_fixup_class(struct pci_
- {
- 	dev->class = PCI_CLASS_BRIDGE_PCI << 8;
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1202,6 +1202,7 @@ static int vsie_run(struct kvm_vcpu *vcp
+ 		scb_s->iprcc = PGM_ADDRESSING;
+ 		scb_s->pgmilc = 4;
+ 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
++		rc = 1;
+ 	}
+ 	return rc;
  }
--DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, PCI_ANY_ID, qcom_fixup_class);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0101, qcom_fixup_class);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0104, qcom_fixup_class);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0106, qcom_fixup_class);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0107, qcom_fixup_class);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0302, qcom_fixup_class);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x1000, qcom_fixup_class);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x1001, qcom_fixup_class);
- 
- static struct platform_driver qcom_pcie_driver = {
- 	.probe = qcom_pcie_probe,
 
 
