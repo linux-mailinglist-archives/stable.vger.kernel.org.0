@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 080F41AC924
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4CE1ACA92
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442399AbgDPPTA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:19:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34154 "EHLO mail.kernel.org"
+        id S2897954AbgDPNjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:39:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392314AbgDPNsH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:48:07 -0400
+        id S2897943AbgDPNjV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:39:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B733021734;
-        Thu, 16 Apr 2020 13:48:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 355272063A;
+        Thu, 16 Apr 2020 13:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044887;
-        bh=NHSzpWdd0woxrY0Yj64I2OfPbkenwbmRuhHcEx0NkHQ=;
+        s=default; t=1587044360;
+        bh=9dyaT9wnAWhQSKmAiJwAuMsv2hIYneiLsOUo5frnMTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXA+YT86ZSxRLMn2erzLG8katm3Fxv8qQ+7YCUc2Z8mCFr7vJKjH3tCYTi5mYh+7+
-         CmgjENkDOqK7hu2N2FDSyYGYoqwlZKaPzHil1Jox72P8RO/vfBvnJxZ8hs+Odp9I3R
-         jTsLqvTHa5z6ReLsBE9Q0ffHUw+ygdNLiBqCKqHA=
+        b=q3AtTKOOcI0g0c6D/On/Sj2muOcAVdg0kFfap/rtkIp5D3Of9WbNpq0eWjmiFWbAW
+         oslhASLUXUqPGBwiH0Xr5+wdADpndPzOQ7RmE7nctnv0ODEEpH3zaEJ784iwceh1cE
+         C7P1Itv3W81dKOB+iWS6rPKLts3y5kawjtklakv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 143/232] btrfs: unset reloc control if we fail to recover
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.5 186/257] dm clone: Add missing casts to prevent overflows and data corruption
 Date:   Thu, 16 Apr 2020 15:23:57 +0200
-Message-Id: <20200416131332.865813442@linuxfoundation.org>
+Message-Id: <20200416131349.554357030@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit fb2d83eefef4e1c717205bac71cb1941edf8ae11 upstream.
+commit 9fc06ff56845cc5ccafec52f545fc2e08d22f849 upstream.
 
-If we fail to load an fs root, or fail to start a transaction we can
-bail without unsetting the reloc control, which leads to problems later
-when we free the reloc control but still have it attached to the file
-system.
+Add missing casts when converting from regions to sectors.
 
-In the normal path we'll end up calling unset_reloc_control() twice, but
-all it does is set fs_info->reloc_control = NULL, and we can only have
-one balance at a time so it's not racey.
+In case BITS_PER_LONG == 32, the lack of the appropriate casts can lead
+to overflows and miscalculation of the device sector.
 
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+As a result, we could end up discarding and/or copying the wrong parts
+of the device, thus corrupting the device's data.
+
+Fixes: 7431b7835f55 ("dm: add clone target")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/relocation.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/md/dm-clone-target.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -4584,9 +4584,8 @@ int btrfs_recover_relocation(struct btrf
+--- a/drivers/md/dm-clone-target.c
++++ b/drivers/md/dm-clone-target.c
+@@ -282,7 +282,7 @@ static bool bio_triggers_commit(struct c
+ /* Get the address of the region in sectors */
+ static inline sector_t region_to_sector(struct clone *clone, unsigned long region_nr)
+ {
+-	return (region_nr << clone->region_shift);
++	return ((sector_t)region_nr << clone->region_shift);
+ }
  
- 	trans = btrfs_join_transaction(rc->extent_root);
- 	if (IS_ERR(trans)) {
--		unset_reloc_control(rc);
- 		err = PTR_ERR(trans);
--		goto out_free;
-+		goto out_unset;
- 	}
+ /* Get the region number of the bio */
+@@ -471,7 +471,7 @@ static void complete_discard_bio(struct
+ 	if (test_bit(DM_CLONE_DISCARD_PASSDOWN, &clone->flags) && success) {
+ 		remap_to_dest(clone, bio);
+ 		bio_region_range(clone, bio, &rs, &nr_regions);
+-		trim_bio(bio, rs << clone->region_shift,
++		trim_bio(bio, region_to_sector(clone, rs),
+ 			 nr_regions << clone->region_shift);
+ 		generic_make_request(bio);
+ 	} else
+@@ -804,11 +804,14 @@ static void hydration_copy(struct dm_clo
+ 	struct dm_io_region from, to;
+ 	struct clone *clone = hd->clone;
  
- 	rc->merge_reloc_tree = 1;
-@@ -4606,7 +4605,7 @@ int btrfs_recover_relocation(struct btrf
- 		if (IS_ERR(fs_root)) {
- 			err = PTR_ERR(fs_root);
- 			list_add_tail(&reloc_root->root_list, &reloc_roots);
--			goto out_free;
-+			goto out_unset;
- 		}
++	if (WARN_ON(!nr_regions))
++		return;
++
+ 	region_size = clone->region_size;
+ 	region_start = hd->region_nr;
+ 	region_end = region_start + nr_regions - 1;
  
- 		err = __add_reloc_root(reloc_root);
-@@ -4616,7 +4615,7 @@ int btrfs_recover_relocation(struct btrf
+-	total_size = (nr_regions - 1) << clone->region_shift;
++	total_size = region_to_sector(clone, nr_regions - 1);
  
- 	err = btrfs_commit_transaction(trans);
- 	if (err)
--		goto out_free;
-+		goto out_unset;
- 
- 	merge_reloc_roots(rc);
- 
-@@ -4632,7 +4631,8 @@ out_clean:
- 	ret = clean_dirty_subvols(rc);
- 	if (ret < 0 && !err)
- 		err = ret;
--out_free:
-+out_unset:
-+	unset_reloc_control(rc);
- 	kfree(rc);
- out:
- 	if (!list_empty(&reloc_roots))
+ 	if (region_end == clone->nr_regions - 1) {
+ 		/*
 
 
