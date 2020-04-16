@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C22B1AC2D0
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:35:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A8BB1AC411
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896746AbgDPNdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:33:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45014 "EHLO mail.kernel.org"
+        id S2896697AbgDPNxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:53:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896781AbgDPNdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:33:45 -0400
+        id S2896687AbgDPNxu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:53:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1D24208E4;
-        Thu, 16 Apr 2020 13:33:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35B8F20732;
+        Thu, 16 Apr 2020 13:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044025;
-        bh=58Vk06b0j3aXbBGmy0Io28RxmfmRhNpj7yF6V6krN1w=;
+        s=default; t=1587045229;
+        bh=u8YqO5KRkDMJkvpaDUQlB5lQevXHKx6UCjjbjXQemGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ROn4xqaUrxmxnMOe/hlyVNK4LADNV4Jdwjio7qLylCTBrkw2qju0hCVoqvHXdF6F9
-         E0EpojJdTDwXCGwGzRc/S39ZFCu8nKk5Fd6iZ5U54SmU7zTQgg2HWAOmXID767R41j
-         O1uZrNx7NqHHd/1Q+WP2fnSUNgmjYK60OSi1bv/s=
+        b=Qv35FRkxxGn1z72R1zSfwsElNmUakQnv3M3tWHyINqYND/XsVJkfSVoMrMKWh1Zwa
+         jRgJQ18LipOwyH575+H2jVeRGlWy6vJwEZdHTbstPQl7uVdkWi8PMS1//EYJ5/mdLm
+         hzZoOgXfMBG6iL6Xz2v3WmYzHN0IDAMf8rkRHBio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        Mohammad Rasim <mohammad.rasim96@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 050/257] time/sched_clock: Expire timer in hardirq context
+Subject: [PATCH 5.6 012/254] media: arm64: dts: amlogic: add rc-videostrong-kii-pro keymap
 Date:   Thu, 16 Apr 2020 15:21:41 +0200
-Message-Id: <20200416131332.187510103@linuxfoundation.org>
+Message-Id: <20200416131327.336439075@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +47,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmed S. Darwish <a.darwish@linutronix.de>
+From: Mohammad Rasim <mohammad.rasim96@gmail.com>
 
-[ Upstream commit 2c8bd58812ee3dbf0d78b566822f7eacd34bdd7b ]
+[ Upstream commit 806d06161af045dba29f3c7747550c93b2ea3ca9 ]
 
-To minimize latency, PREEMPT_RT kernels expires hrtimers in preemptible
-softirq context by default. This can be overriden by marking the timer's
-expiry with HRTIMER_MODE_HARD.
+videostrong kii pro comes with a nec rc, add the keymap to the dts
 
-sched_clock_timer is missing this annotation: if its callback is preempted
-and the duration of the preemption exceeds the wrap around time of the
-underlying clocksource, sched clock will get out of sync.
-
-Mark the sched_clock_timer for expiry in hard interrupt context.
-
-Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200309181529.26558-1-a.darwish@linutronix.de
+Signed-off-by: Mohammad Rasim <mohammad.rasim96@gmail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/sched_clock.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/time/sched_clock.c b/kernel/time/sched_clock.c
-index dbd69052eaa66..a5538dd76a819 100644
---- a/kernel/time/sched_clock.c
-+++ b/kernel/time/sched_clock.c
-@@ -207,7 +207,8 @@ sched_clock_register(u64 (*read)(void), int bits, unsigned long rate)
- 
- 	if (sched_clock_timer.function != NULL) {
- 		/* update timeout for clock wrap */
--		hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
-+		hrtimer_start(&sched_clock_timer, cd.wrap_kt,
-+			      HRTIMER_MODE_REL_HARD);
- 	}
- 
- 	r = rate;
-@@ -251,9 +252,9 @@ void __init generic_sched_clock_init(void)
- 	 * Start the timer to keep sched_clock() properly updated and
- 	 * sets the initial epoch.
- 	 */
--	hrtimer_init(&sched_clock_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+	hrtimer_init(&sched_clock_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL_HARD);
- 	sched_clock_timer.function = sched_clock_poll;
--	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
-+	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL_HARD);
- }
- 
- /*
-@@ -290,7 +291,7 @@ void sched_clock_resume(void)
- 	struct clock_read_data *rd = &cd.read_data[0];
- 
- 	rd->epoch_cyc = cd.actual_read_sched_clock();
--	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
-+	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL_HARD);
- 	rd->read_sched_clock = cd.actual_read_sched_clock;
- }
- 
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
+index 2f1f829450a29..6c9cc45fb417e 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
+@@ -76,3 +76,7 @@
+ 		};
+ 	};
+ };
++
++&ir {
++	linux,rc-map-name = "rc-videostrong-kii-pro";
++};
 -- 
 2.20.1
 
