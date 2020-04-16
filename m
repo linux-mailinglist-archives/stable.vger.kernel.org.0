@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B03911AC7B7
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:58:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F291ACC32
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730663AbgDPO6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:58:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42006 "EHLO mail.kernel.org"
+        id S2895832AbgDPN2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:28:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392505AbgDPNzZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:55:25 -0400
+        id S2895801AbgDPN2l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:28:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CEE920732;
-        Thu, 16 Apr 2020 13:55:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D542217D8;
+        Thu, 16 Apr 2020 13:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045325;
-        bh=JRVBS3sKnILmkEDF8LL8WNz+GxvDMIcn/I95EiCgSu8=;
+        s=default; t=1587043720;
+        bh=ZcpYVsCP/XLAJuphgVNQRaUYJF/lasso5Ft3WcK6x/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B2humuyGjjcvm6enmfDigBCT+9nUqEGsrL6j5ba38olFu/nY56tqrMjbGe02aZ8aR
-         j+C7k9vrMNYtLKCJO391L/fG1fPQ7PqFyg5xpWnCPPX4Rd9pRBaMq5/4pYxJ+BlDBG
-         4tS7GS7nZfG24PONo4H57bTfX2WMkFoZ5HVQxtWA=
+        b=tn0LqvGjiF+T2sYs5sedC5WBWmeYsfVGpjudgBQkefwdHlAtcmIEeu4ZbC1TG32jt
+         /w0Q2ejAulFXdLiKeugw2lwLLc4FJp4H8tJQw9+AXIaQt0rmXSe6Ps8Z5qt1hq4Aqu
+         uDCDCO97Hs/toLNm6EGzOccZnJyCTBpzDV9dEfA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.6 087/254] media: ti-vpe: cal: fix disable_irqs to only the intended target
+        stable@vger.kernel.org, Junyong Sun <sunjunyong@xiaomi.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 035/146] firmware: fix a double abort case with fw_load_sysfs_fallback
 Date:   Thu, 16 Apr 2020 15:22:56 +0200
-Message-Id: <20200416131336.803492385@linuxfoundation.org>
+Message-Id: <20200416131247.315233535@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoit Parrot <bparrot@ti.com>
+From: Junyong Sun <sunjy516@gmail.com>
 
-commit 1db56284b9da9056093681f28db48a09a243274b upstream.
+[ Upstream commit bcfbd3523f3c6eea51a74d217a8ebc5463bcb7f4 ]
 
-disable_irqs() was mistakenly disabling all interrupts when called.
-This cause all port stream to stop even if only stopping one of them.
+fw_sysfs_wait_timeout may return err with -ENOENT
+at fw_load_sysfs_fallback and firmware is already
+in abort status, no need to abort again, so skip it.
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This issue is caused by concurrent situation like below:
+when thread 1# wait firmware loading, thread 2# may write
+-1 to abort loading and wakeup thread 1# before it timeout.
+so wait_for_completion_killable_timeout of thread 1# would
+return remaining time which is != 0 with fw_st->status
+FW_STATUS_ABORTED.And the results would be converted into
+err -ENOENT in __fw_state_wait_common and transfered to
+fw_load_sysfs_fallback in thread 1#.
+The -ENOENT means firmware status is already at ABORTED,
+so fw_load_sysfs_fallback no need to get mutex to abort again.
+-----------------------------
+thread 1#,wait for loading
+fw_load_sysfs_fallback
+ ->fw_sysfs_wait_timeout
+    ->__fw_state_wait_common
+       ->wait_for_completion_killable_timeout
+
+in __fw_state_wait_common,
+...
+93    ret = wait_for_completion_killable_timeout(&fw_st->completion, timeout);
+94    if (ret != 0 && fw_st->status == FW_STATUS_ABORTED)
+95       return -ENOENT;
+96    if (!ret)
+97	 return -ETIMEDOUT;
+98
+99    return ret < 0 ? ret : 0;
+-----------------------------
+thread 2#, write -1 to abort loading
+firmware_loading_store
+ ->fw_load_abort
+   ->__fw_load_abort
+     ->fw_state_aborted
+       ->__fw_state_set
+         ->complete_all
+
+in __fw_state_set,
+...
+111    if (status == FW_STATUS_DONE || status == FW_STATUS_ABORTED)
+112       complete_all(&fw_st->completion);
+-------------------------------------------
+BTW,the double abort issue would not cause kernel panic or create an issue,
+but slow down it sometimes.The change is just a minor optimization.
+
+Signed-off-by: Junyong Sun <sunjunyong@xiaomi.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/1583202968-28792-1-git-send-email-sunjunyong@xiaomi.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/cal.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/base/firmware_loader/fallback.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -722,16 +722,16 @@ static void enable_irqs(struct cal_ctx *
+diff --git a/drivers/base/firmware_loader/fallback.c b/drivers/base/firmware_loader/fallback.c
+index 818d8c37d70a9..3b7b748c4d4f2 100644
+--- a/drivers/base/firmware_loader/fallback.c
++++ b/drivers/base/firmware_loader/fallback.c
+@@ -572,7 +572,7 @@ static int fw_load_sysfs_fallback(struct fw_sysfs *fw_sysfs,
+ 	}
  
- static void disable_irqs(struct cal_ctx *ctx)
- {
-+	u32 val;
-+
- 	/* Disable IRQ_WDMA_END 0/1 */
--	reg_write_field(ctx->dev,
--			CAL_HL_IRQENABLE_CLR(2),
--			CAL_HL_IRQ_CLEAR,
--			CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	val = 0;
-+	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(2), val);
- 	/* Disable IRQ_WDMA_START 0/1 */
--	reg_write_field(ctx->dev,
--			CAL_HL_IRQENABLE_CLR(3),
--			CAL_HL_IRQ_CLEAR,
--			CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	val = 0;
-+	set_field(&val, CAL_HL_IRQ_CLEAR, CAL_HL_IRQ_MASK(ctx->csi2_port));
-+	reg_write(ctx->dev, CAL_HL_IRQENABLE_CLR(3), val);
- 	/* Todo: Add VC_IRQ and CSI2_COMPLEXIO_IRQ handling */
- 	reg_write(ctx->dev, CAL_CSI2_VC_IRQENABLE(1), 0);
- }
+ 	retval = fw_sysfs_wait_timeout(fw_priv, timeout);
+-	if (retval < 0) {
++	if (retval < 0 && retval != -ENOENT) {
+ 		mutex_lock(&fw_lock);
+ 		fw_load_abort(fw_sysfs);
+ 		mutex_unlock(&fw_lock);
+-- 
+2.20.1
+
 
 
