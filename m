@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E29521AC48C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C4211AC3EE
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:52:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392792AbgDPOBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:01:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48528 "EHLO mail.kernel.org"
+        id S2408699AbgDPNvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:51:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392766AbgDPOBV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:01:21 -0400
+        id S2392389AbgDPNvh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:51:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21B0820732;
-        Thu, 16 Apr 2020 14:01:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C75892063A;
+        Thu, 16 Apr 2020 13:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045679;
-        bh=k7+F2+dZbLUXEVNzfB8DK7Rq3o1/WbEpoaovpbzJBtQ=;
+        s=default; t=1587045097;
+        bh=Ja8o/eU4oIIfcb0wmCeRSuyQL/x0GQj1UN5VukFYvt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y3rhtds5ytU7kYPdovv0uMlDZRtVMRI4oZJCqtJGJurnUKDf8apPWWALBs7OYkq1L
-         c2OK472cQfgKnkF6Nc3CwPGAu9kVQvJ8FK9EybjsikXLYNvbJ+0r0aXPOwsMOUavlZ
-         oWZm3wnaBkAXKa/LYVQUo/ew9k6QaFqHG8wT7Wsw=
+        b=r8FrAKBssEhwScxqct7DIfR2rtQJMaIzPgSjmSpXHxjnm64Aija5OGMOi/5bi/SpT
+         l8UYQQvRNZ6gCHNlz0wlIRfNEKKCoQlJqGU2QdHQvouVG7KmOyZhtvj4MU1yDnN9SO
+         TIj82ZYwusvcAKEdX784MowZidz9TZKZyvGmMfZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Merlijn Wajer <merlijn@archive.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.6 234/254] scsi: sr: get rid of sr global mutex
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 229/232] drm/i915/icl+: Dont enable DDI IO power on a TypeC port in TBT mode
 Date:   Thu, 16 Apr 2020 15:25:23 +0200
-Message-Id: <20200416131354.857149679@linuxfoundation.org>
+Message-Id: <20200416131344.191224613@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,147 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Merlijn Wajer <merlijn@archive.org>
+From: Imre Deak <imre.deak@intel.com>
 
-commit 51a858817dcdbbdee22cb54b0b2b26eb145ca5b6 upstream.
+The DDI IO power well must not be enabled for a TypeC port in TBT mode,
+ensure this during driver loading/system resume.
 
-When replacing the Big Kernel Lock in commit 2a48fc0ab242 ("block:
-autoconvert trivial BKL users to private mutex"), the lock was replaced
-with a sr-wide lock.
+This gets rid of error messages like
+[drm] *ERROR* power well DDI E TC2 IO state mismatch (refcount 1/enabled 0)
 
-This causes very poor performance when using multiple sr devices, as the sr
-driver was not able to execute more than one command to one drive at any
-given time, even when there were many CD drives available.
+and avoids leaking the power ref when disabling the output.
 
-Replace the global mutex with per-sr-device mutex.
-
-Someone tried this patch at the time, but it never made it upstream, due to
-possible concerns with race conditions, but it's not clear the patch
-actually caused those:
-
-https://www.spinics.net/lists/linux-scsi/msg63706.html
-https://www.spinics.net/lists/linux-scsi/msg63750.html
-
-Also see
-
-http://lists.xiph.org/pipermail/paranoia/2019-December/001647.html
-
-Link: https://lore.kernel.org/r/20200218143918.30267-1-merlijn@archive.org
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Merlijn Wajer <merlijn@archive.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200330152244.11316-1-imre.deak@intel.com
+(cherry picked from commit f77a2db27f26c3ccba0681f7e89fef083718f07f)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c |   20 +++++++++++---------
- drivers/scsi/sr.h |    2 ++
- 2 files changed, 13 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/i915/display/intel_ddi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -79,7 +79,6 @@ MODULE_ALIAS_SCSI_DEVICE(TYPE_WORM);
- 	 CDC_CD_R|CDC_CD_RW|CDC_DVD|CDC_DVD_R|CDC_DVD_RAM|CDC_GENERIC_PACKET| \
- 	 CDC_MRW|CDC_MRW_W|CDC_RAM)
+diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+index 8eb2b3ec01edd..b3c77c988d1cd 100644
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -2124,7 +2124,11 @@ static void intel_ddi_get_power_domains(struct intel_encoder *encoder,
+ 		return;
  
--static DEFINE_MUTEX(sr_mutex);
- static int sr_probe(struct device *);
- static int sr_remove(struct device *);
- static blk_status_t sr_init_command(struct scsi_cmnd *SCpnt);
-@@ -536,9 +535,9 @@ static int sr_block_open(struct block_de
- 	scsi_autopm_get_device(sdev);
- 	check_disk_change(bdev);
- 
--	mutex_lock(&sr_mutex);
-+	mutex_lock(&cd->lock);
- 	ret = cdrom_open(&cd->cdi, bdev, mode);
--	mutex_unlock(&sr_mutex);
-+	mutex_unlock(&cd->lock);
- 
- 	scsi_autopm_put_device(sdev);
- 	if (ret)
-@@ -551,10 +550,10 @@ out:
- static void sr_block_release(struct gendisk *disk, fmode_t mode)
- {
- 	struct scsi_cd *cd = scsi_cd(disk);
--	mutex_lock(&sr_mutex);
-+	mutex_lock(&cd->lock);
- 	cdrom_release(&cd->cdi, mode);
- 	scsi_cd_put(cd);
--	mutex_unlock(&sr_mutex);
-+	mutex_unlock(&cd->lock);
- }
- 
- static int sr_block_ioctl(struct block_device *bdev, fmode_t mode, unsigned cmd,
-@@ -565,7 +564,7 @@ static int sr_block_ioctl(struct block_d
- 	void __user *argp = (void __user *)arg;
- 	int ret;
- 
--	mutex_lock(&sr_mutex);
-+	mutex_lock(&cd->lock);
- 
- 	ret = scsi_ioctl_block_when_processing_errors(sdev, cmd,
- 			(mode & FMODE_NDELAY) != 0);
-@@ -595,7 +594,7 @@ put:
- 	scsi_autopm_put_device(sdev);
- 
- out:
--	mutex_unlock(&sr_mutex);
-+	mutex_unlock(&cd->lock);
- 	return ret;
- }
- 
-@@ -608,7 +607,7 @@ static int sr_block_compat_ioctl(struct
- 	void __user *argp = compat_ptr(arg);
- 	int ret;
- 
--	mutex_lock(&sr_mutex);
-+	mutex_lock(&cd->lock);
- 
- 	ret = scsi_ioctl_block_when_processing_errors(sdev, cmd,
- 			(mode & FMODE_NDELAY) != 0);
-@@ -638,7 +637,7 @@ put:
- 	scsi_autopm_put_device(sdev);
- 
- out:
--	mutex_unlock(&sr_mutex);
-+	mutex_unlock(&cd->lock);
- 	return ret;
- 
- }
-@@ -745,6 +744,7 @@ static int sr_probe(struct device *dev)
- 	disk = alloc_disk(1);
- 	if (!disk)
- 		goto fail_free;
-+	mutex_init(&cd->lock);
- 
- 	spin_lock(&sr_index_lock);
- 	minor = find_first_zero_bit(sr_index_bits, SR_DISKS);
-@@ -1055,6 +1055,8 @@ static void sr_kref_release(struct kref
- 
- 	put_disk(disk);
- 
-+	mutex_destroy(&cd->lock);
+ 	dig_port = enc_to_dig_port(&encoder->base);
+-	intel_display_power_get(dev_priv, dig_port->ddi_io_power_domain);
 +
- 	kfree(cd);
- }
++	if (!intel_phy_is_tc(dev_priv, phy) ||
++	    dig_port->tc_mode != TC_PORT_TBT_ALT)
++		intel_display_power_get(dev_priv,
++					dig_port->ddi_io_power_domain);
  
---- a/drivers/scsi/sr.h
-+++ b/drivers/scsi/sr.h
-@@ -20,6 +20,7 @@
- 
- #include <linux/genhd.h>
- #include <linux/kref.h>
-+#include <linux/mutex.h>
- 
- #define MAX_RETRIES	3
- #define SR_TIMEOUT	(30 * HZ)
-@@ -51,6 +52,7 @@ typedef struct scsi_cd {
- 	bool ignore_get_event:1;	/* GET_EVENT is unreliable, use TUR */
- 
- 	struct cdrom_device_info cdi;
-+	struct mutex lock;
- 	/* We hold gendisk and scsi_device references on probe and use
- 	 * the refs on this kref to decide when to release them */
- 	struct kref kref;
+ 	/*
+ 	 * AUX power is only needed for (e)DP mode, and for HDMI mode on TC
+-- 
+2.20.1
+
 
 
