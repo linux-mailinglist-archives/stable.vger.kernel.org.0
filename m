@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 585201AC7F4
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF901ACCA5
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 18:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728735AbgDPPBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41010 "EHLO mail.kernel.org"
+        id S1727918AbgDPQD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 12:03:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726079AbgDPNyY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:54:24 -0400
+        id S2895250AbgDPN0M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:26:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54CAF20786;
-        Thu, 16 Apr 2020 13:54:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33D8D206E9;
+        Thu, 16 Apr 2020 13:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045263;
-        bh=voR2c5oles2bsqgJ3Oq75JQIQaJoorClTevFqXOzlbU=;
+        s=default; t=1587043571;
+        bh=TjFmNk6idyfIeYrGysZ/y2DkV1ouIOtNI5z9UXMVK0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhE2hQgJW6hpt8Gd4pBmx4CyrncwaEd+Bx3IkfYcgceJFntYgOupmKbL0GmOpB3Qb
-         IkD0nOY5zYBNqBR8hH+11qbdChRh7aT7QL5JPiLjokN04f/tOzol2SFLMGQ+G1KIXj
-         AYN0rsDYWHm/RX+PZyo3pdygT7Nuz91vPY7KByCs=
+        b=SBMVJQW8UPyV6jVAs11SQDDdMbEy/ZrWCtjLN3UAcw10MzGaFDgm16TNGXZ0nlPeI
+         xCcSBe5D0v4G6pfwyA1bVwb7XGItZAnEN/UZnWzhWUSuRX/qbFFsG4/yl8vfYPUtPF
+         iTBIdIfZGA9T/2d0MyBzmmgol+7JplyGEl2hS95s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        James Morse <james.morse@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 064/254] btrfs: restart relocate_tree_blocks properly
+Subject: [PATCH 4.19 012/146] firmware: arm_sdei: fix double-lock on hibernate with shared events
 Date:   Thu, 16 Apr 2020 15:22:33 +0200
-Message-Id: <20200416131333.917036185@linuxfoundation.org>
+Message-Id: <20200416131244.205358079@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +46,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 50dbbb71c79df89532ec41d118d59386e5a877e3 ]
+[ Upstream commit 6ded0b61cf638bf9f8efe60ab8ba23db60ea9763 ]
 
-There are two bugs here, but fixing them independently would just result
-in pain if you happened to bisect between the two patches.
+SDEI has private events that must be registered on each CPU. When
+CPUs come and go they must re-register and re-enable their private
+events. Each event has flags to indicate whether this should happen
+to protect against an event being registered on a CPU coming online,
+while all the others are unregistering the event.
 
-First is how we handle the -EAGAIN from relocate_tree_block().  We don't
-set error, unless we happen to be the first node, which makes no sense,
-I have no idea what the code was trying to accomplish here.
+These flags are protected by the sdei_list_lock spinlock, because
+the cpuhp callbacks can't take the mutex.
 
-We in fact _do_ want err set here so that we know we need to restart in
-relocate_block_group().  Also we need finish_pending_nodes() to not
-actually call link_to_upper(), because we didn't actually relocate the
-block.
+Hibernate needs to unregister all events, but keep the in-memory
+re-register and re-enable as they are. sdei_unregister_shared()
+takes the spinlock to walk the list, then calls _sdei_event_unregister()
+on each shared event. _sdei_event_unregister() tries to take the
+same spinlock to update re-register and re-enable. This doesn't go
+so well.
 
-And then if we do get -EAGAIN we do not want to set our backref cache
-last_trans to the one before ours.  This would force us to update our
-backref cache if we didn't cross transaction ids, which would mean we'd
-have some nodes updated to their new_bytenr, but still able to find
-their old bytenr because we're searching the same commit root as the
-last time we went through relocate_tree_blocks.
+Push the re-register and re-enable updates out to their callers.
+sdei_unregister_shared() doesn't want these values updated, so
+doesn't need to do anything.
 
-Fixing these two things keeps us from panicing when we start breaking
-out of relocate_tree_blocks() either for delayed ref flushing or enospc.
+This also fixes shared events getting lost over hibernate as this
+path made them look unregistered.
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: da351827240e ("firmware: arm_sdei: Add support for CPU and system power states")
+Reported-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/relocation.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/firmware/arm_sdei.c | 32 +++++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
 
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index db6abe3f10e57..d7e8839048d71 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -3175,9 +3175,8 @@ int relocate_tree_blocks(struct btrfs_trans_handle *trans,
- 		ret = relocate_tree_block(trans, rc, node, &block->key,
- 					  path);
- 		if (ret < 0) {
--			if (ret != -EAGAIN || &block->rb_node == rb_first(blocks))
--				err = ret;
--			goto out;
-+			err = ret;
-+			break;
- 		}
- 	}
- out:
-@@ -4151,12 +4150,6 @@ restart:
- 		if (!RB_EMPTY_ROOT(&blocks)) {
- 			ret = relocate_tree_blocks(trans, rc, &blocks);
- 			if (ret < 0) {
--				/*
--				 * if we fail to relocate tree blocks, force to update
--				 * backref cache when committing transaction.
--				 */
--				rc->backref_cache.last_trans = trans->transid - 1;
+diff --git a/drivers/firmware/arm_sdei.c b/drivers/firmware/arm_sdei.c
+index c64c7da738297..05b528c7ed8fd 100644
+--- a/drivers/firmware/arm_sdei.c
++++ b/drivers/firmware/arm_sdei.c
+@@ -489,11 +489,6 @@ static int _sdei_event_unregister(struct sdei_event *event)
+ {
+ 	lockdep_assert_held(&sdei_events_lock);
+ 
+-	spin_lock(&sdei_list_lock);
+-	event->reregister = false;
+-	event->reenable = false;
+-	spin_unlock(&sdei_list_lock);
 -
- 				if (ret != -EAGAIN) {
- 					err = ret;
- 					break;
+ 	if (event->type == SDEI_EVENT_TYPE_SHARED)
+ 		return sdei_api_event_unregister(event->event_num);
+ 
+@@ -516,6 +511,11 @@ int sdei_event_unregister(u32 event_num)
+ 			break;
+ 		}
+ 
++		spin_lock(&sdei_list_lock);
++		event->reregister = false;
++		event->reenable = false;
++		spin_unlock(&sdei_list_lock);
++
+ 		err = _sdei_event_unregister(event);
+ 		if (err)
+ 			break;
+@@ -583,26 +583,15 @@ static int _sdei_event_register(struct sdei_event *event)
+ 
+ 	lockdep_assert_held(&sdei_events_lock);
+ 
+-	spin_lock(&sdei_list_lock);
+-	event->reregister = true;
+-	spin_unlock(&sdei_list_lock);
+-
+ 	if (event->type == SDEI_EVENT_TYPE_SHARED)
+ 		return sdei_api_event_register(event->event_num,
+ 					       sdei_entry_point,
+ 					       event->registered,
+ 					       SDEI_EVENT_REGISTER_RM_ANY, 0);
+ 
+-
+ 	err = sdei_do_cross_call(_local_event_register, event);
+-	if (err) {
+-		spin_lock(&sdei_list_lock);
+-		event->reregister = false;
+-		event->reenable = false;
+-		spin_unlock(&sdei_list_lock);
+-
++	if (err)
+ 		sdei_do_cross_call(_local_event_unregister, event);
+-	}
+ 
+ 	return err;
+ }
+@@ -630,8 +619,17 @@ int sdei_event_register(u32 event_num, sdei_event_callback *cb, void *arg)
+ 			break;
+ 		}
+ 
++		spin_lock(&sdei_list_lock);
++		event->reregister = true;
++		spin_unlock(&sdei_list_lock);
++
+ 		err = _sdei_event_register(event);
+ 		if (err) {
++			spin_lock(&sdei_list_lock);
++			event->reregister = false;
++			event->reenable = false;
++			spin_unlock(&sdei_list_lock);
++
+ 			sdei_event_destroy(event);
+ 			pr_warn("Failed to register event %u: %d\n", event_num,
+ 				err);
 -- 
 2.20.1
 
