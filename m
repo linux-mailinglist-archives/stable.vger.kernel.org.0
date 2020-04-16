@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00D9D1AC26A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98C3F1AC3A6
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895661AbgDPN2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:28:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36598 "EHLO mail.kernel.org"
+        id S2898596AbgDPNq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:46:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895633AbgDPN15 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:27:57 -0400
+        id S2898592AbgDPNq1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:46:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3FE821BE5;
-        Thu, 16 Apr 2020 13:27:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 761382076D;
+        Thu, 16 Apr 2020 13:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043676;
-        bh=4m1dUXBUV9k6o18wlvbkSZoGbZqakAwYAzHfc90hGU0=;
+        s=default; t=1587044786;
+        bh=+uJIfhq4To9PPx/vDjuWEYrcyKoHKGRkmagYR3usmxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KHCLCkQaWvVUM9AvMY5qxDTlE+gOZDLikeWL1eLA9IZde4oGusr1JyaD3fV3zK/D0
-         qx7eAcfDDXO55HbX7Ztfr+T497Q2YcjrhlDIi9c5zFndmhoaTHcCvp0Ul6VoZh/asc
-         bEocfvA4LCv5tkbVlly5D00RETCfg2K8e0LD+DOw=
+        b=NFIV2OQE6qZN61gMLsHRSKMI+9AlHc08TZ+4v22FwJuDooLVn61AHhN2UOaZMRyjo
+         g+f4P8S24U4JIwUR71h0dfvwwAQ4c0xVFz0B/ToDd6PvxFbTkLyLiYNNP4PeWUgSGP
+         2O9fZ3noZKMmYxrbpU0iA9skvpKbm77oqFMP/kfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Jari Ruusu <jari.ruusu@gmail.com>
-Subject: [PATCH 4.19 054/146] ALSA: pcm: oss: Fix regression by buffer overflow fix
-Date:   Thu, 16 Apr 2020 15:23:15 +0200
-Message-Id: <20200416131250.292527083@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>
+Subject: [PATCH 5.4 102/232] PCI: qcom: Fix the fixup of PCI_VENDOR_ID_QCOM
+Date:   Thu, 16 Apr 2020 15:23:16 +0200
+Message-Id: <20200416131327.815719699@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,126 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-commit ae769d3556644888c964635179ef192995f40793 upstream.
+commit 604f3956524a6a53c1e3dd27b4b685b664d181ec upstream.
 
-The recent fix for the OOB access in PCM OSS plugins (commit
-f2ecf903ef06: "ALSA: pcm: oss: Avoid plugin buffer overflow") caused a
-regression on OSS applications.  The patch introduced the size check
-in client and slave size calculations to limit to each plugin's buffer
-size, but I overlooked that some code paths call those without
-allocating the buffer but just for estimation.
+There exists non-bridge PCIe devices with PCI_VENDOR_ID_QCOM, so limit
+the fixup to only affect the relevant PCIe bridges.
 
-This patch fixes the bug by skipping the size check for those code
-paths while keeping checking in the actual transfer calls.
-
-Fixes: f2ecf903ef06 ("ALSA: pcm: oss: Avoid plugin buffer overflow")
-Tested-and-reported-by: Jari Ruusu <jari.ruusu@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200403072515.25539-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 322f03436692 ("PCI: qcom: Use default config space read function")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc: stable@vger.kernel.org # v5.2+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/oss/pcm_plugin.c |   32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ drivers/pci/controller/dwc/pcie-qcom.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/sound/core/oss/pcm_plugin.c
-+++ b/sound/core/oss/pcm_plugin.c
-@@ -196,7 +196,9 @@ int snd_pcm_plugin_free(struct snd_pcm_p
- 	return 0;
- }
- 
--snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t drv_frames)
-+static snd_pcm_sframes_t plug_client_size(struct snd_pcm_substream *plug,
-+					  snd_pcm_uframes_t drv_frames,
-+					  bool check_size)
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -1289,7 +1289,13 @@ static void qcom_fixup_class(struct pci_
  {
- 	struct snd_pcm_plugin *plugin, *plugin_prev, *plugin_next;
- 	int stream;
-@@ -209,7 +211,7 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
- 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
- 		plugin = snd_pcm_plug_last(plug);
- 		while (plugin && drv_frames > 0) {
--			if (drv_frames > plugin->buf_frames)
-+			if (check_size && drv_frames > plugin->buf_frames)
- 				drv_frames = plugin->buf_frames;
- 			plugin_prev = plugin->prev;
- 			if (plugin->src_frames)
-@@ -222,7 +224,7 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
- 			plugin_next = plugin->next;
- 			if (plugin->dst_frames)
- 				drv_frames = plugin->dst_frames(plugin, drv_frames);
--			if (drv_frames > plugin->buf_frames)
-+			if (check_size && drv_frames > plugin->buf_frames)
- 				drv_frames = plugin->buf_frames;
- 			plugin = plugin_next;
- 		}
-@@ -231,7 +233,9 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
- 	return drv_frames;
+ 	dev->class = PCI_CLASS_BRIDGE_PCI << 8;
  }
+-DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, PCI_ANY_ID, qcom_fixup_class);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0101, qcom_fixup_class);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0104, qcom_fixup_class);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0106, qcom_fixup_class);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0107, qcom_fixup_class);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x0302, qcom_fixup_class);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x1000, qcom_fixup_class);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, 0x1001, qcom_fixup_class);
  
--snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t clt_frames)
-+static snd_pcm_sframes_t plug_slave_size(struct snd_pcm_substream *plug,
-+					 snd_pcm_uframes_t clt_frames,
-+					 bool check_size)
- {
- 	struct snd_pcm_plugin *plugin, *plugin_prev, *plugin_next;
- 	snd_pcm_sframes_t frames;
-@@ -252,14 +256,14 @@ snd_pcm_sframes_t snd_pcm_plug_slave_siz
- 				if (frames < 0)
- 					return frames;
- 			}
--			if (frames > plugin->buf_frames)
-+			if (check_size && frames > plugin->buf_frames)
- 				frames = plugin->buf_frames;
- 			plugin = plugin_next;
- 		}
- 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
- 		plugin = snd_pcm_plug_last(plug);
- 		while (plugin) {
--			if (frames > plugin->buf_frames)
-+			if (check_size && frames > plugin->buf_frames)
- 				frames = plugin->buf_frames;
- 			plugin_prev = plugin->prev;
- 			if (plugin->src_frames) {
-@@ -274,6 +278,18 @@ snd_pcm_sframes_t snd_pcm_plug_slave_siz
- 	return frames;
- }
- 
-+snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug,
-+					   snd_pcm_uframes_t drv_frames)
-+{
-+	return plug_client_size(plug, drv_frames, false);
-+}
-+
-+snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug,
-+					  snd_pcm_uframes_t clt_frames)
-+{
-+	return plug_slave_size(plug, clt_frames, false);
-+}
-+
- static int snd_pcm_plug_formats(const struct snd_mask *mask,
- 				snd_pcm_format_t format)
- {
-@@ -630,7 +646,7 @@ snd_pcm_sframes_t snd_pcm_plug_write_tra
- 		src_channels = dst_channels;
- 		plugin = next;
- 	}
--	return snd_pcm_plug_client_size(plug, frames);
-+	return plug_client_size(plug, frames, true);
- }
- 
- snd_pcm_sframes_t snd_pcm_plug_read_transfer(struct snd_pcm_substream *plug, struct snd_pcm_plugin_channel *dst_channels_final, snd_pcm_uframes_t size)
-@@ -640,7 +656,7 @@ snd_pcm_sframes_t snd_pcm_plug_read_tran
- 	snd_pcm_sframes_t frames = size;
- 	int err;
- 
--	frames = snd_pcm_plug_slave_size(plug, frames);
-+	frames = plug_slave_size(plug, frames, true);
- 	if (frames < 0)
- 		return frames;
- 
+ static struct platform_driver qcom_pcie_driver = {
+ 	.probe = qcom_pcie_probe,
 
 
