@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D506B1ACACE
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37FD01AC3B1
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395423AbgDPPjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:39:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50456 "EHLO mail.kernel.org"
+        id S2898636AbgDPNqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:46:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897622AbgDPNiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:38:04 -0400
+        id S2898629AbgDPNqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:46:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6349920732;
-        Thu, 16 Apr 2020 13:38:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3F9121734;
+        Thu, 16 Apr 2020 13:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044283;
-        bh=shd0LP0Bg8wGz6s3YwEhALAbANLNDLZwnav84oEtfjo=;
+        s=default; t=1587044811;
+        bh=EK/Cuxjn3w46ZMpO2v2XOHxAZrlG7GWtQElkScPysAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Loh7J90ST2vRKdND7RrQxWzNwJBj/EyrX14IUl8Y3zMOPykK7M2XsVtb9pcsfJFHq
-         f1cdKBXlCKdnUiOb9DZBdHiPHmK0j3OniEyVWFhX3XA70xI3PFFZn2boEXE2sqyLCU
-         uN07oY2krG/kMqSWyscaSRNebSk+sWg5pJXyDH5c=
+        b=f2JUJ0VF0GUC8YNTl63elFnsOVMxm9rPv79FGlx7zVYUwAvf9z9vmA5muTqlhCD6r
+         YkdGQm27OLIb/YNrOw2QfP71jZbk/w6B0GeTr+zEIhJjRjuJ+UckGweoNzkcLtc1ku
+         9AdDYeWgnVj71XRrtLmVJCCYON8Lk6POfJk/py9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.5 154/257] mtd: spinand: Do not erase the block before writing a bad block marker
+        stable@vger.kernel.org, Sungbo Eo <mans0n@gorani.run>,
+        Marc Zyngier <maz@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 111/232] irqchip/versatile-fpga: Apply clear-mask earlier
 Date:   Thu, 16 Apr 2020 15:23:25 +0200
-Message-Id: <20200416131345.831934767@linuxfoundation.org>
+Message-Id: <20200416131329.017834513@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Sungbo Eo <mans0n@gorani.run>
 
-commit b645ad39d56846618704e463b24bb994c9585c7f upstream.
+commit 6a214a28132f19ace3d835a6d8f6422ec80ad200 upstream.
 
-Currently when marking a block, we use spinand_erase_op() to erase
-the block before writing the marker to the OOB area. Doing so without
-waiting for the operation to finish can lead to the marking failing
-silently and no bad block marker being written to the flash.
+Clear its own IRQs before the parent IRQ get enabled, so that the
+remaining IRQs do not accidentally interrupt the parent IRQ controller.
 
-In fact we don't need to do an erase at all before writing the BBM.
-The ECC is disabled for raw accesses to the OOB data and we don't
-need to work around any issues with chips reporting ECC errors as it
-is known to be the case for raw NAND.
+This patch also fixes a reboot bug on OX820 SoC, where the remaining
+rps-timer IRQ raises a GIC interrupt that is left pending. After that,
+the rps-timer IRQ is cleared during driver initialization, and there's
+no IRQ left in rps-irq when local_irq_enable() is called, which evokes
+an error message "unexpected IRQ trap".
 
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
+Fixes: bdd272cbb97a ("irqchip: versatile FPGA: support cascaded interrupts from DT")
+Signed-off-by: Sungbo Eo <mans0n@gorani.run>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200218100432.32433-4-frieder.schrempf@kontron.de
+Link: https://lore.kernel.org/r/20200321133842.2408823-1-mans0n@gorani.run
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/spi/core.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/irqchip/irq-versatile-fpga.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -612,7 +612,6 @@ static int spinand_markbad(struct nand_d
- 	};
- 	int ret;
+--- a/drivers/irqchip/irq-versatile-fpga.c
++++ b/drivers/irqchip/irq-versatile-fpga.c
+@@ -212,6 +212,9 @@ int __init fpga_irq_of_init(struct devic
+ 	if (of_property_read_u32(node, "valid-mask", &valid_mask))
+ 		valid_mask = 0;
  
--	/* Erase block before marking it bad. */
- 	ret = spinand_select_target(spinand, pos->target);
- 	if (ret)
- 		return ret;
-@@ -621,8 +620,6 @@ static int spinand_markbad(struct nand_d
- 	if (ret)
- 		return ret;
++	writel(clear_mask, base + IRQ_ENABLE_CLEAR);
++	writel(clear_mask, base + FIQ_ENABLE_CLEAR);
++
+ 	/* Some chips are cascaded from a parent IRQ */
+ 	parent_irq = irq_of_parse_and_map(node, 0);
+ 	if (!parent_irq) {
+@@ -221,9 +224,6 @@ int __init fpga_irq_of_init(struct devic
  
--	spinand_erase_op(spinand, pos);
+ 	fpga_irq_init(base, node->name, 0, parent_irq, valid_mask, node);
+ 
+-	writel(clear_mask, base + IRQ_ENABLE_CLEAR);
+-	writel(clear_mask, base + FIQ_ENABLE_CLEAR);
 -
- 	return spinand_write_page(spinand, &req);
- }
- 
+ 	/*
+ 	 * On Versatile AB/PB, some secondary interrupts have a direct
+ 	 * pass-thru to the primary controller for IRQs 20 and 22-31 which need
 
 
