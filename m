@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB4031AC26C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E77251ACAD5
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:40:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895678AbgDPN2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:28:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36910 "EHLO mail.kernel.org"
+        id S2395485AbgDPPkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:40:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895672AbgDPN2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:28:06 -0400
+        id S2897538AbgDPNhu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:37:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69F8D21D79;
-        Thu, 16 Apr 2020 13:28:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FA1C221F4;
+        Thu, 16 Apr 2020 13:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043685;
-        bh=IO9sfJh1ECQjFYciwaez13SC3S2Brz/c3XRKHxCtHkw=;
+        s=default; t=1587044269;
+        bh=bFWDlqP9USn3c5lqfAuj6t5+gOROS4BcTG8X8ED4KOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yf63naVU7rStPAm4pg+i32vXDf0uJk5xn8/w6cV9PtqVfXrpKaS2WfSh6gJlV8aTQ
-         pSV0wsugDFNK2RTtOTtf+silgFa/wJGhudEUAAsm+kEcwVYw8Qky1RgvtamhDrOcIi
-         OC9PlOH25lZorad76+nH1q95+9aip9zFZCxiWhE0=
+        b=BNLzNi46Usq1Lpo/GxVgCp1U9k2sAJSNRR+1XeeECZe7djOnr4Ywj5RFkpEHtnm9c
+         pwqtNpKB12++AZmU9SI3TQf4SlqwEa5w/+FKzszgvlxm3SEUPz1ZLOgm0q1YUeqMGo
+         6ovcdcss8EBvND7bIpMkCQqcocSLeWsJxHrMjTj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 058/146] ALSA: hda/realtek - Add quirk for MSI GL63
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.5 148/257] KVM: x86: Gracefully handle __vmalloc() failure during VM allocation
 Date:   Thu, 16 Apr 2020 15:23:19 +0200
-Message-Id: <20200416131250.822265021@linuxfoundation.org>
+Message-Id: <20200416131344.971663792@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 1d3aa4a5516d2e4933fe3cca11d3349ef63bc547 upstream.
+commit d18b2f43b9147c8005ae0844fb445d8cc6a87e31 upstream.
 
-MSI GL63 laptop requires the similar quirk like other MSI models,
-ALC1220_FIXUP_CLEVO_P950.  The board BIOS doesn't provide a PCI SSID
-for the device, hence we need to take the codec SSID (1462:1275)
-instead.
+Check the result of __vmalloc() to avoid dereferencing a NULL pointer in
+the event that allocation failres.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207157
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200408135645.21896-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: d1e5b0e98ea27 ("kvm: Make VM ioctl do valloc for some archs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/svm.c     |    4 ++++
+ arch/x86/kvm/vmx/vmx.c |    4 ++++
+ 2 files changed, 8 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2441,6 +2441,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
-+	SND_PCI_QUIRK(0x1462, 0x1275, "MSI-GL63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x7350, "MSI-7350", ALC889_FIXUP_CD),
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1930,6 +1930,10 @@ static struct kvm *svm_vm_alloc(void)
+ 	struct kvm_svm *kvm_svm = __vmalloc(sizeof(struct kvm_svm),
+ 					    GFP_KERNEL_ACCOUNT | __GFP_ZERO,
+ 					    PAGE_KERNEL);
++
++	if (!kvm_svm)
++		return NULL;
++
+ 	return &kvm_svm->kvm;
+ }
+ 
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6633,6 +6633,10 @@ static struct kvm *vmx_vm_alloc(void)
+ 	struct kvm_vmx *kvm_vmx = __vmalloc(sizeof(struct kvm_vmx),
+ 					    GFP_KERNEL_ACCOUNT | __GFP_ZERO,
+ 					    PAGE_KERNEL);
++
++	if (!kvm_vmx)
++		return NULL;
++
+ 	return &kvm_vmx->kvm;
+ }
+ 
 
 
