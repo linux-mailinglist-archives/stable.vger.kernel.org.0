@@ -2,118 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15D9A1AD2C1
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 00:20:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F276F1AD324
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 01:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728334AbgDPWTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 18:19:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54088 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728221AbgDPWTz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 18:19:55 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23E36C061A0C
-        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 15:19:55 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id 2so73183pgp.11
-        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 15:19:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hBe+ejNKRwQ7ffLUUcILS3/27WhAaURaKo2CQPO6xUk=;
-        b=ftrl/VB5Jx4y2AfZX1OnDu1ldBnLycwQnfIXhL4NIPOqhIEFNC6/Rdij3DrjeyObu9
-         +F6vWMPD5a2RPbCNESz4vhdQs0OV6bTIsnNKyeJvBkioiLHXlfSFEsiT3yJ2H8uFsJKu
-         3ClqkANohTOenuYn74IXL6EsxRfZhcIAXMCfhjaNqXIZOGgJrfbCH19SBCIISSavARPa
-         RfwHak851FJs/EixAz1uHj9CFCXrbe3LmcJUOZILAdnXBEL1o8wGHvsENeR+zGy2I3lm
-         MdHJ/3ZXJ9FfTXZQchzraUH4EpdaUc1ThQqPGEOWChmi4AHWAoOpbDBeorlGImmjNEOq
-         BIWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hBe+ejNKRwQ7ffLUUcILS3/27WhAaURaKo2CQPO6xUk=;
-        b=JR9AhWmi1Xie7JKej+5B7UTNL6XHYZ5rwh9nB3KRyWqjpxrDGbDNrol2lIA0Abx7nf
-         AfvEaF6bSUsQMsRwRv+Viey1WLdYqn1lxy4jMP7HmDixFOPooEXqGMuI1yIktS/yczb9
-         rNfLUsjxApDe8suwYv4w4ziTdVYhcmHcIi5TOTavYyu4vjg1AUoQGRRVEHk2PxFToGfo
-         sMl72m0C3gVB4+qAegeLN/GxO1kFad3BY5xSDNc3XrC+BdxYAORxQPdoo8TlSRLhioaf
-         6fm1Wn7Kjxa/OS5TAXlU/KSEnuWiBMN2jiZI2F07EZiEcjpDi911a0q0YF9+w8s+jvKx
-         1eZw==
-X-Gm-Message-State: AGi0PuaBhzI1RTgcglyv/waxf/ywU0rSNa6s/6lS7OhSlu9tQZSm2N6t
-        a2jTBwQtRJwzei+1KjwuDpE1HezdEyw=
-X-Google-Smtp-Source: APiQypJ/nZcgr76YxirBR5IxfBSVSLt5PvvCfHZhwe/44AEB2ABayg6ibvkNP+UCGbkSkJuy4U38Yw==
-X-Received: by 2002:aa7:8281:: with SMTP id s1mr32432744pfm.265.1587075594352;
-        Thu, 16 Apr 2020 15:19:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a1sm17724751pfi.182.2020.04.16.15.19.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Apr 2020 15:19:53 -0700 (PDT)
-Message-ID: <5e98da09.1c69fb81.9b3ba.dfaa@mx.google.com>
-Date:   Thu, 16 Apr 2020 15:19:53 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727787AbgDPXXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 19:23:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36758 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725970AbgDPXXE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 19:23:04 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FE3C2078B;
+        Thu, 16 Apr 2020 23:23:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587079383;
+        bh=5noirhgriO9wYK1PbudBThy0C8L02azMslLMaA2CbMw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=X15/hBBkNgmo9CDdKrd58kYO2Wb2G/svsenYu6qEv5gwY9a5o1J07GnrepjO7cY75
+         mfIgH1jm8DNL+US68LcUrCI5t0QZWEFxzcucCiB7H7W+Y36V0ERSZKeLIk+bwcZyIc
+         EpFB1hgNpnuHCfiLUwgPUP3ZFwus+kKbp0u2EkG4=
+Date:   Thu, 16 Apr 2020 19:23:02 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Saeed Mahameed <saeedm@mellanox.com>
+Cc:     "ecree@solarflare.com" <ecree@solarflare.com>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "kuba@kernel.org" <kuba@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "gerlitz.or@gmail.com" <gerlitz.or@gmail.com>,
+        "davem@davemloft.net" <davem@davemloft.net>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
+ representors
+Message-ID: <20200416232302.GR1068@sasha-vm>
+References: <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
+ <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
+ <20200414205755.GF1068@sasha-vm>
+ <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
+ <20200416000009.GL1068@sasha-vm>
+ <CAJ3xEMjfWL=c=voGqV4pUCzWXmiTn-R6mrRi82UAVHMVysKU1g@mail.gmail.com>
+ <20200416172001.GC1388618@kroah.com>
+ <b8651ce6d7d6c6dcb8b2d66f07148413892b48d0.camel@mellanox.com>
+ <20200416195329.GO1068@sasha-vm>
+ <829c2b8807b4e6c59843b3ab85ca3ccc6cae8373.camel@mellanox.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.218-99-g98ed4696ba7e
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 113 boots: 2 failed,
- 104 passed with 2 offline, 5 untried/unknown (v4.9.218-99-g98ed4696ba7e)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <829c2b8807b4e6c59843b3ab85ca3ccc6cae8373.camel@mellanox.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 113 boots: 2 failed, 104 passed with 2 offline,=
- 5 untried/unknown (v4.9.218-99-g98ed4696ba7e)
+On Thu, Apr 16, 2020 at 09:32:47PM +0000, Saeed Mahameed wrote:
+>On Thu, 2020-04-16 at 15:53 -0400, Sasha Levin wrote:
+>> If we agree so far, then why do you assume that the same people who
+>> do
+>> the above also perfectly tag their commits, and do perfect selection
+>> of
+>> patches for stable? "I'm always right except when I'm wrong".
+>
+>I am welling to accept people making mistakes, but not the AI..
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.218-99-g98ed4696ba7e/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.218-99-g98ed4696ba7e/
+This is where we disagree. If I can have an AI that performs on par with
+an "average" kernel engineer - I'm happy with it.
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.218-99-g98ed4696ba7e
-Git Commit: 98ed4696ba7e03a240c553206551dcdca4bfaf4f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 60 unique boards, 20 SoC families, 19 builds out of 197
+The way I see AUTOSEL now is an "average" kernel engineer who does patch
+sorting for me to review.
 
-Boot Regressions Detected:
+Given I review everything that it spits out at me, it's technically a
+human error (mine), rather than a problem with the AI, right?
 
-arm:
+>if it is necessary and we have a magical solution, i will write good AI
+>with no false positives to fix or help avoid memleacks.
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 68 days (last pass: v4.9.=
-213 - first fail: v4.9.213-37-g860ec95da9ad)
+Easier said than done :)
 
-Boot Failures Detected:
+I think that the "Intelligence" in AI suggests that it can be making
+mistakes.
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            stih410-b2120: 1 failed lab
+>BUT if i can't achieve 100% success rate, and i might end up
+>introducing memleack with my AI, then I wouldn't use AI at all.
+>
+>We have different views on things.. if i know AI is using kmalloc
+>wrongly, I fix it, end of story :).
+>
+>fact: Your AI is broken, can introduce _new_ un-called for bugs, even
+>it is very very very good 99.99% of the cases.
 
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+People are broken too, they introduce new bugs, so why are we accepting
+new commits into the kernel?
 
-Offline Platforms:
+My point is that everything is broken, you can't have 100% perfect
+anything.
 
-arm:
+>> Here's my suggestion: give us a test rig we can run our stable
+>> release
+>> candidates through. Something that simulates "real" load that
+>> customers
+>> are using. We promise that we won't release a stable kernel if your
+>> tests are failing.
+>>
+>
+>I will be more than glad to do so, is there a formal process for such
+>thing ?
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
+I'd love to work with you on this if you're interested. There are a few
+options:
 
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
+1. Send us a mail when you detect a push to a stable-rc branch. Most
+people/bots reply to Greg's announce mail with pass/fail.
 
----
-For more info write to <info@kernelci.org>
+2. Integrate your tests into kernelci (kernelci.org) - this means that
+you'll run a "lab" on prem, and kernelci will schedule builds and tests
+on it's own, sending reports to us.
+
+3. We're open to other solutions if you had something in mind, the first
+two usually work for people but if you have a different requirement
+we'll be happy to figure it out.
+
+-- 
+Thanks,
+Sasha
