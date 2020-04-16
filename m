@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CE1F1AC6C9
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91E351AC3D8
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:50:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394580AbgDPOof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:44:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46958 "EHLO mail.kernel.org"
+        id S1732681AbgDPNuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:50:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409410AbgDPN7y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:59:54 -0400
+        id S1726022AbgDPNuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DBC620732;
-        Thu, 16 Apr 2020 13:59:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3C522063A;
+        Thu, 16 Apr 2020 13:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045593;
-        bh=cj9k2hAYAxhpwnoNJGeoddNVllBSWZVfbFc0dQYDt/U=;
+        s=default; t=1587045014;
+        bh=GMCeEdBjC+Mv67Ici8GialvdPUryQ4WJJTJWdXnnZhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G46y9i9XJdHSRKhj2oVXdE0zecB5UxNL7H6Qd7MWg2fjk8aL2I0l92EGru7A2KgEb
-         wTCQqJ5DC8BJYQqY0/q48sCNdGFvWDOq6Mai7Y4cbO8aGJFi0CokeTlK5dg1M2Rkuo
-         UgQniDSSBPwzf4j1SAzPg+lggsbUyX1f343s3tOc=
+        b=Td8haKEPPkStV8mFyrcEj2SMdzwx2D4nkl/yFalt4t5lsy3b8bLTAKGVTsvYz29CW
+         WERN7mFsgBPF2TgPPQiWIakDScf/SfryAZTD7oqupLjl4MWNGjVHZoIp28JCU21C3S
+         LHIP1Pd83KmrWEI1l5WCMf5/L2R23oXsqbnVxQZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 5.6 199/254] vfio: platform: Switch to platform_get_irq_optional()
+        stable@vger.kernel.org, Changwei Ge <chge@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 194/232] ocfs2: no need try to truncate file beyond i_size
 Date:   Thu, 16 Apr 2020 15:24:48 +0200
-Message-Id: <20200416131351.026993633@linuxfoundation.org>
+Message-Id: <20200416131339.437707967@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +50,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: Changwei Ge <chge@linux.alibaba.com>
 
-commit 723fe298ad85ad1278bd2312469ad14738953cc6 upstream.
+commit 783fda856e1034dee90a873f7654c418212d12d7 upstream.
 
-Since commit 7723f4c5ecdb ("driver core: platform: Add an error
-message to platform_get_irq*()"), platform_get_irq() calls dev_err()
-on an error. As we enumerate all interrupts until platform_get_irq()
-fails, we now systematically get a message such as:
-"vfio-platform fff51000.ethernet: IRQ index 3 not found" which is
-a false positive.
+Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
+exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
+size.  This restriction is not necessary and violates fallocate(2)
+semantics.
 
-Let's use platform_get_irq_optional() instead.
+If fallocate(2) offset is beyond inode size, just return success and do
+nothing further.
 
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Cc: stable@vger.kernel.org # v5.3+
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Tested-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Otherwise, ocfs2 will crash the kernel.
+
+  kernel BUG at fs/ocfs2//alloc.c:7264!
+   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
+   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
+   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
+   ocfs2_fallocate+0x83/0xa0 [ocfs2]
+   vfs_fallocate+0x148/0x230
+   SyS_fallocate+0x48/0x80
+   do_syscall_64+0x79/0x170
+
+Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/platform/vfio_platform.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/alloc.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/vfio/platform/vfio_platform.c
-+++ b/drivers/vfio/platform/vfio_platform.c
-@@ -44,7 +44,7 @@ static int get_platform_irq(struct vfio_
- {
- 	struct platform_device *pdev = (struct platform_device *) vdev->opaque;
+--- a/fs/ocfs2/alloc.c
++++ b/fs/ocfs2/alloc.c
+@@ -7403,6 +7403,10 @@ int ocfs2_truncate_inline(struct inode *
+ 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
+ 	struct ocfs2_inline_data *idata = &di->id2.i_data;
  
--	return platform_get_irq(pdev, i);
-+	return platform_get_irq_optional(pdev, i);
- }
++	/* No need to punch hole beyond i_size. */
++	if (start >= i_size_read(inode))
++		return 0;
++
+ 	if (end > i_size_read(inode))
+ 		end = i_size_read(inode);
  
- static int vfio_platform_probe(struct platform_device *pdev)
 
 
