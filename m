@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8072E1ACB09
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE071AC386
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897127AbgDPNfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:35:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47132 "EHLO mail.kernel.org"
+        id S2898443AbgDPNo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:44:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897093AbgDPNfP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:35:15 -0400
+        id S2898435AbgDPNoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:44:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68C9F20732;
-        Thu, 16 Apr 2020 13:35:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75E1E2076D;
+        Thu, 16 Apr 2020 13:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044113;
-        bh=/QZYw7QTWqP41HlNZ8UmRopMV6mswugDKj2mQSlQ36w=;
+        s=default; t=1587044663;
+        bh=vDbC//cFoiarsCOyRPOI0FBifzs1I3USmWge+kKgjaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d1anSaTXrDIuhyVXBoYYMs2UpF0oNkdnV8LuHyPDBgj+wLfJg/7eE3TDlo1INWZxi
-         2m7WuH5DhmVWjYZpQzviHBm55zVeKbgZZUkdwcEFRsbZkFPAGbzjUXiwjBw8zJJ3vt
-         xf4N9Lz//8Dcq9BwoNPT4AbVZIEvMMdXyKVx1snA=
+        b=KZnOpjbNBEnilZZb87G6i3D5NXqx/I0KR2Ws9OOsXSY2kFIYajuKK5ufA5UCgz3M2
+         IOWt9yp3N6wCOe8jYHMmIF8Cx0ui3V50sfDa8oJf1QYVWSFisG9GwqGTosABjlP55p
+         dBVv+C6SaHISwtbHojlADHz4k3nFIqlsWltorVOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.5 087/257] ALSA: usb-audio: Add mixer workaround for TRX40 and co
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 044/232] selftests/x86/ptrace_syscall_32: Fix no-vDSO segfault
 Date:   Thu, 16 Apr 2020 15:22:18 +0200
-Message-Id: <20200416131336.859932174@linuxfoundation.org>
+Message-Id: <20200416131321.316062348@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,77 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 2a48218f8e23d47bd3e23cfdfb8aa9066f7dc3e6 upstream.
+[ Upstream commit 630b99ab60aa972052a4202a1ff96c7e45eb0054 ]
 
-Some recent boards (supposedly with a new AMD platform) contain the
-USB audio class 2 device that is often tied with HD-audio.  The device
-exposes an Input Gain Pad control (id=19, control=12) but this node
-doesn't behave correctly, returning an error for each inquiry of
-GET_MIN and GET_MAX that should have been mandatory.
+If AT_SYSINFO is not present, don't try to call a NULL pointer.
 
-As a workaround, simply ignore this node by adding a usbmix_name_map
-table entry.  The currently known devices are:
-* 0414:a002 - Gigabyte TRX40 Aorus Pro WiFi
-* 0b05:1916 - ASUS ROG Zenith II
-* 0b05:1917 - ASUS ROG Strix
-* 0db0:0d64 - MSI TRX40 Creator
-* 0db0:543d - MSI TRX40
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206543
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200408140449.22319-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/faaf688265a7e1a5b944d6f8bc0f6368158306d3.1584052409.git.luto@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer_maps.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ tools/testing/selftests/x86/ptrace_syscall.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -349,6 +349,14 @@ static const struct usbmix_name_map dell
- 	{ 0 }
- };
+diff --git a/tools/testing/selftests/x86/ptrace_syscall.c b/tools/testing/selftests/x86/ptrace_syscall.c
+index 6f22238f32173..12aaa063196e7 100644
+--- a/tools/testing/selftests/x86/ptrace_syscall.c
++++ b/tools/testing/selftests/x86/ptrace_syscall.c
+@@ -414,8 +414,12 @@ int main()
  
-+/* Some mobos shipped with a dummy HD-audio show the invalid GET_MIN/GET_MAX
-+ * response for Input Gain Pad (id=19, control=12).  Skip it.
-+ */
-+static const struct usbmix_name_map asus_rog_map[] = {
-+	{ 19, NULL, 12 }, /* FU, Input Gain Pad */
-+	{}
-+};
-+
- /*
-  * Control map entries
-  */
-@@ -468,6 +476,26 @@ static struct usbmix_ctl_map usbmix_ctl_
- 		.id = USB_ID(0x05a7, 0x1020),
- 		.map = bose_companion5_map,
- 	},
-+	{	/* Gigabyte TRX40 Aorus Pro WiFi */
-+		.id = USB_ID(0x0414, 0xa002),
-+		.map = asus_rog_map,
-+	},
-+	{	/* ASUS ROG Zenith II */
-+		.id = USB_ID(0x0b05, 0x1916),
-+		.map = asus_rog_map,
-+	},
-+	{	/* ASUS ROG Strix */
-+		.id = USB_ID(0x0b05, 0x1917),
-+		.map = asus_rog_map,
-+	},
-+	{	/* MSI TRX40 Creator */
-+		.id = USB_ID(0x0db0, 0x0d64),
-+		.map = asus_rog_map,
-+	},
-+	{	/* MSI TRX40 */
-+		.id = USB_ID(0x0db0, 0x543d),
-+		.map = asus_rog_map,
-+	},
- 	{ 0 } /* terminator */
- };
+ #if defined(__i386__) && (!defined(__GLIBC__) || __GLIBC__ > 2 || __GLIBC_MINOR__ >= 16)
+ 	vsyscall32 = (void *)getauxval(AT_SYSINFO);
+-	printf("[RUN]\tCheck AT_SYSINFO return regs\n");
+-	test_sys32_regs(do_full_vsyscall32);
++	if (vsyscall32) {
++		printf("[RUN]\tCheck AT_SYSINFO return regs\n");
++		test_sys32_regs(do_full_vsyscall32);
++	} else {
++		printf("[SKIP]\tAT_SYSINFO is not available\n");
++	}
+ #endif
  
+ 	test_ptrace_syscall_restart();
+-- 
+2.20.1
+
 
 
