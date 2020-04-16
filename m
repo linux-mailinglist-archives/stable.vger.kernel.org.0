@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCFA1AC6B1
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:43:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA9831AC880
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:09:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393643AbgDPOnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:43:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47616 "EHLO mail.kernel.org"
+        id S1728344AbgDPPJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:09:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392629AbgDPOAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:33 -0400
+        id S2408646AbgDPNux (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E91520732;
-        Thu, 16 Apr 2020 14:00:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 841F321744;
+        Thu, 16 Apr 2020 13:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045632;
-        bh=7TCSdWKuzTv+3biIWXj1nC1I9NWCKG66xkzKdYXC158=;
+        s=default; t=1587045053;
+        bh=g1PfHpNPZ94VFzqvVTuE+t5CXA4UXTCnIYtxGm8+ha4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/yNgIiP9l4NWGnWbYG5CPZOJVrs9HRqM8A54iPB1xotp2qNot79y5Oz/LyK2NGx6
-         gwbMuJNN+yEpoHpVbfk/+Pk3ERtzfbfFHwM9Mb2yRVpvZ1q3IKqXw/0gKobeDrClzj
-         t72x6MtlmcOrYSJkeNzbfQhn+Cisf5frV2R9zpVI=
+        b=mD5l9UdAqK6ozwfmGIIzOR1IZ5Swz3KVpScOIgOusyniOTJb2IZZsUhVQgCuEzi3h
+         Eu4mLAH8rLaeh9HtaINTVhN/mStI0GlK80z9/yS67/MeNXrhOfEqLgFjwnYi9eVUwJ
+         MthsPOC/PntHgM8VgfvevsPCq8Xwn64Q0YeZRz5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.6 213/254] NFS: Fix use-after-free issues in nfs_pageio_add_request()
-Date:   Thu, 16 Apr 2020 15:25:02 +0200
-Message-Id: <20200416131352.681418494@linuxfoundation.org>
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 209/232] powerpc/hash64/devmap: Use H_PAGE_THP_HUGE when setting up huge devmap PTE entries
+Date:   Thu, 16 Apr 2020 15:25:03 +0200
+Message-Id: <20200416131341.537398890@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,88 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit dc9dc2febb17f72e9878eb540ad3996f7984239a upstream.
+commit 36b78402d97a3b9aeab136feb9b00d8647ec2c20 upstream.
 
-We need to ensure that we create the mirror requests before calling
-nfs_pageio_add_request_mirror() on the request we are adding.
-Otherwise, we can end up with a use-after-free if the call to
-nfs_pageio_add_request_mirror() triggers I/O.
+H_PAGE_THP_HUGE is used to differentiate between a THP hugepage and
+hugetlb hugepage entries. The difference is WRT how we handle hash
+fault on these address. THP address enables MPSS in segments. We want
+to manage devmap hugepage entries similar to THP pt entries. Hence use
+H_PAGE_THP_HUGE for devmap huge PTE entries.
 
-Fixes: c917cfaf9bbe ("NFS: Fix up NFS I/O subrequest creation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+With current code while handling hash PTE fault, we do set is_thp =
+true when finding devmap PTE huge PTE entries.
+
+Current code also does the below sequence we setting up huge devmap
+entries.
+
+	entry = pmd_mkhuge(pfn_t_pmd(pfn, prot));
+	if (pfn_t_devmap(pfn))
+		entry = pmd_mkdevmap(entry);
+
+In that case we would find both H_PAGE_THP_HUGE and PAGE_DEVMAP set
+for huge devmap PTE entries. This results in false positive error like
+below.
+
+  kernel BUG at /home/kvaneesh/src/linux/mm/memory.c:4321!
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in:
+  CPU: 56 PID: 67996 Comm: t_mmap_dio Not tainted 5.6.0-rc4-59640-g371c804dedbc #128
+  ....
+  NIP [c00000000044c9e4] __follow_pte_pmd+0x264/0x900
+  LR [c0000000005d45f8] dax_writeback_one+0x1a8/0x740
+  Call Trace:
+    str_spec.74809+0x22ffb4/0x2d116c (unreliable)
+    dax_writeback_one+0x1a8/0x740
+    dax_writeback_mapping_range+0x26c/0x700
+    ext4_dax_writepages+0x150/0x5a0
+    do_writepages+0x68/0x180
+    __filemap_fdatawrite_range+0x138/0x180
+    file_write_and_wait_range+0xa4/0x110
+    ext4_sync_file+0x370/0x6e0
+    vfs_fsync_range+0x70/0xf0
+    sys_msync+0x220/0x2e0
+    system_call+0x5c/0x68
+
+This is because our pmd_trans_huge check doesn't exclude _PAGE_DEVMAP.
+
+To make this all consistent, update pmd_mkdevmap to set
+H_PAGE_THP_HUGE and pmd_trans_huge check now excludes _PAGE_DEVMAP
+correctly.
+
+Fixes: ebd31197931d ("powerpc/mm: Add devmap support for ppc64")
+Cc: stable@vger.kernel.org # v4.13+
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200313094842.351830-1-aneesh.kumar@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/pagelist.c |   48 ++++++++++++++++++++++++------------------------
- 1 file changed, 24 insertions(+), 24 deletions(-)
+ arch/powerpc/include/asm/book3s/64/hash-4k.h  |    6 ++++++
+ arch/powerpc/include/asm/book3s/64/hash-64k.h |    8 +++++++-
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |    4 +++-
+ arch/powerpc/include/asm/book3s/64/radix.h    |    5 +++++
+ 4 files changed, 21 insertions(+), 2 deletions(-)
 
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -1177,38 +1177,38 @@ int nfs_pageio_add_request(struct nfs_pa
- 	if (desc->pg_error < 0)
- 		goto out_failed;
+--- a/arch/powerpc/include/asm/book3s/64/hash-4k.h
++++ b/arch/powerpc/include/asm/book3s/64/hash-4k.h
+@@ -156,6 +156,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
+ extern int hash__has_transparent_hugepage(void);
+ #endif
  
--	for (midx = 0; midx < desc->pg_mirror_count; midx++) {
--		if (midx) {
--			nfs_page_group_lock(req);
--
--			/* find the last request */
--			for (lastreq = req->wb_head;
--			     lastreq->wb_this_page != req->wb_head;
--			     lastreq = lastreq->wb_this_page)
--				;
--
--			dupreq = nfs_create_subreq(req, lastreq,
--					pgbase, offset, bytes);
--
--			nfs_page_group_unlock(req);
--			if (IS_ERR(dupreq)) {
--				desc->pg_error = PTR_ERR(dupreq);
--				goto out_failed;
--			}
--		} else
--			dupreq = req;
-+	/* Create the mirror instances first, and fire them off */
-+	for (midx = 1; midx < desc->pg_mirror_count; midx++) {
-+		nfs_page_group_lock(req);
++static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
++{
++	BUG();
++	return pmd;
++}
 +
-+		/* find the last request */
-+		for (lastreq = req->wb_head;
-+		     lastreq->wb_this_page != req->wb_head;
-+		     lastreq = lastreq->wb_this_page)
-+			;
-+
-+		dupreq = nfs_create_subreq(req, lastreq,
-+				pgbase, offset, bytes);
-+
-+		nfs_page_group_unlock(req);
-+		if (IS_ERR(dupreq)) {
-+			desc->pg_error = PTR_ERR(dupreq);
-+			goto out_failed;
-+		}
+ #endif /* !__ASSEMBLY__ */
  
--		if (nfs_pgio_has_mirroring(desc))
--			desc->pg_mirror_idx = midx;
-+		desc->pg_mirror_idx = midx;
- 		if (!nfs_pageio_add_request_mirror(desc, dupreq))
- 			goto out_cleanup_subreq;
- 	}
+ #endif /* _ASM_POWERPC_BOOK3S_64_HASH_4K_H */
+--- a/arch/powerpc/include/asm/book3s/64/hash-64k.h
++++ b/arch/powerpc/include/asm/book3s/64/hash-64k.h
+@@ -246,7 +246,7 @@ static inline void mark_hpte_slot_valid(
+  */
+ static inline int hash__pmd_trans_huge(pmd_t pmd)
+ {
+-	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE)) ==
++	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP)) ==
+ 		  (_PAGE_PTE | H_PAGE_THP_HUGE));
+ }
  
-+	desc->pg_mirror_idx = 0;
-+	if (!nfs_pageio_add_request_mirror(desc, req))
-+		goto out_failed;
+@@ -272,6 +272,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
+ 				       unsigned long addr, pmd_t *pmdp);
+ extern int hash__has_transparent_hugepage(void);
+ #endif /*  CONFIG_TRANSPARENT_HUGEPAGE */
 +
- 	return 1;
++static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
++{
++	return __pmd(pmd_val(pmd) | (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP));
++}
++
+ #endif	/* __ASSEMBLY__ */
  
- out_cleanup_subreq:
--	if (req != dupreq)
--		nfs_pageio_cleanup_request(desc, dupreq);
-+	nfs_pageio_cleanup_request(desc, dupreq);
- out_failed:
- 	nfs_pageio_error_cleanup(desc);
- 	return 0;
+ #endif /* _ASM_POWERPC_BOOK3S_64_HASH_64K_H */
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -1303,7 +1303,9 @@ extern void serialize_against_pte_lookup
+ 
+ static inline pmd_t pmd_mkdevmap(pmd_t pmd)
+ {
+-	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
++	if (radix_enabled())
++		return radix__pmd_mkdevmap(pmd);
++	return hash__pmd_mkdevmap(pmd);
+ }
+ 
+ static inline int pmd_devmap(pmd_t pmd)
+--- a/arch/powerpc/include/asm/book3s/64/radix.h
++++ b/arch/powerpc/include/asm/book3s/64/radix.h
+@@ -263,6 +263,11 @@ static inline int radix__has_transparent
+ }
+ #endif
+ 
++static inline pmd_t radix__pmd_mkdevmap(pmd_t pmd)
++{
++	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
++}
++
+ extern int __meminit radix__vmemmap_create_mapping(unsigned long start,
+ 					     unsigned long page_size,
+ 					     unsigned long phys);
 
 
