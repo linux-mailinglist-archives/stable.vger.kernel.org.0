@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9143B1AC6DD
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:46:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC2691ACA44
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394635AbgDPOpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:45:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
+        id S2898297AbgDPNlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:41:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392592AbgDPN7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:59:36 -0400
+        id S2898256AbgDPNlJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB75620786;
-        Thu, 16 Apr 2020 13:59:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D11520732;
+        Thu, 16 Apr 2020 13:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045576;
-        bh=IFWJtKO8b6hb9xBju8DtQHaiyO8+G0f/3xvR3wpJ/4I=;
+        s=default; t=1587044468;
+        bh=LoTfbwCSaBF2QyTddDg0v6TEKT+rRRwgXkOpkMtXQUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRecKllOfEqIH3nc+kYlMOLEq46oax3qxgD2GJMvcWbEWvl1Pk2G5MSPqpLyTLPjP
-         7+vcdg9a7mc9rTy1vxhXPHKjC6LHeHLEaDp4Ychi5iGtBLO9mKHFj3EOIPhy42Kc+V
-         3s/E5LvWEsdseZ9+sndMd9WWmxdliLqNv8zxFV44=
+        b=BgIA0Ha14XaTy3LIEeW1Kn+urgMPBIppHaa0t9d0dE31ymG9LG2cZebu1DU06dspH
+         IQpdOqmCCjP6hC4HB9PBKm0Wex8ckanhLd7ZbB/Tu6INqi/1ou3jEAqZEDhNL7eou6
+         aWNx/PWSq4QJAIGoQlzgEfesiCiVykL+xmugxATU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.6 192/254] ARM: dts: exynos: Fix polarity of the LCD SPI bus on UniversalC210 board
+        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 230/257] cpufreq: powernv: Fix use-after-free
 Date:   Thu, 16 Apr 2020 15:24:41 +0200
-Message-Id: <20200416131350.284440670@linuxfoundation.org>
+Message-Id: <20200416131354.479566978@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-commit 32a1671ff8e84f0dfff3a50d4b2091d25e91f5e2 upstream.
+commit d0a72efac89d1c35ac55197895201b7b94c5e6ef upstream.
 
-Recent changes in the SPI core and the SPI-GPIO driver revealed that the
-GPIO lines for the LD9040 LCD controller on the UniversalC210 board are
-defined incorrectly. Fix the polarity for those lines to match the old
-behavior and hardware requirements to fix LCD panel operation with
-recent kernels.
+The cpufreq driver has a use-after-free that we can hit if:
 
-Cc: <stable@vger.kernel.org> # 5.0.x
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+a) There's an OCC message pending when the notifier is registered, and
+b) The cpufreq driver fails to register with the core.
+
+When a) occurs the notifier schedules a workqueue item to handle the
+message. The backing work_struct is located on chips[].throttle and
+when b) happens we clean up by freeing the array. Once we get to
+the (now free) queued item and the kernel crashes.
+
+Fixes: c5e29ea7ac14 ("cpufreq: powernv: Fix bugs in powernv_cpufreq_{init/exit}")
+Cc: stable@vger.kernel.org # v4.6+
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200206062622.28235-1-oohall@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/exynos4210-universal_c210.dts |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/cpufreq/powernv-cpufreq.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm/boot/dts/exynos4210-universal_c210.dts
-+++ b/arch/arm/boot/dts/exynos4210-universal_c210.dts
-@@ -115,7 +115,7 @@
- 		gpio-sck = <&gpy3 1 GPIO_ACTIVE_HIGH>;
- 		gpio-mosi = <&gpy3 3 GPIO_ACTIVE_HIGH>;
- 		num-chipselects = <1>;
--		cs-gpios = <&gpy4 3 GPIO_ACTIVE_HIGH>;
-+		cs-gpios = <&gpy4 3 GPIO_ACTIVE_LOW>;
+--- a/drivers/cpufreq/powernv-cpufreq.c
++++ b/drivers/cpufreq/powernv-cpufreq.c
+@@ -1080,6 +1080,12 @@ free_and_return:
  
- 		lcd@0 {
- 			compatible = "samsung,ld9040";
-@@ -124,8 +124,6 @@
- 			vci-supply = <&ldo17_reg>;
- 			reset-gpios = <&gpy4 5 GPIO_ACTIVE_HIGH>;
- 			spi-max-frequency = <1200000>;
--			spi-cpol;
--			spi-cpha;
- 			power-on-delay = <10>;
- 			reset-delay = <10>;
- 			panel-width-mm = <90>;
+ static inline void clean_chip_info(void)
+ {
++	int i;
++
++	/* flush any pending work items */
++	if (chips)
++		for (i = 0; i < nr_chips; i++)
++			cancel_work_sync(&chips[i].throttle);
+ 	kfree(chips);
+ }
+ 
 
 
