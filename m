@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 731AF1AC479
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A5621AC888
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:10:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392624AbgDPOAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:00:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47498 "EHLO mail.kernel.org"
+        id S2394942AbgDPPJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:09:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392616AbgDPOA0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:00:26 -0400
+        id S2439253AbgDPNut (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2377E2078B;
-        Thu, 16 Apr 2020 14:00:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D1102078B;
+        Thu, 16 Apr 2020 13:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045625;
-        bh=5Ty25x7/siPUKilRYHMcLb7XfHJHNLiTxo6srGlszyA=;
+        s=default; t=1587045045;
+        bh=T9Q/+8y+10RHMimFMocEtiqH524D6C047MMtaJaMqCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vdKTqqczONFc3RVoZ10diS9n5Kgs7k5mO4Pdvfg++ml5KAM2M4AMOUH874rKM9C7A
-         5arFalu3JoquMG4im7pl+NBvUXm4m6XdI2+h1T2F6/e1fTVh/9KHYZYSAnvJo6xxmR
-         5L1C5L3R99Cc88TMOBoZtTgmVx6J7E5rKbIiazWI=
+        b=uHqTpV/mTujhXKQdg0w76UzIK5LUStMAfC6e47Ejhub8J/zLp1M2veX665x+fcsp7
+         JwKFnUl9cYnNo5sC7PevneR6HPCsVoMdvE9HGugvLa1VBENzHlHY36mb7EdopJ9Dtk
+         4dCmnW+7vbYCbgUKwFF9AWdrvR31s50N3NY4j0MI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.6 211/254] drm/vboxvideo: Add missing remove_conflicting_pci_framebuffers call, v2
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
+Subject: [PATCH 5.4 206/232] xen/blkfront: fix memory allocation flags in blkfront_setup_indirect()
 Date:   Thu, 16 Apr 2020 15:25:00 +0200
-Message-Id: <20200416131352.447471577@linuxfoundation.org>
+Message-Id: <20200416131341.101292091@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit a65a97b48694d34248195eb89bf3687403261056 upstream.
+commit 3a169c0be75b59dd85d159493634870cdec6d3c4 upstream.
 
-The vboxvideo driver is missing a call to remove conflicting framebuffers.
+Commit 1d5c76e664333 ("xen-blkfront: switch kcalloc to kvcalloc for
+large array allocation") didn't fix the issue it was meant to, as the
+flags for allocating the memory are GFP_NOIO, which will lead the
+memory allocation falling back to kmalloc().
 
-Surprisingly, when using legacy BIOS booting this does not really cause
-any issues. But when using UEFI to boot the VM then plymouth will draw
-on both the efifb /dev/fb0 and /dev/drm/card0 (which has registered
-/dev/fb1 as fbdev emulation).
+So instead of GFP_NOIO use GFP_KERNEL and do all the memory allocation
+in blkfront_setup_indirect() in a memalloc_noio_{save,restore} section.
 
-VirtualBox will actual display the output of both devices (I guess it is
-showing whatever was drawn last), this causes weird artifacts because of
-pitch issues in the efifb when the VM window is not sized at 1024x768
-(the window will resize to its last size once the vboxvideo driver loads,
-changing the pitch).
-
-Adding the missing drm_fb_helper_remove_conflicting_pci_framebuffers()
-call fixes this.
-
-Changes in v2:
--Make the drm_fb_helper_remove_conflicting_pci_framebuffers() call one of
- the first things we do in our probe() method
-
+Fixes: 1d5c76e664333 ("xen-blkfront: switch kcalloc to kvcalloc for large array allocation")
 Cc: stable@vger.kernel.org
-Fixes: 2695eae1f6d3 ("drm/vboxvideo: Switch to generic fbdev emulation")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200325144310.36779-1-hdegoede@redhat.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Acked-by: Roger Pau Monné <roger.pau@citrix.com>
+Link: https://lore.kernel.org/r/20200403090034.8753-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vboxvideo/vbox_drv.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/block/xen-blkfront.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
-+++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
-@@ -41,6 +41,10 @@ static int vbox_pci_probe(struct pci_dev
- 	if (!vbox_check_supported(VBE_DISPI_ID_HGSMI))
- 		return -ENODEV;
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -47,6 +47,7 @@
+ #include <linux/bitmap.h>
+ #include <linux/list.h>
+ #include <linux/workqueue.h>
++#include <linux/sched/mm.h>
  
-+	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "vboxvideodrmfb");
-+	if (ret)
-+		return ret;
+ #include <xen/xen.h>
+ #include <xen/xenbus.h>
+@@ -2188,10 +2189,12 @@ static void blkfront_setup_discard(struc
+ 
+ static int blkfront_setup_indirect(struct blkfront_ring_info *rinfo)
+ {
+-	unsigned int psegs, grants;
++	unsigned int psegs, grants, memflags;
+ 	int err, i;
+ 	struct blkfront_info *info = rinfo->dev_info;
+ 
++	memflags = memalloc_noio_save();
 +
- 	vbox = kzalloc(sizeof(*vbox), GFP_KERNEL);
- 	if (!vbox)
- 		return -ENOMEM;
+ 	if (info->max_indirect_segments == 0) {
+ 		if (!HAS_EXTRA_REQ)
+ 			grants = BLKIF_MAX_SEGMENTS_PER_REQUEST;
+@@ -2223,7 +2226,7 @@ static int blkfront_setup_indirect(struc
+ 
+ 		BUG_ON(!list_empty(&rinfo->indirect_pages));
+ 		for (i = 0; i < num; i++) {
+-			struct page *indirect_page = alloc_page(GFP_NOIO);
++			struct page *indirect_page = alloc_page(GFP_KERNEL);
+ 			if (!indirect_page)
+ 				goto out_of_memory;
+ 			list_add(&indirect_page->lru, &rinfo->indirect_pages);
+@@ -2234,15 +2237,15 @@ static int blkfront_setup_indirect(struc
+ 		rinfo->shadow[i].grants_used =
+ 			kvcalloc(grants,
+ 				 sizeof(rinfo->shadow[i].grants_used[0]),
+-				 GFP_NOIO);
++				 GFP_KERNEL);
+ 		rinfo->shadow[i].sg = kvcalloc(psegs,
+ 					       sizeof(rinfo->shadow[i].sg[0]),
+-					       GFP_NOIO);
++					       GFP_KERNEL);
+ 		if (info->max_indirect_segments)
+ 			rinfo->shadow[i].indirect_grants =
+ 				kvcalloc(INDIRECT_GREFS(grants),
+ 					 sizeof(rinfo->shadow[i].indirect_grants[0]),
+-					 GFP_NOIO);
++					 GFP_KERNEL);
+ 		if ((rinfo->shadow[i].grants_used == NULL) ||
+ 			(rinfo->shadow[i].sg == NULL) ||
+ 		     (info->max_indirect_segments &&
+@@ -2251,6 +2254,7 @@ static int blkfront_setup_indirect(struc
+ 		sg_init_table(rinfo->shadow[i].sg, psegs);
+ 	}
+ 
++	memalloc_noio_restore(memflags);
+ 
+ 	return 0;
+ 
+@@ -2270,6 +2274,9 @@ out_of_memory:
+ 			__free_page(indirect_page);
+ 		}
+ 	}
++
++	memalloc_noio_restore(memflags);
++
+ 	return -ENOMEM;
+ }
+ 
 
 
