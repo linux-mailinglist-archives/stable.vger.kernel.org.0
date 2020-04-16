@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 149BF1ACA28
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:32:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7CE1AC6AB
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410393AbgDPPcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55578 "EHLO mail.kernel.org"
+        id S1728522AbgDPOm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:42:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441495AbgDPNmd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:42:33 -0400
+        id S2506707AbgDPOAn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:00:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 041CF214D8;
-        Thu, 16 Apr 2020 13:42:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57DCA21734;
+        Thu, 16 Apr 2020 14:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044552;
-        bh=OGZkcncoHPVJmL7cRIy9th8i3wkYCksTTNGUQW77P4g=;
+        s=default; t=1587045642;
+        bh=ygU9BkGDwJIXHQsZvVk6IGaoJ3aXbQhEhnAt6XhPtlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1oeV22Iik909cdMJcu6fBvKrD7Hja1P4heeh831+593Jko0EQaBEKIU3Vu2AfGhy4
-         7OXI9ND3QlKtD9gf2N6ZYi7Z2Q5KiXGNNt6gcFC1+xKXeNYIrRNMt/tQJPGEsm69sF
-         0hgnp+qkVNbZ5FcWJuPxSo+4VzOagUhnFcy85sJ4=
+        b=HG9sWlcjzROeNS+2k4FL9HCCJc89Fm3opwph9o2wgVNNdO15iP5QbD4Qt+OE13420
+         AjU2dd+Z6TAFKX2pWY8BZSlIOrrJ1tUee+Qwqnd3XuT4HxM5CMyMjHOpUU6frnj/g8
+         YSVsO5l5HDEZQLPxrVlEVhKaVbHYlCTEb+YWANfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 255/257] powerpc/kasan: Fix kasan_remap_early_shadow_ro()
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.6 217/254] ext4: fix a data race at inode->i_blocks
 Date:   Thu, 16 Apr 2020 15:25:06 +0200
-Message-Id: <20200416131357.383473013@linuxfoundation.org>
+Message-Id: <20200416131353.138234115@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit af92bad615be75c6c0d1b1c5b48178360250a187 ]
+commit 28936b62e71e41600bab319f262ea9f9b1027629 upstream.
 
-At the moment kasan_remap_early_shadow_ro() does nothing, because
-k_end is 0 and k_cur < 0 is always true.
+inode->i_blocks could be accessed concurrently as noticed by KCSAN,
 
-Change the test to k_cur != k_end, as done in
-kasan_init_shadow_page_tables()
+ BUG: KCSAN: data-race in ext4_do_update_inode [ext4] / inode_add_bytes
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Fixes: cbd18991e24f ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4e7b56865e01569058914c991143f5961b5d4719.1583507333.git.christophe.leroy@c-s.fr
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ write to 0xffff9a00d4b982d0 of 8 bytes by task 22100 on cpu 118:
+  inode_add_bytes+0x65/0xf0
+  __inode_add_bytes at fs/stat.c:689
+  (inlined by) inode_add_bytes at fs/stat.c:702
+  ext4_mb_new_blocks+0x418/0xca0 [ext4]
+  ext4_ext_map_blocks+0x1a6b/0x27b0 [ext4]
+  ext4_map_blocks+0x1a9/0x950 [ext4]
+  _ext4_get_block+0xfc/0x270 [ext4]
+  ext4_get_block_unwritten+0x33/0x50 [ext4]
+  __block_write_begin_int+0x22e/0xae0
+  __block_write_begin+0x39/0x50
+  ext4_write_begin+0x388/0xb50 [ext4]
+  ext4_da_write_begin+0x35f/0x8f0 [ext4]
+  generic_perform_write+0x15d/0x290
+  ext4_buffered_write_iter+0x11f/0x210 [ext4]
+  ext4_file_write_iter+0xce/0x9e0 [ext4]
+  new_sync_write+0x29c/0x3b0
+  __vfs_write+0x92/0xa0
+  vfs_write+0x103/0x260
+  ksys_write+0x9d/0x130
+  __x64_sys_write+0x4c/0x60
+  do_syscall_64+0x91/0xb05
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+ read to 0xffff9a00d4b982d0 of 8 bytes by task 8 on cpu 65:
+  ext4_do_update_inode+0x4a0/0xf60 [ext4]
+  ext4_inode_blocks_set at fs/ext4/inode.c:4815
+  ext4_mark_iloc_dirty+0xaf/0x160 [ext4]
+  ext4_mark_inode_dirty+0x129/0x3e0 [ext4]
+  ext4_convert_unwritten_extents+0x253/0x2d0 [ext4]
+  ext4_convert_unwritten_io_end_vec+0xc5/0x150 [ext4]
+  ext4_end_io_rsv_work+0x22c/0x350 [ext4]
+  process_one_work+0x54f/0xb90
+  worker_thread+0x80/0x5f0
+  kthread+0x1cd/0x1f0
+  ret_from_fork+0x27/0x50
+
+ 4 locks held by kworker/u256:0/8:
+  #0: ffff9a025abc4328 ((wq_completion)ext4-rsv-conversion){+.+.}, at: process_one_work+0x443/0xb90
+  #1: ffffab5a862dbe20 ((work_completion)(&ei->i_rsv_conversion_work)){+.+.}, at: process_one_work+0x443/0xb90
+  #2: ffff9a025a9d0f58 (jbd2_handle){++++}, at: start_this_handle+0x1c1/0x9d0 [jbd2]
+  #3: ffff9a00d4b985d8 (&(&ei->i_raw_lock)->rlock){+.+.}, at: ext4_do_update_inode+0xaa/0xf60 [ext4]
+ irq event stamp: 3009267
+ hardirqs last  enabled at (3009267): [<ffffffff980da9b7>] __find_get_block+0x107/0x790
+ hardirqs last disabled at (3009266): [<ffffffff980da8f9>] __find_get_block+0x49/0x790
+ softirqs last  enabled at (3009230): [<ffffffff98a0034c>] __do_softirq+0x34c/0x57c
+ softirqs last disabled at (3009223): [<ffffffff97cc67a2>] irq_exit+0xa2/0xc0
+
+ Reported by Kernel Concurrency Sanitizer on:
+ CPU: 65 PID: 8 Comm: kworker/u256:0 Tainted: G L 5.6.0-rc2-next-20200221+ #7
+ Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
+ Workqueue: ext4-rsv-conversion ext4_end_io_rsv_work [ext4]
+
+The plain read is outside of inode->i_lock critical section which
+results in a data race. Fix it by adding READ_ONCE() there.
+
+Link: https://lore.kernel.org/r/20200222043258.2279-1-cai@lca.pw
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/mm/kasan/kasan_init_32.c | 2 +-
+ fs/ext4/inode.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/kasan/kasan_init_32.c b/arch/powerpc/mm/kasan/kasan_init_32.c
-index 0e6ed4413eeac..1cfe57b51d7e3 100644
---- a/arch/powerpc/mm/kasan/kasan_init_32.c
-+++ b/arch/powerpc/mm/kasan/kasan_init_32.c
-@@ -117,7 +117,7 @@ static void __init kasan_remap_early_shadow_ro(void)
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4812,7 +4812,7 @@ static int ext4_inode_blocks_set(handle_
+ 				struct ext4_inode_info *ei)
+ {
+ 	struct inode *inode = &(ei->vfs_inode);
+-	u64 i_blocks = inode->i_blocks;
++	u64 i_blocks = READ_ONCE(inode->i_blocks);
+ 	struct super_block *sb = inode->i_sb;
  
- 	kasan_populate_pte(kasan_early_shadow_pte, prot);
- 
--	for (k_cur = k_start & PAGE_MASK; k_cur < k_end; k_cur += PAGE_SIZE) {
-+	for (k_cur = k_start & PAGE_MASK; k_cur != k_end; k_cur += PAGE_SIZE) {
- 		pmd_t *pmd = pmd_offset(pud_offset(pgd_offset_k(k_cur), k_cur), k_cur);
- 		pte_t *ptep = pte_offset_kernel(pmd, k_cur);
- 
--- 
-2.20.1
-
+ 	if (i_blocks <= ~0U) {
 
 
