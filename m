@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B60911AC2B9
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A32551AC8EF
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895939AbgDPNb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:31:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41166 "EHLO mail.kernel.org"
+        id S2503909AbgDPPQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:16:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896319AbgDPNaw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:30:52 -0400
+        id S1729389AbgDPNtI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:49:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4430A217D8;
-        Thu, 16 Apr 2020 13:30:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04A5F208E4;
+        Thu, 16 Apr 2020 13:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043851;
-        bh=LQNbIgJ+U5/3KxFvMzUvY8TsjaNY+iAGrti+5QlJiFQ=;
+        s=default; t=1587044948;
+        bh=0t/oLzkgFXhjX5DcSYiAxTJvv2saLqLGZ+qwSaWFEk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBRHUpXs8LlWPQFqjrdZH/CxHtOenlZ2s7Ydb/5UjoC0zEGWRlvst8476/8j0B+mK
-         omFYuObkFFfobw3WpymMGCBdQBugd6i4e26Ti+zFaVXwOo8oIUWqcraEypcwiYwxHv
-         2lGt+PBZkJBsk3J6Xm27EK/ZlsoPJSKOO3PcD4vk=
+        b=YvOY3+tfG3vGYBDzCUqFci6xQMFAG1JrQXjYUlLRcorIT8hLzmOTaXYH7ECl6ilTW
+         +ZuviIksA7vT9WDzDEm4eoenRJ8vNuKYivG0FRvRjzAEXaFLM5dpWUdnaNVyaasIeS
+         Bu82hYvZnGuIOlm2xj9NAfkv+iPKJSMwxvgUCmnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver OHalloran <oohall@gmail.com>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 119/146] cpufreq: powernv: Fix use-after-free
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 5.4 166/232] XArray: Fix xas_pause for large multi-index entries
 Date:   Thu, 16 Apr 2020 15:24:20 +0200
-Message-Id: <20200416131258.866303568@linuxfoundation.org>
+Message-Id: <20200416131335.784038432@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit d0a72efac89d1c35ac55197895201b7b94c5e6ef upstream.
+commit c36d451ad386b34f452fc3c8621ff14b9eaa31a6 upstream.
 
-The cpufreq driver has a use-after-free that we can hit if:
+Inspired by the recent Coverity report, I looked for other places where
+the offset wasn't being converted to an unsigned long before being
+shifted, and I found one in xas_pause() when the entry being paused is
+of order >32.
 
-a) There's an OCC message pending when the notifier is registered, and
-b) The cpufreq driver fails to register with the core.
-
-When a) occurs the notifier schedules a workqueue item to handle the
-message. The backing work_struct is located on chips[].throttle and
-when b) happens we clean up by freeing the array. Once we get to
-the (now free) queued item and the kernel crashes.
-
-Fixes: c5e29ea7ac14 ("cpufreq: powernv: Fix bugs in powernv_cpufreq_{init/exit}")
-Cc: stable@vger.kernel.org # v4.6+
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200206062622.28235-1-oohall@gmail.com
+Fixes: b803b42823d0 ("xarray: Add XArray iterators")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/powernv-cpufreq.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ lib/test_xarray.c |   37 +++++++++++++++++++++++++++++++++++++
+ lib/xarray.c      |    2 +-
+ 2 files changed, 38 insertions(+), 1 deletion(-)
 
---- a/drivers/cpufreq/powernv-cpufreq.c
-+++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -1081,6 +1081,12 @@ free_and_return:
- 
- static inline void clean_chip_info(void)
- {
-+	int i;
-+
-+	/* flush any pending work items */
-+	if (chips)
-+		for (i = 0; i < nr_chips; i++)
-+			cancel_work_sync(&chips[i].throttle);
- 	kfree(chips);
+--- a/lib/test_xarray.c
++++ b/lib/test_xarray.c
+@@ -1156,6 +1156,42 @@ static noinline void check_find_entry(st
+ 	XA_BUG_ON(xa, !xa_empty(xa));
  }
  
++static noinline void check_pause(struct xarray *xa)
++{
++	XA_STATE(xas, xa, 0);
++	void *entry;
++	unsigned int order;
++	unsigned long index = 1;
++	unsigned int count = 0;
++
++	for (order = 0; order < order_limit; order++) {
++		XA_BUG_ON(xa, xa_store_order(xa, index, order,
++					xa_mk_index(index), GFP_KERNEL));
++		index += 1UL << order;
++	}
++
++	rcu_read_lock();
++	xas_for_each(&xas, entry, ULONG_MAX) {
++		XA_BUG_ON(xa, entry != xa_mk_index(1UL << count));
++		count++;
++	}
++	rcu_read_unlock();
++	XA_BUG_ON(xa, count != order_limit);
++
++	count = 0;
++	xas_set(&xas, 0);
++	rcu_read_lock();
++	xas_for_each(&xas, entry, ULONG_MAX) {
++		XA_BUG_ON(xa, entry != xa_mk_index(1UL << count));
++		count++;
++		xas_pause(&xas);
++	}
++	rcu_read_unlock();
++	XA_BUG_ON(xa, count != order_limit);
++
++	xa_destroy(xa);
++}
++
+ static noinline void check_move_tiny(struct xarray *xa)
+ {
+ 	XA_STATE(xas, xa, 0);
+@@ -1664,6 +1700,7 @@ static int xarray_checks(void)
+ 	check_xa_alloc();
+ 	check_find(&array);
+ 	check_find_entry(&array);
++	check_pause(&array);
+ 	check_account(&array);
+ 	check_destroy(&array);
+ 	check_move(&array);
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -970,7 +970,7 @@ void xas_pause(struct xa_state *xas)
+ 
+ 	xas->xa_node = XAS_RESTART;
+ 	if (node) {
+-		unsigned int offset = xas->xa_offset;
++		unsigned long offset = xas->xa_offset;
+ 		while (++offset < XA_CHUNK_SIZE) {
+ 			if (!xa_is_sibling(xa_entry(xas->xa, node, offset)))
+ 				break;
 
 
