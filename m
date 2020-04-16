@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02CBB1AC260
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 443E01AC44D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895559AbgDPN1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:27:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36186 "EHLO mail.kernel.org"
+        id S2506725AbgDPN5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:57:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895544AbgDPN1j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:27:39 -0400
+        id S2506705AbgDPN5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:57:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C94FE217D8;
-        Thu, 16 Apr 2020 13:27:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD45020732;
+        Thu, 16 Apr 2020 13:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043659;
-        bh=kZ0NiSTwCEI9iWhJHS4nvEjEPhJyU7VAc4ik70TAT4w=;
+        s=default; t=1587045454;
+        bh=l4gKo6MhDDCSkseuLFU9PhEztEAvyYUgelDYwzGowQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V8UG/K1w+QkIJNhXxcEiziMyijACf9A/sER+/wW+u/5jzNJzJChCMzLuz1mgt4Mab
-         epSoFBy8dgBkoJFe55jpq6TvsFINn1qoREhPZAGtoTB1aYGzAF+71I/kWHKy02TxL9
-         8iKuDpsOb/eo3nWWP5Fi552zl9SfsfABmFcQMvsE=
+        b=YlrfHUpKhWRxUZa0zGePQNmAGm/MfU9W2sC3pZjS0wQT+flHO2/GDkRNpLhtZgm0k
+         7Mwm4NNFD8FtDbLsTBN82iwFyHfQSo1yxPTUAYI+19ooFIlG4Gv1HW2qM1ge/R1dKw
+         /PaHRqQGT5hcBj4PbrVyVYu/hOFv5aP7kwqJ2/uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sriharsha Allenki <sallenki@codeaurora.org>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 4.19 048/146] usb: gadget: f_fs: Fix use after free issue as part of queue failure
-Date:   Thu, 16 Apr 2020 15:23:09 +0200
-Message-Id: <20200416131249.422964259@linuxfoundation.org>
+        stable@vger.kernel.org, Kar Hin Ong <kar.hin.ong@ni.com>,
+        Sean V Kelley <sean.v.kelley@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.6 101/254] PCI: Add boot interrupt quirk mechanism for Xeon chipsets
+Date:   Thu, 16 Apr 2020 15:23:10 +0200
+Message-Id: <20200416131338.672842253@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriharsha Allenki <sallenki@codeaurora.org>
+From: Sean V Kelley <sean.v.kelley@linux.intel.com>
 
-commit f63ec55ff904b2f2e126884fcad93175f16ab4bb upstream.
+commit b88bf6c3b6ff77948c153cac4e564642b0b90632 upstream.
 
-In AIO case, the request is freed up if ep_queue fails.
-However, io_data->req still has the reference to this freed
-request. In the case of this failure if there is aio_cancel
-call on this io_data it will lead to an invalid dequeue
-operation and a potential use after free issue.
-Fix this by setting the io_data->req to NULL when the request
-is freed as part of queue failure.
+The following was observed by Kar Hin Ong with RT patchset:
 
-Fixes: 2e4c7553cd6f ("usb: gadget: f_fs: add aio support")
-Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
-CC: stable <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20200326115620.12571-1-sallenki@codeaurora.org
+  Backtrace:
+  irq 19: nobody cared (try booting with the "irqpoll" option)
+  CPU: 0 PID: 3329 Comm: irq/34-nipalk Tainted:4.14.87-rt49 #1
+  Hardware name: National Instruments NI PXIe-8880/NI PXIe-8880,
+           BIOS 2.1.5f1 01/09/2020
+  Call Trace:
+  <IRQ>
+    ? dump_stack+0x46/0x5e
+    ? __report_bad_irq+0x2e/0xb0
+    ? note_interrupt+0x242/0x290
+    ? nNIKAL100_memoryRead16+0x8/0x10 [nikal]
+    ? handle_irq_event_percpu+0x55/0x70
+    ? handle_irq_event+0x4f/0x80
+    ? handle_fasteoi_irq+0x81/0x180
+    ? handle_irq+0x1c/0x30
+    ? do_IRQ+0x41/0xd0
+    ? common_interrupt+0x84/0x84
+  </IRQ>
+  ...
+  handlers:
+  [<ffffffffb3297200>] irq_default_primary_handler threaded
+  [<ffffffffb3669180>] usb_hcd_irq
+  Disabling IRQ #19
+
+The problem being that this device is triggering boot interrupts
+due to threaded interrupt handling and masking of the IO-APIC. These
+boot interrupts are then forwarded on to the legacy PCH's PIRQ lines
+where there is no handler present for the device.
+
+Whenever a PCI device fires interrupt (INTx) to Pin 20 of IOAPIC 2
+(GSI 44), the kernel receives two interrupts:
+
+   1. Interrupt from Pin 20 of IOAPIC 2  -> Expected
+   2. Interrupt from Pin 19 of IOAPIC 1  -> UNEXPECTED
+
+Quirks for disabling boot interrupts (preferred) or rerouting the
+handler exist but do not address these Xeon chipsets' mechanism:
+https://lore.kernel.org/lkml/12131949181903-git-send-email-sassmann@suse.de/
+
+Add a new mechanism via PCI CFG for those chipsets supporting CIPINTRC
+register's dis_intx_rout2ich bit.
+
+Link: https://lore.kernel.org/r/20200220192930.64820-2-sean.v.kelley@linux.intel.com
+Reported-by: Kar Hin Ong <kar.hin.ong@ni.com>
+Tested-by: Kar Hin Ong <kar.hin.ong@ni.com>
+Signed-off-by: Sean V Kelley <sean.v.kelley@linux.intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_fs.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/quirks.c |   80 ++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 73 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1036,6 +1036,7 @@ static ssize_t ffs_epfile_io(struct file
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -1970,26 +1970,92 @@ DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_I
+ /*
+  * IO-APIC1 on 6300ESB generates boot interrupts, see Intel order no
+  * 300641-004US, section 5.7.3.
++ *
++ * Core IO on Xeon E5 1600/2600/4600, see Intel order no 326509-003.
++ * Core IO on Xeon E5 v2, see Intel order no 329188-003.
++ * Core IO on Xeon E7 v2, see Intel order no 329595-002.
++ * Core IO on Xeon E5 v3, see Intel order no 330784-003.
++ * Core IO on Xeon E7 v3, see Intel order no 332315-001US.
++ * Core IO on Xeon E5 v4, see Intel order no 333810-002US.
++ * Core IO on Xeon E7 v4, see Intel order no 332315-001US.
++ * Core IO on Xeon D-1500, see Intel order no 332051-001.
++ * Core IO on Xeon Scalable, see Intel order no 610950.
+  */
+-#define INTEL_6300_IOAPIC_ABAR		0x40
++#define INTEL_6300_IOAPIC_ABAR		0x40	/* Bus 0, Dev 29, Func 5 */
+ #define INTEL_6300_DISABLE_BOOT_IRQ	(1<<14)
  
- 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
- 		if (unlikely(ret)) {
-+			io_data->req = NULL;
- 			usb_ep_free_request(ep->ep, req);
- 			goto error_lock;
- 		}
++#define INTEL_CIPINTRC_CFG_OFFSET	0x14C	/* Bus 0, Dev 5, Func 0 */
++#define INTEL_CIPINTRC_DIS_INTX_ICH	(1<<25)
++
+ static void quirk_disable_intel_boot_interrupt(struct pci_dev *dev)
+ {
+ 	u16 pci_config_word;
++	u32 pci_config_dword;
+ 
+ 	if (noioapicquirk)
+ 		return;
+ 
+-	pci_read_config_word(dev, INTEL_6300_IOAPIC_ABAR, &pci_config_word);
+-	pci_config_word |= INTEL_6300_DISABLE_BOOT_IRQ;
+-	pci_write_config_word(dev, INTEL_6300_IOAPIC_ABAR, pci_config_word);
+-
++	switch (dev->device) {
++	case PCI_DEVICE_ID_INTEL_ESB_10:
++		pci_read_config_word(dev, INTEL_6300_IOAPIC_ABAR,
++				     &pci_config_word);
++		pci_config_word |= INTEL_6300_DISABLE_BOOT_IRQ;
++		pci_write_config_word(dev, INTEL_6300_IOAPIC_ABAR,
++				      pci_config_word);
++		break;
++	case 0x3c28:	/* Xeon E5 1600/2600/4600	*/
++	case 0x0e28:	/* Xeon E5/E7 V2		*/
++	case 0x2f28:	/* Xeon E5/E7 V3,V4		*/
++	case 0x6f28:	/* Xeon D-1500			*/
++	case 0x2034:	/* Xeon Scalable Family		*/
++		pci_read_config_dword(dev, INTEL_CIPINTRC_CFG_OFFSET,
++				      &pci_config_dword);
++		pci_config_dword |= INTEL_CIPINTRC_DIS_INTX_ICH;
++		pci_write_config_dword(dev, INTEL_CIPINTRC_CFG_OFFSET,
++				       pci_config_dword);
++		break;
++	default:
++		return;
++	}
+ 	pci_info(dev, "disabled boot interrupts on device [%04x:%04x]\n",
+ 		 dev->vendor, dev->device);
+ }
+-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,   PCI_DEVICE_ID_INTEL_ESB_10,	quirk_disable_intel_boot_interrupt);
+-DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,   PCI_DEVICE_ID_INTEL_ESB_10,	quirk_disable_intel_boot_interrupt);
++/*
++ * Device 29 Func 5 Device IDs of IO-APIC
++ * containing ABAR—APIC1 Alternate Base Address Register
++ */
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ESB_10,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_ESB_10,
++		quirk_disable_intel_boot_interrupt);
++
++/*
++ * Device 5 Func 0 Device IDs of Core IO modules/hubs
++ * containing Coherent Interface Protocol Interrupt Control
++ *
++ * Device IDs obtained from volume 2 datasheets of commented
++ * families above.
++ */
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x3c28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x0e28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x2f28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x6f28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	0x2034,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x3c28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x0e28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x2f28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x6f28,
++		quirk_disable_intel_boot_interrupt);
++DECLARE_PCI_FIXUP_RESUME(PCI_VENDOR_ID_INTEL,	0x2034,
++		quirk_disable_intel_boot_interrupt);
+ 
+ /* Disable boot interrupts on HT-1000 */
+ #define BC_HT1000_FEATURE_REG		0x64
 
 
