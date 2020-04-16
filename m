@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 179421AC74D
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:54:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAF051AC2A0
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:30:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731507AbgDPOxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:53:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44366 "EHLO mail.kernel.org"
+        id S2896281AbgDPNao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:30:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409321AbgDPN5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:57:20 -0400
+        id S2895632AbgDPNam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:30:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43FF320732;
-        Thu, 16 Apr 2020 13:57:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65BB0206E9;
+        Thu, 16 Apr 2020 13:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045439;
-        bh=4OjuIB3cF30hzIv2Z11ETSvULoltqIi4DLH16iG+Jdg=;
+        s=default; t=1587043841;
+        bh=gBp/Xx5kGOSQHSEtor5oSg7IhSF99NdFDfQFIXLBAso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cc48RM35v3G4FpKYJBOCZ8AdChmOXWSJ/Y3q4xvtQc6s7ZndEZYMy52/O4PGyMhWN
-         cssTgFC8xNFQnytnevDMBJqnJLWZDkE2jDeajQ8zywnKuHHkz7IvEMaI4wS9kftCLG
-         G1yc9IEcc94XXI5KH/PlDdCNVqhcg53RzKqrpXuc=
+        b=Q/m2pkNCAyaYlri7hUDPMZPOWNlzm7xlAow8h/kNlskJAPprghlwERnNiBM4vWZ7R
+         YNr5YN1lJtDkURqrVRig5zfDrIO22qtZQ3Op99EOEqbkWlIqmcR7FHD0SKYoy8dCMK
+         mBx4zxU567whZ7X+cbXOgRU7MyQ8WlipLaVVV3KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sean Christopherson <sean.j.christopherson@intel.com>,
         Peter Xu <peterx@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.6 134/254] KVM: x86: Allocate new rmap and large page tracking when moving memslot
+Subject: [PATCH 4.19 082/146] KVM: x86: Allocate new rmap and large page tracking when moving memslot
 Date:   Thu, 16 Apr 2020 15:23:43 +0200
-Message-Id: <20200416131343.254000859@linuxfoundation.org>
+Message-Id: <20200416131254.058556672@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -117,7 +117,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -9873,6 +9873,13 @@ int kvm_arch_create_memslot(struct kvm *
+@@ -9229,6 +9229,13 @@ int kvm_arch_create_memslot(struct kvm *
  {
  	int i;
  
@@ -131,7 +131,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	for (i = 0; i < KVM_NR_PAGE_SIZES; ++i) {
  		struct kvm_lpage_info *linfo;
  		unsigned long ugfn;
-@@ -9954,6 +9961,10 @@ int kvm_arch_prepare_memory_region(struc
+@@ -9303,6 +9310,10 @@ int kvm_arch_prepare_memory_region(struc
  				const struct kvm_userspace_memory_region *mem,
  				enum kvm_mr_change change)
  {
