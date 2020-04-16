@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A89B1ACA3C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B3A21AC29B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410465AbgDPPco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:32:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55032 "EHLO mail.kernel.org"
+        id S2896232AbgDPNaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:30:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726539AbgDPNmF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:42:05 -0400
+        id S2895616AbgDPNaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:30:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8BA620732;
-        Thu, 16 Apr 2020 13:42:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88AB5206E9;
+        Thu, 16 Apr 2020 13:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044525;
-        bh=7Cy+Z5k2LepY15IBrx2bepvfp44ohwzM436i7z1/ZDw=;
+        s=default; t=1587043822;
+        bh=GMCeEdBjC+Mv67Ici8GialvdPUryQ4WJJTJWdXnnZhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=we+0Zhxjp3acpJ3s9OZLM6Ni6sVH/fo/LT2zJx/j6SDSi02GPto6Jgxob/cGVlr0D
-         /tGiAlhFaFfGlTmEx3Q6iv19A8+YkCosXlROymxt+9zziDlpX3GaWUrdXH3MYFC7wT
-         iK1YxIO/5XuXls4rZfnUx2ZyHZ6XNODaFC3CWY94=
+        b=LaNnOKBO/HfPBfK2xGbVwmKjsQ8/rvMS4MtdhgB++rIF/QvIIs2PS8rIdXkj7kxTL
+         lhJUDvElOo2pHQ2qxBhxGyJQjgaUEKty0fgIIy8ToQHY7INpPMpPKbfxSMziGrRSxd
+         E2TQ41YX3YYQpeftzVqt+Tsu/N+mgT3WE0ARnf8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        stable@vger.kernel.org, Changwei Ge <chge@linux.alibaba.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Leonardo Bras <leonardo@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Shuah Khan <shuah@kernel.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.5 203/257] selftests/vm: fix map_hugetlb length used for testing read and write
+Subject: [PATCH 4.19 113/146] ocfs2: no need try to truncate file beyond i_size
 Date:   Thu, 16 Apr 2020 15:24:14 +0200
-Message-Id: <20200416131351.454384761@linuxfoundation.org>
+Message-Id: <20200416131258.108216435@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,76 +50,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Changwei Ge <chge@linux.alibaba.com>
 
-commit cabc30da10e677c67ab9a136b1478175734715c5 upstream.
+commit 783fda856e1034dee90a873f7654c418212d12d7 upstream.
 
-Commit fa7b9a805c79 ("tools/selftest/vm: allow choosing mem size and page
-size in map_hugetlb") added the possibility to change the size of memory
-mapped for the test, but left the read and write test using the default
-value.  This is unnoticed when mapping a length greater than the default
-one, but segfaults otherwise.
+Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
+exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
+size.  This restriction is not necessary and violates fallocate(2)
+semantics.
 
-Fix read_bytes() and write_bytes() by giving them the real length.
+If fallocate(2) offset is beyond inode size, just return success and do
+nothing further.
 
-Also fix the call to munmap().
+Otherwise, ocfs2 will crash the kernel.
 
-Fixes: fa7b9a805c79 ("tools/selftest/vm: allow choosing mem size and page size in map_hugetlb")
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+  kernel BUG at fs/ocfs2//alloc.c:7264!
+   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
+   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
+   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
+   ocfs2_fallocate+0x83/0xa0 [ocfs2]
+   vfs_fallocate+0x148/0x230
+   SyS_fallocate+0x48/0x80
+   do_syscall_64+0x79/0x170
+
+Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Leonardo Bras <leonardo@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Shuah Khan <shuah@kernel.org>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/9a404a13c871c4bd0ba9ede68f69a1225180dd7e.1580978385.git.christophe.leroy@c-s.fr
+Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/vm/map_hugetlb.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ fs/ocfs2/alloc.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/tools/testing/selftests/vm/map_hugetlb.c
-+++ b/tools/testing/selftests/vm/map_hugetlb.c
-@@ -45,20 +45,20 @@ static void check_bytes(char *addr)
- 	printf("First hex is %x\n", *((unsigned int *)addr));
- }
+--- a/fs/ocfs2/alloc.c
++++ b/fs/ocfs2/alloc.c
+@@ -7403,6 +7403,10 @@ int ocfs2_truncate_inline(struct inode *
+ 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
+ 	struct ocfs2_inline_data *idata = &di->id2.i_data;
  
--static void write_bytes(char *addr)
-+static void write_bytes(char *addr, size_t length)
- {
- 	unsigned long i;
++	/* No need to punch hole beyond i_size. */
++	if (start >= i_size_read(inode))
++		return 0;
++
+ 	if (end > i_size_read(inode))
+ 		end = i_size_read(inode);
  
--	for (i = 0; i < LENGTH; i++)
-+	for (i = 0; i < length; i++)
- 		*(addr + i) = (char)i;
- }
- 
--static int read_bytes(char *addr)
-+static int read_bytes(char *addr, size_t length)
- {
- 	unsigned long i;
- 
- 	check_bytes(addr);
--	for (i = 0; i < LENGTH; i++)
-+	for (i = 0; i < length; i++)
- 		if (*(addr + i) != (char)i) {
- 			printf("Mismatch at %lu\n", i);
- 			return 1;
-@@ -96,11 +96,11 @@ int main(int argc, char **argv)
- 
- 	printf("Returned address is %p\n", addr);
- 	check_bytes(addr);
--	write_bytes(addr);
--	ret = read_bytes(addr);
-+	write_bytes(addr, length);
-+	ret = read_bytes(addr, length);
- 
- 	/* munmap() length of MAP_HUGETLB memory must be hugepage aligned */
--	if (munmap(addr, LENGTH)) {
-+	if (munmap(addr, length)) {
- 		perror("munmap");
- 		exit(1);
- 	}
 
 
