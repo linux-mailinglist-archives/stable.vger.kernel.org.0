@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 837EC1ACC13
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CD31AC907
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2895586AbgDPPyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:54:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40304 "EHLO mail.kernel.org"
+        id S2405143AbgDPPRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:17:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896173AbgDPNaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:30:08 -0400
+        id S2898758AbgDPNsk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:48:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47AC520767;
-        Thu, 16 Apr 2020 13:30:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88A0D21744;
+        Thu, 16 Apr 2020 13:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043807;
-        bh=WkXY0LvbZ6B5eSUJfLAJMi3CfuZU3QVoW7/wf+YKG74=;
+        s=default; t=1587044919;
+        bh=79z7BDql8stYOus3GTROCiSx/mTNrMJNRyoDBHRU8TQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1c2LXcp1Ng7mV9vzz3cVz8k9hkgww1cwksoqBLVpCRLS8D7SZ7qVvv/arBP5rJx6
-         bRFV1UB9y45PRu34+IZxHfNNbEaEGdH0OsyLNLoswZen9vTNEro6EftQgBfZa6iYcR
-         8TKAtZuY6PRdAUUyVghIVMPipPTcN7L/c/4BFm5U=
+        b=KDGLRAtnlPtD4XFQE/+rfG+I04Q5N95Ub90j4kvLVUf2+wea8ZOr1kGPhFs+8LVap
+         6nbfLxqKMhZXgs0VpDGwHeHJHgVnlNn/uB1w1MexRdLkvtZRGSBFRkN0Sq8N5ei3ov
+         TVN4y8gprVY1ds4TnJNw43NvLlEauPe419fiRyWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 4.19 107/146] rtc: omap: Use define directive for PIN_CONFIG_ACTIVE_HIGH
-Date:   Thu, 16 Apr 2020 15:24:08 +0200
-Message-Id: <20200416131257.326103788@linuxfoundation.org>
+        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 155/232] tools: gpio: Fix out-of-tree build regression
+Date:   Thu, 16 Apr 2020 15:24:09 +0200
+Message-Id: <20200416131334.408829957@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-commit c50156526a2f7176b50134e3e5fb108ba09791b2 upstream.
+commit 82f04bfe2aff428b063eefd234679b2d693228ed upstream.
 
-Clang warns when one enumerated type is implicitly converted to another:
+Commit 0161a94e2d1c7 ("tools: gpio: Correctly add make dependencies for
+gpio_utils") added a make rule for gpio-utils-in.o but used $(output)
+instead of the correct $(OUTPUT) for the output directory, breaking
+out-of-tree build (O=xx) with the following error:
 
-drivers/rtc/rtc-omap.c:574:21: warning: implicit conversion from
-enumeration type 'enum rtc_pin_config_param' to different enumeration
-type 'enum pin_config_param' [-Wenum-conversion]
-        {"ti,active-high", PIN_CONFIG_ACTIVE_HIGH, 0},
-        ~                  ^~~~~~~~~~~~~~~~~~~~~~
-drivers/rtc/rtc-omap.c:579:12: warning: implicit conversion from
-enumeration type 'enum rtc_pin_config_param' to different enumeration
-type 'enum pin_config_param' [-Wenum-conversion]
-        PCONFDUMP(PIN_CONFIG_ACTIVE_HIGH, "input active high", NULL, false),
-        ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/linux/pinctrl/pinconf-generic.h:163:11: note: expanded from
-macro 'PCONFDUMP'
-        .param = a, .display = b, .format = c, .has_arg = d     \
-                 ^
-2 warnings generated.
+  No rule to make target 'out/tools/gpio/gpio-utils-in.o', needed by 'out/tools/gpio/lsgpio-in.o'.  Stop.
 
-It is expected that pinctrl drivers can extend pin_config_param because
-of the gap between PIN_CONFIG_END and PIN_CONFIG_MAX so this conversion
-isn't an issue. Most drivers that take advantage of this define the
-PIN_CONFIG variables as constants, rather than enumerated values. Do the
-same thing here so that Clang no longer warns.
+Fix that.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/144
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 0161a94e2d1c ("tools: gpio: Correctly add make dependencies for gpio_utils")
+Cc: <stable@vger.kernel.org>
+Cc: Laura Abbott <labbott@redhat.com>
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Link: https://lore.kernel.org/r/20200325103154.32235-1-anssi.hannula@bitwise.fi
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/rtc-omap.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ tools/gpio/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/rtc/rtc-omap.c
-+++ b/drivers/rtc/rtc-omap.c
-@@ -561,9 +561,7 @@ static const struct pinctrl_ops rtc_pinc
- 	.dt_free_map = pinconf_generic_dt_free_map,
- };
+--- a/tools/gpio/Makefile
++++ b/tools/gpio/Makefile
+@@ -35,7 +35,7 @@ $(OUTPUT)include/linux/gpio.h: ../../inc
  
--enum rtc_pin_config_param {
--	PIN_CONFIG_ACTIVE_HIGH = PIN_CONFIG_END + 1,
--};
-+#define PIN_CONFIG_ACTIVE_HIGH		(PIN_CONFIG_END + 1)
+ prepare: $(OUTPUT)include/linux/gpio.h
  
- static const struct pinconf_generic_params rtc_params[] = {
- 	{"ti,active-high", PIN_CONFIG_ACTIVE_HIGH, 0},
+-GPIO_UTILS_IN := $(output)gpio-utils-in.o
++GPIO_UTILS_IN := $(OUTPUT)gpio-utils-in.o
+ $(GPIO_UTILS_IN): prepare FORCE
+ 	$(Q)$(MAKE) $(build)=gpio-utils
+ 
 
 
