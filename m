@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 507B61ACA0A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAE811ACB53
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:46:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388103AbgDPPam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:30:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56758 "EHLO mail.kernel.org"
+        id S2895646AbgDPPqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:46:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731001AbgDPNn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:43:27 -0400
+        id S2896980AbgDPNem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:34:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C9452076D;
-        Thu, 16 Apr 2020 13:43:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78E5C208E4;
+        Thu, 16 Apr 2020 13:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044607;
-        bh=uq4hJNtqFZPJMrmWI/E4aG4wnFS/dFvqaSP8vydg5S0=;
+        s=default; t=1587044081;
+        bh=2HQMgSD8zk24QsegPUAFIIO7A20ZhErArpd+prKe6pY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJ17n6wWe0YKRoHU9ySYudFZKBWQhXxwtjrpwJ1+qXht0Nx64JuQm373TVHQNI7dC
-         JipwBr+ilwgfjTgqitcioU4j2ZJ7eh7wbiBhjlPQE5Z3Fy4sUGBXS1U5rOETcHEP8W
-         4EQOZeSLZybIDeUGvGqTqY/GhLuw99SaHOLUL1/4=
+        b=z5k1p0OdvrbrBbtA2jX5fv5hHRsaM6JZeDnFhEqSge0gRg+C8P5PEugPuc+AiOltY
+         2wgeb7gTslDmxsnUi/V6o2of5CUAhrVqgWivYXIYKgtRK2gUT6cL3wPoFV60nk0uy4
+         YvzECKjyXd23k07P+pyISTPr7hxGeFX3jwDHhpCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Liguang Zhang <zhangliguang@linux.alibaba.com>,
-        James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 028/232] firmware: arm_sdei: fix double-lock on hibernate with shared events
+Subject: [PATCH 5.5 071/257] irqchip/gic-v4: Provide irq_retrigger to avoid circular locking dependency
 Date:   Thu, 16 Apr 2020 15:22:02 +0200
-Message-Id: <20200416131319.672863005@linuxfoundation.org>
+Message-Id: <20200416131334.801562236@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,116 +43,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 6ded0b61cf638bf9f8efe60ab8ba23db60ea9763 ]
+[ Upstream commit 7809f7011c3bce650e502a98afeb05961470d865 ]
 
-SDEI has private events that must be registered on each CPU. When
-CPUs come and go they must re-register and re-enable their private
-events. Each event has flags to indicate whether this should happen
-to protect against an event being registered on a CPU coming online,
-while all the others are unregistering the event.
+On a very heavily loaded D05 with GICv4, I managed to trigger the
+following lockdep splat:
 
-These flags are protected by the sdei_list_lock spinlock, because
-the cpuhp callbacks can't take the mutex.
+[ 6022.598864] ======================================================
+[ 6022.605031] WARNING: possible circular locking dependency detected
+[ 6022.611200] 5.6.0-rc4-00026-geee7c7b0f498 #680 Tainted: G            E
+[ 6022.618061] ------------------------------------------------------
+[ 6022.624227] qemu-system-aar/7569 is trying to acquire lock:
+[ 6022.629789] ffff042f97606808 (&p->pi_lock){-.-.}, at: try_to_wake_up+0x54/0x7a0
+[ 6022.637102]
+[ 6022.637102] but task is already holding lock:
+[ 6022.642921] ffff002fae424cf0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x5c/0x98
+[ 6022.651350]
+[ 6022.651350] which lock already depends on the new lock.
+[ 6022.651350]
+[ 6022.659512]
+[ 6022.659512] the existing dependency chain (in reverse order) is:
+[ 6022.666980]
+[ 6022.666980] -> #2 (&irq_desc_lock_class){-.-.}:
+[ 6022.672983]        _raw_spin_lock_irqsave+0x50/0x78
+[ 6022.677848]        __irq_get_desc_lock+0x5c/0x98
+[ 6022.682453]        irq_set_vcpu_affinity+0x40/0xc0
+[ 6022.687236]        its_make_vpe_non_resident+0x6c/0xb8
+[ 6022.692364]        vgic_v4_put+0x54/0x70
+[ 6022.696273]        vgic_v3_put+0x20/0xd8
+[ 6022.700183]        kvm_vgic_put+0x30/0x48
+[ 6022.704182]        kvm_arch_vcpu_put+0x34/0x50
+[ 6022.708614]        kvm_sched_out+0x34/0x50
+[ 6022.712700]        __schedule+0x4bc/0x7f8
+[ 6022.716697]        schedule+0x50/0xd8
+[ 6022.720347]        kvm_arch_vcpu_ioctl_run+0x5f0/0x978
+[ 6022.725473]        kvm_vcpu_ioctl+0x3d4/0x8f8
+[ 6022.729820]        ksys_ioctl+0x90/0xd0
+[ 6022.733642]        __arm64_sys_ioctl+0x24/0x30
+[ 6022.738074]        el0_svc_common.constprop.3+0xa8/0x1e8
+[ 6022.743373]        do_el0_svc+0x28/0x88
+[ 6022.747198]        el0_svc+0x14/0x40
+[ 6022.750761]        el0_sync_handler+0x124/0x2b8
+[ 6022.755278]        el0_sync+0x140/0x180
+[ 6022.759100]
+[ 6022.759100] -> #1 (&rq->lock){-.-.}:
+[ 6022.764143]        _raw_spin_lock+0x38/0x50
+[ 6022.768314]        task_fork_fair+0x40/0x128
+[ 6022.772572]        sched_fork+0xe0/0x210
+[ 6022.776484]        copy_process+0x8c4/0x18d8
+[ 6022.780742]        _do_fork+0x88/0x6d8
+[ 6022.784478]        kernel_thread+0x64/0x88
+[ 6022.788563]        rest_init+0x30/0x270
+[ 6022.792390]        arch_call_rest_init+0x14/0x1c
+[ 6022.796995]        start_kernel+0x498/0x4c4
+[ 6022.801164]
+[ 6022.801164] -> #0 (&p->pi_lock){-.-.}:
+[ 6022.806382]        __lock_acquire+0xdd8/0x15c8
+[ 6022.810813]        lock_acquire+0xd0/0x218
+[ 6022.814896]        _raw_spin_lock_irqsave+0x50/0x78
+[ 6022.819761]        try_to_wake_up+0x54/0x7a0
+[ 6022.824018]        wake_up_process+0x1c/0x28
+[ 6022.828276]        wakeup_softirqd+0x38/0x40
+[ 6022.832533]        __tasklet_schedule_common+0xc4/0xf0
+[ 6022.837658]        __tasklet_schedule+0x24/0x30
+[ 6022.842176]        check_irq_resend+0xc8/0x158
+[ 6022.846609]        irq_startup+0x74/0x128
+[ 6022.850606]        __enable_irq+0x6c/0x78
+[ 6022.854602]        enable_irq+0x54/0xa0
+[ 6022.858431]        its_make_vpe_non_resident+0xa4/0xb8
+[ 6022.863557]        vgic_v4_put+0x54/0x70
+[ 6022.867469]        kvm_arch_vcpu_blocking+0x28/0x38
+[ 6022.872336]        kvm_vcpu_block+0x48/0x490
+[ 6022.876594]        kvm_handle_wfx+0x18c/0x310
+[ 6022.880938]        handle_exit+0x138/0x198
+[ 6022.885022]        kvm_arch_vcpu_ioctl_run+0x4d4/0x978
+[ 6022.890148]        kvm_vcpu_ioctl+0x3d4/0x8f8
+[ 6022.894494]        ksys_ioctl+0x90/0xd0
+[ 6022.898317]        __arm64_sys_ioctl+0x24/0x30
+[ 6022.902748]        el0_svc_common.constprop.3+0xa8/0x1e8
+[ 6022.908046]        do_el0_svc+0x28/0x88
+[ 6022.911871]        el0_svc+0x14/0x40
+[ 6022.915434]        el0_sync_handler+0x124/0x2b8
+[ 6022.919951]        el0_sync+0x140/0x180
+[ 6022.923773]
+[ 6022.923773] other info that might help us debug this:
+[ 6022.923773]
+[ 6022.931762] Chain exists of:
+[ 6022.931762]   &p->pi_lock --> &rq->lock --> &irq_desc_lock_class
+[ 6022.931762]
+[ 6022.942101]  Possible unsafe locking scenario:
+[ 6022.942101]
+[ 6022.948007]        CPU0                    CPU1
+[ 6022.952523]        ----                    ----
+[ 6022.957039]   lock(&irq_desc_lock_class);
+[ 6022.961036]                                lock(&rq->lock);
+[ 6022.966595]                                lock(&irq_desc_lock_class);
+[ 6022.973109]   lock(&p->pi_lock);
+[ 6022.976324]
+[ 6022.976324]  *** DEADLOCK ***
 
-Hibernate needs to unregister all events, but keep the in-memory
-re-register and re-enable as they are. sdei_unregister_shared()
-takes the spinlock to walk the list, then calls _sdei_event_unregister()
-on each shared event. _sdei_event_unregister() tries to take the
-same spinlock to update re-register and re-enable. This doesn't go
-so well.
+This is happening because we have a pending doorbell that requires
+retrigger. As SW retriggering is done in a tasklet, we trigger the
+circular dependency above.
 
-Push the re-register and re-enable updates out to their callers.
-sdei_unregister_shared() doesn't want these values updated, so
-doesn't need to do anything.
+The easy cop-out is to provide a retrigger callback that doesn't
+require acquiring any extra lock.
 
-This also fixes shared events getting lost over hibernate as this
-path made them look unregistered.
-
-Fixes: da351827240e ("firmware: arm_sdei: Add support for CPU and system power states")
-Reported-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200310184921.23552-5-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_sdei.c | 32 +++++++++++++++-----------------
- 1 file changed, 15 insertions(+), 17 deletions(-)
+ drivers/irqchip/irq-gic-v3-its.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/firmware/arm_sdei.c b/drivers/firmware/arm_sdei.c
-index 9cd70d1a56221..eb2df89d4924f 100644
---- a/drivers/firmware/arm_sdei.c
-+++ b/drivers/firmware/arm_sdei.c
-@@ -491,11 +491,6 @@ static int _sdei_event_unregister(struct sdei_event *event)
- {
- 	lockdep_assert_held(&sdei_events_lock);
- 
--	spin_lock(&sdei_list_lock);
--	event->reregister = false;
--	event->reenable = false;
--	spin_unlock(&sdei_list_lock);
--
- 	if (event->type == SDEI_EVENT_TYPE_SHARED)
- 		return sdei_api_event_unregister(event->event_num);
- 
-@@ -518,6 +513,11 @@ int sdei_event_unregister(u32 event_num)
- 			break;
- 		}
- 
-+		spin_lock(&sdei_list_lock);
-+		event->reregister = false;
-+		event->reenable = false;
-+		spin_unlock(&sdei_list_lock);
-+
- 		err = _sdei_event_unregister(event);
- 		if (err)
- 			break;
-@@ -585,26 +585,15 @@ static int _sdei_event_register(struct sdei_event *event)
- 
- 	lockdep_assert_held(&sdei_events_lock);
- 
--	spin_lock(&sdei_list_lock);
--	event->reregister = true;
--	spin_unlock(&sdei_list_lock);
--
- 	if (event->type == SDEI_EVENT_TYPE_SHARED)
- 		return sdei_api_event_register(event->event_num,
- 					       sdei_entry_point,
- 					       event->registered,
- 					       SDEI_EVENT_REGISTER_RM_ANY, 0);
- 
--
- 	err = sdei_do_cross_call(_local_event_register, event);
--	if (err) {
--		spin_lock(&sdei_list_lock);
--		event->reregister = false;
--		event->reenable = false;
--		spin_unlock(&sdei_list_lock);
--
-+	if (err)
- 		sdei_do_cross_call(_local_event_unregister, event);
--	}
- 
- 	return err;
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index 50f89056c16bb..8c757a125a55d 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -3142,12 +3142,18 @@ static int its_vpe_set_irqchip_state(struct irq_data *d,
+ 	return 0;
  }
-@@ -632,8 +621,17 @@ int sdei_event_register(u32 event_num, sdei_event_callback *cb, void *arg)
- 			break;
- 		}
  
-+		spin_lock(&sdei_list_lock);
-+		event->reregister = true;
-+		spin_unlock(&sdei_list_lock);
++static int its_vpe_retrigger(struct irq_data *d)
++{
++	return !its_vpe_set_irqchip_state(d, IRQCHIP_STATE_PENDING, true);
++}
 +
- 		err = _sdei_event_register(event);
- 		if (err) {
-+			spin_lock(&sdei_list_lock);
-+			event->reregister = false;
-+			event->reenable = false;
-+			spin_unlock(&sdei_list_lock);
-+
- 			sdei_event_destroy(event);
- 			pr_warn("Failed to register event %u: %d\n", event_num,
- 				err);
+ static struct irq_chip its_vpe_irq_chip = {
+ 	.name			= "GICv4-vpe",
+ 	.irq_mask		= its_vpe_mask_irq,
+ 	.irq_unmask		= its_vpe_unmask_irq,
+ 	.irq_eoi		= irq_chip_eoi_parent,
+ 	.irq_set_affinity	= its_vpe_set_affinity,
++	.irq_retrigger		= its_vpe_retrigger,
+ 	.irq_set_irqchip_state	= its_vpe_set_irqchip_state,
+ 	.irq_set_vcpu_affinity	= its_vpe_set_vcpu_affinity,
+ };
 -- 
 2.20.1
 
