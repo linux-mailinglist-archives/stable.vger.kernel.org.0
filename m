@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E71461AC3F1
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:52:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF78C1AC494
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408779AbgDPNvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:51:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38070 "EHLO mail.kernel.org"
+        id S2409524AbgDPOBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:01:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408772AbgDPNvw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:51:52 -0400
+        id S2409500AbgDPOBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77537221F7;
-        Thu, 16 Apr 2020 13:51:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D749222247;
+        Thu, 16 Apr 2020 14:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045111;
-        bh=JQdnDdhYv6d4tDD+A98SpEPRKFhhAozHc0eClzQz76w=;
+        s=default; t=1587045704;
+        bh=0xsYi/11uzlyBJ4Trt/P+eIrlBBktqV/M2hg5BUuIQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+Tx1t1Mvdd+BCeuTf8tjgnE7ujSfF89hQbypw406ZaCBx1DMI7t7e3SS4SN8+70C
-         qgGAld7PN4l7YDEMpgKFywNowrvKQY+Q5bRzU/lHO7JMw2HFsVWqqdpzHDM8tZ2ahZ
-         +0l2Mg+YKbUW/frcQmWA8jBWqdjxQlSezOzcQmXQ=
+        b=bky9ClmXWOHJggoMCWg4niOPd2/kpSSIReeuIVMcWI7U18ve0uE63dZlSFX8HcWym
+         wujPZqxeMfKv1jN+OowxXQebW4OBbI3m1PRRUW04nANU4y1wIQud9Pv1BXtVVzq6iB
+         52ugemxBCEeTKp2HU6FnfgbJ4d710hq1LGSmJAWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 221/232] dm clone: Add missing casts to prevent overflows and data corruption
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        kbuild test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.6 226/254] clk: ingenic/jz4770: Exit with error if CGU init failed
 Date:   Thu, 16 Apr 2020 15:25:15 +0200
-Message-Id: <20200416131343.129739576@linuxfoundation.org>
+Message-Id: <20200416131354.033811918@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 9fc06ff56845cc5ccafec52f545fc2e08d22f849 ]
+commit c067b46d731a764fc46ecc466c2967088c97089e upstream.
 
-Add missing casts when converting from regions to sectors.
+Exit jz4770_cgu_init() if the 'cgu' pointer we get is NULL, since the
+pointer is passed as argument to functions later on.
 
-In case BITS_PER_LONG == 32, the lack of the appropriate casts can lead
-to overflows and miscalculation of the device sector.
+Fixes: 7a01c19007ad ("clk: Add Ingenic jz4770 CGU driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lkml.kernel.org/r/20200213161952.37460-1-paul@crapouillou.net
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-As a result, we could end up discarding and/or copying the wrong parts
-of the device, thus corrupting the device's data.
-
-Fixes: 7431b7835f55 ("dm: add clone target")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-clone-target.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/clk/ingenic/jz4770-cgu.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-clone-target.c b/drivers/md/dm-clone-target.c
-index 315d3bca59792..eb7a5d3ba81a2 100644
---- a/drivers/md/dm-clone-target.c
-+++ b/drivers/md/dm-clone-target.c
-@@ -282,7 +282,7 @@ static bool bio_triggers_commit(struct clone *clone, struct bio *bio)
- /* Get the address of the region in sectors */
- static inline sector_t region_to_sector(struct clone *clone, unsigned long region_nr)
- {
--	return (region_nr << clone->region_shift);
-+	return ((sector_t)region_nr << clone->region_shift);
- }
+--- a/drivers/clk/ingenic/jz4770-cgu.c
++++ b/drivers/clk/ingenic/jz4770-cgu.c
+@@ -432,8 +432,10 @@ static void __init jz4770_cgu_init(struc
  
- /* Get the region number of the bio */
-@@ -471,7 +471,7 @@ static void complete_discard_bio(struct clone *clone, struct bio *bio, bool succ
- 	if (test_bit(DM_CLONE_DISCARD_PASSDOWN, &clone->flags) && success) {
- 		remap_to_dest(clone, bio);
- 		bio_region_range(clone, bio, &rs, &nr_regions);
--		trim_bio(bio, rs << clone->region_shift,
-+		trim_bio(bio, region_to_sector(clone, rs),
- 			 nr_regions << clone->region_shift);
- 		generic_make_request(bio);
- 	} else
-@@ -798,11 +798,14 @@ static void hydration_copy(struct dm_clone_region_hydration *hd, unsigned int nr
- 	struct dm_io_region from, to;
- 	struct clone *clone = hd->clone;
- 
-+	if (WARN_ON(!nr_regions))
+ 	cgu = ingenic_cgu_new(jz4770_cgu_clocks,
+ 			      ARRAY_SIZE(jz4770_cgu_clocks), np);
+-	if (!cgu)
++	if (!cgu) {
+ 		pr_err("%s: failed to initialise CGU\n", __func__);
 +		return;
-+
- 	region_size = clone->region_size;
- 	region_start = hd->region_nr;
- 	region_end = region_start + nr_regions - 1;
++	}
  
--	total_size = (nr_regions - 1) << clone->region_shift;
-+	total_size = region_to_sector(clone, nr_regions - 1);
- 
- 	if (region_end == clone->nr_regions - 1) {
- 		/*
--- 
-2.20.1
-
+ 	retval = ingenic_cgu_register_clocks(cgu);
+ 	if (retval)
 
 
