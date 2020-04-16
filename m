@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A0FD1ACB3C
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:46:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D471AC804
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442543AbgDPPpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:45:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47006 "EHLO mail.kernel.org"
+        id S2440674AbgDPPC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:02:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897055AbgDPNfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:35:10 -0400
+        id S2896190AbgDPNxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:53:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88B9621BE5;
-        Thu, 16 Apr 2020 13:35:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BACAB20732;
+        Thu, 16 Apr 2020 13:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044109;
-        bh=Zdg/vgCZtVzpvtzNd6vjcd/5iwmO3Je1o3bPcCol/5I=;
+        s=default; t=1587045227;
+        bh=kkvZbA2vkPiq5mVjy9hdXDb2Jqew+F4v57ty+HGHEU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VlZic/oF+ZC1w58phC3KI18MzdtF5MVBigVtTA8UukFeV+aZbu+caRRtvN5LgUdT0
-         lFQ74Z8eHl2/yig9/9/5x50yXdUWQUDaF2lX64IHo0w/sbGOBf22pCpdmS4kF1R77G
-         L2CBCYbGGzdaz0puU06AIXIcOak7i79eTFXgN2qs=
+        b=FaSWGASB5iHLo8N1rAv28P//wHvjuQi66v/WEi+pGQbZo7Wclhuw287FQAWB8q3tt
+         d6MMj1jALUMfMMoeBiSI2QtB/ZcKNsuq1xTK4MOD2WFaec5MYd72GK8UZP7HEMPu69
+         rXBtIrcX5m+IbiJvo3EDkTazCWYxZhZ1hjGvOsvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sriharsha Allenki <sallenki@codeaurora.org>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 5.5 085/257] usb: gadget: f_fs: Fix use after free issue as part of queue failure
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 047/254] x86/boot: Use unsigned comparison for addresses
 Date:   Thu, 16 Apr 2020 15:22:16 +0200
-Message-Id: <20200416131336.594045522@linuxfoundation.org>
+Message-Id: <20200416131331.775592662@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriharsha Allenki <sallenki@codeaurora.org>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-commit f63ec55ff904b2f2e126884fcad93175f16ab4bb upstream.
+[ Upstream commit 81a34892c2c7c809f9c4e22c5ac936ae673fb9a2 ]
 
-In AIO case, the request is freed up if ep_queue fails.
-However, io_data->req still has the reference to this freed
-request. In the case of this failure if there is aio_cancel
-call on this io_data it will lead to an invalid dequeue
-operation and a potential use after free issue.
-Fix this by setting the io_data->req to NULL when the request
-is freed as part of queue failure.
+The load address is compared with LOAD_PHYSICAL_ADDR using a signed
+comparison currently (using jge instruction).
 
-Fixes: 2e4c7553cd6f ("usb: gadget: f_fs: add aio support")
-Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
-CC: stable <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20200326115620.12571-1-sallenki@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When loading a 64-bit kernel using the new efi32_pe_entry() point added by:
 
+  97aa276579b2 ("efi/x86: Add true mixed mode entry point into .compat section")
+
+using Qemu with -m 3072, the firmware actually loads us above 2Gb,
+resulting in a very early crash.
+
+Use the JAE instruction to perform a unsigned comparison instead, as physical
+addresses should be considered unsigned.
+
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20200301230436.2246909-6-nivedita@alum.mit.edu
+Link: https://lore.kernel.org/r/20200308080859.21568-14-ardb@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/boot/compressed/head_32.S | 2 +-
+ arch/x86/boot/compressed/head_64.S | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1120,6 +1120,7 @@ static ssize_t ffs_epfile_io(struct file
- 
- 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
- 		if (unlikely(ret)) {
-+			io_data->req = NULL;
- 			usb_ep_free_request(ep->ep, req);
- 			goto error_lock;
- 		}
+diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
+index 73f17d0544dd5..7f7e8b8518fec 100644
+--- a/arch/x86/boot/compressed/head_32.S
++++ b/arch/x86/boot/compressed/head_32.S
+@@ -106,7 +106,7 @@ SYM_FUNC_START(startup_32)
+ 	notl	%eax
+ 	andl    %eax, %ebx
+ 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
+-	jge	1f
++	jae	1f
+ #endif
+ 	movl	$LOAD_PHYSICAL_ADDR, %ebx
+ 1:
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index 1f1f6c8139b38..afde2aa8382e9 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -106,7 +106,7 @@ SYM_FUNC_START(startup_32)
+ 	notl	%eax
+ 	andl	%eax, %ebx
+ 	cmpl	$LOAD_PHYSICAL_ADDR, %ebx
+-	jge	1f
++	jae	1f
+ #endif
+ 	movl	$LOAD_PHYSICAL_ADDR, %ebx
+ 1:
+@@ -296,7 +296,7 @@ SYM_CODE_START(startup_64)
+ 	notq	%rax
+ 	andq	%rax, %rbp
+ 	cmpq	$LOAD_PHYSICAL_ADDR, %rbp
+-	jge	1f
++	jae	1f
+ #endif
+ 	movq	$LOAD_PHYSICAL_ADDR, %rbp
+ 1:
+-- 
+2.20.1
+
 
 
