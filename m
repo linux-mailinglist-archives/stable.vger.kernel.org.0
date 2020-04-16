@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 526671ACAD1
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:40:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9C281ACC49
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395448AbgDPPkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:40:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50314 "EHLO mail.kernel.org"
+        id S2895725AbgDPN2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:28:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897598AbgDPNh5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:37:57 -0400
+        id S2895714AbgDPN2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:28:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03DCC20732;
-        Thu, 16 Apr 2020 13:37:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 268F821BE5;
+        Thu, 16 Apr 2020 13:28:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044276;
-        bh=zHhjz7bAC4lCz9BDYxtMEQD9e9rotebVujj8UYfL8g4=;
+        s=default; t=1587043695;
+        bh=wgY92Up2hqj3U3bxEm7of4dFDNE/XdwTMo46DQJ7BiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llXKZZ1uBEG3U56TLRovf9rFYcDdYx+pbs7xCJ9Ms2MVOmvQtr4t8KQkfaeTs4U3d
-         th579LuJTLCIEIi6bipnwl1lvEow5FKxH19deWx+jJn/BrFXxEofCDfjOKuBj64MZf
-         vCKGtNTYGj7AxgTvRQus6272GpDj27bdLPJW8JcU=
+        b=j7nLaaFULL2DL5XTBgFixTFEQUSkjptBXM2PCPv4uF1Mx/7peMckAZN6U7EtY+nTD
+         6Hq0MuCnWFMGWDZVSTXh7G9zv9ez/osJLXaa7CMr3bBXG8NYtL4niQw48aGWAjWV2U
+         K4LUgcjsFA4K3qyK9JoZsp3IuvvHsrogZUHCMW/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.5 151/257] smb3: fix performance regression with setting mtime
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 4.19 061/146] thermal: devfreq_cooling: inline all stubs for CONFIG_DEVFREQ_THERMAL=n
 Date:   Thu, 16 Apr 2020 15:23:22 +0200
-Message-Id: <20200416131345.391321329@linuxfoundation.org>
+Message-Id: <20200416131251.230752850@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit cf5371ae460eb8e484e4884747af270c86c3c469 upstream.
+commit 3f5b9959041e0db6dacbea80bb833bff5900999f upstream.
 
-There are cases when we don't want to send the SMB2 flush operation
-(e.g. when user specifies mount parm "nostrictsync") and it can be
-a very expensive operation on the server.  In most cases in order
-to set mtime, we simply need to flush (write) the dirtry pages from
-the client and send the writes to the server not also send a flush
-protocol operation to the server.
+When CONFIG_DEVFREQ_THERMAL is disabled all functions except
+of_devfreq_cooling_register_power() were already inlined. Also inline
+the last function to avoid compile errors when multiple drivers call
+of_devfreq_cooling_register_power() when CONFIG_DEVFREQ_THERMAL is not
+set. Compilation failed with the following message:
+  multiple definition of `of_devfreq_cooling_register_power'
+(which then lists all usages of of_devfreq_cooling_register_power())
 
-Fixes: aa081859b10c ("cifs: flush before set-info if we have writeable handles")
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Thomas Zimmermann reported this problem [0] on a kernel config with
+CONFIG_DRM_LIMA={m,y}, CONFIG_DRM_PANFROST={m,y} and
+CONFIG_DEVFREQ_THERMAL=n after both, the lima and panfrost drivers
+gained devfreq cooling support.
+
+[0] https://www.spinics.net/lists/dri-devel/msg252825.html
+
+Fixes: a76caf55e5b356 ("thermal: Add devfreq cooling")
+Cc: stable@vger.kernel.org
+Reported-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200403205133.1101808-1-martin.blumenstingl@googlemail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/inode.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ include/linux/devfreq_cooling.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -2517,25 +2517,26 @@ cifs_setattr_nounix(struct dentry *diren
+--- a/include/linux/devfreq_cooling.h
++++ b/include/linux/devfreq_cooling.h
+@@ -75,7 +75,7 @@ void devfreq_cooling_unregister(struct t
  
- 	/*
- 	 * Attempt to flush data before changing attributes. We need to do
--	 * this for ATTR_SIZE and ATTR_MTIME for sure, and if we change the
--	 * ownership or mode then we may also need to do this. Here, we take
--	 * the safe way out and just do the flush on all setattr requests. If
--	 * the flush returns error, store it to report later and continue.
-+	 * this for ATTR_SIZE and ATTR_MTIME.  If the flush of the data
-+	 * returns error, store it to report later and continue.
- 	 *
- 	 * BB: This should be smarter. Why bother flushing pages that
- 	 * will be truncated anyway? Also, should we error out here if
--	 * the flush returns error?
-+	 * the flush returns error? Do we need to check for ATTR_MTIME_SET flag?
- 	 */
--	rc = filemap_write_and_wait(inode->i_mapping);
--	if (is_interrupt_error(rc)) {
--		rc = -ERESTARTSYS;
--		goto cifs_setattr_exit;
-+	if (attrs->ia_valid & (ATTR_MTIME | ATTR_SIZE | ATTR_CTIME)) {
-+		rc = filemap_write_and_wait(inode->i_mapping);
-+		if (is_interrupt_error(rc)) {
-+			rc = -ERESTARTSYS;
-+			goto cifs_setattr_exit;
-+		}
-+		mapping_set_error(inode->i_mapping, rc);
- 	}
+ #else /* !CONFIG_DEVFREQ_THERMAL */
  
--	mapping_set_error(inode->i_mapping, rc);
- 	rc = 0;
- 
--	if (attrs->ia_valid & ATTR_MTIME) {
-+	if ((attrs->ia_valid & ATTR_MTIME) &&
-+	    !(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
- 		rc = cifs_get_writable_file(cifsInode, FIND_WR_ANY, &wfile);
- 		if (!rc) {
- 			tcon = tlink_tcon(wfile->tlink);
+-struct thermal_cooling_device *
++static inline struct thermal_cooling_device *
+ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
+ 				  struct devfreq_cooling_power *dfc_power)
+ {
 
 
