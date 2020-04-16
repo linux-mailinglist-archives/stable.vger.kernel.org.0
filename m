@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FCDF1AC6F1
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29CBF1ACAAA
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392629AbgDPOq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:46:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46324 "EHLO mail.kernel.org"
+        id S2389091AbgDPPhu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:37:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898809AbgDPN7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:59:20 -0400
+        id S2897838AbgDPNjI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:39:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0C0820786;
-        Thu, 16 Apr 2020 13:59:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D03E72222D;
+        Thu, 16 Apr 2020 13:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045559;
-        bh=shd0LP0Bg8wGz6s3YwEhALAbANLNDLZwnav84oEtfjo=;
+        s=default; t=1587044348;
+        bh=cOdDWYDw+GJ+hRmAPg16sAWISZrCcsqiTeYFKrelNr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7hqSajFIW6Cp3u4zO6tVBHm2DFKoTI6iW+yvxQwzgARXVBq4QznTLrDwzlRpsdZ/
-         iIlpRwY6G32FVreupLYUIzgZwgOVk3lD2oSZirfuDURwLL0WSIhdbdHFz9bIVXcxF8
-         cpx+C92xN4DfMinb1cafJBhwhLGMRm0NNovB73yQ=
+        b=yD865DWDkq3aceBvNd3q4956y1idnNkbC6WdrQ1lvXz0J0ZCCwfRMktzq9uRmb/dD
+         RfntW486fgN047NZxiDVw14FcU1U0jle0nfsnFOOw516uF1saQfLqRD7a0wkXvkQ5y
+         3sBWAM7UUC20zIjzXokH7x96TETBmwTm7maNVXdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.6 143/254] mtd: spinand: Do not erase the block before writing a bad block marker
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.5 181/257] dm integrity: fix a crash with unusually large tag size
 Date:   Thu, 16 Apr 2020 15:23:52 +0200
-Message-Id: <20200416131344.376085393@linuxfoundation.org>
+Message-Id: <20200416131348.987821940@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit b645ad39d56846618704e463b24bb994c9585c7f upstream.
+commit b93b6643e9b5a7f260b931e97f56ffa3fa65e26d upstream.
 
-Currently when marking a block, we use spinand_erase_op() to erase
-the block before writing the marker to the OOB area. Doing so without
-waiting for the operation to finish can lead to the marking failing
-silently and no bad block marker being written to the flash.
+If the user specifies tag size larger than HASH_MAX_DIGESTSIZE,
+there's a crash in integrity_metadata().
 
-In fact we don't need to do an erase at all before writing the BBM.
-The ECC is disabled for raw accesses to the OOB data and we don't
-need to work around any issues with chips reporting ECC errors as it
-is known to be the case for raw NAND.
-
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
 Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200218100432.32433-4-frieder.schrempf@kontron.de
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/spi/core.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/md/dm-integrity.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -612,7 +612,6 @@ static int spinand_markbad(struct nand_d
- 	};
- 	int ret;
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -1519,7 +1519,7 @@ static void integrity_metadata(struct wo
+ 		struct bio *bio = dm_bio_from_per_bio_data(dio, sizeof(struct dm_integrity_io));
+ 		char *checksums;
+ 		unsigned extra_space = unlikely(digest_size > ic->tag_size) ? digest_size - ic->tag_size : 0;
+-		char checksums_onstack[HASH_MAX_DIGESTSIZE];
++		char checksums_onstack[max((size_t)HASH_MAX_DIGESTSIZE, MAX_TAG_SIZE)];
+ 		unsigned sectors_to_process = dio->range.n_sectors;
+ 		sector_t sector = dio->range.logical_sector;
  
--	/* Erase block before marking it bad. */
- 	ret = spinand_select_target(spinand, pos->target);
- 	if (ret)
- 		return ret;
-@@ -621,8 +620,6 @@ static int spinand_markbad(struct nand_d
- 	if (ret)
- 		return ret;
+@@ -1748,7 +1748,7 @@ retry_kmap:
+ 				} while (++s < ic->sectors_per_block);
+ #ifdef INTERNAL_VERIFY
+ 				if (ic->internal_hash) {
+-					char checksums_onstack[max(HASH_MAX_DIGESTSIZE, MAX_TAG_SIZE)];
++					char checksums_onstack[max((size_t)HASH_MAX_DIGESTSIZE, MAX_TAG_SIZE)];
  
--	spinand_erase_op(spinand, pos);
--
- 	return spinand_write_page(spinand, &req);
- }
- 
+ 					integrity_sector_checksum(ic, logical_sector, mem + bv.bv_offset, checksums_onstack);
+ 					if (unlikely(memcmp(checksums_onstack, journal_entry_tag(ic, je), ic->tag_size))) {
 
 
