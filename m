@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB8F91AC751
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E67961AC3B9
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394844AbgDPOx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:53:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44012 "EHLO mail.kernel.org"
+        id S2898661AbgDPNrT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:47:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441817AbgDPN46 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:56:58 -0400
+        id S2898656AbgDPNrQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:47:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BFF321734;
-        Thu, 16 Apr 2020 13:56:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6697121734;
+        Thu, 16 Apr 2020 13:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045417;
+        s=default; t=1587044835;
         bh=vHr6g5MwzQjKMd6VRdS/hjjFnOfpLL/Nb7slM5ESHiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d5F+JxYun7YTvc6nro24bVPLP4gZq9ApEB9/padZ1oeH1AKdXieh1435+4d6JNwB+
-         evkVmGiMytZQ1aX8VgZSZy/QX3Vq9nukFWg3hOhJK3Kq6BMsQYU7g0msHOENiOuqxK
-         FxB0LVHnp10x/VhehzE2JNR+jlWEkg7exRfC2flM=
+        b=pOfowzlTB+yf2rJ4dmrVwwwotZcl5AtLtoIjUSxl0kdhfsZ58IWeBy3hlV4aIDwnj
+         5H/Hwyq3sOY8i2WGo+/qHcaWrlI1+CQbZM5YFuWv0pderE5SnI4yeTVwNdw7uGCpfj
+         8qf1vd0fcsmS7DSCfRQI9gPsOesamvD8dUZu6hyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.6 125/254] x86/tsc_msr: Use named struct initializers
+Subject: [PATCH 5.4 120/232] x86/tsc_msr: Use named struct initializers
 Date:   Thu, 16 Apr 2020 15:23:34 +0200
-Message-Id: <20200416131342.020942175@linuxfoundation.org>
+Message-Id: <20200416131330.114238768@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
