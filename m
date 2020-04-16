@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B0C1AC8FC
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C88201AC33B
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:40:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405041AbgDPPRb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:17:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34764 "EHLO mail.kernel.org"
+        id S2898055AbgDPNkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:40:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2636304AbgDPNsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:48:46 -0400
+        id S2898049AbgDPNkD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:40:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1C31208E4;
-        Thu, 16 Apr 2020 13:48:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF23520732;
+        Thu, 16 Apr 2020 13:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044926;
-        bh=NzVsl77g47J5ch7O3/qgCHAedtZoN5S+VS8l9N5SDAQ=;
+        s=default; t=1587044402;
+        bh=P/0lskj5n+fVsZdBwi59YdaK/6ajOC5ljhBBmqt4dHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ot2RsA4DuCX9K0qVGJoAlME95UP5Kda1lU1TGxydofHdrGplMNZZ6O3R1K4Qn1kc3
-         KnZG43erD2IYFxTJ6RfAph7stkHuP9RCFTRxAjCbflfOLc2sLY49j5t7h/9T6+l91N
-         n0tK6bAWXZxyT9zPkwyWeq63gP5ZmnzSwlBklzjg=
+        b=bQja+geixbrFiiX3egihn9sTb0/tcWbEK6YJGTfPupIyvHU5cl2lBVmEFM5Je9InM
+         MtqTsfQkoQBKZOV31cYbEvNgHfZ8GMDoOnSy5zuQR++cHJ2Z1c13OOhygqZbhMWsxn
+         H3RloXmC98iNMw75YeXGfW6Dw0k/2RCxy3hnRPm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Wood <swood@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.4 158/232] sched/core: Remove duplicate assignment in sched_tick_remote()
+        stable@vger.kernel.org, Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Fredrik Strupe <fredrik@strupe.net>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.5 201/257] arm64: armv8_deprecated: Fix undef_hook mask for thumb setend
 Date:   Thu, 16 Apr 2020 15:24:12 +0200
-Message-Id: <20200416131334.775155848@linuxfoundation.org>
+Message-Id: <20200416131351.219534451@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,34 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Wood <swood@redhat.com>
+From: Fredrik Strupe <fredrik@strupe.net>
 
-commit 82e0516ce3a147365a5dd2a9bedd5ba43a18663d upstream.
+commit fc2266011accd5aeb8ebc335c381991f20e26e33 upstream.
 
-A redundant "curr = rq->curr" was added; remove it.
+For thumb instructions, call_undef_hook() in traps.c first reads a u16,
+and if the u16 indicates a T32 instruction (u16 >= 0xe800), a second
+u16 is read, which then makes up the the lower half-word of a T32
+instruction. For T16 instructions, the second u16 is not read,
+which makes the resulting u32 opcode always have the upper half set to
+0.
 
-Fixes: ebc0f83c78a2 ("timers/nohz: Update NOHZ load in remote tick")
-Signed-off-by: Scott Wood <swood@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/1580776558-12882-1-git-send-email-swood@redhat.com
-Cc: Guenter Roeck <linux@roeck-us.net>
+However, having the upper half of instr_mask in the undef_hook set to 0
+masks out the upper half of all thumb instructions - both T16 and T32.
+This results in trapped T32 instructions with the lower half-word equal
+to the T16 encoding of setend (b650) being matched, even though the upper
+half-word is not 0000 and thus indicates a T32 opcode.
+
+An example of such a T32 instruction is eaa0b650, which should raise a
+SIGILL since T32 instructions with an eaa prefix are unallocated as per
+Arm ARM, but instead works as a SETEND because the second half-word is set
+to b650.
+
+This patch fixes the issue by extending instr_mask to include the
+upper u32 half, which will still match T16 instructions where the upper
+half is 0, but not T32 instructions.
+
+Fixes: 2d888f48e056 ("arm64: Emulate SETEND for AArch32 tasks")
+Cc: <stable@vger.kernel.org> # 4.0.x-
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/sched/core.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/kernel/armv8_deprecated.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3676,7 +3676,6 @@ static void sched_tick_remote(struct wor
- 	if (cpu_is_offline(cpu))
- 		goto out_unlock;
- 
--	curr = rq->curr;
- 	update_rq_clock(rq);
- 
- 	if (!is_idle_task(curr)) {
+--- a/arch/arm64/kernel/armv8_deprecated.c
++++ b/arch/arm64/kernel/armv8_deprecated.c
+@@ -601,7 +601,7 @@ static struct undef_hook setend_hooks[]
+ 	},
+ 	{
+ 		/* Thumb mode */
+-		.instr_mask	= 0x0000fff7,
++		.instr_mask	= 0xfffffff7,
+ 		.instr_val	= 0x0000b650,
+ 		.pstate_mask	= (PSR_AA32_T_BIT | PSR_AA32_MODE_MASK),
+ 		.pstate_val	= (PSR_AA32_T_BIT | PSR_AA32_MODE_USR),
 
 
