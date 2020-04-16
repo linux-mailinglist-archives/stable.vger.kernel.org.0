@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B931ACA5A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB4D1ACA91
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442574AbgDPPeF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:34:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53694 "EHLO mail.kernel.org"
+        id S2897952AbgDPNjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:39:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898238AbgDPNk7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:40:59 -0400
+        id S2897933AbgDPNjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:39:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F8DC218AC;
-        Thu, 16 Apr 2020 13:40:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5553321D94;
+        Thu, 16 Apr 2020 13:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044459;
-        bh=QbwX/cYzHyWzd67ry82iq9jNyfuA+lBj+qA600TsiTs=;
+        s=default; t=1587043873;
+        bh=z4Y8kmHA0kzaiF82tX9ljWFZJuBuSiiOA2BFNp01Q+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s/fnn7pcRduf6otexAv+VM498/y2wwNIhoJdolhDw+MncTyvSqqhqZFscO8rwZZ78
-         4tOjUkMkEJIPPK7v9sW9u+JRR9zSJm4qC46JZ44/J6CbLs0mAeJKgSD5HOdBLeYjoM
-         URNSNwx3ToUxQ2DC1egpUN/Dcbog5LieFR6iF3Rw=
+        b=MQf6PqqJkSMM4rEGT6DEi47Zw9J9bY60nVlo4emI3uGIRje7Cg0ftgiLt6Qs6V3VI
+         kpkLjC/Qf+Y8iBUHd4AUK5yb222m2yJmDHH0NqFEKPPwny1+s8tHXZJakaM2LnG62U
+         4eLdKy0n/2Io0t2wSGw4bqvYNaWk+hSF6+8mjvAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taeung Song <treeze.taeung@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.5 226/257] ftrace/kprobe: Show the maxactive number on kprobe_events
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 136/146] crypto: ccree - zero out internal struct before use
 Date:   Thu, 16 Apr 2020 15:24:37 +0200
-Message-Id: <20200416131354.086051025@linuxfoundation.org>
+Message-Id: <20200416131301.008084729@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit 6a13a0d7b4d1171ef9b80ad69abc37e1daa941b3 upstream.
+[ Upstream commit 9f31eb6e08cc1b0eb3926eebf4c51467479a7722 ]
 
-Show maxactive parameter on kprobe_events.
-This allows user to save the current configuration and
-restore it without losing maxactive parameter.
+We did not zero out the internal struct before use causing problem
+in some rare error code paths.
 
-Link: http://lkml.kernel.org/r/4762764a-6df7-bc93-ed60-e336146dce1f@gmail.com
-Link: http://lkml.kernel.org/r/158503528846.22706.5549974121212526020.stgit@devnote2
-
-Cc: stable@vger.kernel.org
-Fixes: 696ced4fb1d76 ("tracing/kprobes: expose maxactive for kretprobe in kprobe_events")
-Reported-by: Taeung Song <treeze.taeung@gmail.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_kprobe.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/ccree/cc_aead.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -918,6 +918,8 @@ static int trace_kprobe_show(struct seq_
- 	int i;
+diff --git a/drivers/crypto/ccree/cc_aead.c b/drivers/crypto/ccree/cc_aead.c
+index aa6b45bc13b98..c9233420fe421 100644
+--- a/drivers/crypto/ccree/cc_aead.c
++++ b/drivers/crypto/ccree/cc_aead.c
+@@ -2058,6 +2058,8 @@ static int cc_aead_encrypt(struct aead_request *req)
+ 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+ 	int rc;
  
- 	seq_putc(m, trace_kprobe_is_return(tk) ? 'r' : 'p');
-+	if (trace_kprobe_is_return(tk) && tk->rp.maxactive)
-+		seq_printf(m, "%d", tk->rp.maxactive);
- 	seq_printf(m, ":%s/%s", trace_probe_group_name(&tk->tp),
- 				trace_probe_name(&tk->tp));
++	memset(areq_ctx, 0, sizeof(*areq_ctx));
++
+ 	/* No generated IV required */
+ 	areq_ctx->backup_iv = req->iv;
+ 	areq_ctx->backup_giv = NULL;
+@@ -2087,6 +2089,8 @@ static int cc_rfc4309_ccm_encrypt(struct aead_request *req)
+ 		goto out;
+ 	}
  
++	memset(areq_ctx, 0, sizeof(*areq_ctx));
++
+ 	/* No generated IV required */
+ 	areq_ctx->backup_iv = req->iv;
+ 	areq_ctx->backup_giv = NULL;
+@@ -2106,6 +2110,8 @@ static int cc_aead_decrypt(struct aead_request *req)
+ 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+ 	int rc;
+ 
++	memset(areq_ctx, 0, sizeof(*areq_ctx));
++
+ 	/* No generated IV required */
+ 	areq_ctx->backup_iv = req->iv;
+ 	areq_ctx->backup_giv = NULL;
+@@ -2133,6 +2139,8 @@ static int cc_rfc4309_ccm_decrypt(struct aead_request *req)
+ 		goto out;
+ 	}
+ 
++	memset(areq_ctx, 0, sizeof(*areq_ctx));
++
+ 	/* No generated IV required */
+ 	areq_ctx->backup_iv = req->iv;
+ 	areq_ctx->backup_giv = NULL;
+@@ -2250,6 +2258,8 @@ static int cc_rfc4106_gcm_encrypt(struct aead_request *req)
+ 		goto out;
+ 	}
+ 
++	memset(areq_ctx, 0, sizeof(*areq_ctx));
++
+ 	/* No generated IV required */
+ 	areq_ctx->backup_iv = req->iv;
+ 	areq_ctx->backup_giv = NULL;
+@@ -2273,6 +2283,8 @@ static int cc_rfc4543_gcm_encrypt(struct aead_request *req)
+ 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+ 	int rc;
+ 
++	memset(areq_ctx, 0, sizeof(*areq_ctx));
++
+ 	//plaintext is not encryped with rfc4543
+ 	areq_ctx->plaintext_authenticate_only = true;
+ 
+@@ -2305,6 +2317,8 @@ static int cc_rfc4106_gcm_decrypt(struct aead_request *req)
+ 		goto out;
+ 	}
+ 
++	memset(areq_ctx, 0, sizeof(*areq_ctx));
++
+ 	/* No generated IV required */
+ 	areq_ctx->backup_iv = req->iv;
+ 	areq_ctx->backup_giv = NULL;
+@@ -2328,6 +2342,8 @@ static int cc_rfc4543_gcm_decrypt(struct aead_request *req)
+ 	struct aead_req_ctx *areq_ctx = aead_request_ctx(req);
+ 	int rc;
+ 
++	memset(areq_ctx, 0, sizeof(*areq_ctx));
++
+ 	//plaintext is not decryped with rfc4543
+ 	areq_ctx->plaintext_authenticate_only = true;
+ 
+-- 
+2.20.1
+
 
 
