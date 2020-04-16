@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 855C11AC99A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC0D01AC2FA
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503668AbgDPPZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:25:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58034 "EHLO mail.kernel.org"
+        id S2897272AbgDPNgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:36:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728202AbgDPNom (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:44:42 -0400
+        id S2896279AbgDPNf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:35:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5AA32076D;
-        Thu, 16 Apr 2020 13:44:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13E67208E4;
+        Thu, 16 Apr 2020 13:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044681;
-        bh=+SAFrhVXVXqUAJoGUK+bIyzEBJzAJAh7x5aDRjz2vAI=;
+        s=default; t=1587044158;
+        bh=7optjhFEa+3PEcCmGs68rGHltQp375AoRvT4kjo1PUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qU7kNOTDIi9Jj6bueZ66l4qvj6e33rIeVmLr5URMXrhGGsSGPGVVSP+5NXfaFZcOE
-         as62ab8gehAmT4JITDe8W/CvqSGeDKhWbJH3NJs0FAFDqyN4+jh12k8b24bDXBqDeK
-         AB8e1xMn1De7itgwE9brR5GB2b4jsHUhYNWdwsBI=
+        b=wUIBeUp3VK31/GTUNauamZET+MILtLuolDb2L1YGNOrb6JrlI1lz5QMBEQjSdu7ok
+         duYSArIST9U7GrwRx7DnbpTgMtbWYi357hV/8DaxV+bKLnOOa27XJ2eLcMzBwL52bz
+         2U6CZ79C64J1haPhygPi4DO2lbk24PZxcncRL3B0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 059/232] irqchip/gic-v4: Provide irq_retrigger to avoid circular locking dependency
-Date:   Thu, 16 Apr 2020 15:22:33 +0200
-Message-Id: <20200416131322.887623015@linuxfoundation.org>
+        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.5 103/257] media: ti-vpe: cal: fix a kernel oops when unloading module
+Date:   Thu, 16 Apr 2020 15:22:34 +0200
+Message-Id: <20200416131339.006439948@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,145 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Benoit Parrot <bparrot@ti.com>
 
-[ Upstream commit 7809f7011c3bce650e502a98afeb05961470d865 ]
+commit 80264809ea0a3fd2ee8251f31a9eb85d2c3fc77e upstream.
 
-On a very heavily loaded D05 with GICv4, I managed to trigger the
-following lockdep splat:
+After the switch to use v4l2_async_notifier_add_subdev() and
+v4l2_async_notifier_cleanup(), unloading the ti_cal module would cause a
+kernel oops.
 
-[ 6022.598864] ======================================================
-[ 6022.605031] WARNING: possible circular locking dependency detected
-[ 6022.611200] 5.6.0-rc4-00026-geee7c7b0f498 #680 Tainted: G            E
-[ 6022.618061] ------------------------------------------------------
-[ 6022.624227] qemu-system-aar/7569 is trying to acquire lock:
-[ 6022.629789] ffff042f97606808 (&p->pi_lock){-.-.}, at: try_to_wake_up+0x54/0x7a0
-[ 6022.637102]
-[ 6022.637102] but task is already holding lock:
-[ 6022.642921] ffff002fae424cf0 (&irq_desc_lock_class){-.-.}, at: __irq_get_desc_lock+0x5c/0x98
-[ 6022.651350]
-[ 6022.651350] which lock already depends on the new lock.
-[ 6022.651350]
-[ 6022.659512]
-[ 6022.659512] the existing dependency chain (in reverse order) is:
-[ 6022.666980]
-[ 6022.666980] -> #2 (&irq_desc_lock_class){-.-.}:
-[ 6022.672983]        _raw_spin_lock_irqsave+0x50/0x78
-[ 6022.677848]        __irq_get_desc_lock+0x5c/0x98
-[ 6022.682453]        irq_set_vcpu_affinity+0x40/0xc0
-[ 6022.687236]        its_make_vpe_non_resident+0x6c/0xb8
-[ 6022.692364]        vgic_v4_put+0x54/0x70
-[ 6022.696273]        vgic_v3_put+0x20/0xd8
-[ 6022.700183]        kvm_vgic_put+0x30/0x48
-[ 6022.704182]        kvm_arch_vcpu_put+0x34/0x50
-[ 6022.708614]        kvm_sched_out+0x34/0x50
-[ 6022.712700]        __schedule+0x4bc/0x7f8
-[ 6022.716697]        schedule+0x50/0xd8
-[ 6022.720347]        kvm_arch_vcpu_ioctl_run+0x5f0/0x978
-[ 6022.725473]        kvm_vcpu_ioctl+0x3d4/0x8f8
-[ 6022.729820]        ksys_ioctl+0x90/0xd0
-[ 6022.733642]        __arm64_sys_ioctl+0x24/0x30
-[ 6022.738074]        el0_svc_common.constprop.3+0xa8/0x1e8
-[ 6022.743373]        do_el0_svc+0x28/0x88
-[ 6022.747198]        el0_svc+0x14/0x40
-[ 6022.750761]        el0_sync_handler+0x124/0x2b8
-[ 6022.755278]        el0_sync+0x140/0x180
-[ 6022.759100]
-[ 6022.759100] -> #1 (&rq->lock){-.-.}:
-[ 6022.764143]        _raw_spin_lock+0x38/0x50
-[ 6022.768314]        task_fork_fair+0x40/0x128
-[ 6022.772572]        sched_fork+0xe0/0x210
-[ 6022.776484]        copy_process+0x8c4/0x18d8
-[ 6022.780742]        _do_fork+0x88/0x6d8
-[ 6022.784478]        kernel_thread+0x64/0x88
-[ 6022.788563]        rest_init+0x30/0x270
-[ 6022.792390]        arch_call_rest_init+0x14/0x1c
-[ 6022.796995]        start_kernel+0x498/0x4c4
-[ 6022.801164]
-[ 6022.801164] -> #0 (&p->pi_lock){-.-.}:
-[ 6022.806382]        __lock_acquire+0xdd8/0x15c8
-[ 6022.810813]        lock_acquire+0xd0/0x218
-[ 6022.814896]        _raw_spin_lock_irqsave+0x50/0x78
-[ 6022.819761]        try_to_wake_up+0x54/0x7a0
-[ 6022.824018]        wake_up_process+0x1c/0x28
-[ 6022.828276]        wakeup_softirqd+0x38/0x40
-[ 6022.832533]        __tasklet_schedule_common+0xc4/0xf0
-[ 6022.837658]        __tasklet_schedule+0x24/0x30
-[ 6022.842176]        check_irq_resend+0xc8/0x158
-[ 6022.846609]        irq_startup+0x74/0x128
-[ 6022.850606]        __enable_irq+0x6c/0x78
-[ 6022.854602]        enable_irq+0x54/0xa0
-[ 6022.858431]        its_make_vpe_non_resident+0xa4/0xb8
-[ 6022.863557]        vgic_v4_put+0x54/0x70
-[ 6022.867469]        kvm_arch_vcpu_blocking+0x28/0x38
-[ 6022.872336]        kvm_vcpu_block+0x48/0x490
-[ 6022.876594]        kvm_handle_wfx+0x18c/0x310
-[ 6022.880938]        handle_exit+0x138/0x198
-[ 6022.885022]        kvm_arch_vcpu_ioctl_run+0x4d4/0x978
-[ 6022.890148]        kvm_vcpu_ioctl+0x3d4/0x8f8
-[ 6022.894494]        ksys_ioctl+0x90/0xd0
-[ 6022.898317]        __arm64_sys_ioctl+0x24/0x30
-[ 6022.902748]        el0_svc_common.constprop.3+0xa8/0x1e8
-[ 6022.908046]        do_el0_svc+0x28/0x88
-[ 6022.911871]        el0_svc+0x14/0x40
-[ 6022.915434]        el0_sync_handler+0x124/0x2b8
-[ 6022.919951]        el0_sync+0x140/0x180
-[ 6022.923773]
-[ 6022.923773] other info that might help us debug this:
-[ 6022.923773]
-[ 6022.931762] Chain exists of:
-[ 6022.931762]   &p->pi_lock --> &rq->lock --> &irq_desc_lock_class
-[ 6022.931762]
-[ 6022.942101]  Possible unsafe locking scenario:
-[ 6022.942101]
-[ 6022.948007]        CPU0                    CPU1
-[ 6022.952523]        ----                    ----
-[ 6022.957039]   lock(&irq_desc_lock_class);
-[ 6022.961036]                                lock(&rq->lock);
-[ 6022.966595]                                lock(&irq_desc_lock_class);
-[ 6022.973109]   lock(&p->pi_lock);
-[ 6022.976324]
-[ 6022.976324]  *** DEADLOCK ***
+This was root cause to the fact that v4l2_async_notifier_cleanup() tries
+to kfree the asd pointer passed into v4l2_async_notifier_add_subdev().
 
-This is happening because we have a pending doorbell that requires
-retrigger. As SW retriggering is done in a tasklet, we trigger the
-circular dependency above.
+In our case the asd reference was from a statically allocated struct.
+So in effect v4l2_async_notifier_cleanup() was trying to free a pointer
+that was not kalloc.
 
-The easy cop-out is to provide a retrigger callback that doesn't
-require acquiring any extra lock.
+So here we switch to using a kzalloc struct instead of a static one.
+To achieve this we re-order some of the calls to prevent asd allocation
+from leaking.
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200310184921.23552-5-maz@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d079f94c9046 ("media: platform: Switch to v4l2_async_notifier_add_subdev")
+Cc: stable@vger.kernel.org
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/irqchip/irq-gic-v3-its.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/media/platform/ti-vpe/cal.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index 11f3b50dcdcb8..263cf9240b168 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2985,12 +2985,18 @@ static int its_vpe_set_irqchip_state(struct irq_data *d,
- 	return 0;
- }
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -266,8 +266,6 @@ struct cal_ctx {
+ 	struct v4l2_subdev	*sensor;
+ 	struct v4l2_fwnode_endpoint	endpoint;
  
-+static int its_vpe_retrigger(struct irq_data *d)
-+{
-+	return !its_vpe_set_irqchip_state(d, IRQCHIP_STATE_PENDING, true);
-+}
+-	struct v4l2_async_subdev asd;
+-
+ 	struct v4l2_fh		fh;
+ 	struct cal_dev		*dev;
+ 	struct cc_data		*cc;
+@@ -1648,7 +1646,6 @@ static int of_cal_create_instance(struct
+ 
+ 	parent = pdev->dev.of_node;
+ 
+-	asd = &ctx->asd;
+ 	endpoint = &ctx->endpoint;
+ 
+ 	ep_node = NULL;
+@@ -1695,8 +1692,6 @@ static int of_cal_create_instance(struct
+ 		ctx_dbg(3, ctx, "can't get remote parent\n");
+ 		goto cleanup_exit;
+ 	}
+-	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
+-	asd->match.fwnode = of_fwnode_handle(sensor_node);
+ 
+ 	v4l2_fwnode_endpoint_parse(of_fwnode_handle(ep_node), endpoint);
+ 
+@@ -1726,9 +1721,17 @@ static int of_cal_create_instance(struct
+ 
+ 	v4l2_async_notifier_init(&ctx->notifier);
+ 
++	asd = kzalloc(sizeof(*asd), GFP_KERNEL);
++	if (!asd)
++		goto cleanup_exit;
 +
- static struct irq_chip its_vpe_irq_chip = {
- 	.name			= "GICv4-vpe",
- 	.irq_mask		= its_vpe_mask_irq,
- 	.irq_unmask		= its_vpe_unmask_irq,
- 	.irq_eoi		= irq_chip_eoi_parent,
- 	.irq_set_affinity	= its_vpe_set_affinity,
-+	.irq_retrigger		= its_vpe_retrigger,
- 	.irq_set_irqchip_state	= its_vpe_set_irqchip_state,
- 	.irq_set_vcpu_affinity	= its_vpe_set_vcpu_affinity,
- };
--- 
-2.20.1
-
++	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
++	asd->match.fwnode = of_fwnode_handle(sensor_node);
++
+ 	ret = v4l2_async_notifier_add_subdev(&ctx->notifier, asd);
+ 	if (ret) {
+ 		ctx_err(ctx, "Error adding asd\n");
++		kfree(asd);
+ 		goto cleanup_exit;
+ 	}
+ 
 
 
