@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 876EE1ACC06
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D9DF1AC8F3
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504171AbgDPPxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40818 "EHLO mail.kernel.org"
+        id S2441511AbgDPPRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:17:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896263AbgDPNae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:30:34 -0400
+        id S2898810AbgDPNtE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:49:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F24B621D94;
-        Thu, 16 Apr 2020 13:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18EB120732;
+        Thu, 16 Apr 2020 13:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043834;
-        bh=/aB5ZQPjIvOzuahP2sOeMKjKwI7vTSL9/R8D2dpZKo4=;
+        s=default; t=1587044943;
+        bh=auqJTuhnImmvDb6H+sMUIzlvMxOs3HGqAdeRAdKYAU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=phyqzm6lXEgTumWKZI2YM54MBsSM6PN38JS40WLJ2EjoQ8g7K96NVSoy5LRKp/pTw
-         C3jbu9/jD7CaH5i92PIgnhrdtZHyQbVP0OTTFvXpskV6nO/tk7TKNjjQ1uikW+uX5Q
-         tH18huoUNAuYZwi4cyKxbSOZvwWy7l4U41r6NQ1o=
+        b=EmwCnnChByk15E/xLhyDfiC/99mAvwYknOHsQ/6G8xuDSDsIlbJLmmf6xg2gAlIDA
+         E9IBfbyVnyPskJHXmb4FEqGJjWPmYpo8heDaVM5OkvP6Qw6V/BJbaEW0Zq6SoGwRO6
+         n26ZUKdXnbc83W6yCXqYS1CXjHIid45ELkwSII+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        kbuild test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 4.19 117/146] clk: ingenic/jz4770: Exit with error if CGU init failed
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 164/232] dm clone: Add overflow check for number of regions
 Date:   Thu, 16 Apr 2020 15:24:18 +0200
-Message-Id: <20200416131258.618318810@linuxfoundation.org>
+Message-Id: <20200416131335.527671917@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit c067b46d731a764fc46ecc466c2967088c97089e upstream.
+commit cd481c12269b4d276f1a52eda0ebd419079bfe3a upstream.
 
-Exit jz4770_cgu_init() if the 'cgu' pointer we get is NULL, since the
-pointer is passed as argument to functions later on.
+Add overflow check for clone->nr_regions variable, which holds the
+number of regions of the target.
 
-Fixes: 7a01c19007ad ("clk: Add Ingenic jz4770 CGU driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lkml.kernel.org/r/20200213161952.37460-1-paul@crapouillou.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+The overflow can occur with sufficiently large devices, if BITS_PER_LONG
+== 32. E.g., if the region size is 8 sectors (4K), the overflow would
+occur for device sizes > 34359738360 sectors (~16TB).
+
+This could result in multiple device sectors wrongly mapping to the same
+region number, due to the truncation from 64 bits to 32 bits, which
+would lead to data corruption.
+
+Fixes: 7431b7835f55 ("dm: add clone target")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/ingenic/jz4770-cgu.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/dm-clone-target.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/clk/ingenic/jz4770-cgu.c
-+++ b/drivers/clk/ingenic/jz4770-cgu.c
-@@ -436,8 +436,10 @@ static void __init jz4770_cgu_init(struc
+--- a/drivers/md/dm-clone-target.c
++++ b/drivers/md/dm-clone-target.c
+@@ -1775,6 +1775,7 @@ error:
+ static int clone_ctr(struct dm_target *ti, unsigned int argc, char **argv)
+ {
+ 	int r;
++	sector_t nr_regions;
+ 	struct clone *clone;
+ 	struct dm_arg_set as;
  
- 	cgu = ingenic_cgu_new(jz4770_cgu_clocks,
- 			      ARRAY_SIZE(jz4770_cgu_clocks), np);
--	if (!cgu)
-+	if (!cgu) {
- 		pr_err("%s: failed to initialise CGU\n", __func__);
-+		return;
+@@ -1816,7 +1817,16 @@ static int clone_ctr(struct dm_target *t
+ 		goto out_with_source_dev;
+ 
+ 	clone->region_shift = __ffs(clone->region_size);
+-	clone->nr_regions = dm_sector_div_up(ti->len, clone->region_size);
++	nr_regions = dm_sector_div_up(ti->len, clone->region_size);
++
++	/* Check for overflow */
++	if (nr_regions != (unsigned long)nr_regions) {
++		ti->error = "Too many regions. Consider increasing the region size";
++		r = -EOVERFLOW;
++		goto out_with_source_dev;
 +	}
++
++	clone->nr_regions = nr_regions;
  
- 	retval = ingenic_cgu_register_clocks(cgu);
- 	if (retval)
+ 	r = validate_nr_regions(clone->nr_regions, &ti->error);
+ 	if (r)
 
 
