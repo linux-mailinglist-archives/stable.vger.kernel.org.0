@@ -2,274 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D20901AC4E8
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:07:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E2B61AC62E
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440088AbgDPOHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:07:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53258 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409718AbgDPOG7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:06:59 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91F662076D;
-        Thu, 16 Apr 2020 14:06:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587046019;
-        bh=l3v9CoxUZqrg9QHEIsXiElZ9JBKdPaTrHQD6VWGXmf4=;
-        h=Subject:To:From:Date:From;
-        b=FUtOJQraB8fBh6HnlYMZSpYI5N2oH0FKQv1Uit/tze3qaeLQnmF0iiTuZv7PxMW0n
-         qJ1P+ZBWL8GLktoEY/OsNeKd60drwZDfb643OaEChXrv5KntNMxWrs0aPGO7UCcyCU
-         EMsu2pZN2jQrursegMTgJytfkrvtR30D1evhMQE4=
-Subject: patch "Revert "serial: uartps: Register own uart console and driver" added to tty-linus
-To:     michal.simek@xilinx.com, gregkh@linuxfoundation.org,
-        johan@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Apr 2020 16:06:40 +0200
-Message-ID: <1587046000103236@kroah.com>
+        id S2439042AbgDPORX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:17:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35090 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2436893AbgDPORV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 10:17:21 -0400
+Received: from mail-yb1-xb43.google.com (mail-yb1-xb43.google.com [IPv6:2607:f8b0:4864:20::b43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575E5C061A0C;
+        Thu, 16 Apr 2020 07:17:21 -0700 (PDT)
+Received: by mail-yb1-xb43.google.com with SMTP id l84so2138540ybb.1;
+        Thu, 16 Apr 2020 07:17:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3EGvPiqngo9PD85Viky7JQgBsBWxZ43+ciyx0Y2fiF4=;
+        b=Yi/E/mBJzOIl2MV86JyIsd5FTc11nOcA+xz2PWKuAss2G6mpkD8aM4I6/gv4wfzJkq
+         X9eINDXL+BA+fBWBfnxIaYkEhnMTtj8NIsMIyp3FKAMcQcOarjU0l48eENxVXBAvn+hx
+         LWYjV/wiEOGQ4JsGfRAoL49LSGI60I/46MGMrL2XwNIW/b2OjcQ/TYSAHcfs9SIY3n+J
+         PrggIBtNHLe9t6BI8TVRb4AX9NH0+PY/LpLRNDx5bzJVg79tYKzS3srQZjjX5EkTRUMj
+         rxR4XSD7v6DM+rhmFf3pFKZ1WafWoeGNFcze0uEzg3TsCdpFvoTU+cLGmNQBTnqgdYna
+         lEYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3EGvPiqngo9PD85Viky7JQgBsBWxZ43+ciyx0Y2fiF4=;
+        b=HsWMmpwEs6dC+pQaIGmF0WYzdtfvUlz3h5cISyxMqTrJntyVJbGW4GIhQKD4RF5Niv
+         Fo5DgrXzb+mo7//ljrXk2+Qui3NniHIE8Ak9Kk4oO/4RzfSwEycGq/gESHEIRnogUrNS
+         GJuSg0SO6zKN50Z1wkglSdivVqoQR5x6/dsPS22Bn1hYoNiBnuuqFV9C42qTDrOh4ufm
+         ZgPgbf2xYFZgD8u5Bgh4roYUPBTayzw4MdNJnHnZ8ijgE7S7SSY+BD9Pu9ib3X94MhSJ
+         szxFev5GjnkHjrG2fsX/zcEWibOhsX+nC1HyPVm5t+6NLSGANKD+do59qYaChRTxzusz
+         iQ7w==
+X-Gm-Message-State: AGi0PuYKaYDxAq+kLrQ93HWSQCBpoY3PaEdIiYsPvAw06bUIO4OYn1Vs
+        VaUm5FM7ErBc/vfjWdTHYn/+elX16sj5hOw6WOE=
+X-Google-Smtp-Source: APiQypIv2aouGBzXhHMa02iF8q/NHS4DlRDchKvavBw5L5PPpIE1U5JF2agcqKyNDktMWX6ZBajiSyWNM9Jm27Cnqnc=
+X-Received: by 2002:a5b:5cf:: with SMTP id w15mr16332366ybp.215.1587046640357;
+ Thu, 16 Apr 2020 07:17:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <20200414015627.GA1068@sasha-vm> <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
+ <20200414110911.GA341846@kroah.com> <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
+ <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com> <20200414205755.GF1068@sasha-vm>
+ <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com> <20200416000009.GL1068@sasha-vm>
+ <CAJ3xEMjfWL=c=voGqV4pUCzWXmiTn-R6mrRi82UAVHMVysKU1g@mail.gmail.com> <20200416140441.GL1068@sasha-vm>
+In-Reply-To: <20200416140441.GL1068@sasha-vm>
+From:   Or Gerlitz <gerlitz.or@gmail.com>
+Date:   Thu, 16 Apr 2020 17:17:09 +0300
+Message-ID: <CAJ3xEMjobvx=S4JC4n+TLwN9xnJcwNa-B4O_Evi6PUq30VJchQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for representors
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Edward Cree <ecree@solarflare.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Linux Netdev List <netdev@vger.kernel.org>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        David Miller <davem@davemloft.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Apr 16, 2020 at 5:04 PM Sasha Levin <sashal@kernel.org> wrote:
+> On Thu, Apr 16, 2020 at 04:40:31PM +0300, Or Gerlitz wrote:
+> >On Thu, Apr 16, 2020 at 3:00 AM Sasha Levin <sashal@kernel.org> wrote:
+> >> I'd maybe point out that the selection process is based on a neural
+> >> network which knows about the existence of a Fixes tag in a commit.
+> >>
+> >> It does exactly what you're describing, but also taking a bunch more
+> >> factors into it's desicion process ("panic"? "oops"? "overflow"? etc).
+> >
+> >As Saeed commented, every extra line in stable / production kernel
+> >is wrong. IMHO it doesn't make any sense to take into stable automatically
+> >any patch that doesn't have fixes line. Do you have 1/2/3/4/5 concrete
+> >examples from your (referring to your Microsoft employee hat comment
+> >below) or other's people production environment where patches proved to
+> >be necessary but they lacked the fixes tag - would love to see them.
+>
+> Sure, here are 5 from the past few months:
+>
+> e5e884b42639 ("libertas: Fix two buffer overflows at parsing bss descriptor")
+> 3d94a4a8373b ("mwifiex: fix possible heap overflow in mwifiex_process_country_ie()")
+> 39d170b3cb62 ("ath6kl: fix a NULL-ptr-deref bug in ath6kl_usb_alloc_urb_from_pipe()")
+> 8b51dc729147 ("rsi: fix a double free bug in rsi_91x_deinit()")
+> 5146f95df782 ("USB: hso: Fix OOB memory access in hso_probe/hso_get_config_data")
+>
+> 5 Different drivers, neither has a stable tag or a Fixes: tag, all 5
+> have a CVE number assigned to them.
 
-This is a note to let you know that I've just added the patch titled
+CVE number sounds good enough to me to AI around and pull to
+stable,  BUT only to where relevant, and nothing beyond (see below).
 
-    Revert "serial: uartps: Register own uart console and driver
+> >We've been coaching new comers for years during internal and on-list
+> >code reviews to put proper fixes tag. This serves (A) for the upstream
+> >human review of the patch and (B) reasonable human stable considerations.
+>
+> Thanks for doing it - we do see more and more fixes tags.
+>
+> >You are practically saying that for cases we screwed up stage (A) you
+> >can somehow still get away with good results on stage (B) - I don't
+> >accept it. BTW - during my reviews I tend to ask/require developers to
+> >skip the word panic, and instead better explain the nature of the
+> >problem / result.
+>
+> Humans are still humans, and humans make mistakes. Fixes tags get
+> forgotten
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
+In the netdev land, the very much usual habit is for -rc patches to have
+Fixes tag, so maybe some RCA comment here would be to
+enforce that better across the kermel land?
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+> stable tags get forgotten.
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+An easy AI would be to deduce the -stable tag from the -fixes tag, just
+find out where the offending patch was accepted and never/ever (please!)
+push a fix beyond that kernel.
 
-If you have any questions about this process, please let me know.
+> I very much belive you that the mellanox stuff are in good shape thanks
+> to your efforts, but the kernel world is bigger than a few select drivers.
 
+>>>>> This is great, but the kernel is more than just net/. Note that I also
+>>>>> do not look at net/ itself, but rather drivers/net/ as those end up with
+>>>>> a bunch of missed fixes.
 
-From 18cc7ac8a28e28cd005c2475f52576cfe10cabfb Mon Sep 17 00:00:00 2001
-From: Michal Simek <michal.simek@xilinx.com>
-Date: Fri, 3 Apr 2020 11:24:36 +0200
-Subject: Revert "serial: uartps: Register own uart console and driver
- structures"
+>>>>drivers/net/ goes through the same DaveM net/net-next trees, with the
+>>>> same rules.
 
-This reverts commit 024ca329bfb9a948f76eaff3243e21b7e70182f2.
+>>you ignored this comment, any more specific complaints?
 
-As Johan says, this driver needs a lot more work and these changes are
-only going in the wrong direction:
-  https://lkml.kernel.org/r/20190523091839.GC568@localhost
+> See above (the example commits). The drivers/net/ stuff don't work as
+> well as net/ sadly.
 
-Reported-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1ee35667e36a8efddee381df5fe495ad65f4d15c.1585905873.git.michal.simek@xilinx.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/xilinx_uartps.c | 95 +++++++++++++-----------------
- 1 file changed, 40 insertions(+), 55 deletions(-)
+Disagree.
 
-diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
-index 41d9c2f188f0..ac137b6a1dc1 100644
---- a/drivers/tty/serial/xilinx_uartps.c
-+++ b/drivers/tty/serial/xilinx_uartps.c
-@@ -27,6 +27,7 @@
- #define CDNS_UART_TTY_NAME	"ttyPS"
- #define CDNS_UART_NAME		"xuartps"
- #define CDNS_UART_MAJOR		0	/* use dynamic node allocation */
-+#define CDNS_UART_MINOR		0	/* works best with devtmpfs */
- #define CDNS_UART_NR_PORTS	16
- #define CDNS_UART_FIFO_SIZE	64	/* FIFO size */
- #define CDNS_UART_REGISTER_SPACE	0x1000
-@@ -1132,6 +1133,8 @@ static const struct uart_ops cdns_uart_ops = {
- #endif
- };
- 
-+static struct uart_driver cdns_uart_uart_driver;
-+
- #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
- /**
-  * cdns_uart_console_putchar - write the character to the FIFO buffer
-@@ -1271,6 +1274,16 @@ static int cdns_uart_console_setup(struct console *co, char *options)
- 
- 	return uart_set_options(port, co, baud, parity, bits, flow);
- }
-+
-+static struct console cdns_uart_console = {
-+	.name	= CDNS_UART_TTY_NAME,
-+	.write	= cdns_uart_console_write,
-+	.device	= uart_console_device,
-+	.setup	= cdns_uart_console_setup,
-+	.flags	= CON_PRINTBUFFER,
-+	.index	= -1, /* Specified on the cmdline (e.g. console=ttyPS ) */
-+	.data	= &cdns_uart_uart_driver,
-+};
- #endif /* CONFIG_SERIAL_XILINX_PS_UART_CONSOLE */
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -1402,6 +1415,9 @@ static const struct of_device_id cdns_uart_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, cdns_uart_of_match);
- 
-+/* Temporary variable for storing number of instances */
-+static int instances;
-+
- /**
-  * cdns_uart_probe - Platform driver probe
-  * @pdev: Pointer to the platform device structure
-@@ -1415,11 +1431,6 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	struct cdns_uart *cdns_uart_data;
- 	const struct of_device_id *match;
--	struct uart_driver *cdns_uart_uart_driver;
--	char *driver_name;
--#ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
--	struct console *cdns_uart_console;
--#endif
- 
- 	cdns_uart_data = devm_kzalloc(&pdev->dev, sizeof(*cdns_uart_data),
- 			GFP_KERNEL);
-@@ -1429,12 +1440,6 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 	if (!port)
- 		return -ENOMEM;
- 
--	cdns_uart_uart_driver = devm_kzalloc(&pdev->dev,
--					     sizeof(*cdns_uart_uart_driver),
--					     GFP_KERNEL);
--	if (!cdns_uart_uart_driver)
--		return -ENOMEM;
--
- 	/* Look for a serialN alias */
- 	id = of_alias_get_id(pdev->dev.of_node, "serial");
- 	if (id < 0)
-@@ -1445,50 +1450,25 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 
--	/* There is a need to use unique driver name */
--	driver_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s%d",
--				     CDNS_UART_NAME, id);
--	if (!driver_name)
--		return -ENOMEM;
--
--	cdns_uart_uart_driver->owner = THIS_MODULE;
--	cdns_uart_uart_driver->driver_name = driver_name;
--	cdns_uart_uart_driver->dev_name	= CDNS_UART_TTY_NAME;
--	cdns_uart_uart_driver->major = CDNS_UART_MAJOR;
--	cdns_uart_uart_driver->minor = id;
--	cdns_uart_uart_driver->nr = 1;
--
-+	if (!cdns_uart_uart_driver.state) {
-+		cdns_uart_uart_driver.owner = THIS_MODULE;
-+		cdns_uart_uart_driver.driver_name = CDNS_UART_NAME;
-+		cdns_uart_uart_driver.dev_name = CDNS_UART_TTY_NAME;
-+		cdns_uart_uart_driver.major = CDNS_UART_MAJOR;
-+		cdns_uart_uart_driver.minor = CDNS_UART_MINOR;
-+		cdns_uart_uart_driver.nr = CDNS_UART_NR_PORTS;
- #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
--	cdns_uart_console = devm_kzalloc(&pdev->dev, sizeof(*cdns_uart_console),
--					 GFP_KERNEL);
--	if (!cdns_uart_console)
--		return -ENOMEM;
--
--	strncpy(cdns_uart_console->name, CDNS_UART_TTY_NAME,
--		sizeof(cdns_uart_console->name));
--	cdns_uart_console->index = id;
--	cdns_uart_console->write = cdns_uart_console_write;
--	cdns_uart_console->device = uart_console_device;
--	cdns_uart_console->setup = cdns_uart_console_setup;
--	cdns_uart_console->flags = CON_PRINTBUFFER;
--	cdns_uart_console->data = cdns_uart_uart_driver;
--	cdns_uart_uart_driver->cons = cdns_uart_console;
-+		cdns_uart_uart_driver.cons = &cdns_uart_console;
- #endif
- 
--	rc = uart_register_driver(cdns_uart_uart_driver);
--	if (rc < 0) {
--		dev_err(&pdev->dev, "Failed to register driver\n");
--		return rc;
-+		rc = uart_register_driver(&cdns_uart_uart_driver);
-+		if (rc < 0) {
-+			dev_err(&pdev->dev, "Failed to register driver\n");
-+			return rc;
-+		}
- 	}
- 
--	cdns_uart_data->cdns_uart_driver = cdns_uart_uart_driver;
--
--	/*
--	 * Setting up proper name_base needs to be done after uart
--	 * registration because tty_driver structure is not filled.
--	 * name_base is 0 by default.
--	 */
--	cdns_uart_uart_driver->tty_driver->name_base = id;
-+	cdns_uart_data->cdns_uart_driver = &cdns_uart_uart_driver;
- 
- 	match = of_match_node(cdns_uart_of_match, pdev->dev.of_node);
- 	if (match && match->data) {
-@@ -1566,6 +1546,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 	port->ops	= &cdns_uart_ops;
- 	port->fifosize	= CDNS_UART_FIFO_SIZE;
- 	port->has_sysrq = IS_ENABLED(CONFIG_SERIAL_XILINX_PS_UART_CONSOLE);
-+	port->line	= id;
- 
- 	/*
- 	 * Register the port.
-@@ -1597,7 +1578,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 		console_port = port;
- #endif
- 
--	rc = uart_add_one_port(cdns_uart_uart_driver, port);
-+	rc = uart_add_one_port(&cdns_uart_uart_driver, port);
- 	if (rc) {
- 		dev_err(&pdev->dev,
- 			"uart_add_one_port() failed; err=%i\n", rc);
-@@ -1607,12 +1588,15 @@ static int cdns_uart_probe(struct platform_device *pdev)
- #ifdef CONFIG_SERIAL_XILINX_PS_UART_CONSOLE
- 	/* This is not port which is used for console that's why clean it up */
- 	if (console_port == port &&
--	    !(cdns_uart_uart_driver->cons->flags & CON_ENABLED))
-+	    !(cdns_uart_uart_driver.cons->flags & CON_ENABLED))
- 		console_port = NULL;
- #endif
- 
- 	cdns_uart_data->cts_override = of_property_read_bool(pdev->dev.of_node,
- 							     "cts-override");
-+
-+	instances++;
-+
- 	return 0;
- 
- err_out_pm_disable:
-@@ -1628,8 +1612,8 @@ static int cdns_uart_probe(struct platform_device *pdev)
- err_out_clk_dis_pclk:
- 	clk_disable_unprepare(cdns_uart_data->pclk);
- err_out_unregister_driver:
--	uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
--
-+	if (!instances)
-+		uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
- 	return rc;
- }
- 
-@@ -1664,7 +1648,8 @@ static int cdns_uart_remove(struct platform_device *pdev)
- 		console_port = NULL;
- #endif
- 
--	uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
-+	if (!--instances)
-+		uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
- 	return rc;
- }
- 
--- 
-2.26.1
+If there is a problem it is due to some driver/net/ driver maintainers
+not doing their job good enough.
 
+> >> Let me put my Microsoft employee hat on here. We have driver/net/hyperv/
+> >> which definitely wasn't getting all the fixes it should have been
+> >> getting without AUTOSEL.
+> >
+> >> While net/ is doing great, drivers/net/ is not. If it's indeed following
+> >> the same rules then we need to talk about how we get done right.
+> >
+> >I never [1] saw -stable push requests being ignored here in netdev.
+> >Your drivers have four listed maintainers and it's common habit by
+> >commercial companies to have paid && human (non autosel robots)
+> >maintainers that take care of their open source drivers. As in commercial
+> >SW products, Linux has a current, next and past (stable) releases, so
+> >something sounds as missing to me in your care matrix.
+>
+> How come? DaveM is specifically asking not to add stable tags because he
+> will do the selection himself, right? So the hyperv stuff indeed don't
+> include a stable tag, but all fixes should have a proper Fixes: tag.
 
+Ask/tell your maintainer to note that in their cover letters, it will be taken.
+
+> So why don't they end up in a stable tree?
+
+> If we need to send a mail saying which commits should go to stable, we
+> might as well tag them for stable to begin with, right?
+
+so how about you go and argue with the netdev maintainer and
+settle your complaints instead of WA your disagreements using autosel?
