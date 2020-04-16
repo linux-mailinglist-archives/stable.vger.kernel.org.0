@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4CE1ACA92
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:37:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E1C11AC289
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897954AbgDPNjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:39:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51712 "EHLO mail.kernel.org"
+        id S2896048AbgDPN3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897943AbgDPNjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:39:21 -0400
+        id S2896041AbgDPN3i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:29:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 355272063A;
-        Thu, 16 Apr 2020 13:39:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09E2F20767;
+        Thu, 16 Apr 2020 13:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044360;
-        bh=9dyaT9wnAWhQSKmAiJwAuMsv2hIYneiLsOUo5frnMTc=;
+        s=default; t=1587043778;
+        bh=V59zFjV6ZZmWmqaah7XOzcTvl8C+F7D/XEZk8w+uE1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3AtTKOOcI0g0c6D/On/Sj2muOcAVdg0kFfap/rtkIp5D3Of9WbNpq0eWjmiFWbAW
-         oslhASLUXUqPGBwiH0Xr5+wdADpndPzOQ7RmE7nctnv0ODEEpH3zaEJ784iwceh1cE
-         C7P1Itv3W81dKOB+iWS6rPKLts3y5kawjtklakv8=
+        b=rWvWjvg0AmVE2mNZE94RZSREArPC7+Iplmhc/zA3XYBT6jXjAfxrEtbMnMtaSDhxQ
+         G/nfXrF4OfVWDrVIQ0W+OomUjIFNXqysD1L0ZVPWJOVYcFgjFD5P0LeA6/JJ8K8SWe
+         NZR6Gs8S8xn5x5vpzOUd9Z3VPE4KC/KEG52OhBD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.5 186/257] dm clone: Add missing casts to prevent overflows and data corruption
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Daniel Axtens <dja@axtens.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 096/146] powerpc/pseries: Drop pointless static qualifier in vpa_debugfs_init()
 Date:   Thu, 16 Apr 2020 15:23:57 +0200
-Message-Id: <20200416131349.554357030@linuxfoundation.org>
+Message-Id: <20200416131255.906873948@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit 9fc06ff56845cc5ccafec52f545fc2e08d22f849 upstream.
+commit 11dd34f3eae5a468013bb161a1dcf1fecd2ca321 upstream.
 
-Add missing casts when converting from regions to sectors.
+There is no need to have the 'struct dentry *vpa_dir' variable static
+since new value always be assigned before use it.
 
-In case BITS_PER_LONG == 32, the lack of the appropriate casts can lead
-to overflows and miscalculation of the device sector.
-
-As a result, we could end up discarding and/or copying the wrong parts
-of the device, thus corrupting the device's data.
-
-Fixes: 7431b7835f55 ("dm: add clone target")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: c6c26fb55e8e ("powerpc/pseries: Export raw per-CPU VPA data via debugfs")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190218125644.87448-1-yuehaibing@huawei.com
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-clone-target.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/powerpc/platforms/pseries/lpar.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-clone-target.c
-+++ b/drivers/md/dm-clone-target.c
-@@ -282,7 +282,7 @@ static bool bio_triggers_commit(struct c
- /* Get the address of the region in sectors */
- static inline sector_t region_to_sector(struct clone *clone, unsigned long region_nr)
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -1056,7 +1056,7 @@ static int __init vpa_debugfs_init(void)
  {
--	return (region_nr << clone->region_shift);
-+	return ((sector_t)region_nr << clone->region_shift);
- }
+ 	char name[16];
+ 	long i;
+-	static struct dentry *vpa_dir;
++	struct dentry *vpa_dir;
  
- /* Get the region number of the bio */
-@@ -471,7 +471,7 @@ static void complete_discard_bio(struct
- 	if (test_bit(DM_CLONE_DISCARD_PASSDOWN, &clone->flags) && success) {
- 		remap_to_dest(clone, bio);
- 		bio_region_range(clone, bio, &rs, &nr_regions);
--		trim_bio(bio, rs << clone->region_shift,
-+		trim_bio(bio, region_to_sector(clone, rs),
- 			 nr_regions << clone->region_shift);
- 		generic_make_request(bio);
- 	} else
-@@ -804,11 +804,14 @@ static void hydration_copy(struct dm_clo
- 	struct dm_io_region from, to;
- 	struct clone *clone = hd->clone;
- 
-+	if (WARN_ON(!nr_regions))
-+		return;
-+
- 	region_size = clone->region_size;
- 	region_start = hd->region_nr;
- 	region_end = region_start + nr_regions - 1;
- 
--	total_size = (nr_regions - 1) << clone->region_shift;
-+	total_size = region_to_sector(clone, nr_regions - 1);
- 
- 	if (region_end == clone->nr_regions - 1) {
- 		/*
+ 	if (!firmware_has_feature(FW_FEATURE_SPLPAR))
+ 		return 0;
 
 
