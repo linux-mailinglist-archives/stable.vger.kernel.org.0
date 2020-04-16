@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 743701AC493
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:02:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87EB11AC679
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:40:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409502AbgDPOBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:01:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49044 "EHLO mail.kernel.org"
+        id S2393457AbgDPOkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:40:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409494AbgDPOBm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 10:01:42 -0400
+        id S2409515AbgDPOBr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:01:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D8F5217D8;
-        Thu, 16 Apr 2020 14:01:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59B8C20786;
+        Thu, 16 Apr 2020 14:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045701;
-        bh=/lUnU82i9NCKa7Nb5n2dmWvwoPHTtDhXL68RLJzcs/I=;
+        s=default; t=1587045706;
+        bh=qmD2AabpT/gSApKTT7ytFVEBPKgxs9NvEOjVgOMFvy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ljv+DI2eBv4HjO4us029g5e/xYcmz0SZRJBrq8RRRYXpouWcMivdvyjymH/MG1sPu
-         Oj3qLZLGhF9OXlMllhtF0UiaLTABQ0pe9ANWB0buPGXNW10Sz/R5xdpLgZGeQG9kNZ
-         Fkni9Mh8aTaMxVP5Ue7PomR9RVeWznf779oBLmYY=
+        b=DQT2VQEekvPEF/84hreiasDXFHzboZ3gzoV/0RsdgJ4qtxNij/HXse0qYhg8x5raL
+         Tzhvw/mByaSayDcphW1EHQl9jHE51DgorQRUgzZXbnD0BdCrjlvw8vi16IkXNEy7Rh
+         mPcVaE8p5ziOMqu0eAJIkDMyLUd3v1mLoNw0cMXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 243/254] powerpc/kprobes: Ignore traps that happened in real mode
-Date:   Thu, 16 Apr 2020 15:25:32 +0200
-Message-Id: <20200416131356.192360539@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.6 244/254] powerpc/64: Prevent stack protection in early boot
+Date:   Thu, 16 Apr 2020 15:25:33 +0200
+Message-Id: <20200416131356.292354205@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
 References: <20200416131325.804095985@linuxfoundation.org>
@@ -46,74 +42,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 21f8b2fa3ca5b01f7a2b51b89ce97a3705a15aa0 upstream.
+commit 7053f80d96967d8e72e9f2a724bbfc3906ce2b07 upstream.
 
-When a program check exception happens while MMU translation is
-disabled, following Oops happens in kprobe_handler() in the following
-code:
+The previous commit reduced the amount of code that is run before we
+setup a paca. However there are still a few remaining functions that
+run with no paca, or worse, with an arbitrary value in r13 that will
+be used as a paca pointer.
 
-	} else if (*addr != BREAKPOINT_INSTRUCTION) {
+In particular the stack protector canary is stored in the paca, so if
+stack protector is activated for any of these functions we will read
+the stack canary from wherever r13 points. If r13 happens to point
+outside of memory we will get a machine check / checkstop.
 
-  BUG: Unable to handle kernel data access on read at 0x0000e268
-  Faulting instruction address: 0xc000ec34
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  BE PAGE_SIZE=16K PREEMPT CMPC885
-  Modules linked in:
-  CPU: 0 PID: 429 Comm: cat Not tainted 5.6.0-rc1-s3k-dev-00824-g84195dc6c58a #3267
-  NIP:  c000ec34 LR: c000ecd8 CTR: c019cab8
-  REGS: ca4d3b58 TRAP: 0300   Not tainted  (5.6.0-rc1-s3k-dev-00824-g84195dc6c58a)
-  MSR:  00001032 <ME,IR,DR,RI>  CR: 2a4d3c52  XER: 00000000
-  DAR: 0000e268 DSISR: c0000000
-  GPR00: c000b09c ca4d3c10 c66d0620 00000000 ca4d3c60 00000000 00009032 00000000
-  GPR08: 00020000 00000000 c087de44 c000afe0 c66d0ad0 100d3dd6 fffffff3 00000000
-  GPR16: 00000000 00000041 00000000 ca4d3d70 00000000 00000000 0000416d 00000000
-  GPR24: 00000004 c53b6128 00000000 0000e268 00000000 c07c0000 c07bb6fc ca4d3c60
-  NIP [c000ec34] kprobe_handler+0x128/0x290
-  LR [c000ecd8] kprobe_handler+0x1cc/0x290
-  Call Trace:
-  [ca4d3c30] [c000b09c] program_check_exception+0xbc/0x6fc
-  [ca4d3c50] [c000e43c] ret_from_except_full+0x0/0x4
-  --- interrupt: 700 at 0xe268
-  Instruction dump:
-  913e0008 81220000 38600001 3929ffff 91220000 80010024 bb410008 7c0803a6
-  38210020 4e800020 38600000 4e800020 <813b0000> 6d2a7fe0 2f8a0008 419e0154
-  ---[ end trace 5b9152d4cdadd06d ]---
+For example if we modify initialise_paca() to trigger stack
+protection, and then boot in the mambo simulator with r13 poisoned in
+skiboot before calling the kernel:
 
-kprobe is not prepared to handle events in real mode and functions
-running in real mode should have been blacklisted, so kprobe_handler()
-can safely bail out telling 'this trap is not mine' for any trap that
-happened while in real-mode.
+  DEBUG: 19952232: (19952232): INSTRUCTION: PC=0xC0000000191FC1E8: [0x3C4C006D]: addis   r2,r12,0x6D [fetch]
+  DEBUG: 19952236: (19952236): INSTRUCTION: PC=0xC00000001807EAD8: [0x7D8802A6]: mflr    r12 [fetch]
+  FATAL ERROR: 19952276: (19952276): Check Stop for 0:0: Machine Check with ME bit of MSR off
+  DEBUG: 19952276: (19952276): INSTRUCTION: PC=0xC0000000191FCA7C: [0xE90D0CF8]: ld      r8,0xCF8(r13) [Instruction Failed]
+  INFO: 19952276: (19952277): ** Execution stopped: Mambo Error, Machine Check Stop,  **
+  systemsim % bt
+  pc:                             0xC0000000191FCA7C      initialise_paca+0x54
+  lr:                             0xC0000000191FC22C      early_setup+0x44
+  stack:0x00000000198CBED0        0x0     +0x0
+  stack:0x00000000198CBF00        0xC0000000191FC22C      early_setup+0x44
+  stack:0x00000000198CBF90        0x1801C968      +0x1801C968
 
-If the trap happened with MSR_IR or MSR_DR cleared, return 0
-immediately.
+So annotate the relevant functions to ensure stack protection is never
+enabled for them.
 
-Reported-by: Larry Finger <Larry.Finger@lwfinger.net>
-Fixes: 6cc89bad60a6 ("powerpc/kprobes: Invoke handlers directly")
-Cc: stable@vger.kernel.org # v4.10+
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Fixes: 06ec27aea9fc ("powerpc/64: add stack protector support")
+Cc: stable@vger.kernel.org # v4.20+
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/424331e2006e7291a1bfe40e7f3fa58825f565e1.1582054578.git.christophe.leroy@c-s.fr
+Link: https://lore.kernel.org/r/20200320032116.1024773-2-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/kprobes.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/kernel/paca.c     |    4 ++--
+ arch/powerpc/kernel/setup.h    |    6 ++++++
+ arch/powerpc/kernel/setup_64.c |    2 +-
+ 3 files changed, 9 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/kernel/kprobes.c
-+++ b/arch/powerpc/kernel/kprobes.c
-@@ -264,6 +264,9 @@ int kprobe_handler(struct pt_regs *regs)
- 	if (user_mode(regs))
- 		return 0;
+--- a/arch/powerpc/kernel/paca.c
++++ b/arch/powerpc/kernel/paca.c
+@@ -176,7 +176,7 @@ static struct slb_shadow * __init new_sl
+ struct paca_struct **paca_ptrs __read_mostly;
+ EXPORT_SYMBOL(paca_ptrs);
  
-+	if (!(regs->msr & MSR_IR) || !(regs->msr & MSR_DR))
-+		return 0;
+-void __init initialise_paca(struct paca_struct *new_paca, int cpu)
++void __init __nostackprotector initialise_paca(struct paca_struct *new_paca, int cpu)
+ {
+ #ifdef CONFIG_PPC_PSERIES
+ 	new_paca->lppaca_ptr = NULL;
+@@ -205,7 +205,7 @@ void __init initialise_paca(struct paca_
+ }
+ 
+ /* Put the paca pointer into r13 and SPRG_PACA */
+-void setup_paca(struct paca_struct *new_paca)
++void __nostackprotector setup_paca(struct paca_struct *new_paca)
+ {
+ 	/* Setup r13 */
+ 	local_paca = new_paca;
+--- a/arch/powerpc/kernel/setup.h
++++ b/arch/powerpc/kernel/setup.h
+@@ -8,6 +8,12 @@
+ #ifndef __ARCH_POWERPC_KERNEL_SETUP_H
+ #define __ARCH_POWERPC_KERNEL_SETUP_H
+ 
++#ifdef CONFIG_CC_IS_CLANG
++#define __nostackprotector
++#else
++#define __nostackprotector __attribute__((__optimize__("no-stack-protector")))
++#endif
 +
- 	/*
- 	 * We don't want to be preempted for the entire
- 	 * duration of kprobe processing
+ void initialize_cache_info(void);
+ void irqstack_early_init(void);
+ 
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -279,7 +279,7 @@ void __init record_spr_defaults(void)
+  * device-tree is not accessible via normal means at this point.
+  */
+ 
+-void __init early_setup(unsigned long dt_ptr)
++void __init __nostackprotector early_setup(unsigned long dt_ptr)
+ {
+ 	static __initdata struct paca_struct boot_paca;
+ 
 
 
