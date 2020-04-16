@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F48B1AC8EC
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 296D21AC8E5
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395070AbgDPPQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:16:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35838 "EHLO mail.kernel.org"
+        id S2395035AbgDPPQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:16:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441377AbgDPNuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2441622AbgDPNuC (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Apr 2020 09:50:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF763217D8;
-        Thu, 16 Apr 2020 13:49:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4809721927;
+        Thu, 16 Apr 2020 13:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044970;
-        bh=TFXnfxHugoSP3Q7WZCuT3ZsZo+7q/qP8JgVFHiV9l8U=;
+        s=default; t=1587044972;
+        bh=shd0LP0Bg8wGz6s3YwEhALAbANLNDLZwnav84oEtfjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMQqW2YOeM58uqXzkbAPVP9xYwJE+5x9cu3slGF5Ld4k2UtkU9h5qB5etMnXEYhUV
-         3vZCnHtaidqNkaiDAseKrTbYA8ctsYSNHU9/25pi5TUY/NNaFbQiiQrm2SpNfD6Xmd
-         l4ZsmFLH2rXzuOtn95UJnw+/TRyDAvOehwrmBHyw=
+        b=P1fUF88whAGy5wp6zMpfCTe5D6FcZovIUws5LM1ZmwusnBVVedGX2ZKohZK4R2N+o
+         Eoy5kuWZdpjfxhKXmUOfRJbTTwS16UueuKjmkmSEykdhABxqrMnFP8qUVREHSaS6di
+         VTgnUfbUQ+RWKCdSQ8ouUuL1H/jipOwxnRtqiWAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Frieder Schrempf <frieder.schrempf@kontron.de>,
         Boris Brezillon <boris.brezillon@collabora.com>,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 135/232] mtd: spinand: Stop using spinand->oobbuf for buffering bad block markers
-Date:   Thu, 16 Apr 2020 15:23:49 +0200
-Message-Id: <20200416131331.864786637@linuxfoundation.org>
+Subject: [PATCH 5.4 136/232] mtd: spinand: Do not erase the block before writing a bad block marker
+Date:   Thu, 16 Apr 2020 15:23:50 +0200
+Message-Id: <20200416131331.970575378@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
 In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
 References: <20200416131316.640996080@linuxfoundation.org>
@@ -47,81 +47,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-commit 2148937501ee3d663e0010e519a553fea67ad103 upstream.
+commit b645ad39d56846618704e463b24bb994c9585c7f upstream.
 
-For reading and writing the bad block markers, spinand->oobbuf is
-currently used as a buffer for the marker bytes. During the
-underlying read and write operations to actually get/set the content
-of the OOB area, the content of spinand->oobbuf is reused and changed
-by accessing it through spinand->oobbuf and/or spinand->databuf.
+Currently when marking a block, we use spinand_erase_op() to erase
+the block before writing the marker to the OOB area. Doing so without
+waiting for the operation to finish can lead to the marking failing
+silently and no bad block marker being written to the flash.
 
-This is a flaw in the original design of the SPI NAND core and at the
-latest from 13c15e07eedf ("mtd: spinand: Handle the case where
-PROGRAM LOAD does not reset the cache") on, it results in not having
-the bad block marker written at all, as the spinand->oobbuf is
-cleared to 0xff after setting the marker bytes to zero.
-
-To fix it, we now just store the two bytes for the marker on the
-stack and let the read/write operations copy it from/to the page
-buffer later.
+In fact we don't need to do an erase at all before writing the BBM.
+The ECC is disabled for raw accesses to the OOB data and we don't
+need to work around any issues with chips reporting ECC errors as it
+is known to be the case for raw NAND.
 
 Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
 Cc: stable@vger.kernel.org
 Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
 Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200218100432.32433-2-frieder.schrempf@kontron.de
+Link: https://lore.kernel.org/linux-mtd/20200218100432.32433-4-frieder.schrempf@kontron.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/spi/core.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/mtd/nand/spi/core.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
 --- a/drivers/mtd/nand/spi/core.c
 +++ b/drivers/mtd/nand/spi/core.c
-@@ -568,18 +568,18 @@ static int spinand_mtd_write(struct mtd_
- static bool spinand_isbad(struct nand_device *nand, const struct nand_pos *pos)
- {
- 	struct spinand_device *spinand = nand_to_spinand(nand);
-+	u8 marker[2] = { };
- 	struct nand_page_io_req req = {
- 		.pos = *pos,
--		.ooblen = 2,
-+		.ooblen = sizeof(marker),
- 		.ooboffs = 0,
--		.oobbuf.in = spinand->oobbuf,
-+		.oobbuf.in = marker,
- 		.mode = MTD_OPS_RAW,
- 	};
- 
--	memset(spinand->oobbuf, 0, 2);
- 	spinand_select_target(spinand, pos->target);
- 	spinand_read_page(spinand, &req, false);
--	if (spinand->oobbuf[0] != 0xff || spinand->oobbuf[1] != 0xff)
-+	if (marker[0] != 0xff || marker[1] != 0xff)
- 		return true;
- 
- 	return false;
-@@ -603,11 +603,12 @@ static int spinand_mtd_block_isbad(struc
- static int spinand_markbad(struct nand_device *nand, const struct nand_pos *pos)
- {
- 	struct spinand_device *spinand = nand_to_spinand(nand);
-+	u8 marker[2] = { };
- 	struct nand_page_io_req req = {
- 		.pos = *pos,
- 		.ooboffs = 0,
--		.ooblen = 2,
--		.oobbuf.out = spinand->oobbuf,
-+		.ooblen = sizeof(marker),
-+		.oobbuf.out = marker,
+@@ -612,7 +612,6 @@ static int spinand_markbad(struct nand_d
  	};
  	int ret;
  
-@@ -622,7 +623,6 @@ static int spinand_markbad(struct nand_d
+-	/* Erase block before marking it bad. */
+ 	ret = spinand_select_target(spinand, pos->target);
+ 	if (ret)
+ 		return ret;
+@@ -621,8 +620,6 @@ static int spinand_markbad(struct nand_d
+ 	if (ret)
+ 		return ret;
  
- 	spinand_erase_op(spinand, pos);
- 
--	memset(spinand->oobbuf, 0, 2);
+-	spinand_erase_op(spinand, pos);
+-
  	return spinand_write_page(spinand, &req);
  }
  
