@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36FD01AC807
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5AE1AC381
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440835AbgDPPC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:02:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40250 "EHLO mail.kernel.org"
+        id S2503287AbgDPNoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:44:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2894618AbgDPNxp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:53:45 -0400
+        id S2440088AbgDPNoG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:44:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E7DE2076D;
-        Thu, 16 Apr 2020 13:53:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE504214D8;
+        Thu, 16 Apr 2020 13:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045224;
-        bh=Ikc0AYvLKTZZv4VYpqWl7cUBvSOW5ZMNjoOQKDLh2aA=;
+        s=default; t=1587044646;
+        bh=r3EaPMwV0p6JcapleCkt9G0+Er8yoqBCX2k8wvPVHwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AX5tC+R9nyvfjeV8Q2D3Nz2cnDw74k2NQ6/e+HvmyiegNYyd5FES3QHoLz3oqjv5u
-         i99BC8KgV+THI8gPJmwtxf7e4adSleLXvH7xrf6QrsCJOHIV0D+9fPq7GUGJYPbDW1
-         MWxsgZHZGW4xvcdVve8Gfhc7ie4A4s+6smzIWlQw=
+        b=fLmEJ3ZMJZTJ7KnYIk7sQT9plDwMKsrPiigXSshXJJs/ZGTyKBMBC5F0ajiCVedlp
+         bb8oQ8QFtCIVBexyGwIcea3R/io0mSInJvR4XCzxWwRcDOVDz1EAYBMmJcOkJWGdTi
+         GcZd6qYDRHnVfp3K0nz+ssQlwDMu/Kzhu+xwx6Q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 046/254] cpufreq: imx6q: fix error handling
-Date:   Thu, 16 Apr 2020 15:22:15 +0200
-Message-Id: <20200416131331.659823791@linuxfoundation.org>
+Subject: [PATCH 5.4 042/232] media: allegro: fix type of gop_length in channel_create message
+Date:   Thu, 16 Apr 2020 15:22:16 +0200
+Message-Id: <20200416131321.107990644@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Michael Tretter <m.tretter@pengutronix.de>
 
-[ Upstream commit 3646f50a3838c5949a89ecbdb868497cdc05b8fd ]
+[ Upstream commit 8277815349327b8e65226eb58ddb680f90c2c0c0 ]
 
-When speed checking failed, direclty jumping to put_node label
-is not correct. Need jump to out_free_opp to avoid resources leak.
+The gop_length field is actually only u16 and there are two more u8
+fields in the message:
 
-Fixes: 2733fb0d0699 ("cpufreq: imx6q: read OCOTP through nvmem for imx6ul/imx6ull")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+- the number of consecutive b-frames
+- frequency of golden frames
+
+Fix the message and thus fix the configuration of the GOP length.
+
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/imx6q-cpufreq.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/staging/media/allegro-dvt/allegro-core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/imx6q-cpufreq.c b/drivers/cpufreq/imx6q-cpufreq.c
-index 1fcbbd53a48a2..edef3399c9794 100644
---- a/drivers/cpufreq/imx6q-cpufreq.c
-+++ b/drivers/cpufreq/imx6q-cpufreq.c
-@@ -381,23 +381,24 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
- 		goto put_reg;
- 	}
- 
-+	/* Because we have added the OPPs here, we must free them */
-+	free_opp = true;
+diff --git a/drivers/staging/media/allegro-dvt/allegro-core.c b/drivers/staging/media/allegro-dvt/allegro-core.c
+index 6f0cd07847863..c5a262a12e401 100644
+--- a/drivers/staging/media/allegro-dvt/allegro-core.c
++++ b/drivers/staging/media/allegro-dvt/allegro-core.c
+@@ -393,7 +393,10 @@ struct mcu_msg_create_channel {
+ 	u32 freq_ird;
+ 	u32 freq_lt;
+ 	u32 gdr_mode;
+-	u32 gop_length;
++	u16 gop_length;
++	u8 num_b;
++	u8 freq_golden_ref;
 +
- 	if (of_machine_is_compatible("fsl,imx6ul") ||
- 	    of_machine_is_compatible("fsl,imx6ull")) {
- 		ret = imx6ul_opp_check_speed_grading(cpu_dev);
- 		if (ret) {
- 			if (ret == -EPROBE_DEFER)
--				goto put_node;
-+				goto out_free_opp;
+ 	u32 unknown39;
  
- 			dev_err(cpu_dev, "failed to read ocotp: %d\n",
- 				ret);
--			goto put_node;
-+			goto out_free_opp;
- 		}
- 	} else {
- 		imx6q_opp_check_speed_grading(cpu_dev);
- 	}
- 
--	/* Because we have added the OPPs here, we must free them */
--	free_opp = true;
- 	num = dev_pm_opp_get_opp_count(cpu_dev);
- 	if (num < 0) {
- 		ret = num;
+ 	u32 subframe_latency;
 -- 
 2.20.1
 
