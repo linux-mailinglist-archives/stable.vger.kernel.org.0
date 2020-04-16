@@ -2,161 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF0D1AB6E9
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 06:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FE291AB736
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 07:27:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391955AbgDPEiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 00:38:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57808 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390974AbgDPEiU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 00:38:20 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55ED7C061A0C
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 21:38:20 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id 7so592198pjo.0
-        for <stable@vger.kernel.org>; Wed, 15 Apr 2020 21:38:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=qJ44lMhEgFgR3b+cSDJa3Zv7+9sgojULpTQl6osYjy0=;
-        b=NgneGvup1T7a6PRrssZKIjzDN0Z3ZjYzk8bsPYLAOKVDknHAx6WJF+8v4iuVvy2Ao2
-         s0LNseYyMSEaMNkhpKFMGSMvPXYq30eZoLe2ueMteTiJeymvMSrOWmvAipzE2BDTEHV+
-         fgXiWXy/HYYDFNJyModhx14WWijeDL1OkP+uUkHWEpm6moswTwLzs6ZP2+TMVs0dNDwW
-         HME+44NYB28QVpDkDqazkBGpU6l/x6s86NAr061tmmqVGrRilFMY4AEvoZdf/Yx3uJwS
-         6i3IMQxY8j7i3EKt3Z6OxmrNqWD1G77DKqsCf/qPSBUNYc44GyZ84VsgSo1PJjSrZ2B4
-         utzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=qJ44lMhEgFgR3b+cSDJa3Zv7+9sgojULpTQl6osYjy0=;
-        b=TP3pat3iTwsDfSjcJkRD0Go3H7Htqip6v7L4Xd+P03YhT9ZK5oJ/kxkCWInfnB54ud
-         u2kMQWrFY8FcIOpFx2jsJYHPUn88B7RWVihZSqEQLG6grPLHgN9VWr34DlXUfcO8Ssz9
-         KfX8jo2DjnG2AMaZxf+oW2fRsbLxxqiB5J0K1+sSEJxuyXWTAAOyyqFa0t5yCgOWVymd
-         NjpdQe6dC8G8hwUgue5SZ74zaT9ejHvjjTQ6Fd3eNw69pB7yFqKu0+fFCsEOn2DXeIEF
-         /pa6/PgQStCFzavE8nVKaxDmuC+iUB053TPEfQM+bZNAFQ4RkLvH530S5OIxZYvNHshL
-         NuwA==
-X-Gm-Message-State: AGi0PuY3Syrd0LTLHo9bAM/hPDoNC3Jf3u3Xr03wrv0JYA1bfDZhUEVg
-        KN1nNIpoCLZ/+c3+6ZXdKnc=
-X-Google-Smtp-Source: APiQypJ70+NEWDePq7XVfiuPpT4Sd1/3i4hTyOE92jcVPbIQKCBr3nZL005SbEmeCjWH6Xzf4nn1og==
-X-Received: by 2002:a17:90b:4d07:: with SMTP id mw7mr2907551pjb.94.1587011899500;
-        Wed, 15 Apr 2020 21:38:19 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 6sm14549327pgz.0.2020.04.15.21.38.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Apr 2020 21:38:18 -0700 (PDT)
-Subject: Re: Stable RC build failures (v4.19.y, v5.4.y, v5.5.y)
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <20200415183655.GA66707@roeck-us.net>
- <20200416034133.GI1068@sasha-vm>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <8303033c-4961-7790-4ba6-bd70d492c5eb@roeck-us.net>
-Date:   Wed, 15 Apr 2020 21:38:17 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S2406348AbgDPFYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 01:24:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38214 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2405910AbgDPFYP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 01:24:15 -0400
+Received: from localhost (unknown [213.57.247.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D5112076A;
+        Thu, 16 Apr 2020 05:24:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1587014654;
+        bh=iYO4LVZRKcLz0cvngXK6EAjXq/lLii0IT+WjYuImhl4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nw2Vp3O46zcBOJ6nbaCuf3JHinSjwxhq2A4FrpiBTquv3BGedjS0FkgU39aG/1MrB
+         lC+alBCqK+HDBCYEwl5rlMEmL2/7WGdcLZPy7MXwKv+5VxJHCrAJhcZrp9symhGvjo
+         y8oqLjv/KW3vdcdcS3hD2pCw0zs7DZQ552oAqBpg=
+Date:   Thu, 16 Apr 2020 08:24:09 +0300
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Saeed Mahameed <saeedm@mellanox.com>
+Cc:     "sashal@kernel.org" <sashal@kernel.org>,
+        "ecree@solarflare.com" <ecree@solarflare.com>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "kuba@kernel.org" <kuba@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "gerlitz.or@gmail.com" <gerlitz.or@gmail.com>,
+        "davem@davemloft.net" <davem@davemloft.net>
+Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
+ representors
+Message-ID: <20200416052409.GC1309273@unreal>
+References: <20200412105935.49dacbf7@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <20200414015627.GA1068@sasha-vm>
+ <CAJ3xEMh=PGVSddBWOX7U6uAuazJLFkCpWQNxhg7dDRgnSdQ=xA@mail.gmail.com>
+ <20200414110911.GA341846@kroah.com>
+ <CAJ3xEMhnXZB-HU7aL3m9A1N_GPxgOC3U4skF_qWL8z3wnvSKPw@mail.gmail.com>
+ <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
+ <20200414205755.GF1068@sasha-vm>
+ <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
+ <20200416000009.GL1068@sasha-vm>
+ <434329130384e656f712173558f6be88c4c57107.camel@mellanox.com>
 MIME-Version: 1.0
-In-Reply-To: <20200416034133.GI1068@sasha-vm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <434329130384e656f712173558f6be88c4c57107.camel@mellanox.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/15/20 8:41 PM, Sasha Levin wrote:
-> On Wed, Apr 15, 2020 at 11:36:55AM -0700, Guenter Roeck wrote:
->> Hi,
->>
->> The folloewing build failures currently observed with stable release
->> candidates.
->>
->> Thanks,
->> Guenter
->>
->> ---
->> v4.19.y:
->>
->> drivers/gpu/drm/etnaviv/etnaviv_perfmon.c:392:14: error: 'chipFeatures_PIPE_3D' undeclared here
->> drivers/gpu/drm/etnaviv/etnaviv_perfmon.c:397:14: error: 'chipFeatures_PIPE_2D'
->> drivers/gpu/drm/etnaviv/etnaviv_perfmon.c:402:14: error: 'chipFeatures_PIPE_VG' undeclared here
->>
->> Culprit is 'drm/etnaviv: rework perfmon query infrastructure'. Applying
->> commit 15ff4a7b5841 ("etnaviv: perfmon: fix total and idle HI cyleces
->> readout") as well fixes the problem.
-> 
-> Done.
-> 
->> v5.4.y, v5.5.y:
->>
->> drivers/mmc/host/sdhci-tegra.c: In function 'tegra_sdhci_set_timeout':
->> drivers/mmc/host/sdhci-tegra.c:1256:2: error:
->>     implicit declaration of function '__sdhci_set_timeout'
->>
->> Culprit is "sdhci: tegra: Implement Tegra specific set_timeout callback".
->> __sdhci_set_timeout() was introduced with commit 7d76ed77cfbd3 ("mmc:
->> sdhci: Refactor sdhci_set_timeout()"). Unfortunately, applying that patch
->> results in a conflict.
-> 
-> But that patch can be resolved by grabbing 7907ebe741a7 ("mmc: sdhci:
-> Convert sdhci_set_timeout_irq() to non-static") which just makes
-> __sdhci_set_timeout() non-static.
-> 
+On Thu, Apr 16, 2020 at 04:08:10AM +0000, Saeed Mahameed wrote:
+> On Wed, 2020-04-15 at 20:00 -0400, Sasha Levin wrote:
+> > On Wed, Apr 15, 2020 at 05:18:38PM +0100, Edward Cree wrote:
+> > > Firstly, let me apologise: my previous email was too harsh and too
+> > >  assertiveabout things that were really more uncertain and unclear.
+> > >
+> > > On 14/04/2020 21:57, Sasha Levin wrote:
+> > > > I've pointed out that almost 50% of commits tagged for stable do
+> > > > not
+> > > > have a fixes tag, and yet they are fixes. You really deduce
+> > > > things based
+> > > > on coin flip probability?
+> > > Yes, but far less than 50% of commits *not* tagged for stable have
+> > > a fixes
+> > >  tag.  It's not about hard-and-fast Aristotelian "deductions", like
+> > > "this
+> > >  doesn't have Fixes:, therefore it is not a stable candidate", it's
+> > > about
+> > >  probabilistic "induction".
+> > >
+> > > > "it does increase the amount of countervailing evidence needed to
+> > > > conclude a commit is a fix" - Please explain this argument given
+> > > > the
+> > > > above.
+> > > Are you familiar with Bayesian statistics?  If not, I'd suggest
+> > > reading
+> > >  something like http://yudkowsky.net/rational/bayes/ which explains
+> > > it.
+> > > There's a big difference between a coin flip and a _correlated_
+> > > coin flip.
+> >
+> > I'd maybe point out that the selection process is based on a neural
+> > network which knows about the existence of a Fixes tag in a commit.
+> >
+> > It does exactly what you're describing, but also taking a bunch more
+> > factors into it's desicion process ("panic"? "oops"? "overflow"?
+> > etc).
+> >
+>
+> I am not against AUTOSEL in general, as long as the decision to know
+> how far back it is allowed to take a patch is made deterministically
+> and not statistically based on some AI hunch.
+>
+> Any auto selection for a patch without a Fixes tags can be catastrophic
+> .. imagine a patch without a Fixes Tag with a single line that is
+> fixing some "oops", such patch can be easily applied cleanly to stable-
+> v.x and stable-v.y .. while it fixes the issue on v.x it might have
+> catastrophic results on v.y ..
 
-7907ebe741a7 doesn't apply to v5.4.y / v5.5.y either (because
-sdhci_switch_external_dma is missing). If you resolve that conflict,
-you might as well resolve the conflict when applying 7d76ed77cfbd3
-instead. After all, 7907ebe741a7 isn't really needed, at least
-as far as I can see.
+I tried to imagine such flow and failed to do so. Are you talking about
+anything specific or imaginary case?
 
-Thanks,
-Guenter
+<...>
+> >
+> > Let me put my Microsoft employee hat on here. We have
+> > driver/net/hyperv/
+> > which definitely wasn't getting all the fixes it should have been
+> > getting without AUTOSEL.
+> >
+>
+> until some patch which shouldn't get backported slips through, believe
+> me this will happen, just give it some time ..
+
+Bugs are inevitable, I don't see many differences between bugs
+introduced by manually cherry-picking or automatically one.
+
+Of course, it is true if this automatically cherry-picking works as
+expected and evolving.
+
+>
+> > While net/ is doing great, drivers/net/ is not. If it's indeed
+> > following
+> > the same rules then we need to talk about how we get done right.
+> >
+>
+> both net and drivers/net are managed by the same maitainer and follow
+> the same rules, can you elaborate on the difference ?
+
+The main reason is a difference in a volume between net and drivers/net.
+While net/* patches are watched by many eyes and carefully selected to be
+ported to stable@, most of the drivers/net patches are not.
+
+Except 3-5 the most active drivers, rest of the driver patches almost never
+asked to be backported.
+
+Thanks
