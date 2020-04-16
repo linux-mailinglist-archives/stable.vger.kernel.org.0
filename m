@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE4AD1AC283
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:29:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD5531AC32A
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896007AbgDPN3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:29:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39002 "EHLO mail.kernel.org"
+        id S2896303AbgDPNjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:39:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2895984AbgDPN3R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:29:17 -0400
+        id S2897786AbgDPNi6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:38:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EAE2208E4;
-        Thu, 16 Apr 2020 13:29:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED85B22202;
+        Thu, 16 Apr 2020 13:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043756;
-        bh=uc2WFeTP9ZQp7zqVBrzjhUU/CrvVJFCPtT01ZokVjto=;
+        s=default; t=1587044338;
+        bh=qeJIGrrKdtjjhYFAXGoPTkTclmMEdQSo7v/P9jFqUMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1oCpLhK5Y0izZd47mEl1RGrgrxTeL7m8BgmqFwhfLbZmnV2ENBDlkw/lzb3ckKQh
-         ZuNF6ftdI5hQEYhjD0p2Wji+pNZKLwA6Qj0IbCgN9nEbOzvpyw9q1fU6irndXQbOjA
-         Mz2uIoHgoFaUgnyE0HJPehLKflu2uRZuiA/iqI5M=
+        b=b24VPXW/zjC+7uKUOYHXoe5syDFUrsEB5rfCFSJdhRwZrynOHNPN+MD0dlnUFpoX1
+         CWPQp78H0aV6sTiPNCrUQ5oXoNrAalo2jYMSLtTAOWdvcZSxezO19AZzH2PZUPVfll
+         2F7hYDAK8FOgC/jr7iNmSrWEW4UJEIcniyfeeObk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.19 088/146] mtd: spinand: Do not erase the block before writing a bad block marker
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.5 178/257] arm64: dts: allwinner: h5: Fix PMU compatible
 Date:   Thu, 16 Apr 2020 15:23:49 +0200
-Message-Id: <20200416131254.819451714@linuxfoundation.org>
+Message-Id: <20200416131348.603331667@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit b645ad39d56846618704e463b24bb994c9585c7f upstream.
+commit 4ae7a3c3d7d31260f690d8d658f0365f3eca67a2 upstream.
 
-Currently when marking a block, we use spinand_erase_op() to erase
-the block before writing the marker to the OOB area. Doing so without
-waiting for the operation to finish can lead to the marking failing
-silently and no bad block marker being written to the flash.
+The commit c35a516a4618 ("arm64: dts: allwinner: H5: Add PMU node")
+introduced support for the PMU found on the Allwinner H5. However, the
+binding only allows for a single compatible, while the patch was adding
+two.
 
-In fact we don't need to do an erase at all before writing the BBM.
-The ECC is disabled for raw accesses to the OOB data and we don't
-need to work around any issues with chips reporting ECC errors as it
-is known to be the case for raw NAND.
+Make sure we follow the binding.
 
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200218100432.32433-4-frieder.schrempf@kontron.de
+Fixes: c35a516a4618 ("arm64: dts: allwinner: H5: Add PMU node")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/spi/core.c |    3 ---
- 1 file changed, 3 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -673,7 +673,6 @@ static int spinand_markbad(struct nand_d
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
+@@ -77,8 +77,7 @@
  	};
- 	int ret;
  
--	/* Erase block before marking it bad. */
- 	ret = spinand_select_target(spinand, pos->target);
- 	if (ret)
- 		return ret;
-@@ -682,8 +681,6 @@ static int spinand_markbad(struct nand_d
- 	if (ret)
- 		return ret;
- 
--	spinand_erase_op(spinand, pos);
--
- 	return spinand_write_page(spinand, &req);
- }
- 
+ 	pmu {
+-		compatible = "arm,cortex-a53-pmu",
+-			     "arm,armv8-pmuv3";
++		compatible = "arm,cortex-a53-pmu";
+ 		interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 118 IRQ_TYPE_LEVEL_HIGH>,
 
 
