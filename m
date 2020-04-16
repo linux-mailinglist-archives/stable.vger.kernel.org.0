@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B05EA1AC318
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AA3C1ACC48
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897572AbgDPNhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:37:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50116 "EHLO mail.kernel.org"
+        id S2895354AbgDPN2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:28:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897531AbgDPNhq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:37:46 -0400
+        id S2895662AbgDPN2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:28:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2EF322202;
-        Thu, 16 Apr 2020 13:37:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99C1221BE5;
+        Thu, 16 Apr 2020 13:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044264;
-        bh=R8wM+RdBEmGGBgeRokphm76zWrNCKuGo6rJ2KLrBV2M=;
+        s=default; t=1587043681;
+        bh=ZoXdcEmcQ1RwgthyQjDT9hIpwmYyb5aoD+aUunKYaxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kyyu1vVCaZqs5g8Prb2EkhxQP85UzsmioM1Om2Orj6zimvPiSqSkstYFasRZ9r5xQ
-         BKLBA6wWHG2DbxsHShFK4bXcuTcjWo0tkrfz6yHKBGdbmpNWDTEAtcicbaylr6IEYU
-         uhGSafbMbkdpA8/+WFABSJ5tb9Ji43D3xUNQFWw4=
+        b=K0kTEB9kXdLAWBIxcJ3AX3GzP0HMYZ0oDRGon+rLDdXFXkTzaqMQpVs/4XlRRKK3H
+         ZvXr3KnV3B+beIjlA9BzeFQ3cuYzNdkpvOLnthni6bV2RvrZvIk+um97S6Ibv4Sgck
+         WDE0Er43Tk3SsHZTJ7cCq+lrwByc9oN/a73LRBJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.5 146/257] KVM: x86: Allocate new rmap and large page tracking when moving memslot
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 056/146] ALSA: hda/realtek - Set principled PC Beep configuration for ALC256
 Date:   Thu, 16 Apr 2020 15:23:17 +0200
-Message-Id: <20200416131344.706861909@linuxfoundation.org>
+Message-Id: <20200416131250.559681370@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,102 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-commit edd4fa37baa6ee8e44dc65523b27bd6fe44c94de upstream.
+commit c44737449468a0bdc50e09ec75e530f208391561 upstream.
 
-Reallocate a rmap array and recalcuate large page compatibility when
-moving an existing memslot to correctly handle the alignment properties
-of the new memslot.  The number of rmap entries required at each level
-is dependent on the alignment of the memslot's base gfn with respect to
-that level, e.g. moving a large-page aligned memslot so that it becomes
-unaligned will increase the number of rmap entries needed at the now
-unaligned level.
+The Realtek PC Beep Hidden Register[1] is currently set by
+patch_realtek.c in two different places:
 
-Not updating the rmap array is the most obvious bug, as KVM accesses
-garbage data beyond the end of the rmap.  KVM interprets the bad data as
-pointers, leading to non-canonical #GPs, unexpected #PFs, etc...
+In alc_fill_eapd_coef(), it's set to the value 0x5757, corresponding to
+non-beep input on 1Ah and no 1Ah loopback to either headphones or
+speakers. (Although, curiously, the loopback amp is still enabled.) This
+write was added fairly recently by commit e3743f431143 ("ALSA:
+hda/realtek - Dell headphone has noise on unmute for ALC236") and is a
+safe default. However, it happens in the wrong place:
+alc_fill_eapd_coef() runs on module load and cold boot but not on S3
+resume, meaning the register loses its value after suspend.
 
-  general protection fault: 0000 [#1] SMP
-  CPU: 0 PID: 1909 Comm: move_memory_reg Not tainted 5.4.0-rc7+ #139
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:rmap_get_first+0x37/0x50 [kvm]
-  Code: <48> 8b 3b 48 85 ff 74 ec e8 6c f4 ff ff 85 c0 74 e3 48 89 d8 5b c3
-  RSP: 0018:ffffc9000021bbc8 EFLAGS: 00010246
-  RAX: ffff00617461642e RBX: ffff00617461642e RCX: 0000000000000012
-  RDX: ffff88827400f568 RSI: ffffc9000021bbe0 RDI: ffff88827400f570
-  RBP: 0010000000000000 R08: ffffc9000021bd00 R09: ffffc9000021bda8
-  R10: ffffc9000021bc48 R11: 0000000000000000 R12: 0030000000000000
-  R13: 0000000000000000 R14: ffff88827427d700 R15: ffffc9000021bce8
-  FS:  00007f7eda014700(0000) GS:ffff888277a00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f7ed9216ff8 CR3: 0000000274391003 CR4: 0000000000162eb0
-  Call Trace:
-   kvm_mmu_slot_set_dirty+0xa1/0x150 [kvm]
-   __kvm_set_memory_region.part.64+0x559/0x960 [kvm]
-   kvm_set_memory_region+0x45/0x60 [kvm]
-   kvm_vm_ioctl+0x30f/0x920 [kvm]
-   do_vfs_ioctl+0xa1/0x620
-   ksys_ioctl+0x66/0x70
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x4c/0x170
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f7ed9911f47
-  Code: <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 21 6f 2c 00 f7 d8 64 89 01 48
-  RSP: 002b:00007ffc00937498 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-  RAX: ffffffffffffffda RBX: 0000000001ab0010 RCX: 00007f7ed9911f47
-  RDX: 0000000001ab1350 RSI: 000000004020ae46 RDI: 0000000000000004
-  RBP: 000000000000000a R08: 0000000000000000 R09: 00007f7ed9214700
-  R10: 00007f7ed92149d0 R11: 0000000000000246 R12: 00000000bffff000
-  R13: 0000000000000003 R14: 00007f7ed9215000 R15: 0000000000000000
-  Modules linked in: kvm_intel kvm irqbypass
-  ---[ end trace 0c5f570b3358ca89 ]---
+Conversely, in alc256_init(), the register is updated to unset bit 13
+(disable speaker loopback) and set bit 5 (set non-beep input on 1Ah).
+Although this write does run on S3 resume, it's not quite enough to fix
+up the register's default value of 0x3717. What's missing is a set of
+bit 14 to disable headphone loopback. Without that, we end up with a
+feedback loop where the headphone jack is being driven by amplified
+samples of itself[2].
 
-The disallow_lpage tracking is more subtle.  Failure to update results
-in KVM creating large pages when it shouldn't, either due to stale data
-or again due to indexing beyond the end of the metadata arrays, which
-can lead to memory corruption and/or leaking data to guest/userspace.
+This change eliminates the update in alc256_init() and replaces it with
+the 0x5757 write from alc_fill_eapd_coef(). Kailang says that 0x5757 is
+supposed to be the codec's default value, so using it will make
+debugging easier for Realtek.
 
-Note, the arrays for the old memslot are freed by the unconditional call
-to kvm_free_memslot() in __kvm_set_memory_region().
+Affects the ALC255, ALC256, ALC257, ALC235, and ALC236 codecs.
 
-Fixes: 05da45583de9b ("KVM: MMU: large page support")
+[1] Newly documented in Documentation/sound/hd-audio/realtek-pc-beep.rst
+
+[2] Setting the "Headphone Mic Boost" control from userspace changes
+this feedback loop and has been a widely-shared workaround for headphone
+noise on laptops like the Dell XPS 13 9350. This commit eliminates the
+feedback loop and makes the workaround unnecessary.
+
+Fixes: e1e8c1fdce8b ("ALSA: hda/realtek - Dell headphone has noise on unmute for ALC236")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Link: https://lore.kernel.org/r/bf22b417d1f2474b12011c2a39ed6cf8b06d3bf5.1585584498.git.tommyhebb@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/pci/hda/patch_realtek.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9768,6 +9768,13 @@ int kvm_arch_create_memslot(struct kvm *
- {
- 	int i;
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -379,7 +379,9 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0215:
+ 	case 0x10ec0233:
+ 	case 0x10ec0235:
++	case 0x10ec0236:
+ 	case 0x10ec0255:
++	case 0x10ec0256:
+ 	case 0x10ec0257:
+ 	case 0x10ec0282:
+ 	case 0x10ec0283:
+@@ -391,11 +393,6 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0300:
+ 		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
+ 		break;
+-	case 0x10ec0236:
+-	case 0x10ec0256:
+-		alc_write_coef_idx(codec, 0x36, 0x5757);
+-		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
+-		break;
+ 	case 0x10ec0275:
+ 		alc_update_coef_idx(codec, 0xe, 0, 1<<0);
+ 		break;
+@@ -3249,7 +3246,13 @@ static void alc256_init(struct hda_codec
+ 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x4); /* Hight power */
+ 	alc_update_coefex_idx(codec, 0x53, 0x02, 0x8000, 1 << 15); /* Clear bit */
+ 	alc_update_coefex_idx(codec, 0x53, 0x02, 0x8000, 0 << 15);
+-	alc_update_coef_idx(codec, 0x36, 1 << 13, 1 << 5); /* Switch pcbeep path to Line in path*/
 +	/*
-+	 * Clear out the previous array pointers for the KVM_MR_MOVE case.  The
-+	 * old arrays will be freed by __kvm_set_memory_region() if installing
-+	 * the new memslot is successful.
++	 * Expose headphone mic (or possibly Line In on some machines) instead
++	 * of PC Beep on 1Ah, and disable 1Ah loopback for all outputs. See
++	 * Documentation/sound/hd-audio/realtek-pc-beep.rst for details of
++	 * this register.
 +	 */
-+	memset(&slot->arch, 0, sizeof(slot->arch));
-+
- 	for (i = 0; i < KVM_NR_PAGE_SIZES; ++i) {
- 		struct kvm_lpage_info *linfo;
- 		unsigned long ugfn;
-@@ -9849,6 +9856,10 @@ int kvm_arch_prepare_memory_region(struc
- 				const struct kvm_userspace_memory_region *mem,
- 				enum kvm_mr_change change)
- {
-+	if (change == KVM_MR_MOVE)
-+		return kvm_arch_create_memslot(kvm, memslot,
-+					       mem->memory_size >> PAGE_SHIFT);
-+
- 	return 0;
++	alc_write_coef_idx(codec, 0x36, 0x5757);
  }
  
+ static void alc256_shutup(struct hda_codec *codec)
 
 
