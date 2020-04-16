@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 838E31AC325
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA5A1AC8D2
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:15:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897769AbgDPNix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:38:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51192 "EHLO mail.kernel.org"
+        id S1725766AbgDPPPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:15:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897752AbgDPNiq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:38:46 -0400
+        id S2441652AbgDPNuH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F36221BE5;
-        Thu, 16 Apr 2020 13:38:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25B0522201;
+        Thu, 16 Apr 2020 13:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044326;
-        bh=ASMEch0h1JuR4P5sOL7px8K3jpr0UJzaccFnZCfO7/s=;
+        s=default; t=1587044982;
+        bh=XLlrJ7Sl/ocsAtxpxbVUjAfmoXQW82D8CalCtZQwmOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jI+WYXMcUEztdeoq+EvdFQHU5aTS/WkBhto5Td5e3SvBXgNpTYP1ADfs5pxeZmuyr
-         Fi8U9FT4rb8slr4ej7tWxElgtBKoShuY47g0WQphZZqrqwZ9glVOupFUDdGWuyTnwU
-         Lh73LXB9g5T69TJWMV/4Pghsdb7Hf5E4wraSb2C0=
+        b=vgyyR1IRXmcz/6NTqtYqYN1F2kQuwcwXx0H6REA8Le5DLv5fXM+DJyRkz7MnuCmgK
+         qZ4RiYTNW++XjrhvwQ+1lDJftPKn4zFgpi4u4yEckQOZ/ewshaGB+fEna2rqOp3qpp
+         XKkazzPYJxd/1fw2zYwrzAi5eWoje9URkNWtczbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangbo Lu <yangbo.lu@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.5 173/257] mmc: sdhci-of-esdhc: fix esdhc_reset() for different controller versions
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 130/232] KVM: x86: Gracefully handle __vmalloc() failure during VM allocation
 Date:   Thu, 16 Apr 2020 15:23:44 +0200
-Message-Id: <20200416131347.984912332@linuxfoundation.org>
+Message-Id: <20200416131331.303136933@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangbo Lu <yangbo.lu@nxp.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 2aa3d826adb578b26629a79b775a552cfe3fedf7 upstream.
+commit d18b2f43b9147c8005ae0844fb445d8cc6a87e31 upstream.
 
-This patch is to fix operating in esdhc_reset() for different
-controller versions, and to add bus-width restoring after data
-reset for eSDHC (verdor version <= 2.2).
+Check the result of __vmalloc() to avoid dereferencing a NULL pointer in
+the event that allocation failres.
 
-Also add annotation for understanding.
-
-Signed-off-by: Yangbo Lu <yangbo.lu@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20200108040713.38888-1-yangbo.lu@nxp.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: d1e5b0e98ea27 ("kvm: Make VM ioctl do valloc for some archs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-esdhc.c |   43 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 39 insertions(+), 4 deletions(-)
+ arch/x86/kvm/svm.c     |    4 ++++
+ arch/x86/kvm/vmx/vmx.c |    4 ++++
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -758,23 +758,58 @@ static void esdhc_reset(struct sdhci_hos
- {
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct sdhci_esdhc *esdhc = sdhci_pltfm_priv(pltfm_host);
--	u32 val;
-+	u32 val, bus_width = 0;
- 
-+	/*
-+	 * Add delay to make sure all the DMA transfers are finished
-+	 * for quirk.
-+	 */
- 	if (esdhc->quirk_delay_before_data_reset &&
- 	    (mask & SDHCI_RESET_DATA) &&
- 	    (host->flags & SDHCI_REQ_USE_DMA))
- 		mdelay(5);
- 
-+	/*
-+	 * Save bus-width for eSDHC whose vendor version is 2.2
-+	 * or lower for data reset.
-+	 */
-+	if ((mask & SDHCI_RESET_DATA) &&
-+	    (esdhc->vendor_ver <= VENDOR_V_22)) {
-+		val = sdhci_readl(host, ESDHC_PROCTL);
-+		bus_width = val & ESDHC_CTRL_BUSWIDTH_MASK;
-+	}
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1926,6 +1926,10 @@ static struct kvm *svm_vm_alloc(void)
+ 	struct kvm_svm *kvm_svm = __vmalloc(sizeof(struct kvm_svm),
+ 					    GFP_KERNEL_ACCOUNT | __GFP_ZERO,
+ 					    PAGE_KERNEL);
 +
- 	sdhci_reset(host, mask);
- 
--	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
--	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
-+	/*
-+	 * Restore bus-width setting and interrupt registers for eSDHC
-+	 * whose vendor version is 2.2 or lower for data reset.
-+	 */
-+	if ((mask & SDHCI_RESET_DATA) &&
-+	    (esdhc->vendor_ver <= VENDOR_V_22)) {
-+		val = sdhci_readl(host, ESDHC_PROCTL);
-+		val &= ~ESDHC_CTRL_BUSWIDTH_MASK;
-+		val |= bus_width;
-+		sdhci_writel(host, val, ESDHC_PROCTL);
++	if (!kvm_svm)
++		return NULL;
 +
-+		sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
-+		sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
-+	}
+ 	return &kvm_svm->kvm;
+ }
  
--	if (mask & SDHCI_RESET_ALL) {
-+	/*
-+	 * Some bits have to be cleaned manually for eSDHC whose spec
-+	 * version is higher than 3.0 for all reset.
-+	 */
-+	if ((mask & SDHCI_RESET_ALL) &&
-+	    (esdhc->spec_ver >= SDHCI_SPEC_300)) {
- 		val = sdhci_readl(host, ESDHC_TBCTL);
- 		val &= ~ESDHC_TB_EN;
- 		sdhci_writel(host, val, ESDHC_TBCTL);
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6654,6 +6654,10 @@ static struct kvm *vmx_vm_alloc(void)
+ 	struct kvm_vmx *kvm_vmx = __vmalloc(sizeof(struct kvm_vmx),
+ 					    GFP_KERNEL_ACCOUNT | __GFP_ZERO,
+ 					    PAGE_KERNEL);
++
++	if (!kvm_vmx)
++		return NULL;
++
+ 	return &kvm_vmx->kvm;
+ }
  
-+		/*
-+		 * Initialize eSDHC_DLLCFG1[DLL_PD_PULSE_STRETCH_SEL] to
-+		 * 0 for quirk.
-+		 */
- 		if (esdhc->quirk_unreliable_pulse_detection) {
- 			val = sdhci_readl(host, ESDHC_DLLCFG1);
- 			val &= ~ESDHC_DLL_PD_PULSE_STRETCH_SEL;
 
 
