@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C65F1AC327
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 490061AC8E1
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897785AbgDPNi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:38:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51376 "EHLO mail.kernel.org"
+        id S2408635AbgDPPPY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:15:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897778AbgDPNi4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:38:56 -0400
+        id S2441571AbgDPNuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BB49221F9;
-        Thu, 16 Apr 2020 13:38:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A920921734;
+        Thu, 16 Apr 2020 13:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044336;
-        bh=DnhV3xz/x4XRsC1XfxRUhWiPOn2zTkhzOVSi4IXhi2w=;
+        s=default; t=1587044958;
+        bh=Yh6gZjfyX6QP1J55zaEdH+YpizqUockH6mB2K0kyNj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKUxYjtpAiyYaBlcj/RX8lG+lWiMf87GePB12/ie/9o7pP6KD4Cny/Qo053vxbHJJ
-         UTMuxbDn6cJzpH2rivZyFHMhgJaJ8W6reGueJQ27pP1UETbv3WTSH1SGQvP4Kv7Zql
-         +Ze66ljLBLdcw3fIO8/3q2x4Dk2PF5TAWdy5pAl8=
+        b=uVWZvvOQQ2lS/pzF4P7Q/pod//hbCB7tZrS5N+mutR5UPyBjr9VwKxUqmqQ9k5p9+
+         WBLYxlaozJPvbqyanVJqTsShJ+i66vCbE0XyNmkSq7LmOphJHCW/RIrzIUZIlepPnT
+         KM6/iRzhxpyqokb7AzcRTxRx3kXTu1u0qDdGSqIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Wood <swood@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.5 177/257] sched/core: Remove duplicate assignment in sched_tick_remote()
+        stable@vger.kernel.org, Yilu Lin <linyilu@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>
+Subject: [PATCH 5.4 134/232] CIFS: Fix bug which the return value by asynchronous read is error
 Date:   Thu, 16 Apr 2020 15:23:48 +0200
-Message-Id: <20200416131348.502394737@linuxfoundation.org>
+Message-Id: <20200416131331.755418580@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,34 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Wood <swood@redhat.com>
+From: Yilu Lin <linyilu@huawei.com>
 
-commit 82e0516ce3a147365a5dd2a9bedd5ba43a18663d upstream.
+commit 97adda8b3ab703de8e4c8d27646ddd54fe22879c upstream.
 
-A redundant "curr = rq->curr" was added; remove it.
+This patch is used to fix the bug in collect_uncached_read_data()
+that rc is automatically converted from a signed number to an
+unsigned number when the CIFS asynchronous read fails.
+It will cause ctx->rc is error.
 
-Fixes: ebc0f83c78a2 ("timers/nohz: Update NOHZ load in remote tick")
-Signed-off-by: Scott Wood <swood@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/1580776558-12882-1-git-send-email-swood@redhat.com
-Cc: Guenter Roeck <linux@roeck-us.net>
+Example:
+Share a directory and create a file on the Windows OS.
+Mount the directory to the Linux OS using CIFS.
+On the CIFS client of the Linux OS, invoke the pread interface to
+deliver the read request.
+
+The size of the read length plus offset of the read request is greater
+than the maximum file size.
+
+In this case, the CIFS server on the Windows OS returns a failure
+message (for example, the return value of
+smb2.nt_status is STATUS_INVALID_PARAMETER).
+
+After receiving the response message, the CIFS client parses
+smb2.nt_status to STATUS_INVALID_PARAMETER
+and converts it to the Linux error code (rdata->result=-22).
+
+Then the CIFS client invokes the collect_uncached_read_data function to
+assign the value of rdata->result to rc, that is, rc=rdata->result=-22.
+
+The type of the ctx->total_len variable is unsigned integer,
+the type of the rc variable is integer, and the type of
+the ctx->rc variable is ssize_t.
+
+Therefore, during the ternary operation, the value of rc is
+automatically converted to an unsigned number. The final result is
+ctx->rc=4294967274. However, the expected result is ctx->rc=-22.
+
+Signed-off-by: Yilu Lin <linyilu@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
+Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/sched/core.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/cifs/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3677,7 +3677,6 @@ static void sched_tick_remote(struct wor
- 	if (cpu_is_offline(cpu))
- 		goto out_unlock;
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -3778,7 +3778,7 @@ again:
+ 	if (rc == -ENODATA)
+ 		rc = 0;
  
--	curr = rq->curr;
- 	update_rq_clock(rq);
+-	ctx->rc = (rc == 0) ? ctx->total_len : rc;
++	ctx->rc = (rc == 0) ? (ssize_t)ctx->total_len : rc;
  
- 	if (!is_idle_task(curr)) {
+ 	mutex_unlock(&ctx->aio_mutex);
+ 
 
 
