@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 974221AC2A9
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED1291ACA77
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896353AbgDPNbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:31:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41290 "EHLO mail.kernel.org"
+        id S2441864AbgDPPfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:35:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896341AbgDPNbA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:31:00 -0400
+        id S2898157AbgDPNkm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:40:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CCCF206E9;
-        Thu, 16 Apr 2020 13:30:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1FC120732;
+        Thu, 16 Apr 2020 13:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043859;
-        bh=K+uM9txe6RidWvLhVcS9tv/Lh4YLAQQ5NMzlaOE6ScA=;
+        s=default; t=1587044442;
+        bh=bUmdvRDb5tEGK8fivtesnFXdfAqQuZ+XnKtGFowAmT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2q9eH2Zx+6fXmtRiSHscY0mP79Uv3vBqvloetqb/KMEy9ZGnVzpT5I3obwgWtrqyX
-         3nZilUpgR9uny2DXCycY/qNaIX/3zwqwqoFUlRvyPO0u2B97xW/b6YZqc69w5jf/ld
-         lfOBoXnqoJ5MGVkX0pN7yyyZZ3nWQu0ijEl5KGf4=
+        b=QiYB6rB4urjCuW0RLN9jVORwOIvuyl7Fm5Xvcz7DUzXoNtQ/LHUDbAXp8HFKXch6c
+         8SteUEwkE9jKowXz65tgLFwy7Q31sAwF6ae2pp4tAAMPCYH3NVTZ0k1Wr4CW4uEKfR
+         use/AjYtEa529Pv2YzixgyMWoJu45tDxuXyMywGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH 4.19 130/146] powerpc: Add attributes for setjmp/longjmp
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Andi Shyti <andi.shyti@intel.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.5 220/257] drm/i915/gt: Treat idling as a RPS downclock event
 Date:   Thu, 16 Apr 2020 15:24:31 +0200
-Message-Id: <20200416131300.249950161@linuxfoundation.org>
+Message-Id: <20200416131353.462369462@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Segher Boessenkool <segher@kernel.crashing.org>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit aa497d4352414aad22e792b35d0aaaa12bbc37c5 upstream.
+commit 98479ada421a8fd2123b98efd398a6f1379307ab upstream.
 
-The setjmp function should be declared as "returns_twice", or bad
-things can happen[1]. This does not actually change generated code in
-my testing.
+If we park/unpark faster than we can respond to RPS events, we never
+will process a downclock event after expiring a waitboost, and thus we
+will forever restart the GPU at max clocks even if the workload switches
+and doesn't justify full power.
 
-The longjmp function should be declared as "noreturn", so that the
-compiler can optimise calls to it better. This makes the generated
-code a little shorter.
-
-1: https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-returns_005ftwice-function-attribute
-
-Signed-off-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c02ce4a573f3bac907e2c70957a2d1275f910013.1567605586.git.segher@kernel.crashing.org
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/1500
+Fixes: 3e7abf814193 ("drm/i915: Extract GT render power state management")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Andi Shyti <andi.shyti@intel.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Andi Shyti <andi.shyti@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200322163225.28791-1-chris@chris-wilson.co.uk
+Cc: <stable@vger.kernel.org> # v5.5+
+(cherry picked from commit 21abf0bf168dffff1192e0f072af1dc74ae1ff0e)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/setjmp.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_rps.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/arch/powerpc/include/asm/setjmp.h
-+++ b/arch/powerpc/include/asm/setjmp.h
-@@ -12,7 +12,7 @@
+--- a/drivers/gpu/drm/i915/gt/intel_rps.c
++++ b/drivers/gpu/drm/i915/gt/intel_rps.c
+@@ -763,6 +763,19 @@ void intel_rps_park(struct intel_rps *rp
+ 	intel_uncore_forcewake_get(rps_to_uncore(rps), FORCEWAKE_MEDIA);
+ 	rps_set(rps, rps->idle_freq);
+ 	intel_uncore_forcewake_put(rps_to_uncore(rps), FORCEWAKE_MEDIA);
++
++	/*
++	 * Since we will try and restart from the previously requested
++	 * frequency on unparking, treat this idle point as a downclock
++	 * interrupt and reduce the frequency for resume. If we park/unpark
++	 * more frequently than the rps worker can run, we will not respond
++	 * to any EI and never see a change in frequency.
++	 *
++	 * (Note we accommodate Cherryview's limitation of only using an
++	 * even bin by applying it to all.)
++	 */
++	rps->cur_freq =
++		max_t(int, round_down(rps->cur_freq - 1, 2), rps->min_freq);
+ }
  
- #define JMP_BUF_LEN    23
- 
--extern long setjmp(long *);
--extern void longjmp(long *, long);
-+extern long setjmp(long *) __attribute__((returns_twice));
-+extern void longjmp(long *, long) __attribute__((noreturn));
- 
- #endif /* _ASM_POWERPC_SETJMP_H */
+ void intel_rps_boost(struct i915_request *rq)
 
 
