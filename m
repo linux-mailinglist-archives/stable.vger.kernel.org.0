@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F8461ACB6A
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF381AC89D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:12:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2896137AbgDPNdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:33:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
+        id S2394762AbgDPPLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:11:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896549AbgDPNcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:32:55 -0400
+        id S2441671AbgDPNuL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:50:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E723E2222C;
-        Thu, 16 Apr 2020 13:31:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECE53217D8;
+        Thu, 16 Apr 2020 13:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587043898;
-        bh=fVibvqL9DMu1Yg/IVcb6cWJg7YBQvJjwZVNu2jm5AaM=;
+        s=default; t=1587045009;
+        bh=35DQCoLhU4IACeOnSBXyrN4iKj6AcylTdXMZ0STztX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z0WJil4sqgcoR5FJZvTOuLlE2hoDQvc+F/p+ahTfIGAqDpG21T1A7UD8tS0lJDlCh
-         J1t2kyQwl2r702hT6SQA1Y42AbJsRX+M3sGU/uj/Mg15WEAHkE8tWExV/dMfe3gJrA
-         SxBm0rh7O1eD+5sYg73W8J/PNFTq7qBHjRmBt9eQ=
+        b=pLz1A5Fp2SVTEkZ52U11Q3l4wWt7pjLgu1lTYqFxwsbEz3SDO6YjoMsRE5qAxrgf7
+         rA9qetYNVS7OVSXGRTyvybBo8JT1Puyzj+o2o5byWdh7yGMutmos/LZaWX9fdu5gAv
+         Cyc7FxLelaOyFWCTKOkqfSkmGTo81iC5Oq8xXftE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 145/146] misc: echo: Remove unnecessary parentheses and simplify check for zero
-Date:   Thu, 16 Apr 2020 15:24:46 +0200
-Message-Id: <20200416131302.195343029@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        NeilBrown <neilb@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 193/232] fs/filesystems.c: downgrade user-reachable WARN_ONCE() to pr_warn_once()
+Date:   Thu, 16 Apr 2020 15:24:47 +0200
+Message-Id: <20200416131339.304534097@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
-References: <20200416131242.353444678@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 85dc2c65e6c975baaf36ea30f2ccc0a36a8c8add ]
+commit 26c5d78c976ca298e59a56f6101a97b618ba3539 upstream.
 
-Clang warns when multiple pairs of parentheses are used for a single
-conditional statement.
+After request_module(), nothing is stopping the module from being
+unloaded until someone takes a reference to it via try_get_module().
 
-drivers/misc/echo/echo.c:384:27: warning: equality comparison with
-extraneous parentheses [-Wparentheses-equality]
-        if ((ec->nonupdate_dwell == 0)) {
-             ~~~~~~~~~~~~~~~~~~~~^~~~
-drivers/misc/echo/echo.c:384:27: note: remove extraneous parentheses
-around the comparison to silence this warning
-        if ((ec->nonupdate_dwell == 0)) {
-            ~                    ^   ~
-drivers/misc/echo/echo.c:384:27: note: use '=' to turn this equality
-comparison into an assignment
-        if ((ec->nonupdate_dwell == 0)) {
-                                 ^~
-                                 =
-1 warning generated.
+The WARN_ONCE() in get_fs_type() is thus user-reachable, via userspace
+running 'rmmod' concurrently.
 
-Remove them and while we're at it, simplify the zero check as '!var' is
-used more than 'var == 0'.
+Since WARN_ONCE() is for kernel bugs only, not for user-reachable
+situations, downgrade this warning to pr_warn_once().
 
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Keep it printed once only, since the intent of this warning is to detect
+a bug in modprobe at boot time.  Printing the warning more than once
+wouldn't really provide any useful extra information.
+
+Fixes: 41124db869b7 ("fs: warn in case userspace lied about modprobe return")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Jessica Yu <jeyu@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jeff Vander Stoep <jeffv@google.com>
+Cc: Jessica Yu <jeyu@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Luis Chamberlain <mcgrof@kernel.org>
+Cc: NeilBrown <neilb@suse.com>
+Cc: <stable@vger.kernel.org>		[4.13+]
+Link: http://lkml.kernel.org/r/20200312202552.241885-3-ebiggers@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/misc/echo/echo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/filesystems.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/echo/echo.c b/drivers/misc/echo/echo.c
-index 8a5adc0d2e887..3ebe5d75ad6a2 100644
---- a/drivers/misc/echo/echo.c
-+++ b/drivers/misc/echo/echo.c
-@@ -381,7 +381,7 @@ int16_t oslec_update(struct oslec_state *ec, int16_t tx, int16_t rx)
- 	 */
- 	ec->factor = 0;
- 	ec->shift = 0;
--	if ((ec->nonupdate_dwell == 0)) {
-+	if (!ec->nonupdate_dwell) {
- 		int p, logp, shift;
+--- a/fs/filesystems.c
++++ b/fs/filesystems.c
+@@ -271,7 +271,9 @@ struct file_system_type *get_fs_type(con
+ 	fs = __get_fs_type(name, len);
+ 	if (!fs && (request_module("fs-%.*s", len, name) == 0)) {
+ 		fs = __get_fs_type(name, len);
+-		WARN_ONCE(!fs, "request_module fs-%.*s succeeded, but still no fs?\n", len, name);
++		if (!fs)
++			pr_warn_once("request_module fs-%.*s succeeded, but still no fs?\n",
++				     len, name);
+ 	}
  
- 		/* Determine:
--- 
-2.20.1
-
+ 	if (dot && fs && !(fs->fs_flags & FS_HAS_SUBTYPE)) {
 
 
