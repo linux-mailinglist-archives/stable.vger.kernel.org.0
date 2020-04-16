@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1B21AC6EC
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7861F1ACC1E
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbgDPOqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:46:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46412 "EHLO mail.kernel.org"
+        id S1728044AbgDPPzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:55:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2506796AbgDPN7Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:59:24 -0400
+        id S2896012AbgDPN33 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:29:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2EDC217D8;
-        Thu, 16 Apr 2020 13:59:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 549C920767;
+        Thu, 16 Apr 2020 13:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045564;
-        bh=g9v6h6SXtblq+7AJbJQ450xlCwd+w7sxbEg9I5Os8I4=;
+        s=default; t=1587043768;
+        bh=26hgxjMd+f9rckP63OnUNWM2GnK+GowOVTaS4I0FbMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odWhlkk/ZOhOqxIjohKLtOmgDbCgJm46SDQayHHHsOMuwFhz3ld0EnQ73k2r/yI6J
-         gvpGgliRDTysathC0EGh5kMBidWrPiehM7Piv+8QpBXh0OvpLxBiiZCYGyD1ZW7mAO
-         kyhjKHRxWjsnsTSk5Eex9KDnXkTzABe2rRuplcmg=
+        b=H2mkGU2jN+FhuFW7FuRHCORjrdVqcTkMswiv67NtMbAQHmXc7UPrF6NVKL+zzMeWt
+         BxnsthUTTWtnP+COZ2Kfv2T5okMVoalzVaT0YbVppWbNNEUTTAHuRrSol0rU1UNwoc
+         AZ/iPgAPvG3/jbjvaYMDFMi/2B8dB8zV1VJz35OU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Sroka <piotrs@cadence.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.6 145/254] mtd: rawnand: cadence: change bad block marker size
+        stable@vger.kernel.org, Robbie Ko <robbieko@synology.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 093/146] btrfs: fix missing semaphore unlock in btrfs_sync_file
 Date:   Thu, 16 Apr 2020 15:23:54 +0200
-Message-Id: <20200416131344.667289483@linuxfoundation.org>
+Message-Id: <20200416131255.505565278@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Sroka <piotrs@cadence.com>
+From: Robbie Ko <robbieko@synology.com>
 
-commit 9bf1903bed7a2e84f5a8deedb38f7e0ac5e8bfc6 upstream.
+commit 6ff06729c22ec0b7498d900d79cc88cfb8aceaeb upstream.
 
-Increase bad block marker size from one byte to two bytes.
-Bad block marker is handled by skip bytes feature of HPNFC.
-Controller expects this value to be an even number.
+Ordered ops are started twice in sync file, once outside of inode mutex
+and once inside, taking the dio semaphore. There was one error path
+missing the semaphore unlock.
 
-Fixes: ec4ba01e894d ("mtd: rawnand: Add new Cadence NAND driver to MTD subsystem")
-Cc: stable@vger.kernel.org
-Signed-off-by: Piotr Sroka <piotrs@cadence.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/1581328530-29966-3-git-send-email-piotrs@cadence.com
+Fixes: aab15e8ec2576 ("Btrfs: fix rare chances for data loss when doing a fast fsync")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Robbie Ko <robbieko@synology.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+[ add changelog ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/cadence-nand-controller.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ fs/btrfs/file.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mtd/nand/raw/cadence-nand-controller.c
-+++ b/drivers/mtd/nand/raw/cadence-nand-controller.c
-@@ -2603,12 +2603,9 @@ int cadence_nand_attach_chip(struct nand
- 	chip->options |= NAND_NO_SUBPAGE_WRITE;
- 
- 	cdns_chip->bbm_offs = chip->badblockpos;
--	if (chip->options & NAND_BUSWIDTH_16) {
--		cdns_chip->bbm_offs &= ~0x01;
--		cdns_chip->bbm_len = 2;
--	} else {
--		cdns_chip->bbm_len = 1;
--	}
-+	cdns_chip->bbm_offs &= ~0x01;
-+	/* this value should be even number */
-+	cdns_chip->bbm_len = 2;
- 
- 	ret = nand_ecc_choose_conf(chip,
- 				   &cdns_ctrl->ecc_caps,
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2137,6 +2137,7 @@ int btrfs_sync_file(struct file *file, l
+ 	 */
+ 	ret = start_ordered_ops(inode, start, end);
+ 	if (ret) {
++		up_write(&BTRFS_I(inode)->dio_sem);
+ 		inode_unlock(inode);
+ 		goto out;
+ 	}
 
 
