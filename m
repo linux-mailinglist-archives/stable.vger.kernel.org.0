@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53DAB1AC800
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F14B81AC2F0
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:38:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436705AbgDPPCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:02:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40530 "EHLO mail.kernel.org"
+        id S2897113AbgDPNfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:35:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897768AbgDPNyA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:54:00 -0400
+        id S2895984AbgDPNfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:35:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F29D62076D;
-        Thu, 16 Apr 2020 13:53:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 561D420732;
+        Thu, 16 Apr 2020 13:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045239;
-        bh=Szm+1rgDnYEAet5MAJnily9gGMqOJMGUuLDtS4pC0Vc=;
+        s=default; t=1587044118;
+        bh=Ccx5IMb0hrnaC5537dtoCxBIqyonxRrmjubp0SWGv5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZOvYfnrbGtwwRAPxHIbDCq7DCITo8QZYzSHGP3KZkvzrmYt5RqmSl9a3afXvKM12
-         Z4/r7voQaNDfTn5/cyZRcWpT1bAXUWXRnO2f9lkFzkt5+yhgJyl+Fc4DS4EJkiHKCK
-         4ZKYpzbUH8prvCLRVZBb6RMJQrTHxsROohrYs8qE=
+        b=yx/9meMjizZ3N5cAYP9j9jIbNjgk7FPIHyENHyziBYfNkilNOLJxipmkiD9NCLzqF
+         pvg+9m0oKzpsshRF4ejN0b070xBEYPSNfi+0cSmnq/5DztozAOnQb4u44dxL16tUcN
+         wRj3xBv7r7da08iqmK0T3w+C/ddbTwdc0Gg7vMGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        "Alexey Dobriyan (SK hynix)" <adobriyan@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 051/254] block, zoned: fix integer overflow with BLKRESETZONE et al
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.5 089/257] ALSA: hda: Fix potential access overflow in beep helper
 Date:   Thu, 16 Apr 2020 15:22:20 +0200
-Message-Id: <20200416131332.264664702@linuxfoundation.org>
+Message-Id: <20200416131337.097785990@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 11bde986002c0af67eb92d73321d06baefae7128 ]
+commit 0ad3f0b384d58f3bd1f4fb87d0af5b8f6866f41a upstream.
 
-Check for overflow in addition before checking for end-of-block-device.
+The beep control helper function blindly stores the values in two
+stereo channels no matter whether the actual control is mono or
+stereo.  This is practically harmless, but it annoys the recently
+introduced sanity check, resulting in an error when the checker is
+enabled.
 
-Steps to reproduce:
+This patch corrects the behavior to store only on the defined array
+member.
 
-	#define _GNU_SOURCE 1
-	#include <sys/ioctl.h>
-	#include <sys/types.h>
-	#include <sys/stat.h>
-	#include <fcntl.h>
+Fixes: 0401e8548eac ("ALSA: hda - Move beep helper functions to hda_beep.c")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200407084402.25589-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-	typedef unsigned long long __u64;
-
-	struct blk_zone_range {
-	        __u64 sector;
-	        __u64 nr_sectors;
-	};
-
-	#define BLKRESETZONE    _IOW(0x12, 131, struct blk_zone_range)
-
-	int main(void)
-	{
-	        int fd = open("/dev/nullb0", O_RDWR|O_DIRECT);
-	        struct blk_zone_range zr = {4096, 0xfffffffffffff000ULL};
-	        ioctl(fd, BLKRESETZONE, &zr);
-	        return 0;
-	}
-
-BUG: KASAN: null-ptr-deref in submit_bio_wait+0x74/0xe0
-Write of size 8 at addr 0000000000000040 by task a.out/1590
-
-CPU: 8 PID: 1590 Comm: a.out Not tainted 5.6.0-rc1-00019-g359c92c02bfa #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190711_202441-buildvm-armv7-10.arm.fedoraproject.org-2.fc31 04/01/2014
-Call Trace:
- dump_stack+0x76/0xa0
- __kasan_report.cold+0x5/0x3e
- kasan_report+0xe/0x20
- submit_bio_wait+0x74/0xe0
- blkdev_zone_mgmt+0x26f/0x2a0
- blkdev_zone_mgmt_ioctl+0x14b/0x1b0
- blkdev_ioctl+0xb28/0xe60
- block_ioctl+0x69/0x80
- ksys_ioctl+0x3af/0xa50
-
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Alexey Dobriyan (SK hynix) <adobriyan@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-zoned.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/hda_beep.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-zoned.c b/block/blk-zoned.c
-index 05741c6f618be..6b442ae96499a 100644
---- a/block/blk-zoned.c
-+++ b/block/blk-zoned.c
-@@ -173,7 +173,7 @@ int blkdev_zone_mgmt(struct block_device *bdev, enum req_opf op,
- 	if (!op_is_zone_mgmt(op))
- 		return -EOPNOTSUPP;
- 
--	if (!nr_sectors || end_sector > capacity)
-+	if (end_sector <= sector || end_sector > capacity)
- 		/* Out of range */
- 		return -EINVAL;
- 
--- 
-2.20.1
-
+--- a/sound/pci/hda/hda_beep.c
++++ b/sound/pci/hda/hda_beep.c
+@@ -290,8 +290,12 @@ int snd_hda_mixer_amp_switch_get_beep(st
+ {
+ 	struct hda_codec *codec = snd_kcontrol_chip(kcontrol);
+ 	struct hda_beep *beep = codec->beep;
++	int chs = get_amp_channels(kcontrol);
++
+ 	if (beep && (!beep->enabled || !ctl_has_mute(kcontrol))) {
+-		ucontrol->value.integer.value[0] =
++		if (chs & 1)
++			ucontrol->value.integer.value[0] = beep->enabled;
++		if (chs & 2)
+ 			ucontrol->value.integer.value[1] = beep->enabled;
+ 		return 0;
+ 	}
 
 
