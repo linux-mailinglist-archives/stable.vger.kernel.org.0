@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEAC61ACA34
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:33:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B421AC870
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:08:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410444AbgDPPcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:32:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55158 "EHLO mail.kernel.org"
+        id S2394892AbgDPPIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:08:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726593AbgDPNmN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:42:13 -0400
+        id S2408706AbgDPNvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:51:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D89120732;
-        Thu, 16 Apr 2020 13:42:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAA5D2078B;
+        Thu, 16 Apr 2020 13:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044532;
-        bh=tmMhdRm1zeV2HIH7q7LunDiqIpUWh/7aYo8fmRoyCdg=;
+        s=default; t=1587045070;
+        bh=S7FgOGEPXO+mwEgvwhgh8BwzMsUFhgiQCOTY+wSpslw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IlIQm8vwzTcAnH4b2Sv7x2Fiqnxfo8fkgnG2xmsEOXLatKszLUnx+Eh2yP+7W5ZrW
-         mSgUvDUm5vkAuXAraVZmSX8TjWzgEMj5iaeYzHLLLU6b5BC5hRALD3l+scFBfpcdws
-         G2SZF5rXv3zgx+bWdKwgV/7O6DDX+Af1Uyq5Upu0=
+        b=temUKq4IpuS4RPoybuzPSnujNx3KvSyyvfCA7tNBVrETcAUqWTWfcbnGwKvRwF98t
+         sSPfP86knowyKlKHdSKpsyWvr6Zs+ruErbjf1mFWVW3xKH9beFF2CUDLUwTEld8wEP
+         3kWD2mDtrfk+1jTLplGHFHX/6P+gCeCN2xsjdrgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 257/257] mmc: sdhci: Refactor sdhci_set_timeout()
-Date:   Thu, 16 Apr 2020 15:25:08 +0200
-Message-Id: <20200416131357.587820476@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 215/232] scsi: mpt3sas: Fix kernel panic observed on soft HBA unplug
+Date:   Thu, 16 Apr 2020 15:25:09 +0200
+Message-Id: <20200416131342.378848952@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faiz Abbas <faiz_abbas@ti.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 7d76ed77cfbd39468ae58d419f537d35ca892d83 ]
+commit cc41f11a21a51d6869d71e525a7264c748d7c0d7 upstream.
 
-Refactor sdhci_set_timeout() such that platform drivers can do some
-functionality in a set_timeout() callback and then call
-__sdhci_set_timeout() to complete the operation.
+Generic protection fault type kernel panic is observed when user performs
+soft (ordered) HBA unplug operation while IOs are running on drives
+connected to HBA.
 
-Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20200116105154.7685-7-faiz_abbas@ti.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When user performs ordered HBA removal operation, the kernel calls PCI
+device's .remove() call back function where driver is flushing out all the
+outstanding SCSI IO commands with DID_NO_CONNECT host byte and also unmaps
+sg buffers allocated for these IO commands.
+
+However, in the ordered HBA removal case (unlike of real HBA hot removal),
+HBA device is still alive and hence HBA hardware is performing the DMA
+operations to those buffers on the system memory which are already unmapped
+while flushing out the outstanding SCSI IO commands and this leads to
+kernel panic.
+
+Don't flush out the outstanding IOs from .remove() path in case of ordered
+removal since HBA will be still alive in this case and it can complete the
+outstanding IOs. Flush out the outstanding IOs only in case of 'physical
+HBA hot unplug' where there won't be any communication with the HBA.
+
+During shutdown also it is possible that HBA hardware can perform DMA
+operations on those outstanding IO buffers which are completed with
+DID_NO_CONNECT by the driver from .shutdown(). So same above fix is applied
+in shutdown path as well.
+
+It is safe to drop the outstanding commands when HBA is inaccessible such
+as when permanent PCI failure happens, when HBA is in non-operational
+state, or when someone does a real HBA hot unplug operation. Since driver
+knows that HBA is inaccessible during these cases, it is safe to drop the
+outstanding commands instead of waiting for SCSI error recovery to kick in
+and clear these outstanding commands.
+
+Link: https://lore.kernel.org/r/1585302763-23007-1-git-send-email-sreekanth.reddy@broadcom.com
+Fixes: c666d3be99c0 ("scsi: mpt3sas: wait for and flush running commands on shutdown/unload")
+Cc: stable@vger.kernel.org #v4.14.174+
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+
 ---
- drivers/mmc/host/sdhci.c | 38 ++++++++++++++++++++------------------
- drivers/mmc/host/sdhci.h |  1 +
- 2 files changed, 21 insertions(+), 18 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index 29c854e48bc69..1c9ca6864be36 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -1003,27 +1003,29 @@ void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable)
- }
- EXPORT_SYMBOL_GPL(sdhci_set_data_timeout_irq);
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -9747,8 +9747,8 @@ static void scsih_remove(struct pci_dev
  
--static void sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
-+void __sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
- {
--	u8 count;
--
--	if (host->ops->set_timeout) {
--		host->ops->set_timeout(host, cmd);
--	} else {
--		bool too_big = false;
--
--		count = sdhci_calc_timeout(host, cmd, &too_big);
-+	bool too_big = false;
-+	u8 count = sdhci_calc_timeout(host, cmd, &too_big);
-+
-+	if (too_big &&
-+	    host->quirks2 & SDHCI_QUIRK2_DISABLE_HW_TIMEOUT) {
-+		sdhci_calc_sw_timeout(host, cmd);
-+		sdhci_set_data_timeout_irq(host, false);
-+	} else if (!(host->ier & SDHCI_INT_DATA_TIMEOUT)) {
-+		sdhci_set_data_timeout_irq(host, true);
-+	}
+ 	ioc->remove_host = 1;
  
--		if (too_big &&
--		    host->quirks2 & SDHCI_QUIRK2_DISABLE_HW_TIMEOUT) {
--			sdhci_calc_sw_timeout(host, cmd);
--			sdhci_set_data_timeout_irq(host, false);
--		} else if (!(host->ier & SDHCI_INT_DATA_TIMEOUT)) {
--			sdhci_set_data_timeout_irq(host, true);
--		}
-+	sdhci_writeb(host, count, SDHCI_TIMEOUT_CONTROL);
-+}
-+EXPORT_SYMBOL_GPL(__sdhci_set_timeout);
+-	mpt3sas_wait_for_commands_to_complete(ioc);
+-	_scsih_flush_running_cmds(ioc);
++	if (!pci_device_is_present(pdev))
++		_scsih_flush_running_cmds(ioc);
  
--		sdhci_writeb(host, count, SDHCI_TIMEOUT_CONTROL);
--	}
-+static void sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
-+{
-+	if (host->ops->set_timeout)
-+		host->ops->set_timeout(host, cmd);
-+	else
-+		__sdhci_set_timeout(host, cmd);
- }
+ 	_scsih_fw_event_cleanup_queue(ioc);
  
- static void sdhci_prepare_data(struct sdhci_host *host, struct mmc_command *cmd)
-diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
-index 4613d71b3cd6e..76e69288632db 100644
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -796,5 +796,6 @@ void sdhci_reset_tuning(struct sdhci_host *host);
- void sdhci_send_tuning(struct sdhci_host *host, u32 opcode);
- void sdhci_abort_tuning(struct sdhci_host *host, u32 opcode);
- void sdhci_set_data_timeout_irq(struct sdhci_host *host, bool enable);
-+void __sdhci_set_timeout(struct sdhci_host *host, struct mmc_command *cmd);
+@@ -9831,8 +9831,8 @@ scsih_shutdown(struct pci_dev *pdev)
  
- #endif /* __SDHCI_HW_H */
--- 
-2.20.1
-
+ 	ioc->remove_host = 1;
+ 
+-	mpt3sas_wait_for_commands_to_complete(ioc);
+-	_scsih_flush_running_cmds(ioc);
++	if (!pci_device_is_present(pdev))
++		_scsih_flush_running_cmds(ioc);
+ 
+ 	_scsih_fw_event_cleanup_queue(ioc);
+ 
 
 
