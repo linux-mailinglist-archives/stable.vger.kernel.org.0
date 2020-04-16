@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D20E21AC31F
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A441AC769
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:55:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897670AbgDPNiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50632 "EHLO mail.kernel.org"
+        id S2406093AbgDPOyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 10:54:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897667AbgDPNiL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:38:11 -0400
+        id S2408973AbgDPN4m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:56:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F01F520732;
-        Thu, 16 Apr 2020 13:38:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AC9D20732;
+        Thu, 16 Apr 2020 13:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044291;
-        bh=g9v6h6SXtblq+7AJbJQ450xlCwd+w7sxbEg9I5Os8I4=;
+        s=default; t=1587045400;
+        bh=wttoton6TEU7iHeRKVPjij7bCAVwDWT6iBkWVBDZgs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1cG2aSEjPxN9KLZOHDapzD+NOmgf1rmJijrFBez/rU5IXRUa9DyHQmFZqzZehxU2+
-         mheQlBPAHryzrrhV9oCS6TeQFY/rJWGGch+V9runzLQ8E1d4jyrDmdTkqQn7l6us9F
-         BG3IDxGqJbtfuarmWnSY22cWvIgu1EyaVWiTrYbQ=
+        b=wmQp8u3cifGf2gFkJ3QI65U4mE8CGgFZ+tcLJOM/6lWtr7IB45m7aMr9lVZfMGI2p
+         ThAN5xJZoLQEXhiq4QSaYKul1jMUEsB7SwsqF4lcVcrO5kIPe4EBCT8XHXMCslWZiq
+         DsVi3OHqxefWenuf2xDr6Zr5Fy/ZdpxRSJbUmIdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Piotr Sroka <piotrs@cadence.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.5 156/257] mtd: rawnand: cadence: change bad block marker size
-Date:   Thu, 16 Apr 2020 15:23:27 +0200
-Message-Id: <20200416131346.055219849@linuxfoundation.org>
+        stable@vger.kernel.org, Pei Huang <huangpei@loongson.cn>,
+        Huacai Chen <chenhc@lemote.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.6 119/254] MIPS/tlbex: Fix LDDIR usage in setup_pw() for Loongson-3
+Date:   Thu, 16 Apr 2020 15:23:28 +0200
+Message-Id: <20200416131341.188947248@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piotr Sroka <piotrs@cadence.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-commit 9bf1903bed7a2e84f5a8deedb38f7e0ac5e8bfc6 upstream.
+commit d191aaffe3687d1e73e644c185f5f0550ec242b5 upstream.
 
-Increase bad block marker size from one byte to two bytes.
-Bad block marker is handled by skip bytes feature of HPNFC.
-Controller expects this value to be an even number.
+LDDIR/LDPTE is Loongson-3's acceleration for Page Table Walking. If BD
+(Base Directory, the 4th page directory) is not enabled, then GDOffset
+is biased by BadVAddr[63:62]. So, if GDOffset (aka. BadVAddr[47:36] for
+Loongson-3) is big enough, "0b11(BadVAddr[63:62])|BadVAddr[47:36]|...."
+can far beyond pg_swapper_dir. This means the pg_swapper_dir may NOT be
+accessed by LDDIR correctly, so fix it by set PWDirExt in CP0_PWCtl.
 
-Fixes: ec4ba01e894d ("mtd: rawnand: Add new Cadence NAND driver to MTD subsystem")
-Cc: stable@vger.kernel.org
-Signed-off-by: Piotr Sroka <piotrs@cadence.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/1581328530-29966-3-git-send-email-piotrs@cadence.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pei Huang <huangpei@loongson.cn>
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/cadence-nand-controller.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ arch/mips/mm/tlbex.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/cadence-nand-controller.c
-+++ b/drivers/mtd/nand/raw/cadence-nand-controller.c
-@@ -2603,12 +2603,9 @@ int cadence_nand_attach_chip(struct nand
- 	chip->options |= NAND_NO_SUBPAGE_WRITE;
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -1480,6 +1480,7 @@ static void build_r4000_tlb_refill_handl
  
- 	cdns_chip->bbm_offs = chip->badblockpos;
--	if (chip->options & NAND_BUSWIDTH_16) {
--		cdns_chip->bbm_offs &= ~0x01;
--		cdns_chip->bbm_len = 2;
--	} else {
--		cdns_chip->bbm_len = 1;
--	}
-+	cdns_chip->bbm_offs &= ~0x01;
-+	/* this value should be even number */
-+	cdns_chip->bbm_len = 2;
+ static void setup_pw(void)
+ {
++	unsigned int pwctl;
+ 	unsigned long pgd_i, pgd_w;
+ #ifndef __PAGETABLE_PMD_FOLDED
+ 	unsigned long pmd_i, pmd_w;
+@@ -1506,6 +1507,7 @@ static void setup_pw(void)
  
- 	ret = nand_ecc_choose_conf(chip,
- 				   &cdns_ctrl->ecc_caps,
+ 	pte_i = ilog2(_PAGE_GLOBAL);
+ 	pte_w = 0;
++	pwctl = 1 << 30; /* Set PWDirExt */
+ 
+ #ifndef __PAGETABLE_PMD_FOLDED
+ 	write_c0_pwfield(pgd_i << 24 | pmd_i << 12 | pt_i << 6 | pte_i);
+@@ -1516,8 +1518,9 @@ static void setup_pw(void)
+ #endif
+ 
+ #ifdef CONFIG_MIPS_HUGE_TLB_SUPPORT
+-	write_c0_pwctl(1 << 6 | psn);
++	pwctl |= (1 << 6 | psn);
+ #endif
++	write_c0_pwctl(pwctl);
+ 	write_c0_kpgd((long)swapper_pg_dir);
+ 	kscratch_used_mask |= (1 << 7); /* KScratch6 is used for KPGD */
+ }
 
 
