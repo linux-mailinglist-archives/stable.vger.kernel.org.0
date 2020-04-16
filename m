@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 568081ACAFC
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC9421AC820
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395531AbgDPPmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:42:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48462 "EHLO mail.kernel.org"
+        id S2442013AbgDPPDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897310AbgDPNgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:36:21 -0400
+        id S2408992AbgDPNxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:53:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DDE021BE5;
-        Thu, 16 Apr 2020 13:36:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C679720732;
+        Thu, 16 Apr 2020 13:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044180;
-        bh=zWi/X9B/DItDPh1JzQ7qjEtbQCCAozb9DS0qWSeAqzU=;
+        s=default; t=1587045205;
+        bh=vDbC//cFoiarsCOyRPOI0FBifzs1I3USmWge+kKgjaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tDYDH7n53in4Ct5Us8A9FQRVInfOw3roxb2Wj4Sdi5Ln/9t+f8R4ndou4kBzYS6qW
-         TZrtb1E7y8joR5K7+3RtEDY4Je11SNU2bWX4XIArevfoms62VYMoI2mOju7abI6WTy
-         hYcWA1ScxS0yC2T/apNPW2J53/NqAlbVHWXQf5TA=
+        b=v4U6RxbvAb8SH1KNpmrUmfM01SmjcvOzI5w59nPPeaFVAB4OWLdby9jaNLvKgJS2v
+         Id5a2/Whvk8iXpajvIfN53d+gdPfqaUTSEZdS5M3IZaNd/jB19fof9QXh/EGmplfUX
+         zGHINFAqTNQ3HlgjsMz1DZu/MepxI0/CdgXrNDSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Valente <paolo.valente@linaro.org>,
-        Wang Wang <wangwang2@huawei.com>,
-        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
-        Feilong Lin <linfeilong@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 076/257] block, bfq: fix use-after-free in bfq_idle_slice_timer_body
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 038/254] selftests/x86/ptrace_syscall_32: Fix no-vDSO segfault
 Date:   Thu, 16 Apr 2020 15:22:07 +0200
-Message-Id: <20200416131335.452341880@linuxfoundation.org>
+Message-Id: <20200416131330.625241721@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
+References: <20200416131325.804095985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,176 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit 2f95fa5c955d0a9987ffdc3a095e2f4e62c5f2a9 ]
+[ Upstream commit 630b99ab60aa972052a4202a1ff96c7e45eb0054 ]
 
-In bfq_idle_slice_timer func, bfqq = bfqd->in_service_queue is
-not in bfqd-lock critical section. The bfqq, which is not
-equal to NULL in bfq_idle_slice_timer, may be freed after passing
-to bfq_idle_slice_timer_body. So we will access the freed memory.
+If AT_SYSINFO is not present, don't try to call a NULL pointer.
 
-In addition, considering the bfqq may be in race, we should
-firstly check whether bfqq is in service before doing something
-on it in bfq_idle_slice_timer_body func. If the bfqq in race is
-not in service, it means the bfqq has been expired through
-__bfq_bfqq_expire func, and wait_request flags has been cleared in
-__bfq_bfqd_reset_in_service func. So we do not need to re-clear the
-wait_request of bfqq which is not in service.
-
-KASAN log is given as follows:
-[13058.354613] ==================================================================
-[13058.354640] BUG: KASAN: use-after-free in bfq_idle_slice_timer+0xac/0x290
-[13058.354644] Read of size 8 at addr ffffa02cf3e63f78 by task fork13/19767
-[13058.354646]
-[13058.354655] CPU: 96 PID: 19767 Comm: fork13
-[13058.354661] Call trace:
-[13058.354667]  dump_backtrace+0x0/0x310
-[13058.354672]  show_stack+0x28/0x38
-[13058.354681]  dump_stack+0xd8/0x108
-[13058.354687]  print_address_description+0x68/0x2d0
-[13058.354690]  kasan_report+0x124/0x2e0
-[13058.354697]  __asan_load8+0x88/0xb0
-[13058.354702]  bfq_idle_slice_timer+0xac/0x290
-[13058.354707]  __hrtimer_run_queues+0x298/0x8b8
-[13058.354710]  hrtimer_interrupt+0x1b8/0x678
-[13058.354716]  arch_timer_handler_phys+0x4c/0x78
-[13058.354722]  handle_percpu_devid_irq+0xf0/0x558
-[13058.354731]  generic_handle_irq+0x50/0x70
-[13058.354735]  __handle_domain_irq+0x94/0x110
-[13058.354739]  gic_handle_irq+0x8c/0x1b0
-[13058.354742]  el1_irq+0xb8/0x140
-[13058.354748]  do_wp_page+0x260/0xe28
-[13058.354752]  __handle_mm_fault+0x8ec/0x9b0
-[13058.354756]  handle_mm_fault+0x280/0x460
-[13058.354762]  do_page_fault+0x3ec/0x890
-[13058.354765]  do_mem_abort+0xc0/0x1b0
-[13058.354768]  el0_da+0x24/0x28
-[13058.354770]
-[13058.354773] Allocated by task 19731:
-[13058.354780]  kasan_kmalloc+0xe0/0x190
-[13058.354784]  kasan_slab_alloc+0x14/0x20
-[13058.354788]  kmem_cache_alloc_node+0x130/0x440
-[13058.354793]  bfq_get_queue+0x138/0x858
-[13058.354797]  bfq_get_bfqq_handle_split+0xd4/0x328
-[13058.354801]  bfq_init_rq+0x1f4/0x1180
-[13058.354806]  bfq_insert_requests+0x264/0x1c98
-[13058.354811]  blk_mq_sched_insert_requests+0x1c4/0x488
-[13058.354818]  blk_mq_flush_plug_list+0x2d4/0x6e0
-[13058.354826]  blk_flush_plug_list+0x230/0x548
-[13058.354830]  blk_finish_plug+0x60/0x80
-[13058.354838]  read_pages+0xec/0x2c0
-[13058.354842]  __do_page_cache_readahead+0x374/0x438
-[13058.354846]  ondemand_readahead+0x24c/0x6b0
-[13058.354851]  page_cache_sync_readahead+0x17c/0x2f8
-[13058.354858]  generic_file_buffered_read+0x588/0xc58
-[13058.354862]  generic_file_read_iter+0x1b4/0x278
-[13058.354965]  ext4_file_read_iter+0xa8/0x1d8 [ext4]
-[13058.354972]  __vfs_read+0x238/0x320
-[13058.354976]  vfs_read+0xbc/0x1c0
-[13058.354980]  ksys_read+0xdc/0x1b8
-[13058.354984]  __arm64_sys_read+0x50/0x60
-[13058.354990]  el0_svc_common+0xb4/0x1d8
-[13058.354994]  el0_svc_handler+0x50/0xa8
-[13058.354998]  el0_svc+0x8/0xc
-[13058.354999]
-[13058.355001] Freed by task 19731:
-[13058.355007]  __kasan_slab_free+0x120/0x228
-[13058.355010]  kasan_slab_free+0x10/0x18
-[13058.355014]  kmem_cache_free+0x288/0x3f0
-[13058.355018]  bfq_put_queue+0x134/0x208
-[13058.355022]  bfq_exit_icq_bfqq+0x164/0x348
-[13058.355026]  bfq_exit_icq+0x28/0x40
-[13058.355030]  ioc_exit_icq+0xa0/0x150
-[13058.355035]  put_io_context_active+0x250/0x438
-[13058.355038]  exit_io_context+0xd0/0x138
-[13058.355045]  do_exit+0x734/0xc58
-[13058.355050]  do_group_exit+0x78/0x220
-[13058.355054]  __wake_up_parent+0x0/0x50
-[13058.355058]  el0_svc_common+0xb4/0x1d8
-[13058.355062]  el0_svc_handler+0x50/0xa8
-[13058.355066]  el0_svc+0x8/0xc
-[13058.355067]
-[13058.355071] The buggy address belongs to the object at ffffa02cf3e63e70#012 which belongs to the cache bfq_queue of size 464
-[13058.355075] The buggy address is located 264 bytes inside of#012 464-byte region [ffffa02cf3e63e70, ffffa02cf3e64040)
-[13058.355077] The buggy address belongs to the page:
-[13058.355083] page:ffff7e80b3cf9800 count:1 mapcount:0 mapping:ffff802db5c90780 index:0xffffa02cf3e606f0 compound_mapcount: 0
-[13058.366175] flags: 0x2ffffe0000008100(slab|head)
-[13058.370781] raw: 2ffffe0000008100 ffff7e80b53b1408 ffffa02d730c1c90 ffff802db5c90780
-[13058.370787] raw: ffffa02cf3e606f0 0000000000370023 00000001ffffffff 0000000000000000
-[13058.370789] page dumped because: kasan: bad access detected
-[13058.370791]
-[13058.370792] Memory state around the buggy address:
-[13058.370797]  ffffa02cf3e63e00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fb fb
-[13058.370801]  ffffa02cf3e63e80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[13058.370805] >ffffa02cf3e63f00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[13058.370808]                                                                 ^
-[13058.370811]  ffffa02cf3e63f80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[13058.370815]  ffffa02cf3e64000: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-[13058.370817] ==================================================================
-[13058.370820] Disabling lock debugging due to kernel taint
-
-Here, we directly pass the bfqd to bfq_idle_slice_timer_body func.
---
-V2->V3: rewrite the comment as suggested by Paolo Valente
-V1->V2: add one comment, and add Fixes and Reported-by tag.
-
-Fixes: aee69d78d ("block, bfq: introduce the BFQ-v0 I/O scheduler as an extra scheduler")
-Acked-by: Paolo Valente <paolo.valente@linaro.org>
-Reported-by: Wang Wang <wangwang2@huawei.com>
-Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Signed-off-by: Feilong Lin <linfeilong@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/faaf688265a7e1a5b944d6f8bc0f6368158306d3.1584052409.git.luto@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ tools/testing/selftests/x86/ptrace_syscall.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 8fe4b69195119..43fbe5d096e3c 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -6214,20 +6214,28 @@ static struct bfq_queue *bfq_init_rq(struct request *rq)
- 	return bfqq;
- }
+diff --git a/tools/testing/selftests/x86/ptrace_syscall.c b/tools/testing/selftests/x86/ptrace_syscall.c
+index 6f22238f32173..12aaa063196e7 100644
+--- a/tools/testing/selftests/x86/ptrace_syscall.c
++++ b/tools/testing/selftests/x86/ptrace_syscall.c
+@@ -414,8 +414,12 @@ int main()
  
--static void bfq_idle_slice_timer_body(struct bfq_queue *bfqq)
-+static void
-+bfq_idle_slice_timer_body(struct bfq_data *bfqd, struct bfq_queue *bfqq)
- {
--	struct bfq_data *bfqd = bfqq->bfqd;
- 	enum bfqq_expiration reason;
- 	unsigned long flags;
+ #if defined(__i386__) && (!defined(__GLIBC__) || __GLIBC__ > 2 || __GLIBC_MINOR__ >= 16)
+ 	vsyscall32 = (void *)getauxval(AT_SYSINFO);
+-	printf("[RUN]\tCheck AT_SYSINFO return regs\n");
+-	test_sys32_regs(do_full_vsyscall32);
++	if (vsyscall32) {
++		printf("[RUN]\tCheck AT_SYSINFO return regs\n");
++		test_sys32_regs(do_full_vsyscall32);
++	} else {
++		printf("[SKIP]\tAT_SYSINFO is not available\n");
++	}
+ #endif
  
- 	spin_lock_irqsave(&bfqd->lock, flags);
--	bfq_clear_bfqq_wait_request(bfqq);
- 
-+	/*
-+	 * Considering that bfqq may be in race, we should firstly check
-+	 * whether bfqq is in service before doing something on it. If
-+	 * the bfqq in race is not in service, it has already been expired
-+	 * through __bfq_bfqq_expire func and its wait_request flags has
-+	 * been cleared in __bfq_bfqd_reset_in_service func.
-+	 */
- 	if (bfqq != bfqd->in_service_queue) {
- 		spin_unlock_irqrestore(&bfqd->lock, flags);
- 		return;
- 	}
- 
-+	bfq_clear_bfqq_wait_request(bfqq);
-+
- 	if (bfq_bfqq_budget_timeout(bfqq))
- 		/*
- 		 * Also here the queue can be safely expired
-@@ -6272,7 +6280,7 @@ static enum hrtimer_restart bfq_idle_slice_timer(struct hrtimer *timer)
- 	 * early.
- 	 */
- 	if (bfqq)
--		bfq_idle_slice_timer_body(bfqq);
-+		bfq_idle_slice_timer_body(bfqd, bfqq);
- 
- 	return HRTIMER_NORESTART;
- }
+ 	test_ptrace_syscall_restart();
 -- 
 2.20.1
 
