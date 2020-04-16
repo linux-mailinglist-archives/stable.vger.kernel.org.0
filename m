@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6431AC6C8
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 513201AC357
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394578AbgDPOoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:44:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46994 "EHLO mail.kernel.org"
+        id S2897438AbgDPNlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:41:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898884AbgDPN74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:59:56 -0400
+        id S2898324AbgDPNlb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4C8820786;
-        Thu, 16 Apr 2020 13:59:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50BAB2076D;
+        Thu, 16 Apr 2020 13:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045596;
-        bh=R1qOEZEcahNuX1xx6660KQkNmnV8rG9Y5gYQ8dk1pVw=;
+        s=default; t=1587044490;
+        bh=g1PfHpNPZ94VFzqvVTuE+t5CXA4UXTCnIYtxGm8+ha4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZ4i6654Fia6tyd+hjftZv9E/XP0jZ4WrxXGkKrMLdOk3KtW78Fl/tu2uEVR/9zkY
-         +pR5a2y5EI4cjaDTa8IJQcl5x11Yn2bAigSQrqz9P8A2s42kVBDwkqHR0uX+pj2b7o
-         CsaJuqJ93x537EsC3jH7sINVwvfAbFT/QvYb+GMA=
+        b=D8+vi/4zrUot30omHcaw1zm7yC63ZlyuF4p9r78zoX33MdphBfcQZ8o+fDJ3ETf9A
+         MxEXmBjGeQXy8UA/V+UYqJrEaWNzSl3LdthawekpSKMbSTzcUmx/1nDXV2GnSZXe2b
+         fawIaGy8QMw7bffawvfofOPGXzKqnfmR44/3UZqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Matthew Auld <matthew.william.auld@gmail.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.6 200/254] drm/i915/gem: Flush all the reloc_gpu batch
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.5 238/257] powerpc/hash64/devmap: Use H_PAGE_THP_HUGE when setting up huge devmap PTE entries
 Date:   Thu, 16 Apr 2020 15:24:49 +0200
-Message-Id: <20200416131351.136348874@linuxfoundation.org>
+Message-Id: <20200416131355.323841576@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit 1aaea8476d9f014667d2cb24819f9bcaf3ebb7a4 upstream.
+commit 36b78402d97a3b9aeab136feb9b00d8647ec2c20 upstream.
 
-__i915_gem_object_flush_map() takes a byte range, so feed it the written
-bytes and do not mistake the u32 index as bytes!
+H_PAGE_THP_HUGE is used to differentiate between a THP hugepage and
+hugetlb hugepage entries. The difference is WRT how we handle hash
+fault on these address. THP address enables MPSS in segments. We want
+to manage devmap hugepage entries similar to THP pt entries. Hence use
+H_PAGE_THP_HUGE for devmap huge PTE entries.
 
-Fixes: a679f58d0510 ("drm/i915: Flush pages on acquisition")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Matthew Auld <matthew.william.auld@gmail.com>
-Cc: <stable@vger.kernel.org> # v5.2+
-Reviewed-by: Matthew Auld <matthew.william.auld@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200406114821.10949-1-chris@chris-wilson.co.uk
-(cherry picked from commit 30c88a47f1abd5744908d3681f54dcf823fe2a12)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+With current code while handling hash PTE fault, we do set is_thp =
+true when finding devmap PTE huge PTE entries.
+
+Current code also does the below sequence we setting up huge devmap
+entries.
+
+	entry = pmd_mkhuge(pfn_t_pmd(pfn, prot));
+	if (pfn_t_devmap(pfn))
+		entry = pmd_mkdevmap(entry);
+
+In that case we would find both H_PAGE_THP_HUGE and PAGE_DEVMAP set
+for huge devmap PTE entries. This results in false positive error like
+below.
+
+  kernel BUG at /home/kvaneesh/src/linux/mm/memory.c:4321!
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in:
+  CPU: 56 PID: 67996 Comm: t_mmap_dio Not tainted 5.6.0-rc4-59640-g371c804dedbc #128
+  ....
+  NIP [c00000000044c9e4] __follow_pte_pmd+0x264/0x900
+  LR [c0000000005d45f8] dax_writeback_one+0x1a8/0x740
+  Call Trace:
+    str_spec.74809+0x22ffb4/0x2d116c (unreliable)
+    dax_writeback_one+0x1a8/0x740
+    dax_writeback_mapping_range+0x26c/0x700
+    ext4_dax_writepages+0x150/0x5a0
+    do_writepages+0x68/0x180
+    __filemap_fdatawrite_range+0x138/0x180
+    file_write_and_wait_range+0xa4/0x110
+    ext4_sync_file+0x370/0x6e0
+    vfs_fsync_range+0x70/0xf0
+    sys_msync+0x220/0x2e0
+    system_call+0x5c/0x68
+
+This is because our pmd_trans_huge check doesn't exclude _PAGE_DEVMAP.
+
+To make this all consistent, update pmd_mkdevmap to set
+H_PAGE_THP_HUGE and pmd_trans_huge check now excludes _PAGE_DEVMAP
+correctly.
+
+Fixes: ebd31197931d ("powerpc/mm: Add devmap support for ppc64")
+Cc: stable@vger.kernel.org # v4.13+
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200313094842.351830-1-aneesh.kumar@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/book3s/64/hash-4k.h  |    6 ++++++
+ arch/powerpc/include/asm/book3s/64/hash-64k.h |    8 +++++++-
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |    4 +++-
+ arch/powerpc/include/asm/book3s/64/radix.h    |    5 +++++
+ 4 files changed, 21 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -914,11 +914,13 @@ static inline struct i915_ggtt *cache_to
+--- a/arch/powerpc/include/asm/book3s/64/hash-4k.h
++++ b/arch/powerpc/include/asm/book3s/64/hash-4k.h
+@@ -156,6 +156,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
+ extern int hash__has_transparent_hugepage(void);
+ #endif
  
- static void reloc_gpu_flush(struct reloc_cache *cache)
- {
--	GEM_BUG_ON(cache->rq_size >= cache->rq->batch->obj->base.size / sizeof(u32));
-+	struct drm_i915_gem_object *obj = cache->rq->batch->obj;
++static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
++{
++	BUG();
++	return pmd;
++}
 +
-+	GEM_BUG_ON(cache->rq_size >= obj->base.size / sizeof(u32));
- 	cache->rq_cmd[cache->rq_size] = MI_BATCH_BUFFER_END;
+ #endif /* !__ASSEMBLY__ */
  
--	__i915_gem_object_flush_map(cache->rq->batch->obj, 0, cache->rq_size);
--	i915_gem_object_unpin_map(cache->rq->batch->obj);
-+	__i915_gem_object_flush_map(obj, 0, sizeof(u32) * (cache->rq_size + 1));
-+	i915_gem_object_unpin_map(obj);
+ #endif /* _ASM_POWERPC_BOOK3S_64_HASH_4K_H */
+--- a/arch/powerpc/include/asm/book3s/64/hash-64k.h
++++ b/arch/powerpc/include/asm/book3s/64/hash-64k.h
+@@ -246,7 +246,7 @@ static inline void mark_hpte_slot_valid(
+  */
+ static inline int hash__pmd_trans_huge(pmd_t pmd)
+ {
+-	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE)) ==
++	return !!((pmd_val(pmd) & (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP)) ==
+ 		  (_PAGE_PTE | H_PAGE_THP_HUGE));
+ }
  
- 	intel_gt_chipset_flush(cache->rq->engine->gt);
+@@ -272,6 +272,12 @@ extern pmd_t hash__pmdp_huge_get_and_cle
+ 				       unsigned long addr, pmd_t *pmdp);
+ extern int hash__has_transparent_hugepage(void);
+ #endif /*  CONFIG_TRANSPARENT_HUGEPAGE */
++
++static inline pmd_t hash__pmd_mkdevmap(pmd_t pmd)
++{
++	return __pmd(pmd_val(pmd) | (_PAGE_PTE | H_PAGE_THP_HUGE | _PAGE_DEVMAP));
++}
++
+ #endif	/* __ASSEMBLY__ */
  
+ #endif /* _ASM_POWERPC_BOOK3S_64_HASH_64K_H */
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -1303,7 +1303,9 @@ extern void serialize_against_pte_lookup
+ 
+ static inline pmd_t pmd_mkdevmap(pmd_t pmd)
+ {
+-	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
++	if (radix_enabled())
++		return radix__pmd_mkdevmap(pmd);
++	return hash__pmd_mkdevmap(pmd);
+ }
+ 
+ static inline int pmd_devmap(pmd_t pmd)
+--- a/arch/powerpc/include/asm/book3s/64/radix.h
++++ b/arch/powerpc/include/asm/book3s/64/radix.h
+@@ -263,6 +263,11 @@ static inline int radix__has_transparent
+ }
+ #endif
+ 
++static inline pmd_t radix__pmd_mkdevmap(pmd_t pmd)
++{
++	return __pmd(pmd_val(pmd) | (_PAGE_PTE | _PAGE_DEVMAP));
++}
++
+ extern int __meminit radix__vmemmap_create_mapping(unsigned long start,
+ 					     unsigned long page_size,
+ 					     unsigned long phys);
 
 
