@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D102B1AC8E0
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49AD11AC360
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408094AbgDPPPX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:15:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35824 "EHLO mail.kernel.org"
+        id S2898383AbgDPNmA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:42:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441634AbgDPNuD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:03 -0400
+        id S2408486AbgDPNl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:41:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B98721744;
-        Thu, 16 Apr 2020 13:49:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61612214D8;
+        Thu, 16 Apr 2020 13:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044950;
-        bh=4cmYFuZIvrPD00tqCGA8A3E+BrUOuvrUQXc12DEPsCE=;
+        s=default; t=1587044517;
+        bh=hdTXoxkrdgeEsruKVakXS40NWxVwkDOQ6lkFtL1wn40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYfgCMKEZHXdifJXvmrrYUf3OaFfliTtWmkETGc/epDOLTxlhcmqwH7Bu1qC7XAzZ
-         +f4zpvdEPdEyf6pydVwaGYPWFA/NtTf9UfIiuSZH2m6bPAtd22CQTZIvw9PDlQgK4n
-         UxzT3Qi6uX+8ebLhbiWqGoQBOkr3KJSo/jfB1J8c=
+        b=n4Ih8qB3EikyqQNrndltDE/Xb75ZsKt//slsaSwHTy3nfAiVHL+ICamOfkzD1h+5l
+         8hGDcasxmW0yWkGmIlGp4d9iv63q7/uLp32anEZQaw8KXf1adw1dgeOKYzI33OpY49
+         968p1DLnQ9ozShXjTyfDsFyxFSpINjdKxzt5iWC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 5.4 167/232] xarray: Fix early termination of xas_for_each_marked
+        stable@vger.kernel.org, Yuxian Dai <Yuxian.Dai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Huang Rui <ray.huang@amd.com>, Kevin Wang <Kevin1.Wang@amd.com>
+Subject: [PATCH 5.5 210/257] drm/amdgpu/powerplay: using the FCLK DPM table to set the MCLK
 Date:   Thu, 16 Apr 2020 15:24:21 +0200
-Message-Id: <20200416131335.900290572@linuxfoundation.org>
+Message-Id: <20200416131352.314278648@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,204 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Yuxian Dai <Yuxian.Dai@amd.com>
 
-commit 7e934cf5ace1dceeb804f7493fa28bb697ed3c52 upstream.
+commit 022ac4c9c55be35a2d1f71019a931324c51b0dab upstream.
 
-xas_for_each_marked() is using entry == NULL as a termination condition
-of the iteration. When xas_for_each_marked() is used protected only by
-RCU, this can however race with xas_store(xas, NULL) in the following
-way:
+1.Using the FCLK DPM table to set the MCLK for DPM states consist of
+three entities:
+ FCLK
+ UCLK
+ MEMCLK
+All these three clk change together, MEMCLK from FCLK, so use the fclk
+frequency.
+2.we should show the current working clock freqency from clock table metric
 
-TASK1                                   TASK2
-page_cache_delete()         	        find_get_pages_range_tag()
-                                          xas_for_each_marked()
-                                            xas_find_marked()
-                                              off = xas_find_chunk()
-
-  xas_store(&xas, NULL)
-    xas_init_marks(&xas);
-    ...
-    rcu_assign_pointer(*slot, NULL);
-                                              entry = xa_entry(off);
-
-And thus xas_for_each_marked() terminates prematurely possibly leading
-to missed entries in the iteration (translating to missing writeback of
-some pages or a similar problem).
-
-If we find a NULL entry that has been marked, skip it (unless we're trying
-to allocate an entry).
-
-Reported-by: Jan Kara <jack@suse.cz>
-CC: stable@vger.kernel.org
-Fixes: ef8e5717db01 ("page cache: Convert delete_batch to XArray")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Yuxian Dai <Yuxian.Dai@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Huang Rui <ray.huang@amd.com>
+Reviewed-by: Kevin Wang <Kevin1.Wang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/xarray.h                       |    6 +
- lib/xarray.c                                 |    2 
- tools/testing/radix-tree/Makefile            |    4 -
- tools/testing/radix-tree/iteration_check_2.c |   87 +++++++++++++++++++++++++++
- tools/testing/radix-tree/main.c              |    1 
- tools/testing/radix-tree/test.h              |    1 
- 6 files changed, 98 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/powerplay/renoir_ppt.c |    6 ++++++
+ drivers/gpu/drm/amd/powerplay/renoir_ppt.h |    2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
---- a/include/linux/xarray.h
-+++ b/include/linux/xarray.h
-@@ -1613,6 +1613,7 @@ static inline void *xas_next_marked(stru
- 								xa_mark_t mark)
- {
- 	struct xa_node *node = xas->xa_node;
-+	void *entry;
- 	unsigned int offset;
+--- a/drivers/gpu/drm/amd/powerplay/renoir_ppt.c
++++ b/drivers/gpu/drm/amd/powerplay/renoir_ppt.c
+@@ -181,6 +181,7 @@ static int renoir_print_clk_levels(struc
+ 	uint32_t cur_value = 0, value = 0, count = 0, min = 0, max = 0;
+ 	DpmClocks_t *clk_table = smu->smu_table.clocks_table;
+ 	SmuMetrics_t metrics;
++	bool cur_value_match_level = false;
  
- 	if (unlikely(xas_not_node(node) || node->shift))
-@@ -1624,7 +1625,10 @@ static inline void *xas_next_marked(stru
- 		return NULL;
- 	if (offset == XA_CHUNK_SIZE)
- 		return xas_find_marked(xas, max, mark);
--	return xa_entry(xas->xa, node, offset);
-+	entry = xa_entry(xas->xa, node, offset);
-+	if (!entry)
-+		return xas_find_marked(xas, max, mark);
-+	return entry;
+ 	if (!clk_table || clk_type >= SMU_CLK_COUNT)
+ 		return -EINVAL;
+@@ -240,8 +241,13 @@ static int renoir_print_clk_levels(struc
+ 		GET_DPM_CUR_FREQ(clk_table, clk_type, i, value);
+ 		size += sprintf(buf + size, "%d: %uMhz %s\n", i, value,
+ 				cur_value == value ? "*" : "");
++		if (cur_value == value)
++			cur_value_match_level = true;
+ 	}
+ 
++	if (!cur_value_match_level)
++		size += sprintf(buf + size, "   %uMhz *\n", cur_value);
++
+ 	return size;
  }
  
- /*
---- a/lib/xarray.c
-+++ b/lib/xarray.c
-@@ -1208,6 +1208,8 @@ void *xas_find_marked(struct xa_state *x
- 		}
- 
- 		entry = xa_entry(xas->xa, xas->xa_node, xas->xa_offset);
-+		if (!entry && !(xa_track_free(xas->xa) && mark == XA_FREE_MARK))
-+			continue;
- 		if (!xa_is_node(entry))
- 			return entry;
- 		xas->xa_node = xa_to_node(entry);
---- a/tools/testing/radix-tree/Makefile
-+++ b/tools/testing/radix-tree/Makefile
-@@ -7,8 +7,8 @@ LDLIBS+= -lpthread -lurcu
- TARGETS = main idr-test multiorder xarray
- CORE_OFILES := xarray.o radix-tree.o idr.o linux.o test.o find_bit.o bitmap.o
- OFILES = main.o $(CORE_OFILES) regression1.o regression2.o regression3.o \
--	 regression4.o \
--	 tag_check.o multiorder.o idr-test.o iteration_check.o benchmark.o
-+	 regression4.o tag_check.o multiorder.o idr-test.o iteration_check.o \
-+	 iteration_check_2.o benchmark.o
- 
- ifndef SHIFT
- 	SHIFT=3
---- /dev/null
-+++ b/tools/testing/radix-tree/iteration_check_2.c
-@@ -0,0 +1,87 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * iteration_check_2.c: Check that deleting a tagged entry doesn't cause
-+ * an RCU walker to finish early.
-+ * Copyright (c) 2020 Oracle
-+ * Author: Matthew Wilcox <willy@infradead.org>
-+ */
-+#include <pthread.h>
-+#include "test.h"
-+
-+static volatile bool test_complete;
-+
-+static void *iterator(void *arg)
-+{
-+	XA_STATE(xas, arg, 0);
-+	void *entry;
-+
-+	rcu_register_thread();
-+
-+	while (!test_complete) {
-+		xas_set(&xas, 0);
-+		rcu_read_lock();
-+		xas_for_each_marked(&xas, entry, ULONG_MAX, XA_MARK_0)
-+			;
-+		rcu_read_unlock();
-+		assert(xas.xa_index >= 100);
-+	}
-+
-+	rcu_unregister_thread();
-+	return NULL;
-+}
-+
-+static void *throbber(void *arg)
-+{
-+	struct xarray *xa = arg;
-+
-+	rcu_register_thread();
-+
-+	while (!test_complete) {
-+		int i;
-+
-+		for (i = 0; i < 100; i++) {
-+			xa_store(xa, i, xa_mk_value(i), GFP_KERNEL);
-+			xa_set_mark(xa, i, XA_MARK_0);
-+		}
-+		for (i = 0; i < 100; i++)
-+			xa_erase(xa, i);
-+	}
-+
-+	rcu_unregister_thread();
-+	return NULL;
-+}
-+
-+void iteration_test2(unsigned test_duration)
-+{
-+	pthread_t threads[2];
-+	DEFINE_XARRAY(array);
-+	int i;
-+
-+	printv(1, "Running iteration test 2 for %d seconds\n", test_duration);
-+
-+	test_complete = false;
-+
-+	xa_store(&array, 100, xa_mk_value(100), GFP_KERNEL);
-+	xa_set_mark(&array, 100, XA_MARK_0);
-+
-+	if (pthread_create(&threads[0], NULL, iterator, &array)) {
-+		perror("create iterator thread");
-+		exit(1);
-+	}
-+	if (pthread_create(&threads[1], NULL, throbber, &array)) {
-+		perror("create throbber thread");
-+		exit(1);
-+	}
-+
-+	sleep(test_duration);
-+	test_complete = true;
-+
-+	for (i = 0; i < 2; i++) {
-+		if (pthread_join(threads[i], NULL)) {
-+			perror("pthread_join");
-+			exit(1);
-+		}
-+	}
-+
-+	xa_destroy(&array);
-+}
---- a/tools/testing/radix-tree/main.c
-+++ b/tools/testing/radix-tree/main.c
-@@ -311,6 +311,7 @@ int main(int argc, char **argv)
- 	regression4_test();
- 	iteration_test(0, 10 + 90 * long_run);
- 	iteration_test(7, 10 + 90 * long_run);
-+	iteration_test2(10 + 90 * long_run);
- 	single_thread_tests(long_run);
- 
- 	/* Free any remaining preallocated nodes */
---- a/tools/testing/radix-tree/test.h
-+++ b/tools/testing/radix-tree/test.h
-@@ -34,6 +34,7 @@ void xarray_tests(void);
- void tag_check(void);
- void multiorder_checks(void);
- void iteration_test(unsigned order, unsigned duration);
-+void iteration_test2(unsigned duration);
- void benchmark(void);
- void idr_checks(void);
- void ida_tests(void);
+--- a/drivers/gpu/drm/amd/powerplay/renoir_ppt.h
++++ b/drivers/gpu/drm/amd/powerplay/renoir_ppt.h
+@@ -37,7 +37,7 @@ extern void renoir_set_ppt_funcs(struct
+ 			freq = table->SocClocks[dpm_level].Freq;	\
+ 			break;						\
+ 		case SMU_MCLK:						\
+-			freq = table->MemClocks[dpm_level].Freq;	\
++			freq = table->FClocks[dpm_level].Freq;	\
+ 			break;						\
+ 		case SMU_DCEFCLK:					\
+ 			freq = table->DcfClocks[dpm_level].Freq;	\
 
 
