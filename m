@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3DF41AC73B
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:52:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B63DD1AC30D
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441884AbgDPN5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44820 "EHLO mail.kernel.org"
+        id S2897423AbgDPNhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:37:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441859AbgDPN5o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:57:44 -0400
+        id S2896697AbgDPNhH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:37:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C6ED20732;
-        Thu, 16 Apr 2020 13:57:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3E84221EB;
+        Thu, 16 Apr 2020 13:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045464;
-        bh=wgY92Up2hqj3U3bxEm7of4dFDNE/XdwTMo46DQJ7BiA=;
+        s=default; t=1587044227;
+        bh=57XLkEo9IUFW0ke8/XfWMYUe3XW5lyxCAG3v48t6+k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TRoAhRCi9Cqx2AGV7WgBoTfrkPbI06xqXfd/zmVtPtJeNBpd1B+9LPrk2kNtLf2GK
-         /lzCAMf6Erd3xMUyLkEaAPP6XnfHGOWzCz0NFrtFb5sgzIDu0zLAPVqIzY8zfugsOg
-         Pa4x1KDXPV+m/UHxy6KoejBNwCbsIKyUH3ywtJ44=
+        b=deHeMl5cFZzExItriaA22KYZ9weq91im5cP8ujadxTAO+mO6gbjiBs3/NMxR7Qwb8
+         1rPDLDb8VJ3Su3kNvBwjyUvVip/F4S9Zo3kFtJ8776OpvCAczt7ZUUEcNttzxe4AF3
+         Gr0zr9kOi/C4LCtQoGtYZtyeqtQ2R+Mp5FUCXxhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.6 095/254] thermal: devfreq_cooling: inline all stubs for CONFIG_DEVFREQ_THERMAL=n
+        stable@vger.kernel.org,
+        Benjamin Gaignard <benjamin.gaignard@st.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.5 133/257] PM / Domains: Allow no domain-idle-states DT property in genpd when parsing
 Date:   Thu, 16 Apr 2020 15:23:04 +0200
-Message-Id: <20200416131337.841783551@linuxfoundation.org>
+Message-Id: <20200416131343.047986818@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 3f5b9959041e0db6dacbea80bb833bff5900999f upstream.
+commit 56cb26891ea4180121265dc6b596015772c4a4b8 upstream.
 
-When CONFIG_DEVFREQ_THERMAL is disabled all functions except
-of_devfreq_cooling_register_power() were already inlined. Also inline
-the last function to avoid compile errors when multiple drivers call
-of_devfreq_cooling_register_power() when CONFIG_DEVFREQ_THERMAL is not
-set. Compilation failed with the following message:
-  multiple definition of `of_devfreq_cooling_register_power'
-(which then lists all usages of of_devfreq_cooling_register_power())
+Commit 2c361684803e ("PM / Domains: Don't treat zero found compatible idle
+states as an error"), moved of_genpd_parse_idle_states() towards allowing
+none compatible idle state to be found for the device node, rather than
+returning an error code.
 
-Thomas Zimmermann reported this problem [0] on a kernel config with
-CONFIG_DRM_LIMA={m,y}, CONFIG_DRM_PANFROST={m,y} and
-CONFIG_DEVFREQ_THERMAL=n after both, the lima and panfrost drivers
-gained devfreq cooling support.
+However, it didn't consider that the "domain-idle-states" DT property may
+be missing as it's optional, which makes of_count_phandle_with_args() to
+return -ENOENT. Let's fix this to make the behaviour consistent.
 
-[0] https://www.spinics.net/lists/dri-devel/msg252825.html
-
-Fixes: a76caf55e5b356 ("thermal: Add devfreq cooling")
-Cc: stable@vger.kernel.org
-Reported-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200403205133.1101808-1-martin.blumenstingl@googlemail.com
+Fixes: 2c361684803e ("PM / Domains: Don't treat zero found compatible idle states as an error")
+Reported-by: Benjamin Gaignard <benjamin.gaignard@st.com>
+Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/devfreq_cooling.h |    2 +-
+ drivers/base/power/domain.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/devfreq_cooling.h
-+++ b/include/linux/devfreq_cooling.h
-@@ -75,7 +75,7 @@ void devfreq_cooling_unregister(struct t
+--- a/drivers/base/power/domain.c
++++ b/drivers/base/power/domain.c
+@@ -2615,7 +2615,7 @@ static int genpd_iterate_idle_states(str
  
- #else /* !CONFIG_DEVFREQ_THERMAL */
+ 	ret = of_count_phandle_with_args(dn, "domain-idle-states", NULL);
+ 	if (ret <= 0)
+-		return ret;
++		return ret == -ENOENT ? 0 : ret;
  
--struct thermal_cooling_device *
-+static inline struct thermal_cooling_device *
- of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
- 				  struct devfreq_cooling_power *dfc_power)
- {
+ 	/* Loop over the phandles until all the requested entry is found */
+ 	of_for_each_phandle(&it, ret, dn, "domain-idle-states", NULL, 0) {
 
 
