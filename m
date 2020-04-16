@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 237B11AC7AD
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B23191ACAF3
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:43:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731110AbgDPO6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:58:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42078 "EHLO mail.kernel.org"
+        id S2395351AbgDPPl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:41:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392517AbgDPNz1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:55:27 -0400
+        id S2897368AbgDPNgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:36:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E88B12076D;
-        Thu, 16 Apr 2020 13:55:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9795F208E4;
+        Thu, 16 Apr 2020 13:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045327;
-        bh=4gadm28wxegsVG+5goEWoRjI0J2a1ktHlwEXTFjGKEA=;
+        s=default; t=1587044210;
+        bh=YvEO37qKCjWeczjWU6192GteB1w/O74tNl8rInnF+to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhUKCaEGo56iHo6z21v5RvOVLKv7epZEMcXqvDbf58Q+SIeMMacs1FogLkMFuHTBZ
-         k1DCejnsqwbvVvVwihVQYLw/irUm3wrbaaUKKRiiSrj2I2UzQDJrB1B+jRn0YWmJr0
-         s8r10EI8NXl1QkHtRxOL5JH91B3GqhiwKZ5Jb4Gc=
+        b=Ryl6V0VYSpW0q4WDOjtVIL8FG9jt1ZGcd7eJJLZtQitvxdIjNlFz2HVCor1iCzqle
+         XyC6wbAAT41zuxGr1YCwV/Kjn/2hI5iwjv8VhyMbO2ia7iZjTn2HY8iKm59lq4rexl
+         4c8gwLwwFG2HnHTj/yPiHkc2ckqHhZWwGxpLjPPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.6 088/254] media: ti-vpe: cal: fix a kernel oops when unloading module
+        stable@vger.kernel.org, Boqun Feng <boqun.feng@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Pavankumar Kondeti <pkondeti@codeaurora.org>
+Subject: [PATCH 5.5 126/257] cpu/hotplug: Ignore pm_wakeup_pending() for disable_nonboot_cpus()
 Date:   Thu, 16 Apr 2020 15:22:57 +0200
-Message-Id: <20200416131336.928553484@linuxfoundation.org>
+Message-Id: <20200416131342.112609544@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benoit Parrot <bparrot@ti.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 80264809ea0a3fd2ee8251f31a9eb85d2c3fc77e upstream.
+commit e98eac6ff1b45e4e73f2e6031b37c256ccb5d36b upstream.
 
-After the switch to use v4l2_async_notifier_add_subdev() and
-v4l2_async_notifier_cleanup(), unloading the ti_cal module would cause a
-kernel oops.
+A recent change to freeze_secondary_cpus() which added an early abort if a
+wakeup is pending missed the fact that the function is also invoked for
+shutdown, reboot and kexec via disable_nonboot_cpus().
 
-This was root cause to the fact that v4l2_async_notifier_cleanup() tries
-to kfree the asd pointer passed into v4l2_async_notifier_add_subdev().
+In case of disable_nonboot_cpus() the wakeup event needs to be ignored as
+the purpose is to terminate the currently running kernel.
 
-In our case the asd reference was from a statically allocated struct.
-So in effect v4l2_async_notifier_cleanup() was trying to free a pointer
-that was not kalloc.
+Add a 'suspend' argument which is only set when the freeze is in context of
+a suspend operation. If not set then an eventually pending wakeup event is
+ignored.
 
-So here we switch to using a kzalloc struct instead of a static one.
-To achieve this we re-order some of the calls to prevent asd allocation
-from leaking.
-
-Fixes: d079f94c9046 ("media: platform: Switch to v4l2_async_notifier_add_subdev")
+Fixes: a66d955e910a ("cpu/hotplug: Abort disabling secondary CPUs if wakeup is pending")
+Reported-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Pavankumar Kondeti <pkondeti@codeaurora.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://lkml.kernel.org/r/874kuaxdiz.fsf@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/ti-vpe/cal.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ include/linux/cpu.h |   12 +++++++++---
+ kernel/cpu.c        |    4 ++--
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -372,8 +372,6 @@ struct cal_ctx {
- 	struct v4l2_subdev	*sensor;
- 	struct v4l2_fwnode_endpoint	endpoint;
+--- a/include/linux/cpu.h
++++ b/include/linux/cpu.h
+@@ -138,12 +138,18 @@ static inline void get_online_cpus(void)
+ static inline void put_online_cpus(void) { cpus_read_unlock(); }
  
--	struct v4l2_async_subdev asd;
--
- 	struct v4l2_fh		fh;
- 	struct cal_dev		*dev;
- 	struct cc_data		*cc;
-@@ -2032,7 +2030,6 @@ static int of_cal_create_instance(struct
- 
- 	parent = pdev->dev.of_node;
- 
--	asd = &ctx->asd;
- 	endpoint = &ctx->endpoint;
- 
- 	ep_node = NULL;
-@@ -2079,8 +2076,6 @@ static int of_cal_create_instance(struct
- 		ctx_dbg(3, ctx, "can't get remote parent\n");
- 		goto cleanup_exit;
- 	}
--	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
--	asd->match.fwnode = of_fwnode_handle(sensor_node);
- 
- 	v4l2_fwnode_endpoint_parse(of_fwnode_handle(ep_node), endpoint);
- 
-@@ -2110,9 +2105,17 @@ static int of_cal_create_instance(struct
- 
- 	v4l2_async_notifier_init(&ctx->notifier);
- 
-+	asd = kzalloc(sizeof(*asd), GFP_KERNEL);
-+	if (!asd)
-+		goto cleanup_exit;
+ #ifdef CONFIG_PM_SLEEP_SMP
+-extern int freeze_secondary_cpus(int primary);
++int __freeze_secondary_cpus(int primary, bool suspend);
++static inline int freeze_secondary_cpus(int primary)
++{
++	return __freeze_secondary_cpus(primary, true);
++}
 +
-+	asd->match_type = V4L2_ASYNC_MATCH_FWNODE;
-+	asd->match.fwnode = of_fwnode_handle(sensor_node);
+ static inline int disable_nonboot_cpus(void)
+ {
+-	return freeze_secondary_cpus(0);
++	return __freeze_secondary_cpus(0, false);
+ }
+-extern void enable_nonboot_cpus(void);
 +
- 	ret = v4l2_async_notifier_add_subdev(&ctx->notifier, asd);
- 	if (ret) {
- 		ctx_err(ctx, "Error adding asd\n");
-+		kfree(asd);
- 		goto cleanup_exit;
- 	}
++void enable_nonboot_cpus(void);
  
+ static inline int suspend_disable_secondary_cpus(void)
+ {
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -1212,7 +1212,7 @@ EXPORT_SYMBOL_GPL(cpu_up);
+ #ifdef CONFIG_PM_SLEEP_SMP
+ static cpumask_var_t frozen_cpus;
+ 
+-int freeze_secondary_cpus(int primary)
++int __freeze_secondary_cpus(int primary, bool suspend)
+ {
+ 	int cpu, error = 0;
+ 
+@@ -1237,7 +1237,7 @@ int freeze_secondary_cpus(int primary)
+ 		if (cpu == primary)
+ 			continue;
+ 
+-		if (pm_wakeup_pending()) {
++		if (suspend && pm_wakeup_pending()) {
+ 			pr_info("Wakeup pending. Abort CPU freeze\n");
+ 			error = -EBUSY;
+ 			break;
 
 
