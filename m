@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 625931AC39B
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:46:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD9AB1ACC2E
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:57:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2441632AbgDPNpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:45:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59410 "EHLO mail.kernel.org"
+        id S2442836AbgDPP4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:56:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2898543AbgDPNpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:45:49 -0400
+        id S2895902AbgDPN2y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:28:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D97221734;
-        Thu, 16 Apr 2020 13:45:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D134E217D8;
+        Thu, 16 Apr 2020 13:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044747;
-        bh=nJdRoDoxFz3pSFS9qZM5LkWIVbVtBTHPKmC7MDR6Yj8=;
+        s=default; t=1587043732;
+        bh=vAJ3XMJ+64UTF8UdA1rtf/aMMyHBYqKrlx4E7E88V40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mP0c4mPQXQYyvA0NXk7ofxeKs7yBTaZT0sbLRBUrvAUI8roXFjr7uGbTTXRLdVGAj
-         g5yYmdON69HrLUii4FiVoJzfIBEJ0h9E17xvRCZKocXKmaDM6YJTFClnxlAw/U0CTE
-         ++E7+Wzlw4bemvfMS5rfDE+jfrdBasPN+CDKaHaU=
+        b=BBjHPIXd+B04IL+Pw30qfeF2r3ZVLbcBHP5jSifqqI1npNnuyoMH2hxKsP1iy9A//
+         zpetkjDUvnKulc3oWBLVgt9wYVFOpLfdGR0E39r5yLW8dtmu/sX672Lz2XtNRCn3ko
+         X1oUxwhvv35ue4BQyY4yXkNICES6CwrbVgziiRBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 083/232] ALSA: hda/realtek - Set principled PC Beep configuration for ALC256
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 036/146] locking/lockdep: Avoid recursion in lockdep_count_{for,back}ward_deps()
 Date:   Thu, 16 Apr 2020 15:22:57 +0200
-Message-Id: <20200416131325.454220158@linuxfoundation.org>
+Message-Id: <20200416131247.435680058@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,93 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-commit c44737449468a0bdc50e09ec75e530f208391561 upstream.
+[ Upstream commit 25016bd7f4caf5fc983bbab7403d08e64cba3004 ]
 
-The Realtek PC Beep Hidden Register[1] is currently set by
-patch_realtek.c in two different places:
+Qian Cai reported a bug when PROVE_RCU_LIST=y, and read on /proc/lockdep
+triggered a warning:
 
-In alc_fill_eapd_coef(), it's set to the value 0x5757, corresponding to
-non-beep input on 1Ah and no 1Ah loopback to either headphones or
-speakers. (Although, curiously, the loopback amp is still enabled.) This
-write was added fairly recently by commit e3743f431143 ("ALSA:
-hda/realtek - Dell headphone has noise on unmute for ALC236") and is a
-safe default. However, it happens in the wrong place:
-alc_fill_eapd_coef() runs on module load and cold boot but not on S3
-resume, meaning the register loses its value after suspend.
+  [ ] DEBUG_LOCKS_WARN_ON(current->hardirqs_enabled)
+  ...
+  [ ] Call Trace:
+  [ ]  lock_is_held_type+0x5d/0x150
+  [ ]  ? rcu_lockdep_current_cpu_online+0x64/0x80
+  [ ]  rcu_read_lock_any_held+0xac/0x100
+  [ ]  ? rcu_read_lock_held+0xc0/0xc0
+  [ ]  ? __slab_free+0x421/0x540
+  [ ]  ? kasan_kmalloc+0x9/0x10
+  [ ]  ? __kmalloc_node+0x1d7/0x320
+  [ ]  ? kvmalloc_node+0x6f/0x80
+  [ ]  __bfs+0x28a/0x3c0
+  [ ]  ? class_equal+0x30/0x30
+  [ ]  lockdep_count_forward_deps+0x11a/0x1a0
 
-Conversely, in alc256_init(), the register is updated to unset bit 13
-(disable speaker loopback) and set bit 5 (set non-beep input on 1Ah).
-Although this write does run on S3 resume, it's not quite enough to fix
-up the register's default value of 0x3717. What's missing is a set of
-bit 14 to disable headphone loopback. Without that, we end up with a
-feedback loop where the headphone jack is being driven by amplified
-samples of itself[2].
+The warning got triggered because lockdep_count_forward_deps() call
+__bfs() without current->lockdep_recursion being set, as a result
+a lockdep internal function (__bfs()) is checked by lockdep, which is
+unexpected, and the inconsistency between the irq-off state and the
+state traced by lockdep caused the warning.
 
-This change eliminates the update in alc256_init() and replaces it with
-the 0x5757 write from alc_fill_eapd_coef(). Kailang says that 0x5757 is
-supposed to be the codec's default value, so using it will make
-debugging easier for Realtek.
+Apart from this warning, lockdep internal functions like __bfs() should
+always be protected by current->lockdep_recursion to avoid potential
+deadlocks and data inconsistency, therefore add the
+current->lockdep_recursion on-and-off section to protect __bfs() in both
+lockdep_count_forward_deps() and lockdep_count_backward_deps()
 
-Affects the ALC255, ALC256, ALC257, ALC235, and ALC236 codecs.
-
-[1] Newly documented in Documentation/sound/hd-audio/realtek-pc-beep.rst
-
-[2] Setting the "Headphone Mic Boost" control from userspace changes
-this feedback loop and has been a widely-shared workaround for headphone
-noise on laptops like the Dell XPS 13 9350. This commit eliminates the
-feedback loop and makes the workaround unnecessary.
-
-Fixes: e1e8c1fdce8b ("ALSA: hda/realtek - Dell headphone has noise on unmute for ALC236")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Link: https://lore.kernel.org/r/bf22b417d1f2474b12011c2a39ed6cf8b06d3bf5.1585584498.git.tommyhebb@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200312151258.128036-1-boqun.feng@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ kernel/locking/lockdep.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -368,7 +368,9 @@ static void alc_fill_eapd_coef(struct hd
- 	case 0x10ec0215:
- 	case 0x10ec0233:
- 	case 0x10ec0235:
-+	case 0x10ec0236:
- 	case 0x10ec0255:
-+	case 0x10ec0256:
- 	case 0x10ec0257:
- 	case 0x10ec0282:
- 	case 0x10ec0283:
-@@ -380,11 +382,6 @@ static void alc_fill_eapd_coef(struct hd
- 	case 0x10ec0300:
- 		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
- 		break;
--	case 0x10ec0236:
--	case 0x10ec0256:
--		alc_write_coef_idx(codec, 0x36, 0x5757);
--		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
--		break;
- 	case 0x10ec0275:
- 		alc_update_coef_idx(codec, 0xe, 0, 1<<0);
- 		break;
-@@ -3371,7 +3368,13 @@ static void alc256_init(struct hda_codec
- 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x4); /* Hight power */
- 	alc_update_coefex_idx(codec, 0x53, 0x02, 0x8000, 1 << 15); /* Clear bit */
- 	alc_update_coefex_idx(codec, 0x53, 0x02, 0x8000, 0 << 15);
--	alc_update_coef_idx(codec, 0x36, 1 << 13, 1 << 5); /* Switch pcbeep path to Line in path*/
-+	/*
-+	 * Expose headphone mic (or possibly Line In on some machines) instead
-+	 * of PC Beep on 1Ah, and disable 1Ah loopback for all outputs. See
-+	 * Documentation/sound/hd-audio/realtek-pc-beep.rst for details of
-+	 * this register.
-+	 */
-+	alc_write_coef_idx(codec, 0x36, 0x5757);
- }
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 1e272f6a01e73..8a1758b094b70 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -1260,9 +1260,11 @@ unsigned long lockdep_count_forward_deps(struct lock_class *class)
+ 	this.class = class;
  
- static void alc256_shutup(struct hda_codec *codec)
+ 	raw_local_irq_save(flags);
++	current->lockdep_recursion = 1;
+ 	arch_spin_lock(&lockdep_lock);
+ 	ret = __lockdep_count_forward_deps(&this);
+ 	arch_spin_unlock(&lockdep_lock);
++	current->lockdep_recursion = 0;
+ 	raw_local_irq_restore(flags);
+ 
+ 	return ret;
+@@ -1287,9 +1289,11 @@ unsigned long lockdep_count_backward_deps(struct lock_class *class)
+ 	this.class = class;
+ 
+ 	raw_local_irq_save(flags);
++	current->lockdep_recursion = 1;
+ 	arch_spin_lock(&lockdep_lock);
+ 	ret = __lockdep_count_backward_deps(&this);
+ 	arch_spin_unlock(&lockdep_lock);
++	current->lockdep_recursion = 0;
+ 	raw_local_irq_restore(flags);
+ 
+ 	return ret;
+-- 
+2.20.1
+
 
 
