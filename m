@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE7871AC781
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C84B71ACC64
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 18:00:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733062AbgDPOzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:55:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43246 "EHLO mail.kernel.org"
+        id S2410678AbgDPP7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:59:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732194AbgDPN4L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:56:11 -0400
+        id S2895668AbgDPN2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:28:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BCE021744;
-        Thu, 16 Apr 2020 13:56:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0297F206E9;
+        Thu, 16 Apr 2020 13:28:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045371;
-        bh=6H1V2cPpME8yyZYSE40VWtVW+9eZQ/zpTdh4A8UwM1s=;
+        s=default; t=1587043683;
+        bh=9GOJc2UvoxWIasa8Ynx8hgzZr5zciOzgHTvFBRG9Ob0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ok2aOYLDxSXC6817eYX2XWyJLV56O95iScu/a3nLK7WtpIIBJz3QGnC8wcmnowfQQ
-         PUx+uQAOR4TAdqowusZ0LOQczv50L0721YnffxYyjmorBQyOBQx+sn/WHV4XwzAnKc
-         J6cY2BRNRz4pdxn/fHfauwgq68K3DJBIMXBuMoXE=
+        b=kIpETN2cvMo90rfS1T4PseIRAraWrnBbxf19C0WA37ibTIaOM4qQ5BLOULIgJz7c9
+         FtXnXTYzMR+jgcDMU2awqQeo8T9l60wZikF2fWcnPAENLM7leRYL+Ydw5Q6XthM90L
+         v9F3DDgR060JF+LIbEevw6a8PGISaHxKr+S3UI44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.6 108/254] tpm: tpm2_bios_measurements_next should increase position index
-Date:   Thu, 16 Apr 2020 15:23:17 +0200
-Message-Id: <20200416131339.630609080@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 057/146] ALSA: hda/realtek - Remove now-unnecessary XPS 13 headphone noise fixups
+Date:   Thu, 16 Apr 2020 15:23:18 +0200
+Message-Id: <20200416131250.688512798@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +43,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-commit f9bf8adb55cd5a357b247a16aafddf8c97b276e0 upstream.
+commit f36938aa7440f46a0a365f1cfde5f5985af2bef3 upstream.
 
-If .next function does not change position index,
-following .show function will repeat output related
-to current position index.
+patch_realtek.c has historically failed to properly configure the PC
+Beep Hidden Register for the ALC256 codec (among others). Depending on
+your kernel version, symptoms of this misconfiguration can range from
+chassis noise, picked up by a poorly-shielded PCBEEP trace, getting
+amplified and played on your internal speaker and/or headphones to loud
+feedback, which responds to the "Headphone Mic Boost" ALSA control,
+getting played through your headphones. For details of the problem, see
+the patch in this series titled "ALSA: hda/realtek - Set principled PC
+Beep configuration for ALC256", which fixes the configuration.
 
-For /sys/kernel/security/tpm0/binary_bios_measurements:
-1) read after lseek beyound end of file generates whole last line.
-2) read after lseek to middle of last line generates
-expected end of last line and unexpected whole last line once again.
+These symptoms have been most noticed on the Dell XPS 13 9350 and 9360,
+popular laptops that use the ALC256. As a result, several model-specific
+fixups have been introduced to try and fix the problem, the most
+egregious of which locks the "Headphone Mic Boost" control as a hack to
+minimize noise from a feedback loop that shouldn't have been there in
+the first place.
 
-Cc: stable@vger.kernel.org # 4.19.x
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Now that the underlying issue has been fixed, remove all these fixups.
+Remaining fixups needed by the XPS 13 are all picked up by existing pin
+quirks.
+
+This change should, for the XPS 13 9350/9360
+
+ - Significantly increase volume and audio quality on headphones
+ - Eliminate headphone popping on suspend/resume
+ - Allow "Headphone Mic Boost" to be set again, making the headphone
+   jack fully usable as a microphone jack too.
+
+Fixes: 8c69729b4439 ("ALSA: hda - Fix headphone noise after Dell XPS 13 resume back from S3")
+Fixes: 423cd785619a ("ALSA: hda - Fix headphone noise on Dell XPS 13 9360")
+Fixes: e4c9fd10eb21 ("ALSA: hda - Apply headphone noise quirk for another Dell XPS 13 variant")
+Fixes: 1099f48457d0 ("ALSA: hda/realtek: Reduce the Headphone static noise on XPS 9350/9360")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Link: https://lore.kernel.org/r/b649a00edfde150cf6eebbb4390e15e0c2deb39a.1585584498.git.tommyhebb@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/eventlog/tpm2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/sound/hd-audio/models.rst |    2 -
+ sound/pci/hda/patch_realtek.c           |   34 --------------------------------
+ 2 files changed, 36 deletions(-)
 
---- a/drivers/char/tpm/eventlog/tpm2.c
-+++ b/drivers/char/tpm/eventlog/tpm2.c
-@@ -94,6 +94,7 @@ static void *tpm2_bios_measurements_next
- 	size_t event_size;
- 	void *marker;
- 
-+	(*pos)++;
- 	event_header = log->bios_event_log;
- 
- 	if (v == SEQ_START_TOKEN) {
-@@ -118,7 +119,6 @@ static void *tpm2_bios_measurements_next
- 	if (((v + event_size) >= limit) || (event_size == 0))
- 		return NULL;
- 
--	(*pos)++;
- 	return v;
+--- a/Documentation/sound/hd-audio/models.rst
++++ b/Documentation/sound/hd-audio/models.rst
+@@ -216,8 +216,6 @@ alc298-dell-aio
+     ALC298 fixups on Dell AIO machines
+ alc275-dell-xps
+     ALC275 fixups on Dell XPS models
+-alc256-dell-xps13
+-    ALC256 fixups on Dell XPS13
+ lenovo-spk-noise
+     Workaround for speaker noise on Lenovo machines
+ lenovo-hotkey
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5272,17 +5272,6 @@ static void alc271_hp_gate_mic_jack(stru
+ 	}
  }
  
+-static void alc256_fixup_dell_xps_13_headphone_noise2(struct hda_codec *codec,
+-						      const struct hda_fixup *fix,
+-						      int action)
+-{
+-	if (action != HDA_FIXUP_ACT_PRE_PROBE)
+-		return;
+-
+-	snd_hda_codec_amp_stereo(codec, 0x1a, HDA_INPUT, 0, HDA_AMP_VOLMASK, 1);
+-	snd_hda_override_wcaps(codec, 0x1a, get_wcaps(codec, 0x1a) & ~AC_WCAP_IN_AMP);
+-}
+-
+ static void alc269_fixup_limit_int_mic_boost(struct hda_codec *codec,
+ 					     const struct hda_fixup *fix,
+ 					     int action)
+@@ -5674,8 +5663,6 @@ enum {
+ 	ALC298_FIXUP_DELL1_MIC_NO_PRESENCE,
+ 	ALC298_FIXUP_DELL_AIO_MIC_NO_PRESENCE,
+ 	ALC275_FIXUP_DELL_XPS,
+-	ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE,
+-	ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2,
+ 	ALC293_FIXUP_LENOVO_SPK_NOISE,
+ 	ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY,
+ 	ALC255_FIXUP_DELL_SPK_NOISE,
+@@ -6387,23 +6374,6 @@ static const struct hda_fixup alc269_fix
+ 			{}
+ 		}
+ 	},
+-	[ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE] = {
+-		.type = HDA_FIXUP_VERBS,
+-		.v.verbs = (const struct hda_verb[]) {
+-			/* Disable pass-through path for FRONT 14h */
+-			{0x20, AC_VERB_SET_COEF_INDEX, 0x36},
+-			{0x20, AC_VERB_SET_PROC_COEF, 0x1737},
+-			{}
+-		},
+-		.chained = true,
+-		.chain_id = ALC255_FIXUP_DELL1_MIC_NO_PRESENCE
+-	},
+-	[ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2] = {
+-		.type = HDA_FIXUP_FUNC,
+-		.v.func = alc256_fixup_dell_xps_13_headphone_noise2,
+-		.chained = true,
+-		.chain_id = ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE
+-	},
+ 	[ALC293_FIXUP_LENOVO_SPK_NOISE] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc_fixup_disable_aamix,
+@@ -6871,17 +6841,14 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1028, 0x06de, "Dell", ALC293_FIXUP_DISABLE_AAMIX_MULTIJACK),
+ 	SND_PCI_QUIRK(0x1028, 0x06df, "Dell", ALC293_FIXUP_DISABLE_AAMIX_MULTIJACK),
+ 	SND_PCI_QUIRK(0x1028, 0x06e0, "Dell", ALC293_FIXUP_DISABLE_AAMIX_MULTIJACK),
+-	SND_PCI_QUIRK(0x1028, 0x0704, "Dell XPS 13 9350", ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2),
+ 	SND_PCI_QUIRK(0x1028, 0x0706, "Dell Inspiron 7559", ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER),
+ 	SND_PCI_QUIRK(0x1028, 0x0725, "Dell Inspiron 3162", ALC255_FIXUP_DELL_SPK_NOISE),
+ 	SND_PCI_QUIRK(0x1028, 0x0738, "Dell Precision 5820", ALC269_FIXUP_NO_SHUTUP),
+-	SND_PCI_QUIRK(0x1028, 0x075b, "Dell XPS 13 9360", ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2),
+ 	SND_PCI_QUIRK(0x1028, 0x075c, "Dell XPS 27 7760", ALC298_FIXUP_SPK_VOLUME),
+ 	SND_PCI_QUIRK(0x1028, 0x075d, "Dell AIO", ALC298_FIXUP_SPK_VOLUME),
+ 	SND_PCI_QUIRK(0x1028, 0x07b0, "Dell Precision 7520", ALC295_FIXUP_DISABLE_DAC3),
+ 	SND_PCI_QUIRK(0x1028, 0x0798, "Dell Inspiron 17 7000 Gaming", ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER),
+ 	SND_PCI_QUIRK(0x1028, 0x080c, "Dell WYSE", ALC225_FIXUP_DELL_WYSE_MIC_NO_PRESENCE),
+-	SND_PCI_QUIRK(0x1028, 0x082a, "Dell XPS 13 9360", ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2),
+ 	SND_PCI_QUIRK(0x1028, 0x084b, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
+ 	SND_PCI_QUIRK(0x1028, 0x084e, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
+ 	SND_PCI_QUIRK(0x1028, 0x0871, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
+@@ -7232,7 +7199,6 @@ static const struct hda_model_fixup alc2
+ 	{.id = ALC298_FIXUP_DELL1_MIC_NO_PRESENCE, .name = "alc298-dell1"},
+ 	{.id = ALC298_FIXUP_DELL_AIO_MIC_NO_PRESENCE, .name = "alc298-dell-aio"},
+ 	{.id = ALC275_FIXUP_DELL_XPS, .name = "alc275-dell-xps"},
+-	{.id = ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE, .name = "alc256-dell-xps13"},
+ 	{.id = ALC293_FIXUP_LENOVO_SPK_NOISE, .name = "lenovo-spk-noise"},
+ 	{.id = ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY, .name = "lenovo-hotkey"},
+ 	{.id = ALC255_FIXUP_DELL_SPK_NOISE, .name = "dell-spk-noise"},
 
 
