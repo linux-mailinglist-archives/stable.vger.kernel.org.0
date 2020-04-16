@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF0751AC309
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:39:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A68121AC91C
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:19:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2897392AbgDPNg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:36:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49064 "EHLO mail.kernel.org"
+        id S2442413AbgDPPTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:19:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2897385AbgDPNgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:36:55 -0400
+        id S2898723AbgDPNrz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:47:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B3D7221F4;
-        Thu, 16 Apr 2020 13:36:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D8C8208E4;
+        Thu, 16 Apr 2020 13:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044215;
-        bh=EK/Cuxjn3w46ZMpO2v2XOHxAZrlG7GWtQElkScPysAM=;
+        s=default; t=1587044874;
+        bh=P0Kbr+jaiAUTu7vRnV1VEh+m2Ui/C/b38dc6jJjmH4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8znV/JPqsaSra1fmgPmHEBpCt2brfz/g9tfCVcE79hJ4FhKfMSqYXggK35xtrzNe
-         Y368pBJGPJ6Cg2efbAutCp62VhN3vJoaVK4nLhY9dLq/307Vvd4BpNo8mI8WviW9U1
-         SP9tvuNHR95zI6JJ1yLuFd1GHaD13p+IBaZtqNzA=
+        b=U7K1vAMwvVl5gKWujdNMQVk+9koJk8biI1iuVWHQ0VkQFMZ2FzNnfcTzT+gSOwfvd
+         /7w8C0Sq44xO/kp2dBYyCoXOkIk2dp/sdmezNYATlgn65W568DGFRsrZIMzh4wKAg+
+         63mwySlgdEJpY3D2lN64GwVFnWtctcWZNFw3t4Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sungbo Eo <mans0n@gorani.run>,
-        Marc Zyngier <maz@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.5 128/257] irqchip/versatile-fpga: Apply clear-mask earlier
-Date:   Thu, 16 Apr 2020 15:22:59 +0200
-Message-Id: <20200416131342.376329363@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 086/232] ALSA: hda/realtek - Add quirk for MSI GL63
+Date:   Thu, 16 Apr 2020 15:23:00 +0200
+Message-Id: <20200416131325.778286538@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sungbo Eo <mans0n@gorani.run>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 6a214a28132f19ace3d835a6d8f6422ec80ad200 upstream.
+commit 1d3aa4a5516d2e4933fe3cca11d3349ef63bc547 upstream.
 
-Clear its own IRQs before the parent IRQ get enabled, so that the
-remaining IRQs do not accidentally interrupt the parent IRQ controller.
+MSI GL63 laptop requires the similar quirk like other MSI models,
+ALC1220_FIXUP_CLEVO_P950.  The board BIOS doesn't provide a PCI SSID
+for the device, hence we need to take the codec SSID (1462:1275)
+instead.
 
-This patch also fixes a reboot bug on OX820 SoC, where the remaining
-rps-timer IRQ raises a GIC interrupt that is left pending. After that,
-the rps-timer IRQ is cleared during driver initialization, and there's
-no IRQ left in rps-irq when local_irq_enable() is called, which evokes
-an error message "unexpected IRQ trap".
-
-Fixes: bdd272cbb97a ("irqchip: versatile FPGA: support cascaded interrupts from DT")
-Signed-off-by: Sungbo Eo <mans0n@gorani.run>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200321133842.2408823-1-mans0n@gorani.run
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207157
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200408135645.21896-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/irqchip/irq-versatile-fpga.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/irqchip/irq-versatile-fpga.c
-+++ b/drivers/irqchip/irq-versatile-fpga.c
-@@ -212,6 +212,9 @@ int __init fpga_irq_of_init(struct devic
- 	if (of_property_read_u32(node, "valid-mask", &valid_mask))
- 		valid_mask = 0;
- 
-+	writel(clear_mask, base + IRQ_ENABLE_CLEAR);
-+	writel(clear_mask, base + FIQ_ENABLE_CLEAR);
-+
- 	/* Some chips are cascaded from a parent IRQ */
- 	parent_irq = irq_of_parse_and_map(node, 0);
- 	if (!parent_irq) {
-@@ -221,9 +224,6 @@ int __init fpga_irq_of_init(struct devic
- 
- 	fpga_irq_init(base, node->name, 0, parent_irq, valid_mask, node);
- 
--	writel(clear_mask, base + IRQ_ENABLE_CLEAR);
--	writel(clear_mask, base + FIQ_ENABLE_CLEAR);
--
- 	/*
- 	 * On Versatile AB/PB, some secondary interrupts have a direct
- 	 * pass-thru to the primary controller for IRQs 20 and 22-31 which need
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2447,6 +2447,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1462, 0x1275, "MSI-GL63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x7350, "MSI-7350", ALC889_FIXUP_CD),
 
 
