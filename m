@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BB841AC1F3
+	by mail.lfdr.de (Postfix) with ESMTP id C866C1AC1F4
 	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2894708AbgDPNBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:01:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38492 "EHLO mail.kernel.org"
+        id S2894688AbgDPNBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:01:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2894703AbgDPNBR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:01:17 -0400
+        id S2894706AbgDPNBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:01:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A928214AF;
-        Thu, 16 Apr 2020 13:01:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD83221D79;
+        Thu, 16 Apr 2020 13:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587042074;
-        bh=RJOTq2qwvd5cU9v3dsnLMOTnpT+S6X+GucaI6JHfoVo=;
+        s=default; t=1587042077;
+        bh=42XYOGO8K60P5I62HXrT0Is11P1/mgtaFZh5cAvbk6U=;
         h=Subject:To:From:Date:From;
-        b=B1bTovnQYebh37LvEKyqitX9M218OYhHfVBnnDAKeK3yzERxvnbst7ELTx4blH0QX
-         tOqQOTcscNkXtv5oFBVz3uLoBQItwvQcgnNS+o4bf/D4dEFt8BR0CAaCYTX6ro+mkj
-         qfFlv6oUcVgNlbO2kfe8USf2xO8VqanlykHEe5aQ=
-Subject: patch "cdc-acm: introduce a cool down" added to usb-linus
+        b=yjrLYbVQG34jL+xT3S8jn43Hu4JBw1utAmG0VjgbJwinTMXsWqd0gUO2KlFSDbja1
+         PCMdOT797Eox/QmNspiJH6+14HdjkBIhfW0Q3E4Kfpeu8B4qWhi4haPC9XsRfTR/tr
+         WdSYT6Z5rjE2r8MwlkS/Z0Ll3N1dRG+eMwnaFiJo=
+Subject: patch "UAS: fix deadlock in error handling and PM flushing work" added to usb-linus
 To:     oneukum@suse.com, gregkh@linuxfoundation.org,
-        jonas.karlsson@actia.se, stable@vger.kernel.org
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 16 Apr 2020 15:01:02 +0200
-Message-ID: <158704206265137@kroah.com>
+Message-ID: <1587042062245118@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    cdc-acm: introduce a cool down
+    UAS: fix deadlock in error handling and PM flushing work
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,142 +55,102 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From a4e7279cd1d19f48f0af2a10ed020febaa9ac092 Mon Sep 17 00:00:00 2001
+From f6cc6093a729ede1ff5658b493237c42b82ba107 Mon Sep 17 00:00:00 2001
 From: Oliver Neukum <oneukum@suse.com>
-Date: Wed, 15 Apr 2020 17:13:58 +0200
-Subject: cdc-acm: introduce a cool down
+Date: Wed, 15 Apr 2020 16:17:50 +0200
+Subject: UAS: fix deadlock in error handling and PM flushing work
 
-Immediate submission in case of a babbling device can lead
-to a busy loop. Introducing a delayed work.
+A SCSI error handler and block runtime PM must not allocate
+memory with GFP_KERNEL. Furthermore they must not wait for
+tasks allocating memory with GFP_KERNEL.
+That means that they cannot share a workqueue with arbitrary tasks.
+
+Fix this for UAS using a private workqueue.
 
 Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Fixes: f9dc024a2da1f ("uas: pre_reset and suspend: Fix a few races")
 Cc: stable <stable@vger.kernel.org>
-Tested-by: Jonas Karlsson <jonas.karlsson@actia.se>
-Link: https://lore.kernel.org/r/20200415151358.32664-2-oneukum@suse.com
+Link: https://lore.kernel.org/r/20200415141750.811-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c | 30 ++++++++++++++++++++++++++++--
- drivers/usb/class/cdc-acm.h |  5 ++++-
- 2 files changed, 32 insertions(+), 3 deletions(-)
+ drivers/usb/storage/uas.c | 43 ++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 40 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 4ef68e6671aa..ded8d93834ca 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -412,9 +412,12 @@ static void acm_ctrl_irq(struct urb *urb)
+diff --git a/drivers/usb/storage/uas.c b/drivers/usb/storage/uas.c
+index 08503e3507bf..d592071119ba 100644
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -81,6 +81,19 @@ static void uas_free_streams(struct uas_dev_info *devinfo);
+ static void uas_log_cmd_state(struct scsi_cmnd *cmnd, const char *prefix,
+ 				int status);
  
- exit:
- 	retval = usb_submit_urb(urb, GFP_ATOMIC);
--	if (retval && retval != -EPERM)
-+	if (retval && retval != -EPERM && retval != -ENODEV)
- 		dev_err(&acm->control->dev,
- 			"%s - usb_submit_urb failed: %d\n", __func__, retval);
-+	else
-+		dev_vdbg(&acm->control->dev,
-+			"control resubmission terminated %d\n", retval);
++/*
++ * This driver needs its own workqueue, as we need to control memory allocation.
++ *
++ * In the course of error handling and power management uas_wait_for_pending_cmnds()
++ * needs to flush pending work items. In these contexts we cannot allocate memory
++ * by doing block IO as we would deadlock. For the same reason we cannot wait
++ * for anything allocating memory not heeding these constraints.
++ *
++ * So we have to control all work items that can be on the workqueue we flush.
++ * Hence we cannot share a queue and need our own.
++ */
++static struct workqueue_struct *workqueue;
++
+ static void uas_do_work(struct work_struct *work)
+ {
+ 	struct uas_dev_info *devinfo =
+@@ -109,7 +122,7 @@ static void uas_do_work(struct work_struct *work)
+ 		if (!err)
+ 			cmdinfo->state &= ~IS_IN_WORK_LIST;
+ 		else
+-			schedule_work(&devinfo->work);
++			queue_work(workqueue, &devinfo->work);
+ 	}
+ out:
+ 	spin_unlock_irqrestore(&devinfo->lock, flags);
+@@ -134,7 +147,7 @@ static void uas_add_work(struct uas_cmd_info *cmdinfo)
+ 
+ 	lockdep_assert_held(&devinfo->lock);
+ 	cmdinfo->state |= IS_IN_WORK_LIST;
+-	schedule_work(&devinfo->work);
++	queue_work(workqueue, &devinfo->work);
  }
  
- static int acm_submit_read_urb(struct acm *acm, int index, gfp_t mem_flags)
-@@ -430,6 +433,8 @@ static int acm_submit_read_urb(struct acm *acm, int index, gfp_t mem_flags)
- 			dev_err(&acm->data->dev,
- 				"urb %d failed submission with %d\n",
- 				index, res);
-+		} else {
-+			dev_vdbg(&acm->data->dev, "intended failure %d\n", res);
- 		}
- 		set_bit(index, &acm->read_urbs_free);
- 		return res;
-@@ -471,6 +476,7 @@ static void acm_read_bulk_callback(struct urb *urb)
- 	int status = urb->status;
- 	bool stopped = false;
- 	bool stalled = false;
-+	bool cooldown = false;
+ static void uas_zap_pending(struct uas_dev_info *devinfo, int result)
+@@ -1229,7 +1242,31 @@ static struct usb_driver uas_driver = {
+ 	.id_table = uas_usb_ids,
+ };
  
- 	dev_vdbg(&acm->data->dev, "got urb %d, len %d, status %d\n",
- 		rb->index, urb->actual_length, status);
-@@ -497,6 +503,14 @@ static void acm_read_bulk_callback(struct urb *urb)
- 			__func__, status);
- 		stopped = true;
- 		break;
-+	case -EOVERFLOW:
-+	case -EPROTO:
-+		dev_dbg(&acm->data->dev,
-+			"%s - cooling babbling device\n", __func__);
-+		usb_mark_last_busy(acm->dev);
-+		set_bit(rb->index, &acm->urbs_in_error_delay);
-+		cooldown = true;
-+		break;
- 	default:
- 		dev_dbg(&acm->data->dev,
- 			"%s - nonzero urb status received: %d\n",
-@@ -518,9 +532,11 @@ static void acm_read_bulk_callback(struct urb *urb)
- 	 */
- 	smp_mb__after_atomic();
- 
--	if (stopped || stalled) {
-+	if (stopped || stalled || cooldown) {
- 		if (stalled)
- 			schedule_work(&acm->work);
-+		else if (cooldown)
-+			schedule_delayed_work(&acm->dwork, HZ / 2);
- 		return;
- 	}
- 
-@@ -567,6 +583,12 @@ static void acm_softint(struct work_struct *work)
- 		}
- 	}
- 
-+	if (test_and_clear_bit(ACM_ERROR_DELAY, &acm->flags)) {
-+		for (i = 0; i < ACM_NR; i++) 
-+			if (test_and_clear_bit(i, &acm->urbs_in_error_delay))
-+					acm_submit_read_urb(acm, i, GFP_NOIO);
+-module_usb_driver(uas_driver);
++static int __init uas_init(void)
++{
++	int rv;
++
++	workqueue = alloc_workqueue("uas", WQ_MEM_RECLAIM, 0);
++	if (!workqueue)
++		return -ENOMEM;
++
++	rv = usb_register(&uas_driver);
++	if (rv) {
++		destroy_workqueue(workqueue);
++		return -ENOMEM;
 +	}
 +
- 	if (test_and_clear_bit(EVENT_TTY_WAKEUP, &acm->flags))
- 		tty_port_tty_wakeup(&acm->port);
- }
-@@ -1333,6 +1355,7 @@ static int acm_probe(struct usb_interface *intf,
- 	acm->readsize = readsize;
- 	acm->rx_buflimit = num_rx_buf;
- 	INIT_WORK(&acm->work, acm_softint);
-+	INIT_DELAYED_WORK(&acm->dwork, acm_softint);
- 	init_waitqueue_head(&acm->wioctl);
- 	spin_lock_init(&acm->write_lock);
- 	spin_lock_init(&acm->read_lock);
-@@ -1542,6 +1565,7 @@ static void acm_disconnect(struct usb_interface *intf)
++	return 0;
++}
++
++static void __exit uas_exit(void)
++{
++	usb_deregister(&uas_driver);
++	destroy_workqueue(workqueue);
++}
++
++module_init(uas_init);
++module_exit(uas_exit);
  
- 	acm_kill_urbs(acm);
- 	cancel_work_sync(&acm->work);
-+	cancel_delayed_work_sync(&acm->dwork);
- 
- 	tty_unregister_device(acm_tty_driver, acm->minor);
- 
-@@ -1584,6 +1608,8 @@ static int acm_suspend(struct usb_interface *intf, pm_message_t message)
- 
- 	acm_kill_urbs(acm);
- 	cancel_work_sync(&acm->work);
-+	cancel_delayed_work_sync(&acm->dwork);
-+	acm->urbs_in_error_delay = 0;
- 
- 	return 0;
- }
-diff --git a/drivers/usb/class/cdc-acm.h b/drivers/usb/class/cdc-acm.h
-index ca1c026382c2..cd5e9d8ab237 100644
---- a/drivers/usb/class/cdc-acm.h
-+++ b/drivers/usb/class/cdc-acm.h
-@@ -109,8 +109,11 @@ struct acm {
- #		define EVENT_TTY_WAKEUP	0
- #		define EVENT_RX_STALL	1
- #		define ACM_THROTTLED	2
-+#		define ACM_ERROR_DELAY	3
-+	unsigned long urbs_in_error_delay;		/* these need to be restarted after a delay */
- 	struct usb_cdc_line_coding line;		/* bits, stop, parity */
--	struct work_struct work;			/* work queue entry for line discipline waking up */
-+	struct work_struct work;			/* work queue entry for various purposes*/
-+	struct delayed_work dwork;			/* for cool downs needed in error recovery */
- 	unsigned int ctrlin;				/* input control lines (DCD, DSR, RI, break, overruns) */
- 	unsigned int ctrlout;				/* output control lines (DTR, RTS) */
- 	struct async_icount iocount;			/* counters for control line changes */
+ MODULE_LICENSE("GPL");
+ MODULE_IMPORT_NS(USB_STORAGE);
 -- 
 2.26.1
 
