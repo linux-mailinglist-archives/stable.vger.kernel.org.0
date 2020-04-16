@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57D6C1AC780
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 16:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A67601AC94E
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:22:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733154AbgDPOzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 10:55:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43302 "EHLO mail.kernel.org"
+        id S2409002AbgDPPVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:21:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408929AbgDPN4Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:56:16 -0400
+        id S2898610AbgDPNqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:46:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E597A217D8;
-        Thu, 16 Apr 2020 13:56:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B71E021734;
+        Thu, 16 Apr 2020 13:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045376;
-        bh=sRsf7xacDSWIjD5VxmR6mRyFX8pNfQp0G4me/WzHu8I=;
+        s=default; t=1587044799;
+        bh=1ClpcThwENIVjhgFj2BIfnEiPBTFpOMrznL6cQRlSt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8yZmHTGNUAkj6urCO1vMtMkN4zjKw31Ek9ogjWnicWXDdbQi2X6rLjXRMa3GqbY9
-         M62V7lUm9I+VRYdm7+mr19yqk1Fk++F0v+59eSJt80fzHvI/N1wCqMvok+he1X7soG
-         JP6GxQSXjOET1sa/qDfeWug9yM5h0IgS73VCWNcU=
+        b=PwV4PH5M6g5Qr0/MeohryNWCgy856/C6Jus7tBBZhR4mpNj5UroPhE1/D3aH90QKx
+         PUXMPuyZUUKTwfYCWxxzReolYsN/SgpydEenX+yLdnIFu7DEzu6H50Rao0DWgrBy7r
+         x1kU60v2HelvwEOUARpZ8jmZW45hAiblNwoFPatI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ludovic Barre <ludovic.barre@st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.6 110/254] mmc: mmci_sdmmc: Fix clear busyd0end irq flag
-Date:   Thu, 16 Apr 2020 15:23:19 +0200
-Message-Id: <20200416131339.930120460@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: [PATCH 5.4 106/232] tpm: tpm1_bios_measurements_next should increase position index
+Date:   Thu, 16 Apr 2020 15:23:20 +0200
+Message-Id: <20200416131328.380305814@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ludovic Barre <ludovic.barre@st.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit d4a384cb563e555ce00255f5f496b503e6cc6358 upstream.
+commit d7a47b96ed1102551eb7325f97937e276fb91045 upstream.
 
-The busyd0 line transition can be very fast. The busy request may be
-completed by busy_d0end, without waiting for the busy_d0 steps. Therefore,
-clear the busyd0end irq flag, even if no busy_status.
+If .next function does not change position index,
+following .show function will repeat output related
+to current position index.
 
-Fixes: 0e68de6aa7b1 ("mmc: mmci: sdmmc: add busy_complete callback")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
-Link: https://lore.kernel.org/r/20200325143409.13005-2-ludovic.barre@st.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+In case of /sys/kernel/security/tpm0/ascii_bios_measurements
+and binary_bios_measurements:
+1) read after lseek beyound end of file generates whole last line.
+2) read after lseek to middle of last line generates
+expected end of last line and unexpected whole last line once again.
+
+Cc: stable@vger.kernel.org # 4.19.x
+Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code ...")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/mmci_stm32_sdmmc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/tpm/eventlog/tpm1.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/mmci_stm32_sdmmc.c
-+++ b/drivers/mmc/host/mmci_stm32_sdmmc.c
-@@ -315,11 +315,11 @@ complete:
- 	if (host->busy_status) {
- 		writel_relaxed(mask & ~host->variant->busy_detect_mask,
- 			       base + MMCIMASK0);
--		writel_relaxed(host->variant->busy_detect_mask,
--			       base + MMCICLEAR);
- 		host->busy_status = 0;
- 	}
+--- a/drivers/char/tpm/eventlog/tpm1.c
++++ b/drivers/char/tpm/eventlog/tpm1.c
+@@ -115,6 +115,7 @@ static void *tpm1_bios_measurements_next
+ 	u32 converted_event_size;
+ 	u32 converted_event_type;
  
-+	writel_relaxed(host->variant->busy_detect_mask, base + MMCICLEAR);
-+
- 	return true;
++	(*pos)++;
+ 	converted_event_size = do_endian_conversion(event->event_size);
+ 
+ 	v += sizeof(struct tcpa_event) + converted_event_size;
+@@ -132,7 +133,6 @@ static void *tpm1_bios_measurements_next
+ 	    ((v + sizeof(struct tcpa_event) + converted_event_size) > limit))
+ 		return NULL;
+ 
+-	(*pos)++;
+ 	return v;
  }
  
 
