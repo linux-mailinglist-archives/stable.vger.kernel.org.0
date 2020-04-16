@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C8D1AC3D5
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:50:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 274DC1ACBE9
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732322AbgDPNuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:50:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35826 "EHLO mail.kernel.org"
+        id S2506407AbgDPPwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:52:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2441581AbgDPNuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:50:02 -0400
+        id S2896576AbgDPNcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:32:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88AE42063A;
-        Thu, 16 Apr 2020 13:49:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8396722260;
+        Thu, 16 Apr 2020 13:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044963;
-        bh=W67J4mpFhxI5aIfA8+lYU7Gbb6BRpGz4wwe69mq9YR8=;
+        s=default; t=1587043913;
+        bh=AkmUSef8AZSysoXpdP9BYzpEVG+EqMyehV9XhTMGm60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qkHOHERH+jIds9BD1A1UHpxfgCAOV/7hQcnpLFK3eB1V5aoddOpIZQ5htjWBDauzw
-         NlIVE2L4HbFbs174pLNx35VwmrWxD1IJbLIb+dFQ5/Mqk+npC+2EmaC1pq/bPwXZEd
-         vUVn6sMCM/GKfyv6ZWCfU/GMXlGR9JtlX891cLsM=
+        b=I8WVjATeowDhcyybtHUAnFK8hC5n4rkyDGmSp7mwpM6jDhnWNJDZAiCOk+VymnG2w
+         2CwVmZBHSoz1WGy3XYgO1FHi93kSMVhFIQEB2aIGqiS5v6zqrPEHuiTwyrYUOkxuSb
+         YTOVMhUb/PiXM2ovqZZ0TOPlqBmf2M1lkupfPIu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 171/232] crypto: ccree - only try to map auth tag if needed
-Date:   Thu, 16 Apr 2020 15:24:25 +0200
-Message-Id: <20200416131336.402131587@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 125/146] powerpc/64/tm: Dont let userspace set regs->trap via sigreturn
+Date:   Thu, 16 Apr 2020 15:24:26 +0200
+Message-Id: <20200416131259.643833652@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
-References: <20200416131316.640996080@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 504e84abec7a635b861afd8d7f92ecd13eaa2b09 upstream.
+commit c7def7fbdeaa25feaa19caf4a27c5d10bd8789e4 upstream.
 
-Make sure to only add the size of the auth tag to the source mapping
-for encryption if it is an in-place operation. Failing to do this
-previously caused us to try and map auth size len bytes from a NULL
-mapping and crashing if both the cryptlen and assoclen are zero.
+In restore_tm_sigcontexts() we take the trap value directly from the
+user sigcontext with no checking:
 
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
+
+This means we can be in the kernel with an arbitrary regs->trap value.
+
+Although that's not immediately problematic, there is a risk we could
+trigger one of the uses of CHECK_FULL_REGS():
+
+	#define CHECK_FULL_REGS(regs)	BUG_ON(regs->trap & 1)
+
+It can also cause us to unnecessarily save non-volatile GPRs again in
+save_nvgprs(), which shouldn't be problematic but is still wrong.
+
+It's also possible it could trick the syscall restart machinery, which
+relies on regs->trap not being == 0xc00 (see 9a81c16b5275 ("powerpc:
+fix double syscall restarts")), though I haven't been able to make
+that happen.
+
+Finally it doesn't match the behaviour of the non-TM case, in
+restore_sigcontext() which zeroes regs->trap.
+
+So change restore_tm_sigcontexts() to zero regs->trap.
+
+This was discovered while testing Nick's upcoming rewrite of the
+syscall entry path. In that series the call to save_nvgprs() prior to
+signal handling (do_notify_resume()) is removed, which leaves the
+low-bit of regs->trap uncleared which can then trigger the FULL_REGS()
+WARNs in setup_tm_sigcontexts().
+
+Fixes: 2b0a576d15e0 ("powerpc: Add new transactional memory state to the signal context")
+Cc: stable@vger.kernel.org # v3.9+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200401023836.3286664-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_buffer_mgr.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/signal_64.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/ccree/cc_buffer_mgr.c
-+++ b/drivers/crypto/ccree/cc_buffer_mgr.c
-@@ -1109,9 +1109,11 @@ int cc_map_aead_request(struct cc_drvdat
- 	}
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -477,8 +477,10 @@ static long restore_tm_sigcontexts(struc
+ 	err |= __get_user(tsk->thread.ckpt_regs.ccr,
+ 			  &sc->gp_regs[PT_CCR]);
  
- 	size_to_map = req->cryptlen + areq_ctx->assoclen;
--	if (areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT)
-+	/* If we do in-place encryption, we also need the auth tag */
-+	if ((areq_ctx->gen_ctx.op_type == DRV_CRYPTO_DIRECTION_ENCRYPT) &&
-+	   (req->src == req->dst)) {
- 		size_to_map += authsize;
--
-+	}
- 	if (is_gcm4543)
- 		size_to_map += crypto_aead_ivsize(tfm);
- 	rc = cc_map_sg(dev, req->src, size_to_map, DMA_BIDIRECTIONAL,
++	/* Don't allow userspace to set the trap value */
++	regs->trap = 0;
++
+ 	/* These regs are not checkpointed; they can go in 'regs'. */
+-	err |= __get_user(regs->trap, &sc->gp_regs[PT_TRAP]);
+ 	err |= __get_user(regs->dar, &sc->gp_regs[PT_DAR]);
+ 	err |= __get_user(regs->dsisr, &sc->gp_regs[PT_DSISR]);
+ 	err |= __get_user(regs->result, &sc->gp_regs[PT_RESULT]);
 
 
