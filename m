@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 036D21ACB82
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94A231AC376
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410416AbgDPPrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:47:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44778 "EHLO mail.kernel.org"
+        id S1730990AbgDPNnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:43:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2896725AbgDPNdd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:33:33 -0400
+        id S1728371AbgDPNnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:43:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E138221F7;
-        Thu, 16 Apr 2020 13:33:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 807A0214D8;
+        Thu, 16 Apr 2020 13:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587044013;
-        bh=rcjh3l3DjFWYTa13HVk4wQSTUrOgmQ2s6RvdNQnB9Cg=;
+        s=default; t=1587044612;
+        bh=pPQAnpLJ6swHilZZiXwdXrhXTemHxz69XOukH7cla4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsQXGV9PSkJRUvJrFg0bj3bEMAUl4g6wwF1cdPzvwl1IpwvOLhRw42WZuIWR2X04q
-         o+0jW36dVUhUi8l4l/QF4U75t1buZelzaYzIzUKdPcgUx3riDc17A/QWc8SnyD4LIy
-         lgIfMTHAZ2vq+ExUlzpsZ6YPN4fD9HgD4vnA77dk=
+        b=k1CAyKdXimIUYaOnNqNFZ3LRp1M2oK45+4uv2DrjPl/PY6ma0JCYhk7le7EA6/71w
+         5PTFzObB8Zhc5HmrNCGy5Bk7g+yeXbuOzyO6LjPFlDeM61dpfYmsb52/cZG/s6j8Eo
+         vhwaVkdbaRDYaww7J/KkKqno+9CjHXI/YoSPrdqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Bob Liu <bob.liu@oracle.com>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.5 046/257] block: keep bdi->io_pages in sync with max_sectors_kb for stacked devices
+Subject: [PATCH 5.4 003/232] ARM: dts: Fix dm814x Ethernet by changing to use rgmii-id mode
 Date:   Thu, 16 Apr 2020 15:21:37 +0200
-Message-Id: <20200416131331.693890006@linuxfoundation.org>
+Message-Id: <20200416131317.023733829@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
-References: <20200416131325.891903893@linuxfoundation.org>
+In-Reply-To: <20200416131316.640996080@linuxfoundation.org>
+References: <20200416131316.640996080@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit e74d93e96d721c4297f2a900ad0191890d2fc2b0 ]
+[ Upstream commit b46b2b7ba6e104d265ab705914859ec0db7a98c5 ]
 
-Field bdi->io_pages added in commit 9491ae4aade6 ("mm: don't cap request
-size based on read-ahead setting") removes unneeded split of read requests.
+Commit cd28d1d6e52e ("net: phy: at803x: Disable phy delay for RGMII mode")
+caused a regression for dm814x boards where NFSroot would no longer work.
 
-Stacked drivers do not call blk_queue_max_hw_sectors(). Instead they set
-limits of their devices by blk_set_stacking_limits() + disk_stack_limits().
-Field bio->io_pages stays zero until user set max_sectors_kb via sysfs.
+Let's fix the issue by configuring "rgmii-id" mode as internal delays are
+needed that is no longer the case with "rgmii" mode.
 
-This patch updates io_pages after merging limits in disk_stack_limits().
-
-Commit c6d6e9b0f6b4 ("dm: do not allow readahead to limit IO size") fixed
-the same problem for device-mapper devices, this one fixes MD RAIDs.
-
-Fixes: 9491ae4aade6 ("mm: don't cap request size based on read-ahead setting")
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-settings.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/dm8148-evm.dts       | 4 ++--
+ arch/arm/boot/dts/dm8148-t410.dts      | 4 ++--
+ arch/arm/boot/dts/dra62x-j5eco-evm.dts | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/block/blk-settings.c b/block/blk-settings.c
-index c8eda2e7b91e4..be1dca0103a45 100644
---- a/block/blk-settings.c
-+++ b/block/blk-settings.c
-@@ -664,6 +664,9 @@ void disk_stack_limits(struct gendisk *disk, struct block_device *bdev,
- 		printk(KERN_NOTICE "%s: Warning: Device %s is misaligned\n",
- 		       top, bottom);
- 	}
-+
-+	t->backing_dev_info->io_pages =
-+		t->limits.max_sectors >> (PAGE_SHIFT - 9);
- }
- EXPORT_SYMBOL(disk_stack_limits);
+diff --git a/arch/arm/boot/dts/dm8148-evm.dts b/arch/arm/boot/dts/dm8148-evm.dts
+index 3931fb068ff09..91d1018ab75fc 100644
+--- a/arch/arm/boot/dts/dm8148-evm.dts
++++ b/arch/arm/boot/dts/dm8148-evm.dts
+@@ -24,12 +24,12 @@
  
+ &cpsw_emac0 {
+ 	phy-handle = <&ethphy0>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &cpsw_emac1 {
+ 	phy-handle = <&ethphy1>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &davinci_mdio {
+diff --git a/arch/arm/boot/dts/dm8148-t410.dts b/arch/arm/boot/dts/dm8148-t410.dts
+index 9e43d5ec0bb2f..79ccdd4470f4c 100644
+--- a/arch/arm/boot/dts/dm8148-t410.dts
++++ b/arch/arm/boot/dts/dm8148-t410.dts
+@@ -33,12 +33,12 @@
+ 
+ &cpsw_emac0 {
+ 	phy-handle = <&ethphy0>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &cpsw_emac1 {
+ 	phy-handle = <&ethphy1>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &davinci_mdio {
+diff --git a/arch/arm/boot/dts/dra62x-j5eco-evm.dts b/arch/arm/boot/dts/dra62x-j5eco-evm.dts
+index 861ab90a3f3aa..c16e183822bee 100644
+--- a/arch/arm/boot/dts/dra62x-j5eco-evm.dts
++++ b/arch/arm/boot/dts/dra62x-j5eco-evm.dts
+@@ -24,12 +24,12 @@
+ 
+ &cpsw_emac0 {
+ 	phy-handle = <&ethphy0>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &cpsw_emac1 {
+ 	phy-handle = <&ethphy1>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ };
+ 
+ &davinci_mdio {
 -- 
 2.20.1
 
