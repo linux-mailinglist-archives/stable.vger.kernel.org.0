@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D65B1AC44B
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:58:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02CBB1AC260
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 15:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2506690AbgDPN5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 09:57:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44580 "EHLO mail.kernel.org"
+        id S2895559AbgDPN1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 09:27:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2506646AbgDPN5c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:57:32 -0400
+        id S2895544AbgDPN1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:27:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6616F2078B;
-        Thu, 16 Apr 2020 13:57:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C94FE217D8;
+        Thu, 16 Apr 2020 13:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045451;
-        bh=8g4rtJKK7f7hAR4yH8/t0x0WZTPgRBWJXq9lOexgqK0=;
+        s=default; t=1587043659;
+        bh=kZ0NiSTwCEI9iWhJHS4nvEjEPhJyU7VAc4ik70TAT4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=keXCxssXaydKQbhpfSnJKg2roaGi5k6nzLgUIaNo2/+1mqvmKKnIVd6l/sxUiefa9
-         IvG+AdxUfIL5RIBe/8Ppw902m+7Ivo9MKmENuA+HAEWK+UsBn5yKF4mK+/z+eAxjns
-         yWFTzSPbCWNxyQQePCyzA+oiyk7/zCqSDckeNc9w=
+        b=V8UG/K1w+QkIJNhXxcEiziMyijACf9A/sER+/wW+u/5jzNJzJChCMzLuz1mgt4Mab
+         epSoFBy8dgBkoJFe55jpq6TvsFINn1qoREhPZAGtoTB1aYGzAF+71I/kWHKy02TxL9
+         8iKuDpsOb/eo3nWWP5Fi552zl9SfsfABmFcQMvsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yicong Yang <yangyicong@hisilicon.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.6 100/254] PCI/ASPM: Clear the correct bits when enabling L1 substates
+        stable@vger.kernel.org,
+        Sriharsha Allenki <sallenki@codeaurora.org>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: [PATCH 4.19 048/146] usb: gadget: f_fs: Fix use after free issue as part of queue failure
 Date:   Thu, 16 Apr 2020 15:23:09 +0200
-Message-Id: <20200416131338.529867016@linuxfoundation.org>
+Message-Id: <20200416131249.422964259@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131242.353444678@linuxfoundation.org>
+References: <20200416131242.353444678@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicong Yang <yangyicong@hisilicon.com>
+From: Sriharsha Allenki <sallenki@codeaurora.org>
 
-commit 58a3862a10a317a81097ab0c78aecebabb1704f5 upstream.
+commit f63ec55ff904b2f2e126884fcad93175f16ab4bb upstream.
 
-In pcie_config_aspm_l1ss(), we cleared the wrong bits when enabling ASPM L1
-Substates.  Instead of the L1.x enable bits (PCI_L1SS_CTL1_L1SS_MASK, 0xf), we
-cleared the Link Activation Interrupt Enable bit (PCI_L1SS_CAP_L1_PM_SS,
-0x10).
+In AIO case, the request is freed up if ep_queue fails.
+However, io_data->req still has the reference to this freed
+request. In the case of this failure if there is aio_cancel
+call on this io_data it will lead to an invalid dequeue
+operation and a potential use after free issue.
+Fix this by setting the io_data->req to NULL when the request
+is freed as part of queue failure.
 
-Clear the L1.x enable bits before writing the new L1.x configuration.
-
-[bhelgaas: changelog]
-Fixes: aeda9adebab8 ("PCI/ASPM: Configure L1 substate settings")
-Link: https://lore.kernel.org/r/1584093227-1292-1-git-send-email-yangyicong@hisilicon.com
-Signed-off-by: Yicong Yang <yangyicong@hisilicon.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-CC: stable@vger.kernel.org	# v4.11+
+Fixes: 2e4c7553cd6f ("usb: gadget: f_fs: add aio support")
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+CC: stable <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20200326115620.12571-1-sallenki@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pcie/aspm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/f_fs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/pcie/aspm.c
-+++ b/drivers/pci/pcie/aspm.c
-@@ -747,9 +747,9 @@ static void pcie_config_aspm_l1ss(struct
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1036,6 +1036,7 @@ static ssize_t ffs_epfile_io(struct file
  
- 	/* Enable what we need to enable */
- 	pci_clear_and_set_dword(parent, up_cap_ptr + PCI_L1SS_CTL1,
--				PCI_L1SS_CAP_L1_PM_SS, val);
-+				PCI_L1SS_CTL1_L1SS_MASK, val);
- 	pci_clear_and_set_dword(child, dw_cap_ptr + PCI_L1SS_CTL1,
--				PCI_L1SS_CAP_L1_PM_SS, val);
-+				PCI_L1SS_CTL1_L1SS_MASK, val);
- }
- 
- static void pcie_config_aspm_dev(struct pci_dev *pdev, u32 val)
+ 		ret = usb_ep_queue(ep->ep, req, GFP_ATOMIC);
+ 		if (unlikely(ret)) {
++			io_data->req = NULL;
+ 			usb_ep_free_request(ep->ep, req);
+ 			goto error_lock;
+ 		}
 
 
