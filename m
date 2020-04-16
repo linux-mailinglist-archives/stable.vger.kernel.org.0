@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE471AC7F6
-	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 276B21ACB35
+	for <lists+stable@lfdr.de>; Thu, 16 Apr 2020 17:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408976AbgDPPBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 11:01:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40862 "EHLO mail.kernel.org"
+        id S2391452AbgDPPot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 11:44:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408964AbgDPNyR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Apr 2020 09:54:17 -0400
+        id S2897134AbgDPNfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Apr 2020 09:35:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F353720732;
-        Thu, 16 Apr 2020 13:54:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FBA921BE5;
+        Thu, 16 Apr 2020 13:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587045256;
-        bh=UyeJtdp9U82Hk060fneyVqL7AIj7dU5ovHBE11uIfDo=;
+        s=default; t=1587044123;
+        bh=4m1dUXBUV9k6o18wlvbkSZoGbZqakAwYAzHfc90hGU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lEr0HqGxrc2MvDcpTRGI6+m9BGtcxHoeY/NPdHlIg5r/Virg2oQljnqPKXi35mKaq
-         PkKMP55Ni0zgzR90GNaIU4DIc2kkAJivrQJS9tFgaiWVKhmb8vESUikQY4XEw9dELD
-         WoQGtl3WLBtbQr4tAMeqn7K7v44JjoD74U2VV0Ys=
+        b=l/+h18iJsjz/JWvHt2VqqFbnIOoru5e2mxC77f2jgYf1h08c1Sj/FCQuuMeGp2L1o
+         4sQXUayUciThXSX2r0RriDp4VzPTW5BED8bRaEE6G3pPvVKzaUP4orwZEqKBVaOcLQ
+         CdlDCaf7XA2hwtACdtcF/jL9m6Y7Tvu1Ukfmlkqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongchun Zhu <dongchun.zhu@mediatek.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 053/254] media: i2c: ov5695: Fix power on and off sequences
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Jari Ruusu <jari.ruusu@gmail.com>
+Subject: [PATCH 5.5 091/257] ALSA: pcm: oss: Fix regression by buffer overflow fix
 Date:   Thu, 16 Apr 2020 15:22:22 +0200
-Message-Id: <20200416131332.512678814@linuxfoundation.org>
+Message-Id: <20200416131337.371835585@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-References: <20200416131325.804095985@linuxfoundation.org>
+In-Reply-To: <20200416131325.891903893@linuxfoundation.org>
+References: <20200416131325.891903893@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,134 +43,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongchun Zhu <dongchun.zhu@mediatek.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit f1a64f56663e9d03e509439016dcbddd0166b2da ]
+commit ae769d3556644888c964635179ef192995f40793 upstream.
 
->From the measured hardware signal, OV5695 reset pin goes high for a
-short period of time during boot-up. From the sensor specification, the
-reset pin is active low and the DT binding defines the pin as active
-low, which means that the values set by the driver are inverted and thus
-the value requested in probe ends up high.
+The recent fix for the OOB access in PCM OSS plugins (commit
+f2ecf903ef06: "ALSA: pcm: oss: Avoid plugin buffer overflow") caused a
+regression on OSS applications.  The patch introduced the size check
+in client and slave size calculations to limit to each plugin's buffer
+size, but I overlooked that some code paths call those without
+allocating the buffer but just for estimation.
 
-Fix it by changing probe to request the reset GPIO initialized to high,
-which makes the initial state of the physical signal low.
+This patch fixes the bug by skipping the size check for those code
+paths while keeping checking in the actual transfer calls.
 
-In addition, DOVDD rising must occur before DVDD rising from spec., but
-regulator_bulk_enable() API enables all the regulators asynchronously.
-Use an explicit loops of regulator_enable() instead.
+Fixes: f2ecf903ef06 ("ALSA: pcm: oss: Avoid plugin buffer overflow")
+Tested-and-reported-by: Jari Ruusu <jari.ruusu@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200403072515.25539-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-For power off sequence, it is required that DVDD falls first. Given the
-bulk API does not give any guarantee about the order of regulators,
-change the driver to use regulator_disable() instead.
-
-The sensor also requires a delay between reset high and first I2C
-transaction, which was assumed to be 8192 XVCLK cycles, but 1ms is
-recommended by the vendor. Fix this as well.
-
-Signed-off-by: Dongchun Zhu <dongchun.zhu@mediatek.com>
-Signed-off-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov5695.c | 49 ++++++++++++++++++++++++--------------
- 1 file changed, 31 insertions(+), 18 deletions(-)
+ sound/core/oss/pcm_plugin.c |   32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5695.c b/drivers/media/i2c/ov5695.c
-index d6cd15bb699ac..cc678d9d2e0da 100644
---- a/drivers/media/i2c/ov5695.c
-+++ b/drivers/media/i2c/ov5695.c
-@@ -971,16 +971,9 @@ unlock_and_return:
- 	return ret;
- }
- 
--/* Calculate the delay in us by clock rate and clock cycles */
--static inline u32 ov5695_cal_delay(u32 cycles)
--{
--	return DIV_ROUND_UP(cycles, OV5695_XVCLK_FREQ / 1000 / 1000);
--}
--
- static int __ov5695_power_on(struct ov5695 *ov5695)
- {
--	int ret;
--	u32 delay_us;
-+	int i, ret;
- 	struct device *dev = &ov5695->client->dev;
- 
- 	ret = clk_prepare_enable(ov5695->xvclk);
-@@ -991,21 +984,28 @@ static int __ov5695_power_on(struct ov5695 *ov5695)
- 
- 	gpiod_set_value_cansleep(ov5695->reset_gpio, 1);
- 
--	ret = regulator_bulk_enable(OV5695_NUM_SUPPLIES, ov5695->supplies);
--	if (ret < 0) {
--		dev_err(dev, "Failed to enable regulators\n");
--		goto disable_clk;
-+	/*
-+	 * The hardware requires the regulators to be powered on in order,
-+	 * so enable them one by one.
-+	 */
-+	for (i = 0; i < OV5695_NUM_SUPPLIES; i++) {
-+		ret = regulator_enable(ov5695->supplies[i].consumer);
-+		if (ret) {
-+			dev_err(dev, "Failed to enable %s: %d\n",
-+				ov5695->supplies[i].supply, ret);
-+			goto disable_reg_clk;
-+		}
- 	}
- 
- 	gpiod_set_value_cansleep(ov5695->reset_gpio, 0);
- 
--	/* 8192 cycles prior to first SCCB transaction */
--	delay_us = ov5695_cal_delay(8192);
--	usleep_range(delay_us, delay_us * 2);
-+	usleep_range(1000, 1200);
- 
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -196,7 +196,9 @@ int snd_pcm_plugin_free(struct snd_pcm_p
  	return 0;
- 
--disable_clk:
-+disable_reg_clk:
-+	for (--i; i >= 0; i--)
-+		regulator_disable(ov5695->supplies[i].consumer);
- 	clk_disable_unprepare(ov5695->xvclk);
- 
- 	return ret;
-@@ -1013,9 +1013,22 @@ disable_clk:
- 
- static void __ov5695_power_off(struct ov5695 *ov5695)
- {
-+	struct device *dev = &ov5695->client->dev;
-+	int i, ret;
-+
- 	clk_disable_unprepare(ov5695->xvclk);
- 	gpiod_set_value_cansleep(ov5695->reset_gpio, 1);
--	regulator_bulk_disable(OV5695_NUM_SUPPLIES, ov5695->supplies);
-+
-+	/*
-+	 * The hardware requires the regulators to be powered off in order,
-+	 * so disable them one by one.
-+	 */
-+	for (i = OV5695_NUM_SUPPLIES - 1; i >= 0; i--) {
-+		ret = regulator_disable(ov5695->supplies[i].consumer);
-+		if (ret)
-+			dev_err(dev, "Failed to disable %s: %d\n",
-+				ov5695->supplies[i].supply, ret);
-+	}
  }
  
- static int __maybe_unused ov5695_runtime_resume(struct device *dev)
-@@ -1285,7 +1298,7 @@ static int ov5695_probe(struct i2c_client *client,
- 	if (clk_get_rate(ov5695->xvclk) != OV5695_XVCLK_FREQ)
- 		dev_warn(dev, "xvclk mismatched, modes are based on 24MHz\n");
+-snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t drv_frames)
++static snd_pcm_sframes_t plug_client_size(struct snd_pcm_substream *plug,
++					  snd_pcm_uframes_t drv_frames,
++					  bool check_size)
+ {
+ 	struct snd_pcm_plugin *plugin, *plugin_prev, *plugin_next;
+ 	int stream;
+@@ -209,7 +211,7 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
+ 	if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin && drv_frames > 0) {
+-			if (drv_frames > plugin->buf_frames)
++			if (check_size && drv_frames > plugin->buf_frames)
+ 				drv_frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames)
+@@ -222,7 +224,7 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
+ 			plugin_next = plugin->next;
+ 			if (plugin->dst_frames)
+ 				drv_frames = plugin->dst_frames(plugin, drv_frames);
+-			if (drv_frames > plugin->buf_frames)
++			if (check_size && drv_frames > plugin->buf_frames)
+ 				drv_frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+@@ -231,7 +233,9 @@ snd_pcm_sframes_t snd_pcm_plug_client_si
+ 	return drv_frames;
+ }
  
--	ov5695->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_LOW);
-+	ov5695->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
- 	if (IS_ERR(ov5695->reset_gpio)) {
- 		dev_err(dev, "Failed to get reset-gpios\n");
- 		return -EINVAL;
--- 
-2.20.1
-
+-snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug, snd_pcm_uframes_t clt_frames)
++static snd_pcm_sframes_t plug_slave_size(struct snd_pcm_substream *plug,
++					 snd_pcm_uframes_t clt_frames,
++					 bool check_size)
+ {
+ 	struct snd_pcm_plugin *plugin, *plugin_prev, *plugin_next;
+ 	snd_pcm_sframes_t frames;
+@@ -252,14 +256,14 @@ snd_pcm_sframes_t snd_pcm_plug_slave_siz
+ 				if (frames < 0)
+ 					return frames;
+ 			}
+-			if (frames > plugin->buf_frames)
++			if (check_size && frames > plugin->buf_frames)
+ 				frames = plugin->buf_frames;
+ 			plugin = plugin_next;
+ 		}
+ 	} else if (stream == SNDRV_PCM_STREAM_CAPTURE) {
+ 		plugin = snd_pcm_plug_last(plug);
+ 		while (plugin) {
+-			if (frames > plugin->buf_frames)
++			if (check_size && frames > plugin->buf_frames)
+ 				frames = plugin->buf_frames;
+ 			plugin_prev = plugin->prev;
+ 			if (plugin->src_frames) {
+@@ -274,6 +278,18 @@ snd_pcm_sframes_t snd_pcm_plug_slave_siz
+ 	return frames;
+ }
+ 
++snd_pcm_sframes_t snd_pcm_plug_client_size(struct snd_pcm_substream *plug,
++					   snd_pcm_uframes_t drv_frames)
++{
++	return plug_client_size(plug, drv_frames, false);
++}
++
++snd_pcm_sframes_t snd_pcm_plug_slave_size(struct snd_pcm_substream *plug,
++					  snd_pcm_uframes_t clt_frames)
++{
++	return plug_slave_size(plug, clt_frames, false);
++}
++
+ static int snd_pcm_plug_formats(const struct snd_mask *mask,
+ 				snd_pcm_format_t format)
+ {
+@@ -630,7 +646,7 @@ snd_pcm_sframes_t snd_pcm_plug_write_tra
+ 		src_channels = dst_channels;
+ 		plugin = next;
+ 	}
+-	return snd_pcm_plug_client_size(plug, frames);
++	return plug_client_size(plug, frames, true);
+ }
+ 
+ snd_pcm_sframes_t snd_pcm_plug_read_transfer(struct snd_pcm_substream *plug, struct snd_pcm_plugin_channel *dst_channels_final, snd_pcm_uframes_t size)
+@@ -640,7 +656,7 @@ snd_pcm_sframes_t snd_pcm_plug_read_tran
+ 	snd_pcm_sframes_t frames = size;
+ 	int err;
+ 
+-	frames = snd_pcm_plug_slave_size(plug, frames);
++	frames = plug_slave_size(plug, frames, true);
+ 	if (frames < 0)
+ 		return frames;
+ 
 
 
