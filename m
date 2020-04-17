@@ -2,101 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45C511ADA50
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 11:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A7221ADA89
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 11:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726201AbgDQJpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 05:45:35 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:9684 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725932AbgDQJpe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 05:45:34 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5e997a4e0000>; Fri, 17 Apr 2020 02:43:42 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Fri, 17 Apr 2020 02:45:33 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Fri, 17 Apr 2020 02:45:33 -0700
-Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 17 Apr
- 2020 09:45:33 +0000
-Received: from [10.26.73.163] (172.20.13.39) by DRHQMAIL107.nvidia.com
- (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 17 Apr
- 2020 09:45:30 +0000
-Subject: Re: [PATCH 5.6 000/254] 5.6.5-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20200416131325.804095985@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <7d8d7d76-54e6-c8e4-9e3b-d8d599c26be9@nvidia.com>
-Date:   Fri, 17 Apr 2020 10:45:29 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1728111AbgDQJ4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 05:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49322 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727976AbgDQJ4t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 05:56:49 -0400
+Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0470CC061A0C;
+        Fri, 17 Apr 2020 02:56:49 -0700 (PDT)
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jPNjp-0005er-Dm; Fri, 17 Apr 2020 11:56:45 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 12C621C0072;
+        Fri, 17 Apr 2020 11:56:45 +0200 (CEST)
+Date:   Fri, 17 Apr 2020 09:56:44 -0000
+From:   "tip-bot2 for Grygorii Strashko" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: irq/urgent] irqchip/ti-sci-inta: Fix processing of masked irqs
+Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Lokesh Vutla <lokeshvutla@ti.com>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200408191532.31252-1-grygorii.strashko@ti.com>
+References: <20200408191532.31252-1-grygorii.strashko@ti.com>
 MIME-Version: 1.0
-In-Reply-To: <20200416131325.804095985@linuxfoundation.org>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- DRHQMAIL107.nvidia.com (10.27.9.16)
+Message-ID: <158711740470.28353.5640568811566417444.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1587116622; bh=bLV+P+sFcEOhTJL8uuevydv/o2v4bzholXkxAyfmTg0=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=mcBBPOLlg186vLZ+Q7M1+loiyxDyVzwSSqSTv2Sb1sseTnHe6gjIi5zCl/+AsMKja
-         lzAy5gkXTCXQToMuhGWU6KCwpMpOT4WldNQA/LH6uXlvt737UpD5WGsPvJp7340oB4
-         5Ui1fj7RzrZIg6UVAP9PQmib8dF/1Xh8apcY/kjYk2aotiW7ab3fKZ3pQWz2NOSNOm
-         WrxBxRU82fdc9gWEWnySA/KtBNkJ9qIQjFk7NBr9FGtOsNEs1FyVEveTo3HODxVy6V
-         QBpGofN98GquM0Fd58aWUePpFVN+IfZjn+UAghe9oRhH26AHt1JbDfjfJAKPJv5tA1
-         A8vI1d3AzYZjA==
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the irq/urgent branch of tip:
 
-On 16/04/2020 14:21, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.6.5 release.
-> There are 254 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 18 Apr 2020 13:11:20 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.5-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Commit-ID:     3688b0db5c331f4ec3fa5eb9f670a4b04f530700
+Gitweb:        https://git.kernel.org/tip/3688b0db5c331f4ec3fa5eb9f670a4b04f530700
+Author:        Grygorii Strashko <grygorii.strashko@ti.com>
+AuthorDate:    Wed, 08 Apr 2020 22:15:32 +03:00
+Committer:     Marc Zyngier <maz@kernel.org>
+CommitterDate: Fri, 17 Apr 2020 08:59:28 +01:00
 
-All tests are passing for Tegra ...
+irqchip/ti-sci-inta: Fix processing of masked irqs
 
-Test results for stable-v5.6:
-    13 builds:	13 pass, 0 fail
-    24 boots:	24 pass, 0 fail
-    40 tests:	40 pass, 0 fail
+The ti_sci_inta_irq_handler() does not take into account INTA IRQs state
+(masked/unmasked) as it uses INTA_STATUS_CLEAR_j register to get INTA IRQs
+status, which provides raw status value.
+This causes hard IRQ handlers to be called or threaded handlers to be
+scheduled many times even if corresponding INTA IRQ is masked.
+Above, first of all, affects the LEVEL interrupts processing and causes
+unexpected behavior up the system stack or crash.
 
-Linux version:	5.6.5-rc1-g576aa353744c
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
+Fix it by using the Interrupt Masked Status INTA_STATUSM_j register which
+provides masked INTA IRQs status.
 
-Cheers
-Jon
+Fixes: 9f1463b86c13 ("irqchip/ti-sci-inta: Add support for Interrupt Aggregator driver")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reviewed-by: Lokesh Vutla <lokeshvutla@ti.com>
+Link: https://lore.kernel.org/r/20200408191532.31252-1-grygorii.strashko@ti.com
+Cc: stable@vger.kernel.org
+---
+ drivers/irqchip/irq-ti-sci-inta.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
--- 
-nvpublic
+diff --git a/drivers/irqchip/irq-ti-sci-inta.c b/drivers/irqchip/irq-ti-sci-inta.c
+index 8f6e6b0..7e3ebf6 100644
+--- a/drivers/irqchip/irq-ti-sci-inta.c
++++ b/drivers/irqchip/irq-ti-sci-inta.c
+@@ -37,6 +37,7 @@
+ #define VINT_ENABLE_SET_OFFSET	0x0
+ #define VINT_ENABLE_CLR_OFFSET	0x8
+ #define VINT_STATUS_OFFSET	0x18
++#define VINT_STATUS_MASKED_OFFSET	0x20
+ 
+ /**
+  * struct ti_sci_inta_event_desc - Description of an event coming to
+@@ -116,7 +117,7 @@ static void ti_sci_inta_irq_handler(struct irq_desc *desc)
+ 	chained_irq_enter(irq_desc_get_chip(desc), desc);
+ 
+ 	val = readq_relaxed(inta->base + vint_desc->vint_id * 0x1000 +
+-			    VINT_STATUS_OFFSET);
++			    VINT_STATUS_MASKED_OFFSET);
+ 
+ 	for_each_set_bit(bit, &val, MAX_EVENTS_PER_VINT) {
+ 		virq = irq_find_mapping(domain, vint_desc->events[bit].hwirq);
