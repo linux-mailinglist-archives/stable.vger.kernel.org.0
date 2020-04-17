@@ -2,202 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D571AE4BC
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 20:28:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66D4F1AE4C2
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 20:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726576AbgDQS2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 14:28:39 -0400
-Received: from mga06.intel.com ([134.134.136.31]:28878 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726054AbgDQS2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Apr 2020 14:28:38 -0400
-IronPort-SDR: mS+ervBbGEXc4GzNqGes3J0xOVrYGuWu6BhqlJxb5RWWRGWuwxXqv2J1ULqIVVI9/OBFFhkplT
- XJP3jO+px7WA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Apr 2020 11:28:38 -0700
-IronPort-SDR: V9FV1aztj3YODmKpHxiQG+8utpy9tAVRywC/JHnthL/wcvoiaOSryR5C+MH4l6QITld3joGzUx
- BxTPKP26LMlQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,395,1580803200"; 
-   d="scan'208";a="244777861"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga007.fm.intel.com with SMTP; 17 Apr 2020 11:28:35 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Fri, 17 Apr 2020 21:28:34 +0300
-Date:   Fri, 17 Apr 2020 21:28:34 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Daniel Vetter <daniel@ffwll.ch>
-Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH] drm: Fix page flip ioctl format check
-Message-ID: <20200417182834.GS6112@intel.com>
-References: <20200416170420.23657-1-ville.syrjala@linux.intel.com>
- <20200417152310.GQ3456981@phenom.ffwll.local>
- <20200417154313.GO6112@intel.com>
- <CAKMK7uGBWyPtm0dva=Ndk6xJx7nUKJ20kn8S37iFB8s85WWmdw@mail.gmail.com>
+        id S1728042AbgDQSaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 14:30:03 -0400
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:18512 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727840AbgDQSaC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 14:30:02 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5e99f56e0001>; Fri, 17 Apr 2020 11:29:02 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 17 Apr 2020 11:30:02 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Fri, 17 Apr 2020 11:30:02 -0700
+Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 17 Apr
+ 2020 18:30:02 +0000
+Received: from [10.2.171.241] (10.124.1.5) by DRHQMAIL107.nvidia.com
+ (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 17 Apr
+ 2020 18:30:00 +0000
+Subject: Re: [PATCH v2 1/2] sdhci: tegra: Implement Tegra specific set_timeout
+ callback
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+CC:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        "(Exiting) Baolin Wang" <baolin.wang@linaro.org>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bradley Bolen <bradleybolen@gmail.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        "Aniruddha Tvs Rao" <anrao@nvidia.com>,
+        linux-tegra <linux-tegra@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        <lkft-triage@lists.linaro.org>,
+        linux- stable <stable@vger.kernel.org>
+References: <1583886030-11339-1-git-send-email-skomatineni@nvidia.com>
+ <CA+G9fYvreAv5HmZg0O4VvLvf_PYSvzD1rp08XONNQGExctgQ0Q@mail.gmail.com>
+ <CAPDyKFpZEiqTdD6O-y6Sw7ifXF__MHAv0zKT=RFKs+Fmvr-K_Q@mail.gmail.com>
+ <753ec108-858c-660e-af0a-f57922134609@nvidia.com>
+ <512441d1-a9ba-912f-ed2e-46edad22278b@nvidia.com>
+ <CAPDyKFohGL-401DVb1NYf3YUwbokcDR5++8t5o+y+3yy5XbGyQ@mail.gmail.com>
+From:   Sowjanya Komatineni <skomatineni@nvidia.com>
+Message-ID: <13223820-12aa-6ed6-45e1-e7a901155d38@nvidia.com>
+Date:   Fri, 17 Apr 2020 11:29:59 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAKMK7uGBWyPtm0dva=Ndk6xJx7nUKJ20kn8S37iFB8s85WWmdw@mail.gmail.com>
-X-Patchwork-Hint: comment
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <CAPDyKFohGL-401DVb1NYf3YUwbokcDR5++8t5o+y+3yy5XbGyQ@mail.gmail.com>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ DRHQMAIL107.nvidia.com (10.27.9.16)
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1587148142; bh=OHgh/M4k8j/xMO4UFbtY4yF+8SoYkg3ofzTWmXSe2xk=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Transfer-Encoding:
+         Content-Language;
+        b=Vp63hBEtXY9UN245O7tUVQK+RS016qvlizEhnyCdcGlX4qe4hkkguBTbKwvA2ndW2
+         kVjEKUzb/ZWjyJYj/oR9t8sFPI3g0Jwho9pnKRmCBRWh6Qo0XgE6403jcJCLVBbwGH
+         1V3IP3DuHw7FYDSrz0h6zk0zT9Rv6DyT1ijZ6VKkxbLssWC+8GeGNZsFt29R/Tefi8
+         K4sxLHnOl1y8ecQpfMNcuTMFdIkWSvSIdi38xXHu2uNDpfi77rC5q10HuSw0hStjAU
+         QijjYMtsYe7tR9OBd8L8WYdAfsQL3ZKbgoXy6Ht8WWrLf9f51TM1U5QaRJhwrEuH5l
+         geSW2OD5Rscng==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 17, 2020 at 08:10:26PM +0200, Daniel Vetter wrote:
-> On Fri, Apr 17, 2020 at 5:43 PM Ville Syrjälä
-> <ville.syrjala@linux.intel.com> wrote:
-> >
-> > On Fri, Apr 17, 2020 at 05:23:10PM +0200, Daniel Vetter wrote:
-> > > On Thu, Apr 16, 2020 at 08:04:20PM +0300, Ville Syrjala wrote:
-> > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > >
-> > > > Revert back to comparing fb->format->format instead fb->format for the
-> > > > page flip ioctl. This check was originally only here to disallow pixel
-> > > > format changes, but when we changed it to do the pointer comparison
-> > > > we potentially started to reject some (but definitely not all) modifier
-> > > > changes as well. In fact the current behaviour depends on whether the
-> > > > driver overrides the format info for a specific format+modifier combo.
-> > > > Eg. on i915 this now rejects compression vs. no compression changes but
-> > > > does not reject any other tiling changes. That's just inconsistent
-> > > > nonsense.
-> > > >
-> > > > The main reason we have to go back to the old behaviour is to fix page
-> > > > flipping with Xorg. At some point Xorg got its atomic rights taken away
-> > > > and since then we can't page flip between compressed and non-compressed
-> > > > fbs on i915. Currently we get no page flipping for any games pretty much
-> > > > since Mesa likes to use compressed buffers. Not sure how compositors are
-> > > > working around this (don't use one myself). I guess they must be doing
-> > > > something to get non-compressed buffers instead. Either that or
-> > > > somehow no one noticed the tearing from the blit fallback.
-> > >
-> > > Mesa only uses compressed buffers if you enable modifiers, and there's a
-> > > _loooooooooooot_ more that needs to be fixed in Xorg to enable that for
-> > > real. Like real atomic support.
-> >
-> > Why would you need atomic for modifiers? Xorg doesn't even have
-> > any sensible framework for atomic and I suspect it never will.
-> 
-> Frankly if no one cares about atomic in X I don't think we should do
-> work-arounds for lack of atomic in X.
-> 
-> > > Without modifiers all you get is X tiling,
-> > > and that works just fine.
-> > >
-> > > Which would also fix this issue here you're papering over.
-> > >
-> > > So if this is the entire reason for this, I'm inclined to not do this.
-> > > Current Xorg is toast wrt modifiers, that's not news.
-> >
-> > Works just fine. Also pretty sure modifiers are even enabled by
-> > default now in modesetting.
-> 
-> Y/CSS is harder to scan out, you need to verify with TEST_ONLY whether
-> it works. Otherwise good chances for some oddball black screens on
-> configurations that worked before. Which is why all non-atomic
-> compositors reverted modifiers by default again.
 
-Y alone is hard to scanout also, and yet we do nothing to reject that.
-It's just an inconsistent mess.
+On 4/17/20 1:04 AM, Ulf Hansson wrote:
+> External email: Use caution opening links or attachments
+>
+>
+> On Thu, 16 Apr 2020 at 21:39, Sowjanya Komatineni
+> <skomatineni@nvidia.com> wrote:
+>>
+>> On 4/16/20 9:29 AM, Sowjanya Komatineni wrote:
+>>> On 4/16/20 3:59 AM, Ulf Hansson wrote:
+>>>> External email: Use caution opening links or attachments
+>>>>
+>>>>
+>>>> On Wed, 15 Apr 2020 at 19:55, Naresh Kamboju
+>>>> <naresh.kamboju@linaro.org> wrote:
+>>>>> On Fri, 13 Mar 2020 at 06:41, Sowjanya Komatineni
+>>>>> <skomatineni@nvidia.com> wrote:
+>>>>>> Tegra host supports HW busy detection and timeouts based on the
+>>>>>> count programmed in SDHCI_TIMEOUT_CONTROL register and max busy
+>>>>>> timeout it supports is 11s in finite busy wait mode.
+>>>>>>
+>>>>>> Some operations like SLEEP_AWAKE, ERASE and flush cache through
+>>>>>> SWITCH commands take longer than 11s and Tegra host supports
+>>>>>> infinite HW busy wait mode where HW waits forever till the card
+>>>>>> is busy without HW timeout.
+>>>>>>
+>>>>>> This patch implements Tegra specific set_timeout sdhci_ops to allow
+>>>>>> switching between finite and infinite HW busy detection wait modes
+>>>>>> based on the device command expected operation time.
+>>>>>>
+>>>>>> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+>>>>>> ---
+>>>>>>    drivers/mmc/host/sdhci-tegra.c | 31 +++++++++++++++++++++++++++++=
+++
+>>>>>>    1 file changed, 31 insertions(+)
+>>>>>>
+>>>>>> diff --git a/drivers/mmc/host/sdhci-tegra.c
+>>>>>> b/drivers/mmc/host/sdhci-tegra.c
+>>>>>> index a25c3a4..fa8f6a4 100644
+>>>>>> --- a/drivers/mmc/host/sdhci-tegra.c
+>>>>>> +++ b/drivers/mmc/host/sdhci-tegra.c
+>>>>>> @@ -45,6 +45,7 @@
+>>>>>>    #define SDHCI_TEGRA_CAP_OVERRIDES_DQS_TRIM_SHIFT       8
+>>>>>>
+>>>>>>    #define SDHCI_TEGRA_VENDOR_MISC_CTRL 0x120
+>>>>>> +#define SDHCI_MISC_CTRL_ERASE_TIMEOUT_LIMIT BIT(0)
+>>>>>>    #define SDHCI_MISC_CTRL_ENABLE_SDR104                  0x8
+>>>>>>    #define SDHCI_MISC_CTRL_ENABLE_SDR50 0x10
+>>>>>>    #define SDHCI_MISC_CTRL_ENABLE_SDHCI_SPEC_300 0x20
+>>>>>> @@ -1227,6 +1228,34 @@ static u32 sdhci_tegra_cqhci_irq(struct
+>>>>>> sdhci_host *host, u32 intmask)
+>>>>>>           return 0;
+>>>>>>    }
+>>>>>>
+>>>>>> +static void tegra_sdhci_set_timeout(struct sdhci_host *host,
+>>>>>> +                                   struct mmc_command *cmd)
+>>>>>> +{
+>>>>>> +       u32 val;
+>>>>>> +
+>>>>>> +       /*
+>>>>>> +        * HW busy detection timeout is based on programmed data
+>>>>>> timeout
+>>>>>> +        * counter and maximum supported timeout is 11s which may
+>>>>>> not be
+>>>>>> +        * enough for long operations like cache flush, sleep
+>>>>>> awake, erase.
+>>>>>> +        *
+>>>>>> +        * ERASE_TIMEOUT_LIMIT bit of VENDOR_MISC_CTRL register allo=
+ws
+>>>>>> +        * host controller to wait for busy state until the card is
+>>>>>> busy
+>>>>>> +        * without HW timeout.
+>>>>>> +        *
+>>>>>> +        * So, use infinite busy wait mode for operations that may
+>>>>>> take
+>>>>>> +        * more than maximum HW busy timeout of 11s otherwise use
+>>>>>> finite
+>>>>>> +        * busy wait mode.
+>>>>>> +        */
+>>>>>> +       val =3D sdhci_readl(host, SDHCI_TEGRA_VENDOR_MISC_CTRL);
+>>>>>> +       if (cmd && cmd->busy_timeout >=3D 11 * HZ)
+>>>>>> +               val |=3D SDHCI_MISC_CTRL_ERASE_TIMEOUT_LIMIT;
+>>>>>> +       else
+>>>>>> +               val &=3D ~SDHCI_MISC_CTRL_ERASE_TIMEOUT_LIMIT;
+>>>>>> +       sdhci_writel(host, val, SDHCI_TEGRA_VENDOR_MISC_CTRL);
+>>>>>> +
+>>>>>> +       __sdhci_set_timeout(host, cmd);
+>>>>> kernel build on arm and arm64 architecture failed on stable-rc 4.19
+>>>>> (arm), 5.4 (arm64) and 5.5 (arm64)
+>>>>>
+>>>>> drivers/mmc/host/sdhci-tegra.c: In function 'tegra_sdhci_set_timeout'=
+:
+>>>>> drivers/mmc/host/sdhci-tegra.c:1256:2: error: implicit declaration of
+>>>>> function '__sdhci_set_timeout'; did you mean
+>>>>> 'tegra_sdhci_set_timeout'? [-Werror=3Dimplicit-function-declaration]
+>>>>>     __sdhci_set_timeout(host, cmd);
+>>>>>     ^~~~~~~~~~~~~~~~~~~
+>>>>>     tegra_sdhci_set_timeout
+>>>>>
+>>>>> Full build log,
+>>>>> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc=
+-5.5/DISTRO=3Dlkft,MACHINE=3Dam57xx-evm,label=3Ddocker-lkft/83/consoleText
+>>>>>
+>>>>> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc=
+-5.4/DISTRO=3Dlkft,MACHINE=3Djuno,label=3Ddocker-lkft/158/consoleText
+>>>>>
+>>>>> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc=
+-4.19/DISTRO=3Dlkft,MACHINE=3Dam57xx-evm,label=3Ddocker-lkft/511/consoleTex=
+t
+>>>>>
+>>>>>
+>>>>> - Naresh
+>>>> Thanks for reporting! What a mess.
+>>>>
+>>>> It turns out that the commit that was queued for stable that is
+>>>> causing the above errors, also requires another commit.
+>>>>
+>>>> The commit that was queued:
+>>>> 5e958e4aacf4 ("sdhci: tegra: Implement Tegra specific set_timeout
+>>>> callback")
+>>>>
+>>>> The additional commit needed (which was added in v5.6-rc1):
+>>>> 7d76ed77cfbd ("mmc: sdhci: Refactor sdhci_set_timeout()")
+>>>>
+>>>> However, the above commit needs a manual backport (quite trivial, but
+>>>> still) for the relevant stable kernels, to allow it to solve the build
+>>>> problems.
+>>>>
+>>>> Greg, Sasha - I suggest you to drop the offending commit from the
+>>>> stable kernels, for now. I think it's better to let Sowjanya deal with
+>>>> the backports, then send them in small series instead.
+>>>>
+>>>> Kind regards
+>>>> Uffe
+>>> Hi Ufee,
+>>>
+>>> Will back-porting below commit cause any issues to other vendors?
+>>>
+>>> 7d76ed77cfbd ("mmc: sdhci: Refactor sdhci_set_timeout()")
+>>>
+>> sdhci-tegra driver in 4.19 is using same sdhci_ops for Tegra114 and
+>> Tegra210 and separate sdhci_ops for T210 started from 4.20.
+>>
+>> 5e958e4aacf4 ("sdhci: tegra: Implement Tegra specific set_timeout callba=
+ck")
+>>
+>> So above commit can't be applied to 4.19. So probably a separate patch
+>> need to be created to apply for 4.19 and back port above commit along
+>> with its dependency commit (7d76ed77cfbd ("mmc: sdhci: Refactor
+>> sdhci_set_timeout()") for 5.4 and 5.4.
+> Alright, seems reasonable. Just keep me/Adrian on cc when/if you post
+> the patches so we can ack them.
+>
+> Kind regards
+> Uffe
 
-If we really want to keep this check then we should rewrite it
-to be explicit:
+Sure, will send patches to backport both below changes to 4.19
 
-if (old_fb->format->format != new_fb->format->format ||
-    is_ccs(old_fb->modifier) != is_ccs(new_fb->modifier))
-    return -EINVAL;
+5e958e4aacf4 ("sdhci: tegra: Implement Tegra specific set_timeout
+callback")
 
-Now it's just a random thing that may even stop doing what it's
-currently doing if anyone touches their .get_format_info()
-implementation.
+7d76ed77cfbd ("mmc: sdhci: Refactor sdhci_set_timeout()")
 
-> 
-> > And as stated the current check doesn't have consistent behaviour
-> > anyway. You can still flip between different modifiers as long a the
-> > driver doesn't override .get_format_info() for one of them. The *only*
-> > case where that happens is CCS on i915. There is no valid reason to
-> > special case that one.
-> 
-> The thing is, you need atomic to make CCS work reliably enough for
-> compositors and distros to dare enabling it by default.
+But on 5.5 and on 5.4.33,=C2=A0 patch "mmc: sdhci: Refactor=20
+sdhci_set_timeout() already committed but not on 5.4.32 and prior.
 
-If it's not enabled by default then there is no harm in letting people
-explicitly enable it and get better performance.
+So, not sure why kbuild reported error on 5.4 and 5.5 with=20
+__sdhci_set_timeout when this patch is already committed on 5.4.33=20
+(26711cc7e064) and 5.5.18 (71bab39fa67d)
 
-> CCS flipping
-> works with atomic. I really see no point in baking this in with as
-> uapi.
+Can you please help clarify this?
 
-It's just going back to the original intention of the check.
-Heck, the debug message doesn't even match what it's doing now.
 
-> Just fix Xorg.
+drivers/mmc/host/sdhci-tegra.c: In function 'tegra_sdhci_set_timeout':
+drivers/mmc/host/sdhci-tegra.c:1256:2: error: implicit declaration of
+function '__sdhci_set_timeout'; did you mean
+'tegra_sdhci_set_timeout'? [-Werror=3Dimplicit-function-declaration]
+    __sdhci_set_timeout(host, cmd);
 
-Be serious. No one is going to rewrite all the randr code to be atomic.
 
-> -Daniel
-> 
-> >
-> > > -Daniel
-> > >
-> > > >
-> > > > Looking back at the original discussion on this change we pretty much
-> > > > just did it in the name of skipping a few extra pointer dereferences.
-> > > > However, I've decided not to revert the whole thing in case someone
-> > > > has since started to depend on these changes. None of the other checks
-> > > > are relevant for i915 anyways.
-> > > >
-> > > > Cc: stable@vger.kernel.org
-> > > > Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > > > Fixes: dbd4d5761e1f ("drm: Replace 'format->format' comparisons to just 'format' comparisons")
-> > > > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > > ---
-> > > >  drivers/gpu/drm/drm_plane.c | 2 +-
-> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
-> > > > index d6ad60ab0d38..f2ca5315f23b 100644
-> > > > --- a/drivers/gpu/drm/drm_plane.c
-> > > > +++ b/drivers/gpu/drm/drm_plane.c
-> > > > @@ -1153,7 +1153,7 @@ int drm_mode_page_flip_ioctl(struct drm_device *dev,
-> > > >     if (ret)
-> > > >             goto out;
-> > > >
-> > > > -   if (old_fb->format != fb->format) {
-> > > > +   if (old_fb->format->format != fb->format->format) {
-> > > >             DRM_DEBUG_KMS("Page flip is not allowed to change frame buffer format.\n");
-> > > >             ret = -EINVAL;
-> > > >             goto out;
-> > > > --
-> > > > 2.24.1
-> > > >
-> > > > _______________________________________________
-> > > > dri-devel mailing list
-> > > > dri-devel@lists.freedesktop.org
-> > > > https://lists.freedesktop.org/mailman/listinfo/dri-devel
-> > >
-> > > --
-> > > Daniel Vetter
-> > > Software Engineer, Intel Corporation
-> > > http://blog.ffwll.ch
-> >
-> > --
-> > Ville Syrjälä
-> > Intel
-> 
-> 
-> 
-> -- 
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> +41 (0) 79 365 57 48 - http://blog.ffwll.ch
+Thanks
 
--- 
-Ville Syrjälä
-Intel
+Sowjanya
+
+
