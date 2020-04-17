@@ -2,102 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A7221ADA89
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 11:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 495951ADC92
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 13:56:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728111AbgDQJ4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 05:56:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49322 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727976AbgDQJ4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 05:56:49 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0470CC061A0C;
-        Fri, 17 Apr 2020 02:56:49 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jPNjp-0005er-Dm; Fri, 17 Apr 2020 11:56:45 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 12C621C0072;
-        Fri, 17 Apr 2020 11:56:45 +0200 (CEST)
-Date:   Fri, 17 Apr 2020 09:56:44 -0000
-From:   "tip-bot2 for Grygorii Strashko" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: irq/urgent] irqchip/ti-sci-inta: Fix processing of masked irqs
-Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Lokesh Vutla <lokeshvutla@ti.com>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200408191532.31252-1-grygorii.strashko@ti.com>
-References: <20200408191532.31252-1-grygorii.strashko@ti.com>
+        id S1730474AbgDQLy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 07:54:59 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40950 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730469AbgDQLy7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Apr 2020 07:54:59 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 17549AFDC;
+        Fri, 17 Apr 2020 11:54:57 +0000 (UTC)
+From:   Juergen Gross <jgross@suse.com>
+To:     security@xen.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, stable@vger.kernel.org
+Subject: [PATCH v3 1/9] xen/events: avoid removing an event channel while handling it
+Date:   Fri, 17 Apr 2020 13:54:46 +0200
+Message-Id: <20200417115454.24931-2-jgross@suse.com>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20200417115454.24931-1-jgross@suse.com>
+References: <20200417115454.24931-1-jgross@suse.com>
 MIME-Version: 1.0
-Message-ID: <158711740470.28353.5640568811566417444.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/urgent branch of tip:
+Today it can happen that an event channel is being removed from the
+system while the event handling loop is active. This can lead to a
+race resulting in crashes or WARN() splats.
 
-Commit-ID:     3688b0db5c331f4ec3fa5eb9f670a4b04f530700
-Gitweb:        https://git.kernel.org/tip/3688b0db5c331f4ec3fa5eb9f670a4b04f530700
-Author:        Grygorii Strashko <grygorii.strashko@ti.com>
-AuthorDate:    Wed, 08 Apr 2020 22:15:32 +03:00
-Committer:     Marc Zyngier <maz@kernel.org>
-CommitterDate: Fri, 17 Apr 2020 08:59:28 +01:00
+Fix this problem by using a rwlock taken as reader in the event
+handling loop and as writer when removing an event channel.
 
-irqchip/ti-sci-inta: Fix processing of masked irqs
+As the observed problem was a NULL dereference in evtchn_from_irq()
+make this function more robust against races by testing the irq_info
+pointer to be not NULL before dereferencing it.
 
-The ti_sci_inta_irq_handler() does not take into account INTA IRQs state
-(masked/unmasked) as it uses INTA_STATUS_CLEAR_j register to get INTA IRQs
-status, which provides raw status value.
-This causes hard IRQ handlers to be called or threaded handlers to be
-scheduled many times even if corresponding INTA IRQ is masked.
-Above, first of all, affects the LEVEL interrupts processing and causes
-unexpected behavior up the system stack or crash.
-
-Fix it by using the Interrupt Masked Status INTA_STATUSM_j register which
-provides masked INTA IRQs status.
-
-Fixes: 9f1463b86c13 ("irqchip/ti-sci-inta: Add support for Interrupt Aggregator driver")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Lokesh Vutla <lokeshvutla@ti.com>
-Link: https://lore.kernel.org/r/20200408191532.31252-1-grygorii.strashko@ti.com
+Cc: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
 Cc: stable@vger.kernel.org
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- drivers/irqchip/irq-ti-sci-inta.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/xen/events/events_base.c | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/irqchip/irq-ti-sci-inta.c b/drivers/irqchip/irq-ti-sci-inta.c
-index 8f6e6b0..7e3ebf6 100644
---- a/drivers/irqchip/irq-ti-sci-inta.c
-+++ b/drivers/irqchip/irq-ti-sci-inta.c
-@@ -37,6 +37,7 @@
- #define VINT_ENABLE_SET_OFFSET	0x0
- #define VINT_ENABLE_CLR_OFFSET	0x8
- #define VINT_STATUS_OFFSET	0x18
-+#define VINT_STATUS_MASKED_OFFSET	0x20
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 3a791c8485d0..178a471906de 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -33,6 +33,7 @@
+ #include <linux/slab.h>
+ #include <linux/irqnr.h>
+ #include <linux/pci.h>
++#include <linux/spinlock.h>
  
- /**
-  * struct ti_sci_inta_event_desc - Description of an event coming to
-@@ -116,7 +117,7 @@ static void ti_sci_inta_irq_handler(struct irq_desc *desc)
- 	chained_irq_enter(irq_desc_get_chip(desc), desc);
+ #ifdef CONFIG_X86
+ #include <asm/desc.h>
+@@ -70,6 +71,9 @@ const struct evtchn_ops *evtchn_ops;
+  */
+ static DEFINE_MUTEX(irq_mapping_update_lock);
  
- 	val = readq_relaxed(inta->base + vint_desc->vint_id * 0x1000 +
--			    VINT_STATUS_OFFSET);
-+			    VINT_STATUS_MASKED_OFFSET);
++/* Lock protecting event handling loop against removing event channels. */
++static DEFINE_RWLOCK(evtchn_rwlock);
++
+ static LIST_HEAD(xen_irq_list_head);
  
- 	for_each_set_bit(bit, &val, MAX_EVENTS_PER_VINT) {
- 		virq = irq_find_mapping(domain, vint_desc->events[bit].hwirq);
+ /* IRQ <-> VIRQ mapping. */
+@@ -247,10 +251,14 @@ static void xen_irq_info_cleanup(struct irq_info *info)
+  */
+ evtchn_port_t evtchn_from_irq(unsigned irq)
+ {
+-	if (WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq))
++	struct irq_info *info = NULL;
++
++	if (likely(irq < nr_irqs))
++		info = info_for_irq(irq);
++	if (WARN(!info, "Invalid irq %d!\n", irq))
+ 		return 0;
+ 
+-	return info_for_irq(irq)->evtchn;
++	return info->evtchn;
+ }
+ 
+ unsigned int irq_from_evtchn(evtchn_port_t evtchn)
+@@ -603,6 +611,7 @@ static void __unbind_from_irq(unsigned int irq)
+ {
+ 	evtchn_port_t evtchn = evtchn_from_irq(irq);
+ 	struct irq_info *info = irq_get_handler_data(irq);
++	unsigned long flags;
+ 
+ 	if (info->refcnt > 0) {
+ 		info->refcnt--;
+@@ -610,8 +619,10 @@ static void __unbind_from_irq(unsigned int irq)
+ 			return;
+ 	}
+ 
++	write_lock_irqsave(&evtchn_rwlock, flags);
++
+ 	if (VALID_EVTCHN(evtchn)) {
+-		unsigned int cpu = cpu_from_irq(irq);
++		unsigned int cpu = cpu_from_irq(irq);;
+ 
+ 		xen_evtchn_close(evtchn);
+ 
+@@ -629,6 +640,8 @@ static void __unbind_from_irq(unsigned int irq)
+ 		xen_irq_info_cleanup(info);
+ 	}
+ 
++	write_unlock_irqrestore(&evtchn_rwlock, flags);
++
+ 	xen_free_irq(irq);
+ }
+ 
+@@ -1219,6 +1232,8 @@ static void __xen_evtchn_do_upcall(void)
+ 	struct vcpu_info *vcpu_info = __this_cpu_read(xen_vcpu);
+ 	int cpu = smp_processor_id();
+ 
++	read_lock(&evtchn_rwlock);
++
+ 	do {
+ 		vcpu_info->evtchn_upcall_pending = 0;
+ 
+@@ -1229,6 +1244,8 @@ static void __xen_evtchn_do_upcall(void)
+ 		virt_rmb(); /* Hypervisor can set upcall pending. */
+ 
+ 	} while (vcpu_info->evtchn_upcall_pending);
++
++	read_unlock(&evtchn_rwlock);
+ }
+ 
+ void xen_evtchn_do_upcall(struct pt_regs *regs)
+-- 
+2.16.4
+
