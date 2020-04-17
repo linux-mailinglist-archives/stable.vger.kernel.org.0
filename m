@@ -2,106 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE241AD96B
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 11:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95B121AD96E
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 11:06:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730046AbgDQJFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 05:05:08 -0400
-Received: from mga18.intel.com ([134.134.136.126]:27130 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728419AbgDQJFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Apr 2020 05:05:06 -0400
-IronPort-SDR: 16Tx0uSrbMV34ixbWqLRGR1nMYsgmoFF4zjxesj+pG/gfVkXYEBITYhhEJ+El0nEvi4E6zgaB+
- w7nP8U5ZBE5Q==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Apr 2020 02:05:05 -0700
-IronPort-SDR: iImZ98H6UD3xcWqYoNqzdpqoBINcrRfzHDRb1nBDIsxheRoaWWd338Fac35K5WTATRAqRj0z2X
- Pzvhpr0Af3jQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,394,1580803200"; 
-   d="scan'208";a="364275266"
-Received: from lahna.fi.intel.com (HELO lahna) ([10.237.72.163])
-  by fmsmga001.fm.intel.com with SMTP; 17 Apr 2020 02:05:01 -0700
-Received: by lahna (sSMTP sendmail emulation); Fri, 17 Apr 2020 12:05:00 +0300
-Date:   Fri, 17 Apr 2020 12:05:00 +0300
-From:   Mika Westerberg <mika.westerberg@linux.intel.com>
-To:     Brian Norris <briannorris@chromium.org>
-Cc:     =?utf-8?Q?Micha=C5=82?= Stanek <mst@semihalf.com>,
-        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stanekm@google.com,
-        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
-        levinale@chromium.org, andriy.shevchenko@linux.intel.com,
-        Linus Walleij <linus.walleij@linaro.org>,
-        bgolaszewski@baylibre.com, rafael.j.wysocki@intel.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] pinctrl: cherryview: Add quirk with custom translation
- of ACPI GPIO numbers
-Message-ID: <20200417090500.GM2586@lahna.fi.intel.com>
-References: <20200205194804.1647-1-mst@semihalf.com>
- <20200206083149.GK2667@lahna.fi.intel.com>
- <CAMiGqYi2rVAc=hepkY-4S1U_3dJdbR4pOoB0f8tbBL4pzWLdxA@mail.gmail.com>
- <20200207075654.GB2667@lahna.fi.intel.com>
- <CAMiGqYjmd2edUezEXsX4JBSyOozzks1Pu8miPEviGsx=x59nZQ@mail.gmail.com>
- <20200210101414.GN2667@lahna.fi.intel.com>
- <CAMiGqYiYp=aSgW-4ro5ceUEaB7g0XhepFg+HZgfPvtvQL9Z1jA@mail.gmail.com>
- <20200310144913.GY2540@lahna.fi.intel.com>
- <20200417020641.GA145784@google.com>
+        id S1730047AbgDQJGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 05:06:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41450 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729956AbgDQJGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 05:06:34 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36945C061A0C
+        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 02:06:34 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id x8so189347qtp.13
+        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 02:06:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=q+AfTDBHslX7UhU4lQHabYcAXDc8JzDcItnNln2x5dk=;
+        b=gmBBOX0qWpRfDHUjnDKvLehSgXzM0utM0pdCUto8U6PSB1piAYY6MwOFwauW5u4FKc
+         nYjCCKdznG1zfMyyfWY5hw3JhG5SOWgYbBf3VOj8px6VUs0OL7eCddOvqmK++PqIO6Rb
+         tJB+5mt7u7OAcPbCc7lVlRvz0Un/Aq1jItaCaAtOcIwHE467iQna95ELxaAATaOvvKk/
+         NE/ZpxxQdZEzbAH6w2RR8R24Av4ko4ed43Mkv7FeT15aB5A/sgp+AZSHWjOmDcIOhizR
+         8TqmWr+u1ard6buN+9MRrrMEM8KiX3uMV4ZJEZPreucZbQeRrEZAvEuivLiWZpN3a833
+         C/Yw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=q+AfTDBHslX7UhU4lQHabYcAXDc8JzDcItnNln2x5dk=;
+        b=XP36Z1d3MIx8Dd26K3mO8rfk9A8/RVGLaLrBp2G9HtbV+niuUOYqILHEubTKNBdYfm
+         XEVPzJvNvluA6vuGEsgQmeHlGUwWVNVYYUVkfhOdJjrq7IV7pp5LGX6xaSMSWqsmCWe7
+         mc5mrRhm5sC2WwytD4BE2T6Mfg3QAcL8yQREwuwEYiZHst2IBEUfx13NFlm0565iUvzQ
+         WQJWMhvgAPUWZm0z/6gHQUlR4pB3vSViSqd+C6jUKwbXJMihMF/8tL5LGVHgCfP1s/19
+         A/KKizhdntSETaLxYzOdk1tO2k3R+SwAk2LZ4L4jOfaMrw/kDsjXiogpWkf4DM1m9lK2
+         Htlw==
+X-Gm-Message-State: AGi0PubaYcRPvMCCP1CIPveDogCCtDgZXdMo2ABYpurp+0p87jCKJZF9
+        q6LKXPcOqpAPlQUD6zAF4QeO8LQxTT6ypsemDc4=
+X-Google-Smtp-Source: APiQypLc+H8cDpkpzOzqmkji0OWnFNQKjbx1thdQgpK/T83QApdI1+Gd8al1FjoXQB6EWyr6FUC1+ZrNtzkSRT+3Nho=
+X-Received: by 2002:ac8:2976:: with SMTP id z51mr1606113qtz.19.1587114393293;
+ Fri, 17 Apr 2020 02:06:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200417020641.GA145784@google.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Received: by 2002:a05:6214:1183:0:0:0:0 with HTTP; Fri, 17 Apr 2020 02:06:32
+ -0700 (PDT)
+Reply-To: mrhascholze3@gmail.com
+From:   "Mr. H.A.Scholze" <remy15050@gmail.com>
+Date:   Fri, 17 Apr 2020 10:06:32 +0100
+Message-ID: <CANbpHyzKqx1ZCuHkuc0K_bLXG2HJ7cPADj+eq4JDWWOqSXph8g@mail.gmail.com>
+Subject: Regards
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 07:06:41PM -0700, Brian Norris wrote:
-> If you just read the last sentence from Michal, you get the wrong
-> picture. There's no hard-coding of gpiochipX numbers going on. We only
-> had the pin offsets "hardcoded" (in ACPI), and the kernel driver
-> unilaterally changed from a contiguous mapping to a non-contiguous
-> mapping.
+Sir
+We have 180M USD for investment
+Let me know IF YOU ARE READY TO INVEST THE FUND IN A
+GOOD BUSINESS IN YOUR COUNTRY.
 
-OK, I now understand the issue. My apologies that I was not able to
-figure that out from the previous explanation.
+LET ME KNOW YOUR TERMS.
 
-So indeed if relative GPIO numbering inside the gpiochip was changed
-then it is kernel regression and needs to be dealt with.
-
-> How do you recommend determining (both pre- and
-> post-commit-03c4749dd6c7ff94) whether pin 22 is at offset 22, vs. offset
-> 19?
-
-I wonder if we can add back the previous GPIO base like this?
-
-diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
-index 4c74fdde576d..f53de56bb763 100644
---- a/drivers/pinctrl/intel/pinctrl-cherryview.c
-+++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
-@@ -1591,17 +1591,18 @@ static int chv_gpio_add_pin_ranges(struct gpio_chip *chip)
- 	struct chv_pinctrl *pctrl = gpiochip_get_data(chip);
- 	const struct chv_community *community = pctrl->community;
- 	const struct chv_gpio_pinrange *range;
--	int ret, i;
-+	int ret, i, offset;
- 
--	for (i = 0; i < community->ngpio_ranges; i++) {
-+	for (i = 0, offset = 0; i < community->ngpio_ranges; i++) {
- 		range = &community->gpio_ranges[i];
--		ret = gpiochip_add_pin_range(chip, dev_name(pctrl->dev),
--					     range->base, range->base,
--					     range->npins);
-+		ret = gpiochip_add_pin_range(chip, dev_name(pctrl->dev), offset,
-+					     range->base, range->npins);
- 		if (ret) {
- 			dev_err(pctrl->dev, "failed to add GPIO pin range\n");
- 			return ret;
- 		}
-+
-+		offset += range->npins;
- 	}
- 
- 	return 0;
+Regards
+Mr. H.A.Scholze
