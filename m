@@ -2,99 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E5F1AD89B
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 10:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 813C81AD8BD
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 10:38:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729772AbgDQIdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 04:33:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59346 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729166AbgDQIdi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Apr 2020 04:33:38 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECB9921D95;
-        Fri, 17 Apr 2020 08:33:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587112418;
-        bh=exX30MBHh/JKazRWYTFyi87muy0zveZWPuO12yNLcOs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsUphSa5EhVomRNPSzWZgVy1RjGUSl45SFjXYEHhDFIWXqPTt6YlJkc4p/mWHOEkK
-         GSzixvy9j3t1gEJqmjmB3W1l2gNB3aSZFKL9luPn0+2/6YkXdqPDnf7zAbCbupiutK
-         Y8D2fubSodxuCXjfgocWYeuF8r4Q61txv/traUWE=
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1jPMRM-00473f-47; Fri, 17 Apr 2020 09:33:36 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
-        kvm@vger.kernel.org
-Cc:     Zenghui Yu <yuzenghui@huawei.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Andre Przywara <Andre.Przywara@arm.com>,
-        Julien Grall <julien@xen.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Andr=C3=A9=20Przywara?= <andre.przywara@arm.com>
-Subject: [PATCH v2 1/6] KVM: arm: vgic: Fix limit condition when writing to GICD_I[CS]ACTIVER
-Date:   Fri, 17 Apr 2020 09:33:14 +0100
-Message-Id: <20200417083319.3066217-2-maz@kernel.org>
-X-Mailer: git-send-email 2.26.1
-In-Reply-To: <20200417083319.3066217-1-maz@kernel.org>
-References: <20200417083319.3066217-1-maz@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, yuzenghui@huawei.com, eric.auger@redhat.com, Andre.Przywara@arm.com, julien@xen.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, stable@vger.kernel.org, andre.przywara@arm.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+        id S1729749AbgDQIgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 04:36:51 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:57462 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729732AbgDQIgv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 04:36:51 -0400
+Received: from 61-220-137-37.hinet-ip.hinet.net ([61.220.137.37] helo=localhost)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kai.heng.feng@canonical.com>)
+        id 1jPMUP-00047h-Dy; Fri, 17 Apr 2020 08:36:45 +0000
+From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
+To:     kbusch@kernel.org, axboe@fb.com, hch@lst.de, sagi@grimberg.me
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        linux-stable <stable@vger.kernel.org>,
+        linux-nvme@lists.infradead.org (open list:NVM EXPRESS DRIVER),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] nvme/pci: Use Discard instead of Write Zeroes on SK hynix SC300
+Date:   Fri, 17 Apr 2020 16:36:41 +0800
+Message-Id: <20200417083641.28205-1-kai.heng.feng@canonical.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When deciding whether a guest has to be stopped we check whether this
-is a private interrupt or not. Unfortunately, there's an off-by-one bug
-here, and we fail to recognize a whole range of interrupts as being
-global (GICv2 SPIs 32-63).
+After commit 6e02318eaea5 ("nvme: add support for the Write Zeroes
+command"), SK hynix SC300 becomes very slow with the following error
+message:
+[  224.567695] blk_update_request: operation not supported error, dev nvme1n1, sector 499384320 op 0x9:(WRITE_ZEROES) flags 0x1000000 phys_seg 0 prio class 0]
 
-Fix the condition from > to be >=.
+Use quirk NVME_QUIRK_DEALLOCATE_ZEROES to workaround this issue.
 
-Cc: stable@vger.kernel.org
-Fixes: abd7229626b93 ("KVM: arm/arm64: Simplify active_change_prepare and plug race")
-Reported-by: André Przywara <andre.przywara@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+BugLink: https://bugs.launchpad.net/bugs/1872383
+Cc: linux-stable <stable@vger.kernel.org> # >= 5.1
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 ---
- virt/kvm/arm/vgic/vgic-mmio.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/host/pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/virt/kvm/arm/vgic/vgic-mmio.c b/virt/kvm/arm/vgic/vgic-mmio.c
-index 2199302597fa..d085e047953f 100644
---- a/virt/kvm/arm/vgic/vgic-mmio.c
-+++ b/virt/kvm/arm/vgic/vgic-mmio.c
-@@ -444,7 +444,7 @@ static void vgic_mmio_change_active(struct kvm_vcpu *vcpu, struct vgic_irq *irq,
- static void vgic_change_active_prepare(struct kvm_vcpu *vcpu, u32 intid)
- {
- 	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
--	    intid > VGIC_NR_PRIVATE_IRQS)
-+	    intid >= VGIC_NR_PRIVATE_IRQS)
- 		kvm_arm_halt_guest(vcpu->kvm);
- }
- 
-@@ -452,7 +452,7 @@ static void vgic_change_active_prepare(struct kvm_vcpu *vcpu, u32 intid)
- static void vgic_change_active_finish(struct kvm_vcpu *vcpu, u32 intid)
- {
- 	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
--	    intid > VGIC_NR_PRIVATE_IRQS)
-+	    intid >= VGIC_NR_PRIVATE_IRQS)
- 		kvm_arm_resume_guest(vcpu->kvm);
- }
- 
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 4e79e412b276..e3f4dac823d8 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3068,6 +3068,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
+ 	{ PCI_DEVICE(0x1c58, 0x0023),	/* WDC SN200 adapter */
+ 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
++	{ PCI_DEVICE(0x1c5c, 0x1504),	/* SK hynix SC300 */
++		.driver_data = NVME_QUIRK_DEALLOCATE_ZEROES, },
+ 	{ PCI_DEVICE(0x1c5f, 0x0540),	/* Memblaze Pblaze4 adapter */
+ 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
+ 	{ PCI_DEVICE(0x144d, 0xa821),   /* Samsung PM1725 */
 -- 
-2.26.1
+2.17.1
 
