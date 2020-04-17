@@ -2,63 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C52F1AD8C3
+	by mail.lfdr.de (Postfix) with ESMTP id E96891AD8C5
 	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 10:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729815AbgDQIig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 04:38:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33656 "EHLO mail.kernel.org"
+        id S1729853AbgDQIi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 04:38:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729650AbgDQIif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Apr 2020 04:38:35 -0400
+        id S1729650AbgDQIi5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Apr 2020 04:38:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04F962137B;
-        Fri, 17 Apr 2020 08:38:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7DC22137B;
+        Fri, 17 Apr 2020 08:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587112715;
-        bh=pK4RIabtc8C96XCzrexGS4ZYK5gul5qNF93/fIrP700=;
+        s=default; t=1587112737;
+        bh=QOHiMxRFGEgVWn9nG00kwqQ0MK10y04DtBJYV1Gtnns=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zjX6bqTfWF63eaHRVjf3jwIzP+ZE7+M4VXGw8ybnc47ZqR6ap4Mdjfzyf+VtQuDtZ
-         Tv5ILDuhI7jo9fmIO9zFDeQYeD55lzTOqde+DjYi8ge5IcAUyFJXZ9C75AvTsTiH/H
-         auzzdi4cBDBcn7bWSjE+XXpyHXXFBjBkXVOfQCzw=
-Date:   Fri, 17 Apr 2020 10:38:33 +0200
+        b=E3N93+suml7yPvTnfmsMBk1KpYz4pg2br56Jaz0amqQbss17ly2R1og/L3WAld6m+
+         mTe07ipLXdomEfqEs3t/lOmvNIGTQhQbuJvxVUbzzOLLMOpLBa9/WavB5RNrmXORI8
+         CGBI+F2aAQyTs3V9tesWffQ7II2X5azdJbA6Rvpw=
+Date:   Fri, 17 Apr 2020 10:38:55 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Subject: Re: [PATCH 5.6 000/254] 5.6.5-rc1 review
-Message-ID: <20200417083833.GF141762@kroah.com>
+Message-ID: <20200417083855.GG141762@kroah.com>
 References: <20200416131325.804095985@linuxfoundation.org>
- <a93947f1-c810-70af-219a-63a4ab01e125@roeck-us.net>
+ <CA+G9fYtm0vpovNM5exU69WnQxpa3LHaumogCE9V8BCHgdcFr2A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <a93947f1-c810-70af-219a-63a4ab01e125@roeck-us.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYtm0vpovNM5exU69WnQxpa3LHaumogCE9V8BCHgdcFr2A@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 02:17:03PM -0700, Guenter Roeck wrote:
-> On 4/16/20 6:21 AM, Greg Kroah-Hartman wrote:
+On Thu, Apr 16, 2020 at 11:37:47PM +0530, Naresh Kamboju wrote:
+> On Thu, 16 Apr 2020 at 19:26, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
 > > This is the start of the stable review cycle for the 5.6.5 release.
 > > There are 254 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
 > > let me know.
-> > 
+> >
 > > Responses should be made by Sat, 18 Apr 2020 13:11:20 +0000.
 > > Anything received after that time might be too late.
-> > 
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.5-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> Build results:
-> 	total: 155 pass: 155 fail: 0
-> Qemu test results:
-> 	total: 428 pass: 428 fail: 0
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-Thanks for testing all of these and letting me know.
+Great!  Thanks for testing and letting me know.
 
 greg k-h
