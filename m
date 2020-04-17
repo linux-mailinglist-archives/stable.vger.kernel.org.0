@@ -2,125 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 503F11AE5C1
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 21:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C1A1AE659
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 21:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729978AbgDQTZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 15:25:19 -0400
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:3968 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728826AbgDQTZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 15:25:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1587151552; x=1618687552;
-  h=from:to:cc:subject:date:message-id:references:
-   content-transfer-encoding:mime-version;
-  bh=ufpqaUu80owrFV9l8wknfkLbk4Ty++tv/FRQbr1850M=;
-  b=V9KS9pd3a7l6UsRgoNe8zvK36Ya7MJzQBj/vMlKv9F7Mwc/wkyGWZ9Z6
-   Mnhyu660D3JhcgTvHlKRVEhDzNKMrSHfFTQEV7IQUYzBqzhHqGX/qnryP
-   6710miu7ia+GVD+bRZG+ClKsIkoQevdQBbrxSZYYtL+6huwza+Kj8UIYq
-   OE3IRnNPjymGAIOYAbkh9Wly/QPxaQPKrHvbb6O/MbA+7gQygCS6cBZ7H
-   R1zvL3htdmr/AbtFaaEN2O/iTo/FzoCwSzGqdM5D5MJc41zGYEAdN/JIj
-   TbmXcz7C7nBfOWmIxj2QZDCIBwvBpRbEKOVYRWzY9a1kjYGQbtexG11cw
-   w==;
-IronPort-SDR: 0+4LEr+6HIa6KC8OnRsamjboZ6LkYMaXEXHcAeeBL/OXx9S0rk6+bKZCAkTjvZ4qRvdivXGAzL
- QWLBC/yihuW5aBFq7pr/GtJo7TGzxyQTZh2/V2REQUy7kSzwFOPD9VMYVQuojBtZyZC8D6FuTg
- U9EKVm/Q5qbzfTilHOLTpx657TYyUslshvLzM3EL4HbucptumPhMIdmBzH9we77Yt/OsI1cCdW
- xRvAoP/d57Vts2Ze9C476v7Q8118BM41pmJCldar1SqX2DCL1mUdN8QsBOkQ4WLEztcLbHEmvh
- jrs=
-X-IronPort-AV: E=Sophos;i="5.72,395,1580745600"; 
-   d="scan'208";a="238017268"
-Received: from mail-bn7nam10lp2109.outbound.protection.outlook.com (HELO NAM10-BN7-obe.outbound.protection.outlook.com) ([104.47.70.109])
-  by ob1.hgst.iphmx.com with ESMTP; 18 Apr 2020 03:25:38 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DFgFRzQg4QVRVoQqjbe2x18bLQlISEdK+l8z5pz4Snagpuszcfdbwh21OL01S0t0L9uKuXUwdBl+qZDSNIHVbobq+MF44gww/imo6pjt3M+vII1MIJGfztXSzmfIIworHny4RzbcD/66A7v/iuRl8a8Oyz8mIw0ajI9yd9JAebotCTMP8fGFLhCUc6Nj6bTJeyjcfXSTltBPVH9de65fVyhqrHDXD+pXC+jIIEwB2gTgyG/mjJ6IMSUT8ziCkikxDzNDWyAoIP2HPi24ZIMR91uyDSLQQaCDWDeZZIPuv653WBwyBWTMGC35GaFdfjRTj72EYgmMg37EioiEZIhepA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=EX9YePprWTQYlv/6GZ3B/cWoCYUFYBkLVbWfsIW7G7E=;
- b=ApeKY0mtWfDjyt43tFxIOk0T2ed1Gez19O0i4LXM+Ujk6kH1Fe+wTB+RuZ6S+8V0ZiL+pSb/RP5UKuI4ztrQWIUF+w6uQQ4l6rFJROYNIdpreuVYLc5U6yqVhtZmYagq/3+NN88NQ77QiTVqXJyTCOymeP2qe4Un1mP+Z/AyTjFFMIp8PXz8UbgBtZDksZtacggIDQLTHZZY3H8TgEer/5etRQFjuK/WsbSt6MW2C68sLvxKxA/wt/FUvjwleXlkr2zgX5tDw+7N4PLHg8q4GKa3TC9taqTL4Q0bYqtcachmVR01/npAnADe8iMe9BSqE8nFtuhJwK0E8rTmVcUdFQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=EX9YePprWTQYlv/6GZ3B/cWoCYUFYBkLVbWfsIW7G7E=;
- b=xl9ezzRKRz3X+uqzI7Ix67lnQ2IfPNQA8YUewUTBRUmk+i85f/g5kKFCgKKhhRe1VXbj/ewYBGheX9nbkp2w1euTMNMtTm/alifECjgoto0W/aEwWpirEoh29jp+12PXqMipDMGGfIwwPUPyFQSFwnV0UzqSqnCzrncA5rkYXTk=
-Received: from BYAPR04MB4965.namprd04.prod.outlook.com (2603:10b6:a03:4d::25)
- by BYAPR04MB5509.namprd04.prod.outlook.com (2603:10b6:a03:e4::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2900.24; Fri, 17 Apr
- 2020 19:25:07 +0000
-Received: from BYAPR04MB4965.namprd04.prod.outlook.com
- ([fe80::28be:e964:37e5:44b6]) by BYAPR04MB4965.namprd04.prod.outlook.com
- ([fe80::28be:e964:37e5:44b6%6]) with mapi id 15.20.2921.027; Fri, 17 Apr 2020
- 19:25:06 +0000
-From:   Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
-To:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "kbusch@kernel.org" <kbusch@kernel.org>,
-        "axboe@fb.com" <axboe@fb.com>, "hch@lst.de" <hch@lst.de>,
-        "sagi@grimberg.me" <sagi@grimberg.me>
-CC:     "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>,
-        linux-stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nvme/pci: Use Discard instead of Write Zeroes on SK hynix
- SC300
-Thread-Topic: [PATCH] nvme/pci: Use Discard instead of Write Zeroes on SK
- hynix SC300
-Thread-Index: AQHWFJNgC1T1D2C2k0C8UtF2YjQiRQ==
-Date:   Fri, 17 Apr 2020 19:25:06 +0000
-Message-ID: <BYAPR04MB49658C7772879D7BA5A6E62D86D90@BYAPR04MB4965.namprd04.prod.outlook.com>
-References: <20200417083641.28205-1-kai.heng.feng@canonical.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Chaitanya.Kulkarni@wdc.com; 
-x-originating-ip: [199.255.45.62]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 8f25680c-08ac-4750-2968-08d7e305097f
-x-ms-traffictypediagnostic: BYAPR04MB5509:
-x-microsoft-antispam-prvs: <BYAPR04MB5509222E11B2B4E6EECAF49B86D90@BYAPR04MB5509.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:191;
-x-forefront-prvs: 0376ECF4DD
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR04MB4965.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10019020)(4636009)(396003)(376002)(366004)(346002)(136003)(39860400002)(4744005)(71200400001)(316002)(478600001)(110136005)(186003)(66556008)(55016002)(64756008)(9686003)(66446008)(54906003)(66476007)(5660300002)(6506007)(76116006)(7696005)(2906002)(33656002)(8936002)(4326008)(53546011)(66946007)(26005)(86362001)(8676002)(52536014)(81156014);DIR:OUT;SFP:1102;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: RN4K6LsRJ6uUE31Wg2sMfCJz2u2FjqiHfbW8PK+vxhGxjprOI1QpSQDrAe0GZAT6OWLM8bo7piC/TlDmpPEOkv32uHIQI0aZGcknIAqQrPJNGDUtA2eM+yterus/M/a+xFOC00T/4NcvZ4/6Stn2EL+CmI8bRUGjFk/qwWr4Ms0FRv+NuRkXw253Y5kkOr41suqpKSHqa6xQpEZW0u82BmlkBwuCL2piTEB+3fftaI/eINRTbhHeTvncFe2W9QYcj/vzxkZAk9HokzX5jr1JzqujeGeSGSxK+8eVT1tgHmh2PZLhbe7yIlUIyuLuvhId1YchE9phQUq2GuedlZUPlJpe8t4mzKtcNdZjIvsc9dEwLMugtL9lK7RRZ72neHtWozGDx3+SqeUc4gzeBCn2GLYkRO5V66FIniXyf7oxQgcrItQN0HbTkn5SYe5rbp68
-x-ms-exchange-antispam-messagedata: 2zlhnafUsPIRsFz7e8G9OsEN6VYLJCWfLBZzxQdzhjIqEh+L/2oY9U+1H72Rpt7kqW0IPHlk2amrGZg50e3juuoXRGDBmNkB9+d3nUlDyMSo4foA2lkFu5jiG5jyXUEHJ79RfAslLMilu6r8AZJJYA==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1730590AbgDQTzH convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 17 Apr 2020 15:55:07 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:35177 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730573AbgDQTzH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 15:55:07 -0400
+Received: by mail-ot1-f68.google.com with SMTP id e20so2468647otl.2;
+        Fri, 17 Apr 2020 12:55:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=irXuNro8HvnRk+BrWbbABXUvW4MljqIc9AUWoi1f2Eo=;
+        b=Hx40PtklOQjWpRU4woK0+sZwX9lJ18V/yloRjlwhrs9y6/7n25ydy2NPsNpMk7r2Ol
+         mORS1QiQH98RV3R2k4eKZvXV02QKaKfX1gahfecWCv10NdrG2a/BDDSVCrQNTWftVB0a
+         BmlNzyH2H3gfrV6uTfc6rTuo0pxBGnxLo2HHct2ZIxJhfOOkSnxskMmgxylK7MhLOyLb
+         vsepFZczZPihiEwN5MyZV3WM3+duvGBcTIcjxbSjLpWNJrpJxOJ1k4zrdjpdwOtEL2Ri
+         owtrJDvST2KE+Ibdq6XtehnBwc2Ge6oDnVY8WIbG1iX+T/u/DKXFarbtPLEQ1fKrWGJe
+         Ersw==
+X-Gm-Message-State: AGi0Pua+t8tU7LYNlTfnLEgYaExTqydMvyLcZG7EDG5EmBngYHrVqm40
+        fCGVCRB8OGkatbJDrudi/GoE/Y/RS0uHc2Oxd78=
+X-Google-Smtp-Source: APiQypI0BBzCQh563PyRKr+8vxbIskn+ZdpBUycqdaHyYpZErR2AUCMpj2pG/e17Vusf5CRqe6Ug/6dWW7CPyJqTQDA=
+X-Received: by 2002:a9d:1d07:: with SMTP id m7mr384246otm.167.1587153306213;
+ Fri, 17 Apr 2020 12:55:06 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8f25680c-08ac-4750-2968-08d7e305097f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Apr 2020 19:25:06.8465
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: j9Z1Kwr7dNOv+6ar0iiH+mDpdGwu2iP1JSWDm89FmfX2pXDdDed7f8NN4dIX3FRX41u8FlQGNFYh0HVHk/hi8aNnfzZ2bZq952r5lwzRqTk=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR04MB5509
+References: <fdd9ce1d-146a-5fbf-75c5-3a9384603312@gmx.de> <5478a950-4355-8084-ea7d-fe8b270bf2e3@infradead.org>
+ <5392275.BHAU0OPJTB@kreacher> <4b21c095-fbe5-1138-b977-a505baa41a2b@gmx.de>
+ <CAJZ5v0icdVL6_yGpfsorqszdi9GcLxzYdvDqTJyG4ENzkOG2pQ@mail.gmail.com> <d66ad8f1-d7c5-dd8a-0eb4-9e560dc9ada1@gmx.de>
+In-Reply-To: <d66ad8f1-d7c5-dd8a-0eb4-9e560dc9ada1@gmx.de>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Fri, 17 Apr 2020 21:54:54 +0200
+Message-ID: <CAJZ5v0iXJK_kFzr=cOdcTdc947MOcm2hvNV1WgvAnxOY7uvWfg@mail.gmail.com>
+Subject: Re: regression 5.6.4->5.6.5 at drivers/acpi/ec.c
+To:     =?UTF-8?Q?Toralf_F=C3=B6rster?= <toralf.foerster@gmx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        ACPI Devel Mailing List <linux-acpi@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04/17/2020 01:37 AM, Kai-Heng Feng wrote:=0A=
-> After commit 6e02318eaea5 ("nvme: add support for the Write Zeroes=0A=
-> command"), SK hynix SC300 becomes very slow with the following error=0A=
-> message:=0A=
-> [  224.567695] blk_update_request: operation not supported error, dev nvm=
-e1n1, sector 499384320 op 0x9:(WRITE_ZEROES) flags 0x1000000 phys_seg 0 pri=
-o class 0]=0A=
->=0A=
-> Use quirk NVME_QUIRK_DEALLOCATE_ZEROES to workaround this issue.=0A=
-Can you share=0A=
-nvme id-ctrl -H /dev/nvme0 | grep oncs -A 8=0A=
-output?=0A=
-=0A=
+On Fri, Apr 17, 2020 at 9:41 PM Toralf Förster <toralf.foerster@gmx.de> wrote:
+>
+> On 4/17/20 8:52 PM, Rafael J. Wysocki wrote:
+> > On Fri, Apr 17, 2020 at 6:36 PM Toralf Förster <toralf.foerster@gmx.de> wrote:
+> >>
+> >> On 4/17/20 5:53 PM, Rafael J. Wysocki wrote:
+> >>> Does the patch below (untested) make any difference?
+> >>>
+> >>> ---
+> >>>  drivers/acpi/ec.c |    5 ++++-
+> >>>  1 file changed, 4 insertions(+), 1 deletion(-)
+> >>>
+> >>> Index: linux-pm/drivers/acpi/ec.c
+> >>> ===================================================================
+> >>> --- linux-pm.orig/drivers/acpi/ec.c
+> >>> +++ linux-pm/drivers/acpi/ec.c
+> >>> @@ -2067,7 +2067,10 @@ static struct acpi_driver acpi_ec_driver
+> >>>               .add = acpi_ec_add,
+> >>>               .remove = acpi_ec_remove,
+> >>>               },
+> >>> -     .drv.pm = &acpi_ec_pm,
+> >>> +     .drv = {
+> >>> +             .probe_type = PROBE_FORCE_SYNCHRONOUS,
+> >>> +             .pm = &acpi_ec_pm,
+> >>> +     },
+> >>>  };
+> >>>
+> >>>  static void acpi_ec_destroy_workqueues(void)
+> >> I'd say no, but for completeness:
+> >
+> > OK, it looks like mainline commit
+> >
+> > 65a691f5f8f0 ("ACPI: EC: Do not clear boot_ec_is_ecdt in acpi_ec_add()")
+> >
+> > was backported into 5.6.5 by mistake.
+> >
+> > Can you please revert that patch and retest?
+> >
+> Yes, reverting that commit solved the issue.
+
+OK, thanks!
+
+Greg, I'm not sure why commit 65a691f5f8f0 from the mainline ended up in 5.6.5.
+
+It has not been marked for -stable or otherwise requested to be
+included AFAICS.  Also it depends on other mainline commits that have
+not been included into 5.6.5.
+
+Can you please drop it?
