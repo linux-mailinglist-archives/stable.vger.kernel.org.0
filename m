@@ -2,197 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C742E1AE472
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 20:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E041AE486
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 20:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730631AbgDQSKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 14:10:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41474 "EHLO
+        id S1730373AbgDQSMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 14:12:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730718AbgDQSKl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 14:10:41 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4E26C061A0C
-        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 11:10:39 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id k21so2181801otl.5
-        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 11:10:39 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1730362AbgDQSMG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 14:12:06 -0400
+Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3951C061A0F
+        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 11:12:06 -0700 (PDT)
+Received: by mail-il1-x141.google.com with SMTP id f2so3016354ilq.7
+        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 11:12:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=AVdZUd+aoV5hglGQdjkmyI25h/pfLO7UOhCP4bcSCiE=;
-        b=hdNZikSMdnvITOdr5idNKrN1s6X3JhvTpoAifWfbNI8OucJyUTsbdw4aOT5mJ17OnY
-         21Iz5+JZrcLXxR3RohsYUaExGaGqD9GpC5XAzSGFVi3BxO+jxfUpcJFM8scSN2gQ9/V7
-         208IpIlcZahgGU9VLcoi9P+mf6EquFx5SuEro=
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=foA4DPbQhpo9xw/eOdopgrsDK8K+vfBDZATjTXoQh4I=;
+        b=Z0MQ60xFZB3rug8cIA+FngZ0z5QTTaKj8L2zfDYreK5DCo9VyIQsbVvoQsEixaqASV
+         Xe1eIj5eMACzhqFhfR1Ea39QY5PL+Hb/cv6dWzsZTHQF7sPy5VGNQ7qCbG/e1H2vfXzx
+         f1QUhwZOxp3lfix1qIk/TZ32m/y8uoJ4+Rxk4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=AVdZUd+aoV5hglGQdjkmyI25h/pfLO7UOhCP4bcSCiE=;
-        b=Tmkdpql9lRLVhEzjrkkuEVmp3macQF3/mVSeOvJ3kgACgz5GVHFvwzUEKnUiMK4Fxm
-         9wDKRYRNequDVp2p/wLQVQ8wWkm8purhPEof+QO1YyTkUQ/PU06vojOg8nhgV1UzZ/kT
-         gdsdT3rUnEjYvKDto8a1nK8ukbSjt+2p0zsRs/tYUtLzLouSDPt8YooW55Y7GOxNo88W
-         9hOmbRGgId2+mCC4SujZIx0i1VGDFPU6bR6PaMFKbm33mmud68MMCYuTT2FZdfQGnZtF
-         YYvkcizTp+RcKUSYXRB9CNpX896qf5A9+ff+JXw2DFYEcwaNIcP7cBMErrw7X+kQ4daO
-         TIFw==
-X-Gm-Message-State: AGi0Pubx3slGS6eqnDk/D8v5c5qm8UDrLuj1fPBwLKE7mtyUyizjPJ15
-        BuAaZfnHxH1oZ4crZSCyJHCqm+XiO6V1VZzEq8VBag==
-X-Google-Smtp-Source: APiQypLLEOl8ehPIa48TecTfBenMgM8WAuWmMT4h2itoYv51EVbbTPBbvw8pH+ub2oiqM6RgU+tkCpSAKtTF1/xpCLw=
-X-Received: by 2002:a05:6830:1d0:: with SMTP id r16mr26334ota.303.1587147038949;
- Fri, 17 Apr 2020 11:10:38 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200416170420.23657-1-ville.syrjala@linux.intel.com>
- <20200417152310.GQ3456981@phenom.ffwll.local> <20200417154313.GO6112@intel.com>
-In-Reply-To: <20200417154313.GO6112@intel.com>
-From:   Daniel Vetter <daniel@ffwll.ch>
-Date:   Fri, 17 Apr 2020 20:10:26 +0200
-Message-ID: <CAKMK7uGBWyPtm0dva=Ndk6xJx7nUKJ20kn8S37iFB8s85WWmdw@mail.gmail.com>
-Subject: Re: [PATCH] drm: Fix page flip ioctl format check
-To:     =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=foA4DPbQhpo9xw/eOdopgrsDK8K+vfBDZATjTXoQh4I=;
+        b=AxYq1nfzr9NmVmoLYxInWtv0H0JkLcKco1UI334rqGZKrv80CslVP7XoXXFJm7fkJN
+         6BZmE4nTD7fBqXNhDamq1XR81WZU5bM7kRvJH0OA/xLspkaFpS7SnwpVjlTZjNjfQt82
+         T4S5w2u7hQnvJkPQxNWAEPuZSfzcQogip/N2jiVI/vvGD5kFzxQxYicE1qglJJ9GLp+j
+         n6FcXbBQLrkEN96q7B0MC8zMjLJonRHF+YSkW5RAuPXs9M0i8xqdY2b8AVd+5vvsYhif
+         KCBQy3hMLi9Hpr/b1dj1qi0NnVum2F/5M4WByVVQXQiGDC3e7m/0jgKaflfqcyuPEXcL
+         a6rQ==
+X-Gm-Message-State: AGi0PuZbbZf1p/s2LL2wjHKlJP6gvq37dzYGxfktfgb7zTscflShOCtj
+        sHn4JKRvyW9com17Td9wITIo4pxCkgE=
+X-Google-Smtp-Source: APiQypK0O3NmNw3iIF83xy1VuEtCksGeLHf4dXqAZp+DSBugDnssGyEy4+rb78xy7abwBzrMsiAKyw==
+X-Received: by 2002:a05:6e02:cd2:: with SMTP id c18mr4590069ilj.223.1587147125661;
+        Fri, 17 Apr 2020 11:12:05 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id v17sm8424124ill.5.2020.04.17.11.12.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 17 Apr 2020 11:12:05 -0700 (PDT)
+Subject: Re: Linux 5.7-rc1 reboot/poweroff hangs
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Prike.Liang@amd.com, Alexander Deucher <Alexander.Deucher@amd.com>,
         stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+References: <b8eaee2b-21dd-c0de-f522-d58bb9ae31da@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <f6d5973a-286e-2273-cbeb-5c88707008d3@linuxfoundation.org>
+Date:   Fri, 17 Apr 2020 12:12:04 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <b8eaee2b-21dd-c0de-f522-d58bb9ae31da@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 17, 2020 at 5:43 PM Ville Syrj=C3=A4l=C3=A4
-<ville.syrjala@linux.intel.com> wrote:
->
-> On Fri, Apr 17, 2020 at 05:23:10PM +0200, Daniel Vetter wrote:
-> > On Thu, Apr 16, 2020 at 08:04:20PM +0300, Ville Syrjala wrote:
-> > > From: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-> > >
-> > > Revert back to comparing fb->format->format instead fb->format for th=
-e
-> > > page flip ioctl. This check was originally only here to disallow pixe=
-l
-> > > format changes, but when we changed it to do the pointer comparison
-> > > we potentially started to reject some (but definitely not all) modifi=
-er
-> > > changes as well. In fact the current behaviour depends on whether the
-> > > driver overrides the format info for a specific format+modifier combo=
-.
-> > > Eg. on i915 this now rejects compression vs. no compression changes b=
-ut
-> > > does not reject any other tiling changes. That's just inconsistent
-> > > nonsense.
-> > >
-> > > The main reason we have to go back to the old behaviour is to fix pag=
-e
-> > > flipping with Xorg. At some point Xorg got its atomic rights taken aw=
-ay
-> > > and since then we can't page flip between compressed and non-compress=
-ed
-> > > fbs on i915. Currently we get no page flipping for any games pretty m=
-uch
-> > > since Mesa likes to use compressed buffers. Not sure how compositors =
-are
-> > > working around this (don't use one myself). I guess they must be doin=
-g
-> > > something to get non-compressed buffers instead. Either that or
-> > > somehow no one noticed the tearing from the blit fallback.
-> >
-> > Mesa only uses compressed buffers if you enable modifiers, and there's =
-a
-> > _loooooooooooot_ more that needs to be fixed in Xorg to enable that for
-> > real. Like real atomic support.
->
-> Why would you need atomic for modifiers? Xorg doesn't even have
-> any sensible framework for atomic and I suspect it never will.
+On 4/17/20 12:05 PM, Shuah Khan wrote:
+> Hi Linus,
+> 
+> Linux 5.7-rc1 reboot/powereoff hangs on AMD Ryzen 5 PRO 2400GE
+> system.
+> 
+> I isolated the commit to:
+> 
+> Revering the following commit fixes the problem.
+> 
+> commit 487eca11a321ef33bcf4ca5adb3c0c4954db1b58
+> Author: Prike Liang <Prike.Liang@amd.com>
+> Date:   Tue Apr 7 20:21:26 2020 +0800
+> 
+>      drm/amdgpu: fix gfx hang during suspend with video playback (v2)
+> 
+>      The system will be hang up during S3 suspend because of SMU is
+>      pending for GC not respose the register CP_HQD_ACTIVE access
+>      request.This issue root cause of accessing the GC register under
+>      enter GFX CGGPG and can be fixed by disable GFX CGPG before perform
+>      suspend.
+> 
 
-Frankly if no one cares about atomic in X I don't think we should do
-work-arounds for lack of atomic in X.
+I can send a revert, however it appears this is a fix for a suspend
+hang.
 
-> > Without modifiers all you get is X tiling,
-> > and that works just fine.
-> >
-> > Which would also fix this issue here you're papering over.
-> >
-> > So if this is the entire reason for this, I'm inclined to not do this.
-> > Current Xorg is toast wrt modifiers, that's not news.
->
-> Works just fine. Also pretty sure modifiers are even enabled by
-> default now in modesetting.
-
-Y/CSS is harder to scan out, you need to verify with TEST_ONLY whether
-it works. Otherwise good chances for some oddball black screens on
-configurations that worked before. Which is why all non-atomic
-compositors reverted modifiers by default again.
-
-> And as stated the current check doesn't have consistent behaviour
-> anyway. You can still flip between different modifiers as long a the
-> driver doesn't override .get_format_info() for one of them. The *only*
-> case where that happens is CCS on i915. There is no valid reason to
-> special case that one.
-
-The thing is, you need atomic to make CCS work reliably enough for
-compositors and distros to dare enabling it by default. CCS flipping
-works with atomic. I really see no point in baking this in with as
-uapi. Just fix Xorg.
--Daniel
-
->
-> > -Daniel
-> >
-> > >
-> > > Looking back at the original discussion on this change we pretty much
-> > > just did it in the name of skipping a few extra pointer dereferences.
-> > > However, I've decided not to revert the whole thing in case someone
-> > > has since started to depend on these changes. None of the other check=
-s
-> > > are relevant for i915 anyways.
-> > >
-> > > Cc: stable@vger.kernel.org
-> > > Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > > Fixes: dbd4d5761e1f ("drm: Replace 'format->format' comparisons to ju=
-st 'format' comparisons")
-> > > Signed-off-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com=
->
-> > > ---
-> > >  drivers/gpu/drm/drm_plane.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.=
-c
-> > > index d6ad60ab0d38..f2ca5315f23b 100644
-> > > --- a/drivers/gpu/drm/drm_plane.c
-> > > +++ b/drivers/gpu/drm/drm_plane.c
-> > > @@ -1153,7 +1153,7 @@ int drm_mode_page_flip_ioctl(struct drm_device =
-*dev,
-> > >     if (ret)
-> > >             goto out;
-> > >
-> > > -   if (old_fb->format !=3D fb->format) {
-> > > +   if (old_fb->format->format !=3D fb->format->format) {
-> > >             DRM_DEBUG_KMS("Page flip is not allowed to change frame b=
-uffer format.\n");
-> > >             ret =3D -EINVAL;
-> > >             goto out;
-> > > --
-> > > 2.24.1
-> > >
-> > > _______________________________________________
-> > > dri-devel mailing list
-> > > dri-devel@lists.freedesktop.org
-> > > https://lists.freedesktop.org/mailman/listinfo/dri-devel
-> >
-> > --
-> > Daniel Vetter
-> > Software Engineer, Intel Corporation
-> > http://blog.ffwll.ch
->
-> --
-> Ville Syrj=C3=A4l=C3=A4
-> Intel
+thanks,
+-- Shuah
 
 
-
---=20
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
