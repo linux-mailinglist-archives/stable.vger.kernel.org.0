@@ -2,126 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 591B81ADE26
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 15:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF5411ADE6D
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 15:38:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730517AbgDQNV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 09:21:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58498 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729760AbgDQNV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Apr 2020 09:21:26 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75D4920724;
-        Fri, 17 Apr 2020 13:21:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587129685;
-        bh=J8eWNPPYvc/+m8n7EeDElpmichO9EaeG/pSP1F5xLaw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KM+d2RWHl5hRqnIQMJDI8JdAWq5uLF7LZE45s9Jrrb5m2x6ViGABYKCOVtPOBmP1n
-         +emWaocsfd+ajox0+3V9/r6MSbYiAcdWSMyzMSuzYU7CBsxvm1ID9GY22nDVfPkuVC
-         V/S9k+ct6R5kf2mTe8jlNZ68iDMQ42+NnExezCSE=
-Date:   Fri, 17 Apr 2020 09:21:24 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Saeed Mahameed <saeedm@mellanox.com>
-Cc:     "ecree@solarflare.com" <ecree@solarflare.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "gerlitz.or@gmail.com" <gerlitz.or@gmail.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "kuba@kernel.org" <kuba@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "leon@kernel.org" <leon@kernel.org>
-Subject: Re: [PATCH AUTOSEL 4.9 09/26] net/mlx5e: Init ethtool steering for
- representors
-Message-ID: <20200417132124.GS1068@sasha-vm>
-References: <a89a592a-5a11-5e56-a086-52b1694e00db@solarflare.com>
- <20200414205755.GF1068@sasha-vm>
- <41174e71-00e1-aebf-b67d-1b24731e4ab3@solarflare.com>
- <20200416000009.GL1068@sasha-vm>
- <434329130384e656f712173558f6be88c4c57107.camel@mellanox.com>
- <20200416052409.GC1309273@unreal>
- <20200416133001.GK1068@sasha-vm>
- <550d615e14258c744cb76dd06c417d08d9e4de16.camel@mellanox.com>
- <20200416195859.GP1068@sasha-vm>
- <3226e1df60666c0c4e3256ec069fee2d814d9a03.camel@mellanox.com>
+        id S1730620AbgDQNiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 09:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55390 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730563AbgDQNiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 09:38:10 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C9DAC061A0F
+        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 06:38:10 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id r17so1833360lff.2
+        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 06:38:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=MgPH7nQj3vUC9GWiYpHTU8ETkQh/2ehYV0kXVa78P8I=;
+        b=vACs4Zlp/VmjavGK5+GSgMzsaY9cT50/KVkg4V6uxD22YbDGw5fxhMFdvrYw0QfM/7
+         rsjJymO+g/au5YA0c1dkq8ZIM6v5Z1f7jyTcU0tlpIgO9caWzDJ6mBCzNPvNwIXlrGyW
+         QqNMIDIgISWqGadkczWzHWzaiAoVD8ngEpNmZ7iMZnFO7ACV3+FAL0wW/JUFlJEB2XnL
+         i7WkthDRJKyF6EOT8ZskCrC2V5K4LJVZVAYGWvvYmlZRDXfXP5LtC3uJn6iNCwsBjIpQ
+         xj1AW8f/1W8RMgpCCyjjO40zDekhifNmmmEzyQvwbE/Vw4/6gmjEBNx0so72bhrbFhCB
+         Q+QA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=MgPH7nQj3vUC9GWiYpHTU8ETkQh/2ehYV0kXVa78P8I=;
+        b=YMmVMIN1BYJzEFC5Nx0FXxWvAN8Hc7YVfUAGmMPIiIQbMBO+gd7Uon2uuNq81b9RNs
+         Svdq0L7FfWppmT2zoYCT/w9E+asnZialdHjCIV4mBPHIpWHyHzZz6xr9eDQR6WeQPRCd
+         uN4Pu2XggA711h+ytlD/CL2SShOxERo9eQl1aaD4PhDzoC1LECJ9aUQ8WVdUhjXf9gs1
+         sa3cvo5QfLguSdzFL8pjekNyagALQmbBxLZkQqDjcJDSPyS1MfNemk8tZ9oICXZsnQJN
+         XaZ7nSNIV2UEOFahenzagUQhWuaQ3n5U+NhWDd0muYx/QW287txTrBf3OlU2QNYKwtcf
+         VX3w==
+X-Gm-Message-State: AGi0PuYNEAjQnIfPWkfRsuyUIbFfgI+gF5E1GbJCNPx4mWgaLm7F74j0
+        xeujB8SkUMuP2R/w4TeKMEqUuo12DvWH77eY1AQdig==
+X-Google-Smtp-Source: APiQypLWs7opaXAHqtF88lKjIM9gYEdIJBNHuwDMFnM7rXP7/kbD6FbknRESbUM7affJYzTMbTmq1mz5SEod+cikLns=
+X-Received: by 2002:ac2:4143:: with SMTP id c3mr2125530lfi.131.1587130688648;
+ Fri, 17 Apr 2020 06:38:08 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <3226e1df60666c0c4e3256ec069fee2d814d9a03.camel@mellanox.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20200416131242.353444678@linuxfoundation.org> <20200417123531.GA19028@duo.ucw.cz>
+In-Reply-To: <20200417123531.GA19028@duo.ucw.cz>
+From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
+Date:   Fri, 17 Apr 2020 08:37:56 -0500
+Message-ID: <CAEUSe7-CBJsB6Kpsg52rjywN7jNeQRu4fU7tWSeJn0zF7xA2zQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/146] 4.19.116-rc1 review
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        chris.paterson2@renesas.com,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 09:08:06PM +0000, Saeed Mahameed wrote:
->On Thu, 2020-04-16 at 15:58 -0400, Sasha Levin wrote:
->> Hrm, why? Pretend that the bot is a human sitting somewhere sending
->> mails out, how does it change anything?
->>
+Hello!
+
+On Fri, 17 Apr 2020 at 07:35, Pavel Machek <pavel@denx.de> wrote:
 >
->If i know a bot might do something wrong, i Fix it and make sure it
->will never do it again. For humans i just can't do that, can I ? :)
->so this is the difference and why we all have jobs ..
-
-It's tricky because there's no one true value here. Humans are
-constantly wrong about whether a patch is a fix or not, so how can I
-train my bot to be 100% right?
-
->> > > The solution here is to beef up your testing infrastructure
->> > > rather
->> > > than
->> >
->> > So please let me opt-in until I beef up my testing infra.
->>
->> Already did :)
+> Hi!
 >
->No you didn't :), I received more than 5 AUTOSEL emails only today and
->yesterday.
-
-Appologies, this is just a result of how my process goes - patch
-selection happened a few days ago (which is when blacklists are
-applied), it's been running through my tests since, and mails get sent
-out only after tests.
-
->Please don't opt mlx5 out just yet ;-), i need to do some more research
->and make up my mind..
-
-Alrighty. Keep in mind you can always reply with just a "no" to AUTOSEL
-mails, you don't have to explain why you don't want it included to keep
-it easy.
-
->>
->> > > taking less patches; we still want to have *all* the fixes,
->> > > right?
->> > >
->> >
->> > if you can be sure 100% it is the right thing to do, then yes,
->> > please
->> > don't hesitate to take that patch, even without asking anyone !!
->> >
->> > Again, Humans are allowed to make mistakes.. AI is not.
->>
->> Again, why?
->>
+> > This is the start of the stable review cycle for the 4.19.116 release.
+> > There are 146 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sat, 18 Apr 2020 13:11:20 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >       https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.116-rc1.gz
+> > or in the git tree and branch at:
+> >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> > and the diffstat can be found below.
 >
->Because AI is not there yet.. and this is a very big philosophical
->question.
+> CIP project ran tests on this one, and we have de0-nano failure:
 >
->Let me simplify: there is a bug in the AI, where it can choose a wrong
->patch, let's fix it.
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/pipelines/1=
+36707029
+>
+> Detailed results should be at:
+>
+> https://lava.ciplatform.org/scheduler/job/14716
+> https://lava.ciplatform.org/scheduler/job/14717
+>
+> ..but those results do not load for me (?).
 
-But we don't know if it's wrong or not, so how can we teach it to be
-100% right?
+Looks like the device failed its health job and went into bad state.
+Jobs submitted for that device are still queued, hence the time out.
 
-I keep retraining the NN based on previous results which improves it's
-accuracy, but it'll never be 100%.
+Greetings!
 
-The NN claims we're at ~95% with regards to past results.
-
--- 
-Thanks,
-Sasha
+Daniel D=C3=ADaz
+daniel.diaz@linaro.org
