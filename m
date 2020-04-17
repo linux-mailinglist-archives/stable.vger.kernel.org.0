@@ -2,243 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0856A1AD67C
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 08:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 833C21AD6EB
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 09:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726050AbgDQGxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 02:53:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48994 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728083AbgDQGxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 02:53:39 -0400
-Received: from mail-yb1-xb43.google.com (mail-yb1-xb43.google.com [IPv6:2607:f8b0:4864:20::b43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48072C061A10
-        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 23:53:39 -0700 (PDT)
-Received: by mail-yb1-xb43.google.com with SMTP id a9so512453ybc.8
-        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 23:53:39 -0700 (PDT)
+        id S1728682AbgDQHGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 03:06:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51062 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728338AbgDQHGi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 03:06:38 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14561C061A0C;
+        Fri, 17 Apr 2020 00:06:37 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id u15so939609ljd.3;
+        Fri, 17 Apr 2020 00:06:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Yxn0m71LOQ+yfqIoKnaxQru/WU+91bOpFnDXhCTjaGY=;
-        b=OtXjWj0ztDLuiReEQ27WKPoBs2lsPAa9IF/+OZD7Iyl/nWfWbpiwJ434B1vBDRmH+D
-         +6oD7sa1GH4ArE8FxGxF6zbNagFaVn3L5fR4gSss0wZsjUCE90kuDe78JTUFCc3G4E3C
-         2nhTCZQSx8Y791TPEZVQAlUNZyIuYRC+7n/scGUo+RI6qiNfdhdoXFHc3RXYNHtw02qD
-         jLFxyuqc3Q+96Yniy2doYOsKskRCsgWZq3lj6CjVQoZ47oV7sGJi6xAe6Qc06cmXBpYm
-         d8170t75hYb8OOrTvY5B89s413DQ1a3cZA24lqaHf2E3nT6rH3brIzPC92CySeOxeh36
-         daoA==
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:in-reply-to:references:date:message-id
+         :mime-version;
+        bh=fGQzwyFoGGaL1dX6Nzoo0EvKYXbaPj6p3weXm+OGjx0=;
+        b=UysaFs+AQ31lBJ73Ap2WhLwj5xPh7rdmRYMteYX6CIUEuHHrrLio690vky9pOabo2b
+         UWD+feZBp4FxVReNa33Aq6ktZkhBZNpYdFFmHaKfrnezsDzKJRH8YyHilehYP9xAkXdZ
+         B3CPMdvWYVDn8H9EeNg7ipZx0FNmbI2YcVlgAC7i7nEP/U4yk2KPGKwwn3uDEGNXt0PF
+         TyV6riNyww8/vpOxoQ1pjZkpLV+3vJ//DRNukpUSWcbY5DShyvxw2epPdb319Y2tmtOB
+         MMMIMY+mN/yelabBg4a6CRrMiwX5WwYbkq6y7FG8qODk8V4olPLRxDboY91uDiWwj02X
+         3flQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Yxn0m71LOQ+yfqIoKnaxQru/WU+91bOpFnDXhCTjaGY=;
-        b=glHD4vwJoELt/g8d2lYmkfZzwpcfpeYJEQcjr/kEeDA+sSLpeKRlOQZnpmEAnfba/s
-         MRe7h+ynvsw3jC+XtWQwszQRXjeeC3Efv0K+7HAQjEy93eTj83xq6xWeYKN9JkIElgWK
-         dYvzkTAOvSErgK2FlmvJzwCcVNxritFEbc3SozhJn4YHVMRaQDn+ROV9WLi0nhf+Iwl7
-         ukjuGCJDm683run7Zj99VvKzROOMeMYB5ipEFWPa5+nXKdzASpTwBgg2DWFZr49cO7i6
-         fOXkN2YRei+n9/A3NVUOMfsY3xICdM5stsePc64WPRHmlJjZuBNwaL01TDUbSIuM8l+I
-         hAHw==
-X-Gm-Message-State: AGi0PuYkBLycCvvo7u+bx3tjxmFTMfHgr6T57Z32CB4lmVZlG9ISMWMp
-        Thbx11lEOxYGCgnDzIsGgUMTCzALiTrtbyWV7TCQXg==
-X-Google-Smtp-Source: APiQypJhD2GihUBl8eAMpn/dweoXChUqbWXvNvgzEZ0Bo54Gt61TIkG3TcQ0qGerVwZMLd5XLzfaqLuncNzYkwjwcgc=
-X-Received: by 2002:a5b:d51:: with SMTP id f17mr3148187ybr.87.1587106418318;
- Thu, 16 Apr 2020 23:53:38 -0700 (PDT)
-MIME-Version: 1.0
-References: <CA+G9fYtYRc_mKPDN-Gryw7fhjPNGBUP=KemTXaXR6UBU94M3hw@mail.gmail.com>
-In-Reply-To: <CA+G9fYtYRc_mKPDN-Gryw7fhjPNGBUP=KemTXaXR6UBU94M3hw@mail.gmail.com>
-From:   Masami Hiramatsu <masami.hiramatsu@linaro.org>
-Date:   Fri, 17 Apr 2020 15:53:27 +0900
-Message-ID: <CAA93ih2To3YN=L7VSa_RzVRV5OH9DTffd0zdKWB2M4CfE0Gp1Q@mail.gmail.com>
-Subject: Re: WARNING: events/ipi.h:36 suspicious rcu_dereference_check() usage!
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux- stable <stable@vger.kernel.org>,
+        h=x-gm-message-state:sender:from:to:cc:subject:in-reply-to:references
+         :date:message-id:mime-version;
+        bh=fGQzwyFoGGaL1dX6Nzoo0EvKYXbaPj6p3weXm+OGjx0=;
+        b=HlO3qQQ8id5z4gE43Q2xyOIRDAQ3xGG+Rkr90JocpkAsSk1mJpgfwFzgqr5GziFLYr
+         IDb3Vlr6Sl5gZWEyqMwEvb+ca0ZqRUkhfptPqAOAf6mrzIBjRRR1MMfY7UrAsIFTOa4z
+         39JC0GTmB4lezmnW59zaQw2KzVNdOiiy0EKnyr4ZKNztlxcBdg9wyof5S8zVivbcwCYz
+         2jd4LW4VVVhdofommYnRACaajCPqcLopQB2dWFvw2vmZpYbBFDIDRXd3BajGwcGPXVz+
+         +ud4bjp75oTaxOS1C/ZGFw/kORDXIiYb1pGoAftnvjTvGqmFuZBpjxV0x3fjXgMUKQUW
+         MrHg==
+X-Gm-Message-State: AGi0PuZYA8pwV3BRPWSom38dHuRzLYEkV44OuIv9ldAAXUYC3ZvWV6rB
+        WR0Za8PnjIKvrwnUFfKTjFqD4SkTLU3RnA==
+X-Google-Smtp-Source: APiQypK5/vPrxxRj4RPnWtOoi8a9uCdTop+h90ccE6pgqILqkyYYO9m7+RdjEgXDSjpEhKfwpvGNsg==
+X-Received: by 2002:a05:651c:3ce:: with SMTP id f14mr1236697ljp.98.1587107195235;
+        Fri, 17 Apr 2020 00:06:35 -0700 (PDT)
+Received: from saruman (91-155-214-58.elisa-laajakaista.fi. [91.155.214.58])
+        by smtp.gmail.com with ESMTPSA id v9sm15591097ljj.31.2020.04.17.00.06.34
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 17 Apr 2020 00:06:34 -0700 (PDT)
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Shuah Khan <shuah@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        rcu@vger.kernel.org, lkft-triage@lists.linaro.org,
-        Leo Yan <leo.yan@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>, zanussi@kernel.org,
-        svens@linux.ibm.com, Peter Zijlstra <peterz@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        "linux-usb\@vger.kernel.org" <linux-usb@vger.kernel.org>
+Cc:     John Youn <John.Youn@synopsys.com>,
+        "stable\@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2 1/2] usb: dwc3: gadget: Fix request completion check
+In-Reply-To: <5cdcb770-fb6a-14fe-e652-857234c9f69c@synopsys.com>
+References: <bed19f474892bb74be92b762c6727a6a7d0106e4.1585643834.git.thinhn@synopsys.com> <5cdcb770-fb6a-14fe-e652-857234c9f69c@synopsys.com>
+Date:   Fri, 17 Apr 2020 10:06:24 +0300
+Message-ID: <87k12ed21b.fsf@kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-It seems that *arm/arm64 specific* IPI trace event has caused this issue.
-From the stacktrace, __update_max_tr() is invoked from do_idle() context.
 
-------
-__update_max_tr(struct trace_array *tr, struct task_struct *tsk, int cpu)
-{
-[SNIP]
-        /* record this tasks comm */
-        tracing_record_cmdline(tsk);
-        latency_fsnotify(tr);  <<------here
-}
-------
-And via latency_fsnotify(), it calls irq_work_queue().
+Hi Thinh,
 
-------
-void latency_fsnotify(struct trace_array *tr)
-{
-        if (!fsnotify_wq)
-                return;
-        /*
-         * We cannot call queue_work(&tr->fsnotify_work) from here because =
-it's
-         * possible that we are called from __schedule() or do_idle(), whic=
-h
-         * could cause a deadlock.
-         */
-        irq_work_queue(&tr->fsnotify_irqwork); <<------- here
-}
-------
-Please NOTE(*) that the above comment said that irq_work_queue()
-should be SAFE from calling in do_idle(), this means it doesn't touch
-any RCU.
-
-And the irq_work_queue() finally kicks IPI via arch_irq_work_raise()
-which causes an IPI.
-
---------<arm64: arch/arm64/kernel/smp.c>--------
-#ifdef CONFIG_IRQ_WORK
-void arch_irq_work_raise(void)
-{
-        if (__smp_cross_call)
-                smp_cross_call(cpumask_of(smp_processor_id()), IPI_IRQ_WORK=
-);
-}
-#endif
-
-static void smp_cross_call(const struct cpumask *target, unsigned int ipinr=
-)
-{
-        trace_ipi_raise(target, ipi_types[ipinr]);  <<----- This
-causes a warning!
-        __smp_cross_call(target, ipinr);
-}
--------
-And trace_* macro touch the RCU. See include/linux/tracepoint.h:231
-------
-#define __DECLARE_TRACE(name, proto, args, cond, data_proto, data_args) \
-        extern struct tracepoint __tracepoint_##name;                   \
-        static inline void trace_##name(proto)                          \
-        {                                                               \
-                if (static_key_false(&__tracepoint_##name.key))         \
-                        __DO_TRACE(&__tracepoint_##name,                \
-                                TP_PROTO(data_proto),                   \
-                                TP_ARGS(data_args),                     \
-                                TP_CONDITION(cond), 0);                 \
-                if (IS_ENABLED(CONFIG_LOCKDEP) && (cond)) {             \
-                        rcu_read_lock_sched_notrace();                  \
-                        rcu_dereference_sched(__tracepoint_##name.funcs);\
-                        rcu_read_unlock_sched_notrace();                \
-                }                                                       \
-        }
-------
-
-BTW, this ipi_raise trace event is only used in arm/arm64.
-
-$ git grep trace_ipi_raise
-arch/arm/kernel/smp.c:  trace_ipi_raise_rcuidle(target, ipi_types[ipinr]);
-arch/arm64/kernel/smp.c:        trace_ipi_raise(target, ipi_types[ipinr]);
-include/trace/events/ipi.h: * __tracepoint_string, ideally the same as
-used with trace_ipi_raise
-include/trace/events/ipi.h: * __tracepoint_string, ideally the same as
-used with trace_ipi_raise for
-
-Thus, this only occurs on arm64 platform, but not on x86.
-
-To fix this, maybe we need to remove this event or mark this is under
-rcu watched (but is it really watched?)
-
-Thank you,
-
-2020=E5=B9=B44=E6=9C=888=E6=97=A5(=E6=B0=B4) 18:31 Naresh Kamboju <naresh.k=
-amboju@linaro.org>:
-
+Thinh Nguyen <Thinh.Nguyen@synopsys.com> writes:
+> Hi Felipe,
 >
-> On arm64 qemu_arm64, juno-r2 and dragonboard-410c while running kselftest=
- ftrace
-> on stable rc 5.5.1-rc1 to till today 5.5.16-rc2 and 5.6  found this
-> kernel warning.
+> Thinh Nguyen wrote:
+>> A request may not be completed because not all the TRBs are prepared for
+>> it. This happens when we run out of available TRBs. When some TRBs are
+>> completed, the driver needs to prepare the rest of the TRBs for the
+>> request. The check dwc3_gadget_ep_request_completed() shouldn't be
+>> checking the amount of data received but rather the number of pending
+>> TRBs. Revise this request completion check.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: e0c42ce590fe ("usb: dwc3: gadget: simplify IOC handling")
+>> Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+>> ---
+>> Changes in v2:
+>>   - Add Cc: stable tag
+>>
+>>   drivers/usb/dwc3/gadget.c | 12 ++----------
+>>   1 file changed, 2 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+>> index 1a4fc03742aa..c45853b14cff 100644
+>> --- a/drivers/usb/dwc3/gadget.c
+>> +++ b/drivers/usb/dwc3/gadget.c
+>> @@ -2550,14 +2550,7 @@ static int dwc3_gadget_ep_reclaim_trb_linear(stru=
+ct dwc3_ep *dep,
+>>=20=20=20
+>>   static bool dwc3_gadget_ep_request_completed(struct dwc3_request *req)
+>>   {
+>> -	/*
+>> -	 * For OUT direction, host may send less than the setup
+>> -	 * length. Return true for all OUT requests.
+>> -	 */
+>> -	if (!req->direction)
+>> -		return true;
+>> -
+>> -	return req->request.actual =3D=3D req->request.length;
+>> +	return req->num_pending_sgs =3D=3D 0;
+>>   }
+>>=20=20=20
+>>   static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *de=
+p,
+>> @@ -2581,8 +2574,7 @@ static int dwc3_gadget_ep_cleanup_completed_reques=
+t(struct dwc3_ep *dep,
+>>=20=20=20
+>>   	req->request.actual =3D req->request.length - req->remaining;
+>>=20=20=20
+>> -	if (!dwc3_gadget_ep_request_completed(req) ||
+>> -			req->num_pending_sgs) {
+>> +	if (!dwc3_gadget_ep_request_completed(req)) {
+>>   		__dwc3_gadget_kick_transfer(dep);
+>>   		goto out;
+>>   	}
 >
-> [  386.349099] kselftest: Running tests in ftrace
-> [  393.984018]
-> [  393.984290] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> [  393.984781] WARNING: suspicious RCU usage
-> [  393.988690] 5.6.3-rc2 #1 Not tainted
-> [  393.992679] -----------------------------
-> [  393.996327] /usr/src/kernel/include/trace/events/ipi.h:36
-> suspicious rcu_dereference_check() usage!
-> [  394.000241]
-> [  394.000241] other info that might help us debug this:
-> [  394.000241]
-> [  394.009094]
-> [  394.009094] RCU used illegally from idle CPU!
-> [  394.009094] rcu_scheduler_active =3D 2, debug_locks =3D 1
-> [  394.017084] RCU used illegally from extended quiescent state!
-> [  394.028187] 1 lock held by swapper/3/0:
-> [  394.033826]  #0: ffff80001237b6a8 (max_trace_lock){....}, at:
-> check_critical_timing+0x7c/0x1a8
-> [  394.037480]
-> [  394.037480] stack backtrace:
-> [  394.046158] CPU: 3 PID: 0 Comm: swapper/3 Not tainted 5.6.3-rc2 #1
-> [  394.050584] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (D=
-T)
-> [  394.056663] Call trace:
-> [  394.063515]  dump_backtrace+0x0/0x1e0
-> [  394.065686]  show_stack+0x24/0x30
-> [  394.069505]  dump_stack+0xe8/0x150
-> [  394.072805]  lockdep_rcu_suspicious+0xcc/0x110
-> [  394.076106]  arch_irq_work_raise+0x208/0x210
-> [  394.080533]  __irq_work_queue_local+0x5c/0x80
-> [  394.084959]  irq_work_queue+0x38/0x78
-> [  394.089212]  __update_max_tr+0x150/0x218
-> [  394.092858]  update_max_tr_single.part.82+0x98/0x100
-> [  394.096851]  update_max_tr_single+0x1c/0x28
-> [  394.101798]  check_critical_timing+0x198/0x1a8
-> [  394.105705]  stop_critical_timings+0x128/0x148
-> [  394.110221]  cpuidle_enter_state+0x74/0x4f8
-> [  394.114645]  cpuidle_enter+0x3c/0x50
-> [  394.118726]  call_cpuidle+0x44/0x80
-> [  394.122542]  do_idle+0x22c/0x2d0
-> [  394.125755]  cpu_startup_entry+0x28/0x48
-> [  394.129229]  secondary_start_kernel+0x1b4/0x210
->
->
-> metadata:
->   git branch: linux-5.5.y and linux-5.6.y
->   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-=
-stable-rc.git
->   kernel-config:
-> http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/juno/lkft/linux-s=
-table-rc-5.5/65/config
->
-> Full test log,
-> 5.6 test logs,
-> https://lkft.validation.linaro.org/scheduler/job/1350627#L12612
-> https://lkft.validation.linaro.org/scheduler/job/1350731#L9509
->
-> 5.5 test logs,
-> https://lkft.validation.linaro.org/scheduler/job/1322704#L9777
-> https://lkft.validation.linaro.org/scheduler/job/1153369#L9745
-> https://lkft.validation.linaro.org/scheduler/job/1351155#L8982
-> https://lkft.validation.linaro.org/scheduler/job/1351065#L12349
->
-> --
-> Linaro LKFT
-> https://lkft.linaro.org
+> Since you'll be picking this up for the rc cycle for your fix patches,=20
+> should I split this series to resend and wait for this patch to be=20
+> merged first before I resend the patch 2/2?
+> Let me know how you'd like to proceed.
 
+That's okay. Usually it's better to have the series split, but since
+it's only two patches, I can manage :-) I'll just leave patch 2 unread
+:-)
 
+=2D-=20
+balbi
 
---
-Masami Hiramatsu
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEElLzh7wn96CXwjh2IzL64meEamQYFAl6ZVXIACgkQzL64meEa
+mQZQKRAAxdoO+6RUfZJyQqS5ZzF/466fG1t53GS9Ps98u6M3aJuUVYtpJnNz6LAU
+lr/i7s8OCQVQEnNWMSYUHUpsDvQPyf42RCooaJbstcaXrWglW1FmY5nRF9j8JPeV
+AjhANXL5TnEeVNkKpbdCzhRzByk9GaozzXi1Fz3icEnorBWX0xq0Z702UAAaGNte
+7QBMosSIGCMr3b+cqWo/jnGRjqaxVRjiEB/heguCkZHG/8Pkjpa6Cx5lrMntGGgS
+LHslgIe1PemhFfA5N6Q7Wm3m6E+Gw+yudpxlKZRqR1UCGBX6jYPl5WR/bcD2fdCA
+eYIT/SK1iGf0Cy+KzvtsVvt+1b1mEpzGzS/jfdtRP7i4M2Pgaq/WOUwVziQFkaY+
+MX2IFRqgnNCutixEvgkL3K5r0Ge9ZZSXf3WW6/5bofmTtMS4bLM8evR7fnjLYx8f
+dOQ/hE9Zg1GCMfhtBh/G7E1anNd4d68Hzoe+g2xRp42TckyaQtsYK8L7B/OGKk+Q
+2e+WIdvPTyKHYkK8XIaalqEAL7x+7gBbMUQHKXTqq6NCYcH5Eb5flnyFa/ByI9CQ
+kwZnUbNgKGqdJ1i9OqFLTVO1gHcQ+pcjbkKo9QZihr5wKQto9bWlQxfw6C4gi7Nd
+szoktu6RYNNzYWqEhMOReG+AzRSi5//bVb1O6cJYmQbTM7hK8F8=
+=RGrp
+-----END PGP SIGNATURE-----
+--=-=-=--
