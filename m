@@ -2,154 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2AAC1AD427
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 03:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E321AD44E
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 04:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728697AbgDQBar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Apr 2020 21:30:47 -0400
-Received: from smtprelay-out1.synopsys.com ([149.117.87.133]:45044 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727879AbgDQBar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 21:30:47 -0400
-Received: from mailhost.synopsys.com (badc-mailhost1.synopsys.com [10.192.0.17])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 0FEFEC008C;
-        Fri, 17 Apr 2020 01:30:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1587087046; bh=92YYRqQ7APIXWAOb5Kb0RTa5cdSM+NP2pSTwuJjtgVc=;
-        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-        b=MeYL/p/3iQelBSAZ02BymvvkoFj8qBRQHk4AdNzRVw7itQeZoukcCUKJvr9l5XUkk
-         2dUi4iie4dU/tpKwgmP8Eu8/6ONVrnr9q5f/ab7FIwX3DJdzOVCbXxMQs/7aldrQOI
-         KqfDCtPgu6NFEQKb1aAY534yVyU+Hd20uXfRwJ+7ju4EkTPc9r/F7kdZdA47icrQNv
-         I+mtI8d2Eld/5X1KxgdS9VaBrAHsyaPPOPaYxqMWAwtLvSUybclX6y+0anc/B1EcGA
-         RY8zMti3K74+3M/7cr8Vb1uook6l9EaEVREpy1gXCo6ssLCv48jXQibAra1qzu4lnE
-         nJoRzCfXhgyDA==
-Received: from US01WEHTC3.internal.synopsys.com (us01wehtc3.internal.synopsys.com [10.15.84.232])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPS id 76B0CA008A;
-        Fri, 17 Apr 2020 01:30:45 +0000 (UTC)
-Received: from US01HYBRID2.internal.synopsys.com (10.15.246.24) by
- US01WEHTC3.internal.synopsys.com (10.15.84.232) with Microsoft SMTP Server
- (TLS) id 14.3.408.0; Thu, 16 Apr 2020 18:29:50 -0700
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (10.202.3.67) by
- mrs.synopsys.com (10.15.246.24) with Microsoft SMTP Server (TLS) id
- 14.3.487.0; Thu, 16 Apr 2020 18:29:49 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=R6iI7Yugvm5hcMoLoGbtCRZ1wFpNDIK7PSPCJ4VDhgAGvVngsbVITFD3UbmBmg3zslYK5Uaia0tV6c7moKOMynJ3IxtdPwjr8w1j/RlLSVurGPuVjXYfP+IhT+opbFv44I1d6BARKlodpu1Xvam3kTXt+K00JyBHJl2rtVrU0t1xfLCjF4UReAga/tizNgYnbnYJ/nm4eKxIcpQcjik2YB87V3eYj5cX8AasuBS0RlvXIBd5N+V8VzlnglmuOi0z5yVGNw4caIJFTF0b8a7W8R1VEIadRrp8A2fcSNNxGc2JrjuAK0AjwPXw+MJwimA/G1VeFKLbcZP4T3uhmO3K+g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=92YYRqQ7APIXWAOb5Kb0RTa5cdSM+NP2pSTwuJjtgVc=;
- b=i/BOzQmZ7x+BnXAJDVOLWe4CSJL2hyxCize9+JzEknDvDP/ATYbaLSLr67RrY3i6nzYthYfBPkBUs3KX8KgUPhrrtByRPj5Z/HQABmsvwxAcWBcx931YRGUGm9btMWnQDOPAAFtciGVgfNWyzfwPl3ayYNoXUqDTa1pHYRsijFENfaMEdQao7Ic6Rv1WD27jnEC0vG6739iwdXC8D+EzllOH4XOkQuVxfL+4oZfLh24cX+mKfBUmphzS4jrtyOIvjKxxOhxze3k8jVheYPlD3g8GBm+I6Lo639Hs5BLi3eW6zJaQgvHGsXzzqvH7VR/UKQGwnIiP8zpnAMSan9/ZWw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=synopsys.com; dmarc=pass action=none header.from=synopsys.com;
- dkim=pass header.d=synopsys.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=synopsys.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=92YYRqQ7APIXWAOb5Kb0RTa5cdSM+NP2pSTwuJjtgVc=;
- b=MkFuYtXbJIMYYrnxHjhjSDHFtm+0bygXBUA70UE5UTH19eS5E95kDN4MmI8TkgtkW6ZzKUG6WBOS2h1ujzGVDWAYN4U1Dq4JEizQwf+LwlXOmOTUPzUyj27Sxk2Cm31tFqHsjtpq2ztwFRTiRmkErZyg+cMO29bf01LGQLYbztM=
-Received: from BYAPR12MB2917.namprd12.prod.outlook.com (2603:10b6:a03:130::14)
- by BYAPR12MB3544.namprd12.prod.outlook.com (2603:10b6:a03:131::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2921.27; Fri, 17 Apr
- 2020 01:29:47 +0000
-Received: from BYAPR12MB2917.namprd12.prod.outlook.com
- ([fe80::3860:a61:5aeb:a248]) by BYAPR12MB2917.namprd12.prod.outlook.com
- ([fe80::3860:a61:5aeb:a248%7]) with mapi id 15.20.2900.028; Fri, 17 Apr 2020
- 01:29:47 +0000
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
-CC:     John Youn <John.Youn@synopsys.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] usb: dwc3: gadget: Fix request completion check
-Thread-Topic: [PATCH v2 1/2] usb: dwc3: gadget: Fix request completion check
-Thread-Index: AQHWBzgjYE0rpmq7/Eun5jRlryeIBah8oOuA
-Date:   Fri, 17 Apr 2020 01:29:47 +0000
-Message-ID: <5cdcb770-fb6a-14fe-e652-857234c9f69c@synopsys.com>
-References: <bed19f474892bb74be92b762c6727a6a7d0106e4.1585643834.git.thinhn@synopsys.com>
-In-Reply-To: <bed19f474892bb74be92b762c6727a6a7d0106e4.1585643834.git.thinhn@synopsys.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=thinhn@synopsys.com; 
-x-originating-ip: [149.117.7.22]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 7ccfea6b-c321-425c-9e08-08d7e26ed11c
-x-ms-traffictypediagnostic: BYAPR12MB3544:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BYAPR12MB354438FD7EACA3F4226D02EBAAD90@BYAPR12MB3544.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-forefront-prvs: 0376ECF4DD
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB2917.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10019020)(136003)(396003)(39860400002)(346002)(376002)(366004)(81156014)(8676002)(316002)(31686004)(71200400001)(6506007)(4326008)(8936002)(26005)(186003)(86362001)(31696002)(6486002)(5660300002)(6512007)(36756003)(2616005)(66446008)(478600001)(76116006)(64756008)(66476007)(54906003)(66946007)(66556008)(2906002)(110136005);DIR:OUT;SFP:1102;
-received-spf: None (protection.outlook.com: synopsys.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: PCQn8EGJ0U7yC/lBaISuoMyiY4BtazfSsHHb5Mm1T+Om9+4SgHcsrasqCN2vxi6twOpPnhFqT/D+A82d/4Z/CzRDScmmV1NbLPXQLwxlim7dr69t4hwjO1U2Cy3bFnfBrFM2uGJ5jmftdHZAuk/kEWKWroUGOVJSMBbgc56HsgeRxstTEH2zvq6yegBZzZ5q9/8AuuibVBMmmQxDL4aeqGomwiJoiGfXlK8WGsOIwq+ziMDrDFvitFiatu95X+dUABxh31UyFesmeAYvF1x2Hxs9N6URDoblV1tMDwsmKEktUY2/G92HAbCBpWa19PaRMDqYaDrL4m+JxWm7jtKCVnKctHyTc8fOSofht7OcR5daFNwLpU5KW5Snju+4UGkuzRiLd/F9eoVkt01Jt9qEePtF40V93uJKxvBdxpXe9k9fNnnIG3qozV7wT4ojeCOt
-x-ms-exchange-antispam-messagedata: vJHkcqKFOO4nNf/mEMOM3i31OPV1D8ZAUAI465ePtwkW71b1c7wHaGJ9Vfwlh44GQAc8Ce0olJrmgYsQRuMGRXXRPkMYCMcoPnNBKT0/qiRzL4QVhN+aTMojVMB7h1pIOqXPgTzka50qgCyN/bzDNA==
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <3329E75DEEE1514E98FBE5D7958E0C4D@namprd12.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S1725800AbgDQCGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Apr 2020 22:06:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33032 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728958AbgDQCGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Apr 2020 22:06:46 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D021AC061A10
+        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 19:06:45 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id k15so313590pfh.6
+        for <stable@vger.kernel.org>; Thu, 16 Apr 2020 19:06:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=Hfdx7uDJvgrGkRYQDhx6DARmHevGcYuM4GwFr74akkA=;
+        b=FQVf+DFnRHPeQ/SGO5Hw0smu9KCNhym996v6AIV/dsuwaWRyhQrYQwMlpB1zt0+nX/
+         BSOYTHaqkFX/m3b9KlZPcrLzLGvOlmcJROEVN5Y5MvozAx1dvDjYDESncXlfAe105qfx
+         onkTOTzapOUqP3I+4socEd8Os145UAQyxt7/I=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=Hfdx7uDJvgrGkRYQDhx6DARmHevGcYuM4GwFr74akkA=;
+        b=LWF4D+GrPDqsZmbwwp/fCsIHRnLk0zTYElH98xulXoIT6vAYTrqD8Yogj83KQMxjFR
+         T/lMvfrAnlVilML13jEdKYN0qiDsBGLJkiI7CiSJV/rzEjP2zUkSLPv991bn/upMkZKg
+         6Xe2XgarInGsW497qnikqyloQcuGQawUZmv745lYPAgGv8CubJ4vQ04AGsGjYslHqhXW
+         k3WYw7F4fB3WiLj5gxn9Bn7ADMQ8k4euUbo2iA3h0E+LGgMvt4YrrflkPv7toRbYg3zk
+         oP28s/fDBEjLUNZ7vIYj8ZjbIceFTZpCjXqWxKUTBQeKHasjUuZl/4kb6WMru6y+cQyh
+         10Tg==
+X-Gm-Message-State: AGi0PuZZpAEUzo8EM/cHz8OnEU7jJOO/z/KCU+n1HqvL7k96mvgGFEfN
+        y7nk+pJFIjN2Yb0NrHp21rsKqw==
+X-Google-Smtp-Source: APiQypIAm+eOkLnh9jfVGsJPFCRSE3u2oQZAeMT8zXL+p+ToKv0aaogvmqJScYekjpJ7CEwbwJZhCw==
+X-Received: by 2002:a63:2cce:: with SMTP id s197mr761627pgs.184.1587089205194;
+        Thu, 16 Apr 2020 19:06:45 -0700 (PDT)
+Received: from google.com ([2620:15c:202:1:534:b7c0:a63c:460c])
+        by smtp.gmail.com with ESMTPSA id t5sm365532pjo.19.2020.04.16.19.06.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Apr 2020 19:06:44 -0700 (PDT)
+Date:   Thu, 16 Apr 2020 19:06:41 -0700
+From:   Brian Norris <briannorris@chromium.org>
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc:     =?utf-8?Q?Micha=C5=82?= Stanek <mst@semihalf.com>,
+        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stanekm@google.com,
+        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
+        levinale@chromium.org, andriy.shevchenko@linux.intel.com,
+        Linus Walleij <linus.walleij@linaro.org>,
+        bgolaszewski@baylibre.com, rafael.j.wysocki@intel.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] pinctrl: cherryview: Add quirk with custom translation
+ of ACPI GPIO numbers
+Message-ID: <20200417020641.GA145784@google.com>
+References: <20200205194804.1647-1-mst@semihalf.com>
+ <20200206083149.GK2667@lahna.fi.intel.com>
+ <CAMiGqYi2rVAc=hepkY-4S1U_3dJdbR4pOoB0f8tbBL4pzWLdxA@mail.gmail.com>
+ <20200207075654.GB2667@lahna.fi.intel.com>
+ <CAMiGqYjmd2edUezEXsX4JBSyOozzks1Pu8miPEviGsx=x59nZQ@mail.gmail.com>
+ <20200210101414.GN2667@lahna.fi.intel.com>
+ <CAMiGqYiYp=aSgW-4ro5ceUEaB7g0XhepFg+HZgfPvtvQL9Z1jA@mail.gmail.com>
+ <20200310144913.GY2540@lahna.fi.intel.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7ccfea6b-c321-425c-9e08-08d7e26ed11c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Apr 2020 01:29:47.7618
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: c33c9f88-1eb7-4099-9700-16013fd9e8aa
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 9H+DEU6AOnYVN47eTntpKyQhiZr0aeMyl8HymVLeNpZBiyqjOdG7+IVaKXQtPBDUZAnbKrbbnAWmq2LubECSeg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3544
-X-OriginatorOrg: synopsys.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200310144913.GY2540@lahna.fi.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGkgRmVsaXBlLA0KDQpUaGluaCBOZ3V5ZW4gd3JvdGU6DQo+IEEgcmVxdWVzdCBtYXkgbm90IGJl
-IGNvbXBsZXRlZCBiZWNhdXNlIG5vdCBhbGwgdGhlIFRSQnMgYXJlIHByZXBhcmVkIGZvcg0KPiBp
-dC4gVGhpcyBoYXBwZW5zIHdoZW4gd2UgcnVuIG91dCBvZiBhdmFpbGFibGUgVFJCcy4gV2hlbiBz
-b21lIFRSQnMgYXJlDQo+IGNvbXBsZXRlZCwgdGhlIGRyaXZlciBuZWVkcyB0byBwcmVwYXJlIHRo
-ZSByZXN0IG9mIHRoZSBUUkJzIGZvciB0aGUNCj4gcmVxdWVzdC4gVGhlIGNoZWNrIGR3YzNfZ2Fk
-Z2V0X2VwX3JlcXVlc3RfY29tcGxldGVkKCkgc2hvdWxkbid0IGJlDQo+IGNoZWNraW5nIHRoZSBh
-bW91bnQgb2YgZGF0YSByZWNlaXZlZCBidXQgcmF0aGVyIHRoZSBudW1iZXIgb2YgcGVuZGluZw0K
-PiBUUkJzLiBSZXZpc2UgdGhpcyByZXF1ZXN0IGNvbXBsZXRpb24gY2hlY2suDQo+DQo+IENjOiBz
-dGFibGVAdmdlci5rZXJuZWwub3JnDQo+IEZpeGVzOiBlMGM0MmNlNTkwZmUgKCJ1c2I6IGR3YzM6
-IGdhZGdldDogc2ltcGxpZnkgSU9DIGhhbmRsaW5nIikNCj4gU2lnbmVkLW9mZi1ieTogVGhpbmgg
-Tmd1eWVuIDx0aGluaG5Ac3lub3BzeXMuY29tPg0KPiAtLS0NCj4gQ2hhbmdlcyBpbiB2MjoNCj4g
-ICAtIEFkZCBDYzogc3RhYmxlIHRhZw0KPg0KPiAgIGRyaXZlcnMvdXNiL2R3YzMvZ2FkZ2V0LmMg
-fCAxMiArKy0tLS0tLS0tLS0NCj4gICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAx
-MCBkZWxldGlvbnMoLSkNCj4NCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdXNiL2R3YzMvZ2FkZ2V0
-LmMgYi9kcml2ZXJzL3VzYi9kd2MzL2dhZGdldC5jDQo+IGluZGV4IDFhNGZjMDM3NDJhYS4uYzQ1
-ODUzYjE0Y2ZmIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL3VzYi9kd2MzL2dhZGdldC5jDQo+ICsr
-KyBiL2RyaXZlcnMvdXNiL2R3YzMvZ2FkZ2V0LmMNCj4gQEAgLTI1NTAsMTQgKzI1NTAsNyBAQCBz
-dGF0aWMgaW50IGR3YzNfZ2FkZ2V0X2VwX3JlY2xhaW1fdHJiX2xpbmVhcihzdHJ1Y3QgZHdjM19l
-cCAqZGVwLA0KPiAgIA0KPiAgIHN0YXRpYyBib29sIGR3YzNfZ2FkZ2V0X2VwX3JlcXVlc3RfY29t
-cGxldGVkKHN0cnVjdCBkd2MzX3JlcXVlc3QgKnJlcSkNCj4gICB7DQo+IC0JLyoNCj4gLQkgKiBG
-b3IgT1VUIGRpcmVjdGlvbiwgaG9zdCBtYXkgc2VuZCBsZXNzIHRoYW4gdGhlIHNldHVwDQo+IC0J
-ICogbGVuZ3RoLiBSZXR1cm4gdHJ1ZSBmb3IgYWxsIE9VVCByZXF1ZXN0cy4NCj4gLQkgKi8NCj4g
-LQlpZiAoIXJlcS0+ZGlyZWN0aW9uKQ0KPiAtCQlyZXR1cm4gdHJ1ZTsNCj4gLQ0KPiAtCXJldHVy
-biByZXEtPnJlcXVlc3QuYWN0dWFsID09IHJlcS0+cmVxdWVzdC5sZW5ndGg7DQo+ICsJcmV0dXJu
-IHJlcS0+bnVtX3BlbmRpbmdfc2dzID09IDA7DQo+ICAgfQ0KPiAgIA0KPiAgIHN0YXRpYyBpbnQg
-ZHdjM19nYWRnZXRfZXBfY2xlYW51cF9jb21wbGV0ZWRfcmVxdWVzdChzdHJ1Y3QgZHdjM19lcCAq
-ZGVwLA0KPiBAQCAtMjU4MSw4ICsyNTc0LDcgQEAgc3RhdGljIGludCBkd2MzX2dhZGdldF9lcF9j
-bGVhbnVwX2NvbXBsZXRlZF9yZXF1ZXN0KHN0cnVjdCBkd2MzX2VwICpkZXAsDQo+ICAgDQo+ICAg
-CXJlcS0+cmVxdWVzdC5hY3R1YWwgPSByZXEtPnJlcXVlc3QubGVuZ3RoIC0gcmVxLT5yZW1haW5p
-bmc7DQo+ICAgDQo+IC0JaWYgKCFkd2MzX2dhZGdldF9lcF9yZXF1ZXN0X2NvbXBsZXRlZChyZXEp
-IHx8DQo+IC0JCQlyZXEtPm51bV9wZW5kaW5nX3Nncykgew0KPiArCWlmICghZHdjM19nYWRnZXRf
-ZXBfcmVxdWVzdF9jb21wbGV0ZWQocmVxKSkgew0KPiAgIAkJX19kd2MzX2dhZGdldF9raWNrX3Ry
-YW5zZmVyKGRlcCk7DQo+ICAgCQlnb3RvIG91dDsNCj4gICAJfQ0KDQpTaW5jZSB5b3UnbGwgYmUg
-cGlja2luZyB0aGlzIHVwIGZvciB0aGUgcmMgY3ljbGUgZm9yIHlvdXIgZml4IHBhdGNoZXMsIA0K
-c2hvdWxkIEkgc3BsaXQgdGhpcyBzZXJpZXMgdG8gcmVzZW5kIGFuZCB3YWl0IGZvciB0aGlzIHBh
-dGNoIHRvIGJlIA0KbWVyZ2VkIGZpcnN0IGJlZm9yZSBJIHJlc2VuZCB0aGUgcGF0Y2ggMi8yPw0K
-TGV0IG1lIGtub3cgaG93IHlvdSdkIGxpa2UgdG8gcHJvY2VlZC4NCg0KVGhhbmtzLA0KVGhpbmgN
-Cg==
+Hi Mika,
+
+I'm following along with attempts to "fix" our user space to paper over
+this issue, and I think some of this conversation missed the mark.
+(Sorry for jumping in late.)
+
+On Tue, Mar 10, 2020 at 04:49:13PM +0200, Mika Westerberg wrote:
+> On Tue, Mar 10, 2020 at 03:12:00PM +0100, Michał Stanek wrote:
+> > On Mon, Feb 10, 2020 at 11:14 AM Mika Westerberg
+> > <mika.westerberg@linux.intel.com> wrote:
+> > > On Sat, Feb 08, 2020 at 07:43:24PM +0100, Michał Stanek wrote:
+> > > > > >
+> > > > > > Hi Mika,
+> > > > > >
+> > > > > > The previous patches from Dmitry handled IRQ numbering, here we have a
+> > > > > > similar issue with GPIO to pin translation - hardcoded values in FW
+> > > > > > which do not agree with the (non-consecutive) numbering in newer
+> > > > > > kernels.
+> > > > >
+> > > > > Hmm, so instead of passing GpioIo/GpioInt resources to devices the
+> > > > > firmware uses some hard-coded Linux GPIO numbering scheme? Would you
+> > > > > able to share the exact firmware description where this happens?
+> > > >
+> > > > Actually it is a GPIO offset in ACPI tables for Braswell that was
+> > > > hardcoded in the old firmware to match the previous (consecutive)
+> > > > Linux GPIO numbering.
+> > >
+> > > Can you share the ACPI tables and point me to the GPIO that is using
+> > > Linux number?
+> > 
+> > I think this is the one:
+> > https://chromium-review.googlesource.com/c/chromiumos/third_party/coreboot/%2B/286534/2/src/mainboard/google/cyan/acpi/chromeos.asl
+> > 
+> > On Kefka the sysfs GPIO number for wpsw_cur was gpio392 before the
+> > translation change occurred in Linux.
+> 
+> But that table does not seem to have any GPIO numbers in it.
+
+Actually, it's encoding pin numbers, not GPIO numbers. The 0x10016 (or
+now, 0x10013) is encoding a bank offset (0x10000) and pin number (0x16
+or 0x13). The actual pin numbers is 0x16, I believe, but someone decided
+to subtract 3, because the Linux numbering used to be contiguous,
+skipping over the hole between 11 and 15.
+
+So no, nobody was hard-coding gpiochip numbers -- we were hard-coding
+the contiguous pin number (relative to the bank). Now that commit
+03c4749dd6c7ff94 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux GPIO
+translation") made those non-contiguous, we're kinda screwed -- we have
+to guess (based on the kernel version number) whether pin numbers
+(within a single bank!) are contiguous or not.
+
+> > > This is something that should be fixed in userspace. Using global Linux
+> > > GPIO or IRQ numbers is fragile and source of issues like this.
+
+To be clear, we're not hard-coding global <anything> numbers in user
+space.
+
+> > > in case of sysfs, you can
+> > > find the base of the chip
+
+We're doing that.
+
+> > > and then user relative numbering against it or
+> > > switch
+
+^^ This is the problem. The *bank-relative* numbers changed.
+
+> > > Both cases the GPIO number are relative against the GPIO chip so
+> > > they work even if global Linux GPIO numbering changes.
+> > 
+> > I analyzed crossystem source code and it looks like it is doing
+> > exactly what you're saying without any hardcoded assumptions.
+
+^^ Exactly.
+
+> > With the newer kernel the gpiochip%d number is different so crossystem
+> > ends up reading the wrong pin.
+> 
+> Hmm, so gpiochipX is also not considered a stable number. It is based on
+> ARCH_NR_GPIOS which may change. So if the userspace is relaying certain GPIO
+> chip is always gpichip200 for example then it is wrong.
+
+If you just read the last sentence from Michal, you get the wrong
+picture. There's no hard-coding of gpiochipX numbers going on. We only
+had the pin offsets "hardcoded" (in ACPI), and the kernel driver
+unilaterally changed from a contiguous mapping to a non-contiguous
+mapping.
+
+How do you recommend determining (both pre- and
+post-commit-03c4749dd6c7ff94) whether pin 22 is at offset 22, vs. offset
+19?
+
+Brian
