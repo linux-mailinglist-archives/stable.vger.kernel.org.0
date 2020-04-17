@@ -2,141 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DB71AE165
-	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 17:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AAE71AE261
+	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 18:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729293AbgDQPnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 11:43:19 -0400
-Received: from mga12.intel.com ([192.55.52.136]:31554 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729086AbgDQPnT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Apr 2020 11:43:19 -0400
-IronPort-SDR: UQiT05y38VdBIXCIJB6pGDbffDQnqHGZPhIspVIsoEkqeEVCt0npXvwqbvCQLrOS9fBebyt2K0
- DYPbTbVA/0mQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Apr 2020 08:43:18 -0700
-IronPort-SDR: WcLv1QNWJl57GpWwDOAQ9iRfQku3rP52s0EbmCy4dQKp4LuHb7WplwbGupvBzYE8a8Inajk0zA
- V1umjrf8bp8Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,395,1580803200"; 
-   d="scan'208";a="244737378"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga007.fm.intel.com with SMTP; 17 Apr 2020 08:43:14 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Fri, 17 Apr 2020 18:43:13 +0300
-Date:   Fri, 17 Apr 2020 18:43:13 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Daniel Vetter <daniel@ffwll.ch>
-Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        id S1726616AbgDQQjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Apr 2020 12:39:01 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:22752 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726377AbgDQQis (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 12:38:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1587141527;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:in-reply-to:in-reply-to:references:references;
+        bh=J7/+hu9xA4V/kb8irjtGYa6Qo9G4EJkKAhc6pSJfI0o=;
+        b=UeaX/l/20GO3JBwzsoQIi8onTZ+diuiktMtOtbfHrMJ7O6KCyUtL7hbH4K/0jYba9P9I2+
+        r5hWcAb7RKeYk3vyfjcGxRjVAtr62wnJ+I38mUcqJdat3+K8zfjRXlZIAra17Tx7hgFtyb
+        p/nunvavmPec9WpdzyEl4z1jrLcReCg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-390-wpnn2rtMOUa9iepu47f1rA-1; Fri, 17 Apr 2020 12:38:45 -0400
+X-MC-Unique: wpnn2rtMOUa9iepu47f1rA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 84C2E8024E2;
+        Fri, 17 Apr 2020 16:38:44 +0000 (UTC)
+Received: from virtlab511.virt.lab.eng.bos.redhat.com (virtlab511.virt.lab.eng.bos.redhat.com [10.19.152.198])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1846C5DA84;
+        Fri, 17 Apr 2020 16:38:44 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH] drm: Fix page flip ioctl format check
-Message-ID: <20200417154313.GO6112@intel.com>
-References: <20200416170420.23657-1-ville.syrjala@linux.intel.com>
- <20200417152310.GQ3456981@phenom.ffwll.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200417152310.GQ3456981@phenom.ffwll.local>
-X-Patchwork-Hint: comment
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Subject: [PATCH 1/2] KVM: SVM: avoid infinite loop on NPF from bad address
+Date:   Fri, 17 Apr 2020 12:38:42 -0400
+Message-Id: <20200417163843.71624-2-pbonzini@redhat.com>
+In-Reply-To: <20200417163843.71624-1-pbonzini@redhat.com>
+References: <20200417163843.71624-1-pbonzini@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 17, 2020 at 05:23:10PM +0200, Daniel Vetter wrote:
-> On Thu, Apr 16, 2020 at 08:04:20PM +0300, Ville Syrjala wrote:
-> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > 
-> > Revert back to comparing fb->format->format instead fb->format for the
-> > page flip ioctl. This check was originally only here to disallow pixel
-> > format changes, but when we changed it to do the pointer comparison
-> > we potentially started to reject some (but definitely not all) modifier
-> > changes as well. In fact the current behaviour depends on whether the
-> > driver overrides the format info for a specific format+modifier combo.
-> > Eg. on i915 this now rejects compression vs. no compression changes but
-> > does not reject any other tiling changes. That's just inconsistent
-> > nonsense.
-> > 
-> > The main reason we have to go back to the old behaviour is to fix page
-> > flipping with Xorg. At some point Xorg got its atomic rights taken away
-> > and since then we can't page flip between compressed and non-compressed
-> > fbs on i915. Currently we get no page flipping for any games pretty much
-> > since Mesa likes to use compressed buffers. Not sure how compositors are
-> > working around this (don't use one myself). I guess they must be doing
-> > something to get non-compressed buffers instead. Either that or
-> > somehow no one noticed the tearing from the blit fallback.
-> 
-> Mesa only uses compressed buffers if you enable modifiers, and there's a
-> _loooooooooooot_ more that needs to be fixed in Xorg to enable that for
-> real. Like real atomic support.
+When a nested page fault is taken from an address that does not have
+a memslot associated to it, kvm_mmu_do_page_fault returns RET_PF_EMULATE
+(via mmu_set_spte) and kvm_mmu_page_fault then invokes svm_need_emulation_on_page_fault.
 
-Why would you need atomic for modifiers? Xorg doesn't even have
-any sensible framework for atomic and I suspect it never will.
+The default answer there is to return false, but in this case this just
+causes the page fault to be retried ad libitum.  Since this is not a
+fast path, and the only other case where it is taken is an erratum,
+just stick a kvm_vcpu_gfn_to_memslot check in there to detect the
+common case where the erratum is not happening.
 
-> Without modifiers all you get is X tiling,
-> and that works just fine.
-> 
-> Which would also fix this issue here you're papering over.
-> 
-> So if this is the entire reason for this, I'm inclined to not do this.
-> Current Xorg is toast wrt modifiers, that's not news.
+This fixes an infinite loop in the new set_memory_region_test.
 
-Works just fine. Also pretty sure modifiers are even enabled by
-default now in modesetting.
+Fixes: 05d5a4863525 ("KVM: SVM: Workaround errata#1096 (insn_len maybe zero on SMAP violation)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ arch/x86/kvm/svm/svm.c | 7 +++++++
+ virt/kvm/kvm_main.c    | 1 +
+ 2 files changed, 8 insertions(+)
 
-And as stated the current check doesn't have consistent behaviour
-anyway. You can still flip between different modifiers as long a the
-driver doesn't override .get_format_info() for one of them. The *only*
-case where that happens is CCS on i915. There is no valid reason to
-special case that one.
-
-> -Daniel
-> 
-> > 
-> > Looking back at the original discussion on this change we pretty much
-> > just did it in the name of skipping a few extra pointer dereferences.
-> > However, I've decided not to revert the whole thing in case someone
-> > has since started to depend on these changes. None of the other checks
-> > are relevant for i915 anyways.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> > Fixes: dbd4d5761e1f ("drm: Replace 'format->format' comparisons to just 'format' comparisons")
-> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > ---
-> >  drivers/gpu/drm/drm_plane.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/gpu/drm/drm_plane.c b/drivers/gpu/drm/drm_plane.c
-> > index d6ad60ab0d38..f2ca5315f23b 100644
-> > --- a/drivers/gpu/drm/drm_plane.c
-> > +++ b/drivers/gpu/drm/drm_plane.c
-> > @@ -1153,7 +1153,7 @@ int drm_mode_page_flip_ioctl(struct drm_device *dev,
-> >  	if (ret)
-> >  		goto out;
-> >  
-> > -	if (old_fb->format != fb->format) {
-> > +	if (old_fb->format->format != fb->format->format) {
-> >  		DRM_DEBUG_KMS("Page flip is not allowed to change frame buffer format.\n");
-> >  		ret = -EINVAL;
-> >  		goto out;
-> > -- 
-> > 2.24.1
-> > 
-> > _______________________________________________
-> > dri-devel mailing list
-> > dri-devel@lists.freedesktop.org
-> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
-> 
-> -- 
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
-
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index a91e397d6750..c86f7278509b 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -3837,6 +3837,13 @@ static bool svm_need_emulation_on_page_fault(struct kvm_vcpu *vcpu)
+ 	bool smap = cr4 & X86_CR4_SMAP;
+ 	bool is_user = svm_get_cpl(vcpu) == 3;
+ 
++	/*
++	 * If RIP is invalid, go ahead with emulation which will cause an
++	 * internal error exit.
++	 */
++	if (!kvm_vcpu_gfn_to_memslot(vcpu, kvm_rip_read(vcpu) >> PAGE_SHIFT))
++		return true;
++
+ 	/*
+ 	 * Detect and workaround Errata 1096 Fam_17h_00_0Fh.
+ 	 *
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index e2f60e313c87..e7436d054305 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1602,6 +1602,7 @@ struct kvm_memory_slot *kvm_vcpu_gfn_to_memslot(struct kvm_vcpu *vcpu, gfn_t gfn
+ {
+ 	return __gfn_to_memslot(kvm_vcpu_memslots(vcpu), gfn);
+ }
++EXPORT_SYMBOL_GPL(kvm_vcpu_gfn_to_memslot);
+ 
+ bool kvm_is_visible_gfn(struct kvm *kvm, gfn_t gfn)
+ {
 -- 
-Ville Syrjälä
-Intel
+2.18.2
+
+
