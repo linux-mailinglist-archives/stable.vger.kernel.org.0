@@ -2,125 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E8511AE036
+	by mail.lfdr.de (Postfix) with ESMTP id A5EAA1AE037
 	for <lists+stable@lfdr.de>; Fri, 17 Apr 2020 16:52:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728292AbgDQOwG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728283AbgDQOwG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 17 Apr 2020 10:52:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38800 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728278AbgDQOwG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 10:52:06 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17067C061A0C;
-        Fri, 17 Apr 2020 07:52:06 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jPSLa-0001RS-72; Fri, 17 Apr 2020 16:52:02 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id ACDB31C0072;
-        Fri, 17 Apr 2020 16:52:01 +0200 (CEST)
-Date:   Fri, 17 Apr 2020 14:52:01 -0000
-From:   "tip-bot2 for Reinette Chatre" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/resctrl: Fix invalid attempt at removing the
- default resource group
-Cc:     Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: =?utf-8?q?=3C884cbe1773496b5dbec1b6bd11bb50cffa83603d=2E15844?=
- =?utf-8?q?61853=2Egit=2Ereinette=2Echatre=40intel=2Ecom=3E?=
-References: =?utf-8?q?=3C884cbe1773496b5dbec1b6bd11bb50cffa83603d=2E158446?=
- =?utf-8?q?1853=2Egit=2Ereinette=2Echatre=40intel=2Ecom=3E?=
-MIME-Version: 1.0
-Message-ID: <158713512124.28353.17303343964081994383.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Received: from mail-eopbgr1410112.outbound.protection.outlook.com ([40.107.141.112]:10668
+        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727850AbgDQOwF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 17 Apr 2020 10:52:05 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=RVdDPiuRLKT1gR8uL1mJ8ZgEcwMvpfUOA8UWi4/3z4jx4c8AagiGsuCzrt4volXpMg5fncJdFrLRT5HKjgcGyqBvwfcXTpJsrHKr9HL7g9NL8t5obP1zzf3MUwtcQqq9ZTbpe1FFvSYieRbkGiRH1hovSGnse/cvopsf08Ms0yDyfS9rNsl/dBcr2CJCwNanOsvQvc5isxBR6f5h0D1u8P3ly1M9/j4hk4V8aoDblMWWtbCwsE3jQT3HQTjQJ5udxgz42gq9V58UJD6V+BSWlmFS/diLn0Z1hQY0VC6iHeulzQ9BT1YfQ7kUroIwzXMTiQHcPPR865N3uv1wjUNtwQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/1fdMoDGB6F8qIilzAYbbvOc98a74UE7aYfSg0DBOSo=;
+ b=nQ4WRVBwX0BO0QGjYeW2/jwiGls46BVyB6eVRMWaJCKiEbAbAjVKTQ5Pvv1nCNRi2vfxRvimZnoQI0IyFPiZR8wCAp6m+kid398UMOfxwGypQLVIZFmj3XAk8l/fX2QwWxde7UhpWlGnUYX/5zQnB6JQ/Iol/8A7G8/u5t83swsZn2mOGmpt2e4YLlVmLPbTSXDxsgFY/6gRHdUUC4ZINL4cGRi7I7grptdsGPcvYi3ODdrvgAVcdWdp0qyRN58Xvm4jtCxTn1+Nyuya5rufRaiS5+Ys1cDVq5z7lmKS0oWKm0ufFqtJaU1fMguT3Pwp+5NaXCkUsx5LWh8KtLJaCw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=/1fdMoDGB6F8qIilzAYbbvOc98a74UE7aYfSg0DBOSo=;
+ b=BNAFCp5yulmS82rkRLjdVhnolpYLMmqqwhHg78yx8fUe1hkefuA/Sl54n57GIssDtC6bCT7IkZXlQ90xgGs/oPTo0BiUCvcmBG+IUHELEFz30pTKWtOu2FHDmdemUlek8bfA82aPgzJ/J0QYX+DH/9Izc30CDMxcE/CADzblxdw=
+Received: from OSBPR01MB2280.jpnprd01.prod.outlook.com (52.134.243.13) by
+ OSBPR01MB5095.jpnprd01.prod.outlook.com (20.179.184.21) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2900.26; Fri, 17 Apr 2020 14:52:02 +0000
+Received: from OSBPR01MB2280.jpnprd01.prod.outlook.com
+ ([fe80::c9a6:9735:12fc:ae04]) by OSBPR01MB2280.jpnprd01.prod.outlook.com
+ ([fe80::c9a6:9735:12fc:ae04%2]) with mapi id 15.20.2878.028; Fri, 17 Apr 2020
+ 14:52:02 +0000
+From:   Chris Paterson <Chris.Paterson2@renesas.com>
+To:     =?utf-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>,
+        Pavel Machek <pavel@denx.de>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        linux- stable <stable@vger.kernel.org>
+Subject: RE: [PATCH 4.19 000/146] 4.19.116-rc1 review
+Thread-Topic: [PATCH 4.19 000/146] 4.19.116-rc1 review
+Thread-Index: AQHWE/IP8ULaCXtnbUepDpc5x6N8O6h9QXmAgAARcACAABIXkA==
+Date:   Fri, 17 Apr 2020 14:52:02 +0000
+Message-ID: <OSBPR01MB2280A113A45560747ECFE791B7D90@OSBPR01MB2280.jpnprd01.prod.outlook.com>
+References: <20200416131242.353444678@linuxfoundation.org>
+ <20200417123531.GA19028@duo.ucw.cz>
+ <CAEUSe7-CBJsB6Kpsg52rjywN7jNeQRu4fU7tWSeJn0zF7xA2zQ@mail.gmail.com>
+In-Reply-To: <CAEUSe7-CBJsB6Kpsg52rjywN7jNeQRu4fU7tWSeJn0zF7xA2zQ@mail.gmail.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=Chris.Paterson2@renesas.com; 
+x-originating-ip: [151.224.220.27]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 0a0bfa58-ce89-4304-448f-08d7e2dee39c
+x-ms-traffictypediagnostic: OSBPR01MB5095:
+x-microsoft-antispam-prvs: <OSBPR01MB5095827A7889366A96C84789B7D90@OSBPR01MB5095.jpnprd01.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-forefront-prvs: 0376ECF4DD
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:OSBPR01MB2280.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(10019020)(4636009)(136003)(376002)(346002)(396003)(366004)(39860400002)(33656002)(54906003)(478600001)(186003)(81156014)(966005)(66574012)(71200400001)(8936002)(7696005)(6506007)(2906002)(26005)(110136005)(64756008)(55016002)(66946007)(8676002)(76116006)(86362001)(66446008)(66476007)(316002)(66556008)(9686003)(7416002)(5660300002)(4326008)(52536014);DIR:OUT;SFP:1102;
+received-spf: None (protection.outlook.com: renesas.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: LPiho8ekFM4GM8+IZ+82mSsVYeNS3+TWRCvjwREqt5txvV1j9AQBDr3NZyotG/8traqZ7p/aseJqX8wtomkpcUBAGBOotLNHU1WqPdGhPkHoARd5oAv7XubDpMDYDu4q6n71C0Jms3HKF/RIrfZzcxvnVP6N/ClkKj9ozuF8Dh4lk1fLZNcx4hmktV7whRPfr8RtUQE/t7YoveK4qoWsY3VicSupcnpcvQgQ9qOew3ah9mF+WeHZVvPi1ghUOPYJ2Wbej4JCzMo3SfQiPZ6eumMoab2BonukNzWwP/4A/RLtrn1o+3AGJrd4clISsDj6mHIUtz+AqeF1IcmymCe0R51KoyzItn+76Sj+M0I/nS9oglMZ+/ve3z78TCREi8NZqRdcknKwpWwgyCLkZaH18eMUNuAVKBUwsNHrOZNroSrAbp0dB67PVLMGTS2LLpeMznNMviWt+rD0K6S/epliD6Mjh9vCHRjuQEDaNaL6PmId2tQOR1rZHE3sMHVr6rFBr6Wqges/aj+JECUnTT9oGA==
+x-ms-exchange-antispam-messagedata: U49MuHcBod+zKL2lZ4oX4gs8vK1EE3GhZJXq8fsgELX33MNvkaHPUtgdInyqVdlong31NH4GZfV4WUvLx6vbVobDWFtdga9LfM6xEDE7gE/D6GX/6gXlqIRzH6oAGDwK7XXed9uv+I1Fab/zmwHD6A==
+x-ms-exchange-transport-forked: True
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0a0bfa58-ce89-4304-448f-08d7e2dee39c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Apr 2020 14:52:02.3621
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: KTdXISOj1cEGsJcyxoB5c8dfovFehErXmiuqu+F8QhpocKnnttnYu1hjZp3eKNLlI0kCLecfopNg8iBxxvXAsn9QH+s5qq3oXlmvx88avQw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OSBPR01MB5095
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
-
-Commit-ID:     b0151da52a6d4f3951ea24c083e7a95977621436
-Gitweb:        https://git.kernel.org/tip/b0151da52a6d4f3951ea24c083e7a95977621436
-Author:        Reinette Chatre <reinette.chatre@intel.com>
-AuthorDate:    Tue, 17 Mar 2020 09:26:45 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Fri, 17 Apr 2020 16:26:23 +02:00
-
-x86/resctrl: Fix invalid attempt at removing the default resource group
-
-The default resource group ("rdtgroup_default") is associated with the
-root of the resctrl filesystem and should never be removed. New resource
-groups can be created as subdirectories of the resctrl filesystem and
-they can be removed from user space.
-
-There exists a safeguard in the directory removal code
-(rdtgroup_rmdir()) that ensures that only subdirectories can be removed
-by testing that the directory to be removed has to be a child of the
-root directory.
-
-A possible deadlock was recently fixed with
-
-  334b0f4e9b1b ("x86/resctrl: Fix a deadlock due to inaccurate reference").
-
-This fix involved associating the private data of the "mon_groups"
-and "mon_data" directories to the resource group to which they belong
-instead of NULL as before. A consequence of this change was that
-the original safeguard code preventing removal of "mon_groups" and
-"mon_data" found in the root directory failed resulting in attempts to
-remove the default resource group that ends in a BUG:
-
-  kernel BUG at mm/slub.c:3969!
-  invalid opcode: 0000 [#1] SMP PTI
-
-  Call Trace:
-  rdtgroup_rmdir+0x16b/0x2c0
-  kernfs_iop_rmdir+0x5c/0x90
-  vfs_rmdir+0x7a/0x160
-  do_rmdir+0x17d/0x1e0
-  do_syscall_64+0x55/0x1d0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fix this by improving the directory removal safeguard to ensure that
-subdirectories of the resctrl root directory can only be removed if they
-are a child of the resctrl filesystem's root _and_ not associated with
-the default resource group.
-
-Fixes: 334b0f4e9b1b ("x86/resctrl: Fix a deadlock due to inaccurate reference")
-Reported-by: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/884cbe1773496b5dbec1b6bd11bb50cffa83603d.1584461853.git.reinette.chatre@intel.com
----
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index 064e9ef..9d4e73a 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -3072,7 +3072,8 @@ static int rdtgroup_rmdir(struct kernfs_node *kn)
- 	 * If the rdtgroup is a mon group and parent directory
- 	 * is a valid "mon_groups" directory, remove the mon group.
- 	 */
--	if (rdtgrp->type == RDTCTRL_GROUP && parent_kn == rdtgroup_default.kn) {
-+	if (rdtgrp->type == RDTCTRL_GROUP && parent_kn == rdtgroup_default.kn &&
-+	    rdtgrp != &rdtgroup_default) {
- 		if (rdtgrp->mode == RDT_MODE_PSEUDO_LOCKSETUP ||
- 		    rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED) {
- 			ret = rdtgroup_ctrl_remove(kn, rdtgrp);
+SGVsbG8gUGF2ZWwsDQoNCj4gRnJvbTogRGFuaWVsIETDrWF6IDxkYW5pZWwuZGlhekBsaW5hcm8u
+b3JnPg0KPiBTZW50OiAxNyBBcHJpbCAyMDIwIDE0OjM4DQo+IA0KPiBIZWxsbyENCj4gDQo+IE9u
+IEZyaSwgMTcgQXByIDIwMjAgYXQgMDc6MzUsIFBhdmVsIE1hY2hlayA8cGF2ZWxAZGVueC5kZT4g
+d3JvdGU6DQo+ID4NCj4gPiBIaSENCj4gPg0KPiA+ID4gVGhpcyBpcyB0aGUgc3RhcnQgb2YgdGhl
+IHN0YWJsZSByZXZpZXcgY3ljbGUgZm9yIHRoZSA0LjE5LjExNiByZWxlYXNlLg0KPiA+ID4gVGhl
+cmUgYXJlIDE0NiBwYXRjaGVzIGluIHRoaXMgc2VyaWVzLCBhbGwgd2lsbCBiZSBwb3N0ZWQgYXMg
+YSByZXNwb25zZQ0KPiA+ID4gdG8gdGhpcyBvbmUuICBJZiBhbnlvbmUgaGFzIGFueSBpc3N1ZXMg
+d2l0aCB0aGVzZSBiZWluZyBhcHBsaWVkLCBwbGVhc2UNCj4gPiA+IGxldCBtZSBrbm93Lg0KPiA+
+ID4NCj4gPiA+IFJlc3BvbnNlcyBzaG91bGQgYmUgbWFkZSBieSBTYXQsIDE4IEFwciAyMDIwIDEz
+OjExOjIwICswMDAwLg0KPiA+ID4gQW55dGhpbmcgcmVjZWl2ZWQgYWZ0ZXIgdGhhdCB0aW1lIG1p
+Z2h0IGJlIHRvbyBsYXRlLg0KPiA+ID4NCj4gPiA+IFRoZSB3aG9sZSBwYXRjaCBzZXJpZXMgY2Fu
+IGJlIGZvdW5kIGluIG9uZSBwYXRjaCBhdDoNCj4gPiA+ICAgICAgIGh0dHBzOi8vd3d3Lmtlcm5l
+bC5vcmcvcHViL2xpbnV4L2tlcm5lbC92NC54L3N0YWJsZS1yZXZpZXcvcGF0Y2gtDQo+IDQuMTku
+MTE2LXJjMS5neg0KPiA+ID4gb3IgaW4gdGhlIGdpdCB0cmVlIGFuZCBicmFuY2ggYXQ6DQo+ID4g
+PiAgICAgICBnaXQ6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvc3Rh
+YmxlL2xpbnV4LXN0YWJsZS1yYy5naXQNCj4gbGludXgtNC4xOS55DQo+ID4gPiBhbmQgdGhlIGRp
+ZmZzdGF0IGNhbiBiZSBmb3VuZCBiZWxvdy4NCj4gPg0KPiA+IENJUCBwcm9qZWN0IHJhbiB0ZXN0
+cyBvbiB0aGlzIG9uZSwgYW5kIHdlIGhhdmUgZGUwLW5hbm8gZmFpbHVyZToNCj4gPg0KPiA+IGh0
+dHBzOi8vZ2l0bGFiLmNvbS9jaXAtcHJvamVjdC9jaXAtdGVzdGluZy9saW51eC1zdGFibGUtcmMt
+DQo+IGNpL3BpcGVsaW5lcy8xMzY3MDcwMjkNCj4gPg0KPiA+IERldGFpbGVkIHJlc3VsdHMgc2hv
+dWxkIGJlIGF0Og0KPiA+DQo+ID4gaHR0cHM6Ly9sYXZhLmNpcGxhdGZvcm0ub3JnL3NjaGVkdWxl
+ci9qb2IvMTQ3MTYNCj4gPiBodHRwczovL2xhdmEuY2lwbGF0Zm9ybS5vcmcvc2NoZWR1bGVyL2pv
+Yi8xNDcxNw0KPiA+DQo+ID4gLi5idXQgdGhvc2UgcmVzdWx0cyBkbyBub3QgbG9hZCBmb3IgbWUg
+KD8pLg0KPiANCj4gTG9va3MgbGlrZSB0aGUgZGV2aWNlIGZhaWxlZCBpdHMgaGVhbHRoIGpvYiBh
+bmQgd2VudCBpbnRvIGJhZCBzdGF0ZS4NCj4gSm9icyBzdWJtaXR0ZWQgZm9yIHRoYXQgZGV2aWNl
+IGFyZSBzdGlsbCBxdWV1ZWQsIGhlbmNlIHRoZSB0aW1lIG91dC4NCg0KRXhhY3RseSB0aGF0ICh0
+aGFua3MgRGFuaWVsKS4NCg0KVGhlIGJvYXJkIGlzIG5vdyBiYWNrIG9ubGluZSBhbmQgdGhlIHN1
+Ym1pdHRlZCBqb2JzIGhhdmUgcGFzc2VkLg0KDQpLaW5kIHJlZ2FyZHMsIENocmlzDQoNCj4gDQo+
+IEdyZWV0aW5ncyENCj4gDQo+IERhbmllbCBEw61heg0KPiBkYW5pZWwuZGlhekBsaW5hcm8ub3Jn
+DQo=
