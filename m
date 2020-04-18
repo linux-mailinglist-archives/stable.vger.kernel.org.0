@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E93511AEE36
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:12:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 854F71AEE0B
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725953AbgDROLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38490 "EHLO mail.kernel.org"
+        id S1727792AbgDROKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:10:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727781AbgDROKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:10:24 -0400
+        id S1727784AbgDROKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:10:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 338C621D79;
-        Sat, 18 Apr 2020 14:10:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 454A12220A;
+        Sat, 18 Apr 2020 14:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587219023;
-        bh=XlFxx7w9tq9hPc8Jl4nJlyASCZqXKW6voGb0AIZjCWM=;
+        s=default; t=1587219025;
+        bh=Z7KdvEPwnuQWnkjL+BM3WAvJLHQISfNthr7UMBLVDas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhOgGSvH7krzMQf71kTK7Uj1pOVT65WbBbI4t7rvY8YBu/VuQUHdC0jxFLFfXreyF
-         meW/HzQCEfZnVQcgum+thUD5c+3oXPJjOmg5rawoAN3bf3USjBlfrrnS83xjXK6yed
-         +DmvWZMrdmBmBUmIcmUD9C5jfcF1zgyTFRcMLTHw=
+        b=LPjHfaB6cbAYgyFxq46eK3590taEiut+Ul0PdN0HszhQAL5sbZEU09Aap1H6gupqF
+         yJVamQnH6cDO+/PvF5yL2BubSU3C+kDhtxDXDjoUskm51Vzd4fab6rp7AkuKmvh2Gc
+         vUcRFHPqCSwtX239jL1L5ePZWTJqvMEtTXB+GNdw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.5 59/75] ALSA: hda: Fix potential access overflow in beep helper
-Date:   Sat, 18 Apr 2020 10:08:54 -0400
-Message-Id: <20200418140910.8280-59-sashal@kernel.org>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 60/75] KVM: s390: vsie: Fix delivery of addressing exceptions
+Date:   Sat, 18 Apr 2020 10:08:55 -0400
+Message-Id: <20200418140910.8280-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
 References: <20200418140910.8280-1-sashal@kernel.org>
@@ -42,48 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 0ad3f0b384d58f3bd1f4fb87d0af5b8f6866f41a ]
+[ Upstream commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 ]
 
-The beep control helper function blindly stores the values in two
-stereo channels no matter whether the actual control is mono or
-stereo.  This is practically harmless, but it annoys the recently
-introduced sanity check, resulting in an error when the checker is
-enabled.
+Whenever we get an -EFAULT, we failed to read in guest 2 physical
+address space. Such addressing exceptions are reported via a program
+intercept to the nested hypervisor.
 
-This patch corrects the behavior to store only on the defined array
-member.
+We faked the intercept, we have to return to guest 2. Instead, right
+now we would be returning -EFAULT from the intercept handler, eventually
+crashing the VM.
+the correct thing to do is to return 1 as rc == 1 is the internal
+representation of "we have to go back into g2".
 
-Fixes: 0401e8548eac ("ALSA: hda - Move beep helper functions to hda_beep.c")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200407084402.25589-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Addressing exceptions can only happen if the g2->g3 page tables
+reference invalid g2 addresses (say, either a table or the final page is
+not accessible - so something that basically never happens in sane
+environments.
+
+Identified by manual code inspection.
+
+Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[borntraeger@de.ibm.com: fix patch description]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_beep.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/s390/kvm/vsie.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/hda_beep.c b/sound/pci/hda/hda_beep.c
-index b7d9160ed8688..c6e1e03a5e4da 100644
---- a/sound/pci/hda/hda_beep.c
-+++ b/sound/pci/hda/hda_beep.c
-@@ -290,8 +290,12 @@ int snd_hda_mixer_amp_switch_get_beep(struct snd_kcontrol *kcontrol,
- {
- 	struct hda_codec *codec = snd_kcontrol_chip(kcontrol);
- 	struct hda_beep *beep = codec->beep;
-+	int chs = get_amp_channels(kcontrol);
-+
- 	if (beep && (!beep->enabled || !ctl_has_mute(kcontrol))) {
--		ucontrol->value.integer.value[0] =
-+		if (chs & 1)
-+			ucontrol->value.integer.value[0] = beep->enabled;
-+		if (chs & 2)
- 			ucontrol->value.integer.value[1] = beep->enabled;
- 		return 0;
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 076090f9e666c..4f6c22d72072a 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1202,6 +1202,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		scb_s->iprcc = PGM_ADDRESSING;
+ 		scb_s->pgmilc = 4;
+ 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
++		rc = 1;
  	}
+ 	return rc;
+ }
 -- 
 2.20.1
 
