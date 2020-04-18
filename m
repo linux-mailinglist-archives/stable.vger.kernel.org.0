@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A07C11AF0DA
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4FE1AEF4D
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:44:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728295AbgDROww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:52:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51966 "EHLO mail.kernel.org"
+        id S1728270AbgDROmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728253AbgDROmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:42:08 -0400
+        id S1728260AbgDROmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:42:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 880D222202;
-        Sat, 18 Apr 2020 14:42:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA30A21974;
+        Sat, 18 Apr 2020 14:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220928;
-        bh=4ZKCqnq3aMeP0p5bGe5j0lm2MElKEZ8zCA5qJu5O/l4=;
+        s=default; t=1587220929;
+        bh=vfAHXFAy/Y/q0wkxF7wa7tNLX+mcFSUdnGqu55sY0aU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f7KTMu79CWekh+DAPfy2BnLf61nmYvma36h/K6tdLjMKzLr8L5oLKYEk0IrH+H8LP
-         MiFJnG1IpXt8aBKrZMpQG0skowd7qsqsFLSvtXWRRwViTYWa6zCe2ddJAb8X8Q/hNZ
-         CnizLvcO4P91yMv9Q/JIg156rOXGhnKWmHgcSFxk=
+        b=vusfOXdmo9YnisglNF7OfSpv+Ug3A9R0ZOI8kq6n1UGRNf4U2oPj1YMRyvaUe9nld
+         F+czt9aSwtYTl8Y7K24zJKkciNBZ13xwunljfXC4aBYZqSNWAGOvZa8bv50pwirg03
+         TroWXH6A/UVTQ/OPEx/EfZ4VMTBZtIqtbKBKz+Vc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 65/78] PCI/PM: Add pcie_wait_for_link_delay()
-Date:   Sat, 18 Apr 2020 10:40:34 -0400
-Message-Id: <20200418144047.9013-65-sashal@kernel.org>
+Cc:     Aurelien Jarno <aurelien@aurel32.net>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 66/78] libbpf: Fix readelf output parsing on powerpc with recent binutils
+Date:   Sat, 18 Apr 2020 10:40:35 -0400
+Message-Id: <20200418144047.9013-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
 References: <20200418144047.9013-1-sashal@kernel.org>
@@ -44,73 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Aurelien Jarno <aurelien@aurel32.net>
 
-[ Upstream commit 4827d63891b6a839dac49c6ab62e61c4b011c4f2 ]
+[ Upstream commit 3464afdf11f9a1e031e7858a05351ceca1792fea ]
 
-Add pcie_wait_for_link_delay().  Similar to pcie_wait_for_link() but allows
-passing custom activation delay in milliseconds.
+On powerpc with recent versions of binutils, readelf outputs an extra
+field when dumping the symbols of an object file. For example:
 
-Link: https://lore.kernel.org/r/20191112091617.70282-2-mika.westerberg@linux.intel.com
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    35: 0000000000000838    96 FUNC    LOCAL  DEFAULT [<localentry>: 8]     1 btf_is_struct
+
+The extra "[<localentry>: 8]" prevents the GLOBAL_SYM_COUNT variable to
+be computed correctly and causes the check_abi target to fail.
+
+Fix that by looking for the symbol name in the last field instead of the
+8th one. This way it should also cope with future extra fields.
+
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/bpf/20191201195728.4161537-1-aurelien@aurel32.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ tools/lib/bpf/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 981ae16f935bc..94d6e120b4734 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -4605,14 +4605,17 @@ static int pci_pm_reset(struct pci_dev *dev, int probe)
+diff --git a/tools/lib/bpf/Makefile b/tools/lib/bpf/Makefile
+index 33e2638ef7f0d..122321d549227 100644
+--- a/tools/lib/bpf/Makefile
++++ b/tools/lib/bpf/Makefile
+@@ -145,7 +145,7 @@ PC_FILE		:= $(addprefix $(OUTPUT),$(PC_FILE))
  
- 	return pci_dev_wait(dev, "PM D3->D0", PCIE_RESET_READY_POLL_MS);
- }
-+
- /**
-- * pcie_wait_for_link - Wait until link is active or inactive
-+ * pcie_wait_for_link_delay - Wait until link is active or inactive
-  * @pdev: Bridge device
-  * @active: waiting for active or inactive?
-+ * @delay: Delay to wait after link has become active (in ms)
-  *
-  * Use this to wait till link becomes active or inactive.
-  */
--bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
-+static bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active,
-+				     int delay)
- {
- 	int timeout = 1000;
- 	bool ret;
-@@ -4649,13 +4652,25 @@ bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
- 		timeout -= 10;
- 	}
- 	if (active && ret)
--		msleep(100);
-+		msleep(delay);
- 	else if (ret != active)
- 		pci_info(pdev, "Data Link Layer Link Active not %s in 1000 msec\n",
- 			active ? "set" : "cleared");
- 	return ret == active;
- }
- 
-+/**
-+ * pcie_wait_for_link - Wait until link is active or inactive
-+ * @pdev: Bridge device
-+ * @active: waiting for active or inactive?
-+ *
-+ * Use this to wait till link becomes active or inactive.
-+ */
-+bool pcie_wait_for_link(struct pci_dev *pdev, bool active)
-+{
-+	return pcie_wait_for_link_delay(pdev, active, 100);
-+}
-+
- void pci_reset_secondary_bus(struct pci_dev *dev)
- {
- 	u16 ctrl;
+ GLOBAL_SYM_COUNT = $(shell readelf -s --wide $(BPF_IN_SHARED) | \
+ 			   cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' | \
+-			   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$8}' | \
++			   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
+ 			   sort -u | wc -l)
+ VERSIONED_SYM_COUNT = $(shell readelf -s --wide $(OUTPUT)libbpf.so | \
+ 			      grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 | sort -u | wc -l)
+@@ -217,7 +217,7 @@ check_abi: $(OUTPUT)libbpf.so
+ 		     "versioned in $(VERSION_SCRIPT)." >&2;		 \
+ 		readelf -s --wide $(BPF_IN_SHARED) |			 \
+ 		    cut -d "@" -f1 | sed 's/_v[0-9]_[0-9]_[0-9].*//' |	 \
+-		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$8}'|   \
++		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
+ 		    sort -u > $(OUTPUT)libbpf_global_syms.tmp;		 \
+ 		readelf -s --wide $(OUTPUT)libbpf.so |			 \
+ 		    grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 |		 \
 -- 
 2.20.1
 
