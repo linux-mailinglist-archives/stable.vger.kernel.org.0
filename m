@@ -2,98 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5BD1AEBB2
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 12:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD4981AEBDD
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 12:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726069AbgDRKXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 06:23:47 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:58471 "EHLO
-        wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726086AbgDRKXc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Apr 2020 06:23:32 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 9D7B6634;
-        Sat, 18 Apr 2020 06:23:04 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sat, 18 Apr 2020 06:23:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=me0AnX
-        amg00zwhjfdFz1wk/KyuFkz2LcJ5gGhb06rR8=; b=gd8ogTpjlUC2Qo2v99wF7K
-        q7Ny+gh1yZRevN9jiz6Zr+H6zAITPXIXzAw8JcvrIBLLhTI5PLqI6Dh3noaI+6KO
-        ohqLmNP1kFLvKMWNCzgxsT59m+/0tznuGSpsI2y5Lcyex8FKY+Y4DnOxdi1ZGHtw
-        b2q5a82QqETLVVgAKOu3wlFZohdc/nwgwpUJyit1fQme4STKzonHw0LlJrGWxqYM
-        k1eVPdRGneqc+GIxkePxkwnoToYN/+qrbqogAosfwpPbl/oGwq9EZnUx54kzEyVQ
-        8YP6Ei09Jw8gM7Ihbixps7opsGywaF7R379RAjhI1xKQ2LKwgpxl0vuhmMqaf+Wg
-        ==
-X-ME-Sender: <xms:B9WaXoOWtxFZqTLOAeZ5Q276g3ZQ08TbmAu87UMnk6qMl1VPOujkuw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeelgdeftdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:B9WaXuIXRsPuX_omP-glVjW5DY_xRHWRXx-2EuiSO_XEPnwZ7TNhsg>
-    <xmx:B9WaXleUF58h0NoTPD8gvdVkHPbpUdsnLvx6hrfxPxfXeD4RPyVxcg>
-    <xmx:B9WaXiOdOdiFxLUXefcIGAk56NdG8PbaYh7ZO8LpiZ0u6RS-J9vitw>
-    <xmx:CNWaXukLG4yxYFIv7m7AJrRqXW8AwNsiuD9MMiLDjYAeDLALly7fHLkyOqk>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9838B3060062;
-        Sat, 18 Apr 2020 06:23:03 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Don't clear flags before transfer ended" failed to apply to 4.19-stable tree
-To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org, thinhn@synopsys.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 18 Apr 2020 12:23:02 +0200
-Message-ID: <158720538210062@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1725869AbgDRKlE convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 18 Apr 2020 06:41:04 -0400
+Received: from gwa7.newtekwebhosting.com ([63.134.207.35]:49907 "EHLO
+        GWA7.newtekwebhosting.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725799AbgDRKlE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Apr 2020 06:41:04 -0400
+X-Greylist: delayed 900 seconds by postgrey-1.27 at vger.kernel.org; Sat, 18 Apr 2020 06:41:04 EDT
+Received: from maila14.newtekwebhosting.com (MAILA14.CRYSTALTECH.com [216.119.106.130]) by GWA7.newtekwebhosting.com with SMTP
+        (version=TLS\Tls12
+        cipher=Aes256 bits=256);
+   Sat, 18 Apr 2020 03:25:54 -0700
+Received: from [192.168.0.129] (static.55.32.0.81.ibercom.com [81.0.32.55]) by maila14.newtekwebhosting.com with SMTP
+        (version=Tls12
+        cipher=Aes256 bits=256);
+   Sat, 18 Apr 2020 03:25:19 -0700
+From:   Delio Brignoli <dbrignoli@audioscience.com>
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
+Subject: usb: dwc3: gadget: Don't clear flags before transfer ended
+Message-Id: <C9599B63-1C11-4EBC-AFCC-3A4F14830767@audioscience.com>
+Date:   Sat, 18 Apr 2020 12:25:16 +0200
+To:     stable@vger.kernel.org
+X-Mailer: Apple Mail (2.3608.80.23.2.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Please apply the following commit:
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Commit subject: usb: dwc3: gadget: Don't clear flags before transfer ended
+Commit ID: a114c4ca64bd522aec1790c7e5c60c882f699d8f
+Apply to: at least 4.19 stable, and 5.4 stable if possible. Note that all kernels from v4.18-rc1 up to 5.7-rc1 are affected.
 
-thanks,
+Why apply it:
+<https://github.com/torvalds/linux/commit/a114c4ca64bd522aec1790c7e5c60c882f699d8f> fixes <https://github.com/torvalds/linux/commit/6d8a019614f3a7630e0a2c1be4bf1cfc23acf56e>. Without this fix the built-in USB function source/sink test module fails to work with isochronous endpoints [1]. A side-effect of setting dep->flags = DWC3_EP_ENABLED; in dwc3_gadget_ep_cleanup_completed_requests() as part of disabling an ep is that a subsequent attempt to enable the endpoint will skip __dwc3_gadget_ep_enable() effectively leaving the ep disabled.
 
-greg k-h
+[1] Our gadget driver on TI AM5729 fails to work exactly like the built-in USB function source/sink test module when switching to alternate interface 1 because of the issue described above.
 
------------------- original commit in Linus's tree ------------------
+TI is currently using 4.19 and 5.4 stable kernels as the basis for their processor SDK kernels for their AM57x SoC and may switch to 5.4 stable at a later time. Thank you.
 
-From a114c4ca64bd522aec1790c7e5c60c882f699d8f Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Thu, 5 Mar 2020 13:23:49 -0800
-Subject: [PATCH] usb: dwc3: gadget: Don't clear flags before transfer ended
+Kind Regards
+—
+Delio Brignoli
+AudioScience, Inc.
+USA Sales Toll Free 1-855-AUDIOSC
+<www.audioscience.com> - <http://www.facebook.com/AudioScienceInc>
 
-We track END_TRANSFER command completion. Don't clear transfer
-started/ended flag prematurely. Otherwise, we'd run into the problem
-with restarting transfer before END_TRANSFER command finishes.
 
-Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 1e00bf2d65a2..b032e62fff0f 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2570,10 +2570,8 @@ static void dwc3_gadget_endpoint_transfer_in_progress(struct dwc3_ep *dep,
- 
- 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
- 
--	if (stop) {
-+	if (stop)
- 		dwc3_stop_active_transfer(dep, true, true);
--		dep->flags = DWC3_EP_ENABLED;
--	}
- 
- 	/*
- 	 * WORKAROUND: This is the 2nd half of U1/U2 -> U0 workaround.
 
