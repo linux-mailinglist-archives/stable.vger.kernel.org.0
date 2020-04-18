@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFB0A1AEFAE
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:48:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16FBC1AEFFC
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:48:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728800AbgDROoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:44:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56038 "EHLO mail.kernel.org"
+        id S1726439AbgDROqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:46:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728792AbgDROoX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:44:23 -0400
+        id S1728799AbgDROoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:44:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1386321D79;
-        Sat, 18 Apr 2020 14:44:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F6F521D7E;
+        Sat, 18 Apr 2020 14:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587221062;
-        bh=klBkbq68mGyRT+2KtEwZLVT96VkD8jSmhCqVYrAke5I=;
+        s=default; t=1587221064;
+        bh=gvckD+08zbGS7Exmtd6V1EEAPXF8knBKNzJ+PEUIKx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZiC/qNpEke1I0WXudk1oLlbOCES5WUD9kEeyiyOkFRQG3yUePnwU3u1H04fK5czV3
-         /oB+LXcbFWErjELMR4lg1kYlb3LqkV96uyszQ/O6BFooxR/4A6IuNqPBxfixayk5kY
-         3MV9Zf8XVQ7S8n5WPsiWm9Iy+BU+C5ecWYUsuXis=
+        b=U/eKKVD2zP8DXUGbQ3jo0FAmjBz+HfVDqhDTdyaoitqojKiecTV1gL9qXK4E1qU6m
+         73bemNz9Lw2+HRwYY7rJ7ZI8DU/qJBTQm2Hvjg0OAlWkE8pVXzwEOG8Z8HqFG9w+qT
+         KsieMVnOMXgPQfihJAvzitvmxiST4WHCrLx6nLKo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cornelia Huck <cohuck@redhat.com>,
-        Boris Fiuczynski <fiuczy@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 13/23] s390/cio: avoid duplicated 'ADD' uevents
-Date:   Sat, 18 Apr 2020 10:43:55 -0400
-Message-Id: <20200418144405.10565-13-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 14/23] pwm: renesas-tpu: Fix late Runtime PM enablement
+Date:   Sat, 18 Apr 2020 10:43:56 -0400
+Message-Id: <20200418144405.10565-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144405.10565-1-sashal@kernel.org>
 References: <20200418144405.10565-1-sashal@kernel.org>
@@ -45,63 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cornelia Huck <cohuck@redhat.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 05ce3e53f375295c2940390b2b429e506e07655c ]
+[ Upstream commit d5a3c7a4536e1329a758e14340efd0e65252bd3d ]
 
-The common I/O layer delays the ADD uevent for subchannels and
-delegates generating this uevent to the individual subchannel
-drivers. The io_subchannel driver will do so when the associated
-ccw_device has been registered -- but unconditionally, so more
-ADD uevents will be generated if a subchannel has been unbound
-from the io_subchannel driver and later rebound.
+Runtime PM should be enabled before calling pwmchip_add(), as PWM users
+can appear immediately after the PWM chip has been added.
+Likewise, Runtime PM should always be disabled after the removal of the
+PWM chip, even if the latter failed.
 
-To fix this, only generate the ADD event if uevents were still
-suppressed for the device.
-
-Fixes: fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
-Message-Id: <20200327124503.9794-2-cohuck@redhat.com>
-Reported-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 99b82abb0a35b073 ("pwm: Add Renesas TPU PWM driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/device.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/pwm/pwm-renesas-tpu.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 6a58bc8f46e2a..1e97d1a034675 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -868,8 +868,10 @@ static void io_subchannel_register(struct ccw_device *cdev)
- 	 * Now we know this subchannel will stay, we can throw
- 	 * our delayed uevent.
- 	 */
--	dev_set_uevent_suppress(&sch->dev, 0);
--	kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	if (dev_get_uevent_suppress(&sch->dev)) {
-+		dev_set_uevent_suppress(&sch->dev, 0);
-+		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	}
- 	/* make it known to the system */
- 	ret = ccw_device_add(cdev);
- 	if (ret) {
-@@ -1077,8 +1079,11 @@ static int io_subchannel_probe(struct subchannel *sch)
- 		 * Throw the delayed uevent for the subchannel, register
- 		 * the ccw_device and exit.
- 		 */
--		dev_set_uevent_suppress(&sch->dev, 0);
--		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		if (dev_get_uevent_suppress(&sch->dev)) {
-+			/* should always be the case for the console */
-+			dev_set_uevent_suppress(&sch->dev, 0);
-+			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		}
- 		cdev = sch_get_cdev(sch);
- 		rc = ccw_device_add(cdev);
- 		if (rc) {
+diff --git a/drivers/pwm/pwm-renesas-tpu.c b/drivers/pwm/pwm-renesas-tpu.c
+index 075c1a764ba29..6247a956cc089 100644
+--- a/drivers/pwm/pwm-renesas-tpu.c
++++ b/drivers/pwm/pwm-renesas-tpu.c
+@@ -423,16 +423,17 @@ static int tpu_probe(struct platform_device *pdev)
+ 	tpu->chip.base = -1;
+ 	tpu->chip.npwm = TPU_CHANNEL_MAX;
+ 
++	pm_runtime_enable(&pdev->dev);
++
+ 	ret = pwmchip_add(&tpu->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register PWM chip\n");
++		pm_runtime_disable(&pdev->dev);
+ 		return ret;
+ 	}
+ 
+ 	dev_info(&pdev->dev, "TPU PWM %d registered\n", tpu->pdev->id);
+ 
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	return 0;
+ }
+ 
+@@ -442,12 +443,10 @@ static int tpu_remove(struct platform_device *pdev)
+ 	int ret;
+ 
+ 	ret = pwmchip_remove(&tpu->chip);
+-	if (ret)
+-		return ret;
+ 
+ 	pm_runtime_disable(&pdev->dev);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ #ifdef CONFIG_OF
 -- 
 2.20.1
 
