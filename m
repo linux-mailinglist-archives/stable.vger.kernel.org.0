@@ -2,96 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E17541AEBD4
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 12:30:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B4AA1AEBDB
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 12:39:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725879AbgDRKa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 06:30:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39588 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725869AbgDRKa0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 06:30:26 -0400
+        id S1725862AbgDRKj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 06:39:56 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:59913 "EHLO
+        wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725799AbgDRKjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Apr 2020 06:39:55 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 01B39686;
+        Sat, 18 Apr 2020 06:39:54 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Sat, 18 Apr 2020 06:39:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Imo7z0
+        a7Mz8eST2/T3V8F9pVbvBFdNtn2ocIVDuPudM=; b=cdGTw8ZIdrcHqEhWhAk8qH
+        ABo2LZfmdFAG+jaLZqdomEBv0S+jkXIKCr2TIl5+QTFMyTqAq0U8s4xazuJI5C8N
+        98UtLFGkXyjgpF39d52HrJgYQpCJIySatOzL8wM0V6gpvkeTpmx/0HyoExP5Gibo
+        6fzjY7a3UX5wpF3k+FsQeVN/6eBkWACgLGexdHj0KnZ/gQit9G9Uua8B4ojB91jB
+        2k7L0Ywj9X5CIR4H7aVD9VFaB3B39lKS9zbVnorbuZcLkH0DTkvwGm0KDklqfTxh
+        bhJDRVW28RKBPdOGhxQsY8OrP9LOiNk/KToBrhCQQemp3Y4ZWR0YwJ4m9PCfWtxg
+        ==
+X-ME-Sender: <xms:-tiaXqsyEujnmEGt31qKJBWC6VYYunUAh-_z4tIQklN52pg788mkLg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeelgdefvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
+    rhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:-tiaXvKiocqm8HGEKvEpK2prZq0gvAWqnpZnoRFwVS0Qw23eCN4zhQ>
+    <xmx:-tiaXrt_7YCE8vyHtIS7NEGPKSHSQ6HR2eVLopWg2nwtKcY3QP3MxQ>
+    <xmx:-tiaXvcg7WcDGDr_q_dtgZ6kYguTbsnLN4jrL7p4Mu2UB9QPoHSGDA>
+    <xmx:-tiaXukHa8sBFYYMU2QdXXulS0Mc-S6gmmQEfBFHUm7c3aCf7bhBPkB_Jyo>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 731B821D79;
-        Sat, 18 Apr 2020 10:30:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587205825;
-        bh=C6/sEpG/uEMZxVgCoKuNJdQO4jMJV0m3Mqan9Va5s1Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=i0JsSAwZAWpQQZ4pga2hR9KRTRYAtoV93keiHJpK7ajIn6mIgOL2jBdcoRAsmq+1x
-         HYWozPPEyrWFursruqm7FRKF7U8DlGf9yTjGQ/4LK9bWnPxV3WnIn752Ku0oJXNWOJ
-         BfvUBQcWwYichxUvKgGJgFOliQc1Jk2CqEkbBvvk=
-Date:   Sat, 18 Apr 2020 12:30:23 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sultan Alsawaf <sultan@kerneltoast.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v3] drm/i915/gt: Schedule request retirement when
- timeline idles
-Message-ID: <20200418103023.GB2816412@kroah.com>
-References: <20200413152344.GA2300@sultan-box.localdomain>
- <20200413152930.2930-1-sultan@kerneltoast.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 059F1328005E;
+        Sat, 18 Apr 2020 06:39:53 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tracing: Fix the race between registering 'snapshot' event" failed to apply to 4.4-stable tree
+To:     yangx.jy@cn.fujitsu.com, rostedt@goodmis.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 18 Apr 2020 12:39:52 +0200
+Message-ID: <158720639211191@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200413152930.2930-1-sultan@kerneltoast.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 13, 2020 at 08:29:30AM -0700, Sultan Alsawaf wrote:
-> From: Chris Wilson <chris@chris-wilson.co.uk>
-> 
-> commit 4f88f8747fa43c97c3b3712d8d87295ea757cc51 upstream.
-> 
-> The major drawback of commit 7e34f4e4aad3 ("drm/i915/gen8+: Add RC6 CTX
-> corruption WA") is that it disables RC6 while Skylake (and friends) is
-> active, and we do not consider the GPU idle until all outstanding
-> requests have been retired and the engine switched over to the kernel
-> context. If userspace is idle, this task falls onto our background idle
-> worker, which only runs roughly once a second, meaning that userspace has
-> to have been idle for a couple of seconds before we enable RC6 again.
-> Naturally, this causes us to consume considerably more energy than
-> before as powersaving is effectively disabled while a display server
-> (here's looking at you Xorg) is running.
-> 
-> As execlists will get a completion event as each context is completed,
-> we can use this interrupt to queue a retire worker bound to this engine
-> to cleanup idle timelines. We will then immediately notice the idle
-> engine (without userspace intervention or the aid of the background
-> retire worker) and start parking the GPU. Thus during light workloads,
-> we will do much more work to idle the GPU faster...  Hopefully with
-> commensurate power saving!
-> 
-> v2: Watch context completions and only look at those local to the engine
-> when retiring to reduce the amount of excess work we perform.
-> 
-> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=112315
-> References: 7e34f4e4aad3 ("drm/i915/gen8+: Add RC6 CTX corruption WA")
-> References: 2248a28384fe ("drm/i915/gen8+: Add RC6 CTX corruption WA")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20191125105858.1718307-3-chris@chris-wilson.co.uk
-> [Sultan: for the backport to 5.4, struct_mutex needs to be held while
->  retiring so that retirement doesn't race with vma destruction.]
-> Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
-> ---
->  drivers/gpu/drm/i915/gt/intel_engine_cs.c     |  2 +
->  drivers/gpu/drm/i915/gt/intel_engine_types.h  |  8 ++
->  drivers/gpu/drm/i915/gt/intel_lrc.c           |  8 ++
->  drivers/gpu/drm/i915/gt/intel_timeline.c      |  1 +
->  .../gpu/drm/i915/gt/intel_timeline_types.h    |  3 +
->  drivers/gpu/drm/i915/i915_request.c           | 75 +++++++++++++++++++
->  drivers/gpu/drm/i915/i915_request.h           |  4 +
->  7 files changed, 101 insertions(+)
 
-Why are you not cc:ing all of the relevant people on these patches?
-That's not ok, I'm just going to drop all of these requests until that
-happens, and I get an ack from the developers/maintainers involved.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 0bbe7f719985efd9adb3454679ecef0984cb6800 Mon Sep 17 00:00:00 2001
+From: Xiao Yang <yangx.jy@cn.fujitsu.com>
+Date: Tue, 14 Apr 2020 09:51:45 +0800
+Subject: [PATCH] tracing: Fix the race between registering 'snapshot' event
+ trigger and triggering 'snapshot' operation
+
+Traced event can trigger 'snapshot' operation(i.e. calls snapshot_trigger()
+or snapshot_count_trigger()) when register_snapshot_trigger() has completed
+registration but doesn't allocate buffer for 'snapshot' event trigger.  In
+the rare case, 'snapshot' operation always detects the lack of allocated
+buffer so make register_snapshot_trigger() allocate buffer first.
+
+trigger-snapshot.tc in kselftest reproduces the issue on slow vm:
+-----------------------------------------------------------
+cat trace
+...
+ftracetest-3028  [002] ....   236.784290: sched_process_fork: comm=ftracetest pid=3028 child_comm=ftracetest child_pid=3036
+     <...>-2875  [003] ....   240.460335: tracing_snapshot_instance_cond: *** SNAPSHOT NOT ALLOCATED ***
+     <...>-2875  [003] ....   240.460338: tracing_snapshot_instance_cond: *** stopping trace here!   ***
+-----------------------------------------------------------
+
+Link: http://lkml.kernel.org/r/20200414015145.66236-1-yangx.jy@cn.fujitsu.com
+
+Cc: stable@vger.kernel.org
+Fixes: 93e31ffbf417a ("tracing: Add 'snapshot' event trigger command")
+Signed-off-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+
+diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
+index dd34a1b46a86..3a74736da363 100644
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -1088,14 +1088,10 @@ register_snapshot_trigger(char *glob, struct event_trigger_ops *ops,
+ 			  struct event_trigger_data *data,
+ 			  struct trace_event_file *file)
+ {
+-	int ret = register_trigger(glob, ops, data, file);
+-
+-	if (ret > 0 && tracing_alloc_snapshot_instance(file->tr) != 0) {
+-		unregister_trigger(glob, ops, data, file);
+-		ret = 0;
+-	}
++	if (tracing_alloc_snapshot_instance(file->tr) != 0)
++		return 0;
+ 
+-	return ret;
++	return register_trigger(glob, ops, data, file);
+ }
+ 
+ static int
+
