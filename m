@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF2C21AEFDE
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4B41AEFCE
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726902AbgDROpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:45:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57004 "EHLO mail.kernel.org"
+        id S1728923AbgDROo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:44:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728187AbgDROoz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:44:55 -0400
+        id S1728920AbgDROo5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:44:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECADA21BE5;
-        Sat, 18 Apr 2020 14:44:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AF0E21D7E;
+        Sat, 18 Apr 2020 14:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587221094;
-        bh=v3+EC8N0fhkpUc99kbcDjUxlXl49k6/JZtXk0pRDeqg=;
+        s=default; t=1587221096;
+        bh=chMJyRsPAQWfKB7X8givOIzUOPe9Rp0mRX+Bdx+GoPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nc6rq8nGMKUxudM7Ct0ujp5RaEtN+xGKZrzg25AcsdaDrtawo6Ci9hEKMJrsDz9vF
-         LM7NmfzL4wWgpXir8J7bluRGGqs05cQtvdaU1RFN3lVqFxeIUoOe09ySkE2KpiTlSc
-         vYBsPw/jZwIFhSvLglypflWWz9ywbwQBgHePK3KM=
+        b=KefqDbRXeIZZYZHcP5imz9+3UaUreFHS0iBwvlAbAex6WBBTx/MtkRQQ917yUMwjI
+         8cWrIDVqi132oox0NeAwf0nt3q8IbwO33wRmYRzSchELHpwV6xNEQb/qrZmSKdLLJu
+         m9FdvHYSOfBQozIKCjLNYUT8xH4zEMjZqRaPuCIo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.4 14/19] iommu/vt-d: Silence RCU-list debugging warning in dmar_find_atsr()
-Date:   Sat, 18 Apr 2020 10:44:31 -0400
-Message-Id: <20200418144436.10818-14-sashal@kernel.org>
+Cc:     Changwei Ge <chge@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
+Subject: [PATCH AUTOSEL 4.4 15/19] ocfs2: no need try to truncate file beyond i_size
+Date:   Sat, 18 Apr 2020 10:44:32 -0400
+Message-Id: <20200418144436.10818-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144436.10818-1-sashal@kernel.org>
 References: <20200418144436.10818-1-sashal@kernel.org>
@@ -44,53 +50,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Changwei Ge <chge@linux.alibaba.com>
 
-[ Upstream commit c6f4ebdeba4cff590594df931ff1ee610c426431 ]
+[ Upstream commit 783fda856e1034dee90a873f7654c418212d12d7 ]
 
-dmar_find_atsr() calls list_for_each_entry_rcu() outside of an RCU read
-side critical section but with dmar_global_lock held. Silence this
-false positive.
+Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
+exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
+size.  This restriction is not necessary and violates fallocate(2)
+semantics.
 
- drivers/iommu/intel-iommu.c:4504 RCU-list traversed in non-reader section!!
- 1 lock held by swapper/0/1:
- #0: ffffffff9755bee8 (dmar_global_lock){+.+.}, at: intel_iommu_init+0x1a6/0xe19
+If fallocate(2) offset is beyond inode size, just return success and do
+nothing further.
 
- Call Trace:
-  dump_stack+0xa4/0xfe
-  lockdep_rcu_suspicious+0xeb/0xf5
-  dmar_find_atsr+0x1ab/0x1c0
-  dmar_parse_one_atsr+0x64/0x220
-  dmar_walk_remapping_entries+0x130/0x380
-  dmar_table_init+0x166/0x243
-  intel_iommu_init+0x1ab/0xe19
-  pci_iommu_init+0x1a/0x44
-  do_one_initcall+0xae/0x4d0
-  kernel_init_freeable+0x412/0x4c5
-  kernel_init+0x19/0x193
+Otherwise, ocfs2 will crash the kernel.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+  kernel BUG at fs/ocfs2//alloc.c:7264!
+   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
+   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
+   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
+   ocfs2_fallocate+0x83/0xa0 [ocfs2]
+   vfs_fallocate+0x148/0x230
+   SyS_fallocate+0x48/0x80
+   do_syscall_64+0x79/0x170
+
+Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ocfs2/alloc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index ed6cb3abf645c..73ac0888d3995 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -4164,7 +4164,8 @@ static struct dmar_atsr_unit *dmar_find_atsr(struct acpi_dmar_atsr *atsr)
- 	struct dmar_atsr_unit *atsru;
- 	struct acpi_dmar_atsr *tmp;
+diff --git a/fs/ocfs2/alloc.c b/fs/ocfs2/alloc.c
+index 93e6f029a3225..7e34be37c96d2 100644
+--- a/fs/ocfs2/alloc.c
++++ b/fs/ocfs2/alloc.c
+@@ -7206,6 +7206,10 @@ int ocfs2_truncate_inline(struct inode *inode, struct buffer_head *di_bh,
+ 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
+ 	struct ocfs2_inline_data *idata = &di->id2.i_data;
  
--	list_for_each_entry_rcu(atsru, &dmar_atsr_units, list) {
-+	list_for_each_entry_rcu(atsru, &dmar_atsr_units, list,
-+				dmar_rcu_check()) {
- 		tmp = (struct acpi_dmar_atsr *)atsru->hdr;
- 		if (atsr->segment != tmp->segment)
- 			continue;
++	/* No need to punch hole beyond i_size. */
++	if (start >= i_size_read(inode))
++		return 0;
++
+ 	if (end > i_size_read(inode))
+ 		end = i_size_read(inode);
+ 
 -- 
 2.20.1
 
