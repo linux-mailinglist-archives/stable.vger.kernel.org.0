@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93CA11AEDEB
+	by mail.lfdr.de (Postfix) with ESMTP id 270391AEDEA
 	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:11:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726458AbgDROJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726453AbgDROJb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 18 Apr 2020 10:09:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36904 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726423AbgDROJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:09:27 -0400
+        id S1726441AbgDROJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:09:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B452622260;
-        Sat, 18 Apr 2020 14:09:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC53A22251;
+        Sat, 18 Apr 2020 14:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587218967;
-        bh=vGj7oOkI4QUVbkPo0BS/gOiD5NfqXixQjx5CszSFFjA=;
+        s=default; t=1587218968;
+        bh=pee3zUleh4ZtCgWyYYLwuFN+JFW53m0iamtGFVqoGCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pO7ODp7BhxpTt86YkB4Mbdqr+Rg0AmwR6dqTaWjzrZypEm4qnylRWk1uJTFjCAG6V
-         ZpPaihzHQg9NvGyb5Z4TFP5xUSJTl77W0mhflxdAJENXzzfbkkd1ONvO5n1AK0idK7
-         Eh5vKvCyThjy0lw0omhXR30TffDJUJVnKpSBgatc=
+        b=1jj7ZW4D7XXqWqbLwvO2khoBM21y/WOKXPwyYUeYbdaq7OGlKT8WAkhxzY0DUQEy2
+         qidfm27GfxrnDlRVRsl9hrPjO79iZWdqKzh8x0EoCsGYjYcErb5AFKo6i02ZMcEmMB
+         6H04mYy1RQJw1g7kHHa5GKSH/60Tnsu74TxAQI5o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Yan, Zheng" <zyan@redhat.com>, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 14/75] ceph: don't skip updating wanted caps when cap is stale
-Date:   Sat, 18 Apr 2020 10:08:09 -0400
-Message-Id: <20200418140910.8280-14-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.5 15/75] pwm: rcar: Fix late Runtime PM enablement
+Date:   Sat, 18 Apr 2020 10:08:10 -0400
+Message-Id: <20200418140910.8280-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
 References: <20200418140910.8280-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,47 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Yan, Zheng" <zyan@redhat.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 0aa971b6fd3f92afef6afe24ef78d9bb14471519 ]
+[ Upstream commit 1451a3eed24b5fd6a604683f0b6995e0e7e16c79 ]
 
-1. try_get_cap_refs() fails to get caps and finds that mds_wanted
-   does not include what it wants. It returns -ESTALE.
-2. ceph_get_caps() calls ceph_renew_caps(). ceph_renew_caps() finds
-   that inode has cap, so it calls ceph_check_caps().
-3. ceph_check_caps() finds that issued caps (without checking if it's
-   stale) already includes caps wanted by open file, so it skips
-   updating wanted caps.
+Runtime PM should be enabled before calling pwmchip_add(), as PWM users
+can appear immediately after the PWM chip has been added.
+Likewise, Runtime PM should be disabled after the removal of the PWM
+chip.
 
-Above events can cause an infinite loop inside ceph_get_caps().
-
-Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: ed6c1476bf7f16d5 ("pwm: Add support for R-Car PWM Timer")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/pwm/pwm-rcar.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 9d09bb53c1ab4..a02f7970b6e85 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1972,8 +1972,12 @@ void ceph_check_caps(struct ceph_inode_info *ci, int flags,
- 		}
+diff --git a/drivers/pwm/pwm-rcar.c b/drivers/pwm/pwm-rcar.c
+index 852eb2347954d..b98ec8847b488 100644
+--- a/drivers/pwm/pwm-rcar.c
++++ b/drivers/pwm/pwm-rcar.c
+@@ -228,24 +228,28 @@ static int rcar_pwm_probe(struct platform_device *pdev)
+ 	rcar_pwm->chip.base = -1;
+ 	rcar_pwm->chip.npwm = 1;
  
- 		/* want more caps from mds? */
--		if (want & ~(cap->mds_wanted | cap->issued))
--			goto ack;
-+		if (want & ~cap->mds_wanted) {
-+			if (want & ~(cap->mds_wanted | cap->issued))
-+				goto ack;
-+			if (!__cap_is_valid(cap))
-+				goto ack;
-+		}
++	pm_runtime_enable(&pdev->dev);
++
+ 	ret = pwmchip_add(&rcar_pwm->chip);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to register PWM chip: %d\n", ret);
++		pm_runtime_disable(&pdev->dev);
+ 		return ret;
+ 	}
  
- 		/* things we might delay */
- 		if ((cap->issued & ~retain) == 0)
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	return 0;
+ }
+ 
+ static int rcar_pwm_remove(struct platform_device *pdev)
+ {
+ 	struct rcar_pwm_chip *rcar_pwm = platform_get_drvdata(pdev);
++	int ret;
++
++	ret = pwmchip_remove(&rcar_pwm->chip);
+ 
+ 	pm_runtime_disable(&pdev->dev);
+ 
+-	return pwmchip_remove(&rcar_pwm->chip);
++	return ret;
+ }
+ 
+ static const struct of_device_id rcar_pwm_of_table[] = {
 -- 
 2.20.1
 
