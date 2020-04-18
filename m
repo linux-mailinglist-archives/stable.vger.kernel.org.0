@@ -2,58 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5EF1AF4ED
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 22:30:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80EC01AF4FE
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 22:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726459AbgDRUaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 16:30:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58066 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726014AbgDRUaJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Apr 2020 16:30:09 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D81FC061A0C
-        for <stable@vger.kernel.org>; Sat, 18 Apr 2020 13:30:09 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id d1so2940101pfh.1
-        for <stable@vger.kernel.org>; Sat, 18 Apr 2020 13:30:09 -0700 (PDT)
+        id S1726459AbgDRUwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 16:52:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33244 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726014AbgDRUwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Apr 2020 16:52:34 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C300C061A0C
+        for <stable@vger.kernel.org>; Sat, 18 Apr 2020 13:52:34 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id k21so5810230ljh.2
+        for <stable@vger.kernel.org>; Sat, 18 Apr 2020 13:52:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amacapital-net.20150623.gappssmtp.com; s=20150623;
-        h=content-transfer-encoding:from:mime-version:date:subject:message-id
-         :cc:to;
-        bh=jJqY9/SR/ad4P7H9qcJcsY9QD5wxC36npZ2vqT03CEs=;
-        b=svfRl6JAzcnVOj/h2FflauvL4dvBhAOealAKFUZRMj0RxUVjkwmdFr0X1PPek2F6kR
-         s2J+GFL4YWwoEDdJsWo99CwCtjStNv4D6mrX4DbsLVaRMcwndMkV8Z1mTqDCpkF3lfjc
-         maBOzwRRO41B/IkGA1GnOfIdJ3HgQumUcPogYxuvu1MkWytQl33wsHglpXd9WFrdSv++
-         Ev+4YGBX2TJqHki59IW1oNt8Lk8Wodn3R+ZZUoUfTzJUnRVPWWk3AmS48/17pagt9YWK
-         3OQmgs8k/lc66S3BzA6ZRDVnBGxQ3QclKCMEi4wfeO/kSdkZVM9kxtsbc4TzmKqwFYKU
-         IrhQ==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=s/MCXYluiV/Di6rRKjHU/d4NnQSkJUzqjX8QxIsHmUc=;
+        b=IeynsinqAESZ7D5iH0Mw7AG00cif0HeQeEDlNnZHliL9sMslW01AUBwTualDAKcx6x
+         vICf3ReOAIMcS25qObUhbwk3qGc/BhprOp/3VHZEytcvQY4Pv2D4bBv88lxtaCvewGqg
+         DnGnok45WuhxHNH5EwyksqWHkDHRbvN//rwvQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:content-transfer-encoding:from:mime-version:date
-         :subject:message-id:cc:to;
-        bh=jJqY9/SR/ad4P7H9qcJcsY9QD5wxC36npZ2vqT03CEs=;
-        b=OxKcM6BJk7hCiiiqZ1KR9i8mm8/kWRyD/QIZgMsnIgPXHIDLjL95LT8DQJABfkZHac
-         oHjK2u6sptF4JvcHNhoMfRK3LY5DSphNInBxi2qO2idgZLSCwdBdj4fKPEitdnFkrdKX
-         p3imrP4MpgRgq2mXNHQbcuF4So6Jah53CkBk1PleDrZD70bPaf7A9ZBTDPpeKzMaFoS9
-         NnSsr4HopiNX8xO7yrkNc7BwI0rcmOkuGiJ2qr7AY5/Fys9gbrQkN5WmHrZT/36+/Q30
-         cdOXxZFjZJ0uav0+BSQd+1bt5y31Fc11OeFbD724ZGpebzJjeeYL3mv/0QHcgO7Tr+cg
-         23VQ==
-X-Gm-Message-State: AGi0Puaj2GGZimhOAg3luldtCvt3N36YTuNXRF2i/j8EAWbeZXlJGI3+
-        wmrcOzS2ckv89kz3C0EeZlQl3g==
-X-Google-Smtp-Source: APiQypLcRDF82+gi/uSEl48kZIhOa8/wjmaGeADbXMRVmijfIA5J9MXMJACYqsUjj+dOd+RNBeOpDA==
-X-Received: by 2002:a62:62c3:: with SMTP id w186mr9256533pfb.238.1587241808920;
-        Sat, 18 Apr 2020 13:30:08 -0700 (PDT)
-Received: from ?IPv6:2601:646:c200:1ef2:e558:74e9:c7af:3ac7? ([2601:646:c200:1ef2:e558:74e9:c7af:3ac7])
-        by smtp.gmail.com with ESMTPSA id o15sm8899098pjp.41.2020.04.18.13.30.07
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=s/MCXYluiV/Di6rRKjHU/d4NnQSkJUzqjX8QxIsHmUc=;
+        b=JKUabpeK/t7bpEebJrd9Whm/mRD0d0nndYzYvwDZkh+NATCCXXoIooteKtCyGpSwqQ
+         oIwnXVpHf83z3uBCL6bUOfgRjK3XYZTIYKzTwDPCaETH2JUsnxlJMGKJaUbS+3jwSRcv
+         om5g2MsxU4FHeM3l7EOdRl557lhsSrkOiN0QTkMOF/DOoR8QNZgrJoyOQZ90u5iqUNSh
+         6aS+MDsTjIvi2jabpaqjIMYTDU5q4EznvEm655z6+uFlp2dey/HIzQOLR6lnq2jxulMt
+         P6bPAx4yVRVdsSf8SSR8y4H9kL3/glXouC03HS+daeVQ3yXfe1yIWiyJLj20DiFkJEyW
+         3XZQ==
+X-Gm-Message-State: AGi0PuZZ+tfdxp5loo/JsZBY+SMlx/TNY8811HuN1MG1QlMndeNWXflt
+        tDjGeW23go1SEjgmBu0DOTVgPDRatdo=
+X-Google-Smtp-Source: APiQypJBmTcL82d4ySunCsyQfl9ALjaxPWGLpa2OX4cT+aS9TXecFAMh4PhZigjlwpsT3XwQqtHkGQ==
+X-Received: by 2002:a2e:5855:: with SMTP id x21mr5504785ljd.75.1587243152541;
+        Sat, 18 Apr 2020 13:52:32 -0700 (PDT)
+Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com. [209.85.167.45])
+        by smtp.gmail.com with ESMTPSA id z23sm19274854ljz.52.2020.04.18.13.52.31
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 18 Apr 2020 13:30:07 -0700 (PDT)
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From:   Andy Lutomirski <luto@amacapital.net>
-Mime-Version: 1.0 (1.0)
-Date:   Sat, 18 Apr 2020 13:30:05 -0700
+        Sat, 18 Apr 2020 13:52:31 -0700 (PDT)
+Received: by mail-lf1-f45.google.com with SMTP id u10so4734302lfo.8
+        for <stable@vger.kernel.org>; Sat, 18 Apr 2020 13:52:31 -0700 (PDT)
+X-Received: by 2002:ac2:4466:: with SMTP id y6mr5848677lfl.125.1587243150793;
+ Sat, 18 Apr 2020 13:52:30 -0700 (PDT)
+MIME-Version: 1.0
+References: <67FF611B-D10E-4BAF-92EE-684C83C9107E@amacapital.net>
+In-Reply-To: <67FF611B-D10E-4BAF-92EE-684C83C9107E@amacapital.net>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sat, 18 Apr 2020 13:52:15 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjePyyiNZo0oufYSn0s46qMYHoFyyNKhLOm5MXnKtfLcg@mail.gmail.com>
+Message-ID: <CAHk-=wjePyyiNZo0oufYSn0s46qMYHoFyyNKhLOm5MXnKtfLcg@mail.gmail.com>
 Subject: Re: [PATCH] x86/memcpy: Introduce memcpy_mcsafe_fast
-Message-Id: <67FF611B-D10E-4BAF-92EE-684C83C9107E@amacapital.net>
+To:     Andy Lutomirski <luto@amacapital.net>
 Cc:     Dan Williams <dan.j.williams@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@redhat.com>, X86 ML <x86@kernel.org>,
@@ -64,60 +68,71 @@ Cc:     Dan Williams <dan.j.williams@intel.com>,
         Erwin Tsaur <erwin.tsaur@intel.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         linux-nvdimm <linux-nvdimm@lists.01.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-X-Mailer: iPhone Mail (17E255)
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Apr 18, 2020 at 1:30 PM Andy Lutomirski <luto@amacapital.net> wrote=
+:
+>
+> Maybe I=E2=80=99m missing something obvious, but what=E2=80=99s the alter=
+native?  The _mcsafe variants don=E2=80=99t just avoid the REP mess =E2=80=
+=94 they also tell the kernel that this particular access is recoverable vi=
+a extable.
 
+.. which they could easily do exactly the same way the user space
+accessors do, just with a much simplified model that doesn't even care
+about multiple sizes, since unaligned accesses weren't valid anyway.
 
---Andy
+The thing is, all of the MCS code has been nasty. There's no reason
+for it what-so-ever that I can tell. The hardware has been so
+incredibly broken that it's basically unusable, and most of the
+software around it seems to have been about testing.
 
-> On Apr 18, 2020, at 12:42 PM, Linus Torvalds <torvalds@linux-foundation.or=
-g> wrote:
->=20
->>> On Fri, Apr 17, 2020 at 5:12 PM Dan Williams <dan.j.williams@intel.com> w=
-rote:
->>>=20
->>> @@ -106,12 +108,10 @@ static __always_inline __must_check unsigned long
->>> memcpy_mcsafe(void *dst, const void *src, size_t cnt)
->>> {
->>> #ifdef CONFIG_X86_MCE
->>> -       i(static_branch_unlikely(&mcsafe_key))
->>> -               return __memcpy_mcsafe(dst, src, cnt);
->>> -       else
->>> +       if (static_branch_unlikely(&mcsafe_slow_key))
->>> +               return memcpy_mcsafe_slow(dst, src, cnt);
->>> #endif
->>> -               memcpy(dst, src, cnt);
->>> -       return 0;
->>> +       return memcpy_mcsafe_fast(dst, src, cnt);
->>> }
->=20
-> It strikes me that I see no advantages to making this an inline function a=
-t all.
->=20
-> Even for the good case - where it turns into just a memcpy because MCE
-> is entirely disabled - it doesn't seem to matter.
->=20
-> The only case that really helps is when the memcpy can be turned into
-> a single access. Which - and I checked - does exist, with people doing
->=20
->        r =3D memcpy_mcsafe(&sb_seq_count, &sb(wc)->seq_count, sizeof(uint6=
-4_t));
->=20
-> to read a single 64-bit field which looks aligned to me.
->=20
-> But that code is incredible garbage anyway, since even on a broken
-> machine, there's no actual reason to use the slow variant for that
-> whole access that I can tell. The macs-safe copy routines do not do
-> anything worthwhile for a single access.
+So I absolutely abhor that thing. Everything about that code has
+screamed "yeah, we completely mis-designed the hardware, we're pushing
+the problems into software, and nobody even uses it or can test it so
+there's like 5 people who care".
 
-Maybe I=E2=80=99m missing something obvious, but what=E2=80=99s the alternat=
-ive?  The _mcsafe variants don=E2=80=99t just avoid the REP mess =E2=80=94 t=
-hey also tell the kernel that this particular access is recoverable via exta=
-ble. With a regular memory access, the CPU may not explode, but do_machine_c=
-heck() will, at very best, OOPS, and even that requires a certain degree of o=
-ptimism.  A panic is more likely.
+And I'm pushing back on it, because I think that the least the code
+can do is to at least be simple.
+
+For example, none of those optimizations should exist. That function
+shouldn't have been inline to begin with. And if it really really
+matters from a performance angle that it was inline (which I doubt),
+it shouldn't have looked like a memory copy, it should have looked
+like "get_user()" (except without all the complications of actually
+having to test addresses or worry about different sizes).
+
+And it almost certainly shouldn't have been done in low-level asm
+either. It could have been a single "read aligned word" interface
+using an inline asm, and then everything else could have been done as
+C code around it.
+
+But no. The software side is almost as messy as the hardware side is.
+I hate it. And since nobody sane can test it, and the broken hardware
+is _so_ broken than nobody should ever use it, I have continually
+pushed back against this kind of ugly nasty special code.
+
+We know the writes can't fault, since they are buffered. So they
+aren't special at all.
+
+We know the acceptable reads for the broken hardware basically boil
+down to a single simple word-size aligned read, so you need _one_
+special inline asm for that. The rest of the cases can be handled by
+masking and shifting if you really really need to - and done better
+that way than with byte accesses anyway.
+
+Then you have _one_ C file that implements everything using that
+single operation (ok, if people absolutely want to do sizes, I guess
+they can if they can just hide it in that one file), and you have one
+header file that exposes the interfaces to it, and you're done.
+
+And you strive hard as hell to not impact anything else, because you
+know that the hardware is unacceptable until all those special rules
+go away. Which they apparently finally have.
+
+                Linus
