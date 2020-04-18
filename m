@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B761AEBAA
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 12:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5BD1AEBB2
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 12:24:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725862AbgDRKVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 06:21:54 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:41919 "EHLO
+        id S1726069AbgDRKXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 06:23:47 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:58471 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725939AbgDRKVw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Apr 2020 06:21:52 -0400
+        by vger.kernel.org with ESMTP id S1726086AbgDRKXc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Apr 2020 06:23:32 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id B5F6838F;
-        Sat, 18 Apr 2020 06:21:13 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 9D7B6634;
+        Sat, 18 Apr 2020 06:23:04 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sat, 18 Apr 2020 06:21:13 -0400
+  by compute1.internal (MEProxy); Sat, 18 Apr 2020 06:23:04 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Q160a4
-        6cf+wZW6Piz9f7+p/jKVQMmiJuqVUQxP/s2Cg=; b=csnUEp7aNSCpYbuTlytBY1
-        9zjc4TtW/pPAGNWNZ/txJ5c8jv/x+NQY3J9gWnodvHOCmsUh0Jbene9znMwDhc6r
-        7gM9t2qmjifLGEzT6zjkZuitRZEXNWnbWA2XEMfi9Rd30nbVXb/quXMFJqwi9Kow
-        M7e+ny7rtWoNg1dxHNOvlHEDBss/xiu0lVusXqxeOHwXDf4g73Lb8Ck1/NT3ASGp
-        Jy7RMz4Z3T50pZgvG5VzUWvKTW+O4Nn2AcczaJOLn2vfneK2xpuo1/97mEoM29eD
-        DIlNhAcJ3C+rVx1pSg46PoYqAMkgUjz/aZzhMiCt7QDhsr/DXq5lUtuIgKSHicuw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=me0AnX
+        amg00zwhjfdFz1wk/KyuFkz2LcJ5gGhb06rR8=; b=gd8ogTpjlUC2Qo2v99wF7K
+        q7Ny+gh1yZRevN9jiz6Zr+H6zAITPXIXzAw8JcvrIBLLhTI5PLqI6Dh3noaI+6KO
+        ohqLmNP1kFLvKMWNCzgxsT59m+/0tznuGSpsI2y5Lcyex8FKY+Y4DnOxdi1ZGHtw
+        b2q5a82QqETLVVgAKOu3wlFZohdc/nwgwpUJyit1fQme4STKzonHw0LlJrGWxqYM
+        k1eVPdRGneqc+GIxkePxkwnoToYN/+qrbqogAosfwpPbl/oGwq9EZnUx54kzEyVQ
+        8YP6Ei09Jw8gM7Ihbixps7opsGywaF7R379RAjhI1xKQ2LKwgpxl0vuhmMqaf+Wg
         ==
-X-ME-Sender: <xms:mdSaXkg8LUJyuIMZPoowr2ZVh36E-UhthSjtNQ6ENiHLbjWLtgUQ6A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeelgddvlecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:B9WaXoOWtxFZqTLOAeZ5Q276g3ZQ08TbmAu87UMnk6qMl1VPOujkuw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrfeelgdeftdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdgtphhurdhpihgunecukfhppeekfe
-    drkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgr
-    ihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:mdSaXkSoQpttXmWkv7pjQVavn2qsktim3XIYe0t95svFUnUi0rYcfw>
-    <xmx:mdSaXm8Ev0UE9zFoJF5JWWGnedBKwqOKSThfPDITNwZ1Ykoy5Ml4Kw>
-    <xmx:mdSaXlMlD8g9I7BS-HJmzhElLbRn82SnZpLyKwjIw5nnQu1WWVoVjg>
-    <xmx:mdSaXjRgCteL3rE5Uz0SsETxB8c8QR2s_8G9zd7d76GlQMADHxrwUqSr_JM>
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:B9WaXuIXRsPuX_omP-glVjW5DY_xRHWRXx-2EuiSO_XEPnwZ7TNhsg>
+    <xmx:B9WaXleUF58h0NoTPD8gvdVkHPbpUdsnLvx6hrfxPxfXeD4RPyVxcg>
+    <xmx:B9WaXiOdOdiFxLUXefcIGAk56NdG8PbaYh7ZO8LpiZ0u6RS-J9vitw>
+    <xmx:CNWaXukLG4yxYFIv7m7AJrRqXW8AwNsiuD9MMiLDjYAeDLALly7fHLkyOqk>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F1216306005B;
-        Sat, 18 Apr 2020 06:21:12 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] posix-cpu-timers: Store a reference to a pid not a task" failed to apply to 4.4-stable tree
-To:     ebiederm@xmission.com, tglx@linutronix.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9838B3060062;
+        Sat, 18 Apr 2020 06:23:03 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Don't clear flags before transfer ended" failed to apply to 4.19-stable tree
+To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org, thinhn@synopsys.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 18 Apr 2020 12:21:06 +0200
-Message-ID: <15872052665959@kroah.com>
+Date:   Sat, 18 Apr 2020 12:23:02 +0200
+Message-ID: <158720538210062@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,232 +67,33 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 55e8c8eb2c7b6bf30e99423ccfe7ca032f498f59 Mon Sep 17 00:00:00 2001
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Fri, 28 Feb 2020 11:11:06 -0600
-Subject: [PATCH] posix-cpu-timers: Store a reference to a pid not a task
+From a114c4ca64bd522aec1790c7e5c60c882f699d8f Mon Sep 17 00:00:00 2001
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Date: Thu, 5 Mar 2020 13:23:49 -0800
+Subject: [PATCH] usb: dwc3: gadget: Don't clear flags before transfer ended
 
-posix cpu timers do not handle the death of a process well.
+We track END_TRANSFER command completion. Don't clear transfer
+started/ended flag prematurely. Otherwise, we'd run into the problem
+with restarting transfer before END_TRANSFER command finishes.
 
-This is most clearly seen when a multi-threaded process calls exec from a
-thread that is not the leader of the thread group.  The posix cpu timer code
-continues to pin the old thread group leader and is unable to find the
-siglock from there.
+Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 
-This results in posix_cpu_timer_del being unable to delete a timer,
-posix_cpu_timer_set being unable to set a timer.  Further to compensate for
-the problems in posix_cpu_timer_del on a multi-threaded exec all timers
-that point at the multi-threaded task are stopped.
-
-The code for the timers fundamentally needs to check if the target
-process/thread is alive.  This needs an extra level of indirection. This
-level of indirection is already available in struct pid.
-
-So replace cpu.task with cpu.pid to get the needed extra layer of
-indirection.
-
-In addition to handling things more cleanly this reduces the amount of
-memory a timer can pin when a process exits and then is reaped from
-a task_struct to the vastly smaller struct pid.
-
-Fixes: e0a70217107e ("posix-cpu-timers: workaround to suppress the problems with mt exec")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/87wo86tz6d.fsf@x220.int.ebiederm.org
-
-diff --git a/include/linux/posix-timers.h b/include/linux/posix-timers.h
-index 3d10c84a97a9..e3f0f8585da4 100644
---- a/include/linux/posix-timers.h
-+++ b/include/linux/posix-timers.h
-@@ -69,7 +69,7 @@ static inline int clockid_to_fd(const clockid_t clk)
- struct cpu_timer {
- 	struct timerqueue_node	node;
- 	struct timerqueue_head	*head;
--	struct task_struct	*task;
-+	struct pid		*pid;
- 	struct list_head	elist;
- 	int			firing;
- };
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index ef936c5a910b..6df468a622fe 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -118,6 +118,16 @@ static inline int validate_clock_permissions(const clockid_t clock)
- 	return __get_task_for_clock(clock, false, false) ? 0 : -EINVAL;
- }
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 1e00bf2d65a2..b032e62fff0f 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2570,10 +2570,8 @@ static void dwc3_gadget_endpoint_transfer_in_progress(struct dwc3_ep *dep,
  
-+static inline enum pid_type cpu_timer_pid_type(struct k_itimer *timer)
-+{
-+	return CPUCLOCK_PERTHREAD(timer->it_clock) ? PIDTYPE_PID : PIDTYPE_TGID;
-+}
-+
-+static inline struct task_struct *cpu_timer_task_rcu(struct k_itimer *timer)
-+{
-+	return pid_task(timer->it.cpu.pid, cpu_timer_pid_type(timer));
-+}
-+
- /*
-  * Update expiry time from increment, and increase overrun count,
-  * given the current clock sample.
-@@ -391,7 +401,12 @@ static int posix_cpu_timer_create(struct k_itimer *new_timer)
+ 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
  
- 	new_timer->kclock = &clock_posix_cpu;
- 	timerqueue_init(&new_timer->it.cpu.node);
--	new_timer->it.cpu.task = p;
-+	new_timer->it.cpu.pid = get_task_pid(p, cpu_timer_pid_type(new_timer));
-+	/*
-+	 * get_task_for_clock() took a reference on @p. Drop it as the timer
-+	 * holds a reference on the pid of @p.
-+	 */
-+	put_task_struct(p);
- 	return 0;
- }
- 
-@@ -404,13 +419,15 @@ static int posix_cpu_timer_create(struct k_itimer *new_timer)
- static int posix_cpu_timer_del(struct k_itimer *timer)
- {
- 	struct cpu_timer *ctmr = &timer->it.cpu;
--	struct task_struct *p = ctmr->task;
- 	struct sighand_struct *sighand;
-+	struct task_struct *p;
- 	unsigned long flags;
- 	int ret = 0;
- 
--	if (WARN_ON_ONCE(!p))
--		return -EINVAL;
-+	rcu_read_lock();
-+	p = cpu_timer_task_rcu(timer);
-+	if (!p)
-+		goto out;
+-	if (stop) {
++	if (stop)
+ 		dwc3_stop_active_transfer(dep, true, true);
+-		dep->flags = DWC3_EP_ENABLED;
+-	}
  
  	/*
- 	 * Protect against sighand release/switch in exit/exec and process/
-@@ -432,8 +449,10 @@ static int posix_cpu_timer_del(struct k_itimer *timer)
- 		unlock_task_sighand(p, &flags);
- 	}
- 
-+out:
-+	rcu_read_unlock();
- 	if (!ret)
--		put_task_struct(p);
-+		put_pid(ctmr->pid);
- 
- 	return ret;
- }
-@@ -561,13 +580,21 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
- 	clockid_t clkid = CPUCLOCK_WHICH(timer->it_clock);
- 	u64 old_expires, new_expires, old_incr, val;
- 	struct cpu_timer *ctmr = &timer->it.cpu;
--	struct task_struct *p = ctmr->task;
- 	struct sighand_struct *sighand;
-+	struct task_struct *p;
- 	unsigned long flags;
- 	int ret = 0;
- 
--	if (WARN_ON_ONCE(!p))
--		return -EINVAL;
-+	rcu_read_lock();
-+	p = cpu_timer_task_rcu(timer);
-+	if (!p) {
-+		/*
-+		 * If p has just been reaped, we can no
-+		 * longer get any information about it at all.
-+		 */
-+		rcu_read_unlock();
-+		return -ESRCH;
-+	}
- 
- 	/*
- 	 * Use the to_ktime conversion because that clamps the maximum
-@@ -584,8 +611,10 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
- 	 * If p has just been reaped, we can no
- 	 * longer get any information about it at all.
- 	 */
--	if (unlikely(sighand == NULL))
-+	if (unlikely(sighand == NULL)) {
-+		rcu_read_unlock();
- 		return -ESRCH;
-+	}
- 
- 	/*
- 	 * Disarm any old timer after extracting its expiry time.
-@@ -690,6 +719,7 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
- 
- 	ret = 0;
-  out:
-+	rcu_read_unlock();
- 	if (old)
- 		old->it_interval = ns_to_timespec64(old_incr);
- 
-@@ -701,10 +731,12 @@ static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp
- 	clockid_t clkid = CPUCLOCK_WHICH(timer->it_clock);
- 	struct cpu_timer *ctmr = &timer->it.cpu;
- 	u64 now, expires = cpu_timer_getexpires(ctmr);
--	struct task_struct *p = ctmr->task;
-+	struct task_struct *p;
- 
--	if (WARN_ON_ONCE(!p))
--		return;
-+	rcu_read_lock();
-+	p = cpu_timer_task_rcu(timer);
-+	if (!p)
-+		goto out;
- 
- 	/*
- 	 * Easy part: convert the reload time.
-@@ -712,7 +744,7 @@ static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp
- 	itp->it_interval = ktime_to_timespec64(timer->it_interval);
- 
- 	if (!expires)
--		return;
-+		goto out;
- 
- 	/*
- 	 * Sample the clock to take the difference with the expiry time.
-@@ -732,6 +764,8 @@ static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp
- 		itp->it_value.tv_nsec = 1;
- 		itp->it_value.tv_sec = 0;
- 	}
-+out:
-+	rcu_read_unlock();
- }
- 
- #define MAX_COLLECTED	20
-@@ -952,14 +986,15 @@ static void check_process_timers(struct task_struct *tsk,
- static void posix_cpu_timer_rearm(struct k_itimer *timer)
- {
- 	clockid_t clkid = CPUCLOCK_WHICH(timer->it_clock);
--	struct cpu_timer *ctmr = &timer->it.cpu;
--	struct task_struct *p = ctmr->task;
-+	struct task_struct *p;
- 	struct sighand_struct *sighand;
- 	unsigned long flags;
- 	u64 now;
- 
--	if (WARN_ON_ONCE(!p))
--		return;
-+	rcu_read_lock();
-+	p = cpu_timer_task_rcu(timer);
-+	if (!p)
-+		goto out;
- 
- 	/*
- 	 * Fetch the current sample and update the timer's expiry time.
-@@ -974,13 +1009,15 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
- 	/* Protect timer list r/w in arm_timer() */
- 	sighand = lock_task_sighand(p, &flags);
- 	if (unlikely(sighand == NULL))
--		return;
-+		goto out;
- 
- 	/*
- 	 * Now re-arm for the new expiry time.
- 	 */
- 	arm_timer(timer, p);
- 	unlock_task_sighand(p, &flags);
-+out:
-+	rcu_read_unlock();
- }
- 
- /**
+ 	 * WORKAROUND: This is the 2nd half of U1/U2 -> U0 workaround.
 
