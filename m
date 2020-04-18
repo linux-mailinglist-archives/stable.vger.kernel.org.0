@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 714C91AF0C8
+	by mail.lfdr.de (Postfix) with ESMTP id E11AE1AF0C9
 	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728305AbgDROmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728301AbgDROmT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 18 Apr 2020 10:42:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52250 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728290AbgDROmR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:42:17 -0400
+        id S1728298AbgDROmS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:42:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E91E21D82;
-        Sat, 18 Apr 2020 14:42:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BC7C22244;
+        Sat, 18 Apr 2020 14:42:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220936;
-        bh=6EANkOU5+JVh6iSfkdwyirWkAQqzQTK44M4nd2mmmsA=;
+        s=default; t=1587220938;
+        bh=dyQ/jAoog3/afvIT8/E4Yzhzrzavmt+MBeOOR32Pl3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pifqaDuKwsz927WEe2zjlj3b8rWeIQ3Z2YdRSjPsuDxwnD9iopFKUsBp8gmYWp0Ev
-         70snWwSdyurF+O7UqfyV+yuegjM0CB5EgoaA/kmlET5hwl7G95SXcTnkTU0lrXqjNZ
-         BCvrFwFF97Wq0dvDzSrK5vM1YJK0BAQG6PmMJVfM=
+        b=i8N+SEyzgbFazV10LUi+yQmfL19an37EHygdBgSpsqn0Sr15jnIObGFdcCC60anld
+         27Tj+5vOD0lYp/7lkc3ICaKVTGD1fMLAtojxq516hnMWavim4jfLqeiKDPPiLYC89g
+         9s+Sm67snePGJRlKsRiYxCNtPnp7Ipt/J3yTlf/o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Miroslav Benes <mbenes@suse.cz>,
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 72/78] tracing/selftests: Turn off timeout setting
-Date:   Sat, 18 Apr 2020 10:40:41 -0400
-Message-Id: <20200418144047.9013-72-sashal@kernel.org>
+        virtualization@lists.linux-foundation.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 73/78] virtio-blk: improve virtqueue error to BLK_STS
+Date:   Sat, 18 Apr 2020 10:40:42 -0400
+Message-Id: <20200418144047.9013-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
 References: <20200418144047.9013-1-sashal@kernel.org>
@@ -44,33 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit b43e78f65b1d35fd3e13c7b23f9b64ea83c9ad3a ]
+[ Upstream commit 3d973b2e9a625996ee997c7303cd793b9d197c65 ]
 
-As the ftrace selftests can run for a long period of time, disable the
-timeout that the general selftests have. If a selftest hangs, then it
-probably means the machine will hang too.
+Let's change the mapping between virtqueue_add errors to BLK_STS
+statuses, so that -ENOSPC, which indicates virtqueue full is still
+mapped to BLK_STS_DEV_RESOURCE, but -ENOMEM which indicates non-device
+specific resource outage is mapped to BLK_STS_RESOURCE.
 
-Link: https://lore.kernel.org/r/alpine.LSU.2.21.1911131604170.18679@pobox.suse.cz
-
-Suggested-by: Miroslav Benes <mbenes@suse.cz>
-Tested-by: Miroslav Benes <mbenes@suse.cz>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200213123728.61216-3-pasic@linux.ibm.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/ftrace/settings | 1 +
- 1 file changed, 1 insertion(+)
- create mode 100644 tools/testing/selftests/ftrace/settings
+ drivers/block/virtio_blk.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/settings b/tools/testing/selftests/ftrace/settings
-new file mode 100644
-index 0000000000000..e7b9417537fbc
---- /dev/null
-+++ b/tools/testing/selftests/ftrace/settings
-@@ -0,0 +1 @@
-+timeout=0
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index c2ed3e9128e3a..a55383b139df9 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -345,9 +345,14 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		if (err == -ENOSPC)
+ 			blk_mq_stop_hw_queue(hctx);
+ 		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+-		if (err == -ENOMEM || err == -ENOSPC)
++		switch (err) {
++		case -ENOSPC:
+ 			return BLK_STS_DEV_RESOURCE;
+-		return BLK_STS_IOERR;
++		case -ENOMEM:
++			return BLK_STS_RESOURCE;
++		default:
++			return BLK_STS_IOERR;
++		}
+ 	}
+ 
+ 	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
 -- 
 2.20.1
 
