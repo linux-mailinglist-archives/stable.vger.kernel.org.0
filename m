@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D9251AEDB1
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:53:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 449DD1AEDB3
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:53:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726055AbgDRNsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726011AbgDRNsV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 18 Apr 2020 09:48:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54334 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725879AbgDRNsS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 09:48:18 -0400
+        id S1726007AbgDRNsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 09:48:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C815321BE5;
-        Sat, 18 Apr 2020 13:48:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D365021D6C;
+        Sat, 18 Apr 2020 13:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587217698;
-        bh=WwMQnnlr9UFxuKnVYip2MbxhHSDl070mII4XwC96BvM=;
+        s=default; t=1587217699;
+        bh=ddR3lY7X7Py94OEnLYZZsrm3gr2MaNXEqKJZwflfaEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYIBuWScmWYOAvDCH5xyoYFKxeDwf7p5IbZEUffpZrYZQS2WWRfo+9kQEN55qmLt2
-         cKhwHwZjQ6BLtspZtgg+f+bMEoIsR6jz+4fxhRZErtrMJC7/+8eVSoP1p5dRw9U5X8
-         HK6gSA9DkczSnJReB/7PDHF0MXU13DAIcLHt0ux0=
+        b=xM5udgLwdggiVYUcFZeGMYsFH70VPp5ISyb6Sx+X/jMj9poWNQwnTxq3yHgsH1KqR
+         ABiGAw+uPjqpoYvuqcNO13G+hVOLx9QnmeJmX98XiIO6QqSw5n1cQ/rXdyEv/SHBcH
+         f16rIy+9a3OGMSr8C6pNK5/Du6N9nCLunsrf8WfE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 5.6 02/73] tools/testing/nvdimm: Fix compilation failure without CONFIG_DEV_DAX_PMEM_COMPAT
-Date:   Sat, 18 Apr 2020 09:47:04 -0400
-Message-Id: <20200418134815.6519-2-sashal@kernel.org>
+Cc:     Tero Kristo <t-kristo@ti.com>, Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 03/73] watchdog: reset last_hw_keepalive time at start
+Date:   Sat, 18 Apr 2020 09:47:05 -0400
+Message-Id: <20200418134815.6519-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
 References: <20200418134815.6519-1-sashal@kernel.org>
@@ -42,41 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit c0e71d602053e4e7637e4bc7d0bc9603ea77a33f ]
+[ Upstream commit 982bb70517aef2225bad1d802887b733db492cc0 ]
 
-When a kernel is configured without CONFIG_DEV_DAX_PMEM_COMPAT, the
-compilation of tools/testing/nvdimm fails with:
+Currently the watchdog core does not initialize the last_hw_keepalive
+time during watchdog startup. This will cause the watchdog to be pinged
+immediately if enough time has passed from the system boot-up time, and
+some types of watchdogs like K3 RTI does not like this.
 
-  Building modules, stage 2.
-  MODPOST 11 modules
-ERROR: "dax_pmem_compat_test" [tools/testing/nvdimm/test/nfit_test.ko] undefined!
+To avoid the issue, setup the last_hw_keepalive time during watchdog
+startup.
 
-Fix the problem by calling dax_pmem_compat_test() only if the kernel has
-the required functionality.
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20200123154720.12097-1-jack@suse.cz
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200302200426.6492-3-t-kristo@ti.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/nvdimm/test/nfit.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/watchdog/watchdog_dev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/nvdimm/test/nfit.c b/tools/testing/nvdimm/test/nfit.c
-index bf6422a6af7ff..a8ee5c4d41ebb 100644
---- a/tools/testing/nvdimm/test/nfit.c
-+++ b/tools/testing/nvdimm/test/nfit.c
-@@ -3164,7 +3164,9 @@ static __init int nfit_test_init(void)
- 	mcsafe_test();
- 	dax_pmem_test();
- 	dax_pmem_core_test();
-+#ifdef CONFIG_DEV_DAX_PMEM_COMPAT
- 	dax_pmem_compat_test();
-+#endif
- 
- 	nfit_test_setup(nfit_test_lookup, nfit_test_evaluate_dsm);
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index 8b5c742f24e81..7e4cd34a8c20e 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -282,6 +282,7 @@ static int watchdog_start(struct watchdog_device *wdd)
+ 	if (err == 0) {
+ 		set_bit(WDOG_ACTIVE, &wdd->status);
+ 		wd_data->last_keepalive = started_at;
++		wd_data->last_hw_keepalive = started_at;
+ 		watchdog_update_worker(wdd);
+ 	}
  
 -- 
 2.20.1
