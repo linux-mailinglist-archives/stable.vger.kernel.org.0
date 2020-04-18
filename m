@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA78C1AEF28
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 815641AF142
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727815AbgDROlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727806AbgDROlN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 18 Apr 2020 10:41:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49922 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727773AbgDROlJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:41:09 -0400
+        id S1727789AbgDROlK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:41:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9D9E22245;
-        Sat, 18 Apr 2020 14:41:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08BD121974;
+        Sat, 18 Apr 2020 14:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220868;
-        bh=jLQjo7sVMrW78vbiNqRpHkEm3YVGC3+qwmWujhDT2RA=;
+        s=default; t=1587220869;
+        bh=SgIOKnFekVTZdbg62jtE6S/vCStCN4oFmWjvD0J3m0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G90+x+DRTgSAPiMWvId7MNTvLfEz+KhgwO33G5Q7CrOnKvCn4/PbhzgyZV0DP8cfB
-         FoCrJPh+YlIW6PgK0cOCqafzXMZ23UOwUQ7RyTIBEDzp6LgbLHE+dHOEaSd7CoXGhi
-         uk4q7WWgRGLHdGHv/BHcnNEHSiZDX/Ws88pJ1+Ks=
+        b=EhouNq0b9t5KMThH1WQiovYXvI/1VAmFFZP85TdJ7M79AKFVcuZmSOeC6ku445T0P
+         2d2gcpF4RzlSIOfL7uRsVjH7fshHybOir2nASnXKqN3FHCTu94BpOsyyAMtRBudKAY
+         LaJhiIAJxPog5flGh9fu+Y2pID+OhYTYFhvtf52A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wu Bo <wubo40@huawei.com>, Lee Duncan <lduncan@suse.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, open-iscsi@googlegroups.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 17/78] scsi: iscsi: Report unbind session event when the target has been removed
-Date:   Sat, 18 Apr 2020 10:39:46 -0400
-Message-Id: <20200418144047.9013-17-sashal@kernel.org>
+Cc:     Santosh Sivaraj <santosh@fossix.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
+Subject: [PATCH AUTOSEL 5.4 18/78] tools/test/nvdimm: Fix out of tree build
+Date:   Sat, 18 Apr 2020 10:39:47 -0400
+Message-Id: <20200418144047.9013-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
 References: <20200418144047.9013-1-sashal@kernel.org>
@@ -44,58 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Bo <wubo40@huawei.com>
+From: Santosh Sivaraj <santosh@fossix.org>
 
-[ Upstream commit 13e60d3ba287d96eeaf1deaadba51f71578119a3 ]
+[ Upstream commit 1f776799628139d0da47e710ad86eb58d987ff66 ]
 
-If the daemon is restarted or crashes while logging out of a session, the
-unbind session event sent by the kernel is not processed and is lost.  When
-the daemon starts again, the session can't be unbound because the daemon is
-waiting for the event message. However, the kernel has already logged out
-and the event will not be resent.
+Out of tree build using
 
-When iscsid restart is complete, logout session reports error:
+   make M=tools/test/nvdimm O=/tmp/build -C /tmp/build
 
-Logging out of session [sid: 6, target: iqn.xxxxx, portal: xx.xx.xx.xx,3260]
-iscsiadm: Could not logout of [sid: 6, target: iscsiadm -m node iqn.xxxxx, portal: xx.xx.xx.xx,3260].
-iscsiadm: initiator reported error (9 - internal error)
-iscsiadm: Could not logout of all requested sessions
+fails with the following error
 
-Make sure the unbind event is emitted.
+make: Entering directory '/tmp/build'
+  CC [M]  tools/testing/nvdimm/test/nfit.o
+linux/tools/testing/nvdimm/test/nfit.c:19:10: fatal error: nd-core.h: No such file or directory
+   19 | #include <nd-core.h>
+      |          ^~~~~~~~~~~
+compilation terminated.
 
-[mkp: commit desc and applied by hand since patch was mangled]
+That is because the kbuild file uses $(src) which points to
+tools/testing/nvdimm, $(srctree) correctly points to root of the linux
+source tree.
 
-Link: https://lore.kernel.org/r/4eab1771-2cb3-8e79-b31c-923652340e99@huawei.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
+Link: https://lore.kernel.org/r/20200114054051.4115790-1-santosh@fossix.org
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/testing/nvdimm/Kbuild      | 4 ++--
+ tools/testing/nvdimm/test/Kbuild | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 271afea654e2b..a5c78b38d3022 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2012,7 +2012,7 @@ static void __iscsi_unbind_session(struct work_struct *work)
- 	if (session->target_id == ISCSI_MAX_TARGET) {
- 		spin_unlock_irqrestore(&session->lock, flags);
- 		mutex_unlock(&ihost->mutex);
--		return;
-+		goto unbind_session_exit;
- 	}
+diff --git a/tools/testing/nvdimm/Kbuild b/tools/testing/nvdimm/Kbuild
+index c4a9196d794c9..cb80d3b811792 100644
+--- a/tools/testing/nvdimm/Kbuild
++++ b/tools/testing/nvdimm/Kbuild
+@@ -21,8 +21,8 @@ DRIVERS := ../../../drivers
+ NVDIMM_SRC := $(DRIVERS)/nvdimm
+ ACPI_SRC := $(DRIVERS)/acpi/nfit
+ DAX_SRC := $(DRIVERS)/dax
+-ccflags-y := -I$(src)/$(NVDIMM_SRC)/
+-ccflags-y += -I$(src)/$(ACPI_SRC)/
++ccflags-y := -I$(srctree)/drivers/nvdimm/
++ccflags-y += -I$(srctree)/drivers/acpi/nfit/
  
- 	target_id = session->target_id;
-@@ -2024,6 +2024,8 @@ static void __iscsi_unbind_session(struct work_struct *work)
- 		ida_simple_remove(&iscsi_sess_ida, target_id);
+ obj-$(CONFIG_LIBNVDIMM) += libnvdimm.o
+ obj-$(CONFIG_BLK_DEV_PMEM) += nd_pmem.o
+diff --git a/tools/testing/nvdimm/test/Kbuild b/tools/testing/nvdimm/test/Kbuild
+index fb3c3d7cdb9bd..75baebf8f4ba1 100644
+--- a/tools/testing/nvdimm/test/Kbuild
++++ b/tools/testing/nvdimm/test/Kbuild
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+-ccflags-y := -I$(src)/../../../../drivers/nvdimm/
+-ccflags-y += -I$(src)/../../../../drivers/acpi/nfit/
++ccflags-y := -I$(srctree)/drivers/nvdimm/
++ccflags-y += -I$(srctree)/drivers/acpi/nfit/
  
- 	scsi_remove_target(&session->dev);
-+
-+unbind_session_exit:
- 	iscsi_session_event(session, ISCSI_KEVENT_UNBIND_SESSION);
- 	ISCSI_DBG_TRANS_SESSION(session, "Completed target removal\n");
- }
+ obj-m += nfit_test.o
+ obj-m += nfit_test_iomap.o
 -- 
 2.20.1
 
