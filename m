@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2491AEDA9
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF8221AEDA7
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:53:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726530AbgDRNxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 09:53:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54552 "EHLO mail.kernel.org"
+        id S1726363AbgDRNs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 09:48:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726141AbgDRNsY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 09:48:24 -0400
+        id S1726353AbgDRNs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 09:48:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9261E21BE5;
-        Sat, 18 Apr 2020 13:48:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B793A2224E;
+        Sat, 18 Apr 2020 13:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587217704;
-        bh=Lue7JNmC6TQZFYuMx+fDmPgbAJvMm8ETEtKpp+9SUnw=;
+        s=default; t=1587217705;
+        bh=Agzc/Ytq7wcrS0tRGzK7u1Nb+yTiJQUNi1nRpquZG7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BYwV4lkOGbzCqxmIaDxCTF7DZJPpaAPOvogxa8FhV1+0HCKkMFIoA0NXLDWFFROd6
-         tiFxF9KhwNc3H/TMBV9U88lioxTAE6qpzZAk4lbddlxZHckxEEkLc8mlpwlzX3gfbA
-         eIEVmqtnjSi78XrxxqJmp8CLd7nkoGJNEm3dD7g0=
+        b=ve8WA/SFKQUgkIITkfV1zB1k5XoqETDfH+gmB+SduqyLpt1p6L9ixe4hNh2LegH/D
+         eaw56X5wng1mboHlRzk8B+nvpb4nfYjGxympLYeT1PBg9qgNNlfOI5QjQA4ghV4Llr
+         eMSFffvGxLl8JH2WaMXoishc1JrTPKY3l2VDFZFA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.6 07/73] iommu/vt-d: Fix mm reference leak
-Date:   Sat, 18 Apr 2020 09:47:09 -0400
-Message-Id: <20200418134815.6519-7-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 08/73] scsi: lpfc: Fix kasan slab-out-of-bounds error in lpfc_unreg_login
+Date:   Sat, 18 Apr 2020 09:47:10 -0400
+Message-Id: <20200418134815.6519-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
 References: <20200418134815.6519-1-sashal@kernel.org>
@@ -45,45 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Pan <jacob.jun.pan@linux.intel.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 902baf61adf6b187f0a6b789e70d788ea71ff5bc ]
+[ Upstream commit 38503943c89f0bafd9e3742f63f872301d44cbea ]
 
-Move canonical address check before mmget_not_zero() to avoid mm
-reference leak.
+The following kasan bug was called out:
 
-Fixes: 9d8c3af31607 ("iommu/vt-d: IOMMU Page Request needs to check if address is canonical.")
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+ BUG: KASAN: slab-out-of-bounds in lpfc_unreg_login+0x7c/0xc0 [lpfc]
+ Read of size 2 at addr ffff889fc7c50a22 by task lpfc_worker_3/6676
+ ...
+ Call Trace:
+ dump_stack+0x96/0xe0
+ ? lpfc_unreg_login+0x7c/0xc0 [lpfc]
+ print_address_description.constprop.6+0x1b/0x220
+ ? lpfc_unreg_login+0x7c/0xc0 [lpfc]
+ ? lpfc_unreg_login+0x7c/0xc0 [lpfc]
+ __kasan_report.cold.9+0x37/0x7c
+ ? lpfc_unreg_login+0x7c/0xc0 [lpfc]
+ kasan_report+0xe/0x20
+ lpfc_unreg_login+0x7c/0xc0 [lpfc]
+ lpfc_sli_def_mbox_cmpl+0x334/0x430 [lpfc]
+ ...
+
+When processing the completion of a "Reg Rpi" login mailbox command in
+lpfc_sli_def_mbox_cmpl, a call may be made to lpfc_unreg_login. The vpi is
+extracted from the completing mailbox context and passed as an input for
+the next. However, the vpi stored in the mailbox command context is an
+absolute vpi, which for SLI4 represents both base + offset.  When used with
+a non-zero base component, (function id > 0) this results in an
+out-of-range access beyond the allocated phba->vpi_ids array.
+
+Fix by subtracting the function's base value to get an accurate vpi number.
+
+Link: https://lore.kernel.org/r/20200322181304.37655-2-jsmart2021@gmail.com
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-svm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/intel-svm.c b/drivers/iommu/intel-svm.c
-index edac769fc03d8..2998418f0a383 100644
---- a/drivers/iommu/intel-svm.c
-+++ b/drivers/iommu/intel-svm.c
-@@ -611,14 +611,15 @@ static irqreturn_t prq_event_thread(int irq, void *d)
- 		 * any faults on kernel addresses. */
- 		if (!svm->mm)
- 			goto bad_req;
--		/* If the mm is already defunct, don't handle faults. */
--		if (!mmget_not_zero(svm->mm))
--			goto bad_req;
- 
- 		/* If address is not canonical, return invalid response */
- 		if (!is_canonical_address(address))
- 			goto bad_req;
- 
-+		/* If the mm is already defunct, don't handle faults. */
-+		if (!mmget_not_zero(svm->mm))
-+			goto bad_req;
-+
- 		down_read(&svm->mm->mmap_sem);
- 		vma = find_extend_vma(svm->mm, address);
- 		if (!vma || address < vma->vm_start)
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 64002b0cb02d4..5939ea0e3b1eb 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -2511,6 +2511,8 @@ lpfc_sli_def_mbox_cmpl(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
+ 	    !pmb->u.mb.mbxStatus) {
+ 		rpi = pmb->u.mb.un.varWords[0];
+ 		vpi = pmb->u.mb.un.varRegLogin.vpi;
++		if (phba->sli_rev == LPFC_SLI_REV4)
++			vpi -= phba->sli4_hba.max_cfg_param.vpi_base;
+ 		lpfc_unreg_login(phba, vpi, rpi, pmb);
+ 		pmb->vport = vport;
+ 		pmb->mbox_cmpl = lpfc_sli_def_mbox_cmpl;
 -- 
 2.20.1
 
