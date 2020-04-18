@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1089A1AF084
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0231B1AF072
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:52:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728549AbgDROuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:50:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54136 "EHLO mail.kernel.org"
+        id S1728536AbgDROnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:43:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728524AbgDROnP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:43:15 -0400
+        id S1728526AbgDROnQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:43:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C2FE22261;
-        Sat, 18 Apr 2020 14:43:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD50A22252;
+        Sat, 18 Apr 2020 14:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220994;
-        bh=XZdZZ43wVeDGvJmL7P9SqIIKj8Dd25pulCg1ZzJLMqk=;
+        s=default; t=1587220995;
+        bh=PqxfRo3S7O7cb2pVeZtRdeQxVAfzEQvCA3RDsdW1uqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbU5R3INFrJyk+mWjLn0ArkTAzf7iOmLLN3f2f5psvgc71RQwXJtrnschPj9B1F/e
-         L2SgPhFKZP5AASidVgymHivtFEhw48Co53KHfPiJfdxpkR0NMQsxMIMUfJsMpByL2d
-         wFZLXerocZdf6lknyCikchasAGaST2kj0GePflQ4=
+        b=tl46rJbf6EqhpIgAJ3RdXa/vCGZJYZW+InXa6zLA5s5kcqAdZz+vi+QfxfokVKdSR
+         wEqAZGoDJn9QD/+lwe/LYj1xGX9js/gFeyJkLzFrxpll4f8RrHWdC5voSEws2SW8PB
+         TXiWfSwk3K3Zdm8REOHOP3QiqWsoI3QihYMGCnhw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Yang <wenyang@linux.alibaba.com>,
-        Corey Minyard <minyard@acm.org>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        openipmi-developer@lists.sourceforge.net,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 37/47] ipmi: fix hung processes in __get_guid()
-Date:   Sat, 18 Apr 2020 10:42:17 -0400
-Message-Id: <20200418144227.9802-37-sashal@kernel.org>
+Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 38/47] scsi: mpt3sas: Fix kernel panic observed on soft HBA unplug
+Date:   Sat, 18 Apr 2020 10:42:18 -0400
+Message-Id: <20200418144227.9802-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
 References: <20200418144227.9802-1-sashal@kernel.org>
@@ -46,70 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 32830a0534700f86366f371b150b17f0f0d140d7 ]
+[ Upstream commit cc41f11a21a51d6869d71e525a7264c748d7c0d7 ]
 
-The wait_event() function is used to detect command completion.
-When send_guid_cmd() returns an error, smi_send() has not been
-called to send data. Therefore, wait_event() should not be used
-on the error path, otherwise it will cause the following warning:
+Generic protection fault type kernel panic is observed when user performs
+soft (ordered) HBA unplug operation while IOs are running on drives
+connected to HBA.
 
-[ 1361.588808] systemd-udevd   D    0  1501   1436 0x00000004
-[ 1361.588813]  ffff883f4b1298c0 0000000000000000 ffff883f4b188000 ffff887f7e3d9f40
-[ 1361.677952]  ffff887f64bd4280 ffffc90037297a68 ffffffff8173ca3b ffffc90000000010
-[ 1361.767077]  00ffc90037297ad0 ffff887f7e3d9f40 0000000000000286 ffff883f4b188000
-[ 1361.856199] Call Trace:
-[ 1361.885578]  [<ffffffff8173ca3b>] ? __schedule+0x23b/0x780
-[ 1361.951406]  [<ffffffff8173cfb6>] schedule+0x36/0x80
-[ 1362.010979]  [<ffffffffa071f178>] get_guid+0x118/0x150 [ipmi_msghandler]
-[ 1362.091281]  [<ffffffff810d5350>] ? prepare_to_wait_event+0x100/0x100
-[ 1362.168533]  [<ffffffffa071f755>] ipmi_register_smi+0x405/0x940 [ipmi_msghandler]
-[ 1362.258337]  [<ffffffffa0230ae9>] try_smi_init+0x529/0x950 [ipmi_si]
-[ 1362.334521]  [<ffffffffa022f350>] ? std_irq_setup+0xd0/0xd0 [ipmi_si]
-[ 1362.411701]  [<ffffffffa0232bd2>] init_ipmi_si+0x492/0x9e0 [ipmi_si]
-[ 1362.487917]  [<ffffffffa0232740>] ? ipmi_pci_probe+0x280/0x280 [ipmi_si]
-[ 1362.568219]  [<ffffffff810021a0>] do_one_initcall+0x50/0x180
-[ 1362.636109]  [<ffffffff812231b2>] ? kmem_cache_alloc_trace+0x142/0x190
-[ 1362.714330]  [<ffffffff811b2ae1>] do_init_module+0x5f/0x200
-[ 1362.781208]  [<ffffffff81123ca8>] load_module+0x1898/0x1de0
-[ 1362.848069]  [<ffffffff811202e0>] ? __symbol_put+0x60/0x60
-[ 1362.913886]  [<ffffffff8130696b>] ? security_kernel_post_read_file+0x6b/0x80
-[ 1362.998514]  [<ffffffff81124465>] SYSC_finit_module+0xe5/0x120
-[ 1363.068463]  [<ffffffff81124465>] ? SYSC_finit_module+0xe5/0x120
-[ 1363.140513]  [<ffffffff811244be>] SyS_finit_module+0xe/0x10
-[ 1363.207364]  [<ffffffff81003c04>] do_syscall_64+0x74/0x180
+When user performs ordered HBA removal operation, the kernel calls PCI
+device's .remove() call back function where driver is flushing out all the
+outstanding SCSI IO commands with DID_NO_CONNECT host byte and also unmaps
+sg buffers allocated for these IO commands.
 
-Fixes: 50c812b2b951 ("[PATCH] ipmi: add full sysfs support")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Cc: Corey Minyard <minyard@acm.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: openipmi-developer@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # 2.6.17-
-Message-Id: <20200403090408.58745-1-wenyang@linux.alibaba.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+However, in the ordered HBA removal case (unlike of real HBA hot removal),
+HBA device is still alive and hence HBA hardware is performing the DMA
+operations to those buffers on the system memory which are already unmapped
+while flushing out the outstanding SCSI IO commands and this leads to
+kernel panic.
+
+Don't flush out the outstanding IOs from .remove() path in case of ordered
+removal since HBA will be still alive in this case and it can complete the
+outstanding IOs. Flush out the outstanding IOs only in case of 'physical
+HBA hot unplug' where there won't be any communication with the HBA.
+
+During shutdown also it is possible that HBA hardware can perform DMA
+operations on those outstanding IO buffers which are completed with
+DID_NO_CONNECT by the driver from .shutdown(). So same above fix is applied
+in shutdown path as well.
+
+It is safe to drop the outstanding commands when HBA is inaccessible such
+as when permanent PCI failure happens, when HBA is in non-operational
+state, or when someone does a real HBA hot unplug operation. Since driver
+knows that HBA is inaccessible during these cases, it is safe to drop the
+outstanding commands instead of waiting for SCSI error recovery to kick in
+and clear these outstanding commands.
+
+Link: https://lore.kernel.org/r/1585302763-23007-1-git-send-email-sreekanth.reddy@broadcom.com
+Fixes: c666d3be99c0 ("scsi: mpt3sas: wait for and flush running commands on shutdown/unload")
+Cc: stable@vger.kernel.org #v4.14.174+
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index 980eb7c609528..69734b1df7927 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -3134,8 +3134,8 @@ static void __get_guid(struct ipmi_smi *intf)
- 	if (rv)
- 		/* Send failed, no GUID available. */
- 		bmc->dyn_guid_set = 0;
--
--	wait_event(intf->waitq, bmc->dyn_guid_set != 2);
-+	else
-+		wait_event(intf->waitq, bmc->dyn_guid_set != 2);
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index d3c944d997039..5a5e5c3da6571 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -9841,8 +9841,8 @@ static void scsih_remove(struct pci_dev *pdev)
  
- 	/* dyn_guid_set makes the guid data available. */
- 	smp_rmb();
+ 	ioc->remove_host = 1;
+ 
+-	mpt3sas_wait_for_commands_to_complete(ioc);
+-	_scsih_flush_running_cmds(ioc);
++	if (!pci_device_is_present(pdev))
++		_scsih_flush_running_cmds(ioc);
+ 
+ 	_scsih_fw_event_cleanup_queue(ioc);
+ 
+@@ -9919,8 +9919,8 @@ scsih_shutdown(struct pci_dev *pdev)
+ 
+ 	ioc->remove_host = 1;
+ 
+-	mpt3sas_wait_for_commands_to_complete(ioc);
+-	_scsih_flush_running_cmds(ioc);
++	if (!pci_device_is_present(pdev))
++		_scsih_flush_running_cmds(ioc);
+ 
+ 	_scsih_fw_event_cleanup_queue(ioc);
+ 
 -- 
 2.20.1
 
