@@ -2,94 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EDE01AE909
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 02:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7231E1AEA40
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 08:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725856AbgDRA4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Apr 2020 20:56:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47984 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725857AbgDRA4B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Apr 2020 20:56:01 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D9AFC061A0F
-        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 17:56:01 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id e25so3904550ljg.5
-        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 17:56:01 -0700 (PDT)
+        id S1725849AbgDRGnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 02:43:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44560 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725782AbgDRGnc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Apr 2020 02:43:32 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6774C061A0C
+        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 23:43:32 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id d17so2258770pgo.0
+        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 23:43:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Qs6wrAd2usiw5E/NvfsaWD9NmqabIB9KmK4sn2np7kI=;
-        b=U4x5PtWjYno+y9kpXnPl1TultiRn27j4BA37HWNBlr8kBkFNbIKmdMCjn5+3qALEe6
-         dRH3LlE3dIu3QUb/4qxHvQ9l4xMOL9Mb/kG0fdw89qIxkUEdLh7LgPPZdg/O0R+zWCWz
-         DW9rBf94bWBr7s2zss5IpNuRxdZPbLRIPLmgI=
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=b5/8s4WjgnJ9BJ3t8NL65J5PnueoPCCrcsfXQFE5N5A=;
+        b=I276jLUPOtVz+O749sDVzZ75n1/QMKuY788aaK2tg6tOd/l7+ioo54rOIWpmnJf7sJ
+         7npVhPRYtJi+oxWHZ/a5sruUdIoig/xd07CJjm78RhuB6q+sBkE/XvWme1ne1HtYL5jS
+         3hkKXc7obz0m2ExJBq1fpd7WMRv1VhXj4wweNgV+5jwzsRMYQvzATworDegKJNo2sCwE
+         2yYubNuJiPZerGMYX/igyYXjifqhp/+oKq+2PQt++JGzQDPo0iE+AUEKm0ScKz9p3jE6
+         SMJrzYlhPqgjgXRqm1a3Ig3YGi1rbtyipB2ncbvXRkNzhNd/zUbDBRdBZZXPnQ0a+61F
+         PZ2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Qs6wrAd2usiw5E/NvfsaWD9NmqabIB9KmK4sn2np7kI=;
-        b=RTXSMqlyD537A9trEYNHGoKl4+aDFFZpPfStnJL3XcFKHeOHwDIgX7B9Xbol/Bv6x3
-         YVepKratKW5M5fOjlmyauHdwOUDIFCBcxtx4uGJ0cOk4+MUxyZRVKCNH2X3wtdu9q2U3
-         CK3Kw+ESqVACZvDzBumM4+/IiJOalTH22ETC4esr0jdHr4gacIuuw4yMEdfPdokdWS8w
-         3+sfKsckFFyxVW5qS0gu+osPjPFnREwm69wRarwENrOFr+jVuE6X8u61FPXLeelVeBNw
-         6IvtOAQi/Lycr6YprWkgiikueYk2MWUAEt8VTgdmwiH0Dxww9ocVMLUqHll2b2XkOH3j
-         ewIA==
-X-Gm-Message-State: AGi0PubZzFcqlR1fjPrCbK0u3Iw5BVIeoyvJfSl5aLl02i2RBBVxMFcU
-        M0zbC2d9p2BKyhjF/DuAYT1+y7XUAlc=
-X-Google-Smtp-Source: APiQypJar6zoW/iRbr9Awszc7rhhKY7FzkL+kgm76yDAwj5XUnS2/GEjaoOkiYyAxkA2X1ro/9d5Vw==
-X-Received: by 2002:a2e:a584:: with SMTP id m4mr3640164ljp.194.1587171359625;
-        Fri, 17 Apr 2020 17:55:59 -0700 (PDT)
-Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com. [209.85.167.41])
-        by smtp.gmail.com with ESMTPSA id i18sm13715441lfo.57.2020.04.17.17.55.56
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 17 Apr 2020 17:55:57 -0700 (PDT)
-Received: by mail-lf1-f41.google.com with SMTP id k28so3264607lfe.10
-        for <stable@vger.kernel.org>; Fri, 17 Apr 2020 17:55:56 -0700 (PDT)
-X-Received: by 2002:ac2:4859:: with SMTP id 25mr3711879lfy.59.1587171355790;
- Fri, 17 Apr 2020 17:55:55 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=b5/8s4WjgnJ9BJ3t8NL65J5PnueoPCCrcsfXQFE5N5A=;
+        b=X6lr+8X2I2BFBCY9lsAZLlKqeg6Z1Y2i97TU+n29iRn05kBlNFzENPk34rCiSSOTUS
+         rFde1bDQ4RXAe1LECdjfKES8MBu3dDUBmiRbtbcASh501amYmPO7KjBpc8QCrExVcnNI
+         JSJlUxy5YI645k4wZZXBZtf4lm9Vkjtw202XJQj587i+63j/DSp70pByolorImeiHHqN
+         VvOcoSpYCKo5Rgv0xSeV/jT5QsqjxQ9dTJn7mJT4/C8hSO/m4Paf2yvyYKC/vJCJdZap
+         8mZq5yC28FB1eups6oqh9jkV9HhK2p+/cJcZ+z1Xf9SAT536QzIRK1zomUdX7WfBQpep
+         PbBw==
+X-Gm-Message-State: AGi0PuYTzMz6MWhM4aPz6A2L5LnG78c5RmMSJi8KWrk8Z4JNeCn1x85o
+        SPgCaVFZg91WV89P2SX2GgY=
+X-Google-Smtp-Source: APiQypLPC1zcodSLSds+MLuVBAhTF1TpqjPxqCv+amv8jPDuctnVVNA6p/wQHMuLE/dgn/+uyLMhcA==
+X-Received: by 2002:a63:cd03:: with SMTP id i3mr6353982pgg.395.1587192212225;
+        Fri, 17 Apr 2020 23:43:32 -0700 (PDT)
+Received: from localhost ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id e29sm16214499pgn.57.2020.04.17.23.43.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Apr 2020 23:43:31 -0700 (PDT)
+Date:   Sat, 18 Apr 2020 14:43:23 +0800
+From:   Murphy Zhou <jencce.kernel@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     jencce.kernel@gmail.com, lsahlber@redhat.com,
+        stable@vger.kernel.org, stfrench@microsoft.com
+Subject: Re: FAILED: patch "[PATCH] CIFS: check new file size when extending
+ file by fallocate" failed to apply to 5.4-stable tree
+Message-ID: <20200418064323.zbcleoq2inktdhyd@xzhoux.usersys.redhat.com>
+References: <15868733793359@kroah.com>
 MIME-Version: 1.0
-References: <20200205194804.1647-1-mst@semihalf.com> <20200206083149.GK2667@lahna.fi.intel.com>
- <CAMiGqYi2rVAc=hepkY-4S1U_3dJdbR4pOoB0f8tbBL4pzWLdxA@mail.gmail.com>
- <20200207075654.GB2667@lahna.fi.intel.com> <CAMiGqYjmd2edUezEXsX4JBSyOozzks1Pu8miPEviGsx=x59nZQ@mail.gmail.com>
- <20200210101414.GN2667@lahna.fi.intel.com> <CAMiGqYiYp=aSgW-4ro5ceUEaB7g0XhepFg+HZgfPvtvQL9Z1jA@mail.gmail.com>
- <20200310144913.GY2540@lahna.fi.intel.com> <20200417020641.GA145784@google.com>
- <20200417090500.GM2586@lahna.fi.intel.com>
-In-Reply-To: <20200417090500.GM2586@lahna.fi.intel.com>
-From:   Brian Norris <briannorris@chromium.org>
-Date:   Fri, 17 Apr 2020 17:55:44 -0700
-X-Gmail-Original-Message-ID: <CA+ASDXM9mrkGfxtVVNWkqnDNzcok2LAqdfVbQL2RV7yWE0tMWw@mail.gmail.com>
-Message-ID: <CA+ASDXM9mrkGfxtVVNWkqnDNzcok2LAqdfVbQL2RV7yWE0tMWw@mail.gmail.com>
-Subject: Re: [PATCH] pinctrl: cherryview: Add quirk with custom translation of
- ACPI GPIO numbers
-To:     Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc:     linux-gpio@vger.kernel.org,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        stanekm@google.com, stable <stable@vger.kernel.org>,
-        Marcin Wojtas <mw@semihalf.com>, levinale@chromium.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        bgolaszewski@baylibre.com,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15868733793359@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-- Michal (bouncing)
+On Tue, Apr 14, 2020 at 04:09:39PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-On Fri, Apr 17, 2020 at 2:05 AM Mika Westerberg
-<mika.westerberg@linux.intel.com> wrote:
-> I wonder if we can add back the previous GPIO base like this?
+It depends on other commits which does not suit stable, so skip this
+patch on stable trees that does not apply cleanly.
 
-Thanks for the patch! At first glance, it looks like the right kind of
-thing. Unfortunately, it doesn't appear to work quite right for me.
-I'm out of time for today to look any further, but I (or perhaps
-someone else on this email) will try to follow up next week sometime.
+Thanks!
 
-Cheers,
-Brian
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From ef4a632ccc1c7d3fb71a5baae85b79af08b7f94b Mon Sep 17 00:00:00 2001
+> From: Murphy Zhou <jencce.kernel@gmail.com>
+> Date: Wed, 18 Mar 2020 20:43:38 +0800
+> Subject: [PATCH] CIFS: check new file size when extending file by fallocate
+> 
+> xfstests generic/228 checks if fallocate respect RLIMIT_FSIZE.
+> After fallocate mode 0 extending enabled, we can hit this failure.
+> Fix this by check the new file size with vfs helper, return
+> error if file size is larger then RLIMIT_FSIZE(ulimit -f).
+> 
+> This patch has been tested by LTP/xfstests aginst samba and
+> Windows server.
+> 
+> Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+> Signed-off-by: Murphy Zhou <jencce.kernel@gmail.com>
+> Signed-off-by: Steve French <stfrench@microsoft.com>
+> CC: Stable <stable@vger.kernel.org>
+> 
+> diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+> index b0759c8aa6f5..9c9258fc8756 100644
+> --- a/fs/cifs/smb2ops.c
+> +++ b/fs/cifs/smb2ops.c
+> @@ -3255,6 +3255,10 @@ static long smb3_simple_falloc(struct file *file, struct cifs_tcon *tcon,
+>  	 * Extending the file
+>  	 */
+>  	if ((keep_size == false) && i_size_read(inode) < off + len) {
+> +		rc = inode_newsize_ok(inode, off + len);
+> +		if (rc)
+> +			goto out;
+> +
+>  		if ((cifsi->cifsAttrs & FILE_ATTRIBUTE_SPARSE_FILE) == 0)
+>  			smb2_set_sparse(xid, tcon, cfile, inode, false);
+>  
+> 
+
+-- 
+Murphy
