@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D981AEE6F
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C765D1AEE8D
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726576AbgDROJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:09:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37154 "EHLO mail.kernel.org"
+        id S1726914AbgDRONc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:13:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726381AbgDROJh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:09:37 -0400
+        id S1726544AbgDROJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:09:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8966C22264;
-        Sat, 18 Apr 2020 14:09:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA5C12224F;
+        Sat, 18 Apr 2020 14:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587218977;
-        bh=t+ZPscPzbyfoTQHlhnzdFV0Ms4DnznSLNomF0dIU/q8=;
+        s=default; t=1587218978;
+        bh=ncBNWmIN+p01sKE/CXGoQTUf+xcaqNfhGJqhi7zYLoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cNOpOwh21cNpoqE8mlZgZwlPEpugpnJXu/TnAQFSec9ehhL+VpUdlY0b1kuj2iTyl
-         /9x16LcXozkIUjKvRxxEZJ59nJw9tSG2/dOwEcra/V9l/f+6UtUHVLJkOx4lOX4O6H
-         UUeFpwhc2/9y6UGnP13xUuI/g34N/vZ1XYa+1g90=
+        b=Ns9lN1Wgo7M7YG3jMrmfEHGw1W1nVh7RyP6M+tvyPvW08kntIzclVIAu+PufO1cVA
+         MdCauvNI+XD19q8/ghgysdleF4etXC2wmVT5kRzlk2TcmnUBwGnX8wJtAm0/Kv2kCP
+         LU8EOeEmQlBPapnG/OKgZSmVLfRObAL9RBbrX2ik=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Isabel Zhang <isabel.zhang@amd.com>,
-        Alvin Lee <Alvin.Lee2@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.5 22/75] drm/amd/display: Update stream adjust in dc_stream_adjust_vmin_vmax
-Date:   Sat, 18 Apr 2020 10:08:17 -0400
-Message-Id: <20200418140910.8280-22-sashal@kernel.org>
+Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.5 23/75] dma-direct: fix data truncation in dma_direct_get_required_mask()
+Date:   Sat, 18 Apr 2020 10:08:18 -0400
+Message-Id: <20200418140910.8280-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
 References: <20200418140910.8280-1-sashal@kernel.org>
@@ -46,41 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isabel Zhang <isabel.zhang@amd.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 346d8a0a3c91888a412c2735d69daa09c00f0203 ]
+[ Upstream commit cdcda0d1f8f4ab84efe7cd9921c98364398aefd7 ]
 
-[Why]
-After v_total_min and max are updated in vrr structure, the changes are
-not reflected in stream adjust. When these values are read from stream
-adjust it does not reflect the actual state of the system.
+The upper 32-bit physical address gets truncated inadvertently
+when dma_direct_get_required_mask() invokes phys_to_dma_direct().
+This results in dma_addressing_limited() return incorrect value
+when used in platforms with LPAE enabled.
+Fix it here by explicitly type casting 'max_pfn' to phys_addr_t
+in order to prevent overflow of intermediate value while evaluating
+'(max_pfn - 1) << PAGE_SHIFT'.
 
-[How]
-Set stream adjust values equal to vrr adjust values after vrr adjust
-values are updated.
-
-Signed-off-by: Isabel Zhang <isabel.zhang@amd.com>
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/dma/direct.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 8904a85186aab..7fdbb47e8c259 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -283,6 +283,8 @@ bool dc_stream_adjust_vmin_vmax(struct dc *dc,
- 	int i = 0;
- 	bool ret = false;
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 32ec69cdba544..310d96197d494 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -51,7 +51,8 @@ static inline struct page *dma_direct_to_page(struct device *dev,
  
-+	stream->adjust = *adjust;
-+
- 	for (i = 0; i < MAX_PIPES; i++) {
- 		struct pipe_ctx *pipe = &dc->current_state->res_ctx.pipe_ctx[i];
+ u64 dma_direct_get_required_mask(struct device *dev)
+ {
+-	u64 max_dma = phys_to_dma_direct(dev, (max_pfn - 1) << PAGE_SHIFT);
++	phys_addr_t phys = (phys_addr_t)(max_pfn - 1) << PAGE_SHIFT;
++	u64 max_dma = phys_to_dma_direct(dev, phys);
  
+ 	return (1ULL << (fls64(max_dma) - 1)) * 2 - 1;
+ }
 -- 
 2.20.1
 
