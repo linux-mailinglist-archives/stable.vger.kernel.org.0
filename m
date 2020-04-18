@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B9A1AEF5E
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C94CB1AF0A9
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728414AbgDROmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:42:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53012 "EHLO mail.kernel.org"
+        id S1728147AbgDROvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:51:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728405AbgDROmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:42:43 -0400
+        id S1728418AbgDROmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:42:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EAB52224F;
-        Sat, 18 Apr 2020 14:42:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7A0522250;
+        Sat, 18 Apr 2020 14:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220963;
-        bh=j6iGxe6hgIhvhNhibRWCBc45s0hch/cUkLVkSENAXGI=;
+        s=default; t=1587220965;
+        bh=qh+rRQ26snjET7PSeU8hJK8HLdSc6NZMY9RE8q3qkKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLn+XIU56ubevZudsbJhJkAxrGhPSxHTMFWzMPkRq5B2Yn3g4oiRlUiR5kptDi9Gy
-         /8+h/LS8Hjn16xxqM4zCYxjMT8zTxkZ28nIzZzerbxLgczAp30qxYh8FqdeV5KUW1S
-         DnGQRFrs4cM4yv4alOloZnbpIvU68BkoOckkgsdE=
+        b=Rxfu24ofc7lpcp49YJET/5tHbvJt4Wk9Ek4V72eiBOJZtm1aRdz2qXrFwFx3xkj/L
+         WuWpwg43ZlAh+k2EyfMh2DNNPh7uKc2dtf4hiHuPHJnc/ySmhcDfxMLNWQW87r0Y/Q
+         qAram/QKvOlKF5CoCP2xGslppby9rJ43Z76SzTc4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Keith Busch <kbusch@kernel.org>,
-        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 13/47] nvme: fix deadlock caused by ANA update wrong locking
-Date:   Sat, 18 Apr 2020 10:41:53 -0400
-Message-Id: <20200418144227.9802-13-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Ingo Molnar <mingo@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        NeilBrown <neilb@suse.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Waiman Long <longman@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 14/47] kernel/gcov/fs.c: gcov_seq_next() should increase position index
+Date:   Sat, 18 Apr 2020 10:41:54 -0400
+Message-Id: <20200418144227.9802-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
 References: <20200418144227.9802-1-sashal@kernel.org>
@@ -43,70 +51,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 657f1975e9d9c880fa13030e88ba6cc84964f1db ]
+[ Upstream commit f4d74ef6220c1eda0875da30457bef5c7111ab06 ]
 
-The deadlock combines 4 flows in parallel:
-- ns scanning (triggered from reconnect)
-- request timeout
-- ANA update (triggered from reconnect)
-- I/O coming into the mpath device
+If seq_file .next function does not change position index, read after
+some lseek can generate unexpected output.
 
-(1) ns scanning triggers disk revalidation -> update disk info ->
-    freeze queue -> but blocked, due to (2)
-
-(2) timeout handler reference the g_usage_counter - > but blocks in
-    the transport .timeout() handler, due to (3)
-
-(3) the transport timeout handler (indirectly) calls nvme_stop_queue() ->
-    which takes the (down_read) namespaces_rwsem - > but blocks, due to (4)
-
-(4) ANA update takes the (down_write) namespaces_rwsem -> calls
-    nvme_mpath_set_live() -> which synchronize the ns_head srcu
-    (see commit 504db087aacc) -> but blocks, due to (5)
-
-(5) I/O came into nvme_mpath_make_request -> took srcu_read_lock ->
-    direct_make_request > blk_queue_enter -> but blocked, due to (1)
-
-==> the request queue is under freeze -> deadlock.
-
-The fix is making ANA update take a read lock as the namespaces list
-is not manipulated, it is just the ns and ns->head that are being
-updated (which is protected with the ns->head lock).
-
-Fixes: 0d0b660f214dc ("nvme: add ANA support")
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: NeilBrown <neilb@suse.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Waiman Long <longman@redhat.com>
+Link: http://lkml.kernel.org/r/f65c6ee7-bd00-f910-2f8a-37cc67e4ff88@virtuozzo.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/gcov/fs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index e8bc25aed44ca..588864beabd80 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -402,7 +402,7 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
- 	if (!nr_nsids)
- 		return 0;
+diff --git a/kernel/gcov/fs.c b/kernel/gcov/fs.c
+index 6e40ff6be083d..291e0797125b6 100644
+--- a/kernel/gcov/fs.c
++++ b/kernel/gcov/fs.c
+@@ -109,9 +109,9 @@ static void *gcov_seq_next(struct seq_file *seq, void *data, loff_t *pos)
+ {
+ 	struct gcov_iterator *iter = data;
  
--	down_write(&ctrl->namespaces_rwsem);
-+	down_read(&ctrl->namespaces_rwsem);
- 	list_for_each_entry(ns, &ctrl->namespaces, list) {
- 		unsigned nsid = le32_to_cpu(desc->nsids[n]);
++	(*pos)++;
+ 	if (gcov_iter_next(iter))
+ 		return NULL;
+-	(*pos)++;
  
-@@ -413,7 +413,7 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
- 		if (++n == nr_nsids)
- 			break;
- 	}
--	up_write(&ctrl->namespaces_rwsem);
-+	up_read(&ctrl->namespaces_rwsem);
- 	return 0;
+ 	return iter;
  }
- 
 -- 
 2.20.1
 
