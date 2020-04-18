@@ -2,88 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925BC1AEFD9
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:48:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5DFA1AF1AB
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 17:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726435AbgDROp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:45:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57200 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727914AbgDROpB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:45:01 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FF5A22260;
-        Sat, 18 Apr 2020 14:45:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587221100;
-        bh=G9LiqHyPZiTF8B+ODzNtJIvbuwTfYcDs9golXx+qZ3A=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fA57RqPTYRHVNq1S8AFhFroK7UndC+pxDGfxVSXsRY5Fq0KqMgW4KqIREre2N/sfZ
-         Sh3swO1S0qnwnwSUTN7INLdzzzzgCUubmV6Ogr/KFK6QvBLXpCOS29/sqOnOvfqzcx
-         Vgp7S8s+iqkpHswgFgResceIXrV2Layw0VkEqdNw=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.4 19/19] ALSA: hda: Fix potential access overflow in beep helper
-Date:   Sat, 18 Apr 2020 10:44:36 -0400
-Message-Id: <20200418144436.10818-19-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200418144436.10818-1-sashal@kernel.org>
-References: <20200418144436.10818-1-sashal@kernel.org>
+        id S1726785AbgDRPbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 11:31:55 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:50440 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726359AbgDRPby (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Apr 2020 11:31:54 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 03IFSGGm157503;
+        Sat, 18 Apr 2020 15:31:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=corp-2020-01-29;
+ bh=J2kcKHBsQ/rNEwbufVTDX2JwS72Xi6HwFgB/KpwKK/U=;
+ b=swvLn91XdX9ei8YYb7K9P86sIMsQiX0ZPl3k9l8bEfd2Sx7z68AVa8+0BtDE/OxK1AWt
+ y4kig5YT+xCrVkC6zG/v7MI7t+c3aNOxOZmyeVLLM2iJ07V9jUAqBvJbkhHBHVcXnI1G
+ tbw1hxSehD6L5kflLN3YeZ9KzujFXZKUG8R8KdzmZbDKz0j7mPE5n4ED4Ax6yK/HHok2
+ LgqjMZOazTeMynIF6iYcvtrfwg85/GkueDUmGzsmot2x8vwar95iLWZ8d2K+0uERfoO+
+ pRfpxmv6NKteadcP281Jt8nukK7CBL6S34+8lAFMwGn6tLlo2O3rtudbYYZrX1zIDZH7 gw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by aserp2120.oracle.com with ESMTP id 30fsgkhbd5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 18 Apr 2020 15:31:22 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 03IFRD8f062715;
+        Sat, 18 Apr 2020 15:31:22 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by userp3020.oracle.com with ESMTP id 30frvm3dfp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Sat, 18 Apr 2020 15:31:22 +0000
+Received: from userp3020.oracle.com (userp3020.oracle.com [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 03IFVLpb070115;
+        Sat, 18 Apr 2020 15:31:21 GMT
+Received: from control-surface.uk.oracle.com (dhcp-10-175-171-153.vpn.oracle.com [10.175.171.153])
+        by userp3020.oracle.com with ESMTP id 30frvm3df1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
+        Sat, 18 Apr 2020 15:31:21 +0000
+Received: from control-surface.uk.oracle.com (localhost [127.0.0.1])
+        by control-surface.uk.oracle.com (8.15.2/8.15.2) with ESMTPS id 03IFVIGC019972
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+        Sat, 18 Apr 2020 16:31:18 +0100
+Received: (from jch@localhost)
+        by control-surface.uk.oracle.com (8.15.2/8.15.2/Submit) id 03IFVIRB019971;
+        Sat, 18 Apr 2020 16:31:18 +0100
+X-Authentication-Warning: control-surface.uk.oracle.com: jch set sender to john.haxby@oracle.com using -f
+From:   John Haxby <john.haxby@oracle.com>
+To:     "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>
+Cc:     John Haxby <john.haxby@oracle.com>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 1/1] ipv6: fix restrict IPV6_ADDRFORM operation
+Date:   Sat, 18 Apr 2020 16:30:49 +0100
+Message-Id: <2728d063cd3c34c25eec068e06a0676199a84f62.1587221721.git.john.haxby@oracle.com>
+X-Mailer: git-send-email 2.25.3
+In-Reply-To: <cover.1587221721.git.john.haxby@oracle.com>
+References: <cover.1587221721.git.john.haxby@oracle.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9595 signatures=668686
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 priorityscore=1501
+ lowpriorityscore=0 mlxlogscore=959 malwarescore=0 clxscore=1011
+ spamscore=0 bulkscore=0 phishscore=0 suspectscore=0 impostorscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2003020000 definitions=main-2004180130
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+Commit b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation") fixed a
+problem found by syzbot an unfortunate logic error meant that it
+also broke IPV6_ADDRFORM.
 
-[ Upstream commit 0ad3f0b384d58f3bd1f4fb87d0af5b8f6866f41a ]
+Rearrange the checks so that the earlier test is just one of the series
+of checks made before moving the socket from IPv6 to IPv4.
 
-The beep control helper function blindly stores the values in two
-stereo channels no matter whether the actual control is mono or
-stereo.  This is practically harmless, but it annoys the recently
-introduced sanity check, resulting in an error when the checker is
-enabled.
-
-This patch corrects the behavior to store only on the defined array
-member.
-
-Fixes: 0401e8548eac ("ALSA: hda - Move beep helper functions to hda_beep.c")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207139
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200407084402.25589-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation")
+Signed-off-by: John Haxby <john.haxby@oracle.com>
+Cc: stable@vger.kernel.org
 ---
- sound/pci/hda/hda_beep.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/ipv6/ipv6_sockglue.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/sound/pci/hda/hda_beep.c b/sound/pci/hda/hda_beep.c
-index c397e7da0eacf..7ccfb09535e14 100644
---- a/sound/pci/hda/hda_beep.c
-+++ b/sound/pci/hda/hda_beep.c
-@@ -310,8 +310,12 @@ int snd_hda_mixer_amp_switch_get_beep(struct snd_kcontrol *kcontrol,
- {
- 	struct hda_codec *codec = snd_kcontrol_chip(kcontrol);
- 	struct hda_beep *beep = codec->beep;
-+	int chs = get_amp_channels(kcontrol);
-+
- 	if (beep && (!beep->enabled || !ctl_has_mute(kcontrol))) {
--		ucontrol->value.integer.value[0] =
-+		if (chs & 1)
-+			ucontrol->value.integer.value[0] = beep->enabled;
-+		if (chs & 2)
- 			ucontrol->value.integer.value[1] = beep->enabled;
- 		return 0;
- 	}
+diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
+index debdaeba5d8c..18d05403d3b5 100644
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -183,15 +183,14 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+ 					retv = -EBUSY;
+ 					break;
+ 				}
+-			} else if (sk->sk_protocol == IPPROTO_TCP) {
+-				if (sk->sk_prot != &tcpv6_prot) {
+-					retv = -EBUSY;
+-					break;
+-				}
+-				break;
+-			} else {
++			}
++			if (sk->sk_protocol == IPPROTO_TCP &&
++			    sk->sk_prot != &tcpv6_prot) {
++				retv = -EBUSY;
+ 				break;
+ 			}
++			if (sk->sk_protocol != IPPROTO_TCP)
++				break;
+ 			if (sk->sk_state != TCP_ESTABLISHED) {
+ 				retv = -ENOTCONN;
+ 				break;
 -- 
-2.20.1
+2.25.3
 
