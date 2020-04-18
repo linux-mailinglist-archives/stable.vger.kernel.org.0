@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB53C1AEE04
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B014F1AEE45
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726874AbgDROKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:10:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38184 "EHLO mail.kernel.org"
+        id S1726593AbgDROMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:12:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726857AbgDROKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:10:13 -0400
+        id S1726885AbgDROKP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:10:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A653621D7E;
-        Sat, 18 Apr 2020 14:10:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8C1821D82;
+        Sat, 18 Apr 2020 14:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587219013;
-        bh=MuIOjmunTWEFlt5HQIFx2mjqJzIGMAOGls5X8CybAR8=;
+        s=default; t=1587219015;
+        bh=8bPoquuPIG8DCqchvpjw9lTLeL0MKv0uYeSKMsQmhRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VMw/W9efSZyCb6c1SfwUrOiOpw7B5kHEu/Lzbq0mT7SepFMxVSSeOfgEXNwYJEG/8
-         88VLOXPdLNcbYIp9yzIq+Zgn/KBY5yRxhsZZQYBu5h+i0lgkQ53+2diOBZyCQjwfMo
-         yeU/IgiQIZVcnX+vpjJYA3H9SZv9HtRZaRF/cYVU=
+        b=ABvp1WFoP+xmCsCQwAcxwjqNtmmchNSz/z1ha6cT+kNRP8aS/s5R5ol5QpY05HwMx
+         E+KN4qi+9pL7fLy4VhYc9VaC3vY8dJgAiol5kbqrzlSGJF8wzF/07lHvzEj/cYlA8C
+         yJMQyiVsyYKeWu6cijxY8lxA1JQbFTW8t8fbULW0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yicheng Li <yichengli@chromium.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Gwendal Grignou <gwendal@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 50/75] platform/chrome: cros_ec: Query EC protocol version if EC transitions between RO/RW
-Date:   Sat, 18 Apr 2020 10:08:45 -0400
-Message-Id: <20200418140910.8280-50-sashal@kernel.org>
+Cc:     Changwei Ge <chge@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
+Subject: [PATCH AUTOSEL 5.5 51/75] ocfs2: no need try to truncate file beyond i_size
+Date:   Sat, 18 Apr 2020 10:08:46 -0400
+Message-Id: <20200418140910.8280-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
 References: <20200418140910.8280-1-sashal@kernel.org>
@@ -45,102 +50,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yicheng Li <yichengli@chromium.org>
+From: Changwei Ge <chge@linux.alibaba.com>
 
-[ Upstream commit 42cd0ab476e2daffc23982c37822a78f9a53cdd5 ]
+[ Upstream commit 783fda856e1034dee90a873f7654c418212d12d7 ]
 
-RO and RW of EC may have different EC protocol version. If EC transitions
-between RO and RW, but AP does not reboot (this is true for fingerprint
-microcontroller / cros_fp, but not true for main ec / cros_ec), the AP
-still uses the protocol version queried before transition, which can
-cause problems. In the case of fingerprint microcontroller, this causes
-AP to send the wrong version of EC_CMD_GET_NEXT_EVENT to RO in the
-interrupt handler, which in turn prevents RO to clear the interrupt
-line to AP, in an infinite loop.
+Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
+exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
+size.  This restriction is not necessary and violates fallocate(2)
+semantics.
 
-Once an EC_HOST_EVENT_INTERFACE_READY is received, we know that there
-might have been a transition between RO and RW, so re-query the protocol.
+If fallocate(2) offset is beyond inode size, just return success and do
+nothing further.
 
-Signed-off-by: Yicheng Li <yichengli@chromium.org>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Gwendal Grignou <gwendal@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Otherwise, ocfs2 will crash the kernel.
+
+  kernel BUG at fs/ocfs2//alloc.c:7264!
+   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
+   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
+   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
+   ocfs2_fallocate+0x83/0xa0 [ocfs2]
+   vfs_fallocate+0x148/0x230
+   SyS_fallocate+0x48/0x80
+   do_syscall_64+0x79/0x170
+
+Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec.c           | 30 +++++++++++++++++++++
- include/linux/platform_data/cros_ec_proto.h |  4 +++
- 2 files changed, 34 insertions(+)
+ fs/ocfs2/alloc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/platform/chrome/cros_ec.c b/drivers/platform/chrome/cros_ec.c
-index 6d6ce86a1408a..e5e1bbb270914 100644
---- a/drivers/platform/chrome/cros_ec.c
-+++ b/drivers/platform/chrome/cros_ec.c
-@@ -137,6 +137,24 @@ static int cros_ec_sleep_event(struct cros_ec_device *ec_dev, u8 sleep_event)
- 	return ret;
- }
+diff --git a/fs/ocfs2/alloc.c b/fs/ocfs2/alloc.c
+index 88534eb0e7c2a..3d5b6b989db26 100644
+--- a/fs/ocfs2/alloc.c
++++ b/fs/ocfs2/alloc.c
+@@ -7403,6 +7403,10 @@ int ocfs2_truncate_inline(struct inode *inode, struct buffer_head *di_bh,
+ 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
+ 	struct ocfs2_inline_data *idata = &di->id2.i_data;
  
-+static int cros_ec_ready_event(struct notifier_block *nb,
-+			       unsigned long queued_during_suspend,
-+			       void *_notify)
-+{
-+	struct cros_ec_device *ec_dev = container_of(nb, struct cros_ec_device,
-+						     notifier_ready);
-+	u32 host_event = cros_ec_get_host_event(ec_dev);
++	/* No need to punch hole beyond i_size. */
++	if (start >= i_size_read(inode))
++		return 0;
 +
-+	if (host_event & EC_HOST_EVENT_MASK(EC_HOST_EVENT_INTERFACE_READY)) {
-+		mutex_lock(&ec_dev->lock);
-+		cros_ec_query_all(ec_dev);
-+		mutex_unlock(&ec_dev->lock);
-+		return NOTIFY_OK;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
- /**
-  * cros_ec_register() - Register a new ChromeOS EC, using the provided info.
-  * @ec_dev: Device to register.
-@@ -236,6 +254,18 @@ int cros_ec_register(struct cros_ec_device *ec_dev)
- 		dev_dbg(ec_dev->dev, "Error %d clearing sleep event to ec",
- 			err);
+ 	if (end > i_size_read(inode))
+ 		end = i_size_read(inode);
  
-+	if (ec_dev->mkbp_event_supported) {
-+		/*
-+		 * Register the notifier for EC_HOST_EVENT_INTERFACE_READY
-+		 * event.
-+		 */
-+		ec_dev->notifier_ready.notifier_call = cros_ec_ready_event;
-+		err = blocking_notifier_chain_register(&ec_dev->event_notifier,
-+						      &ec_dev->notifier_ready);
-+		if (err)
-+			return err;
-+	}
-+
- 	dev_info(dev, "Chrome EC device registered\n");
- 
- 	return 0;
-diff --git a/include/linux/platform_data/cros_ec_proto.h b/include/linux/platform_data/cros_ec_proto.h
-index 30098a5515231..e6af1b4a7cbcf 100644
---- a/include/linux/platform_data/cros_ec_proto.h
-+++ b/include/linux/platform_data/cros_ec_proto.h
-@@ -126,6 +126,9 @@ struct cros_ec_command {
-  * @host_event_wake_mask: Mask of host events that cause wake from suspend.
-  * @last_event_time: exact time from the hard irq when we got notified of
-  *     a new event.
-+ * @notifier_ready: The notifier_block to let the kernel re-query EC
-+ *		    communication protocol when the EC sends
-+ *		    EC_HOST_EVENT_INTERFACE_READY.
-  * @ec: The platform_device used by the mfd driver to interface with the
-  *      main EC.
-  * @pd: The platform_device used by the mfd driver to interface with the
-@@ -167,6 +170,7 @@ struct cros_ec_device {
- 	u32 host_event_wake_mask;
- 	u32 last_resume_result;
- 	ktime_t last_event_time;
-+	struct notifier_block notifier_ready;
- 
- 	/* The platform devices used by the mfd driver */
- 	struct platform_device *ec;
 -- 
 2.20.1
 
