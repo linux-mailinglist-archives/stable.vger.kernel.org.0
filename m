@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D37791AED62
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8DB01AECFE
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726079AbgDRNvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 09:51:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55888 "EHLO mail.kernel.org"
+        id S1726721AbgDRNtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 09:49:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726715AbgDRNtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 09:49:07 -0400
+        id S1726722AbgDRNtI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 09:49:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D73E822245;
-        Sat, 18 Apr 2020 13:49:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BDEB22264;
+        Sat, 18 Apr 2020 13:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587217746;
-        bh=0PJdmnhUCsTCwdTxrc85iviAyXqH9RK8DKfgmt6eieQ=;
+        s=default; t=1587217747;
+        bh=Q+1ZS5W6jXT+EKzQgp5O3Yy0jxmJ2fHRHozCR6SdLn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+i2fI3Z0caSNMJPmVE/MZxiXD+uzsKh9Ec+8BHXwq/er1O21KZGFChN5B75w/loz
-         618EKmGXeMT0L15/kK5XKhLVumaUIAcC1z7pKLsglL4/HkzSvZhVn4zktfUhmoSJQm
-         WQGcVK4bvQTQ0kmr+RW3tFduOYNIlSgtJwblqa0I=
+        b=RUSO2epRig3pCJhFjzgutEumObPx9PCdD4qw/p29RcRhi7aV3WhGpOrdRXwUmGsM2
+         WFK6hOXwZze9d6BeCGrnP4woHBLH882wAVwnNF4G8ZP7IEgocCUxe8Px09ki0Nhz8H
+         4bUuwjmdMTctGMD0OgJwRTc/slQswD4EI8usWW00=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ganesh Goudar <ganeshgr@linux.ibm.com>,
-        Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.6 40/73] powerpc/pseries: Fix MCE handling on pseries
-Date:   Sat, 18 Apr 2020 09:47:42 -0400
-Message-Id: <20200418134815.6519-40-sashal@kernel.org>
+Cc:     Jack Zhang <Jack.Zhang1@amd.com>, Nirmoy Das <nirmoy.das@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 41/73] drm/amdkfd: kfree the wrong pointer
+Date:   Sat, 18 Apr 2020 09:47:43 -0400
+Message-Id: <20200418134815.6519-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
 References: <20200418134815.6519-1-sashal@kernel.org>
@@ -45,84 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ganesh Goudar <ganeshgr@linux.ibm.com>
+From: Jack Zhang <Jack.Zhang1@amd.com>
 
-[ Upstream commit a95a0a1654f16366360399574e10efd87e867b39 ]
+[ Upstream commit 3148a6a0ef3cf93570f30a477292768f7eb5d3c3 ]
 
-MCE handling on pSeries platform fails as recent rework to use common
-code for pSeries and PowerNV in machine check error handling tries to
-access per-cpu variables in realmode. The per-cpu variables may be
-outside the RMO region on pSeries platform and needs translation to be
-enabled for access. Just moving these per-cpu variable into RMO region
-did'nt help because we queue some work to workqueues in real mode, which
-again tries to touch per-cpu variables. Also fwnmi_release_errinfo()
-cannot be called when translation is not enabled.
+Originally, it kfrees the wrong pointer for mem_obj.
+It would cause memory leak under stress test.
 
-This patch fixes this by enabling translation in the exception handler
-when all required real mode handling is done. This change only affects
-the pSeries platform.
-
-Without this fix below kernel crash is seen on injecting
-SLB multihit:
-
-BUG: Unable to handle kernel data access on read at 0xc00000027b205950
-Faulting instruction address: 0xc00000000003b7e0
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in: mcetest_slb(OE+) af_packet(E) xt_tcpudp(E) ip6t_rpfilter(E) ip6t_REJECT(E) ipt_REJECT(E) xt_conntrack(E) ip_set(E) nfnetlink(E) ebtable_nat(E) ebtable_broute(E) ip6table_nat(E) ip6table_mangle(E) ip6table_raw(E) ip6table_security(E) iptable_nat(E) nf_nat(E) nf_conntrack(E) nf_defrag_ipv6(E) nf_defrag_ipv4(E) iptable_mangle(E) iptable_raw(E) iptable_security(E) ebtable_filter(E) ebtables(E) ip6table_filter(E) ip6_tables(E) iptable_filter(E) ip_tables(E) x_tables(E) xfs(E) ibmveth(E) vmx_crypto(E) gf128mul(E) uio_pdrv_genirq(E) uio(E) crct10dif_vpmsum(E) rtc_generic(E) btrfs(E) libcrc32c(E) xor(E) zstd_decompress(E) zstd_compress(E) raid6_pq(E) sr_mod(E) sd_mod(E) cdrom(E) ibmvscsi(E) scsi_transport_srp(E) crc32c_vpmsum(E) dm_mod(E) sg(E) scsi_mod(E)
-CPU: 34 PID: 8154 Comm: insmod Kdump: loaded Tainted: G OE 5.5.0-mahesh #1
-NIP: c00000000003b7e0 LR: c0000000000f2218 CTR: 0000000000000000
-REGS: c000000007dcb960 TRAP: 0300 Tainted: G OE (5.5.0-mahesh)
-MSR: 8000000000001003 <SF,ME,RI,LE> CR: 28002428 XER: 20040000
-CFAR: c0000000000f2214 DAR: c00000027b205950 DSISR: 40000000 IRQMASK: 0
-GPR00: c0000000000f2218 c000000007dcbbf0 c000000001544800 c000000007dcbd70
-GPR04: 0000000000000001 c000000007dcbc98 c008000000d00258 c0080000011c0000
-GPR08: 0000000000000000 0000000300000003 c000000001035950 0000000003000048
-GPR12: 000000027a1d0000 c000000007f9c000 0000000000000558 0000000000000000
-GPR16: 0000000000000540 c008000001110000 c008000001110540 0000000000000000
-GPR20: c00000000022af10 c00000025480fd70 c008000001280000 c00000004bfbb300
-GPR24: c000000001442330 c00800000800000d c008000008000000 4009287a77000510
-GPR28: 0000000000000000 0000000000000002 c000000001033d30 0000000000000001
-NIP [c00000000003b7e0] save_mce_event+0x30/0x240
-LR [c0000000000f2218] pseries_machine_check_realmode+0x2c8/0x4f0
-Call Trace:
-Instruction dump:
-3c4c0151 38429050 7c0802a6 60000000 fbc1fff0 fbe1fff8 f821ffd1 3d42ffaf
-3fc2ffaf e98d0030 394a1150 3bdef530 <7d6a62aa> 1d2b0048 2f8b0063 380b0001
----[ end trace 46fd63f36bbdd940 ]---
-
-Fixes: 9ca766f9891d ("powerpc/64s/pseries: machine check convert to use common event code")
-Reviewed-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Ganesh Goudar <ganeshgr@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200320110119.10207-1-ganeshgr@linux.ibm.com
+Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
+Acked-by: Nirmoy Das <nirmoy.das@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/ras.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platforms/pseries/ras.c
-index 1d7f973c647b3..43710b69e09eb 100644
---- a/arch/powerpc/platforms/pseries/ras.c
-+++ b/arch/powerpc/platforms/pseries/ras.c
-@@ -683,6 +683,17 @@ static int mce_handle_error(struct pt_regs *regs, struct rtas_error_log *errp)
- #endif
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index 2a9e401317353..0d70cb2248fe9 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -1104,9 +1104,9 @@ int kfd_gtt_sa_allocate(struct kfd_dev *kfd, unsigned int size,
+ 	return 0;
  
- out:
-+	/*
-+	 * Enable translation as we will be accessing per-cpu variables
-+	 * in save_mce_event() which may fall outside RMO region, also
-+	 * leave it enabled because subsequently we will be queuing work
-+	 * to workqueues where again per-cpu variables accessed, besides
-+	 * fwnmi_release_errinfo() crashes when called in realmode on
-+	 * pseries.
-+	 * Note: All the realmode handling like flushing SLB entries for
-+	 *       SLB multihit is done by now.
-+	 */
-+	mtmsr(mfmsr() | MSR_IR | MSR_DR);
- 	save_mce_event(regs, disposition == RTAS_DISP_FULLY_RECOVERED,
- 			&mce_err, regs->nip, eaddr, paddr);
+ kfd_gtt_no_free_chunk:
+-	pr_debug("Allocation failed with mem_obj = %p\n", mem_obj);
++	pr_debug("Allocation failed with mem_obj = %p\n", *mem_obj);
+ 	mutex_unlock(&kfd->gtt_sa_lock);
+-	kfree(mem_obj);
++	kfree(*mem_obj);
+ 	return -ENOMEM;
+ }
  
 -- 
 2.20.1
