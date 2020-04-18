@@ -2,86 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B451AF1F5
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 17:59:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7781AF222
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 18:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726207AbgDRP7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 11:59:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35484 "EHLO mail.kernel.org"
+        id S1726456AbgDRQFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 12:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725879AbgDRP7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 11:59:16 -0400
+        id S1726356AbgDRQFP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 12:05:15 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9A4021D93;
-        Sat, 18 Apr 2020 15:59:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FA4821D6C;
+        Sat, 18 Apr 2020 16:05:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587225556;
-        bh=O8f94HeDpm4JmTijCr4uq0+sKI3sW8zSAsz0vBzUv+I=;
+        s=default; t=1587225914;
+        bh=+79zKKa9mRj9oRbdhvmr2gSKJJXOb3Mb8dUaIV+M6Cs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2kAg4H+09BggsxSKZocFIg9nLCgex7eshBqNeakiCy4TU1aF/Y6SNFKUBtz3qW64x
-         D0jTWRPLIpgRcmQA6PB1A/7qgeRs6JGk634o9pSFvPIb3M6prykgs0MQbNfg2A/Cyf
-         d3ocaM9CTsg/kBIC1K4ffaBLvj2XsAFTVxM/NVNU=
-Date:   Sat, 18 Apr 2020 11:59:14 -0400
+        b=X6ZJv3TmqrEvg/+vMmBlwndoplcR3Pt/hZap84wtLh7xGAhXGeDRYZbb90aSL6shg
+         uXjuLdAO+0merbj1i8wLAv3IQB0jinVsTbXQ0Ip+NIFhq3i0JlaVoIYj1C0wK0Xg4e
+         LKCgZZuu9NOCsOrtI/Bq6HolubVAzVm0W/CkaY6E=
+Date:   Sat, 18 Apr 2020 12:05:13 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     maximmi@mellanox.com, saeedm@mellanox.com, tariqt@mellanox.com,
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     gregkh@linuxfoundation.org, tglx@linutronix.de,
         stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] net/mlx5e: Use preactivate hook to set
- the indirection table" failed to apply to 5.6-stable tree
-Message-ID: <20200418155914.GA1809@sasha-vm>
-References: <15872047304089@kroah.com>
+Subject: Re: FAILED: patch "[PATCH] posix-cpu-timers: Store a reference to a
+ pid not a task" failed to apply to 5.6-stable tree
+Message-ID: <20200418160513.GB1809@sasha-vm>
+References: <158720526370190@kroah.com>
+ <871rol3r7v.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <15872047304089@kroah.com>
+In-Reply-To: <871rol3r7v.fsf@x220.int.ebiederm.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Apr 18, 2020 at 12:12:10PM +0200, gregkh@linuxfoundation.org wrote:
+On Sat, Apr 18, 2020 at 07:37:08AM -0500, Eric W. Biederman wrote:
+><gregkh@linuxfoundation.org> writes:
 >
->The patch below does not apply to the 5.6-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
+>> The patch below does not apply to the 5.6-stable tree.
+>> If someone wants it applied there, or to any other stable or longterm
+>> tree, then please email the backport, including the original git commit
+>> id to <stable@vger.kernel.org>.
 >
->thanks,
+>So for anyone who cares the fix I refer to in the commit comment is the
+>workaround that keeps the past implementation from being a real problem.
 >
->greg k-h
+>I just see this as code cleanup so I can remove the old workaround.  The
+>old workaround will cause posix_cpu_timers_exit_group to be called early
+>on particular variants of multi-threaded exec, resulting in the
+>corresponding cpu clock stopping.  So this does represent a real fix.
 >
->------------------ original commit in Linus's tree ------------------
+>However using a cpu timer of another process to signal things in your
+>process is rare, and the case is breaks is only in certain obscure
+>variations of a multi-threaded exec.  Further no one has to my knowledge
+>complained in over a decade.
 >
->From fe867cac9e1967c553e4ac2aece5fc8675258010 Mon Sep 17 00:00:00 2001
->From: Maxim Mikityanskiy <maximmi@mellanox.com>
->Date: Mon, 4 Nov 2019 12:02:14 +0200
->Subject: [PATCH] net/mlx5e: Use preactivate hook to set the indirection table
->
->mlx5e_ethtool_set_channels updates the indirection table before
->switching to the new channels. If the switch fails, the indirection
->table is new, but the channels are old, which is wrong. Fix it by using
->the preactivate hook of mlx5e_safe_switch_channels to update the
->indirection table at the stage when nothing can fail anymore.
->
->As the code that updates the indirection table is now encapsulated into
->a new function, use that function in the attach flow when the driver has
->to reduce the number of channels, and prepare the code for the next
->commit.
->
->Fixes: 85082dba0a ("net/mlx5e: Correctly handle RSS indirection table when changing number of channels")
->Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
->Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
->Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+>If someone sees that fix as important, and something that needs to be
+>backported, it will be easiest to backport my earlier cleanup patches
+>in the same series.
 
-I've grabbed these two dependencies for 5.6, 5.5, 5.4:
+For 5.6, 5.5, and 5.4 it was enough to take:
 
-dca147b3dce5 ("net/mlx5e: Rename hw_modify to preactivate")
-c2c95271f9f3 ("net/mlx5e: Encapsulate updating netdev queues into a function")
+	60f2ceaa8111 ("posix-cpu-timers: Remove unnecessary locking around cpu_clock_sample_group")
 
-Older branches were more complex and still need a backport.
+as a dependency. Based on the commit message there it should be safe so
+I did just that.
+
+For older branches, as you point out, we need quite a few more cleanups,
+so I haven't done that.
 
 -- 
 Thanks,
