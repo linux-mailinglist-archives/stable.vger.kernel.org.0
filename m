@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB8F81AEE50
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:12:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32B071AEE4A
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726725AbgDROM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:12:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38010 "EHLO mail.kernel.org"
+        id S1728120AbgDROMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:12:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726833AbgDROKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:10:09 -0400
+        id S1726846AbgDROKK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:10:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F11B2220A;
-        Sat, 18 Apr 2020 14:10:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7191721D79;
+        Sat, 18 Apr 2020 14:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587219009;
-        bh=b6vwiRyhH7IFsNLU2DodvnOmmbNwKwzQlS9KqINAFUA=;
+        s=default; t=1587219010;
+        bh=T9ctf/OjrEvQnAxPrSzCi8ZBdl86yOCobW5C1jccqD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jruncwRwttrROBiAB9mqI5i1m8Mh2BRavA2XWJK2UMhvHrX0XxkjMaN7HAuMm/vya
-         Dh8Szqu4cBoxMSe/QovD2x7aEzyqlMWMZQTrtY8rfvVEH7oB4A1+/wAY2SoJjqhE2q
-         CTCXoKyhDvykusFhT0ClYk3IO+Ji6SbcMwIVs4qg=
+        b=vuE62ywE0d66pB0vaZs0/koy49AORbaJbTJjglOrejalnC80LOm4hLXmGmUGl7vgu
+         BtcLi6BDN1lU388WWfzoOMQbtyOaN3lcTgLLR+FVIKUVrzA6JFivslhFscv0Ma9HeB
+         cnhGxgMrA/p9H/EL2MTc1siSq52maglMgeby4UPo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 46/75] scsi: lpfc: Fix lockdep error - register non-static key
-Date:   Sat, 18 Apr 2020 10:08:41 -0400
-Message-Id: <20200418140910.8280-46-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.5 47/75] iommu/vt-d: Silence RCU-list debugging warning in dmar_find_atsr()
+Date:   Sat, 18 Apr 2020 10:08:42 -0400
+Message-Id: <20200418140910.8280-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
 References: <20200418140910.8280-1-sashal@kernel.org>
@@ -44,95 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit f861f596714bed06069f1109b89e51f3855c4ddf ]
+[ Upstream commit c6f4ebdeba4cff590594df931ff1ee610c426431 ]
 
-The following lockdep error was reported when unloading the lpfc driver:
+dmar_find_atsr() calls list_for_each_entry_rcu() outside of an RCU read
+side critical section but with dmar_global_lock held. Silence this
+false positive.
 
-  INFO: trying to register non-static key.
-  the code is fine but needs lockdep annotation.
-  turning off the locking correctness validator.
-  ...
-  Call Trace:
-  dump_stack+0x96/0xe0
-  register_lock_class+0x8b8/0x8c0
-  ? lockdep_hardirqs_on+0x190/0x280
-  ? is_dynamic_key+0x150/0x150
-  ? wait_for_completion_interruptible+0x2a0/0x2a0
-  ? wake_up_q+0xd0/0xd0
-  __lock_acquire+0xda/0x21a0
-  ? register_lock_class+0x8c0/0x8c0
-  ? synchronize_rcu_expedited+0x500/0x500
-  ? __call_rcu+0x850/0x850
-  lock_acquire+0xf3/0x1f0
-  ? del_timer_sync+0x5/0xb0
-  del_timer_sync+0x3c/0xb0
-  ? del_timer_sync+0x5/0xb0
-  lpfc_pci_remove_one.cold.102+0x8b7/0x935 [lpfc]
-  ...
+ drivers/iommu/intel-iommu.c:4504 RCU-list traversed in non-reader section!!
+ 1 lock held by swapper/0/1:
+ #0: ffffffff9755bee8 (dmar_global_lock){+.+.}, at: intel_iommu_init+0x1a6/0xe19
 
-Unloading the driver resulted in a call to del_timer_sync for the
-cpuhp_poll_timer. However the call to setup the timer had never been made,
-so the timer structures used by lockdep checking were not initialized.
+ Call Trace:
+  dump_stack+0xa4/0xfe
+  lockdep_rcu_suspicious+0xeb/0xf5
+  dmar_find_atsr+0x1ab/0x1c0
+  dmar_parse_one_atsr+0x64/0x220
+  dmar_walk_remapping_entries+0x130/0x380
+  dmar_table_init+0x166/0x243
+  intel_iommu_init+0x1ab/0xe19
+  pci_iommu_init+0x1a/0x44
+  do_one_initcall+0xae/0x4d0
+  kernel_init_freeable+0x412/0x4c5
+  kernel_init+0x19/0x193
 
-Unconditionally call setup_timer for the cpuhp_poll_timer during driver
-initialization. Calls to start the timer remain "as needed".
-
-Link: https://lore.kernel.org/r/20200322181304.37655-3-jsmart2021@gmail.com
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_init.c | 5 ++---
- drivers/scsi/lpfc/lpfc_sli.c  | 6 ++----
- 2 files changed, 4 insertions(+), 7 deletions(-)
+ drivers/iommu/intel-iommu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index d4a90bec93899..42ce31a8fb3c1 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -11209,11 +11209,9 @@ static void lpfc_cpuhp_add(struct lpfc_hba *phba)
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 87cd68a4e5eab..8e5d6732b48d2 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -4359,7 +4359,8 @@ static struct dmar_atsr_unit *dmar_find_atsr(struct acpi_dmar_atsr *atsr)
+ 	struct dmar_atsr_unit *atsru;
+ 	struct acpi_dmar_atsr *tmp;
  
- 	rcu_read_lock();
- 
--	if (!list_empty(&phba->poll_list)) {
--		timer_setup(&phba->cpuhp_poll_timer, lpfc_sli4_poll_hbtimer, 0);
-+	if (!list_empty(&phba->poll_list))
- 		mod_timer(&phba->cpuhp_poll_timer,
- 			  jiffies + msecs_to_jiffies(LPFC_POLL_HB));
--	}
- 
- 	rcu_read_unlock();
- 
-@@ -13179,6 +13177,7 @@ lpfc_pci_probe_one_s4(struct pci_dev *pdev, const struct pci_device_id *pid)
- 	lpfc_sli4_ras_setup(phba);
- 
- 	INIT_LIST_HEAD(&phba->poll_list);
-+	timer_setup(&phba->cpuhp_poll_timer, lpfc_sli4_poll_hbtimer, 0);
- 	cpuhp_state_add_instance_nocalls(lpfc_cpuhp_state, &phba->cpuhp);
- 
- 	return 0;
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 909554c7c1273..409d54e05302f 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -14448,12 +14448,10 @@ static inline void lpfc_sli4_add_to_poll_list(struct lpfc_queue *eq)
- {
- 	struct lpfc_hba *phba = eq->phba;
- 
--	if (list_empty(&phba->poll_list)) {
--		timer_setup(&phba->cpuhp_poll_timer, lpfc_sli4_poll_hbtimer, 0);
--		/* kickstart slowpath processing for this eq */
-+	/* kickstart slowpath processing if needed */
-+	if (list_empty(&phba->poll_list))
- 		mod_timer(&phba->cpuhp_poll_timer,
- 			  jiffies + msecs_to_jiffies(LPFC_POLL_HB));
--	}
- 
- 	list_add_rcu(&eq->_poll_list, &phba->poll_list);
- 	synchronize_rcu();
+-	list_for_each_entry_rcu(atsru, &dmar_atsr_units, list) {
++	list_for_each_entry_rcu(atsru, &dmar_atsr_units, list,
++				dmar_rcu_check()) {
+ 		tmp = (struct acpi_dmar_atsr *)atsru->hdr;
+ 		if (atsr->segment != tmp->segment)
+ 			continue;
 -- 
 2.20.1
 
