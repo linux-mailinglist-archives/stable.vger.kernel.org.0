@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6D01AEE08
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:12:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 520A31AEE42
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726913AbgDROKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:10:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38304 "EHLO mail.kernel.org"
+        id S1726988AbgDROL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726904AbgDROKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:10:17 -0400
+        id S1726909AbgDROKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:10:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C04AF21D6C;
-        Sat, 18 Apr 2020 14:10:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7E1E21D79;
+        Sat, 18 Apr 2020 14:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587219017;
-        bh=OieE0ed45h2bHXoLy6uX/VfWnlGezWHdPFYyZXS+NWM=;
+        s=default; t=1587219018;
+        bh=/xdDyhpMsSbsCHdP6i4AtMBNInOW9/PEpb0r4nmGPz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlXmOckxByTE4raphNWGYGtqYNdnYcosoDsCIrq01gtsTs4+nCRuyxlEQMDOe6oqY
-         R7uYUG13Dx/0GZCCz9gcLJMUu/Vznbga7BvVxFy6LDmq6c6wmadYnKpovdhORkmjKO
-         aEBPrjmtn7H3JXFRJq/kQPQ2GnZ6cTUvD1HaNi0k=
+        b=BV2rNPp0sWZxkFXhpI50ig1FMcM0iQ4vWDMmqcLxdElSGNIEGl5YxSNL4XdR3++FL
+         jUqY9eEb4+uELw168K/mXoFx+ZGacJrnURD+Kux5jYT6aFZxVnWCDdNLFmjEmfSWBU
+         VomVNvJcl1b7LY68Vw9PDB2cLRpmQ6OeFBPeKn40=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.5 53/75] ALSA: hda: Add driver blacklist
-Date:   Sat, 18 Apr 2020 10:08:48 -0400
-Message-Id: <20200418140910.8280-53-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 54/75] ALSA: hda/realtek - Add quirk for MSI GL63
+Date:   Sat, 18 Apr 2020 10:08:49 -0400
+Message-Id: <20200418140910.8280-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
 References: <20200418140910.8280-1-sashal@kernel.org>
@@ -44,63 +44,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 3c6fd1f07ed03a04debbb9a9d782205f1ef5e2ab ]
+[ Upstream commit 1d3aa4a5516d2e4933fe3cca11d3349ef63bc547 ]
 
-The recent AMD platform exposes an HD-audio bus but without any actual
-codecs, which is internally tied with a USB-audio device, supposedly.
-It results in "no codecs" error of HD-audio bus driver, and it's
-nothing but a waste of resources.
+MSI GL63 laptop requires the similar quirk like other MSI models,
+ALC1220_FIXUP_CLEVO_P950.  The board BIOS doesn't provide a PCI SSID
+for the device, hence we need to take the codec SSID (1462:1275)
+instead.
 
-This patch introduces a static blacklist table for skipping such a
-known bogus PCI SSID entry.  As of writing this patch, the known SSIDs
-are:
-* 1043:874f - ASUS ROG Zenith II / Strix
-* 1462:cb59 - MSI TRX40 Creator
-* 1462:cb60 - MSI TRX40
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206543
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207157
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200408140449.22319-2-tiwai@suse.de
+Link: https://lore.kernel.org/r/20200408135645.21896-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ sound/pci/hda/patch_realtek.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 9d3b28bcba9b4..d2d5a19bdecce 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2074,6 +2074,17 @@ static void pcm_mmap_prepare(struct snd_pcm_substream *substream,
- #endif
- }
- 
-+/* Blacklist for skipping the whole probe:
-+ * some HD-audio PCI entries are exposed without any codecs, and such devices
-+ * should be ignored from the beginning.
-+ */
-+static const struct snd_pci_quirk driver_blacklist[] = {
-+	SND_PCI_QUIRK(0x1043, 0x874f, "ASUS ROG Zenith II / Strix", 0),
-+	SND_PCI_QUIRK(0x1462, 0xcb59, "MSI TRX40 Creator", 0),
-+	SND_PCI_QUIRK(0x1462, 0xcb60, "MSI TRX40", 0),
-+	{}
-+};
-+
- static const struct hda_controller_ops pci_hda_ops = {
- 	.disable_msi_reset_irq = disable_msi_reset_irq,
- 	.pcm_mmap_prepare = pcm_mmap_prepare,
-@@ -2090,6 +2101,11 @@ static int azx_probe(struct pci_dev *pci,
- 	bool schedule_probe;
- 	int err;
- 
-+	if (snd_pci_quirk_lookup(pci, driver_blacklist)) {
-+		dev_info(&pci->dev, "Skipping the blacklisted device\n");
-+		return -ENODEV;
-+	}
-+
- 	if (dev >= SNDRV_CARDS)
- 		return -ENODEV;
- 	if (!enable[dev]) {
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index f44d8e2589337..62eac992ebd55 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2449,6 +2449,7 @@ static const struct snd_pci_quirk alc882_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1462, 0x1275, "MSI-GL63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x7350, "MSI-7350", ALC889_FIXUP_CD),
 -- 
 2.20.1
 
