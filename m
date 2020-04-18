@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 916DD1AF101
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 715601AF0F2
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:54:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728498AbgDROxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:53:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51630 "EHLO mail.kernel.org"
+        id S1726651AbgDROmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728197AbgDROl5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:41:57 -0400
+        id S1728203AbgDROl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:41:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B364321D82;
-        Sat, 18 Apr 2020 14:41:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E68D222202;
+        Sat, 18 Apr 2020 14:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220916;
-        bh=Z7KdvEPwnuQWnkjL+BM3WAvJLHQISfNthr7UMBLVDas=;
+        s=default; t=1587220917;
+        bh=djjlQD49nGvDfZ8Xq1ihlGnvcW0C3lWCW9SYDIgq2iU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhJn0kgWvOGuMa0Y3i8mg2lj+N7vhFiskwT84YvqTvf8d87lrrqJAKIWY42yt0bp9
-         OGb1blYhCze6nj9/uyo2OO8KTeSHGQrhgs+lvqCk1JQdthJXs+488Z1HyEK1VPSK6F
-         wxIu7Qe4HU2q8q+0PhptOW4ygj8qQU+R7hQdyOC4=
+        b=mL/yr2uOieaHOcd1REISd79RdjQiP2WtNYfjyXOZHSk3bqO0yHK79zZTajdeQGXgR
+         Lx/0VpoT2diyUSlNFlEjkiPawfquKMzBpLlx5tALZ95RmrJmPVQFob2HDv/YzeO7L4
+         jydrVag8if3mGHpboezLiiiwevv4WsVfclyVn+kM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 55/78] KVM: s390: vsie: Fix delivery of addressing exceptions
-Date:   Sat, 18 Apr 2020 10:40:24 -0400
-Message-Id: <20200418144047.9013-55-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 56/78] ASoC: Intel: bytcr_rt5640: Add quirk for MPMAN MPWIN895CL tablet
+Date:   Sat, 18 Apr 2020 10:40:25 -0400
+Message-Id: <20200418144047.9013-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
 References: <20200418144047.9013-1-sashal@kernel.org>
@@ -45,52 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 ]
+[ Upstream commit c8b78f24c1247b7bd0882885c672d9dec5800bc6 ]
 
-Whenever we get an -EFAULT, we failed to read in guest 2 physical
-address space. Such addressing exceptions are reported via a program
-intercept to the nested hypervisor.
+The MPMAN MPWIN895CL tablet almost fully works with out default settings.
+The only problem is that it has only 1 speaker so any sounds only playing
+on the right channel get lost.
 
-We faked the intercept, we have to return to guest 2. Instead, right
-now we would be returning -EFAULT from the intercept handler, eventually
-crashing the VM.
-the correct thing to do is to return 1 as rc == 1 is the internal
-representation of "we have to go back into g2".
+Add a quirk for this model using the default settings + MONO_SPEAKER.
 
-Addressing exceptions can only happen if the g2->g3 page tables
-reference invalid g2 addresses (say, either a table or the final page is
-not accessible - so something that basically never happens in sane
-environments.
-
-Identified by manual code inspection.
-
-Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[borntraeger@de.ibm.com: fix patch description]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200405133726.24154-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/vsie.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/intel/boards/bytcr_rt5640.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 076090f9e666c..4f6c22d72072a 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1202,6 +1202,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		scb_s->iprcc = PGM_ADDRESSING;
- 		scb_s->pgmilc = 4;
- 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
-+		rc = 1;
- 	}
- 	return rc;
- }
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 243f683bc02a7..e62e1d7815aa9 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -591,6 +591,17 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_SSP0_AIF1 |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{
++		/* MPMAN MPWIN895CL */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "MPMAN"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MPWIN8900CL"),
++		},
++		.driver_data = (void *)(BYTCR_INPUT_DEFAULTS |
++					BYT_RT5640_MONO_SPEAKER |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{	/* MSI S100 tablet */
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Micro-Star International Co., Ltd."),
 -- 
 2.20.1
 
