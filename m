@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D6D1AED95
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:53:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 456CA1AECE4
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 15:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726865AbgDRNws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 09:52:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54894 "EHLO mail.kernel.org"
+        id S1726445AbgDRNsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 09:48:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726240AbgDRNsg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 09:48:36 -0400
+        id S1726456AbgDRNsi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 09:48:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9232422202;
-        Sat, 18 Apr 2020 13:48:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9D9B21D6C;
+        Sat, 18 Apr 2020 13:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587217716;
-        bh=emCtJ33z/m5pfLdFAGdxdHQ4439wBNBlCSZF5CWCU9Y=;
+        s=default; t=1587217717;
+        bh=bBZ0/WEzQteMoUn5HISEL67Z74iHviswZYjpHt3GYhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qm41ULvokLlKS1OQ+dND0L+w+oL4Tta1sixjMVwuCppI4tpsG3Yzh1HLqiSimpwkv
-         DYN4GzNI9qNDwYxYzM0/qiu/NGPpAb/D3hd54CDTejp+Bc0Twq6ZOUvOdqNTUAvAGi
-         iBD0RND7aksie2rzww1mto8fLY/FwVkZZvmRRQj8=
+        b=G0CYP0Hhi2GnuYVLhGzPZMcTtVt2CCLKbY3NYnf8wwOK4SwMVZWPex9voocyK9vYa
+         RpTRU6kaIb9nxtJR1ZfbpFI1hMHwb5Ih0wItXsJLSQUkRH4E7XhLqF2kBcpci8urQX
+         agaCor1aYUje16lAU7bigwCxD6OJimmxJqSC/Pl0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>,
-        Tony Asleson <tasleson@redhat.com>,
-        Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 17/73] nvme-tcp: fix possible crash in write_zeroes processing
-Date:   Sat, 18 Apr 2020 09:47:19 -0400
-Message-Id: <20200418134815.6519-17-sashal@kernel.org>
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.6 18/73] ASoC: qcom: q6asm-dai: Add SNDRV_PCM_INFO_BATCH flag
+Date:   Sat, 18 Apr 2020 09:47:20 -0400
+Message-Id: <20200418134815.6519-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
 References: <20200418134815.6519-1-sashal@kernel.org>
@@ -46,71 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 25e5cb780e62bde432b401f312bb847edc78b432 ]
+[ Upstream commit 7f2430cda819a9ecb1df5a0f3ef4f1c20db3f811 ]
 
-We cannot look at blk_rq_payload_bytes without first checking
-that the request has a mappable physical segments first (e.g.
-blk_rq_nr_phys_segments(rq) != 0) and only then to take the
-request payload bytes. This caused us to send a wrong sgl to
-the target or even dereference a non-existing buffer in case
-we actually got to the data send sequence (if it was in-capsule).
+At the moment, playing audio with PulseAudio with the qdsp6 driver
+results in distorted sound. It seems like its timer-based scheduling
+does not work properly with qdsp6 since setting tsched=0 in
+the PulseAudio configuration avoids the issue.
 
-Reported-by: Tony Asleson <tasleson@redhat.com>
-Suggested-by: Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Apparently this happens when the pointer() callback is not accurate
+enough. There is a SNDRV_PCM_INFO_BATCH flag that can be used to stop
+PulseAudio from using timer-based scheduling by default.
+
+According to https://www.alsa-project.org/pipermail/alsa-devel/2014-March/073816.html:
+
+    The flag is being used in the sense explained in the previous audio
+    meeting -- the data transfer granularity isn't fine enough but aligned
+    to the period size (or less).
+
+q6asm-dai reports the position as multiple of
+
+    prtd->pcm_count = snd_pcm_lib_period_bytes(substream)
+
+so it indeed just a multiple of the period size.
+
+Therefore adding the flag here seems appropriate and makes audio
+work out of the box.
+
+Fixes: 2a9e92d371db ("ASoC: qdsp6: q6asm: Add q6asm dai driver")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200330175210.47518-1-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ sound/soc/qcom/qdsp6/q6asm-dai.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 49d4373b84eb3..00e6aa59954d4 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -164,16 +164,14 @@ static inline bool nvme_tcp_async_req(struct nvme_tcp_request *req)
- static inline bool nvme_tcp_has_inline_data(struct nvme_tcp_request *req)
- {
- 	struct request *rq;
--	unsigned int bytes;
+diff --git a/sound/soc/qcom/qdsp6/q6asm-dai.c b/sound/soc/qcom/qdsp6/q6asm-dai.c
+index c0d422d0ab94f..d7dc80ede8927 100644
+--- a/sound/soc/qcom/qdsp6/q6asm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6asm-dai.c
+@@ -73,7 +73,7 @@ struct q6asm_dai_data {
+ };
  
- 	if (unlikely(nvme_tcp_async_req(req)))
- 		return false; /* async events don't have a request */
+ static const struct snd_pcm_hardware q6asm_dai_hardware_capture = {
+-	.info =                 (SNDRV_PCM_INFO_MMAP |
++	.info =                 (SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_BATCH |
+ 				SNDRV_PCM_INFO_BLOCK_TRANSFER |
+ 				SNDRV_PCM_INFO_MMAP_VALID |
+ 				SNDRV_PCM_INFO_INTERLEAVED |
+@@ -95,7 +95,7 @@ static const struct snd_pcm_hardware q6asm_dai_hardware_capture = {
+ };
  
- 	rq = blk_mq_rq_from_pdu(req);
--	bytes = blk_rq_payload_bytes(rq);
- 
--	return rq_data_dir(rq) == WRITE && bytes &&
--		bytes <= nvme_tcp_inline_data_size(req->queue);
-+	return rq_data_dir(rq) == WRITE && req->data_len &&
-+		req->data_len <= nvme_tcp_inline_data_size(req->queue);
- }
- 
- static inline struct page *nvme_tcp_req_cur_page(struct nvme_tcp_request *req)
-@@ -2090,7 +2088,9 @@ static blk_status_t nvme_tcp_map_data(struct nvme_tcp_queue *queue,
- 
- 	c->common.flags |= NVME_CMD_SGL_METABUF;
- 
--	if (rq_data_dir(rq) == WRITE && req->data_len &&
-+	if (!blk_rq_nr_phys_segments(rq))
-+		nvme_tcp_set_sg_null(c);
-+	else if (rq_data_dir(rq) == WRITE &&
- 	    req->data_len <= nvme_tcp_inline_data_size(queue))
- 		nvme_tcp_set_sg_inline(queue, c, req->data_len);
- 	else
-@@ -2117,7 +2117,8 @@ static blk_status_t nvme_tcp_setup_cmd_pdu(struct nvme_ns *ns,
- 	req->data_sent = 0;
- 	req->pdu_len = 0;
- 	req->pdu_sent = 0;
--	req->data_len = blk_rq_payload_bytes(rq);
-+	req->data_len = blk_rq_nr_phys_segments(rq) ?
-+				blk_rq_payload_bytes(rq) : 0;
- 	req->curr_bio = rq->bio;
- 
- 	if (rq_data_dir(rq) == WRITE &&
+ static struct snd_pcm_hardware q6asm_dai_hardware_playback = {
+-	.info =                 (SNDRV_PCM_INFO_MMAP |
++	.info =                 (SNDRV_PCM_INFO_MMAP | SNDRV_PCM_INFO_BATCH |
+ 				SNDRV_PCM_INFO_BLOCK_TRANSFER |
+ 				SNDRV_PCM_INFO_MMAP_VALID |
+ 				SNDRV_PCM_INFO_INTERLEAVED |
 -- 
 2.20.1
 
