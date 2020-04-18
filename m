@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5934D1AF0E9
-	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B85041AF0EC
+	for <lists+stable@lfdr.de>; Sat, 18 Apr 2020 16:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728112AbgDROlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Apr 2020 10:41:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51310 "EHLO mail.kernel.org"
+        id S1728132AbgDROlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Apr 2020 10:41:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728107AbgDROlq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:41:46 -0400
+        id S1728119AbgDROls (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:41:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23D7D21D6C;
-        Sat, 18 Apr 2020 14:41:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2E9B21D79;
+        Sat, 18 Apr 2020 14:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587220906;
-        bh=B7l1JhQD7sZsRdFdz7Xv7IUnTyzfxeDDq7bjoIlTKh0=;
+        s=default; t=1587220907;
+        bh=ePMzA8G+GUVMHaLdyeNb6FpdBQ2qidUTn/hjMaGktEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OT8wmrHC5gyMzn9IMd3AK51ZwD4LAUPtQAfh6i1hGEwdCFO2DpMdTQHgR+iG/cc+q
-         6DO0dfdQIcVoNRvGW2z45gy/ubrxDQfULDVHZv/64Tl1AfLzrXbC9mRWgJ8dzIAik9
-         GNehTACRevGpTMT2oYZhJPP6WHvrV+DcqRBchGKw=
+        b=so0SMLZsPK9hd/SEk70kuQMha3DA7+VsEQYkLXu1fi9FC+WL+XljZ8/vKy4TM+ofI
+         owMWd8YpcWXC+69o29oKP+r0CNbNfNwjcjZXjdKeucGS4XNSBBS06PLi1VErfLDJbO
+         2j0RrGSxxlhQWH1LQVULrmQY3HiqDeOKxC2njXU8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Changwei Ge <chge@linux.alibaba.com>,
+Cc:     Simon Gander <simon@tuxera.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
-Subject: [PATCH AUTOSEL 5.4 46/78] ocfs2: no need try to truncate file beyond i_size
-Date:   Sat, 18 Apr 2020 10:40:15 -0400
-Message-Id: <20200418144047.9013-46-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 47/78] hfsplus: fix crash and filesystem corruption when deleting files
+Date:   Sat, 18 Apr 2020 10:40:16 -0400
+Message-Id: <20200418144047.9013-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
 References: <20200418144047.9013-1-sashal@kernel.org>
@@ -50,61 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changwei Ge <chge@linux.alibaba.com>
+From: Simon Gander <simon@tuxera.com>
 
-[ Upstream commit 783fda856e1034dee90a873f7654c418212d12d7 ]
+[ Upstream commit 25efb2ffdf991177e740b2f63e92b4ec7d310a92 ]
 
-Linux fallocate(2) with FALLOC_FL_PUNCH_HOLE mode set, its offset can
-exceed the inode size.  Ocfs2 now doesn't allow that offset beyond inode
-size.  This restriction is not necessary and violates fallocate(2)
-semantics.
+When removing files containing extended attributes, the hfsplus driver may
+remove the wrong entries from the attributes b-tree, causing major
+filesystem damage and in some cases even kernel crashes.
 
-If fallocate(2) offset is beyond inode size, just return success and do
-nothing further.
+To remove a file, all its extended attributes have to be removed as well.
+The driver does this by looking up all keys in the attributes b-tree with
+the cnid of the file.  Each of these entries then gets deleted using the
+key used for searching, which doesn't contain the attribute's name when it
+should.  Since the key doesn't contain the name, the deletion routine will
+not find the correct entry and instead remove the one in front of it.  If
+parent nodes have to be modified, these become corrupt as well.  This
+causes invalid links and unsorted entries that not even macOS's fsck_hfs
+is able to fix.
 
-Otherwise, ocfs2 will crash the kernel.
+To fix this, modify the search key before an entry is deleted from the
+attributes b-tree by copying the found entry's key into the search key,
+therefore ensuring that the correct entry gets removed from the tree.
 
-  kernel BUG at fs/ocfs2//alloc.c:7264!
-   ocfs2_truncate_inline+0x20f/0x360 [ocfs2]
-   ocfs2_remove_inode_range+0x23c/0xcb0 [ocfs2]
-   __ocfs2_change_file_space+0x4a5/0x650 [ocfs2]
-   ocfs2_fallocate+0x83/0xa0 [ocfs2]
-   vfs_fallocate+0x148/0x230
-   SyS_fallocate+0x48/0x80
-   do_syscall_64+0x79/0x170
-
-Signed-off-by: Changwei Ge <chge@linux.alibaba.com>
+Signed-off-by: Simon Gander <simon@tuxera.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200407082754.17565-1-chge@linux.alibaba.com
+Link: http://lkml.kernel.org/r/20200327155541.1521-1-simon@tuxera.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/alloc.c | 4 ++++
+ fs/hfsplus/attributes.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/fs/ocfs2/alloc.c b/fs/ocfs2/alloc.c
-index f9baefc76cf9b..0a6fe7d5aba74 100644
---- a/fs/ocfs2/alloc.c
-+++ b/fs/ocfs2/alloc.c
-@@ -7403,6 +7403,10 @@ int ocfs2_truncate_inline(struct inode *inode, struct buffer_head *di_bh,
- 	struct ocfs2_dinode *di = (struct ocfs2_dinode *)di_bh->b_data;
- 	struct ocfs2_inline_data *idata = &di->id2.i_data;
+diff --git a/fs/hfsplus/attributes.c b/fs/hfsplus/attributes.c
+index e6d554476db41..eeebe80c6be4a 100644
+--- a/fs/hfsplus/attributes.c
++++ b/fs/hfsplus/attributes.c
+@@ -292,6 +292,10 @@ static int __hfsplus_delete_attr(struct inode *inode, u32 cnid,
+ 		return -ENOENT;
+ 	}
  
-+	/* No need to punch hole beyond i_size. */
-+	if (start >= i_size_read(inode))
-+		return 0;
++	/* Avoid btree corruption */
++	hfs_bnode_read(fd->bnode, fd->search_key,
++			fd->keyoffset, fd->keylength);
 +
- 	if (end > i_size_read(inode))
- 		end = i_size_read(inode);
- 
+ 	err = hfs_brec_remove(fd);
+ 	if (err)
+ 		return err;
 -- 
 2.20.1
 
